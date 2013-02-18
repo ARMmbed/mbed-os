@@ -1,0 +1,6 @@
+{
+    "targets": {
+        "LPC1768": ["ARM", "GCC_ARM"],
+        "LPC11U24": ["uARM"]
+    }
+}
