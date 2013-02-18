@@ -86,7 +86,7 @@ if __name__ == '__main__':
         if options.disk:
             # Simple copy to the mbed disk
             copy(bin, options.disk)
-            sleep(1)
+            sleep(2)
         
         if options.serial:
             serial = Serial(options.serial, timeout = 1)
