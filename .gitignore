@@ -1,5 +1,8 @@
 *.py[cod]
 
+# Private settings
+private_settings.py
+
 # C extensions
 *.so
 
