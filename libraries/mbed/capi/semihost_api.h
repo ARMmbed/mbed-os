@@ -43,7 +43,7 @@ inline int __semihost(int reason, const void *arg) {
 #   define AngelSWIAsm          swi
 #endif
 
-inline int __semihost(int reason, const void *arg) {
+static inline int __semihost(int reason, const void *arg) {
     int value;
 
     asm volatile (
