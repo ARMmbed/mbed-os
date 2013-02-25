@@ -77,8 +77,4 @@ void *_sbrk(unsigned int incr) {
     return mem;
 }
 
-int _isatty(int file) {
-    return (file < 3) ? 1 : 0;
-}
-
 }
