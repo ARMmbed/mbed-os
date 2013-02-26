@@ -18,6 +18,7 @@ MBED_RPC = join(MBED_BASE, "rpc")
 # Vendors directories
 VENDOR = join(MBED_BASE, "vendor")
 NXP = join(VENDOR, "NXP")
+FREESCALE = join(VENDOR, "Freescale")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 

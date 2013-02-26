@@ -25,6 +25,10 @@ MUTs = {
         "port":"COM43", "disk":'G:\\',
         "peripherals":  ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
     },
+    "4" : {"mcu": "KL25Z",
+        "port":"COM44", "disk":'H:\\',
+        "peripherals":  ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
+    },
 }
 
 # ARM

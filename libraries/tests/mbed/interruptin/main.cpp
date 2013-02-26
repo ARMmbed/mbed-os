@@ -9,8 +9,15 @@ void in_handler() {
     led2 = !led2;
 }
 
+#if defined(TARGET_KL25Z)
+#define PIN_OUT     PTC7
+#define PIN_IN      PTA1
+
+#else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
+
+#endif
 
 DigitalOut out(PIN_OUT);
 InterruptIn in(PIN_IN);

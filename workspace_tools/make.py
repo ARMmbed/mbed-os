@@ -86,9 +86,17 @@ if __name__ == '__main__':
         if options.disk:
             # Simple copy to the mbed disk
             copy(bin, options.disk)
-            sleep(2)
         
         if options.serial:
+            if options.mcu == "M0+":
+                # In the Freedom Board we do not have a flash disk where to store
+                # the image, we write it directly on the target chip, therefore
+                # we need to disconnect the interface: wait for the device to
+                # enumerate again
+                copy_time = 4
+            else:
+                copy_time = 1.5 
+            sleep(copy_time)
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
                 serial.setBaudrate(options.baud)

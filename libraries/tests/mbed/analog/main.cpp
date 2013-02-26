@@ -1,7 +1,14 @@
 #include "test_env.h"
 
+#if defined(TARGET_KL25Z)
+AnalogIn in(PTC1);
+AnalogOut out(PTE30);
+
+#else
 AnalogIn in(p17);
 AnalogOut out(p18);
+
+#endif
 
 #define ERROR_TOLLERANCE    0.05
 

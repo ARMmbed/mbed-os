@@ -1,0 +1,15 @@
+{
+    "ARM": {
+        "remove_options": ["--gnu"]
+    },
+    "uARM" : {
+        "remove_options": ["--gnu"]
+    },
+    "objects": [
+        "startup_MKL25Z4.o",
+        "sys.o",
+        "cmsis_nvic.o",
+        "core_cm0.o",
+        "system_MKL25Z4.o"
+    ]
+}

@@ -5,7 +5,7 @@ from os.path import basename
 class Uvision4(Exporter):
     NAME = 'uVision4'
     TOOLCHAIN = 'ARM'
-    TARGETS = ['LPC1768', 'LPC11U24']
+    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z']
     FILE_TYPES = {
         'c_sources':'1',
         'cpp_sources':'8',
@@ -31,8 +31,6 @@ class Uvision4(Exporter):
         }
         target = self.target.lower()
         
-        print source_files
-                
         # Project file
         self.gen_file('uvision4_%s.uvproj.tmpl' % target, ctx, '%s.uvproj' % self.program_name)
         

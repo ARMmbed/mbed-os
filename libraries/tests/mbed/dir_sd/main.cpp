@@ -50,7 +50,11 @@ void test_close(FILE* f) {
 }
 
 int main() {
+#if defined(TARGET_KL25Z)
+    SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+#else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
+#endif
     
     FILE *f;
     char* str = TEST_STRING;

@@ -1,7 +1,11 @@
 #include "test_env.h"
 #include "TMP102.h"
 
+#if defined(TARGET_KL25Z)
+TMP102 temperature(PTC9, PTC8, 0x90);
+#else
 TMP102 temperature(p28, p27, 0x90);
+#endif
 
 int main() {
     float t = temperature.read();

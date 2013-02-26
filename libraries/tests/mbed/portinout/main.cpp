@@ -18,6 +18,14 @@
 #define P2_2    (1 << 0)  // p2.0 -> p26
 #define PORT_2  Port2
 
+#elif defined(TARGET_KL25Z)
+#define P1_1    (1 << 1) // PTA1
+#define P1_2    (1 << 2) // PTA2
+#define PORT_1  PortA
+
+#define P2_1    (1 << 7) // PTC7
+#define P2_2    (1 << 0) // PTC0
+#define PORT_2  PortC
 #endif
 
 #define MASK_1   (P1_1 | P1_2)

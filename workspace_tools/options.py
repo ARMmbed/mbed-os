@@ -8,6 +8,7 @@ TARGET_OPTIONS = {
     "ARM7": "LPC2368",
     "M3": "LPC1768",
     "M0": "LPC11U24",
+    "M0+": "KL25Z",
 }
 TARGETS = TARGET_OPTIONS.values()
 

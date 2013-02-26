@@ -12,24 +12,31 @@ SD = join(TEST_DIR, "sd")
 Wiring:
   * Ground:
     * LPC1*: p1
+    * KL25Z: GND
   
   * Vout
     * LPC1*: p40
+    * KL25Z: P3V3
   
   * TMP102 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
+      * KL25Z: (SDA=PTC9, SCL=PTC8)
   
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * LPC1*: (p5   <-> p25 )
+      * KL25Z: (PTA1 <-> PTC7)
   
   * port_loop (Port(In|Out|InOut)):
       * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
+      * KL25Z: (PTA1 <-> PTC7), (PTA2 <-> PTC0)
   
   * analog_loop (AnalogIn, AnalogOut):
       * LPC1*: (p17   <-> p18 )
+      * KL25Z: (PTE30 <-> PTC2)
   
   * SD (SPI):
       * LPC1*: (mosi=p11 , miso=p12 , sclk=p13 , cs=p14 )
+      * KL25Z: (mosi=PTD2, miso=PTD3, sclk=PTD1, cs=PTD0)
       
   * MMA7660 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
@@ -89,7 +96,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z"]
     },
     {
         "id": "MBED_A9", "description": "MBED: Serial Echo at 115200",

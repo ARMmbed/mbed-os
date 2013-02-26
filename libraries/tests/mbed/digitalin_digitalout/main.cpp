@@ -1,7 +1,15 @@
 #include "test_env.h"
 
+
+#if defined(TARGET_KL25Z)
+DigitalOut out(PTA1);
+DigitalIn   in(PTC7);
+
+#else
 DigitalOut out(p5);
 DigitalIn   in(p25);
+
+#endif
 
 int main() {
     out = 0;

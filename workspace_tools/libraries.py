@@ -19,6 +19,22 @@ LIBRARIES = [
         "supported": DEFAULT_SUPPORT
     },
     
+    # Freescale
+    {
+        "id": "freescale_cmsis",
+        "source_dir": join(FREESCALE, "cmsis"),
+        "build_dir": MBED_LIBRARIES,
+        "supported": DEFAULT_SUPPORT
+    },
+    {
+        "id": "freescale_mbed",
+        "name": "mbed",
+        "source_dir": [join(FREESCALE, "capi"), MBED_CAPI, MBED_CPP],
+        "build_dir": MBED_LIBRARIES,
+        "dependencies": [MBED_LIBRARIES],
+        "supported": DEFAULT_SUPPORT
+    },
+    
     # RTOS libraries
     {
         "id": "rtx",

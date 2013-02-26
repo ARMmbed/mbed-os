@@ -8,7 +8,11 @@ DigitalOut led2(LED2);
 #define SIZE 120
 
 void sd_thread(void const *argument) {
+#if defined(TARGET_KL25Z)
+    SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+#else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
+#endif
     FILE *f = fopen("/sd/out.txt", "w");
     
     // allocate buffers

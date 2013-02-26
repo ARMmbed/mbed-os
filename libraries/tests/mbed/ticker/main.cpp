@@ -13,7 +13,12 @@ void flip_1() {
 
 Ticker flipper_2;
 
-DigitalOut led2(LED2);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24)
+#   define LED_NAME LED2
+#else
+#   define LED_NAME PTE31
+#endif
+DigitalOut led2(LED_NAME);
 int led2_state = 0;
 void flip_2() {
     if (led2_state) {

@@ -2,7 +2,11 @@
 #include "SDFileSystem.h"
 #include "test_env.h"
 
+#if defined(TARGET_KL25Z)
+SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+#else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
+#endif
 
 #define SIZE 120
 
