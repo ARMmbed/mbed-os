@@ -479,7 +479,39 @@ TESTS = [
         "supported": CORTEX_ARM_SUPPORT,
     },
     
-    # Examples
+    # KL25Z
+    {
+        "id": "KL25Z_1", "description": "KL25Z: LPTMR",
+        "source_dir": join(TEST_DIR, "KL25Z", "lptmr"),
+        "dependencies": [MBED_LIBRARIES],
+        "supported": CORTEX_ARM_SUPPORT,
+        "mcu": ["KL25Z"],
+    },
+    {
+        "id": "KL25Z_2", "description": "KL25Z: PIT",
+        "source_dir": join(TEST_DIR, "KL25Z", "pit"),
+        "dependencies": [MBED_LIBRARIES],
+        "supported": CORTEX_ARM_SUPPORT,
+        "mcu": ["KL25Z"],
+    },
+    {
+        "id": "KL25Z_3", "description": "KL25Z: TSI Touch Sensor",
+        "source_dir": join(TEST_DIR, "mbed", "tsi"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'TSI')],
+        "mcu": ["KL25Z"],
+    },
+    {
+        "id": "KL25Z_4", "description": "KL25Z: RTC",
+        "source_dir": join(TEST_DIR, "KL25Z", "rtc"),
+        "dependencies": [MBED_LIBRARIES],
+        "mcu": ["KL25Z"],
+    },
+    {
+        "id": "KL25Z_5", "description": "KL25Z: MMA8451Q accelerometer",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
+        "mcu": ["KL25Z"],
+    },
     {
         "id": "EXAMPLE_1", "description": "/dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
