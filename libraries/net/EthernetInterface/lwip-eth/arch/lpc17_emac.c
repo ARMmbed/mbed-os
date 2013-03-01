@@ -402,6 +402,8 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
 				("lpc_low_level_input: Packet dropped with errors (0x%x)\n",
 				lpc_enetif->prxs[idx].statusinfo));
+			
+			p = NULL;
 		} else {
 			/* A packet is waiting, get length */
 			length = (lpc_enetif->prxs[idx].statusinfo & 0x7FF) + 1;

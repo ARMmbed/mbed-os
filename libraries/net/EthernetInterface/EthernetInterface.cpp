@@ -31,7 +31,8 @@
 /* TCP/IP and Network Interface Initialisation */
 static struct netif lpcNetif;
 
-static char ip_addr[16] = "\0";
+static char mac_addr[19];
+static char ip_addr[17] = "\0";
 static bool use_dhcp = false;
 
 static Semaphore tcpip_inited(0);
@@ -67,14 +68,23 @@ static void init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
     netif_set_status_callback(&lpcNetif, netif_status_callback);
 }
 
+static void set_mac_address(void) {
+    char mac[6];
+    mbed_mac_address(mac);
+    snprintf(mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
 int EthernetInterface::init() {
     use_dhcp = true;
+    set_mac_address();
     init_netif(NULL, NULL, NULL);
     return 0;
 }
 
 int EthernetInterface::init(const char* ip, const char* mask, const char* gateway) {
     use_dhcp = false;
+    
+    set_mac_address();
     strcpy(ip_addr, ip);
     
     ip_addr_t ip_n, mask_n, gateway_n;
@@ -94,7 +104,7 @@ int EthernetInterface::connect(unsigned int timeout_ms) {
     if (use_dhcp) {
         dhcp_start(&lpcNetif);
         
-        // Wait for an IP
+        // Wait for an IP Address
         // -1: error, 0: timeout
         inited = netif_up.wait(timeout_ms);
     } else {
@@ -118,6 +128,10 @@ int EthernetInterface::disconnect() {
     NVIC_DisableIRQ(ENET_IRQn);
     
     return 0;
+}
+
+char* EthernetInterface::getMACAddress() {
+    return mac_addr;
 }
 
 char* EthernetInterface::getIPAddress() {

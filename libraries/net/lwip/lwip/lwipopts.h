@@ -59,6 +59,11 @@
 #define LWIP_DHCP                   1
 #define LWIP_DNS                    1
 
+// Support Multicast
+#include "stdlib.h"
+#define LWIP_IGMP                   1
+#define LWIP_RAND()                 rand()
+
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO            1

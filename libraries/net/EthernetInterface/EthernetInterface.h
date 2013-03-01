@@ -49,10 +49,10 @@ public:
 
   /** Connect
   * Bring the interface up, start DHCP if needed.
-  * \param   timeout_ms  timeout in ms (default: (10)s).
+  * \param   timeout_ms  timeout in ms (default: (15)s).
   * \return 0 on success, a negative number on failure
   */
-  static int connect(unsigned int timeout_ms=10000);
+  static int connect(unsigned int timeout_ms=15000);
   
   /** Disconnect
   * Bring the interface down
@@ -60,6 +60,14 @@ public:
   */
   static int disconnect();
   
+  /** Get the MAC address of your Ethernet interface
+   * \return a pointer to a string containing the MAC address
+   */
+  static char* getMACAddress();
+  
+  /** Get the IP address of your Ethernet interface
+   * \return a pointer to a string containing the IP address
+   */
   static char* getIPAddress();
 };
 

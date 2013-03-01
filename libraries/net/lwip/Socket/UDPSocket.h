@@ -45,6 +45,17 @@ public:
     */
     int bind(int port);
     
+    /** Join the multicast group at the given address
+    \param address  The address of the multicast group
+    \return 0 on success, -1 on failure.
+    */
+    int join_multicast_group(const char* address);
+    
+    /** Set the socket in broadcasting mode
+    \return 0 on success, -1 on failure.
+    */
+    int set_broadcasting(void);
+    
     /** Send a packet to a remote endpoint
     \param remote   The remote endpoint
     \param packet   The packet to be sent

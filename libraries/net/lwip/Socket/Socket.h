@@ -47,6 +47,24 @@ public:
     */
     void set_blocking(bool blocking, unsigned int timeout=1500);
     
+    /** Set socket options
+    \param level     stack level (see: lwip/sockets.h)
+    \param optname   option ID
+    \param optval    option value
+    \param socklen_t length of the option value
+    \return 0 on success, -1 on failure
+    */
+    int set_option(int level, int optname, const void *optval, socklen_t optlen);
+    
+    /** Get socket options
+        \param level     stack level (see: lwip/sockets.h)
+        \param optname   option ID
+        \param optval    buffer pointer where to write the option value
+        \param socklen_t length of the option value
+        \return 0 on success, -1 on failure
+        */
+    int get_option(int level, int optname, void *optval, socklen_t *optlen);
+    
     /** Close the socket file descriptor
      */
     int close();

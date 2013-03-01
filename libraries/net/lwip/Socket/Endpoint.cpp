@@ -18,8 +18,7 @@
 #include "Socket/Socket.h"
 #include "Socket/Endpoint.h"
 #include <cstring>
-
-using std::memset;
+#include <cstdio>
 
 Endpoint::Endpoint()  {
     reset_address();
@@ -27,21 +26,34 @@ Endpoint::Endpoint()  {
 Endpoint::~Endpoint() {}
 
 void Endpoint::reset_address(void) {
-    memset(&_remoteHost, 0, sizeof(struct sockaddr_in));
+    std::memset(&_remoteHost, 0, sizeof(struct sockaddr_in));
     _ipAddress[0] = '\0';
 }
 
+#include "stdio.h"
+
 int Endpoint::set_address(const char* host, const int port) {
-    //Resolve DNS address or populate hard-coded IP address
-    struct hostent *server = ::gethostbyname(host);
-    if (server == NULL)
-        return -1; //Could not resolve address
-    
     reset_address();
     
-    // Set IP address
-    std::memcpy((char*) &_remoteHost.sin_addr.s_addr,
-                (char*) server->h_addr_list[0], server->h_length);
+    // IP Address
+    char address[5];
+    char *p_address = address;
+    
+    // Dot-decimal notation
+    int result = std::sscanf(host, "%3u.%3u.%3u.%3u",
+        (unsigned int*)&address[0], (unsigned int*)&address[1],
+        (unsigned int*)&address[2], (unsigned int*)&address[3]);
+    
+    if (result != 4) {
+        // Resolve address with DNS
+        struct hostent *host_address = lwip_gethostbyname(host);
+        if (host_address == NULL)
+            return -1; //Could not resolve address
+        p_address = (char*)host_address->h_addr_list[0];
+    }
+    std::memcpy((char*)&_remoteHost.sin_addr.s_addr, p_address, 4);
+    
+    // Address family
     _remoteHost.sin_family = AF_INET;
     
     // Set port

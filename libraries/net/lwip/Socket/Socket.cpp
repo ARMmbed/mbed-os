@@ -41,6 +41,14 @@ int Socket::init_socket(int type) {
     return 0;
 }
 
+int Socket::set_option(int level, int optname, const void *optval, socklen_t optlen) {
+    return lwip_setsockopt(_sock_fd, level, optname, optval, optlen);
+}
+
+int Socket::get_option(int level, int optname, void *optval, socklen_t *optlen) {
+    return lwip_getsockopt(_sock_fd, level, optname, optval, optlen);
+}
+
 int Socket::select(struct timeval *timeout, bool read, bool write) {
     fd_set fdSet;
     FD_ZERO(&fdSet);

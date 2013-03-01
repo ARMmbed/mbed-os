@@ -49,6 +49,21 @@ int UDPSocket::bind(int port) {
     return 0;
 }
 
+int UDPSocket::join_multicast_group(const char* address) {
+    struct ip_mreq mreq;
+    
+    // Set up group address 
+    mreq.imr_multiaddr.s_addr = inet_addr(address);
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+    
+    return set_option(IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+}
+
+int UDPSocket::set_broadcasting(void) {
+    int option = 1;
+    return set_option(SOL_SOCKET, SO_BROADCAST, &option, sizeof(option));
+}
+
 // -1 if unsuccessful, else number of bytes written
 int UDPSocket::sendTo(Endpoint &remote, char *packet, int length) {
     if (_sock_fd < 0)

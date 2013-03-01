@@ -55,7 +55,7 @@ public:
     int get_port(void);
 
 protected:
-    char _ipAddress[16];
+    char _ipAddress[17];
     struct sockaddr_in _remoteHost;
 
 };
