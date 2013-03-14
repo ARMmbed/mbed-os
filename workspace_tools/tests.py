@@ -135,6 +135,33 @@ TESTS = [
         "automated": True,
         "peripherals": ["MMA7660"]
     },
+       
+    # Size benchmarks
+    {
+        "id": "BENCHMARK_1", "description": "Benchmark: Size (c environment)",
+        "source_dir": join(BENCHMARKS_DIR, "cenv"),
+        "dependencies": [MBED_LIBRARIES]
+    },
+    {
+        "id": "BENCHMARK_2", "description": "Benchmark: Size (float math)",
+        "source_dir": join(BENCHMARKS_DIR, "float_math"),
+        "dependencies": [MBED_LIBRARIES]
+    },
+    {
+        "id": "BENCHMARK_3", "description": "Benchmark: Size (printf)",
+        "source_dir": join(BENCHMARKS_DIR, "printf"),
+        "dependencies": [MBED_LIBRARIES]
+    },
+    {
+        "id": "BENCHMARK_4", "description": "Benchmark: Size (mbed libs)",
+        "source_dir": join(BENCHMARKS_DIR, "mbed"),
+        "dependencies": [MBED_LIBRARIES]
+    },
+    {
+        "id": "BENCHMARK_5", "description": "Benchmark: Size (all)",
+        "source_dir": join(BENCHMARKS_DIR, "all"),
+        "dependencies": [MBED_LIBRARIES]
+    },
     
     # Not automated MBED tests
     {
@@ -224,39 +251,49 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_17", "description": "MBED: MODSERIAL",
-        "source_dir": join(TEST_DIR, "mbed", "modserial"),
-        "dependencies": [MBED_LIBRARIES, join(TEST_DIR, "MODSERIAL")],
-    },
-    {
-        "id": "MBED_18", "description": "MBED: Serial Interrupt 2",
+        "id": "MBED_17", "description": "MBED: Serial Interrupt 2",
         "source_dir": join(TEST_DIR, "mbed", "serial_interrupt_2"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_19", "description": "MBED: Local FS Directory",
+        "id": "MBED_18", "description": "MBED: Local FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_20", "description": "MBED: SD FS Directory",
+        "id": "MBED_19", "description": "MBED: SD FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
         "dependencies": [MBED_LIBRARIES, SD_FS, FAT_FS],
         "peripherals": ["SD"]
     },
     {
-        "id": "MBED_21", "description": "MBED: InterruptIn 2",
+        "id": "MBED_20", "description": "MBED: InterruptIn 2",
         "source_dir": join(TEST_DIR, "mbed", "interruptin_2"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_22", "description": "MBED: freopen Stream",
+        "id": "MBED_21", "description": "MBED: freopen Stream",
         "source_dir": join(TEST_DIR, "mbed", "freopen"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_23", "description": "MBED: Semihost",
+        "id": "MBED_22", "description": "MBED: Semihost",
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+    },
+    {
+        "id": "MBED_23", "description": "MBED: Ticker 2",
+        "source_dir": join(TEST_DIR, "mbed", "ticker_2"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+    },
+    {
+        "id": "MBED_24", "description": "MBED: Timeout",
+        "source_dir": join(TEST_DIR, "mbed", "timeout"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+    },
+    {
+        "id": "MBED_25", "description": "MBED: Time us",
+        "source_dir": join(TEST_DIR, "mbed", "time_us"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     # CMSIS RTOS tests
@@ -541,6 +578,11 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES],
     },
+    {
+        "id": "EXAMPLE_2", "description": "FS + RTOS",
+        "source_dir": join(TEST_DIR, "mbed", "fs"),
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+    }
 ]
 
 class Test:

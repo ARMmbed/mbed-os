@@ -66,8 +66,8 @@ typedef struct BDT {
 //    * 16 bidirectionnal endpt -> 32 physical endpt
 //    * as there are ODD and EVEN buffer -> 32*2 bdt
 __attribute__((__aligned__(512))) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
-uint8_t endpoint_buffer[(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2][64];
-uint8_t endpoint_buffer_iso[2*2][1023];
+uint8_t * endpoint_buffer[(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2];
+uint8_t * endpoint_buffer_iso[2*2];
 
 static uint8_t set_addr = 0;
 static uint8_t addr = 0;
@@ -199,15 +199,21 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
 
     if ((flags & ISOCHRONOUS) == 0) {
         handshake_flag = USB_ENDPT_EPHSHK_MASK;
-        if (IN_EP(endpoint))
+        if (IN_EP(endpoint)) {
+            endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD )] = (uint8_t *) malloc (64*2);
             buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD )][0];
-        else
+        } else {
+            endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD )] = (uint8_t *) malloc (64*2);
             buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD )][0];
+        }
     } else {
-        if (IN_EP(endpoint))
+        if (IN_EP(endpoint)) {
+            endpoint_buffer_iso[2] = (uint8_t *) malloc (1023*2);
             buf = &endpoint_buffer_iso[2][0];
-        else
+        } else {
+            endpoint_buffer_iso[0] = (uint8_t *) malloc (1023*2);
             buf = &endpoint_buffer_iso[0][0];
+        }
     }
 
     // IN endpt -> device to host (TX)

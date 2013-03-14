@@ -11,7 +11,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
 
 from workspace_tools.toolchains import TARGETS, TOOLCHAINS
-from workspace_tools.options import get_default_options_parser, TARGET_OPTIONS
+from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     
     # Get target list
     if options.mcu:
-        targets = [TARGET_OPTIONS[options.mcu]]
+        targets = [options.mcu]
     else:
         targets = TARGETS
     

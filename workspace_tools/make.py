@@ -12,7 +12,7 @@ from serial import Serial
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
 
-from workspace_tools.options import get_default_options_parser, TARGET_OPTIONS
+from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
-    mcu = TARGET_OPTIONS[options.mcu]
+    mcu = options.mcu
     
     # Toolchain
     if options.tool is None:
@@ -88,11 +88,11 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         
         if options.serial:
-            if options.mcu == "M0+":
-                # In the Freedom Board we do not have a flash disk where to store
-                # the image, we write it directly on the target chip, therefore
-                # we need to disconnect the interface: wait for the device to
-                # enumerate again
+            if options.mcu in ["M0+", "LPC812"]:
+                # We do not have a flash disk where to store the image, we write
+                # it directly on the target chip, therefore we need to
+                # disconnect the interface: wait for the device to enumerate
+                # again
                 copy_time = 4
             else:
                 copy_time = 1.5 

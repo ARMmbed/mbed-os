@@ -24,7 +24,7 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * ARM  -> ARM_STD
   * uARM -> ARM_MICRO
 """
-TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z'])
+TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812'])
 TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC', 'IAR'])
 TYPES = set(['GCC'])
 
@@ -129,6 +129,7 @@ class mbedToolchain:
         "LPC1768" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "LPC11U24": ["__CORTEX_M0", "ARM_MATH_CM0"],
         "KL25Z"   : ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "LPC812"  : ["__CORTEX_M0", "ARM_MATH_CM0"],
     }
     
     def __init__(self, target, notify=None):
@@ -171,7 +172,7 @@ class mbedToolchain:
         for d in dependencies:
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
-            if not exists(d):
+            if not d or not exists(d):
                 return True
             
             if stat(d).st_mtime >= target_mod_time:
@@ -358,12 +359,11 @@ class mbedToolchain:
             self.link(elf, objects, r.libraries, r.lib_dirs, r.linker_script)
         
         if self.need_update(bin, [elf]):
-            self.debug("elf to bin: %s" % (name + '.bin'))
             self.progress("elf2bin", name)
             self.binary(elf, bin)
             
-            if self.target in ['LPC1768', 'LPC11U24', 'LPC2368']:
-                self.debug("patching bin: %s" % (name + '.bin'))
+            if self.target in ['LPC1768', 'LPC11U24', 'LPC2368', 'LPC812']:
+                self.progress("LPC Patch", (name + '.bin'))
             patch(bin)
             
             self.var("compile_succeded", True)
@@ -411,6 +411,7 @@ class ARM(mbedToolchain):
         "LPC2368" : "ARM7TDMI-S",
         "LPC11U24": "Cortex-M0",
         "KL25Z"   : "Cortex-M0",
+        "LPC812"  : "Cortex-M0",
     }
     
     STD_LIB_NAME = "%s.ar"
@@ -494,6 +495,7 @@ class ARM_MICRO(ARM):
         ARM.__init__(self, target, notify)
         
         # Compiler
+        self.asm  += ["-D__MICROLIB"]
         self.cc   += ["--library_type=microlib", "-D__MICROLIB"]
         self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
         
@@ -506,7 +508,7 @@ class ARM_MICRO(ARM):
         if target == "LPC1768":
             self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
         
-        elif target in ["LPC11U24", "KL25Z"]:
+        elif target in ["LPC11U24", "KL25Z", "LPC812"]:
             self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
 
 
@@ -519,6 +521,7 @@ class GCC(mbedToolchain):
         "LPC2368": "arm7tdmi-s",
         "LPC11U24": "cortex-m0",
         "KL25Z": "cortex-m0",
+        "LPC812"  : "cortex-m0",
     }
     
     STD_LIB_NAME = "lib%s.a"
@@ -529,7 +532,7 @@ class GCC(mbedToolchain):
         mbedToolchain.__init__(self, target, notify)
         self.IGNORE_DIR.remove('GCC')
         cpu = ["-mcpu=%s" % GCC_CS.CPU[target]]
-        if target in ["LPC1768", "LPC11U24", "KL25Z"]:
+        if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812"]:
             cpu.append("-mthumb")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:

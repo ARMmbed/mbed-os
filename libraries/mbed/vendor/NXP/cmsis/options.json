@@ -13,9 +13,11 @@
         "system_LPC23xx.o",
         "system_LPC11Uxx.o",
         "system_LPC17xx.o",
+        "system_LPC8xx.o",
         
         "startup_LPC11xx.o",
         "startup_LPC17xx.o",
+        "startup_LPC8xx.o",
         
         "vector_functions.o",
         "vector_realmonitor.o",

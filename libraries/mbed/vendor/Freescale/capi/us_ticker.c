@@ -17,6 +17,19 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
+static void pit_init(void);
+static void lptmr_init(void);
+
+static int us_ticker_inited = 0;
+
+void us_ticker_init(void) {
+    if (us_ticker_inited) return;
+    us_ticker_inited = 1;
+    
+    pit_init();
+    lptmr_init();
+}
+
 /******************************************************************************
  * Timer for us timing.
  * 
@@ -28,10 +41,7 @@
  * the final result by 24.
  * NOTE: The PIT is a countdown timer.
  ******************************************************************************/
-static int us_ticker_running = 0;
-
-static void us_ticker_init(void) {
-    us_ticker_running = 1;
+static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
 
@@ -46,9 +56,9 @@ static void us_ticker_init(void) {
 }
 
 uint32_t us_ticker_read() {
-    if (!us_ticker_running)
+    if (!us_ticker_inited)
         us_ticker_init();
-
+    
     /* To use LTMR64H and LTMR64L, timer 0 and timer 1 need to be chained.
      * To obtain the correct value, first read LTMR64H and then LTMR64L.
      * LTMR64H will have the value of CVAL1 at the time of the first access,
@@ -72,21 +82,8 @@ uint32_t us_ticker_read() {
  * power modes.
  ******************************************************************************/
 static void lptmr_isr(void);
-static void lptmr_irq_handler(void);
-static void us_ticker_set_interrupt(unsigned int timestamp);
 
-static ticker_event_handler event_handler = NULL;
-void us_ticker_set_handler(ticker_event_handler handler) {
-    event_handler = handler;
-}
-
-static uint32_t us_ticker_int_counter = 0;
-static uint16_t us_ticker_int_remainder = 0;
-
-static int lptmr_inited = 0;
-void lptmr_init(void) {
-    lptmr_inited = 1;
-    
+static void lptmr_init(void) {
     /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
     
@@ -101,6 +98,17 @@ void lptmr_init(void) {
     LPTMR0->PSR = LPTMR_PSR_PCS(3);       // OSCERCLK -> 8MHz
     LPTMR0->PSR |= LPTMR_PSR_PRESCALE(2); // divide by 8
 }
+
+void us_ticker_disable_interrupt(void) {
+    LPTMR0->CSR &= ~LPTMR_CSR_TIE_MASK;
+}
+
+void us_ticker_clear_interrupt(void) {
+    // we already clear interrupt in lptmr_isr
+}
+
+static uint32_t us_ticker_int_counter = 0;
+static uint16_t us_ticker_int_remainder = 0;
 
 static void lptmr_set(unsigned short count) {
     /* Reset */
@@ -132,47 +140,16 @@ static void lptmr_isr(void) {
         } else {
             // This function is going to disable the interrupts if there are
             // no other events in the queue
-            lptmr_irq_handler();
+            us_ticker_irq_handler();
         }
     }
 }
 
-static ticker_event_t *head = NULL;
-
-static void lptmr_irq_handler(void) {
-    /* Go through all the pending TimerEvents */
-    while (1) {
-        if (head == NULL) {
-            // There are no more TimerEvents left, so disable matches.
-            LPTMR0->CSR &= ~LPTMR_CSR_TIE_MASK;
-            return;
-        }
-        
-        if ((int)(head->timestamp - us_ticker_read()) <= 0) {
-            // This event was in the past:
-            //      point to the following one and execute its handler
-            ticker_event_t *p = head;
-            head = head->next;
-            if (event_handler != NULL) {
-                event_handler(p->id); // NOTE: the handler can set new events
-            }
-        } else {
-            // This event and the following ones in the list are in the future:
-            //      set it as next interrupt and return
-            us_ticker_set_interrupt(head->timestamp);
-            return;
-        }
-    }
-}
-
-static void us_ticker_set_interrupt(unsigned int timestamp) {
-    if (!lptmr_inited)
-         lptmr_init();
-    
+void us_ticker_set_interrupt(unsigned int timestamp) {
     int delta = (int)(timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past:
-        lptmr_irq_handler();
+        us_ticker_irq_handler();
         return;
     }
     
@@ -185,63 +162,4 @@ static void us_ticker_set_interrupt(unsigned int timestamp) {
         lptmr_set(us_ticker_int_remainder);
         us_ticker_int_remainder = 0;
     }
-}
-
-void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id) {
-    /* disable interrupts for the duration of the function */
-    __disable_irq();
-    
-    // initialise our data
-    obj->timestamp = timestamp;
-    obj->id = id;
-    
-    /* Go through the list until we either reach the end, or find
-       an element this should come before (which is possibly the
-       head). */
-    ticker_event_t *prev = NULL, *p = head;
-    while (p != NULL) {
-        /* check if we come before p */
-        if ((int)(timestamp - p->timestamp) <= 0) {
-            break;
-        }
-        /* go to the next element */
-        prev = p;
-        p = p->next;
-    }
-    /* if prev is NULL we're at the head */
-    if (prev == NULL) {
-        head = obj;
-        us_ticker_set_interrupt(timestamp);
-    } else {
-        prev->next = obj;
-    }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
-    
-    __enable_irq();
-}
-
-void us_ticker_remove_event(ticker_event_t *obj) {
-    __disable_irq();
-    
-    // remove this object from the list
-    if (head == obj) {
-        // first in the list, so just drop me
-        head = obj->next;
-        if (obj->next != NULL) {
-            us_ticker_set_interrupt(head->timestamp);
-        }
-    } else {
-        // find the object before me, then drop me
-        ticker_event_t* p = head;
-        while (p != NULL) {
-            if (p->next == obj) {
-                p->next = obj->next;
-                break;
-            }
-            p = p->next;
-        }
-    }
-    
-    __enable_irq();
 }

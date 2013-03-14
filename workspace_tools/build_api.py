@@ -141,11 +141,13 @@ CHIP_VENDOR = {
     "LPC2368" : "nxp",
     "LPC1768" : "nxp",
     "LPC11U24": "nxp",
+    "LPC812"  : "nxp",
     
     "KL25Z"   : "freescale",
 }
 
 def build_mbed_libs(target, toolchain, verbose=False):
     vendor = CHIP_VENDOR[target]
+    
     for lib_name in ["%s_cmsis"%vendor, "%s_mbed"%vendor]:
         build_lib(lib_name, target, toolchain, verbose=verbose)

@@ -18,8 +18,8 @@ int main() {
     int rc = 0;
     EthernetInterface eth;
     
-    // rc = eth.init(); //Use DHCP
-    rc = eth.init(LOCAL_IP_ADDRESS, NETWORK_MASK, GATEWAY);
+    rc = eth.init(); //Use DHCP
+    // rc = eth.init(LOCAL_IP_ADDRESS, NETWORK_MASK, GATEWAY);
     CHECK(rc, "eth init");
     
     rc = eth.connect();

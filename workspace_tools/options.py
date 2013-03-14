@@ -4,19 +4,19 @@ from workspace_tools.toolchains import *
 
 # Targets and Toolchains
 
-TARGET_OPTIONS = {
-    "ARM7": "LPC2368",
-    "M3": "LPC1768",
-    "M0": "LPC11U24",
-    "M0+": "KL25Z",
-}
-TARGETS = TARGET_OPTIONS.values()
+TARGETS = (
+    "LPC2368",
+    "LPC1768",
+    "LPC11U24",
+    "KL25Z",
+    "LPC812"
+)
 
 def get_default_options_parser():
     parser = OptionParser()
     
     parser.add_option("-m", "--mcu", dest="mcu",
-                  help="build for the given MCU (%s)" % ', '.join(TARGET_OPTIONS.keys()),
+                  help="build for the given MCU (%s)" % ', '.join(TARGETS),
                   metavar="MCU")
     
     parser.add_option("-t", "--tool", dest="tool",

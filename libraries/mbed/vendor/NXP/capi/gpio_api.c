@@ -16,22 +16,37 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-/* PORTING STEP 3a: Implement "gpio_init" */
+static int  gpio_enabled = 0;
+static void gpio_enable(void) {
+    gpio_enabled = 1;
+    
+#if defined(TARGET_LPC2368)
+    LPC_SC->SCS |= 1; // High speed GPIO is enabled on ports 0 and 1
+#elif defined(TARGET_LPC812)
+    /* Enable AHB clock to the GPIO domain. */
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);
+    
+    /* Peripheral reset control to GPIO and GPIO INT, a "1" bring it out of reset. */
+    LPC_SYSCON->PRESETCTRL &= ~(0x1<<10);
+    LPC_SYSCON->PRESETCTRL |=  (0x1<<10);
+#endif
+}
 
 uint32_t gpio_set(PinName pin) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
-#ifdef TARGET_LPC2368
-    LPC_SC->SCS |= 1; // High speed GPIO is enabled on ports 0 and 1
+    int f = 0;
+    
+    if (!gpio_enabled)
+         gpio_enable();
+    
+#if defined(TARGET_LPC11U24)
+    f = ((pin == P0_11) ||
+         (pin == P0_12) ||
+         (pin == P0_13) ||
+         (pin == P0_14)) ? (1) : (0);
 #endif
-    pin_function(pin, 0);
-
-#elif defined(TARGET_LPC11U24)
-    int f = ((pin == P0_11) ||
-             (pin == P0_12) ||
-             (pin == P0_13) ||
-             (pin == P0_14)) ? (1) : (0);
+    
     pin_function(pin, f);
-#endif
+    
     return (1 << ((int)pin & 0x1F));
 }
 
@@ -56,6 +71,12 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_clr = &LPC_GPIO->CLR[port];
     obj->reg_in  = &LPC_GPIO->PIN[port];
     obj->reg_dir = &LPC_GPIO->DIR[port];
+
+#elif defined(TARGET_LPC812)
+    obj->reg_set = &LPC_GPIO_PORT->SET0;
+    obj->reg_clr = &LPC_GPIO_PORT->CLR0;
+    obj->reg_in  = &LPC_GPIO_PORT->PIN0;
+    obj->reg_dir = &LPC_GPIO_PORT->DIR0;
 #endif
 
     gpio_dir(obj, direction);

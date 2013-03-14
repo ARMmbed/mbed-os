@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-PinName parse_pins(const char *str);
-
 typedef struct {
     PinName pin;
     int peripheral;

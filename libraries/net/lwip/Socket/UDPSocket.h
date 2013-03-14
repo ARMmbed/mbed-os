@@ -54,7 +54,7 @@ public:
     /** Set the socket in broadcasting mode
     \return 0 on success, -1 on failure.
     */
-    int set_broadcasting(void);
+    int set_broadcasting(bool broadcast=true);
     
     /** Send a packet to a remote endpoint
     \param remote   The remote endpoint

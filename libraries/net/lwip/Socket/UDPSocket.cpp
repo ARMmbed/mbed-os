@@ -59,8 +59,8 @@ int UDPSocket::join_multicast_group(const char* address) {
     return set_option(IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 }
 
-int UDPSocket::set_broadcasting(void) {
-    int option = 1;
+int UDPSocket::set_broadcasting(bool broadcast) {
+    int option = (broadcast) ? (1) : (0);
     return set_option(SOL_SOCKET, SO_BROADCAST, &option, sizeof(option));
 }
 

@@ -16,8 +16,6 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-/* PORTING STEP 3a: Implement "gpio_init" */
-
 uint32_t gpio_set(PinName pin) {
     pin_function(pin, 1);
     return 1 << ((pin & 0x7F) >> 2);

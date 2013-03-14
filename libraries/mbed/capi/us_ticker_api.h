@@ -33,6 +33,12 @@ typedef struct ticker_event_s {
     struct ticker_event_s *next;
 } ticker_event_t;
 
+void us_ticker_init(void);
+void us_ticker_set_interrupt(unsigned int timestamp);
+void us_ticker_disable_interrupt(void);
+void us_ticker_clear_interrupt(void);
+void us_ticker_irq_handler(void);
+
 void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id);
 void us_ticker_remove_event(ticker_event_t *obj);
 

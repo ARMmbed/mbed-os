@@ -16,12 +16,6 @@
 #include "pinmap.h"
 #include "error.h"
 
-/* PORTING STEP 2:
-   Implement "pin_function" and "pin_mode" to set:
-     * the pin functionality (configuring the multiplexing block)
-     * the pin pullup settings
- */
-
 void pin_function(PinName pin, int function) {
     if (pin == (uint32_t)NC) return;
 

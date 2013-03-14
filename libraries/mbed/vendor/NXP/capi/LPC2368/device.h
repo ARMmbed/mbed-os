@@ -52,6 +52,8 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
+#define DEVICE_ERROR_PATTERN    1
+
 #include "objects.h"
 
 #endif
