@@ -25,7 +25,8 @@ Supported Toolchains and IDEs
 API Documentation
 -----------------
 * [RTOS API](http://mbed.org/handbook/RTOS)
-* [TCP/IP Socket API](http://mbed.org/handbook/Socket)
+* [TCP/IP Socket API](http://mbed.org/handbook/Socket) (Transports: Ethernet, WiFi, 3G)
 * [USB Device API](http://mbed.org/handbook/USBDevice)
 * [USB Host API](http://mbed.org/handbook/USBHost)
 * [Peripheral Drivers API](http://mbed.org/handbook/Homepage)
+* [DSP API](http://mbed.org/users/mbed_official/code/mbed-dsp/docs/tip/)
