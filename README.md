@@ -1,7 +1,16 @@
 mbed
 ====
 
-mbed libraries and tools
+The mbed Software Development Kit (SDK) is a C/C++ microcontroller software platform relied upon by tens of thousands of
+developers to build projects fast.
+
+The SDK is licensed under the permissive Apache 2.0 licence, so you can use it in both commercial and personal projects
+with confidence.
+
+The mbed SDK has been designed to provide enough hardware abstraction to be intuitive and concise, yet powerful enough
+to build complex projects. It is built on the low-level ARM CMSIS APIs, allowing you to code down to the metal if needed.
+In addition to RTOS, USB and Networking libraries, a cookbook of hundreds of reusable peripheral and module libraries
+have been built on top of the SDK by the mbed Developer Community.
 
 * [Tools documentation](http://mbed.org/handbook/mbed-tools): how to setup and use the build system.
 * [mbed library internals](http://mbed.org/handbook/mbed-library-internals) documentation
@@ -29,5 +38,5 @@ API Documentation
 * [USB Device API](http://mbed.org/handbook/USBDevice)
 * [USB Host API](http://mbed.org/handbook/USBHost)
 * [DSP API](http://mbed.org/users/mbed_official/code/mbed-dsp/docs/tip/)
-* Flash File Systems: [SD](http://mbed.org/handbook/SDFileSystem), [semihosted](http://mbed.org/handbook/LocalFileSystem)
+* Flash File Systems: [SD](http://mbed.org/handbook/SDFileSystem), [USB MSD](http://mbed.org/handbook/USBHostMSD), [semihosted](http://mbed.org/handbook/LocalFileSystem)
 * [Peripheral Drivers API](http://mbed.org/handbook/Homepage)
