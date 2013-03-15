@@ -72,15 +72,106 @@ static const PinMap PinMap_UART_RX[] = {
 };
 
 #define UART_NUM    1
+
+#elif defined(TARGET_LPC812)
+
+static const SWM_Map SWM_UART_TX[] = {
+    {0, 0},
+    {1, 8},
+    {2, 16},
+};
+
+static const SWM_Map SWM_UART_RX[] = {
+    {0, 8},
+    {1, 16},
+    {2, 24},
+};
+
+// bit flags for used UARTs
+static unsigned char uart_used = 0;
+static int get_available_uart(void) {
+    for (int i=0; i<3; i++) {
+        if ((uart_used & (1 << i)) == 0)
+            return i;
+    }
+    return -1;
+}
+
+#define UART_EN       (0x01<<0)
+
+#define CTS_DELTA     (0x01<<5)
+#define RXBRK         (0x01<<10)
+#define DELTA_RXBRK   (0x01<<11)
+
+#define RXRDY         (0x01<<0)
+#define TXRDY         (0x01<<2)
+
+static uint32_t UARTSysClk;
 #endif
 
+#ifndef TARGET_LPC812
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
+#endif
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
+    int is_stdio_uart = 0;
+    
+#ifdef TARGET_LPC812
+    int uart_n = get_available_uart();
+    if (uart_n == -1) {
+        error("No available UART");
+    }
+    obj->uart_n = uart_n;
+    obj->uart = (LPC_USART_TypeDef *)(LPC_USART0_BASE + (0x4000 * uart_n));
+    
+    const SWM_Map *swm;
+    uint32_t regVal;
+    
+    swm = &SWM_UART_TX[uart_n];
+    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal |  (tx   << swm->offset);
+    
+    swm = &SWM_UART_RX[uart_n];
+    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal |  (rx   << swm->offset);
+    
+    /* uart clock divided by 1 */
+    LPC_SYSCON->UARTCLKDIV = 1;
+    
+    /* disable uart interrupts */
+    NVIC_DisableIRQ((IRQn_Type)(UART0_IRQn + uart_n));
+    
+    /* Enable UART clock */
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << (14 + uart_n));
+    
+    /* Peripheral reset control to UART, a "1" bring it out of reset. */
+    LPC_SYSCON->PRESETCTRL &= ~(0x1 << (3 + uart_n));
+    LPC_SYSCON->PRESETCTRL |=  (0x1 << (3 + uart_n));
+    
+    UARTSysClk = SystemCoreClock / LPC_SYSCON->UARTCLKDIV;
+    
+    // set default baud rate and format
+    serial_baud  (obj, 9600);
+    serial_format(obj, 8, ParityNone, 1);
+    
+    /* Clear all status bits. */
+    obj->uart->STAT = CTS_DELTA | DELTA_RXBRK;
+    
+    /* enable uart interrupts */
+    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + uart_n));
+    
+    /* Enable UART interrupt */
+    // obj->uart->INTENSET = RXRDY | TXRDY | DELTA_RXBRK;
+    
+    /* Enable UART */
+    obj->uart->CFG |= UART_EN;
+    
+    is_stdio_uart = ((tx == USBTX) && (rx == USBRX));
+#else
     // determine the UART to use
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -145,20 +236,54 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 #endif
     }
 
-    if (uart == STDIO_UART) {
+    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
+#endif
+    
+    if (is_stdio_uart) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
 }
 
 void serial_free(serial_t *obj) {
+#ifdef TARGET_LPC812
+    uart_used &= ~(1 << obj->uart_n);
+#else
     serial_irq_ids[obj->index] = 0;
+#endif
 }
 
 // serial_baud
-//
 // set the baud rate, taking in to account the current SystemFrequency
-//
+void serial_baud(serial_t *obj, int baudrate) {
+#ifdef TARGET_LPC812
+    /* Integer divider:
+         BRG = UARTSysClk/(Baudrate * 16) - 1
+       
+       Frational divider:
+         FRG = ((UARTSysClk / (Baudrate * 16 * (BRG + 1))) - 1)
+       
+       where
+         FRG = (LPC_SYSCON->UARTFRDADD + 1) / (LPC_SYSCON->UARTFRDSUB + 1)
+       
+       (1) The easiest way is set SUB value to 256, -1 encoded, thus SUB
+           register is 0xFF.
+       (2) In ADD register value, depending on the value of UartSysClk,
+           baudrate, BRG register value, and SUB register value, be careful
+           about the order of multiplier and divider and make sure any
+           multiplier doesn't exceed 32-bit boundary and any divider doesn't get
+           down below one(integer 0).
+       (3) ADD should be always less than SUB.
+    */
+    obj->uart->BRG = UARTSysClk / 16 / baudrate - 1;
+    
+    LPC_SYSCON->UARTFRGDIV = 0xFF;
+    LPC_SYSCON->UARTFRGMULT = ( ((UARTSysClk / 16) * (LPC_SYSCON->UARTFRGDIV + 1)) /
+                                (baudrate * (obj->uart->BRG + 1))
+                              ) - (LPC_SYSCON->UARTFRGDIV + 1);
+
+#else
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 // The LPC2300 and LPC1700 have a divider and a fractional divider to control the
 // baud rate. The formula is:
 //
@@ -168,8 +293,6 @@ void serial_free(serial_t *obj) {
 //     0 <= DivAddVal < 14
 //     DivAddVal < MulVal
 //
-void serial_baud(serial_t *obj, int baudrate) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     // set pclk to /1
     switch ((int)obj->uart) {
         case UART_0: LPC_SC->PCLKSEL0 &= ~(0x3 <<  6); LPC_SC->PCLKSEL0 |= (0x1 <<  6); break;
@@ -233,10 +356,38 @@ void serial_baud(serial_t *obj, int baudrate) {
 
     // clear LCR[DLAB]
     obj->uart->LCR &= ~(1 << 7);
+#endif
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    // 5 data bits = 0 ... 8 data bits = 3
+    // 0: 1 stop bits, 1: 2 stop bits
+    if (stop_bits != 1 && stop_bits != 2) {
+        error("Invalid stop bits specified");
+    }
+    stop_bits -= 1;
+    
+#ifdef TARGET_LPC812
+    // 0: 7 data bits ... 2: 9 data bits
+    if (data_bits < 7 || data_bits > 9) {
+        error("Invalid number of bits (%d) in serial format, should be 7..9", data_bits);
+    }
+    data_bits -= 7;
+    
+    int paritysel;
+    switch (parity) {
+        case ParityNone: paritysel = 0; break;
+        case ParityEven: paritysel = 2; break;
+        case ParityOdd : paritysel = 3; break;
+        default:
+            error("Invalid serial parity setting");
+            return;
+    }
+    
+    obj->uart->CFG = (data_bits << 2)
+                   | (paritysel << 4)
+                   | (stop_bits << 6);
+#else
+    // 0: 5 data bits ... 3: 8 data bits
     if (data_bits < 5 || data_bits > 8) {
         error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
     }
@@ -255,25 +406,19 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             return;
     }
 
-    // 1 stop bits = 0, 2 stop bits = 1
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
-    stop_bits -= 1;
-
-    int break_transmission   = 0; // 0 = Disable, 1 = Enable
-    int divisor_latch_access = 0; // 0 = Disable, 1 = Enable
     obj->uart->LCR = data_bits << 0
                    | stop_bits << 2
                    | parity_enable << 3
-                   | parity_select << 4
-                   | break_transmission << 6
-                   | divisor_latch_access << 7;
+                   | parity_select        << 4;
+#endif
 }
 
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
+#ifdef TARGET_LPC812
+
+#else
 static inline void uart_irq(uint32_t iir, uint32_t index) {
     // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
@@ -296,13 +441,21 @@ void uart3_irq() {uart_irq(LPC_UART3->IIR, 3);}
 #elif defined(TARGET_LPC11U24)
 void uart0_irq() {uart_irq(LPC_USART->IIR, 0);}
 #endif
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+#ifdef TARGET_LPC812
+    
+#else
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
+#endif
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+#ifdef TARGET_LPC812
+    
+#else
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
@@ -329,6 +482,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
+#endif
 }
 
 /******************************************************************************
@@ -336,30 +490,54 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
+#ifdef TARGET_LPC812
+    return obj->uart->RXDATA;
+#else
     return obj->uart->RBR;
+#endif
 }
 
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
+#ifdef TARGET_LPC812
+    obj->uart->TXDATA = c;
+#else
     obj->uart->THR = c;
+#endif
 }
 
 int serial_readable(serial_t *obj) {
+#ifdef TARGET_LPC812
+    return obj->uart->STAT & RXRDY;
+#else
     return obj->uart->LSR & 0x01;
+#endif
 }
 
 int serial_writable(serial_t *obj) {
+#ifdef TARGET_LPC812
+    return obj->uart->STAT & TXRDY;
+#else
     return obj->uart->LSR & 0x20;
+#endif
 }
 
 void serial_clear(serial_t *obj) {
+#ifdef TARGET_LPC812
+    // [TODO]
+#else
     obj->uart->FCR = 1 << 1  // rx FIFO reset
                    | 1 << 2  // tx FIFO reset
                    | 0 << 6; // interrupt depth
+#endif
 }
 
 void serial_pinout_tx(PinName tx) {
+#ifdef TARGET_LPC812
+    
+#else
     pinmap_pinout(tx, PinMap_UART_TX);
+#endif
 }
 
 #endif

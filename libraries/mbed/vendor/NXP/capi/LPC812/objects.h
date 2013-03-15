@@ -25,6 +25,11 @@
 extern "C" {
 #endif
 
+struct serial_s {
+    LPC_USART_TypeDef *uart;
+    unsigned char uart_n;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

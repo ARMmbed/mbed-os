@@ -74,6 +74,14 @@ typedef enum {
     OpenDrain = 4
 } PinMode;
 
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
+
+typedef struct {
+    unsigned char n;
+    unsigned char offset;
+} SWM_Map;
+
 #ifdef __cplusplus
 }
 #endif
