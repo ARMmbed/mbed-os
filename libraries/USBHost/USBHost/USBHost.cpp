@@ -423,7 +423,7 @@ void USBHost::freeDevice(USBDeviceConnected * dev)
                 for (int i = 0; i < dev->getInterface(j)->nb_endpoint; i++) {
                     if ((ep = dev->getEndpoint(j, i)) != NULL) {
                         ed = (HCED *)ep->getHCED();
-                        ed->control |= (1 << 13); //sKip bit
+                        ed->control |= (1 << 14); //sKip bit
                         unqueueEndpoint(ep);
 
                         freeTD((volatile uint8_t*)ep->getTDList()[0]);
@@ -851,7 +851,7 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
 
     pEnumerator->setVidPid( data[8] | (data[9] << 8), data[10] | (data[11] << 8) );
 
-    res = getConfigurationDescriptor(dev, data, 400, &total_conf_descr_length);
+    res = getConfigurationDescriptor(dev, data, 300, &total_conf_descr_length);
     if (res != USB_TYPE_OK) {
         usb_mutex.unlock();
         return res;
