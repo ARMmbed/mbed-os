@@ -15,6 +15,7 @@
  */
 #include <stddef.h>
 #include "us_ticker_api.h"
+#include "cmsis.h"
 
 static ticker_event_handler event_handler;
 static ticker_event_t *head = NULL;
