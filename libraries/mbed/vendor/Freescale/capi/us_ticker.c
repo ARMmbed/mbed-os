@@ -69,7 +69,18 @@ uint32_t us_ticker_read() {
     uint64_t ticks;
     ticks  = (uint64_t)PIT->LTMR64H << 32;
     ticks |= (uint64_t)PIT->LTMR64L;
-    ticks  = (~ticks) / 24;
+    
+    // More efficient division by constant integer (24): /8 /3
+    // complement (because count down timer) and divide by 8
+    ticks  = (~ticks) >> 3;
+    
+    // divide by 3
+    if (ticks > 0xFFFFFFFF) {
+        ticks /= 3;
+    } else {
+        ticks = (ticks * 0x55555556) >> 32;
+    }
+    
     return (uint32_t)(0xFFFFFFFF & ticks);
 }
 

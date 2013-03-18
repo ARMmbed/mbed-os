@@ -296,6 +296,12 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "time_us"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
+    {
+        "id": "MBED_26", "description": "MBED: Integer constant division",
+        "source_dir": join(TEST_DIR, "mbed", "div"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+    },
+    
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "CMSIS RTOS: Basic",

@@ -88,7 +88,7 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         
         if options.serial:
-            if options.mcu in ["M0+", "LPC812"]:
+            if options.mcu in ["KL25Z", "LPC812"]:
                 # We do not have a flash disk where to store the image, we write
                 # it directly on the target chip, therefore we need to
                 # disconnect the interface: wait for the device to enumerate
