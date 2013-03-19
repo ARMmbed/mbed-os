@@ -34,27 +34,27 @@ pyOCD relies on external libraries:
     
 * Windows:
     1. [pyWinUSB](https://github.com/rene-aguirre/pywinusb)
-        '''
+        ```
         $ cd /path-to-pywinusb/
         $ python setup.py install
-        '''
+        ```
 * Linux:
     2. [pyUSB](https://github.com/walac/pyusb):
-        '''
+        ```
         $ sudo apt-get install python libusb-1.0-0-dev
         $ cd /path-to-pyusb/
         $ sudo python setup.py install
-        '''
+        ```
 * Mac:
    So far Mac OS X is not supported
     
     
 Installation:
 -------------
-'''
+```
 $ cd /path-to-pyOCD/
 $ python setup.py install
-'''
+```
     
 Examples:
 ---------
@@ -70,7 +70,7 @@ A series of tests are on the test directory:
 
 ## Hello World example:
     
-'''python
+```python
 from pyOCD.board import MbedBoard
 
 import logging
@@ -98,11 +98,11 @@ target.halt()
 print "pc: 0x%X" % target.readCoreRegister("pc")
     pc: 0xAAC
 board.uninit()
-''''
+```
             
 ##GDB server example:
 Python:
-'''python
+```python
 from pyOCD.gdbserver import GDBServer
 from pyOCD.board import MbedBoard
 
@@ -113,16 +113,16 @@ board = MbedBoard.chooseBoard()
 
 # start gdbserver
 gdb = GDBServer(board, 3333)
-'''
+```
 
 gdb server:
-'''
+```
 arm-none-eabi-gdb basic.elf
 
 <gdb> target remote localhost:3333
 <gdb> load
 <gdb> continue
-'''
+```
 
 
 Architecture:
