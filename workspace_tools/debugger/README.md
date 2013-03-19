@@ -28,33 +28,30 @@ What allows this library?
 DEPENDANCIES:
 -------------
 pyOCD relies on external libraries:
-
 * pyOCD has been tested with python 2.7
-* distutils
-    
-* Windows:
-    1. [pyWinUSB](https://github.com/rene-aguirre/pywinusb)
-        ```
-        $ cd /path-to-pywinusb/
-        $ python setup.py install
-        ```
-* Linux:
-    2. [pyUSB](https://github.com/walac/pyusb):
-        ```
-        $ sudo apt-get install python libusb-1.0-0-dev
-        $ cd /path-to-pyusb/
-        $ sudo python setup.py install
-        ```
+* distutils 
+* Windows: [pyWinUSB](https://github.com/rene-aguirre/pywinusb):
+    ```
+    $ cd /path-to-pywinusb/
+    $ python setup.py install
+    ```
+* Linux: [pyUSB](https://github.com/walac/pyusb):
+    ```
+    $ sudo apt-get install python libusb-1.0-0-dev
+    $ cd /path-to-pyusb/
+    $ sudo python setup.py install
+    ```
 * Mac:
-   So far Mac OS X is not supported
+
+    So far Mac OS X is not supported
     
     
 Installation:
 -------------
-```
-$ cd /path-to-pyOCD/
-$ python setup.py install
-```
+
+    $ cd /path-to-pyOCD/
+    $ python setup.py install
+
     
 Examples:
 ---------
@@ -69,60 +66,56 @@ A series of tests are on the test directory:
 * gdb_test.py: launch a gdbserver
 
 ## Hello World example:
-    
-```python
-from pyOCD.board import MbedBoard
 
-import logging
-logging.basicConfig(level=logging.INFO)
+    from pyOCD.board import MbedBoard
 
-board = MbedBoard.chooseBoard()
+    import logging
+    logging.basicConfig(level=logging.INFO)
 
-target = board.target
-flash = board.flash
-target.resume()
-target.halt()
-print "pc: 0x%X" % target.readCoreRegister("pc")
-    pc: 0xA64
-target.step()
-print "pc: 0x%X" % target.readCoreRegister("pc")
-    pc: 0xA30
-target.step()
-print "pc: 0x%X" % target.readCoreRegister("pc")
-    pc: 0xA32
-flash.flashBinary("binaries/l1_lpc1768.bin")
-print "pc: 0x%X" % target.readCoreRegister("pc")
-    pc: 0x10000000
-target.reset()
-target.halt()
-print "pc: 0x%X" % target.readCoreRegister("pc")
-    pc: 0xAAC
-board.uninit()
-```
-            
+    board = MbedBoard.chooseBoard()
+
+    target = board.target
+    flash = board.flash
+    target.resume()
+    target.halt()
+    print "pc: 0x%X" % target.readCoreRegister("pc")
+        pc: 0xA64
+    target.step()
+    print "pc: 0x%X" % target.readCoreRegister("pc")
+        pc: 0xA30
+    target.step()
+    print "pc: 0x%X" % target.readCoreRegister("pc")
+        pc: 0xA32
+    flash.flashBinary("binaries/l1_lpc1768.bin")
+    print "pc: 0x%X" % target.readCoreRegister("pc")
+        pc: 0x10000000
+    target.reset()
+    target.halt()
+    print "pc: 0x%X" % target.readCoreRegister("pc")
+        pc: 0xAAC
+    board.uninit()
+ 
 ##GDB server example:
 Python:
-```python
-from pyOCD.gdbserver import GDBServer
-from pyOCD.board import MbedBoard
 
-import logging
-logging.basicConfig(level=logging.INFO)
+    from pyOCD.gdbserver import GDBServer
+    from pyOCD.board import MbedBoard
+    
+    import logging
+    logging.basicConfig(level=logging.INFO)
 
-board = MbedBoard.chooseBoard()
+    board = MbedBoard.chooseBoard()
 
-# start gdbserver
-gdb = GDBServer(board, 3333)
-```
+    # start gdbserver
+    gdb = GDBServer(board, 3333)
 
 gdb server:
-```
-arm-none-eabi-gdb basic.elf
 
-<gdb> target remote localhost:3333
-<gdb> load
-<gdb> continue
-```
+    arm-none-eabi-gdb basic.elf
+
+    <gdb> target remote localhost:3333
+    <gdb> load
+    <gdb> continue
 
 
 Architecture:
