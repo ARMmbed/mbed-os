@@ -32,26 +32,18 @@ void us_ticker_init(void) {
 
 /******************************************************************************
  * Timer for us timing.
- * 
- * Need to have 32bit resolution, we are using the PIT (2x32bit timers) for
- * that. All the other timers have only 16bit resolution.
- * Unfortunately, the PIT does not have a prescaler, therefore it ticks at the
- * bus clock of (24)MHz.
- * To keep 32bit resolution we are chaining the 2 32bit timers together dividing
- * the final result by 24.
- * NOTE: The PIT is a countdown timer.
  ******************************************************************************/
 static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
 
-    // Timer 1
+    // Channel 1
     PIT->CHANNEL[1].LDVAL = 0xFFFFFFFF;
     PIT->CHANNEL[1].TCTRL = PIT_TCTRL_CHN_MASK;    // Chain to timer 0, disable Interrupts
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
 
-    // Timer 2
-    PIT->CHANNEL[0].LDVAL = 0xFFFFFFFF;
+    // Use channel 0 as a prescaler for channel 1
+    PIT->CHANNEL[0].LDVAL = 23;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
 }
 
@@ -59,31 +51,9 @@ uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
     
-    /* To use LTMR64H and LTMR64L, timer 0 and timer 1 need to be chained.
-     * To obtain the correct value, first read LTMR64H and then LTMR64L.
-     * LTMR64H will have the value of CVAL1 at the time of the first access,
-     * LTMR64L will have the value of CVAL0 at the time of the first access,
-     * therefore the application does not need to worry about carry-over effects
-     * of the running counter.
-     */
-    uint64_t ticks;
-    ticks  = (uint64_t)PIT->LTMR64H << 32;
-    ticks |= (uint64_t)PIT->LTMR64L;
-    
-    // More efficient division by constant integer (24): /8 /3
-    // complement (because count down timer) and divide by 8
-    ticks  = (~ticks) >> 3;
-    
-    // divide by 3
-    if (ticks > 0xFFFFFFFF) {
-        ticks /= 3;
-    } else {
-        ticks = (ticks * 0x55555556) >> 32;
+    // The PIT is a countdown timer
+    return ~(PIT->CHANNEL[1].CVAL);
     }
-    
-    return (uint32_t)(0xFFFFFFFF & ticks);
-}
-
 
 /******************************************************************************
  * Timer Event
