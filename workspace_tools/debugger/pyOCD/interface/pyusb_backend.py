@@ -67,7 +67,7 @@ class PyUSB(Interface):
             #    - if we found a HID interface -> CMSIS-DAP
             for interface in config:
                 if interface.bInterfaceClass == 0x03:
-                    intf_number = interface.bInterfaceClass
+                    intf_number = interface.bInterfaceNumber
                     found = True
                     break
             
