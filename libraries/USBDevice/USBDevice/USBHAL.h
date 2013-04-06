@@ -22,6 +22,10 @@
 #include "mbed.h"
 #include "USBEndpoints.h"
 
+#ifdef __GNUC__
+#define __packed __attribute__ ((__packed__))
+#endif
+
 class USBHAL {
 public:
     /* Configuration */
