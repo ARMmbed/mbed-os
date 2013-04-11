@@ -23,9 +23,16 @@
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #define CHANNEL_NUM     48
+#endif
 
-#elif defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC11U24)
 #define CHANNEL_NUM    8
+#define LPC_GPIO_X LPC_GPIO_PIN_INT
+#define PININT_IRQ 0
+#elif defined(TARGET_LPC812)
+#define CHANNEL_NUM    8
+#define LPC_GPIO_X LPC_PIN_INT
+#define PININT_IRQ PININT0_IRQn
 #endif
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
@@ -79,25 +86,25 @@ static void handle_interrupt_in(void) {
     LPC_GPIOINT->IO2IntClr = mask2;
 }
 
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
 static inline void handle_interrupt_in(uint32_t channel) {
     uint32_t ch_bit = (1 << channel);
     // Return immediately if:
     //   * The interrupt was already served
     //   * There is no user handler
     //   * It is a level interrupt, not an edge interrupt
-    if ( ((LPC_GPIO_PIN_INT->IST & ch_bit) == 0) ||
-         (channel_ids[channel] == 0            ) ||
-         (LPC_GPIO_PIN_INT->ISEL & ch_bit      ) ) return;
+    if ( ((LPC_GPIO_X->IST & ch_bit) == 0) ||
+         (channel_ids[channel] == 0      ) ||
+         (LPC_GPIO_X->ISEL & ch_bit      ) ) return;
 
-    if ((LPC_GPIO_PIN_INT->IENR & ch_bit) && (LPC_GPIO_PIN_INT->RISE & ch_bit)) {
+    if ((LPC_GPIO_X->IENR & ch_bit) && (LPC_GPIO_X->RISE & ch_bit)) {
         irq_handler(channel_ids[channel], IRQ_RISE);
-        LPC_GPIO_PIN_INT->RISE = ch_bit;
+        LPC_GPIO_X->RISE = ch_bit;
     }
-    if ((LPC_GPIO_PIN_INT->IENF & ch_bit) && (LPC_GPIO_PIN_INT->FALL & ch_bit)) {
+    if ((LPC_GPIO_X->IENF & ch_bit) && (LPC_GPIO_X->FALL & ch_bit)) {
         irq_handler(channel_ids[channel], IRQ_FALL);
     }
-    LPC_GPIO_PIN_INT->IST = ch_bit;
+    LPC_GPIO_X->IST = ch_bit;
 }
 
 void gpio_irq0(void) {handle_interrupt_in(0);}
@@ -108,6 +115,7 @@ void gpio_irq4(void) {handle_interrupt_in(4);}
 void gpio_irq5(void) {handle_interrupt_in(5);}
 void gpio_irq6(void) {handle_interrupt_in(6);}
 void gpio_irq7(void) {handle_interrupt_in(7);}
+
 #endif
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
@@ -132,7 +140,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_SetVector(EINT3_IRQn, (uint32_t)handle_interrupt_in);
     NVIC_EnableIRQ(EINT3_IRQn);
 
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
     int found_free_channel = 0;
     int i = 0;
     for (i=0; i<CHANNEL_NUM; i++) {
@@ -148,6 +156,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     /* Enable AHB clock to the GPIO domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);
 
+#if defined(TARGET_LPC11U24)
     /* Enable AHB clock to the FlexInt, GroupedInt domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= ((1<<19) | (1<<23) | (1<<24));
 
@@ -156,6 +165,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
      * @see: mbed_capi/PinNames.h
      */
     LPC_SYSCON->PINTSEL[obj->ch] = (pin >> 5) ? (pin - 8) : (pin);
+#elif defined(TARGET_LPC812)
+    LPC_SYSCON->PINTSEL[obj->ch] = pin;
+#endif
 
     // Interrupt Wake-Up Enable
     LPC_SYSCON->STARTERP0 |= 1 << obj->ch;
@@ -171,15 +183,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         case 6: channels_irq = &gpio_irq6; break;
         case 7: channels_irq = &gpio_irq7; break;
     }
-    NVIC_SetVector((IRQn_Type)obj->ch, (uint32_t)channels_irq);
-    NVIC_EnableIRQ((IRQn_Type)obj->ch);
+    NVIC_SetVector((IRQn_Type)(PININT_IRQ + obj->ch), (uint32_t)channels_irq);
+    NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ + obj->ch));
 #endif
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
     channel_ids[obj->ch] = 0;
-#if defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
     LPC_SYSCON->STARTERP0 &= ~(1 << obj->ch);
 #endif
 }
@@ -228,26 +240,26 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
                 break;
         }
     }
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
     unsigned int ch_bit = (1 << obj->ch);
 
     // Clear interrupt
-    if (!(LPC_GPIO_PIN_INT->ISEL & ch_bit))
-        LPC_GPIO_PIN_INT->IST = ch_bit;
+    if (!(LPC_GPIO_X->ISEL & ch_bit))
+        LPC_GPIO_X->IST = ch_bit;
 
     // Edge trigger
-    LPC_GPIO_PIN_INT->ISEL &= ~ch_bit;
+    LPC_GPIO_X->ISEL &= ~ch_bit;
     if (event == IRQ_RISE) {
         if (enable) {
-            LPC_GPIO_PIN_INT->IENR |= ch_bit;
+            LPC_GPIO_X->IENR |= ch_bit;
         } else {
-            LPC_GPIO_PIN_INT->IENR &= ~ch_bit;
+            LPC_GPIO_X->IENR &= ~ch_bit;
         }
     } else {
         if (enable) {
-            LPC_GPIO_PIN_INT->IENF |= ch_bit;
+            LPC_GPIO_X->IENF |= ch_bit;
         } else {
-            LPC_GPIO_PIN_INT->IENF &= ~ch_bit;
+            LPC_GPIO_X->IENF &= ~ch_bit;
         }
     }
 #endif

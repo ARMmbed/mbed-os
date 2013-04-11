@@ -20,17 +20,17 @@
 #define DEVICE_PORTOUT          0
 #define DEVICE_PORTINOUT        0
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         0
 #define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
 
-#define DEVICE_I2C              0
+#define DEVICE_I2C              1
 #define DEVICE_I2CSLAVE         0
 
-#define DEVICE_SPI              0
+#define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         0
 
 #define DEVICE_CAN              0

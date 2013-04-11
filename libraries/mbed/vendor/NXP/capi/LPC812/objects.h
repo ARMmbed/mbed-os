@@ -25,9 +25,22 @@
 extern "C" {
 #endif
 
+struct gpio_irq_s {
+    uint32_t ch;
+};
+
 struct serial_s {
     LPC_USART_TypeDef *uart;
-    unsigned char uart_n;
+    unsigned char index;
+};
+
+struct i2c_s {
+    LPC_I2C_TypeDef *i2c;
+};
+
+struct spi_s {
+    LPC_SPI_TypeDef *spi;
+    unsigned char spi_n;
 };
 
 #include "gpio_object.h"

@@ -30,6 +30,9 @@
  * INITIALIZATION
  ******************************************************************************/
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+
+#define UART_NUM    4
+
 static const PinMap PinMap_UART_TX[] = {
     {P0_0,  UART_3, 2},
     {P0_2,  UART_0, 1},
@@ -54,9 +57,11 @@ static const PinMap PinMap_UART_RX[] = {
     {NC   , NC    , 0}
 };
 
-#define UART_NUM    4
 
 #elif defined(TARGET_LPC11U24)
+
+#define UART_NUM    1
+
 static const PinMap PinMap_UART_TX[] = {
     {P0_19, UART_0, 1},
     {P1_13, UART_0, 3},
@@ -71,9 +76,10 @@ static const PinMap PinMap_UART_RX[] = {
     {NC   , NC    , 0}
 };
 
-#define UART_NUM    1
 
 #elif defined(TARGET_LPC812)
+
+#define UART_NUM    3
 
 static const SWM_Map SWM_UART_TX[] = {
     {0, 0},
@@ -90,7 +96,8 @@ static const SWM_Map SWM_UART_RX[] = {
 // bit flags for used UARTs
 static unsigned char uart_used = 0;
 static int get_available_uart(void) {
-    for (int i=0; i<3; i++) {
+    int i;
+    for (i=0; i<3; i++) {
         if ((uart_used & (1 << i)) == 0)
             return i;
     }
@@ -109,10 +116,8 @@ static int get_available_uart(void) {
 static uint32_t UARTSysClk;
 #endif
 
-#ifndef TARGET_LPC812
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
-#endif
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -125,8 +130,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (uart_n == -1) {
         error("No available UART");
     }
-    obj->uart_n = uart_n;
+    obj->index = uart_n;
     obj->uart = (LPC_USART_TypeDef *)(LPC_USART0_BASE + (0x4000 * uart_n));
+    uart_used |= (1 << uart_n);
     
     const SWM_Map *swm;
     uint32_t regVal;
@@ -193,7 +199,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 #elif defined(TARGET_LPC11U24)
     obj->uart = (LPC_USART_Type *)uart;
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<12);
-
+    
     // [TODO] Consider more elegant approach
     // disconnect USBTX/RX mapping mux, for case when switching ports
     pin_function(USBTX, 0);
@@ -210,19 +216,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->IER = 0 << 0  // Rx Data available irq enable
                    | 0 << 1  // Tx Fifo empty irq enable
                    | 0 << 2; // Rx Line Status irq enable
-
+    
     // set default baud rate and format
     serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
-
+    
     // pinout the chosen uart
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
-
+    
     // set rx/tx pins in PullUp mode
     pin_mode(tx, PullUp);
     pin_mode(rx, PullUp);
-
+    
     switch (uart) {
         case UART_0: obj->index = 0; break;
 #if (UART_NUM > 1)
@@ -235,7 +241,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_3: obj->index = 3; break;
 #endif
     }
-
+    
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
 #endif
     
@@ -247,10 +253,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
 void serial_free(serial_t *obj) {
 #ifdef TARGET_LPC812
-    uart_used &= ~(1 << obj->uart_n);
-#else
-    serial_irq_ids[obj->index] = 0;
+    uart_used &= ~(1 << obj->index);
 #endif
+    serial_irq_ids[obj->index] = 0;
 }
 
 // serial_baud
@@ -284,15 +289,15 @@ void serial_baud(serial_t *obj, int baudrate) {
 
 #else
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
-// The LPC2300 and LPC1700 have a divider and a fractional divider to control the
-// baud rate. The formula is:
-//
-// Baudrate = (1 / PCLK) * 16 * DL * (1 + DivAddVal / MulVal)
-//   where:
-//     1 < MulVal <= 15
-//     0 <= DivAddVal < 14
-//     DivAddVal < MulVal
-//
+    // The LPC2300 and LPC1700 have a divider and a fractional divider to control the
+    // baud rate. The formula is:
+    //
+    // Baudrate = (1 / PCLK) * 16 * DL * (1 + DivAddVal / MulVal)
+    //   where:
+    //     1 < MulVal <= 15
+    //     0 <= DivAddVal < 14
+    //     DivAddVal < MulVal
+    //
     // set pclk to /1
     switch ((int)obj->uart) {
         case UART_0: LPC_SC->PCLKSEL0 &= ~(0x3 <<  6); LPC_SC->PCLKSEL0 |= (0x1 <<  6); break;
@@ -391,7 +396,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     if (data_bits < 5 || data_bits > 8) {
         error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
     }
-
     data_bits -= 5;
 
     int parity_enable, parity_select;
@@ -405,10 +409,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             error("Invalid serial parity setting");
             return;
     }
-
-    obj->uart->LCR = data_bits << 0
-                   | stop_bits << 2
-                   | parity_enable << 3
+    
+    obj->uart->LCR = data_bits            << 0
+                   | stop_bits            << 2
+                   | parity_enable        << 3
                    | parity_select        << 4;
 #endif
 }
@@ -416,13 +420,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-#ifdef TARGET_LPC812
-
-#else
 static inline void uart_irq(uint32_t iir, uint32_t index) {
     // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
-    switch (((iir >> 1) & 0x7)) {
+    switch (iir) {
         case 1: irq_type = TxIrq; break;
         case 2: irq_type = RxIrq; break;
         default: return;
@@ -433,29 +434,27 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
 }
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
-void uart0_irq() {uart_irq(LPC_UART0->IIR, 0);}
-void uart1_irq() {uart_irq(LPC_UART1->IIR, 1);}
-void uart2_irq() {uart_irq(LPC_UART2->IIR, 2);}
-void uart3_irq() {uart_irq(LPC_UART3->IIR, 3);}
+void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0);}
+void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1);}
+void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2);}
+void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3);}
 
 #elif defined(TARGET_LPC11U24)
-void uart0_irq() {uart_irq(LPC_USART->IIR, 0);}
-#endif
+void uart0_irq() {uart_irq((LPC_USART->IIR >> 1) & 0x7, 0);}
+
+#elif defined(TARGET_LPC812)
+void uart0_irq() {uart_irq((LPC_USART0->STAT & (1 << 2)) ? 2 : 1, 0);}
+void uart1_irq() {uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);}
+void uart2_irq() {uart_irq((LPC_USART2->STAT & (1 << 2)) ? 2 : 1, 2);}
+
 #endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
-#ifdef TARGET_LPC812
-    
-#else
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
-#endif
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-#ifdef TARGET_LPC812
-    
-#else
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
@@ -466,23 +465,34 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         case UART_3: irq_n=UART3_IRQn; vector = (uint32_t)&uart3_irq; break;
 #elif defined(TARGET_LPC11U24)
         case UART_0: irq_n=UART_IRQn ; vector = (uint32_t)&uart0_irq; break;
+#elif defined(TARGET_LPC812)
+        case LPC_USART0_BASE: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
+        case LPC_USART1_BASE: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
+        case LPC_USART2_BASE: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
 #endif
     }
 
     if (enable) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
         obj->uart->IER |= 1 << irq;
+#elif defined(TARGET_LPC812)
+        obj->uart->INTENSET = (1 << ((irq == RxIrq) ? 0 : 2));
+#endif
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-
     } else { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
         obj->uart->IER &= ~(1 << irq);
         all_disabled = (obj->uart->IER & (1 << other_irq)) == 0;
+#elif defined(TARGET_LPC812)
+        obj->uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
+        all_disabled = (obj->uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
+#endif
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
-#endif
 }
 
 /******************************************************************************

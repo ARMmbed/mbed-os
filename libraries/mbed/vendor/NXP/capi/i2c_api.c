@@ -62,21 +62,38 @@ static const PinMap PinMap_I2C_SCL[] = {
 #define I2C_DAT(x)          (x->i2c->DAT)
 #define I2C_SCLL(x, val)    (x->i2c->SCLL = val)
 #define I2C_SCLH(x, val)    (x->i2c->SCLH = val)
+
+#elif defined(TARGET_LPC812)
+static const SWM_Map SWM_I2C_SDA[] = {
+    {7, 24},
+};
+
+static const SWM_Map SWM_I2C_SCL[] = {
+    {8, 0},
+};
+
+static uint8_t repeated_start = 0;
+
+#define I2C_DAT(x)          (x->i2c->MSTDAT)
+#define I2C_STAT(x)         ((x->i2c->STAT >> 1) & (0x07))
+
 #endif
 
+
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
 static const uint32_t I2C_addr_offset[2][4] = {
     {0x0C, 0x20, 0x24, 0x28},
     {0x30, 0x34, 0x38, 0x3C}
 };
 
-static void i2c_conclr(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
+static inline void i2c_conclr(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
     I2C_CONCLR(obj) = (start << 5)
                     | (stop << 4)
                     | (interrupt << 3)
                     | (acknowledge << 2);
 }
 
-static void i2c_conset(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
+static inline void i2c_conset(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
     I2C_CONSET(obj) = (start << 5)
                     | (stop << 4)
                     | (interrupt << 3)
@@ -84,29 +101,39 @@ static void i2c_conset(i2c_t *obj, int start, int stop, int interrupt, int ackno
 }
 
 // Clear the Serial Interrupt (SI)
-static void i2c_clear_SI(i2c_t *obj) {
+static inline void i2c_clear_SI(i2c_t *obj) {
     i2c_conclr(obj, 0, 0, 1, 0);
 }
+#endif
 
-static int i2c_status(i2c_t *obj) {
+
+static inline int i2c_status(i2c_t *obj) {
     return I2C_STAT(obj);
 }
 
 // Wait until the Serial Interrupt (SI) is set
 static int i2c_wait_SI(i2c_t *obj) {
     int timeout = 0;
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     while (!(I2C_CONSET(obj) & (1 << 3))) {
+#elif defined(TARGET_LPC812)
+    while (!(obj->i2c->STAT & (1 << 0))) {
+#endif
         timeout++;
         if (timeout > 100000) return -1;
     }
     return 0;
 }
 
-static void i2c_interface_enable(i2c_t *obj) {
+static inline void i2c_interface_enable(i2c_t *obj) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     I2C_CONSET(obj) = 0x40;
+#elif defined(TARGET_LPC812)
+    obj->i2c->CFG |= (1 << 0);
+#endif
 }
 
-static void i2c_power_enable(i2c_t *obj) {
+static inline void i2c_power_enable(i2c_t *obj) {
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     switch ((int)obj->i2c) {
         case I2C_0: LPC_SC->PCONP |= 1 << 7; break;
@@ -116,10 +143,15 @@ static void i2c_power_enable(i2c_t *obj) {
 #elif defined(TARGET_LPC11U24)
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 5);
     LPC_SYSCON->PRESETCTRL |= 1 << 1;
+#elif defined(TARGET_LPC812)
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);	
+    LPC_SYSCON->PRESETCTRL &= ~(0x1<<6);
+    LPC_SYSCON->PRESETCTRL |= (0x1<<6);
 #endif
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     // determine the SPI to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -128,6 +160,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 #elif defined(TARGET_LPC11U24)
     obj->i2c = (LPC_I2C_Type *)pinmap_merge(i2c_sda, i2c_scl);
 #endif
+    
     if ((int)obj->i2c == NC) {
         error("I2C pin mapping failed");
     }
@@ -142,11 +175,33 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
+    
+#elif defined (TARGET_LPC812)
+    obj->i2c = (LPC_I2C_TypeDef *)LPC_I2C;
+    
+    const SWM_Map *swm;
+    uint32_t regVal;
+    
+    swm = &SWM_I2C_SDA[0];
+    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal |  (sda   << swm->offset);
+    
+    swm = &SWM_I2C_SCL[0];
+    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal |  (scl   << swm->offset);
+    
+    // enable power
+    i2c_power_enable(obj);
+    // set default frequency at 100k
+    i2c_frequency(obj, 100000);
+    i2c_interface_enable(obj);
+#endif
+
 }
 
-int i2c_start(i2c_t *obj) {
-    int status;
-
+inline int i2c_start(i2c_t *obj) {
+    int status = 0;
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     // 8.1 Before master mode can be entered, I2CON must be initialised to:
     //  - I2EN STA STO SI AA - -
     //  -  1    0   0   0  x - -
@@ -162,35 +217,52 @@ int i2c_start(i2c_t *obj) {
 
     // Clear start bit now transmitted, and interrupt bit
     i2c_conclr(obj, 1, 0, 0, 0);
-
+#elif defined(TARGET_LPC812)
+    if (repeated_start) {
+        obj->i2c->MSTCTL = (1 << 1) | (1 << 0);
+        repeated_start = 0;
+    } else {
+        obj->i2c->MSTCTL = (1 << 1);
+    }
+#endif
     return status;
 }
 
-void i2c_stop(i2c_t *obj) {
+inline void i2c_stop(i2c_t *obj) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     // write the stop bit
     i2c_conset(obj, 0, 1, 0, 0);
     i2c_clear_SI(obj);
 
     // wait for STO bit to reset
     while(I2C_CONSET(obj) & (1 << 4));
+#elif defined(TARGET_LPC812)
+    obj->i2c->MSTCTL = (1 << 2) | (1 << 0);
+    while ((obj->i2c->STAT & ((1 << 0) | (7 << 1))) != ((1 << 0) | (0 << 1)));
+#endif
 }
 
 
-static int i2c_do_write(i2c_t *obj, int value) {
+static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
     // write the data
     I2C_DAT(obj) = value;
-
+    
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     // clear SI to init a send
     i2c_clear_SI(obj);
+#elif defined(TARGET_LPC812)
+    if (!addr)
+        obj->i2c->MSTCTL = (1 << 0);
+#endif
 
-    i2c_wait_SI(obj);
     // wait and return status
+    i2c_wait_SI(obj);
     return i2c_status(obj);
 }
 
-static int i2c_do_read(i2c_t *obj, int last) {
+static inline int i2c_do_read(i2c_t *obj, int last) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     // we are in state 0x40 (SLA+R tx'd) or 0x50 (data rx'd and ack)
-
     if(last) {
         i2c_conclr(obj, 0, 0, 0, 1); // send a NOT ACK
     } else {
@@ -199,9 +271,15 @@ static int i2c_do_read(i2c_t *obj, int last) {
 
     // accept byte
     i2c_clear_SI(obj);
+#endif
 
     // wait for it to arrive
     i2c_wait_SI(obj);
+
+#if defined(TARGET_LPC812)
+    if (!last)
+        obj->i2c->MSTCTL = (1 << 0);
+#endif
 
     // return the data
     return (I2C_DAT(obj) & 0xFF);
@@ -211,16 +289,23 @@ void i2c_frequency(i2c_t *obj, int hz) {
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     // [TODO] set pclk to /4
     uint32_t PCLK = SystemCoreClock / 4;
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
     // No peripheral clock divider on the M0
     uint32_t PCLK = SystemCoreClock;
 #endif
-
+    
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
     uint32_t pulse = PCLK / (hz * 2);
 
     // I2C Rate
     I2C_SCLL(obj, pulse);
     I2C_SCLH(obj, pulse);
+#elif defined(TARGET_LPC812)
+    uint32_t clkdiv = PCLK / (hz * 4) - 1;
+    
+    obj->i2c->DIV = clkdiv;
+    obj->i2c->MSTTIME = 0;
+#endif
 }
 
 // The I2C does a read or a write as a whole operation
@@ -242,13 +327,19 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
     status = i2c_start(obj);
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
         return status;
     }
+#endif
 
-    status = i2c_do_write(obj, (address | 0x01));
+    status = i2c_do_write(obj, (address | 0x01), 1);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     if (status != 0x40) {
+#elif defined(TARGET_LPC812)
+    if (status != 0x01) {
+#endif
         i2c_stop(obj);
         return status;
     }
@@ -257,7 +348,11 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     for (count = 0; count < (length - 1); count++) {
         int value = i2c_do_read(obj, 0);
         status = i2c_status(obj);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
         if (status != 0x50) {
+#elif defined(TARGET_LPC812)
+        if (status != 0x00) {
+#endif
             i2c_stop(obj);
             return status;
         }
@@ -267,7 +362,11 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     // read in last byte
     int value = i2c_do_read(obj, 1);
     status = i2c_status(obj);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     if (status != 0x58) {
+#elif defined(TARGET_LPC812)
+    if (status != 0x01) {
+#endif
         i2c_stop(obj);
         return status;
     }
@@ -278,6 +377,11 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     if (stop) {
         i2c_stop(obj);
     }
+#if defined(TARGET_LPC812)
+    else {
+        repeated_start = 1;
+    }
+#endif
 
     return 0;
 }
@@ -287,30 +391,48 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 
     status = i2c_start(obj);
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
         return status;
     }
+#endif
 
-    status = i2c_do_write(obj, (address & 0xFE));
+    status = i2c_do_write(obj, (address & 0xFE), 1);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     if (status != 0x18) {
+#elif defined(TARGET_LPC812)
+    if (status != 0x02) {
+#endif
         i2c_stop(obj);
         return status;
     }
 
     for (i=0; i<length; i++) {
-        status = i2c_do_write(obj, data[i]);
+        status = i2c_do_write(obj, data[i], 0);
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
         if(status != 0x28) {
+#elif defined(TARGET_LPC812)
+        if (status != 0x02) {
+#endif
             i2c_stop(obj);
             return status;
         }
     }
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     i2c_clear_SI(obj);
+#endif
 
+    // If not repeated start, send stop.
     if (stop) {
         i2c_stop(obj);
     }
+#if defined(TARGET_LPC812)
+    else {
+        repeated_start = 1;
+    }
+#endif
 
     return 0;
 }
@@ -325,9 +447,10 @@ int i2c_byte_read(i2c_t *obj, int last) {
 
 int i2c_byte_write(i2c_t *obj, int data) {
     int ack;
-    int status = i2c_do_write(obj, (data & 0xFF));
+    int status = i2c_do_write(obj, (data & 0xFF), 0);
 
     switch(status) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
         case 0x18: case 0x28:       // Master transmit ACKs
             ack = 1;
             break;
@@ -337,6 +460,11 @@ int i2c_byte_write(i2c_t *obj, int data) {
         case 0xB8:                  // Slave transmit ACK
             ack = 1;
             break;
+#elif defined(TARGET_LPC812)
+        case 2:
+            ack = 1;
+            break;
+#endif
         default:
             ack = 0;
             break;
@@ -403,7 +531,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     }
 
     do {
-        status = i2c_do_write(obj, data[count]);
+        status = i2c_do_write(obj, data[count], 0);
         count++;
     } while ((count < length) && (status == 0xB8));
 

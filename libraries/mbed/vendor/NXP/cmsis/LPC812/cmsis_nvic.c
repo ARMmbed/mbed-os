@@ -6,7 +6,7 @@
 #include "cmsis_nvic.h"
 
 #define NVIC_NUM_VECTORS (16 + 32)            // CORE + MCU Peripherals
-#define NVIC_RAM_VECTOR_ADDRESS (0x1FFFF000)  // Vectors positioned at start of RAM
+#define NVIC_RAM_VECTOR_ADDRESS (0x10000000)  // Vectors positioned at start of RAM
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
