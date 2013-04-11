@@ -25,7 +25,7 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * uARM -> ARM_MICRO
 """
 TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812'])
-TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC', 'IAR'])
+TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'IAR'])
 TYPES = set(['GCC'])
 
 # List of ignored directories (all the hidden directories are ignored by default)
@@ -141,6 +141,7 @@ class mbedToolchain:
             self.notify = print_notify
         
         self.COMPILE_C_AS_CPP = False
+        self.CHROOT = None
         
         bin_tuple = (target, self.NAME)
         self.obj_path = join(*bin_tuple)
@@ -326,7 +327,7 @@ class mbedToolchain:
                 command.extend(self.cc_extra(base))
             
             self.debug(command)
-            _, stderr, rc = run_cmd(command, dirname(object))
+            _, stderr, rc = run_cmd(command, dirname(object), chroot=self.CHROOT)
             
             # Parse output for Warnings and Errors
             self.parse_output(stderr)
@@ -363,7 +364,7 @@ class mbedToolchain:
             self.binary(elf, bin)
             
             if self.target in ['LPC1768', 'LPC11U24', 'LPC2368', 'LPC812']:
-                self.progress("LPC Patch", (name + '.bin'))
+                self.debug("LPC Patch %s" % (name + '.bin'))
             patch(bin)
             
             self.var("compile_succeded", True)
@@ -373,10 +374,11 @@ class mbedToolchain:
     
     def default_cmd(self, command):
         self.debug(command)
-        stdout, stderr, rc = run_cmd(command)
+        stdout, stderr, rc = run_cmd(command, chroot=self.CHROOT)
         self.debug(stdout)
         if rc != 0:
-            self.tool_error(stderr)
+            for line in stderr.splitlines():
+                self.tool_error(line)
             raise ToolException(stderr)
     
     ### NOTIFICATIONS ###
@@ -531,9 +533,9 @@ class GCC(mbedToolchain):
     def __init__(self, target, notify, tool_path):
         mbedToolchain.__init__(self, target, notify)
         self.IGNORE_DIR.remove('GCC')
-        cpu = ["-mcpu=%s" % GCC_CS.CPU[target]]
+        self.cpu = ["-mcpu=%s" % GCC.CPU[target]]
         if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812"]:
-            cpu.append("-mthumb")
+            self.cpu.append("-mthumb")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
@@ -541,14 +543,14 @@ class GCC(mbedToolchain):
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
             "-MMD", "-save-temps"
-            ] + cpu
+            ] + self.cpu
         
-        self.asm = [join(tool_path, "arm-none-eabi-as")] + cpu
+        self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
         
         self.cc  = [join(tool_path, "arm-none-eabi-gcc"), "-std=gnu99"] + common_flags
         self.cppc =[join(tool_path, "arm-none-eabi-g++"), "-std=gnu++98"] + common_flags
         
-        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections"] + cpu
+        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
         
         self.ar = join(tool_path, "arm-none-eabi-ar")
@@ -653,6 +655,29 @@ class GCC_CS(GCC):
         GCC.__init__(self, target, notify, GCC_CS_PATH)
 
 
+class GCC_CW(GCC):
+    NAME = 'GCC_CW'
+    
+    ARCH_LIB = {
+        "KL25Z": "armv6-m",
+    }
+    
+    def __init__(self, target, notify=None):
+        tool_path = join(GCC_CW_PATH, "Cross_Tools/arm-none-eabi-gcc-4_6_2/bin")
+        GCC.__init__(self, target, notify, tool_path)
+        self.CIRCULAR_DEPENDENCIES = False
+        
+        lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target])
+        self.sys_libs = []
+        self.ld = [join(tool_path, "arm-none-eabi-g++"),
+            "-Xlinker", "--gc-sections",
+            "-L%s" % lib_path,
+            "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
+            "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
+            "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
+        ] + self.cpu
+
+
 class IAR(mbedToolchain):
     NAME = 'IAR'
     LIBRARY_EXT = '.a'
@@ -727,6 +752,6 @@ class IAR(mbedToolchain):
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD, 'uARM': ARM_MICRO,
-    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR,
+    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR, 'GCC_CW': GCC_CW,
     'IAR': IAR
 }
