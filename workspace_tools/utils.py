@@ -28,7 +28,7 @@ def run_cmd(command, wd=None, chroot=None):
         logging.debug("Running command %s"%' '.join(command))
         p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=chroot)
     else:
-    p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=wd)
+        p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=wd)
     stdout, stderr = p.communicate()
     
     return stdout, stderr, p.returncode
