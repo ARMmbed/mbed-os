@@ -184,8 +184,8 @@ TESTS = [
         "id": "MBED_4", "description": "MBED: Sleep",
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "supported": LPC11U24_SUPPORT,
-        "duration": 30
+        "duration": 30,
+        "mcu": ["LPC1768", "LPC11U24"]
     },
     {
         "id": "MBED_5", "description": "MBED: PWM",
@@ -578,6 +578,12 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z"],
+    },
+    {
+        "id": "LPC812_1", "description": "LPC812: Blinky",
+        "source_dir": join(TEST_DIR, "lpc812", "blinky"),
+        "dependencies": [MBED_LIBRARIES],
+        "mcu": ["LPC812"],
     },
     {
         "id": "EXAMPLE_1", "description": "/dev/null",

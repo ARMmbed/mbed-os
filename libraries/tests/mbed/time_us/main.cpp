@@ -1,19 +1,19 @@
 #include "mbed.h"
 
 #ifdef TARGET_KL25Z
-DigitalOut out(PTA1);
+DigitalOut out(PTD4);
 #else
 DigitalOut out(p5);
 #endif
 
-DigitalOut myled(LED1);
+DigitalOut led(LED1);
 
 int main() {
     printf("Hello World\n");
     
     while (true) {
-        wait_us(10000);
+        wait_us(1000);
         out = !out;
-        myled = !myled;
+        led = !led;
     }
 }
