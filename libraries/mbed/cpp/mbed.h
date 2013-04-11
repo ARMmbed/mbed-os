@@ -18,6 +18,7 @@
 
 #define MBED_LIBRARY_VERSION 30
 
+#include "toolchain.h"
 #include "platform.h"
 
 // Useful C libraries
