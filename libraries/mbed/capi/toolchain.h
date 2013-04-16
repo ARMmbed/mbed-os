@@ -32,4 +32,9 @@ typedef int FILEHANDLE;
 #   define PACKED   __attribute__((packed))
 #endif
 
+
+#ifdef __GNUC__
+#define __packed __attribute__ ((__packed__))
+#endif
+
 #endif
