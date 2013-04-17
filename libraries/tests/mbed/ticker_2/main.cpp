@@ -4,6 +4,10 @@ DigitalOut led(LED1);
 
 #ifdef TARGET_KL25Z
 DigitalOut out(PTA1);
+
+#elif TARGET_LPC812
+DigitalOut out(D10);
+
 #else
 DigitalOut out(p5);
 #endif
@@ -16,5 +20,8 @@ void togglePin (void) {
 }
  
 int main() {
-    tick.attach_us(togglePin, 10000);
+    tick.attach_us(togglePin, 100000);
+    while (true) {
+        wait(1);
+    }
 }

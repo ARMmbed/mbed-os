@@ -301,6 +301,13 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "div"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
+    {
+        "id": "MBED_27", "description": "MBED: SPI ADXL345",
+        "source_dir": join(TEST_DIR, "mbed", "spi_ADXL345"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'ADXL345')],
+        "automated": True,
+        "peripherals": ["ADXL345"]
+    },
     
     # CMSIS RTOS tests
     {

@@ -41,17 +41,21 @@ void us_ticker_init(void) {
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8);
     
     // Clear peripheral reset the SCT:
-    LPC_SYSCON->PRESETCTRL |= ( 1<< 8);
+    LPC_SYSCON->PRESETCTRL |= (1 << 8);
     
-    // Unified counter
-    LPC_SCT->CONFIG = 1;
+    // Unified counter (32 bits)
+    LPC_SCT->CONFIG |= 1;
+    
+    // halt and clear the counter
+    LPC_SCT->CTRL_L |= (1 << 2) | (1 << 3);
     
     // System Clock (12)MHz -> us_ticker (1)MHz
-    LPC_SCT->CTRL_L |= ((12) << 5);
+    LPC_SCT->CTRL_L |= ((SystemCoreClock/1000000 - 1) << 5);
     
-    // unhalt it: - clearing bit 2 of the CTRL register
+    // unhalt the counter:
+    //    - clearing bit 2 of the CTRL register
     LPC_SCT->CTRL_L &= ~(1 << 2);
-
+    
 #else
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     LPC_SC->PCONP |= 1 << 23; // Clock TIMER_3
@@ -69,11 +73,10 @@ void us_ticker_init(void) {
     uint32_t prescale = PCLK / 1000000; // default to 1MHz (1 us ticks)
     US_TICKER_TIMER->PR = prescale - 1;
     US_TICKER_TIMER->TCR = 1; // enable = 1, reset = 0
-    
+#endif
 
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
-#endif
 }
 
 uint32_t us_ticker_read() {
@@ -89,11 +92,33 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
 #ifdef TARGET_LPC812
+    // halt the counter: 
+    //    - setting bit 2 of the CTRL register
+    LPC_SCT->CTRL_L |= (1 << 2);
+    
+    // set timestamp in compare register
     LPC_SCT->MATCH[0].U = timestamp;
     
-    // [TODO] define the event: LPC_SCT->EVENT[0].CTRL
+    // unhalt the counter:
+    //    - clearing bit 2 of the CTRL register
+    LPC_SCT->CTRL_L &= ~(1 << 2);
     
-    LPC_SCT->EVEN |= 1;
+    // if events are not enabled, enable them
+    if (!(LPC_SCT->EVEN & 0x01)) {
+        
+        // comb mode = match only
+        LPC_SCT->EVENT[0].CTRL = (1 << 12);
+        
+        // ref manual:
+        //   In simple applications that do not 
+        //   use states, write 0x01 to this 
+        //   register to enable an event
+        LPC_SCT->EVENT[0].STATE |= 0x1;
+        
+        // enable events
+        LPC_SCT->EVEN |= 0x1;
+    }
+    
 #else
     // set match value
     US_TICKER_TIMER->MR0 = timestamp;
