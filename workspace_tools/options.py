@@ -1,22 +1,14 @@
 from optparse import OptionParser
 
-from workspace_tools.toolchains import *
+from workspace_tools.toolchains import TOOLCHAINS
+from workspace_tools.targets import TARGET_NAMES
 
-# Targets and Toolchains
-
-TARGETS = (
-    "LPC2368",
-    "LPC1768",
-    "LPC11U24",
-    "KL25Z",
-    "LPC812"
-)
 
 def get_default_options_parser():
     parser = OptionParser()
     
     parser.add_option("-m", "--mcu", dest="mcu",
-                  help="build for the given MCU (%s)" % ', '.join(TARGETS),
+                  help="build for the given MCU (%s)" % ', '.join(TARGET_NAMES),
                   metavar="MCU")
     
     parser.add_option("-t", "--tool", dest="tool",

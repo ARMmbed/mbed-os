@@ -8,6 +8,7 @@ import re
 from workspace_tools.settings import *
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
+from workspace_tools.targets import TARGET_NAMES
 
 """
 We made the unfortunate choice of calling the ARM standard library toolchain "ARM"
@@ -24,9 +25,7 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * ARM  -> ARM_STD
   * uARM -> ARM_MICRO
 """
-TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812'])
 TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'IAR'])
-TYPES = set(['GCC'])
 
 # List of ignored directories (all the hidden directories are ignored by default)
 IGNORE_DIRECTORIES = set(['CVS'])
@@ -126,10 +125,9 @@ class mbedToolchain:
     VERBOSE = True
     
     CORTEX_SYMBOLS = {
-        "LPC1768" : ["__CORTEX_M3", "ARM_MATH_CM3"],
-        "LPC11U24": ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "KL25Z"   : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "LPC812"  : ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
+        "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "Cortex-M0+": ["__CORTEX_M0", "ARM_MATH_CM0"],
     }
     
     def __init__(self, target, notify=None):
@@ -142,19 +140,19 @@ class mbedToolchain:
         
         self.COMPILE_C_AS_CPP = False
         self.CHROOT = None
-        
-        bin_tuple = (target, self.NAME)
+
+        bin_tuple = (target.name, self.NAME)
         self.obj_path = join(*bin_tuple)
-        self.IGNORE_DIR = (IGNORE_DIRECTORIES | TARGETS | TOOLCHAINS | TYPES) - set(bin_tuple)
+        self.IGNORE_DIR = (IGNORE_DIRECTORIES | set(TARGET_NAMES) | TOOLCHAINS) - set(bin_tuple)
         
         # Target and Toolchain symbols
         self.symbols = [
-            "TARGET_" + target, "TOOLCHAIN_" + self.NAME,
+            "TARGET_" + target.name, "TOOLCHAIN_" + self.NAME,
         ]
         
         # Cortex CPU symbols
-        if target in mbedToolchain.CORTEX_SYMBOLS:
-            self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[target])
+        if target.core in mbedToolchain.CORTEX_SYMBOLS:
+            self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[target.core])
         
         self.IGNORE_FILES = []
         
@@ -197,8 +195,8 @@ class mbedToolchain:
                     self.remove_option(option)
         
         # Target specific options
-        if self.target in options:
-            to = options[self.target]
+        if self.target.name in options:
+            to = options[self.target.name]
             if 'ignore_files' in to:
                 self.IGNORE_FILES.extend(to['ignore_files'])
     
@@ -247,7 +245,7 @@ class mbedToolchain:
                         if self.NAME == 'ARM': # Legacy default toolchain
                             self.mbed_libs = True
                         else:
-                            self.mbed_libs = exists(join(root, self.target, self.NAME))
+                            self.mbed_libs = exists(join(root, self.target.name, self.NAME))
                 
                 elif ext == '.o':
                     resources.objects.append(file_path)
@@ -363,9 +361,9 @@ class mbedToolchain:
             self.progress("elf2bin", name)
             self.binary(elf, bin)
             
-            if self.target in ['LPC1768', 'LPC11U24', 'LPC2368', 'LPC812']:
+            if self.target.vendor == 'nxp':
                 self.debug("LPC Patch %s" % (name + '.bin'))
-            patch(bin)
+                patch(bin)
             
             self.var("compile_succeded", True)
             self.var("binary", name+'.bin')
@@ -408,14 +406,6 @@ class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
     LIBRARY_EXT = '.ar'
     
-    CPU = {
-        "LPC1768" : "Cortex-M3",
-        "LPC2368" : "ARM7TDMI-S",
-        "LPC11U24": "Cortex-M0",
-        "KL25Z"   : "Cortex-M0",
-        "LPC812"  : "Cortex-M0",
-    }
-    
     STD_LIB_NAME = "%s.ar"
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
@@ -423,10 +413,13 @@ class ARM(mbedToolchain):
     def __init__(self, target, notify):
         mbedToolchain.__init__(self, target, notify)
         
-        # self.IGNORE_DIR.remove('ARM')
+        if target.core == "Cortex-M0+":
+            cpu = "Cortex-M0"
+        else:
+            cpu = target.core
         
         common = [join(ARM_BIN, "armcc"), "-c",
-            "--cpu=%s" % ARM.CPU[target], "--gnu",
+            "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics"
         ]
@@ -507,10 +500,10 @@ class ARM_MICRO(ARM):
         # System Libraries
         self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
         
-        if target == "LPC1768":
+        if target.core == "Cortex-M3":
             self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
         
-        elif target in ["LPC11U24", "KL25Z", "LPC812"]:
+        elif target.core in ["Cortex-M0", "Cortex-M0+"]:
             self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
 
 
@@ -518,23 +511,20 @@ class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
     
-    CPU = {
-        "LPC1768": "cortex-m3",
-        "LPC2368": "arm7tdmi-s",
-        "LPC11U24": "cortex-m0",
-        "KL25Z": "cortex-m0",
-        "LPC812"  : "cortex-m0",
-    }
-    
     STD_LIB_NAME = "lib%s.a"
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     
     def __init__(self, target, notify, tool_path):
         mbedToolchain.__init__(self, target, notify)
-        self.IGNORE_DIR.remove('GCC')
-        self.cpu = ["-mcpu=%s" % GCC.CPU[target]]
-        if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812"]:
+        
+        if target.core == "Cortex-M0+":
+            cpu = "cortex-m0"
+        else:
+            cpu = target.core.lower()
+        
+        self.cpu = ["-mcpu=%s" % cpu]
+        if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
@@ -659,7 +649,7 @@ class GCC_CW(GCC):
     NAME = 'GCC_CW'
     
     ARCH_LIB = {
-        "KL25Z": "armv6-m",
+        "Cortex-M0+": "armv6-m",
     }
     
     def __init__(self, target, notify=None):
@@ -667,7 +657,7 @@ class GCC_CW(GCC):
         GCC.__init__(self, target, notify, tool_path)
         self.CIRCULAR_DEPENDENCIES = False
         
-        lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target])
+        lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target.core])
         self.sys_libs = []
         self.ld = [join(tool_path, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
@@ -683,9 +673,7 @@ class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
     LINKER_EXT = '.icf'
     STD_LIB_NAME = "%s.a"
-    CPU = {
-        "LPC1768" : "Cortex-M3",
-    }
+    
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     
     def __init__(self, target, notify=None):
@@ -693,7 +681,7 @@ class IAR(mbedToolchain):
         
         c_flags = [
             "-Oh",
-            "--cpu=%s" % IAR.CPU[target], "--thumb",
+            "--cpu=%s" % target.core, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
             "-e", # Enable IAR language extension
             "--no_wrap_diagnostics",
@@ -705,7 +693,7 @@ class IAR(mbedToolchain):
         ]
         
         IAR_BIN = join(IAR_PATH, "bin")
-        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", IAR.CPU[target]]
+        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
         self.cc   = [join(IAR_BIN, "iccarm")] + c_flags
         self.cppc = [join(IAR_BIN, "iccarm"), "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
         

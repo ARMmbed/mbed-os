@@ -17,7 +17,7 @@ clean: Rebuild everything if True
 notify: Notify function for logs
 verbose: Write the actual tools command lines if True
 """
-def build_library(src_paths, build_path, target='LPC1768', toolchain_name='ARM',
+def build_library(src_paths, build_path, target, toolchain_name,
         libraries_paths=None, name=None, clean=False, notify=None, verbose=False):
     if type(src_paths) != ListType: src_paths = [src_paths]
     
@@ -50,7 +50,7 @@ def build_library(src_paths, build_path, target='LPC1768', toolchain_name='ARM',
         else:
             name = basename(main_src)
     
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % (name.upper(), target, toolchain_name))
+    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
     
     # Scan Resources
     resources = []
@@ -99,7 +99,7 @@ def build_library(src_paths, build_path, target='LPC1768', toolchain_name='ARM',
         toolchain.build_library(objects, bin_path, name)
 
 
-def build_project(src_path, build_path, target='LPC1768', toolchain_name='ARM',
+def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, clean=False, notify=None, verbose=False, name=None):
     # Toolchain instance
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, notify)
@@ -108,7 +108,7 @@ def build_project(src_path, build_path, target='LPC1768', toolchain_name='ARM',
     
     if name is None:
         name = basename(src_path)
-    toolchain.info("\n>>> BUILD PROJECT: %s (%s, %s)" % (name.upper(), target, toolchain_name))
+    toolchain.info("\n>>> BUILD PROJECT: %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
     
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_path)
@@ -135,19 +135,9 @@ def build_lib(lib_id, target, toolchain, verbose=False):
     if lib.is_supported(target, toolchain):
         build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, lib.name, verbose=verbose)
     else:
-        print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target, toolchain)
+        print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
-CHIP_VENDOR = {
-    "LPC2368" : "nxp",
-    "LPC1768" : "nxp",
-    "LPC11U24": "nxp",
-    "LPC812"  : "nxp",
-    
-    "KL25Z"   : "freescale",
-}
 
 def build_mbed_libs(target, toolchain, verbose=False):
-    vendor = CHIP_VENDOR[target]
-    
-    for lib_name in ["%s_cmsis"%vendor, "%s_mbed"%vendor]:
+    for lib_name in ["%s_cmsis" % target.vendor, "%s_mbed" % target.vendor]:
         build_lib(lib_name, target, toolchain, verbose=verbose)

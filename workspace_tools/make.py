@@ -16,6 +16,7 @@ from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
+from workspace_tools.targets import TARGET_MAP
 
 
 def args_error(parser, message):
@@ -78,8 +79,9 @@ if __name__ == '__main__':
     
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
     
+    target = TARGET_MAP[mcu]
     try:
-        bin = build_project(test.source_dir, build_dir, mcu, toolchain,
+        bin = build_project(test.source_dir, build_dir, target, toolchain,
                             test.dependencies, clean=options.clean, verbose=options.verbose)
         print 'Image: %s' % bin
         
@@ -88,15 +90,7 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         
         if options.serial:
-            if options.mcu in ["KL25Z", "LPC812"]:
-                # We do not have a flash disk where to store the image, we write
-                # it directly on the target chip, therefore we need to
-                # disconnect the interface: wait for the device to enumerate
-                # again
-                copy_time = 4
-            else:
-                copy_time = 1.5 
-            sleep(copy_time)
+            sleep(target.program_cycle_s)
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
                 serial.setBaudrate(options.baud)

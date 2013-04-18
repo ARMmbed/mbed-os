@@ -119,4 +119,4 @@ class Library:
     def is_supported(self, target, toolchain):
         if not hasattr(self, 'supported'):
             return True
-        return (target in self.supported) and (toolchain in self.supported[target])
+        return (target.name in self.supported) and (toolchain in self.supported[target.name])
