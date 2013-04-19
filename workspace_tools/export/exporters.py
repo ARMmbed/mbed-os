@@ -6,6 +6,7 @@ from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
+from workspace_tools.targets import TARGET_MAP
 
 class OldLibrariesException(Exception): pass
 
@@ -17,7 +18,7 @@ class Exporter():
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
-        self.toolchain = TOOLCHAIN_CLASSES[self.TOOLCHAIN](target)
+        self.toolchain = TOOLCHAIN_CLASSES[self.TOOLCHAIN](TARGET_MAP[target])
         self.build_url_resolver = build_url_resolver
     
     def __scan_and_copy(self, src_path, trg_path):

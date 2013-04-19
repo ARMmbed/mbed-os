@@ -32,7 +32,8 @@ IGNORE_DIRECTORIES = set(['CVS'])
 
 
 def print_notify(event):
-    if event['type'] == 'info':
+    # Default command line notification
+    if event['type'] in ['info', 'debug']:
         print event['message']
     
     elif event['type'] == 'cc':
@@ -387,7 +388,7 @@ class mbedToolchain:
         if self.VERBOSE:
             if type(message) is ListType:
                 message = ' '.join(message)
-            self.info(message)
+            self.notify({'type': 'debug', 'message': message})
     
     def cc_info(self, severity, file, line, message):
         self.notify({'type': 'cc', 'severity': severity, 'file': file, 'line': line, 'message': message})

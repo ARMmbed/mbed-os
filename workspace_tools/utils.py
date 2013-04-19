@@ -18,13 +18,18 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 
 def run_cmd(command, wd=None, chroot=None):
     if chroot:
+        # Conventions managed by the web team for the mbed.org build system
+        if not wd:
+            wd = '/src'
+        else:
+            wd = wd.replace(chroot, '')
         orig_cmd = ' '.join([c.replace(chroot, '') for c in command])
         command = []
         command.append('/usr/sbin/chroot')
         command.append(chroot)
-        command.append('/bin/run.sh')
+        command.append('/bin/run_v2.sh')
+        command.append('%s'%wd)
         command.append('%s'%orig_cmd)
-        
         logging.debug("Running command %s"%' '.join(command))
         p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=chroot)
     else:
