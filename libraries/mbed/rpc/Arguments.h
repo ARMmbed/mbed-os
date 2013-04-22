@@ -17,6 +17,7 @@
 #define ARGUMENTS_H
 
 #include "platform.h"
+#include "parse_pins.h"
 
 namespace mbed {
 
