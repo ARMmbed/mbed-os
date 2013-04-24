@@ -144,6 +144,8 @@ CHIP_VENDOR = {
     "LPC812"  : "nxp",
     
     "KL25Z"   : "freescale",
+
+    "STM32F407": "stm",
 }
 
 def build_mbed_libs(target, toolchain, verbose=False):

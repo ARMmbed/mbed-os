@@ -34,6 +34,22 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES],
         "supported": DEFAULT_SUPPORT
     },
+
+    # STM
+    {  
+        "id": "stm_cmsis",
+        "source_dir": join(STM, "cmsis"),
+        "build_dir": MBED_LIBRARIES,
+        "supported": DEFAULT_SUPPORT
+    },
+    {  
+        "id": "stm_mbed",
+        "name": "mbed",
+        "source_dir": [join(STM, "capi"), MBED_CAPI, MBED_CPP],
+        "build_dir": MBED_LIBRARIES,
+        "dependencies": [MBED_LIBRARIES],
+        "supported": DEFAULT_SUPPORT
+    },
     
     # RTOS libraries
     {

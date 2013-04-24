@@ -24,7 +24,7 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * ARM  -> ARM_STD
   * uARM -> ARM_MICRO
 """
-TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812'])
+TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812', "STM32F407"])
 TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'IAR'])
 TYPES = set(['GCC'])
 
@@ -130,6 +130,7 @@ class mbedToolchain:
         "LPC11U24": ["__CORTEX_M0", "ARM_MATH_CM0"],
         "KL25Z"   : ["__CORTEX_M0", "ARM_MATH_CM0"],
         "LPC812"  : ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "STM32F407" : ["__CORTEX_M4", "ARM_MATH_CM4"],
     }
     
     def __init__(self, target, notify=None):
@@ -325,6 +326,8 @@ class mbedToolchain:
             
             if hasattr(self, "cc_extra"):
                 command.extend(self.cc_extra(base))
+
+            print " ".join(command)
             
             self.debug(command)
             _, stderr, rc = run_cmd(command, dirname(object), chroot=self.CHROOT)
@@ -524,6 +527,7 @@ class GCC(mbedToolchain):
         "LPC11U24": "cortex-m0",
         "KL25Z": "cortex-m0",
         "LPC812"  : "cortex-m0",
+        "STM32F407"  : "cortex-m4",
     }
     
     STD_LIB_NAME = "lib%s.a"
@@ -534,7 +538,7 @@ class GCC(mbedToolchain):
         mbedToolchain.__init__(self, target, notify)
         self.IGNORE_DIR.remove('GCC')
         self.cpu = ["-mcpu=%s" % GCC.CPU[target]]
-        if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812"]:
+        if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812", "STM32F407"]:
             self.cpu.append("-mthumb")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
@@ -627,7 +631,7 @@ class GCC_ARM(GCC):
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target in ["LPC1768"]:
+        if target in ["LPC1768", "STM32F407"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
         
         self.sys_libs.append("nosys")

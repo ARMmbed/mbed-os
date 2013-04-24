@@ -19,6 +19,7 @@ MBED_RPC = join(MBED_BASE, "rpc")
 VENDOR = join(MBED_BASE, "vendor")
 NXP = join(VENDOR, "NXP")
 FREESCALE = join(VENDOR, "Freescale")
+STM = join(VENDOR, "STM")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 

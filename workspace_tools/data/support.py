@@ -4,6 +4,7 @@ DEFAULT_SUPPORT = {
     "LPC2368" : ["ARM"],
     "KL25Z"   : ["ARM", "GCC_CW"],
     "LPC812"  : ["uARM"],
+    "STM32F407" : ["GCC_ARM"]
 }
 CORTEX_ARM_SUPPORT = {
     "LPC1768" : ["ARM"],
