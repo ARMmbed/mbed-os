@@ -128,7 +128,7 @@ class mbedToolchain:
     CORTEX_SYMBOLS = {
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "Cortex-M0+": ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
     }
     
     def __init__(self, target, notify=None):
@@ -486,6 +486,7 @@ class ARM_STD(ARM):
 
 class ARM_MICRO(ARM):
     NAME = 'uARM' # In the future we want to rename it ARM_MICRO
+    PATCHED_LIBRARY = True
     
     def __init__(self, target, notify=None):
         ARM.__init__(self, target, notify)
@@ -496,7 +497,12 @@ class ARM_MICRO(ARM):
         self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
         
         # Linker
-        self.ld   += ["--library_type=microlib", "--noscanlib"]
+        self.ld.append("--library_type=microlib")
+        
+        # We had to patch microlib to add C++ support
+        # In later releases this patch should have entered mainline
+        if ARM_MICRO.PATCHED_LIBRARY:
+            self.ld.append("--noscanlib")
         
         # System Libraries
         self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
@@ -656,10 +662,14 @@ class GCC_CW(GCC):
     def __init__(self, target, notify=None):
         tool_path = join(GCC_CW_PATH, "Cross_Tools/arm-none-eabi-gcc-4_6_2/bin")
         GCC.__init__(self, target, notify, tool_path)
-        self.CIRCULAR_DEPENDENCIES = False
         
+        # Compiler
+        self.cc.append('-mfloat-abi=soft')
+        
+        # Linker
         lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target.core])
         self.sys_libs = []
+        self.CIRCULAR_DEPENDENCIES = False
         self.ld = [join(tool_path, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
             "-L%s" % lib_path,

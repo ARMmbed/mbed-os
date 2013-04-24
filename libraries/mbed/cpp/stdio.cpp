@@ -46,9 +46,17 @@
 
 using namespace mbed;
 
+#if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
+// Before version 5.03, we were using a patched version of microlib with proper names
+extern const char __stdin_name[]  = ":tt";
+extern const char __stdout_name[] = ":tt";
+extern const char __stderr_name[] = ":tt";
+
+#else
 extern const char __stdin_name[]  = "/stdin";
 extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
+#endif
 
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
