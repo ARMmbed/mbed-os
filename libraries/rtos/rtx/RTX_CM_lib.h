@@ -207,6 +207,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif TARGET_LPC11U24
 #define INITIAL_SP            (0x10001000UL)
 
+#elif TARGET_KL25Z
+#define INITIAL_SP            (0x20003000UL)
+
 #endif
 
 extern unsigned char Image$$RW_IRAM1$$ZI$$Limit[];

@@ -51,7 +51,7 @@
 #ifndef OS_TASKCNT
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #    define OS_TASKCNT         14
-#  elif defined(TARGET_LPC11U24)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #    define OS_TASKCNT         6
 #  endif
 #endif
@@ -60,7 +60,7 @@
 #ifndef OS_SCHEDULERSTKSIZE
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #      define OS_SCHEDULERSTKSIZE    256
-#  elif defined(TARGET_LPC11U24)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #      define OS_SCHEDULERSTKSIZE    128
 #  endif
 #endif
@@ -103,7 +103,8 @@
 #ifndef OS_CLOCK
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #    define OS_CLOCK       96000000
-#  elif defined(TARGET_LPC11U24)
+
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #    define OS_CLOCK       48000000
 #  endif
 #endif
