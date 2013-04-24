@@ -62,9 +62,9 @@ typedef enum {
 } SPIName;
 
 typedef enum {
-    I2C_0 = (int)I2C1_BASE,
-    I2C_1 = (int)I2C2_BASE,
-    I2C_2 = (int)I2C3_BASE
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
+    I2C_3 = (int)I2C3_BASE
 } I2CName;
 
 typedef enum {

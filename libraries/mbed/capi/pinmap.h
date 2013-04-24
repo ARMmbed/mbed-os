@@ -26,7 +26,7 @@ typedef struct {
     PinName pin;
     int peripheral;
     int function;
-#ifdef defined(TARGET_STM32F407)
+#if defined(TARGET_STM32F407)
     int alternate_function;
 #endif
 } PinMap;

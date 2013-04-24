@@ -20,7 +20,7 @@ uint32_t gpio_set(PinName pin) {
     uint32_t port_index = (uint32_t) pin >> 4;
 
     // Enable GPIO peripheral clock
-    RCC_APB1ENR |= 1 << port_index;
+    RCC->APB1ENR |= 1 << port_index;
 
     pin_function(pin, 0);
     return 1 << ((uint32_t) pin & 0xF);
@@ -32,11 +32,14 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->pin = pin;
     obj->mask = gpio_set(pin);
 
-    GPIO_TypeDef *port = (GPIO_TypeDef *) (GPIOA_BASE + port_index << 6);
+    uint32_t port_index = (uint32_t) pin >> 4;
+    
+    GPIO_TypeDef *port_reg = (GPIO_TypeDef *) (GPIOA_BASE + (port_index << 6));
     obj->reg_mode = &port_reg->MODER;
-    obj->reg_set = &port_reg->BSSRH;
-    obj->reg_clr = &port_reg->BSSRL;
+    obj->reg_set = &port_reg->BSRRH;
+    obj->reg_clr = &port_reg->BSRRL;
     obj->reg_in  = &port_reg->IDR;
+    obj->reg_in  = &port_reg->ODR;
 
 
     gpio_dir(obj, direction);
@@ -53,7 +56,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT : pin_function(pin, 0); break;
-        case PIN_OUTPUT: pin_function(pin, 1); break;
+        case PIN_INPUT : pin_function(obj->pin, 0); break;
+        case PIN_OUTPUT: pin_function(obj->pin, 1); break;
     }
 }

@@ -29,7 +29,7 @@ static const PinMap PinMap_I2C_SDA[] = {
     {PF_0, I2C_2, 2, 4},
     {PH_5, I2C_2, 2, 4},
     {PH_8, I2C_3, 2, 4},
-    {NC   , NC   , 0}
+    {NC   , NC   , 0, 0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
@@ -40,7 +40,7 @@ static const PinMap PinMap_I2C_SCL[] = {
     {PF_1, I2C_2, 2, 4},
     {PH_4, I2C_2, 2, 4},
     {PH_7, I2C_3, 2, 4},
-    {NC   , NC,    0}
+    {NC   , NC,    0, 0}
 };
 
 static const uint32_t I2C_addr_offset[2][4] = {
@@ -60,16 +60,16 @@ static inline void i2c_interface_disable(i2c_t *obj) {
 
 static inline void i2c_power_enable(i2c_t *obj) {
     switch ((int)obj->i2c) {
-        case I2C_1: RCC_APB1ENR |= RCC_APB1ENR_I2C1EN; break;
-        case I2C_2: RCC_APB1ENR |= RCC_APB1ENR_I2C2EN; break;
-        case I2C_3: RCC_APB1ENR |= RCC_APB1ENR_I2C3EN; break;
+        case I2C_1: RCC->APB1ENR |= RCC_APB1ENR_I2C1EN; break;
+        case I2C_2: RCC->APB1ENR |= RCC_APB1ENR_I2C2EN; break;
+        case I2C_3: RCC->APB1ENR |= RCC_APB1ENR_I2C3EN; break;
     }
 }
 
 static inline void i2c_wait_status(i2c_t *obj, uint32_t sr1_mask,
                                    uint32_t sr2_mask) {
-    while (!((obj->i2c->SR1 & sr1_mask >= sr1_mask) &&
-             (obj->i2c->SR2 & sr2_mask == sr2_mask)));
+    while (!(((obj->i2c->SR1 & sr1_mask) >= sr1_mask) &&
+             ((obj->i2c->SR2 & sr2_mask) == sr2_mask)));
 }
 
 // Wait until the slave address has been acknowledged
@@ -150,7 +150,7 @@ static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
     return 0;
 }
 
-static inline void i2c_do_read(i2c_t *obj, int last) {
+static inline int i2c_do_read(i2c_t *obj, int last) {
     if(last) {
         // Don't acknowledge the byte
         obj->i2c->CR1 &= ~(I2C_CR1_ACK);
@@ -167,7 +167,7 @@ static inline void i2c_do_read(i2c_t *obj, int last) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
-    i2c_interface_disable();
+    i2c_interface_disable(obj);
     obj->i2c->CCR &= ~I2C_CCR_CCR;
     if (hz > 100000) {
         // Fast Mode
@@ -183,7 +183,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
         result = result < 0x4 ? 0x4 : result;
         obj->i2c->CCR |= result & I2C_CCR_CCR;
     }
-    i2c_interface_enable();
+    i2c_interface_enable(obj);
 }
 
 // The I2C does a read or a write as a whole operation
@@ -201,7 +201,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
 // check for that
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
-    int count, status;
+    int count;
 
     i2c_start(obj);
 
@@ -230,7 +230,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
-    int i, status;
+    int i;
 
     i2c_start(obj);
 
@@ -239,8 +239,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     i2c_wait_addr(obj);
 
     for (i=0; i<length; i++) {
-        status = i2c_do_write(obj, data[i], 0);
-        i2c_wait_write(obj);
+        i2c_do_write(obj, data[i], 0);
+        i2c_wait_send(obj);
     }
 
     // If not repeated start, send stop.
@@ -260,8 +260,8 @@ int i2c_byte_read(i2c_t *obj, int last) {
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
-    int status = i2c_do_write(obj, (data & 0xFF), 0);
-    i2c_wait_write(obj);
+    i2c_do_write(obj, (data & 0xFF), 0);
+    i2c_wait_send(obj);
 
     // TODO: Should return whether write has been acknowledged
     return 1;

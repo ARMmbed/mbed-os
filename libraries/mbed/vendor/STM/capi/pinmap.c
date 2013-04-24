@@ -27,7 +27,7 @@ void pin_function(PinName pin, int function) {
     int pin_index = (pin_number & 0xF);
     int offset = pin_index << 1;
 
-    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + port_index << 6);
+    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + (port_index << 6));
     gpio->MODER &= ~(0x3 << offset);
     gpio->MODER |= function << offset;
 }
@@ -40,7 +40,7 @@ void pin_alternate_function(PinName pin, int function) {
     int pin_index = (pin_number & 0xF);
     int offset = (pin_index & 0x7) << 2;
 
-    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + port_index << 6);
+    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + (port_index << 6));
 
     // Bottom seven pins are in AFR[0], top seven in AFR[1]
     if (pin_index <= 0x7) {
@@ -61,7 +61,7 @@ void pin_mode(PinName pin, PinMode mode) {
     int pin_index = (pin_number & 0xF);
     int offset = pin_index << 1;
 
-    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + port_index << 6);
+    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) GPIOA_BASE + (port_index << 6));
     if (mode == OpenDrain) {
         gpio->OTYPER |= 1 << pin_index;
     }

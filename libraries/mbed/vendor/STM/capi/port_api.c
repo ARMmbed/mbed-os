@@ -27,14 +27,15 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     obj->port = port;
     obj->mask = mask;
 
-    int port_index = (uint32_t) pin >> 4;
+    uint32_t port_index = (uint32_t) port;
 
-    GPIO_TypeDef *port_reg = (GPIO_TypeDef *)(GPIOA_BASE + port_index << 6);
+    GPIO_TypeDef *port_reg = (GPIO_TypeDef *)(GPIOA_BASE + (port_index << 6));
 
     obj->reg_mode = &port_reg->MODER;
-    obj->reg_set = &port_reg->BSSRH;
-    obj->reg_clr = &port_reg->BSSRL;
+    obj->reg_set = &port_reg->BSRRH;
+    obj->reg_clr = &port_reg->BSRRL;
     obj->reg_in  = &port_reg->IDR;
+    obj->reg_in  = &port_reg->ODR;
 
     port_dir(obj, dir);
 }
