@@ -180,7 +180,7 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
     order(&v1, &v2);
     value = v2;
 #else
-    value = adc_read(adc);
+    value = adc_read(obj);
 #endif
     return value;
 }
