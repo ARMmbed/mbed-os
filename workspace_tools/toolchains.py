@@ -503,15 +503,15 @@ class ARM_MICRO(ARM):
         # In later releases this patch should have entered mainline
         if ARM_MICRO.PATCHED_LIBRARY:
             self.ld.append("--noscanlib")
-        
-        # System Libraries
-        self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
-        
-        if target.core == "Cortex-M3":
-            self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
-        
-        elif target.core in ["Cortex-M0", "Cortex-M0+"]:
-            self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
+            
+            # System Libraries
+            self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
+            
+            if target.core == "Cortex-M3":
+                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
+            
+            elif target.core in ["Cortex-M0", "Cortex-M0+"]:
+                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
 
 
 class GCC(mbedToolchain):
