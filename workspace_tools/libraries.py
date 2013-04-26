@@ -5,31 +5,45 @@ from workspace_tools.data.support import *
 LIBRARIES = [
     # NXP
     {
-        "id": "nxp_cmsis",
-        "source_dir": join(NXP, "cmsis"),
+        "id": "NXP_cmsis",
+        "source_dir": join(VENDOR_NXP, "cmsis"),
         "build_dir": MBED_LIBRARIES,
         "supported": DEFAULT_SUPPORT
     },
     {
-        "id": "nxp_mbed",
+        "id": "NXP_mbed",
         "name": "mbed",
-        "source_dir": [join(NXP, "capi"), MBED_CAPI, MBED_CPP],
+        "source_dir": [join(VENDOR_NXP, "capi"), MBED_CAPI, MBED_CPP],
         "build_dir": MBED_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
         "supported": DEFAULT_SUPPORT
     },
-    
-    # Freescale
+    # ARM
     {
-        "id": "freescale_cmsis",
-        "source_dir": join(FREESCALE, "cmsis"),
+        "id": "ARM_cmsis",
+        "source_dir": join(VENDOR_ARM, "cmsis"),
         "build_dir": MBED_LIBRARIES,
         "supported": DEFAULT_SUPPORT
     },
     {
-        "id": "freescale_mbed",
+        "id": "ARM_mbed",
         "name": "mbed",
-        "source_dir": [join(FREESCALE, "capi"), MBED_CAPI, MBED_CPP],
+        "source_dir": [join(VENDOR_ARM, "capi"), MBED_CAPI, MBED_CPP],
+        "build_dir": MBED_LIBRARIES,
+        "dependencies": [MBED_LIBRARIES],
+        "supported": DEFAULT_SUPPORT
+    },
+    # Freescale
+    {
+        "id": "Freescale_cmsis",
+        "source_dir": join(VENDOR_FREESCALE, "cmsis"),
+        "build_dir": MBED_LIBRARIES,
+        "supported": DEFAULT_SUPPORT
+    },
+    {
+        "id": "Freescale_mbed",
+        "name": "mbed",
+        "source_dir": [join(VENDOR_FREESCALE, "capi"), MBED_CAPI, MBED_CPP],
         "build_dir": MBED_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
         "supported": DEFAULT_SUPPORT

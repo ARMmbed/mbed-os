@@ -278,16 +278,21 @@ class mbedToolchain:
                 copyfile(source, target)
     
     def compile_sources(self, resources, build_path, inc_dirs=None):
+        # Web IDE progress bar for project build
+        self.to_be_compiled = len(resources.s_sources) + len(resources.c_sources) + len(resources.cpp_sources)
+        self.compiled = 0
+        
         objects = []
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
         
         for source in resources.s_sources:
+            self.compiled += 1
             _, name, _ = split_path(source)
             object = join(build_path, name + '.o')
             if self.need_update(object, [source]):
-                self.progress("assemble", source)
+                self.progress("assemble", source, build_update=True)
                 self.assemble(source, object)
             objects.append(object)
         
@@ -313,9 +318,13 @@ class mbedToolchain:
         # Check dependencies
         base, _ = splitext(object)
         dep_path = base + '.d'
+        
+        self.compiled += 1
+        
         if (not exists(dep_path) or
             self.need_update(object, self.parse_dependencies(dep_path))):
-            self.progress("compile", source)
+            
+            self.progress("compile", source, build_update=True)
             
             # Compile
             command = cc + ['-D%s' % s for s in self.symbols] + ["-I%s" % i for i in includes] + ["-o", object, source]
@@ -362,7 +371,7 @@ class mbedToolchain:
             self.progress("elf2bin", name)
             self.binary(elf, bin)
             
-            if self.target.vendor == 'nxp':
+            if self.target.vendor == 'NXP':
                 self.debug("LPC Patch %s" % (name + '.bin'))
                 patch(bin)
             
@@ -393,8 +402,11 @@ class mbedToolchain:
     def cc_info(self, severity, file, line, message):
         self.notify({'type': 'cc', 'severity': severity, 'file': file, 'line': line, 'message': message})
     
-    def progress(self, action, file):
-        self.notify({'type': 'progress', 'action': action, 'file': file})
+    def progress(self, action, file, build_update=False):
+        msg = {'type': 'progress', 'action': action, 'file': file}
+        if build_update:
+            msg['percent'] = 100. * float(self.compiled) / float(self.to_be_compiled)
+        self.notify(msg)
    
     def tool_error(self, message):
         self.notify({'type': 'tool_error', 'message': message})
@@ -424,7 +436,10 @@ class ARM(mbedToolchain):
             "-Ospace", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics"
         ]
-        common_c = ["--md", "--no_depend_system_headers"]
+        common_c = [
+            "--md", "--no_depend_system_headers",
+            '-I%s' % ARM_INC
+        ]
         
         self.asm = common
         self.cc = common + common_c + ["--c99"]
@@ -449,6 +464,11 @@ class ARM(mbedToolchain):
         for line in open(dep_path).readlines():
             match = ARM.DEP_PATTERN.match(line)
             if match is not None:
+                if self.CHROOT:
+                    # mbed.org build system: We need to append chroot here, 
+                    # because when the .d files are generated, armcc is chrooted
+                    dependencies.append(self.CHROOT + match.group('file'))
+                else:
                 dependencies.append(match.group('file'))
         return dependencies
     
@@ -482,6 +502,7 @@ class ARM_STD(ARM):
     
     def __init__(self, target, notify=None):
         ARM.__init__(self, target, notify)
+        self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
@@ -512,6 +533,8 @@ class ARM_MICRO(ARM):
             
             elif target.core in ["Cortex-M0", "Cortex-M0+"]:
                 self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
+        else:
+            self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class GCC(mbedToolchain):
@@ -660,19 +683,17 @@ class GCC_CW(GCC):
     }
     
     def __init__(self, target, notify=None):
-        tool_path = join(GCC_CW_PATH, "Cross_Tools/arm-none-eabi-gcc-4_6_2/bin")
-        GCC.__init__(self, target, notify, tool_path)
+        GCC.__init__(self, target, notify, GCC_CW_PATH)
         
         # Compiler
         self.cc.append('-mfloat-abi=soft')
         
         # Linker
-        lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target.core])
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
-        self.ld = [join(tool_path, "arm-none-eabi-g++"),
+        self.ld = [join(GCC_CW_PATH, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
-            "-L%s" % lib_path,
+            "-L%s" % join(EWL_LIB_PATH, GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
             "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
             "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",

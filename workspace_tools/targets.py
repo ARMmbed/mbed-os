@@ -22,7 +22,7 @@ class LPC2368(Target):
         Target.__init__(self)
         
         self.core = "ARM7TDMI-S"
-        self.vendor = "nxp"
+        self.vendor = "NXP"
         
         self.supported_toolchains = ["ARM"]
 
@@ -32,7 +32,7 @@ class LPC1768(Target):
         Target.__init__(self)
         
         self.core = "Cortex-M3"
-        self.vendor = "nxp"
+        self.vendor = "NXP"
         
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
@@ -42,7 +42,7 @@ class LPC11U24(Target):
         Target.__init__(self)
         
         self.core = "Cortex-M0"
-        self.vendor = "nxp"
+        self.vendor = "NXP"
         
         self.supported_toolchains = ["ARM", "uARM"]
 
@@ -52,7 +52,7 @@ class KL25Z(Target):
         Target.__init__(self)
         
         self.core = "Cortex-M0+"
-        self.vendor = "freescale"
+        self.vendor = "Freescale"
         
         self.supported_toolchains = ["ARM", "GCC_CW"]
         
@@ -64,12 +64,21 @@ class LPC812(Target):
         Target.__init__(self)
         
         self.core = "Cortex-M0+"
-        self.vendor = "nxp"
+        self.vendor = "NXP"
         
         self.supported_toolchains = ["uARM"]
         
         self.program_cycle_s = 4
 
+
+class MBED_MCU(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0+"
+        self.vendor = "ARM"
+
+        self.supported_toolchains = ["ARM"]
 
 # Get a single instance for each target
 TARGETS = [
@@ -77,7 +86,8 @@ TARGETS = [
     LPC1768(),
     LPC11U24(),
     KL25Z(),
-    LPC812()
+    LPC812(),
+    MBED_MCU()
 ]
 
 # Map each target name to its unique instance

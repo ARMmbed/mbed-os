@@ -586,19 +586,30 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z"],
     },
+    
+    # LPC812
     {
         "id": "LPC812_1", "description": "LPC812: Blinky",
         "source_dir": join(TEST_DIR, "lpc812", "blinky"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC812"],
     },
+    
+    # MBED_MCU
     {
-        "id": "EXAMPLE_1", "description": "/dev/null",
+        "id": "MBED_MCU_1", "description": "MBED_MCU: BASIC",
+        "source_dir": join(TEST_DIR, "mbed", "mbed_mcu_basic"),
+        "dependencies": [MBED_LIBRARIES],
+    },
+    
+    # Examples
+    {
+        "id": "EXAMPLE_1", "description": "Example: /dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "EXAMPLE_2", "description": "FS + RTOS",
+        "id": "EXAMPLE_2", "description": "Example: FS + RTOS",
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     }

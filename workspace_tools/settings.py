@@ -36,29 +36,20 @@ armcc = "standalone" # "keil", or "standalone", or "ds-5"
 
 if armcc == "keil":
     ARM_PATH = "C:/Keil_4_54/ARM"
-    
     ARM_BIN = join(ARM_PATH, "BIN40")
-    
-    ARM_INC = join(ARM_PATH, "INC")
-    
+    ARM_INC = join(ARM_PATH, "RV31", "INC")
     ARM_LIB    = join(ARM_PATH, "RV31", "LIB")
 
 elif armcc == "standalone":
     ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
-    
     ARM_BIN = join(ARM_PATH, "bin")
-    
     ARM_INC = join(ARM_PATH, "include")
-    
     ARM_LIB    = join(ARM_PATH, "lib")
 
 elif armcc == "ds-5":
     ARM_PATH = "C:/Program Files (x86)/DS-5"
-    
     ARM_BIN = join(ARM_PATH, "bin")
-    
     ARM_INC = join(ARM_PATH, "include")
-    
     ARM_LIB    = join(ARM_PATH, "lib")
 
 ARM_CPPLIB = join(ARM_LIB, "cpplib")
@@ -75,6 +66,10 @@ GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
 IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 6.0/arm"
+
+# GCC Code Warrior
+GCC_CW_PATH  = "C:/Freescale/CW MCU v10.3/Cross_Tools/arm-none-eabi-gcc-4_6_2/bin"
+EWL_LIB_PATH = "C:/Freescale/CW MCU v10.3/MCU/ARM_GCC_Support/ewl/lib"
 
 try:
     # Allow to overwrite the default settings without the need to edit the
