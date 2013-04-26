@@ -166,9 +166,9 @@ class mbedToolchain:
         
         if not exists(target):
             return True
-        
+
         target_mod_time = stat(target).st_mtime
-        
+
         for d in dependencies:
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
@@ -375,8 +375,8 @@ class mbedToolchain:
                 self.debug("LPC Patch %s" % (name + '.bin'))
                 patch(bin)
             
-            self.var("compile_succeded", True)
-            self.var("binary", name+'.bin')
+        self.var("compile_succeded", True)
+        self.var("binary", name+'.bin')
         
         return bin
     
@@ -469,7 +469,7 @@ class ARM(mbedToolchain):
                     # because when the .d files are generated, armcc is chrooted
                     dependencies.append(self.CHROOT + match.group('file'))
                 else:
-                dependencies.append(match.group('file'))
+                    dependencies.append(match.group('file'))
         return dependencies
     
     def parse_output(self, output):
