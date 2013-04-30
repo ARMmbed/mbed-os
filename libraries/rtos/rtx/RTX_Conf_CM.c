@@ -221,7 +221,7 @@ extern void mbed_die(void);
 
 void os_error (uint32_t err_code) {
     /* This function is called when a runtime error is detected. Parameter     */
-    /* 'err_code' holds the runtime error code (defined in RTX_Config.h).      */
+    /* 'err_code' holds the runtime error code (defined in RTX_Conf.h).      */
     mbed_die();
 }
 
