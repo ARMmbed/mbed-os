@@ -135,7 +135,31 @@ TESTS = [
         "automated": True,
         "peripherals": ["MMA7660"]
     },
-       
+    {
+        "id": "MBED_A14", "description": "MBED: I2C Master",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A15", "description": "MBED: I2C Slave",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A16", "description": "MBED: SPI Master",
+        "source_dir": join(TEST_DIR, "mbed", "spi_master"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A17", "description": "MBED: SPI Slave",
+        "source_dir": join(TEST_DIR, "mbed", "spi_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Benchmark: Size (c environment)",

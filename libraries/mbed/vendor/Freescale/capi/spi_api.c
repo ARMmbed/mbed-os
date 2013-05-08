@@ -103,7 +103,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
     uint8_t polarity = (mode & 0x2) ? 1 : 0;
     uint8_t phase = (mode & 0x1) ? 1 : 0;
-    uint8_t c1_data = ((!slave) << 4) | (polarity << 3) | (phase << 3);
+    uint8_t c1_data = ((!slave) << 4) | (polarity << 3) | (phase << 2);
 
     // clear MSTR, CPOL and CPHA bits
     obj->spi->C1 &= ~(0x7 << 2);
@@ -143,17 +143,33 @@ void spi_frequency(spi_t *obj, int hz) {
     obj->spi->BR = ((ref_prescaler & 0x7) << 4) | (ref_spr & 0xf);
 }
 
+static inline int spi_writeable(spi_t * obj) {
+    return (obj->spi->S & SPI_S_SPTEF_MASK) ? 1 : 0;
+}
+
+static inline int spi_readable(spi_t * obj) {
+    return (obj->spi->S & SPI_S_SPRF_MASK) ? 1 : 0;
+}
 
 int spi_master_write(spi_t *obj, int value) {
     // wait tx buffer empty
-    while((obj->spi->S & SPI_S_SPTEF_MASK) == 0);
+    while(!spi_writeable(obj));
     obj->spi->D = (value & 0xff);
 
     // wait rx buffer full
-    while ((obj->spi->S & SPI_S_SPRF_MASK) == 0);
+    while (!spi_readable(obj));
     return obj->spi->D & 0xff;
 }
 
-int spi_busy(spi_t *obj) {
-    return -1;
+int spi_slave_receive(spi_t *obj) {
+    return spi_readable(obj);
+}
+
+int spi_slave_read(spi_t *obj) {
+    return obj->spi->D;
+}
+
+void spi_slave_write(spi_t *obj, int value) {
+    while (!spi_writeable(obj));
+    obj->spi->D = value;
 }
