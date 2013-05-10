@@ -54,7 +54,7 @@ class KL25Z(Target):
         self.core = "Cortex-M0+"
         self.vendor = "Freescale"
         
-        self.supported_toolchains = ["ARM", "GCC_CW"]
+        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB"]
         
         self.program_cycle_s = 4
 

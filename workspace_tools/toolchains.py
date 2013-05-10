@@ -434,8 +434,8 @@ class ARM(mbedToolchain):
         common = [join(ARM_BIN, "armcc"), "-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics"
-        ]
+            "--brief_diagnostics", "--restrict"
+        ] # "--asm" "--interleave"
         common_c = [
             "--md", "--no_depend_system_headers",
             '-I%s' % ARM_INC
@@ -676,28 +676,50 @@ class GCC_CS(GCC):
 
 
 class GCC_CW(GCC):
-    NAME = 'GCC_CW'
-    
     ARCH_LIB = {
         "Cortex-M0+": "armv6-m",
     }
     
     def __init__(self, target, notify=None):
-        GCC.__init__(self, target, notify, GCC_CW_PATH)
+        GCC.__init__(self, target, notify, CW_GCC_PATH)
+
+
+class GCC_CW_EWL(GCC_CW):
+    NAME = 'GCC_CW_EWL'
+    
+    def __init__(self, target, notify=None):
+        GCC_CW.__init__(self, target, notify)
         
         # Compiler
-        self.cc.append('-mfloat-abi=soft')
+        common = [
+            '-mfloat-abi=soft',
+            '-nostdinc', '-I%s' % join(CW_EWL_PATH, "EWL_C", "include"),
+        ]
+        self.cc += common + [
+            '-include', join(CW_EWL_PATH, "EWL_C", "include", 'lib_c99.prefix')
+        ]
+        self.cppc += common + [
+            '-nostdinc++', '-I%s' % join(CW_EWL_PATH, "EWL_C++", "include"),
+            '-include', join(CW_EWL_PATH, "EWL_C++", "include", 'lib_ewl_c++.prefix')
+        ]
         
         # Linker
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
         self.ld = [join(GCC_CW_PATH, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
-            "-L%s" % join(EWL_LIB_PATH, GCC_CW.ARCH_LIB[target.core]),
+            "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
             "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
             "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
         ] + self.cpu
+
+
+class GCC_CW_NEWLIB(GCC_CW):
+    NAME = 'GCC_CW_NEWLIB'
+    
+    def __init__(self, target, notify=None):
+        GCC_CW.__init__(self, target, notify)
 
 
 class IAR(mbedToolchain):
@@ -772,6 +794,7 @@ class IAR(mbedToolchain):
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD, 'uARM': ARM_MICRO,
-    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR, 'GCC_CW': GCC_CW,
+    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR,
+    'GCC_CW_EWL': GCC_CW_EWL, 'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }

@@ -6,7 +6,6 @@ import sys
 from os.path import join, abspath, dirname
 from shutil import copy
 from time import sleep
-from serial import Serial
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -90,6 +89,9 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         
         if options.serial:
+            # Import pyserial: https://pypi.python.org/pypi/pyserial
+            from serial import Serial
+            
             sleep(target.program_cycle_s)
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
