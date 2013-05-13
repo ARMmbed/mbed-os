@@ -25,7 +25,6 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * ARM  -> ARM_STD
   * uARM -> ARM_MICRO
 """
-TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'IAR'])
 
 # List of ignored directories (all the hidden directories are ignored by default)
 IGNORE_DIRECTORIES = set(['CVS'])
@@ -798,3 +797,5 @@ TOOLCHAIN_CLASSES = {
     'GCC_CW_EWL': GCC_CW_EWL, 'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
+
+TOOLCHAINS = set(TOOLCHAIN_CLASSES.keys())
