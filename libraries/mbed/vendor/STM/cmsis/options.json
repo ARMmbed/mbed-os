@@ -1,0 +1,12 @@
+{
+    "objects": [
+        "core_cm4.o",
+        "core_cm4_simd.o",
+
+        "system_stm32f4xx.o",
+
+        "startup_STM32F40x.o",
+
+        "cmsis_nvic.o"
+    ]
+}
