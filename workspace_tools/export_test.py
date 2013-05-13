@@ -7,6 +7,8 @@ from workspace_tools.paths import *
 from workspace_tools.utils import mkdir, cmd, copy_file
 from workspace_tools.export import export
 
+from shutil import copytree
+
 
 USR_PRJ_NAME = "export_test"
 USER_PRJ = join(BUILD_DIR, USR_PRJ_NAME)
@@ -25,7 +27,8 @@ def setup_test_user_prj():
     
     # Sources
     print 'Coping sources...'
-    copy_file(join(TEST_DIR, "mbed", "hello", "main.cpp"), join(USER_SRC, "main.cpp"))
+    copy_file(join(TEST_DIR, "rtos", "mbed", "basic", "main.cpp"), join(USER_SRC, "main.cpp"))
+    copytree(join(LIB_DIR, "rtos"), join(USER_LIB, "rtos"))
     
     # FAKE BUILD URL
     open(join(USER_SRC, "mbed.bld"), 'w').write("http://mbed.org/users/mbed_official/code/mbed/builds/976df7c37ad5\n")
