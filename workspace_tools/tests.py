@@ -500,6 +500,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
+    {
+        "id": "NET_13", "description": "NET: TCP client echo loop",
+        "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "supported": CORTEX_ARM_SUPPORT,
+    },
     
     # Vodafone tests
     {

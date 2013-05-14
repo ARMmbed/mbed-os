@@ -65,9 +65,10 @@ public:
         */
     int get_option(int level, int optname, void *optval, socklen_t *optlen);
     
-    /** Close the socket file descriptor
+    /** Close the socket
+        \param shutdown   free the left-over data in message queues
      */
-    int close();
+    int close(bool shutdown=true);
     
     ~Socket();
     
