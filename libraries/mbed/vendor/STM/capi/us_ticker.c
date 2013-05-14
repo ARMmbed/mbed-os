@@ -32,6 +32,7 @@ void us_ticker_init(void) {
     
     uint32_t prescale = PCLK / 1000000; // default to 1MHz (1 us ticks)
     US_TICKER_TIMER->PSC = prescale - 1;
+    US_TICKER_TIMER->EGR |= TIM_EGR_UG;
     US_TICKER_TIMER->CR1 |= TIM_CR1_CEN;
 
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
