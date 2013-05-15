@@ -1,0 +1,22 @@
+
+LR_IROM1 0x00000000 0x80000  {    ; load region size_region
+  ER_IROM1 0x00000000 0x80000  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  ; 8_byte_aligned(55 vect * 4 bytes) =  8_byte_aligned(0xDC) = 0xE0
+  ; 64KB - 0xE0 = 0xFF20
+  RW_IRAM1 0x100000E0 0xFF20  {
+   .ANY (+RW +ZI)
+  }
+  RW_IRAM2 0x20000000 0x4000  {  ; RW data, ETH RAM
+   .ANY (AHBSRAM0)
+  }
+  RW_IRAM3 0x20040000 0x4000  {  ; RW data, ETH RAM
+   .ANY (AHBSRAM1)
+  }
+  RW_IRAM4 0x40038000 0x0800  {  ; RW data, CAN RAM
+   .ANY (CANRAM)
+  }
+}

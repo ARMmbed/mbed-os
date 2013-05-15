@@ -20,7 +20,7 @@
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 
 PinName port_pin(PortName port, int pin_n) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
     return (PinName)(LPC_GPIO0_BASE + ((port << PORT_SHIFT) | pin_n));
 #elif defined(TARGET_LPC11U24)
     return (PinName)((port << PORT_SHIFT) | pin_n);
@@ -31,7 +31,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     obj->port = port;
     obj->mask = mask;
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
     LPC_GPIO_TypeDef *port_reg = (LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + ((int)port * 0x20));
 
     // Do not use masking, because it prevents the use of the unmasked pins
@@ -78,7 +78,7 @@ void port_dir(port_t *obj, PinDirection dir) {
 void port_write(port_t *obj, int value) {
 #if defined(TARGET_LPC11U24)
     *obj->reg_mpin = value;
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
     *obj->reg_out = (*obj->reg_in & ~obj->mask) | (value & obj->mask);
 #endif
 }
@@ -86,7 +86,7 @@ void port_write(port_t *obj, int value) {
 int port_read(port_t *obj) {
 #if defined(TARGET_LPC11U24)
     return (*obj->reg_mpin);
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
     return (*obj->reg_in & obj->mask);
 #endif
 }

@@ -37,6 +37,16 @@ class LPC1768(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
 
+class LPC1788(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        self.vendor = "NXP"
+        
+        self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+
+
 class LPC11U24(Target):
     def __init__(self):
         Target.__init__(self)
@@ -54,7 +64,7 @@ class KL25Z(Target):
         self.core = "Cortex-M0+"
         self.vendor = "Freescale"
         
-        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB"]
+        self.supported_toolchains = ["ARM", "GCC_CW"]
         
         self.program_cycle_s = 4
 
@@ -84,6 +94,7 @@ class MBED_MCU(Target):
 TARGETS = [
     LPC2368(),
     LPC1768(),
+	LPC1788(),
     LPC11U24(),
     KL25Z(),
     LPC812(),
