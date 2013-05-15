@@ -17,7 +17,7 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
 #define US_TICKER_TIMER      ((LPC_TIM_TypeDef *)LPC_TIM3_BASE)
 #define US_TICKER_TIMER_IRQn TIMER3_IRQn
 
@@ -57,7 +57,7 @@ void us_ticker_init(void) {
     LPC_SCT->CTRL_L &= ~(1 << 2);
     
 #else
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined (TARGET_LPC1788)
     LPC_SC->PCONP |= 1 << 23; // Clock TIMER_3
     
     US_TICKER_TIMER->CTCR = 0x0; // timer mode
