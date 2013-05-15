@@ -32,8 +32,9 @@ void us_ticker_init(void) {
     
     uint32_t prescale = PCLK / 1000000; // default to 1MHz (1 us ticks)
     US_TICKER_TIMER->PSC = prescale - 1;
-    US_TICKER_TIMER->EGR |= TIM_EGR_UG;
     US_TICKER_TIMER->CR1 |= TIM_CR1_CEN;
+    // Trigger an update - this needs to happen after the counter is enabled.
+    US_TICKER_TIMER->EGR |= TIM_EGR_UG;
 
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
@@ -48,15 +49,15 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
     // set match value
-    US_TICKER_TIMER->ARR = timestamp;
-    // enable update interrupt
-    US_TICKER_TIMER->DIER |= TIM_DIER_UIE;
+    US_TICKER_TIMER->CCR1 = timestamp;
+    // enable compare interrupt
+    US_TICKER_TIMER->DIER |= TIM_DIER_CC1IE;
 }
 
 void us_ticker_disable_interrupt(void) {
-    US_TICKER_TIMER->DIER &= ~TIM_DIER_UIE;
+    US_TICKER_TIMER->DIER &= ~TIM_DIER_CC1IE;
 }
 
 void us_ticker_clear_interrupt(void) {
-    US_TICKER_TIMER->SR &= ~TIM_SR_UIF;
+    US_TICKER_TIMER->SR &= ~TIM_SR_CC1IF;
 }
