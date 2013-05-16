@@ -81,9 +81,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // enable power and clocking
     switch ((int)obj->spi) {
-        case SPI_1: RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; break;
-        case SPI_2: RCC->APB1ENR |= RCC_APB1ENR_SPI2EN; break;
-        case SPI_3: RCC->APB1ENR |= RCC_APB1ENR_SPI3EN; break;
+        case SPI_1:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+            break;
+        case SPI_2:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN;
+            RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+            break;
+        case SPI_3:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN;
+            RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+            break;
     }
     
 
@@ -105,6 +114,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
     }
+    else {
+        // Use software slave management
+        obj->spi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
+    }
 }
 
 void spi_free(spi_t *obj) {}
@@ -120,13 +133,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;
 
-    uint32_t tmp = obj->spi->CR1;
-    tmp &= ~(0xFFFF);
-    tmp |= ((phase) ? 1 : 0) << 0
-        | ((polarity) ? 1 : 0) << 1
-        | ((slave) ? 0: 1) << 2
-        | ((bits == 16) ? 1 : 0) << 11;
-    obj->spi->CR1 = tmp;
+    obj->spi->CR1 &= ~0x807;
+    obj->spi->CR1 |= ((phase) ? 1 : 0) << 0 |
+                     ((polarity) ? 1 : 0) << 1 |
+                     ((slave) ? 0: 1) << 2 |
+                     ((bits == 16) ? 1 : 0) << 11;
+
+    if (obj->spi->SR & SPI_SR_MODF) {
+        obj->spi->CR1 = obj->spi->CR1;
+    }
 
     ssp_enable(obj);
 }
@@ -155,28 +170,30 @@ void spi_frequency(spi_t *obj, int hz) {
     divisor |= divisor >> 16;
     divisor++;
 
-    uint32_t baud_rate = ffz(divisor) - 1;
+    uint32_t baud_rate = __builtin_ffs(divisor) - 1;
     baud_rate = baud_rate > 0x7 ? 0x7 : baud_rate;
 
     obj->spi->CR1 &= ~(0x7 << 3);
     obj->spi->CR1 |= baud_rate << 3;
+
+    ssp_enable(obj);
 }
 
 static inline int ssp_disable(spi_t *obj) {
     // TODO: Follow the instructions in 25.3.8 for safely disabling the SPI
-    return obj->spi->CR1 &= ~(1 << 6);
+    return obj->spi->CR1 &= ~SPI_CR1_SPE;
 }
 
 static inline int ssp_enable(spi_t *obj) {
-    return obj->spi->CR1 |= (1 << 6);
+    return obj->spi->CR1 |= SPI_CR1_SPE;
 }
 
 static inline int ssp_readable(spi_t *obj) {
-    return obj->spi->SR & (1 << 0);
+    return obj->spi->SR & SPI_SR_RXNE;
 }
 
 static inline int ssp_writeable(spi_t *obj) {
-    return obj->spi->SR & (1 << 1);
+    return obj->spi->SR & SPI_SR_TXE;
 }
 
 static inline void ssp_write(spi_t *obj, int value) {
@@ -190,7 +207,7 @@ static inline int ssp_read(spi_t *obj) {
 }
 
 static inline int ssp_busy(spi_t *obj) {
-    return (obj->spi->SR & (1 << 7)) ? (1) : (0);
+    return (obj->spi->SR & SPI_SR_BSY) ? (1) : (0);
 }
 
 int spi_master_write(spi_t *obj, int value) {
