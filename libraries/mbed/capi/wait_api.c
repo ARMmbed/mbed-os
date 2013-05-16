@@ -17,7 +17,7 @@
 #include "us_ticker_api.h"
 
 void wait(float s) {
-    wait_us(s * 1000000.0);
+    wait_us(s * 1000000.0f);
 }
 
 void wait_ms(int ms) {

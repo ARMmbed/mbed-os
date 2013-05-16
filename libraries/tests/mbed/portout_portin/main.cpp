@@ -9,7 +9,7 @@
 #define P2_2    (1 << 25) // p1.25
 #define PORT_2  Port1
 
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #define P1_1    (1 << 9)  // p0.9  -> p5
 #define P1_2    (1 << 8)  // p0.8  -> p6
 #define PORT_1  Port0

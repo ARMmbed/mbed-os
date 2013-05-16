@@ -44,6 +44,8 @@
 /** \brief  DP83848 PHY register offsets */
 #define DP8_BMCR_REG        0x0  /**< Basic Mode Control Register */
 #define DP8_BMSR_REG        0x1  /**< Basic Mode Status Reg */
+#define DP8_IDR1_REG        0x2  /**< Basic Mode Status Reg */
+#define DP8_IDR2_REG        0x3  /**< Basic Mode Status Reg */
 #define DP8_ANADV_REG       0x4  /**< Auto_Neg Advt Reg  */
 #define DP8_ANLPA_REG       0x5  /**< Auto_neg Link Partner Ability Reg */
 #define DP8_ANEEXP_REG      0x6  /**< Auto-neg Expansion Reg  */
@@ -51,6 +53,8 @@
 #define DP8_PHY_INT_CTL_REG 0x11 /**< PHY Interrupt Control Register */
 #define DP8_PHY_RBR_REG     0x17 /**< PHY RMII and Bypass Register  */
 #define DP8_PHY_STS_REG     0x19 /**< PHY Status Register  */
+
+#define DP8_PHY_SCSR_REG    0x1f /**< PHY Special Control/Status Register (LAN8720)  */
 
 /** \brief DP83848 Control register definitions */
 #define DP8_RESET          (1 << 15)  /**< 1= S/W Reset */
@@ -90,6 +94,19 @@
 #define DP8_PHYID1_OUI     0x2000     /**< Expected PHY ID1 */
 #define DP8_PHYID2_OUI     0x5c90     /**< Expected PHY ID2 */
 
+/** \brief LAN8720 PHY Special Control/Status Register */
+#define PHY_SCSR_100MBIT    0x0008    /**< Speed: 1=100 MBit, 0=10Mbit */
+#define PHY_SCSR_DUPLEX     0x0010    /**< PHY Duplex Mask             */
+
+/** \brief Link status bits */
+#define LNK_STAT_VALID       0x01 
+#define LNK_STAT_FULLDUPLEX  0x02
+#define LNK_STAT_SPEED10MPS  0x04
+
+/** \brief PHY ID definitions */
+#define DP83848C_ID         0x20005C90  /**< PHY Identifier - DP83848C */
+#define LAN8720_ID          0x0007C0F0  /**< PHY Identifier - LAN8720  */
+
 /** \brief PHY status structure used to indicate current status of PHY.
  */
 typedef struct {
@@ -107,6 +124,12 @@ static PHY_STATUS_TYPE olddphysts;
 /** \brief  PHY update counter for state machine */
 static s32_t phyustate;
 
+/** \brief  Holds the PHY ID */
+static u32_t phy_id;
+
+/** \brief  Temporary holder of link status for LAN7420 */
+static u32_t phy_lan7420_sts_tmp;
+
 /** \brief  Update PHY status from passed value
  *
  *  This function updates the current PHY status based on the
@@ -122,19 +145,19 @@ static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
 	s32_t changed = 0;
 
 	/* Update link active status */
-	if (linksts & DP8_VALID_LINK)
+	if (linksts & LNK_STAT_VALID)
 		physts.phy_link_active = 1;
 	else
 		physts.phy_link_active = 0;
 
 	/* Full or half duplex */
-	if (linksts & DP8_FULLDUPLEX)
+	if (linksts & LNK_STAT_FULLDUPLEX)
 		physts.phy_full_duplex = 1;
 	else
 		physts.phy_full_duplex = 0;
 
 	/* Configure 100MBit/10MBit mode. */
-	if (linksts & DP8_SPEED10MBPS)
+	if (linksts & LNK_STAT_SPEED10MPS)
 		physts.phy_speed_100mbs = 0;
 	else
 		physts.phy_speed_100mbs = 1;
@@ -229,6 +252,12 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 	if (i == 0)
 		return ERR_TIMEOUT;
 
+	// read PHY ID
+	lpc_mii_read(DP8_IDR1_REG, &tmp);
+	phy_id = (tmp << 16);
+	lpc_mii_read(DP8_IDR2_REG, &tmp);    
+	phy_id |= (tmp & 0XFFF0);    
+
 	/* Setup link based on configuration options */
 #if PHY_USE_AUTONEG==1
 	tmp = DP8_AUTONEG;
@@ -257,21 +286,55 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 s32_t lpc_phy_sts_sm(struct netif *netif)
 {
 	s32_t changed = 0;
+	u32_t data = 0;
+	u32_t tmp;
 
 	switch (phyustate) {
 		default:
 		case 0:
-			/* Read BMSR to clear faults */
-			lpc_mii_read_noblock(DP8_PHY_STAT_REG);
-			phyustate = 1;
+			if (phy_id == DP83848C_ID) {    
+				lpc_mii_read_noblock(DP8_PHY_STAT_REG);
+				phyustate = 2;
+			}
+			else if (phy_id == LAN8720_ID) {
+				lpc_mii_read_noblock(DP8_PHY_SCSR_REG);
+				phyustate = 1;        
+			}
 			break;
 
 		case 1:
+			if (phy_id == LAN8720_ID) {
+				tmp = lpc_mii_read_data();
+				// we get speed and duplex here. 
+				phy_lan7420_sts_tmp =  (tmp & PHY_SCSR_DUPLEX)  ? LNK_STAT_FULLDUPLEX : 0;
+				phy_lan7420_sts_tmp |= (tmp & PHY_SCSR_100MBIT) ? 0 : LNK_STAT_SPEED10MPS;
+
+				//read the status register to get link status 
+				lpc_mii_read_noblock(DP8_BMSR_REG);
+				phyustate = 2;        
+			}
+			break;
+
+		case 2:
 			/* Wait for read status state */
 			if (!lpc_mii_is_busy()) {
 				/* Update PHY status */
-				changed = lpc_update_phy_sts(netif, lpc_mii_read_data());
-				phyustate = 0;
+				tmp = lpc_mii_read_data();
+
+				if (phy_id == DP83848C_ID) {
+					// STS register contains all needed status bits
+					data  = (tmp & DP8_VALID_LINK) ? LNK_STAT_VALID : 0;
+					data |= (tmp & DP8_FULLDUPLEX) ? LNK_STAT_FULLDUPLEX : 0;
+					data |= (tmp & DP8_SPEED10MBPS) ? LNK_STAT_SPEED10MPS : 0;
+				}
+				else if (phy_id == LAN8720_ID) {    
+					// we only get the link status here.
+					phy_lan7420_sts_tmp |= (tmp & DP8_LINK_STATUS) ? LNK_STAT_VALID : 0;
+					data = phy_lan7420_sts_tmp;          
+				}
+
+				changed = lpc_update_phy_sts(netif, data);        
+				phyustate = 0;                
 			}
 			break;
 	}

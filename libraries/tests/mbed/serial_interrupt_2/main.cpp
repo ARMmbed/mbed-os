@@ -2,7 +2,11 @@
 
 Serial pc(USBTX, USBRX);
 
+#if defined(TARGET_LPC4088)
+Serial uart(P4_22, P4_23);
+#else
 Serial uart(p9, p10);
+#endif
 
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);

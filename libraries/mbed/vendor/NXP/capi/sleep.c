@@ -29,7 +29,7 @@ void sleep(void) {
     // PCON[PD] set to sleep
 #if defined(TARGET_LPC11U24)
     LPC_PMU->PCON = 0x0;
-#elif defined(TARGET_LPC1768)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC4088)
     LPC_SC->PCON = 0x0;
 #endif
 
@@ -85,7 +85,7 @@ void deepsleep(void) {
     // wait for interrupt
     __WFI();
 
-#elif defined(TARGET_LPC1768)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC4088)
     sleep();
 #endif
 }
