@@ -20,7 +20,7 @@
 #ifndef ETHERNETINTERFACE_H_
 #define ETHERNETINTERFACE_H_
 
-#if !defined(TARGET_LPC1768)
+#if !defined(TARGET_LPC1768) && !defined(TARGET_LPC4088)
 #error The Ethernet Interface library is supported only on the mbed NXP LPC1768
 #endif
 

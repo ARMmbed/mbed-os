@@ -17,7 +17,7 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #define US_TICKER_TIMER      ((LPC_TIM_TypeDef *)LPC_TIM3_BASE)
 #define US_TICKER_TIMER_IRQn TIMER3_IRQn
 
@@ -66,6 +66,12 @@ void us_ticker_init(void) {
 #elif defined(TARGET_LPC11U24)
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<10); // Clock TIMER_1
     uint32_t PCLK = SystemCoreClock;
+
+#elif defined(TARGET_LPC4088)
+    LPC_SC->PCONP |= 1 << 23; // Clock TIMER_3
+
+    US_TICKER_TIMER->CTCR = 0x0; // timer mode
+    uint32_t PCLK = PeripheralClock;
 
 #endif
     US_TICKER_TIMER->TCR = 0x2;  // reset

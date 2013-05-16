@@ -77,6 +77,15 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_clr = &LPC_GPIO_PORT->CLR0;
     obj->reg_in  = &LPC_GPIO_PORT->PIN0;
     obj->reg_dir = &LPC_GPIO_PORT->DIR0;
+
+#elif defined(TARGET_LPC4088)
+    LPC_GPIO_TypeDef *port_reg = (LPC_GPIO_TypeDef *) ((int)(LPC_GPIO0_BASE+pin) & ~0x1F);
+
+    obj->reg_set = &port_reg->SET;
+    obj->reg_clr = &port_reg->CLR;
+    obj->reg_in  = &port_reg->PIN;
+    obj->reg_dir = &port_reg->DIR;
+
 #endif
 
     gpio_dir(obj, direction);

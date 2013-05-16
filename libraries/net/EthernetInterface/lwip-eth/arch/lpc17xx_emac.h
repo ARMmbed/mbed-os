@@ -34,7 +34,7 @@
 #define LPC17XX_EMAC_H_
 
 /* Includes ------------------------------------------------------------------- */
-#include "LPC17xx.h"
+#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C"

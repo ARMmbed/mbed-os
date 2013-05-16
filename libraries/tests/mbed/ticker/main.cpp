@@ -13,7 +13,7 @@ void flip_1() {
 
 Ticker flipper_2;
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
 #   define LED_NAME LED2
 #else
 #   define LED_NAME PTE31

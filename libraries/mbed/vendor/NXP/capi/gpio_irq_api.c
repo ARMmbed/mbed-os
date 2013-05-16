@@ -33,12 +33,15 @@
 #define CHANNEL_NUM    8
 #define LPC_GPIO_X LPC_PIN_INT
 #define PININT_IRQ PININT0_IRQn
+
+#elif defined(TARGET_LPC4088)
+#define CHANNEL_NUM    64
 #endif
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 static void handle_interrupt_in(void) {
     // Read in all current interrupt registers. We do this once as the
     // GPIO interrupt registers are on the APB bus, and this is slow.
@@ -65,8 +68,13 @@ static void handle_interrupt_in(void) {
         }
     }
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     // P2.0-2.15
     for (i = 0; i < 16; i++) {
+#elif defined(TARGET_LPC4088)
+    // P2.0-2.31
+    for (i = 0; i < 32; i++) {
+#endif
         uint32_t pmask = (1 << i);
         int channel_index = i + 32;
         if (rise2 & pmask) {
@@ -123,9 +131,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     irq_handler = handler;
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     obj->port = (int)pin & ~0x1F;
     obj->pin = (int)pin & 0x1F;
+#elif defined(TARGET_LPC4088)
+    obj->port = ((int)(LPC_GPIO0_BASE+pin) & ~0x1F);
+    obj->pin = (int)pin % 32;
+#endif
 
     // Interrupts available only on GPIO0 and GPIO2
     if (obj->port != LPC_GPIO0_BASE && obj->port != LPC_GPIO2_BASE) {
@@ -137,8 +151,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     channel_ids[index] = id;
     obj->ch = index;
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     NVIC_SetVector(EINT3_IRQn, (uint32_t)handle_interrupt_in);
     NVIC_EnableIRQ(EINT3_IRQn);
+#elif defined(TARGET_LPC4088)
+    NVIC_SetVector(GPIO_IRQn, (uint32_t)handle_interrupt_in);
+    NVIC_EnableIRQ(GPIO_IRQn);
+#endif
 
 #elif defined(TARGET_LPC11U24) || defined(TARGET_LPC812)
     int found_free_channel = 0;
@@ -197,7 +216,7 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
     // ensure nothing is pending
     switch (obj->port) {
          case LPC_GPIO0_BASE: LPC_GPIOINT->IO0IntClr = 1 << obj->pin; break;

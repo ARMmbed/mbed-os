@@ -21,6 +21,7 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 #include "toolchain.h"
+#include "error.h"
 
 #define NEW_LOGIC       0
 #define NEW_ETH_BUFFER  0
@@ -127,7 +128,7 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 /* MII Management Configuration Register */
 #define MCFG_SCAN_INC       0x00000001  /* Scan Increment PHY Address        */
 #define MCFG_SUPP_PREAM     0x00000002  /* Suppress Preamble                 */
-#define MCFG_CLK_SEL        0x0000001C  /* Clock Select Mask                 */
+#define MCFG_CLK_SEL        0x0000003C  /* Clock Select Mask                 */
 #define MCFG_RES_MII        0x00008000  /* Reset MII Management Hardware     */
 
 /* MII Management Command Register */
@@ -322,6 +323,8 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define PHY_REG_CDCTRL1     0x1B        /* CD Test Control and BIST Extens.  */
 #define PHY_REG_EDCR        0x1D        /* Energy Detect Control Register    */
 
+#define PHY_REG_SCSR        0x1F        /* PHY Special Control/Status Register */
+
 #define PHY_FULLD_100M      0x2100      /* Full Duplex 100Mbit               */
 #define PHY_HALFD_100M      0x2000      /* Half Duplex 100Mbit               */
 #define PHY_FULLD_10M       0x0100      /* Full Duplex 10Mbit                */
@@ -329,13 +332,21 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define PHY_AUTO_NEG        0x3000      /* Select Auto Negotiation           */
 
 #define DP83848C_DEF_ADR    0x0100      /* Default PHY device address        */
-#define DP83848C_ID         0x20005C90  /* PHY Identifier                    */
+#define DP83848C_ID         0x20005C90  /* PHY Identifier - DP83848C         */
+
+#define LAN8720_ID          0x0007C0F0  /* PHY Identifier - LAN8720          */
 
 #define PHY_STS_LINK        0x0001      /* PHY Status Link Mask              */
 #define PHY_STS_SPEED       0x0002      /* PHY Status Speed Mask             */
 #define PHY_STS_DUPLEX      0x0004      /* PHY Status Duplex Mask            */
 
 #define PHY_BMCR_RESET      0x8000      /* PHY Reset                         */
+
+#define PHY_BMSR_LINK       0x0004      /* PHY BMSR Link valid               */
+
+#define PHY_SCSR_100MBIT    0x0008      /* Speed: 1=100 MBit, 0=10Mbit       */
+#define PHY_SCSR_DUPLEX     0x0010      /* PHY Duplex Mask                   */
+
 
 static int phy_read(unsigned int PhyReg);
 static int phy_write(unsigned int PhyReg, unsigned short Data);
@@ -345,6 +356,8 @@ static void rxdscr_init(void);
 
 #if defined (__ICCARM__)
 #   define AHBSRAM1
+#elif defined(TOOLCHAIN_GCC_CR)
+#   define AHBSRAM1 __attribute__((section(".data.$RamPeriph32")))
 #else
 #   define AHBSRAM1     __attribute__((section("AHBSRAM1"),aligned))
 #endif
@@ -368,6 +381,8 @@ static int send_size =  0;
 static int receive_soff =  0;
 static int receive_idx  = -1;
 #endif
+
+static uint32_t phy_id = 0;
 
 static inline int rinc(int idx, int mod) {
   ++idx;
@@ -426,9 +441,31 @@ int ethernet_init() {
 
   LPC_SC->PCONP |= 0x40000000;                       /* Power Up the EMAC controller. */
 
-
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
   LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
   LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
+#elif defined(TARGET_LPC4088)
+  LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
+  LPC_IOCON->P1_0  |= 0x01;     /* ENET_TXD0 */
+  LPC_IOCON->P1_1  &= ~0x07;
+  LPC_IOCON->P1_1  |= 0x01;     /* ENET_TXD1 */
+  LPC_IOCON->P1_4  &= ~0x07;
+  LPC_IOCON->P1_4  |= 0x01;     /* ENET_TXEN */
+  LPC_IOCON->P1_8  &= ~0x07;
+  LPC_IOCON->P1_8  |= 0x01;     /* ENET_CRS */
+  LPC_IOCON->P1_9  &= ~0x07;
+  LPC_IOCON->P1_9  |= 0x01;     /* ENET_RXD0 */
+  LPC_IOCON->P1_10 &= ~0x07;
+  LPC_IOCON->P1_10 |= 0x01;     /* ENET_RXD1 */
+  LPC_IOCON->P1_14 &= ~0x07;
+  LPC_IOCON->P1_14 |= 0x01;     /* ENET_RX_ER */
+  LPC_IOCON->P1_15 &= ~0x07;
+  LPC_IOCON->P1_15 |= 0x01;     /* ENET_REF_CLK */
+  LPC_IOCON->P1_16 &= ~0x07;    /* ENET/PHY I/O config */
+  LPC_IOCON->P1_16 |= 0x01;     /* ENET_MDC */
+  LPC_IOCON->P1_17 &= ~0x07;
+  LPC_IOCON->P1_17 |= 0x01;     /* ENET_MDIO */
+#endif
 
    /* Reset all EMAC internal modules. */
   LPC_EMAC->MAC1    = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX |
@@ -468,6 +505,13 @@ int ethernet_init() {
     if(!(regv & PHY_BMCR_RESET)) {
        break;                                        /* Reset complete. */
     }
+  }
+
+  phy_id =  (phy_read(PHY_REG_IDR1) << 16);
+  phy_id |= (phy_read(PHY_REG_IDR2) & 0XFFF0);
+
+  if (phy_id != DP83848C_ID && phy_id != LAN8720_ID) {
+      error("Unknown Ethernet PHY (%x)", (unsigned int)phy_id);
   }
 
   ethernet_set_link(-1, 0);
@@ -515,8 +559,22 @@ void ethernet_free() {
   LPC_EMAC->IntClear   =  0xFFFF;
 
   LPC_SC->PCONP   &= ~0x40000000;       /* Power down the EMAC controller. */
+
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
   LPC_PINCON->PINSEL2 &= ~0x50150105;   /* Disable P1 ethernet pins. */
   LPC_PINCON->PINSEL3  = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000000;
+#elif defined(TARGET_LPC4088)
+  LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
+  LPC_IOCON->P1_1  &= ~0x07;
+  LPC_IOCON->P1_4  &= ~0x07;
+  LPC_IOCON->P1_8  &= ~0x07;
+  LPC_IOCON->P1_9  &= ~0x07;
+  LPC_IOCON->P1_10 &= ~0x07;
+  LPC_IOCON->P1_14 &= ~0x07;
+  LPC_IOCON->P1_15 &= ~0x07;
+  LPC_IOCON->P1_16 &= ~0x07;    /* ENET/PHY I/O config */
+  LPC_IOCON->P1_17 &= ~0x07;
+#endif
 }
 
 // if(TxProduceIndex == TxConsumeIndex) buffer array is empty
@@ -781,7 +839,13 @@ int ethernet_read(char *data, int dlen) {
 }
 
 int ethernet_link(void) {
-    return (phy_read(PHY_REG_STS) & PHY_STS_LINK);
+
+    if (phy_id == DP83848C_ID) {
+      return (phy_read(PHY_REG_STS) & PHY_STS_LINK);
+    }
+    else { // LAN8720_ID
+      return (phy_read(PHY_REG_BMSR) & PHY_BMSR_LINK);
+    }
 }
 
 static int phy_write(unsigned int PhyReg, unsigned short Data) {
@@ -873,23 +937,53 @@ void ethernet_set_link(int speed, int duplex) {
 
     for(tout = 100; tout; tout--) { __NOP(); }     /* A short delay */
 
-    phy_data = phy_read(PHY_REG_STS);
+    switch(phy_id) {
+    case DP83848C_ID:
 
-    if(phy_data & PHY_STS_DUPLEX) {
-        LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
-        LPC_EMAC->Command |= CR_FULL_DUP;
-        LPC_EMAC->IPGT = IPGT_FULL_DUP;
-    } else {
-    LPC_EMAC->MAC2 &= ~MAC2_FULL_DUP;
-        LPC_EMAC->Command &= ~CR_FULL_DUP;
-        LPC_EMAC->IPGT = IPGT_HALF_DUP;
+        phy_data = phy_read(PHY_REG_STS);
+
+        if(phy_data & PHY_STS_DUPLEX) {
+            LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
+            LPC_EMAC->Command |= CR_FULL_DUP;
+            LPC_EMAC->IPGT = IPGT_FULL_DUP;
+        } else {
+        LPC_EMAC->MAC2 &= ~MAC2_FULL_DUP;
+            LPC_EMAC->Command &= ~CR_FULL_DUP;
+            LPC_EMAC->IPGT = IPGT_HALF_DUP;
+        }
+
+        if(phy_data & PHY_STS_SPEED) {
+            LPC_EMAC->SUPP &= ~SUPP_SPEED;
+        } else {
+            LPC_EMAC->SUPP |= SUPP_SPEED;
+        }
+
+
+        break;
+    case LAN8720_ID:
+
+        phy_data = phy_read(PHY_REG_SCSR);
+
+        if (phy_data & PHY_SCSR_DUPLEX) {
+            LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
+            LPC_EMAC->Command |= CR_FULL_DUP;
+            LPC_EMAC->IPGT = IPGT_FULL_DUP;
+        } else {
+            LPC_EMAC->Command &= ~CR_FULL_DUP;
+            LPC_EMAC->IPGT = IPGT_HALF_DUP;
+        }
+
+        if(phy_data & PHY_SCSR_100MBIT) {
+            LPC_EMAC->SUPP |= SUPP_SPEED;
+        } else {
+            LPC_EMAC->SUPP &= ~SUPP_SPEED;
+        }
+
+
+        break;
     }
 
-    if(phy_data & PHY_STS_SPEED) {
-        LPC_EMAC->SUPP &= ~SUPP_SPEED;
-    } else {
-        LPC_EMAC->SUPP |= SUPP_SPEED;
-    }
+
 }
 
 #endif
