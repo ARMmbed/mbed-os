@@ -71,6 +71,16 @@ class LPC812(Target):
         self.program_cycle_s = 4
 
 
+class LPC4088(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        self.vendor = "NXP"
+        
+        self.supported_toolchains = ["ARM", "GCC_CR"]
+
+        
 class MBED_MCU(Target):
     def __init__(self):
         Target.__init__(self)
@@ -87,6 +97,7 @@ TARGETS = [
     LPC11U24(),
     KL25Z(),
     LPC812(),
+    LPC4088(),
     MBED_MCU()
 ]
 

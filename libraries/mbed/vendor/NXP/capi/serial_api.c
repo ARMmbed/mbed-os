@@ -114,6 +114,43 @@ static int get_available_uart(void) {
 #define TXRDY         (0x01<<2)
 
 static uint32_t UARTSysClk;
+
+
+#elif defined(TARGET_LPC4088)
+
+static const PinMap PinMap_UART_TX[] = {
+    {P0_0,  UART_3, 2},
+    {P0_2,  UART_0, 1},
+    {P0_10, UART_2, 1},
+    {P0_15, UART_1, 1},
+    {P1_29, UART_4, 5},
+    {P0_25, UART_3, 3},
+    {P2_0 , UART_1, 2},
+    {P2_8 , UART_2, 2},
+    {P3_16, UART_1, 3},
+    {P4_22, UART_2, 2},
+    {P4_28, UART_3, 2},
+    {P5_4,  UART_4, 4},
+    {NC   , NC    , 0}
+};
+
+static const PinMap PinMap_UART_RX[] = {
+    {P0_1 , UART_3, 2},
+    {P0_3 , UART_0, 1},
+    {P0_11, UART_2, 1},
+    {P0_16, UART_1, 1},
+    {P0_26, UART_3, 3},
+    {P2_1 , UART_1, 2},
+    {P2_9 , UART_2, 2},
+    {P3_17, UART_1, 3},
+    {P4_23, UART_2, 2},
+    {P4_29, UART_3, 2},
+    {P5_3,  UART_4, 4},
+    {NC   , NC    , 0}
+};
+
+#define UART_NUM    5
+
 #endif
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
@@ -204,6 +241,17 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // disconnect USBTX/RX mapping mux, for case when switching ports
     pin_function(USBTX, 0);
     pin_function(USBRX, 0);
+
+#elif defined(TARGET_LPC4088)
+    obj->uart = (LPC_UART_TypeDef *)uart;
+    // enable power
+    switch (uart) {
+        case UART_0: LPC_SC->PCONP |= 1 <<  3; break;
+        case UART_1: LPC_SC->PCONP |= 1 <<  4; break;
+        case UART_2: LPC_SC->PCONP |= 1 << 24; break;
+        case UART_3: LPC_SC->PCONP |= 1 << 25; break;
+        case UART_4: LPC_SC->PCONP |= 1 <<  8; break;
+    }
 #endif
 
     // enable fifos and default rx trigger level
@@ -239,6 +287,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 #endif
 #if (UART_NUM > 3)
         case UART_3: obj->index = 3; break;
+#endif
+#if (UART_NUM > 4)
+        case UART_4: obj->index = 4; break;
 #endif
     }
     
@@ -312,6 +363,9 @@ void serial_baud(serial_t *obj, int baudrate) {
 #elif defined(TARGET_LPC11U24)
     LPC_SYSCON->UARTCLKDIV = 0x1;
     uint32_t PCLK = SystemCoreClock;
+
+#elif defined(TARGET_LPC4088)
+    uint32_t PCLK = PeripheralClock;
 #endif
 
     // First we check to see if the basic divide with no DivAddVal/MulVal
@@ -333,15 +387,15 @@ void serial_baud(serial_t *obj, int baudrate) {
         for ( dlv = (dlmax/2); (dlv <= dlmax) && !hit; dlv++) {
             for ( mv = 1; mv <= 15; mv++) {
                 for ( dav = 1; dav < mv; dav++) {
-                    float ratio = 1.0 + ((float) dav / (float) mv);
-                    float calcbaud = (float)PCLK / (16.0 * (float) dlv * ratio);
+                    float ratio = 1.0f + ((float) dav / (float) mv);
+                    float calcbaud = (float)PCLK / (16.0f * (float) dlv * ratio);
                     float err = fabs(((float) baudrate - calcbaud) / (float) baudrate);
                     if (err < err_best) {
                         DL = dlv;
                         DivAddVal = dav;
                         MulVal = mv;
                         err_best = err;
-                        if (err < 0.001) {
+                        if (err < 0.001f) {
                             hit = 1;
                         }
                     }
@@ -447,6 +501,14 @@ void uart0_irq() {uart_irq((LPC_USART0->STAT & (1 << 2)) ? 2 : 1, 0);}
 void uart1_irq() {uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);}
 void uart2_irq() {uart_irq((LPC_USART2->STAT & (1 << 2)) ? 2 : 1, 2);}
 
+#elif defined(TARGET_LPC4088)
+
+void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0);}
+void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1);}
+void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2);}
+void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3);}
+void uart4_irq() {uart_irq((LPC_UART4->IIR >> 1) & 0x7, 4);}
+
 #endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
@@ -469,11 +531,17 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         case LPC_USART0_BASE: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
         case LPC_USART1_BASE: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
         case LPC_USART2_BASE: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
+#elif defined(TARGET_LPC4088)
+        case UART_0: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
+        case UART_1: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
+        case UART_2: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
+        case UART_3: irq_n=UART3_IRQn; vector = (uint32_t)&uart3_irq; break;
+        case UART_4: irq_n=UART4_IRQn; vector = (uint32_t)&uart4_irq; break;
 #endif
     }
 
     if (enable) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
         obj->uart->IER |= 1 << irq;
 #elif defined(TARGET_LPC812)
         obj->uart->INTENSET = (1 << ((irq == RxIrq) ? 0 : 2));
@@ -483,7 +551,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     } else { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
         obj->uart->IER &= ~(1 << irq);
         all_disabled = (obj->uart->IER & (1 << other_irq)) == 0;
 #elif defined(TARGET_LPC812)
@@ -513,6 +581,11 @@ void serial_putc(serial_t *obj, int c) {
     obj->uart->TXDATA = c;
 #else
     obj->uart->THR = c;
+
+    uint32_t lsr = obj->uart->LSR;
+    lsr = lsr;
+    uint32_t thr = obj->uart->THR;
+    thr = thr;
 #endif
 }
 

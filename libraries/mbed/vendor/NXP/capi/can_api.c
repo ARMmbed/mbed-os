@@ -39,7 +39,11 @@ http://www.kvaser.com/can/index.htm
 static const PinMap PinMap_CAN_RD[] = {
     {P0_0 , CAN_1, 1},
     {P0_4 , CAN_2, 2},
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     {P0_21, CAN_1, 3},
+#elif defined(TARGET_LPC4088)
+    {P0_21, CAN_1, 4},
+#endif
     {P2_7 , CAN_2, 1},
     {NC   , NC   , 0}
 };
@@ -47,7 +51,11 @@ static const PinMap PinMap_CAN_RD[] = {
 static const PinMap PinMap_CAN_TD[] = {
     {P0_1 , CAN_1, 1},
     {P0_5 , CAN_2, 2},
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     {P0_22, CAN_1, 3},
+#elif defined(TARGET_LPC4088)
+    {P0_22, CAN_1, 4},
+#endif
     {P2_8 , CAN_2, 1},
     {NC   , NC   , 0}
 };
@@ -76,6 +84,7 @@ static inline void can_enable(can_t *obj) {
     }
 }
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 static int can_pclk(can_t *obj) {
     int value = 0;
     switch ((int)obj->dev) {
@@ -90,6 +99,7 @@ static int can_pclk(can_t *obj) {
         default: return 4;
     }
 }
+#endif
 
 // This table has the sampling points as close to 75% as possible. The first
 // value is TSEG1, the second TSEG2.
@@ -185,7 +195,11 @@ void can_free(can_t *obj) {
 }
 
 int can_frequency(can_t *obj, int f) {
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
     int pclk = can_pclk(obj);
+#elif defined(TARGET_LPC4088)
+    int pclk = PeripheralClock;
+#endif
     int btr = can_speed(SystemCoreClock, pclk, (unsigned int)f, 1);
 
     if (btr > 0) {

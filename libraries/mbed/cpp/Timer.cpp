@@ -37,7 +37,7 @@ int Timer::read_us() {
 }
 
 float Timer::read() {
-    return (float)read_us() / 1000000.0;
+    return (float)read_us() / 1000000.0f;
 }
 
 int Timer::read_ms() {

@@ -166,11 +166,17 @@ static u8_t *const memp_bases[] = {
 
 #else /* MEMP_SEPARATE_POOLS */
 
+#if defined(TARGET_LPC1768)
+#  define ETHMEM_SECTION __attribute((section("AHBSRAM1")))
+#elif defined(TARGET_LPC4088)
+#  define ETHMEM_SECTION 
+#endif
+
 /** This is the actual memory used by the pools (all pools in one big block). */
 static u8_t memp_memory[MEM_ALIGNMENT - 1 
 #define LWIP_MEMPOOL(name,num,size,desc) + ( (num) * (MEMP_SIZE + MEMP_ALIGN_SIZE(size) ) )
 #include "lwip/memp_std.h"
-] __attribute((section("AHBSRAM1")));
+] ETHMEM_SECTION;
 
 #endif /* MEMP_SEPARATE_POOLS */
 

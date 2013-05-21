@@ -128,6 +128,7 @@ class mbedToolchain:
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],        
     }
     
     def __init__(self, target, notify=None):
@@ -428,8 +429,11 @@ class ARM(mbedToolchain):
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         else:
-            cpu = target.core
-        
+            cpu = target.core         
+            
+        if target.core == "Cortex-M4":
+            cpu = "Cortex-M4.fp"
+           
         common = [join(ARM_BIN, "armcc"), "-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
@@ -555,6 +559,9 @@ class GCC(mbedToolchain):
         self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
+            
+        if target.core == "Cortex-M4":
+            self.cpu.append("-mfpu=vfp")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762

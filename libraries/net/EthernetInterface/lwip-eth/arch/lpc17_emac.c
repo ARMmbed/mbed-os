@@ -130,9 +130,21 @@ struct lpc_enetdata {
 #endif
 };
 
+#if defined(TARGET_LPC4088)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#else
+#   define ETHMEM_SECTION ALIGNED(8)
+#endif
+
 /** \brief  LPC EMAC driver work data
  */
-ALIGNED(8) struct lpc_enetdata lpc_enetdata;
+ETHMEM_SECTION struct lpc_enetdata lpc_enetdata; 
 
 /* Write a value via the MII link (non-blocking) */
 void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
@@ -485,7 +497,11 @@ void lpc_enetif_input(struct netif *netif)
  */
 static s32_t lpc_packet_addr_notsafe(void *addr) {
 	/* Check for legal address ranges */
+#if defined(TARGET_LPC1768)  
 	if ((((u32_t) addr >= 0x2007C000) && ((u32_t) addr < 0x20083FFF))) {
+#elif defined(TARGET_LPC4088)
+	if ((((u32_t) addr >= 0x20000000) && ((u32_t) addr < 0x20007FFF))) {
+#endif  
 	    return 0;
 	}
 	return 1;
@@ -840,8 +856,31 @@ static err_t low_level_init(struct netif *netif)
 	/* Enable MII clocking */
 	LPC_SC->PCONP |= CLKPWR_PCONP_PCENET;
 	
+#if defined(TARGET_LPC1768)  
 	LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
 	LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
+#elif defined(TARGET_LPC4088)
+  LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
+  LPC_IOCON->P1_0  |= 0x01;     /* ENET_TXD0 */
+  LPC_IOCON->P1_1  &= ~0x07;
+  LPC_IOCON->P1_1  |= 0x01;     /* ENET_TXD1 */
+  LPC_IOCON->P1_4  &= ~0x07;
+  LPC_IOCON->P1_4  |= 0x01;     /* ENET_TXEN */
+  LPC_IOCON->P1_8  &= ~0x07;
+  LPC_IOCON->P1_8  |= 0x01;     /* ENET_CRS */
+  LPC_IOCON->P1_9  &= ~0x07;
+  LPC_IOCON->P1_9  |= 0x01;     /* ENET_RXD0 */
+  LPC_IOCON->P1_10 &= ~0x07;
+  LPC_IOCON->P1_10 |= 0x01;     /* ENET_RXD1 */
+  LPC_IOCON->P1_14 &= ~0x07;
+  LPC_IOCON->P1_14 |= 0x01;     /* ENET_RX_ER */
+  LPC_IOCON->P1_15 &= ~0x07;
+  LPC_IOCON->P1_15 |= 0x01;     /* ENET_REF_CLK */
+  LPC_IOCON->P1_16 &= ~0x07;    /* ENET/PHY I/O config */
+  LPC_IOCON->P1_16 |= 0x01;     /* ENET_MDC */
+  LPC_IOCON->P1_17 &= ~0x07;
+  LPC_IOCON->P1_17 |= 0x01;     /* ENET_MDIO */
+#endif  
 	
 	/* Reset all MAC logic */
 	LPC_EMAC->MAC1 = EMAC_MAC1_RES_TX | EMAC_MAC1_RES_MCS_TX |
@@ -894,7 +933,7 @@ static err_t low_level_init(struct netif *netif)
 
 	/* Enable packet reception */
 #if IP_SOF_BROADCAST_RECV
-	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN | EMAC_RFC_BCAST_EN;
+	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN | EMAC_RFC_BCAST_EN | EMAC_RFC_MCAST_EN;
 #else
 	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN;
 #endif
@@ -989,7 +1028,7 @@ err_t lpc_enetif_init(struct netif *netif)
 	netif->mtu = 1500;
 
 	/* device capabilities */
-	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
+	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET | NETIF_FLAG_IGMP;
 
 	/* Initialize the hardware */
 	netif->state = &lpc_enetdata;

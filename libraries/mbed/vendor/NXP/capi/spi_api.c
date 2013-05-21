@@ -121,13 +121,66 @@ static int get_available_spi(void) {
     return -1;
 }
 
+#elif defined(TARGET_LPC4088)
+static const PinMap PinMap_SPI_SCLK[] = {
+    {P0_7 , SPI_1, 2},
+    {P0_15, SPI_0, 2},
+    {P1_0,  SPI_2, 4},
+    {P1_19, SPI_1, 5},
+    {P1_20, SPI_0, 5},
+    {P1_31, SPI_1, 2},
+    {P2_22, SPI_0, 2},
+    {P4_20, SPI_1, 3},
+    {P5_2,  SPI_2, 2},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_MOSI[] = {
+    {P0_9 , SPI_1, 2},
+    {P0_13, SPI_1, 2},
+    {P0_18, SPI_0, 2},
+    {P1_1,  SPI_2, 4},
+    {P1_22, SPI_1, 5},
+    {P1_24, SPI_0, 5},
+    {P2_27, SPI_0, 2},
+    {P4_23, SPI_1, 3},
+    {P5_0,  SPI_2, 2},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_MISO[] = {
+    {P0_8 , SPI_1, 2},
+    {P0_12, SPI_1, 2},
+    {P0_17, SPI_0, 2},
+    {P1_4,  SPI_2, 4},
+    {P1_18, SPI_1, 5},
+    {P1_23, SPI_0, 5},
+    {P2_26, SPI_0, 2},
+    {P4_22, SPI_1, 3},
+    {P5_1,  SPI_2, 2},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_SSEL[] = {
+    {P0_6 , SPI_1, 2},
+    {P0_14, SPI_1, 2},
+    {P0_16, SPI_0, 2},
+    {P1_8,  SPI_2, 4},
+    {P1_21, SPI_0, 3},
+    {P1_26, SPI_1, 5},
+    {P1_28, SPI_0, 5},
+    {P2_23, SPI_0, 2},
+    {P4_21, SPI_1, 3},
+    {NC   , NC   , 0}
+};
+
 #endif
 
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     // determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -135,7 +188,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
     obj->spi = (LPC_SSP_TypeDef*)pinmap_merge(spi_data, spi_cntl);
 #elif defined(TARGET_LPC11U24)
     obj->spi = (LPC_SSPx_Type*)pinmap_merge(spi_data, spi_cntl);
@@ -177,10 +230,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 #endif
 
     // enable power and clocking
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
     switch ((int)obj->spi) {
         case SPI_0: LPC_SC->PCONP |= 1 << 21; break;
         case SPI_1: LPC_SC->PCONP |= 1 << 10; break;
+#if defined(TARGET_LPC4088)
+        case SPI_2: LPC_SC->PCONP |= 1 << 20; break;
+#endif
     }
 #elif defined(TARGET_LPC11U24)
     switch ((int)obj->spi) {
@@ -222,7 +278,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // enable the ssp channel
     ssp_enable(obj);
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -238,7 +294,7 @@ void spi_free(spi_t *obj) {}
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     ssp_disable(obj);
     
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     if (!(bits >= 4 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
 #elif defined(TARGET_LPC812)
     if (!(bits >= 1 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
@@ -255,7 +311,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     int SPO = (polarity) ? 1 : 0;  // SPO - clock out polarity
     int SPH = (phase) ? 1 : 0;     // SPH - clock out phase
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     int FRF = 0;                   // FRF (frame format) = SPI
     uint32_t tmp = obj->spi->CR0;
     tmp &= ~(0xFFFF);
@@ -304,16 +360,21 @@ void spi_frequency(spi_t *obj, int hz) {
     }
 #endif
 
+#if defined(TARGET_LPC4088)
+    uint32_t PCLK = PeripheralClock;
+#else
     uint32_t PCLK = SystemCoreClock;
+#endif
+
     
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     int prescaler;
 
     for (prescaler = 2; prescaler <= 254; prescaler += 2) {
         int prescale_hz = PCLK / prescaler;
 
         // calculate the divider
-        int divider = floor(((float)prescale_hz / (float)hz) + 0.5);
+        int divider = floor(((float)prescale_hz / (float)hz) + 0.5f);
 
         // check we can support the divider
         if (divider < 256) {
@@ -336,7 +397,7 @@ void spi_frequency(spi_t *obj, int hz) {
 }
 
 static inline int ssp_disable(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->CR1 &= ~(1 << 1);
 #elif defined(TARGET_LPC812)
     return obj->spi->CFG &= ~(1 << 0);
@@ -344,7 +405,7 @@ static inline int ssp_disable(spi_t *obj) {
 }
 
 static inline int ssp_enable(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->CR1 |= (1 << 1);
 #elif defined(TARGET_LPC812)
     return obj->spi->CFG |= (1 << 0);
@@ -352,7 +413,7 @@ static inline int ssp_enable(spi_t *obj) {
 }
 
 static inline int ssp_readable(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->SR & (1 << 2);
 #elif defined(TARGET_LPC812)
     return obj->spi->STAT & (1 << 0);
@@ -360,7 +421,7 @@ static inline int ssp_readable(spi_t *obj) {
 }
 
 static inline int ssp_writeable(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->SR & (1 << 1);
 #elif defined(TARGET_LPC812)
     return obj->spi->STAT & (1 << 1);
@@ -369,7 +430,7 @@ static inline int ssp_writeable(spi_t *obj) {
 
 static inline void ssp_write(spi_t *obj, int value) {
     while (!ssp_writeable(obj));
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     obj->spi->DR = value;
 #elif defined(TARGET_LPC812)
     // end of transfer
@@ -380,7 +441,7 @@ static inline void ssp_write(spi_t *obj, int value) {
 
 static inline int ssp_read(spi_t *obj) {
     while (!ssp_readable(obj));
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->DR;
 #elif defined(TARGET_LPC812)
     return obj->spi->RXDAT;
@@ -388,7 +449,7 @@ static inline int ssp_read(spi_t *obj) {
 }
 
 static inline int ssp_busy(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return (obj->spi->SR & (1 << 4)) ? (1) : (0);
 #elif defined(TARGET_LPC812)
     // TODO
@@ -406,7 +467,7 @@ int spi_slave_receive(spi_t *obj) {
 };
 
 int spi_slave_read(spi_t *obj) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     return obj->spi->DR;
 #elif defined(TARGET_LPC812)
     return obj->spi->RXDAT;
@@ -415,7 +476,7 @@ int spi_slave_read(spi_t *obj) {
 
 void spi_slave_write(spi_t *obj, int value) {
     while (ssp_writeable(obj) == 0) ;
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     obj->spi->DR = value;
 #elif defined(TARGET_LPC812)
     obj->spi->TXDAT = value;

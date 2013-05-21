@@ -9,15 +9,18 @@
         "core_arm7.o",
         "core_cm3.o",
         "core_cm0.o",
+        "core_cm4.o",
         
         "system_LPC23xx.o",
         "system_LPC11Uxx.o",
         "system_LPC17xx.o",
         "system_LPC8xx.o",
+        "system_LPC407x_8x_177x_8x.o",
         
         "startup_LPC11xx.o",
         "startup_LPC17xx.o",
         "startup_LPC8xx.o",
+        "startup_LPC407x_8x_177x_8x.o",
         
         "vector_functions.o",
         "vector_realmonitor.o",
