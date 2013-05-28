@@ -60,9 +60,20 @@ static inline void i2c_interface_disable(i2c_t *obj) {
 
 static inline void i2c_power_enable(i2c_t *obj) {
     switch ((int)obj->i2c) {
-        case I2C_1: RCC->APB1ENR |= RCC_APB1ENR_I2C1EN; break;
-        case I2C_2: RCC->APB1ENR |= RCC_APB1ENR_I2C2EN; break;
-        case I2C_3: RCC->APB1ENR |= RCC_APB1ENR_I2C3EN; break;
+        case I2C_1:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+            RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+            break;
+        case I2C_2:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOFEN |
+                            RCC_AHB1ENR_GPIOHEN;
+            RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
+            break;
+        case I2C_3:
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOCEN |
+                            RCC_AHB1ENR_GPIOHEN;
+            RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
+            break;
     }
 }
 
@@ -73,11 +84,19 @@ static inline void i2c_wait_status(i2c_t *obj, uint32_t sr1_mask,
 }
 
 // Wait until the slave address has been acknowledged
-static inline void i2c_wait_addr(i2c_t *obj) {
+static inline void i2c_wait_addr_tx(i2c_t *obj) {
     uint32_t sr1_mask = I2C_SR1_ADDR | I2C_SR1_TXE;
     uint32_t sr2_mask = I2C_SR2_MSL | I2C_SR2_BUSY | I2C_SR2_TRA;
     i2c_wait_status(obj, sr1_mask, sr2_mask);
 }
+
+// Wait until the slave address has been acknowledged
+static inline void i2c_wait_addr_rx(i2c_t *obj) {
+    uint32_t sr1_mask = I2C_SR1_ADDR;
+    uint32_t sr2_mask = I2C_SR2_MSL | I2C_SR2_BUSY;
+    i2c_wait_status(obj, sr1_mask, sr2_mask);
+}
+
 
 // Wait until a byte has been sent
 static inline void i2c_wait_send(i2c_t *obj) {
@@ -113,19 +132,24 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // enable power
     i2c_power_enable(obj);
 
-    // Set the peripheral clock frequency
-    obj->i2c->CR2 |= 0x42;
-
-    // set default frequency at 100k
-    i2c_frequency(obj, 100000);
-    obj->i2c->CR1 &= ~(0xFFFF);
-    i2c_interface_enable(obj);
-
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
 
     pin_mode(sda, OpenDrain);
     pin_mode(scl, OpenDrain);
+
+    // Force reset if the bus is stuck in the BUSY state
+    if (obj->i2c->SR2 & I2C_SR2_BUSY) {
+        obj->i2c->CR1 |= I2C_CR1_SWRST;
+        obj->i2c->CR1 &= ~I2C_CR1_SWRST;
+    }
+
+    // Set the peripheral clock frequency
+    obj->i2c->CR2 |= 42;
+
+    // set default frequency at 100k
+    i2c_frequency(obj, 100000);
+    i2c_interface_enable(obj);
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -168,13 +192,13 @@ static inline int i2c_do_read(i2c_t *obj, int last) {
 
 void i2c_frequency(i2c_t *obj, int hz) {
     i2c_interface_disable(obj);
-    obj->i2c->CCR &= ~I2C_CCR_CCR;
+    obj->i2c->CCR &= ~(I2C_CCR_CCR | I2C_CCR_FS);
     if (hz > 100000) {
         // Fast Mode
         obj->i2c->CCR |= I2C_CCR_FS;
-        int result = 42000000 / (hz * 3); 
+        int result = 42000000 / (hz * 3);
         obj->i2c->CCR |= result & I2C_CCR_CCR;
-    
+        obj->i2c->TRISE = ((42 * 300) / 1000) + 1;
     }
     else {
         // Standard mode
@@ -182,6 +206,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
         int result = 42000000 / (hz << 1);
         result = result < 0x4 ? 0x4 : result;
         obj->i2c->CCR |= result & I2C_CCR_CCR;
+        obj->i2c->TRISE = 42 + 1;
     }
     i2c_interface_enable(obj);
 }
@@ -209,7 +234,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     i2c_do_write(obj, (address | 0x01), 1);
 
     // Wait until we have transmitted and the ADDR byte is set
-    i2c_wait_addr(obj);
+    i2c_wait_addr_rx(obj);
 
     // Read in all except last byte
     for (count = 0; count < (length - 1); count++) {
@@ -236,7 +261,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 
     // Send the slave address
     i2c_do_write(obj, (address & 0xFE), 1);
-    i2c_wait_addr(obj);
+    i2c_wait_addr_tx(obj);
 
     for (i=0; i<length; i++) {
         i2c_do_write(obj, data[i], 0);
