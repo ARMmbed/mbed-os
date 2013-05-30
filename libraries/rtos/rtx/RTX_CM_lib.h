@@ -198,8 +198,6 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 extern int main (void);
 osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL};
 
-#if defined (__CC_ARM)
-
 // This define should be probably moved to the CMSIS layer
 #ifdef TARGET_LPC1768
 #define INITIAL_SP            (0x10008000UL)
@@ -215,14 +213,23 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #endif
 
-extern unsigned char Image$$RW_IRAM1$$ZI$$Limit[];
+#ifdef __CC_ARM
+extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
+#define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
+#elif defined(__GNUC__)
+extern unsigned char     __HeapLimit[];
+#define HEAP_START      (__HeapLimit)
+#endif
 
 void set_main_stack(void) {
+    // That is the bottom of the main stack block: no collision detection
+    os_thread_def_main.stack_pointer = HEAP_START;
+    
     // Leave OS_SCHEDULERSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stack_pointer = Image$$RW_IRAM1$$ZI$$Limit;
-    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)Image$$RW_IRAM1$$ZI$$Limit) - (OS_SCHEDULERSTKSIZE * 4);
+    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_SCHEDULERSTKSIZE * 4);
 }
 
+#if defined (__CC_ARM)
 #ifdef __MICROLIB
 void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
 void _main_init (void) {
@@ -316,6 +323,7 @@ __attribute ((noreturn)) void __cs3_start_c (void){
   __libc_init_array ();
 
   osKernelInitialize();
+  set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
   for (;;);
@@ -337,6 +345,7 @@ __attribute__((naked)) void software_init_hook (void) {
     "mov  r0,r4\n"
     "mov  r1,r5\n"
     "bl   osKernelInitialize\n"
+    "bl   set_main_stack\n"
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
     "bl   osThreadCreate\n"
