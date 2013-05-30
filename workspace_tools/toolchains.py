@@ -426,14 +426,13 @@ class ARM(mbedToolchain):
     def __init__(self, target, notify):
         mbedToolchain.__init__(self, target, notify)
         
-        if target.core == "Cortex-M0+":
+        if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
-        else:
-            cpu = target.core         
-            
-        if target.core == "Cortex-M4":
+        elif target.core == "Cortex-M4":
             cpu = "Cortex-M4.fp"
-           
+        else:
+            cpu = target.core
+        
         common = [join(ARM_BIN, "armcc"), "-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
@@ -559,7 +558,7 @@ class GCC(mbedToolchain):
         self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
-            
+        
         if target.core == "Cortex-M4":
             self.cpu.append("-mfpu=vfp")
         

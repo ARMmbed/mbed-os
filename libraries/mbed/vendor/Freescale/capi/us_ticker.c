@@ -36,12 +36,12 @@ void us_ticker_init(void) {
 static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
-
+    
     // Channel 1
     PIT->CHANNEL[1].LDVAL = 0xFFFFFFFF;
     PIT->CHANNEL[1].TCTRL = PIT_TCTRL_CHN_MASK;    // Chain to timer 0, disable Interrupts
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
-
+    
     // Use channel 0 as a prescaler for channel 1
     PIT->CHANNEL[0].LDVAL = 23;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
@@ -53,7 +53,7 @@ uint32_t us_ticker_read() {
     
     // The PIT is a countdown timer
     return ~(PIT->CHANNEL[1].CVAL);
-    }
+}
 
 /******************************************************************************
  * Timer Event

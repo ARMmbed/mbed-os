@@ -128,7 +128,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     } else if (std::strcmp(name, __stdout_name) == 0) {
         init_serial();
         return 1;
-    } else if (std::strcmp(name,__stderr_name) == 0) {
+    } else if (std::strcmp(name, __stderr_name) == 0) {
         init_serial();
         return 2;
     }

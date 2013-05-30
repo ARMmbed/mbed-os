@@ -38,7 +38,7 @@ if armcc == "keil":
     ARM_PATH = "C:/Keil_4_54/ARM"
     ARM_BIN = join(ARM_PATH, "BIN40")
     ARM_INC = join(ARM_PATH, "RV31", "INC")
-    ARM_LIB    = join(ARM_PATH, "RV31", "LIB")
+    ARM_LIB = join(ARM_PATH, "RV31", "LIB")
 
 elif armcc == "standalone":
     ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
