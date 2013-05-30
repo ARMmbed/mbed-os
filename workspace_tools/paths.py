@@ -11,8 +11,7 @@ TOOLS_DATA = join(TOOLS, "data")
 
 # mbed libraries
 MBED_BASE = join(LIB_DIR, "mbed")
-MBED_CAPI = join(MBED_BASE, "capi")
-MBED_CPP = join(MBED_BASE, "cpp")
+MBED_SRC = join(MBED_BASE, "src")
 MBED_RPC = join(MBED_BASE, "rpc")
 
 # Vendors directories
@@ -37,12 +36,12 @@ RTOS_LIBRARIES = join(BUILD_DIR, "rtos")
 # TCP/IP
 NET = join(LIB_DIR, "net")
 
-ETH_SOURCES = join(NET, "EthernetInterface")
+ETH_SOURCES = join(NET, "eth")
 LWIP_SOURCES = join(NET, "lwip")
 VODAFONE_SOURCES = join(NET, "VodafoneUSBModem")
 
 NET_LIBRARIES = join(BUILD_DIR, "net")
-ETH_LIBRARY = join(NET_LIBRARIES, "EthernetInterface")
+ETH_LIBRARY = join(NET_LIBRARIES, "eth")
 VODAFONE_LIBRARY = join(NET_LIBRARIES, "VodafoneUSBModem")
 
 # FS

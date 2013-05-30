@@ -13,9 +13,9 @@ LIBRARIES = [
     {
         "id": "NXP_mbed",
         "name": "mbed",
-        "source_dir": [join(VENDOR_NXP, "capi"), MBED_CAPI, MBED_CPP],
+        "source_dir": [join(VENDOR_NXP, "capi"), MBED_SRC],
         "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, MBED_SRC],
         "supported": DEFAULT_SUPPORT
     },
     # ARM
@@ -28,9 +28,9 @@ LIBRARIES = [
     {
         "id": "ARM_mbed",
         "name": "mbed",
-        "source_dir": [join(VENDOR_ARM, "capi"), MBED_CAPI, MBED_CPP],
+        "source_dir": [join(VENDOR_ARM, "capi"), MBED_SRC],
         "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, MBED_SRC],
         "supported": DEFAULT_SUPPORT
     },
     # Freescale
@@ -43,9 +43,9 @@ LIBRARIES = [
     {
         "id": "Freescale_mbed",
         "name": "mbed",
-        "source_dir": [join(VENDOR_FREESCALE, "capi"), MBED_CAPI, MBED_CPP],
+        "source_dir": [join(VENDOR_FREESCALE, "capi"), MBED_SRC],
         "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, MBED_SRC],
         "supported": DEFAULT_SUPPORT
     },
     
