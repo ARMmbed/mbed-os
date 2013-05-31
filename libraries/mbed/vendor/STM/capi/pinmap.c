@@ -30,6 +30,10 @@ void pin_function(PinName pin, int function) {
     GPIO_TypeDef * gpio = ((GPIO_TypeDef *) (GPIOA_BASE + (port_index << 10)));
     gpio->MODER &= ~(0x3 << offset);
     gpio->MODER |= function << offset;
+
+    // Set high-speed mode
+    gpio->OSPEEDR &= ~(0x3 << offset);
+    gpio->OSPEEDR |= (0x2 << offset);
 }
 
 void pin_alternate_function(PinName pin, int function) {
