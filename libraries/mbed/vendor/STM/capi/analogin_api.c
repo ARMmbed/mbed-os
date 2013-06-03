@@ -53,7 +53,9 @@ void analogin_init(analogin_t *obj, PinName pin) {
     }
 
     // ensure power is turned on
-    RCC->APB1ENR |= RCC_APB2ENR_ADC1EN;
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN |
+                    RCC_AHB1ENR_GPIOCEN;
+    RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
 
     // Enable the ADC
     ADC1->CR2 |= ADC_CR2_ADON;
@@ -63,8 +65,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
 static inline uint32_t adc_read(analogin_t *obj) {
     // Select the appropriate channel
-    ADC1->SQR3 &= ~ADC_SQR3_SQ1;
-    ADC1->SQR3 |= (int) obj->adc;
+    ADC1->SQR3 = (int) obj->adc;
 
     // Start conversion
     ADC1->CR2 |= ADC_CR2_SWSTART;
