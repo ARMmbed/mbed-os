@@ -39,7 +39,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_set = &port_reg->BSRRL;
     obj->reg_clr = &port_reg->BSRRH;
     obj->reg_in  = &port_reg->IDR;
-    obj->reg_in  = &port_reg->ODR;
 
 
     gpio_dir(obj, direction);
