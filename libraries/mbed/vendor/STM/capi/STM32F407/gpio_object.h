@@ -28,6 +28,7 @@ typedef struct {
     __IO uint16_t *reg_set;
     __IO uint16_t *reg_clr;
     __I  uint32_t *reg_in;
+    __O  uint32_t *reg_out;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {

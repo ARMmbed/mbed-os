@@ -39,6 +39,7 @@ struct port_s {
     __IO uint16_t *reg_clr;
     PortName port;
     uint32_t mask;
+    PinDirection direction;
 };
 
 struct pwmout_s {

@@ -30,12 +30,14 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     uint32_t port_index = (uint32_t) port;
 
     GPIO_TypeDef *port_reg = (GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10));
+    // Enable GPIO peripheral clock
+    RCC->AHB1ENR |= 1 << port_index;
 
     obj->reg_mode = &port_reg->MODER;
     obj->reg_set = &port_reg->BSRRH;
     obj->reg_clr = &port_reg->BSRRL;
     obj->reg_in  = &port_reg->IDR;
-    obj->reg_in  = &port_reg->ODR;
+    obj->reg_out  = &port_reg->ODR;
 
     port_dir(obj, dir);
 }
@@ -51,18 +53,30 @@ void port_mode(port_t *obj, PinMode mode) {
 }
 
 void port_dir(port_t *obj, PinDirection dir) {
-    switch (dir) {
-        case PIN_INPUT : *obj->reg_mode &= ~obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_mode |=  obj->mask; break;
+    obj->direction = dir;
+    uint32_t tmp = *obj->reg_mode;
+    for (int i=0; i<16; i++) {
+        if (obj->mask & (1 << i)) {
+            // Clear the mode bits (i.e. set to input)
+            tmp &= ~(0x3 << (i << 1));
+            if (dir == PIN_OUTPUT) {
+                // Set to output
+                tmp |= 0x1 << (i << 1);
+            }
+        }
     }
+    *obj->reg_mode = tmp;
 }
 
 void port_write(port_t *obj, int value) {
-    *obj->reg_out = (*obj->reg_in & ~obj->mask) | (value & obj->mask);
+    *obj->reg_out = (*obj->reg_out & ~obj->mask) | (value & obj->mask);
 }
 
 int port_read(port_t *obj) {
-    return (*obj->reg_in & obj->mask);
+    switch (obj->direction) {
+        case PIN_OUTPUT: return *obj->reg_out & obj->mask;
+        case PIN_INPUT: return *obj->reg_in & obj->mask;
+    }
 }
 
 #endif
