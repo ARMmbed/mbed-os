@@ -77,6 +77,7 @@ int port_read(port_t *obj) {
         case PIN_OUTPUT: return *obj->reg_out & obj->mask;
         case PIN_INPUT: return *obj->reg_in & obj->mask;
     }
+    return 0;
 }
 
 #endif
