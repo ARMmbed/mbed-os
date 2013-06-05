@@ -327,8 +327,6 @@ class mbedToolchain:
             if hasattr(self, "cc_extra"):
                 command.extend(self.cc_extra(base))
 
-            print " ".join(command)
-            
             self.debug(command)
             _, stderr, rc = run_cmd(command, dirname(object), chroot=self.CHROOT)
             
@@ -633,6 +631,10 @@ class GCC_ARM(GCC):
         self.ld.append("--specs=nano.specs")
         if target in ["LPC1768", "STM32F407"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
+
+        if target == "STM32F407":
+            self.cc.extend(["-mfloat-abi=hard", "-mfpu=fpv4-sp-d16"])
+            self.cppc.extend(["-mfloat-abi=hard", "-mfpu=fpv4-sp-d16"])
         
         self.sys_libs.append("nosys")
 
