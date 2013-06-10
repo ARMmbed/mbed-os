@@ -12,13 +12,11 @@ TOOLS_DATA = join(TOOLS, "data")
 # mbed libraries
 MBED_BASE = join(LIB_DIR, "mbed")
 MBED_SRC = join(MBED_BASE, "src")
+MBED_API = join(MBED_SRC, "api")
+MBED_HAL = join(MBED_SRC, "hal")
+MBED_COMMON = join(MBED_SRC, "common")
 MBED_RPC = join(MBED_BASE, "rpc")
-
-# Vendors directories
-VENDOR = join(MBED_BASE, "vendor")
-VENDOR_NXP = join(VENDOR, "NXP")
-VENDOR_FREESCALE = join(VENDOR, "Freescale")
-VENDOR_ARM = join(VENDOR, "ARM")
+VENDOR_PATH = join(MBED_BASE, "vendor")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 

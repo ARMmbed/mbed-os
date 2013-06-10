@@ -3,66 +3,18 @@ from workspace_tools.data.support import *
 
 
 LIBRARIES = [
-    # NXP
-    {
-        "id": "NXP_cmsis",
-        "source_dir": join(VENDOR_NXP, "cmsis"),
-        "build_dir": MBED_LIBRARIES,
-        "supported": DEFAULT_SUPPORT
-    },
-    {
-        "id": "NXP_mbed",
-        "name": "mbed",
-        "source_dir": [join(VENDOR_NXP, "capi"), MBED_SRC],
-        "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_SRC],
-        "supported": DEFAULT_SUPPORT
-    },
-    # ARM
-    {
-        "id": "ARM_cmsis",
-        "source_dir": join(VENDOR_ARM, "cmsis"),
-        "build_dir": MBED_LIBRARIES,
-        "supported": DEFAULT_SUPPORT
-    },
-    {
-        "id": "ARM_mbed",
-        "name": "mbed",
-        "source_dir": [join(VENDOR_ARM, "capi"), MBED_SRC],
-        "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_SRC],
-        "supported": DEFAULT_SUPPORT
-    },
-    # Freescale
-    {
-        "id": "Freescale_cmsis",
-        "source_dir": join(VENDOR_FREESCALE, "cmsis"),
-        "build_dir": MBED_LIBRARIES,
-        "supported": DEFAULT_SUPPORT
-    },
-    {
-        "id": "Freescale_mbed",
-        "name": "mbed",
-        "source_dir": [join(VENDOR_FREESCALE, "capi"), MBED_SRC],
-        "build_dir": MBED_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_SRC],
-        "supported": DEFAULT_SUPPORT
-    },
-    
     # RTOS libraries
     {
         "id": "rtx",
         "source_dir": MBED_RTX,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
-        "supported": DEFAULT_SUPPORT
     },
     {
         "id": "rtos",
         "source_dir": RTOS_ABSTRACTION,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
-        "supported": DEFAULT_SUPPORT
     },
     
     # USB Device libraries
@@ -71,16 +23,14 @@ LIBRARIES = [
         "source_dir": USB,
         "build_dir": USB_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
-        "supported": DEFAULT_SUPPORT
     },
-             
+    
     # USB Host libraries
     {
         "id": "usb_host",
         "source_dir": USB_HOST,
         "build_dir": USB_HOST_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_ABSTRACTION],
-        "supported": DEFAULT_SUPPORT
     },
     
     # DSP libraries
@@ -123,8 +73,8 @@ LIBRARY_MAP = dict([(library['id'], library) for library in LIBRARIES])
 
 class Library:
     DEFAULTS = {
+        "supported": DEFAULT_SUPPORT,
         'dependencies': None,
-        'name': None
     }
     def __init__(self, lib_id):
         self.__dict__.update(Library.DEFAULTS)

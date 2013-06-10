@@ -45,6 +45,10 @@ if __name__ == '__main__':
     parser.add_option("--rtos", action="store_true", dest="rtos",
                       default=False, help="Link to the rtos")
     
+    # Specify a different linker script
+    parser.add_option("-l", "--linker", dest="linker_script",
+                      default=None, help="use the specified linker script")
+    
     (options, args) = parser.parse_args()
     
     # Program Number
@@ -81,7 +85,8 @@ if __name__ == '__main__':
     target = TARGET_MAP[mcu]
     try:
         bin = build_project(test.source_dir, build_dir, target, toolchain,
-                            test.dependencies, clean=options.clean, verbose=options.verbose)
+                            test.dependencies, linker_script=options.linker_script,
+                            clean=options.clean, verbose=options.verbose)
         print 'Image: %s' % bin
         
         if options.disk:

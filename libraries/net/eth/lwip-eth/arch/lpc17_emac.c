@@ -823,7 +823,7 @@ static void packet_tx(void* pvParameters) {
             LPC_EMAC->IntClear = EMAC_INT_TX_UNDERRUN;
             
             /* De-allocate all queued TX pbufs */
-            for (idx = 0; idx < LPC_NUM_BUFF_RXDESCS; idx++) {
+            for (idx = 0; idx < LPC_NUM_BUFF_TXDESCS; idx++) {
                 if (lpc_enetif->txb[idx] != NULL) {
                     pbuf_free(lpc_enetif->txb[idx]);
                     lpc_enetif->txb[idx] = NULL;

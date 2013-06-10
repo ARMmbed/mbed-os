@@ -140,8 +140,7 @@ class mbedToolchain:
             self.notify = print_notify
         
         self.COMPILE_C_AS_CPP = False
-        self.CHROOT = None
-
+        
         bin_tuple = (target.name, self.NAME)
         self.obj_path = join(*bin_tuple)
         self.IGNORE_DIR = (IGNORE_DIRECTORIES | set(TARGET_NAMES) | TOOLCHAINS) - set(bin_tuple)
@@ -335,7 +334,7 @@ class mbedToolchain:
                 command.extend(self.cc_extra(base))
             
             self.debug(command)
-            _, stderr, rc = run_cmd(command, dirname(object), chroot=self.CHROOT)
+            _, stderr, rc = run_cmd(command, dirname(object))
             
             # Parse output for Warnings and Errors
             self.parse_output(stderr)
@@ -382,7 +381,7 @@ class mbedToolchain:
     
     def default_cmd(self, command):
         self.debug(command)
-        stdout, stderr, rc = run_cmd(command, chroot=self.CHROOT)
+        stdout, stderr, rc = run_cmd(command)
         self.debug(stdout)
         if rc != 0:
             for line in stderr.splitlines():
@@ -466,12 +465,7 @@ class ARM(mbedToolchain):
         for line in open(dep_path).readlines():
             match = ARM.DEP_PATTERN.match(line)
             if match is not None:
-                if self.CHROOT:
-                    # mbed.org build system: We need to append chroot here, 
-                    # because when the .d files are generated, armcc is chrooted
-                    dependencies.append(self.CHROOT + match.group('file'))
-                else:
-                    dependencies.append(match.group('file'))
+                dependencies.append(match.group('file'))
         return dependencies
     
     def parse_output(self, output):
