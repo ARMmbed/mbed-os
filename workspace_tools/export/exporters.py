@@ -27,7 +27,7 @@ class Exporter():
         for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources', 'objects', 'libraries', 'linker_script']:
             r = getattr(resources, r_type)
             if r:
-                self.toolchain.copy_files(src_path, trg_path, r)
+                self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources.lib_builds
     
     def scan_and_copy_resources(self, prj_path, trg_path):

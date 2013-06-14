@@ -186,9 +186,6 @@ void SystemInit (void) {
 #endif /* (CLOCK_SETUP == 2) */
 }
 
-// Make sure we are pulling in the retargeting module at link time
-extern int stdio_retargeting_module;
-
 /* ----------------------------------------------------------------------------
    -- SystemCoreClockUpdate()
    ---------------------------------------------------------------------------- */
@@ -263,6 +260,4 @@ void SystemCoreClockUpdate (void) {
     return;
   } /* (!((MCG->C1 & MCG_C1_CLKS_MASK) == 0x80u)) */
   SystemCoreClock = (MCGOUTClock / (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT)));
-  
-  stdio_retargeting_module = 1;
 }

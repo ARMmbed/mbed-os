@@ -21,13 +21,11 @@ MBED_REPO_EXT = (".lib", ".bld")
 
 # mbed_official code that does have a mirror in the mbed SDK
 OFFICIAL_CODE = ( 
-    ("mbed-src"      , "mbed/src"),
-    ("mbed-NXP"      , "mbed/vendor/NXP"),
-    ("mbed-Freescale", "mbed/vendor/Freescale"),
-    ("mbed-rpc"      , "mbed/rpc"),
+    ("mbed-src"      , "mbed"),
     
     ("mbed-rtos", "rtos"),
     ("mbed-dsp" , "dsp"),
+    ("mbed-rpc" , "rpc"),
     
     ("lwip"    , "net/lwip/lwip"),
     ("lwip-sys", "net/lwip/lwip-sys"),

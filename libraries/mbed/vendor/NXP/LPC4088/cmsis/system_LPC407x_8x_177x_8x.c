@@ -505,9 +505,6 @@ void fpu_init(void)
 }
 #endif
 
-// Make sure we are pulling in the retargeting module at link time
-extern int stdio_retargeting_module;
-
 /**
  * Initialize the system
  *
@@ -571,6 +568,4 @@ fpu_init();
 #endif
 #endif
   SystemCoreClockUpdate();
-
-  stdio_retargeting_module = 1;
 }

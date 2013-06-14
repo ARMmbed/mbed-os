@@ -98,9 +98,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
   }
 }
 
-// Make sure we are pulling in the retargeting module at link time
-extern int stdio_retargeting_module;
-
 /**
  * Initialize the system
  *
@@ -144,6 +141,4 @@ void SystemInit (void)
   // Setup MAM
   LPC_SC->MAMTIM      = MAMTIM_Val;
   LPC_SC->MAMCR       = MAMCR_Val;
-  
-  stdio_retargeting_module = 1;
 }

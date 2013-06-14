@@ -374,9 +374,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
 }
 
-// Make sure we are pulling in the retargeting module at link time
-extern int stdio_retargeting_module;
-
 /**
  * Initialize the system
  *
@@ -450,6 +447,4 @@ void SystemInit (void) {
   /* System clock to the IOCON needs to be enabled or
   most of the I/O related peripherals won't work. */
   LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
-  
-  stdio_retargeting_module = 1;
 }

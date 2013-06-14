@@ -311,9 +311,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
 }
 
-// Make sure we are pulling in the retargeting module at link time
-extern int stdio_retargeting_module;
-
 /**
  * Initialize the system
  *
@@ -367,6 +364,4 @@ void SystemInit (void) {
 
   LPC_SYSCON->SYSAHBCLKDIV  = SYSAHBCLKDIV_Val;
 #endif
-  
-  stdio_retargeting_module = 1;
 }

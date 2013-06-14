@@ -266,7 +266,7 @@ TESTS = [
     {
         "id": "MBED_15", "description": "MBED: RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
-        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "mbed", "rpc")],
+        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc")],
         "host_test": "rpc",
     },
     {

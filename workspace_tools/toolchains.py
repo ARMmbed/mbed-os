@@ -1,5 +1,5 @@
 from os import stat, walk, remove
-from os.path import splitext, exists, relpath, dirname, basename
+from os.path import splitext, exists, relpath, dirname, basename, split
 from shutil import copyfile
 from copy import copy
 from types import ListType
@@ -128,7 +128,7 @@ class mbedToolchain:
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],        
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
     
     def __init__(self, target, notify=None):
@@ -138,8 +138,6 @@ class mbedToolchain:
             self.notify = notify
         else:
             self.notify = print_notify
-        
-        self.COMPILE_C_AS_CPP = False
         
         bin_tuple = (target.name, self.NAME)
         self.obj_path = join(*bin_tuple)
@@ -165,9 +163,9 @@ class mbedToolchain:
         
         if not exists(target):
             return True
-
+        
         target_mod_time = stat(target).st_mtime
-
+        
         for d in dependencies:
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
@@ -262,19 +260,28 @@ class mbedToolchain:
         
         return resources
     
-    def copy_files(self, src_path, trg_path, files_paths):
+    def copy_files(self, files_paths, trg_path, rel_path=None):
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
         
         for source in files_paths:
+            if rel_path is not None:
+                relative_path = relpath(source, rel_path)
+            else:
+                _, relative_path = split(source)
             
-            relative_path = relpath(source, src_path)
             target = join(trg_path, relative_path)
             
             if (target != source) and (self.need_update(target, [source])):
                 self.progress("copy", relative_path)
                 mkdir(dirname(target))
                 copyfile(source, target)
+    
+    def relative_object_path(self, build_path, base_dir, source):
+        source_dir, name, _ = split_path(source)
+        obj_dir = join(build_path, relpath(source_dir, base_dir))
+        mkdir(obj_dir)
+        return join(obj_dir, name + '.o')
     
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
@@ -286,10 +293,11 @@ class mbedToolchain:
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
         
+        base_path = resources.base_path
+        
         for source in resources.s_sources:
             self.compiled += 1
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
+            object = self.relative_object_path(build_path, base_path, source)
             if self.need_update(object, [source]):
                 self.progress("assemble", source, build_update=True)
                 self.assemble(source, object)
@@ -297,17 +305,12 @@ class mbedToolchain:
         
         # The dependency checking for C/C++ is delegated to the specific compiler
         for source in resources.c_sources:
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
-            if self.COMPILE_C_AS_CPP:
-                self.compile_cpp(source, object, inc_paths)
-            else:
-                self.compile_c(source, object, inc_paths)
+            object = self.relative_object_path(build_path, base_path, source)
+            self.compile_c(source, object, inc_paths)
             objects.append(object)
         
         for source in resources.cpp_sources:
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
+            object = self.relative_object_path(build_path, base_path, source)
             self.compile_cpp(source, object, inc_paths)
             objects.append(object)
         
@@ -319,7 +322,6 @@ class mbedToolchain:
         dep_path = base + '.d'
         
         self.compiled += 1
-        
         if (not exists(dep_path) or
             self.need_update(object, self.parse_dependencies(dep_path))):
             

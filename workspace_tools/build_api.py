@@ -85,7 +85,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     
     # Copy Headers
     for resource in resources:
-        toolchain.copy_files(resource.base_path, build_path, resource.headers)
+        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
     
     # Compile Sources
     objects = []
@@ -128,9 +128,9 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     cmsis_src = join(TARGET_SRC, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
     
-    toolchain.copy_files(cmsis_src, BUILD_TARGET, resources.headers + [resources.linker_script])
+    toolchain.copy_files(resources.headers + [resources.linker_script], BUILD_TARGET, rel_path=cmsis_src)
     objects = toolchain.compile_sources(resources, TMP_PATH, resources.inc_dirs)
-    toolchain.copy_files(TMP_PATH, BUILD_TOOLCHAIN, objects)
+    toolchain.copy_files(objects, BUILD_TOOLCHAIN)
     
     # mbed
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
@@ -140,10 +140,20 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
     mbed_resources.add(hal_implementation)
     
-    toolchain.copy_files(MBED_API, MBED_LIBRARIES, toolchain.scan_resources(MBED_API).headers)
-    toolchain.copy_files(MBED_HAL, MBED_LIBRARIES, toolchain.scan_resources(MBED_HAL).headers)
-    toolchain.copy_files(HAL_SRC, BUILD_TARGET, hal_implementation.headers)
+    # Headers
+    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+    toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
     
     includes = mbed_resources.inc_dirs + [MBED_LIBRARIES, BUILD_TARGET]
     objects = toolchain.compile_sources(mbed_resources, TMP_PATH, includes)
+    
+    # Keep the stdio retargeting as a standalone object to be sure the
+    # C standard library symbols get overridden
+    stdio_retargeting = None
+    for o in objects:
+        if o.endswith('stdio.o'):
+            stdio_retargeting = o
+    objects.remove(stdio_retargeting)
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+    toolchain.copy_files(stdio_retargeting, BUILD_TOOLCHAIN)

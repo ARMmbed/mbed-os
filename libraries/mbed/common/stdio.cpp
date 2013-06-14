@@ -379,6 +379,3 @@ namespace __gnu_cxx {
     }
 }
 #endif
-
-// Make sure we are pulling in the retargeting module at link time
-volatile int stdio_retargeting_module;
