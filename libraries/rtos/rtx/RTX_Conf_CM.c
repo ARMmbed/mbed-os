@@ -49,18 +49,18 @@
 //       counting "main", but not counting "osTimerThread"
 //   <i> Default: 6
 #ifndef OS_TASKCNT
-#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #    define OS_TASKCNT         14
-#  elif defined(TARGET_LPC11U24)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #    define OS_TASKCNT         6
 #  endif
 #endif
 
 //   <o>Scheduler (+ interrupts) stack size [bytes] <64-4096:8><#/4>
 #ifndef OS_SCHEDULERSTKSIZE
-#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #      define OS_SCHEDULERSTKSIZE    256
-#  elif defined(TARGET_LPC11U24)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #      define OS_SCHEDULERSTKSIZE    128
 #  endif
 #endif
@@ -103,8 +103,12 @@
 #ifndef OS_CLOCK
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #    define OS_CLOCK       96000000
-#  elif defined(TARGET_LPC11U24)
+
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_KL25Z)
 #    define OS_CLOCK       48000000
+#
+#  elif defined(TARGET_LPC4088)
+#    define OS_CLOCK       120000000
 #  endif
 #endif
 
@@ -220,7 +224,7 @@ extern void mbed_die(void);
 
 void os_error (uint32_t err_code) {
     /* This function is called when a runtime error is detected. Parameter     */
-    /* 'err_code' holds the runtime error code (defined in RTX_Config.h).      */
+    /* 'err_code' holds the runtime error code (defined in RTX_Conf.h).      */
     mbed_die();
 }
 

@@ -9,7 +9,10 @@ static unsigned int iterations = 0;
 void report_iterations(void) {
     unsigned int tot = (0x100 * iterations)*2;
     printf("\nAllocated (%d)Kb in (%u) iterations\n", tot/1024, iterations);
+#if !defined(TOOLCHAIN_GCC_CR)    
+    // EA: This causes a crash when compiling with GCC_CR???
     printf("%.2f\n", ((float)(tot)/(float)(initial_stack_p - initial_heap_p))*100.);
+#endif    
 #ifdef TOOLCHAIN_ARM
     __heapvalid((__heapprt) fprintf, stdout, 1);
 #endif

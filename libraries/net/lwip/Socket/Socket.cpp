@@ -69,10 +69,12 @@ int Socket::wait_writable(TimeInterval& timeout) {
     return select(&timeout._time, false, true);
 }
 
-int Socket::close() {
+int Socket::close(bool shutdown) {
     if (_sock_fd < 0)
         return -1;
     
+    if (shutdown)
+        lwip_shutdown(_sock_fd, SHUT_RDWR);
     lwip_close(_sock_fd);
     _sock_fd = -1;
     

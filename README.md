@@ -1,5 +1,5 @@
-mbed
-====
+mbed SDK
+========
 
 The mbed Software Development Kit (SDK) is a C/C++ microcontroller software platform relied upon by tens of thousands of
 developers to build projects fast.
@@ -12,8 +12,11 @@ to build complex projects. It is built on the low-level ARM CMSIS APIs, allowing
 In addition to RTOS, USB and Networking libraries, a cookbook of hundreds of reusable peripheral and module libraries
 have been built on top of the SDK by the mbed Developer Community.
 
-* [Tools documentation](http://mbed.org/handbook/mbed-tools): how to setup and use the build system.
-* [mbed library internals](http://mbed.org/handbook/mbed-library-internals) documentation
+Documentation
+-------------
+* [Tools](http://mbed.org/handbook/mbed-tools): how to setup and use the build system.
+* [mbed library internals](http://mbed.org/handbook/mbed-library-internals)
+* [Adding a new target microcontroller](http://mbed.org/handbook/mbed-SDK-porting)
 
 Supported Microcontrollers
 --------------------------

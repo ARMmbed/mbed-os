@@ -15,7 +15,7 @@ CT32B0/MR2  p10 (P1_26)
  */
 
 int main() {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
     

@@ -135,7 +135,31 @@ TESTS = [
         "automated": True,
         "peripherals": ["MMA7660"]
     },
-       
+    {
+        "id": "MBED_A14", "description": "MBED: I2C Master",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A15", "description": "MBED: I2C Slave",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A16", "description": "MBED: SPI Master",
+        "source_dir": join(TEST_DIR, "mbed", "spi_master"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    {
+        "id": "MBED_A17", "description": "MBED: SPI Slave",
+        "source_dir": join(TEST_DIR, "mbed", "spi_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True
+    },
+    
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Benchmark: Size (c environment)",
@@ -242,7 +266,7 @@ TESTS = [
     {
         "id": "MBED_15", "description": "MBED: RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
-        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "mbed", "rpc")],
+        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc")],
         "host_test": "rpc",
     },
     {
@@ -476,6 +500,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
+    {
+        "id": "NET_13", "description": "NET: TCP client echo loop",
+        "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "supported": CORTEX_ARM_SUPPORT,
+    },
     
     # Vodafone tests
     {
@@ -586,19 +616,30 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z"],
     },
+    
+    # LPC812
     {
         "id": "LPC812_1", "description": "LPC812: Blinky",
         "source_dir": join(TEST_DIR, "lpc812", "blinky"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC812"],
     },
+    
+    # MBED_MCU
     {
-        "id": "EXAMPLE_1", "description": "/dev/null",
+        "id": "MBED_MCU_1", "description": "MBED_MCU: BASIC",
+        "source_dir": join(TEST_DIR, "mbed", "mbed_mcu_basic"),
+        "dependencies": [MBED_LIBRARIES],
+    },
+    
+    # Examples
+    {
+        "id": "EXAMPLE_1", "description": "Example: /dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "EXAMPLE_2", "description": "FS + RTOS",
+        "id": "EXAMPLE_2", "description": "Example: FS + RTOS",
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     }

@@ -13,6 +13,7 @@ from workspace_tools.client import request_test, get_muts
 from workspace_tools.settings import *
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.utils import error
+from workspace_tools.targets import TARGET_MAP
 
 
 class TestServer:
@@ -86,7 +87,8 @@ if __name__ == "__main__":
         for toolchain in toolchains:
             print '=== %s::%s ===' % (target, toolchain)
             
-            build_mbed_libs(target, toolchain)
+            T = TARGET_MAP[target]
+            build_mbed_libs(T, toolchain)
             
             build_dir = join(BUILD_DIR, "test", target, toolchain)
             
@@ -107,7 +109,7 @@ if __name__ == "__main__":
                     }
                     
                     path = build_project(test.source_dir, join(build_dir, test_id),
-                                 target, toolchain, test.dependencies, clean=clean)
+                                 T, toolchain, test.dependencies, clean=clean)
                     test_result_cache = join(dirname(path), "test_result.json")
                     
                     if not clean and exists(test_result_cache):

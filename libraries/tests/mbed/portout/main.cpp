@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #     define LED1   (1 << 18) // P1.18
 #     define LED2   (1 << 20) // P1.20
 #     define LED3   (1 << 21) // P1.21

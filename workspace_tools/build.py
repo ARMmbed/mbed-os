@@ -10,7 +10,8 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
 
-from workspace_tools.toolchains import TARGETS, TOOLCHAINS
+from workspace_tools.toolchains import TOOLCHAINS
+from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     if options.mcu:
         targets = [options.mcu]
     else:
-        targets = TARGETS
+        targets = TARGET_NAMES
     
     # Get toolchains list
     if options.tool:
@@ -83,9 +84,10 @@ if __name__ == '__main__':
         for target in targets:
             id = "%s::%s" % (toolchain, target)
             try:
-                build_mbed_libs(target, toolchain, verbose=options.verbose)
+                mcu = TARGET_MAP[target]
+                build_mbed_libs(mcu, toolchain, verbose=options.verbose)
                 for lib_id in libraries:
-                    build_lib(lib_id, target, toolchain, verbose=options.verbose)
+                    build_lib(lib_id, mcu, toolchain, verbose=options.verbose)
                 successes.append(id)
             except Exception, e:
                 failures.append(id)

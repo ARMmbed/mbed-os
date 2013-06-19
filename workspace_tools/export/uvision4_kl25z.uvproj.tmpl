@@ -347,7 +347,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>TARGET_KL25Z</Define>
+              <Define>TARGET_KL25Z, NDEBUG, TOOLCHAIN_ARM, __CMSIS_RTOS, __CORTEX_M0PLUS</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>
             </VariousControls>
@@ -362,7 +362,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <VariousControls>
-              <MiscControls>--gnu</MiscControls>
+              <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
@@ -377,7 +377,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x10000000</DataAddressRange>
-            <ScatterFile>.\mbed\KL25Z\ARM\MKL25Z4.sct</ScatterFile>
+            <ScatterFile>{{scatter_file}}</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>
@@ -399,6 +399,17 @@
                         <FileName>{{file.name}}</FileName>
                         <FileType>{{file.type}}</FileType>
                         <FilePath>{{file.path}}</FilePath>
+                        {%if file.type == "1" %}
+                        <FileOption>
+                            <FileArmAds>
+                              <Cads>
+                                <VariousControls>
+                                  <MiscControls>--c99</MiscControls>
+                                </VariousControls>
+                              </Cads>
+                            </FileArmAds>
+                        </FileOption>
+                        {% endif %}
                 </File>
                {% endfor %}
 
@@ -409,5 +420,3 @@
   </Targets>
 
 </Project>
-          
-

@@ -6,7 +6,6 @@ import sys
 from os.path import join, abspath, dirname
 from shutil import copy
 from time import sleep
-from serial import Serial
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -16,6 +15,7 @@ from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
+from workspace_tools.targets import TARGET_MAP
 
 
 def args_error(parser, message):
@@ -44,6 +44,10 @@ if __name__ == '__main__':
     # without the rtos
     parser.add_option("--rtos", action="store_true", dest="rtos",
                       default=False, help="Link to the rtos")
+    
+    # Specify a different linker script
+    parser.add_option("-l", "--linker", dest="linker_script",
+                      default=None, help="use the specified linker script")
     
     (options, args) = parser.parse_args()
     
@@ -78,9 +82,11 @@ if __name__ == '__main__':
     
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
     
+    target = TARGET_MAP[mcu]
     try:
-        bin = build_project(test.source_dir, build_dir, mcu, toolchain,
-                            test.dependencies, clean=options.clean, verbose=options.verbose)
+        bin = build_project(test.source_dir, build_dir, target, toolchain,
+                            test.dependencies, linker_script=options.linker_script,
+                            clean=options.clean, verbose=options.verbose)
         print 'Image: %s' % bin
         
         if options.disk:
@@ -88,15 +94,10 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         
         if options.serial:
-            if options.mcu in ["KL25Z", "LPC812"]:
-                # We do not have a flash disk where to store the image, we write
-                # it directly on the target chip, therefore we need to
-                # disconnect the interface: wait for the device to enumerate
-                # again
-                copy_time = 4
-            else:
-                copy_time = 1.5 
-            sleep(copy_time)
+            # Import pyserial: https://pypi.python.org/pypi/pyserial
+            from serial import Serial
+            
+            sleep(target.program_cycle_s)
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
                 serial.setBaudrate(options.baud)

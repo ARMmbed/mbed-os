@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Config.h"
+#include "RTX_Conf.h"
 #include "rt_System.h"
 #include "rt_List.h"
 #include "rt_Mailbox.h"

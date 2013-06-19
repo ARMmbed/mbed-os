@@ -1,5 +1,5 @@
 from os import stat, walk, remove
-from os.path import splitext, exists, relpath, dirname, basename
+from os.path import splitext, exists, relpath, dirname, basename, split
 from shutil import copyfile
 from copy import copy
 from types import ListType
@@ -8,6 +8,7 @@ import re
 from workspace_tools.settings import *
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
+from workspace_tools.targets import TARGET_NAMES
 
 """
 We made the unfortunate choice of calling the ARM standard library toolchain "ARM"
@@ -24,16 +25,14 @@ type directory, because it would get confused with the legacy "ARM" toolchain.
   * ARM  -> ARM_STD
   * uARM -> ARM_MICRO
 """
-TARGETS = set(['LPC1768', 'LPC11U24', 'LPC2368', 'KL25Z', 'LPC812', "STM32F407"])
-TOOLCHAINS = set(['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'IAR'])
-TYPES = set(['GCC'])
 
 # List of ignored directories (all the hidden directories are ignored by default)
 IGNORE_DIRECTORIES = set(['CVS'])
 
 
 def print_notify(event):
-    if event['type'] == 'info':
+    # Default command line notification
+    if event['type'] in ['info', 'debug']:
         print event['message']
     
     elif event['type'] == 'cc':
@@ -126,11 +125,10 @@ class mbedToolchain:
     VERBOSE = True
     
     CORTEX_SYMBOLS = {
-        "LPC1768" : ["__CORTEX_M3", "ARM_MATH_CM3"],
-        "LPC11U24": ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "KL25Z"   : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "LPC812"  : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "STM32F407" : ["__CORTEX_M4", "ARM_MATH_CM4"],
+        "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
+        "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
+        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
     
     def __init__(self, target, notify=None):
@@ -141,21 +139,18 @@ class mbedToolchain:
         else:
             self.notify = print_notify
         
-        self.COMPILE_C_AS_CPP = False
-        self.CHROOT = None
-        
-        bin_tuple = (target, self.NAME)
+        bin_tuple = (target.name, self.NAME)
         self.obj_path = join(*bin_tuple)
-        self.IGNORE_DIR = (IGNORE_DIRECTORIES | TARGETS | TOOLCHAINS | TYPES) - set(bin_tuple)
+        self.IGNORE_DIR = (IGNORE_DIRECTORIES | set(TARGET_NAMES) | TOOLCHAINS) - set(bin_tuple)
         
         # Target and Toolchain symbols
         self.symbols = [
-            "TARGET_" + target, "TOOLCHAIN_" + self.NAME,
+            "TARGET_" + target.name, "TOOLCHAIN_" + self.NAME,
         ]
         
         # Cortex CPU symbols
-        if target in mbedToolchain.CORTEX_SYMBOLS:
-            self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[target])
+        if target.core in mbedToolchain.CORTEX_SYMBOLS:
+            self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[target.core])
         
         self.IGNORE_FILES = []
         
@@ -198,8 +193,8 @@ class mbedToolchain:
                     self.remove_option(option)
         
         # Target specific options
-        if self.target in options:
-            to = options[self.target]
+        if self.target.name in options:
+            to = options[self.target.name]
             if 'ignore_files' in to:
                 self.IGNORE_FILES.extend(to['ignore_files'])
     
@@ -248,7 +243,7 @@ class mbedToolchain:
                         if self.NAME == 'ARM': # Legacy default toolchain
                             self.mbed_libs = True
                         else:
-                            self.mbed_libs = exists(join(root, self.target, self.NAME))
+                            self.mbed_libs = exists(join(root, self.target.name, self.NAME))
                 
                 elif ext == '.o':
                     resources.objects.append(file_path)
@@ -265,13 +260,16 @@ class mbedToolchain:
         
         return resources
     
-    def copy_files(self, src_path, trg_path, files_paths):
+    def copy_files(self, files_paths, trg_path, rel_path=None):
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
         
         for source in files_paths:
+            if rel_path is not None:
+                relative_path = relpath(source, rel_path)
+            else:
+                _, relative_path = split(source)
             
-            relative_path = relpath(source, src_path)
             target = join(trg_path, relative_path)
             
             if (target != source) and (self.need_update(target, [source])):
@@ -279,33 +277,40 @@ class mbedToolchain:
                 mkdir(dirname(target))
                 copyfile(source, target)
     
+    def relative_object_path(self, build_path, base_dir, source):
+        source_dir, name, _ = split_path(source)
+        obj_dir = join(build_path, relpath(source_dir, base_dir))
+        mkdir(obj_dir)
+        return join(obj_dir, name + '.o')
+    
     def compile_sources(self, resources, build_path, inc_dirs=None):
+        # Web IDE progress bar for project build
+        self.to_be_compiled = len(resources.s_sources) + len(resources.c_sources) + len(resources.cpp_sources)
+        self.compiled = 0
+        
         objects = []
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
         
+        base_path = resources.base_path
+        
         for source in resources.s_sources:
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
+            self.compiled += 1
+            object = self.relative_object_path(build_path, base_path, source)
             if self.need_update(object, [source]):
-                self.progress("assemble", source)
+                self.progress("assemble", source, build_update=True)
                 self.assemble(source, object)
             objects.append(object)
         
         # The dependency checking for C/C++ is delegated to the specific compiler
         for source in resources.c_sources:
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
-            if self.COMPILE_C_AS_CPP:
-                self.compile_cpp(source, object, inc_paths)
-            else:
-                self.compile_c(source, object, inc_paths)
+            object = self.relative_object_path(build_path, base_path, source)
+            self.compile_c(source, object, inc_paths)
             objects.append(object)
         
         for source in resources.cpp_sources:
-            _, name, _ = split_path(source)
-            object = join(build_path, name + '.o')
+            object = self.relative_object_path(build_path, base_path, source)
             self.compile_cpp(source, object, inc_paths)
             objects.append(object)
         
@@ -315,9 +320,12 @@ class mbedToolchain:
         # Check dependencies
         base, _ = splitext(object)
         dep_path = base + '.d'
+        
+        self.compiled += 1
         if (not exists(dep_path) or
             self.need_update(object, self.parse_dependencies(dep_path))):
-            self.progress("compile", source)
+            
+            self.progress("compile", source, build_update=True)
             
             # Compile
             command = cc + ['-D%s' % s for s in self.symbols] + ["-I%s" % i for i in includes] + ["-o", object, source]
@@ -326,9 +334,9 @@ class mbedToolchain:
             
             if hasattr(self, "cc_extra"):
                 command.extend(self.cc_extra(base))
-
+            
             self.debug(command)
-            _, stderr, rc = run_cmd(command, dirname(object), chroot=self.CHROOT)
+            _, stderr, rc = run_cmd(command, dirname(object))
             
             # Parse output for Warnings and Errors
             self.parse_output(stderr)
@@ -364,18 +372,18 @@ class mbedToolchain:
             self.progress("elf2bin", name)
             self.binary(elf, bin)
             
-            if self.target in ['LPC1768', 'LPC11U24', 'LPC2368', 'LPC812']:
+            if self.target.vendor == 'NXP':
                 self.debug("LPC Patch %s" % (name + '.bin'))
-            patch(bin)
+                patch(bin)
             
-            self.var("compile_succeded", True)
-            self.var("binary", name+'.bin')
+        self.var("compile_succeded", True)
+        self.var("binary", name+'.bin')
         
         return bin
     
     def default_cmd(self, command):
         self.debug(command)
-        stdout, stderr, rc = run_cmd(command, chroot=self.CHROOT)
+        stdout, stderr, rc = run_cmd(command)
         self.debug(stdout)
         if rc != 0:
             for line in stderr.splitlines():
@@ -390,13 +398,16 @@ class mbedToolchain:
         if self.VERBOSE:
             if type(message) is ListType:
                 message = ' '.join(message)
-            self.info(message)
+            self.notify({'type': 'debug', 'message': message})
     
     def cc_info(self, severity, file, line, message):
         self.notify({'type': 'cc', 'severity': severity, 'file': file, 'line': line, 'message': message})
     
-    def progress(self, action, file):
-        self.notify({'type': 'progress', 'action': action, 'file': file})
+    def progress(self, action, file, build_update=False):
+        msg = {'type': 'progress', 'action': action, 'file': file}
+        if build_update:
+            msg['percent'] = 100. * float(self.compiled) / float(self.to_be_compiled)
+        self.notify(msg)
    
     def tool_error(self, message):
         self.notify({'type': 'tool_error', 'message': message})
@@ -409,14 +420,6 @@ class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
     LIBRARY_EXT = '.ar'
     
-    CPU = {
-        "LPC1768" : "Cortex-M3",
-        "LPC2368" : "ARM7TDMI-S",
-        "LPC11U24": "Cortex-M0",
-        "KL25Z"   : "Cortex-M0",
-        "LPC812"  : "Cortex-M0",
-    }
-    
     STD_LIB_NAME = "%s.ar"
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
@@ -424,14 +427,22 @@ class ARM(mbedToolchain):
     def __init__(self, target, notify):
         mbedToolchain.__init__(self, target, notify)
         
-        # self.IGNORE_DIR.remove('ARM')
+        if   target.core == "Cortex-M0+":
+            cpu = "Cortex-M0"
+        elif target.core == "Cortex-M4":
+            cpu = "Cortex-M4.fp"
+        else:
+            cpu = target.core
         
         common = [join(ARM_BIN, "armcc"), "-c",
-            "--cpu=%s" % ARM.CPU[target], "--gnu",
+            "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics"
+            "--brief_diagnostics", "--restrict"
+        ] # "--asm" "--interleave"
+        common_c = [
+            "--md", "--no_depend_system_headers",
+            '-I%s' % ARM_INC
         ]
-        common_c = ["--md", "--no_depend_system_headers"]
         
         self.asm = common
         self.cc = common + common_c + ["--c99"]
@@ -489,10 +500,12 @@ class ARM_STD(ARM):
     
     def __init__(self, target, notify=None):
         ARM.__init__(self, target, notify)
+        self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
     NAME = 'uARM' # In the future we want to rename it ARM_MICRO
+    PATCHED_LIBRARY = True
     
     def __init__(self, target, notify=None):
         ARM.__init__(self, target, notify)
@@ -503,30 +516,28 @@ class ARM_MICRO(ARM):
         self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
         
         # Linker
-        self.ld   += ["--library_type=microlib", "--noscanlib"]
+        self.ld.append("--library_type=microlib")
         
-        # System Libraries
-        self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
-        
-        if target == "LPC1768":
-            self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
-        
-        elif target in ["LPC11U24", "KL25Z", "LPC812"]:
-            self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
+        # We had to patch microlib to add C++ support
+        # In later releases this patch should have entered mainline
+        if ARM_MICRO.PATCHED_LIBRARY:
+            self.ld.append("--noscanlib")
+            
+            # System Libraries
+            self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
+            
+            if target.core == "Cortex-M3":
+                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ws", "cpprt_w"]])
+            
+            elif target.core in ["Cortex-M0", "Cortex-M0+"]:
+                self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
+        else:
+            self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
-    
-    CPU = {
-        "LPC1768": "cortex-m3",
-        "LPC2368": "arm7tdmi-s",
-        "LPC11U24": "cortex-m0",
-        "KL25Z": "cortex-m0",
-        "LPC812"  : "cortex-m0",
-        "STM32F407"  : "cortex-m4",
-    }
     
     STD_LIB_NAME = "lib%s.a"
     CIRCULAR_DEPENDENCIES = True
@@ -534,10 +545,18 @@ class GCC(mbedToolchain):
     
     def __init__(self, target, notify, tool_path):
         mbedToolchain.__init__(self, target, notify)
-        self.IGNORE_DIR.remove('GCC')
-        self.cpu = ["-mcpu=%s" % GCC.CPU[target]]
-        if target in ["LPC1768", "LPC11U24", "KL25Z", "LPC812", "STM32F407"]:
+        
+        if target.core == "Cortex-M0+":
+            cpu = "cortex-m0"
+        else:
+            cpu = target.core.lower()
+        
+        self.cpu = ["-mcpu=%s" % cpu]
+        if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
+        
+        if target.core == "Cortex-M4":
+            self.cpu.append("-mfpu=vfp")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
@@ -629,12 +648,8 @@ class GCC_ARM(GCC):
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target in ["LPC1768", "STM32F407"]:
+        if target in ["LPC1768"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
-
-        if target == "STM32F407":
-            self.cc.extend(["-mfloat-abi=hard", "-mfpu=fpv4-sp-d16"])
-            self.cppc.extend(["-mfloat-abi=hard", "-mfpu=fpv4-sp-d16"])
         
         self.sys_libs.append("nosys")
 
@@ -662,26 +677,50 @@ class GCC_CS(GCC):
 
 
 class GCC_CW(GCC):
-    NAME = 'GCC_CW'
-    
     ARCH_LIB = {
-        "KL25Z": "armv6-m",
+        "Cortex-M0+": "armv6-m",
     }
     
     def __init__(self, target, notify=None):
-        tool_path = join(GCC_CW_PATH, "Cross_Tools/arm-none-eabi-gcc-4_6_2/bin")
-        GCC.__init__(self, target, notify, tool_path)
-        self.CIRCULAR_DEPENDENCIES = False
+        GCC.__init__(self, target, notify, CW_GCC_PATH)
+
+
+class GCC_CW_EWL(GCC_CW):
+    NAME = 'GCC_CW_EWL'
+    
+    def __init__(self, target, notify=None):
+        GCC_CW.__init__(self, target, notify)
         
-        lib_path = join(GCC_CW_PATH, "MCU/ARM_GCC_Support/ewl/lib", GCC_CW.ARCH_LIB[target])
+        # Compiler
+        common = [
+            '-mfloat-abi=soft',
+            '-nostdinc', '-I%s' % join(CW_EWL_PATH, "EWL_C", "include"),
+        ]
+        self.cc += common + [
+            '-include', join(CW_EWL_PATH, "EWL_C", "include", 'lib_c99.prefix')
+        ]
+        self.cppc += common + [
+            '-nostdinc++', '-I%s' % join(CW_EWL_PATH, "EWL_C++", "include"),
+            '-include', join(CW_EWL_PATH, "EWL_C++", "include", 'lib_ewl_c++.prefix')
+        ]
+        
+        # Linker
         self.sys_libs = []
-        self.ld = [join(tool_path, "arm-none-eabi-g++"),
+        self.CIRCULAR_DEPENDENCIES = False
+        self.ld = [join(GCC_CW_PATH, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
-            "-L%s" % lib_path,
+            "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
             "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
             "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
         ] + self.cpu
+
+
+class GCC_CW_NEWLIB(GCC_CW):
+    NAME = 'GCC_CW_NEWLIB'
+    
+    def __init__(self, target, notify=None):
+        GCC_CW.__init__(self, target, notify)
 
 
 class IAR(mbedToolchain):
@@ -689,9 +728,7 @@ class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
     LINKER_EXT = '.icf'
     STD_LIB_NAME = "%s.a"
-    CPU = {
-        "LPC1768" : "Cortex-M3",
-    }
+    
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     
     def __init__(self, target, notify=None):
@@ -699,7 +736,7 @@ class IAR(mbedToolchain):
         
         c_flags = [
             "-Oh",
-            "--cpu=%s" % IAR.CPU[target], "--thumb",
+            "--cpu=%s" % target.core, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
             "-e", # Enable IAR language extension
             "--no_wrap_diagnostics",
@@ -711,7 +748,7 @@ class IAR(mbedToolchain):
         ]
         
         IAR_BIN = join(IAR_PATH, "bin")
-        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", IAR.CPU[target]]
+        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
         self.cc   = [join(IAR_BIN, "iccarm")] + c_flags
         self.cppc = [join(IAR_BIN, "iccarm"), "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
         
@@ -758,6 +795,9 @@ class IAR(mbedToolchain):
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD, 'uARM': ARM_MICRO,
-    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR, 'GCC_CW': GCC_CW,
+    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR,
+    'GCC_CW_EWL': GCC_CW_EWL, 'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
+
+TOOLCHAINS = set(TOOLCHAIN_CLASSES.keys())
