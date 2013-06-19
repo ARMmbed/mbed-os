@@ -556,7 +556,8 @@ class GCC(mbedToolchain):
             self.cpu.append("-mthumb")
         
         if target.core == "Cortex-M4":
-            self.cpu.append("-mfpu=vfp")
+            self.cpu.append("-mfpu=fpv4-sp-d16")
+            self.cpu.append("-mfloat-abi=%s" % M4_FLOAT_ABI)
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
