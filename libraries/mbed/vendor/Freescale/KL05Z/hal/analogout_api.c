@@ -22,7 +22,7 @@
 #define RANGE_12BIT     0xFFF
 
 static const PinMap PinMap_DAC[] = {
-    {PTE30, DAC_0, 0},
+    {PTB1, DAC_0, 0},
     {NC   , NC   , 0}
 };
 

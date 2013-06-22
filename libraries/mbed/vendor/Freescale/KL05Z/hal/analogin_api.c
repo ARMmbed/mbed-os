@@ -20,20 +20,12 @@
 #include "error.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PTE20, ADC0_SE0,  0},
-    {PTE22, ADC0_SE3,  0},
-    {PTE29, ADC0_SE4b, 0},
-    {PTE30, ADC0_SE23, 0},
-    {PTB0,  ADC0_SE8,  0},
-    {PTB1,  ADC0_SE9,  0},
-    {PTB2,  ADC0_SE12, 0},
-    {PTB3,  ADC0_SE13, 0},
-    {PTC0,  ADC0_SE14, 0},
-    {PTC1,  ADC0_SE15, 0},
-    {PTC2,  ADC0_SE11, 0},
-    {PTD1,  ADC0_SE5b, 0},
-    {PTD5,  ADC0_SE6b, 0},
-    {PTD6,  ADC0_SE7b, 0},
+    {PTA0,  ADC0_SE12, 0},
+    {PTA8,  ADC0_SE3,  0},
+    {PTA9,  ADC0_SE2,  0},
+    {PTB8,  ADC0_SE11, 0},
+    {PTB9,  ADC0_SE10, 0},
+    {PTB13, ADC0_SE13, 0},
     {NC,    NC,        0}
 };
 

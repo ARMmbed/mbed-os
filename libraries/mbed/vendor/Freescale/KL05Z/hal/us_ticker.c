@@ -17,10 +17,15 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
+/* Prototypes */
 static void pit_init(void);
 static void lptmr_init(void);
 
-static int us_ticker_inited = 0;
+/* Global variables */
+static uint32_t us_ticker_inited = 0;
+static uint32_t us_ticker_int_counter = 0;
+static uint16_t us_ticker_int_remainder = 0;
+
 
 void us_ticker_init(void) {
     if (us_ticker_inited) return;
@@ -88,9 +93,6 @@ void us_ticker_clear_interrupt(void) {
     // we already clear interrupt in lptmr_isr
 }
 
-static uint32_t us_ticker_int_counter = 0;
-static uint16_t us_ticker_int_remainder = 0;
-
 static void lptmr_set(unsigned short count) {
     /* Reset */
     LPTMR0->CSR = 0;
@@ -125,8 +127,8 @@ static void lptmr_isr(void) {
     }
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
-    int delta = (int)(timestamp - us_ticker_read());
+void us_ticker_set_interrupt(uint32_t timestamp) {
+    int32_t delta = (int32_t)(timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past:
         us_ticker_irq_handler();
