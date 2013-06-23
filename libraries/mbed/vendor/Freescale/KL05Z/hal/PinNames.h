@@ -84,8 +84,8 @@ typedef enum {
     LED4 = LED_RED,
 
     // USB Pins
-    USBTX = PTB2,
-    USBRX = PTB1,
+    USBTX = PTB1,
+    USBRX = PTB2,
 
     // Arduino Headers
     D0 = PTB2,
@@ -119,7 +119,7 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullDown = 2,
-    PullUp = 3,
+    PullUp   = 3,
 } PinMode;
 
 #ifdef __cplusplus

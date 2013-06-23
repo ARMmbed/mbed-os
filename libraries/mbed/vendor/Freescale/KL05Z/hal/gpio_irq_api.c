@@ -51,7 +51,7 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
                     break;
 
                 case IRQ_EITHER_EDGE:
-                    gpio = (port == PORTA) ? (FPTA) : (FPTD);
+                    gpio = (port == PORTA) ? (FPTA) : (FPTB);
                     event = (gpio->PDIR & pmask) ? (IRQ_RISE) : (IRQ_FALL);
                     break;
             }
@@ -62,13 +62,13 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
     port->ISFR = mask;
 }
 
-/* IRQ only on PORTA and PORTD */
+/* IRQ only on PORTA and PORTB */
 void gpio_irqA(void) {
     handle_interrupt_in(PORTA, 0);
 }
 
-void gpio_irqD(void) {
-    handle_interrupt_in(PORTD, 32);
+void gpio_irqB(void) {
+    handle_interrupt_in(PORTB, 32);
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
@@ -88,10 +88,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
           vector = (uint32_t)gpio_irqA;
           break;
 
-      case PortD:
+      case PortB:
           ch_base = 32;
-          irq_n = PORTD_IRQn;
-          vector = (uint32_t)gpio_irqD;
+          irq_n = PORTB_IRQn;
+          vector = (uint32_t)gpio_irqB;
           break;
 
       default:
