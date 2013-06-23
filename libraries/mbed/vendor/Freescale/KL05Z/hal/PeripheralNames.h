@@ -33,10 +33,10 @@ typedef enum {
 typedef enum {
     ADC0_SE2  =  2,
     ADC0_SE3  =  3,
-    ADC0_SE10 =  4,
-    ADC0_SE11 =  5,
-    ADC0_SE12 =  6,
-    ADC0_SE13 =  7
+    ADC0_SE10 =  10,
+    ADC0_SE11 =  11,
+    ADC0_SE12 =  12,
+    ADC0_SE13 =  13
 } ADCName;
 
 typedef enum {

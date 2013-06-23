@@ -23,7 +23,7 @@
 
 static const PinMap PinMap_DAC[] = {
     {PTB1, DAC_0, 0},
-    {NC   , NC   , 0}
+    {NC  , NC   , 0}
 };
 
 void analogout_init(dac_t *obj, PinName pin) {
@@ -50,7 +50,9 @@ void analogout_init(dac_t *obj, PinName pin) {
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {}
+void analogout_free(dac_t *obj) {
+
+}
 
 static inline void dac_write(dac_t *obj, int value) {
     DAC0->DAT[obj->dac].DATL = (uint8_t)( value       & 0xFF);

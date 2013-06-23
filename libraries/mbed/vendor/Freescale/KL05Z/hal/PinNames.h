@@ -27,6 +27,7 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
+/* PCR - 0x1000 */
 #define PORT_SHIFT  12
 
 typedef enum {
