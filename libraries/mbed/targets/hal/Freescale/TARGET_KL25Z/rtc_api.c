@@ -15,8 +15,6 @@
  */
 #include "rtc_api.h"
 
-#if DEVICE_RTC
-
 static void init(void) {
     // enable PORTC clock
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
@@ -91,5 +89,3 @@ void rtc_write(time_t t) {
     // re-enable counter
     RTC->SR |= RTC_SR_TCE_MASK;
 }
-
-#endif

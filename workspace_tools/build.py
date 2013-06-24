@@ -90,6 +90,11 @@ if __name__ == '__main__':
                     build_lib(lib_id, mcu, toolchain, verbose=options.verbose)
                 successes.append(id)
             except Exception, e:
+                if options.verbose:
+                    import sys, traceback
+                    traceback.print_exc(file=sys.stdout)
+                    sys.exit(1)
+                
                 failures.append(id)
                 print e
     

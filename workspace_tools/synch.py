@@ -64,6 +64,9 @@ CODE_WITH_DEPENDENCIES = (
     "UDPEchoServer",
     "BroadcastReceive",
     "BroadcastSend",
+    
+    # mbed sources
+    "mbed-src-program",
 )
 
 
