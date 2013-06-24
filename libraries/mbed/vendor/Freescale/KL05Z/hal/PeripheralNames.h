@@ -47,6 +47,19 @@ typedef enum {
     SPI_0 = (int)SPI0_BASE
 } SPIName;
 
+#define TPM_SHIFT   8
+typedef enum {
+    PWM_1  = (0 << TPM_SHIFT) | (0),  // TPM0 CH0
+    PWM_2  = (0 << TPM_SHIFT) | (1),  // TPM0 CH1
+    PWM_3  = (0 << TPM_SHIFT) | (2),  // TPM0 CH2
+    PWM_4  = (0 << TPM_SHIFT) | (3),  // TPM0 CH3
+    PWM_5  = (0 << TPM_SHIFT) | (4),  // TPM0 CH4
+    PWM_6  = (0 << TPM_SHIFT) | (5),  // TPM0 CH5
+
+    PWM_7  = (1 << TPM_SHIFT) | (0),  // TPM1 CH0
+    PWM_8  = (1 << TPM_SHIFT) | (1),  // TPM1 CH1
+} PWMName;
+
 #ifdef __cplusplus
 }
 #endif

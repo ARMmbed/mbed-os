@@ -24,6 +24,8 @@
 #include "pinmap.h"
 #include "error.h"
 
+#define UART_CLOCK_HZ 47972352u
+
 static const PinMap PinMap_UART_TX[] = {
     {PTB1, UART_0, 2},
     {NC  , NC    , 0}
@@ -54,6 +56,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // enable clk
     switch (uart) {
         case UART_0:
+            SIM->SOPT2 |= 1 << SIM_SOPT2_UART0SRC_SHIFT;
             SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
             SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
             break;
@@ -98,16 +101,13 @@ void serial_baud(serial_t *obj, int baudrate) {
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART0_C2_RE_MASK | UART0_C2_TE_MASK);
 
-    // [TODO] not hardcode this value
-    uint32_t PCLK = (obj->uart == UART0) ? 48000000u : 24000000u;
-
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
     // MulVal = 1. Otherwise, we search the valid ratio value range to find
     // the closest match. This could be more elegant, using search methods
     // and/or lookup tables, but the brute force method is not that much
     // slower, and is more maintainable.
-    uint16_t DL = PCLK / (16 * baudrate);
+    uint16_t DL = UART_CLOCK_HZ / (16 * baudrate);
 
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);

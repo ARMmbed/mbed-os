@@ -35,11 +35,11 @@
 
 #define DEVICE_CAN              0
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_ETHERNET         0
 
-#define DEVICE_PWMOUT           0
+#define DEVICE_PWMOUT           1
 
 #define DEVICE_SEMIHOST         1
 #define DEVICE_LOCALFILESYSTEM  0
