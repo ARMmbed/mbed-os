@@ -31,6 +31,10 @@ typedef enum {
 #define STDIO_UART        UART_0
 
 typedef enum {
+    I2C_0 = (int)I2C0_BASE
+} I2CName;
+
+typedef enum {
     ADC0_SE2  =  2,
     ADC0_SE3  =  3,
     ADC0_SE10 =  10,
