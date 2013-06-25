@@ -2,7 +2,7 @@ import re
 from os.path import join, basename, splitext
 
 from workspace_tools.toolchains import mbedToolchain
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH, GCC_CW_PATH
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
 
 
 class GCC(mbedToolchain):
