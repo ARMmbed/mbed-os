@@ -96,6 +96,17 @@ class LPC4088(Target):
         self.supported_toolchains = ["ARM", "GCC_CR"]
 
 
+class LPC4330(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['LPC43XX']
+        
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+
+
 class MBED_MCU(Target):
     def __init__(self):
         Target.__init__(self)
@@ -113,6 +124,7 @@ TARGETS = [
     KL25Z(),
     LPC812(),
     LPC4088(),
+    LPC4330(),
     MBED_MCU()
 ]
 
