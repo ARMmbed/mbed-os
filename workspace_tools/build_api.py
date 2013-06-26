@@ -4,7 +4,7 @@ from types import ListType
 
 from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES, Resources
-from workspace_tools.paths import VENDOR_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
+from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
 
 
@@ -115,9 +115,8 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     toolchain.VERBOSE = verbose
     
     # Source and Build Paths
-    TARGET_SRC = join(VENDOR_PATH, target.vendor, target.name)
-    BUILD_TARGET = join(MBED_LIBRARIES, target.name)
-    BUILD_TOOLCHAIN = join(BUILD_TARGET, toolchain_name)
+    BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
+    BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
     mkdir(BUILD_TOOLCHAIN)
     
     TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
@@ -125,16 +124,18 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     
     # CMSIS
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
-    cmsis_src = join(TARGET_SRC, "cmsis")
+    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
     
-    toolchain.copy_files(resources.headers + [resources.linker_script], BUILD_TARGET, rel_path=cmsis_src)
+    toolchain.copy_files(resources.headers, BUILD_TARGET)
+    toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+    
     objects = toolchain.compile_sources(resources, TMP_PATH, resources.inc_dirs)
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
     
     # mbed
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
-    HAL_SRC = join(TARGET_SRC, "hal")
+    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
     
     mbed_resources = toolchain.scan_resources(MBED_COMMON)

@@ -15,7 +15,7 @@ MBED_BASE = join(LIB_DIR, "mbed")
 MBED_API = join(MBED_BASE, "api")
 MBED_COMMON = join(MBED_BASE, "common")
 MBED_HAL = join(MBED_BASE, "hal")
-VENDOR_PATH = join(MBED_BASE, "vendor")
+MBED_TARGETS_PATH = join(MBED_BASE, "targets")
 
 MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 
