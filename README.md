@@ -31,6 +31,9 @@ NXP:
 Freescale:
 * [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
 
+STMicroelectronics:
+* STM32F407 (Cortex-M4)
+
 Supported Toolchains and IDEs
 -----------------------------
 * GCC ARM: [GNU Tools for ARM Embedded Processors](https://launchpad.net/gcc-arm-embedded/4.7/4.7-2012-q4-major)
