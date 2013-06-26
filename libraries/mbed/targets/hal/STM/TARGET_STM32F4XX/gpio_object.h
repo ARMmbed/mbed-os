@@ -13,33 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PINMAP_H
-#define MBED_PINMAP_H
-
-#include "PinNames.h"
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct {
-    PinName pin;
-    int peripheral;
-    int function;
-#if defined(TARGET_STM32F407)
-    int alternate_function;
-#endif
-} PinMap;
+    PinName  pin;
+    uint32_t mask;
 
-void pin_function(PinName pin, int function);
-# if defined(TARGET_STM32F407) 
-void pin_alternate_function(PinName pin, int alternate_function);
-#endif
-void pin_mode    (PinName pin, PinMode mode);
+    __IO uint32_t *reg_mode;
+    __IO uint16_t *reg_set;
+    __IO uint16_t *reg_clr;
+    __I  uint32_t *reg_in;
+    __O  uint32_t *reg_out;
+} gpio_t;
 
-uint32_t pinmap_peripheral(PinName pin, const PinMap* map);
-uint32_t pinmap_merge     (uint32_t a, uint32_t b);
-void     pinmap_pinout    (PinName pin, const PinMap *map);
+static inline void gpio_write(gpio_t *obj, int value) {
+    if (value)
+        *obj->reg_set = obj->mask;
+    else
+        *obj->reg_clr = obj->mask;
+}
+
+static inline int gpio_read(gpio_t *obj) {
+    return ((*obj->reg_in & obj->mask) ? 1 : 0);
+}
 
 #ifdef __cplusplus
 }

@@ -106,6 +106,16 @@ class LPC4330(Target):
         
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
+class STM32F407(Target):
+    def __init__(self):
+        Target.__init__(self)
+       
+        self.core = "Cortex-M4"
+
+        self.extra_labels = ['STM32F4XX']
+
+        self.supported_toolchains = ["GCC_ARM"]
+
 
 class MBED_MCU(Target):
     def __init__(self):
@@ -125,6 +135,7 @@ TARGETS = [
     LPC812(),
     LPC4088(),
     LPC4330(),
+    STM32F407(),
     MBED_MCU()
 ]
 
