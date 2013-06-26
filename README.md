@@ -20,11 +20,16 @@ Documentation
 
 Supported Microcontrollers
 --------------------------
-* [NXP LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
-* [NXP LPC111U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
-* NXP LPC2368 (ARM7TDMI-S)
-* NXP LPC812 (Cortex-M0+)
-* [Freescale KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
+NXP:
+* [LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
+* [LPC111U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
+* LPC2368 (ARM7TDMI-S)
+* LPC812 (Cortex-M0+)
+* LPC4088 (Cortex-M4)
+* LPC4330 (Cortex-M4 + Cortex-M0)
+
+Freescale:
+* [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
 
 Supported Toolchains and IDEs
 -----------------------------
