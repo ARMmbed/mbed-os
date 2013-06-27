@@ -81,8 +81,7 @@ static void lptmr_init(void) {
     NVIC_EnableIRQ(LPTimer_IRQn);
 
     /* Clock at (1)MHz -> (1)tick/us */
-    LPTMR0->PSR = LPTMR_PSR_PCS(3);       // OSCERCLK -> 8MHz
-    LPTMR0->PSR |= LPTMR_PSR_PRESCALE(2); // divide by 8
+    LPTMR0->PSR = LPTMR_PSR_PCS(0);       // MCGIRCLK -> 2MHz / presc 2 = 1MHz
 }
 
 void us_ticker_disable_interrupt(void) {

@@ -18,21 +18,27 @@ int main() {
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
     PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
-    
+
     pwm_p25.write(0.75);
     pwm_p26.write(0.50);
-    
+
     printf("Initialize PWM on pin 25 with duty cycle: %.2f\n", pwm_p25.read());
     printf("Initialize PWM on pin 26 with duty cycle: %.2f\n", pwm_p26.read());
 
 #elif defined(TARGET_KL25Z)
     PwmOut pwm_d2(D2);
-    
+
     pwm_d2.period_ms(10);
     pwm_d2.write(0.75);
     printf("%.2f\n", pwm_d2.read());
-    
+
+#elif defined(TARGET_KL05Z)
+    PwmOut pwm_d2(D3);
+
+    pwm_d2.period_ms(10);
+    pwm_d2.write(0.75);
+    printf("%.2f\n", pwm_d2.read());
 #endif
-    
+
     notify_completion(true);
 }
