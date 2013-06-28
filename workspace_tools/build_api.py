@@ -130,7 +130,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     toolchain.copy_files(resources.headers, BUILD_TARGET)
     toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
     
-    objects = toolchain.compile_sources(resources, TMP_PATH, resources.inc_dirs)
+    objects = toolchain.compile_sources(resources, TMP_PATH)
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
     
     # mbed
@@ -146,8 +146,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
     toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
     
-    includes = mbed_resources.inc_dirs + [MBED_LIBRARIES, BUILD_TARGET]
-    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, includes)
+    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
     
     # Keep the stdio retargeting as a standalone object to be sure the
     # C standard library symbols get overridden
