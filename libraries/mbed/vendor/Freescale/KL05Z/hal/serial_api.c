@@ -24,7 +24,7 @@
 #include "pinmap.h"
 #include "error.h"
 
-#define UART_CLOCK_HZ 47972352u
+#define UART_CLOCK_HZ 23986176u
 
 static const PinMap PinMap_UART_TX[] = {
     {PTB1, UART_0, 2},
