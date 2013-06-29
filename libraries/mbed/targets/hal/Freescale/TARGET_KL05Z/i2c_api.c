@@ -187,6 +187,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     uint8_t i, j;
     // bus clk
     uint32_t PCLK = 23986176u;
+    uint32_t pulse;
 
     // we look for the values that minimize the error
 
