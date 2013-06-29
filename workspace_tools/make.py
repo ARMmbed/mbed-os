@@ -29,6 +29,8 @@ if __name__ == '__main__':
     parser = get_default_options_parser()
     parser.add_option("-p", type="int", dest="program",
                       help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
+    parser.add_option("-n", dest="program_name",
+                      help="The name of the desired test program")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
     
@@ -51,13 +53,17 @@ if __name__ == '__main__':
     
     (options, args) = parser.parse_args()
     
-    # Program Number
-    p = options.program
+    # Program Number or name
+    p, n = options.program, options.program_name
+    if n is not None and p is not None:
+        args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
+    if n:
+        if not n in TEST_MAP.keys():
+            args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+        p = TEST_MAP[n].n  
     if p is None or (p < 0) or (p > (len(TESTS)-1)):
         message = "[ERROR] You have to specify one of the following tests:\n"
-        descriptions = [(test.n, test.description) for test in TEST_MAP.values()]
-        descriptions.sort()
-        message += '\n'.join(["  [%2d] %s " % d for d in descriptions])
+        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
         args_error(parser, message)
     
     # Target

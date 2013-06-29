@@ -4,7 +4,7 @@ from types import ListType
 
 from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES, Resources
-from workspace_tools.paths import VENDOR_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
+from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
 
 
@@ -85,7 +85,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     
     # Copy Headers
     for resource in resources:
-        toolchain.copy_files(resource.base_path, build_path, resource.headers)
+        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
     
     # Compile Sources
     objects = []
@@ -115,9 +115,8 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     toolchain.VERBOSE = verbose
     
     # Source and Build Paths
-    TARGET_SRC = join(VENDOR_PATH, target.vendor, target.name)
-    BUILD_TARGET = join(MBED_LIBRARIES, target.name)
-    BUILD_TOOLCHAIN = join(BUILD_TARGET, toolchain_name)
+    BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
+    BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
     mkdir(BUILD_TOOLCHAIN)
     
     TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
@@ -125,25 +124,36 @@ def build_mbed_libs(target, toolchain_name, verbose=False):
     
     # CMSIS
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
-    cmsis_src = join(TARGET_SRC, "cmsis")
+    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
     
-    toolchain.copy_files(cmsis_src, BUILD_TARGET, resources.headers + [resources.linker_script])
-    objects = toolchain.compile_sources(resources, TMP_PATH, resources.inc_dirs)
-    toolchain.copy_files(TMP_PATH, BUILD_TOOLCHAIN, objects)
+    toolchain.copy_files(resources.headers, BUILD_TARGET)
+    toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+    
+    objects = toolchain.compile_sources(resources, TMP_PATH)
+    toolchain.copy_files(objects, BUILD_TOOLCHAIN)
     
     # mbed
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
-    HAL_SRC = join(TARGET_SRC, "hal")
+    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
     
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
     mbed_resources.add(hal_implementation)
     
-    toolchain.copy_files(MBED_API, MBED_LIBRARIES, toolchain.scan_resources(MBED_API).headers)
-    toolchain.copy_files(MBED_HAL, MBED_LIBRARIES, toolchain.scan_resources(MBED_HAL).headers)
-    toolchain.copy_files(HAL_SRC, BUILD_TARGET, hal_implementation.headers)
+    # Headers
+    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+    toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
     
-    includes = mbed_resources.inc_dirs + [MBED_LIBRARIES, BUILD_TARGET]
-    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, includes)
+    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
+    
+    # Keep the stdio retargeting as a standalone object to be sure the
+    # C standard library symbols get overridden
+    stdio_retargeting = None
+    for o in objects:
+        if o.endswith('stdio.o'):
+            stdio_retargeting = o
+    objects.remove(stdio_retargeting)
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+    toolchain.copy_files(stdio_retargeting, BUILD_TOOLCHAIN)

@@ -20,11 +20,19 @@ Documentation
 
 Supported Microcontrollers
 --------------------------
-* [NXP LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
-* [NXP LPC111U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
-* NXP LPC2368 (ARM7TDMI-S)
-* NXP LPC812 (Cortex-M0+)
-* [Freescale KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
+NXP:
+* [LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
+* [LPC111U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
+* LPC2368 (ARM7TDMI-S)
+* LPC812 (Cortex-M0+)
+* LPC4088 (Cortex-M4)
+* LPC4330 (Cortex-M4 + Cortex-M0)
+
+Freescale:
+* [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
+
+STMicroelectronics:
+* STM32F407 (Cortex-M4)
 
 Supported Toolchains and IDEs
 -----------------------------
@@ -43,3 +51,11 @@ API Documentation
 * [DSP API](http://mbed.org/users/mbed_official/code/mbed-dsp/docs/tip/)
 * Flash File Systems: [SD](http://mbed.org/handbook/SDFileSystem), [USB MSD](http://mbed.org/handbook/USBHostMSD), [semihosted](http://mbed.org/handbook/LocalFileSystem)
 * [Peripheral Drivers API](http://mbed.org/handbook/Homepage)
+
+Community
+---------
+For discussing the development of the mbed SDK itself (Addition/support of microcontrollers/toolchains, build and test system, Hardware Abstraction Layer API, etc) please join our [mbed-devel mailing list](https://groups.google.com/forum/?fromgroups#!forum/mbed-devel).
+
+For every topic regarding the use of the mbed SDK, rather than its development, please post on the [mbed.org forum](http://mbed.org/forum/), or the [mbed.org Q&A](http://mbed.org/questions/).
+
+For reporting issues in the mbed libraries please open a ticket on the issue tracker of the relevant [mbed official library](http://mbed.org/users/mbed_official/code/).
