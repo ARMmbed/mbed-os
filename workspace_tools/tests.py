@@ -332,7 +332,14 @@ TESTS = [
         "automated": True,
         "peripherals": ["ADXL345"]
     },
-    
+    {
+        "id": "MBED_29", "description": "I2C master/slave test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True,
+        "mcu": ["LPC1768"]
+    },
+   
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
