@@ -74,7 +74,7 @@ __Vectors       DCD     __initial_sp  ; Top of Stack
                 DCD     LPTimer_IRQHandler  ; LPTimer interrupt
                 DCD     Reserved_45_IRQHandler  ; Reserved interrupt 45
                 DCD     PORTA_IRQHandler  ; Port A interrupt
-                DCD     PORTD_IRQHandler  ; Port D interrupt
+                DCD     PORTB_IRQHandler  ; Port B interrupt
 __Vectors_End
 
 __Vectors_Size 	EQU     __Vectors_End - __Vectors
@@ -286,7 +286,7 @@ Default_Handler PROC
                 EXPORT  LPTimer_IRQHandler     [WEAK]
                 EXPORT  Reserved_45_IRQHandler     [WEAK]
                 EXPORT  PORTA_IRQHandler     [WEAK]
-                EXPORT  PORTD_IRQHandler     [WEAK]
+                EXPORT  PORTB_IRQHandler     [WEAK]
                 EXPORT  DefaultISR                      [WEAK]
 
 DMA0_IRQHandler
@@ -320,7 +320,7 @@ MCG_IRQHandler
 LPTimer_IRQHandler
 Reserved_45_IRQHandler
 PORTA_IRQHandler
-PORTD_IRQHandler
+PORTB_IRQHandler
 DefaultISR
 
                 B       .

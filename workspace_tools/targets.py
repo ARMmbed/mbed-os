@@ -66,7 +66,6 @@ class KL05Z(Target):
         Target.__init__(self)
 
         self.core = "Cortex-M0+"
-        self.vendor = "Freescale"
 
         self.supported_toolchains = ["ARM"]
 
