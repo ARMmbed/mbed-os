@@ -26,15 +26,9 @@ typedef struct {
     PinName pin;
     int peripheral;
     int function;
-#if defined(TARGET_STM32F407)
-    int alternate_function;
-#endif
 } PinMap;
 
 void pin_function(PinName pin, int function);
-# if defined(TARGET_STM32F407) 
-void pin_alternate_function(PinName pin, int alternate_function);
-#endif
 void pin_mode    (PinName pin, PinMode mode);
 
 uint32_t pinmap_peripheral(PinName pin, const PinMap* map);

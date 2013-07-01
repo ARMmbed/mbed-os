@@ -22,6 +22,10 @@
 extern "C" {
 #endif
 
+#define STM_PIN_DATA(MODE, FUNC)    (((MODE) << 8) | (FUNC))
+#define STM_PIN_MODE(X)             ((X) >> 8)
+#define STM_PIN_FUNC(X)             ((X) & 0xFF)
+
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT

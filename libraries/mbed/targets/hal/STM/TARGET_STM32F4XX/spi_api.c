@@ -23,43 +23,43 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5, SPI_1, 2, 5},
-    {PB_3, SPI_1, 2, 5},
-    {PB_3, SPI_3, 2, 6},
-    {PB_10, SPI_2, 2, 5},
-    {PB_13, SPI_2, 2, 5},
-    {PC_10, SPI_3, 2, 6},
-    {NC   , NC   , 0, 0}
+    {PA_5,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_3,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_3,  SPI_3, STM_PIN_DATA(2, 6)},
+    {PB_10, SPI_2, STM_PIN_DATA(2, 5)},
+    {PB_13, SPI_2, STM_PIN_DATA(2, 5)},
+    {PC_10, SPI_3, STM_PIN_DATA(2, 6)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7, SPI_1, 2, 5},
-    {PB_5, SPI_1, 2, 5},
-    {PB_5, SPI_3, 2, 6},
-    {PB_15, SPI_2, 2, 5},
-    {PC_3, SPI_2, 2, 5},
-    {PC_12, SPI_3, 2, 6},
-    {NC   , NC   , 0, 0}
+    {PA_7,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_5,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_5,  SPI_3, STM_PIN_DATA(2, 6)},
+    {PB_15, SPI_2, STM_PIN_DATA(2, 5)},
+    {PC_3,  SPI_2, STM_PIN_DATA(2, 5)},
+    {PC_12, SPI_3, STM_PIN_DATA(2, 6)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6, SPI_1, 2, 5},
-    {PB_4, SPI_1, 2, 5},
-    {PB_4, SPI_3, 2, 6},
-    {PB_14, SPI_2, 2, 5},
-    {PC_2, SPI_2, 2, 5},
-    {PC_11, SPI_3, 2, 6},
-    {NC   , NC   , 0, 0}
+    {PA_6,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_4,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PB_4,  SPI_3, STM_PIN_DATA(2, 6)},
+    {PB_14, SPI_2, STM_PIN_DATA(2, 5)},
+    {PC_2,  SPI_2, STM_PIN_DATA(2, 5)},
+    {PC_11, SPI_3, STM_PIN_DATA(2, 6)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4, SPI_1, 2, 5},
-    {PA_4, SPI_3, 2, 6},
-    {PA_15, SPI_1, 2, 5},
-    {PA_15, SPI_3, 2, 6},
-    {PB_9, SPI_2, 2, 5}, 
-    {PB_12, SPI_2, 2, 5},
-    {NC   , NC   , 0, 0}
+    {PA_4,  SPI_1, STM_PIN_DATA(2, 5)},
+    {PA_4,  SPI_3, STM_PIN_DATA(2, 6)},
+    {PA_15, SPI_1, STM_PIN_DATA(2, 5)},
+    {PA_15, SPI_3, STM_PIN_DATA(2, 6)},
+    {PB_9,  SPI_2, STM_PIN_DATA(2, 5)}, 
+    {PB_12, SPI_2, STM_PIN_DATA(2, 5)},
+    {NC,    NC,    0}
 };
 
 

@@ -25,23 +25,23 @@
 #define ADC_12BIT_RANGE             0xFFF
 
 static const PinMap PinMap_ADC[] = {
-    {PA_0, ADC0_0, 3, 0},
-    {PA_1, ADC0_1, 3, 0},
-    {PA_2, ADC0_2, 3, 0},
-    {PA_3, ADC0_3, 3, 0},
-    {PA_4, ADC0_4, 3, 0},
-    {PA_5, ADC0_5, 3, 0},
-    {PA_6, ADC0_6, 3, 0},
-    {PA_7, ADC0_7, 3, 0},
-    {PB_0, ADC0_8, 3, 0},
-    {PB_1, ADC0_9, 3, 0},
-    {PC_0, ADC0_10, 3, 0},
-    {PC_1, ADC0_11, 3, 0},
-    {PC_2, ADC0_12, 3, 0},
-    {PC_3, ADC0_13, 3, 0},
-    {PC_4, ADC0_14, 3, 0},
-    {PC_5, ADC0_15, 3, 0},
-    {NC,    NC,     0, 0}
+    {PA_0, ADC0_0,  STM_PIN_DATA(3, 0)},
+    {PA_1, ADC0_1,  STM_PIN_DATA(3, 0)},
+    {PA_2, ADC0_2,  STM_PIN_DATA(3, 0)},
+    {PA_3, ADC0_3,  STM_PIN_DATA(3, 0)},
+    {PA_4, ADC0_4,  STM_PIN_DATA(3, 0)},
+    {PA_5, ADC0_5,  STM_PIN_DATA(3, 0)},
+    {PA_6, ADC0_6,  STM_PIN_DATA(3, 0)},
+    {PA_7, ADC0_7,  STM_PIN_DATA(3, 0)},
+    {PB_0, ADC0_8,  STM_PIN_DATA(3, 0)},
+    {PB_1, ADC0_9,  STM_PIN_DATA(3, 0)},
+    {PC_0, ADC0_10, STM_PIN_DATA(3, 0)},
+    {PC_1, ADC0_11, STM_PIN_DATA(3, 0)},
+    {PC_2, ADC0_12, STM_PIN_DATA(3, 0)},
+    {PC_3, ADC0_13, STM_PIN_DATA(3, 0)},
+    {PC_4, ADC0_14, STM_PIN_DATA(3, 0)},
+    {PC_5, ADC0_15, STM_PIN_DATA(3, 0)},
+    {NC,   NC,      0}
 };
 
 #   define ADC_RANGE    ADC_12BIT_RANGE
