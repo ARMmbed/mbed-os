@@ -133,13 +133,20 @@ inline int i2c_start(i2c_t *obj) {
     return status;
 }
 
-inline void i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj) {
+    int timeout = 0;
+
     // write the stop bit
     i2c_conset(obj, 0, 1, 0, 0);
     i2c_clear_SI(obj);
     
     // wait for STO bit to reset
-    while (I2C_CONSET(obj) & (1 << 4));
+    while (I2C_CONSET(obj) & (1 << 4)) {
+        timeout ++;
+        if (timeout > 100000) return 1;
+    }
+
+    return 0;
 }
 
 static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {

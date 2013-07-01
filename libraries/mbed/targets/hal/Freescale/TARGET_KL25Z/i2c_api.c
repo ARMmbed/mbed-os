@@ -96,7 +96,7 @@ int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-void i2c_stop(i2c_t *obj) {
+int i2c_stop(i2c_t *obj) {
     volatile uint32_t n = 0;
     obj->i2c->C1 &= ~I2C_C1_MST_MASK;
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
@@ -107,6 +107,7 @@ void i2c_stop(i2c_t *obj) {
     // code provided with the freedom board
     for (n = 0; n < 100; n++) __NOP();
     first_read = 1;
+    return 0;
 }
 
 static int timeout_status_poll(i2c_t *obj, uint32_t mask) {

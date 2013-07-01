@@ -163,9 +163,10 @@ inline int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-inline void i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj) {
     // Generate the stop condition
     obj->i2c->CR1 |= I2C_CR1_STOP;
+    return 0;
 }
 
 

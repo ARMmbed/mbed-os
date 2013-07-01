@@ -87,9 +87,16 @@ inline int i2c_start(i2c_t *obj) {
     return status;
 }
 
-inline void i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj) {
+    int timeout = 0;
+
     obj->i2c->MSTCTL = (1 << 2) | (1 << 0);
-    while ((obj->i2c->STAT & ((1 << 0) | (7 << 1))) != ((1 << 0) | (0 << 1)));
+    while ((obj->i2c->STAT & ((1 << 0) | (7 << 1))) != ((1 << 0) | (0 << 1))) {
+        timeout ++;
+        if (timeout > 100000) return 1;
+    }
+
+    return 0;
 }
 
 
