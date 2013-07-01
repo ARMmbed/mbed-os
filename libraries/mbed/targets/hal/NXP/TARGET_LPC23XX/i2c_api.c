@@ -203,13 +203,13 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_BUS_BUSY;
     }
     
     status = i2c_do_write(obj, (address | 0x01), 1);
     if (status != 0x40) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_NO_SLAVE;
     }
     
     // Read in all except last byte
@@ -218,7 +218,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         status = i2c_status(obj);
         if (status != 0x50) {
             i2c_stop(obj);
-            return status;
+            return count;
         }
         data[count] = (char) value;
     }
@@ -228,7 +228,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     status = i2c_status(obj);
     if (status != 0x58) {
         i2c_stop(obj);
-        return status;
+        return length - 1;
     }
     
     data[count] = (char) value;
@@ -238,7 +238,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
     }
     
-    return 0;
+    return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
@@ -248,20 +248,20 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_BUS_BUSY;
     }
     
     status = i2c_do_write(obj, (address & 0xFE), 1);
     if (status != 0x18) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_NO_SLAVE;
     }
     
     for (i=0; i<length; i++) {
         status = i2c_do_write(obj, data[i], 0);
         if (status != 0x28) {
             i2c_stop(obj);
-            return status;
+            return i;
         }
     }
     
@@ -272,7 +272,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         i2c_stop(obj);
     }
     
-    return 0;
+    return length;
 }
 
 void i2c_reset(i2c_t *obj) {
@@ -353,7 +353,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     
     i2c_clear_SI(obj);
     
-    return (count - 1);
+    return count;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {

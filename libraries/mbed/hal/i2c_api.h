@@ -26,6 +26,11 @@ extern "C" {
 
 typedef struct i2c_s i2c_t;
 
+enum {
+  I2C_ERROR_NO_SLAVE = -1,
+  I2C_ERROR_BUS_BUSY = -2
+};
+
 void i2c_init         (i2c_t *obj, PinName sda, PinName scl);
 void i2c_frequency    (i2c_t *obj, int hz);
 int  i2c_start        (i2c_t *obj);

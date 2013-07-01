@@ -251,7 +251,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
     }
 
-    return 0;
+    return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
@@ -273,7 +273,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         i2c_stop(obj);
     }
 
-    return 0;
+    return length;
 }
 
 void i2c_reset(i2c_t *obj) {

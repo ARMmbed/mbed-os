@@ -221,12 +221,12 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
     if (i2c_start(obj)) {
         i2c_stop(obj);
-        return 1;
+        return I2C_ERROR_BUS_BUSY;
     }
 
     if (i2c_do_write(obj, (address | 0x01))) {
         i2c_stop(obj);
-        return 1;
+        return I2C_ERROR_NO_SLAVE;
     }
 
     // set rx mode
@@ -238,7 +238,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         uint8_t stop_ = (count == (length - 1)) ? 1 : 0;
         if (i2c_do_read(obj, ptr, stop_)) {
             i2c_stop(obj);
-            return 1;
+            return count;
         }
     }
 
@@ -250,25 +250,25 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     // last read
     data[count-1] = obj->i2c->D;
 
-    return 0;
+    return length;
 }
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int i;
 
     if (i2c_start(obj)) {
         i2c_stop(obj);
-        return 1;
+        return I2C_ERROR_BUS_BUSY;
     }
 
     if (i2c_do_write(obj, (address & 0xFE))) {
         i2c_stop(obj);
-        return 1;
+        return I2C_ERROR_NO_SLAVE;
     }
 
     for (i = 0; i < length; i++) {
         if(i2c_do_write(obj, data[i])) {
             i2c_stop(obj);
-            return 1;
+            return i;
         }
     }
 
@@ -276,7 +276,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         i2c_stop(obj);
     }
 
-    return 0;
+    return length;
 }
 
 void i2c_reset(i2c_t *obj) {
@@ -363,7 +363,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     for (count = 0; count < (length - 1); count++) {
         data[count] = obj->i2c->D;
         if(i2c_wait_end_rx_transfer(obj)) {
-            return 0;
+            return count;
         }
     }
 
@@ -382,7 +382,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     
     for (i = 0; i < length; i++) {
         if(i2c_do_write(obj, data[count++]) == 2) {
-            return 0;
+            return i;
         }
     }
     
@@ -393,7 +393,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     // otherwise the master cannot generate a stop bit
     obj->i2c->D;
     if(i2c_wait_end_rx_transfer(obj) == 2) {
-        return 0;
+        return count;
     }
     
     return count;

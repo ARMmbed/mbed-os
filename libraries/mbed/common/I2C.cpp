@@ -52,9 +52,9 @@ int I2C::write(int address, const char* data, int length, bool repeated) {
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int retval = i2c_write(&_i2c, address, data, length, stop);
+    int written = i2c_write(&_i2c, address, data, length, stop);
 
-    return retval;
+    return length != written;
 }
 
 int I2C::write(int data) {
@@ -66,9 +66,9 @@ int I2C::read(int address, char* data, int length, bool repeated) {
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int retval = i2c_read(&_i2c, address, data, length, stop);
+    int read = i2c_read(&_i2c, address, data, length, stop);
 
-    return retval;
+    return length != read;
 }
 
 int I2C::read(int ack) {

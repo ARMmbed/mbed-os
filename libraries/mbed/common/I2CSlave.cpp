@@ -39,7 +39,7 @@ int I2CSlave::receive(void) {
 }
 
 int I2CSlave::read(char *data, int length) {
-    return i2c_slave_read(&_i2c, data, length);
+    return i2c_slave_read(&_i2c, data, length) != length;
 }
 
 int I2CSlave::read(void) {
@@ -47,7 +47,7 @@ int I2CSlave::read(void) {
 }
 
 int I2CSlave::write(const char *data, int length) {
-    return i2c_slave_write(&_i2c, data, length);
+    return i2c_slave_write(&_i2c, data, length) != length;
 }
 
 int I2CSlave::write(int data) {
