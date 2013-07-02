@@ -13,8 +13,8 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     
-    def __init__(self, target, notify):
-        mbedToolchain.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None):
+        mbedToolchain.__init__(self, target, options, notify)
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -27,7 +27,11 @@ class ARM(mbedToolchain):
             "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics", "--restrict"
-        ] # "--asm" "--interleave"
+        ]
+        
+        if "save-asm" in self.options:
+            common.extend(["--asm", "--interleave"])
+        
         common_c = [
             "--md", "--no_depend_system_headers",
             '-I%s' % ARM_INC
@@ -85,15 +89,15 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, notify=None):
-        ARM.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None):
+        ARM.__init__(self, target, options, notify)
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = True
     
-    def __init__(self, target, notify=None):
+    def __init__(self, target, options=None, notify=None):
         ARM.__init__(self, target, notify)
         
         # Compiler

@@ -71,6 +71,8 @@ IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 6.0/arm"
 CW_GCC_PATH  = "C:/Freescale/CW MCU v10.3/Cross_Tools/arm-none-eabi-gcc-4_6_2/bin"
 CW_EWL_PATH = "C:/Freescale/CW MCU v10.3/MCU/ARM_GCC_Support/ewl/lib"
 
+BUILD_OPTIONS = []
+
 try:
     # Allow to overwrite the default settings without the need to edit the
     # settings file stored in the repository

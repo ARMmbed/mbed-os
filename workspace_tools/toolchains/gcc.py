@@ -13,8 +13,8 @@ class GCC(mbedToolchain):
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     
-    def __init__(self, target, notify, tool_path):
-        mbedToolchain.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None, tool_path=""):
+        mbedToolchain.__init__(self, target, options, notify)
         
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
@@ -34,8 +34,11 @@ class GCC(mbedToolchain):
         common_flags = ["-c", "-O2", "-Wall",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-save-temps"
+            "-MMD"
             ] + self.cpu
+        
+        if "save-asm" in self.options:
+            common_flags.extends("-save-temps")
         
         self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
         
@@ -112,8 +115,8 @@ class GCC(mbedToolchain):
 
 
 class GCC_ARM(GCC):
-    def __init__(self, target, notify=None):
-        GCC.__init__(self, target, notify, GCC_ARM_PATH)
+    def __init__(self, target, options=None, notify=None):
+        GCC.__init__(self, target, options, notify, GCC_ARM_PATH)
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
@@ -124,8 +127,8 @@ class GCC_ARM(GCC):
 
 
 class GCC_CR(GCC):
-    def __init__(self, target, notify=None):
-        GCC.__init__(self, target, notify, GCC_CR_PATH)
+    def __init__(self, target, options=None, notify=None):
+        GCC.__init__(self, target, options, notify, GCC_CR_PATH)
         
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
@@ -137,8 +140,8 @@ class GCC_CR(GCC):
 
 
 class GCC_CS(GCC):
-    def __init__(self, target, notify=None):
-        GCC.__init__(self, target, notify, GCC_CS_PATH)
+    def __init__(self, target, options=None, notify=None):
+        GCC.__init__(self, target, options, notify, GCC_CS_PATH)
 
 
 class GCC_CW(GCC):
@@ -146,13 +149,13 @@ class GCC_CW(GCC):
         "Cortex-M0+": "armv6-m",
     }
     
-    def __init__(self, target, notify=None):
-        GCC.__init__(self, target, notify, CW_GCC_PATH)
+    def __init__(self, target, options=None, notify=None):
+        GCC.__init__(self, target, options, notify, CW_GCC_PATH)
 
 
 class GCC_CW_EWL(GCC_CW):
-    def __init__(self, target, notify=None):
-        GCC_CW.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None):
+        GCC_CW.__init__(self, target, options, notify)
         
         # Compiler
         common = [
@@ -170,7 +173,7 @@ class GCC_CW_EWL(GCC_CW):
         # Linker
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
-        self.ld = [join(GCC_CW_PATH, "arm-none-eabi-g++"),
+        self.ld = [join(CW_GCC_PATH, "arm-none-eabi-g++"),
             "-Xlinker", "--gc-sections",
             "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
@@ -180,5 +183,5 @@ class GCC_CW_EWL(GCC_CW):
 
 
 class GCC_CW_NEWLIB(GCC_CW):
-    def __init__(self, target, notify=None):
-        GCC_CW.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None):
+        GCC_CW.__init__(self, target, options, notify)
