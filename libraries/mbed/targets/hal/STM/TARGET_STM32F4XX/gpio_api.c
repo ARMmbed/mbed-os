@@ -22,7 +22,7 @@ uint32_t gpio_set(PinName pin) {
     // Enable GPIO peripheral clock
     RCC->AHB1ENR |= 1 << port_index;
 
-    pin_function(pin, 0);
+    pin_function(pin, STM_PIN_DATA(0, 0));
     return 1 << ((uint32_t) pin & 0xF);
 }
 
@@ -55,7 +55,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT : pin_function(obj->pin, 0); break;
-        case PIN_OUTPUT: pin_function(obj->pin, 1); break;
+        case PIN_INPUT : pin_function(obj->pin, STM_PIN_DATA(0, 0)); break;
+        case PIN_OUTPUT: pin_function(obj->pin, STM_PIN_DATA(1, 0)); break;
     }
 }
