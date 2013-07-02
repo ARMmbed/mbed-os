@@ -38,7 +38,7 @@ class GCC(mbedToolchain):
             ] + self.cpu
         
         if "save-asm" in self.options:
-            common_flags.extends("-save-temps")
+            common_flags.append("-save-temps")
         
         self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
         
