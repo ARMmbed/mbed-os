@@ -55,19 +55,13 @@ public:
   void queue(T k)
   {
     mtx.lock();
-    while (((write + 1) % size) == read) //if (isFull())
-    {
-      /*while((((write + 1) % size) == read))
-      {*/
-        mtx.unlock();
-        Thread::wait(10);
-        mtx.lock();
-      /*}*/
-      //read++;
-      //read %= size;
-    }
     buf[write++] = k;
     write %= size;
+    if (isFull())
+    {
+        read++;
+        read %= size;
+    }
     mtx.unlock();
   }
 
