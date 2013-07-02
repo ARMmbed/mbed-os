@@ -22,9 +22,7 @@ void pinmap_pinout(PinName pin, const PinMap *map) {
     while (map->pin != NC) {
         if (map->pin == pin) {
             pin_function(pin, map->function);
-#if defined(TARGET_STM32F407)
-            pin_alternate_function(pin, map->alternate_function);
-#endif
+            
             pin_mode(pin, PullNone);
             return;
         }

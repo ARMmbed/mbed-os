@@ -91,7 +91,8 @@ if __name__ == '__main__':
     target = TARGET_MAP[mcu]
     try:
         bin = build_project(test.source_dir, build_dir, target, toolchain,
-                            test.dependencies, linker_script=options.linker_script,
+                            test.dependencies, options.options,
+                            linker_script=options.linker_script,
                             clean=options.clean, verbose=options.verbose)
         print 'Image: %s' % bin
         

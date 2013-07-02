@@ -9,10 +9,10 @@ from workspace_tools.libraries import Library
 
 
 def build_project(src_path, build_path, target, toolchain_name,
-        libraries_paths=None, linker_script=None,
+        libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None):
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
     
@@ -50,7 +50,8 @@ notify: Notify function for logs
 verbose: Write the actual tools command lines if True
 """
 def build_library(src_paths, build_path, target, toolchain_name,
-        dependencies_paths=None, name=None, clean=False, notify=None, verbose=False):
+         dependencies_paths=None, options=None, name=None, clean=False,
+         notify=None, verbose=False):
     if type(src_paths) != ListType: src_paths = [src_paths]
     
     for src_path in src_paths:
@@ -58,7 +59,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
             raise Exception("The library source folder does not exist: %s", src_path)
     
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
     
@@ -95,23 +96,23 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain.build_library(objects, bin_path, name)
 
 
-def build_lib(lib_id, target, toolchain, verbose=False):
+def build_lib(lib_id, target, toolchain, options=None, verbose=False):
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
-        build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, verbose=verbose)
+        build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options, verbose=verbose)
     else:
         print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, verbose=False):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False):
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
         print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
         return
     
     # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options)
     toolchain.VERBOSE = verbose
     
     # Source and Build Paths

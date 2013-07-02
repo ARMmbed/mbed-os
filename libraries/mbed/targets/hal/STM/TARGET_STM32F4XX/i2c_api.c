@@ -22,25 +22,25 @@
 #include "error.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
-    {PB_7, I2C_1, 2, 4},
-    {PB_9, I2C_1, 2, 4},
-    {PB_11, I2C_2, 2, 4},
-    {PC_9, I2C_3, 2, 4},
-    {PF_0, I2C_2, 2, 4},
-    {PH_5, I2C_2, 2, 4},
-    {PH_8, I2C_3, 2, 4},
-    {NC   , NC   , 0, 0}
+    {PB_7,  I2C_1, STM_PIN_DATA(2, 4)},
+    {PB_9,  I2C_1, STM_PIN_DATA(2, 4)},
+    {PB_11, I2C_2, STM_PIN_DATA(2, 4)},
+    {PC_9,  I2C_3, STM_PIN_DATA(2, 4)},
+    {PF_0,  I2C_2, STM_PIN_DATA(2, 4)},
+    {PH_5,  I2C_2, STM_PIN_DATA(2, 4)},
+    {PH_8,  I2C_3, STM_PIN_DATA(2, 4)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {PA_8, I2C_3, 2, 4},
-    {PB_6, I2C_1, 2, 4},
-    {PB_8, I2C_1, 2, 4},
-    {PB_10, I2C_2, 2, 4},
-    {PF_1, I2C_2, 2, 4},
-    {PH_4, I2C_2, 2, 4},
-    {PH_7, I2C_3, 2, 4},
-    {NC   , NC,    0, 0}
+    {PA_8,  I2C_3, STM_PIN_DATA(2, 4)},
+    {PB_6,  I2C_1, STM_PIN_DATA(2, 4)},
+    {PB_8,  I2C_1, STM_PIN_DATA(2, 4)},
+    {PB_10, I2C_2, STM_PIN_DATA(2, 4)},
+    {PF_1,  I2C_2, STM_PIN_DATA(2, 4)},
+    {PH_4,  I2C_2, STM_PIN_DATA(2, 4)},
+    {PH_7,  I2C_3, STM_PIN_DATA(2, 4)},
+    {NC,    NC,    0}
 };
 
 static const uint32_t I2C_addr_offset[2][4] = {
@@ -163,9 +163,10 @@ inline int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-inline void i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj) {
     // Generate the stop condition
     obj->i2c->CR1 |= I2C_CR1_STOP;
+    return 0;
 }
 
 
@@ -251,7 +252,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
     }
 
-    return 0;
+    return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
@@ -273,7 +274,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         i2c_stop(obj);
     }
 
-    return 0;
+    return length;
 }
 
 void i2c_reset(i2c_t *obj) {

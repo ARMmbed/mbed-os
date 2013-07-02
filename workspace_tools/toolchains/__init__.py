@@ -7,6 +7,7 @@ from inspect import getmro
 
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
+from workspace_tools.settings import BUILD_OPTIONS
 
 
 def print_notify(event):
@@ -110,13 +111,21 @@ class mbedToolchain:
         "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
     
-    def __init__(self, target, notify=None):
+    def __init__(self, target, options=None, notify=None):
         self.target = target
         
         if notify is not None:
             self.notify = notify
         else:
             self.notify = print_notify
+        
+        if options is None:
+            self.options = []
+        else:
+            self.options = options
+        self.options.extend(BUILD_OPTIONS)
+        if self.options:
+            self.info("Build Options: %s" % (', '.join(self.options)))
         
         self.name = self.__class__.__name__
         self.obj_path = join(target.name, self.name)

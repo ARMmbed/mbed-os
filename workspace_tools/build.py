@@ -85,9 +85,11 @@ if __name__ == '__main__':
             id = "%s::%s" % (toolchain, target)
             try:
                 mcu = TARGET_MAP[target]
-                build_mbed_libs(mcu, toolchain, verbose=options.verbose)
+                build_mbed_libs(mcu, toolchain, options=options.options,
+                                verbose=options.verbose)
                 for lib_id in libraries:
-                    build_lib(lib_id, mcu, toolchain, verbose=options.verbose)
+                    build_lib(lib_id, mcu, toolchain, options=options.options,
+                              verbose=options.verbose)
                 successes.append(id)
             except Exception, e:
                 if options.verbose:

@@ -23,7 +23,7 @@ setup(
     description="CMSIS-DAP debugger for python",
     author="samux",
     author_email="samuel.mokrani@gmail.com",
-    license="MIT",
+    license="Apache 2.0",
     classifiers = [
         "Development Status :: 4 - Beta",
         "License :: Apache 2.0",

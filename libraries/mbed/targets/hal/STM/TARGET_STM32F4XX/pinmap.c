@@ -19,43 +19,38 @@
 /**
  * Set the pin into input, output, alternate function or analog mode
  */
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int data) {
     if (pin == (uint32_t)NC) return;
-
+    
+    int mode = STM_PIN_MODE(data);
+    int func = STM_PIN_FUNC(data);
+    
     uint32_t pin_number = (uint32_t)pin;
     int port_index = pin_number >> 4;
     int pin_index = (pin_number & 0xF);
-    int offset = pin_index << 1;
-
     GPIO_TypeDef * gpio = ((GPIO_TypeDef *) (GPIOA_BASE + (port_index << 10)));
+    
+    // MODE
+    int offset = pin_index << 1;
     gpio->MODER &= ~(0x3 << offset);
-    gpio->MODER |= function << offset;
-
+    gpio->MODER |= mode << offset;
+    
     // Set high-speed mode
     gpio->OSPEEDR &= ~(0x3 << offset);
     gpio->OSPEEDR |= (0x2 << offset);
-}
-
-void pin_alternate_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
-
-    uint32_t pin_number = (uint32_t)pin;
-    int port_index = pin_number >> 4;
-    int pin_index = (pin_number & 0xF);
-    int offset = (pin_index & 0x7) << 2;
-
-    GPIO_TypeDef * gpio = ((GPIO_TypeDef *) (GPIOA_BASE + (port_index << 10)));
-
+    
+    // FUNCTION
     // Bottom seven pins are in AFR[0], top seven in AFR[1]
+    offset = (pin_index & 0x7) << 2;
     if (pin_index <= 0x7) {
         gpio->AFR[0] &= ~(0xF << offset);
-        gpio->AFR[0] |= function << offset;
+        gpio->AFR[0] |= func << offset;
     }
     else {
         gpio->AFR[1] &= ~(0xF << offset);
-        gpio->AFR[1] |= function << offset;
+        gpio->AFR[1] |= func << offset;
     }
-}    
+}
 
 void pin_mode(PinName pin, PinMode mode) {
     if (pin == (uint32_t)NC) { return; }
