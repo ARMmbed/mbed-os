@@ -34,7 +34,7 @@ void rtc_init(void) {
     RTC->CR |= RTC_CR_OSCE_MASK;
 
     //delay for OSCE stabilization
-    for(i=0; i<0x100000; i++);
+    for(i=0; i<0x1000; i++) __NOP();
 
     // enable counter
     RTC->SR |= RTC_SR_TCE_MASK;

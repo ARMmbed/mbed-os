@@ -73,9 +73,9 @@ typedef enum {
     PTB19 = 0x104c,
     PTB20 = 0x1050,
 
-    LED_RED = PTB8,
+    LED_RED   = PTB8,
     LED_GREEN = PTB9,
-    LED_BLUE = PTB10,
+    LED_BLUE  = PTB10,
 
     // mbed original LED naming
     LED1 = LED_BLUE,

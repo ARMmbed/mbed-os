@@ -59,9 +59,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // enable power
     switch ((int)obj->i2c) {
         case I2C_0:
-          SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
-          SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
-          break;
+            SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+            SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
+            break;
 
     }
 
@@ -107,8 +107,9 @@ static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
     uint32_t i, timeout = 1000;
 
     for (i = 0; i < timeout; i++) {
-        if (obj->i2c->S & mask)
+        if (obj->i2c->S & mask) {
             return 0;
+        }
     }
 
     return 1;
@@ -310,7 +311,6 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 
 
-#if DEVICE_I2CSLAVE
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
     if (enable_slave) {
         // set slave mode
@@ -397,5 +397,3 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     obj->i2c->A1 = address & 0xfe;
 }
-#endif
-

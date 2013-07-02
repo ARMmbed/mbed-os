@@ -20,6 +20,7 @@
 /* Prototypes */
 static void pit_init(void);
 static void lptmr_init(void);
+static void lptmr_isr(void);
 
 /* Global variables */
 static uint32_t us_ticker_inited = 0;
@@ -35,9 +36,6 @@ void us_ticker_init(void) {
     lptmr_init();
 }
 
-/******************************************************************************
- * Timer for us timing.
- ******************************************************************************/
 static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
@@ -60,15 +58,6 @@ uint32_t us_ticker_read() {
     return ~(PIT->CHANNEL[1].CVAL);
 }
 
-/******************************************************************************
- * Timer Event
- *
- * It schedules interrupts at given (32bit)us interval of time.
- * It is implemented used the 16bit Low Power Timer that remains powered in all
- * power modes.
- ******************************************************************************/
-static void lptmr_isr(void);
-
 static void lptmr_init(void) {
     /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
@@ -89,7 +78,7 @@ void us_ticker_disable_interrupt(void) {
 }
 
 void us_ticker_clear_interrupt(void) {
-    // we already clear interrupt in lptmr_isr
+    // we've  already cleared interrupt in lptmr_isr
 }
 
 static void lptmr_set(unsigned short count) {
@@ -113,7 +102,6 @@ static void lptmr_isr(void) {
     if (us_ticker_int_counter > 0) {
         lptmr_set(0xFFFF);
         us_ticker_int_counter--;
-
     } else {
         if (us_ticker_int_remainder > 0) {
             lptmr_set(us_ticker_int_remainder);

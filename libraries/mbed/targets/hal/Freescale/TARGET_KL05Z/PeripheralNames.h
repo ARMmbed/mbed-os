@@ -35,8 +35,16 @@ typedef enum {
 } I2CName;
 
 typedef enum {
+    ADC0_SE0  =  0,
+    ADC0_SE1  =  1,
     ADC0_SE2  =  2,
     ADC0_SE3  =  3,
+    ADC0_SE4  =  4,
+    ADC0_SE5  =  5,
+    ADC0_SE6  =  6,
+    ADC0_SE7  =  7,
+    ADC0_SE8  =  8,
+    ADC0_SE9  =  9,
     ADC0_SE10 =  10,
     ADC0_SE11 =  11,
     ADC0_SE12 =  12,

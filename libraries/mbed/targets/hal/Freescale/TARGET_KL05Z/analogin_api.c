@@ -20,13 +20,23 @@
 #include "error.h"
 
 static const PinMap PinMap_ADC[] = {
+    /* A0-A5 pins */
     {PTA0,  ADC0_SE12, 0},
     {PTA8,  ADC0_SE3,  0},
     {PTA9,  ADC0_SE2,  0},
     {PTB8,  ADC0_SE11, 0},
     {PTB9,  ADC0_SE10, 0},
     {PTB13, ADC0_SE13, 0},
-    {NC,    NC,        0}
+    /* Rest of pins ADC Mux */
+    {PTB2, ADC0_SE4,  0},
+    {PTB1, ADC0_SE5,  0},
+    {PTB5, ADC0_SE1,  0},
+    {PTA12, ADC0_SE0, 0},
+    {PTB10, ADC0_SE9, 0},
+    {PTB11, ADC0_SE8, 0},
+    {PTB7, ADC0_SE7, 0},
+    {PTB0, ADC0_SE6,  0},
+    {NC,    NC,       0}
 };
 
 void analogin_init(analogin_t *obj, PinName pin) {
@@ -45,7 +55,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     ADC0->CFG1 = ADC_CFG1_ADLPC_MASK    // Low-Power Configuration
                | ADC_CFG1_ADIV(3)       // Clock Divide Select: (Input Clock)/8
                | ADC_CFG1_ADLSMP_MASK   // Long Sample Time
-               | ADC_CFG1_MODE(3)       // (16)bits Resolution
+               | ADC_CFG1_MODE(1)       // (12)bits Resolution
                | ADC_CFG1_ADICLK(1);    // Input Clock: (Bus Clock)/2
 
     ADC0->CFG2 = ADC_CFG2_MUXSEL_MASK   // ADxxb channels are selected
@@ -68,7 +78,7 @@ uint16_t analogin_read_u16(analogin_t *obj) {
     // Wait Conversion Complete
     while ((ADC0->SC1[0] & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
 
-    // Return value
+    // Return value (12bit !!)
     return (uint16_t)ADC0->R[0];
 }
 

@@ -1,4 +1,3 @@
-
 LR_IROM1 0x00000000 0x8000  {    ; load region size_region (32k)
   ER_IROM1 0x00000000 0x8000  {  ; load address = execution address
    *.o (RESET, +First)
@@ -11,4 +10,3 @@ LR_IROM1 0x00000000 0x8000  {    ; load region size_region (32k)
    .ANY (+RW +ZI)
   }
 }
-

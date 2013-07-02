@@ -210,8 +210,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 
     if (enable) {
         switch (irq) {
-            case RxIrq: obj->uart->C2 |= (UART0_C2_RIE_MASK); break;
-            case TxIrq: obj->uart->C2 |= (UART0_C2_TIE_MASK); break;
+            case RxIrq:
+                obj->uart->C2 |= (UART0_C2_RIE_MASK);
+                break;
+            case TxIrq:
+                obj->uart->C2 |= (UART0_C2_TIE_MASK);
+                break;
         }
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -220,12 +224,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         switch (irq) {
-            case RxIrq: obj->uart->C2 &= ~(UART0_C2_RIE_MASK); break;
-            case TxIrq: obj->uart->C2 &= ~(UART0_C2_TIE_MASK); break;
+            case RxIrq:
+                obj->uart->C2 &= ~(UART0_C2_RIE_MASK);
+                break;
+            case TxIrq:
+                obj->uart->C2 &= ~(UART0_C2_TIE_MASK);
+                break;
         }
         switch (other_irq) {
-            case RxIrq: all_disabled = (obj->uart->C2 & (UART0_C2_RIE_MASK)) == 0; break;
-            case TxIrq: all_disabled = (obj->uart->C2 & (UART0_C2_TIE_MASK)) == 0; break;
+            case RxIrq:
+                all_disabled = (obj->uart->C2 & (UART0_C2_RIE_MASK)) == 0;
+                break;
+            case TxIrq:
+                all_disabled = (obj->uart->C2 & (UART0_C2_TIE_MASK)) == 0;
+                break;
         }
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);

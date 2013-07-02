@@ -63,7 +63,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);

@@ -30,7 +30,9 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    if (pin == (uint32_t)NC) {
+        return;
+    }
 
     __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
 

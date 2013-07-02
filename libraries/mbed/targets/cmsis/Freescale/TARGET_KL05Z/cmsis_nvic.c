@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library - cmsis_nvic for LPC11U24
+/* mbed Microcontroller Library - cmsis_nvic for KL05Z
  * Copyright (c) 2011 ARM Limited. All rights reserved.
  *
  * CMSIS-style functionality to support dynamic vectors

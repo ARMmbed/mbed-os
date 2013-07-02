@@ -55,8 +55,9 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
                     event = (gpio->PDIR & pmask) ? (IRQ_RISE) : (IRQ_FALL);
                     break;
             }
-            if (event != IRQ_NONE)
+            if (event != IRQ_NONE) {
                 irq_handler(id, event);
+            }
         }
     }
     port->ISFR = mask;
@@ -95,7 +96,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
           break;
 
       default:
-          error("gpio_irq only supported on Port A and D\n");
+          error("gpio_irq only supported on Port A and B\n");
           break;
     }
     NVIC_SetVector(irq_n, vector);

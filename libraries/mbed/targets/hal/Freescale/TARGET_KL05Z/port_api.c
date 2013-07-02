@@ -54,7 +54,7 @@ void port_mode(port_t *obj, PinMode mode) {
 
 void port_dir(port_t *obj, PinDirection dir) {
     switch (dir) {
-        case PIN_INPUT :
+        case PIN_INPUT:
             *obj->reg_dir &= ~obj->mask;
             break;
         case PIN_OUTPUT:
