@@ -25,6 +25,7 @@
 #include "error.h"
 
 #define UART_CLOCK_HZ 47972352u
+#define UART_NUM    1
 
 static const PinMap PinMap_UART_TX[] = {
     {PTB1, UART_0, 2},
@@ -36,7 +37,6 @@ static const PinMap PinMap_UART_RX[] = {
     {NC  , NC    , 0}
 };
 
-#define UART_NUM    1
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 

@@ -29,7 +29,9 @@ static uint16_t us_ticker_int_remainder = 0;
 
 
 void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     pit_init();
@@ -51,25 +53,23 @@ static void pit_init(void) {
 }
 
 uint32_t us_ticker_read() {
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // The PIT is a countdown timer
     return ~(PIT->CHANNEL[1].CVAL);
 }
 
 static void lptmr_init(void) {
-    /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
 
-    /* Reset */
     LPTMR0->CSR = 0;
 
-    /* Set interrupt handler */
     NVIC_SetVector(LPTimer_IRQn, (uint32_t)lptmr_isr);
     NVIC_EnableIRQ(LPTimer_IRQn);
 
-    /* Clock at (1)MHz -> (1)tick/us */
+    // Clock at (1)MHz -> (1)tick/us
     LPTMR0->PSR = LPTMR_PSR_PCS(0);       // MCGIRCLK -> 2MHz / presc 2 = 1MHz
 }
 
@@ -82,16 +82,16 @@ void us_ticker_clear_interrupt(void) {
 }
 
 static void lptmr_set(unsigned short count) {
-    /* Reset */
+    // Reset
     LPTMR0->CSR = 0;
 
-    /* Set the compare register */
+    // Set the compare register
     LPTMR0->CMR = count;
 
-    /* Enable interrupt */
+    // Enable interrupt
     LPTMR0->CSR |= LPTMR_CSR_TIE_MASK;
 
-    /* Start the timer */
+    // Start the timer
     LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
 }
 

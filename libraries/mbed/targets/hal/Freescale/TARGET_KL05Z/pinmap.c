@@ -17,7 +17,9 @@
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    if (pin == (uint32_t)NC) {
+        return;
+    }
 
     uint32_t port_n = (uint32_t)pin >> PORT_SHIFT;
     uint32_t pin_n  = (uint32_t)(pin & 0x7C) >> 2;

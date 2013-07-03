@@ -31,6 +31,8 @@ class ARM(mbedToolchain):
         
         if "save-asm" in self.options:
             common.extend(["--asm", "--interleave"])
+        elif "debug-info" in self.options:
+            common.extend(["--debug"])
         
         common_c = [
             "--md", "--no_depend_system_headers",

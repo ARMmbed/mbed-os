@@ -38,7 +38,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     gpio_dir(obj, direction);
     switch (direction) {
         case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullDown); break;
+        case PIN_INPUT : pin_mode(pin, PullUp); break;
     }
 }
 

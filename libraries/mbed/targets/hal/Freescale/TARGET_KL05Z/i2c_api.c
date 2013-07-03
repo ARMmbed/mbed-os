@@ -56,13 +56,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         error("I2C pin mapping failed");
     }
 
-    // enable power
+    // enable clocks
     switch ((int)obj->i2c) {
         case I2C_0:
             SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
             SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
             break;
-
     }
 
     // set default frequency at 100k
@@ -169,10 +168,11 @@ static int i2c_do_write(i2c_t *obj, int value) {
 }
 
 static int i2c_do_read(i2c_t *obj, char * data, int last) {
-    if (last)
+    if (last) {
         i2c_send_nack(obj);
-    else
+    } else {
         i2c_send_ack(obj);
+    }
 
     *data = (obj->i2c->D & 0xFF);
 

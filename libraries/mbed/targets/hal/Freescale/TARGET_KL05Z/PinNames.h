@@ -116,10 +116,10 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
+/* PullDown not available for KL05 */
 typedef enum {
     PullNone = 0,
-    PullDown = 2,
-    PullUp   = 3,
+    PullUp   = 2,
 } PinMode;
 
 #ifdef __cplusplus

@@ -42,8 +42,9 @@ static const PinMap PinMap_PWM[] = {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (uint32_t)NC)
+    if (pwm == (uint32_t)NC) {
         error("PwmOut pin mapping failed");
+    }
 
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
     unsigned int tpm_n = (pwm >> TPM_SHIFT);
@@ -55,7 +56,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     TPM_Type *tpm = (TPM_Type *)(TPM0_BASE + 0x1000 * tpm_n);
     tpm->SC = TPM_SC_CMOD(1) | TPM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
-    tpm->CONTROLS[ch_n].CnSC = (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
+    tpm->CONTROLS[ch_n].CnSC = (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK); // No Interrupts; High True pulses on Edge Aligned PWM
 
     obj->CnV = &tpm->CONTROLS[ch_n].CnV;
     obj->MOD = &tpm->MOD;
@@ -69,7 +70,9 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pinmap_pinout(pin, PinMap_PWM);
 }
 
-void pwmout_free(pwmout_t* obj) {}
+void pwmout_free(pwmout_t* obj) {
+
+}
 
 void pwmout_write(pwmout_t* obj, float value) {
     if (value < 0.0) {

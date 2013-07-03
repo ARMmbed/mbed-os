@@ -78,7 +78,7 @@ uint16_t analogin_read_u16(analogin_t *obj) {
     // Wait Conversion Complete
     while ((ADC0->SC1[0] & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
 
-    // Return value (12bit !!)
+    // Return value (12bit)
     return (uint16_t)ADC0->R[0];
 }
 
