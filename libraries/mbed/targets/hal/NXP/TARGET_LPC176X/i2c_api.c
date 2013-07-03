@@ -273,7 +273,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
     }
     
-    i2c_clear_SI(obj);
+    // clearing the serial interrupt here might cause an unintended rewrite of the last byte
+    // see also issue report https://mbed.org/users/mbed_official/code/mbed/issues/1
+    // i2c_clear_SI(obj);
     
     // If not repeated start, send stop.
     if (stop) {
