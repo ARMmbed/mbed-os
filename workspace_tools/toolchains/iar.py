@@ -28,6 +28,9 @@ class IAR(mbedToolchain):
             # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082",
         ]
+
+        if "debug-info" in self.options:
+            c_flags.append("-r")
         
         IAR_BIN = join(IAR_PATH, "bin")
         self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
