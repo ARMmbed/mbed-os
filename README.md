@@ -30,6 +30,7 @@ NXP:
 
 Freescale:
 * [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
+* KL05Z (Cortex-M0+)
 
 STMicroelectronics:
 * STM32F407 (Cortex-M4)
