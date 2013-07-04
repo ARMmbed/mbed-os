@@ -4,6 +4,9 @@
 #if defined(TARGET_KL25Z)
 SPI spi(PTD2, PTD3, PTD1);   // mosi, miso, sclk
 DigitalOut cs(PTA13);
+#elif defined(TARGET_KL05Z)
+SPI spi(PTA7, PTA6, PTB0);   // mosi, miso, sclk
+DigitalOut cs(PTB1);
 #else
 SPI spi(p5, p6, p7); // mosi, miso, sclk
 DigitalOut cs(p8);
@@ -12,7 +15,7 @@ DigitalOut cs(p8);
 int main() {
     int data = 0;
     int res = 0;
-    
+
     for(int i = 0; i < 30; i++) {
 
         cs = 0;

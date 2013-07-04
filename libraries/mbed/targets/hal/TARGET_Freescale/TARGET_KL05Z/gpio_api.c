@@ -18,16 +18,18 @@
 
 uint32_t gpio_set(PinName pin) {
     pin_function(pin, 1);
-    return 1 << ((pin & 0x7F) >> 2);
+    return 1 << ((pin & 0x7F) >> 2); // 1 << pin number
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
-    if(pin == NC) return;
+    if (pin == (uint32_t)NC) {
+        return;
+    }
 
     obj->pin = pin;
     obj->mask = gpio_set(pin);
 
-    unsigned int port = (unsigned int)pin >> PORT_SHIFT;
+    uint32_t port = (uint32_t)pin >> PORT_SHIFT;
 
     FGPIO_Type *reg = (FGPIO_Type *)(FPTA_BASE + port * 0x40);
     obj->reg_set = &reg->PSOR;
@@ -37,8 +39,12 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
 
     gpio_dir(obj, direction);
     switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullUp); break;
+        case PIN_OUTPUT:
+            pin_mode(pin, PullNone);
+            break;
+        case PIN_INPUT :
+            pin_mode(pin, PullUp);  //down not avail
+            break;
     }
 }
 
@@ -48,7 +54,11 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT : *obj->reg_dir &= ~obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_dir |=  obj->mask; break;
+        case PIN_INPUT :
+            *obj->reg_dir &= ~obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir |=  obj->mask;
+            break;
     }
 }
