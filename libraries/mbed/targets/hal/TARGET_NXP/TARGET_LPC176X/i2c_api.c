@@ -141,7 +141,7 @@ inline int i2c_stop(i2c_t *obj) {
     i2c_clear_SI(obj);
     
     // wait for STO bit to reset
-    while (I2C_CONSET(obj) & (1 << 4)) {
+    while(I2C_CONSET(obj) & (1 << 4)) {
         timeout ++;
         if (timeout > 100000) return 1;
     }
@@ -163,7 +163,7 @@ static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
 
 static inline int i2c_do_read(i2c_t *obj, int last) {
     // we are in state 0x40 (SLA+R tx'd) or 0x50 (data rx'd and ack)
-    if (last) {
+    if(last) {
         i2c_conclr(obj, 0, 0, 0, 1); // send a NOT ACK
     } else {
         i2c_conset(obj, 0, 0, 0, 1); // send a ACK
@@ -203,6 +203,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
 // Therefore an I2C transaction should always complete. If it doesn't it is usually
 // because something is setup wrong (e.g. wiring), and we don't need to programatically
 // check for that
+
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count, status;
     
@@ -266,13 +267,15 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     for (i=0; i<length; i++) {
         status = i2c_do_write(obj, data[i], 0);
-        if (status != 0x28) {
+        if(status != 0x28) {
             i2c_stop(obj);
             return i;
         }
     }
     
-    i2c_clear_SI(obj);
+    // clearing the serial interrupt here might cause an unintended rewrite of the last byte
+    // see also issue report https://mbed.org/users/mbed_official/code/mbed/issues/1
+    // i2c_clear_SI(obj);
     
     // If not repeated start, send stop.
     if (stop) {
@@ -298,15 +301,12 @@ int i2c_byte_write(i2c_t *obj, int data) {
         case 0x18: case 0x28:       // Master transmit ACKs
             ack = 1;
             break;
-        
         case 0x40:                  // Master receive address transmitted ACK
             ack = 1;
             break;
-        
         case 0xB8:                  // Slave transmit ACK
             ack = 1;
             break;
-        
         default:
             ack = 0;
             break;
@@ -376,7 +376,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
         count++;
     } while ((count < length) && (status == 0xB8));
     
-    if((status != 0xC0) && (status != 0xC8)) {
+    if ((status != 0xC0) && (status != 0xC8)) {
         i2c_stop(obj);
     }
     
@@ -391,5 +391,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     if ((idx >= 0) && (idx <= 3)) {
         addr = ((uint32_t)obj->i2c) + I2C_addr_offset[0][idx];
         *((uint32_t *) addr) = address & 0xFF;
+        addr = ((uint32_t)obj->i2c) + I2C_addr_offset[1][idx];
+        *((uint32_t *) addr) = mask & 0xFE;
     }
 }

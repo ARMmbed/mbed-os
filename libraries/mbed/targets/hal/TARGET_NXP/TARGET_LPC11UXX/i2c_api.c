@@ -19,27 +19,21 @@
 #include "error.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
-    {P0_0 , I2C_1, 3},
-    {P0_10, I2C_2, 2},
-    {P0_19, I2C_1, 3},
-    {P0_27, I2C_0, 1},
-    {NC   , NC   , 0}
+    {P0_5, I2C_0, 1},
+    {NC  , NC   , 0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {P0_1 , I2C_1, 3},
-    {P0_11, I2C_2, 2},
-    {P0_20, I2C_1, 3},
-    {P0_28, I2C_0, 1},
-    {NC   , NC,    0}
+    {P0_4, I2C_0, 1},
+    {NC  , NC,    0}
 };
 
-#define I2C_CONSET(x)       (x->i2c->I2CONSET)
-#define I2C_CONCLR(x)       (x->i2c->I2CONCLR)
-#define I2C_STAT(x)         (x->i2c->I2STAT)
-#define I2C_DAT(x)          (x->i2c->I2DAT)
-#define I2C_SCLL(x, val)    (x->i2c->I2SCLL = val)
-#define I2C_SCLH(x, val)    (x->i2c->I2SCLH = val)
+#define I2C_CONSET(x)       (x->i2c->CONSET)
+#define I2C_CONCLR(x)       (x->i2c->CONCLR)
+#define I2C_STAT(x)         (x->i2c->STAT)
+#define I2C_DAT(x)          (x->i2c->DAT)
+#define I2C_SCLL(x, val)    (x->i2c->SCLL = val)
+#define I2C_SCLH(x, val)    (x->i2c->SCLH = val)
 
 static const uint32_t I2C_addr_offset[2][4] = {
     {0x0C, 0x20, 0x24, 0x28},
@@ -84,18 +78,15 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 }
 
 static inline void i2c_power_enable(i2c_t *obj) {
-    switch ((int)obj->i2c) {
-        case I2C_0: LPC_SC->PCONP |= 1 << 7; break;
-        case I2C_1: LPC_SC->PCONP |= 1 << 19; break;
-        case I2C_2: LPC_SC->PCONP |= 1 << 26; break;
-    }
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 5);
+    LPC_SYSCON->PRESETCTRL |= 1 << 1;
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // determine the SPI to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    obj->i2c = (LPC_I2C_TypeDef *)pinmap_merge(i2c_sda, i2c_scl);
+    obj->i2c = (LPC_I2C_Type *)pinmap_merge(i2c_sda, i2c_scl);
     
     if ((int)obj->i2c == NC) {
         error("I2C pin mapping failed");
@@ -149,6 +140,7 @@ inline int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
+
 static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
     // write the data
     I2C_DAT(obj) = value;
@@ -163,7 +155,7 @@ static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
 
 static inline int i2c_do_read(i2c_t *obj, int last) {
     // we are in state 0x40 (SLA+R tx'd) or 0x50 (data rx'd and ack)
-    if(last) {
+    if (last) {
         i2c_conclr(obj, 0, 0, 0, 1); // send a NOT ACK
     } else {
         i2c_conset(obj, 0, 0, 0, 1); // send a ACK
@@ -180,8 +172,8 @@ static inline int i2c_do_read(i2c_t *obj, int last) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
-    // [TODO] set pclk to /4
-    uint32_t PCLK = SystemCoreClock / 4;
+    // No peripheral clock divider on the M0
+    uint32_t PCLK = SystemCoreClock;
     
     uint32_t pulse = PCLK / (hz * 2);
     
@@ -219,7 +211,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
         return I2C_ERROR_NO_SLAVE;
     }
-    
+
     // Read in all except last byte
     for (count = 0; count < (length - 1); count++) {
         int value = i2c_do_read(obj, 0);
@@ -230,7 +222,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         }
         data[count] = (char) value;
     }
-    
+
     // read in last byte
     int value = i2c_do_read(obj, 1);
     status = i2c_status(obj);
@@ -273,7 +265,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
     }
     
-    i2c_clear_SI(obj);
+    // clearing the serial interrupt here might cause an unintended rewrite of the last byte
+    // see also issue report https://mbed.org/users/mbed_official/code/mbed/issues/1
+    // i2c_clear_SI(obj);
     
     // If not repeated start, send stop.
     if (stop) {
@@ -309,7 +303,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
             ack = 0;
             break;
     }
-    
+
     return ack;
 }
 
@@ -374,7 +368,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
         count++;
     } while ((count < length) && (status == 0xB8));
     
-    if ((status != 0xC0) && (status != 0xC8)) {
+    if((status != 0xC0) && (status != 0xC8)) {
         i2c_stop(obj);
     }
     
@@ -389,7 +383,5 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     if ((idx >= 0) && (idx <= 3)) {
         addr = ((uint32_t)obj->i2c) + I2C_addr_offset[0][idx];
         *((uint32_t *) addr) = address & 0xFF;
-        addr = ((uint32_t)obj->i2c) + I2C_addr_offset[1][idx];
-        *((uint32_t *) addr) = mask & 0xFE;
     }
 }

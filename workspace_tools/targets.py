@@ -34,7 +34,7 @@ class LPC2368(Target):
         
         self.core = "ARM7TDMI-S"
         
-        self.extra_labels = ['LPC23XX']
+        self.extra_labels = ['NXP', 'LPC23XX']
         
         self.supported_toolchains = ["ARM"]
 
@@ -45,7 +45,7 @@ class LPC1768(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['LPC176X']
+        self.extra_labels = ['NXP', 'LPC176X']
         
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
@@ -56,7 +56,7 @@ class LPC11U24(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['LPC11UXX']
+        self.extra_labels = ['NXP', 'LPC11UXX']
         
         self.supported_toolchains = ["ARM", "uARM"]
 
@@ -78,6 +78,8 @@ class KL25Z(Target):
         
         self.core = "Cortex-M0+"
         
+        self.extra_labels = ['Freescale']
+        
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB"]
         
         self.program_cycle_s = 4
@@ -89,7 +91,7 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['LPC81X']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -102,7 +104,7 @@ class LPC4088(Target):
         
         self.core = "Cortex-M4"
         
-        self.extra_labels = ['LPC408X']
+        self.extra_labels = ['NXP', 'LPC408X']
         
         self.supported_toolchains = ["ARM", "GCC_CR"]
 
@@ -113,7 +115,7 @@ class LPC4330(Target):
         
         self.core = "Cortex-M4"
         
-        self.extra_labels = ['LPC43XX']
+        self.extra_labels = ['NXP', 'LPC43XX']
         
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
@@ -122,9 +124,9 @@ class STM32F407(Target):
         Target.__init__(self)
        
         self.core = "Cortex-M4"
-
-        self.extra_labels = ['STM32F4XX']
-
+        
+        self.extra_labels = ['STM', 'STM32F4XX']
+        
         self.supported_toolchains = ["GCC_ARM"]
 
 
@@ -133,6 +135,8 @@ class MBED_MCU(Target):
         Target.__init__(self)
         
         self.core = "Cortex-M0+"
+        
+        self.extra_labels = ['ARM']
         
         self.supported_toolchains = ["ARM"]
 
