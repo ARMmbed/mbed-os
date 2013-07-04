@@ -623,31 +623,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z"],
     },
-
-    # KL05Z
-    {
-        "id": "KL05Z_1", "description": "KL05Z: LPTMR",
-        "source_dir": join(TEST_DIR, "KL05Z", "lptmr"),
-        "dependencies": [MBED_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
-        "mcu": ["KL05Z"],
-    },
-    {
-        "id": "KL05Z_2", "description": "KL05Z: PIT",
-        "source_dir": join(TEST_DIR, "KL05Z", "pit"),
-        "dependencies": [MBED_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
-        "mcu": ["KL05Z"],
-    },
-
-    {
-        "id": "KL05Z_4", "description": "KL05Z: RTC",
-        "source_dir": join(TEST_DIR, "KL05Z", "rtc"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["KL05Z"],
-    },
-
-    
     
     # Examples
     {
