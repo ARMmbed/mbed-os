@@ -1,0 +1,33 @@
+
+>>> BUILD LIBRARY CMSIS (KL05Z, ARM)
+Copy: cmsis.h
+Copy: MKL05Z4.sct
+Compile: cmsis_nvic.c
+Compile: system_MKL05Z4.c
+[Warning] system_MKL05Z4.c@29:  #2532-D: support for trigraphs is disabled
+Copy: cmsis_nvic.o
+Copy: system_MKL05Z4.o
+
+>>> BUILD LIBRARY MBED (KL05Z, ARM)
+Copy: gpio_object.h
+Copy: PeripheralNames.h
+Copy: PinNames.h
+Compile: board.c
+Compile: exit.c
+Compile: mbed_interface.c
+Compile: pinmap_common.c
+Compile: rtc_time.c
+Compile: semihost_api.c
+Compile: us_ticker_api.c
+Compile: analogin_api.c
+[Error] analogin_api.c@37:  #20: identifier "PTBA7" is undefined
+"C:\git_projects\github\mbed\libraries\mbed\targets\hal\Freescale\TARGET_KL05Z\analogin_api.c", line 37: Error:  #20: identifier "PTBA7" is undefined
+C:\git_projects\github\mbed\libraries\mbed\targets\hal\Freescale\TARGET_KL05Z\analogin_api.c: 0 warnings, 1 error
+
+
+
+Completed in: (4.06)s
+
+
+Build failures:
+  * ARM::KL05Z

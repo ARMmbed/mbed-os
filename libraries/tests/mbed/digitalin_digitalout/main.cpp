@@ -5,6 +5,10 @@
 DigitalOut out(PTA1);
 DigitalIn   in(PTC7);
 
+#elif defined(TARGET_KL05Z)
+DigitalOut out(PTB11);
+DigitalIn   in(PTB1);
+
 #else
 DigitalOut out(p5);
 DigitalIn   in(p25);
@@ -24,6 +28,6 @@ int main() {
         printf("ERROR: in != 1\n");
         notify_completion(false);
     }
-    
+
     notify_completion(true);
 }
