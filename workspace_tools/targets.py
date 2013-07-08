@@ -173,7 +173,7 @@ TARGETS = [
     KL25Z(),
     LPC812(),
     LPC4088(),
-    LPC4330(),
+    LPC4330_M4(),
     STM32F407(),
     MBED_MCU()
 ]
