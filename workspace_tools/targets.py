@@ -111,11 +111,32 @@ class LPC4088(Target):
         self.supported_toolchains = ["ARM", "GCC_CR"]
 
 
-class LPC4330(Target):
+class LPC4330_M4(Target):
     def __init__(self):
         Target.__init__(self)
         
         self.core = "Cortex-M4"
+        
+        self.extra_labels = ['NXP', 'LPC43XX']
+        
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+
+
+class LPC4330_M0(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['NXP', 'LPC43XX']
+        
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+
+class LPC1800(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
