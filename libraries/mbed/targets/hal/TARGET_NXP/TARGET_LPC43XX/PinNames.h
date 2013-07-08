@@ -30,7 +30,7 @@ typedef enum {
 #define PORT_SHIFT  5
 #define NO_GPIO     15
 
-// On the LPC43xx the hardware pin name and the GPIO pin name are not the same.
+// On the LPC43xx the MCU pin name and the GPIO pin name are not the same.
 // Encode SCU and GPIO offsets as a pin identifier
 #define MBED_PIN(group, num, port, pin)  ((SCU_OFF(group,num) << 16) + GPIO_OFF(port,pin))
 
@@ -75,7 +75,7 @@ typedef enum {
     P1_4  = MBED_PIN(0x01, 4, 0, 11),   // GPIO0[11]
     P1_5  = MBED_PIN(0x01, 5, 1, 8),    // GPIO1[8]
     P1_6  = MBED_PIN(0x01, 6, 1, 9),    // GPIO1[9]
-    P1_7  = MBED_PIN(0x01, 7, 1, 10),   // GPIO1[10]
+    P1_7  = MBED_PIN(0x01, 7, 1, 0),    // GPIO1[0]
     P1_8  = MBED_PIN(0x01, 8, 1, 1),    // GPIO1[1]
     P1_9  = MBED_PIN(0x01, 9, 1, 2),    // GPIO1[2]
     P1_10 = MBED_PIN(0x01, 10, 1, 3),   // GPIO1[3]
@@ -98,7 +98,7 @@ typedef enum {
     P2_5  = MBED_PIN(0x02, 5, 5, 5),    // GPIO5[5]  high-drive
     P2_6  = MBED_PIN(0x02, 6, 5, 6),    // GPIO5[6]
     P2_7  = MBED_PIN(0x02, 7, 0, 7),    // GPIO0[7]
-    P2_8  = MBED_PIN(0x02, 8, 5, 0),    // GPIO5[7]
+    P2_8  = MBED_PIN(0x02, 8, 5, 7),    // GPIO5[7]
     P2_9  = MBED_PIN(0x02, 9, 1, 10),   // GPIO1[10]
     P2_10 = MBED_PIN(0x02, 10, 0, 14),  // GPIO0[14]
     P2_11 = MBED_PIN(0x02, 11, 1, 11),  // GPIO1[11]
@@ -127,7 +127,7 @@ typedef enum {
     P4_9  = MBED_PIN(0x04, 9, 5, 13),   // GPIO5[13]
     P4_10 = MBED_PIN(0x04, 10, 5, 14),  // GPIO5[14]
 
-    P5_0  = MBED_PIN(0x05, 0, 2, 0),    // GPIO2[9]
+    P5_0  = MBED_PIN(0x05, 0, 2, 9),    // GPIO2[9]
     P5_1  = MBED_PIN(0x05, 1, 2, 10),   // GPIO2[10]
     P5_2  = MBED_PIN(0x05, 2, 2, 11),   // GPIO2[11]
     P5_3  = MBED_PIN(0x05, 3, 2, 12),   // GPIO2[12]
@@ -254,6 +254,179 @@ typedef enum {
     PF_9   = MBED_PIN(0x0F, 9, 7, 23),  // GPIO7[23]
     PF_10  = MBED_PIN(0x0F, 10, 7, 24), // GPIO7[24]
     PF_11  = MBED_PIN(0x0F, 11, 7, 25), // GPIO7[25]
+
+    // GPIO pins from MCU pins
+    GPIO0_0 = P0_0,
+    GPIO0_1 = P0_1 ,
+    GPIO0_2 = P1_15,
+    GPIO0_3 = P1_16,
+    GPIO0_4 = P1_0,
+    GPIO0_5 = P6_6,
+    GPIO0_6 = P3_6,
+    GPIO0_7 = P2_7,
+    GPIO0_8 = P1_1,
+    GPIO0_9 = P1_2,
+    GPIO0_10 = P1_3,
+    GPIO0_11 = P1_4,
+    GPIO0_12 = P1_17,
+    GPIO0_13 = P1_18,
+    GPIO0_14 = P2_10,
+    GPIO0_15 = P1_20,
+
+    GPIO1_0 = P1_7,
+    GPIO1_1 = P1_8,
+    GPIO1_2 = P1_9,
+    GPIO1_3 = P1_10,
+    GPIO1_4 = P1_11,
+    GPIO1_5 = P1_12,
+    GPIO1_6 = P1_13,
+    GPIO1_7 = P1_14,
+    GPIO1_8 = P1_5,
+    GPIO1_9 = P1_6,
+    GPIO1_10 = P2_9,
+    GPIO1_11 = P2_11,
+    GPIO1_12 = P2_12,
+    GPIO1_13 = P2_13,
+    GPIO1_14 = P3_4,
+    GPIO1_15 = P3_5,
+
+    GPIO2_0 = P4_0,
+    GPIO2_1 = P4_1,
+    GPIO2_2 = P4_2,
+    GPIO2_3 = P4_3,
+    GPIO2_4 = P4_4,
+    GPIO2_5 = P4_5,
+    GPIO2_6 = P4_6,
+    GPIO2_7 = P5_7,
+    GPIO2_8 = P6_12,
+    GPIO2_9 = P5_0,
+    GPIO2_10 = P5_1,
+    GPIO2_11 = P5_2,
+    GPIO2_12 = P5_3,
+    GPIO2_13 = P5_4,
+    GPIO2_14 = P5_5,
+    GPIO2_15 = P5_6,
+
+    GPIO3_0 = P6_1,
+    GPIO3_1 = P6_2,
+    GPIO3_2 = P6_3,
+    GPIO3_3 = P6_4,
+    GPIO3_4 = P6_5,
+    GPIO3_5 = P6_9,
+    GPIO3_6 = P6_10,
+    GPIO3_7 = P6_11,
+    GPIO3_8 = P7_0,
+    GPIO3_9 = P7_1,
+    GPIO3_10 = P7_2,
+    GPIO3_11 = P7_3,
+    GPIO3_12 = P7_4,
+    GPIO3_13 = P7_5,
+    GPIO3_14 = P7_6,
+    GPIO3_15 = P7_7,
+
+    GPIO4_0 = P8_0,
+    GPIO4_1 = P8_1,
+    GPIO4_2 = P8_2,
+    GPIO4_3 = P8_3,
+    GPIO4_4 = P8_4,
+    GPIO4_5 = P8_5,
+    GPIO4_6 = P8_6,
+    GPIO4_7 = P8_7,
+    GPIO4_8 = PA_1,
+    GPIO4_9 = PA_2,
+    GPIO4_10 = PA_3,
+    GPIO4_11 = P9_6,
+    GPIO4_12 = P9_0,
+    GPIO4_13 = P9_1,
+    GPIO4_14 = P9_2,
+    GPIO4_15 = P9_3,
+
+    GPIO5_0 = P2_0,
+    GPIO5_1 = P2_1,
+    GPIO5_2 = P2_2,
+    GPIO5_3 = P2_3,
+    GPIO5_4 = P2_4,
+    GPIO5_5 = P2_5,
+    GPIO5_6 = P2_6,
+    GPIO5_7 = P2_8,
+    GPIO5_8 = P3_1,
+    GPIO5_9 = P3_2,
+    GPIO5_10 = P3_7,
+    GPIO5_11 = P3_8,
+    GPIO5_12 = P4_8,
+    GPIO5_13 = P4_9,
+    GPIO5_14 = P4_10,
+    GPIO5_15 = P6_7,
+    GPIO5_16 = P6_8,
+    GPIO5_17 = P9_4,
+    GPIO5_18 = P9_5,
+    GPIO5_19 = PA_4,
+    GPIO5_20 = PB_0,
+    GPIO5_21 = PB_1,
+    GPIO5_22 = PB_2,
+    GPIO5_23 = PB_3,
+    GPIO5_24 = PB_4,
+    GPIO5_25 = PB_5,
+    GPIO5_26 = PB_6,
+
+    GPIO6_0 = PC_1,
+    GPIO6_1 = PC_2,
+    GPIO6_2 = PC_3,
+    GPIO6_3 = PC_4,
+    GPIO6_4 = PC_5,
+    GPIO6_5 = PC_6,
+    GPIO6_6 = PC_7,
+    GPIO6_7 = PC_8,
+    GPIO6_8 = PC_9,
+    GPIO6_9 = PC_10,
+    GPIO6_10 = PC_11,
+    GPIO6_11 = PC_12,
+    GPIO6_12 = PC_13,
+    GPIO6_13 = PC_14,
+    GPIO6_14 = PD_0,
+    GPIO6_15 = PD_1,
+    GPIO6_16 = PD_2,
+    GPIO6_17 = PD_3,
+    GPIO6_18 = PD_4,
+    GPIO6_19 = PD_5,
+    GPIO6_20 = PD_6,
+    GPIO6_21 = PD_7,
+    GPIO6_22 = PD_8,
+    GPIO6_23 = PD_9,
+    GPIO6_24 = PD_10,
+    GPIO6_25 = PD_11,
+    GPIO6_26 = PD_12,
+    GPIO6_27 = PD_13,
+    GPIO6_28 = PD_14,
+    GPIO6_29 = PD_15,
+    GPIO6_30 = PD_16,
+
+    GPIO7_0 = PE_0,
+    GPIO7_1 = PE_1,
+    GPIO7_2 = PE_2,
+    GPIO7_3 = PE_3,
+    GPIO7_4 = PE_4,
+    GPIO7_5 = PE_5,
+    GPIO7_6 = PE_5,
+    GPIO7_7 = PE_7,
+    GPIO7_8 = PE_8,
+    GPIO7_9 = PE_9,
+    GPIO7_10 = PE_10,
+    GPIO7_11 = PE_11,
+    GPIO7_12 = PE_12,
+    GPIO7_13 = PE_13,
+    GPIO7_14 = PE_14,
+    GPIO7_15 = PE_15,
+    GPIO7_16 = PF_1,
+    GPIO7_17 = PF_2,
+    GPIO7_18 = PF_3,
+    GPIO7_19 = PF_5,
+    GPIO7_20 = PF_6,
+    GPIO7_21 = PF_7,
+    GPIO7_22 = PF_8,
+    GPIO7_23 = PF_9,
+    GPIO7_24 = PF_10,
+    GPIO7_25 = PF_11,
 
     // Map mbed pin names to LPC43xx board signals
 
