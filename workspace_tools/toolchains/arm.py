@@ -98,7 +98,7 @@ class ARM_STD(ARM):
 
 
 class ARM_MICRO(ARM):
-    PATCHED_LIBRARY = True
+    PATCHED_LIBRARY = False
     
     def __init__(self, target, options=None, notify=None):
         ARM.__init__(self, target, notify)
