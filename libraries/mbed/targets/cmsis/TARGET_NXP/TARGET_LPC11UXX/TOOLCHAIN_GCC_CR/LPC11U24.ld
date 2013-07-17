@@ -7,12 +7,12 @@ MEMORY
 {
   /* Define each memory region */
   MFlash32 (rx) : ORIGIN = 0x0, LENGTH = 0x8000 /* 32k */
-  RamLoc4 (rwx) : ORIGIN = 0x100000C0, LENGTH = 0xF40 /* 4k */
+  RamLoc8 (rwx) : ORIGIN = 0x100000C0, LENGTH = 0x1F40 /* 8k */
   RamUsb2 (rwx) : ORIGIN = 0x20004000, LENGTH = 0x800 /* 2k */
 }
   /* Define a symbol for the top of each memory region */
   __top_MFlash32 = 0x0 + 0x8000;
-  __top_RamLoc4 = 0x10000000 + 0x1000;
+  __top_RamLoc8 = 0x10000000 + 0x2000;
   __top_RamUsb2 = 0x20004000 + 0x800;
 
 ENTRY(ResetISR)
@@ -116,7 +116,7 @@ SECTIONS
     .uninit_RESERVED : ALIGN(4)
     {
         KEEP(*(.bss.$RESERVED*))
-    } > RamLoc4
+    } > RamLoc8
 
     .data : ALIGN(4)
     {
@@ -126,7 +126,7 @@ SECTIONS
         *(.data*)
         . = ALIGN(4) ;
         _edata = .;
-    } > RamLoc4 AT>MFlash32
+    } > RamLoc8 AT>MFlash32
 
     
     .bss_RAM2 : ALIGN(4)
@@ -145,8 +145,8 @@ SECTIONS
         . = ALIGN(4) ;
         _ebss = .;
         PROVIDE(end = .);
-    } > RamLoc4
+    } > RamLoc8
     
     PROVIDE(_pvHeapStart = .);
-    PROVIDE(_vStackTop = __top_RamLoc4 - 0);
+    PROVIDE(_vStackTop = __top_RamLoc8 - 0);
 }

@@ -27,7 +27,8 @@ MEMORY
 {
   rom (rx)  : ORIGIN = 0x00000000, LENGTH = 32K
   
-  ram (rwx) : ORIGIN = 0x100000C0, LENGTH = 0xF40
+  ram (rwx) : ORIGIN = 0x100000C0, LENGTH = 0x1F40
+  usb_ram (rwx) : ORIGIN = 0x20004000, LENGTH = 0x800
 }
 
 /* These force the linker to search for particular symbols from
