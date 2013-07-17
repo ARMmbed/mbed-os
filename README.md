@@ -27,6 +27,7 @@ NXP:
 * LPC812 (Cortex-M0+)
 * LPC4088 (Cortex-M4)
 * LPC4330 (Cortex-M4 + Cortex-M0)
+* LPC1347 (Cortex-M3)
 
 Freescale:
 * [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
