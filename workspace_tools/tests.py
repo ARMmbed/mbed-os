@@ -333,6 +333,12 @@ TESTS = [
         "peripherals": ["ADXL345"]
     },
     {
+        "id": "MBED_28", "description": "I2C EEPROM read/write test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+    },
+    {
         "id": "MBED_29", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
@@ -535,19 +541,16 @@ TESTS = [
         "id": "USB_1", "description": "Mouse",
         "source_dir": join(TEST_DIR, "usb", "device", "basic"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_2", "description": "Keyboard",
         "source_dir": join(TEST_DIR, "usb", "device", "keyboard"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_3", "description": "Mouse_Keyboard",
         "source_dir": join(TEST_DIR, "usb", "device", "keyboard"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_4", "description": "Serial Port",
@@ -559,19 +562,16 @@ TESTS = [
         "id": "USB_5", "description": "Generic HID",
         "source_dir": join(TEST_DIR, "usb", "device", "raw_hid"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_6", "description": "MIDI",
         "source_dir": join(TEST_DIR, "usb", "device", "midi"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "USB_7", "description": "AUDIO",
         "source_dir": join(TEST_DIR, "usb", "device", "audio"),
         "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # CMSIS DSP
@@ -650,7 +650,7 @@ class Test:
         self.n = n
         self.__dict__.update(Test.DEFAULTS)
         self.__dict__.update(TESTS[n])
-
+    
     def is_supported(self, target, toolchain):
         if not hasattr(self, 'supported'):
             return True

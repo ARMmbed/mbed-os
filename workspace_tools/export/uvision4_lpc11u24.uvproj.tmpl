@@ -344,7 +344,7 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>TARGET_LPC11U24</Define>
+              <Define>TARGET_LPC11U24, NDEBUG, TOOLCHAIN_ARM, __CMSIS_RTOS, __CORTEX_M0</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>
             </VariousControls>
@@ -358,7 +358,7 @@
             <SwStkChk>0</SwStkChk>
             <NoWarn>0</NoWarn>
             <VariousControls>
-              <MiscControls>--gnu</MiscControls>
+              <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>

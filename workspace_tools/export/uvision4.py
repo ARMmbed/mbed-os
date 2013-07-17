@@ -5,7 +5,7 @@ from os.path import basename
 class Uvision4(Exporter):
     NAME = 'uVision4'
     TOOLCHAIN = 'ARM'
-    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z']
+    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z', 'LPC1347']
     FILE_TYPES = {
         'c_sources':'1',
         'cpp_sources':'8',
@@ -21,7 +21,6 @@ class Uvision4(Exporter):
                 source_files.append({
                     'name': basename(file), 'type': n, 'path': file
                 })
-        
         ctx = {
             'name': self.program_name,
             'include_paths': self.resources.inc_dirs,
@@ -33,7 +32,4 @@ class Uvision4(Exporter):
         
         # Project file
         self.gen_file('uvision4_%s.uvproj.tmpl' % target, ctx, '%s.uvproj' % self.program_name)
-        
-        if (target == 'lpc1768' or target == 'lpc11u24' or target == 'kl25z'):
-            # Add debug option to target the MCB1700
-            self.gen_file('uvision4_%s.uvopt.tmpl' % target, ctx, '%s.uvopt' % self.program_name)
+        self.gen_file('uvision4_%s.uvopt.tmpl' % target, ctx, '%s.uvopt' % self.program_name)

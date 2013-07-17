@@ -163,6 +163,15 @@ class MBED_MCU(Target):
         
         self.supported_toolchains = ["ARM"]
 
+class LPC1347(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['NXP', 'LPC13XX']
+        
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
 
 # Get a single instance for each target
 TARGETS = [
@@ -175,7 +184,8 @@ TARGETS = [
     LPC4088(),
     LPC4330_M4(),
     STM32F407(),
-    MBED_MCU()
+    MBED_MCU(),
+    LPC1347()
 ]
 
 # Map each target name to its unique instance

@@ -72,7 +72,7 @@ if __name__ == '__main__':
     setup_test_user_prj()
     
     for toolchain, target in [
-            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'),
+            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'),
             
             ('codered', 'LPC1768'),
             
