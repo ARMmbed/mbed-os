@@ -49,16 +49,24 @@ WEAK int mbed_interface_uid(char *uid) {
 }
 
 int mbed_interface_disconnect(void) {
+    int res;
     if (mbed_interface_connected()) {
-        return semihost_disabledebug();
+        if ((res = semihost_disabledebug()) != 0)
+            return res;
+        while (mbed_interface_connected());
+        return 0;
     } else {
         return -1;
     }
 }
 
 int mbed_interface_powerdown(void) {
+    int res;
     if (mbed_interface_connected()) {
-        return semihost_powerdown();
+        if ((res = semihost_powerdown()) != 0)
+            return res;
+        while (mbed_interface_connected());
+        return 0;
     } else {
         return -1;
     }
