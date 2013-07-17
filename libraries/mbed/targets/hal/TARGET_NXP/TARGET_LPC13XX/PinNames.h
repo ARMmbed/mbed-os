@@ -124,18 +124,16 @@ typedef enum {
     LED4 = NC
 } PinName;
 
-/*
 typedef enum {
-    CHANNEL0 = FLEX_INT0_IRQn,
-    CHANNEL1 = FLEX_INT1_IRQn,
-    CHANNEL2 = FLEX_INT2_IRQn,
-    CHANNEL3 = FLEX_INT3_IRQn,
-    CHANNEL4 = FLEX_INT4_IRQn,
-    CHANNEL5 = FLEX_INT5_IRQn,
-    CHANNEL6 = FLEX_INT6_IRQn,
-    CHANNEL7 = FLEX_INT7_IRQn
+    CHANNEL0 = PIN_INT0_IRQn,
+    CHANNEL1 = PIN_INT1_IRQn,
+    CHANNEL2 = PIN_INT2_IRQn,
+    CHANNEL3 = PIN_INT3_IRQn,
+    CHANNEL4 = PIN_INT4_IRQn,
+    CHANNEL5 = PIN_INT5_IRQn,
+    CHANNEL6 = PIN_INT6_IRQn,
+    CHANNEL7 = PIN_INT7_IRQn
 } Channel;
-*/
 
 typedef enum {
     PullUp = 2,

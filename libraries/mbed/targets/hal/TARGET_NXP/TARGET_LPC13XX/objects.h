@@ -25,11 +25,9 @@
 extern "C" {
 #endif
 
-/*
 struct gpio_irq_s {
     uint32_t ch;
 };
-*/
 
 struct port_s {
     __IO uint32_t *reg_dir;
