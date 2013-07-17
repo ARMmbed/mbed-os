@@ -211,6 +211,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif TARGET_LPC4088
 #define INITIAL_SP            (0x10010000UL)
 
+#elif TARGET_LPC1347
+#define INITIAL_SP            (0x10002000UL)
+
 #endif
 
 #ifdef __CC_ARM
