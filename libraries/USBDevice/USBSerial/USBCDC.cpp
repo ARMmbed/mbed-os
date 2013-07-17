@@ -116,8 +116,8 @@ uint8_t * USBCDC::deviceDesc() {
         0,                    // bDeviceSubClass
         0,                    // bDeviceProtocol
         MAX_PACKET_SIZE_EP0,  // bMaxPacketSize0
-        LSB(VENDOR_ID), MSB(VENDOR_ID),  // idVendor
-        LSB(PRODUCT_ID), MSB(PRODUCT_ID),// idProduct
+        (uint8_t)(LSB(VENDOR_ID)), (uint8_t)(MSB(VENDOR_ID)),  // idVendor
+        (uint8_t)(LSB(PRODUCT_ID)), (uint8_t)(MSB(PRODUCT_ID)),// idProduct
         0x00, 0x01,           // bcdDevice
         1,                    // iManufacturer
         2,                    // iProduct

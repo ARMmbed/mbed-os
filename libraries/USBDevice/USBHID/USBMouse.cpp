@@ -222,8 +222,8 @@ uint8_t * USBMouse::configurationDesc() {
         0x00,                           // bCountryCode
         0x01,                           // bNumDescriptors
         REPORT_DESCRIPTOR,              // bDescriptorType
-        LSB(reportDescLength()),        // wDescriptorLength (LSB)
-        MSB(reportDescLength()),        // wDescriptorLength (MSB)
+        (uint8_t)(LSB(reportDescLength())),        // wDescriptorLength (LSB)
+        (uint8_t)(MSB(reportDescLength())),        // wDescriptorLength (MSB)
 
         ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
         ENDPOINT_DESCRIPTOR,            // bDescriptorType

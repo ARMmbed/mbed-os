@@ -41,7 +41,7 @@ bool USBMIDI::EP2_OUT_callback() {
     readEP(EPBULK_OUT, buf, &len, 64);
 
     if (midi_evt != NULL) {
-        for (int i=0; i<len; i+=4) {
+        for (uint32_t i=0; i<len; i+=4) {
             midi_evt(MIDIMessage(buf+i));
         }
     }

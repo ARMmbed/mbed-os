@@ -184,7 +184,7 @@ private:
         uint8_t  LUN;
         uint8_t  CBLength;
         uint8_t  CB[16];
-    } __packed CBW;
+    } PACKED CBW;
 
     // Bulk-only CSW
     typedef struct {
@@ -192,7 +192,7 @@ private:
         uint32_t Tag;
         uint32_t DataResidue;
         uint8_t  Status;
-    } __packed CSW;
+    } PACKED CSW;
 
     //state of the bulk-only state machine
     Stage stage;

@@ -400,8 +400,8 @@ uint8_t * USBAudio::configurationDesc() {
         MSB(TERMINAL_USB_STREAMING),            // wTerminalType
         0x00,                                   // bAssocTerminal
         channel_nb_in,                          // bNrChannels
-        LSB(channel_config_in),                 // wChannelConfig
-        MSB(channel_config_in),                 // wChannelConfig
+        (uint8_t)(LSB(channel_config_in)),                 // wChannelConfig
+        (uint8_t)(MSB(channel_config_in)),                 // wChannelConfig
         0x00,                                   // iChannelNames
         0x00,                                   // iTerminal
 
@@ -438,8 +438,8 @@ uint8_t * USBAudio::configurationDesc() {
         MSB(TERMINAL_MICROPHONE),               // wTerminalType
         0x00,                                   // bAssocTerminal
         channel_nb_out,                         // bNrChannels
-        LSB(channel_config_out),                // wChannelConfig
-        MSB(channel_config_out),                // wChannelConfig
+        (uint8_t)(LSB(channel_config_out)),                // wChannelConfig
+        (uint8_t)(MSB(channel_config_out)),                // wChannelConfig
         0x00,                                   // iChannelNames
         0x00,                                   // iTerminal
 
@@ -499,17 +499,17 @@ uint8_t * USBAudio::configurationDesc() {
         0x02,                                   // bSubFrameSize
         16,                                     // bBitResolution
         0x01,                                   // bSamFreqType
-        LSB(FREQ_IN),                           // tSamFreq
-        (FREQ_IN >> 8) & 0xff,                  // tSamFreq
-        (FREQ_IN >> 16) & 0xff,                 // tSamFreq
+        (uint8_t)(LSB(FREQ_IN)),                           // tSamFreq
+        (uint8_t)((FREQ_IN >> 8) & 0xff),                  // tSamFreq
+        (uint8_t)((FREQ_IN >> 16) & 0xff),                 // tSamFreq
 
         // Endpoint - Standard Descriptor
         ENDPOINT_DESCRIPTOR_LENGTH + 2,         // bLength
         ENDPOINT_DESCRIPTOR,                    // bDescriptorType
         PHY_TO_DESC(EPISO_OUT),                 // bEndpointAddress
         E_ISOCHRONOUS,                          // bmAttributes
-        LSB(PACKET_SIZE_ISO_IN),                   // wMaxPacketSize
-        MSB(PACKET_SIZE_ISO_IN),                   // wMaxPacketSize
+        (uint8_t)(LSB(PACKET_SIZE_ISO_IN)),                   // wMaxPacketSize
+        (uint8_t)(MSB(PACKET_SIZE_ISO_IN)),                   // wMaxPacketSize
         0x01,                                   // bInterval
         0x00,                                   // bRefresh
         0x00,                                   // bSynchAddress
@@ -569,17 +569,17 @@ uint8_t * USBAudio::configurationDesc() {
         0x02,                                   // bSubFrameSize
         0x10,                                   // bBitResolution
         0x01,                                   // bSamFreqType
-        LSB(FREQ_OUT),                          // tSamFreq
-        (FREQ_OUT >> 8) & 0xff,                 // tSamFreq
-        (FREQ_OUT >> 16) & 0xff,                // tSamFreq
+        (uint8_t)(LSB(FREQ_OUT)),                          // tSamFreq
+        (uint8_t)((FREQ_OUT >> 8) & 0xff),                 // tSamFreq
+        (uint8_t)((FREQ_OUT >> 16) & 0xff),                // tSamFreq
 
         // Endpoint - Standard Descriptor
         ENDPOINT_DESCRIPTOR_LENGTH + 2,         // bLength
         ENDPOINT_DESCRIPTOR,                    // bDescriptorType
         PHY_TO_DESC(EPISO_IN),                  // bEndpointAddress
         E_ISOCHRONOUS,                          // bmAttributes
-        LSB(PACKET_SIZE_ISO_OUT),                   // wMaxPacketSize
-        MSB(PACKET_SIZE_ISO_OUT),                   // wMaxPacketSize
+        (uint8_t)(LSB(PACKET_SIZE_ISO_OUT)),                   // wMaxPacketSize
+        (uint8_t)(MSB(PACKET_SIZE_ISO_OUT)),                   // wMaxPacketSize
         0x01,                                   // bInterval
         0x00,                                   // bRefresh
         0x00,                                   // bSynchAddress

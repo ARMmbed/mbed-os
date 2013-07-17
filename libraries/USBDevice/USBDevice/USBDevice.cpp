@@ -758,7 +758,7 @@ uint8_t * USBDevice::findDescriptor(uint8_t descriptorType)
     if (wTotalLength <= (CONFIGURATION_DESCRIPTOR_LENGTH+2))
     /* +2 is for bLength and bDescriptorType of next descriptor */
     {
-        return false;
+        return NULL;
     }
 
     /* Start at first descriptor after the configuration descriptor */
@@ -908,12 +908,12 @@ uint8_t * USBDevice::deviceDesc() {
         0x00,                           /* bDeviceSubClass */
         0x00,                           /* bDeviceprotocol */
         MAX_PACKET_SIZE_EP0,            /* bMaxPacketSize0 */
-        LSB(VENDOR_ID),                 /* idVendor (LSB) */
-        MSB(VENDOR_ID),                 /* idVendor (MSB) */
-        LSB(PRODUCT_ID),                /* idProduct (LSB) */
-        MSB(PRODUCT_ID),                /* idProduct (MSB) */
-        LSB(PRODUCT_RELEASE),           /* bcdDevice (LSB) */
-        MSB(PRODUCT_RELEASE),           /* bcdDevice (MSB) */
+        (uint8_t)(LSB(VENDOR_ID)),                 /* idVendor (LSB) */
+        (uint8_t)(MSB(VENDOR_ID)),                 /* idVendor (MSB) */
+        (uint8_t)(LSB(PRODUCT_ID)),                /* idProduct (LSB) */
+        (uint8_t)(MSB(PRODUCT_ID)),                /* idProduct (MSB) */
+        (uint8_t)(LSB(PRODUCT_RELEASE)),           /* bcdDevice (LSB) */
+        (uint8_t)(MSB(PRODUCT_RELEASE)),           /* bcdDevice (MSB) */
         STRING_OFFSET_IMANUFACTURER,    /* iManufacturer */
         STRING_OFFSET_IPRODUCT,         /* iProduct */
         STRING_OFFSET_ISERIAL,          /* iSerialNumber */

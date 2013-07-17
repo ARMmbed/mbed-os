@@ -39,7 +39,7 @@ typedef enum {
 /* Include configuration for specific target */
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
 #include "USBEndpoints_LPC17_LPC23.h"
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC1347)
 #include "USBEndpoints_LPC11U.h"
 #elif defined(TARGET_KL25Z)
 #include "USBEndpoints_KL25Z.h"

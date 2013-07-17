@@ -16,7 +16,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifdef TARGET_LPC11U24
+#if defined(TARGET_LPC11U24) || defined(TARGET_LPC1347)
+
+#if defined(TARGET_LPC1347)
+#define USB_IRQ USB_IRQ_IRQn
+#elif defined(TARGET_LPC11U24)
+#define USB_IRQ USB_IRQn
+#endif
 
 #include "USBHAL.h"
 
@@ -81,22 +87,22 @@ static volatile int epComplete = 0;
 // One entry for a double-buffered logical endpoint in the endpoint
 // command/status list. Endpoint 0 is single buffered, out[1] is used
 // for the SETUP packet and in[1] is not used
-typedef __packed struct {
+typedef struct {
     uint32_t out[2];
     uint32_t in[2];
-} EP_COMMAND_STATUS;
+} PACKED EP_COMMAND_STATUS;
 
-typedef __packed struct {
+typedef struct {
     uint8_t out[MAX_PACKET_SIZE_EP0];
     uint8_t in[MAX_PACKET_SIZE_EP0];
     uint8_t setup[SETUP_PACKET_SIZE];
-} CONTROL_TRANSFER;
+} PACKED CONTROL_TRANSFER;
 
-typedef __packed struct {
+typedef struct {
     uint32_t    maxPacket;
     uint32_t    buffer[2];
     uint32_t    options;
-} EP_STATE;
+} PACKED EP_STATE;
 
 static volatile EP_STATE endpointState[NUMBER_OF_PHYSICAL_ENDPOINTS];
 
@@ -127,7 +133,7 @@ void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size) {
 
 
 USBHAL::USBHAL(void) {
-    NVIC_DisableIRQ(USB_IRQn);
+    NVIC_DisableIRQ(USB_IRQ);
     
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
@@ -184,24 +190,24 @@ USBHAL::USBHAL(void) {
     instance = this;
 
     //attach IRQ handler and enable interrupts
-    NVIC_SetVector(USB_IRQn, (uint32_t)&_usbisr);
+    NVIC_SetVector(USB_IRQ, (uint32_t)&_usbisr);
 }
 
 USBHAL::~USBHAL(void) {
     // Ensure device disconnected (DCON not set)
     LPC_USB->DEVCMDSTAT = 0;
     // Disable USB interrupts
-    NVIC_DisableIRQ(USB_IRQn);
+    NVIC_DisableIRQ(USB_IRQ);
 }
 
 void USBHAL::connect(void) {
-    NVIC_EnableIRQ(USB_IRQn);
+    NVIC_EnableIRQ(USB_IRQ);
     devCmdStat |= DCON;
     LPC_USB->DEVCMDSTAT = devCmdStat;
 }
 
 void USBHAL::disconnect(void) {
-    NVIC_DisableIRQ(USB_IRQn);
+    NVIC_DisableIRQ(USB_IRQ);
     devCmdStat &= ~DCON;
     LPC_USB->DEVCMDSTAT = devCmdStat;
 }

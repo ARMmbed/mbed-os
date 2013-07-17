@@ -45,7 +45,8 @@ public:
     MIDIMessage() {}
     
     MIDIMessage(uint8_t *buf) {
-        *((uint32_t *)data) = *((uint32_t *)buf);
+        for (int i = 0; i < 4; i++)
+            data[i] = buf[i];
     }
     
     // create messages
@@ -245,6 +246,6 @@ public:
     }
     
     uint8_t data[4];
-};    
+};
 
 #endif

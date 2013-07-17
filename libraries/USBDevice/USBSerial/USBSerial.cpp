@@ -27,7 +27,7 @@ int USBSerial::_putc(int c) {
 }
 
 int USBSerial::_getc() {
-    uint8_t c;
+    uint8_t c = 0;
     while (buf.isEmpty());
     buf.dequeue(&c);
     return c;
@@ -52,7 +52,7 @@ bool USBSerial::EP2_OUT_callback() {
 
     //we read the packet received and put it on the circular buffer
     readEP(c, &size);
-    for (int i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         buf.queue(c[i]);
     }
 

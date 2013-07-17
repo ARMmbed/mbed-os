@@ -250,8 +250,8 @@ uint8_t * USBHID::configurationDesc() {
         0x00,                           // bCountryCode
         0x01,                           // bNumDescriptors
         REPORT_DESCRIPTOR,              // bDescriptorType
-        LSB(this->reportDescLength()),  // wDescriptorLength (LSB)
-        MSB(this->reportDescLength()),  // wDescriptorLength (MSB)
+        (uint8_t)(LSB(this->reportDescLength())),  // wDescriptorLength (LSB)
+        (uint8_t)(MSB(this->reportDescLength())),  // wDescriptorLength (MSB)
 
         ENDPOINT_DESCRIPTOR_LENGTH,     // bLength
         ENDPOINT_DESCRIPTOR,            // bDescriptorType
