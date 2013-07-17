@@ -38,11 +38,11 @@ struct port_s {
     uint32_t mask;
 };
 
-/*
+
 struct pwmout_s {
     PWMName pwm;
 };
-*/
+
 
 struct serial_s {
     LPC_USART_Type *uart;

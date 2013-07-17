@@ -206,6 +206,38 @@ typedef struct {                            /*!< (@ 0x40008000) USART Structure 
 // -----                                        CT16B0                                        -----
 // ------------------------------------------------------------------------------------------------
 
+typedef struct {                            /*!< (@ 0x4000C000) LPC_CTxxBx_Type Structure       */
+  __IO uint32_t IR;                         /*!< (@ 0x4000C000) Interrupt Register. The IR can be written to clear interrupts. The IR can be read to identify which of eight possible interrupt sources are pending. */
+  __IO uint32_t TCR;                        /*!< (@ 0x4000C004) Timer Control Register. The TCR is used to control the Timer Counter functions. The Timer Counter can be disabled or reset through the TCR. */
+  __IO uint32_t TC;                         /*!< (@ 0x4000C008) Timer Counter. The 16-bit TC is incremented every PR+1 cycles of PCLK. The TC is controlled through the TCR. */
+  __IO uint32_t PR;                         /*!< (@ 0x4000C00C) Prescale Register. When the Prescale Counter (below) is equal to this value, the next clock increments the TC and clears the PC. */
+  __IO uint32_t PC;                         /*!< (@ 0x4000C010) Prescale Counter. The 16-bit PC is a counter which is incremented to the value stored in PR. When the value in PR is reached, the TC is incremented and the PC is cleared. The PC is observable and controllable through the bus interface. */
+  __IO uint32_t MCR;                        /*!< (@ 0x4000C014) Match Control Register. The MCR is used to control if an interrupt is generated and if the TC is reset when a Match occurs. */
+  union {
+  __IO uint32_t MR[4];                      /*!< (@ 0x4000C018) Match Register. MR can be enabled through the MCR to reset the TC, stop both the TC and PC, and/or generate an interrupt every time MR matches the TC. */
+  struct{
+  __IO uint32_t MR0;                        /*!< (@ 0x4000C018) Match Register. MR0 */
+  __IO uint32_t MR1;                        /*!< (@ 0x4000C01C) Match Register. MR1 */
+  __IO uint32_t MR2;                        /*!< (@ 0x4000C020) Match Register. MR2 */
+  __IO uint32_t MR3;                        /*!< (@ 0x4000C024) Match Register. MR3 */
+  };
+  };
+  __IO uint32_t CCR;                        /*!< (@ 0x4000C028) Capture Control Register. The CCR controls which edges of the capture inputs are used to load the Capture Registers and whether or not an interrupt is generated when a capture takes place. */
+  union{
+  __I  uint32_t CR[4];                      /*!< (@ 0x4000C02C) Capture Register. CR is loaded with the value of TC when there is an event on the CT16B0_CAP input. */
+    struct{
+  __I  uint32_t CR0;                        /*!< (@ 0x4000C02C) Capture Register. CR 0 */
+  __I  uint32_t CR1;                        /*!< (@ 0x4000C030) Capture Register. CR 1 */
+  __I  uint32_t CR2;                        /*!< (@ 0x4000C034) Capture Register. CR 2 */
+  __I  uint32_t CR3;                        /*!< (@ 0x4000C038) Capture Register. CR 3 */
+  };
+  };
+  __IO uint32_t EMR;                        /*!< (@ 0x4000C03C) External Match Register. The EMR controls the match function and the external match pins  */
+  __I  uint32_t RESERVED0[12];
+  __IO uint32_t CTCR;                       /*!< (@ 0x4000C070) Count Control Register. The CTCR selects between Timer and Counter mode, and in Counter mode selects the signal and edge(s) for counting. */
+  __IO uint32_t PWMC;                       /*!< (@ 0x4000C074) PWM Control Register. The PWMCON enables PWM mode for the external match pins CT16B0_MAT[1:0] and CT16B1_MAT[1:0]. */
+} LPC_CTxxBx_Type;
+
 typedef struct {                            /*!< (@ 0x4000C000) CT16B0 Structure       */
   __IO uint32_t IR;                         /*!< (@ 0x4000C000) Interrupt Register. The IR can be written to clear interrupts. The IR can be read to identify which of eight possible interrupt sources are pending. */
   __IO uint32_t TCR;                        /*!< (@ 0x4000C004) Timer Control Register. The TCR is used to control the Timer Counter functions. The Timer Counter can be disabled or reset through the TCR. */
@@ -713,10 +745,10 @@ typedef struct {                            /*!< (@ 0x50000000) GPIO_PORT Struct
 #define LPC_I2C                   ((LPC_I2C_Type            *) LPC_I2C_BASE)
 #define LPC_WWDT                  ((LPC_WWDT_Type           *) LPC_WWDT_BASE)
 #define LPC_USART                 ((LPC_USART_Type          *) LPC_USART_BASE)
-#define LPC_CT16B0                ((LPC_CT16B0_Type         *) LPC_CT16B0_BASE)
-#define LPC_CT16B1                ((LPC_CT16B1_Type         *) LPC_CT16B1_BASE)
-#define LPC_CT32B0                ((LPC_CT32B0_Type         *) LPC_CT32B0_BASE)
-#define LPC_CT32B1                ((LPC_CT32B1_Type         *) LPC_CT32B1_BASE)
+#define LPC_CT16B0                ((LPC_CTxxBx_Type         *) LPC_CT16B0_BASE)
+#define LPC_CT16B1                ((LPC_CTxxBx_Type         *) LPC_CT16B1_BASE)
+#define LPC_CT32B0                ((LPC_CTxxBx_Type         *) LPC_CT32B0_BASE)
+#define LPC_CT32B1                ((LPC_CTxxBx_Type         *) LPC_CT32B1_BASE)
 #define LPC_ADC                   ((LPC_ADC_Type            *) LPC_ADC_BASE)
 #define LPC_PMU                   ((LPC_PMU_Type            *) LPC_PMU_BASE)
 #define LPC_FLASHCTRL             ((LPC_FLASHCTRL_Type      *) LPC_FLASHCTRL_BASE)
