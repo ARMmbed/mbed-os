@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "Serial.h"
+#include "wait_api.h"
 
 #if DEVICE_SERIAL
 
@@ -21,11 +22,13 @@ namespace mbed {
 
 Serial::Serial(PinName tx, PinName rx, const char *name) : Stream(name) {
     serial_init(&_serial, tx, rx);
+    _baud = 9600;
     serial_irq_handler(&_serial, Serial::_irq_handler, (uint32_t)this);
 }
 
 void Serial::baud(int baudrate) {
     serial_baud(&_serial, baudrate);
+    _baud = baudrate;
 }
 
 void Serial::format(int bits, Parity parity, int stop_bits) {
@@ -63,6 +66,20 @@ int Serial::_getc() {
 int Serial::_putc(int c) {
     serial_putc(&_serial, c);
     return c;
+}
+
+void Serial::send_break() {
+  // Wait for 1.5 frames before clearing the break condition
+  // This will have different effects on our platforms, but should
+  // ensure that we keep the break active for at least one frame.
+  // We consider a full frame (1 start bit + 8 data bits bits + 
+  // 1 parity bit + 2 stop bits = 12 bits) for computation.
+  // One bit time (in us) = 1000000/_baud
+  // Twelve bits: 12000000/baud delay
+  // 1.5 frames: 18000000/baud delay
+  serial_break_set(&_serial);
+  wait_us(18000000/_baud);
+  serial_break_clear(&_serial);
 }
 
 } // namespace mbed

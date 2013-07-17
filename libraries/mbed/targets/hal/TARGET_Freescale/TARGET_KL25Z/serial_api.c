@@ -294,3 +294,12 @@ void serial_clear(serial_t *obj) {
 void serial_pinout_tx(PinName tx) {
     pinmap_pinout(tx, PinMap_UART_TX);
 }
+
+void serial_break_set(serial_t *obj) {
+    obj->uart->C2 |= UART_C2_SBK_MASK; 
+}
+
+void serial_break_clear(serial_t *obj) {
+    obj->uart->C2 &= ~UART_C2_SBK_MASK;
+}
+

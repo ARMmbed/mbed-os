@@ -55,6 +55,9 @@ int  serial_readable   (serial_t *obj);
 int  serial_writable   (serial_t *obj);
 void serial_clear      (serial_t *obj);
 
+void serial_break_set  (serial_t *obj);
+void serial_break_clear(serial_t *obj);
+
 void serial_pinout_tx(PinName tx);
 
 #ifdef __cplusplus

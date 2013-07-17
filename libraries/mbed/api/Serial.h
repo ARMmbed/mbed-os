@@ -121,6 +121,10 @@ public:
         }
     }
 
+    /** Generate a break condition on the serial line
+     */
+    void send_break();
+
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
 
 protected:
@@ -129,6 +133,7 @@ protected:
 
     serial_t        _serial;
     FunctionPointer _irq[2];
+    int             _baud;
 };
 
 } // namespace mbed

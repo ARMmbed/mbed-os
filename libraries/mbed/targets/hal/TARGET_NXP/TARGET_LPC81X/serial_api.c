@@ -59,6 +59,8 @@ static int get_available_uart(void) {
 #define RXRDY         (0x01<<0)
 #define TXRDY         (0x01<<2)
 
+#define TXBRKEN       (0x01<<1)
+
 static uint32_t UARTSysClk;
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
@@ -267,3 +269,12 @@ void serial_clear(serial_t *obj) {
 void serial_pinout_tx(PinName tx) {
     
 }
+
+void serial_break_set(serial_t *obj) {
+    obj->uart->CTRL |= TXBRKEN;
+}
+
+void serial_break_clear(serial_t *obj) {
+    obj->uart->CTRL &= ~TXBRKEN;
+}
+
