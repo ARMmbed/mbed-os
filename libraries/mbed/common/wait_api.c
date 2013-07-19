@@ -25,6 +25,9 @@ void wait_ms(int ms) {
 }
 
 void wait_us(int us) {
+	printf("Here!\r\n");
     uint32_t start = us_ticker_read();
+	printf("next\r\n");
     while ((us_ticker_read() - start) < us);
+	printf("End\r\n");
 }

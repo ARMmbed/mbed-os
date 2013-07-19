@@ -23,19 +23,26 @@
 int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
+	printf("0\r\n");
+
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
     
+	printf("1\r\n");
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<10); // Clock TIMER_1
+	printf("2\r\n");
     uint32_t PCLK = SystemCoreClock;
-    
+    printf("3\r\n");
     US_TICKER_TIMER->TCR = 0x2;  // reset
-    
+    printf("4\r\n");
     uint32_t prescale = PCLK / 1000000; // default to 1MHz (1 us ticks)
+	printf("5\r\n");
     US_TICKER_TIMER->PR = prescale - 1;
+	printf("6\r\n");
     US_TICKER_TIMER->TCR = 1; // enable = 1, reset = 0
-    
+    printf("7\r\n");
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
+	printf("8\r\n");
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
@@ -43,6 +50,8 @@ uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
     
+	printf("Hello!!!\r\n");
+	
     return US_TICKER_TIMER->TC;
 }
 

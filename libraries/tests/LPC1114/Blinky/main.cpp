@@ -8,6 +8,7 @@ int main() {
 		led = 1;
 		printf("LED on\r\n");
 		wait(0.5);
+		printf("After wait\r\n");
 		led = 0;
 		wait(0.5);
 	}
