@@ -36,5 +36,3 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
-
-output.txt
