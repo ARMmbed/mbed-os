@@ -1,0 +1,114 @@
+
+>>> BUILD LIBRARY CMSIS (LPC1114, GCC_ARM)
+
+>>> BUILD LIBRARY MBED (LPC1114, GCC_ARM)
+Copy: AnalogIn.h
+Copy: AnalogOut.h
+Copy: BusIn.h
+Copy: BusInOut.h
+Copy: BusOut.h
+Copy: CAN.h
+Copy: can_helper.h
+Copy: DigitalIn.h
+Copy: DigitalInOut.h
+Copy: DigitalOut.h
+Copy: DirHandle.h
+Copy: error.h
+Copy: Ethernet.h
+Copy: FileBase.h
+Copy: FileHandle.h
+Copy: FileLike.h
+Copy: FilePath.h
+Copy: FileSystemLike.h
+Copy: FunctionPointer.h
+Copy: I2C.h
+Copy: I2CSlave.h
+Copy: InterruptIn.h
+Copy: LocalFileSystem.h
+Copy: mbed.h
+Copy: mbed_debug.h
+Copy: mbed_interface.h
+Copy: platform.h
+Copy: PortIn.h
+Copy: PortInOut.h
+Copy: PortOut.h
+Copy: PwmOut.h
+Copy: rtc_time.h
+Copy: semihost_api.h
+Copy: Serial.h
+Copy: SPI.h
+Copy: SPISlave.h
+Copy: Stream.h
+Copy: Ticker.h
+Copy: Timeout.h
+Copy: Timer.h
+Copy: TimerEvent.h
+Copy: toolchain.h
+Copy: wait_api.h
+Copy: analogin_api.h
+Copy: analogout_api.h
+Copy: can_api.h
+Copy: ethernet_api.h
+Copy: gpio_api.h
+Copy: gpio_irq_api.h
+Copy: i2c_api.h
+Copy: pinmap.h
+Copy: port_api.h
+Copy: pwmout_api.h
+Copy: rtc_api.h
+Copy: serial_api.h
+Copy: sleep_api.h
+Copy: spi_api.h
+Copy: us_ticker_api.h
+Copy: device.h
+Copy: gpio_object.h
+Copy: objects.h
+Copy: PeripheralNames.h
+Copy: PinNames.h
+Copy: PortNames.h
+Compile: board.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\board.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\board.c
+Compile: exit.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\exit.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\exit.c
+Compile: mbed_interface.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\mbed_interface.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\mbed_interface.c
+Compile: pinmap_common.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\pinmap_common.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\pinmap_common.c
+Compile: rtc_time.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\rtc_time.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\rtc_time.c
+Compile: semihost_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\semihost_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\semihost_api.c
+Compile: us_ticker_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\us_ticker_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\us_ticker_api.c
+Compile: wait_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\.\wait_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common\wait_api.c
+Compile: analogin_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\..\targets\hal\TARGET_NXP\TARGET_LPC11XX\analogin_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\analogin_api.c
+Compile: gpio_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\..\targets\hal\TARGET_NXP\TARGET_LPC11XX\gpio_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\gpio_api.c
+[Warning] gpio_api.c@60: In function 'gpio_init': #warning TODO (@toyowata): Need to check array offset [-Wcpp]
+Compile: gpio_irq_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\..\targets\hal\TARGET_NXP\TARGET_LPC11XX\gpio_irq_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\gpio_irq_api.c
+[Warning] gpio_irq_api.c@24: 26:2: warning: #warning TODO(@toyowata): need implimentation [-Wcpp] 'channel_ids' defined but not used [-Wunused-variable]
+[Warning] gpio_irq_api.c@25: 26:2: warning: #warning TODO(@toyowata): need implimentation [-Wcpp] 'irq_handler' defined but not used [-Wunused-variable]
+Compile: i2c_api.c
+C:/Program Files (x86)/GNU Tools ARM Embedded/4.7 2013q2/bin\arm-none-eabi-gcc -std=gnu99 -c -O2 -Wall -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -MMD -mcpu=cortex-m0 -mthumb -DTARGET_LPC1114 -DTARGET_M0 -DTARGET_NXP -DTARGET_LPC11XX -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M0 -DARM_MATH_CM0 -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\common -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP -IC:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX -IC:/work/mbed/build\mbed -IC:/work/mbed/build\mbed\TARGET_LPC1114 -o C:/work/mbed/build\mbed\.temp\LPC1114\GCC_ARM\..\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.o C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.c
+[Warning] i2c_api.h@129: 37:6: note: previous declaration of 'i2c_stop' was here 'i2c_clear_SI' is static but used in inline function 'i2c_stop' which is not static [enabled by default]
+[Warning] i2c_api.h@128: 37:6: note: previous declaration of 'i2c_stop' was here 'i2c_conset' is static but used in inline function 'i2c_stop' which is not static [enabled by default]
+Traceback (most recent call last):
+  File "workspace_tools\build.py", line 89, in <module>
+    verbose=options.verbose)
+  File "C:\Users\matels01\Documents\GitHub\mbed\workspace_tools\build_api.py", line 150, in build_mbed_libs
+    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
+  File "C:\Users\matels01\Documents\GitHub\mbed\workspace_tools\toolchains\__init__.py", line 284, in compile_sources
+    self.compile_c(source, object, inc_paths)
+  File "C:\Users\matels01\Documents\GitHub\mbed\workspace_tools\toolchains\__init__.py", line 324, in compile_c
+    self.compile(self.cc, source, object, includes)
+  File "C:\Users\matels01\Documents\GitHub\mbed\workspace_tools\toolchains\__init__.py", line 321, in compile
+    raise ToolException(stderr)
+ToolException: C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.c:126:13: error: conflicting types for 'i2c_stop'
+In file included from C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.c:16:0:
+C:/work/mbed/build\mbed/i2c_api.h:37:6: note: previous declaration of 'i2c_stop' was here
+C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.c:129:5: warning: 'i2c_clear_SI' is static but used in inline function 'i2c_stop' which is not static [enabled by default]
+C:\Users\matels01\Documents\GitHub\mbed\libraries\mbed\targets\hal\TARGET_NXP\TARGET_LPC11XX\i2c_api.c:128:5: warning: 'i2c_conset' is static but used in inline function 'i2c_stop' which is not static [enabled by default]
+

@@ -635,6 +635,13 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
+	
+	# LPC1114
+	{
+		"id": "LPCBlink", "description": "Example for LPC, blinking",
+		"source_dir": join(TEST_DIR, "LPC1114", "Blinky"),
+		"dependencies": [MBED_LIBRARIES],
+	},
 ]
 
 class Test:

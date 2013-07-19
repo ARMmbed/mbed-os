@@ -123,13 +123,15 @@ inline int i2c_start(i2c_t *obj) {
     return status;
 }
 
-inline void i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj) {
     // write the stop bit
     i2c_conset(obj, 0, 1, 0, 0);
     i2c_clear_SI(obj);
     
     // wait for STO bit to reset
     while(I2C_CONSET(obj) & (1 << 4));
+	
+	return 0;
 }
 
 
