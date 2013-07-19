@@ -173,6 +173,15 @@ class LPC1347(Target):
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
+class LPC1114(Target):
+	def __init__(self):
+		Target.__init__(self)
+		
+		self.core = "Cortex-M0"
+		self.extra_labels = ['NXP', 'LPC11XX']
+		
+		self.supported_toolchains = ["ARM", "uARM", "GCC_CR", "GCC_ARM"]
+		
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -185,7 +194,8 @@ TARGETS = [
     LPC4330_M4(),
     STM32F407(),
     MBED_MCU(),
-    LPC1347()
+    LPC1347(),
+	LPC1114()
 ]
 
 # Map each target name to its unique instance
