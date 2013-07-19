@@ -1,8 +1,6 @@
 mbed SDK
 ========
 
-Modified version of ytsuboi's modification of the SDK to support the LPC1114, however using a newer fork of the mbed SDK.
-
 The mbed Software Development Kit (SDK) is a C/C++ microcontroller software platform relied upon by tens of thousands of
 developers to build projects fast.
 
