@@ -41,20 +41,20 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     LPC_GPIO_TypeDef *port_reg;
 
     switch (pin & 0xF000) {
-    case 0x0000:
-        port_reg = LPC_GPIO0;
-        break;
-    case 0x1000:
-        port_reg = LPC_GPIO1;
-        break;
-    case 0x2000:
-        port_reg = LPC_GPIO2;
-        break;
-    case 0x3000:
-        port_reg = LPC_GPIO3;
-        break;
-    default:
-        return;
+		case 0x0000:
+			port_reg = LPC_GPIO0;
+			break;
+		case 0x1000:
+			port_reg = LPC_GPIO1;
+			break;
+		case 0x2000:
+			port_reg = LPC_GPIO2;
+			break;
+		case 0x3000:
+			port_reg = LPC_GPIO3;
+			break;
+		default:
+			return;
     }
 
 #warning TODO (@toyowata): Need to check array offset
@@ -62,8 +62,10 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_dir = &port_reg->DIR;
     obj->reg_in  = &port_reg->DATA;
     obj->reg_data= &port_reg->DATA;
+	
 
     gpio_dir(obj, direction);
+	
     switch (direction) {
         case PIN_OUTPUT: pin_mode(pin, PullNone); break;
         case PIN_INPUT : pin_mode(pin, PullDown); break;
