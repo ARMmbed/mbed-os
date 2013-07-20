@@ -178,9 +178,10 @@ class LPC1114(Target):
 		Target.__init__(self)
 		
 		self.core = "Cortex-M0"
+		
 		self.extra_labels = ['NXP', 'LPC11XX']
 		
-		self.supported_toolchains = ["GCC_ARM"]
+		self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 		
 # Get a single instance for each target
 TARGETS = [

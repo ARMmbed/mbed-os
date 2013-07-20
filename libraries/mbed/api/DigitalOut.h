@@ -55,9 +55,7 @@ public:
      *      0 for logical 0, 1 (or any other non-zero value) for logical 1
      */
     void write(int value) {
-		printf("before write\r\n");
         gpio_write(&gpio, value);
-		printf("after write\r\n");
     }
 
     /** Return the output setting, represented as 0 or 1 (int)
