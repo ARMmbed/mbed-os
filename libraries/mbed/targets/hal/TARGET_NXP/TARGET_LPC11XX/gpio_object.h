@@ -22,22 +22,21 @@ extern "C" {
 
 typedef struct {
     PinName  pin;
-    __IO uint32_t *mask;
+    __I  uint32_t *reg_mask_read;
     __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_data;
-    __I  uint32_t *reg_in;
+    __IO uint32_t *reg_write;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
     uint32_t pin_number = ((obj->pin & 0x0F00) >> 8);
     if (value)
-        *obj->reg_data |= (1 << pin_number);
+        *obj->reg_write |= (1 << pin_number);
     else
-        *obj->reg_data &= ~(1 << pin_number);
+        *obj->reg_write &= ~(1 << pin_number);
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    return ((*obj->mask) ? 1 : 0);
+    return ((*obj->reg_mask_read) ? 1 : 0);
 }
 
 #ifdef __cplusplus

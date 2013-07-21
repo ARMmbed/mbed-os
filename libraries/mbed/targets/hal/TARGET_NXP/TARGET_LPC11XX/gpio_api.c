@@ -28,44 +28,21 @@ uint32_t gpio_set(PinName pin) {
              (1) : (0);
     
     pin_function(pin, f);
-    
-    int pin_number = ((pin & 0x0F00) >> 8);
-    return (pin_number + 1); // port n data address offset
+    return ((pin & 0x0F00) >> 8);
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     if(pin == NC) return;
 
     obj->pin = pin;
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
 
-    LPC_GPIO_TypeDef *port_reg;
-
-    switch (pin & 0xF000) {
-		case 0x0000:
-			port_reg = LPC_GPIO0;
-			break;
-		case 0x1000:
-			port_reg = LPC_GPIO1;
-			break;
-		case 0x2000:
-			port_reg = LPC_GPIO2;
-			break;
-		case 0x3000:
-			port_reg = LPC_GPIO3;
-			break;
-		default:
-			return;
-    }
-
-#warning TODO (@toyowata): Need to check array offset
-    obj->mask    = &port_reg->MASKED_ACCESS[gpio_set(pin)];
-    obj->reg_dir = &port_reg->DIR;
-    obj->reg_in  = &port_reg->DATA;
-    obj->reg_data= &port_reg->DATA;
-	
-
+    obj->reg_mask_read = &port_reg->MASKED_ACCESS[gpio_set(pin) + 1];
+    obj->reg_dir       = &port_reg->DIR;
+    obj->reg_write     = &port_reg->DATA;
+    
     gpio_dir(obj, direction);
-	
+    
     switch (direction) {
         case PIN_OUTPUT: pin_mode(pin, PullNone); break;
         case PIN_INPUT : pin_mode(pin, PullDown); break;
