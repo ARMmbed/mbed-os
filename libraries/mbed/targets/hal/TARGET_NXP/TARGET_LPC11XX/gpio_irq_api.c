@@ -28,6 +28,9 @@ static int gpioIrqInitialised = 0;
 #warning (matthewelse) This code isn't working yet, so don't rely on it, or try to use it.
 
 static inline void handle_interrupt_in(uint32_t channel) {
+
+#error (matthewelse) There's no way this code will work now...
+    
     uint32_t ch_bit = (1 << channel);
 
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (channel * 0x10000));
@@ -60,43 +63,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     if (gpioInitialised) return;
     
     irq_handler = handler;
-    
-    int found_free_channel = 0;
-    int i = 0;
-    for (i=0; i<CHANNEL_NUM; i++) {
-        if (channel_ids[i] == 0) {
-            channel_ids[i] = id;
-            obj->ch = i;
-            found_free_channel = 1;
-            break;
-        }
-    }
-    if (!found_free_channel) return -1;
-    
+
     /* Enable AHB clock to the GPIO domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);
+    LPC_SYSCON->SYSAHBCLKCTRL |= SCB_SYSAHBCLKCTRL_GPIO;
     
-    /* Enable AHB clock to the FlexInt, GroupedInt domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL |= ((1<<19) | (1<<23) | (1<<24));
-    
-    /* To select a pin for any of the eight pin interrupts, write the pin number
-     * as 0 to 23 for pins PIO0_0 to PIO0_23 and 24 to 55.
-     * @see: mbed_capi/PinNames.h
-     */
-    LPC_SYSCON->PINTSEL[obj->ch] = (pin >> 5) ? (pin - 8) : (pin);
-    
-    // Interrupt Wake-Up Enable
-    LPC_SYSCON->STARTERP0 |= 1 << obj->ch;
-    
-    void (*channels_irq)(void) = NULL;
-    switch (obj->ch) {
-        case 0: channels_irq = &gpio_irq0; break;
-        case 1: channels_irq = &gpio_irq1; break;
-        case 2: channels_irq = &gpio_irq2; break;
-        case 3: channels_irq = &gpio_irq3; break;
-    }
-    NVIC_SetVector((IRQn_Type)(PININT_IRQ - obj->ch)), (uint32_t)channels_irq);
-    NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ - obj->ch));
+    NVIC_EnableIRQ(EINT0_IRQn);
+    NVIC_EnableIRQ(EINT1_IRQn);
+    NVIC_EnableIRQ(EINT2_IRQn);
+    NVIC_EnableIRQ(EINT3_IRQn);
     
     gpioInitialised = 1;
     return 0;
@@ -107,6 +81,7 @@ void gpio_irq_free(gpio_irq_t *obj) {
     LPC_SYSCON->STARTERP0 &= ~(1 << obj->ch);
 }
 
+// This is basically complete, but non-functional as it needs to do something with obj at some point.
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     if (!gpioIqrInitialised) gpio_irq_init();
 
