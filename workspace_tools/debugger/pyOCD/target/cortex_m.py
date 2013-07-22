@@ -167,9 +167,9 @@ class CortexM(Target):
 
         while True:
             r = self.transport.readDP(DP_REG['CTRL_STAT'])
-            if (r & (CDBGPWRUPACK | CSYSPWRUPACK)) != (CDBGPWRUPACK | CSYSPWRUPACK):
+            if (r & (CDBGPWRUPACK | CSYSPWRUPACK)) == (CDBGPWRUPACK | CSYSPWRUPACK):
                 break
-            
+        
         self.transport.writeDP(DP_REG['CTRL_STAT'], CSYSPWRUPREQ | CDBGPWRUPREQ | TRNNORMAL | MASKLANE)
         self.transport.writeDP(DP_REG['SELECT'], 0)
 
