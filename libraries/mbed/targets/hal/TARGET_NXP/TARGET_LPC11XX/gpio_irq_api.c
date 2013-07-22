@@ -23,6 +23,7 @@
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
+static int gpioIrqInitialised = 0;
 
 #warning (matthewelse) This code isn't working yet, so don't rely on it, or try to use it.
 
@@ -56,6 +57,7 @@ void gpio_irq3(void) {handle_interrupt_in(3);}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
     if (pin == NC) return -1;
+    if (gpioInitialised) return;
     
     irq_handler = handler;
     
@@ -96,6 +98,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_SetVector((IRQn_Type)(PININT_IRQ - obj->ch)), (uint32_t)channels_irq);
     NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ - obj->ch));
     
+    gpioInitialised = 1;
     return 0;
 }
 
@@ -105,27 +108,40 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    unsigned int ch_bit = (1 << obj->ch);
-    
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (obj->ch * 0x10000));
+    if (!gpioIqrInitialised) gpio_irq_init();
 
-    // Clear interrupt
-    if (!(&port_reg->ISEL & ch_bit))
-        &port_reg->IST = ch_bit;
-    
-    // Edge trigger
-    &port_reg->ISEL &= ~ch_bit;
-    if (event == IRQ_RISE) {
-        if (enable) {
-            &port_reg->IENR |= ch_bit;
-        } else {
-            &port_reg->IENR &= ~ch_bit;
-        }
-    } else {
-        if (enable) {
-            &port_reg->IENF |= ch_bit;
-        } else {
-            &port_reg->IENF &= ~ch_bit;
-        }
+#warning (matthewelse) TODO: undefined port and value. Also need to do something with the *obj...
+    int port = 0;
+    int pin = 0;
+
+    LPC_GPIO_TypeDef *gpioRegisters;
+
+    switch (port) {
+        case 0:
+            gpioRegisters = LPC_GPIO0;
+            break;
+        case 1:
+            gpioRegisters = LPC_GPIO1;
+            break;
+        case 2:
+            gpioRegisters = LPC_GPIO2;
+            break;
+        case 3:
+            gpioRegisters = LPC_GPIO3;
+            break;
+    }
+
+    gpioRegisters->IBE  0; // Assume that we only want to interrupt on high or low edges, not both.
+    gpioRegisters->IS &= ~(1 << pin);
+
+    if (enable) {
+        gpioRegisters->IE |= (1<<pin);
+    }
+
+    if (event == IRP_RISE) {
+        gpioRegisters->IEV |= 1 << pin;
+    }
+    else {
+        gpioRegisters->IEV &= ~(1 << pin);
     }
 }
