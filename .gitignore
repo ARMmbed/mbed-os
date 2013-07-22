@@ -39,3 +39,7 @@ nosetests.xml
 
 output.txt
 uVision Project/
+
+# Sublime Text Project Files
+*.sublime-project
+*.sublime-workspace
