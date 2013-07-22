@@ -23,8 +23,9 @@
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-#warning TODO(@toyowata): need implimentation
-#if 0
+
+#warning (matthewelse) This code isn't working yet, so don't rely on it, or try to use it.
+
 static inline void handle_interrupt_in(uint32_t channel) {
     uint32_t ch_bit = (1 << channel);
 
@@ -128,5 +129,3 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         }
     }
 }
-
-#endif
