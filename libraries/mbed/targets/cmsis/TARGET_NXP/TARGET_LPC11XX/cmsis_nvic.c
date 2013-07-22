@@ -31,25 +31,19 @@
 #define NVIC_RAM_VECTOR_ADDRESS (0x10000000)  // Vectors positioned at start of RAM
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
-	printf("X\r\n");
     int i;
-	printf("0a\r\n");
     // Space for dynamic vectors, initialised to allocate in R/W
     static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
-    printf("1a\r\n");
+
     // Copy and switch to dynamic vectors if first time called
     if((LPC_SYSCON->SYSMEMREMAP & 0x3) != 0x1) {     
-		printf("2a\r\n");
       uint32_t *old_vectors = (uint32_t *)0;         // FLASH vectors are at 0x0
-		printf("Old_vectors: %i\r\n", old_vectors);
       for(i = 0; i < NVIC_NUM_VECTORS; i++) {    
-			printf("3a\r\n");
             vectors[i] = old_vectors[i];
         }
-		printf("4a\r\n");
         LPC_SYSCON->SYSMEMREMAP = 0x1; // Remaps 0x0-0x1FF FLASH block to RAM block
     }
-	printf("5a\r\n");
+
     // Set the vector 
     vectors[IRQn + 16] = vector; 
 }
