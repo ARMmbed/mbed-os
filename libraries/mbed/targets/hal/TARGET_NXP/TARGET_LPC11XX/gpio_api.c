@@ -35,7 +35,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     if(pin == NC) return;
 
     obj->pin = pin;
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
     obj->reg_mask_read = &port_reg->MASKED_ACCESS[gpio_set(pin) + 1];
     obj->reg_dir       = &port_reg->DIR;
