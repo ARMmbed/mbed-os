@@ -62,7 +62,6 @@ void gpio_irq_free(gpio_irq_t *obj) {
     channel_ids[obj->ch] = 0;
 }
 
-// This is basically complete, but non-functional as it needs to do something with obj at some point.
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     // TODO: Debug this to find out what data is put in the obj object at runtime...
 
