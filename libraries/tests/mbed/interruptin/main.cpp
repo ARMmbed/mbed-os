@@ -25,6 +25,10 @@ void in_handler() {
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
 
+#elif defined(TARGET_LPC1114)
+#define PIN_OUT     (dp1)
+#define PIN_IN      (dp2);
+
 #endif
 
 DigitalOut out(PIN_OUT);
