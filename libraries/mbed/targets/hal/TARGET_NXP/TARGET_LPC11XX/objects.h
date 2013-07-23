@@ -27,6 +27,8 @@ extern "C" {
 
 struct gpio_irq_s {
     uint32_t ch;
+    uint32_t port;
+    uint32_t pin;
 };
 
 struct port_s {
