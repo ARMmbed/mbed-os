@@ -32,10 +32,12 @@ static inline void handle_interrupt_in(uint32_t channel) {
     // the level of the pin as if it were just a normal input...
 
     // Get the number of the pin being used and the port typedef
-    uint8_t pin_number = (pin_names[channel] & (0x0f << 8)) >> 8;
+    uint32_t pin = (pin_names[channel] & (0x0f << 8)) >> 8;
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
+    uint32_t logiclevel = port_reg->DATA;
+    logiclevel &= (uint32_t)(1 << pin) >> pin;
 
-    if ((port_reg->MASKED_ACCESS & (1 << pin_number)) >> pin_number) {
+    if (logiclevel == 1) {
         // High, therefore rising edge...
         irq_handler(channel_ids[channel], IRQ_RISE);
     }
@@ -66,7 +68,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         }
     */
 
-    channel_ids[channnel] = id;
+    channel_ids[channel] = id;
     pin_names[channel] = pin;
     obj->ch = channel;
 
@@ -74,19 +76,19 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     switch (channel) {
         case 0:
             NVIC_SetVector(EINT0_IRQn, (uint32_t)gpio_irq0);
-            NVIC_EnableIrq(EINT0_IRQn);
+            NVIC_EnableIRQ(EINT0_IRQn);
             break;
         case 1:
             NVIC_SetVector(EINT1_IRQn, (uint32_t)gpio_irq1);
-            NVIC_EnableIrq(EINT1_IRQn);
+            NVIC_EnableIRQ(EINT1_IRQn);
             break;
         case 2:
             NVIC_SetVector(EINT2_IRQn, (uint32_t)gpio_irq2);
-            NVIC_EnableIrq(EINT2_IRQn);
+            NVIC_EnableIRQ(EINT2_IRQn);
             break;
         case 3:
             NVIC_SetVector(EINT3_IRQn, (uint32_t)gpio_irq3);
-            NVIC_EnableIrq(EINT3_IRQn);
+            NVIC_EnableIRQ(EINT3_IRQn);
             break;
     }
 
@@ -99,8 +101,7 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    pin = obj->pin;
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((obj->pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
     /*
      Firstly, clear the interrupts for this pin,
