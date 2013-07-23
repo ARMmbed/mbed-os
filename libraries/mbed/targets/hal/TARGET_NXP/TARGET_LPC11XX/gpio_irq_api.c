@@ -18,34 +18,33 @@
 #include "gpio_irq_api.h"
 #include "error.h"
 
+// The chip is capable of 4 external interrupts.
 #define CHANNEL_NUM 4
-#define PININT_IRQ  28+3
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-#warning TODO(@toyowata): need implimentation
-#if 0
+static int channel = 0;
+static PinName pin_names[CHANNEL_NUM] = {};
+
 static inline void handle_interrupt_in(uint32_t channel) {
-    uint32_t ch_bit = (1 << channel);
+    // Find out whether the interrupt has been triggered by a high or low value...
+    // As the LPC1114 doesn't have a specific register for this, we'll just have to read
+    // the level of the pin as if it were just a normal input...
 
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (channel * 0x10000));
+    // Get the number of the pin being used and the port typedef
+    uint32_t pin = (pin_names[channel] & (0x0f << 8)) >> 8;
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
+    uint32_t logiclevel = port_reg->DATA;
+    logiclevel &= (uint32_t)(1 << pin) >> pin;
 
-    // Return immediately if:
-    //   * The interrupt was already served
-    //   * There is no user handler
-    //   * It is a level interrupt, not an edge interrupt
-    if ( ((&port_reg->IST & ch_bit) == 0) ||
-         (channel_ids[channel] == 0     ) ||
-         (&port_reg->ISEL & ch_bit      ) ) return;
-
-    if ((&port_reg->IENR & ch_bit) && (&port_reg->RISE & ch_bit)) {
+    if (logiclevel == 1) {
+        // High, therefore rising edge...
         irq_handler(channel_ids[channel], IRQ_RISE);
-        &port_reg->RISE = ch_bit;
     }
-    if ((&port_reg->IENF & ch_bit) && (&port_reg->FALL & ch_bit)) {
+    else {
+        // Low, therefore falling edge...
         irq_handler(channel_ids[channel], IRQ_FALL);
     }
-    &port_reg->IST = ch_bit;
 }
 
 void gpio_irq0(void) {handle_interrupt_in(0);}
@@ -56,77 +55,75 @@ void gpio_irq3(void) {handle_interrupt_in(3);}
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
     if (pin == NC) return -1;
     
-    irq_handler = handler;
-    
-    int found_free_channel = 0;
-    int i = 0;
-    for (i=0; i<CHANNEL_NUM; i++) {
-        if (channel_ids[i] == 0) {
-            channel_ids[i] = id;
-            obj->ch = i;
-            found_free_channel = 1;
-            break;
+    // Firstly, we'll put some data in *obj so we can keep track of stuff.
+    obj->pin = pin;
+
+    /*
+        If there are any ports or pins that aren't able to handle interrupts, put them here and uncomment.
+
+        if (pin == ... ||
+            pin == ...) {
+            error("This pin does not suppor interrupts.");
+            return -1;
         }
+    */
+
+    channel_ids[channel] = id;
+    pin_names[channel] = pin;
+    obj->ch = channel;
+
+    // Which port are we using?
+    switch (channel) {
+        case 0:
+            NVIC_SetVector(EINT0_IRQn, (uint32_t)gpio_irq0);
+            NVIC_EnableIRQ(EINT0_IRQn);
+            break;
+        case 1:
+            NVIC_SetVector(EINT1_IRQn, (uint32_t)gpio_irq1);
+            NVIC_EnableIRQ(EINT1_IRQn);
+            break;
+        case 2:
+            NVIC_SetVector(EINT2_IRQn, (uint32_t)gpio_irq2);
+            NVIC_EnableIRQ(EINT2_IRQn);
+            break;
+        case 3:
+            NVIC_SetVector(EINT3_IRQn, (uint32_t)gpio_irq3);
+            NVIC_EnableIRQ(EINT3_IRQn);
+            break;
     }
-    if (!found_free_channel) return -1;
-    
-    /* Enable AHB clock to the GPIO domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);
-    
-    /* Enable AHB clock to the FlexInt, GroupedInt domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL |= ((1<<19) | (1<<23) | (1<<24));
-    
-    /* To select a pin for any of the eight pin interrupts, write the pin number
-     * as 0 to 23 for pins PIO0_0 to PIO0_23 and 24 to 55.
-     * @see: mbed_capi/PinNames.h
-     */
-    LPC_SYSCON->PINTSEL[obj->ch] = (pin >> 5) ? (pin - 8) : (pin);
-    
-    // Interrupt Wake-Up Enable
-    LPC_SYSCON->STARTERP0 |= 1 << obj->ch;
-    
-    void (*channels_irq)(void) = NULL;
-    switch (obj->ch) {
-        case 0: channels_irq = &gpio_irq0; break;
-        case 1: channels_irq = &gpio_irq1; break;
-        case 2: channels_irq = &gpio_irq2; break;
-        case 3: channels_irq = &gpio_irq3; break;
-    }
-    NVIC_SetVector((IRQn_Type)(PININT_IRQ - obj->ch)), (uint32_t)channels_irq);
-    NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ - obj->ch));
-    
+
+    channel++;
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
     channel_ids[obj->ch] = 0;
-    LPC_SYSCON->STARTERP0 &= ~(1 << obj->ch);
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    unsigned int ch_bit = (1 << obj->ch);
-    
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) LPC_GPIO0_BASE + (obj->ch * 0x10000));
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((obj->pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
-    // Clear interrupt
-    if (!(&port_reg->ISEL & ch_bit))
-        &port_reg->IST = ch_bit;
+    /*
+     Firstly, clear the interrupts for this pin,
+     Then, let the registers know whether we're looking for edge detection,
+     Enable the interrupt,
+     And set it to only respond to interrupts on one edge.
+    */
     
-    // Edge trigger
-    &port_reg->ISEL &= ~ch_bit;
-    if (event == IRQ_RISE) {
-        if (enable) {
-            &port_reg->IENR |= ch_bit;
-        } else {
-            &port_reg->IENR &= ~ch_bit;
-        }
-    } else {
-        if (enable) {
-            &port_reg->IENF |= ch_bit;
-        } else {
-            &port_reg->IENF &= ~ch_bit;
-        }
-    }
+    // Clear
+    port_reg->IC |= 1 << obj->pin;
+    
+    // Edge
+    port_reg->IS &= ~(1 << obj->pin);
+    
+    // Enable
+    if (enable) port_reg->IE |= 1 << obj->pin;
+    else port_reg->IE &= ~(1 << obj->pin);
+    
+    // One edge
+    port_reg->IBE &= ~(1 << obj->pin);
+    
+    // Rising/falling?
+    if (event == IRQ_RISE) port_reg->IEV |= 1 << obj->pin;
+    else port_reg->IEV &= ~(1 << obj->pin);
 }
-
-#endif
