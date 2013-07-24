@@ -42,3 +42,5 @@ uVision Project/
 
 # Sublime Text Project Files
 *.sublime*
+
+*.bak
