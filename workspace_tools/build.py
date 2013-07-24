@@ -86,10 +86,10 @@ if __name__ == '__main__':
             try:
                 mcu = TARGET_MAP[target]
                 build_mbed_libs(mcu, toolchain, options=options.options,
-                                verbose=options.verbose)
+                                verbose=options.verbose, clean=options.clean)
                 for lib_id in libraries:
                     build_lib(lib_id, mcu, toolchain, options=options.options,
-                              verbose=options.verbose)
+                              verbose=options.verbose, clean=options.clean)
                 successes.append(id)
             except Exception, e:
                 if options.verbose:

@@ -16,6 +16,7 @@ sys.path.append(ROOT)
 from workspace_tools.utils import delete_dir_files
 from workspace_tools.settings import * 
 from workspace_tools.tests import *
+from workspace_tools.targets import TARGET_MAP
 
 
 class ProcessObserver(Thread):
@@ -127,6 +128,7 @@ class Tester(BaseRequestHandler):
         
         disk = mut['disk']
         port = mut['port']
+        target = TARGET_MAP[mut['mcu']]
         
         # Program
         # When the build and test system were separate, this was relative to a
@@ -145,7 +147,7 @@ class Tester(BaseRequestHandler):
             for f in test.extra_files:
                 copy(f, disk)
         
-        sleep(1)
+        sleep(target.program_cycle_s)
         
         # Host test
         self.request.setblocking(0)

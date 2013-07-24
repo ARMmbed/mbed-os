@@ -349,15 +349,13 @@ class mbedToolchain:
             self.info("Library: %s" % lib)
             self.archive(objects, fout)
     
-    def build_program(self, r, tmp_path, name):
-        objects = self.compile_sources(r, tmp_path) + r.objects
-        
+    def link_program(self, r, tmp_path, name):
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, name + '.bin')
         
-        if self.need_update(elf, objects + r.libraries + [r.linker_script]):
+        if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             self.progress("link", name)
-            self.link(elf, objects, r.libraries, r.lib_dirs, r.linker_script)
+            self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
         
         if self.need_update(bin, [elf]):
             self.progress("elf2bin", name)
