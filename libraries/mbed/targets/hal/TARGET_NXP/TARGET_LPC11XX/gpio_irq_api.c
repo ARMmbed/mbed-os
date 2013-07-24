@@ -25,6 +25,7 @@
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 static PinName pin_names[CHANNEL_NUM] = {};
+static uint8_t trigger_events[CHANNEL_NUM] = {};
 
 static inline void handle_interrupt_in(uint32_t channel) {
     // Find out whether the interrupt has been triggered by a high or low value...
@@ -33,18 +34,20 @@ static inline void handle_interrupt_in(uint32_t channel) {
 
     // Get the number of the pin being used and the port typedef
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin_names[channel] & 0xF000) >> PORT_SHIFT) * 0x10000)));
-    int logic_level = port_reg->MASKED_ACCESS[gpio_set(pin_names[channel]) + 1];
+    uint8_t pin_num = (pin_names[channel] & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
+    uint8_t trigger_event = trigger_events[channel];
 
-    printf("%i\r\n", logic_level);
-
-    if (logic_level == 1) {
-        // High, therefore rising edge...
+    if (trigger_event == 1) {
+        // Rising edge.
         irq_handler(channel_ids[channel], IRQ_RISE);
     }
     else {
         // Low, therefore falling edge...
         irq_handler(channel_ids[channel], IRQ_FALL);
     }
+
+    // Clear the interrupt...
+    port_reg->IC |= 1 << pin_num;
 }
 
 void gpio_irq0(void) {handle_interrupt_in(0);}
@@ -57,6 +60,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     
     // Firstly, we'll put some data in *obj so we can keep track of stuff.
     obj->pin = pin;
+	
+	// Set the handler to be the pointer at the top...
+	irq_handler = handler;
 
     /*
         If there are any ports or pins that aren't able to handle interrupts, put them here and uncomment.
@@ -64,11 +70,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         if (pin == ... ||
             pin == ...) {
             error("This pin does not support interrupts.");
-            return -1;
+            return -1;x
         }
     */
-    // Which port are we using?
 
+    // Which port are we using?
     int channel;
     uint32_t port_reg = (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
 
@@ -110,7 +116,12 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((obj->pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
+
+    // Need to get the pin number of the pin, not the value of the enum
+    uint8_t pin_num = (obj->pin & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
+    trigger_events[obj->ch] = event == IRQ_RISE ? 1 : 0;
 
     /*
      Firstly, clear the interrupts for this pin,
@@ -120,19 +131,20 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     */
 
     // Clear
-    port_reg->IC |= 1 << obj->pin;
+    port_reg->IC |= 1 << pin_num;
     
     // Edge
-    port_reg->IS &= ~(1 << obj->pin);
+    port_reg->IS &= ~(1 << pin_num);
     
     // Enable
-    if (enable) port_reg->IE |= 1 << obj->pin;
-    else port_reg->IE &= ~(1 << obj->pin);
+    if (enable) port_reg->IE |= 1 << pin_num;
+    else port_reg->IE &= ~(1 << pin_num);
     
     // One edge
-    port_reg->IBE &= ~(1 << obj->pin);
+    port_reg->IBE &= ~(1 << pin_num);
     
     // Rising/falling?
-    if (event == IRQ_RISE) port_reg->IEV |= 1 << obj->pin;
-    else port_reg->IEV &= ~(1 << obj->pin);
+    if (event == IRQ_RISE) port_reg->IEV |= 1 << pin_num;
+    else port_reg->IEV &= ~(1 << pin_num);
+
 }
