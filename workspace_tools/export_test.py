@@ -9,12 +9,16 @@ from workspace_tools.export import export
 
 from shutil import copytree
 
+EXPORT_DIR = join(BUILD_DIR, "export_test")
+USER_WORKSPACE = join(EXPORT_DIR, "user_workspace")
 
-USR_PRJ_NAME = "export_test"
-USER_PRJ = join(BUILD_DIR, USR_PRJ_NAME)
+USR_PRJ_NAME = "usr_prj"
+USER_PRJ = join(USER_WORKSPACE, USR_PRJ_NAME)
 USER_LIB = join(USER_PRJ, "lib")
 USER_SRC = join(USER_PRJ, "src")
-TEMP     = join(USER_PRJ, ".temp")
+
+TEMP = join(USER_WORKSPACE, ".temp")
+
 
 def setup_test_user_prj():
     if exists(USER_PRJ):
@@ -50,7 +54,7 @@ def test_export(toolchain, target, expected_error=None):
     zip_path, report = export(USER_PRJ, USR_PRJ_NAME, toolchain, target, base_dir, temp_dir, False, fake_build_url_resolver)
     
     if report['success']:
-        export_name = join(TEMP, "export_%s_%s.zip" % (toolchain, target))
+        export_name = join(EXPORT_DIR, "export_%s_%s.zip" % (toolchain, target))
         cmd(["mv", zip_path, export_name])
         print "[OK]"
     else:
@@ -66,9 +70,6 @@ def test_export(toolchain, target, expected_error=None):
 
 
 if __name__ == '__main__':
-    # import logging as log
-    # log.getLogger().setLevel(log.DEBUG)
-    
     setup_test_user_prj()
     
     for toolchain, target in [

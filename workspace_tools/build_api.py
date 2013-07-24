@@ -136,18 +136,20 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False):
     
     # mbed
     toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
-    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
-    hal_implementation = toolchain.scan_resources(HAL_SRC)
     
-    mbed_resources = toolchain.scan_resources(MBED_COMMON)
-    mbed_resources.add(hal_implementation)
-    
-    # Headers
+    # Common Headers
     toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
     toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
-    toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
     
-    objects = toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
+    # Target specific sources
+    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
+    hal_implementation = toolchain.scan_resources(HAL_SRC)
+    toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
+    objects  = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
+    
+    # Common Sources
+    mbed_resources = toolchain.scan_resources(MBED_COMMON)
+    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
     
     # Keep the stdio retargeting as a standalone object to be sure the
     # C standard library symbols get overridden

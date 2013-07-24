@@ -101,6 +101,20 @@ class Resources:
         return '\n'.join(s)
 
 
+# Support legacy build conventions: the original mbed build system did not have
+# standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
+# had the knowledge of a list of these directories to be ignored.
+LEGACY_IGNORE_DIRS = set([
+    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
+    'ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR', 'uARM'
+])
+LEGACY_TOOLCHAIN_NAMES = {
+    'ARM_STD':'ARM', 'ARM_MICRO': 'uARM',
+    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR', 'GCC_CS': 'GCC_CS',
+    'IAR': 'IAR',
+}
+
+
 class mbedToolchain:
     VERBOSE = True
     
@@ -113,6 +127,9 @@ class mbedToolchain:
     
     def __init__(self, target, options=None, notify=None):
         self.target = target
+        self.name = self.__class__.__name__
+        
+        self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
         
         if notify is not None:
             self.notify = notify
@@ -127,7 +144,6 @@ class mbedToolchain:
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
         
-        self.name = self.__class__.__name__
         self.obj_path = join(target.name, self.name)
         
         self.symbols = None
@@ -195,7 +211,7 @@ class mbedToolchain:
         for root, dirs, files in walk(path):
             # Remove ignored directories
             for d in copy(dirs):
-                if ((d.startswith('.') or d in set(['CVS'])) or
+                if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
                     dirs.remove(d)
