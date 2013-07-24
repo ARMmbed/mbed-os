@@ -17,13 +17,13 @@
 #include "cmsis.h"
 #include "gpio_irq_api.h"
 #include "error.h"
+#include "gpio_api.h"
 
 // The chip is capable of 4 external interrupts.
 #define CHANNEL_NUM 4
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-static int channel = 0;
 static PinName pin_names[CHANNEL_NUM] = {};
 
 static inline void handle_interrupt_in(uint32_t channel) {
@@ -32,12 +32,12 @@ static inline void handle_interrupt_in(uint32_t channel) {
     // the level of the pin as if it were just a normal input...
 
     // Get the number of the pin being used and the port typedef
-    uint32_t pin = (pin_names[channel] & (0x0f << 8)) >> 8;
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
-    uint32_t logiclevel = port_reg->DATA;
-    logiclevel &= (uint32_t)(1 << pin) >> pin;
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin_names[channel] & 0xF000) >> PORT_SHIFT) * 0x10000)));
+    int logic_level = port_reg->MASKED_ACCESS[gpio_set(pin_names[channel]) + 1];
 
-    if (logiclevel == 1) {
+    printf("%i\r\n", logic_level);
+
+    if (logic_level == 1) {
         // High, therefore rising edge...
         irq_handler(channel_ids[channel], IRQ_RISE);
     }
@@ -63,36 +63,45 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
         if (pin == ... ||
             pin == ...) {
-            error("This pin does not suppor interrupts.");
+            error("This pin does not support interrupts.");
             return -1;
         }
     */
+    // Which port are we using?
+
+    int channel;
+    uint32_t port_reg = (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
+
+    switch (port_reg) {
+        case LPC_GPIO0_BASE:
+            NVIC_SetVector(EINT0_IRQn, (uint32_t)gpio_irq0);
+            NVIC_EnableIRQ(EINT0_IRQn);
+            channel = 0;
+            break;
+        case LPC_GPIO1_BASE:
+            NVIC_SetVector(EINT1_IRQn, (uint32_t)gpio_irq1);
+            NVIC_EnableIRQ(EINT1_IRQn);
+            channel = 1;
+            break;
+        case LPC_GPIO2_BASE:
+            NVIC_SetVector(EINT2_IRQn, (uint32_t)gpio_irq2);
+            NVIC_EnableIRQ(EINT2_IRQn);
+            channel = 2;
+            break;
+        case LPC_GPIO3_BASE:
+            NVIC_SetVector(EINT3_IRQn, (uint32_t)gpio_irq3);
+            NVIC_EnableIRQ(EINT3_IRQn);
+            channel = 3;
+            break;
+        default:
+            channel = -1;
+            error("Invalid interrupt choice.");
+            break;
+    }
 
     channel_ids[channel] = id;
     pin_names[channel] = pin;
     obj->ch = channel;
-
-    // Which port are we using?
-    switch (channel) {
-        case 0:
-            NVIC_SetVector(EINT0_IRQn, (uint32_t)gpio_irq0);
-            NVIC_EnableIRQ(EINT0_IRQn);
-            break;
-        case 1:
-            NVIC_SetVector(EINT1_IRQn, (uint32_t)gpio_irq1);
-            NVIC_EnableIRQ(EINT1_IRQn);
-            break;
-        case 2:
-            NVIC_SetVector(EINT2_IRQn, (uint32_t)gpio_irq2);
-            NVIC_EnableIRQ(EINT2_IRQn);
-            break;
-        case 3:
-            NVIC_SetVector(EINT3_IRQn, (uint32_t)gpio_irq3);
-            NVIC_EnableIRQ(EINT3_IRQn);
-            break;
-    }
-
-    channel++;
     return 0;
 }
 
@@ -109,7 +118,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
      Enable the interrupt,
      And set it to only respond to interrupts on one edge.
     */
-    
+
     // Clear
     port_reg->IC |= 1 << obj->pin;
     
