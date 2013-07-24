@@ -14,32 +14,35 @@
  * limitations under the License.
  */
 
-#warning TODO(@toyowata) This platform doesn't support PortIn, PortOut and PortInOut
-#if 0
-
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
 
-PinName port_pin(PortName port, int pin_n) {
-    return (PinName)((port << PORT_SHIFT) | pin_n);
+// LPC114 IOCON offset table [port][pin]
+
+static uint8_t iocon_offset[4][12] = {
+    {0x0c,0x10,0x1c,0x2c,0x30,0x34,0x4c,0x50,0x60,0x64,0x68,0x74}, // PORT 0
+    {0x78,0x7c,0x80,0x90,0x94,0xa0,0xa4,0xa8,0x14,0x38,0x6c,0x98}, // PORT 1
+    {0x08,0x28,0x5c,0x8c,0x40,0x44,0x00,0x20,0x24,0x54,0x58,0x70}, // PORT 2
+    {0x84,0x88,0x9c,0xac,0x3c,0x48}                                // PORT 3
+};
+
+static PinName port_pin(PortName port, int pin) {
+    return (PinName)((port << PORT_SHIFT) | (pin << PIN_SHIFT) | (uint32_t)iocon_offset[port][pin]);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     obj->port = port;
     obj->mask = mask;
     
-    LPC_GPIO_TypeDef *port_reg = (LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + ((int)port * 0x20));
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (port * 0x10000)));
     
-    port_reg->MASK = ~mask;
-    
-    obj->reg_out = &port_reg->PIN;
-    obj->reg_in  = &port_reg->PIN;
-    obj->reg_dir  = &port_reg->DIR;
+    obj->reg_data  = &port_reg->DATA;
+    obj->reg_dir = &port_reg->DIR;
     
     uint32_t i;
     // The function is set per pin: reuse gpio logic
-    for (i=0; i<32; i++) {
+    for (i=0; i<12; i++) {
         if (obj->mask & (1<<i)) {
             gpio_set(port_pin(obj->port, i));
         }
@@ -51,7 +54,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
 void port_mode(port_t *obj, PinMode mode) {
     uint32_t i;
     // The mode is set per pin: reuse pinmap logic
-    for (i=0; i<32; i++) {
+    for (i=0; i<12; i++) {
         if (obj->mask & (1<<i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }
@@ -66,10 +69,10 @@ void port_dir(port_t *obj, PinDirection dir) {
 }
 
 void port_write(port_t *obj, int value) {
-    *obj->reg_mpin = value;
+    *obj->reg_data = (value & obj->mask);
 }
 
 int port_read(port_t *obj) {
-    return (*obj->reg_mpin);
+    return (*obj->reg_data & obj->mask);
 }
-#endif
+

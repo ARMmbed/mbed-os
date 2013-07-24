@@ -32,7 +32,7 @@ struct gpio_irq_s {
 
 struct port_s {
     __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_mpin;
+    __IO uint32_t *reg_data;
     PortName port;
     uint32_t mask;
 };
