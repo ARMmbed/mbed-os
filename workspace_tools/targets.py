@@ -12,9 +12,8 @@ class Target:
         # ARM Core
         self.core = None
         
-        # How much time (in seconds) it takes to the interface chip to flash a
-        # new image and reset the target chip
-        self.program_cycle_s = 1.5
+        # Is the disk provided by the interface chip of this board virtual?
+        self.is_disk_virtual = False
         
         # list of toolchains that are supported by the mbed SDK for this target
         self.supported_toolchains = None
@@ -23,6 +22,9 @@ class Target:
         self.extra_labels = []
         
         self.name = self.__class__.__name__
+    
+    def program_cycle_s(self):
+        return 4 if self.is_disk_virtual else 1.5
     
     def get_labels(self):
         return [self.name, CORE_LABELS[self.core]] + self.extra_labels
@@ -47,7 +49,7 @@ class LPC1768(Target):
         
         self.extra_labels = ['NXP', 'LPC176X']
         
-        self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
 
 class LPC11U24(Target):
@@ -71,7 +73,7 @@ class KL05Z(Target):
 
         self.supported_toolchains = ["ARM"]
 
-        self.program_cycle_s = 4
+        self.is_disk_virtual = True
 
 
 class KL25Z(Target):
@@ -84,7 +86,7 @@ class KL25Z(Target):
         
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB"]
         
-        self.program_cycle_s = 4
+        self.is_disk_virtual = True
 
 
 class LPC812(Target):
@@ -97,7 +99,7 @@ class LPC812(Target):
         
         self.supported_toolchains = ["uARM"]
         
-        self.program_cycle_s = 4
+        self.is_disk_virtual = True
 
 
 class LPC4088(Target):

@@ -104,7 +104,7 @@ if __name__ == '__main__':
             # Import pyserial: https://pypi.python.org/pypi/pyserial
             from serial import Serial
             
-            sleep(target.program_cycle_s)
+            sleep(target.program_cycle_s())
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
                 serial.setBaudrate(options.baud)
