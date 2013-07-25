@@ -41,9 +41,13 @@ static inline void handle_interrupt_in(uint32_t channel) {
         // Rising edge.
         irq_handler(channel_ids[channel], IRQ_RISE);
     }
-    else {
+    else if (trigger_event == 2) {
         // Low, therefore falling edge...
         irq_handler(channel_ids[channel], IRQ_FALL);
+    }
+    else {
+        // This is supposed to be triggered by both cases...
+        irq_handler(channel_ids[channel], IRQ_RISE);
     }
 
     // Clear the interrupt...
@@ -116,13 +120,51 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+    // Firstly, check if there is an existing event stored...
 
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((obj->pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
     // Need to get the pin number of the pin, not the value of the enum
     uint8_t pin_num = (obj->pin & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
-    trigger_events[obj->ch] = event == IRQ_RISE ? 1 : 0;
+   
 
+    if (trigger_events[obj->ch] != 0) {
+        // We have an event.
+        // Enable both edge interrupts.
+
+        if (enable) {
+            trigger_events[obj->ch] = 3;
+            port_reg->IBE |= 1 << pin_num;
+            port_reg->IE |= 1 << pin_num;
+        }
+        else {
+            // These all need to be opposite, to reenable the other one.
+            trigger_events[obj->ch] = event == IRQ_RISE ? 2 : 1;
+
+            port_reg->IBE &= ~(1 << pin_num);
+
+            if (event == IRQ_RISE)
+                port_reg->IEV &= ~(1 << pin_num);
+            else 
+                port_reg->IEV |= 1 << pin_num;
+
+            port_reg->IE |= 1 << pin_num;
+        }
+    }
+    else {
+        if (enable) {
+            trigger_events[obj->ch] = event == IRQ_RISE ? 1 : 2;
+            port_reg->IE |= 1 << pin_num;
+        }
+        // One edge
+        port_reg->IBE &= ~(1 << pin_num);
+        // Rising/falling?
+        if (event == IRQ_RISE)
+            port_reg->IEV |= 1 << pin_num;
+        else
+            port_reg->IEV &= ~(1 << pin_num);
+    }
+    
     /*
      Firstly, clear the interrupts for this pin,
      Then, let the registers know whether we're looking for edge detection,
@@ -133,18 +175,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     // Clear
     port_reg->IC |= 1 << pin_num;
     
-    // Edge
+    // Make it edge sensitive.
     port_reg->IS &= ~(1 << pin_num);
-    
-    // Enable
-    if (enable) port_reg->IE |= 1 << pin_num;
-    else port_reg->IE &= ~(1 << pin_num);
-    
-    // One edge
-    port_reg->IBE &= ~(1 << pin_num);
-    
-    // Rising/falling?
-    if (event == IRQ_RISE) port_reg->IEV |= 1 << pin_num;
-    else port_reg->IEV &= ~(1 << pin_num);
-
 }
