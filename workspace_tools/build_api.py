@@ -3,7 +3,7 @@ from shutil import rmtree
 from types import ListType
 
 from workspace_tools.utils import mkdir
-from workspace_tools.toolchains import TOOLCHAIN_CLASSES, Resources
+from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
 
@@ -22,7 +22,9 @@ def build_project(src_path, build_path, target, toolchain_name,
     
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_path)
+    src_paths = [src_path]
     if libraries_paths is not None:
+        src_paths.extend(libraries_paths)
         for path in libraries_paths:
             resources.add(toolchain.scan_resources(path))
     
@@ -35,8 +37,14 @@ def build_project(src_path, build_path, target, toolchain_name,
             rmtree(build_path)
     mkdir(build_path)
     
-    # Build Program
-    return toolchain.build_program(resources, build_path, name)
+    # Compile Sources
+    for path in src_paths:
+        src = toolchain.scan_resources(path)
+        objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
+        resources.objects.extend(objects)
+    
+    # Link Program
+    return toolchain.link_program(resources, build_path, name)
 
 
 """
@@ -73,10 +81,11 @@ def build_library(src_paths, build_path, target, toolchain_name,
         resources.append(toolchain.scan_resources(src_path))
     
     # Dependencies Include Paths
-    dependencies = Resources()
+    dependencies_include_dir = []
     if dependencies_paths is not None:
         for path in dependencies_paths:
-            dependencies.add(toolchain.scan_resources(path))
+            lib_resources = toolchain.scan_resources(path)
+            dependencies_include_dir.extend(lib_resources.inc_dirs)
     
     # Create the desired build directory structure
     bin_path = join(build_path, toolchain.obj_path)
@@ -91,21 +100,23 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Compile Sources
     objects = []
     for resource in resources:
-        objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies.inc_dirs))
+        objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
     
     toolchain.build_library(objects, bin_path, name)
 
 
-def build_lib(lib_id, target, toolchain, options=None, verbose=False):
+def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False):
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
-        build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options, verbose=verbose)
+        build_library(lib.source_dir, lib.build_dir, target, toolchain,
+                      lib.dependencies, options,
+                      verbose=verbose, clean=clean)
     else:
         print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False):
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
         print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
@@ -114,6 +125,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False):
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options)
     toolchain.VERBOSE = verbose
+    toolchain.build_all = clean
     
     # Source and Build Paths
     BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
