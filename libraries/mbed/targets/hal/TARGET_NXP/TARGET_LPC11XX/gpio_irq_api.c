@@ -68,16 +68,6 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 	// Set the handler to be the pointer at the top...
 	irq_handler = handler;
 
-    /*
-        If there are any ports or pins that aren't able to handle interrupts, put them here and uncomment.
-
-        if (pin == ... ||
-            pin == ...) {
-            error("This pin does not support interrupts.");
-            return -1;x
-        }
-    */
-
     // Which port are we using?
     int channel;
     uint32_t port_reg = (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
@@ -164,13 +154,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         else
             port_reg->IEV &= ~(1 << pin_num);
     }
-    
-    /*
-     Firstly, clear the interrupts for this pin,
-     Then, let the registers know whether we're looking for edge detection,
-     Enable the interrupt,
-     And set it to only respond to interrupts on one edge.
-    */
 
     // Clear
     port_reg->IC |= 1 << pin_num;
