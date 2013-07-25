@@ -27,7 +27,7 @@ static uint8_t iocon_offset[4][12] = {
     {0x84,0x88,0x9c,0xac,0x3c,0x48}                                // PORT 3
 };
 
-static PinName port_pin(PortName port, int pin) {
+PinName port_pin(PortName port, int pin) {
     return (PinName)((port << PORT_SHIFT) | (pin << PIN_SHIFT) | (uint32_t)iocon_offset[port][pin]);
 }
 
