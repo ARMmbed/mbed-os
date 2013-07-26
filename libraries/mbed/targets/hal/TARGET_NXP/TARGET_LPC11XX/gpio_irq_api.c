@@ -37,17 +37,20 @@ static inline void handle_interrupt_in(uint32_t channel) {
     uint8_t pin_num = (pin_names[channel] & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
     uint8_t trigger_event = trigger_events[channel];
 
-    if (trigger_event == 1) {
-        // Rising edge.
+    if (trigger_event == 1) 
         irq_handler(channel_ids[channel], IRQ_RISE);
-    }
-    else if (trigger_event == 2) {
-        // Low, therefore falling edge...
+    else if (trigger_event == 2)
         irq_handler(channel_ids[channel], IRQ_FALL);
-    }
     else {
-        // This is supposed to be triggered by both cases...
-        irq_handler(channel_ids[channel], IRQ_RISE);
+        // In order to get an idea of which kind of event it is,
+        // We need to read the logic level of the pin...
+
+        uint8_t logic = (port_reg->DATA & (1 << pin_num)) >> pin_num;
+
+        if (logic == 1)
+            irq_handler(channel_ids[channel], IRQ_RISE);
+        else
+            irq_handler(channel_ids[channel], IRQ_FALL);
     }
 
     // Clear the interrupt...
