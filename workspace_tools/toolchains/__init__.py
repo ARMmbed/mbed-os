@@ -144,7 +144,7 @@ class mbedToolchain:
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
         
-        self.obj_path = join(target.name, self.name)
+        self.obj_path = join("TARGET_"+target.name, "TOOLCHAIN_"+self.name)
         
         self.symbols = None
         self.labels = None

@@ -139,15 +139,17 @@ class Tester(BaseRequestHandler):
             self.send_result("{error}")
             return
         
-        delete_dir_files(disk)
+        if not target.is_disk_virtual:
+            delete_dir_files(disk)
+        
         copy(image_path, disk)
         
         # Copy Extra Files
-        if test.extra_files:
+        if not target.is_disk_virtual and test.extra_files:
             for f in test.extra_files:
                 copy(f, disk)
         
-        sleep(target.program_cycle_s)
+        sleep(target.program_cycle_s())
         
         # Host test
         self.request.setblocking(0)
