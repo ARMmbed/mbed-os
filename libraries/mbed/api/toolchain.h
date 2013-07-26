@@ -16,7 +16,7 @@
 #ifndef MBED_TOOLCHAIN_H
 #define MBED_TOOLCHAIN_H
 
-#if defined(TOOLCHAIN_ARM) || defined(TOOLCHAIN_uARM)
+#if defined(TOOLCHAIN_ARM)
 #include <rt_sys.h>
 #endif
 
