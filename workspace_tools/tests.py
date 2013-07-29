@@ -24,11 +24,11 @@ Wiring:
   
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * LPC1*: (p5   <-> p25 )
-      * KL25Z: (PTA1 <-> PTC7)
+      * KL25Z: (PTA5<-> PTC6)
   
   * port_loop (Port(In|Out|InOut)):
       * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
-      * KL25Z: (PTA1 <-> PTC7), (PTA2 <-> PTC0)
+      * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
   
   * analog_loop (AnalogIn, AnalogOut):
       * LPC1*: (p17   <-> p18 )
@@ -40,6 +40,13 @@ Wiring:
       
   * MMA7660 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
+
+  * i2c_loop:
+      * LPC1768: (p28 <-> p9), (p27 <-> p10)
+
+  * i2c_eeprom:
+      * LPC1*: (SDA=p28 , SCL=p27)
+      * KL25Z: (SDA=PTE0, SCL=PTE1)
 """
 TESTS = [
     # Automated MBED tests
@@ -164,12 +171,15 @@ TESTS = [
         "id": "MBED_A19", "description": "I2C EEPROM read/write test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "peripherals": ["24LC256"],
+        "automated": True,
     },
     {
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "mcu": ["LPC1768"]
+        "mcu": ["LPC1768"],
+        "peripherals": ["i2c_loop"]
     },
     {
         "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
@@ -664,6 +674,8 @@ class Test:
         self.__dict__.update(TESTS[n])
     
     def is_supported(self, target, toolchain):
+        if hasattr(self, 'mcu') and not target in self.mcu:
+            return False
         if not hasattr(self, 'supported'):
             return True
         return (target in self.supported) and (toolchain in self.supported[target])
