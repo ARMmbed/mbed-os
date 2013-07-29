@@ -132,58 +132,49 @@ TESTS = [
         "id": "MBED_A13", "description": "I2C MMA7660",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA7660"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA7660')],
-        "automated": True,
         "peripherals": ["MMA7660"]
     },
     {
         "id": "MBED_A14", "description": "I2C Master",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A15", "description": "I2C Slave",
         "source_dir": join(TEST_DIR, "mbed", "i2c_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A16", "description": "SPI Master",
         "source_dir": join(TEST_DIR, "mbed", "spi_master"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A17", "description": "SPI Slave",
         "source_dir": join(TEST_DIR, "mbed", "spi_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A18", "description": "Interrupt vector relocation",
         "source_dir": join(TEST_DIR, "mbed", "vtor_reloc"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True,
         "mcu": ["LPC1768"]
     },
     {
         "id": "MBED_A19", "description": "I2C EEPROM read/write test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
     },
     {
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True,
         "mcu": ["LPC1768"]
     },
     {
         "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
         "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "interruptin"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
         "peripherals": ["digital_loop"]
     },
 
@@ -356,7 +347,6 @@ TESTS = [
         "id": "MBED_27", "description": "SPI ADXL345",
         "source_dir": join(TEST_DIR, "mbed", "spi_ADXL345"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'ADXL345')],
-        "automated": True,
         "peripherals": ["ADXL345"]
     },
     {
@@ -550,14 +540,12 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "vodafone", "HTTPClient_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
         "supported": CORTEX_ARM_SUPPORT,
-        "automated": False,
     },
     {
         "id": "VF_2", "description": "USSD & SMS Test",
         "source_dir": join(TEST_DIR, "net", "vodafone", "USSD_SMS_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
         "supported": CORTEX_ARM_SUPPORT,
-        "automated": False,
     },
     
     # USB Tests
