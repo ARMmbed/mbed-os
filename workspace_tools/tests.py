@@ -166,7 +166,27 @@ TESTS = [
         "automated": True,
         "mcu": ["LPC1768"]
     },
-   
+    {
+        "id": "MBED_A19", "description": "I2C EEPROM read/write test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+    },
+    {
+        "id": "MBED_A20", "description": "I2C master/slave test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True,
+        "mcu": ["LPC1768"]
+    },
+    {
+        "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "interruptin"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "peripherals": ["digital_loop"]
+    },
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -340,19 +360,16 @@ TESTS = [
         "peripherals": ["ADXL345"]
     },
     {
-        "id": "MBED_28", "description": "I2C EEPROM read/write test",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
+        "id": "MBED_28", "description": "Interrupt chaining (serial)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "serial_interrupt"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
     },
     {
-        "id": "MBED_29", "description": "I2C master/slave test",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True,
-        "mcu": ["LPC1768"]
+        "id": "MBED_29", "description": "Interrupt chaining (ticker + InterruptManager)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "ticker"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
-   
+ 
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
