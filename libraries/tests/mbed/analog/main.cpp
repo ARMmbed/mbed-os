@@ -1,7 +1,7 @@
 #include "test_env.h"
 
 #if defined(TARGET_KL25Z)
-AnalogIn in(PTC1);
+AnalogIn in(PTC2);
 AnalogOut out(PTE30);
 
 #elif defined(TARGET_LPC4088)

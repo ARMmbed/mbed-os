@@ -10,8 +10,8 @@ void in_handler() {
 }
 
 #if defined(TARGET_KL25Z)
-#define PIN_OUT     PTC7
-#define PIN_IN      PTA1
+#define PIN_OUT     PTC6
+#define PIN_IN      PTA5
 
 #elif defined(TARGET_KL05Z)
 #define PIN_OUT     PTB11
