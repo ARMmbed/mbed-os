@@ -159,7 +159,14 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
         "automated": True
     },
-    
+    {
+        "id": "MBED_A18", "description": "Interrupt vector relocation",
+        "source_dir": join(TEST_DIR, "mbed", "vtor_reloc"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True,
+        "mcu": ["LPC1768"]
+    },
+   
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
