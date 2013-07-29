@@ -16,7 +16,10 @@ from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
 from workspace_tools.targets import TARGET_MAP
-
+try:
+    import workspace_tools.private_settings as ps
+except:
+    ps = object()
 
 def args_error(parser, message):
     print "\n\n%s\n\n" % message
@@ -59,7 +62,13 @@ if __name__ == '__main__':
         args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
     if n:
         if not n in TEST_MAP.keys():
-            args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+            # Check if there is an alias for this in private_settings.py
+            if getattr(ps, "test_alias", None) is not None:
+                alias = ps.test_alias.get(n, "")
+                if not alias in TEST_MAP.keys():
+                    args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+                else:
+                    n = alias
         p = TEST_MAP[n].n  
     if p is None or (p < 0) or (p > (len(TESTS)-1)):
         message = "[ERROR] You have to specify one of the following tests:\n"
