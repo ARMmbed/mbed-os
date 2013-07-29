@@ -15,6 +15,7 @@
  */
 #include "semihost_api.h"
 #include "mbed_interface.h"
+#include "toolchain.h"
 
 #ifdef TOOLCHAIN_GCC_CW
 // TODO: Ideally, we would like to define directly "_ExitProcess"
@@ -34,3 +35,9 @@ void exit(int return_code) {
 
     while (1);
 }
+
+WEAK void __cxa_pure_virtual(void);
+WEAK void __cxa_pure_virtual(void) {
+    exit(1);
+}
+
