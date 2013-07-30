@@ -22,6 +22,8 @@
 #include <math.h>
 #include <string.h>
 
+#define CAN_NUM    2
+
 /* Acceptance filter mode in AFMR register */
 #define ACCF_OFF                0x01
 #define ACCF_BYPASS             0x02
@@ -166,7 +168,12 @@ void can_init(can_t *obj, PinName rd, PinName td) {
 
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
-
+    
+    switch ((int)obj->dev) {
+        case CAN_1: obj->index = 0; break;
+        case CAN_2: obj->index = 1; break;
+    }
+    
     can_reset(obj);
     obj->dev->IER = 0;             // Disable Interrupts
     can_frequency(obj, 100000);
