@@ -163,12 +163,12 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
     objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
     
-    # Keep the stdio retargeting as a standalone object to be sure the
+    # Keep retargeting as a standalone object to be sure the
     # C standard library symbols get overridden
-    stdio_retargeting = None
+    retargeting = None
     for o in objects:
-        if o.endswith('stdio.o'):
-            stdio_retargeting = o
-    objects.remove(stdio_retargeting)
+        if o.endswith('retarget.o'):
+            retargeting = o
+    objects.remove(retargeting)
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
-    toolchain.copy_files(stdio_retargeting, BUILD_TOOLCHAIN)
+    toolchain.copy_files(retargeting, BUILD_TOOLCHAIN)

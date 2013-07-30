@@ -152,7 +152,7 @@ class STM32F407(Target):
         
         self.extra_labels = ['STM', 'STM32F4XX']
         
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
 
 
 class MBED_MCU(Target):

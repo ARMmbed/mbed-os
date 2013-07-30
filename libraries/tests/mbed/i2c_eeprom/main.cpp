@@ -42,35 +42,12 @@ int dprintf(const char* args, ...) {
 }
 #endif
 
-class TestHelper {
-public:
-  // Defaults to 'passed'
-  TestHelper() {
-    passed();
-  }
-  
-  void passed() {
-    m_result = true;
-  }
-  
-  void failed() {
-    m_result = false;
-  }
-  
-  ~TestHelper() {
-    notify_completion(m_result);
-  }
-private:
-  bool m_result;
-};
-
 int main() {
   const int addr = 0xA0;
   const char mark = 0x66;
   char data[3];
   int fw = 0, fr = 0, fc = 0;
   int i2c_stat;
-  TestHelper helper;
   
   i2c.frequency(i2c_freq_hz);
   
@@ -79,7 +56,7 @@ int main() {
   data[2] = mark;
   if((i2c_stat = i2c.write(addr, data, 3)) != 0) {
     dprintf("Unable to write data to EEPROM (i2c_stat = 0x%02X), aborting\r\n", i2c_stat);
-    helper.failed();
+    notify_completion(false);
     return 1;
   }
   // ACK polling (assumes write will be successful eventually)
@@ -120,6 +97,8 @@ int main() {
     dprintf("  Failed at read:  %d\r\n", fr);
     dprintf("  Data mismatch:   %d\r\n", fc);
     dprintf("  Total failures:  %d\r\n", fw + fr + fc);
-    helper.failed();
+    notify_completion(false);
   }
+
+  notify_completion(true);
 }

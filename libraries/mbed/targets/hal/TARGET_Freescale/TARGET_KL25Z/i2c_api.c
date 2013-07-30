@@ -202,7 +202,9 @@ void i2c_frequency(i2c_t *obj, int hz) {
     for (i = 1; i < 5; i*=2) {
         for (j = 0; j < 0x40; j++) {
             ref = PCLK / (i*ICR[j]);
-            error = (ref > hz) ? ref - hz : hz - ref;
+            if (ref > hz)
+                continue;
+            error = hz - ref;
             if (error < p_error) {
                 icr = j;
                 mult = i/2;

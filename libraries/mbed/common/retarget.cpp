@@ -18,6 +18,7 @@
 #include "FileSystemLike.h"
 #include "FilePath.h"
 #include "serial_api.h"
+#include "toolchain.h"
 #include <errno.h>
 
 #if defined(__ARMCC_VERSION)
@@ -386,4 +387,9 @@ namespace __gnu_cxx {
         error("Exception");
     }
 }
+extern "C" WEAK void __cxa_pure_virtual(void);
+extern "C" WEAK void __cxa_pure_virtual(void) {
+    exit(1);
+}
+
 #endif
