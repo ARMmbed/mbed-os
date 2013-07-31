@@ -79,23 +79,25 @@ static inline void can_enable(can_t *obj) {
 }
 
 static inline void can_irq(uint32_t icr, uint32_t index) {
-    #warning TODO(@jorisa) Check that events not happen at same time
-    can_irq_event event;
-    switch (icr) {
-        case (1 << 0): event = IRQ_RX;      break;
-        case (1 << 1): event = IRQ_TX;      break;
-        case (1 << 2): event = IRQ_ERROR;   break;
-        case (1 << 3): event = IRQ_OVERRUN; break;
-        case (1 << 4): event = IRQ_WAKEUP;  break;
-        case (1 << 5): event = IRQ_PASSIVE; break;
-        case (1 << 6): event = IRQ_ARB;     break;
-        case (1 << 7): event = IRQ_BUS;     break;
-        case (1 << 8): event = IRQ_READY;   break;
-        default: return;
+    uint32_t i;
+    
+    for(i = 0; i < 8; i++)
+    {
+        if((can_irq_ids[index] != 0) && (icr & (1 << i)))
+        {
+            switch (i) {
+                case 0: irq_handler(can_irq_ids[index], IRQ_RX);      break;
+                case 1: irq_handler(can_irq_ids[index], IRQ_TX);      break;
+                case 2: irq_handler(can_irq_ids[index], IRQ_ERROR);   break;
+                case 3: irq_handler(can_irq_ids[index], IRQ_OVERRUN); break;
+                case 4: irq_handler(can_irq_ids[index], IRQ_WAKEUP);  break;
+                case 5: irq_handler(can_irq_ids[index], IRQ_PASSIVE); break;
+                case 6: irq_handler(can_irq_ids[index], IRQ_ARB);     break;
+                case 7: irq_handler(can_irq_ids[index], IRQ_BUS);     break;
+                case 8: irq_handler(can_irq_ids[index], IRQ_READY);   break;
+            }
+        }
     }
-
-    if (can_irq_ids[index] != 0)
-        irq_handler(can_irq_ids[index], event);
 }
 
 // Have to check that the CAN block is active before reading the Interrupt
