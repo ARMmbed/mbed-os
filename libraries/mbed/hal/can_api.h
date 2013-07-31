@@ -28,11 +28,30 @@
 extern "C" {
 #endif
 
+typedef enum {
+    IRQ_RX,
+    IRQ_TX,
+    IRQ_ERROR,
+    IRQ_OVERRUN,
+    IRQ_WAKEUP,
+    IRQ_PASSIVE,
+    IRQ_ARB,
+    IRQ_BUS,
+    IRQ_READY
+} can_irq_event;
+
+typedef void (*can_irq_handler)(uint32_t id, can_irq_event event);
+
 typedef struct can_s can_t;
 
 void          can_init     (can_t *obj, PinName rd, PinName td);
 void          can_free     (can_t *obj);
 int           can_frequency(can_t *obj, int hz);
+
+void          can_irq_init (can_t *obj, can_irq_handler handler, uint32_t id);
+void          can_irq_free (can_t *obj);
+void          can_irq_set  (can_t *obj, can_irq_event irq, uint32_t enable);
+
 int           can_write    (can_t *obj, CAN_Message, int cc);
 int           can_read     (can_t *obj, CAN_Message *msg);
 void          can_reset    (can_t *obj);

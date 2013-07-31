@@ -163,7 +163,7 @@ public:
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
      */
-    void attach(void (*fptr)(void));
+    void attach(void (*fptr)(void), can_irq_event event=IRQ_RX);
 
    /** Attach a member function to call whenever a CAN frame received interrupt
     *  is generated.
@@ -172,21 +172,18 @@ public:
     *  @param mptr pointer to the member function to be called
     */
    template<typename T>
-   void attach(T* tptr, void (T::*mptr)(void)) {
+   void attach(T* tptr, void (T::*mptr)(void), can_irq_event event=IRQ_RX) {
         if((mptr != NULL) && (tptr != NULL)) {
-            _rxirq.attach(tptr, mptr);
-            setup_interrupt();
-        } else {
-            remove_interrupt();
+            _irq[type].attach(tptr, mptr);
+            can_irq_set(&_can, event, 1);
         }
     }
 
-private:
-    can_t _can;
-    FunctionPointer _rxirq;
+    static void _irq_handler(uint32_t id, can_irq_event event);
 
-    void setup_interrupt(void);
-    void remove_interrupt(void);
+protected:
+    can_t           _can;
+    FunctionPointer _irq[9];
 };
 
 } // namespace mbed
