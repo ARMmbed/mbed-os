@@ -8,18 +8,25 @@
 #define NVIC_NUM_VECTORS          (16 + 53)     // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS   (0x10000000)  // Location of vectors in RAM
 
+// The LPC43xx can boot from multiple memories (internal Flash, external NOR,
+// external SPIFI) so we don't know the initial value of VTOR. Thus we use
+// a variable to keep track if the vector table was relocated or not
+static unsigned char vtor_relocated;
+
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
-    static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
-    int i;
+    uint32_t *vectors = (uint32_t*)SCB->VTOR;
+    uint32_t i;
+    
     // Copy and switch to dynamic vectors if first time called
-    if (SCB->VTOR != NVIC_RAM_VECTOR_ADDRESS) {
-        uint32_t *old_vectors = (uint32_t*)SCB->VTOR;
+   if (!vtor_relocated) {
+        uint32_t *old_vectors = vectors;
+        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
         for (i=0; i<NVIC_NUM_VECTORS; i++) {
             vectors[i] = old_vectors[i];
         }
-        SCB->VTOR = (uint32_t)vectors;
+        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+        vtor_relocated = 1;
     }
-    
     vectors[IRQn + 16] = vector;
 }
 

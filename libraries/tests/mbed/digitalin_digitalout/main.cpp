@@ -2,8 +2,8 @@
 
 
 #if defined(TARGET_KL25Z)
-DigitalOut out(PTA1);
-DigitalIn   in(PTC7);
+DigitalOut out(PTA5);
+DigitalIn  in(PTC6);
 
 #elif defined(TARGET_KL05Z)
 DigitalOut out(PTB11);

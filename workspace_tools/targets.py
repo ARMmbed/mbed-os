@@ -152,7 +152,7 @@ class STM32F407(Target):
         
         self.extra_labels = ['STM', 'STM32F4XX']
         
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
 
 
 class MBED_MCU(Target):
@@ -184,6 +184,16 @@ class LPC1114(Target):
 		self.extra_labels = ['NXP', 'LPC11XX']
 		
 		self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+class LPC11C24(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['NXP', 'LPC11CXX']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 		
 # Get a single instance for each target
 TARGETS = [
@@ -198,7 +208,8 @@ TARGETS = [
     STM32F407(),
     MBED_MCU(),
     LPC1347(),
-	LPC1114()
+	LPC1114(),
+    LPC11C24()
 ]
 
 # Map each target name to its unique instance

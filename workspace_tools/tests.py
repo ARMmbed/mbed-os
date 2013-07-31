@@ -24,11 +24,11 @@ Wiring:
   
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * LPC1*: (p5   <-> p25 )
-      * KL25Z: (PTA1 <-> PTC7)
+      * KL25Z: (PTA5<-> PTC6)
   
   * port_loop (Port(In|Out|InOut)):
       * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
-      * KL25Z: (PTA1 <-> PTC7), (PTA2 <-> PTC0)
+      * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
   
   * analog_loop (AnalogIn, AnalogOut):
       * LPC1*: (p17   <-> p18 )
@@ -40,6 +40,13 @@ Wiring:
       
   * MMA7660 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
+
+  * i2c_loop:
+      * LPC1768: (p28 <-> p9), (p27 <-> p10)
+
+  * i2c_eeprom:
+      * LPC1*: (SDA=p28 , SCL=p27)
+      * KL25Z: (SDA=PTE0, SCL=PTE1)
 """
 TESTS = [
     # Automated MBED tests
@@ -132,34 +139,55 @@ TESTS = [
         "id": "MBED_A13", "description": "I2C MMA7660",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA7660"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA7660')],
-        "automated": True,
         "peripherals": ["MMA7660"]
     },
     {
         "id": "MBED_A14", "description": "I2C Master",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A15", "description": "I2C Slave",
         "source_dir": join(TEST_DIR, "mbed", "i2c_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A16", "description": "SPI Master",
         "source_dir": join(TEST_DIR, "mbed", "spi_master"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
     {
         "id": "MBED_A17", "description": "SPI Slave",
         "source_dir": join(TEST_DIR, "mbed", "spi_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True
     },
-    
+    {
+        "id": "MBED_A18", "description": "Interrupt vector relocation",
+        "source_dir": join(TEST_DIR, "mbed", "vtor_reloc"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "mcu": ["LPC1768"]
+    },
+    {
+        "id": "MBED_A19", "description": "I2C EEPROM read/write test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "peripherals": ["24LC256"],
+        "automated": True,
+    },
+    {
+        "id": "MBED_A20", "description": "I2C master/slave test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "mcu": ["LPC1768"],
+        "peripherals": ["i2c_loop"]
+    },
+    {
+        "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "interruptin"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "peripherals": ["digital_loop"]
+    },
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -329,23 +357,19 @@ TESTS = [
         "id": "MBED_27", "description": "SPI ADXL345",
         "source_dir": join(TEST_DIR, "mbed", "spi_ADXL345"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'ADXL345')],
-        "automated": True,
         "peripherals": ["ADXL345"]
     },
     {
-        "id": "MBED_28", "description": "I2C EEPROM read/write test",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom"),
+        "id": "MBED_28", "description": "Interrupt chaining (serial)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "serial_interrupt"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
     },
     {
-        "id": "MBED_29", "description": "I2C master/slave test",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "automated": True,
-        "mcu": ["LPC1768"]
+        "id": "MBED_29", "description": "Interrupt chaining (ticker + InterruptManager)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "ticker"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
-   
+ 
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
@@ -526,14 +550,12 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "vodafone", "HTTPClient_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
         "supported": CORTEX_ARM_SUPPORT,
-        "automated": False,
     },
     {
         "id": "VF_2", "description": "USSD & SMS Test",
         "source_dir": join(TEST_DIR, "net", "vodafone", "USSD_SMS_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
         "supported": CORTEX_ARM_SUPPORT,
-        "automated": False,
     },
     
     # USB Tests
@@ -659,6 +681,8 @@ class Test:
         self.__dict__.update(TESTS[n])
     
     def is_supported(self, target, toolchain):
+        if hasattr(self, 'mcu') and not target in self.mcu:
+            return False
         if not hasattr(self, 'supported'):
             return True
         return (target in self.supported) and (toolchain in self.supported[target])
