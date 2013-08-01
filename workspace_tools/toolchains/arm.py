@@ -25,7 +25,7 @@ class ARM(mbedToolchain):
         
         common = [join(ARM_BIN, "armcc"), "-c",
             "--cpu=%s" % cpu, "--gnu",
-            "-Ospace", "--split_sections", "--apcs=interwork",
+            "-O0", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics", "--restrict"
         ]
         

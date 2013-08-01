@@ -125,13 +125,17 @@ inline int i2c_start(i2c_t *obj) {
 
 inline int i2c_stop(i2c_t *obj) {
     // write the stop bit
+	int timeout = 0;
     i2c_conset(obj, 0, 1, 0, 0);
     i2c_clear_SI(obj);
     
     // wait for STO bit to reset
-    while(I2C_CONSET(obj) & (1 << 4));
-	
-	return 0;
+    while(I2C_CONSET(obj) & (1 << 4)) {
+		timeout++;
+		if (timeout>100000) return 1;
+	}
+    
+    return 0;
 }
 
 
@@ -159,7 +163,7 @@ static inline int i2c_do_read(i2c_t *obj, int last) {
     i2c_clear_SI(obj);
     
     // wait for it to arrive
-    i2c_wait_SI(obj);
+    //i2c_wait_SI(obj);
     
     // return the data
     return (I2C_DAT(obj) & 0xFF);
