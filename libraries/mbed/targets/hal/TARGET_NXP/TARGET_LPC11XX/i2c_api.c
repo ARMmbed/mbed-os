@@ -163,7 +163,7 @@ static inline int i2c_do_read(i2c_t *obj, int last) {
     i2c_clear_SI(obj);
     
     // wait for it to arrive
-    //i2c_wait_SI(obj);
+    i2c_wait_SI(obj);
     
     // return the data
     return (I2C_DAT(obj) & 0xFF);
