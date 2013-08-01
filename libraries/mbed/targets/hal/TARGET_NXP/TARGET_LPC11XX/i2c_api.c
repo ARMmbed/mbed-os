@@ -35,8 +35,9 @@ static const PinMap PinMap_I2C_SCL[] = {
 #define I2C_SCLL(x, val)    (x->i2c->SCLL = val)
 #define I2C_SCLH(x, val)    (x->i2c->SCLH = val)
 
-static const uint32_t I2C_addr_offset[4] = {
-    0x0C, 0x20, 0x24, 0x28
+static const uint32_t I2C_addr_offset[2][4] = {
+    {0x0C, 0x20, 0x24, 0x28},
+    {0x30, 0x34, 0x38, 0x3C}
 };
 
 static inline void i2c_conclr(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
@@ -124,14 +125,19 @@ inline int i2c_start(i2c_t *obj) {
 }
 
 inline int i2c_stop(i2c_t *obj) {
+    int timeout = 0;
+
     // write the stop bit
     i2c_conset(obj, 0, 1, 0, 0);
     i2c_clear_SI(obj);
     
     // wait for STO bit to reset
-    while(I2C_CONSET(obj) & (1 << 4));
-	
-	return 0;
+    while(I2C_CONSET(obj) & (1 << 4)) {
+        timeout ++;
+        if (timeout > 100000) return 1;
+    }
+
+    return 0;
 }
 
 
@@ -197,13 +203,13 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_BUS_BUSY;
     }
     
     status = i2c_do_write(obj, (address | 0x01), 1);
     if (status != 0x40) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_NO_SLAVE;
     }
 
     // Read in all except last byte
@@ -212,7 +218,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         status = i2c_status(obj);
         if (status != 0x50) {
             i2c_stop(obj);
-            return status;
+            return count;
         }
         data[count] = (char) value;
     }
@@ -222,7 +228,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     status = i2c_status(obj);
     if (status != 0x58) {
         i2c_stop(obj);
-        return status;
+        return length - 1;
     }
     
     data[count] = (char) value;
@@ -232,7 +238,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
     }
     
-    return 0;
+    return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
@@ -242,31 +248,33 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     if ((status != 0x10) && (status != 0x08)) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_BUS_BUSY;
     }
     
     status = i2c_do_write(obj, (address & 0xFE), 1);
     if (status != 0x18) {
         i2c_stop(obj);
-        return status;
+        return I2C_ERROR_NO_SLAVE;
     }
     
     for (i=0; i<length; i++) {
         status = i2c_do_write(obj, data[i], 0);
         if(status != 0x28) {
             i2c_stop(obj);
-            return status;
+            return i;
         }
     }
     
-    i2c_clear_SI(obj);
+    // clearing the serial interrupt here might cause an unintended rewrite of the last byte
+    // see also issue report https://mbed.org/users/mbed_official/code/mbed/issues/1
+    // i2c_clear_SI(obj);
     
     // If not repeated start, send stop.
     if (stop) {
         i2c_stop(obj);
     }
     
-    return 0;
+    return length;
 }
 
 void i2c_reset(i2c_t *obj) {
@@ -344,7 +352,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     
     i2c_clear_SI(obj);
     
-    return (count - 1);
+    return count;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
@@ -373,7 +381,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     uint32_t addr;
     
     if ((idx >= 0) && (idx <= 3)) {
-        addr = ((uint32_t)obj->i2c) + I2C_addr_offset[idx];
+        addr = ((uint32_t)obj->i2c) + I2C_addr_offset[0][idx];
         *((uint32_t *) addr) = address & 0xFF;
     }
 }
