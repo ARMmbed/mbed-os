@@ -60,7 +60,7 @@ ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 
 # GCC ARM
-GCC_ARM_PATH = "C:\\Program Files (x86)\\GNU Tools ARM Embedded\\4.7 2013q2\\bin"
+GCC_ARM_PATH = "C:/arm-none-eabi-gcc-4_7/bin"
 
 # GCC CodeSourcery
 GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
