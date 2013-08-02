@@ -30,7 +30,7 @@ def setup_test_user_prj():
         mkdir(d)
     
     # Sources
-    print 'Coping sources...'
+    print 'Copying sources...'
     copy_file(join(TEST_DIR, "rtos", "mbed", "basic", "main.cpp"), join(USER_SRC, "main.cpp"))
     copytree(join(LIB_DIR, "rtos"), join(USER_LIB, "rtos"))
     
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     setup_test_user_prj()
     
     for toolchain, target in [
-            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'),
+            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1114'),
             
             ('codered', 'LPC1768'),
             
