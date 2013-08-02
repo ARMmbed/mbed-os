@@ -74,7 +74,7 @@ __HeapBase:
 __HeapLimit:
     .size __HeapLimit, . - __HeapLimit
 
-    .section .isr_vector
+    .section .vector_table,"a",%progbits
     .align 2
     .globl __isr_vector
 __isr_vector:
@@ -100,7 +100,7 @@ __isr_vector:
     .long   DMA1_IRQHandler         /* DMA channel 1 transfer complete interrupt */
     .long   DMA2_IRQHandler         /* DMA channel 2 transfer complete interrupt */
     .long   DMA3_IRQHandler         /* DMA channel 3 transfer complete interrupt */
-    .long   Reserved20_IRQHandler   /* Reserved interrupt 20 */
+    .long   Default_Handler         /* Reserved interrupt 20 */
     .long   FTFA_IRQHandler         /* FTFA interrupt */
     .long   LVD_LVW_IRQHandler      /* Low Voltage Detect, Low Voltage Warning */
     .long   LLW_IRQHandler          /* Low Leakage Wakeup */
@@ -119,19 +119,19 @@ __isr_vector:
     .long   RTC_IRQHandler          /* RTC interrupt */
     .long   RTC_Seconds_IRQHandler  /* RTC seconds interrupt */
     .long   PIT_IRQHandler          /* PIT timer interrupt */
-    .long   Reserved39_IRQHandler   /* Reserved interrupt 39 */
+    .long   Default_Handler         /* Reserved interrupt 39 */
     .long   USB0_IRQHandler         /* USB0 interrupt */
     .long   DAC0_IRQHandler         /* DAC interrupt */
     .long   TSI0_IRQHandler         /* TSI0 interrupt */
     .long   MCG_IRQHandler          /* MCG interrupt */
     .long   LPTimer_IRQHandler      /* LPTimer interrupt */
-    .long   Reserved45_IRQHandler   /* Reserved interrupt 45 */
+    .long   Default_Handler         /* Reserved interrupt 45 */
     .long   PORTA_IRQHandler        /* Port A interrupt */
     .long   PORTD_IRQHandler        /* Port D interrupt */
 
     .size    __isr_vector, . - __isr_vector
 
-    .section .text
+    .section .text.Reset_Handler
     .thumb
     .thumb_func
     .align 2
@@ -187,11 +187,12 @@ Reset_Handler:
     def_default_handler     SVC_Handler
     def_default_handler     PendSV_Handler
     def_default_handler     SysTick_Handler
+    def_default_handler     Default_Handler
+
     def_default_handler     DMA0_IRQHandler
     def_default_handler     DMA1_IRQHandler
     def_default_handler     DMA2_IRQHandler
     def_default_handler     DMA3_IRQHandler
-    def_default_handler     Reserved20_IRQHandler
     def_default_handler     FTFA_IRQHandler
     def_default_handler     LVD_LVW_IRQHandler
     def_default_handler     LLW_IRQHandler
@@ -210,28 +211,26 @@ Reset_Handler:
     def_default_handler     RTC_IRQHandler
     def_default_handler     RTC_Seconds_IRQHandler
     def_default_handler     PIT_IRQHandler
-    def_default_handler     Reserved39_IRQHandler
     def_default_handler     USB0_IRQHandler
     def_default_handler     DAC0_IRQHandler
     def_default_handler     TSI0_IRQHandler
     def_default_handler     MCG_IRQHandler
     def_default_handler     LPTimer_IRQHandler
-    def_default_handler     Reserved45_IRQHandler
     def_default_handler     PORTA_IRQHandler
     def_default_handler     PORTD_IRQHandler
 
-    .weak    DEF_IRQHandler
+    .weak   DEF_IRQHandler
     .set    DEF_IRQHandler, Default_Handler
 
-/* Flash protection region, placed inside isr_vector section */
-    .section .isr_vector
+/* Flash protection region, placed at 0x400 */
+    .text
+    .thumb
     .align 2
-    .org 0x400
-    .globl kinetis_flash_config
+    .section .kinetis_flash_config_field,"a",%progbits
 kinetis_flash_config:
     .long 0xffffffff
     .long 0xffffffff
     .long 0xffffffff
-    .long 0xffffffff
+    .long 0xfffffffe
 
     .end

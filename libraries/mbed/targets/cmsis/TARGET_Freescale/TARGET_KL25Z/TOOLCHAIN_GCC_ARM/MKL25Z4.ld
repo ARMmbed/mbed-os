@@ -4,7 +4,9 @@
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 128K
+  VECTORS	(rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
+  FLASH_PROTECTION	(rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
+  FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 128K - 0x00000410
   RAM (rwx) : ORIGIN = 0x1FFFF000, LENGTH = 16K
 }
 
@@ -41,11 +43,17 @@ SECTIONS
     .isr_vector :
     {
         __vector_table = .;
-        . = ALIGN(4);
-        KEEP(*(.isr_vector))
-         *(.text.SystemInit)
-        . = ALIGN(4);
-    } > FLASH
+        KEEP(*(.vector_table))
+        *(.text.Reset_Handler)
+        *(.text.System_Init)
+         . = ALIGN(4);
+    } > VECTORS
+
+    .flash_protect :
+    {
+        KEEP(*(.kinetis_flash_config_field))
+         . = ALIGN(4);
+    } > FLASH_PROTECTION
 
     .text :
     {
