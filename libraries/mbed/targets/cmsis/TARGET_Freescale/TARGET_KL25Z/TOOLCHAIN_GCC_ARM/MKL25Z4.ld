@@ -4,10 +4,10 @@
 
 MEMORY
 {
-  VECTORS	(rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
+  VECTORS (rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
   FLASH_PROTECTION	(rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
   FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 128K - 0x00000410
-  RAM (rwx) : ORIGIN = 0x1FFFF000, LENGTH = 16K
+  RAM (rwx) : ORIGIN = 0x1FFFF0C0, LENGTH = 16K - 0xC0
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -98,8 +98,6 @@ SECTIONS
     .data : AT (__etext)
     {
         __data_start__ = .;
-        /* vectors come here, shift 0xc0 */
-        . = . + 0xC0;
         *(vtable)
         *(.data*)
 
