@@ -198,7 +198,7 @@ TARGETS = [
     STM32F407(),
     MBED_MCU(),
     LPC1347(),
-	LPC1114()
+    LPC1114()
 ]
 
 # Map each target name to its unique instance
