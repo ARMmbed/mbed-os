@@ -1,8 +1,10 @@
+/*
+ * KL25Z ARM GCC linker script file
+ */
+
 MEMORY
 {
-  VECTORS (rx) : ORIGIN = 0x00000000, LENGTH = 0x000003FE
-  FLASHCFG (rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
-  FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 128K - 0x410
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 128K
   RAM (rwx) : ORIGIN = 0x1FFFF000, LENGTH = 16K
 }
 
@@ -41,15 +43,9 @@ SECTIONS
         __vector_table = .;
         . = ALIGN(4);
         KEEP(*(.isr_vector))
-        *(.text.SystemInit)
+         *(.text.SystemInit)
         . = ALIGN(4);
-    } > VECTORS
-
-    .cfmprotect :
-    {
-        . = ALIGN(4);
-        KEEP(*(.cfmprotect))
-    } > FLASHCFG
+    } > FLASH
 
     .text :
     {

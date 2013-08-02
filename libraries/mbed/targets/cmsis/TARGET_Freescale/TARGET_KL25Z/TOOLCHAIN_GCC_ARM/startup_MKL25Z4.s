@@ -1,4 +1,4 @@
-/* File: startup_ARMCM0.S
+/* KL25Z startup ARM GCC
  * Purpose: startup file for Cortex-M0 devices. Should use with
  *   GCC for ARM Embedded Processors
  * Version: V1.2
@@ -131,15 +131,6 @@ __isr_vector:
 
     .size    __isr_vector, . - __isr_vector
 
-    .section .cfmprotect
-    .align 2
-    .globl kinetis_flash_config
-kinetis_flash_config:
-    .long 0xffffffff
-    .long 0xffffffff
-    .long 0xffffffff
-    .long 0xffffffff
-
     .section .text
     .thumb
     .thumb_func
@@ -231,5 +222,16 @@ Reset_Handler:
 
     .weak    DEF_IRQHandler
     .set    DEF_IRQHandler, Default_Handler
+
+/* Flash protection region, placed inside isr_vector section */
+    .section .isr_vector
+    .align 2
+    .org 0x400
+    .globl kinetis_flash_config
+kinetis_flash_config:
+    .long 0xffffffff
+    .long 0xffffffff
+    .long 0xffffffff
+    .long 0xffffffff
 
     .end
