@@ -98,6 +98,8 @@ SECTIONS
     .data : AT (__etext)
     {
         __data_start__ = .;
+        /* vectors come here, shift 0xc0 */
+        . = . + 0xC0;
         *(vtable)
         *(.data*)
 
