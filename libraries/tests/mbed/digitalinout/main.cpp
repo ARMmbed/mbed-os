@@ -8,6 +8,10 @@ DigitalInOut d2(PTC6);
 DigitalInOut d1(PTB11);
 DigitalInOut d2(PTB1);
 
+#elif defined(TARGET_LPC1114)
+DigitalInOut d1(dp1);
+DigitalInOut d2(dp2);
+
 #else
 DigitalInOut d1(p5);
 DigitalInOut d2(p25);

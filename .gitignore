@@ -36,3 +36,12 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+output.txt
+uVision Project/
+
+# Sublime Text Project Files
+*.sublime*
+
+*.bak
+debug.log

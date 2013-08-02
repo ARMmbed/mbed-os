@@ -18,6 +18,15 @@
 #define P2_2    (1 << 0)  // p2.0 -> p26
 #define PORT_2  Port2
 
+#elif defined(TARGET_LPC1114)
+#define P1_1    (1 <<  9) // p0.9
+#define P1_2    (1 <<  8) // p0.8
+#define PORT_1  Port0
+
+#define P2_1    (1 << 1) // p1.1
+#define P2_2    (1 << 0) // p1.0
+#define PORT_2  Port1
+
 #elif defined(TARGET_KL25Z)
 #define P1_1    (1 << 4)  // PTA4
 #define P1_2    (1 << 5)  // PTA5
