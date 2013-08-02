@@ -187,6 +187,31 @@ typedef enum {
 	dp26 = P0_3,
 	dp27 = P0_4,
 	dp28 = P0_7,
+	
+	dip1  = P0_8,
+	dip2  = P0_9,
+	dip3  = P0_10,
+	dip4  = P0_11,
+	dip5  = P0_5,
+	dip6  = P0_6,
+	dip9  = P1_0,
+	dip10 = P1_1,
+	dip11 = P1_2,
+	dip12 = P1_3,
+	dip13 = P1_4,
+	dip14 = P1_5,
+	dip15 = P1_6,
+	dip16 = P1_7,
+	dip17 = P1_8,
+	dip18 = P1_9,
+	dip23 = P0_0,
+	dip24 = P0_1,
+	dip25 = P0_2,
+	dip26 = P0_3,
+	dip27 = P0_4,
+	dip28 = P0_7,
+	
+	
 
     // Not connected
     NC = (int)0xFFFFFFFF,
