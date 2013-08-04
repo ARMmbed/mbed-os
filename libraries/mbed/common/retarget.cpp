@@ -379,7 +379,7 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     return fs->mkdir(fp.fileName(), mode);
 }
 
-#if defined(TOOLCHAIN_GCC_CR) || defined(TOOLCHAIN_GCC_CS) || defined(TOOLCHAIN_GCC_ARM)
+#if defined(TOOLCHAIN_GCC)
 /* prevents the exception handling name demangling code getting pulled in */
 #include "error.h"
 namespace __gnu_cxx {
