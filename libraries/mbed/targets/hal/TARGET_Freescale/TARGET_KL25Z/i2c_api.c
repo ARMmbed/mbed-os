@@ -84,7 +84,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-
+    
     first_read = 1;
 }
 
@@ -117,12 +117,12 @@ int i2c_stop(i2c_t *obj) {
 
 static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
     uint32_t i, timeout = 1000;
-
+    
     for (i = 0; i < timeout; i++) {
         if (obj->i2c->S & mask)
             return 0;
     }
-
+    
     return 1;
 }
 
@@ -131,14 +131,14 @@ static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
 //    1: OK ack not received
 //    2: failure
 static int i2c_wait_end_tx_transfer(i2c_t *obj) {
-
+    
     // wait for the interrupt flag
     if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
         return 2;
     }
-
+    
     obj->i2c->S |= I2C_S_IICIF_MASK;
-
+    
     // wait transfer complete
     if (timeout_status_poll(obj, I2C_S_TCF_MASK)) {
         return 2;
@@ -156,9 +156,9 @@ static int i2c_wait_end_rx_transfer(i2c_t *obj) {
     if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
         return 1;
     }
-
+    
     obj->i2c->S |= I2C_S_IICIF_MASK;
-
+    
     return 0;
 }
 
@@ -293,33 +293,33 @@ void i2c_reset(i2c_t *obj) {
 
 int i2c_byte_read(i2c_t *obj, int last) {
     char data;
-
+    
     // set rx mode
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
-
+    
     if(first_read) {
         // first dummy read
         i2c_do_read(obj, &data, 0);
         first_read = 0;
     }
-
+    
     if (last) {
         // set tx mode
         obj->i2c->C1 |= I2C_C1_TX_MASK;
         return obj->i2c->D;
     }
-
+        
     i2c_do_read(obj, &data, last);
-
+    
     return data;
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
     first_read = 1;
-
+    
     // set tx mode
     obj->i2c->C1 |= I2C_C1_TX_MASK;
-
+    
     return !i2c_do_write(obj, (data & 0xFF));
 }
 
@@ -340,10 +340,10 @@ int i2c_slave_receive(i2c_t *obj) {
     switch(obj->i2c->S) {
         // read addressed
         case 0xE6: return 1;
-
+        
         // write addressed
         case 0xE2: return 3;
-
+        
         default: return 0;
     }
 }
@@ -351,22 +351,22 @@ int i2c_slave_receive(i2c_t *obj) {
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
     uint8_t dummy_read, count;
     uint8_t * ptr;
-
+    
     // set rx mode
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
-
+    
     // first dummy read
     dummy_read = obj->i2c->D;
     if(i2c_wait_end_rx_transfer(obj)) {
         return 0;
     }
-
+    
     // read address
     dummy_read = obj->i2c->D;
     if(i2c_wait_end_rx_transfer(obj)) {
         return 0;
     }
-
+    
     // read (length - 1) bytes
     for (count = 0; count < (length - 1); count++) {
         data[count] = obj->i2c->D;
@@ -378,32 +378,32 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     // read last byte
     ptr = (length == 0) ? &dummy_read : (uint8_t *)&data[count];
     *ptr = obj->i2c->D;
-
+    
     return (length) ? (count + 1) : 0;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     uint32_t i, count = 0;
-
+    
     // set tx mode
     obj->i2c->C1 |= I2C_C1_TX_MASK;
-
+    
     for (i = 0; i < length; i++) {
         if(i2c_do_write(obj, data[count++]) == 2) {
             return i;
         }
     }
-
+    
     // set rx mode
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
-
+    
     // dummy rx transfer needed
     // otherwise the master cannot generate a stop bit
     obj->i2c->D;
     if(i2c_wait_end_rx_transfer(obj) == 2) {
         return count;
     }
-
+    
     return count;
 }
 
