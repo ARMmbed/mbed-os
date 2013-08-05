@@ -21,9 +21,7 @@
 
 static const PinMap PinMap_ADC[] = {
     {PTE20, ADC0_SE0,  0},
-    {PTE21, ADC0_SE4a, 0},
     {PTE22, ADC0_SE3,  0},
-    {PTE23, ADC0_SE7a, 0},
     {PTE29, ADC0_SE4b, 0},
     {PTE30, ADC0_SE23, 0},
     {PTB0,  ADC0_SE8,  0},
