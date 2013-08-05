@@ -22,6 +22,8 @@
 #include <math.h>
 #include <string.h>
 
+#define CAN_NUM    2
+
 /* Acceptance filter mode in AFMR register */
 #define ACCF_OFF                0x01
 #define ACCF_BYPASS             0x02
@@ -61,6 +63,9 @@ struct CANMsg {
 };
 typedef struct CANMsg CANMsg;
 
+static uint32_t can_irq_ids[CAN_NUM] = {0};
+static can_irq_handler irq_handler;
+
 static uint32_t can_disable(can_t *obj) {
     uint32_t sm = obj->dev->MOD;
     obj->dev->MOD |= 1;
@@ -70,6 +75,96 @@ static uint32_t can_disable(can_t *obj) {
 static inline void can_enable(can_t *obj) {
     if (obj->dev->MOD & 1) {
         obj->dev->MOD &= ~(1);
+    }
+}
+
+static inline void can_irq(uint32_t icr, uint32_t index) {
+    uint32_t i;
+    
+    for(i = 0; i < 8; i++)
+    {
+        if((can_irq_ids[index] != 0) && (icr & (1 << i)))
+        {
+            switch (i) {
+                case 0: irq_handler(can_irq_ids[index], IRQ_RX);      break;
+                case 1: irq_handler(can_irq_ids[index], IRQ_TX);      break;
+                case 2: irq_handler(can_irq_ids[index], IRQ_ERROR);   break;
+                case 3: irq_handler(can_irq_ids[index], IRQ_OVERRUN); break;
+                case 4: irq_handler(can_irq_ids[index], IRQ_WAKEUP);  break;
+                case 5: irq_handler(can_irq_ids[index], IRQ_PASSIVE); break;
+                case 6: irq_handler(can_irq_ids[index], IRQ_ARB);     break;
+                case 7: irq_handler(can_irq_ids[index], IRQ_BUS);     break;
+                case 8: irq_handler(can_irq_ids[index], IRQ_READY);   break;
+            }
+        }
+    }
+}
+
+// Have to check that the CAN block is active before reading the Interrupt
+// Control Register, or the mbed hangs
+void can_irq_n() {
+    uint32_t icr;
+
+    if(LPC_SC->PCONP & (1 << 13)) {
+        icr = LPC_CAN1->ICR & 0x1FF;
+        can_irq(icr, 0);
+    }
+
+    if(LPC_SC->PCONP & (1 << 14)) {
+        icr = LPC_CAN2->ICR & 0x1FF;
+        can_irq(icr, 1);
+    }
+}
+
+// Register CAN object's irq handler
+void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+    irq_handler = handler;
+    can_irq_ids[obj->index] = id;
+}
+
+// Unregister CAN object's irq handler
+void can_irq_free(can_t *obj) {
+    obj->dev->IER &= ~(1);
+    can_irq_ids[obj->index] = 0;
+
+    if ((can_irq_ids[0] == 0) && (can_irq_ids[1] == 0)) {
+        NVIC_DisableIRQ(CAN_IRQn);
+    }
+}
+
+// Clear or set a irq
+void can_irq_set(can_t *obj, can_irq_event event, uint32_t enable) {
+    uint32_t ier;
+    
+    switch (event) {
+        case IRQ_RX:      ier = (1 << 0); break;
+        case IRQ_TX:      ier = (1 << 1); break;
+        case IRQ_ERROR:   ier = (1 << 2); break;
+        case IRQ_OVERRUN: ier = (1 << 3); break;
+        case IRQ_WAKEUP:  ier = (1 << 4); break;
+        case IRQ_PASSIVE: ier = (1 << 5); break;
+        case IRQ_ARB:     ier = (1 << 6); break;
+        case IRQ_BUS:     ier = (1 << 7); break;
+        case IRQ_READY:   ier = (1 << 8); break;
+        default: return;
+    }
+    
+    obj->dev->MOD |= 1;
+    if(enable == 0) {
+        obj->dev->IER &= ~ier;
+    }
+    else {
+        obj->dev->IER |= ier;
+    }
+    obj->dev->MOD &= ~(1);
+    
+    // Enable NVIC if at least 1 interrupt is active
+    if(LPC_CAN1->IER | LPC_CAN2->IER != 0) {
+        NVIC_SetVector(CAN_IRQn, (uint32_t) &can_irq_n);
+        NVIC_EnableIRQ(CAN_IRQn);
+    }
+    else {
+        NVIC_DisableIRQ(CAN_IRQn);
     }
 }
 
@@ -166,7 +261,12 @@ void can_init(can_t *obj, PinName rd, PinName td) {
 
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
-
+    
+    switch ((int)obj->dev) {
+        case CAN_1: obj->index = 0; break;
+        case CAN_2: obj->index = 1; break;
+    }
+    
     can_reset(obj);
     obj->dev->IER = 0;             // Disable Interrupts
     can_frequency(obj, 100000);

@@ -369,6 +369,18 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "ticker"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
+    {
+        "id": "MBED_30", "description": "CAN network test",
+        "source_dir": join(TEST_DIR, "mbed", "can"),
+        "dependencies": [MBED_LIBRARIES],
+        "mcu": ["LPC1768"]
+    },
+    {
+        "id": "MBED_31", "description": "CAN network test using interrupts",
+        "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
+        "dependencies": [MBED_LIBRARIES],
+        "mcu": ["LPC1768"]
+    },	
  
     # CMSIS RTOS tests
     {
