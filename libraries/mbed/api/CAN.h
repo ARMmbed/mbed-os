@@ -150,6 +150,25 @@ public:
      */
     void monitor(bool silent);
 
+    enum Mode {
+        Reset = 0,
+        Normal,
+        Silent,
+        LocalTest,
+        GlobalTest,
+        SilentTest
+    };
+    
+    /** Change CAN operation to the specified mode
+     *
+     *  @param mode The new operation mode (CAN::Normal, CAN::Silent, CAN::LocalTest, CAN::GlobalTest, CAN::SilentTest)
+     *
+     *  @returns
+     *    0 if mode change failed or unsupported,
+     *    1 if mode change was successful     
+     */
+    int mode(Mode mode);
+    
     /** Returns number of read errors to detect read overflow errors.
      */
     unsigned char rderror();
@@ -158,33 +177,45 @@ public:
      */
     unsigned char tderror();
 
+    enum IrqType {
+        RxIrq = 0,
+        TxIrq,
+        EwIrq,
+        DoIrq,
+        WuIrq,
+        EpIrq,
+        AlIrq,
+        BeIrq,
+        IdIrq
+    };
+    
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
-     *  @param event Which can interrupt to attach the member function to (CAN::IRQ_RX, CAN::IRQ_TX, CAN::IRQ_ERROR, CAN::IRQ_OVERRUN, CAN::IRQ_WAKEUP, CAN::IRQ_PASSIVE, CAN::IRQ_ARB, CAN::IRQ_BUS, CAN::IRQ_READY) - Note that not every event is supported by all hardware
+     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(void (*fptr)(void), can_irq_event event=IRQ_RX);
+    void attach(void (*fptr)(void), IrqType type=RxIrq);
 
    /** Attach a member function to call whenever a CAN frame received interrupt
     *  is generated.
     *
     *  @param tptr pointer to the object to call the member function on
     *  @param mptr pointer to the member function to be called
-    *  @param event Which can interrupt to attach the member function to (CAN::IRQ_RX, CAN::IRQ_TX, CAN::IRQ_ERROR, CAN::IRQ_OVERRUN, CAN::IRQ_WAKEUP, CAN::IRQ_PASSIVE, CAN::IRQ_ARB, CAN::IRQ_BUS, CAN::IRQ_READY) - Note that not every event is supported by all hardware
+    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
    template<typename T>
-   void attach(T* tptr, void (T::*mptr)(void), can_irq_event event=IRQ_RX) {
+   void attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
         if((mptr != NULL) && (tptr != NULL)) {
-            _irq[event].attach(tptr, mptr);
-            can_irq_set(&_can, event, 1);
+            _irq[type].attach(tptr, mptr);
+            can_irq_set(&_can, (CanIrqType)type, 1);
         }
         else {
-            can_irq_set(&_can, event, 0);
+            can_irq_set(&_can, (CanIrqType)type, 0);
         }
     }
 
-    static void _irq_handler(uint32_t id, can_irq_event event);
+    static void _irq_handler(uint32_t id, CanIrqType type);
 
 protected:
     can_t           _can;

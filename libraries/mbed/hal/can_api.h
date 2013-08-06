@@ -38,9 +38,19 @@ typedef enum {
     IRQ_ARB,
     IRQ_BUS,
     IRQ_READY
-} can_irq_event;
+} CanIrqType;
 
-typedef void (*can_irq_handler)(uint32_t id, can_irq_event event);
+
+typedef enum {
+    MODE_RESET,
+    MODE_NORMAL,
+    MODE_SILENT,
+    MODE_TEST_GLOBAL,
+    MODE_TEST_LOCAL,
+    MODE_TEST_SILENT
+} CanMode;
+
+typedef void (*can_irq_handler)(uint32_t id, CanIrqType type);
 
 typedef struct can_s can_t;
 
@@ -50,10 +60,11 @@ int           can_frequency(can_t *obj, int hz);
 
 void          can_irq_init (can_t *obj, can_irq_handler handler, uint32_t id);
 void          can_irq_free (can_t *obj);
-void          can_irq_set  (can_t *obj, can_irq_event irq, uint32_t enable);
+void          can_irq_set  (can_t *obj, CanIrqType irq, uint32_t enable);
 
 int           can_write    (can_t *obj, CAN_Message, int cc);
 int           can_read     (can_t *obj, CAN_Message *msg);
+int           can_mode     (can_t *obj, CanMode mode);
 void          can_reset    (can_t *obj);
 unsigned char can_rderror  (can_t *obj);
 unsigned char can_tderror  (can_t *obj);

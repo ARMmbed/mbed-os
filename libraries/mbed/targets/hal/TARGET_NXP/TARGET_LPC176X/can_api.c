@@ -78,6 +78,11 @@ static inline void can_enable(can_t *obj) {
     }
 }
 
+int can_mode(can_t *obj, CanMode mode)
+{
+    return 0; // not implemented
+}
+
 static inline void can_irq(uint32_t icr, uint32_t index) {
     uint32_t i;
     
@@ -133,10 +138,10 @@ void can_irq_free(can_t *obj) {
 }
 
 // Clear or set a irq
-void can_irq_set(can_t *obj, can_irq_event event, uint32_t enable) {
+void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
     uint32_t ier;
     
-    switch (event) {
+    switch (type) {
         case IRQ_RX:      ier = (1 << 0); break;
         case IRQ_TX:      ier = (1 << 1); break;
         case IRQ_ERROR:   ier = (1 << 2); break;

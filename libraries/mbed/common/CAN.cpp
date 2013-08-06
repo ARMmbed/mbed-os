@@ -59,19 +59,23 @@ void CAN::monitor(bool silent) {
     can_monitor(&_can, (silent) ? 1 : 0);
 }
 
-void CAN::attach(void (*fptr)(void), can_irq_event event) {
-    if (fptr) {
-        _irq[event].attach(fptr);
-        can_irq_set(&_can, event, 1);
-    } else {
-        can_irq_set(&_can, event, 0);
-    }
+int CAN::mode(Mode mode) {
+    return can_mode(&_can, (CanMode)mode);
 }
 
-void CAN::_irq_handler(uint32_t id, can_irq_event event) {
-    CAN *handler = (CAN*)id;
-    handler->_irq[event].call();
-}
+    void CAN::attach(void (*fptr)(void), IrqType type) {
+        if (fptr) {
+            _irq[(CanIrqType)type].attach(fptr);
+            can_irq_set(&_can, (CanIrqType)type, 1);
+        } else {
+            can_irq_set(&_can, (CanIrqType)type, 0);
+        }
+    }
+
+    void CAN::_irq_handler(uint32_t id, CanIrqType type) {
+        CAN *handler = (CAN*)id;
+        handler->_irq[type].call();
+    }
 
 } // namespace mbed
 
