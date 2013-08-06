@@ -52,12 +52,15 @@ typedef enum {
     PWM_10 = (2 << TPM_SHIFT) | (1)   // TPM2 CH1
 } PWMName;
 
+#define CHANNELS_A_SHIFT 5
 typedef enum {
     ADC0_SE0  =  0,
     ADC0_SE3  =  3,
+    ADC0_SE4a =  (1 << CHANNELS_A_SHIFT) | (4),
     ADC0_SE4b =  4,
     ADC0_SE5b =  5,
     ADC0_SE6b =  6,
+    ADC0_SE7a =  (1 << CHANNELS_A_SHIFT) | (7),
     ADC0_SE7b =  7,
     ADC0_SE8  =  8,
     ADC0_SE9  =  9,
