@@ -31,7 +31,7 @@ int main() {
     CANMessage msg;
     while(1) {
         printf("loop()\n");
-        if(can1.read(msg)) {
+        if(can2.read(msg)) {
             printmsg("Rx message:", &msg);
             led2 = !led2;
         }
