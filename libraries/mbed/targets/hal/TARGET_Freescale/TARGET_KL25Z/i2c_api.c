@@ -25,6 +25,9 @@ static const PinMap PinMap_I2C_SDA[] = {
     {PTE0,  I2C_1, 6},
     {PTB1,  I2C_0, 2},
     {PTB3,  I2C_0, 2},
+    {PTC11, I2C_1, 2},
+    {PTC2,  I2C_1, 2},
+    {PTA4,  I2C_1, 2},
     {NC  ,  NC   , 0}
 };
 
@@ -34,6 +37,8 @@ static const PinMap PinMap_I2C_SCL[] = {
     {PTE1,  I2C_1, 6},
     {PTB0,  I2C_0, 2},
     {PTB2,  I2C_0, 2},
+    {PTC10, I2C_1, 2},
+    {PTC1,  I2C_1, 2},
     {NC  ,  NC,    0}
 };
 

@@ -28,19 +28,27 @@
  * INITIALIZATION
  ******************************************************************************/
 static const PinMap PinMap_UART_TX[] = {
-    {PTC4, UART_1, 3},
-    {PTA2, UART_0, 2},
-    {PTD5, UART_2, 3},
-    {PTD3, UART_2, 3},
-    {NC  , NC    , 0}
+    {PTC4,  UART_1, 3},
+    {PTA2,  UART_0, 2},
+    {PTD5,  UART_2, 3},
+    {PTD3,  UART_2, 3},
+    {PTD7,  UART_0, 3},
+    {PTE20, UART_0, 4},
+    {PTE22, UART_2, 4},
+    {PTE0,  UART_1, 3},
+    {NC  ,  NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PTC3, UART_1, 3},
-    {PTA1, UART_0, 2},
-    {PTD4, UART_2, 3},
-    {PTD2, UART_2, 3},
-    {NC  , NC    , 0}
+    {PTC3,  UART_1, 3},
+    {PTA1,  UART_0, 2},
+    {PTD4,  UART_2, 3},
+    {PTD2,  UART_2, 3},
+    {PTD6,  UART_0, 3},
+    {PTE23, UART_2, 4},
+    {PTE21, UART_0, 4},
+    {PTE1,  UART_1, 3},
+    {NC  ,  NC    , 0}
 };
 
 #define UART_NUM    3
