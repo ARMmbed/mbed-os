@@ -150,6 +150,25 @@ public:
      */
     void monitor(bool silent);
 
+    enum Mode {
+        Reset = 0,
+        Normal,
+        Silent,
+        LocalTest,
+        GlobalTest,
+        SilentTest
+    };
+    
+    /** Change CAN operation to the specified mode
+     *
+     *  @param mode The new operation mode (CAN::Normal, CAN::Silent, CAN::LocalTest, CAN::GlobalTest, CAN::SilentTest)
+     *
+     *  @returns
+     *    0 if mode change failed or unsupported,
+     *    1 if mode change was successful     
+     */
+    int mode(Mode mode);
+    
     /** Returns number of read errors to detect read overflow errors.
      */
     unsigned char rderror();
@@ -158,35 +177,49 @@ public:
      */
     unsigned char tderror();
 
+    enum IrqType {
+        RxIrq = 0,
+        TxIrq,
+        EwIrq,
+        DoIrq,
+        WuIrq,
+        EpIrq,
+        AlIrq,
+        BeIrq,
+        IdIrq
+    };
+    
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
+     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(void (*fptr)(void));
+    void attach(void (*fptr)(void), IrqType type=RxIrq);
 
    /** Attach a member function to call whenever a CAN frame received interrupt
     *  is generated.
     *
     *  @param tptr pointer to the object to call the member function on
     *  @param mptr pointer to the member function to be called
+    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
    template<typename T>
-   void attach(T* tptr, void (T::*mptr)(void)) {
+   void attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
         if((mptr != NULL) && (tptr != NULL)) {
-            _rxirq.attach(tptr, mptr);
-            setup_interrupt();
-        } else {
-            remove_interrupt();
+            _irq[type].attach(tptr, mptr);
+            can_irq_set(&_can, (CanIrqType)type, 1);
+        }
+        else {
+            can_irq_set(&_can, (CanIrqType)type, 0);
         }
     }
 
-private:
-    can_t _can;
-    FunctionPointer _rxirq;
+    static void _irq_handler(uint32_t id, CanIrqType type);
 
-    void setup_interrupt(void);
-    void remove_interrupt(void);
+protected:
+    can_t           _can;
+    FunctionPointer _irq[9];
 };
 
 } // namespace mbed
