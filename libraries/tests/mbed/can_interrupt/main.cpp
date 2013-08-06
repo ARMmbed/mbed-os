@@ -28,7 +28,7 @@ void send() {
 void read() {
     CANMessage msg;
     printf("rx()\n");
-    if(can1.read(msg)) {
+    if(can2.read(msg)) {
         printmsg("Rx message:", &msg);
         led2 = !led2;
     }
@@ -37,7 +37,7 @@ void read() {
 int main() {
     printf("main()\n");
     ticker.attach(&send, 1);
-    can1.attach(&read);
+    can2.attach(&read);
     while(1) {
         printf("loop()\n");
         wait(1);
