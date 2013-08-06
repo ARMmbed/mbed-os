@@ -26,21 +26,19 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
-    uint32_t port;
-    uint32_t pin;
     uint32_t ch;
+    PinName pin;
+    __I  uint32_t *reg_mask_read;
 };
 
 struct port_s {
     __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_out;
-    __I  uint32_t *reg_in;
+    __IO uint32_t *reg_data;
     PortName port;
     uint32_t mask;
 };
 
 struct pwmout_s {
-    __IO uint32_t *MR;
     PWMName pwm;
 };
 
@@ -51,15 +49,6 @@ struct serial_s {
 
 struct analogin_s {
     ADCName adc;
-};
-
-struct dac_s {
-    DACName dac;
-};
-
-struct can_s {
-    LPC_CAN_TypeDef *dev;
-    int index;
 };
 
 struct i2c_s {

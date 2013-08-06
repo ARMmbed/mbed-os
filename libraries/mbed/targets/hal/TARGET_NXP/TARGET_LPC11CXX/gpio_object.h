@@ -13,64 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
-
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_irq_s {
-    uint32_t port;
-    uint32_t pin;
-    uint32_t ch;
-};
-
-struct port_s {
+typedef struct {
+    PinName  pin;
+    __I  uint32_t *reg_mask_read;
     __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_out;
-    __I  uint32_t *reg_in;
-    PortName port;
-    uint32_t mask;
-};
+    __IO uint32_t *reg_write;
+} gpio_t;
 
-struct pwmout_s {
-    __IO uint32_t *MR;
-    PWMName pwm;
-};
+static inline void gpio_write(gpio_t *obj, int value) {
+    uint32_t pin_number = ((obj->pin & 0x0F00) >> 8);
+    if (value)
+        *obj->reg_write |= (1 << pin_number);
+    else
+        *obj->reg_write &= ~(1 << pin_number);
+}
 
-struct serial_s {
-    LPC_UART_TypeDef *uart;
-    int index;
-};
-
-struct analogin_s {
-    ADCName adc;
-};
-
-struct dac_s {
-    DACName dac;
-};
-
-struct can_s {
-    LPC_CAN_TypeDef *dev;
-    int index;
-};
-
-struct i2c_s {
-    LPC_I2C_TypeDef *i2c;
-};
-
-struct spi_s {
-    LPC_SSP_TypeDef *spi;
-};
-
-#include "gpio_object.h"
+static inline int gpio_read(gpio_t *obj) {
+    return ((*obj->reg_mask_read) ? 1 : 0);
+}
 
 #ifdef __cplusplus
 }

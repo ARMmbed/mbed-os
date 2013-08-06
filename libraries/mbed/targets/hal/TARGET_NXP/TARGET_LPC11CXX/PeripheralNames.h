@@ -13,64 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_irq_s {
-    uint32_t port;
-    uint32_t pin;
-    uint32_t ch;
-};
+typedef enum {
+    UART_0 = (int)LPC_UART_BASE
+} UARTName;
 
-struct port_s {
-    __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_out;
-    __I  uint32_t *reg_in;
-    PortName port;
-    uint32_t mask;
-};
+typedef enum {
+    I2C_0 = (int)LPC_I2C_BASE
+} I2CName;
 
-struct pwmout_s {
-    __IO uint32_t *MR;
-    PWMName pwm;
-};
+typedef enum {
+    ADC0_0 = 0,
+    ADC0_1,
+    ADC0_2,
+    ADC0_3,
+    ADC0_4,
+    ADC0_5,
+    ADC0_6,
+    ADC0_7
+} ADCName;
 
-struct serial_s {
-    LPC_UART_TypeDef *uart;
-    int index;
-};
+typedef enum {
+    SPI_0 = (int)LPC_SSP0_BASE,
+    SPI_1 = (int)LPC_SSP1_BASE
+} SPIName;
 
-struct analogin_s {
-    ADCName adc;
-};
+typedef enum {
+    PWM_1 = 0,
+    PWM_2,
+    PWM_3,
+    PWM_4,
+    PWM_5,
+    PWM_6,
+    PWM_7,
+    PWM_8,
+    PWM_9,
+    PWM_10,
+    PWM_11
+} PWMName;
 
-struct dac_s {
-    DACName dac;
-};
-
-struct can_s {
-    LPC_CAN_TypeDef *dev;
-    int index;
-};
-
-struct i2c_s {
-    LPC_I2C_TypeDef *i2c;
-};
-
-struct spi_s {
-    LPC_SSP_TypeDef *spi;
-};
-
-#include "gpio_object.h"
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
+#define STDIO_UART        UART_0
 
 #ifdef __cplusplus
 }
