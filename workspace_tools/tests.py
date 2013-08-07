@@ -687,6 +687,24 @@ TESTS = [
     },
 ]
 
+# Group tests with the same goals into categories
+GROUPS = {
+    "core": ["MBED_A1", "MBED_A2", "MBED_A3", "MBED_A18"],
+    "digital_io": ["MBED_A5", "MBED_A6", "MBED_A7", "MBED_A10", "MBED_A11"],
+    "analog_io": ["MBED_A8"],
+    "i2c": ["MBED_A19", "MBED_A20"],
+    "spi": ["MBED_A12"],
+}
+GROUPS["rtos"] = [test["id"] for test in TESTS if test["id"].startswith("RTOS_")]
+GROUPS["net"] = [test["id"] for test in TESTS if test["id"].startswith("NET_")]
+# Look for 'TEST_GROUPS' in private_settings.py and update the GROUPS dictionary
+# with the information in test_groups if found
+try:
+    from workspace_tools.private_settings import TEST_GROUPS
+except:
+    TEST_GROUPS = {}
+GROUPS.update(TEST_GROUPS)
+
 class Test:
     DEFAULTS = {
         'dependencies': None,

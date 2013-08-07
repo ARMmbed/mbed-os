@@ -24,7 +24,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
 
 from workspace_tools.build_api import build_project, build_mbed_libs
-from workspace_tools.tests import TEST_MAP
+from workspace_tools.tests import TEST_MAP, GROUPS
 from workspace_tools.client import request_test, get_muts
 from workspace_tools.settings import *
 from workspace_tools.paths import BUILD_DIR
@@ -83,8 +83,17 @@ if __name__ == "__main__":
     f = open(test_spec_file)
     test_spec = json.load(f)
     clean = test_spec.get('clean', False)
-    test_ids = test_spec.get('test_ids', None)
-    
+    test_ids = test_spec.get('test_ids', [])
+    groups = test_spec.get('test_groups', [])
+    for group in groups:
+        tests = GROUPS.get(group, [])
+        if not tests:
+            print "WARNING: test group '%s' not found." % group
+            continue
+        for test in tests:
+            if not test in test_ids:
+                test_ids.append(test)
+
     # Test Server
     test_server = TestServer()
     
@@ -109,7 +118,7 @@ if __name__ == "__main__":
             build_dir = join(BUILD_DIR, "test", target, toolchain)
             
             for test_id, test in TEST_MAP.iteritems():
-                if test_ids is not None and test_id not in test_ids:
+                if test_ids and test_id not in test_ids:
                     continue
                 
                 if test.automated and test.is_supported(target, toolchain):
