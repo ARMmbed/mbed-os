@@ -22,46 +22,54 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PTE2,  SPI_1, 2},
+    {PTA15, SPI_0, 2},
+    {PTB11, SPI_1, 2},
     {PTC5,  SPI_0, 2},
     {PTD1,  SPI_0, 2},
-    {PTB11, SPI_1, 2},
     {PTD5,  SPI_1, 2},
+    {PTE2,  SPI_1, 2},
     {NC  ,  NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PTE1, SPI_1, 2},
-    {PTC6, SPI_0, 2},
-    {PTD2, SPI_0, 2},
-    {PTE3, SPI_1, 2},
-    {PTD7, SPI_1, 5},
-    {PTC7, SPI_0, 5},
-    {PTD3, SPI_0, 5},
-    {PTD6, SPI_1, 2},
-    {NC  , NC   , 0}
+    {PTA16, SPI_0, 2},
+    {PTA17, SPI_0, 5},
+    {PTB16, SPI_1, 2},
+    {PTB17, SPI_1, 5},
+    {PTC6,  SPI_0, 2},
+    {PTC7,  SPI_0, 5},
+    {PTD2,  SPI_0, 2},
+    {PTD3,  SPI_0, 5},
+    {PTD6,  SPI_1, 2},
+    {PTD7,  SPI_1, 5},
+    {PTE1,  SPI_1, 2},
+    {PTE3,  SPI_1, 5},
+    {NC  ,  NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PTE3,  SPI_1, 2},
-    {PTC7,  SPI_0, 2},
-    {PTD3,  SPI_0, 2},
-    {PTE1,  SPI_1, 5},
     {PTA16, SPI_0, 5},
-    {PTA17, SPI_0, 5},
-    {PTC5,  SPI_0, 5},
+    {PTA17, SPI_0, 2},
+    {PTB16, SPI_1, 5},
+    {PTB17, SPI_1, 2},
+    {PTC6,  SPI_0, 5},
+    {PTC7,  SPI_0, 2},
     {PTD2,  SPI_0, 5},
+    {PTD3,  SPI_0, 2},
     {PTD6,  SPI_1, 5},
     {PTD7,  SPI_1, 2},
+    {PTE1,  SPI_1, 5},
+    {PTE3,  SPI_1, 2},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PTE4,  SPI_1, 2},
+    {PTA14, SPI_0, 2},
+    {PTB10, SPI_1, 2},
     {PTC4,  SPI_0, 2},
     {PTD0,  SPI_0, 2},
-    {PTB10, SPI_1, 2},
     {PTD4,  SPI_1, 2},
+    {PTE4,  SPI_1, 2},
     {NC  ,  NC   , 0}
 };
 
