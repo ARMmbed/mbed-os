@@ -345,7 +345,7 @@ typedef struct
   __IO uint32_t PC;                     /*!< Offset: 0x010 Prescale Counter Register (R/W) */
   __IO uint32_t MCR;                    /*!< Offset: 0x014 Match Control Register (R/W) */
   union {
-  __IO uint32_t MR[4];                      /*!< (@ 0x40014018) Match Register */
+  __IO uint32_t MR[4];                  /*!< Offset: Match Register base */
   struct{
   __IO uint32_t MR0;                    /*!< Offset: 0x018 Match Register 0 (R/W) */
   __IO uint32_t MR1;                    /*!< Offset: 0x01C Match Register 1 (R/W) */
