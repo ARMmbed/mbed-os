@@ -229,10 +229,10 @@ EXP_FUNC void STDCALL ssl_ctx_free(SSL_CTX *ssl_ctx)
 #endif
 
     i = 0;
-    while (i < CONFIG_SSL_MAX_CERTS && ssl_ctx->certs[i].buf)
+    //while (i < CONFIG_SSL_MAX_CERTS && ssl_ctx->certs[i].buf)
     {
-        free(ssl_ctx->certs[i].buf);
-        ssl_ctx->certs[i++].buf = NULL;
+        //free(ssl_ctx->certs[i].buf);
+        //ssl_ctx->certs[i++].buf = NULL;
     }
 
 #ifdef CONFIG_SSL_CERT_VERIFICATION
@@ -351,8 +351,7 @@ int add_cert(SSL_CTX *ssl_ctx, const uint8_t *buf, int len)
 
     ssl_cert = &ssl_ctx->certs[i];
     ssl_cert->size = len;
-    ssl_cert->buf = (uint8_t *)malloc(len);
-    memcpy(ssl_cert->buf, buf, len);
+    ssl_cert->buf = buf;
     ssl_ctx->chain_length++;
     len -= offset;
     ret = SSL_OK;           /* ok so far */
@@ -553,6 +552,7 @@ SSL *ssl_new(SSL *ssl, int client_fd)
     ssl->client_fd = 0;
     ssl->flag = SSL_NEED_RECORD;
     ssl->bm_data = ssl->bm_all_data + BM_RECORD_OFFSET; 
+    ssl->bm_read_index = 0;
     ssl->hs_status = SSL_NOT_OK;            /* not connected */
 #ifdef CONFIG_ENABLE_VERIFICATION
     ssl->ca_cert_ctx = ssl_ctx->ca_cert_ctx;
@@ -981,7 +981,14 @@ static int send_raw_packet(SSL *ssl, uint8_t protocol)
             
         }
     }
+    fd_set wfds;
+    FD_ZERO(&wfds);
+    FD_SET(ssl->client_fd, &wfds);
     
+    /* block and wait for it */
+    if (lwip_select(FD_SETSIZE, NULL, &wfds, NULL, NULL) < 0)
+        return SSL_ERROR_CONN_LOST;
+            
     SET_SSL_FLAG(SSL_NEED_RECORD);  /* reset for next time */
     ssl->bm_index = 0;
 
@@ -1186,6 +1193,7 @@ static int set_key_block(SSL *ssl, int is_write)
   */
 int basic_read2(SSL *ssl, uint8_t *data, uint32_t length)
 {
+   // printf("basic_read2\n");
     if(data == NULL)
         return -1;
 
@@ -1193,6 +1201,7 @@ int basic_read2(SSL *ssl, uint8_t *data, uint32_t length)
     
     do
     {
+        //printf("before_lwip_select\n");
         fd_set rfds;
         FD_ZERO(&rfds);
         FD_SET(ssl->client_fd, &rfds);
@@ -1200,9 +1209,11 @@ int basic_read2(SSL *ssl, uint8_t *data, uint32_t length)
         /* block and wait for it */
         if (lwip_select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0)
             return SSL_ERROR_CONN_LOST;
-                
+      //  printf("after_lwip_select\n");
+
         int read_len = SOCKET_READ(ssl->client_fd, &data[ret], length-ret);
-        
+      //  printf("read_len = %d\n", read_len);
+
         if (read_len < 0) 
         {
     
@@ -1270,17 +1281,11 @@ int read_record(SSL *ssl)
     }
 
     ssl->need_bytes = (record[3] << 8) + record[4];
-    printf("ssl->need_byte=%d\n", ssl->need_bytes);
-    /* do we violate the spec with the message size?  */
-    if (ssl->need_bytes > 4*(RT_MAX_PLAIN_LENGTH+RT_EXTRA-BM_RECORD_OFFSET))
-    {
-        return SSL_ERROR_INVALID_PROT_MSG;              
-    }
+
 
     memcpy(ssl->hmac_header, record, 3);       /* store for hmac */
     ssl->record_type = record[0];
     CLR_SSL_FLAG(SSL_NEED_RECORD);
-    ssl->bm_index = 0;
     return SSL_OK;
 }
 
@@ -1316,11 +1321,12 @@ int ssl_read(SSL *ssl, uint8_t *in_data, int len)
 {
     if(len <= 0 || in_data == NULL)
         return 0;
-        
-    if(ssl->bm_index == 0)
+   
+    if(IS_SET_SSL_FLAG(SSL_NEED_RECORD))
     {
         read_record(ssl);
     }
+   
     return process_data(ssl, in_data, len);
 }
 
@@ -1375,56 +1381,44 @@ int process_data(SSL* ssl, uint8_t *in_data, int len)
                 return 0;
             if (in_data)
             {
+                uint16_t index = ssl->bm_index % 2048;
                 if(ssl->bm_read_index == 0)
                 {
-                    int read_len = ssl->need_bytes - ssl->bm_index;
-                    if(read_len > 4096-ssl->bm_index)
-                        read_len = 4096-ssl->bm_index;
-                    if(len < read_len)
-                        read_len = len - (len % AES_BLOCKSIZE);
+                    int read_len = len;
+                    if(read_len > 2048-index)
+                        read_len = 2048-index;
+                    if(read_len > ssl->need_bytes)
+                        read_len = ssl->need_bytes;
+                    read_len -= read_len % AES_BLOCKSIZE;
 
                     if(read_len <= 0)
                         read_len = AES_BLOCKSIZE;
-                    printf("read_len=%d\n", read_len);
-                    int ret = basic_read2(ssl, ssl->bm_all_data + ssl->bm_index, read_len);
+                    if(ssl->need_bytes < AES_BLOCKSIZE)
+                        read_len = AES_BLOCKSIZE;
+                    int ret = basic_read2(ssl, ssl->bm_all_data + index, read_len);
                     if(ret != read_len)
                         return 0;
-
-                    ssl->bm_read_index = basic_decrypt(ssl, ssl->bm_all_data + ssl->bm_index, read_len);
+                    
+                    ssl->bm_read_index = basic_decrypt(ssl, ssl->bm_all_data + index, read_len);
+                    ssl->need_bytes -= ssl->bm_read_index;
+                    if(ssl->need_bytes == 0)
+                    {
+                        ssl->bm_read_index = 0;
+                        SET_SSL_FLAG(SSL_NEED_RECORD);
+                        return ssl_read(ssl, in_data, len);
+                    }
                 }
                 if(len > ssl->bm_read_index)
                     len = ssl->bm_read_index;
-
-                memcpy(in_data, ssl->bm_all_data+ssl->bm_index, len);
+                memcpy(in_data, ssl->bm_all_data+index, len);
                 ssl->bm_index += len;
                 ssl->bm_read_index -= len;
                 
-                if(ssl->bm_index >= 4096)
+                if(ssl->need_bytes == 0)
+                    SET_SSL_FLAG(SSL_NEED_RECORD);
+                if(ssl->bm_index >= 2048)
                     ssl->bm_index = 0;
                 return len;
-
-                /*
-                int read_len = ssl->need_bytes;
-                if(len < ssl->need_bytes)
-                    read_len = len - (len % AES_BLOCKSIZE);
-                if(read_len <= 0)
-                    return 0;
-                int ret = basic_read2(ssl, in_data, read_len);
-                
-                if(ret != read_len)
-                    return 0;
-                ssl->bm_index += ret;
-                if(ssl->bm_index >= ssl->need_bytes)
-                {
-                    ssl->need_bytes = 0;
-                    SET_SSL_FLAG(SSL_NEED_RECORD);
-                }
-                ret = basic_decrypt(ssl, in_data, read_len);
-                
-                if(ret < 0)
-                    return 0;
-                return ret;
-                */
             }
             return 0;
             

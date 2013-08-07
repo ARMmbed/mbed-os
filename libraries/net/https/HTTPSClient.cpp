@@ -36,7 +36,7 @@ int HTTPSClient::connect(const char* host) {
         return -1;
     }
 
-    if(ssl_ctx_new(&_ssl_ctx, SSL_SERVER_VERIFY_LATER|SSL_DISPLAY_BYTES|SSL_DISPLAY_STATES, SSL_DEFAULT_CLNT_SESS) != &_ssl_ctx)
+    if(ssl_ctx_new(&_ssl_ctx, SSL_SERVER_VERIFY_LATER, SSL_DEFAULT_CLNT_SESS) != &_ssl_ctx)
         return -1;
 
     _ssl.ssl_ctx = &_ssl_ctx;
@@ -75,7 +75,7 @@ HTTPHeader HTTPSClient::get(char *request)
     if((_sock_fd < 0) || !_is_connected)
         return HTTPHeader();
         
-    sprintf(buf, "GET %s HTTP/1.1\r\nHost: %s:%d\r\n\r\n", request, _host.c_str(), get_port());
+    sprintf(buf, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", request, _host.c_str());
     printf("buf=%s\n", buf);
     if(send(buf, strlen(buf)) != strlen(buf))
         return HTTPHeader();
@@ -87,9 +87,10 @@ HTTPHeader HTTPSClient::get(char *request)
 HTTPHeader HTTPSClient::read_header()
 {
     _ssl.bm_read_index = 0;
-    
+    _ssl.bm_index = 0;
     HTTPHeader hdr;
-    read_line();
+    if(read_line())
+        return hdr;
     
     int status;
     
@@ -98,36 +99,37 @@ HTTPHeader HTTPSClient::read_header()
     
     if(status == 200)
         hdr._status = HTTP_OK;
-    printf("status=%d\n", status);
-    read_line();
+   if(read_line())
+        return hdr;
     do
     {
-        string name, value;
-        int ret = sscanf(buf, "%s:%s", name, value); 
-        printf("sscanf return=%d\n", ret);
-        printf("name=%s\n", name);
-        printf("value=%s\n", value);
+        string tmp(buf);
+        std::size_t sep = tmp.find(':');
+        string name = tmp.substr(0, sep);
+        string value = tmp.substr(sep+2, tmp.size());
         hdr._fields[name] = value;
-        read_line();
-        printf("strlen(buf)=%d\n", strlen(buf));
+        if(read_line())
+            return hdr;
     }while(strlen(buf));
     
     return hdr;
 }
 
-void HTTPSClient::read_line()
+uint8_t HTTPSClient::read_line()
 {
     int index = 0;
     do
     {
-        if(ssl_read(&_ssl, (uint8_t*)(&buf[index]), 1))
+        if(ssl_read(&_ssl, (uint8_t*)(&buf[index]), 1) != 1)
         {
-            // error
+            return 1;
         }
-        
-    }while(buf[index++] != '\n' && index < 255);
+        index++;
+    }while(buf[index-1] != '\r' && index < 256);
+    ssl_read(&_ssl, (uint8_t*)(&buf[index-1]), 1);  // skip '\n'
     buf[index-1] = '\0';
-    printf("line=%s\n", buf);
+    
+    return 0;
 }
 
 // -1:error

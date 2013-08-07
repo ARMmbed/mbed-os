@@ -93,7 +93,7 @@ static void add_entry(void *x, size_t s, const char* f, const int l)
         if(memory_buf[i] == -1)
         {
             if(enable)
-                printf("new ptr:%X, size:%d at %s:%d", x, s, f, l); 
+                printf("new ptr:%X, size:%d at %s:%d\n", x, s, f, l); 
             memory_buf[i] = (int)(x);
             memory_buf[i+1] = s;
             return;

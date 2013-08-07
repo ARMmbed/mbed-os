@@ -432,10 +432,10 @@ int load_key_certs(SSL_CTX *ssl_ctx)
     else if (!(options & SSL_NO_DEFAULT_KEY))
     {
 #if defined(CONFIG_SSL_USE_DEFAULT_KEY) || defined(CONFIG_SSL_SKELETON_MODE)
- //       static const    /* saves a few more bytes */
+//        static const    /* saves a few more bytes */
 //#include "private_key.h"
-      //  ssl_obj_memory_load(ssl_ctx, SSL_OBJ_RSA_KEY, default_private_key,
-         //       default_private_key_len, NULL); 
+//       ssl_obj_memory_load(ssl_ctx, SSL_OBJ_RSA_KEY, default_private_key,
+  //              default_private_key_len, NULL); 
 #endif
     }
 

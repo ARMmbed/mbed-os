@@ -76,7 +76,7 @@ extern "C" {
 #define IS_SET_SSL_FLAG(A)          (ssl->flag & A)
 
 #define MAX_KEY_BYTE_SIZE           512     /* for a 4096 bit key */
-#define RT_MAX_PLAIN_LENGTH         4096//16384
+#define RT_MAX_PLAIN_LENGTH         2048//16384
 #define RT_EXTRA                    512//1024
 #define BM_RECORD_OFFSET            5
 #define BM_ALL_DATA_SIZE            (RT_MAX_PLAIN_LENGTH+RT_EXTRA-BM_RECORD_OFFSET)

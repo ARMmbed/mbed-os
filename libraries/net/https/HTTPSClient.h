@@ -44,7 +44,7 @@ private:
 
     int send(char* data, int length);
     
-    void read_line();
+    uint8_t read_line();
     HTTPHeader read_header();
 
     bool _is_connected;
