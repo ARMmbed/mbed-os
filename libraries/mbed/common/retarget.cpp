@@ -393,3 +393,35 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 }
 
 #endif
+
+// ****************************************************************************
+// mbed_main is a function that is called before main()
+
+extern "C" WEAK void mbed_main(void);
+extern "C" WEAK void mbed_main(void) {
+}
+
+#if defined(TOOLCHAIN_ARM)
+extern "C" int $Super$$main(void);
+
+extern "C" int $Sub$$main(void) {
+    mbed_main();
+    return $Super$$main();
+}
+#elif defined(TOOLCHAIN_GCC)
+extern "C" int __real_main(void);
+
+extern "C" int __wrap_main(void) {
+    mbed_main();
+    return __real_main();
+}
+#elif defined(TOOLCHAIN_IAR)
+// IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
+// to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
+// 'main' to another symbol looses the original 'main' symbol. However, its startup
+// code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
+// Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
+extern "C" void __iar_argc_argv() {
+    mbed_main();
+}
+#endif
