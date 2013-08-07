@@ -7,6 +7,9 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
+#define NVIC_NUM_VECTORS      32
+#define NVIC_USER_IRQ_OFFSET  0
+
 #include "cmsis.h"
 
 #ifdef __cplusplus

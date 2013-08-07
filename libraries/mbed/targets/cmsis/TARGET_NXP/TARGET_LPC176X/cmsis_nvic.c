@@ -29,6 +29,3 @@ uint32_t NVIC_GetVector(IRQn_Type IRQn) {
     return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
 }
 
-IRQn_Type NVIC_GetActiveInterrupt(void) {
-    return (IRQn_Type)((SCB->ICSR & 0x1FF) - NVIC_USER_IRQ_OFFSET);
-}

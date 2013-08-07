@@ -3,6 +3,18 @@
 #include "cmsis.h"
 #include "test_env.h"
 
+#if defined(TARGET_LPC1768)
+#define TIMER_IRQ       TIMER3_IRQn
+#elif defined(TARGET_LPC11U24)
+#define TIMER_IRQ       TIMER_32_1_IRQn
+#elif defined(TARGET_KL25Z)
+#define TIMER_IRQ       LPTimer_IRQn
+#elif defined(TARGET_LPC2368)
+#define TIMER_IRQ       TIMER3_IRQn
+#else
+#error This test can't run on this target.
+#endif
+
 Serial pc(USBTX, USBRX);
 
 Ticker flipper_1;
@@ -28,7 +40,7 @@ Ticker flipper_2;
 Sender s1(pc, '1');
 Sender s2(pc, '2');
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2368)
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2
@@ -77,20 +89,20 @@ int main() {
     flipper_2.add_function(&s2, &Sender::send);
 
     // Test global chaining (InterruptManager)
-    printf("Handler initially: %08X\n", initial_handler = NVIC_GetVector(TIMER3_IRQn));
+    printf("Handler initially: %08X\n", initial_handler = NVIC_GetVector(TIMER_IRQ));
     InterruptManager *pManager = InterruptManager::get();
-    pFunctionPointer_t ptm = pManager->add_handler(testme, TIMER3_IRQn);
-    pFunctionPointer_t pinc = pManager->add_handler_front(&c, &Counter::inc, TIMER3_IRQn);
-    printf("Handler after calling InterruptManager: %08X\n", NVIC_GetVector(TIMER3_IRQn));
+    pFunctionPointer_t ptm = pManager->add_handler(testme, TIMER_IRQ);
+    pFunctionPointer_t pinc = pManager->add_handler_front(&c, &Counter::inc, TIMER_IRQ);
+    printf("Handler after calling InterruptManager: %08X\n", NVIC_GetVector(TIMER_IRQ));
 
     wait(4.0);
 
-    if (!pManager->remove_handler(ptm, TIMER3_IRQn) || !pManager->remove_handler(pinc, TIMER3_IRQn)) {
+    if (!pManager->remove_handler(ptm, TIMER_IRQ) || !pManager->remove_handler(pinc, TIMER_IRQ)) {
         printf ("remove handler failed.\n");
         notify_completion(false);
     }
     printf("Interrupt handler calls: %d\n", c.get_count());
-    printf("Handler after removing previously added functions: %08X\n", final_handler = NVIC_GetVector(TIMER3_IRQn));
+    printf("Handler after removing previously added functions: %08X\n", final_handler = NVIC_GetVector(TIMER_IRQ));
 
     if (initial_handler != final_handler) {
         printf( "InteruptManager test failed.\n");

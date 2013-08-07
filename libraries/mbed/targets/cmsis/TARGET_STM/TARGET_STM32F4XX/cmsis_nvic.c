@@ -5,7 +5,6 @@
  */ 
 #include "cmsis_nvic.h"
 
-#define NVIC_NUM_VECTORS          (16 + 81)     // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Location of vectors in RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x0)         // Initial vector position in flash
 

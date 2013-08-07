@@ -9,6 +9,9 @@
 
 #include "cmsis.h"
 
+#define NVIC_NUM_VECTORS      (16 + 32)   // CORE + MCU Peripherals
+#define NVIC_USER_IRQ_OFFSET  16
+
 #ifdef __cplusplus
 extern "C" {
 #endif

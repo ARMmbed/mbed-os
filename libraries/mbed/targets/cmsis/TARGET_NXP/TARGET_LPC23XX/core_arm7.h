@@ -8,6 +8,8 @@
 #ifndef __ARM7_CORE_H__
 #define __ARM7_CORE_H__
 
+#include "vector_defns.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
@@ -255,6 +257,15 @@ static __INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
  NVIC->IntEnClr = 1 << (uint32_t)IRQn;
 }
 
+static __INLINE uint32_t __get_IPSR(void)
+{
+ unsigned i;
+
+ for(i = 0; i < 32; i ++)
+   if(NVIC->Address == NVIC->VectAddr[i])
+     return i;
+ return 1; // 1 is an invalid entry in the interrupt table on LPC2368
+}
 
 #ifdef __cplusplus
 }

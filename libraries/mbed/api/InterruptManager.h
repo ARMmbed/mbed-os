@@ -1,7 +1,7 @@
 #ifndef MBED_INTERRUPTMANAGER_H
 #define MBED_INTERRUPTMANAGER_H
 
-#include "cmsis_nvic.h"
+#include "cmsis.h"
 #include "CallChain.h"
 #include <string.h>
 

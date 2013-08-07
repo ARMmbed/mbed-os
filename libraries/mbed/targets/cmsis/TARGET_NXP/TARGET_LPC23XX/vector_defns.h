@@ -37,8 +37,10 @@
 // VIC register addresses
 #define VIC_Base 0xfffff000
 #define VICAddress_Offset 0xf00
+#define VICVectAddr0_Offset 0x100
 #define VICVectAddr2_Offset 0x108
 #define VICVectAddr3_Offset 0x10c
+#define VICVectAddr31_Offset 0x17c
 #define VICIntEnClr_Offset 0x014
 #define VICIntEnClr    (*(volatile unsigned long *)(VIC_Base + 0x014))
 #define VICVectAddr2   (*(volatile unsigned long *)(VIC_Base + 0x108))
