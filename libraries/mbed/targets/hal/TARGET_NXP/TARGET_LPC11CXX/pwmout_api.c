@@ -54,11 +54,21 @@ typedef struct {
     uint8_t mr;
 } timer_mr;
 
-static timer_mr pwm_timer_map[4] = {
-    {0, 0},
-    {1, 0},
-    {2, 0},
-    {3, 0},
+static timer_mr pwm_timer_map[11] = {
+    {0, 0}, /* CT16B0, MR0 */
+    {0, 1}, /* CT16B0, MR1 */
+    {0, 2}, /* CT16B0, MR2 */
+
+    {1, 0}, /* CT16B1, MR0 */
+    {1, 1}, /* CT16B1, MR1 */
+
+    {2, 0}, /* CT32B0, MR0 */
+    {2, 1}, /* CT32B0, MR1 */
+    {2, 2}, /* CT32B0, MR2 */
+
+    {3, 0}, /* CT32B1, MR0 */
+    {3, 1}, /* CT32B1, MR1 */
+    {3, 2}  /* CT32B1, MR2 */
 };
 
 static LPC_TMR_TypeDef *Timers[4] = {
