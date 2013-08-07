@@ -5,7 +5,6 @@
  */ 
 #include "cmsis_nvic.h"
 
-#define NVIC_NUM_VECTORS          (16 + 33)     // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS   (0x10000000)  // Location of vectors in RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x0)       // Initial vector position in flash
 
@@ -22,11 +21,14 @@ void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
         }
         SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
     }
-    vectors[IRQn + 16] = vector;
+    vectors[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
 
 uint32_t NVIC_GetVector(IRQn_Type IRQn) {
     uint32_t *vectors = (uint32_t*)SCB->VTOR;
-    return vectors[IRQn + 16];
+    return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
 }
 
+IRQn_Type NVIC_GetActiveInterrupt(void) {
+    return (IRQn_Type)((SCB->ICSR & 0x1FF) - NVIC_USER_IRQ_OFFSET);
+}

@@ -44,15 +44,32 @@ int Serial::writeable() {
     return serial_writable(&_serial);
 }
 
-void Serial::attach(void (*fptr)(void), IrqType type) {
+pFunctionPointer_t Serial::attach(void (*fptr)(void), IrqType type) {
+    pFunctionPointer_t pf = NULL;
+    _irq[type].clear();
     if (fptr) {
-        _irq[type].attach(fptr);
+        pf = _irq[type].add(fptr);
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
+    return pf;
 }
 
+pFunctionPointer_t Serial::add_handler_helper(void (*fptr)(void), IrqType type, bool front) {
+    if (NULL == fptr)
+        return NULL;
+    pFunctionPointer_t pf = front ? _irq[type].add_front(fptr) : _irq[type].add(fptr);
+    serial_irq_set(&_serial, (SerialIrq)type, 1);
+    return pf;
+}
+
+bool Serial::remove_handler(pFunctionPointer_t pf, IrqType type) {
+    bool res = _irq[type].remove(pf);
+    if (res && _irq[type].size() == 0)
+        serial_irq_set(&_serial, (SerialIrq)type, 0);
+    return res;
+}
 
 void Serial::_irq_handler(uint32_t id, SerialIrq irq_type) {
     Serial *handler = (Serial*)id;

@@ -9,12 +9,16 @@
 
 #include "cmsis.h"
 
+#define NVIC_NUM_VECTORS      (16 + 33)
+#define NVIC_USER_IRQ_OFFSET  16
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
 uint32_t NVIC_GetVector(IRQn_Type IRQn);
+IRQn_Type NVIC_GetActiveInterrupt(void);
 
 #ifdef __cplusplus
 }

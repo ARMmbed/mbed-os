@@ -18,6 +18,7 @@
 
 #include "TimerEvent.h"
 #include "FunctionPointer.h"
+#include "CallChain.h"
 
 namespace mbed {
 
@@ -63,8 +64,16 @@ public:
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(void (*fptr)(void), float t) {
-        attach_us(fptr, t * 1000000.0f);
+    pFunctionPointer_t attach(void (*fptr)(void), float t) {
+        return attach_us(fptr, t * 1000000.0f);
+    }
+
+    pFunctionPointer_t add_function(void (*fptr)(void)) {
+        return add_function_helper(fptr);
+    }
+
+    pFunctionPointer_t add_function_front(void (*fptr)(void)) {
+        return add_function_helper(fptr, true);
     }
 
     /** Attach a member function to be called by the Ticker, specifiying the interval in seconds
@@ -74,8 +83,18 @@ public:
      *  @param t the time between calls in seconds
      */
     template<typename T>
-    void attach(T* tptr, void (T::*mptr)(void), float t) {
-        attach_us(tptr, mptr, t * 1000000.0f);
+    pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), float t) {
+        return attach_us(tptr, mptr, t * 1000000.0f);         
+    }
+
+    template<typename T>
+    pFunctionPointer_t add_function(T* tptr, void (T::*mptr)(void)) {
+        return add_function_helper(tptr, mptr);
+    }
+
+    template<typename T>
+    pFunctionPointer_t add_function_front(T* tptr, void (T::*mptr)(void)) {
+        return add_function_helper(tptr, mptr, true);
     }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in micro-seconds
@@ -83,9 +102,10 @@ public:
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
-    void attach_us(void (*fptr)(void), unsigned int t) {
-        _function.attach(fptr);
+    pFunctionPointer_t attach_us(void (*fptr)(void), unsigned int t) {
+        pFunctionPointer_t pf = _chain.add(fptr);
         setup(t);
+        return pf;
     }
 
     /** Attach a member function to be called by the Ticker, specifiying the interval in micro-seconds
@@ -95,21 +115,37 @@ public:
      *  @param t the time between calls in micro-seconds
      */
     template<typename T>
-    void attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
-        _function.attach(tptr, mptr);
+    pFunctionPointer_t attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
+        pFunctionPointer_t pf = _chain.add(mptr, tptr);
         setup(t);
+        return pf;
     }
 
     /** Detach the function
      */
     void detach();
 
+    bool remove_function(pFunctionPointer_t pf) {
+        bool res = _chain.remove(pf);
+        if (res && _chain.size() == 0)
+            detach();
+        return res;
+    }
+
 protected:
     void setup(unsigned int t);
+    pFunctionPointer_t add_function_helper(void (*fptr)(void), bool front=false);
     virtual void handler();
 
+    template<typename T>
+    pFunctionPointer_t add_function_helper(T* tptr, void (T::*mptr)(void), bool front=false) {
+        if (_chain.size() == 0)
+            return NULL;
+        return front ? _chain.add_front(tptr, mptr) : _chain.add(tptr, mptr);
+    }
+
     unsigned int _delay;
-    FunctionPointer _function;
+    CallChain _chain;
 };
 
 } // namespace mbed

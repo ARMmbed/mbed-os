@@ -23,6 +23,7 @@
 #include "Stream.h"
 #include "FunctionPointer.h"
 #include "serial_api.h"
+#include "CallChain.h"
 
 namespace mbed {
 
@@ -82,7 +83,7 @@ public:
      *  @param parity The parity used (Serial::None, Serial::Odd, Serial::Even, Serial::Forced1, Serial::Forced0; default = Serial::None)
      *  @param stop The number of stop bits (1 or 2; default = 1)
      */
-    void format(int bits = 8, Parity parity=Serial::None, int stop_bits=1);
+    void format(int bits=8, Parity parity=Serial::None, int stop_bits=1);
 
     /** Determine if there is a character available to read
      *
@@ -105,7 +106,15 @@ public:
      *  @param fptr A pointer to a void function, or 0 to set as none
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
-    void attach(void (*fptr)(void), IrqType type=RxIrq);
+    pFunctionPointer_t attach(void (*fptr)(void), IrqType type=RxIrq);
+
+    pFunctionPointer_t add_handler(void (*fptr)(void), IrqType type=RxIrq) {
+        return add_handler_helper(fptr, type);
+    }
+
+    pFunctionPointer_t add_handler_front(void (*fptr)(void), IrqType type=RxIrq) {
+        return add_handler_helper(fptr, type, true);
+    }
 
     /** Attach a member function to call whenever a serial interrupt is generated
      *
@@ -114,12 +123,27 @@ public:
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
     template<typename T>
-    void attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
+    pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
         if((mptr != NULL) && (tptr != NULL)) {
-            _irq[type].attach(tptr, mptr);
+            _irq[type].clear();
+            pFunctionPointer_t pf = _irq[type].add(tptr, mptr);
             serial_irq_set(&_serial, (SerialIrq)type, 1);
+            return pf;
         }
+        else
+            return NULL;
     }
+    template<typename T>
+    pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
+        return add_handler_helper(tptr, mptr, type);
+    }
+
+    template<typename T>
+    pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
+        return add_handler_helper(tptr, mptr, type, true);
+    }
+
+    bool remove_handler(pFunctionPointer_t pf, IrqType type=RxIrq);
 
     /** Generate a break condition on the serial line
      */
@@ -130,9 +154,21 @@ public:
 protected:
     virtual int _getc();
     virtual int _putc(int c);
+    pFunctionPointer_t add_handler_helper(void (*function)(void), IrqType type, bool front=false);
+
+    template<typename T>
+    pFunctionPointer_t add_handler_helper(T* tptr, void (T::*mptr)(void), IrqType type, bool front=false) {
+        if ((mptr != NULL) && (tptr != NULL)) {
+            pFunctionPointer_t pf = front ? _irq[type].add_front(tptr, mptr) : _irq[type].add(tptr, mptr);
+            serial_irq_set(&_serial, (SerialIrq)type, 1);
+            return pf;
+        }
+        else
+            return NULL;
+    }
 
     serial_t        _serial;
-    FunctionPointer _irq[2];
+    CallChain       _irq[2];
     int             _baud;
 };
 

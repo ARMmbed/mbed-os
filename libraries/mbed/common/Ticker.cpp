@@ -22,7 +22,7 @@ namespace mbed {
 
 void Ticker::detach() {
     remove();
-    _function.attach(0);
+    _chain.clear();
 }
 
 void Ticker::setup(unsigned int t) {
@@ -33,7 +33,13 @@ void Ticker::setup(unsigned int t) {
 
 void Ticker::handler() {
     insert(event.timestamp + _delay);
-    _function.call();
+    _chain.call();
+}
+
+pFunctionPointer_t Ticker::add_function_helper(void (*fptr)(void), bool front) {
+    if (_chain.size() == 0)
+        return NULL;
+    return front ? _chain.add_front(fptr) : _chain.add(fptr);
 }
 
 } // namespace mbed

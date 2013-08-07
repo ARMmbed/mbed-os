@@ -36,22 +36,58 @@ void InterruptIn::mode(PinMode pull) {
     gpio_mode(&gpio, pull);
 }
 
-void InterruptIn::rise(void (*fptr)(void)) {
+pFunctionPointer_t InterruptIn::rise(void (*fptr)(void)) {
+    pFunctionPointer_t pf = NULL;
+    _rise.clear();
     if (fptr) {
-        _rise.attach(fptr);
+        pf = _rise.add(fptr);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
+    return pf;
 }
 
-void InterruptIn::fall(void (*fptr)(void)) {
+pFunctionPointer_t InterruptIn::rise_add_common(void (*fptr)(void), bool front) {
+    if (NULL == fptr)
+        return NULL;
+    pFunctionPointer_t pf = front ? _rise.add_front(fptr) : _rise.add(fptr);
+    gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
+    return pf;
+}
+
+bool InterruptIn::rise_remove(pFunctionPointer_t pf) {
+    bool res = _rise.remove(pf);
+    if (res && _rise.size() == 0)
+        gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
+    return res;
+}
+
+pFunctionPointer_t InterruptIn::fall(void (*fptr)(void)) {
+    pFunctionPointer_t pf = NULL;
+    _fall.clear();
     if (fptr) {
-        _fall.attach(fptr);
+        pf = _fall.add(fptr);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
+    return pf;
+}
+
+pFunctionPointer_t InterruptIn::fall_add_common(void (*fptr)(void), bool front) {
+    if (NULL == fptr)
+        return NULL;
+    pFunctionPointer_t pf = front ? _fall.add_front(fptr) : _fall.add(fptr);
+    gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
+    return pf;
+}
+
+bool InterruptIn::fall_remove(pFunctionPointer_t pf) {
+    bool res = _fall.remove(pf);
+    if (res && _fall.size() == 0)
+        gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
+    return res;
 }
 
 void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {

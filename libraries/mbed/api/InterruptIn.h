@@ -24,6 +24,7 @@
 #include "gpio_irq_api.h"
 
 #include "FunctionPointer.h"
+#include "CallChain.h"
 
 namespace mbed {
 
@@ -72,25 +73,57 @@ public:
     /** Attach a function to call when a rising edge occurs on the input
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
+     *
+     *  @returns
+     *  The function object created for 'fptr'
      */
-    void rise(void (*fptr)(void));
+    pFunctionPointer_t rise(void (*fptr)(void));
+    pFunctionPointer_t rise_add(void (*fptr)(void)) {
+        return rise_add_common(fptr);
+    }
+    pFunctionPointer_t rise_add_front(void (*fptr)(void)) {
+        return rise_add_common(fptr, true);
+    }
 
     /** Attach a member function to call when a rising edge occurs on the input
      *
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
-    void rise(T* tptr, void (T::*mptr)(void)) {
-        _rise.attach(tptr, mptr);
+    pFunctionPointer_t rise(T* tptr, void (T::*mptr)(void)) {
+        _rise.clear();
+        pFunctionPointer_t pf = _rise.add(tptr, mptr);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
+        return pf;
     }
+
+    template<typename T>
+    pFunctionPointer_t rise_add(T* tptr, void (T::*mptr)(void)) {
+        return rise_add_common(tptr, mptr);
+    }
+
+    template<typename T>
+    pFunctionPointer_t rise_add_front(T* tptr, void (T::*mptr)(void)) {
+        return rise_add_common(tptr, mptr, true);
+    }
+
+    bool rise_remove(pFunctionPointer_t pf);
 
     /** Attach a function to call when a falling edge occurs on the input
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
      */
-    void fall(void (*fptr)(void));
+    pFunctionPointer_t fall(void (*fptr)(void));
+    pFunctionPointer_t fall_add(void (*fptr)(void)) {
+        return fall_add_common(fptr);
+    }
+    pFunctionPointer_t fall_add_front(void (*fptr)(void)) {
+        return fall_add_common(fptr, true);
+    }
 
     /** Attach a member function to call when a falling edge occurs on the input
      *
@@ -98,10 +131,22 @@ public:
      *  @param mptr pointer to the member function to be called
      */
     template<typename T>
-    void fall(T* tptr, void (T::*mptr)(void)) {
-        _fall.attach(tptr, mptr);
+    pFunctionPointer_t fall(T* tptr, void (T::*mptr)(void)) {
+        _fall.clear();
+        pFunctionPointer_t pf = _fall.add(tptr, mptr);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
+        return pf;
     }
+    template<typename T>
+    pFunctionPointer_t fall_add(T* tptr, void (T::*mptr)(void)) {
+        return fall_add_common(tptr, mptr);
+    }
+    template<typename T>
+    pFunctionPointer_t fall_add_front(T* tptr, void (T::*mptr)(void)) {
+        return fall_add_common(tptr, mptr, true);
+    }
+
+    bool fall_remove(pFunctionPointer_t pf);
 
     /** Set the input pin mode
      *
@@ -112,11 +157,27 @@ public:
     static void _irq_handler(uint32_t id, gpio_irq_event event);
 
 protected:
+    pFunctionPointer_t rise_add_common(void (*fptr)(void), bool front=false);
+    pFunctionPointer_t fall_add_common(void (*fptr)(void), bool front=false);
+
+    template<typename T>
+    pFunctionPointer_t rise_add_common(T* tptr, void (T::*mptr)(void), bool front=false) {
+        pFunctionPointer_t pf = front ? _rise.add_front(tptr, mptr) : _rise.add(tptr, mptr);
+        gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
+        return pf;
+    }
+    template<typename T>
+    pFunctionPointer_t fall_add_common(T* tptr, void (T::*mptr)(void), bool front=false) {
+        pFunctionPointer_t pf = front ? _fall.add_front(tptr, mptr) : _fall.add(tptr, mptr);
+        gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
+        return pf;
+    }
+
     gpio_t gpio;
     gpio_irq_t gpio_irq;
 
-    FunctionPointer _rise;
-    FunctionPointer _fall;
+    CallChain _rise;
+    CallChain _fall;
 };
 
 } // namespace mbed

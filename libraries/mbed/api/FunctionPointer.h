@@ -20,6 +20,8 @@
 
 namespace mbed {
 
+typedef void (*pvoidf_t)(void);
+
 /** A class for storing and calling a pointer to a static or member void function
  */
 class FunctionPointer {
@@ -63,6 +65,14 @@ public:
     /** Call the attached static or member function
      */
     void call();
+
+    pvoidf_t get_function() const {
+        return (pvoidf_t)_function;
+    }
+
+#ifdef MBED_OPERATORS
+    void operator ()(void);
+#endif
 
 private:
     template<typename T>

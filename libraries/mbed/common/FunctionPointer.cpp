@@ -34,4 +34,10 @@ void FunctionPointer::call(void) {
     }
 }
 
+#ifdef MBED_OPERATORS
+void FunctionPointer::operator ()(void) {
+    call();
+}
+#endif
+
 } // namespace mbed
