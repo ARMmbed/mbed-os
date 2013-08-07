@@ -27,7 +27,6 @@
  * Option 2 is the one to go for, as RAM is the most valuable resource
  */
 
-#define NVIC_NUM_VECTORS (16 + 32)            // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS (0x10000000)  // Vectors positioned at start of RAM
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {

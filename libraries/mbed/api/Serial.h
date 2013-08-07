@@ -105,13 +105,32 @@ public:
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  The function object created for 'fptr'
      */
     pFunctionPointer_t attach(void (*fptr)(void), IrqType type=RxIrq);
 
+    /** Add a function to be called when a serial interrupt is generated at the end of the call chain
+     *
+     *  @param fptr the function to add
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t add_handler(void (*fptr)(void), IrqType type=RxIrq) {
         return add_handler_helper(fptr, type);
     }
 
+    /** Add a function to be called when a serial interrupt is generated at the beginning of the call chain
+     *
+     *  @param fptr the function to add
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t add_handler_front(void (*fptr)(void), IrqType type=RxIrq) {
         return add_handler_helper(fptr, type, true);
     }
@@ -121,6 +140,9 @@ public:
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @param
+     *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
     pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
@@ -133,16 +155,43 @@ public:
         else
             return NULL;
     }
+
+    /** Add a function to be called when a serial interrupt is generated at the end of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     template<typename T>
     pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
         return add_handler_helper(tptr, mptr, type);
     }
 
+    /** Add a function to be called when a serial interrupt is generated at the beginning of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     template<typename T>
     pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
         return add_handler_helper(tptr, mptr, type, true);
     }
 
+    /** Remove a function from the list of functions to be called when a serial interrupt is generated
+     *
+     *  @param pf the function object to remove
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *
+     *  @returns
+     *  true if the function was found and removed, false otherwise
+     */
     bool remove_handler(pFunctionPointer_t pf, IrqType type=RxIrq);
 
     /** Generate a break condition on the serial line

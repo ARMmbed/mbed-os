@@ -87,9 +87,11 @@ pFunctionPointer_t CallChain::common_add(pFunctionPointer_t pf) {
 
 pFunctionPointer_t CallChain::common_add_front(pFunctionPointer_t pf) {
     _check_size();
+    __disable_irq();
     memmove(_chain + 1, _chain, _elements * sizeof(pFunctionPointer_t));
     _chain[0] = pf;
     _elements ++;
+    __enable_irq();
     return pf;
 }
 

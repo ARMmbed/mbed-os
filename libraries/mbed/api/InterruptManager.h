@@ -7,27 +7,102 @@
 
 namespace mbed {
 
+/** Use this singleton if you need to chain interrupt handlers.
+ *
+ * Example (for LPC1768):
+ * @code
+ * #include "InterruptManager.h"
+ * #include "mbed.h"
+ * 
+ * Ticker flipper;
+ * DigitalOut led1(LED1);
+ * DigitalOut led2(LED2);
+ * 
+ * void flip(void) {
+ *     led1 = !led1;
+ * }
+ * 
+ * void handler(void) {
+ *     led2 = !led1;
+ * }
+ * 
+ * int main() {
+ *     led1 = led2 = 0;
+ *     flipper.attach(&flip, 1.0);
+ *     InterruptManager::get()->add_handler(handler, TIMER3_IRQn);
+ * }
+ * @endcode
+ */
 class InterruptManager {
 public:
+    /** Return the only instance of this class
+     */
     static InterruptManager* get();
-    static void destroy();
 
+    /** Destroy the current instance of the interrupt manager
+     */
+    static void destroy();
+    
+    /** Add a handler for an interrupt at the end of the handler list
+     *
+     *  @param function the handler to add
+     *  @param irq interrupt number
+     *
+     *  @returns
+     *  The function object created for 'function'
+     */
     pFunctionPointer_t add_handler(void (*function)(void), IRQn_Type irq) {
         return add_common(function, irq);
     }
+
+    /** Add a handler for an interrupt at the beginning of the handler list
+     *
+     *  @param function the handler to add
+     *  @param irq interrupt number
+     *
+     *  @returns
+     *  The function object created for 'function'
+     */
     pFunctionPointer_t add_handler_front(void (*function)(void), IRQn_Type irq) {
         return add_common(function, irq, true);
     }
 
+    /** Add a handler for an interrupt at the end of the handler list
+     *
+     *  @param tptr pointer to the object that has the handler function
+     *  @param mptr pointer to the actual handler function
+     *  @param irq interrupt number
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
         return add_common(tptr, mptr, irq);
     }
+
+    /** Add a handler for an interrupt at the beginning of the handler list
+     *
+     *  @param tptr pointer to the object that has the handler function
+     *  @param mptr pointer to the actual handler function
+     *  @param irq interrupt number
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
         return add_common(tptr, mptr, irq, true);
     }
 
+    /** Remove a handler from an interrupt
+     *
+     *  @param handler the function object for the handler to remove
+     *  @param irq the interrupt number
+     *
+     *  @returns
+     *  true if the handler was found and removed, false otherwise
+     */
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
 private:

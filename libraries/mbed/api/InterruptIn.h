@@ -78,9 +78,25 @@ public:
      *  The function object created for 'fptr'
      */
     pFunctionPointer_t rise(void (*fptr)(void));
+
+    /** Add a function to be called when a rising edge occurs at the end of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t rise_add(void (*fptr)(void)) {
         return rise_add_common(fptr);
     }
+
+    /** Add a function to be called when a rising edge occurs at the beginning of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t rise_add_front(void (*fptr)(void)) {
         return rise_add_common(fptr, true);
     }
@@ -101,26 +117,68 @@ public:
         return pf;
     }
 
+    /** Add a function to be called when a rising edge occurs at the end of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t rise_add(T* tptr, void (T::*mptr)(void)) {
         return rise_add_common(tptr, mptr);
     }
 
+    /** Add a function to be called when a rising edge occurs at the beginning of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t rise_add_front(T* tptr, void (T::*mptr)(void)) {
         return rise_add_common(tptr, mptr, true);
     }
 
+    /** Remove a function from the list of functions to be called when a rising edge occurs
+     *
+     *  @param pf the function object to remove
+     *
+     *  @returns
+     *  true if the function was found and removed, false otherwise
+     */
     bool rise_remove(pFunctionPointer_t pf);
 
     /** Attach a function to call when a falling edge occurs on the input
      *
      *  @param fptr A pointer to a void function, or 0 to set as none
+     *
+     *  @returns
+     *  The function object created for 'fptr'
      */
     pFunctionPointer_t fall(void (*fptr)(void));
+
+     /** Add a function to be called when a falling edge occurs at the end of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */   
     pFunctionPointer_t fall_add(void (*fptr)(void)) {
         return fall_add_common(fptr);
     }
+
+    /** Add a function to be called when a falling edge occurs at the beginning of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t fall_add_front(void (*fptr)(void)) {
         return fall_add_common(fptr, true);
     }
@@ -129,6 +187,9 @@ public:
      *
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
     pFunctionPointer_t fall(T* tptr, void (T::*mptr)(void)) {
@@ -137,15 +198,40 @@ public:
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
         return pf;
     }
+
+    /** Add a function to be called when a falling edge occurs at the end of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t fall_add(T* tptr, void (T::*mptr)(void)) {
         return fall_add_common(tptr, mptr);
     }
+
+    /** Add a function to be called when a falling edge occurs at the beginning of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t fall_add_front(T* tptr, void (T::*mptr)(void)) {
         return fall_add_common(tptr, mptr, true);
     }
 
+    /** Remove a function from the list of functions to be called when a falling edge occurs
+     *
+     *  @param pf the function object to remove
+     *
+     *  @returns
+     *  true if the function was found and removed, false otherwise
+     */
     bool fall_remove(pFunctionPointer_t pf);
 
     /** Set the input pin mode

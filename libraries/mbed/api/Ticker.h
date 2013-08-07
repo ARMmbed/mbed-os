@@ -63,15 +63,32 @@ public:
      *
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in seconds
+     *
+     *  @returns
+     *  The function object created for 'fptr'
      */
     pFunctionPointer_t attach(void (*fptr)(void), float t) {
         return attach_us(fptr, t * 1000000.0f);
     }
 
+    /** Add a function to be called by the Ticker at the end of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t add_function(void (*fptr)(void)) {
         return add_function_helper(fptr);
     }
 
+    /** Add a function to be called by the Ticker at the beginning of the call chain
+     *
+     *  @param fptr the function to add
+     *
+     *  @returns
+     *  The function object created for 'fptr'
+     */
     pFunctionPointer_t add_function_front(void (*fptr)(void)) {
         return add_function_helper(fptr, true);
     }
@@ -81,17 +98,36 @@ public:
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called
      *  @param t the time between calls in seconds
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
     pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), float t) {
         return attach_us(tptr, mptr, t * 1000000.0f);         
     }
 
+    /** Add a function to be called by the Ticker at the end of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t add_function(T* tptr, void (T::*mptr)(void)) {
         return add_function_helper(tptr, mptr);
     }
 
+    /** Add a function to be called by the Ticker at the beginning of the call chain
+     *
+     *  @param tptr pointer to the object to call the member function on
+     *  @param mptr pointer to the member function to be called
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
+     */
     template<typename T>
     pFunctionPointer_t add_function_front(T* tptr, void (T::*mptr)(void)) {
         return add_function_helper(tptr, mptr, true);
@@ -101,6 +137,9 @@ public:
      *
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in micro-seconds
+     *
+     *  @returns
+     *  The function object created for 'fptr'
      */
     pFunctionPointer_t attach_us(void (*fptr)(void), unsigned int t) {
         pFunctionPointer_t pf = _chain.add(fptr);
@@ -113,6 +152,9 @@ public:
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called
      *  @param t the time between calls in micro-seconds
+     *
+     *  @returns
+     *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
     pFunctionPointer_t attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
@@ -125,6 +167,13 @@ public:
      */
     void detach();
 
+    /** Remove a function from the Ticker's call chain
+     *
+     *  @param pf the function object to remove
+     *
+     *  @returns
+     *  true if the function was found and removed, false otherwise
+     */
     bool remove_function(pFunctionPointer_t pf) {
         bool res = _chain.remove(pf);
         if (res && _chain.size() == 0)
