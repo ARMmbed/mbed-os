@@ -203,6 +203,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["digital_loop"]
     },
+    {
+        "id": "MBED_A22", "description": "Call function before main (mbed_main)",
+        "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+    },
 
     # Size benchmarks
     {

@@ -64,7 +64,7 @@ class GCC(mbedToolchain):
         self.cc  = [join(tool_path, "arm-none-eabi-gcc"), "-std=gnu99"] + common_flags
         self.cppc =[join(tool_path, "arm-none-eabi-g++"), "-std=gnu++98"] + common_flags
         
-        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections"] + self.cpu
+        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
         
         self.ar = join(tool_path, "arm-none-eabi-ar")
