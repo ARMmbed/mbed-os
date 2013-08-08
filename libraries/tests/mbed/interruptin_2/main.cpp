@@ -1,5 +1,19 @@
 #include "mbed.h"
- 
+
+#if defined(TARGET_LPC4088)
+InterruptIn button(p18);
+InterruptIn button1(p17);
+InterruptIn button2(p16);
+InterruptIn button3(p15);
+InterruptIn button4(p14);
+InterruptIn button5(p13);
+InterruptIn button6(p12);
+InterruptIn button7(p11);
+InterruptIn button8(p10);
+InterruptIn button9(p9);
+DigitalOut led(LED1);
+DigitalOut flash(LED4);
+#else 
 InterruptIn button(p30);
 InterruptIn button1(p29);
 InterruptIn button2(p28);
@@ -12,6 +26,7 @@ InterruptIn button8(p22);
 InterruptIn button9(p21);
 DigitalOut led(LED1);
 DigitalOut flash(LED4);
+#endif
  
 void flip() {
     led = !led;

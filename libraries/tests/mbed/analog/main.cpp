@@ -4,10 +4,6 @@
 AnalogIn in(PTC2);
 AnalogOut out(PTE30);
 
-#elif defined(TARGET_LPC4088)
-AnalogIn in(p15); // p17 (p0.25) is connected to trimpot on OEM base board
-AnalogOut out(p18);
-
 #elif defined(TARGET_KL05Z)
 AnalogIn in(PTB11);  // D9
 AnalogOut out(PTB1); // D1

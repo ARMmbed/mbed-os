@@ -3,7 +3,7 @@
 #include "cmsis.h"
 #include "test_env.h"
 
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC4088)
 #define TIMER_IRQ       TIMER3_IRQn
 #elif defined(TARGET_LPC11U24)
 #define TIMER_IRQ       TIMER_32_1_IRQn

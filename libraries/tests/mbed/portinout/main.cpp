@@ -9,7 +9,7 @@
 #define P2_2    (1 << 25) // p1.25
 #define PORT_2  Port1
 
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #define P1_1    (1 << 9)  // p0.9  -> p5
 #define P1_2    (1 << 8)  // p0.8  -> p6
 #define PORT_1  Port0
@@ -17,6 +17,15 @@
 #define P2_1    (1 << 1)  // p2.1 -> p25
 #define P2_2    (1 << 0)  // p2.0 -> p26
 #define PORT_2  Port2
+
+#elif defined(TARGET_LPC4088)
+#define P1_1    (1 << 7)  // p0.7  -> p13
+#define P1_2    (1 << 6)  // p0.6  -> p14
+#define PORT_1  Port0
+
+#define P2_1    (1 << 2)  // p1.2 -> p30
+#define P2_2    (1 << 3)  // p1.3 -> p29
+#define PORT_2  Port1
 
 #elif defined(TARGET_LPC1114)
 #define P1_1    (1 <<  9) // p0.9

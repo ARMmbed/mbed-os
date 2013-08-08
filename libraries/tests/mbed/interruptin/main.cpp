@@ -25,6 +25,10 @@ void in_handler() {
 #define PIN_OUT     dp1
 #define PIN_IN      dp2
 
+#elif defined(TARGET_LPC4088)
+#define PIN_IN      (p11)
+#define PIN_OUT     (p12)
+
 #else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)

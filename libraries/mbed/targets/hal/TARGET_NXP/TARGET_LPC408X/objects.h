@@ -60,6 +60,7 @@ struct dac_s {
 
 struct can_s {
     LPC_CAN_TypeDef *dev;
+    int index;
 };
 
 struct i2c_s {

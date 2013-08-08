@@ -6,6 +6,8 @@
 
 #if defined(TARGET_KL25Z)
 I2CSlave slave(PTE0, PTE1);
+#elif defined(TARGET_LPC4088)
+I2CSlave slave(p9, p10);
 #else
 I2CSlave slave(p28, p27);
 #endif
