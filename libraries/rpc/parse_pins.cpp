@@ -18,10 +18,15 @@
 namespace mbed {
 
 PinName parse_pins(const char *str) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
                                 , p15, p16, p17, p18, p19, p20, p21, p22, p23
                                 , p24, p25, p26, p27, p28, p29, p30};
+#elif defined(TARGET_LPC4088)                                
+    static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
+                                , p15, p16, p17, p18, p19, p20, NC, NC, p23
+                                , p24, p25, p26, p27, p28, p29, p30, p31, p32
+                                , p33, p34, NC, NC, p37, p38, p39};
 #endif
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088)
@@ -46,7 +51,7 @@ PinName parse_pins(const char *str) {
             return port_pin((PortName)port, pin);
 #endif
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) 
     } else if (str[0] == 'p') {       // pn
         uint32_t pin  = str[1] - '0'; // pn
         uint32_t pin2 = str[2] - '0'; // pnn
@@ -54,6 +59,17 @@ PinName parse_pins(const char *str) {
             pin = pin * 10 + pin2;
         }
         if (pin < 5 || pin > 30) {
+            return NC;
+        }
+        return pin_names[pin - 5];
+#elif defined(TARGET_LPC4088)        
+    } else if (str[0] == 'p') {       // pn
+        uint32_t pin  = str[1] - '0'; // pn
+        uint32_t pin2 = str[2] - '0'; // pnn
+        if (pin2 <= 9) {
+            pin = pin * 10 + pin2;
+        }
+        if (pin < 5 || pin > 39) {
             return NC;
         }
         return pin_names[pin - 5];

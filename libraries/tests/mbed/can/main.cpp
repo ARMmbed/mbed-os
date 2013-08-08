@@ -4,7 +4,11 @@ Ticker ticker;
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 CAN can1(p9, p10);
+#if defined(TARGET_LPC4088)
+CAN can2(p34, p33);
+#else
 CAN can2(p30, p29);
+#endif
 char counter = 0;
  
 void printmsg(char *title, CANMessage *msg) {    
