@@ -28,10 +28,11 @@
                                 <option id="com.crt.advproject.cpp.thumb.509442564" name="Thumb mode" superClass="com.crt.advproject.cpp.thumb" value="true" valueType="boolean"/>
                                 <option id="gnu.cpp.compiler.option.preprocessor.def.347637870" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
                                     <listOptionValue builtIn="false" value="__NEWLIB__"/>
-                                    <listOptionValue builtIn="false" value="TOOLCHAIN_GCC_CR"/>
-                                    <listOptionValue builtIn="false" value="TARGET_LPC1768"/>
                                     <listOptionValue builtIn="false" value="__CODE_RED"/>
                                     <listOptionValue builtIn="false" value="CPP_USE_HEAP"/>
+                                  {% for s in symbols %}
+                                    <listOptionValue builtIn="false" value="{{s}}"/>
+                                  {% endfor %}
                                 </option>
                                 <option id="gnu.cpp.compiler.option.other.other.1100343989" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions" valueType="string"/>
 
@@ -49,10 +50,11 @@
                                 <option id="com.crt.advproject.gcc.hdrlib.784082637" name="Use headers for C library" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.newlib" valueType="enumerated"/>
                                 <option id="gnu.c.compiler.option.preprocessor.def.symbols.1824535269" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
                                     <listOptionValue builtIn="false" value="__NEWLIB__"/>
-                                    <listOptionValue builtIn="false" value="TOOLCHAIN_GCC_CR"/>
-                                    <listOptionValue builtIn="false" value="TARGET_LPC1768"/>
                                     <listOptionValue builtIn="false" value="__CODE_RED"/>
                                     <listOptionValue builtIn="false" value="CPP_USE_HEAP"/>
+                                  {% for s in symbols %}
+                                    <listOptionValue builtIn="false" value="{{s}}"/>
+                                  {% endfor %}
                                 </option>
                                 <option id="gnu.c.compiler.option.misc.other.1521041525" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions" valueType="string"/>
 
@@ -941,10 +943,11 @@
                                 <option id="com.crt.advproject.cpp.thumb.189747400" name="Thumb mode" superClass="com.crt.advproject.cpp.thumb" value="true" valueType="boolean"/>
                                 <option id="gnu.cpp.compiler.option.preprocessor.def.874410253" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
                                     <listOptionValue builtIn="false" value="__NEWLIB__"/>
-                                    <listOptionValue builtIn="false" value="TOOLCHAIN_GCC_CR"/>
-                                    <listOptionValue builtIn="false" value="TARGET_LPC1768"/>
                                     <listOptionValue builtIn="false" value="__CODE_RED"/>
                                     <listOptionValue builtIn="false" value="CPP_USE_HEAP"/>
+                                  {% for s in symbols %}
+                                    <listOptionValue builtIn="false" value="{{s}}"/>
+                                  {% endfor %}
                                 </option>
                                 <option id="gnu.cpp.compiler.option.other.other.1338090461" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions" valueType="string"/>
                                 <option id="gnu.cpp.compiler.option.optimization.flags.475225500" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-Os" valueType="string"/>
@@ -963,10 +966,11 @@
                                 <option id="com.crt.advproject.gcc.hdrlib.966879133" name="Use headers for C library" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.newlib" valueType="enumerated"/>
                                 <option id="gnu.c.compiler.option.preprocessor.def.symbols.740543529" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
                                     <listOptionValue builtIn="false" value="__NEWLIB__"/>
-                                    <listOptionValue builtIn="false" value="TOOLCHAIN_GCC_CR"/>
-                                    <listOptionValue builtIn="false" value="TARGET_LPC1768"/>
                                     <listOptionValue builtIn="false" value="__CODE_RED"/>
                                     <listOptionValue builtIn="false" value="CPP_USE_HEAP"/>
+                                  {% for s in symbols %}
+                                    <listOptionValue builtIn="false" value="{{s}}"/>
+                                  {% endfor %}
                                 </option>
                                 <option id="gnu.c.compiler.option.misc.other.2015545820" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions" valueType="string"/>
                                 <option id="gnu.c.compiler.option.optimization.flags.675461365" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>

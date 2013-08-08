@@ -49,5 +49,6 @@ class CodeSourcery(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
+            'symbols': self.toolchain.get_symbols()
         }
         self.gen_file('codesourcery_%s.tmpl' % self.target.lower(), ctx, 'Makefile')

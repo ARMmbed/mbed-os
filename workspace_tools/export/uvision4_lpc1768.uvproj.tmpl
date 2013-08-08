@@ -346,7 +346,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>TARGET_LPC1768, NDEBUG, TOOLCHAIN_ARM, __CMSIS_RTOS, __CORTEX_M3</Define>
+              <Define>{% for s in symbols %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>
             </VariousControls>

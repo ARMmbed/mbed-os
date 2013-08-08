@@ -347,7 +347,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>TARGET_KL25Z, NDEBUG, TOOLCHAIN_ARM, __CMSIS_RTOS, __CORTEX_M0PLUS</Define>
+              <Define>{% for s in symbols %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>
             </VariousControls>
