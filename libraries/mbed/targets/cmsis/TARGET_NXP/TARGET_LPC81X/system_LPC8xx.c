@@ -41,7 +41,7 @@
 //
 //   <h> Watchdog Oscillator Control Register (WDTOSCCTRL)
 //     <o2.0..4>   DIVSEL: Select Divider for Fclkana
-//                     <i> wdt_osc_clk = Fclkana/ (2 × (1 + DIVSEL))
+//                     <i> wdt_osc_clk = Fclkana/ (2 * (1 + DIVSEL))
 //                   <0-31>
 //     <o2.5..8>   FREQSEL: Select Watchdog Oscillator Analog Output Frequency (Fclkana)
 //                   <0=> Undefined
