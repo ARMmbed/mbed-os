@@ -119,7 +119,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "LPC4088"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -259,7 +259,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088"]
     },
     {
         "id": "MBED_5", "description": "PWM",
@@ -395,13 +395,13 @@ TESTS = [
         "id": "MBED_30", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768"]
+        "mcu": ["LPC1768", "LPC4088"]
     },
     {
         "id": "MBED_31", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768"]
+        "mcu": ["LPC1768", "LPC4088"]
     },	
  
     # CMSIS RTOS tests

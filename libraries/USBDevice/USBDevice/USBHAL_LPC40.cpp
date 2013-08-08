@@ -32,8 +32,9 @@
 #define PCUSB      (1UL<<31)
 
 // USB Clock Control register
-#define DEV_CLK_EN (1UL<<1)
-#define AHB_CLK_EN (1UL<<4)
+#define DEV_CLK_EN  (1UL<<1)
+#define PORT_CLK_EN (1UL<<3)
+#define AHB_CLK_EN  (1UL<<4)
 
 // USB Clock Status register
 #define DEV_CLK_ON (1UL<<1)
@@ -364,21 +365,23 @@ USBHAL::USBHAL(void) {
     LPC_SC->PCONP |= PCUSB;
 
     // Enable USB clocks
-    LPC_USB->USBClkCtrl |= DEV_CLK_EN | AHB_CLK_EN;
-    while ((LPC_USB->USBClkSt & (DEV_CLK_EN | AHB_CLK_EN)) != (DEV_CLK_ON | AHB_CLK_ON));
+    LPC_USB->USBClkCtrl |= DEV_CLK_EN | AHB_CLK_EN | PORT_CLK_EN;
+    while ((LPC_USB->USBClkSt & (DEV_CLK_EN | AHB_CLK_EN | PORT_CLK_EN)) != (DEV_CLK_ON | AHB_CLK_ON | PORT_CLK_EN));
+    
+    // Select port USB2
+    LPC_USB->StCtrl |= 3;
 
-    // Configure pins P0.29 and P0.30 to be USB D+ and USB D-
-    LPC_IOCON->P0_29 &= ~0x07;
-    LPC_IOCON->P0_29 |= 0x01;
-    LPC_IOCON->P0_30 &= ~0x07;
-    LPC_IOCON->P0_30 |= 0x01;    
+
+    // Configure pin P0.31 to be USB2
+    LPC_IOCON->P0_31 &= ~0x07;
+    LPC_IOCON->P0_31 |= 0x01;
     
     // Disconnect USB device
     SIEdisconnect();
 
-    // Configure pin P2.9 to be Connect
-    LPC_IOCON->P2_9 &= ~0x07;
-    LPC_IOCON->P2_9 |= 0x01;    
+    // Configure pin P0.14 to be Connect
+    LPC_IOCON->P0_14 &= ~0x07;
+    LPC_IOCON->P0_14 |= 0x03;    
 
     // Connect must be low for at least 2.5uS
     wait(0.3);
