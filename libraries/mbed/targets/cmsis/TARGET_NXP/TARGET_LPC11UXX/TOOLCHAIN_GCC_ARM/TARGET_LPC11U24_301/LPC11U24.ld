@@ -4,7 +4,7 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 32K
-  RAM (rwx) : ORIGIN = 0x100000C0, LENGTH = 0x1F40
+  RAM (rwx) : ORIGIN = 0x100000C0, LENGTH = 0x1740
   USB_RAM (rwx): ORIGIN = 0x20004000, LENGTH = 0x800
 }
 
@@ -152,4 +152,3 @@ SECTIONS
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
-
