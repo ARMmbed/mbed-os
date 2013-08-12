@@ -232,7 +232,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
-    uint8_t count;
+    int count;
     char dummy_read, *ptr;
 
     if (i2c_start(obj)) {
@@ -357,8 +357,9 @@ int i2c_slave_receive(i2c_t *obj) {
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
-    uint8_t dummy_read, count;
+    uint8_t dummy_read;
     uint8_t * ptr;
+    int count;
     
     // set rx mode
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
