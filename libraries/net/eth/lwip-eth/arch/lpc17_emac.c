@@ -1021,7 +1021,11 @@ err_t lpc_enetif_init(struct netif *netif)
 	lpc_enetdata.netif = netif;
 
 	/* set MAC hardware address */
+#if defined(MBED_MAC_ADDRESS)
+    snprintf((char *)netif->hwaddr, NETIF_MAX_HWADDR_LEN, "%12x", "MBED_MAC_ADDRESS");
+#else
 	mbed_mac_address((char *)netif->hwaddr);
+#endif
 	netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
  	/* maximum transfer unit */

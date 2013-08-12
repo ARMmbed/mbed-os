@@ -69,9 +69,14 @@ static void init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
 }
 
 static void set_mac_address(void) {
+#if defined(MBED_MAC_ADDRESS)
+    snprintf(mac_addr, 19, "%12x", "MBED_MAC_ADDRESS");
+#else
     char mac[6];
     mbed_mac_address(mac);
     snprintf(mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+#endif
+
 }
 
 int EthernetInterface::init() {
