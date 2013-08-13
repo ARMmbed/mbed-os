@@ -6,7 +6,7 @@
 * @version	1.0
 * @date		20. Nov. 2011
 * @author	NXP MCU SW Application Team
-* 
+*
 * Copyright(C) 2011, NXP Semiconductor
 * All rights reserved.
 *
@@ -62,7 +62,7 @@
 
 #if NO_SYS == 0
 /** \brief  Driver transmit and receive thread priorities
- * 
+ *
  * Thread priorities for receive thread and TX cleanup thread. Alter
  * to prioritize receive or transmit bandwidth. In a heavily loaded
  * system or with LEIP_DEBUG enabled, the priorities might be better
@@ -71,7 +71,7 @@
 #define TX_PRIORITY   (osPriorityNormal)
 
 /** \brief  Debug output formatter lock define
- * 
+ *
  * When using FreeRTOS and with LWIP_DEBUG enabled, enabling this
  * define will allow RX debug messages to not interleave with the
  * TX messages (so they are actually readable). Not enabling this
@@ -144,7 +144,7 @@ struct lpc_enetdata {
 
 /** \brief  LPC EMAC driver work data
  */
-ETHMEM_SECTION struct lpc_enetdata lpc_enetdata; 
+ETHMEM_SECTION struct lpc_enetdata lpc_enetdata;
 
 /* Write a value via the MII link (non-blocking) */
 void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
@@ -196,7 +196,7 @@ u32_t lpc_mii_read_data(void)
 }
 
 /* Starts a read operation via the MII link (non-blocking) */
-void lpc_mii_read_noblock(u32_t PhyReg) 
+void lpc_mii_read_noblock(u32_t PhyReg)
 {
 	/* Read value at PHY address and register */
 	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
@@ -204,7 +204,7 @@ void lpc_mii_read_noblock(u32_t PhyReg)
 }
 
 /* Read a value via the MII link (blocking) */
-err_t lpc_mii_read(u32_t PhyReg, u32_t *data) 
+err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
 {
 	u32_t mst = 250;
 	err_t sts = ERR_OK;
@@ -307,7 +307,7 @@ s32_t lpc_rx_queue(struct netif *netif)
 }
 
 /** \brief  Sets up the RX descriptor ring buffers.
- * 
+ *
  *  This function sets up the descriptor list used for receive packets.
  *
  *  \param[in]  lpc_enetif  Pointer to driver data structure
@@ -414,7 +414,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
 				("lpc_low_level_input: Packet dropped with errors (0x%x)\n",
 				lpc_enetif->prxs[idx].statusinfo));
-			
+
 			p = NULL;
 		} else {
 			/* A packet is waiting, get length */
@@ -447,7 +447,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 #endif
 #endif
 
-	return p;  
+	return p;
 }
 
 /** \brief  Attempt to read a packet from the EMAC interface.
@@ -497,11 +497,11 @@ void lpc_enetif_input(struct netif *netif)
  */
 static s32_t lpc_packet_addr_notsafe(void *addr) {
 	/* Check for legal address ranges */
-#if defined(TARGET_LPC1768)  
+#if defined(TARGET_LPC1768)
 	if ((((u32_t) addr >= 0x2007C000) && ((u32_t) addr < 0x20083FFF))) {
 #elif defined(TARGET_LPC4088)
 	if ((((u32_t) addr >= 0x20000000) && ((u32_t) addr < 0x20007FFF))) {
-#endif  
+#endif
 	    return 0;
 	}
 	return 1;
@@ -641,7 +641,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 		/* Allocate a pbuf in DMA memory */
 		np = pbuf_alloc(PBUF_RAW, p->tot_len, PBUF_RAM);
 		if (np == NULL)
-			return ERR_MEM;	
+			return ERR_MEM;
 
 		/* This buffer better be contiguous! */
 		LWIP_ASSERT("lpc_low_level_output: New transmit pbuf is chained",
@@ -654,7 +654,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	  		MEMCPY(dst, (u8_t *) q->payload, q->len);
 		  dst += q->len;
 		}
-		np->len = p->tot_len; 
+		np->len = p->tot_len;
 
 		LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
 			("lpc_low_level_output: Switched to DMA safe buffer, old=%p, new=%p\n",
@@ -759,12 +759,12 @@ void ENET_IRQHandler(void)
         /* RX group interrupt(s): Give semaphore to wakeup RX receive task.*/
         sys_sem_signal(&lpc_enetdata.RxSem);
     }
-    
+
     if (ints & TXINTGROUP) {
         /* TX group interrupt(s): Give semaphore to wakeup TX cleanup task. */
         sys_sem_signal(&lpc_enetdata.TxCleanSem);
     }
-    
+
 	/* Clear pending interrupts */
 	LPC_EMAC->IntClear = ints;
 #endif
@@ -780,11 +780,11 @@ void ENET_IRQHandler(void)
  */
 static void packet_rx(void* pvParameters) {
     struct lpc_enetdata *lpc_enetif = pvParameters;
-    
+
     while (1) {
         /* Wait for receive task to wakeup */
         sys_arch_sem_wait(&lpc_enetif->RxSem, 0);
-        
+
         /* Process packets until all empty */
         while (LPC_EMAC->RxConsumeIndex != LPC_EMAC->RxProduceIndex)
             lpc_enetif_input(lpc_enetif->netif);
@@ -802,18 +802,18 @@ static void packet_rx(void* pvParameters) {
 static void packet_tx(void* pvParameters) {
     struct lpc_enetdata *lpc_enetif = pvParameters;
     s32_t idx;
-    
+
     while (1) {
         /* Wait for transmit cleanup task to wakeup */
         sys_arch_sem_wait(&lpc_enetif->TxCleanSem, 0);
-        
+
         /* Error handling for TX underruns. This should never happen unless
            something is holding the bus or the clocks are going too slow. It
             can probably be safely removed. */
         if (LPC_EMAC->IntStatus & EMAC_INT_TX_UNDERRUN) {
             LINK_STATS_INC(link.err);
             LINK_STATS_INC(link.drop);
-            
+
 #if NO_SYS == 0
             /* Get exclusive access */
             sys_mutex_lock(&lpc_enetif->TXLockMutex);
@@ -821,7 +821,7 @@ static void packet_tx(void* pvParameters) {
             /* Reset the TX side */
             LPC_EMAC->MAC1 |= EMAC_MAC1_RES_TX;
             LPC_EMAC->IntClear = EMAC_INT_TX_UNDERRUN;
-            
+
             /* De-allocate all queued TX pbufs */
             for (idx = 0; idx < LPC_NUM_BUFF_TXDESCS; idx++) {
                 if (lpc_enetif->txb[idx] != NULL) {
@@ -829,7 +829,7 @@ static void packet_tx(void* pvParameters) {
                     lpc_enetif->txb[idx] = NULL;
                 }
             }
-            
+
 #if NO_SYS == 0
             /* Restore access */
             sys_mutex_unlock(&lpc_enetif->TXLockMutex);
@@ -855,8 +855,8 @@ static err_t low_level_init(struct netif *netif)
 
 	/* Enable MII clocking */
 	LPC_SC->PCONP |= CLKPWR_PCONP_PCENET;
-	
-#if defined(TARGET_LPC1768)  
+
+#if defined(TARGET_LPC1768)
 	LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
 	LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
 #elif defined(TARGET_LPC4088)
@@ -880,8 +880,8 @@ static err_t low_level_init(struct netif *netif)
   LPC_IOCON->P1_16 |= 0x01;     /* ENET_MDC */
   LPC_IOCON->P1_17 &= ~0x07;
   LPC_IOCON->P1_17 |= 0x01;     /* ENET_MDIO */
-#endif  
-	
+#endif
+
 	/* Reset all MAC logic */
 	LPC_EMAC->MAC1 = EMAC_MAC1_RES_TX | EMAC_MAC1_RES_MCS_TX |
 		EMAC_MAC1_RES_RX | EMAC_MAC1_RES_MCS_RX | EMAC_MAC1_SIM_RES |
@@ -889,7 +889,7 @@ static err_t low_level_init(struct netif *netif)
 	LPC_EMAC->Command = EMAC_CR_REG_RES | EMAC_CR_TX_RES | EMAC_CR_RX_RES |
 		EMAC_CR_PASS_RUNT_FRM;
 	osDelay(10);
-	
+
 	/* Initial MAC initialization */
 	LPC_EMAC->MAC1 = EMAC_MAC1_PASS_ALL;
 	LPC_EMAC->MAC2 = EMAC_MAC2_CRC_EN | EMAC_MAC2_PAD_EN |
@@ -980,7 +980,7 @@ void lpc_emac_set_speed(int mbs_100)
  *
  * \param[in] netif the lwip network interface structure for this lpc_enetif
  * \param[in] q Pointer to pbug to send
- * \param[in] ipaddr IP address 
+ * \param[in] ipaddr IP address
  * \return ERR_OK or error code
  */
 err_t lpc_etharp_output(struct netif *netif, struct pbuf *q,
@@ -1017,12 +1017,17 @@ err_t lpc_enetif_init(struct netif *netif)
 	err_t err;
 
 	LWIP_ASSERT("netif != NULL", (netif != NULL));
-    
+
 	lpc_enetdata.netif = netif;
 
 	/* set MAC hardware address */
-#if defined(MBED_MAC_ADDRESS)
-    snprintf((char *)netif->hwaddr, NETIF_MAX_HWADDR_LEN, "%12x", "MBED_MAC_ADDRESS");
+#if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
+	netif->hwaddr[0] = MBED_MAC_ADDR_0;
+	netif->hwaddr[1] = MBED_MAC_ADDR_1;
+	netif->hwaddr[2] = MBED_MAC_ADDR_2;
+	netif->hwaddr[3] = MBED_MAC_ADDR_3;
+	netif->hwaddr[4] = MBED_MAC_ADDR_4;
+	netif->hwaddr[5] = MBED_MAC_ADDR_5;
 #else
 	mbed_mac_address((char *)netif->hwaddr);
 #endif
@@ -1072,12 +1077,12 @@ err_t lpc_enetif_init(struct netif *netif)
 	err = sys_sem_new(&lpc_enetdata.TxCleanSem, 0);
 	LWIP_ASSERT("TxCleanSem creation error", (err == ERR_OK));
 	sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
-	
+
 	/* periodic PHY status update */
 	osTimerId phy_timer = osTimerCreate(osTimer(phy_update), osTimerPeriodic, (void *)netif);
 	osTimerStart(phy_timer, 250);
 #endif
-    
+
     return ERR_OK;
 }
 
