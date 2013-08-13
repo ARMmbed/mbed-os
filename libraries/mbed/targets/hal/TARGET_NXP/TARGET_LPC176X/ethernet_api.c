@@ -697,7 +697,7 @@ int ethernet_receive() {
     if(receive_idx == -1) {
       receive_idx = LPC_EMAC->RxConsumeIndex;
     } else {
-        while(!(rxstat[receive_idx].Info & RINFO_LAST_FLAG) && (receive_idx != LPC_EMAC->RxProduceIndex)) {
+        while(!(rxstat[receive_idx].Info & RINFO_LAST_FLAG) && ((uint32_t)receive_idx != LPC_EMAC->RxProduceIndex)) {
             receive_idx  = rinc(receive_idx, NUM_RX_FRAG);
         }
         unsigned int info =   rxstat[receive_idx].Info;
@@ -713,7 +713,7 @@ int ethernet_receive() {
         LPC_EMAC->RxConsumeIndex = receive_idx;
     }
 
-    if(receive_idx == LPC_EMAC->RxProduceIndex) {
+    if((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex) {
         receive_idx = -1;
         return 0;
     }
@@ -762,7 +762,7 @@ int ethernet_read(char *data, int dlen) {
     void        *pdst, *psrc;
     int          doff = 0;
 
-    if(receive_idx == LPC_EMAC->RxProduceIndex || receive_idx == -1) {
+    if((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex || receive_idx == -1) {
         return 0;
     }
 
