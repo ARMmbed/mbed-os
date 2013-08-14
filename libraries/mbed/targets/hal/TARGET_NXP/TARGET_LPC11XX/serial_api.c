@@ -249,12 +249,6 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
-    
-#warning TODO(@toyowata): need to fix a full-duplex bug? https://mbed.org/forum/bugs-suggestions/topic/4473/
-    uint32_t lsr = obj->uart->LSR;
-    lsr = lsr;
-    uint32_t thr = obj->uart->THR;
-    thr = thr;
 }
 
 int serial_readable(serial_t *obj) {
