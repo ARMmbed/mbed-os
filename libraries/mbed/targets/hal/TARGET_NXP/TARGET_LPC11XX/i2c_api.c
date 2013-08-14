@@ -383,5 +383,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     if ((idx >= 0) && (idx <= 3)) {
         addr = ((uint32_t)obj->i2c) + I2C_addr_offset[0][idx];
         *((uint32_t *) addr) = address & 0xFF;
+        addr = ((uint32_t)obj->i2c) + I2C_addr_offset[1][idx];
+        *((uint32_t *) addr) = mask & 0xFE;
     }
 }
