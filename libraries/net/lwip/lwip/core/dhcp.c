@@ -564,7 +564,7 @@ dhcp_handle_ack(struct netif *netif)
 #if LWIP_DNS
   /* DNS servers */
   n = 0;
-  while(dhcp_option_given(dhcp, DHCP_OPTION_IDX_DNS_SERVER + n) && (n < DNS_MAX_SERVERS)) {
+  while((n < DNS_MAX_SERVERS) && dhcp_option_given(dhcp, DHCP_OPTION_IDX_DNS_SERVER + n)) {
     ip_addr_t dns_addr;
     ip4_addr_set_u32(&dns_addr, htonl(dhcp_get_option_value(dhcp, DHCP_OPTION_IDX_DNS_SERVER + n)));
     dns_setserver(n, &dns_addr);
@@ -975,7 +975,7 @@ dhcp_bind(struct netif *netif)
 
   ip_addr_copy(gw_addr, dhcp->offered_gw_addr);
   /* gateway address not given? */
-  if (ip_addr_isany(&gw_addr)) {
+  if (gw_addr.addr == IPADDR_ANY) {
     /* copy network address */
     ip_addr_get_network(&gw_addr, &dhcp->offered_ip_addr, &sn_mask);
     /* use first host address on network as gateway */
@@ -1678,9 +1678,13 @@ dhcp_create_msg(struct netif *netif, struct dhcp *dhcp, u8_t message_type)
   ip_addr_set_zero(&dhcp->msg_out->yiaddr);
   ip_addr_set_zero(&dhcp->msg_out->siaddr);
   ip_addr_set_zero(&dhcp->msg_out->giaddr);
-  for (i = 0; i < DHCP_CHADDR_LEN; i++) {
-    /* copy netif hardware address, pad with zeroes */
-    dhcp->msg_out->chaddr[i] = (i < netif->hwaddr_len) ? netif->hwaddr[i] : 0/* pad byte*/;
+  for (i = 0; i < netif->hwaddr_len; i++) {
+    /* copy netif hardware address */
+    dhcp->msg_out->chaddr[i] = netif->hwaddr[i];
+  }
+  for ( ; i < DHCP_CHADDR_LEN; i++) {
+    /* ... pad rest with zeroes */
+    dhcp->msg_out->chaddr[i] = 0;
   }
   for (i = 0; i < DHCP_SNAME_LEN; i++) {
     dhcp->msg_out->sname[i] = 0;
