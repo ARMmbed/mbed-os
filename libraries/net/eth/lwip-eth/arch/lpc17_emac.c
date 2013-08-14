@@ -142,6 +142,8 @@ struct lpc_enetdata {
 #   define ETHMEM_SECTION ALIGNED(8)
 #endif
 
+#define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+
 /** \brief  LPC EMAC driver work data
  */
 ETHMEM_SECTION struct lpc_enetdata lpc_enetdata; 
