@@ -18,6 +18,19 @@
 
 #include "device.h"
 
+/* Mbed interface mac address
+ * if MBED_MAC_ADD_x are zero, interface uid sets mac address,
+ * otherwise MAC_ADD_x are used.
+ */
+#define MBED_MAC_ADDR_INTERFACE 0x00
+#define MBED_MAC_ADDR_0  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDR_1  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDR_2  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDR_3  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDR_4  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDR_5  MBED_MAC_ADDR_INTERFACE
+#define MBED_MAC_ADDRESS_SUM (MBED_MAC_ADDR_0 | MBED_MAC_ADDR_1 | MBED_MAC_ADDR_2 | MBED_MAC_ADDR_3 | MBED_MAC_ADDR_4 | MBED_MAC_ADDR_5)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
