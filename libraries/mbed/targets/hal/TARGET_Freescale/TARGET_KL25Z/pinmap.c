@@ -17,7 +17,7 @@
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    if (pin == (PinName)NC) return;
 
     uint32_t port_n = (uint32_t)pin >> PORT_SHIFT;
     uint32_t pin_n  = (uint32_t)(pin & 0x7C) >> 2;
@@ -30,7 +30,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    if (pin == (PinName)NC) { return; }
 
     __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
 
