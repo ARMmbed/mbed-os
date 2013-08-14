@@ -133,21 +133,6 @@ SECTIONS
         Image$$RW_IRAM3$$ZI$$Limit = .;
     } > ETH_RAM
     
-    /* .data_RAM2 : ALIGN(4)
-    {
-       FILL(0xff)
-        *(.data.$RAM2*)
-        *(.data.$ETH_RAM*)
-       . = ALIGN(4) ;
-    } > ETH_RAM AT>FLASH
-        
-    .bss_RAM2 : ALIGN(4)
-    {
-        *(.bss.$RAM2*)
-        *(.bss.$ETH_RAM*)
-       . = ALIGN(4) ;
-    } > ETH_RAM
-    */
     
     .bss :
     {
