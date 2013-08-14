@@ -551,31 +551,26 @@ TESTS = [
         "id": "NET_9", "description": "Multicast Send",
         "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_send"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-     #   "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "NET_10", "description": "Multicast Receive",
         "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_receive"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-     #   "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "NET_11", "description": "Broadcast Send",
         "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_send"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-     #   "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "NET_12", "description": "Broadcast Receive",
         "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_receive"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-     #   "supported": CORTEX_ARM_SUPPORT,
     },
     {
         "id": "NET_13", "description": "TCP client echo loop",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-     #   "supported": CORTEX_ARM_SUPPORT,
     },
     
     # Vodafone tests
