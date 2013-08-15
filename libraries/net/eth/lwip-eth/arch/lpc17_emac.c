@@ -424,9 +424,30 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			p = lpc_enetif->rxb[idx];
 			p->len = (u16_t) length;
 
-			/* Free pbuf from desriptor */
+			/* Free pbuf from descriptor */
 			lpc_enetif->rxb[idx] = NULL;
 			lpc_enetif->rx_free_descs++;
+
+			/* Attempt to queue new buffer(s) */
+			if (lpc_rx_queue(lpc_enetif->netif) == 0) {
+    			/* Drop the frame due to OOM. */
+    			LINK_STATS_INC(link.drop);
+
+    			/* Re-queue the pbuf for receive */
+    			lpc_rxqueue_pbuf(lpc_enetif, p);
+
+    			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
+    				("lpc_low_level_input: Packet index %d dropped for OOM\n",
+    				idx));
+			
+#ifdef LOCK_RX_THREAD
+#if NO_SYS == 0
+        		sys_mutex_unlock(&lpc_enetif->TXLockMutex);
+#endif
+#endif
+
+		        return NULL;
+			}
 
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
 				("lpc_low_level_input: Packet received: %p, size %d (index=%d)\n",
@@ -435,9 +456,6 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			/* Save size */
 			p->tot_len = (u16_t) length;
 			LINK_STATS_INC(link.recv);
-
-			/* Queue new buffer(s) */
-			lpc_rx_queue(lpc_enetif->netif);
 		}
 	}
 
