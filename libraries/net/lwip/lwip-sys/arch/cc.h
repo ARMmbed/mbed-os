@@ -80,7 +80,6 @@ typedef uintptr_t          mem_ptr_t;
     #define PACK_STRUCT_END
     #define PACK_STRUCT_FIELD(fld) fld
     #define ALIGNED(n)  __attribute__((aligned (n)))
-    #define ALIGNED(n)  __align(n)
 #endif 
 
 /* Used with IP headers only */
