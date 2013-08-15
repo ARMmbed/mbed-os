@@ -228,9 +228,9 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 	u32_t tmp;
 	s32_t i;
 
-	physts.phy_speed_100mbs = olddphysts.phy_speed_100mbs = 2;
-	physts.phy_full_duplex = olddphysts.phy_full_duplex = 2;
-	physts.phy_link_active = olddphysts.phy_link_active = 2;
+	physts.phy_speed_100mbs = olddphysts.phy_speed_100mbs = 0;
+	physts.phy_full_duplex = olddphysts.phy_full_duplex = 0;
+	physts.phy_link_active = olddphysts.phy_link_active = 0;
 	phyustate = 0;
 
 	/* Only first read and write are checked for failure */
