@@ -618,14 +618,14 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	struct lpc_enetdata *lpc_enetif = netif->state;
 	struct pbuf *q;
 	u8_t *dst;
-    u32_t idx;
+    u32_t idx, notdmasafe = 0;
 	struct pbuf *np;
-	u32_t dn, notdmasafe = 0;
+	s32_t dn;
 
 	/* Zero-copy TX buffers may be fragmented across mutliple payload
 	   chains. Determine the number of descriptors needed for the
 	   transfer. The pbuf chaining can be a mess! */
-	dn = (u32_t) pbuf_clen(p);
+	dn = (s32_t) pbuf_clen(p);
 
 	/* Test to make sure packet addresses are DMA safe. A DMA safe
 	   address is once that uses external memory or periphheral RAM.

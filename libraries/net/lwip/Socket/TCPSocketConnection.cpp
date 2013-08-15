@@ -66,7 +66,7 @@ int TCPSocketConnection::send_all(char* data, int length) {
     if ((_sock_fd < 0) || !_is_connected)
         return -1;
     
-    size_t writtenLen = 0;
+    int writtenLen = 0;
     TimeInterval timeout(_timeout);
     while (writtenLen < length) {
         if (!_blocking) {
@@ -110,7 +110,7 @@ int TCPSocketConnection::receive_all(char* data, int length) {
     if ((_sock_fd < 0) || !_is_connected)
         return -1;
     
-    size_t readLen = 0;
+    int readLen = 0;
     TimeInterval timeout(_timeout);
     while (readLen < length) {
         if (!_blocking) {
