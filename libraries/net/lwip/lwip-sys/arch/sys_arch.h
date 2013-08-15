@@ -51,7 +51,7 @@ typedef struct {
     osMessageQId    id;
     osMessageQDef_t def;
 #ifdef CMSIS_OS_RTX
-    uint32_t        queue[MB_SIZE];
+    uint32_t        queue[4+MB_SIZE]; /* The +4 is required for RTX OS_MCB overhead. */
 #endif
 } sys_mbox_t;
 
