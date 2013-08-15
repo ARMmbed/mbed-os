@@ -115,6 +115,26 @@ SECTIONS
 
     } > RAM
 
+    
+    /* Code can explicitly ask for data to be
+       placed in these higher RAM banks where
+       they will be left uninitialized.
+    */
+    .AHBSRAM0 (NOLOAD):
+    {
+        Image$$RW_IRAM2$$Base = . ;
+        *(AHBSRAM0)
+        Image$$RW_IRAM2$$ZI$$Limit = .;
+    } > USB_RAM
+
+    .AHBSRAM1 (NOLOAD):
+    {
+        Image$$RW_IRAM3$$Base = . ;
+        *(AHBSRAM1)
+        Image$$RW_IRAM3$$ZI$$Limit = .;
+    } > ETH_RAM
+    
+    
     .bss :
     {
         __bss_start__ = .;
@@ -123,6 +143,7 @@ SECTIONS
         __bss_end__ = .;
         Image$$RW_IRAM1$$ZI$$Limit = . ;
     } > RAM
+
     
     .heap :
     {

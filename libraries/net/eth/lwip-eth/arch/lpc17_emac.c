@@ -142,6 +142,10 @@ struct lpc_enetdata {
 #   define ETHMEM_SECTION ALIGNED(8)
 #endif
 
+#if defined(TARGET_LPC1768) && defined(TOOLCHAIN_GCC_ARM)
+#define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#endif
+
 /** \brief  LPC EMAC driver work data
  */
 ETHMEM_SECTION struct lpc_enetdata lpc_enetdata;
