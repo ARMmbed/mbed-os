@@ -29,14 +29,14 @@
 
 #define LWIP_RAW                    0
 
-#define TCPIP_MBOX_SIZE             6
-#define DEFAULT_TCP_RECVMBOX_SIZE   6
-#define DEFAULT_UDP_RECVMBOX_SIZE   6
-#define DEFAULT_RAW_RECVMBOX_SIZE   6
-#define DEFAULT_ACCEPTMBOX_SIZE     6
+#define TCPIP_MBOX_SIZE             8
+#define DEFAULT_TCP_RECVMBOX_SIZE   8
+#define DEFAULT_UDP_RECVMBOX_SIZE   8
+#define DEFAULT_RAW_RECVMBOX_SIZE   8
+#define DEFAULT_ACCEPTMBOX_SIZE     8
 
 #define TCPIP_THREAD_STACKSIZE      1024
-#define TCPIP_THREAD_PRIO           1
+#define TCPIP_THREAD_PRIO           (osPriorityNormal)
 
 #define DEFAULT_THREAD_STACKSIZE    512
 
