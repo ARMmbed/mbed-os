@@ -22,8 +22,6 @@
 #include "Socket/Socket.h"
 #include "Socket/Endpoint.h"
 
-#include <cstdint>
-
 /**
 UDP Socket
 */
