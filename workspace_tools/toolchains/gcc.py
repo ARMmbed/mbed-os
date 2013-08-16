@@ -50,7 +50,7 @@ class GCC(mbedToolchain):
         common_flags = ["-c", "-O2", "-Wall",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD"
+            "-MMD", "-fno-delete-null-pointer-checks",
             ] + self.cpu
         
         if "save-asm" in self.options:
