@@ -11,6 +11,9 @@ DigitalOut out(PTB1);
 #elif defined(TARGET_LPC812)
 DigitalOut out(P0_12);
 
+#elif defined(TARGET_LPC1114)
+DigitalOut out(LED2);
+
 #else
 DigitalOut out(p5);
 #endif
@@ -33,4 +36,5 @@ void toggleOff(void) {
 
 int main() {
     toggleOn();
+    while(1);
 }
