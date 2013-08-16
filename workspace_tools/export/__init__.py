@@ -15,8 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os, tempfile
-from os.path import join
+from os.path import join, exists, basename
+from os import makedirs
+from shutil import copytree, rmtree
 
+from workspace_tools.utils import mkdir
 from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 
@@ -80,3 +83,34 @@ def export(project_path, project_name, ide, target, destination='/tmp/', tempdir
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
     
     return zip_path, report
+
+
+###############################################################################
+# Generate project folders following the online conventions
+###############################################################################
+def copy_tree(src, dst, clean=True):
+    if exists(dst):
+        if clean:
+            rmtree(dst)
+        else:
+            return
+    
+    copytree(src, dst)
+
+
+def setup_user_prj(user_dir, prj_path, lib_paths=None):
+    """
+    Setup a project with the same directory structure of the mbed online IDE
+    """
+    mkdir(user_dir)
+    
+    # Project Path
+    copy_tree(prj_path, join(user_dir, "src"))
+    
+    # Project Libraries
+    user_lib = join(user_dir, "lib")
+    mkdir(user_lib)
+    
+    if lib_paths is not None:
+        for lib_path in lib_paths:
+            copy_tree(lib_path, join(user_lib, basename(lib_path)))

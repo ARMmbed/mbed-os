@@ -78,3 +78,9 @@ USB_LIBRARIES = join(BUILD_DIR, "usb")
 # USB Host
 USB_HOST = join(LIB_DIR, "USBHost")
 USB_HOST_LIBRARIES = join(BUILD_DIR, "usb_host")
+
+# Export
+EXPORT_DIR = join(BUILD_DIR, "export")
+EXPORT_WORKSPACE = join(EXPORT_DIR, "workspace")
+EXPORT_TMP = join(EXPORT_DIR, ".temp")
+

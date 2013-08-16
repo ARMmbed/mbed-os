@@ -19,21 +19,16 @@ from os.path import join, abspath, dirname, exists
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
 
+from shutil import move
+
 from workspace_tools.paths import *
-from workspace_tools.utils import mkdir, cmd, copy_file
-from workspace_tools.export import export
+from workspace_tools.utils import mkdir, cmd
+from workspace_tools.export import export, setup_user_prj
 
-from shutil import copytree
-
-EXPORT_DIR = join(BUILD_DIR, "export_test")
-USER_WORKSPACE = join(EXPORT_DIR, "user_workspace")
 
 USR_PRJ_NAME = "usr_prj"
-USER_PRJ = join(USER_WORKSPACE, USR_PRJ_NAME)
-USER_LIB = join(USER_PRJ, "lib")
+USER_PRJ = join(EXPORT_WORKSPACE, USR_PRJ_NAME)
 USER_SRC = join(USER_PRJ, "src")
-
-TEMP = join(USER_WORKSPACE, ".temp")
 
 
 def setup_test_user_prj():
@@ -41,14 +36,7 @@ def setup_test_user_prj():
         print 'Test user project already generated...'
         return
     
-    # Build project directory structure
-    for d in [USER_LIB, USER_SRC]:
-        mkdir(d)
-    
-    # Sources
-    print 'Copying sources...'
-    copy_file(join(TEST_DIR, "rtos", "mbed", "basic", "main.cpp"), join(USER_SRC, "main.cpp"))
-    copytree(join(LIB_DIR, "rtos"), join(USER_LIB, "rtos"))
+    setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(LIB_DIR, "rtos")])
     
     # FAKE BUILD URL
     open(join(USER_SRC, "mbed.bld"), 'w').write("http://mbed.org/users/mbed_official/code/mbed/builds/976df7c37ad5\n")
@@ -61,17 +49,16 @@ def fake_build_url_resolver(url):
 
 def test_export(toolchain, target, expected_error=None):
     if toolchain is None and target is None:
-        base_dir = join(TEMP, "zip")
+        base_dir = join(EXPORT_TMP, "zip")
     else:
-        base_dir = join(TEMP, toolchain, target)
+        base_dir = join(EXPORT_TMP, toolchain, target)
     temp_dir = join(base_dir, "temp")
     mkdir(temp_dir)
     
     zip_path, report = export(USER_PRJ, USR_PRJ_NAME, toolchain, target, base_dir, temp_dir, False, fake_build_url_resolver)
     
     if report['success']:
-        export_name = join(EXPORT_DIR, "export_%s_%s.zip" % (toolchain, target))
-        cmd(["mv", zip_path, export_name])
+        move(zip_path, join(EXPORT_DIR, "export_%s_%s.zip" % (toolchain, target)))
         print "[OK]"
     else:
         if expected_error is None:

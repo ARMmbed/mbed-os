@@ -32,15 +32,11 @@ from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.utils import args_error
 try:
     import workspace_tools.private_settings as ps
 except:
     ps = object()
-
-def args_error(parser, message):
-    print "\n\n%s\n\n" % message
-    parser.print_help()
-    sys.exit()
 
 
 if __name__ == '__main__':

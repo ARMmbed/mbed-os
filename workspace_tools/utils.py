@@ -84,3 +84,9 @@ def split_path(path):
     base, file = split(path)
     name, ext = splitext(file)
     return base, name, ext
+
+
+def args_error(parser, message):
+    print "\n\n%s\n\n" % message
+    parser.print_help()
+    sys.exit()

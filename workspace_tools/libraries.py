@@ -71,7 +71,6 @@ LIBRARIES = [
         "source_dir": [ETH_SOURCES, LWIP_SOURCES],
         "build_dir": ETH_LIBRARY,
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_SOURCES, LWIP_SOURCES],
-    #    "supported": CORTEX_ARM_SUPPORT
     },
     
     {

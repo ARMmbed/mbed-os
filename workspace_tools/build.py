@@ -40,10 +40,6 @@ if __name__ == '__main__':
     # Extra libraries
     parser.add_option("-r", "--rtos", action="store_true", dest="rtos",
                       default=False, help="Compile the rtos")
-    parser.add_option("-b", "--debug", action="store_true", dest="debug",
-                      default=False, help="Compile the debugging library")
-    parser.add_option("-f", "--fatfs", action="store_true", dest="fatfs",
-                      default=False, help="Compile the fatfs")
     parser.add_option("-e", "--eth", action="store_true", dest="eth",
                       default=False, help="Compile the ethernet library")
     parser.add_option("-V", "--vodafone", action="store_true", dest="vodafone",
@@ -56,7 +52,6 @@ if __name__ == '__main__':
                       default=False, help="Compile the DSP library")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
-    
     (options, args) = parser.parse_args()
     
     # Get target list
@@ -77,18 +72,14 @@ if __name__ == '__main__':
     # Additional Libraries
     if options.rtos:
         libraries.extend(["rtx", "rtos"])
-    if options.debug:
-        libraries.append("debug")
-    if options.fatfs:
-        libraries.append("fatfs")
-    if options.usb_host:
-        libraries.append("usb_host")
     if options.eth:
         libraries.append("eth")
     if options.vodafone:
         libraries.append("vodafone")
     if options.usb:
         libraries.append("usb")
+    if options.usb_host:
+        libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["cmsis_dsp", "dsp"])
     
