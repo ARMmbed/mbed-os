@@ -138,8 +138,14 @@ struct lpc_enetdata {
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
-#else
-#   define ETHMEM_SECTION ALIGNED(8)
+#elif defined(TARGET_LPC1768)
+#  if defined(TOOLCHAIN_GCC_ARM)
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#endif
+
+#ifndef ETHMEM_SECTION
+#define ETHMEM_SECTION ALIGNED(8)
 #endif
 
 /** \brief  LPC EMAC driver work data
@@ -424,9 +430,30 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			p = lpc_enetif->rxb[idx];
 			p->len = (u16_t) length;
 
-			/* Free pbuf from desriptor */
+			/* Free pbuf from descriptor */
 			lpc_enetif->rxb[idx] = NULL;
 			lpc_enetif->rx_free_descs++;
+
+			/* Attempt to queue new buffer(s) */
+			if (lpc_rx_queue(lpc_enetif->netif) == 0) {
+    			/* Drop the frame due to OOM. */
+    			LINK_STATS_INC(link.drop);
+
+    			/* Re-queue the pbuf for receive */
+    			lpc_rxqueue_pbuf(lpc_enetif, p);
+
+    			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
+    				("lpc_low_level_input: Packet index %d dropped for OOM\n",
+    				idx));
+			
+#ifdef LOCK_RX_THREAD
+#if NO_SYS == 0
+        		sys_mutex_unlock(&lpc_enetif->TXLockMutex);
+#endif
+#endif
+
+		        return NULL;
+			}
 
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
 				("lpc_low_level_input: Packet received: %p, size %d (index=%d)\n",
@@ -435,9 +462,6 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			/* Save size */
 			p->tot_len = (u16_t) length;
 			LINK_STATS_INC(link.recv);
-
-			/* Queue new buffer(s) */
-			lpc_rx_queue(lpc_enetif->netif);
 		}
 	}
 
@@ -618,14 +642,14 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	struct lpc_enetdata *lpc_enetif = netif->state;
 	struct pbuf *q;
 	u8_t *dst;
-    u32_t idx;
+    u32_t idx, notdmasafe = 0;
 	struct pbuf *np;
-	u32_t dn, notdmasafe = 0;
+	s32_t dn;
 
 	/* Zero-copy TX buffers may be fragmented across mutliple payload
 	   chains. Determine the number of descriptors needed for the
 	   transfer. The pbuf chaining can be a mess! */
-	dn = (u32_t) pbuf_clen(p);
+	dn = (s32_t) pbuf_clen(p);
 
 	/* Test to make sure packet addresses are DMA safe. A DMA safe
 	   address is once that uses external memory or periphheral RAM.

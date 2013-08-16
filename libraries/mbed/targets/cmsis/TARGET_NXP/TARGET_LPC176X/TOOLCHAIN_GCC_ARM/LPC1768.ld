@@ -4,7 +4,7 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 512K
-  RAM (rwx) : ORIGIN = 0x100000C8, LENGTH = 0x7F38
+  RAM (rwx) : ORIGIN = 0x100000C8, LENGTH = (32K - 0xC8)
 
   USB_RAM(rwx) : ORIGIN = 0x2007C000, LENGTH = 16K
   ETH_RAM(rwx) : ORIGIN = 0x20080000, LENGTH = 16K
@@ -84,6 +84,7 @@ SECTIONS
     .data : AT (__etext)
     {
         __data_start__ = .;
+        Image$$RW_IRAM1$$Base = .;
         *(vtable)
         *(.data*)
 
@@ -114,13 +115,16 @@ SECTIONS
 
     } > RAM
 
+    
     .bss :
     {
         __bss_start__ = .;
         *(.bss*)
         *(COMMON)
         __bss_end__ = .;
+        Image$$RW_IRAM1$$ZI$$Limit = . ;
     } > RAM
+
     
     .heap :
     {
@@ -146,4 +150,23 @@ SECTIONS
     
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+
+    /* Code can explicitly ask for data to be 
+       placed in these higher RAM banks where
+       they will be left uninitialized. 
+    */
+    .AHBSRAM0 (NOLOAD):
+    {
+        Image$$RW_IRAM2$$Base = . ;
+        *(AHBSRAM0)
+        Image$$RW_IRAM2$$ZI$$Limit = .;
+    } > USB_RAM
+
+    .AHBSRAM1 (NOLOAD):
+    {
+        Image$$RW_IRAM3$$Base = . ;
+        *(AHBSRAM1)
+        Image$$RW_IRAM3$$ZI$$Limit = .;
+    } > ETH_RAM
 }

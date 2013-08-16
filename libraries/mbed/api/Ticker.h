@@ -104,7 +104,7 @@ public:
      */
     template<typename T>
     pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), float t) {
-        return attach_us(tptr, mptr, t * 1000000.0f);         
+        return attach_us(tptr, mptr, t * 1000000.0f);
     }
 
     /** Add a function to be called by the Ticker at the end of the call chain
@@ -158,7 +158,7 @@ public:
      */
     template<typename T>
     pFunctionPointer_t attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
-        pFunctionPointer_t pf = _chain.add(mptr, tptr);
+        pFunctionPointer_t pf = _chain.add(tptr, mptr);
         setup(t);
         return pf;
     }

@@ -13,11 +13,11 @@ void led_blink(PinName led) {
 
 void notify_completion(bool success) {
     if (success) {
-        printf("{{success}}"NL);
+        printf("{{success}}" NL );
     } else {
-        printf("{{failure}}"NL);
+        printf("{{failure}}" NL );
     }
     
-    printf("{{end}}"NL);
+    printf("{{end}}" NL);
     led_blink(success?LED1:LED4);
 }

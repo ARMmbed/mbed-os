@@ -3,6 +3,14 @@
 # Private settings
 private_settings.py
 
+# Default Build Directory
+build/
+
+# Eclipse Project Files
+.cproject
+.project
+.pydevproject
+
 # C extensions
 *.so
 
@@ -34,8 +42,6 @@ nosetests.xml
 
 # Mr Developer
 .mr.developer.cfg
-.project
-.pydevproject
 
 output.txt
 uVision Project/
