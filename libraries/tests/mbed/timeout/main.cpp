@@ -25,14 +25,12 @@ void toggleOff (void);
 void toggleOn (void) {
     out = 1;
     led = 1;
-    timer.detach();
     timer.attach_us(toggleOff, 10000);
 }
 
 void toggleOff(void) {
     out = 0;
     led = 0;
-    timer.detach();
     timer.attach_us(toggleOn, 30000);
 }
 
