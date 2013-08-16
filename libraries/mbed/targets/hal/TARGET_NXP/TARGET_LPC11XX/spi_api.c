@@ -21,7 +21,6 @@
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {P0_6 , SPI_0, 0x02},
-    {P0_10, SPI_0, 0x02},
     {P2_11, SPI_0, 0x01},
     {P2_1 , SPI_1, 0x02},
     {NC   , NC   , 0}

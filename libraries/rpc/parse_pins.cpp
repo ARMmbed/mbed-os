@@ -22,6 +22,10 @@ PinName parse_pins(const char *str) {
     static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
                                 , p15, p16, p17, p18, p19, p20, p21, p22, p23
                                 , p24, p25, p26, p27, p28, p29, p30};
+#elif defined(TARGET_LPC1114)
+    static const PinName pin_names[] = {dp1, dp2, dp4, dp5, dp6, dp9, dp10, dp11
+                                , dp13, dp14, dp15, dp16, dp17, dp18, dp23
+                                , dp24, dp25, dp26, dp27, dp28};
 #elif defined(TARGET_LPC4088)                                
     static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
                                 , p15, p16, p17, p18, p19, p20, NC, NC, p23
@@ -29,7 +33,7 @@ PinName parse_pins(const char *str) {
                                 , p33, p34, NC, NC, p37, p38, p39};
 #endif
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088)|| defined(TARGET_LPC1114)
     if (str[0] == 'P') {              // Pn_n
         uint32_t port = str[1] - '0';
         uint32_t pin  = str[3] - '0'; // Pn_n

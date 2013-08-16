@@ -14,7 +14,9 @@ void report_iterations(void) {
     printf("%.2f\n", ((float)(tot)/(float)(initial_stack_p - initial_heap_p))*100.);
 #endif    
 #ifdef TOOLCHAIN_ARM
+#ifndef __MICROLIB
     __heapvalid((__heapprt) fprintf, stdout, 1);
+#endif
 #endif
 }
 

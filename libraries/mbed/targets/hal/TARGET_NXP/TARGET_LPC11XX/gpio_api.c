@@ -19,12 +19,10 @@
 uint32_t gpio_set(PinName pin) {
     // PIO default value of following ports are not same as others
     int f = ((pin == P0_0 ) || // RESET
-             (pin == P0_10) || // SWCLK
              (pin == P0_11) || // R
              (pin == P1_0 ) || // R
              (pin == P1_1 ) || // R
-             (pin == P1_2 ) || // R
-             (pin == P1_3 )) ? // 
+             (pin == P1_2 )) ? // R
              (1) : (0);
     
     pin_function(pin, f);
