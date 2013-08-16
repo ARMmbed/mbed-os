@@ -318,6 +318,12 @@ netif_find(char *name)
 void
 netif_set_ipaddr(struct netif *netif, ip_addr_t *ipaddr)
 {
+  /* Protect against dereferencing NULL pointers by
+     treating like ANY, as does ip_addr_set() */
+  if (!ipaddr) {
+    ipaddr = IP_ADDR_ANY;
+  }
+  
   /* TODO: Handling of obsolete pcbs */
   /* See:  http://mail.gnu.org/archive/html/lwip-users/2003-03/msg00118.html */
 #if LWIP_TCP
