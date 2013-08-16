@@ -11,6 +11,9 @@ DigitalOut out(PTB1);
 #elif defined(TARGET_LPC812)
 DigitalOut out(P0_12);
 
+#elif defined(TARGET_LPC1114)
+DigitalOut out(LED2);
+
 #else
 DigitalOut out(p5);
 #endif
@@ -22,15 +25,18 @@ void toggleOff (void);
 void toggleOn (void) {
     out = 1;
     led = 1;
+    timer.detach();
     timer.attach_us(toggleOff, 10000);
 }
 
 void toggleOff(void) {
     out = 0;
     led = 0;
+    timer.detach();
     timer.attach_us(toggleOn, 30000);
 }
 
 int main() {
     toggleOn();
+    while(1);
 }
