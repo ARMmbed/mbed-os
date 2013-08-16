@@ -30,7 +30,6 @@ static const PinMap PinMap_PWM[] = {
     /* CT16B0 */
     {P0_8 , PWM_1, 0x02},   /* MR0 */
     {P0_9 , PWM_2, 0x02},   /* MR1 */
-    {P0_10, PWM_3, 0x03},   /* MR2 */
 
     /* CT16B1 */
     {P1_9 , PWM_4, 0x01},   /* MR0 */
@@ -44,7 +43,6 @@ static const PinMap PinMap_PWM[] = {
     /* CT32B1 */
     {P1_1 , PWM_9 ,0x03},   /* MR0 */
     {P1_2 , PWM_10,0x03},   /* MR1 */
-    {P1_3 , PWM_11,0x03},   /* MR2 */
 
     {NC   , NC    ,0x00}
 };
@@ -54,10 +52,9 @@ typedef struct {
     uint8_t mr;
 } timer_mr;
 
-static timer_mr pwm_timer_map[11] = {
+static timer_mr pwm_timer_map[9] = {
     {0, 0}, /* CT16B0, MR0 */
     {0, 1}, /* CT16B0, MR1 */
-    {0, 2}, /* CT16B0, MR2 */
 
     {1, 0}, /* CT16B1, MR0 */
     {1, 1}, /* CT16B1, MR1 */
@@ -68,7 +65,6 @@ static timer_mr pwm_timer_map[11] = {
 
     {3, 0}, /* CT32B1, MR0 */
     {3, 1}, /* CT32B1, MR1 */
-    {3, 2}  /* CT32B1, MR2 */
 };
 
 static LPC_TMR_TypeDef *Timers[4] = {
