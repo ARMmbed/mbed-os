@@ -142,6 +142,7 @@ public:
      *  The function object created for 'fptr'
      */
     pFunctionPointer_t attach_us(void (*fptr)(void), unsigned int t) {
+        _chain.clear();
         pFunctionPointer_t pf = _chain.add(fptr);
         setup(t);
         return pf;
@@ -158,6 +159,7 @@ public:
      */
     template<typename T>
     pFunctionPointer_t attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
+        _chain.clear();
         pFunctionPointer_t pf = _chain.add(tptr, mptr);
         setup(t);
         return pf;
