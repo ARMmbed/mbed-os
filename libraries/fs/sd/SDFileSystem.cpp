@@ -356,7 +356,7 @@ int SDFileSystem::_read(uint8_t *buffer, uint32_t length) {
     while (_spi.write(0xFF) != 0xFE);
     
     // read data
-    for (int i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         buffer[i] = _spi.write(0xFF);
     }
     _spi.write(0xFF); // checksum
@@ -374,7 +374,7 @@ int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
     _spi.write(0xFE);
     
     // write the data
-    for (int i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         _spi.write(buffer[i]);
     }
     
@@ -400,7 +400,7 @@ int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
 static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
     uint32_t bits = 0;
     uint32_t size = 1 + msb - lsb;
-    for (int i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         uint32_t position = lsb + i;
         uint32_t byte = 15 - (position >> 3);
         uint32_t bit = position & 0x7;
