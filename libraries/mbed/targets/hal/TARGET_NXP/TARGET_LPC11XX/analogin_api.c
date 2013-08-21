@@ -44,14 +44,14 @@ void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     if (obj->adc == (uint32_t)NC) {
         error("ADC pin mapping failed");
+        return;
     }
     
     // Power up ADC
-    LPC_SYSCON->PDRUNCFG &= ~ (1 << 4);
+    LPC_SYSCON->PDRUNCFG &= ~(1 << 4);
     LPC_SYSCON->SYSAHBCLKCTRL |= ((uint32_t)1 << 13);
 
-    uint32_t offset = (uint32_t)pin & 0xff;
-    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + offset);
+    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + (pin & 0xff));
 
     // set pin to ADC mode
     *reg &= ~(1 << 7); // set ADMODE = 0 (analog mode)

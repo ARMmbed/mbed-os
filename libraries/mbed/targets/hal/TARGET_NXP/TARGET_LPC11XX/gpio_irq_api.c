@@ -19,42 +19,52 @@
 #include "error.h"
 #include "gpio_api.h"
 
-// The chip is capable of 4 external interrupts.
-#define CHANNEL_NUM 4
+// The chip is capable of 42 GPIO interrupts.
+// PIO0_0..PIO0_11, PIO1_0..PIO1_11, PIO2_0..PIO2_11, PIO3_0..PIO3_5
+#define CHANNEL_NUM 42
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-static PinName pin_names[CHANNEL_NUM] = {};
-static uint8_t trigger_events[CHANNEL_NUM] = {};
 
-static inline void handle_interrupt_in(uint32_t channel) {
+static inline int numofbits(uint32_t bits)
+{
+    // Count number of bits
+    bits = (bits & 0x55555555) + (bits >> 1 & 0x55555555);
+    bits = (bits & 0x33333333) + (bits >> 2 & 0x33333333);
+    bits = (bits & 0x0f0f0f0f) + (bits >> 4 & 0x0f0f0f0f);
+    bits = (bits & 0x00ff00ff) + (bits >> 8 & 0x00ff00ff);
+    return (bits & 0x0000ffff) + (bits >>16 & 0x0000ffff);
+}
+
+static inline void handle_interrupt_in(uint32_t port) {
     // Find out whether the interrupt has been triggered by a high or low value...
     // As the LPC1114 doesn't have a specific register for this, we'll just have to read
     // the level of the pin as if it were just a normal input...
-
+    
+    uint32_t channel;
+    
     // Get the number of the pin being used and the port typedef
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin_names[channel] & 0xF000) >> PORT_SHIFT) * 0x10000)));
-    uint8_t pin_num = (pin_names[channel] & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
-    uint8_t trigger_event = trigger_events[channel];
-
-    if (trigger_event == 1) 
-        irq_handler(channel_ids[channel], IRQ_RISE);
-    else if (trigger_event == 2)
-        irq_handler(channel_ids[channel], IRQ_FALL);
-    else {
-        // In order to get an idea of which kind of event it is,
-        // We need to read the logic level of the pin...
-
-        uint8_t logic = (port_reg->DATA & (1 << pin_num)) >> pin_num;
-
-        if (logic == 1)
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (port * 0x10000)));
+    
+    // Get index of function table from Mask Interrupt Status register
+    channel = numofbits(port_reg->MIS - 1);
+    
+    if (port_reg->MIS & port_reg->IBE) {
+        // both edge, read the level of pin
+        if ((port_reg->DATA & port_reg->MIS) != 0)
             irq_handler(channel_ids[channel], IRQ_RISE);
         else
             irq_handler(channel_ids[channel], IRQ_FALL);
     }
+    else if (port_reg->MIS & port_reg->IEV) {
+        irq_handler(channel_ids[channel], IRQ_RISE);
+    }
+    else {
+        irq_handler(channel_ids[channel], IRQ_FALL);
+    }
 
     // Clear the interrupt...
-    port_reg->IC |= 1 << pin_num;
+    port_reg->IC = port_reg->MIS;
 }
 
 void gpio_irq0(void) {handle_interrupt_in(0);}
@@ -63,48 +73,51 @@ void gpio_irq2(void) {handle_interrupt_in(2);}
 void gpio_irq3(void) {handle_interrupt_in(3);}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+    int channel;
+    uint32_t port_num;
+    
     if (pin == NC) return -1;
     
     // Firstly, we'll put some data in *obj so we can keep track of stuff.
     obj->pin = pin;
-	
-	// Set the handler to be the pointer at the top...
-	irq_handler = handler;
-
+    
+    // Set the handler to be the pointer at the top...
+    irq_handler = handler;
+    
     // Which port are we using?
-    int channel;
-    uint32_t port_reg = (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000));
-
-    switch (port_reg) {
-        case LPC_GPIO0_BASE:
+    port_num = ((pin & 0xF000) >> PORT_SHIFT);
+    
+    switch (port_num) {
+        case 0:
             NVIC_SetVector(EINT0_IRQn, (uint32_t)gpio_irq0);
             NVIC_EnableIRQ(EINT0_IRQn);
-            channel = 0;
             break;
-        case LPC_GPIO1_BASE:
+        case 1:
             NVIC_SetVector(EINT1_IRQn, (uint32_t)gpio_irq1);
             NVIC_EnableIRQ(EINT1_IRQn);
-            channel = 1;
             break;
-        case LPC_GPIO2_BASE:
+        case 2:
             NVIC_SetVector(EINT2_IRQn, (uint32_t)gpio_irq2);
             NVIC_EnableIRQ(EINT2_IRQn);
-            channel = 2;
             break;
-        case LPC_GPIO3_BASE:
+        case 3:
             NVIC_SetVector(EINT3_IRQn, (uint32_t)gpio_irq3);
             NVIC_EnableIRQ(EINT3_IRQn);
-            channel = 3;
             break;
         default:
-            channel = -1;
-            error("Invalid interrupt choice.");
-            break;
+            return -1;
     }
-
+    
+    // Generate index of function pointer table
+    // PIO0_0 - PIO0_11 :  0..11
+    // PIO1_0 - PIO1_11 : 12..23
+    // PIO2_0 - PIO2_11 : 24..35
+    // PIO3_0 - PIO3_5  : 36..41
+    channel = (port_num * 12) + ((pin & 0x0F00) >> PIN_SHIFT);
+    
     channel_ids[channel] = id;
-    pin_names[channel] = pin;
     obj->ch = channel;
+    
     return 0;
 }
 
@@ -118,49 +131,46 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((obj->pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
     // Need to get the pin number of the pin, not the value of the enum
-    uint8_t pin_num = (obj->pin & (0x0f << PIN_SHIFT)) >> PIN_SHIFT;
+    uint32_t pin_num = (1 << ((obj->pin & 0x0f00) >> PIN_SHIFT));
    
+    // Clear
+    port_reg->IC |= pin_num;
+    
+    // Make it edge sensitive.
+    port_reg->IS &= ~pin_num;
 
-    if (trigger_events[obj->ch] != 0) {
-        // We have an event.
-        // Enable both edge interrupts.
+    if ( (port_reg->IE & pin_num) != 0) {
+    // We have an event.
+    // Enable both edge interrupts.
 
         if (enable) {
-            trigger_events[obj->ch] = 3;
-            port_reg->IBE |= 1 << pin_num;
-            port_reg->IE |= 1 << pin_num;
+            port_reg->IBE |= pin_num;
+            port_reg->IE  |= pin_num;
         }
         else {
             // These all need to be opposite, to reenable the other one.
-            trigger_events[obj->ch] = event == IRQ_RISE ? 2 : 1;
-
-            port_reg->IBE &= ~(1 << pin_num);
+            port_reg->IBE &= ~pin_num;
 
             if (event == IRQ_RISE)
-                port_reg->IEV &= ~(1 << pin_num);
+                port_reg->IEV &= ~pin_num;
             else 
-                port_reg->IEV |= 1 << pin_num;
+                port_reg->IEV |=  pin_num;
 
-            port_reg->IE |= 1 << pin_num;
+            port_reg->IE |= pin_num;
         }
     }
     else {
-        if (enable) {
-            trigger_events[obj->ch] = event == IRQ_RISE ? 1 : 2;
-            port_reg->IE |= 1 << pin_num;
-        }
         // One edge
-        port_reg->IBE &= ~(1 << pin_num);
+        port_reg->IBE &= ~pin_num;
         // Rising/falling?
         if (event == IRQ_RISE)
-            port_reg->IEV |= 1 << pin_num;
+            port_reg->IEV |=  pin_num;
         else
-            port_reg->IEV &= ~(1 << pin_num);
+            port_reg->IEV &= ~pin_num;
+
+        if (enable) {
+            port_reg->IE |= pin_num;
+        }
     }
 
-    // Clear
-    port_reg->IC |= 1 << pin_num;
-    
-    // Make it edge sensitive.
-    port_reg->IS &= ~(1 << pin_num);
 }
