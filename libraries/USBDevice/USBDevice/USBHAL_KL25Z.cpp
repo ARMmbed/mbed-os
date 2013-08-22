@@ -75,7 +75,7 @@ static uint8_t addr = 0;
 static uint32_t Data1  = 0x55555555;
 
 static uint32_t frameNumber() {
-    return((USB0->FRMNUML | (USB0->FRMNUMH << 8) & 0x07FF));
+    return((USB0->FRMNUML | (USB0->FRMNUMH << 8)) & 0x07FF);
 }
 
 uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
