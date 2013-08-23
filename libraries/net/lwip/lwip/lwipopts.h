@@ -99,6 +99,7 @@
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
 #else
+#define LWIP_NOASSERT               1
 #define LWIP_STATS                  0
 #endif
 
