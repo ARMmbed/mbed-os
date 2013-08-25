@@ -998,6 +998,8 @@ pbuf_coalesce(struct pbuf *p, pbuf_layer layer)
   }
   err = pbuf_copy(q, p);
   LWIP_ASSERT("pbuf_copy failed", err == ERR_OK);
+  /* next line references err variable even if LWIP_ASSERT is ignored. */
+  (void)err;
   pbuf_free(p);
   return q;
 }

@@ -346,6 +346,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 	struct lpc_enetdata *lpc_enetif = netif->state;
 	struct pbuf *p = NULL;
 	u32_t idx, length;
+	u16_t origLength;
 
 #ifdef LOCK_RX_THREAD
 #if NO_SYS == 0
@@ -428,6 +429,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 
 			/* Zero-copy */
 			p = lpc_enetif->rxb[idx];
+			origLength = p->len;
 			p->len = (u16_t) length;
 
 			/* Free pbuf from descriptor */
@@ -440,6 +442,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
     			LINK_STATS_INC(link.drop);
 
     			/* Re-queue the pbuf for receive */
+    			p->len = origLength;
     			lpc_rxqueue_pbuf(lpc_enetif, p);
 
     			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
@@ -809,9 +812,8 @@ static void packet_rx(void* pvParameters) {
         /* Wait for receive task to wakeup */
         sys_arch_sem_wait(&lpc_enetif->RxSem, 0);
 
-        /* Process packets until all empty */
-        while (LPC_EMAC->RxConsumeIndex != LPC_EMAC->RxProduceIndex)
-            lpc_enetif_input(lpc_enetif->netif);
+        /* Process packet for this semaphore signal */
+        lpc_enetif_input(lpc_enetif->netif);
     }
 }
 

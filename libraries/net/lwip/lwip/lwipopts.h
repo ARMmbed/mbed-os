@@ -27,6 +27,8 @@
 #if NO_SYS == 0
 #include "cmsis_os.h"
 
+#define SYS_LIGHTWEIGHT_PROT        1
+
 #define LWIP_RAW                    0
 
 #define TCPIP_MBOX_SIZE             8
@@ -99,6 +101,7 @@
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
 #else
+#define LWIP_NOASSERT               1
 #define LWIP_STATS                  0
 #endif
 
