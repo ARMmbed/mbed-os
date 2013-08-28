@@ -812,8 +812,9 @@ static void packet_rx(void* pvParameters) {
         /* Wait for receive task to wakeup */
         sys_arch_sem_wait(&lpc_enetif->RxSem, 0);
 
-        /* Process packet for this semaphore signal */
-        lpc_enetif_input(lpc_enetif->netif);
+        /* Process packets until all empty */
+        while (LPC_EMAC->RxConsumeIndex != LPC_EMAC->RxProduceIndex)
+            lpc_enetif_input(lpc_enetif->netif);
     }
 }
 
