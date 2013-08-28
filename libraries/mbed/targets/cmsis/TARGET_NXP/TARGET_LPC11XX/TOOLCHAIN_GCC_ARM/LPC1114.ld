@@ -4,7 +4,7 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 32K
-  RAM (rwx) : ORIGIN = 0x10000000, LENGTH = 2K
+  RAM (rwx) :  ORIGIN = 0x100000C0, LENGTH = 0x0F40
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -40,6 +40,7 @@ SECTIONS
     .text :
     {
         KEEP(*(.isr_vector))
+		. = 0x200;
         *(.text*)
 
         KEEP(*(.init))
