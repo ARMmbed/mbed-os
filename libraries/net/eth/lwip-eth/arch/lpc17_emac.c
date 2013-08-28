@@ -127,7 +127,7 @@ struct lpc_enetdata {
 	struct pbuf *txb[LPC_NUM_BUFF_TXDESCS]; /**< TX pbuf pointer list, zero-copy mode */
 	u32_t lpc_last_tx_idx; /**< TX last descriptor index, zero-copy mode */
 #if NO_SYS == 0
-    sys_thread_t RxThread; /**< RX receive thread data object pointer */
+	sys_thread_t RxThread; /**< RX receive thread data object pointer */
 	sys_sem_t TxCleanSem; /**< TX cleanup thread wakeup semaphore */
 	sys_mutex_t TXLockMutex; /**< TX critical section mutex */
 	sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
