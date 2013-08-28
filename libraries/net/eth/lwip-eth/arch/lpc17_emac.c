@@ -88,6 +88,10 @@
  */
 #define TXINTGROUP (EMAC_INT_TX_UNDERRUN | EMAC_INT_TX_ERR | EMAC_INT_TX_DONE)
 
+/** \brief  Signal used for ethernet ISR to signal packet_rx() thread.
+ */
+#define RX_SIGNAL  1
+
 #else
 #define RXINTGROUP 0
 #define TXINTGROUP 0
@@ -123,7 +127,7 @@ struct lpc_enetdata {
 	struct pbuf *txb[LPC_NUM_BUFF_TXDESCS]; /**< TX pbuf pointer list, zero-copy mode */
 	u32_t lpc_last_tx_idx; /**< TX last descriptor index, zero-copy mode */
 #if NO_SYS == 0
-	sys_sem_t RxSem; /**< RX receive thread wakeup semaphore */
+    sys_thread_t RxThread; /**< RX receive thread data object pointer */
 	sys_sem_t TxCleanSem; /**< TX cleanup thread wakeup semaphore */
 	sys_mutex_t TXLockMutex; /**< TX critical section mutex */
 	sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
@@ -783,8 +787,8 @@ void ENET_IRQHandler(void)
 	ints = LPC_EMAC->IntStatus;
 
 	if (ints & RXINTGROUP) {
-        /* RX group interrupt(s): Give semaphore to wakeup RX receive task.*/
-        sys_sem_signal(&lpc_enetdata.RxSem);
+        /* RX group interrupt(s): Give signal to wakeup RX receive task.*/
+        osSignalSet(lpc_enetdata.RxThread->id, RX_SIGNAL);
     }
 
     if (ints & TXINTGROUP) {
@@ -810,7 +814,7 @@ static void packet_rx(void* pvParameters) {
 
     while (1) {
         /* Wait for receive task to wakeup */
-        sys_arch_sem_wait(&lpc_enetif->RxSem, 0);
+        osSignalWait(RX_SIGNAL, osWaitForever);
 
         /* Process packets until all empty */
         while (LPC_EMAC->RxConsumeIndex != LPC_EMAC->RxProduceIndex)
@@ -1096,9 +1100,8 @@ err_t lpc_enetif_init(struct netif *netif)
 	LWIP_ASSERT("TXLockMutex creation error", (err == ERR_OK));
 
 	/* Packet receive task */
-	err = sys_sem_new(&lpc_enetdata.RxSem, 0);
-	LWIP_ASSERT("RxSem creation error", (err == ERR_OK));
-	sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+	lpc_enetdata.RxThread = sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+	LWIP_ASSERT("RxThread creation error", (lpc_enetdata.RxThread));
 
 	/* Transmit cleanup task */
 	err = sys_sem_new(&lpc_enetdata.TxCleanSem, 0);
