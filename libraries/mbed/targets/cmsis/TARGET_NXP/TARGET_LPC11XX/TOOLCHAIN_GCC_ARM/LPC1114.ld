@@ -40,6 +40,8 @@ SECTIONS
     .text :
     {
         KEEP(*(.isr_vector))
+		*(.text.Reset_Handler)
+        *(.text.SystemInit)
 		. = 0x200;
         *(.text*)
 
