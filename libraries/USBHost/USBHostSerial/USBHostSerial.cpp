@@ -131,10 +131,10 @@ void USBHostSerial::format(int bits, Parity parity, int stop_bits) {
     line_coding.stop_bits = (stop_bits == 1) ? 0 : 2;
     
     // set line coding
-    int res = host->controlWrite(   dev,
-                                    USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
-                                    SET_LINE_CODING,
-                                    0, serial_intf, (uint8_t *)&line_coding, 7);
+    host->controlWrite( dev,
+                        USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
+                        SET_LINE_CODING,
+                        0, serial_intf, (uint8_t *)&line_coding, 7);
 }
 
 int USBHostSerial::_getc() {

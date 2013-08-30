@@ -82,7 +82,6 @@ bool USBHostMouse::connect() {
 
 void USBHostMouse::rxHandler() {
     int len_listen = int_in->getSize();
-    int len = int_in->getLengthTransferred();
     
     if (onUpdate) {
         (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
