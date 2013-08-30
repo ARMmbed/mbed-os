@@ -96,7 +96,6 @@ void USBHost::usb_process() {
                     
                     if (i == MAX_DEVICE_CONNECTED) {
                         USB_ERR("Too many device connected!!\r\n");
-                        deviceInited[i] = false;
                         usb_mutex.unlock();
                         continue;
                     }
@@ -287,7 +286,7 @@ void USBHost::transferCompleted(volatile uint32_t addr)
 {
     uint8_t state;
 
-    if(addr == NULL)
+    if(addr == 0)
         return;
 
     volatile HCTD* tdList = NULL;
@@ -481,6 +480,8 @@ void USBHost::unqueueEndpoint(USBEndpoint * ep)
                             break;
                         case INTERRUPT_ENDPOINT:
                             tailInterruptEndpoint = prec;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1158,7 +1159,8 @@ void USBHost::fillControlBuf(uint8_t requestType, uint8_t request, uint16_t valu
     setupPacket[0] = requestType;
     setupPacket[1] = request;
     //We are in LE so it's fine
-    *((uint16_t*)&setupPacket[2]) = value;
-    *((uint16_t*)&setupPacket[4]) = index;
-    *((uint16_t*)&setupPacket[6]) = (uint32_t) len;
+    uint16_t* setupPacketHalfWords = (uint16_t*)setupPacket;
+    setupPacketHalfWords[1] = value;
+    setupPacketHalfWords[2] = index;
+    setupPacketHalfWords[3] = (uint32_t) len;
 }
