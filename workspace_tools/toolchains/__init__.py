@@ -25,6 +25,7 @@ from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split
 from workspace_tools.patch import patch
 from workspace_tools.settings import BUILD_OPTIONS
 
+import workspace_tools.hooks as hooks
 
 def print_notify(event):
     # Default command line notification
@@ -144,6 +145,7 @@ class mbedToolchain:
     def __init__(self, target, options=None, notify=None):
         self.target = target
         self.name = self.__class__.__name__
+        self.hook = hooks.Hook(target, self)
         
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
         

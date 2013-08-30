@@ -23,6 +23,8 @@ CORE_LABELS = {
     "Cortex-M4" : "M4"
 }
 
+import os
+import shutil
 
 class Target:
     def __init__(self):
@@ -46,6 +48,8 @@ class Target:
     def get_labels(self):
         return [self.name, CORE_LABELS[self.core]] + self.extra_labels
 
+    def init_hooks(self, hook, toolchain_name):
+        pass
 
 class LPC2368(Target):
     def __init__(self):
@@ -140,6 +144,42 @@ class LPC4088(Target):
         
         self.supported_toolchains = ["ARM", "GCC_CR"]
 
+# Use this target to generate the custom binary image for LPC4088 EA boards
+class LPC4088_EA(LPC4088):
+    def __init__(self):
+        LPC4088.__init__(self)
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
+            hook.hook_add_binary("post", self.binary_hook)
+
+    @staticmethod
+    def binary_hook(t_self, elf, binf):
+        if not os.path.isdir(binf):
+            # Regular binary file, nothing to do
+            return
+        outbin = open(binf + ".temp", "wb")
+        partf = open(os.path.join(binf, "ER_IROM1"), "rb")
+        # Pad the fist part (internal flash) with 0xFF to 512k
+        data = partf.read()
+        outbin.write(data)
+        outbin.write('\xFF' * (512*1024 - len(data)))
+        partf.close()
+        # Read and append the second part (external flash) in chunks of fixed size
+        chunksize = 128 * 1024
+        partf = open(os.path.join(binf, "ER_IROM2"), "rb")
+        while True:
+            data = partf.read(chunksize)
+            outbin.write(data)
+            if len(data) < chunksize:
+                break
+        partf.close()
+        outbin.close()
+        # Remove the directory with the binary parts and rename the temporary
+        # file to 'binf'
+        shutil.rmtree(binf, True)
+        os.rename(binf + '.temp', binf)
+        t_self.debug("Generated custom binary file (internal flash + SPIFI)")
 
 class LPC4330_M4(Target):
     def __init__(self):
@@ -254,7 +294,8 @@ TARGETS = [
     LPC1347(),
     LPC1114(),
     LPC11C24(),
-    LPC11U35_401()
+    LPC11U35_401(),
+    LPC4088_EA()
 ]
 
 # Map each target name to its unique instance
