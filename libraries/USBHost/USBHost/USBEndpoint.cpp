@@ -27,8 +27,8 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
 
     //TDs have been allocated by the host
     memcpy((HCTD**)td_list, td_list_, sizeof(HCTD*)*2); //TODO: Maybe should add a param for td_list size... at least a define
-    memcpy(td_list_[0], 0, sizeof(HCTD));
-    memcpy(td_list_[1], 0, sizeof(HCTD));
+    memset(td_list_[0], 0, sizeof(HCTD));
+    memset(td_list_[1], 0, sizeof(HCTD));
     
     td_list[0]->ep = this;
     td_list[1]->ep = this;
