@@ -50,7 +50,7 @@ SECTIONS
     .text : {
         __privileged_code_start__ = . ;
         KEEP( *( .vectors ) )
-        KEEP( *( .privileged_code ) )
+        *( .privileged_code )
     
         __privileged_code_end__ = .;
 
@@ -144,8 +144,8 @@ SECTIONS
     /* Heap starts here and grows up in memory */
     . = ALIGN( 8 ) ;
     __heap_start__ = . ;
-	_pvHeapStart = . ;
-	end = . ;
+    _pvHeapStart = . ;
+    end = . ;
 
     .stab    0 (NOLOAD) : { *(.stab) }
     .stabstr 0 (NOLOAD) : { *(.stabstr) }

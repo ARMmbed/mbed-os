@@ -2,7 +2,7 @@
 
 
 
-.section .plivileged_code, "ax"
+.section .privileged_code, "ax"
 .arm
 
 
