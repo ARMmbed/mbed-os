@@ -2,7 +2,7 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(vectors)
 
-GROUP(-lsupc++ -lm -lc -lgcc)
+GROUP( libgcc.a libc.a libm.a libcr_newlib_nohost.a  crti.o crtn.o crtbegin.o crtend.o )
 
 /* Memory Definitions: */
 MEMORY
@@ -50,7 +50,7 @@ SECTIONS
     .text : {
         __privileged_code_start__ = . ;
         KEEP( *( .vectors ) )
-        *( .privileged_code )
+        KEEP( *( .privileged_code ) )
     
         __privileged_code_end__ = .;
 
@@ -144,6 +144,8 @@ SECTIONS
     /* Heap starts here and grows up in memory */
     . = ALIGN( 8 ) ;
     __heap_start__ = . ;
+	_pvHeapStart = . ;
+	end = . ;
 
     .stab    0 (NOLOAD) : { *(.stab) }
     .stabstr 0 (NOLOAD) : { *(.stabstr) }
