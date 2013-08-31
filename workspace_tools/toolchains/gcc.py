@@ -140,7 +140,7 @@ class GCC_ARM(GCC):
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target in ["LPC1768"]:
+        if target.name in ["LPC1768"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
         
         self.sys_libs.append("nosys")
