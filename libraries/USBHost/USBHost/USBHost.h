@@ -252,7 +252,7 @@ private:
 #endif
 
     // to store a setup packet
-    __attribute__((aligned(2))) uint8_t  setupPacket[8];
+    uint8_t  setupPacket[8];
     
     typedef struct {
         uint8_t event_id;
