@@ -82,8 +82,21 @@ typedef uintptr_t          mem_ptr_t;
     #define ALIGNED(n)  __attribute__((aligned (n)))
 #endif 
 
-/* Used with IP headers only */
-#define LWIP_CHKSUM_ALGORITHM 1
+/* Provide Thumb-2 routines for GCC to improve performance */
+#if defined(TOOLCHAIN_GCC) && defined(__thumb2__)
+    #define MEMCPY(dst,src,len)     thumb2_memcpy(dst,src,len)
+    #define LWIP_CHKSUM             thumb2_checksum
+    /* Set algorithm to 0 so that unused lwip_standard_chksum function
+       doesn't generate compiler warning */
+    #define LWIP_CHKSUM_ALGORITHM   0
+
+    void* thumb2_memcpy(void* pDest, const void* pSource, size_t length);
+    u16_t thumb2_checksum(void* pData, int length);
+#else
+    /* Used with IP headers only */
+    #define LWIP_CHKSUM_ALGORITHM   1
+#endif
+
 
 #ifdef LWIP_DEBUG
 
