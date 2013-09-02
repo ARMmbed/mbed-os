@@ -59,7 +59,7 @@ class LPC2368(Target):
         
         self.extra_labels = ['NXP', 'LPC23XX']
         
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM","GCC_ARM","GCC_CR"]
 
 
 class LPC1768(Target):
