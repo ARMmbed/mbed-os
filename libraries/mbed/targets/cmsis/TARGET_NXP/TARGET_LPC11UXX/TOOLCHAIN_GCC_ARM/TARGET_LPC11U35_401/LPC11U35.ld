@@ -1,10 +1,9 @@
-/* Linker script for mbed LPC1114 */
-
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 32K
-  RAM (rwx) :  ORIGIN = 0x100000C0, LENGTH = 0x0F40
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 64K
+  RAM (rwx) : ORIGIN = 0x100000C0, LENGTH = 0x1F40
+  USB_RAM (rwx): ORIGIN = 0x20004000, LENGTH = 0x800
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -40,9 +39,13 @@ SECTIONS
     .text :
     {
         KEEP(*(.isr_vector))
-		*(.text.Reset_Handler)
+        *(.text.Reset_Handler)
         *(.text.SystemInit)
-		. = 0x200;
+        
+        /* Only vectors and code running at reset are safe to be in first 512
+           bytes since RAM can be mapped into this area for RAM based interrupt
+           vectors. */
+        . = 0x00000200;
         *(.text*)
 
         KEEP(*(.init))

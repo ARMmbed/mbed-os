@@ -19,7 +19,7 @@ from os.path import join
 
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
-
+from workspace_tools.hooks import hook_tool
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -97,12 +97,13 @@ class ARM(mbedToolchain):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
     
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
+        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt", "--any_placement=first_fit"]
         if mem_map:
             args.extend(["--scatter", mem_map])
         
         self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
     
+    @hook_tool
     def binary(self, elf, bin):
         self.default_cmd([self.elf2bin, '--bin', '-o', bin, elf])
 

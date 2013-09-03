@@ -142,6 +142,7 @@ SECTIONS
     /* Heap starts here and grows up in memory */
     . = ALIGN( 8 ) ;
     __heap_start__ = . ;
+    end = . ;
 
     .stab    0 (NOLOAD) : { *(.stab) }
     .stabstr 0 (NOLOAD) : { *(.stabstr) }

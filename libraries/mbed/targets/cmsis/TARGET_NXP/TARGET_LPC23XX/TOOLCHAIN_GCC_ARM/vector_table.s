@@ -18,7 +18,7 @@
 
 
 
-        .section VECTOR_TABLE, "ax"
+        .section .vectors, "ax"
         .arm
 
 
@@ -34,7 +34,7 @@
 ;
 
 
-__main:
+_start:
         LDR PC, =__mbed_reset
         LDR PC, =__mbed_undef
         LDR PC, =__mbed_swi
