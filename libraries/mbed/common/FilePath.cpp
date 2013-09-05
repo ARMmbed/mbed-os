@@ -36,9 +36,6 @@ FilePath::FilePath(const char* file_path) : file_name(NULL), fb(NULL) {
         file_name++;
     }
 
-    FileBase::lookup(file_system, len);
-
-
     fb = FileBase::lookup(file_system, len);
 }
 
@@ -47,6 +44,8 @@ const char* FilePath::fileName(void) {
 }
 
 bool FilePath::isFileSystem(void) {
+    if (NULL == fb)
+        return false;
     return (fb->getPathType() == FileSystemPathType);
 }
 
@@ -58,6 +57,8 @@ FileSystemLike* FilePath::fileSystem(void) {
 }
 
 bool FilePath::isFile(void) {
+    if (NULL == fb)
+        return false;
     return (fb->getPathType() == FilePathType);
 }
 
@@ -66,6 +67,10 @@ FileLike* FilePath::file(void) {
         return (FileLike*)fb;
     }
     return NULL;
+}
+
+bool FilePath::exists(void) {
+    return fb != NULL;
 }
 
 } // namespace mbed
