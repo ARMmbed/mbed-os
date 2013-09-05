@@ -79,7 +79,18 @@ class GCC(mbedToolchain):
         for line in open(dep_path).readlines()[1:]:
             file = line.replace('\\\n', '').strip()
             if file:
-                dependencies.append(file)
+                # GCC might list more than one dependency on a single line, in this case
+                # the dependencies are separated by a space. However, a space might also
+                # indicate an actual space character in a dependency path, but in this case
+                # the space character is prefixed by a backslash.
+                # Temporary replace all '\ ' with a special char that is not used (\a in this
+                # case) to keep them from being interpreted by 'split' (they will be converted
+                # back later to a space char)
+                file = file.replace('\\ ', '\a')
+                if file.find(" ") == -1:
+                    dependencies.append(file.replace('\a', ' '))
+                else:
+                    dependencies = dependencies + [f.replace('\a', ' ') for f in file.split(" ")]
         return dependencies
     
     def parse_output(self, output):
