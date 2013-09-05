@@ -127,7 +127,7 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X']
+        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
         
         self.supported_toolchains = ["uARM"]
         
@@ -140,7 +140,7 @@ class LPC810(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC810']
+        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
         
         self.supported_toolchains = ["uARM"]
         
