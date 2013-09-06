@@ -90,7 +90,7 @@ class LPC11U24_301(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
