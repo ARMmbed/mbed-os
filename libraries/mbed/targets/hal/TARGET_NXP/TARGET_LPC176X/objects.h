@@ -47,6 +47,7 @@ struct pwmout_s {
 struct serial_s {
     LPC_UART_TypeDef *uart;
     int index;
+    uint8_t count;
 };
 
 struct analogin_s {
