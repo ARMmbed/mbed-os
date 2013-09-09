@@ -106,6 +106,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_2: obj->index = 2; break;
         case UART_3: obj->index = 3; break;
     }
+    obj->count = 0;
     
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     
@@ -283,6 +284,7 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
+    obj->count++;
     
     uint32_t lsr = obj->uart->LSR;
     lsr = lsr;
@@ -295,7 +297,13 @@ int serial_readable(serial_t *obj) {
 }
 
 int serial_writable(serial_t *obj) {
-    return obj->uart->LSR & 0x20;
+    int isWritable = 1;
+    if (obj->uart->LSR & 0x20)
+        obj->count = 0;
+    else if (obj->count >= 16)
+        isWritable = 0;
+        
+    return isWritable;
 }
 
 void serial_clear(serial_t *obj) {
