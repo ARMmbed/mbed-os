@@ -299,7 +299,8 @@ int serial_writable(serial_t *obj) {
 }
 
 void serial_clear(serial_t *obj) {
-    obj->uart->FCR = 1 << 1  // rx FIFO reset
+    obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                   | 1 << 1  // rx FIFO reset
                    | 1 << 2  // tx FIFO reset
                    | 0 << 6; // interrupt depth
 }
