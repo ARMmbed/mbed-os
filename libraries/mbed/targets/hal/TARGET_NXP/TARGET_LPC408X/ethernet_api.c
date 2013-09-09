@@ -962,3 +962,47 @@ void ethernet_set_link(int speed, int duplex) {
             break;
     }
 }
+
+/*
+ * The Embedded Artists LPC4088 QuickStart Board has an eeprom with a unique
+ * 48 bit ID. This ID is used as MAC address.
+ */
+
+#include "i2c_api.h"
+
+static int _macRetrieved = 0;
+static char _macAddr[6] = {0x00,0x02,0xF7,0xF0,0x00,0x00};
+#define EEPROM_24AA02E48_ADDR (0xA0)
+
+void mbed_mac_address(char *mac) {
+
+    if (_macRetrieved == 0) {
+        char tmp[6];
+        i2c_t i2cObj;
+
+        i2c_init(&i2cObj, P0_27, P0_28);
+
+        do {
+            // the unique ID is at offset 0xFA
+            tmp[0] = 0xFA;
+            if (i2c_write(&i2cObj, EEPROM_24AA02E48_ADDR, tmp, 1, 1) != 1) {
+                break; // failed to write
+            }
+
+
+            if (i2c_read(&i2cObj, EEPROM_24AA02E48_ADDR, tmp, 6, 1) != 6) {
+                break; // failed to read
+            }
+
+            memcpy(_macAddr, tmp, 6);
+
+        } while(0);
+
+        // We always consider the MAC address to be retrieved even though
+        // reading from the eeprom failed. If it wasn't possible to read
+        // from eeprom the default address will be used.
+        _macRetrieved = 1;
+    }
+
+    memcpy(mac, _macAddr, 6);
+}

@@ -88,9 +88,9 @@ typedef enum {
 } PinName;
 
 typedef enum {
-    PullUp = 0,
-    PullDown = 3,
-    PullNone = 2,
+    PullUp = 2,
+    PullDown = 1,
+    PullNone = 0,
     OpenDrain = 4
 } PinMode;
 
