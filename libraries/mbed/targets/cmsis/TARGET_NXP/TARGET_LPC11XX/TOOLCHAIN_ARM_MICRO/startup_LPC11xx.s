@@ -63,20 +63,20 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     PendSV_Handler            ; PendSV Handler
                 DCD     SysTick_Handler           ; SysTick Handler
 
-                DCD     FLEX_INT0_IRQHandler      ; All GPIO pin can be routed to FLEX_INTx
-                DCD     FLEX_INT1_IRQHandler      ;
-                DCD     FLEX_INT2_IRQHandler      ;
-                DCD     FLEX_INT3_IRQHandler      ;
-                DCD     FLEX_INT4_IRQHandler      ;
-                DCD     FLEX_INT5_IRQHandler      ;
-                DCD     FLEX_INT6_IRQHandler      ;
-                DCD     FLEX_INT7_IRQHandler      ;
-                DCD     GINT0_IRQHandler          ;
-                DCD     GINT1_IRQHandler          ; PIO0 (0:7)
-                DCD     Reserved_IRQHandler	  ; Reserved
-                DCD     Reserved_IRQHandler       ;
-                DCD     Reserved_IRQHandler       ;
-                DCD     Reserved_IRQHandler       ;
+                DCD     SLWU_INT0_IRQHandler      ; Start logic wake-up interrupt 0
+                DCD     SLWU_INT1_IRQHandler      ; Start logic wake-up interrupt 1
+                DCD     SLWU_INT2_IRQHandler      ; Start logic wake-up interrupt 2
+                DCD     SLWU_INT3_IRQHandler      ; Start logic wake-up interrupt 3
+                DCD     SLWU_INT4_IRQHandler      ; Start logic wake-up interrupt 4
+                DCD     SLWU_INT5_IRQHandler      ; Start logic wake-up interrupt 5
+                DCD     SLWU_INT6_IRQHandler      ; Start logic wake-up interrupt 6
+                DCD     SLWU_INT7_IRQHandler      ; Start logic wake-up interrupt 7
+                DCD     SLWU_INT8_IRQHandler      ; Start logic wake-up interrupt 8
+                DCD     SLWU_INT9_IRQHandler      ; Start logic wake-up interrupt 9
+                DCD     SLWU_INT10_IRQHandler     ; Start logic wake-up interrupt 10
+                DCD     SLWU_INT11_IRQHandler     ; Start logic wake-up interrupt 11
+                DCD     SLWU_INT12_IRQHandler     ; Start logic wake-up interrupt 12
+                DCD     C_CAN_IRQHandler          ; C_CAN
                 DCD     SSP1_IRQHandler           ; SSP1
                 DCD     I2C_IRQHandler            ; I2C
                 DCD     TIMER16_0_IRQHandler      ; 16-bit Timer0
@@ -85,19 +85,19 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     TIMER32_1_IRQHandler      ; 32-bit Timer1
                 DCD     SSP0_IRQHandler           ; SSP0
                 DCD     UART_IRQHandler           ; UART
-                DCD     USB_IRQHandler            ; USB IRQ
-                DCD     USB_FIQHandler            ; USB FIQ
+                DCD     Reserved_IRQHandler       ; Reserved
+                DCD     Reserved_IRQHandler       ; Reserved
                 DCD     ADC_IRQHandler            ; A/D Converter
                 DCD     WDT_IRQHandler            ; Watchdog timer
                 DCD     BOD_IRQHandler            ; Brown Out Detect
-                DCD     FMC_IRQHandler            ; IP2111 Flash Memory Controller
-                DCD     Reserved_IRQHandler	   ; Reserved
                 DCD     Reserved_IRQHandler       ; Reserved
-                DCD     Reserved_IRQHandler       ; Reserved
-                DCD     Reserved_IRQHandler       ; Reserved
+                DCD     PIO_3_IRQHandler	  ; GPIO interrupt status of port 3
+                DCD     PIO_2_IRQHandler          ; GPIO interrupt status of port 2
+                DCD     PIO_1_IRQHandler          ; GPIO interrupt status of port 1
+                DCD     PIO_0_IRQHandler          ; GPIO interrupt status of port 0
 	
 	;; 48 vector entries. We pad to 128 to fill the 0x0 - 0x1FF REMAP address space
-                
+
                 DCD     0xFFFFFFFF                ; Datafill
                 DCD     0xFFFFFFFF                ; Datafill
                 DCD     0xFFFFFFFF                ; Datafill
@@ -185,17 +185,14 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     0xFFFFFFFF                ; Datafill
                 DCD     0xFFFFFFFF                ; Datafill
                 DCD     0xFFFFFFFF                ; Datafill
-	
+
                 IF      :LNOT::DEF:NO_CRP
                 AREA    |.ARM.__at_0x02FC|, CODE, READONLY
 CRP_Key         DCD     0xFFFFFFFF
                 ENDIF
 
-
                 AREA    |.text|, CODE, READONLY
 
-
-	
 ; Reset Handler
 
 Reset_Handler   PROC
@@ -208,14 +205,10 @@ Reset_Handler   PROC
                 BX      R0
                 ENDP
 
-; Dummy Exception Handlers (infinite loops which can be modified)                
+; Dummy Exception Handlers (infinite loops which can be modified)
 
 ; now, under COMMON NMI.c and NMI.h, a real NMI handler is created if NMI is enabled 
 ; for particular peripheral.
-;NMI_Handler     PROC
-;                EXPORT  NMI_Handler               [WEAK]
-;                B       .
-;                ENDP
 HardFault_Handler\
                 PROC
                 EXPORT  HardFault_Handler         [WEAK]
@@ -239,18 +232,22 @@ Reserved_IRQHandler PROC
                 ENDP
 
 Default_Handler PROC
-; for LPC11Uxx (With USB)
+; for LPC1114
                 EXPORT  NMI_Handler               [WEAK]
-                EXPORT  FLEX_INT0_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT1_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT2_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT3_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT4_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT5_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT6_IRQHandler      [WEAK]
-                EXPORT  FLEX_INT7_IRQHandler      [WEAK]
-                EXPORT  GINT0_IRQHandler          [WEAK]
-                EXPORT  GINT1_IRQHandler          [WEAK]
+                EXPORT  SLWU_INT0_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT1_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT2_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT3_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT4_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT5_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT6_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT7_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT8_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT9_IRQHandler      [WEAK]
+                EXPORT  SLWU_INT10_IRQHandler     [WEAK]
+                EXPORT  SLWU_INT11_IRQHandler     [WEAK]
+                EXPORT  SLWU_INT12_IRQHandler     [WEAK]
+                EXPORT  C_CAN_IRQHandler          [WEAK]
                 EXPORT  SSP1_IRQHandler           [WEAK]
                 EXPORT  I2C_IRQHandler            [WEAK]
                 EXPORT  TIMER16_0_IRQHandler      [WEAK]
@@ -259,26 +256,30 @@ Default_Handler PROC
                 EXPORT  TIMER32_1_IRQHandler      [WEAK]
                 EXPORT  SSP0_IRQHandler           [WEAK]
                 EXPORT  UART_IRQHandler           [WEAK]
-
-                EXPORT  USB_IRQHandler            [WEAK]
-                EXPORT  USB_FIQHandler            [WEAK]
                 EXPORT  ADC_IRQHandler            [WEAK]
                 EXPORT  WDT_IRQHandler            [WEAK]
                 EXPORT  BOD_IRQHandler            [WEAK]
-                EXPORT  FMC_IRQHandler            [WEAK]
-                EXPORT	USBWakeup_IRQHandler      [WEAK]
+                EXPORT  PIO_3_IRQHandler          [WEAK]
+                EXPORT  PIO_2_IRQHandler          [WEAK]
+                EXPORT  PIO_1_IRQHandler          [WEAK]
+                EXPORT  PIO_0_IRQHandler          [WEAK]
 
 NMI_Handler
-FLEX_INT0_IRQHandler
-FLEX_INT1_IRQHandler
-FLEX_INT2_IRQHandler
-FLEX_INT3_IRQHandler
-FLEX_INT4_IRQHandler
-FLEX_INT5_IRQHandler
-FLEX_INT6_IRQHandler
-FLEX_INT7_IRQHandler
-GINT0_IRQHandler
-GINT1_IRQHandler
+
+SLWU_INT0_IRQHandler
+SLWU_INT1_IRQHandler
+SLWU_INT2_IRQHandler
+SLWU_INT3_IRQHandler
+SLWU_INT4_IRQHandler
+SLWU_INT5_IRQHandler
+SLWU_INT6_IRQHandler
+SLWU_INT7_IRQHandler
+SLWU_INT8_IRQHandler
+SLWU_INT9_IRQHandler
+SLWU_INT10_IRQHandler
+SLWU_INT11_IRQHandler
+SLWU_INT12_IRQHandler
+C_CAN_IRQHandler
 SSP1_IRQHandler
 I2C_IRQHandler
 TIMER16_0_IRQHandler
@@ -287,13 +288,13 @@ TIMER32_0_IRQHandler
 TIMER32_1_IRQHandler
 SSP0_IRQHandler
 UART_IRQHandler
-USB_IRQHandler
-USB_FIQHandler
 ADC_IRQHandler
 WDT_IRQHandler
 BOD_IRQHandler
-FMC_IRQHandler
-USBWakeup_IRQHandler
+PIO_3_IRQHandler
+PIO_2_IRQHandler
+PIO_1_IRQHandler
+PIO_0_IRQHandler
 
                 B       .
 

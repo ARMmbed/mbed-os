@@ -1,7 +1,11 @@
 #include "mbed.h"
 
 DigitalOut out(p5);
+#if defined(TARGET_LPC1114)
+AnalogIn in(p20);
+#else
 AnalogIn in(p19);
+#endif
 
 volatile float w, x, y, z;
 int main() {
