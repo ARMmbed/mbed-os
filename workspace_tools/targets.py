@@ -127,7 +127,20 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X']
+        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        
+        self.supported_toolchains = ["uARM"]
+        
+        self.is_disk_virtual = True
+
+
+class LPC810(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0+"
+        
+        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
         
         self.supported_toolchains = ["uARM"]
         
@@ -287,6 +300,7 @@ TARGETS = [
     KL05Z(),
     KL25Z(),
     LPC812(),
+    LPC810(),
     LPC4088(),
     LPC4330_M4(),
     STM32F407(),

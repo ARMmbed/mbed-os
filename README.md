@@ -24,6 +24,7 @@ NXP:
 * [LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
 * [LPC11U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
 * LPC2368 (ARM7TDMI-S)
+* LPC810 (Cortex-M0+)
 * LPC812 (Cortex-M0+)
 * LPC4088 (Cortex-M4)
 * LPC4330 (Cortex-M4 + Cortex-M0)

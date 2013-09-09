@@ -34,6 +34,7 @@ public:
 
     bool    isFile(void);
     FileLike* file(void);
+    bool    exists(void);
 
 private:
     const char* file_name;

@@ -163,7 +163,9 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     } else {
         FilePath path(name);
 
-        if (path.isFile()) {
+        if (!path.exists())
+            return -1;
+        else if (path.isFile()) {
             res = path.file();
         } else {
             FileSystemLike *fs = path.fileSystem();
