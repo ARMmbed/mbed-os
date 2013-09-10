@@ -22,9 +22,11 @@ care of updating them all.
 import sys
 from copy import copy
 from os import walk, remove, makedirs
-from os.path import join, abspath, dirname, relpath, exists, splitext
+from os.path import join, abspath, dirname, relpath, exists, isfile
 from shutil import copyfile
 from optparse import OptionParser
+import re
+import string
 
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.append(ROOT)
@@ -33,11 +35,12 @@ from workspace_tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
 from workspace_tools.paths import LIB_DIR
 from workspace_tools.utils import cmd, run_cmd
 
-
 MBED_URL = "mbed.org"
-# MBED_URL = "world2.dev.mbed.org"
 
-MBED_REPO_EXT = (".lib", ".bld")
+changed = []
+push_remote = True
+quiet = False
+commit_msg = ''
 
 # mbed_official code that does have a mirror in the mbed SDK
 OFFICIAL_CODE = ( 
@@ -88,6 +91,23 @@ CODE_WITH_DEPENDENCIES = (
     "mbed-src-program",
 )
 
+# A list of regular expressions that will be checked against each directory
+# name and skipped if they match.
+IGNORE_DIRS = (
+)
+
+IGNORE_FILES = (
+    'COPYING',
+    '\.md',
+    "\.lib",
+    "\.bld"
+)
+
+def ignore_path(name, reg_exps):
+    for r in reg_exps:
+        if re.search(r, name):
+            return True
+    return False
 
 class MbedOfficialRepository:
     URL = "http://" + MBED_URL + "/users/mbed_official/code/%s/"
@@ -114,30 +134,99 @@ class MbedOfficialRepository:
         stdout, _, _ = run_cmd(['hg', 'status'], wd=self.path)
         if stdout == '':
             print "No changes"
-            return
+            return False
         
         print stdout
-        commit = raw_input("Do you want to commit and push? Y/N: ")
+        if quiet:
+            commit = 'Y'
+        else:
+            commit = raw_input(push_remote and "Do you want to commit and push? Y/N: " or "Do you want to commit? Y/N: ")
         if commit == 'Y':
-            cmd(['hg', 'commit', '-u', MBED_ORG_USER], cwd=self.path)
-            cmd(['hg', 'push'], cwd=self.path)
+            args = ['hg', 'commit', '-u', MBED_ORG_USER]
+            if commit_msg:
+                args = args + ['-m', commit_msg]
+            cmd(args, cwd=self.path)
+            if push_remote:
+                cmd(['hg', 'push'], cwd=self.path)
+        return True
 
+# Check if a file is a text file or a binary file
+# Taken from http://code.activestate.com/recipes/173220/
+text_characters = "".join(map(chr, range(32, 127)) + list("\n\r\t\b"))
+_null_trans = string.maketrans("", "")
+def is_text_file(filename):
+    block_size = 1024
+    def istext(s):
+        if "\0" in s:
+            return 0
 
-def visit_files(path, visit, ignore=None, select=None):
+        if not s:  # Empty files are considered text
+            return 1
+
+        # Get the non-text characters (maps a character to itself then
+        # use the 'remove' option to get rid of the text characters.)
+        t = s.translate(_null_trans, text_characters)
+
+        # If more than 30% non-text characters, then
+        # this is considered a binary file
+        if float(len(t))/len(s) > 0.30:
+            return 0
+        return 1
+    with open(filename) as f:
+        res = istext(f.read(block_size))
+    return res
+
+# Return the line ending type for the given file ('cr' or 'crlf')
+def get_line_endings(f):
+  examine_size = 1024
+  try:
+    tf = open(f, "rb")
+    lines, ncrlf = tf.readlines(examine_size), 0
+    tf.close()
+    for l in lines:
+      if l.endswith("\r\n"):
+        ncrlf = ncrlf + 1
+    return 'crlf' if ncrlf > len(lines) >> 1 else 'cr'
+  except:
+    return 'cr'
+
+# Copy file to destination, but preserve destination line endings if possible
+# This prevents very annoying issues with huge diffs that appear because of 
+# differences in line endings
+def copy_with_line_endings(sdk_file, repo_file):
+    if not isfile(repo_file):
+        copyfile(sdk_file, repo_file)
+        return
+    is_text = is_text_file(repo_file)
+    if is_text:
+        sdk_le = get_line_endings(sdk_file)
+        repo_le = get_line_endings(repo_file)
+    if not is_text or sdk_le == repo_le:
+        copyfile(sdk_file, repo_file)
+    else:
+        print "Converting line endings in '%s' to '%s'" % (abspath(repo_file), repo_le)
+        f = open(sdk_file, "rb")
+        data = f.read()
+        f.close()
+        f = open(repo_file, "wb")
+        data = data.replace("\r\n", "\n") if repo_le == 'cr' else data.replace('\n','\r\n')
+        f.write(data)
+        f.close()
+
+def visit_files(path, visit):
     for root, dirs, files in walk(path):
         # Ignore hidden directories
         for d in copy(dirs):
+            full = join(root, d)
             if d.startswith('.'):
+                dirs.remove(d)
+            if ignore_path(full, IGNORE_DIRS):
+                print "Skipping '%s'" % full
                 dirs.remove(d)
         
         for file in files:
-            ext = splitext(file)[1]
-            
-            if ignore is not None:
-                if ext in ignore: continue
-            
-            if select is not None:
-                if ext not in select: continue
+            if ignore_path(file, IGNORE_FILES):
+                continue
             
             visit(join(root, file))
 
@@ -152,8 +241,8 @@ def update_repo(repo_name, sdk_path):
         if not exists(repo_dir):
             makedirs(repo_dir)
         
-        copyfile(sdk_file, repo_file)
-    visit_files(sdk_path, visit_mbed_sdk, ['.json'])
+        copy_with_line_endings(sdk_file, repo_file)
+    visit_files(sdk_path, visit_mbed_sdk)
     
     # remove repository files that do not exist in the mbed SDK
     def visit_repo(repo_file):
@@ -161,9 +250,10 @@ def update_repo(repo_name, sdk_path):
         if not exists(sdk_file):
             remove(repo_file)
             print "remove: %s" % repo_file
-    visit_files(repo.path, visit_repo, MBED_REPO_EXT)
+    visit_files(repo.path, visit_repo)
     
-    repo.publish()
+    if repo.publish():
+        changed.append(repo_name)
 
 
 def update_code(repositories):
@@ -186,7 +276,8 @@ def update_dependencies(repositories):
                 f.write(url[:(url.rindex('/')+1)])
         visit_files(repo.path, visit_repo, None, MBED_REPO_EXT)
         
-        repo.publish()
+        if repo.publish():
+            changed.append(repo_name)
 
 
 def update_mbed():
@@ -208,7 +299,22 @@ if __name__ == '__main__':
                   action="store_true",  default=False,
                   help="Release a build of the mbed library")
     
+    parser.add_option("-n", "--nopush",
+                  action="store_true", default=False,
+                  help="Commit the changes locally only, don't push them")
+
+    parser.add_option("", "--commit_message",
+                  action="store", type="string", default='', dest='msg',
+                  help="Commit message to use for all the commits")
+    parser.add_option("-q", "--quiet",
+                  action="store_true", default=False,
+                  help="Don't ask for confirmation before commiting or pushing")
+    
     (options, args) = parser.parse_args()
+    
+    push_remote = not options.nopush
+    quiet = options.quiet
+    commit_msg = options.msg
     
     if options.code:
         update_code(OFFICIAL_CODE)
@@ -218,4 +324,7 @@ if __name__ == '__main__':
     
     if options.mbed:
         update_mbed()
+
+    if changed:
+        print "Repositories with changes:", changed
 
