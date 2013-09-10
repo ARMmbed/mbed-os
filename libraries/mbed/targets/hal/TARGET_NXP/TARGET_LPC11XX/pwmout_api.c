@@ -32,17 +32,11 @@ static const PinMap PinMap_PWM[] = {
     {P0_9 , PWM_2, 0x02},   /* MR1 */
 
     /* CT16B1 */
-    {P1_9 , PWM_4, 0x01},   /* MR0 */
-    {P1_10, PWM_5, 0x02},   /* MR1 */
+    {P1_9 , PWM_3, 0x01},   /* MR0 */
+    {P1_10, PWM_4, 0x02},   /* MR1 */
 
     /* CT32B0 */
-    {P1_6 , PWM_6, 0x02},   /* MR0 */
-    {P1_7 , PWM_7, 0x02},   /* MR1 */
-    {P0_1 , PWM_8, 0x02},   /* MR2 */
-
-    /* CT32B1 */
-    {P1_1 , PWM_9 ,0x03},   /* MR0 */
-    {P1_2 , PWM_10,0x03},   /* MR1 */
+    {P0_1 , PWM_5, 0x02},   /* MR2 */
 
     {NC   , NC    ,0x00}
 };
@@ -52,27 +46,20 @@ typedef struct {
     uint8_t mr;
 } timer_mr;
 
-static timer_mr pwm_timer_map[9] = {
+static timer_mr pwm_timer_map[5] = {
     {0, 0}, /* CT16B0, MR0 */
     {0, 1}, /* CT16B0, MR1 */
 
     {1, 0}, /* CT16B1, MR0 */
     {1, 1}, /* CT16B1, MR1 */
 
-    {2, 0}, /* CT32B0, MR0 */
-    {2, 1}, /* CT32B0, MR1 */
     {2, 2}, /* CT32B0, MR2 */
-
-    {3, 0}, /* CT32B1, MR0 */
-    {3, 1}, /* CT32B1, MR1 */
 };
 
-static LPC_TMR_TypeDef *Timers[4] = {
+static LPC_TMR_TypeDef *Timers[3] = {
     LPC_TMR16B0, LPC_TMR16B1,
-    LPC_TMR32B0, LPC_TMR32B1
+    LPC_TMR32B0
 };
-
-static unsigned int pwm_clock_mhz;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
@@ -98,8 +85,13 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     /* Reset Functionality on MR3 controlling the PWM period */
     timer->MCR = 1 << 10;
     
-    pwm_clock_mhz = SystemCoreClock / 1000000;
-    
+    if (timer == LPC_TMR16B0 || timer == LPC_TMR16B1) {
+    /* Set 16-bit timer prescaler to avoid timer expire for default 20ms */
+    /* This can be also modified by user application, but the prescaler value */
+    /* might be trade-off to timer accuracy */
+        timer->PR = 30;
+    }
+
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
     pwmout_write    (obj, 0);
@@ -147,12 +139,13 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     int i = 0;
-    uint32_t period_ticks = pwm_clock_mhz * us;
+    uint32_t period_ticks;
     
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_TMR_TypeDef *timer = Timers[tid.timer];
     uint32_t old_period_ticks = timer->MR3;
-    
+    period_ticks = (SystemCoreClock / 1000000 * us) / (timer->PR + 1);
+
     timer->TCR = TCR_RESET;
     timer->MR3 = period_ticks;
     
@@ -175,9 +168,9 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    uint32_t t_on = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_TMR_TypeDef *timer = Timers[tid.timer];
+    uint32_t t_on = (uint32_t)((((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000) / (timer->PR + 1));
     
     timer->TCR = TCR_RESET;
     if (t_on > timer->MR3) {

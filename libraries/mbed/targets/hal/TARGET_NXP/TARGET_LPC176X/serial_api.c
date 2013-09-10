@@ -283,11 +283,6 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
-    
-    uint32_t lsr = obj->uart->LSR;
-    lsr = lsr;
-    uint32_t thr = obj->uart->THR;
-    thr = thr;
 }
 
 int serial_readable(serial_t *obj) {
@@ -299,7 +294,8 @@ int serial_writable(serial_t *obj) {
 }
 
 void serial_clear(serial_t *obj) {
-    obj->uart->FCR = 1 << 1  // rx FIFO reset
+    obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                   | 1 << 1  // rx FIFO reset
                    | 1 << 2  // tx FIFO reset
                    | 0 << 6; // interrupt depth
 }
