@@ -283,6 +283,24 @@ def update_dependencies(repositories):
 def update_mbed():
     update_repo("mbed", join(BUILD_DIR, "mbed"))
 
+def do_sync(options):
+    global push_remote, quiet, commit_msg
+
+    push_remote = not options.nopush
+    quiet = options.quiet
+    commit_msg = options.msg
+    
+    if options.code:
+        update_code(OFFICIAL_CODE)
+    
+    if options.dependencies:
+        update_dependencies(CODE_WITH_DEPENDENCIES)
+    
+    if options.mbed:
+        update_mbed()
+
+    if changed:
+        print "Repositories with changes:", changed
 
 if __name__ == '__main__':
     parser = OptionParser()
@@ -312,19 +330,5 @@ if __name__ == '__main__':
     
     (options, args) = parser.parse_args()
     
-    push_remote = not options.nopush
-    quiet = options.quiet
-    commit_msg = options.msg
-    
-    if options.code:
-        update_code(OFFICIAL_CODE)
-    
-    if options.dependencies:
-        update_dependencies(CODE_WITH_DEPENDENCIES)
-    
-    if options.mbed:
-        update_mbed()
-
-    if changed:
-        print "Repositories with changes:", changed
+    do_sync(options)
 
