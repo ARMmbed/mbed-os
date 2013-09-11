@@ -33,7 +33,7 @@ sys.path.append(ROOT)
 
 from workspace_tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
 from workspace_tools.paths import LIB_DIR
-from workspace_tools.utils import cmd, run_cmd
+from workspace_tools.utils import run_cmd
 
 MBED_URL = "mbed.org"
 
@@ -111,6 +111,11 @@ def ignore_path(name, reg_exps):
 
 class MbedOfficialRepository:
     URL = "http://" + MBED_URL + "/users/mbed_official/code/%s/"
+
+    @staticmethod
+    def run_and_print(command, cwd):
+        stdout, _, _ = run_cmd(command, wd=cwd, redirect=True)
+        print(stdout)
     
     def __init__(self, name):
         self.name = name
@@ -121,21 +126,20 @@ class MbedOfficialRepository:
             if not exists(MBED_ORG_PATH):
                 makedirs(MBED_ORG_PATH)
             
-            cmd(['hg', 'clone', MbedOfficialRepository.URL % name], cwd=MBED_ORG_PATH)
+            self.run_and_print(['hg', 'clone', MbedOfficialRepository.URL % name], cwd=MBED_ORG_PATH)
         
         else:
             # Update
-            cmd(['hg', 'pull'], cwd=self.path)
-            cmd(['hg', 'update'], cwd=self.path)
+            self.run_and_print(['hg', 'pull'], cwd=self.path)
+            self.run_and_print(['hg', 'update'], cwd=self.path)
     
     def publish(self):
         # The maintainer has to evaluate the changes first and explicitly accept them
-        cmd(['hg', 'addremove'], cwd=self.path)
+        self.run_and_print(['hg', 'addremove'], cwd=self.path)
         stdout, _, _ = run_cmd(['hg', 'status'], wd=self.path)
         if stdout == '':
             print "No changes"
             return False
-        
         print stdout
         if quiet:
             commit = 'Y'
@@ -145,9 +149,9 @@ class MbedOfficialRepository:
             args = ['hg', 'commit', '-u', MBED_ORG_USER]
             if commit_msg:
                 args = args + ['-m', commit_msg]
-            cmd(args, cwd=self.path)
+            self.run_and_print(args, cwd=self.path)
             if push_remote:
-                cmd(['hg', 'push'], cwd=self.path)
+                self.run_and_print(['hg', 'push'], cwd=self.path)
         return True
 
 # Check if a file is a text file or a binary file

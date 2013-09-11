@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import sys
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, PIPE, STDOUT, call
 from os import listdir, remove, makedirs
 from os.path import isdir, join, exists, split, relpath, splitext
 from shutil import copyfile
@@ -31,8 +31,8 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
 
-def run_cmd(command, wd=None):
-    p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=wd)
+def run_cmd(command, wd=None, redirect=False):
+    p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
     stdout, stderr = p.communicate()
     
     return stdout, stderr, p.returncode
