@@ -169,6 +169,16 @@ void USBHAL::disconnect(void) {
     USB0->CTL &= ~USB_CTL_USBENSOFEN_MASK;
     // Pull up disable
     USB0->CONTROL &= ~USB_CONTROL_DPPULLUPNONOTG_MASK;
+
+    //Free buffers if required:
+    for (int i = 0; i<(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2; i++) {
+        free(endpoint_buffer[i]);
+        endpoint_buffer[i] = NULL;
+    }
+    free(endpoint_buffer_iso[2]);
+    endpoint_buffer_iso[2] = NULL;
+    free(endpoint_buffer_iso[0]);
+    endpoint_buffer_iso[0] = NULL;
 }
 
 void USBHAL::configureDevice(void) {
@@ -200,18 +210,22 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
     if ((flags & ISOCHRONOUS) == 0) {
         handshake_flag = USB_ENDPT_EPHSHK_MASK;
         if (IN_EP(endpoint)) {
-            endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD )] = (uint8_t *) malloc (64*2);
-            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD )][0];
+            if (endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] == NULL)
+                endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] = (uint8_t *) malloc (64*2);
+            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)][0];
         } else {
-            endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD )] = (uint8_t *) malloc (64*2);
-            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD )][0];
+            if (endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] == NULL)
+                endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] = (uint8_t *) malloc (64*2);
+            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)][0];
         }
     } else {
         if (IN_EP(endpoint)) {
-            endpoint_buffer_iso[2] = (uint8_t *) malloc (1023*2);
+            if (endpoint_buffer_iso[2] == NULL)
+                endpoint_buffer_iso[2] = (uint8_t *) malloc (1023*2);
             buf = &endpoint_buffer_iso[2][0];
         } else {
-            endpoint_buffer_iso[0] = (uint8_t *) malloc (1023*2);
+            if (endpoint_buffer_iso[0] == NULL)
+                endpoint_buffer_iso[0] = (uint8_t *) malloc (1023*2);
             buf = &endpoint_buffer_iso[0][0];
         }
     }

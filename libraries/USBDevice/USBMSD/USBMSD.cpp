@@ -67,8 +67,12 @@ USBMSD::USBMSD(uint16_t vendor_id, uint16_t product_id, uint16_t product_release
     stage = READ_CBW;
     memset((void *)&cbw, 0, sizeof(CBW));
     memset((void *)&csw, 0, sizeof(CSW));
+    page = NULL;
 }
 
+USBMSD::~USBMSD() {
+    disconnect();
+}
 
 
 // Called in ISR context to process a class specific request
@@ -117,6 +121,7 @@ bool USBMSD::connect() {
     if (BlockCount > 0) {
         BlockSize = MemorySize / BlockCount;
         if (BlockSize != 0) {
+            free(page);
             page = (uint8_t *)malloc(BlockSize * sizeof(uint8_t));
             if (page == NULL)
                 return false;
@@ -130,6 +135,12 @@ bool USBMSD::connect() {
     return true;
 }
 
+void USBMSD::disconnect() {
+    //De-allocate MSD page size:
+    free(page);
+    page = NULL;
+    USBDevice::disconnect();
+}
 
 void USBMSD::reset() {
     stage = READ_CBW;

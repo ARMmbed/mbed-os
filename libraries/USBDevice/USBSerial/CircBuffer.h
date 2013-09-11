@@ -29,6 +29,10 @@ public:
         buf = (T *)malloc(size * sizeof(T));
     };
 
+    ~CircBuffer() {
+        free(buf);
+     }
+
     bool isFull() {
         return ((write + 1) % size == read);
     };

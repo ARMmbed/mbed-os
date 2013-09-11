@@ -74,6 +74,15 @@ public:
     */
     bool connect();
 
+    /**
+    * Disconnect the USB MSD device.
+    */
+    void disconnect();
+    
+    /**
+    * Destructor
+    */
+    ~USBMSD();
 
 protected:
 
