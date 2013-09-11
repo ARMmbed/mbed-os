@@ -31,44 +31,52 @@ static void handle_interrupt_in(void) {
     uint32_t fall0 = LPC_GPIOINT->IO0IntStatF;
     uint32_t rise2 = LPC_GPIOINT->IO2IntStatR;
     uint32_t fall2 = LPC_GPIOINT->IO2IntStatF;
-    uint32_t mask0 = 0;
-    uint32_t mask2 = 0;
-    int i;
-
-    // P0.0-0.31
-    for (i = 0; i < 32; i++) {
-        uint32_t pmask = (1 << i);
-        if (rise0 & pmask) {
-            mask0 |= pmask;
-            if (channel_ids[i] != 0)
-                irq_handler(channel_ids[i], IRQ_RISE);
-        }
-        if (fall0 & pmask) {
-            mask0 |= pmask;
-            if (channel_ids[i] != 0)
-                irq_handler(channel_ids[i], IRQ_FALL);
-        }
+    uint8_t bitloc;
+    
+    while(rise0 > 0) {      //Continue as long as there are interrupts pending
+        bitloc = 31 - __CLZ(rise0); //CLZ returns number of leading zeros, 31 minus that is location of first pending interrupt
+        if (channel_ids[bitloc] != 0)
+            irq_handler(channel_ids[bitloc], IRQ_RISE); //Run that interrupt
+        
+        //Both clear the interrupt with clear register, and remove it from our local copy of the interrupt pending register
+        LPC_GPIOINT->IO0IntClr = 1 << bitloc;
+        rise0 -= 1<<bitloc;
     }
     
-    // P2.0-2.15
-    for (i = 0; i < 16; i++) {
-        uint32_t pmask = (1 << i);
-        int channel_index = i + 32;
-        if (rise2 & pmask) {
-            mask2 |= pmask;
-            if (channel_ids[channel_index] != 0)
-                irq_handler(channel_ids[channel_index], IRQ_RISE);
-        }
-        if (fall2 & pmask) {
-            mask2 |= pmask;
-            if (channel_ids[channel_index] != 0)
-                irq_handler(channel_ids[channel_index], IRQ_FALL);
-        }
+    while(fall0 > 0) {      //Continue as long as there are interrupts pending
+        bitloc = 31 - __CLZ(fall0); //CLZ returns number of leading zeros, 31 minus that is location of first pending interrupt
+        if (channel_ids[bitloc] != 0)
+            irq_handler(channel_ids[bitloc], IRQ_FALL); //Run that interrupt
+        
+        //Both clear the interrupt with clear register, and remove it from our local copy of the interrupt pending register
+        LPC_GPIOINT->IO0IntClr = 1 << bitloc;
+        fall0 -= 1<<bitloc;
     }
-
-    // Clear the interrupts we just handled
-    LPC_GPIOINT->IO0IntClr = mask0;
-    LPC_GPIOINT->IO2IntClr = mask2;
+    
+    //Same for port 2, only we need to watch the channel_index
+    while(rise2 > 0) {      //Continue as long as there are interrupts pending
+        bitloc = 31 - __CLZ(rise2); //CLZ returns number of leading zeros, 31 minus that is location of first pending interrupt
+        
+        if (bitloc < 16)            //Not sure if this is actually needed
+            if (channel_ids[bitloc+32] != 0)
+                irq_handler(channel_ids[bitloc+32], IRQ_RISE); //Run that interrupt
+        
+        //Both clear the interrupt with clear register, and remove it from our local copy of the interrupt pending register
+        LPC_GPIOINT->IO2IntClr = 1 << bitloc;
+        rise2 -= 1<<bitloc;
+    }
+    
+    while(fall2 > 0) {      //Continue as long as there are interrupts pending
+        bitloc = 31 - __CLZ(fall2); //CLZ returns number of leading zeros, 31 minus that is location of first pending interrupt
+        
+        if (bitloc < 16)            //Not sure if this is actually needed
+            if (channel_ids[bitloc+32] != 0)
+                irq_handler(channel_ids[bitloc+32], IRQ_FALL); //Run that interrupt
+        
+        //Both clear the interrupt with clear register, and remove it from our local copy of the interrupt pending register
+        LPC_GPIOINT->IO2IntClr = 1 << bitloc;
+        fall2 -= 1<<bitloc;
+    }
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
