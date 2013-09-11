@@ -284,11 +284,12 @@ def update_mbed():
     update_repo("mbed", join(BUILD_DIR, "mbed"))
 
 def do_sync(options):
-    global push_remote, quiet, commit_msg
+    global push_remote, quiet, commit_msg, changed
 
     push_remote = not options.nopush
     quiet = options.quiet
     commit_msg = options.msg
+    chnaged = []
     
     if options.code:
         update_code(OFFICIAL_CODE)
@@ -301,6 +302,8 @@ def do_sync(options):
 
     if changed:
         print "Repositories with changes:", changed
+
+    return changed
 
 if __name__ == '__main__':
     parser = OptionParser()
