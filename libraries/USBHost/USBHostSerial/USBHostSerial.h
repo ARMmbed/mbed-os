@@ -142,12 +142,12 @@ private:
 
     uint8_t buf[64];
 
-    typedef __packed struct {
+    typedef struct {
         uint32_t baudrate;
         uint8_t stop_bits;
         uint8_t parity;
         uint8_t data_bits;
-    } LINE_CODING;
+    } PACKED LINE_CODING;
     
     LINE_CODING line_coding;
 

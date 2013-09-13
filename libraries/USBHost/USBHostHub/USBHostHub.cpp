@@ -192,7 +192,7 @@ void USBHostHub::rxHandler() {
                         host->deviceConnected(dev->getHub() + 1, port, status & PORT_LOW_SPEED, this);
                     } else {
                         USB_DBG("[hub handler hub: %d - port: %d] device disconnected", dev->getHub(), port);
-                        host->deviceDisconnected(dev->getHub() + 1, port, this, NULL);
+                        host->deviceDisconnected(dev->getHub() + 1, port, this, 0);
                     }
                     
                     clearPortFeature(C_PORT_CONNECTION_FEATURE, port);
@@ -209,7 +209,7 @@ void USBHostHub::rxHandler() {
                 if ((status & PORT_OVER_CURRENT)) {
                     USB_ERR("OVER CURRENT DETECTED\r\n");
                     clearPortFeature(PORT_OVER_CURRENT, port);
-                    host->deviceDisconnected(dev->getHub() + 1, port, this, NULL);
+                    host->deviceDisconnected(dev->getHub() + 1, port, this, 0);
                 }
             }
         }
@@ -229,7 +229,7 @@ void USBHostHub::portReset(uint8_t port) {
         if (status & PORT_OVER_CURRENT) {
             USB_ERR("OVER CURRENT DETECTED\r\n");
             clearPortFeature(PORT_OVER_CURRENT, port);
-            host->deviceDisconnected(dev->getHub() + 1, port, this, NULL);
+            host->deviceDisconnected(dev->getHub() + 1, port, this, 0);
             break;
         }
         Thread::wait(10);

@@ -73,7 +73,7 @@ private:
     uint8_t nb_ep;
 
     // Bulk-only CBW
-    typedef __packed struct {
+    typedef struct {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataLength;
@@ -81,15 +81,15 @@ private:
         uint8_t  LUN;
         uint8_t  CBLength;
         uint8_t  CB[16];
-    } CBW;
+    } PACKED CBW;
 
     // Bulk-only CSW
-    typedef __packed struct {
+    typedef struct {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataResidue;
         uint8_t  Status;
-    } CSW;
+    } PACKED CSW;
 
     CBW cbw;
     CSW csw;

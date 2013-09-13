@@ -154,7 +154,7 @@ int USBHostMSD::SCSIRequestSense() {
 int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code) {
     USB_DBG("Inquiry");
     uint8_t evpd = (page_code == 0) ? 0 : 1;
-    uint8_t cmd[6] = {0x12, (lun << 5) | evpd, page_code, 0, 36, 0};
+    uint8_t cmd[6] = {0x12, uint8_t((lun << 5) | evpd), page_code, 0, 36, 0};
     uint8_t result[36];
     int status = SCSITransfer(cmd, 6, DEVICE_TO_HOST, result, 36);
     if (status == 0) {

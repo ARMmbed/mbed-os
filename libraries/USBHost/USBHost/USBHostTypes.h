@@ -18,6 +18,7 @@
 #define USB_INC_H
 
 #include "mbed.h"
+#include "toolchain.h"
 
 enum USB_TYPE {
     USB_TYPE_OK = 0,
@@ -135,34 +136,34 @@ enum ENDPOINT_TYPE {
 #define CONFIGURATION_DESCRIPTOR_LENGTH     0x09
 
 // ------------ HostController Transfer Descriptor ------------
-typedef __packed struct HCTD {
+typedef struct HCTD {
     __IO  uint32_t   control;        // Transfer descriptor control
     __IO  uint8_t *  currBufPtr;    // Physical address of current buffer pointer
     __IO  HCTD *     nextTD;         // Physical pointer to next Transfer Descriptor
     __IO  uint8_t *  bufEnd;        // Physical address of end of buffer
     void * ep;                      // ep address where a td is linked in
     uint32_t dummy[3];              // padding
-} HCTD;
+} PACKED HCTD;
 
 // ----------- HostController EndPoint Descriptor ------------- 
-typedef __packed struct hcEd {
+typedef struct hcEd {
     __IO  uint32_t  control;        // Endpoint descriptor control
     __IO  HCTD *  tailTD;           // Physical address of tail in Transfer descriptor list
     __IO  HCTD *  headTD;           // Physcial address of head in Transfer descriptor list
     __IO  hcEd *  nextED;         // Physical address of next Endpoint descriptor
-} HCED;
+} PACKED HCED;
 
 
 // ----------- Host Controller Communication Area ------------  
-typedef __packed struct hcca {
+typedef struct hcca {
     __IO  uint32_t  IntTable[32];   // Interrupt Table
     __IO  uint32_t  FrameNumber;    // Frame Number
     __IO  uint32_t  DoneHead;       // Done Head
     volatile  uint8_t   Reserved[116];  // Reserved for future use                                  
     volatile  uint8_t   Unknown[4];     // Unused                                                   
-} HCCA;
+} PACKED HCCA;
 
-typedef __packed struct {
+typedef struct {
     uint8_t bLength;            
     uint8_t bDescriptorType;    
     uint16_t bcdUSB;            
@@ -177,9 +178,9 @@ typedef __packed struct {
     uint8_t iProduct;           
     uint8_t iSerialNumber;      
     uint8_t bNumConfigurations; 
-} DeviceDescriptor;
+} PACKED DeviceDescriptor;
 
-typedef __packed struct {
+typedef struct {
     uint8_t bLength;               
     uint8_t bDescriptorType;       
     uint16_t wTotalLength;         
@@ -188,7 +189,7 @@ typedef __packed struct {
     uint8_t iConfiguration;        
     uint8_t bmAttributes;          
     uint8_t bMaxPower;             
-} ConfigurationDescriptor; 
+} PACKED ConfigurationDescriptor; 
 
 typedef struct {
     uint8_t bLength;                 

@@ -96,7 +96,6 @@ void USBHost::usb_process() {
                     
                     if (i == MAX_DEVICE_CONNECTED) {
                         USB_ERR("Too many device connected!!\r\n");
-                        deviceInited[i] = false;
                         usb_mutex.unlock();
                         continue;
                     }
@@ -287,7 +286,7 @@ void USBHost::transferCompleted(volatile uint32_t addr)
 {
     uint8_t state;
 
-    if(addr == NULL)
+    if(addr == 0)
         return;
 
     volatile HCTD* tdList = NULL;
@@ -481,6 +480,8 @@ void USBHost::unqueueEndpoint(USBEndpoint * ep)
                             break;
                         case INTERRUPT_ENDPOINT:
                             tailInterruptEndpoint = prec;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1152,13 +1153,12 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
 
 void USBHost::fillControlBuf(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, int len)
 {
-#ifdef __BIG_ENDIAN
-#error "Must implement BE to LE conv here"
-#endif
     setupPacket[0] = requestType;
     setupPacket[1] = request;
-    //We are in LE so it's fine
-    *((uint16_t*)&setupPacket[2]) = value;
-    *((uint16_t*)&setupPacket[4]) = index;
-    *((uint16_t*)&setupPacket[6]) = (uint32_t) len;
+    setupPacket[2] = (uint8_t) value;
+    setupPacket[3] = (uint8_t) (value >> 8);
+    setupPacket[4] = (uint8_t) index;
+    setupPacket[5] = (uint8_t) (index >> 8);
+    setupPacket[6] = (uint8_t) len;
+    setupPacket[7] = (uint8_t) (len >> 8);
 }
