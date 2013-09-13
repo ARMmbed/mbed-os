@@ -76,9 +76,9 @@ if __name__ == '__main__':
     setup_test_user_prj()
     
     for toolchain, target in [
-            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'),
+            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'), ('uvision', 'LPC4088'),
             
-            ('codered', 'LPC1768'),
+            ('codered', 'LPC1768'), ('codered', 'LPC4088'),
             
             # Linux path: /home/emimon01/bin/gcc-cs/bin/
             # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"

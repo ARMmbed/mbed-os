@@ -164,7 +164,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
     obj->dev->MOD &= ~(1);
     
     // Enable NVIC if at least 1 interrupt is active
-    if(LPC_CAN1->IER | LPC_CAN2->IER != 0) {
+    if((LPC_CAN1->IER | LPC_CAN2->IER) != 0) {
         NVIC_SetVector(CAN_IRQn, (uint32_t) &can_irq_n);
         NVIC_EnableIRQ(CAN_IRQn);
     }
