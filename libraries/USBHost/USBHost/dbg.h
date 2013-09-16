@@ -24,26 +24,26 @@
 #define DEBUG_EVENT 0
 
 #if (DEBUG)
-#define USB_DBG(x, ...) std::printf("[USB_DBG: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_DBG(x, ...) std::printf("[USB_DBG: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
 #else
 #define USB_DBG(x, ...)
 #endif
 
 #if (DEBUG_TRANSFER)
-#define USB_DBG_TRANSFER(x, ...) std::printf("[USB_TRANSFER: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_DBG_TRANSFER(x, ...) std::printf("[USB_TRANSFER: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
 #else
 #define USB_DBG_TRANSFER(x, ...)
 #endif
 
 #if (DEBUG_EVENT)
-#define USB_DBG_EVENT(x, ...) std::printf("[USB_EVENT: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_DBG_EVENT(x, ...) std::printf("[USB_EVENT: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
 #else
 #define USB_DBG_EVENT(x, ...)
 #endif
 
-#define USB_INFO(x, ...) std::printf("[USB_INFO: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
-#define USB_WARN(x, ...) std::printf("[USB_WARNING: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
-#define USB_ERR(x, ...) std::printf("[USB_ERR: %s:%d]"x"\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_INFO(x, ...) std::printf("[USB_INFO: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_WARN(x, ...) std::printf("[USB_WARNING: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
+#define USB_ERR(x, ...) std::printf("[USB_ERR: %s:%d]" x "\r\n", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #endif
 

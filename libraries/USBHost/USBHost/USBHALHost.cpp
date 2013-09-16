@@ -39,7 +39,7 @@
 
 #define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE) + (MAX_TD*TD_SIZE))
 
-static volatile __align(256) uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"),aligned));  //256 bytes aligned!
+static volatile uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"),aligned(256)));  //256 bytes aligned!
 
 USBHALHost * USBHALHost::instHost;
 
