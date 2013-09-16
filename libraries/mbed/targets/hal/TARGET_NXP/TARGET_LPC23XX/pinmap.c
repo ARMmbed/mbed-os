@@ -17,7 +17,7 @@
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    if (pin == (PinName)NC) return;
     
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 4;
@@ -28,7 +28,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    if (pin == (PinName)NC) { return; }
     
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 5;

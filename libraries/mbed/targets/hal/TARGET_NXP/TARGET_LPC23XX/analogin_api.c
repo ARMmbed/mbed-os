@@ -42,7 +42,7 @@ static const PinMap PinMap_ADC[] = {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (uint32_t)NC) {
+    if (obj->adc == (ADCName)NC) {
         error("ADC pin mapping failed");
     }
     

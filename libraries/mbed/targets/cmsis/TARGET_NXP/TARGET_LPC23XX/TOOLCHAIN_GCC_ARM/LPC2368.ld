@@ -143,6 +143,7 @@ SECTIONS
     . = ALIGN( 8 ) ;
     __heap_start__ = . ;
     end = . ;
+    __end__ = . ;
 
     .stab    0 (NOLOAD) : { *(.stab) }
     .stabstr 0 (NOLOAD) : { *(.stabstr) }
