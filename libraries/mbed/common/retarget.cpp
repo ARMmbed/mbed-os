@@ -439,13 +439,20 @@ extern "C" int __end__;
 #undef errno
 extern "C" int errno;
 
+// For ARM7 only
+register unsigned char * stack_ptr __asm ("sp");
+
 // Dynamic memory allocation related syscall.
 extern "C" caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
+#ifdef __get_MSP
     if (new_heap >= (unsigned char*)__get_MSP()) {
+#else
+    if (new_heap >= stack_ptr) {
+#endif
         errno = ENOMEM;
         return (caddr_t)-1;
     }
