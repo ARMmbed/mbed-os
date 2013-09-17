@@ -21,19 +21,19 @@ Documentation
 Supported Microcontrollers
 --------------------------
 NXP:
-* [LPC1768](http://mbed.org/handbook/mbed-NXP-LPC1768) (Cortex-M3)
-* [LPC11U24](http://mbed.org/handbook/mbed-NXP-LPC11U24) (Cortex-M0)
+* [LPC1768](http://mbed.org/platforms/mbed-LPC1768/) (Cortex-M3)
+* [LPC11U24](http://mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
 * LPC2368 (ARM7TDMI-S)
 * LPC810 (Cortex-M0+)
-* LPC812 (Cortex-M0+)
-* LPC4088 (Cortex-M4)
+* [LPC812](http://mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
+* [LPC4088](http://mbed.org/platforms/EA-LPC4088/) (Cortex-M4)
 * LPC4330 (Cortex-M4 + Cortex-M0)
-* LPC1347 (Cortex-M3)
-* LPC1114 (Cortex-M0)
+* [LPC1347](http://mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
+* [LPC1114](http://mbed.org/platforms/LPC1114FN28/) (Cortex-M0)
 * LPC11C24 (Cortex-M0)
 
 Freescale:
-* [KL25Z](http://mbed.org/handbook/mbed-FRDM-KL25Z) (Cortex-M0+)
+* [KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
 * KL05Z (Cortex-M0+)
 
 STMicroelectronics:
