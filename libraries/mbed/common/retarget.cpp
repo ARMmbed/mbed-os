@@ -448,10 +448,10 @@ extern "C" caddr_t _sbrk(int incr) {
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
-#ifdef __get_MSP
-    if (new_heap >= (unsigned char*)__get_MSP()) {
-#else
+#if defined(TARGET_ARM7)
     if (new_heap >= stack_ptr) {
+#else
+    if (new_heap >= (unsigned char*)__get_MSP()) {
 #endif
         errno = ENOMEM;
         return (caddr_t)-1;
