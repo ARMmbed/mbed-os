@@ -18,8 +18,11 @@ class Exporter():
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
-        self.toolchain = TOOLCHAIN_CLASSES[self.TOOLCHAIN](TARGET_MAP[target])
+        self.toolchain = TOOLCHAIN_CLASSES[self.get_toolchain()](TARGET_MAP[target])
         self.build_url_resolver = build_url_resolver
+    
+    def get_toolchain(self):
+        return self.TOOLCHAIN
     
     def __scan_and_copy(self, src_path, trg_path):
         resources = self.toolchain.scan_resources(src_path)
