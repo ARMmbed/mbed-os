@@ -31,18 +31,27 @@ class Uvision4(Exporter):
     # 'headers':'5',
     
     def generate(self):
-        source_files = []
+        source_files = {
+            'mbed': [],
+            'hal': [],
+            'src': []
+        }
         for r_type, n in Uvision4.FILE_TYPES.iteritems():
             for file in getattr(self.resources, r_type):
-                source_files.append({
-                    'name': basename(file), 'type': n, 'path': file
-                })
+                f = {'name': basename(file), 'type': n, 'path': file}
+                if file.startswith("mbed\\common"):
+                    source_files['mbed'].append(f)
+                elif file.startswith("mbed\\targets"):
+                    source_files['hal'].append(f)
+                else:
+                    source_files['src'].append(f)
+        
         ctx = {
             'name': self.program_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
-            'source_files': source_files,
+            'source_files': source_files.items(),
             'symbols': self.toolchain.get_symbols()
         }
         target = self.target.lower()
