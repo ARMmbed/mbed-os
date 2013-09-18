@@ -378,7 +378,7 @@
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>
             {% for file in object_files %}
-            {{file}}
+              {{file}}
             {% endfor %}
             </Misc>
             <LinkerInputFile></LinkerInputFile>
@@ -390,14 +390,24 @@
         <Group>
           <GroupName>src</GroupName>
           <Files>
-               {% for file in source_files %}
-               <File>
-                        <FileName>{{file.name}}</FileName>
-                        <FileType>{{file.type}}</FileType>
-                        <FilePath>{{file.path}}</FilePath>
-                </File>
-               {% endfor %}
-
+          {% for file in source_files %}
+            <File>
+              <FileName>{{file.name}}</FileName>
+              <FileType>{{file.type}}</FileType>
+              <FilePath>{{file.path}}</FilePath>
+              {%if file.type == "1" %}
+              <FileOption>
+                <FileArmAds>
+                  <Cads>
+                    <VariousControls>
+                      <MiscControls>--c99</MiscControls>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+              {% endif %}
+            </File>
+          {% endfor %}
           </Files>
         </Group>
       </Groups>
@@ -405,5 +415,3 @@
   </Targets>
 
 </Project>
-          
-
