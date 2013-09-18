@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include "device.h"
 
-#ifdef DEVICE_STDIO_MESSAGES
+#if DEVICE_STDIO_MESSAGES
     #include <stdio.h>
     #define error(...) (fprintf(stderr, __VA_ARGS__), exit(1))
 #else
