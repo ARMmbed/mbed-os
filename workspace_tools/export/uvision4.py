@@ -21,9 +21,9 @@ from os.path import basename
 class Uvision4(Exporter):
     NAME = 'uVision4'
     
-    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z', 'LPC1347', 'LPC1114', 'LPC4088', 'LPC812']
+    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z', 'LPC1347', 'LPC1114', 'LPC11C24', 'LPC4088', 'LPC812']
     
-    USING_MICROLIB = ['LPC11U24', 'LPC1114', 'LPC812']
+    USING_MICROLIB = ['LPC11U24', 'LPC1114', 'LPC11C24', 'LPC812']
     
     FILE_TYPES = {
         'c_sources':'1',
