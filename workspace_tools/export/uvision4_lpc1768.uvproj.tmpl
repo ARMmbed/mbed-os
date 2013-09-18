@@ -390,10 +390,11 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        {% for group,files in source_files %}
         <Group>
-          <GroupName>src</GroupName>
+          <GroupName>{{group}}</GroupName>
           <Files>
-          {% for file in source_files %}
+            {% for file in files %}
             <File>
               <FileName>{{file.name}}</FileName>
               <FileType>{{file.type}}</FileType>
@@ -413,6 +414,7 @@
           {% endfor %}
           </Files>
         </Group>
+        {% endfor %}
       </Groups>
     </Target>
   </Targets>
