@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#ifdef DEVICE_STDIO_MESSAGES
+#if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #include <stdarg.h>
 
