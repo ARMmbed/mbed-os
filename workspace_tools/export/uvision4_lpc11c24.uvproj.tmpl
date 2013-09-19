@@ -7,19 +7,19 @@
 
   <Targets>
     <Target>
-      <TargetName>LPC1347</TargetName>
+      <TargetName>mbed NXP LPC1114</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
         <TargetCommonOption>
-          <Device>LPC1347</Device>
+          <Device>LPC11C24/301</Device>
           <Vendor>NXP (founded by Philips)</Vendor>
-          <Cpu>IRAM(0x10000000-0x10001FFF) IRAM2(0x20000000-0x200007FF) IROM(0-0xFFFF) CLOCK(12000000) CPUTYPE("Cortex-M3")</Cpu>
+          <Cpu>IRAM(0x10000000-0x10001FFF) IROM(0-0x7FFF) CLOCK(12000000) CPUTYPE("Cortex-M0")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
-          <StartupFile>"STARTUP\NXP\LPC13Uxx\startup_LPC13Uxx.s" ("NXP LPC13Uxx Startup Code")</StartupFile>
-          <FlashDriverDll>UL2CM3(-O4303 -S0 -C0 -FO7 -FD10000000 -FC800 -FN1 -FF0LPC1xxx_64 -FS00 -FL010000)</FlashDriverDll>
-          <DeviceId>6286</DeviceId>
-          <RegisterFile>LPC13Uxx.h</RegisterFile>
+          <StartupFile>"STARTUP\NXP\LPC11xx\startup_LPC11xx.s" ("NXP LPC11xx Startup Code")</StartupFile>
+          <FlashDriverDll>UL2CM3(-O4303 -S0 -C0 -FO7 -FD10000000 -FC800 -FN1 -FF0LPC1xxx_32 -FS00 -FL08000)</FlashDriverDll>
+          <DeviceId>5617</DeviceId>
+          <RegisterFile>LPC11xx.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -29,13 +29,13 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\NXP\LPC13Uxx\LPC13Uxx.sfr</SFDFile>
+          <SFDFile>SFD\NXP\LPC11xx\LPC11Cxx.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
           <LibPath></LibPath>
-          <RegisterFilePath>NXP\LPC13Uxx\</RegisterFilePath>
-          <DBRegisterFilePath>NXP\LPC13Uxx\</DBRegisterFilePath>
+          <RegisterFilePath>NXP\LPC11xx\</RegisterFilePath>
+          <DBRegisterFilePath>NXP\LPC11xx\</DBRegisterFilePath>
           <TargetStatus>
             <Error>0</Error>
             <ExitCodeStop>0</ExitCodeStop>
@@ -47,7 +47,7 @@
           <OutputName>{{name}}</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\build\</ListingPath>
@@ -61,6 +61,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopU1X>0</nStopU1X>
+            <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
             <RunUserProg1>0</RunUserProg1>
@@ -71,9 +73,9 @@
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>1</RunUserProg1>
+            <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>fromelf --bin -o build\{{name}}_LPC1347.bin build\{{name}}.axf</UserProg1Name>
+            <UserProg1Name>fromelf --bin -o build\{{name}}_LPC11C24.bin build\{{name}}.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -99,12 +101,12 @@
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
           <SimDllArguments></SimDllArguments>
-          <SimDlgDll>DCM.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pCM3</SimDlgDllArguments>
+          <SimDlgDll>DARMP1.DLL</SimDlgDll>
+          <SimDlgDllArguments>-pLPC11C24</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
           <TargetDllArguments></TargetDllArguments>
-          <TargetDlgDll>TCM.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pCM3</TargetDlgDllArguments>
+          <TargetDlgDll>TARMP1.DLL</TargetDlgDll>
+          <TargetDlgDllArguments>-pLPC11C24</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -128,15 +130,16 @@
           <Target>
             <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
+            <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
             <RestoreWatchpoints>1</RestoreWatchpoints>
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
             <RestoreFunctions>0</RestoreFunctions>
             <RestoreToolbox>1</RestoreToolbox>
+            <RestoreTracepoints>1</RestoreTracepoints>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>9</TargetSelection>
+          <TargetSelection>7</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -150,7 +153,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\ULP2CM3.DLL</Driver>
+            <Driver>Segger\JL2CM3.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -160,10 +163,10 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4101</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
-          <Flash2>BIN\ULP2CM3.DLL</Flash2>
+          <bUseTDR>1</bUseTDR>
+          <Flash2>BIN\UL2CM3.DLL</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
         </Utilities>
@@ -196,9 +199,9 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M3"</AdsCpuType>
+            <AdsCpuType>"Cortex-M0"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
-            <mOS>0</mOS>
+            <mOS>1</mOS>
             <uocRom>0</uocRom>
             <uocRam>0</uocRam>
             <hadIROM>1</hadIROM>
@@ -209,7 +212,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -221,7 +224,7 @@
             <NoZi3>0</NoZi3>
             <NoZi4>0</NoZi4>
             <NoZi5>0</NoZi5>
-            <Ro1Chk>1</Ro1Chk>
+            <Ro1Chk>0</Ro1Chk>
             <Ro2Chk>0</Ro2Chk>
             <Ro3Chk>0</Ro3Chk>
             <Ir1Chk>1</Ir1Chk>
@@ -265,7 +268,7 @@
               <IRAM>
                 <Type>0</Type>
                 <StartAddress>0x10000000</StartAddress>
-                <Size>0x1000</Size>
+                <Size>0x2000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
@@ -278,17 +281,17 @@
                 <Size>0x0</Size>
               </XRAM>
               <OCR_RVCT1>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT1>
               <OCR_RVCT2>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT2>
               <OCR_RVCT3>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT3>
@@ -298,7 +301,7 @@
                 <Size>0x8000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT5>
@@ -320,7 +323,7 @@
               <OCR_RVCT9>
                 <Type>0</Type>
                 <StartAddress>0x10000000</StartAddress>
-                <Size>0x1000</Size>
+                <Size>0x2000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -343,8 +346,9 @@
             <Rwpi>0</Rwpi>
             <wLevel>0</wLevel>
             <uThumb>0</uThumb>
+            <uSurpInc>0</uSurpInc>
             <VariousControls>
-              <MiscControls>--gnu</MiscControls>
+              <MiscControls></MiscControls>
               <Define>{% for s in symbols %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>
@@ -358,6 +362,7 @@
             <SplitLS>0</SplitLS>
             <SwStkChk>0</SwStkChk>
             <NoWarn>0</NoWarn>
+            <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>

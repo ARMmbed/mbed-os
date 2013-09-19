@@ -18,8 +18,10 @@
 #include "mbed_interface.h"
 
 void sleep(void) {
+#if DEVICE_SEMIHOST
     // ensure debug is disconnected
     mbed_interface_disconnect();
+#endif
     
     // PCON[DPDEN] set to sleep
     LPC_PMU->PCON = 0x0;
@@ -58,8 +60,10 @@ void sleep(void) {
 */
 
 void deepsleep(void) {
+#if DEVICE_SEMIHOST
     // ensure debug is disconnected
     mbed_interface_disconnect();
+#endif
     
     // PCON[DPDEN] set to deepsleep
     LPC_PMU->PCON = 0x2;
