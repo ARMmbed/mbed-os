@@ -380,11 +380,9 @@
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>
-    
-                {% for file in object_files %} 
-                {{file}}
-                {% endfor %}
-
+            {% for file in object_files %}
+              {{file}}
+            {% endfor %}
             </Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
@@ -392,32 +390,33 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        {% for group,files in source_files %}
         <Group>
-          <GroupName>src</GroupName>
+          <GroupName>{{group}}</GroupName>
           <Files>
-               {% for file in source_files %}
-               <File>
-                        <FileName>{{file.name}}</FileName>
-                        <FileType>{{file.type}}</FileType>
-                        <FilePath>{{file.path}}</FilePath>
-                        {%if file.type == "1" %}
-                        <FileOption>
-                            <FileArmAds>
-                              <Cads>
-                                <VariousControls>
-                                  <MiscControls>--c99</MiscControls>
-                                </VariousControls>
-                              </Cads>
-                            </FileArmAds>
-                        </FileOption>
-                        {% endif %}
-                </File>
-               {% endfor %}
+            {% for file in files %}
+            <File>
+              <FileName>{{file.name}}</FileName>
+              <FileType>{{file.type}}</FileType>
+              <FilePath>{{file.path}}</FilePath>
+              {%if file.type == "1" %}
+              <FileOption>
+                <FileArmAds>
+                  <Cads>
+                    <VariousControls>
+                      <MiscControls>--c99</MiscControls>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+              {% endif %}
+            </File>
+          {% endfor %}
           </Files>
         </Group>
+        {% endfor %}
       </Groups>
     </Target>
   </Targets>
 
 </Project>
-

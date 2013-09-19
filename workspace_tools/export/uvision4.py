@@ -21,9 +21,9 @@ from os.path import basename
 class Uvision4(Exporter):
     NAME = 'uVision4'
     
-    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z', 'LPC1347', 'LPC1114', 'LPC4088', 'LPC812']
+    TARGETS = ['LPC1768', 'LPC11U24', 'KL25Z', 'LPC1347', 'LPC1114', 'LPC11C24', 'LPC4088', 'LPC812']
     
-    USING_MICROLIB = ['LPC11U24', 'LPC1114', 'LPC812']
+    USING_MICROLIB = ['LPC11U24', 'LPC1114', 'LPC11C24', 'LPC812']
     
     FILE_TYPES = {
         'c_sources':'1',
@@ -37,18 +37,27 @@ class Uvision4(Exporter):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
     
     def generate(self):
-        source_files = []
+        source_files = {
+            'mbed': [],
+            'hal': [],
+            'src': []
+        }
         for r_type, n in Uvision4.FILE_TYPES.iteritems():
             for file in getattr(self.resources, r_type):
-                source_files.append({
-                    'name': basename(file), 'type': n, 'path': file
-                })
+                f = {'name': basename(file), 'type': n, 'path': file}
+                if file.startswith("mbed\\common"):
+                    source_files['mbed'].append(f)
+                elif file.startswith("mbed\\targets"):
+                    source_files['hal'].append(f)
+                else:
+                    source_files['src'].append(f)
+        source_files = dict( [(k,v) for k,v in source_files.items() if len(v)>0])
         ctx = {
             'name': self.program_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
-            'source_files': source_files,
+            'source_files': source_files.items(),
             'symbols': self.toolchain.get_symbols()
         }
         target = self.target.lower()
