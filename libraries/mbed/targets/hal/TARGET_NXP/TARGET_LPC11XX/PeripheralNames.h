@@ -37,8 +37,7 @@ typedef enum {
     ADC0_3,
     ADC0_4,
     ADC0_5,
-    ADC0_6,
-    ADC0_7
+    ADC0_6
 } ADCName;
 
 typedef enum {
