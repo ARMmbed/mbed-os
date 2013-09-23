@@ -17,7 +17,7 @@
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    if (pin == (PinName)NC) return;
     
     __IO uint32_t *reg = (__IO uint32_t*) (LPC_IOCON_BASE + 4 * pin);
     
@@ -26,7 +26,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    if (pin == (PinName)NC) { return; }
     
     uint32_t drain = ((uint32_t) mode & (uint32_t) OpenDrain) >> 2;
     

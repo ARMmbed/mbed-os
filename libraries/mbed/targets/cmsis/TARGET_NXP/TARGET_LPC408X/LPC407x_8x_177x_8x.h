@@ -34,7 +34,9 @@
 #ifndef __LPC407x_8x_177x_8x_H__
 #define __LPC407x_8x_177x_8x_H__
 
-#define CORE_M4
+#if defined(__CORTEX_M4) && !defined(CORE_M4)
+  #define CORE_M4
+#endif
 
 // ##################
 // Code Red - excluded extern "C" as unrequired
