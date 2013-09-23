@@ -15,20 +15,23 @@
  */
 #include "gpio_api.h"
 #include "pinmap.h"
+#include "reserved_pins.h"
+
+static const PinName reserved_pins[] = TARGET_RESERVED_PINS;
 
 uint32_t gpio_set(PinName pin) {
     // PIO default value of following ports are not same as others
-    int f = ((pin == P0_0 ) || // RESET
-             (pin == P0_10) || // SWCLK
-             (pin == P0_11) || // R
-             (pin == P1_0 ) || // R
-             (pin == P1_1 ) || // R
-             (pin == P1_2 ) || // R
-             (pin == P1_3 )) ? // 
-             (1) : (0);
-    
+    unsigned i;
+    int f = 0;
+
+    for (i = 0; i < sizeof(reserved_pins) / sizeof(int); i ++)
+        if (pin == reserved_pins[i]) {
+            f = 1;
+            break;
+        }
+   
     pin_function(pin, f);
-    return ((pin & 0x0F00) >> PIN_SHIFT);
+    return ((pin & 0x0F00) >> 8);
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
@@ -36,7 +39,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
 
     obj->pin = pin;
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
-    
+
     obj->reg_mask_read = &port_reg->MASKED_ACCESS[1 << gpio_set(pin)];
     obj->reg_dir       = &port_reg->DIR;
     obj->reg_write     = &port_reg->DATA;

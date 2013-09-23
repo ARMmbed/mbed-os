@@ -266,7 +266,7 @@ class LPC1114(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['NXP', 'LPC11XX']
+        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
@@ -277,7 +277,7 @@ class LPC11C24(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['NXP', 'LPC11CXX']
+        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11CXX']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 

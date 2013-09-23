@@ -18,6 +18,8 @@
 #include "pinmap.h"
 #include "error.h"
 
+#include "adc_pinmap.h"
+
 #define ANALOGIN_MEDIAN_FILTER      1
 
 #define ADC_10BIT_RANGE             0x3FF
@@ -27,24 +29,13 @@ static inline int div_round_up(int x, int y) {
   return (x + (y - 1)) / y;
 }
 
-static const PinMap PinMap_ADC[] = {
-    {P0_11, ADC0_0, 2},
-    {P1_0 , ADC0_1, 2},
-    {P1_1 , ADC0_2, 2},
-    {P1_2 , ADC0_3, 2},
-    {P1_3 , ADC0_4, 2},
-    {P1_4 , ADC0_5, 1},
-    {P1_10, ADC0_6, 1},
-    {P1_11, ADC0_7, 1},
-    {NC   , NC    , 0}
-};
-
 #define ADC_RANGE    ADC_10BIT_RANGE
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     if (obj->adc == (uint32_t)NC) {
         error("ADC pin mapping failed");
+        return;
     }
     
     // Power up ADC
