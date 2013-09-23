@@ -17,13 +17,13 @@
 					<folderInfo id="com.arm.eclipse.build.config.baremetal.exe.debug.1910477576." name="/" resourcePath="">
 						<toolChain id="com.arm.toolchain.baremetal.exe.debug.1293445387" name="ARM Compiler" superClass="com.arm.toolchain.baremetal.exe.debug">
 							<targetPlatform id="com.arm.eclipse.build.config.baremetal.exe.debug.1910477576..2093450286" name=""/>
-							<builder buildPath="${workspace_loc:/ds5_lpc1768/Build}" id="com.arm.toolchain.baremetal.builder.457933156" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.arm.toolchain.baremetal.builder"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/ds5_lpc1768/Build}" cleanBuildTarget="clean" id="org.eclipse.cdt.build.core.internal.builder.2019880438" incrementalBuildTarget="all" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="com.arm.tool.c.compiler.baremetal.exe.debug.518028859" name="ARM C Compiler" superClass="com.arm.tool.c.compiler.baremetal.exe.debug"/>
 							<tool id="com.arm.tool.cpp.compiler.baremetal.exe.debug.773836201" name="ARM C++ Compiler" superClass="com.arm.tool.cpp.compiler.baremetal.exe.debug">
 								<option id="com.arm.tool.c.compiler.option.incpath.337015821" name="Include path (-I)" superClass="com.arm.tool.c.compiler.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbed/LPC1768}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbed/LPC1768/ARM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbed}&quot;"/>
+									{% for path in include_paths %}
+										<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
 								</option>
 								<option id="com.arm.tool.c.compiler.option.targetcpu.1479931161" name="Target CPU (--cpu)" superClass="com.arm.tool.c.compiler.option.targetcpu" value="Cortex-M3" valueType="string"/>
 								<inputType id="com.arm.tool.c.compiler.input.982666453" superClass="com.arm.tool.c.compiler.input"/>
@@ -34,7 +34,7 @@
 							</tool>
 							<tool id="com.arm.tool.c.linker.2036393580" name="ARM Linker" superClass="com.arm.tool.c.linker">
 								<option id="com.arm.tool.c.linker.option.cpu.419580654" name="Target CPU (--cpu)" superClass="com.arm.tool.c.linker.option.cpu" value="Cortex-M3" valueType="string"/>
-								<option id="com.arm.tool.c.linker.option.scatter.1235987457" name="Scatter file (--scatter)" superClass="com.arm.tool.c.linker.option.scatter" value="${ProjDirPath}/mbed/LPC1768/ARM/LPC1768.sct" valueType="string"/>
+								<option id="com.arm.tool.c.linker.option.scatter.1235987457" name="Scatter file (--scatter)" superClass="com.arm.tool.c.linker.option.scatter" value="${ProjDirPath}/{{ scatter_file }}" valueType="string"/>
 								<option id="com.arm.tool.c.linker.userobjs.1389137013" name="Other object files" superClass="com.arm.tool.c.linker.userobjs" valueType="userObjs">
     								{% for path in object_files %}
                                         <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
