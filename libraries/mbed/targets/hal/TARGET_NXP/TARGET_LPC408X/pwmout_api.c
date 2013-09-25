@@ -66,7 +66,7 @@ static unsigned int pwm_clock_mhz;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (uint32_t)NC)
+    if (pwm == (PWMName)NC)
         error("PwmOut pin mapping failed");
     
     obj->channel = pwm;
