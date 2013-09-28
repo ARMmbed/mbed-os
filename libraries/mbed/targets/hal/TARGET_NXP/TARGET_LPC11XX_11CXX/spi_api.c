@@ -19,7 +19,31 @@
 #include "pinmap.h"
 #include "error.h"
 
-#include "spi_pinmap.h"
+static const PinMap PinMap_SPI_SCLK[] = {
+    {P0_6 , SPI_0, 0x02},
+    // {P0_10, SPI_0, 0x02}, -- should be mapped to SWCLK only
+    {P2_11, SPI_0, 0x01},
+    {P2_1 , SPI_1, 0x02},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_MOSI[] = {
+    {P0_9 , SPI_0, 0x01},
+    {P2_3 , SPI_1, 0x02},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_MISO[] = {
+    {P0_8 , SPI_0, 0x01},
+    {P2_2 , SPI_1, 0x02},
+    {NC   , NC   , 0}
+};
+
+static const PinMap PinMap_SPI_SSEL[] = {
+    {P0_2 , SPI_0, 0x01},
+    {P2_0 , SPI_1, 0x02},
+    {NC   , NC   , 0}
+};
 
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);

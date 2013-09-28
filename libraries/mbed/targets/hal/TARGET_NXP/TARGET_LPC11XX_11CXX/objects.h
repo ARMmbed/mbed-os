@@ -59,6 +59,12 @@ struct spi_s {
     LPC_SSP_TypeDef *spi;
 };
 
+#if DEVICE_CAN
+struct can_s {
+    int index;
+};
+#endif
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
