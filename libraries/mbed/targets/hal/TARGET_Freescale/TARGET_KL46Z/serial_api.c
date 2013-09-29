@@ -29,7 +29,7 @@
  ******************************************************************************/
 static const PinMap PinMap_UART_TX[] = {
     {PTA2,  UART_0, 2},
-    {PTA14, UART_0, 3}
+    {PTA14, UART_0, 3},
     {PTC4,  UART_1, 3},
     {PTD3,  UART_2, 3},
     {PTD5,  UART_2, 3},
