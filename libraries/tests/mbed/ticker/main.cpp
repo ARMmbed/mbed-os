@@ -17,6 +17,8 @@ Ticker flipper_2;
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2
+#elif defined(TARGET_KL46Z)
+#   define LED_NAME LED2
 #else
 #   define LED_NAME PTE31
 #endif

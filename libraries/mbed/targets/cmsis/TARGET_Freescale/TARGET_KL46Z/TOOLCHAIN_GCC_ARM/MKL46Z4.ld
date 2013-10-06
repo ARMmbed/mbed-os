@@ -1,13 +1,13 @@
 /*
- * KL25Z ARM GCC linker script file
+ * KL46Z ARM GCC linker script file
  */
 
 MEMORY
 {
   VECTORS (rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH_PROTECTION	(rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
+  FLASH_PROTECTION (rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
   FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 256K - 0x00000410
-  RAM (rwx) : ORIGIN = 0x1FFFE000, LENGTH = 32K 
+  RAM (rwx) : ORIGIN = 0x1FFFE0C0, LENGTH = 32K - 0xC0
 }
 
 /* Linker script to place sections and symbol values. Should be used together

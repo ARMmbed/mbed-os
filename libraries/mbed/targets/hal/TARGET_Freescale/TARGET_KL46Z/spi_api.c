@@ -23,11 +23,13 @@
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTA15, SPI_0, 2},
+    {PTB9,  SPI_1, 2},
     {PTB11, SPI_1, 2},
     {PTC5,  SPI_0, 2},
     {PTD1,  SPI_0, 2},
     {PTD5,  SPI_1, 2},
     {PTE2,  SPI_1, 2},
+    {PTE17, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
@@ -44,6 +46,8 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {PTD7,  SPI_1, 5},
     {PTE1,  SPI_1, 2},
     {PTE3,  SPI_1, 5},
+    {PTE18, SPI_0, 2},
+    {PTE19, SPI_0, 5},
     {NC  ,  NC   , 0}
 };
 
@@ -60,6 +64,8 @@ static const PinMap PinMap_SPI_MISO[] = {
     {PTD7,  SPI_1, 2},
     {PTE1,  SPI_1, 5},
     {PTE3,  SPI_1, 2},
+    {PTE18, SPI_0, 5},
+    {PTE19, SPI_0, 2},
     {NC   , NC   , 0}
 };
 
@@ -70,6 +76,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {PTD0,  SPI_0, 2},
     {PTD4,  SPI_1, 2},
     {PTE4,  SPI_1, 2},
+    {PTE16, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
