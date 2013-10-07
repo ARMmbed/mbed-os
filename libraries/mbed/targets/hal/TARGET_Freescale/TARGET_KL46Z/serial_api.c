@@ -28,26 +28,30 @@
  * INITIALIZATION
  ******************************************************************************/
 static const PinMap PinMap_UART_TX[] = {
-    {PTC4,  UART_1, 3},
     {PTA2,  UART_0, 2},
-    {PTD5,  UART_2, 3},
+    {PTA14, UART_0, 3},
+    {PTC4,  UART_1, 3},
     {PTD3,  UART_2, 3},
+    {PTD5,  UART_2, 3},
     {PTD7,  UART_0, 3},
+    {PTE0,  UART_1, 3},
+    {PTE16, UART_2, 3},
     {PTE20, UART_0, 4},
     {PTE22, UART_2, 4},
-    {PTE0,  UART_1, 3},
     {NC  ,  NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PTC3,  UART_1, 3},
     {PTA1,  UART_0, 2},
-    {PTD4,  UART_2, 3},
+    {PTA15,  UART_0, 3},
+    {PTC3,  UART_1, 3},
     {PTD2,  UART_2, 3},
+    {PTD4,  UART_2, 3},
     {PTD6,  UART_0, 3},
-    {PTE23, UART_2, 4},
-    {PTE21, UART_0, 4},
     {PTE1,  UART_1, 3},
+    {PTE17, UART_2, 3},
+    {PTE21, UART_0, 4},
+    {PTE23, UART_2, 4},
     {NC  ,  NC    , 0}
 };
 
@@ -77,7 +81,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     switch (uart) {
         case UART_0: obj->index = 0; break;
         case UART_1: obj->index = 1; break;
@@ -122,13 +126,13 @@ void serial_free(serial_t *obj) {
 //     DivAddVal < MulVal
 //
 void serial_baud(serial_t *obj, int baudrate) {
-    
+
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
-    
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     // [TODO] not hardcode this value
     uint32_t PCLK = (obj->uart == UART0) ? 48000000u : 24000000u;
 
@@ -143,20 +147,20 @@ void serial_baud(serial_t *obj, int baudrate) {
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);
     obj->uart->BDL = (obj->uart->BDL & ~(0xff)) | ((DL >> 0) & 0xff);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     uint8_t m10 = 0;
-    
+
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
-    
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     // 8 data bits = 0 ... 9 data bits = 1
     if ((data_bits < 8) || (data_bits > 9)) {
         error("Invalid number of bits (%d) in serial format, should be 8..9\r\n", data_bits);
@@ -178,7 +182,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         error("Invalid stop bits specified\r\n");
     }
     stop_bits -= 1;
-    
+
     // 9 data bits + parity
     if (data_bits == 2) {
         // only uart0 supports 10 bit communication
@@ -193,17 +197,17 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     obj->uart->C1 = ((data_bits << 4)
                   |  (parity_enable << 1)
                   |  (parity_select << 0));
-    
+
     // enable 10bit mode if needed
     if (obj->index == 0) {
         obj->uart->C4 &= ~UARTLP_C4_M10_MASK;
         obj->uart->C4 |= (m10 << UARTLP_C4_M10_SHIFT);
     }
-    
+
     // stop bits
     obj->uart->BDH &= ~UART_BDH_SBNS_MASK;
     obj->uart->BDH |= (stop_bits << UART_BDH_SBNS_SHIFT);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
@@ -304,7 +308,7 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->C2 |= UART_C2_SBK_MASK; 
+    obj->uart->C2 |= UART_C2_SBK_MASK;
 }
 
 void serial_break_clear(serial_t *obj) {

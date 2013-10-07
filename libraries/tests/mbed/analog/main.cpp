@@ -8,6 +8,10 @@ AnalogOut out(PTE30);
 AnalogIn in(PTB11);  // D9
 AnalogOut out(PTB1); // D1
 
+#elif defined(TARGET_KL46Z)
+AnalogIn in(PTB0);
+AnalogOut out(PTE30);
+
 #else
 AnalogIn in(p17);
 AnalogOut out(p18);
