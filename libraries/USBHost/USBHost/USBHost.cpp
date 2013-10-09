@@ -852,7 +852,7 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
 
     pEnumerator->setVidPid( data[8] | (data[9] << 8), data[10] | (data[11] << 8) );
 
-    res = getConfigurationDescriptor(dev, data, 300, &total_conf_descr_length);
+    res = getConfigurationDescriptor(dev, data, sizeof(data), &total_conf_descr_length);
     if (res != USB_TYPE_OK) {
         usb_mutex.unlock();
         return res;
