@@ -26,6 +26,11 @@
 									{% endfor %}
 								</option>
 								<option id="com.arm.tool.c.compiler.option.targetcpu.1479931161" name="Target CPU (--cpu)" superClass="com.arm.tool.c.compiler.option.targetcpu" value="Cortex-M3" valueType="string"/>
+								<option id="com.arm.tool.c.compiler.option.defmac.278202630" superClass="com.arm.tool.c.compiler.option.defmac" valueType="definedSymbols">
+                                {% for s in symbols %}
+									<listOptionValue builtIn="false" value="{{s}}"/>
+								{% endfor %}
+								</option>
 								<inputType id="com.arm.tool.c.compiler.input.982666453" superClass="com.arm.tool.c.compiler.input"/>
 								<inputType id="com.arm.tool.cpp.compiler.input.1990808204" superClass="com.arm.tool.cpp.compiler.input"/>
 							</tool>
@@ -69,6 +74,11 @@
 							<builder buildPath="${workspace_loc:/ds5_lpc1768/Release}" id="com.arm.toolchain.baremetal.builder.2017314066" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.arm.toolchain.baremetal.builder"/>
 							<tool id="com.arm.tool.c.compiler.baremetal.exe.release.920331842" name="ARM C Compiler" superClass="com.arm.tool.c.compiler.baremetal.exe.release"/>
 							<tool id="com.arm.tool.cpp.compiler.baremetal.exe.release.487140164" name="ARM C++ Compiler" superClass="com.arm.tool.cpp.compiler.baremetal.exe.release">
+								<option id="com.arm.tool.c.compiler.option.defmac.813110551" superClass="com.arm.tool.c.compiler.option.defmac" valueType="definedSymbols">
+									{% for s in symbols %}
+									<listOptionValue builtIn="false" value="{{s}}"/>
+									{% endfor %}
+								</option>
 								<inputType id="com.arm.tool.c.compiler.input.79502875" superClass="com.arm.tool.c.compiler.input"/>
 								<inputType id="com.arm.tool.cpp.compiler.input.192669519" superClass="com.arm.tool.cpp.compiler.input"/>
 							</tool>
