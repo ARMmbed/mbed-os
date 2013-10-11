@@ -272,7 +272,7 @@ private:
     Mutex td_mutex;
     
     // buffer for conf descriptor
-    uint8_t data[300];
+    uint8_t data[415];
     
     /**
     * Add a transfer on the TD linked list associated to an ED

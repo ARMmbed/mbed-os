@@ -17,14 +17,14 @@
 					<folderInfo id="com.arm.eclipse.build.config.baremetal.exe.debug.1914396777." name="/" resourcePath="">
 						<toolChain errorParsers="com.arm.eclipse.builder.armcc.error" id="com.arm.toolchain.baremetal.exe.debug.1781361929" name="ARM Compiler" superClass="com.arm.toolchain.baremetal.exe.debug">
 							<targetPlatform binaryParser="" id="com.arm.eclipse.build.config.baremetal.exe.debug.1914396777..1121504975" name=""/>
-							<builder buildPath="${workspace_loc:/ds5_lpc11u24/Build}" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="com.arm.toolchain.baremetal.builder.1633639159" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.arm.toolchain.baremetal.builder"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/ds5_lpc11u24/Build}" cleanBuildTarget="clean" id="org.eclipse.cdt.build.core.internal.builder.1955892657" incrementalBuildTarget="all" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="com.arm.tool.c.compiler.baremetal.exe.debug.1694050615" name="ARM C Compiler" superClass="com.arm.tool.c.compiler.baremetal.exe.debug"/>
 							<tool command="armcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="" id="com.arm.tool.cpp.compiler.baremetal.exe.debug.1642314243" name="ARM C++ Compiler" superClass="com.arm.tool.cpp.compiler.baremetal.exe.debug">
 								<option id="com.arm.tool.c.compiler.option.targetcpu.235324898" name="Target CPU (--cpu)" superClass="com.arm.tool.c.compiler.option.targetcpu" value="Cortex-M0" valueType="string"/>
 								<option id="com.arm.tool.c.compiler.option.incpath.1328570024" name="Include path (-I)" superClass="com.arm.tool.c.compiler.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ds5_lpc11u24/mbed}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ds5_lpc11u24/mbed/LPC11U24/ARM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ds5_lpc11u24/mbed/LPC11U24}&quot;"/>
+									{% for path in include_paths %}
+										<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
 								</option>
 								<inputType id="com.arm.tool.c.compiler.input.51293980" superClass="com.arm.tool.c.compiler.input"/>
 								<inputType id="com.arm.tool.cpp.compiler.input.2068563074" superClass="com.arm.tool.cpp.compiler.input"/>
@@ -34,7 +34,7 @@
 							</tool>
 							<tool command="armlink" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="" id="com.arm.tool.c.linker.2036393580" name="ARM Linker" superClass="com.arm.tool.c.linker">
 								<option id="com.arm.tool.c.linker.option.cpu.419580654" name="Target CPU (--cpu)" superClass="com.arm.tool.c.linker.option.cpu" value="Cortex-M0" valueType="string"/>
-								<option id="com.arm.tool.c.linker.option.scatter.1235987457" name="Scatter file (--scatter)" superClass="com.arm.tool.c.linker.option.scatter" value="${ProjDirPath}/mbed/LPC11U24/ARM/LPC11U24.sct" valueType="string"/>
+								<option id="com.arm.tool.c.linker.option.scatter.1235987457" name="Scatter file (--scatter)" superClass="com.arm.tool.c.linker.option.scatter" value="${ProjDirPath}/{{ scatter_file }}" valueType="string"/>
 								<option id="com.arm.tool.c.linker.userobjs.1389137013" name="Other object files" superClass="com.arm.tool.c.linker.userobjs" valueType="userObjs">
 									{% for path in object_files %}
                                         <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>

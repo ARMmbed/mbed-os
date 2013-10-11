@@ -33,6 +33,8 @@ static struct netif lpcNetif;
 
 static char mac_addr[19];
 static char ip_addr[17] = "\0";
+static char gateway[17] = "\0";
+static char networkmask[17] = "\0";
 static bool use_dhcp = false;
 
 static Semaphore tcpip_inited(0);
@@ -52,6 +54,8 @@ static void netif_link_callback(struct netif *netif) {
 static void netif_status_callback(struct netif *netif) {
     if (netif_is_up(netif)) {
         strcpy(ip_addr, inet_ntoa(netif->ip_addr));
+        strcpy(gateway, inet_ntoa(netif->gw));
+        strcpy(networkmask, inet_ntoa(netif->netmask));
         netif_up.release();
     }
 }
@@ -142,3 +146,13 @@ char* EthernetInterface::getMACAddress() {
 char* EthernetInterface::getIPAddress() {
     return ip_addr;
 }
+
+char* EthernetInterface::getGateway() {
+    return gateway;
+}
+
+char* EthernetInterface::getNetworkMask() {
+    return networkmask;
+}
+
+

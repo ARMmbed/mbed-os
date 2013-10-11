@@ -69,6 +69,16 @@ public:
    * \return a pointer to a string containing the IP address
    */
   static char* getIPAddress();
+
+  /** Get the Gateway address of your Ethernet interface
+   * \return a pointer to a string containing the Gateway address
+   */
+  static char* getGateway();
+
+  /** Get the Network mask of your Ethernet interface
+   * \return a pointer to a string containing the Network mask
+   */
+  static char* getNetworkMask();
 };
 
 #include "TCPSocketConnection.h"
