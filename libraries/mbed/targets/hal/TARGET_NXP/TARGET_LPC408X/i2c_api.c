@@ -122,6 +122,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
+
+    // OpenDrain must explicitly be enabled for p0.0 and p0.1
+    if (sda == P0_0) {
+        pin_mode(sda, OpenDrain);
+    }
+    if (scl == P0_1) {
+        pin_mode(scl, OpenDrain);
+    }
+
 }
 
 inline int i2c_start(i2c_t *obj) {
