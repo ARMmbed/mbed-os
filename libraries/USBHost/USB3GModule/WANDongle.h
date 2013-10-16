@@ -48,6 +48,11 @@ public:
     WANDongle();
 
     /*
+    * Destructor
+    */
+    virtual ~WANDongle();
+
+    /*
     * Check if a serial port device is connected
     *
     * @return true if a serial device is connected
@@ -72,7 +77,8 @@ public:
     
     IUSBHostSerial& getSerial(int index);
     int getSerialCount();
-    
+    bool addInitializer(WANDongleInitializer* pInitializer);
+
     //From IUSBEnumerator
     
     virtual void setVidPid(uint16_t vid, uint16_t pid);
@@ -92,6 +98,9 @@ protected:
     
     WANDongleSerialPort m_serial[WANDONGLE_MAX_SERIAL_PORTS];
     int m_serialCount;
+ 
+    int m_totalInitializers;
+    WANDongleInitializer* m_Initializers[MAX_DEVICE_CONNECTED];
 };
 
 #endif /* USBHOST_3GMODULE */

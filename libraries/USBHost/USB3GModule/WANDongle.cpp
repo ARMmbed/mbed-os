@@ -32,7 +32,7 @@
 #include "WANDongle.h"
 #include "WANDongleInitializer.h"
 
-WANDongle::WANDongle() : m_pInitializer(NULL), m_serialCount(0)
+WANDongle::WANDongle() : m_pInitializer(NULL), m_serialCount(0), m_totalInitializers(0)
 {
     host = USBHost::getHostInst();
     init();
@@ -166,28 +166,28 @@ void WANDongle::init()
 
 /*virtual*/ void WANDongle::setVidPid(uint16_t vid, uint16_t pid)
 {
-    //Load right initializer
-  WANDongleInitializer** initializer = WANDongleInitializer::getInitializers(host);
-  
-  while(*initializer)
+  WANDongleInitializer* initializer;
+
+  for(unsigned i = 0; i < m_totalInitializers; i++)
   {
-    DBG("*initializer=%p", *initializer);
-    DBG("(*initializer)->getSerialVid()=%04x", (*initializer)->getSerialVid());
-    DBG("(*initializer)->getSerialPid()=%04x", (*initializer)->getSerialPid());
-    if ((dev->getVid() == (*initializer)->getSerialVid()) && (dev->getPid() == (*initializer)->getSerialPid()))
+    initializer = m_Initializers[i];
+    DBG("initializer=%p", initializer);
+    DBG("initializer->getSerialVid()=%04x", initializer->getSerialVid());
+    DBG("initializer->getSerialPid()=%04x", initializer->getSerialPid());
+    if ((dev->getVid() == initializer->getSerialVid()) && (dev->getPid() == initializer->getSerialPid()))
     {
       DBG("The dongle is in virtual serial mode");
-      m_pInitializer = *initializer;
+      m_pInitializer = initializer;
       break;
     }
-    else if ((dev->getVid() == (*initializer)->getMSDVid()) && (dev->getPid() == (*initializer)->getMSDPid()))
+    else if ((dev->getVid() == initializer->getMSDVid()) && (dev->getPid() == initializer->getMSDPid()))
     {
-      DBG("Vodafone K3370 dongle detected in MSD mode");
-      m_pInitializer = *initializer;
+      DBG("Dongle detected in MSD mode");
+      m_pInitializer = initializer;
       break;
     }
     initializer++;
-  } //while()
+  } //for
   if(m_pInitializer)
   {
     m_pInitializer->setVidPid(vid, pid);
@@ -216,6 +216,21 @@ void WANDongle::init()
   {
     return false;
   }
+}
+
+
+bool WANDongle::addInitializer(WANDongleInitializer* pInitializer)
+{
+  if (m_totalInitializers >= MAX_DEVICE_CONNECTED)
+    return false;
+  m_Initializers[m_totalInitializers++] = pInitializer;
+  return true;
+}
+
+WANDongle::~WANDongle()
+{
+  for(unsigned i = 0; i < m_totalInitializers; i++)
+    delete m_Initializers[i];
 }
 
 #endif /* USBHOST_3GMODULE */
