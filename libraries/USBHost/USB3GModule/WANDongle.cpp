@@ -130,7 +130,7 @@ bool WANDongle::disconnect()
   return true;
 }
 
-WAN_DONGLE_TYPE WANDongle::getDongleType()
+int WANDongle::getDongleType()
 {
   if( m_pInitializer != NULL )
   {
@@ -221,7 +221,7 @@ void WANDongle::init()
 
 bool WANDongle::addInitializer(WANDongleInitializer* pInitializer)
 {
-  if (m_totalInitializers >= MAX_DEVICE_CONNECTED)
+  if (m_totalInitializers >= WANDONGLE_MAX_INITIALIZERS)
     return false;
   m_Initializers[m_totalInitializers++] = pInitializer;
   return true;

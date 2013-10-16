@@ -73,7 +73,7 @@ public:
      */
     bool disconnect();
        
-    WAN_DONGLE_TYPE getDongleType();
+    int getDongleType();
     
     IUSBHostSerial& getSerial(int index);
     int getSerialCount();
@@ -100,7 +100,7 @@ protected:
     int m_serialCount;
  
     int m_totalInitializers;
-    WANDongleInitializer* m_Initializers[MAX_DEVICE_CONNECTED];
+    WANDongleInitializer* m_Initializers[WANDONGLE_MAX_INITIALIZERS];
 };
 
 #endif /* USBHOST_3GMODULE */
