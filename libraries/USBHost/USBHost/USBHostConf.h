@@ -21,47 +21,52 @@
 * Maximum number of devices that can be connected
 * to the usb host
 */
-#define MAX_DEVICE_CONNECTED        5
+#define MAX_DEVICE_CONNECTED        1
 
 /*
 * Maximum of Hub connected to the usb host
 */
-#define MAX_HUB_NB                  2
+#define MAX_HUB_NB                  0
 
 /*
 * Maximum number of ports on a USB hub
 */
-#define MAX_HUB_PORT                4
+#define MAX_HUB_PORT                0
 
 /*
 * Enable USBHostMSD
 */
-#define USBHOST_MSD                 1
+#define USBHOST_MSD                 0
 
 /*
 * Enable USBHostKeyboard
 */
-#define USBHOST_KEYBOARD            1
+#define USBHOST_KEYBOARD            0
 
 /*
 * Enable USBHostMouse
 */
-#define USBHOST_MOUSE               1
+#define USBHOST_MOUSE               0
 
 /*
 * Enable USBHostSerial
 */
-#define USBHOST_SERIAL              1
+#define USBHOST_SERIAL              0
+
+/*
+* Enable USB3Gmodule
+*/
+#define USBHOST_3GMODULE            1 
 
 /*
 * Maximum number of interfaces of a usb device
 */
-#define MAX_INTF                    3
+#define MAX_INTF                    4
 
 /*
 * Maximum number of endpoints on each interface
 */
-#define MAX_ENDPOINT_PER_INTERFACE  3
+#define MAX_ENDPOINT_PER_INTERFACE  2
 
 /*
 * Maximum number of endpoint descriptors that can be allocated
