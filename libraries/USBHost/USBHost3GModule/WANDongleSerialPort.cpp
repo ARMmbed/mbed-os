@@ -25,7 +25,7 @@
 #define __MODULE__ "WANDongleSerialPort.cpp"
 #endif
 
-#include "core/dbg.h"
+#include "dbg.h"
 #include <cstdint>
 #include "rtos.h"
 
@@ -65,31 +65,31 @@ void WANDongleSerialPort::reset()
 
 int WANDongleSerialPort::readPacket()
 {
-  DBG("Read packet on %p", this);
+  USB_DBG("Read packet on %p", this);
   rx_mtx.lock();
   if(lock_rx)
   {
-    ERR("Fail");
+    USB_ERR("Fail");
     rx_mtx.unlock();
     return -1;
   }
   
   if( bulk_in == NULL )
   {
-    WARN("Port is disconnected");
+    USB_WARN("Port is disconnected");
     rx_mtx.unlock();
     return -1;
   }
 
   lock_rx = true; //Receiving
   rx_mtx.unlock();
-//  DBG("readPacket");
+//  USB_DBG("readPacket");
   //lock_rx.lock();
   USB_TYPE res = host->bulkRead(dev, (USBEndpoint *)bulk_in, buf_in, ((USBEndpoint *)bulk_in)->getSize(), false); //Queue transfer
   if(res != USB_TYPE_PROCESSING)
   {
     //lock_rx.unlock();
-    ERR("host->bulkRead() returned %d", res);
+    USB_ERR("host->bulkRead() returned %d", res);
     Thread::wait(100);
     return -1;
   }
@@ -101,28 +101,28 @@ int WANDongleSerialPort::writePacket()
   tx_mtx.lock();
   if(lock_tx)
   {
-    ERR("Fail");
+    USB_ERR("Fail");
     tx_mtx.unlock();
     return -1;
   }
   
   if( bulk_out == NULL )
   {
-    WARN("Port is disconnected");
+    USB_WARN("Port is disconnected");
     tx_mtx.unlock();
     return -1;
   }
 
   lock_tx = true; //Transmitting
   tx_mtx.unlock();
-//  DBG("writePacket");
+//  USB_DBG("writePacket");
 
   //lock_tx.lock();
   USB_TYPE res = host->bulkWrite(dev, (USBEndpoint *)bulk_out, buf_out, buf_out_len, false); //Queue transfer
   if(res != USB_TYPE_PROCESSING)
   {
     //lock_tx.unlock();
-    ERR("host->bulkWrite() returned %d", res);
+    USB_ERR("host->bulkWrite() returned %d", res);
     Thread::wait(100);
     return -1;
   }
@@ -142,7 +142,7 @@ int WANDongleSerialPort::putc(int c)
   }
   else
   {
-    ERR("CAN'T WRITE!");
+    USB_ERR("CAN'T WRITE!");
   }
   tx_mtx.unlock();
   return c;
@@ -162,7 +162,7 @@ int WANDongleSerialPort::getc()
   }
   else
   {
-    ERR("CAN'T READ!");
+    USB_ERR("CAN'T READ!");
   }
   rx_mtx.unlock();
   return c;
@@ -305,7 +305,7 @@ void WANDongleSerialPort::rxHandler()
   else //Error, try reading again
   {
     //lock_rx.unlock();
-    DBG("Trying again");
+    USB_DBG("Trying again");
     readPacket();
   }
 }
