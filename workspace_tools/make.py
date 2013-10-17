@@ -50,6 +50,10 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     
     # Local run
+    parser.add_option("--source", dest="input_dir",
+                      default=None, help="The source input directory")
+    parser.add_option("--build", dest="output_dir",
+                      default=None, help="The binary output directory")
     parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_option("-s", "--serial", dest="serial",
@@ -108,6 +112,10 @@ if __name__ == '__main__':
         test.dependencies.append(RTOS_LIBRARIES)
     
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
+    if options.input_dir is not None: 
+        test.source_dir = options.input_dir
+    if options.output_dir is not None: 
+        build_dir = options.output_dir
     
     target = TARGET_MAP[mcu]
     try:
