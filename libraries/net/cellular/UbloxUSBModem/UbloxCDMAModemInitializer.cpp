@@ -27,6 +27,10 @@
 
 #include "UbloxCDMAModemInitializer.h"
 
+UbloxCDMAModemInitializer::UbloxCDMAModemInitializer(USBHost* pHost) : WANDongleInitializer(pHost)
+{
+}
+
 uint16_t UbloxCDMAModemInitializer::getMSDVid()
 {
     return 0x05C6;
