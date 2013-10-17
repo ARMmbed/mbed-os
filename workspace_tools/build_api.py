@@ -112,6 +112,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Copy Headers
     for resource in resources:
         toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+    dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
     
     # Compile Sources
     objects = []
