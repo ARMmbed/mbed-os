@@ -26,7 +26,7 @@
 #endif
 
 #include "dbg.h"
-#include <cstdint>
+#include <stdint.h>
 #include "rtos.h"
 
 #include "WANDongle.h"
@@ -168,7 +168,7 @@ void WANDongle::init()
 {
   WANDongleInitializer* initializer;
 
-  for(unsigned i = 0; i < m_totalInitializers; i++)
+  for(int i = 0; i < m_totalInitializers; i++)
   {
     initializer = m_Initializers[i];
     USB_DBG("initializer=%p", initializer);
@@ -229,7 +229,7 @@ bool WANDongle::addInitializer(WANDongleInitializer* pInitializer)
 
 WANDongle::~WANDongle()
 {
-  for(unsigned i = 0; i < m_totalInitializers; i++)
+  for(int i = 0; i < m_totalInitializers; i++)
     delete m_Initializers[i];
 }
 

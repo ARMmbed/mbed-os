@@ -26,7 +26,7 @@
 #endif
 
 #include "dbg.h"
-#include <cstdint>
+#include <stdint.h>
 #include "rtos.h"
 
 #include "WANDongleSerialPort.h"

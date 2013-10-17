@@ -30,6 +30,10 @@
 
 #include "IUSBHostSerialListener.h"
 
+// This is needed by some versions of GCC
+#undef putc
+#undef getc
+
 class IUSBHostSerial {
 public:
 

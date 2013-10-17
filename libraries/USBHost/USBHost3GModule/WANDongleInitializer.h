@@ -23,9 +23,7 @@
 
 #ifdef USBHOST_3GMODULE
 
-#include <cstdint>
-using std::uint16_t;
-using std::uint32_t;
+#include <stdint.h>
 
 #include "USBHost.h"
 #include "IUSBEnumerator.h"
@@ -44,6 +42,7 @@ protected:
     uint8_t m_serialIntfMap[WANDONGLE_MAX_SERIAL_PORTS];
     
 public:
+    virtual ~WANDongleInitializer() {}
     virtual uint16_t getMSDVid() = 0;
     virtual uint16_t getMSDPid() = 0;
     
