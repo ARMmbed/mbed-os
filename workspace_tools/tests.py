@@ -565,20 +565,21 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
     },
     
-    # Vodafone tests
+    # u-blox tests
     {
-        "id": "VF_1", "description": "HTTP client",
-        "source_dir": join(TEST_DIR, "net", "vodafone", "HTTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
+        "id": "UB_1", "description": "u-blox USB GSM modem: HTTP client",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "http", "ubloxusbgsm"), join(TEST_DIR, "net", "cellular", "http", "common")],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
+        "automated": True,
     },
     {
-        "id": "VF_2", "description": "USSD & SMS Test",
-        "source_dir": join(TEST_DIR, "net", "vodafone", "USSD_SMS_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
+        "id": "UB_2", "description": "u-blox USB GSM modem: SMS test",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "sms", "ubloxusbgsm"), join(TEST_DIR, "net", "cellular", "sms", "common")],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
-    
+
     # USB Tests
     {
         "id": "USB_1", "description": "Mouse",

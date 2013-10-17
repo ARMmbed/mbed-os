@@ -31,14 +31,17 @@ def build_project(src_path, build_path, target, toolchain_name,
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
-    
+
+    src_paths = [src_path] if type(src_path) != ListType else src_path
     if name is None:
-        name = basename(src_path)
+        name = basename(src_paths[0])
     toolchain.info("\n>>> BUILD PROJECT: %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
     
     # Scan src_path and libraries_paths for resources
-    resources = toolchain.scan_resources(src_path)
-    src_paths = [src_path]
+    resources = toolchain.scan_resources(src_paths[0])
+    for path in src_paths[1:]:
+        print "PATH:", path
+        resources.add(toolchain.scan_resources(path))
     if libraries_paths is not None:
         src_paths.extend(libraries_paths)
         for path in libraries_paths:
