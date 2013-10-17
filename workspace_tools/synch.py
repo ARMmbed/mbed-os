@@ -58,6 +58,10 @@ OFFICIAL_CODE = (
     
     ("USBDevice", "USBDevice"),
     ("USBHost"  , "USBHost"),
+
+    ("CellularModem", "net/cellular/CellularModem"),
+    ("CellularUSBModem", "net/cellular/CellularUSBModem"),
+    ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
 )
 
 
