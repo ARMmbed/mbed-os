@@ -62,6 +62,7 @@ OFFICIAL_CODE = (
     ("CellularModem", "net/cellular/CellularModem"),
     ("CellularUSBModem", "net/cellular/CellularUSBModem"),
     ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
+    ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusbgsm"]),
 )
 
 
@@ -239,7 +240,7 @@ def visit_files(path, visit):
             visit(join(root, file))
 
 
-def update_repo(repo_name, sdk_path):
+def update_repo(repo_name, sdk_paths):
     repo = MbedOfficialRepository(repo_name)
     # copy files from mbed SDK to mbed_official repository
     def visit_mbed_sdk(sdk_file):
@@ -250,12 +251,16 @@ def update_repo(repo_name, sdk_path):
             makedirs(repo_dir)
         
         copy_with_line_endings(sdk_file, repo_file)
-    visit_files(sdk_path, visit_mbed_sdk)
+    for sdk_path in sdk_paths:
+        visit_files(sdk_path, visit_mbed_sdk)
     
     # remove repository files that do not exist in the mbed SDK
     def visit_repo(repo_file):
-        sdk_file = join(sdk_path, relpath(repo_file, repo.path))
-        if not exists(sdk_file):
+        for sdk_path in sdk_paths:
+            sdk_file = join(sdk_path, relpath(repo_file, repo.path))
+            if exists(sdk_file):
+                break
+        else:
             remove(repo_file)
             print "remove: %s" % repo_file
     visit_files(repo.path, visit_repo)
@@ -267,7 +272,8 @@ def update_repo(repo_name, sdk_path):
 def update_code(repositories):
     for repo_name, sdk_dir in repositories:
         print '\n=== Updating "%s" ===' % repo_name
-        sdk_path = join(LIB_DIR, sdk_dir)
+        sdk_dirs = [sdk_dir] if type(sdk_dir) != type([]) else sdk_dir
+        sdk_path = [join(LIB_DIR, d) for d in sdk_dirs]
         update_repo(repo_name, sdk_path)
 
 
