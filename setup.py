@@ -1,5 +1,7 @@
 from distutils.core import setup
 
+license_text = open('LICENSE').read()
+
 setup(name='Mbed',
       version='0.0.1',
       description='Package description',
@@ -9,5 +11,5 @@ setup(name='Mbed',
       maintainer='Maintainer name',
       maintainer_email='Maintainer email',
       url='Homepage url',
-      download_url='Pacjage download url',
-      license='Apache License string')
+      download_url='Package download url',
+      license=license_text)
