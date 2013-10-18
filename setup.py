@@ -1,6 +1,11 @@
+"""
+This module defines the attributes of the
+PyPI package for the Mbed SDK
+"""
+
 from distutils.core import setup
 
-license_text = open('LICENSE').read()
+LICENSE = open('LICENSE').read()
 
 setup(name='Mbed',
       version='0.0.1',
@@ -12,4 +17,4 @@ setup(name='Mbed',
       maintainer_email='Maintainer email',
       url='https://github.com/mbedmicro/mbed',
       download_url='Package download url',
-      license=license_text)
+      license=LICENSE)
