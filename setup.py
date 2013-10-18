@@ -10,6 +10,6 @@ setup(name='Mbed',
       author_email='Author email',
       maintainer='Maintainer name',
       maintainer_email='Maintainer email',
-      url='Homepage url',
+      url='https://github.com/mbedmicro/mbed',
       download_url='Package download url',
       license=license_text)
