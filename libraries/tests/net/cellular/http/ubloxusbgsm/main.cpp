@@ -3,23 +3,23 @@
 
 #ifndef MODEM_APN
 #warning APN not specified, using "internet"
-#define APN "internet"
+#define MODEM_APN "internet"
 #endif
 
 #ifndef MODEM_USERNAME
 #warning username not specified
-#define USERNAME NULL
+#define MODEM_USERNAME NULL
 #endif
 
 #ifndef MODEM_PASSWORD
 #warning password not specified
-#define PASSWORD NULL
+#define MODEM_PASSWORD NULL
 #endif
 
 void test(void const* data)
 {
     UbloxUSBGSMModem modem;
-    httptest(modem, APN, USERNAME, PASSWORD);
+    httptest(modem, MODEM_APN, MODEM_USERNAME, MODEM_PASSWORD);
     while (true);
 }
 
