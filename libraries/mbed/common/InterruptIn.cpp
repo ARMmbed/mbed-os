@@ -99,6 +99,14 @@ void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
     }
 }
 
+void InterruptIn::enable_irq() {
+    gpio_irq_enable(&gpio_irq);
+}
+
+void InterruptIn::disable_irq() {
+    gpio_irq_disable(&gpio_irq);
+}
+
 #ifdef MBED_OPERATORS
 InterruptIn::operator int() {
     return read();

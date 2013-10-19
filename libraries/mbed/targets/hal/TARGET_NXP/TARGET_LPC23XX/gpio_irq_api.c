@@ -143,3 +143,12 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         }
     }
 }
+
+void gpio_irq_enable(gpio_irq_t *obj) {
+    NVIC_EnableIRQ(EINT3_IRQn);
+}
+
+void gpio_irq_disable(gpio_irq_t *obj) {
+    NVIC_DisableIRQ(EINT3_IRQn);
+}
+
