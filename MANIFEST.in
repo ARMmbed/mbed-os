@@ -1,0 +1,2 @@
+include __init__.py LICENSE description.rst
+graft workspace_tools libraries
