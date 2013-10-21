@@ -10,7 +10,7 @@ DESCRIPTION = open('description.rst')
 OWNER_NAMES = 'emilmont, bogdanm'
 OWNER_EMAILS = 'Emilio.Monti@arm.com, Bogdan.Marinescu@arm.com'
 
-setup(name='Mbed',
+setup(name='mbed',
       version='0.0.1',
       description='Build and test system for mbed',
       long_description=DESCRIPTION,
