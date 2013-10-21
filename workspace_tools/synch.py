@@ -63,6 +63,7 @@ OFFICIAL_CODE = (
     ("CellularUSBModem", "net/cellular/CellularUSBModem"),
     ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
     ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusbgsm"]),
+    ("UbloxModemSMSTest", ["tests/net/cellular/sms/common", "tests/net/cellular/sms/ubloxusbgsm"]),
 )
 
 
