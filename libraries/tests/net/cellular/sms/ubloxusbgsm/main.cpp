@@ -1,4 +1,4 @@
-#include "UBloxUSBGSMModem.h"
+#include "UbloxUSBGSMModem.h"
 #include "smstest.h"
 
 void test(const void* data)
