@@ -146,7 +146,7 @@ class mbedToolchain:
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
-    def __init__(self, target, options=None, notify=None):
+    def __init__(self, target, options=None, notify=None, macros=None):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
@@ -162,6 +162,7 @@ class mbedToolchain:
             self.options = []
         else:
             self.options = options
+        self.macros = macros or []
         self.options.extend(BUILD_OPTIONS)
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
@@ -347,7 +348,7 @@ class mbedToolchain:
             self.progress("compile", source, build_update=True)
             
             # Compile
-            command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+            command = cc + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
             if hasattr(self, "get_dep_opt"):
                 command.extend(self.get_dep_opt(dep_path))
             
