@@ -124,12 +124,12 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain.build_library(objects, bin_path, name)
 
 
-def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False):
+def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None):
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
         build_library(lib.source_dir, lib.build_dir, target, toolchain,
                       lib.dependencies, options,
-                      verbose=verbose, clean=clean)
+                      verbose=verbose, clean=clean, macros=macros)
     else:
         print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
