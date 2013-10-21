@@ -1,5 +1,8 @@
 *.py[cod]
 
+# Distribution dir
+dist
+
 # Private settings
 private_settings.py
 
