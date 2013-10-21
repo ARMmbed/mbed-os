@@ -48,7 +48,9 @@ if __name__ == '__main__':
                       help="The name of the desired test program")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
-    
+    parser.add_option("-D", "", action="append", dest="macros",
+                      help="Add a macro definition")
+
     # Local run
     parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
@@ -114,7 +116,8 @@ if __name__ == '__main__':
         bin = build_project(test.source_dir, build_dir, target, toolchain,
                             test.dependencies, options.options,
                             linker_script=options.linker_script,
-                            clean=options.clean, verbose=options.verbose)
+                            clean=options.clean, verbose=options.verbose,
+                            macros=options.macros)
         print 'Image: %s' % bin
         
         if options.disk:

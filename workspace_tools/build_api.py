@@ -26,9 +26,9 @@ from workspace_tools.libraries import Library
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None):
+        clean=False, notify=None, verbose=False, name=None, macros=None):
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
 
@@ -40,7 +40,6 @@ def build_project(src_path, build_path, target, toolchain_name,
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_paths[0])
     for path in src_paths[1:]:
-        print "PATH:", path
         resources.add(toolchain.scan_resources(path))
     if libraries_paths is not None:
         src_paths.extend(libraries_paths)
@@ -78,7 +77,7 @@ verbose: Write the actual tools command lines if True
 """
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False):
+         notify=None, verbose=False, macros=None):
     if type(src_paths) != ListType: src_paths = [src_paths]
     
     for src_path in src_paths:
@@ -86,7 +85,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
             raise Exception("The library source folder does not exist: %s", src_path)
     
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
     
@@ -136,14 +135,14 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None):
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
         print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
         return
     
     # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros)
     toolchain.VERBOSE = verbose
     toolchain.build_all = clean
     
@@ -192,3 +191,4 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     objects.remove(retargeting)
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
     toolchain.copy_files(retargeting, BUILD_TOOLCHAIN)
+
