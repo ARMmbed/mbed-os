@@ -42,7 +42,7 @@ except:
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
-    parser.add_option("-p", type="int", dest="program", default=-1,
+    parser.add_option("-p", type="int", dest="program",
                       help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
     parser.add_option("-n", dest="program_name",
                       help="The name of the desired test program")
