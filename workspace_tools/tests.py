@@ -567,14 +567,14 @@ TESTS = [
     
     # u-blox tests
     {
-        "id": "UB_1", "description": "u-blox USB GSM modem: HTTP client",
-        "source_dir": [join(TEST_DIR, "net", "cellular", "http", "ubloxusbgsm"), join(TEST_DIR, "net", "cellular", "http", "common")],
+        "id": "UB_1", "description": "u-blox USB modem: HTTP client",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "http", "ubloxusb"), join(TEST_DIR, "net", "cellular", "http", "common")],
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
     {
-        "id": "UB_2", "description": "u-blox USB GSM modem: SMS test",
-        "source_dir": [join(TEST_DIR, "net", "cellular", "sms", "ubloxusbgsm"), join(TEST_DIR, "net", "cellular", "sms", "common")],
+        "id": "UB_2", "description": "u-blox USB modem: SMS test",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "sms", "ubloxusb"), join(TEST_DIR, "net", "cellular", "sms", "common")],
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
