@@ -10,6 +10,8 @@ int httptest(CellularModem& modem, const char* apn, const char* username, const 
     HTTPClient http;
     char str[512];
 
+    modem.power(true);
+    Thread::wait(1000);
     int ret = modem.connect(apn, username, password);
     if(ret)
     {

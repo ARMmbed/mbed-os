@@ -1,5 +1,11 @@
-#include "UBloxUSBGSMModem.h"
+#include "UbloxUSBGSMModem.h"
+#include "UbloxUSBCDMAModem.h"
 #include "httptest.h"
+
+#if !defined(MODEM_UBLOX_GSM) && !defined(MODEM_UBLOX_CDMA)
+#warning No modem defined, using GSM by default
+#define MODEM_UBLOX_GSM
+#endif
 
 #ifndef MODEM_APN
 #warning APN not specified, using "internet"
@@ -16,23 +22,14 @@
 #define MODEM_PASSWORD NULL
 #endif
 
-void test(void const* data)
-{
-    UbloxUSBGSMModem modem;
-    httptest(modem, MODEM_APN, MODEM_USERNAME, MODEM_PASSWORD);
-    while (true);
-}
-
 int main()
 {
-    Thread testTask(test, NULL, osPriorityNormal, 1024 * 4);
-    DigitalOut led(LED1);
-
-    while (true)
-    {
-        led = !led;
-        Thread::wait(1000);  
-    }
-    return 0;
+#ifdef MODEM_UBLOX_GSM
+    UbloxUSBGSMModem modem;
+#else
+    UbloxUSBCDMAModem modem(p18, true, 1);
+#endif
+    httptest(modem, MODEM_APN, MODEM_USERNAME, MODEM_PASSWORD);
+    while (true);
 }
 
