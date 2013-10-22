@@ -1,24 +1,21 @@
 #include "UbloxUSBGSMModem.h"
+#include "UbloxUSBCDMAModem.h"
 #include "smstest.h"
 
-void test(const void* data)
-{
-    UbloxUSBGSMModem modem;
-
-    smstest(modem);
-    while (true);
-}
+#if !defined(MODEM_UBLOX_GSM) && !defined(MODEM_UBLOX_CDMA)
+#warning No modem defined, using GSM by default
+#define MODEM_UBLOX_GSM
+#endif
 
 int main()
 {
-    Thread testTask(test, NULL, osPriorityNormal, 1024 * 4);
-    DigitalOut led(LED1);
+#ifdef MODEM_UBLOX_GSM
+    UbloxUSBGSMModem modem;
+#else
+    UbloxUSBCDMAModem modem(p18, true, 1);
+#endif
 
-    while (true)
-    {
-        led = !led;
-        Thread::wait(1000);  
-    }
-    return 0;
+    smstest(modem);
+    while (true);
 }
 

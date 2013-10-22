@@ -3,6 +3,9 @@
 
 void smstest(CellularModem& modem) 
 {
+    modem.power(true);
+    Thread::wait(1000);
+
 #ifdef DESTINATION_NUMBER    
     modem.sendSM(DESINATION_NUMBER, "Hello from mbed:)");
 #endif
