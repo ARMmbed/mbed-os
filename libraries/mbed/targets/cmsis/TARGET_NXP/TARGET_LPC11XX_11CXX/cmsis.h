@@ -9,5 +9,6 @@
 
 #include "LPC11xx.h"
 #include "cmsis_nvic.h"
+#include "bitfields.h"
 
 #endif
