@@ -143,3 +143,19 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     // Interrupt configuration and clear interrupt
     port->PCR[obj->pin] = (port->PCR[obj->pin] & ~PORT_PCR_IRQC_MASK) | irq_settings | PORT_PCR_ISF_MASK;
 }
+
+void gpio_irq_enable(gpio_irq_t *obj) {
+    if (obj->port == PortA) {
+        NVIC_EnableIRQ(PORTA_IRQn);
+    } else if (obj->port == PortD) {
+        NVIC_EnableIRQ(PORTD_IRQn);
+    }
+}
+
+void gpio_irq_disable(gpio_irq_t *obj) {
+    if (obj->port == PortA) {
+        NVIC_DisableIRQ(PORTA_IRQn);
+    } else if (obj->port == PortD) {
+        NVIC_DisableIRQ(PORTD_IRQn);
+    }
+}

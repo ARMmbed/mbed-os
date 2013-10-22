@@ -1,21 +1,22 @@
 #include "mbed.h"
-#include "VodafoneUSBModem.h"
+#include "CellularModem.h"
 #include "HTTPClient.h"
-#include "test_env.h"
+#include "httptest.h"
 
-int main() 
+int httptest(CellularModem& modem, const char* apn, const char* username, const char* password)
 {    
     printf("Connecting...\n");
     
-    VodafoneUSBModem modem;
     HTTPClient http;
     char str[512];
 
-    int ret = modem.connect("internet", "web", "web");
+    modem.power(true);
+    Thread::wait(1000);
+    int ret = modem.connect(apn, username, password);
     if(ret)
     {
       printf("Could not connect\n");
-      notify_completion(false); //Blocks indefinitely
+      return false;
     }
     
     //GET data
@@ -30,7 +31,7 @@ int main()
     {
       printf("Error - ret = %d - HTTP return code = %d\n", ret, http.getHTTPResponseCode());
       modem.disconnect();
-      notify_completion(false); //Blocks indefinitely
+      return false;
     }
     
     //POST data
@@ -49,10 +50,9 @@ int main()
     {
       printf("Error - ret = %d - HTTP return code = %d\n", ret, http.getHTTPResponseCode());
       modem.disconnect();
-      notify_completion(false); //Blocks indefinitely
+      return false;
     }
     
-    modem.disconnect();  
-    
-    notify_completion(true); //Blocks indefinitely
+    modem.disconnect();
+    return true;
 }

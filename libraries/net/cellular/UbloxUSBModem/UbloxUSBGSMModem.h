@@ -29,10 +29,11 @@
 #include "sms/GSMSMSInterface.h"
 #include "ussd/USSDInterface.h"
 #include "link/LinkMonitor.h"
+#include "CellularModem.h"
 
 /** u-blox WCDMA modem (LISA-U200)
  */
-class UbloxUSBGSMModem
+class UbloxUSBGSMModem: public CellularModem
 {
 public:
   /** Create u-blox API instance
@@ -46,12 +47,12 @@ public:
   /** Open a 3G internet connection
       @return 0 on success, error code on failure
   */
-  int connect(const char* apn = NULL, const char* user = NULL, const char* password = NULL);
+  virtual int connect(const char* apn = NULL, const char* user = NULL, const char* password = NULL);
 
   /** Close the internet connection
      @return 0 on success, error code on failure
   */
-  int disconnect();
+  virtual int disconnect();
 
 
   /** Send a SM
@@ -59,7 +60,7 @@ public:
      @param message The message to send
      @return 0 on success, error code on failure
    */
-  int sendSM(const char* number, const char* message);
+  virtual int sendSM(const char* number, const char* message);
 
 
   /** Receive a SM
@@ -68,13 +69,13 @@ public:
      @param maxLength Maximum message length that can be stored in buffer (including null-terminating character)
      @return 0 on success, error code on failure
    */
-  int getSM(char* number, char* message, size_t maxLength);
+  virtual int getSM(char* number, char* message, size_t maxLength);
 
   /** Get the number of SMs in the incoming box
      @param pCount pointer to store the number of unprocessed SMs on
      @return 0 on success, error code on failure
    */
-  int getSMCount(size_t* pCount);
+  virtual int getSMCount(size_t* pCount);
 
   /** Send a USSD command & wait for its result
     @param command The command to send
@@ -95,14 +96,14 @@ public:
   /** Get the ATCommandsInterface instance
     @return Pointer to the ATCommandsInterface instance
    */
-  ATCommandsInterface* getATCommandsInterface();
+  virtual ATCommandsInterface* getATCommandsInterface();
   
   /** Switch power on or off
     In order to use this function, a pin name must have been entered in the constructor
     @param enable true to switch the dongle on, false to switch it off
     @return 0 on success, error code on failure
   */
-  int power(bool enable);
+  virtual int power(bool enable);
 
 protected:
   bool power(); //< Turn power to USB dongle ON.

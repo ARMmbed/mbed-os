@@ -1,5 +1,5 @@
-/* UbloxUSBCDMAModem.h */
-/* Copyright (C) 2012 mbed.org, MIT License
+/* CellularModem.h */
+/* Copyright (C) 2013 mbed.org, MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,40 +17,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef UBLOXUSBCDMAMODEM_H_
-#define UBLOXUSBCDMAMODEM_H_
+#ifndef CELLULARMODEM_H_
+#define CELLULARMODEM_H_
 
 #include "core/fwk.h"
-
-#include "WANDongle.h"
 #include "at/ATCommandsInterface.h"
-#include "USBSerialStream.h"
-#include "ip/PPPIPInterface.h"
-#include "sms/CDMASMSInterface.h"
-#include "CellularModem.h"
 
-/** u-blox LISA-C200 modem
- */
-class UbloxUSBCDMAModem: public CellularModem
+class CellularModem
 {
 public:
-  /** Create Sprint USB Modem (Sierra Wireless 598U) API instance
-      @param powerGatingPin Optional pin commanding a power gating transistor on the modem's power line 
-      @param powerGatingOnWhenPinHigh true if the pin needs to be high to power the dongle, defaults to true
-   */
-  UbloxUSBCDMAModem(PinName powerGatingPin = NC, bool powerGatingOnWhenPinHigh = true, int serial = 0);
-
   //Internet-related functions
 
   /** Open a 3G internet connection
       @return 0 on success, error code on failure
   */
-  virtual int connect(const char* apn = NULL, const char* user = NULL, const char* password = NULL);
+  virtual int connect(const char* apn = NULL, const char* user = NULL, const char* password = NULL) = 0;
 
   /** Close the internet connection
      @return 0 on success, error code on failure
   */
-  virtual int disconnect();
+  virtual int disconnect() = 0;
 
 
   /** Send a SM
@@ -58,7 +44,7 @@ public:
      @param message The message to send
      @return 0 on success, error code on failure
    */
-  virtual int sendSM(const char* number, const char* message);
+  virtual int sendSM(const char* number, const char* message) = 0;
 
 
   /** Receive a SM
@@ -67,52 +53,26 @@ public:
      @param maxLength Maximum message length that can be stored in buffer (including null-terminating character)
      @return 0 on success, error code on failure
    */
-  virtual int getSM(char* number, char* message, size_t maxLength);
+  virtual int getSM(char* number, char* message, size_t maxLength) = 0;
 
   /** Get the number of SMs in the incoming box
      @param pCount pointer to store the number of unprocessed SMs on
      @return 0 on success, error code on failure
    */
-  virtual int getSMCount(size_t* pCount);
+  virtual int getSMCount(size_t* pCount) = 0;
 
   /** Get the ATCommandsInterface instance
-     @return Pointer to the ATCommandsInterface instance
+    @return Pointer to the ATCommandsInterface instance
    */
-  virtual ATCommandsInterface* getATCommandsInterface();
-
+  virtual ATCommandsInterface* getATCommandsInterface() = 0;
+  
   /** Switch power on or off
     In order to use this function, a pin name must have been entered in the constructor
     @param enable true to switch the dongle on, false to switch it off
     @return 0 on success, error code on failure
   */
-  virtual int power(bool enable);
-
-protected:
-  bool power();
-  
-  int init();
-  int cleanup();
-
-private:
-  WANDongle m_dongle;
-  
-  USBSerialStream m_stream;
-  
-  ATCommandsInterface m_at;
-  
-  CDMASMSInterface m_sms;
-  
-  PPPIPInterface m_ppp;
-
-  bool m_dongleConnected;
-  bool m_ipInit;
-  bool m_smsInit;
-  bool m_atOpen;
-  
-  PinName m_powerGatingPin;
-  bool m_powerGatingOnWhenPinHigh;
+  virtual int power(bool enable) = 0;
 };
 
 
-#endif /* UBLOXUSBCDMAMODEM_H_ */
-
+#endif /* CELLULARMODEM_H_ */

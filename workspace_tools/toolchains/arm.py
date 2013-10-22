@@ -30,8 +30,8 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -123,16 +123,16 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
     
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         
         # Compiler
         self.asm  += ["-D__MICROLIB"]

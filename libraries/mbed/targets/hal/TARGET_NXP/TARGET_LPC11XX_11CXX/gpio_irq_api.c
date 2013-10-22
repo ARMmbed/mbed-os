@@ -174,3 +174,43 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     }
 
 }
+
+void gpio_irq_enable(gpio_irq_t *obj) {
+    uint32_t port_num = ((obj->pin & 0xF000) >> PORT_SHIFT);
+    switch (port_num) {
+        case 0:
+            NVIC_EnableIRQ(EINT0_IRQn);
+            break;
+        case 1:
+            NVIC_EnableIRQ(EINT1_IRQn);
+            break;
+        case 2:
+            NVIC_EnableIRQ(EINT2_IRQn);
+            break;
+        case 3:
+            NVIC_EnableIRQ(EINT3_IRQn);
+            break;
+        default:
+            break;
+    }
+}
+
+void gpio_irq_disable(gpio_irq_t *obj) {
+    uint32_t port_num = ((obj->pin & 0xF000) >> PORT_SHIFT);
+    switch (port_num) {
+        case 0:
+            NVIC_DisableIRQ(EINT0_IRQn);
+            break;
+        case 1:
+            NVIC_DisableIRQ(EINT1_IRQn);
+            break;
+        case 2:
+            NVIC_DisableIRQ(EINT2_IRQn);
+            break;
+        case 3:
+            NVIC_DisableIRQ(EINT3_IRQn);
+            break;
+        default:
+            break;
+    }
+}

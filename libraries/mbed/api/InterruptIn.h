@@ -167,7 +167,7 @@ public:
      *
      *  @returns
      *  The function object created for 'fptr'
-     */   
+     */
     pFunctionPointer_t fall_add(void (*fptr)(void)) {
         return fall_add_common(fptr);
     }
@@ -239,6 +239,14 @@ public:
      *  @param mode PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
+
+    /** Enable IRQ
+     */
+    void enable_irq();
+
+    /** Disable IRQ
+     */
+    void disable_irq();
 
     static void _irq_handler(uint32_t id, gpio_irq_event event);
 
