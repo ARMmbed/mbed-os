@@ -296,7 +296,7 @@ def update_dependencies(repositories):
 
 
 def update_mbed():
-    update_repo("mbed", join(BUILD_DIR, "mbed"))
+    update_repo("mbed", [join(BUILD_DIR, "mbed")])
 
 def do_sync(options):
     global push_remote, quiet, commit_msg, changed
