@@ -13,41 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_SERIAL_H
-#define MBED_SERIAL_H
+#ifndef MBED_RAW_SERIAL_H
+#define MBED_RAW_SERIAL_H
 
 #include "platform.h"
 
 #if DEVICE_SERIAL
 
-#include "Stream.h"
 #include "SerialBase.h"
 #include "serial_api.h"
 
 namespace mbed {
 
 /** A serial port (UART) for communication with other serial devices
+ * This is a variation of the Serial class that doesn't use streams,
+ * thus making it safe to use in interrupt handlers with the RTOS.
  *
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
  * Example:
  * @code
- * // Print "Hello World" to the PC
+ * // Send a char to the PC
  *
  * #include "mbed.h"
  *
- * Serial pc(USBTX, USBRX);
+ * RawSerial pc(USBTX, USBRX);
  *
  * int main() {
- *     pc.printf("Hello World\n");
+ *     pc.putc('A');
  * }
  * @endcode
  */
-class Serial : public SerialBase, public Stream {
+class RawSerial: public SerialBase {
 
 public:
-    /** Create a Serial port, connected to the specified transmit and receive pins
+    /** Create a RawSerial port, connected to the specified transmit and receive pins
      *
      *  @param tx Transmit pin
      *  @param rx Receive pin
@@ -55,11 +56,21 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    Serial(PinName tx, PinName rx, const char *name=NULL);
+    RawSerial(PinName tx, PinName rx);
 
-protected:
-    virtual int _getc();
-    virtual int _putc(int c);    
+    /** Write a char to the serial port
+     *
+     * @param c The char to write
+     *
+     * @returns The written char or -1 if an error occured
+     */
+    int putc(int c);
+
+    /** Read a char from the serial port
+     *
+     * @returns The char read from the serial port
+     */
+    int getc();
 };
 
 } // namespace mbed

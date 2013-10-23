@@ -84,9 +84,7 @@ int main() {
 
     // Test chaining inside Serial class
     flipper_1.attach(&flip_1, 1.0); // the address of the function to be attached (flip) and the interval (1 second)
-    flipper_1.add_function_front(&s1, &Sender::send);
     flipper_2.attach(&flip_2, 2.0); // the address of the function to be attached (flip) and the interval (2 seconds)
-    flipper_2.add_function(&s2, &Sender::send);
 
     // Test global chaining (InterruptManager)
     printf("Handler initially: %08X\n", initial_handler = NVIC_GetVector(TIMER_IRQ));

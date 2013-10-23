@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Serial.h"
+#include "RawSerial.h"
 #include "wait_api.h"
 
 #if DEVICE_SERIAL
 
 namespace mbed {
 
-Serial::Serial(PinName tx, PinName rx, const char *name) : SerialBase(tx, rx), Stream(name) {
+RawSerial::RawSerial(PinName tx, PinName rx) : SerialBase(tx, rx) {
 }
 
-int Serial::_getc() {
+int RawSerial::getc() {
     return _base_getc();
 }
 
-int Serial::_putc(int c) {
+int RawSerial::putc(int c) {
     return _base_putc(c);
 }
 
