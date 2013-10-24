@@ -12,8 +12,8 @@ DESCRIPTION = """A set of Python scripts that can be used to compile programs wr
 OWNER_NAMES = 'emilmont, bogdanm'
 OWNER_EMAILS = 'Emilio.Monti@arm.com, Bogdan.Marinescu@arm.com'
 
-setup(name='mbed',
-      version='0.1.6',
+setup(name='mbed-tools',
+      version='0.1.7',
       description='Build and test system for mbed',
       long_description=DESCRIPTION,
       author=OWNER_NAMES,
