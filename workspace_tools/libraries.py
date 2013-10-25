@@ -70,16 +70,16 @@ LIBRARIES = [
         "id": "eth",
         "source_dir": [ETH_SOURCES, LWIP_SOURCES],
         "build_dir": ETH_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_SOURCES, LWIP_SOURCES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES]
     },
     
     {
-        "id": "vodafone",
-        "source_dir": [VODAFONE_SOURCES, LWIP_SOURCES],
-        "build_dir": VODAFONE_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_SOURCES, LWIP_SOURCES],
-        "supported": CORTEX_ARM_SUPPORT
+        "id": "ublox",
+        "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, LWIP_SOURCES],
+        "build_dir": UBLOX_LIBRARY,
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
+
 ]
 
 

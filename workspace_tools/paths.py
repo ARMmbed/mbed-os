@@ -55,10 +55,14 @@ NET = join(LIB_DIR, "net")
 ETH_SOURCES = join(NET, "eth")
 LWIP_SOURCES = join(NET, "lwip")
 VODAFONE_SOURCES = join(NET, "VodafoneUSBModem")
+CELLULAR_SOURCES = join(NET, "cellular", "CellularModem")
+CELLULAR_USB_SOURCES = join(NET, "cellular", "CellularUSBModem")
+UBLOX_SOURCES = join(NET, "cellular", "UbloxUSBModem")
 
 NET_LIBRARIES = join(BUILD_DIR, "net")
 ETH_LIBRARY = join(NET_LIBRARIES, "eth")
 VODAFONE_LIBRARY = join(NET_LIBRARIES, "VodafoneUSBModem")
+UBLOX_LIBRARY = join(NET_LIBRARIES, "UbloxUSBModem")
 
 # FS
 FS_PATH = join(LIB_DIR, "fs")

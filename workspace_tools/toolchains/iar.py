@@ -29,8 +29,8 @@ class IAR(mbedToolchain):
     
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         c_flags = [
             "-Oh",
