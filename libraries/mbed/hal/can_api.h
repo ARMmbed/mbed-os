@@ -63,8 +63,9 @@ void          can_irq_free (can_t *obj);
 void          can_irq_set  (can_t *obj, CanIrqType irq, uint32_t enable);
 
 int           can_write    (can_t *obj, CAN_Message, int cc);
-int           can_read     (can_t *obj, CAN_Message *msg);
+int           can_read     (can_t *obj, CAN_Message *msg, int handle);
 int           can_mode     (can_t *obj, CanMode mode);
+int           can_filter   (can_t *obj, unsigned int id, unsigned int mask, CANFormat format, int handle);
 void          can_reset    (can_t *obj);
 unsigned char can_rderror  (can_t *obj);
 unsigned char can_tderror  (can_t *obj);
