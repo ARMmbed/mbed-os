@@ -29,4 +29,4 @@ chmod a+x ARMCC/bin/armlink
 printf "#%s/bin/bash\nwine fromelf.exe" ! > ARMCC/bin/fromelf
 chmod a+x ARMCC/bin/fromelf
 
-export PATH = $PATH:$TRAVIS_BUILD_DIR"/ARMCC/bin"
+export PATH=$PATH:$TRAVIS_BUILD_DIR"/ARMCC/bin"
