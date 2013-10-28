@@ -1,5 +1,5 @@
 --- 
-install: travis/install_dependencies.sh
+install: sudo travis/install_dependencies.sh
 python: 
   - "2.7"
 script: "python workspace_tools/build.py -r -e -U -u -d -b -t GCC_ARM"
