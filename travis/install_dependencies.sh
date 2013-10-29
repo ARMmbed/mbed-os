@@ -1,19 +1,28 @@
 echo "Installing compilation dependencies."
 
 # Install GCC-ARM Compiler.
-sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
-sudo add-apt-repository -y ppa:ubuntu-wine/ppa
 
-sudo apt-get update
-sudo apt-get install -y gcc-arm-none-eabi
-sudo apt-get install -y wine1.5
+echo "Adding apt repositories."
+sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded > /dev/null
+sudo add-apt-repository -y ppa:ubuntu-wine/ppa > /dev/null
+
+echo "Installing gcc_arm software"
+sudo apt-get update > /dev/null
+sudo apt-get install -y gcc-arm-none-eabi > /dev/null
+
+echo "Setting up Wine."
+sudo apt-get install -y wine1.5 > /dev/null
+
 
 # Download ARMCC (Testing Purposes only at the moment)
-wget https://dl.dropboxusercontent.com/u/15449666/ARMCC.tar.gz
-tar xvfz ARMCC.tar.gz
+
+echo "Installing ARMCC"
+wget https://dl.dropboxusercontent.com/u/15449666/ARMCC.tar.gz > /dev/null
+tar xvfz ARMCC.tar.gz > /dev/null
 
 # Setup ARMCC environment variables
 
+echo "Setting up Environment Variables"
 printf "#%s/bin/bash\nwine armcc.exe" ! > ARMCC/bin/armcc
 chmod a+x ARMCC/bin/armcc
 
