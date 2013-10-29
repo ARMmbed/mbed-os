@@ -28,8 +28,6 @@ USBHost * USBHost::instHost = NULL;
 
 #define MIN(a, b) ((a > b) ? b : a)
 
-DigitalOut l4(LED4);
-
 /**
 * How interrupts are processed:
 *    - new device connected:
@@ -72,7 +70,6 @@ void USBHost::usb_process() {
         
         if (evt.status == osEventMail) {
             
-            l4 = !l4;
             message_t * usb_msg = (message_t*)evt.value.p;
             
             switch (usb_msg->event_id) {

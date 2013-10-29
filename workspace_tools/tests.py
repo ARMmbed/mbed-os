@@ -198,13 +198,7 @@ TESTS = [
         "peripherals": ["i2c_loop"]
     },
     {
-        "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "interruptin"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "peripherals": ["digital_loop"]
-    },
-    {
-        "id": "MBED_A22", "description": "Call function before main (mbed_main)",
+        "id": "MBED_A21", "description": "Call function before main (mbed_main)",
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
@@ -382,23 +376,18 @@ TESTS = [
         "peripherals": ["ADXL345"]
     },
     {
-        "id": "MBED_28", "description": "Interrupt chaining (serial)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "serial_interrupt"),
+        "id": "MBED_28", "description": "Interrupt chaining (InterruptManager)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     {
-        "id": "MBED_29", "description": "Interrupt chaining (ticker + InterruptManager)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "ticker"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
-        "id": "MBED_30", "description": "CAN network test",
+        "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
     },
     {
-        "id": "MBED_31", "description": "CAN network test using interrupts",
+        "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
@@ -565,20 +554,20 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
     },
     
-    # Vodafone tests
+    # u-blox tests
     {
-        "id": "VF_1", "description": "HTTP client",
-        "source_dir": join(TEST_DIR, "net", "vodafone", "HTTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
+        "id": "UB_1", "description": "u-blox USB modem: HTTP client",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "http", "ubloxusb"), join(TEST_DIR, "net", "cellular", "http", "common")],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
     {
-        "id": "VF_2", "description": "USSD & SMS Test",
-        "source_dir": join(TEST_DIR, "net", "vodafone", "USSD_SMS_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, VODAFONE_LIBRARY, TEST_MBED_LIB],
+        "id": "UB_2", "description": "u-blox USB modem: SMS test",
+        "source_dir": [join(TEST_DIR, "net", "cellular", "sms", "ubloxusb"), join(TEST_DIR, "net", "cellular", "sms", "common")],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
         "supported": CORTEX_ARM_SUPPORT,
     },
-    
+
     # USB Tests
     {
         "id": "USB_1", "description": "Mouse",
@@ -690,6 +679,7 @@ GROUPS = {
 }
 GROUPS["rtos"] = [test["id"] for test in TESTS if test["id"].startswith("RTOS_")]
 GROUPS["net"] = [test["id"] for test in TESTS if test["id"].startswith("NET_")]
+GROUPS["automated"] = [test["id"] for test in TESTS if test.get("automated", False)]
 # Look for 'TEST_GROUPS' in private_settings.py and update the GROUPS dictionary
 # with the information in test_groups if found
 try:

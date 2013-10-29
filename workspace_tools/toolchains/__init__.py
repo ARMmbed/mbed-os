@@ -26,6 +26,7 @@ from workspace_tools.patch import patch
 from workspace_tools.settings import BUILD_OPTIONS
 
 import workspace_tools.hooks as hooks
+import re
 
 def print_notify(event):
     # Default command line notification
@@ -141,8 +142,11 @@ class mbedToolchain:
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
         "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
-    
-    def __init__(self, target, options=None, notify=None):
+
+    GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
+    GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
+
+    def __init__(self, target, options=None, notify=None, macros=None):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
@@ -158,6 +162,7 @@ class mbedToolchain:
             self.options = []
         else:
             self.options = options
+        self.macros = macros or []
         self.options.extend(BUILD_OPTIONS)
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
@@ -168,6 +173,12 @@ class mbedToolchain:
         self.labels = None
         
         self.build_all = False
+
+    def goanna_parse_line(self, line):
+        if "analyze" in self.options:
+            return self.GOANNA_DIAGNOSTIC_PATTERN.match(line)
+        else:
+            return None
     
     def get_symbols(self):
         if self.symbols is None:
@@ -337,7 +348,7 @@ class mbedToolchain:
             self.progress("compile", source, build_update=True)
             
             # Compile
-            command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+            command = cc + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
             if hasattr(self, "get_dep_opt"):
                 command.extend(self.get_dep_opt(dep_path))
             
