@@ -54,9 +54,14 @@
 #define USBHOST_SERIAL              1
 
 /*
+* Enable USB3Gmodule
+*/
+#define USBHOST_3GMODULE            1 
+
+/*
 * Maximum number of interfaces of a usb device
 */
-#define MAX_INTF                    3
+#define MAX_INTF                    4
 
 /*
 * Maximum number of endpoints on each interface

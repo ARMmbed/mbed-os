@@ -1,5 +1,11 @@
 *.py[cod]
 
+# Distribution dir
+dist
+
+# MANIFEST file
+MANIFEST
+
 # Private settings
 private_settings.py
 

@@ -39,8 +39,8 @@ int CAN::write(CANMessage msg) {
     return can_write(&_can, msg, 0);
 }
 
-int CAN::read(CANMessage &msg) {
-    return can_read(&_can, &msg);
+int CAN::read(CANMessage &msg, int handle) {
+    return can_read(&_can, &msg, handle);
 }
 
 void CAN::reset() {
@@ -63,19 +63,23 @@ int CAN::mode(Mode mode) {
     return can_mode(&_can, (CanMode)mode);
 }
 
-    void CAN::attach(void (*fptr)(void), IrqType type) {
-        if (fptr) {
-            _irq[(CanIrqType)type].attach(fptr);
-            can_irq_set(&_can, (CanIrqType)type, 1);
-        } else {
-            can_irq_set(&_can, (CanIrqType)type, 0);
-        }
-    }
+int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle) {
+    return can_filter(&_can, id, mask, format, handle);
+}
 
-    void CAN::_irq_handler(uint32_t id, CanIrqType type) {
-        CAN *handler = (CAN*)id;
-        handler->_irq[type].call();
+void CAN::attach(void (*fptr)(void), IrqType type) {
+    if (fptr) {
+        _irq[(CanIrqType)type].attach(fptr);
+        can_irq_set(&_can, (CanIrqType)type, 1);
+    } else {
+        can_irq_set(&_can, (CanIrqType)type, 0);
     }
+}
+
+void CAN::_irq_handler(uint32_t id, CanIrqType type) {
+    CAN *handler = (CAN*)id;
+    handler->_irq[type].call();
+}
 
 } // namespace mbed
 

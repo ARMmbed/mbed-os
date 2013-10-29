@@ -20,7 +20,7 @@ from os.path import join, exists
 
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import IAR_PATH
-
+from workspace_tools.settings import GOANNA_PATH
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -29,8 +29,8 @@ class IAR(mbedToolchain):
     
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         c_flags = [
             "-Oh",
@@ -49,10 +49,14 @@ class IAR(mbedToolchain):
             c_flags.append("-r")
         
         IAR_BIN = join(IAR_PATH, "bin")
+        main_cc = join(IAR_BIN, "iccarm")
         self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
-        self.cc   = [join(IAR_BIN, "iccarm")] + c_flags
-        self.cppc = [join(IAR_BIN, "iccarm"), "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
-        
+        if not "analyze" in self.options:
+            self.cc   = [main_cc] + c_flags
+            self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
+        else:
+            self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + c_flags
+            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + ["--c++", "--no_rtti", "--no_exceptions"] + c_flags
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
@@ -66,6 +70,14 @@ class IAR(mbedToolchain):
                     match.group('file'),
                     match.group('line'),
                     match.group('message'),
+                )
+            match = self.goanna_parse_line(line)
+            if match is not None:
+                self.cc_info(
+                    match.group('severity').lower(),
+                    match.group('file'),
+                    match.group('line'),
+                    match.group('message')
                 )
     
     def get_dep_opt(self, dep_path):

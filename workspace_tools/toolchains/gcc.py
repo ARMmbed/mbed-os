@@ -19,7 +19,7 @@ from os.path import join, basename, splitext
 
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
-
+from workspace_tools.settings import GOANNA_PATH
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
@@ -29,8 +29,8 @@ class GCC(mbedToolchain):
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
     
-    def __init__(self, target, options=None, notify=None, tool_path=""):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None, tool_path=""):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
@@ -59,11 +59,17 @@ class GCC(mbedToolchain):
 
         if "debug-info" in self.options:
             common_flags.append("-g")
-        
+
         self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
-        
-        self.cc  = [join(tool_path, "arm-none-eabi-gcc"), "-std=gnu99"] + common_flags
-        self.cppc =[join(tool_path, "arm-none-eabi-g++"), "-std=gnu++98"] + common_flags
+
+        main_cc = join(tool_path, "arm-none-eabi-gcc")
+        main_cppc = join(tool_path, "arm-none-eabi-g++")
+        if not "analyze" in self.options:
+            self.cc  = [main_cc, "-std=gnu99"] + common_flags
+            self.cppc =[main_cppc, "-std=gnu++98"] + common_flags
+        else:
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
         
         self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
@@ -98,6 +104,16 @@ class GCC(mbedToolchain):
         WHERE, WHAT = 0, 1
         state, file, message = WHERE, None, None
         for line in output.splitlines():
+            match = self.goanna_parse_line(line)
+            if match is not None:
+                self.cc_info(
+                    match.group('severity').lower(),
+                    match.group('file'),
+                    match.group('line'),
+                    match.group('message')
+                )
+                continue
+           
             # Each line should start with the file information: "filepath: ..."
             # i should point past the file path                          ^
             # avoid the first column in Windows (C:\)
@@ -146,8 +162,8 @@ class GCC(mbedToolchain):
 
 
 class GCC_ARM(GCC):
-    def __init__(self, target, options=None, notify=None):
-        GCC.__init__(self, target, options, notify, GCC_ARM_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC.__init__(self, target, options, notify, macros, GCC_ARM_PATH)
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
@@ -158,8 +174,8 @@ class GCC_ARM(GCC):
 
 
 class GCC_CR(GCC):
-    def __init__(self, target, options=None, notify=None):
-        GCC.__init__(self, target, options, notify, GCC_CR_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC.__init__(self, target, options, notify, macros, GCC_CR_PATH)
         
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
@@ -171,8 +187,8 @@ class GCC_CR(GCC):
 
 
 class GCC_CS(GCC):
-    def __init__(self, target, options=None, notify=None):
-        GCC.__init__(self, target, options, notify, GCC_CS_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC.__init__(self, target, options, notify, macros, GCC_CS_PATH)
 
 
 class GCC_CW(GCC):
@@ -180,13 +196,13 @@ class GCC_CW(GCC):
         "Cortex-M0+": "armv6-m",
     }
     
-    def __init__(self, target, options=None, notify=None):
-        GCC.__init__(self, target, options, notify, CW_GCC_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC.__init__(self, target, options, notify, macros, CW_GCC_PATH)
 
 
 class GCC_CW_EWL(GCC_CW):
-    def __init__(self, target, options=None, notify=None):
-        GCC_CW.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC_CW.__init__(self, target, options, notify, macros)
         
         # Compiler
         common = [
@@ -214,5 +230,5 @@ class GCC_CW_EWL(GCC_CW):
 
 
 class GCC_CW_NEWLIB(GCC_CW):
-    def __init__(self, target, options=None, notify=None):
-        GCC_CW.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        GCC_CW.__init__(self, target, options, notify, macros)

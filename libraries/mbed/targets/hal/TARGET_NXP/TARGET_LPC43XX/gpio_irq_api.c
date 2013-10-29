@@ -134,3 +134,19 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         }
     }
 }
+
+void gpio_irq_enable(gpio_irq_t *obj) {
+#if !defined(CORE_M0)
+    NVIC_EnableIRQ((IRQn_Type)(PIN_INT0_IRQn + obj->ch));
+#else
+    NVIC_EnableIRQ((IRQn_Type)(PIN_INT4_IRQn + obj->ch));
+#endif
+}
+
+void gpio_irq_disable(gpio_irq_t *obj) {
+#if !defined(CORE_M0)
+    NVIC_DisableIRQ((IRQn_Type)(PIN_INT0_IRQn + obj->ch));
+#else
+    NVIC_DisableIRQ((IRQn_Type)(PIN_INT4_IRQn + obj->ch));
+#endif
+}
