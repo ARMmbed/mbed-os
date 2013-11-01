@@ -52,6 +52,7 @@ bool USBCDC::USBCallback_request(void) {
                 break;
             case CDC_SET_LINE_CODING:
                 transfer->remaining = 7;
+                transfer->notify = true;
                 success = true;
                 terminal_connected = true;
                 break;
@@ -67,6 +68,31 @@ bool USBCDC::USBCallback_request(void) {
     return success;
 }
 
+void USBCDC::USBCallback_requestCompleted(uint8_t *buf, uint32_t length) {
+    // Request of setting line coding has 7 bytes
+    if (length != 7) {
+        return;
+    }
+    
+    CONTROL_TRANSFER * transfer = getTransferPtr();
+ 
+    /* Process class-specific requests */
+    if (transfer->setup.bmRequestType.Type == CLASS_TYPE) {
+        if (transfer->setup.bRequest == CDC_SET_LINE_CODING) {
+            if (memcmp(cdc_line_coding, buf, 7)) {
+                memcpy(cdc_line_coding, buf, 7); 
+ 
+                int baud = buf[0] + (buf[1] << 8)
+                         + (buf[2] << 16) + (buf[3] << 24);
+                int stop = buf[4];
+                int bits = buf[6];
+                int parity = buf[5];
+
+                lineCodingChanged(baud, bits, parity, stop);
+            }
+        }
+    }
+}
 
 // Called in ISR context
 // Set configuration. Return false if the
