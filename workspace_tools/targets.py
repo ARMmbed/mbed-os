@@ -167,7 +167,7 @@ class LPC4088(Target):
         
         self.extra_labels = ['NXP', 'LPC408X']
         
-        self.supported_toolchains = ["ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
 
 # Use this target to generate the custom binary image for LPC4088 EA boards
 class LPC4088_EA(LPC4088):

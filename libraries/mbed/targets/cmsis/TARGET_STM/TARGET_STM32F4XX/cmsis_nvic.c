@@ -6,20 +6,22 @@
 #include "cmsis_nvic.h"
 
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Location of vectors in RAM
-#define NVIC_FLASH_VECTOR_ADDRESS (0x0)         // Initial vector position in flash
+
+static unsigned char vtor_relocated;
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     uint32_t *vectors = (uint32_t*)SCB->VTOR;
     uint32_t i;
 
     // Copy and switch to dynamic vectors if the first time called
-    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
+    if (!vtor_relocated) {
         uint32_t *old_vectors = vectors;
         vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
         for (i=0; i<NVIC_NUM_VECTORS; i++) {
             vectors[i] = old_vectors[i];
         }
         SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+        vtor_relocated = 1;
     }
     vectors[IRQn + 16] = vector;
 }

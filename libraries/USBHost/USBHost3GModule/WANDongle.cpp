@@ -25,8 +25,8 @@
 #define __MODULE__ "WANDongle.cpp"
 #endif
 
-#include "core/dbg.h"
-#include <cstdint>
+#include "dbg.h"
+#include <stdint.h>
 #include "rtos.h"
 
 #include "WANDongle.h"
@@ -47,7 +47,7 @@ bool WANDongle::tryConnect()
 {
   //FIXME should run on USB thread
 
-  DBG("Trying to connect device");
+  USB_DBG("Trying to connect device");
 
   if (dev_connected) {
       return true;
@@ -61,23 +61,23 @@ bool WANDongle::tryConnect()
       {
           m_pInitializer = NULL; //Will be set in setVidPid callback
       
-          DBG("Enumerate");
+          USB_DBG("Enumerate");
           int ret = host->enumerate(dev, this);
           if(ret)
           {
             return false;
           }
           
-          DBG("Device has VID:%04x PID:%04x", dev->getVid(), dev->getPid());
+          USB_DBG("Device has VID:%04x PID:%04x", dev->getVid(), dev->getPid());
                    
           if(m_pInitializer) //If an initializer has been found
           {
-            DBG("m_pInitializer=%p", m_pInitializer);
-            DBG("m_pInitializer->getSerialVid()=%04x", m_pInitializer->getSerialVid());
-            DBG("m_pInitializer->getSerialPid()=%04x", m_pInitializer->getSerialPid());
+            USB_DBG("m_pInitializer=%p", m_pInitializer);
+            USB_DBG("m_pInitializer->getSerialVid()=%04x", m_pInitializer->getSerialVid());
+            USB_DBG("m_pInitializer->getSerialPid()=%04x", m_pInitializer->getSerialPid());
             if ((dev->getVid() == m_pInitializer->getSerialVid()) && (dev->getPid() == m_pInitializer->getSerialPid()))
             {
-              DBG("The dongle is in virtual serial mode");
+              USB_DBG("The dongle is in virtual serial mode");
               host->registerDriver(dev, 0, this, &WANDongle::init);
               m_serialCount = m_pInitializer->getSerialPortCount();
               if( m_serialCount > WANDONGLE_MAX_SERIAL_PORTS )
@@ -86,13 +86,13 @@ bool WANDongle::tryConnect()
               }
               for(int j = 0; j < m_serialCount; j++)
               {
-                DBG("Connecting serial port #%d", j+1);
-                DBG("Ep %p", m_pInitializer->getEp(dev, j, false));
-                DBG("Ep %p", m_pInitializer->getEp(dev, j, true));
+                USB_DBG("Connecting serial port #%d", j+1);
+                USB_DBG("Ep %p", m_pInitializer->getEp(dev, j, false));
+                USB_DBG("Ep %p", m_pInitializer->getEp(dev, j, true));
                 m_serial[j].connect( dev, m_pInitializer->getEp(dev, j, false), m_pInitializer->getEp(dev, j, true) );
               }
               
-              DBG("Device connected");
+              USB_DBG("Device connected");
               
               dev_connected = true;
               
@@ -101,16 +101,16 @@ bool WANDongle::tryConnect()
             }
             else if ((dev->getVid() == m_pInitializer->getMSDVid()) && (dev->getPid() == m_pInitializer->getMSDPid()))
             {
-              DBG("Vodafone K3370 dongle detected in MSD mode");
+              USB_DBG("Vodafone K3370 dongle detected in MSD mode");
               //Try to switch   
               if( m_pInitializer->switchMode(dev) )
               {
-                DBG("Switched OK");
+                USB_DBG("Switched OK");
                 return false; //Will be connected on a next iteration
               }
               else
               {
-                ERR("Could not switch mode");
+                USB_ERR("Could not switch mode");
                 return false;
               }
             }
@@ -168,21 +168,21 @@ void WANDongle::init()
 {
   WANDongleInitializer* initializer;
 
-  for(unsigned i = 0; i < m_totalInitializers; i++)
+  for(int i = 0; i < m_totalInitializers; i++)
   {
     initializer = m_Initializers[i];
-    DBG("initializer=%p", initializer);
-    DBG("initializer->getSerialVid()=%04x", initializer->getSerialVid());
-    DBG("initializer->getSerialPid()=%04x", initializer->getSerialPid());
+    USB_DBG("initializer=%p", initializer);
+    USB_DBG("initializer->getSerialVid()=%04x", initializer->getSerialVid());
+    USB_DBG("initializer->getSerialPid()=%04x", initializer->getSerialPid());
     if ((dev->getVid() == initializer->getSerialVid()) && (dev->getPid() == initializer->getSerialPid()))
     {
-      DBG("The dongle is in virtual serial mode");
+      USB_DBG("The dongle is in virtual serial mode");
       m_pInitializer = initializer;
       break;
     }
     else if ((dev->getVid() == initializer->getMSDVid()) && (dev->getPid() == initializer->getMSDPid()))
     {
-      DBG("Dongle detected in MSD mode");
+      USB_DBG("Dongle detected in MSD mode");
       m_pInitializer = initializer;
       break;
     }
@@ -229,7 +229,7 @@ bool WANDongle::addInitializer(WANDongleInitializer* pInitializer)
 
 WANDongle::~WANDongle()
 {
-  for(unsigned i = 0; i < m_totalInitializers; i++)
+  for(int i = 0; i < m_totalInitializers; i++)
     delete m_Initializers[i];
 }
 
