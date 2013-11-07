@@ -32,7 +32,7 @@ Exporter Toolchain/Platform Support
   <tr>
     <td>NXP LPC812</td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td></td>
     <td></td>
     <td></td>
