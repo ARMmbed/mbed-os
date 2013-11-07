@@ -171,6 +171,7 @@ class mbedToolchain:
         
         self.symbols = None
         self.labels = None
+        self.has_config = False
         
         self.build_all = False
 
@@ -186,6 +187,8 @@ class mbedToolchain:
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
+            if self.has_config:
+                self.symbols.append('HAVE_MBED_CONFIG_H')
             
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
@@ -226,6 +229,7 @@ class mbedToolchain:
     def scan_resources(self, path):
         labels = self.get_labels()
         resources = Resources(path)
+        self.has_config = False
         
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
@@ -263,6 +267,8 @@ class mbedToolchain:
                     resources.cpp_sources.append(file_path)
                 
                 elif ext == '.h':
+                    if basename(file_path) == "mbed_config.h":
+                        self.has_config = True
                     resources.headers.append(file_path)
                 
                 elif ext == '.o':
@@ -314,7 +320,6 @@ class mbedToolchain:
             inc_paths.extend(inc_dirs)
         
         base_path = resources.base_path
-        
         for source in resources.s_sources:
             self.compiled += 1
             object = self.relative_object_path(build_path, base_path, source)
