@@ -71,7 +71,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         error("Serial pinout mapping failed");
     }
 
-    obj->uart = (UARTLP_Type *)uart;
+    obj->uart = (UART0_Type *)uart;
     // enable clk
     switch (uart) {
         case UART_0: SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | (1<<SIM_SOPT2_UART0SRC_SHIFT);
@@ -200,8 +200,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     // enable 10bit mode if needed
     if (obj->index == 0) {
-        obj->uart->C4 &= ~UARTLP_C4_M10_MASK;
-        obj->uart->C4 |= (m10 << UARTLP_C4_M10_SHIFT);
+        obj->uart->C4 &= ~UART0_C4_M10_MASK;
+        obj->uart->C4 |= (m10 << UART0_C4_M10_SHIFT);
     }
 
     // stop bits
