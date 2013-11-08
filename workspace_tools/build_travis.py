@@ -25,9 +25,8 @@ def run_builds(dry_run):
             libs = build.get("libs", [])
             if libs:
                 cmdline = cmdline + " ".join(["--" + l for l in libs])
-            if dry_run:
-                print(cmdline)
-            else:
+            print "Executing: " + cmdline
+            if not dry_run:
                 if os.system(cmdline) != 0:
                     sys.exit(1)
 
