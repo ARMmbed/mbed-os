@@ -611,7 +611,6 @@ TESTS = [
         "id": "CMSIS_DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "cmsis", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # mbed DSP
@@ -619,7 +618,6 @@ TESTS = [
         "id": "DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "mbed", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # KL25Z

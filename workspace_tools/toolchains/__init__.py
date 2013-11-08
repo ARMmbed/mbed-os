@@ -139,7 +139,7 @@ class mbedToolchain:
     CORTEX_SYMBOLS = {
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
+        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
         "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
 
@@ -325,7 +325,7 @@ class mbedToolchain:
             object = self.relative_object_path(build_path, base_path, source)
             if self.need_update(object, [source]):
                 self.progress("assemble", source, build_update=True)
-                self.assemble(source, object)
+                self.assemble(source, object, inc_paths)
             objects.append(object)
         
         # The dependency checking for C/C++ is delegated to the specific compiler

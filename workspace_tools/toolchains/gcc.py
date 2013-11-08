@@ -60,10 +60,9 @@ class GCC(mbedToolchain):
         if "debug-info" in self.options:
             common_flags.append("-g")
 
-        self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
-
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
+        self.asm = [main_cc, "-x", "assembler-with-cpp"] + common_flags
         if not "analyze" in self.options:
             self.cc  = [main_cc, "-std=gnu99"] + common_flags
             self.cppc =[main_cppc, "-std=gnu++98"] + common_flags
@@ -77,8 +76,8 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
     
-    def assemble(self, source, object):
-        self.default_cmd(self.asm + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])
     
     def parse_dependencies(self, dep_path):
         dependencies = []
