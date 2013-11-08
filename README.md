@@ -1,7 +1,7 @@
 mbed SDK
 ========
 
-[![Build Status](https://travis-ci.org/matthewelse/mbed.png)](https://travis-ci.org/matthewelse/mbed)
+[![Build Status](https://api.travis-ci.org/emilmont/mbed.png)](https://api.travis-ci.org/emilmont/mbed)
 
 The mbed Software Development Kit (SDK) is a C/C++ microcontroller software platform relied upon by tens of thousands of
 developers to build projects fast.
