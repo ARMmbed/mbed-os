@@ -24,7 +24,7 @@ uint32_t gpio_set(PinName pin) {
     unsigned i;
     int f = 0;
 
-    for (i = 0; i < sizeof(reserved_pins) / sizeof(int); i ++)
+    for (i = 0; i < sizeof(reserved_pins) / sizeof(PinName); i ++)
         if (pin == reserved_pins[i]) {
             f = 1;
             break;
