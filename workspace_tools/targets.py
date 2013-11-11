@@ -303,6 +303,16 @@ class LPC11U35_401(Target):
 
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
+class nRF51822(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0"
+
+        self.extra_labels = ["NORDIC"]
+
+        self.supported_toolchains = ["ARM"]
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -322,7 +332,8 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    LPC4088_EA()
+    LPC4088_EA(),
+    nRF51822()
 ]
 
 # Map each target name to its unique instance
