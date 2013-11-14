@@ -198,13 +198,7 @@ TESTS = [
         "peripherals": ["i2c_loop"]
     },
     {
-        "id": "MBED_A21", "description": "Interrupt chaining (InterruptIn)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "interruptin"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "peripherals": ["digital_loop"]
-    },
-    {
-        "id": "MBED_A22", "description": "Call function before main (mbed_main)",
+        "id": "MBED_A21", "description": "Call function before main (mbed_main)",
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
@@ -382,23 +376,18 @@ TESTS = [
         "peripherals": ["ADXL345"]
     },
     {
-        "id": "MBED_28", "description": "Interrupt chaining (serial)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "serial_interrupt"),
+        "id": "MBED_28", "description": "Interrupt chaining (InterruptManager)",
+        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     {
-        "id": "MBED_29", "description": "Interrupt chaining (ticker + InterruptManager)",
-        "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining", "ticker"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
-        "id": "MBED_30", "description": "CAN network test",
+        "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
     },
     {
-        "id": "MBED_31", "description": "CAN network test using interrupts",
+        "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
@@ -622,7 +611,6 @@ TESTS = [
         "id": "CMSIS_DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "cmsis", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # mbed DSP
@@ -630,7 +618,6 @@ TESTS = [
         "id": "DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "mbed", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # KL25Z
@@ -690,6 +677,7 @@ GROUPS = {
 }
 GROUPS["rtos"] = [test["id"] for test in TESTS if test["id"].startswith("RTOS_")]
 GROUPS["net"] = [test["id"] for test in TESTS if test["id"].startswith("NET_")]
+GROUPS["automated"] = [test["id"] for test in TESTS if test.get("automated", False)]
 # Look for 'TEST_GROUPS' in private_settings.py and update the GROUPS dictionary
 # with the information in test_groups if found
 try:

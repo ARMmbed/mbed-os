@@ -646,6 +646,9 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
     last_unsent->len += concat_p->tot_len;
 #if TCP_CHECKSUM_ON_COPY
     if (concat_chksummed) {
+      if (concat_chksum_swapped) {
+        concat_chksum = SWAP_BYTES_IN_WORD(concat_chksum);
+      }
       tcp_seg_add_chksum(concat_chksum, concat_chksummed, &last_unsent->chksum,
         &last_unsent->chksum_swapped);
       last_unsent->flags |= TF_SEG_DATA_CHECKSUMMED;

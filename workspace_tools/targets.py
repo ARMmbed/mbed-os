@@ -139,7 +139,7 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -152,7 +152,7 @@ class LPC810(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -167,7 +167,7 @@ class LPC4088(Target):
         
         self.extra_labels = ['NXP', 'LPC408X']
         
-        self.supported_toolchains = ["ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
 
 # Use this target to generate the custom binary image for LPC4088 EA boards
 class LPC4088_EA(LPC4088):
@@ -303,6 +303,16 @@ class LPC11U35_401(Target):
 
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
+class nRF51822(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0"
+
+        self.extra_labels = ["NORDIC"]
+
+        self.supported_toolchains = ["ARM"]
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -322,7 +332,8 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    LPC4088_EA()
+    LPC4088_EA(),
+    nRF51822()
 ]
 
 # Map each target name to its unique instance

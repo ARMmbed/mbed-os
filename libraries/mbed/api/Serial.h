@@ -21,9 +21,8 @@
 #if DEVICE_SERIAL
 
 #include "Stream.h"
-#include "FunctionPointer.h"
+#include "SerialBase.h"
 #include "serial_api.h"
-#include "CallChain.h"
 
 namespace mbed {
 
@@ -45,7 +44,7 @@ namespace mbed {
  * }
  * @endcode
  */
-class Serial : public Stream {
+class Serial : public SerialBase, public Stream {
 
 public:
     /** Create a Serial port, connected to the specified transmit and receive pins
@@ -58,167 +57,9 @@ public:
      */
     Serial(PinName tx, PinName rx, const char *name=NULL);
 
-    /** Set the baud rate of the serial port
-     *
-     *  @param baudrate The baudrate of the serial port (default = 9600).
-     */
-    void baud(int baudrate);
-
-    enum Parity {
-        None = 0,
-        Odd,
-        Even,
-        Forced1,
-        Forced0
-    };
-
-    enum IrqType {
-        RxIrq = 0,
-        TxIrq
-    };
-
-    /** Set the transmission format used by the Serial port
-     *
-     *  @param bits The number of bits in a word (5-8; default = 8)
-     *  @param parity The parity used (Serial::None, Serial::Odd, Serial::Even, Serial::Forced1, Serial::Forced0; default = Serial::None)
-     *  @param stop The number of stop bits (1 or 2; default = 1)
-     */
-    void format(int bits=8, Parity parity=Serial::None, int stop_bits=1);
-
-    /** Determine if there is a character available to read
-     *
-     *  @returns
-     *    1 if there is a character available to read,
-     *    0 otherwise
-     */
-    int readable();
-
-    /** Determine if there is space available to write a character
-     *
-     *  @returns
-     *    1 if there is space to write a character,
-     *    0 otherwise
-     */
-    int writeable();
-
-    /** Attach a function to call whenever a serial interrupt is generated
-     *
-     *  @param fptr A pointer to a void function, or 0 to set as none
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  The function object created for 'fptr'
-     */
-    pFunctionPointer_t attach(void (*fptr)(void), IrqType type=RxIrq);
-
-    /** Add a function to be called when a serial interrupt is generated at the end of the call chain
-     *
-     *  @param fptr the function to add
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  The function object created for 'fptr'
-     */
-    pFunctionPointer_t add_handler(void (*fptr)(void), IrqType type=RxIrq) {
-        return add_handler_helper(fptr, type);
-    }
-
-    /** Add a function to be called when a serial interrupt is generated at the beginning of the call chain
-     *
-     *  @param fptr the function to add
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  The function object created for 'fptr'
-     */
-    pFunctionPointer_t add_handler_front(void (*fptr)(void), IrqType type=RxIrq) {
-        return add_handler_helper(fptr, type, true);
-    }
-
-    /** Attach a member function to call whenever a serial interrupt is generated
-     *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @param
-     *  The function object created for 'tptr' and 'mptr'
-     */
-    template<typename T>
-    pFunctionPointer_t attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
-        if((mptr != NULL) && (tptr != NULL)) {
-            _irq[type].clear();
-            pFunctionPointer_t pf = _irq[type].add(tptr, mptr);
-            serial_irq_set(&_serial, (SerialIrq)type, 1);
-            return pf;
-        }
-        else
-            return NULL;
-    }
-
-    /** Add a function to be called when a serial interrupt is generated at the end of the call chain
-     *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  The function object created for 'fptr'
-     */
-    template<typename T>
-    pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
-        return add_handler_helper(tptr, mptr, type);
-    }
-
-    /** Add a function to be called when a serial interrupt is generated at the beginning of the call chain
-     *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  The function object created for 'fptr'
-     */
-    template<typename T>
-    pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
-        return add_handler_helper(tptr, mptr, type, true);
-    }
-
-    /** Remove a function from the list of functions to be called when a serial interrupt is generated
-     *
-     *  @param pf the function object to remove
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
-     *
-     *  @returns
-     *  true if the function was found and removed, false otherwise
-     */
-    bool remove_handler(pFunctionPointer_t pf, IrqType type=RxIrq);
-
-    /** Generate a break condition on the serial line
-     */
-    void send_break();
-
-    static void _irq_handler(uint32_t id, SerialIrq irq_type);
-
 protected:
     virtual int _getc();
-    virtual int _putc(int c);
-    pFunctionPointer_t add_handler_helper(void (*function)(void), IrqType type, bool front=false);
-
-    template<typename T>
-    pFunctionPointer_t add_handler_helper(T* tptr, void (T::*mptr)(void), IrqType type, bool front=false) {
-        if ((mptr != NULL) && (tptr != NULL)) {
-            pFunctionPointer_t pf = front ? _irq[type].add_front(tptr, mptr) : _irq[type].add(tptr, mptr);
-            serial_irq_set(&_serial, (SerialIrq)type, 1);
-            return pf;
-        }
-        else
-            return NULL;
-    }
-
-    serial_t        _serial;
-    CallChain       _irq[2];
-    int             _baud;
+    virtual int _putc(int c);    
 };
 
 } // namespace mbed
