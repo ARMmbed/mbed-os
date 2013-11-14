@@ -124,6 +124,7 @@ typedef enum {
 
   // mbed namings
   LED1 = PA_5,
+  LED4 = PA_5,
   LED_RED = PA_5,
   
   // STM32NUCLEO/64 (MB1136) board
