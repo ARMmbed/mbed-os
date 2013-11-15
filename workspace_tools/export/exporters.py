@@ -5,6 +5,7 @@ from jinja2 import Template
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.targets import TARGET_MAP
 
@@ -27,17 +28,22 @@ class Exporter():
     def __scan_and_copy(self, src_path, trg_path):
         resources = self.toolchain.scan_resources(src_path)
         
-        for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources', 'objects', 'libraries', 'linker_script']:
+        for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources',
+            'objects', 'libraries', 'linker_script',
+            'lib_builds', 'lib_refs', 'repo_files']:
             r = getattr(resources, r_type)
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
-        return resources.lib_builds
+        return resources
     
     def scan_and_copy_resources(self, prj_path, trg_path):
         # Copy only the file for the required target and toolchain
         lib_builds = []
+        repo_dirs = []
         for src in ['lib', 'src']:
-            lib_builds.extend(self.__scan_and_copy(join(prj_path, src), trg_path))
+            resources = self.__scan_and_copy(join(prj_path, src), trg_path)
+            lib_builds.extend(resources.lib_builds)
+            repo_dirs.extend(resources.repo_dirs)
         
         # The libraries builds
         for bld in lib_builds:
@@ -45,7 +51,12 @@ class Exporter():
             lib_data = self.build_url_resolver(build_url)
             lib_path = lib_data['path'].rstrip('\\/')
             self.__scan_and_copy(lib_path, join(trg_path, lib_data['name']))
-        
+            # create .hg dir in build dir so it's ignored when versioning
+            hgdir = join(trg_path, lib_data['name'], '.hg')
+            mkdir(hgdir)
+            fhandle = file(join(hgdir, 'keep.me'), 'a')
+            fhandle.close()
+
         # Final scan of the actual exported resources
         self.resources = self.toolchain.scan_resources(trg_path)
         self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)

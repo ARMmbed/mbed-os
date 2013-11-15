@@ -59,6 +59,10 @@ class Resources:
         
         # mbed special files
         self.lib_builds = []
+        self.lib_refs = []
+        
+        self.repo_dirs = []
+        self.repo_files = []
         
         self.linker_script = None
     
@@ -75,13 +79,18 @@ class Resources:
         self.libraries += resources.libraries
         
         self.lib_builds += resources.lib_builds
+        self.lib_refs += resources.lib_refs
+        
+        self.repo_dirs += resources.repo_dirs
+        self.repo_files += resources.repo_files
         
         if resources.linker_script is not None:
             self.linker_script = resources.linker_script
     
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries']:
+                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -89,7 +98,8 @@ class Resources:
     
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries']:
+                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -244,6 +254,11 @@ class mbedToolchain:
         for root, dirs, files in walk(path):
             # Remove ignored directories
             for d in copy(dirs):
+                if d == '.hg':
+                    dir_path = join(root, d)
+                    resources.repo_dirs.append(dir_path)
+                    resources.repo_files.extend(self.scan_repository(dir_path))
+
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
@@ -281,11 +296,30 @@ class mbedToolchain:
                 elif ext == self.LINKER_EXT:
                     resources.linker_script = file_path
                 
+                elif ext == '.lib':
+                    resources.lib_refs.append(file_path)
                 elif ext == '.bld':
                     resources.lib_builds.append(file_path)
+                elif file == '.hgignore':
+                    resources.repo_files.append(file_path)
         
         return resources
-    
+
+    def scan_repository(self, path):
+        resources = []
+        
+        for root, dirs, files in walk(path):
+            # Remove ignored directories
+            for d in copy(dirs):
+                if d == '.' or d == '..':
+                    dirs.remove(d)
+            
+            for file in files:
+                file_path = join(root, file)
+                resources.append(file_path)
+        
+        return resources
+
     def copy_files(self, files_paths, trg_path, rel_path=None):
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
