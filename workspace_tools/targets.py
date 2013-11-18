@@ -342,3 +342,6 @@ for t in TARGETS:
     TARGET_MAP[t.name] = t
 
 TARGET_NAMES = TARGET_MAP.keys()
+
+# Some targets with different name have the same exporters
+EXPORT_MAP = {"LPC4088_EA": "LPC4088"}
