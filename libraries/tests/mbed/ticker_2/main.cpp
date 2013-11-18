@@ -11,6 +11,10 @@ DigitalOut out(D10);
 #elif TARGET_KL05Z
 DigitalOut out(PTB1);
 
+#elif TARGET_KL46Z
+DigitalOut out(PTA1);
+
+
 #else
 DigitalOut out(p5);
 #endif

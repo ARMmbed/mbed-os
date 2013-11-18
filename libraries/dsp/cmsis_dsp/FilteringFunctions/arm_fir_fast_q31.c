@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
 *    
-* $Date:        15. February 2012  
-* $Revision: 	V1.1.0  
+* $Date:        17. January 2013  
+* $Revision: 	V1.4.1  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_fir_fast_q31.c    
@@ -11,26 +11,31 @@
 *    
 * Target Processor: Cortex-M4/Cortex-M3
 *  
-* Version 1.1.0 2012/02/15 
-*    Updated with more optimizations, bug fixes and minor API changes.  
-*   
-* Version 1.0.10 2011/7/15  
-*    Big Endian support added and Merged M0 and M3/M4 Source code.   
-*    
-* Version 1.0.3 2010/11/29   
-*    Re-organized the CMSIS folders and updated documentation.    
-*     
-* Version 1.0.2 2010/11/11    
-*    Documentation updated.     
-*    
-* Version 1.0.1 2010/10/05     
-*    Production release and review comments incorporated.    
-*    
-* Version 1.0.0 2010/09/20     
-*    Production release and review comments incorporated.    
-*    
-* Version 0.0.9  2010/08/27     
-*    Initial version    
+* Redistribution and use in source and binary forms, with or without 
+* modification, are permitted provided that the following conditions
+* are met:
+*   - Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*   - Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in
+*     the documentation and/or other materials provided with the 
+*     distribution.
+*   - Neither the name of ARM LIMITED nor the names of its contributors
+*     may be used to endorse or promote products derived from this
+*     software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.    
 * -------------------------------------------------------------------- */
 
 #include "arm_math.h"
@@ -66,6 +71,7 @@
  * Use the function <code>arm_fir_init_q31()</code> to initialize the filter structure.    
  */
 
+IAR_ONLY_LOW_OPTIMIZATION_ENTER
 void arm_fir_fast_q31(
   const arm_fir_instance_q31 * S,
   q31_t * pSrc,
@@ -138,16 +144,16 @@ void arm_fir_fast_q31(
       x3 = *(px++);
 
       /* acc0 +=  b[numTaps] * x[n-numTaps] */
-      acc0 = (q31_t) ((((q63_t) acc0 << 32) + ((q63_t) x0 * c0)) >> 32);
+      multAcc_32x32_keep32_R(acc0, x0, c0);
 
       /* acc1 +=  b[numTaps] * x[n-numTaps-1] */
-      acc1 = (q31_t) ((((q63_t) acc1 << 32) + ((q63_t) x1 * c0)) >> 32);
+      multAcc_32x32_keep32_R(acc1, x1, c0);
 
       /* acc2 +=  b[numTaps] * x[n-numTaps-2] */
-      acc2 = (q31_t) ((((q63_t) acc2 << 32) + ((q63_t) x2 * c0)) >> 32);
+      multAcc_32x32_keep32_R(acc2, x2, c0);
 
       /* acc3 +=  b[numTaps] * x[n-numTaps-3] */
-      acc3 = (q31_t) ((((q63_t) acc3 << 32) + ((q63_t) x3 * c0)) >> 32);
+      multAcc_32x32_keep32_R(acc3, x3, c0);
 
       /* Read the b[numTaps-1] coefficient */
       c0 = *(pb++);
@@ -155,11 +161,11 @@ void arm_fir_fast_q31(
       /* Read x[n-numTaps-4] sample */
       x0 = *(px++);
 
-      /* Perform the multiply-accumulates */
-      acc0 = (q31_t) ((((q63_t) acc0 << 32) + ((q63_t) x1 * c0)) >> 32);
-      acc1 = (q31_t) ((((q63_t) acc1 << 32) + ((q63_t) x2 * c0)) >> 32);
-      acc2 = (q31_t) ((((q63_t) acc2 << 32) + ((q63_t) x3 * c0)) >> 32);
-      acc3 = (q31_t) ((((q63_t) acc3 << 32) + ((q63_t) x0 * c0)) >> 32);
+      /* Perform the multiply-accumulates */      
+      multAcc_32x32_keep32_R(acc0, x1, c0);
+      multAcc_32x32_keep32_R(acc1, x2, c0);
+      multAcc_32x32_keep32_R(acc2, x3, c0);
+      multAcc_32x32_keep32_R(acc3, x0, c0);
 
       /* Read the b[numTaps-2] coefficient */
       c0 = *(pb++);
@@ -167,11 +173,11 @@ void arm_fir_fast_q31(
       /* Read x[n-numTaps-5] sample */
       x1 = *(px++);
 
-      /* Perform the multiply-accumulates */
-      acc0 = (q31_t) ((((q63_t) acc0 << 32) + ((q63_t) x2 * c0)) >> 32);
-      acc1 = (q31_t) ((((q63_t) acc1 << 32) + ((q63_t) x3 * c0)) >> 32);
-      acc2 = (q31_t) ((((q63_t) acc2 << 32) + ((q63_t) x0 * c0)) >> 32);
-      acc3 = (q31_t) ((((q63_t) acc3 << 32) + ((q63_t) x1 * c0)) >> 32);
+      /* Perform the multiply-accumulates */      
+      multAcc_32x32_keep32_R(acc0, x2, c0);
+      multAcc_32x32_keep32_R(acc1, x3, c0);
+      multAcc_32x32_keep32_R(acc2, x0, c0);
+      multAcc_32x32_keep32_R(acc3, x1, c0);
 
       /* Read the b[numTaps-3] coefficients */
       c0 = *(pb++);
@@ -179,11 +185,11 @@ void arm_fir_fast_q31(
       /* Read x[n-numTaps-6] sample */
       x2 = *(px++);
 
-      /* Perform the multiply-accumulates */
-      acc0 = (q31_t) ((((q63_t) acc0 << 32) + ((q63_t) x3 * c0)) >> 32);
-      acc1 = (q31_t) ((((q63_t) acc1 << 32) + ((q63_t) x0 * c0)) >> 32);
-      acc2 = (q31_t) ((((q63_t) acc2 << 32) + ((q63_t) x1 * c0)) >> 32);
-      acc3 = (q31_t) ((((q63_t) acc3 << 32) + ((q63_t) x2 * c0)) >> 32);
+      /* Perform the multiply-accumulates */      
+      multAcc_32x32_keep32_R(acc0, x3, c0);
+      multAcc_32x32_keep32_R(acc1, x0, c0);
+      multAcc_32x32_keep32_R(acc2, x1, c0);
+      multAcc_32x32_keep32_R(acc3, x2, c0);
       i--;
     }
 
@@ -198,11 +204,11 @@ void arm_fir_fast_q31(
       /* Fetch 1 state variable */
       x3 = *(px++);
 
-      /* Perform the multiply-accumulates */
-      acc0 = (q31_t) ((((q63_t) acc0 << 32) + ((q63_t) x0 * c0)) >> 32);
-      acc1 = (q31_t) ((((q63_t) acc1 << 32) + ((q63_t) x1 * c0)) >> 32);
-      acc2 = (q31_t) ((((q63_t) acc2 << 32) + ((q63_t) x2 * c0)) >> 32);
-      acc3 = (q31_t) ((((q63_t) acc3 << 32) + ((q63_t) x3 * c0)) >> 32);
+      /* Perform the multiply-accumulates */      
+      multAcc_32x32_keep32_R(acc0, x0, c0);
+      multAcc_32x32_keep32_R(acc1, x1, c0);
+      multAcc_32x32_keep32_R(acc2, x2, c0);
+      multAcc_32x32_keep32_R(acc3, x3, c0);
 
       /* Reuse the present sample states for next sample */
       x0 = x1;
@@ -251,9 +257,7 @@ void arm_fir_fast_q31(
     /* Perform the multiply-accumulates */
     do
     {
-      acc0 =
-        (q31_t) ((((q63_t) acc0 << 32) +
-                  ((q63_t) (*px++) * (*(pb++)))) >> 32);
+      multAcc_32x32_keep32_R(acc0, (*px++), (*(pb++)));
       i--;
     } while(i > 0u);
 
@@ -269,28 +273,14 @@ void arm_fir_fast_q31(
   }
 
   /* Processing is complete.    
-   ** Now copy the last numTaps - 1 samples to the satrt of the state buffer.    
+   ** Now copy the last numTaps - 1 samples to the start of the state buffer.    
    ** This prepares the state buffer for the next function call. */
 
   /* Points to the start of the state buffer */
   pStateCurnt = S->pState;
 
-  tapCnt = (numTaps - 1u) >> 2u;
-
-  /* copy data */
-  while(tapCnt > 0u)
-  {
-    *pStateCurnt++ = *pState++;
-    *pStateCurnt++ = *pState++;
-    *pStateCurnt++ = *pState++;
-    *pStateCurnt++ = *pState++;
-
-    /* Decrement the loop counter */
-    tapCnt--;
-  }
-
   /* Calculate remaining number of copies */
-  tapCnt = (numTaps - 1u) % 0x4u;
+  tapCnt = (numTaps - 1u);
 
   /* Copy the remaining q31_t data */
   while(tapCnt > 0u)
@@ -303,7 +293,7 @@ void arm_fir_fast_q31(
 
 
 }
-
+IAR_ONLY_LOW_OPTIMIZATION_EXIT
 /**    
  * @} end of FIR group    
  */

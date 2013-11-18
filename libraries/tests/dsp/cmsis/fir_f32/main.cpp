@@ -38,7 +38,7 @@ const float32_t firCoeffs32[NUM_TAPS] = {
 /* ---------------------------------------------------------------------- 
  * FIR LPF Example 
  * ------------------------------------------------------------------- */
-int32_t main(void) { 
+int main(void) { 
     /* Call FIR init function to initialize the instance structure. */
     arm_fir_instance_f32 S;
     arm_fir_init_f32(&S, NUM_TAPS, (float32_t *)&firCoeffs32[0], &firStateF32[0], BLOCK_SIZE); 

@@ -193,13 +193,10 @@ typedef enum {
 
     LED_RED = PTE29,
     LED_GREEN = PTD5,
-    LED_BLUE = PTD5,
 
     // mbed original LED naming
     LED1 = LED_GREEN,
     LED2 = LED_RED,
-    LED3 = LED_GREEN,
-    LED4 = LED_RED,
 
     // USB Pins
     USBTX = PTA2,
@@ -223,18 +220,18 @@ typedef enum {
     D14 = PTE0,
     D15 = PTE1,
 
-    A0 = PTC1,
-    A1 = PTC2,
-    A2 = PTB3,
-    A3 = PTB2,
-    A4 = PTB1,
-    A5 = PTB0,
+    A0 = PTB0,
+    A1 = PTB1,
+    A2 = PTB2,
+    A3 = PTB3,
+    A4 = PTC2,
+    A5 = PTC1,
 
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
 
-/* PullDown not available for KL25 */
+/* PullDown not available for KL46 */
 typedef enum {
     PullNone = 0,
     PullUp = 2,

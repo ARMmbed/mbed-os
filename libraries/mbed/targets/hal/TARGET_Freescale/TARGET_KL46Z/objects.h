@@ -46,7 +46,7 @@ struct pwmout_s {
 };
 
 struct serial_s {
-    UARTLP_Type *uart;
+    UART0_Type *uart;
     int index;
 };
 

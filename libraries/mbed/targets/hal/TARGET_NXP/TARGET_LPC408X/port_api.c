@@ -17,8 +17,9 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
+
 PinName port_pin(PortName port, int pin_n) {
-    return (PinName)(LPC_GPIO0_BASE + ((port << PORT_SHIFT) | pin_n));
+    return (PinName)(((port << PORT_SHIFT) | pin_n));
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {

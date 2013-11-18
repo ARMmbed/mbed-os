@@ -20,6 +20,7 @@ from os.path import join
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
 from workspace_tools.hooks import hook_tool
+from workspace_tools.settings import GOANNA_PATH
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -29,8 +30,8 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -39,7 +40,8 @@ class ARM(mbedToolchain):
         else:
             cpu = target.core
         
-        common = [join(ARM_BIN, "armcc"), "-c",
+        main_cc = join(ARM_BIN, "armcc")
+        common = ["-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Ospace", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics", "--restrict"
@@ -56,9 +58,13 @@ class ARM(mbedToolchain):
             '-I%s' % ARM_INC
         ]
         
-        self.asm = common
-        self.cc = common + common_c + ["--c99"]
-        self.cppc = common + common_c + ["--cpp", "--no_rtti"]
+        self.asm = [main_cc] + common + ['-I%s' % ARM_INC]
+        if not "analyze" in self.options:
+            self.cc = [main_cc] + common + common_c + ["--c99"]
+            self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
+        else:
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--c99"]
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--cpp", "--no_rtti"] 
         
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []
@@ -71,8 +77,11 @@ class ARM(mbedToolchain):
             if option in tool:
                 tool.remove(option)
     
-    def assemble(self, source, object):
-        self.default_cmd(self.cc + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        # Preprocess first, then assemble
+        tempfile = object + '.E.s'
+        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source])
+        self.default_cmd(self.asm + ["-o", object, tempfile])
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -92,7 +101,15 @@ class ARM(mbedToolchain):
                     match.group('line'),
                     match.group('message')
                 )
-    
+            match = self.goanna_parse_line(line)
+            if match is not None:
+                self.cc_info(
+                    match.group('severity').lower(),
+                    match.group('file'),
+                    match.group('line'),
+                    match.group('message')
+                )
+
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
     
@@ -109,16 +126,16 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
     
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         
         # Compiler
         self.asm  += ["-D__MICROLIB"]

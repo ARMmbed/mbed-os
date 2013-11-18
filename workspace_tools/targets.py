@@ -127,9 +127,9 @@ class KL46Z(Target):
         self.core = "Cortex-M0+"
         
         self.extra_labels = ['Freescale']
-        
-        self.supported_toolchains = ["GCC_ARM"]
-        
+
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+
         self.is_disk_virtual = True
 
 class K20D5M(Target):
@@ -151,7 +151,7 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -164,7 +164,7 @@ class LPC810(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -179,7 +179,7 @@ class LPC4088(Target):
         
         self.extra_labels = ['NXP', 'LPC408X']
         
-        self.supported_toolchains = ["ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
 
 # Use this target to generate the custom binary image for LPC4088 EA boards
 class LPC4088_EA(LPC4088):
@@ -290,7 +290,7 @@ class LPC1114(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['NXP', 'LPC11XX']
+        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
@@ -301,7 +301,7 @@ class LPC11C24(Target):
         
         self.core = "Cortex-M0"
         
-        self.extra_labels = ['NXP', 'LPC11CXX']
+        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11CXX']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
@@ -314,6 +314,16 @@ class LPC11U35_401(Target):
         self.extra_labels = ['NXP', 'LPC11UXX']
 
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+class nRF51822(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0"
+
+        self.extra_labels = ["NORDIC"]
+
+        self.supported_toolchains = ["ARM"]
 
 # Get a single instance for each target
 TARGETS = [
@@ -335,7 +345,8 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    LPC4088_EA()
+    LPC4088_EA(),
+    nRF51822()
 ]
 
 # Map each target name to its unique instance
@@ -344,3 +355,6 @@ for t in TARGETS:
     TARGET_MAP[t.name] = t
 
 TARGET_NAMES = TARGET_MAP.keys()
+
+# Some targets with different name have the same exporters
+EXPORT_MAP = {"LPC4088_EA": "LPC4088"}

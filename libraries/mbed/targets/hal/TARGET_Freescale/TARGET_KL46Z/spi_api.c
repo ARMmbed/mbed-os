@@ -23,11 +23,13 @@
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTA15, SPI_0, 2},
+    {PTB9,  SPI_1, 2},
     {PTB11, SPI_1, 2},
     {PTC5,  SPI_0, 2},
     {PTD1,  SPI_0, 2},
     {PTD5,  SPI_1, 2},
     {PTE2,  SPI_1, 2},
+    {PTE17, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
@@ -44,6 +46,8 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {PTD7,  SPI_1, 5},
     {PTE1,  SPI_1, 2},
     {PTE3,  SPI_1, 5},
+    {PTE18, SPI_0, 2},
+    {PTE19, SPI_0, 5},
     {NC  ,  NC   , 0}
 };
 
@@ -60,6 +64,8 @@ static const PinMap PinMap_SPI_MISO[] = {
     {PTD7,  SPI_1, 2},
     {PTE1,  SPI_1, 5},
     {PTE3,  SPI_1, 2},
+    {PTE18, SPI_0, 5},
+    {PTE19, SPI_0, 2},
     {NC   , NC   , 0}
 };
 
@@ -70,6 +76,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {PTD0,  SPI_0, 2},
     {PTD4,  SPI_1, 2},
     {PTE4,  SPI_1, 2},
+    {PTE16, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
@@ -89,7 +96,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // enable power and clocking
     switch ((int)obj->spi) {
-        case SPI_0: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 22; break;
+        case SPI_0: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 22; break;
         case SPI_1: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 23; break;
     }
 
@@ -103,6 +110,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // enable SPI
     obj->spi->C1 |= SPI_C1_SPE_MASK;
+    obj->spi->C2 &= ~SPI_C2_SPIMODE_MASK; //8bit
 
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -117,8 +125,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if (bits != 8) {
-        error("Only 8bits SPI supported");
+    if ((bits != 8) && (bits != 16)) {
+        error("Only 8/16 bits SPI supported");
     }
 
     if ((mode < 0) || (mode > 3)) {
@@ -134,6 +142,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
     // write new value
     obj->spi->C1 |= c1_data;
+    if (bits == 8) {
+        obj->spi->C2 &= ~SPI_C2_SPIMODE_MASK;
+    } else {
+        obj->spi->C2 |= SPI_C2_SPIMODE_MASK;
+    }
 }
 
 void spi_frequency(spi_t *obj, int hz) {
@@ -177,13 +190,28 @@ static inline int spi_readable(spi_t * obj) {
 }
 
 int spi_master_write(spi_t *obj, int value) {
-    // wait tx buffer empty
-    while(!spi_writeable(obj));
-    obj->spi->D = (value & 0xff);
+    int ret;
+    if (obj->spi->C2 & SPI_C2_SPIMODE_MASK) {
+        // 16bit
+        while(!spi_writeable(obj));
+        obj->spi->DL = (value & 0xff);
+        obj->spi->DH = ((value >> 8) & 0xff);
 
-    // wait rx buffer full
-    while (!spi_readable(obj));
-    return obj->spi->D & 0xff;
+        // wait rx buffer full
+        while (!spi_readable(obj));
+        ret = obj->spi->DH;
+        ret = (ret << 8) | obj->spi->DL;
+    } else {
+        //8bit
+        while(!spi_writeable(obj));
+        obj->spi->DL = (value & 0xff);
+
+        // wait rx buffer full
+        while (!spi_readable(obj));
+        ret = (obj->spi->DL & 0xff);
+    }
+
+    return ret;
 }
 
 int spi_slave_receive(spi_t *obj) {
@@ -191,10 +219,23 @@ int spi_slave_receive(spi_t *obj) {
 }
 
 int spi_slave_read(spi_t *obj) {
-    return obj->spi->D;
+    int ret;
+    if (obj->spi->C2 & SPI_C2_SPIMODE_MASK) {
+        ret = obj->spi->DH;
+        ret = ((ret << 8) | obj->spi->DL);
+    } else {
+        ret = obj->spi->DL;
+    }
+    return ret;
 }
 
 void spi_slave_write(spi_t *obj, int value) {
     while (!spi_writeable(obj));
-    obj->spi->D = value;
+    if (obj->spi->C2 & SPI_C2_SPIMODE_MASK) {
+        obj->spi->DL = (value & 0xff);
+        obj->spi->DH = ((value >> 8) & 0xff);
+    } else {
+        obj->spi->DL = value;
+    }
+
 }

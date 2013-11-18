@@ -28,8 +28,6 @@ USBHost * USBHost::instHost = NULL;
 
 #define MIN(a, b) ((a > b) ? b : a)
 
-DigitalOut l4(LED4);
-
 /**
 * How interrupts are processed:
 *    - new device connected:
@@ -72,7 +70,6 @@ void USBHost::usb_process() {
         
         if (evt.status == osEventMail) {
             
-            l4 = !l4;
             message_t * usb_msg = (message_t*)evt.value.p;
             
             switch (usb_msg->event_id) {
@@ -852,7 +849,7 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
 
     pEnumerator->setVidPid( data[8] | (data[9] << 8), data[10] | (data[11] << 8) );
 
-    res = getConfigurationDescriptor(dev, data, 300, &total_conf_descr_length);
+    res = getConfigurationDescriptor(dev, data, sizeof(data), &total_conf_descr_length);
     if (res != USB_TYPE_OK) {
         usb_mutex.unlock();
         return res;

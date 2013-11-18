@@ -20,83 +20,15 @@
 
 namespace mbed {
 
-Serial::Serial(PinName tx, PinName rx, const char *name) : Stream(name) {
-    serial_init(&_serial, tx, rx);
-    _baud = 9600;
-    serial_irq_handler(&_serial, Serial::_irq_handler, (uint32_t)this);
-}
-
-void Serial::baud(int baudrate) {
-    serial_baud(&_serial, baudrate);
-    _baud = baudrate;
-}
-
-void Serial::format(int bits, Parity parity, int stop_bits) {
-    serial_format(&_serial, bits, (SerialParity)parity, stop_bits);
-}
-
-int Serial::readable() {
-    return serial_readable(&_serial);
-}
-
-
-int Serial::writeable() {
-    return serial_writable(&_serial);
-}
-
-pFunctionPointer_t Serial::attach(void (*fptr)(void), IrqType type) {
-    pFunctionPointer_t pf = NULL;
-    _irq[type].clear();
-    if (fptr) {
-        pf = _irq[type].add(fptr);
-        serial_irq_set(&_serial, (SerialIrq)type, 1);
-    } else {
-        serial_irq_set(&_serial, (SerialIrq)type, 0);
-    }
-    return pf;
-}
-
-pFunctionPointer_t Serial::add_handler_helper(void (*fptr)(void), IrqType type, bool front) {
-    if (NULL == fptr)
-        return NULL;
-    pFunctionPointer_t pf = front ? _irq[type].add_front(fptr) : _irq[type].add(fptr);
-    serial_irq_set(&_serial, (SerialIrq)type, 1);
-    return pf;
-}
-
-bool Serial::remove_handler(pFunctionPointer_t pf, IrqType type) {
-    bool res = _irq[type].remove(pf);
-    if (res && _irq[type].size() == 0)
-        serial_irq_set(&_serial, (SerialIrq)type, 0);
-    return res;
-}
-
-void Serial::_irq_handler(uint32_t id, SerialIrq irq_type) {
-    Serial *handler = (Serial*)id;
-    handler->_irq[irq_type].call();
+Serial::Serial(PinName tx, PinName rx, const char *name) : SerialBase(tx, rx), Stream(name) {
 }
 
 int Serial::_getc() {
-    return serial_getc(&_serial);
+    return _base_getc();
 }
 
 int Serial::_putc(int c) {
-    serial_putc(&_serial, c);
-    return c;
-}
-
-void Serial::send_break() {
-  // Wait for 1.5 frames before clearing the break condition
-  // This will have different effects on our platforms, but should
-  // ensure that we keep the break active for at least one frame.
-  // We consider a full frame (1 start bit + 8 data bits bits + 
-  // 1 parity bit + 2 stop bits = 12 bits) for computation.
-  // One bit time (in us) = 1000000/_baud
-  // Twelve bits: 12000000/baud delay
-  // 1.5 frames: 18000000/baud delay
-  serial_break_set(&_serial);
-  wait_us(18000000/_baud);
-  serial_break_clear(&_serial);
+    return _base_putc(c);
 }
 
 } // namespace mbed
