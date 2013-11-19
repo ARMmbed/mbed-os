@@ -30,29 +30,34 @@ void us_ticker_init(void) {
     lptmr_init();
 }
 
+static uint32_t pit_us_ticker_counter = 0;
+
+void pit0_isr(void) {
+    pit_us_ticker_counter++;
+    PIT->CHANNEL[0].LDVAL = 48; // 1us
+    PIT->CHANNEL[0].TFLG = 1;
+}
+
 /******************************************************************************
  * Timer for us timing.
  ******************************************************************************/
 static void pit_init(void) {
-    SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
-    PIT->MCR = 0;                       // Enable PIT
-    
-    // Channel 1
-    PIT->CHANNEL[1].LDVAL = 0xFFFFFFFF;
-    PIT->CHANNEL[1].TCTRL = PIT_TCTRL_TIE_MASK;    // Chain to timer 0, disable Interrupts
-    PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
-    
-    // Use channel 0 as a prescaler for channel 1
-    PIT->CHANNEL[0].LDVAL = 23;
-    PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
+    SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;  // Clock PIT
+    PIT->MCR = 0;  // Enable PIT
+
+    PIT->CHANNEL[0].LDVAL = 48;  // 1us
+    PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TIE_MASK;
+    PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TEN_MASK;  // Start timer 1
+
+    NVIC_SetVector(PIT0_IRQn, (uint32_t)pit0_isr);
+    NVIC_EnableIRQ(PIT0_IRQn);
 }
 
 uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
-    
-    // The PIT is a countdown timer
-    return ~(PIT->CHANNEL[1].CVAL);
+
+    return pit_us_ticker_counter;
 }
 
 /******************************************************************************

@@ -211,4 +211,15 @@ Reset_Handler:
     def_irq_handler    CPU_CLCD_IRQHandler
     def_irq_handler    SPI_IRQHandler
 
+/* Flash protection region, placed at 0x400 */
+    .text
+    .thumb
+    .align 2
+    .section .kinetis_flash_config_field,"a",%progbits
+kinetis_flash_config:
+    .long 0xffffffff
+    .long 0xffffffff
+    .long 0xffffffff
+    .long 0xfffffffe
+
     .end

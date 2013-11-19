@@ -140,7 +140,7 @@ class K20D5M(Target):
         
         self.extra_labels = ['Freescale']
         
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
         
         self.is_disk_virtual = True
 
