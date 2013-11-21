@@ -37,7 +37,7 @@ Stack_Size      EQU     0x00000400
 
 Stack_Mem       SPACE   Stack_Size
 
-__initial_sp    EQU     0x20000000 ; Top of RAM
+__initial_sp    EQU     0x20005000 ; Top of RAM
 
 
 ; <h> Heap Configuration
