@@ -386,19 +386,21 @@
             {% for file in object_files %}
               {{file}}
             {% endfor %}
-</Misc>
+            </Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        {% for group,files in source_files %}     
         <Group>
           <GroupName>{{group}}</GroupName>
           <Files>
+            {% for file in files %}
             <File>
               <FileName>{{file.name}}</FileName>
-              <FileType>0</FileType>
+              <FileType>{{file.type}}</FileType>
               <FilePath>{{file.path}}</FilePath>
               <FileOption>
                 <CommonProperty>
@@ -419,8 +421,10 @@
                 <FileArmAds/>
               </FileOption>
             </File>
+            {% endfor %}
           </Files>
         </Group>
+        {% endfor %}
       </Groups>
     </Target>
   </Targets>
