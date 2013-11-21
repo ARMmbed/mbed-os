@@ -214,7 +214,7 @@ class LPC4330_M4(Target):
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
 
 
 class LPC4330_M0(Target):
