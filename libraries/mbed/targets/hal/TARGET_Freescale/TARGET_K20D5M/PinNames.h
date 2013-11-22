@@ -203,8 +203,8 @@ typedef enum {
     LED4 = LED_RED,
 
     // USB Pins
-    USBTX = PTB1,
-    USBRX = PTB2,
+    USBTX = PTB17,
+    USBRX = PTB16,
 
     // Arduino Headers
     D0 = PTE1,
