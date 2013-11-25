@@ -122,12 +122,10 @@ typedef enum {
   PE_14 = 0x4E,
   PE_15 = 0x4F,
 
-  // mbed namings
-  LED1 = PA_5,
-  LED4 = PA_5,
-  LED_RED = PA_5,
-  
-  // STM32NUCLEO/64 (MB1136) board
+  //--------------------
+  // NUCLEO_F103RB board
+  //--------------------
+
   // Arduino connectors
   A0          = PA_0,
   A1          = PA_1,
@@ -151,11 +149,16 @@ typedef enum {
   D13         = PA_5,
   D14         = PB_9,
   D15         = PB_8,
-  // Button
+
   USER_BUTTON = PC_13,
-  // UART
   UART_TX     = PA_2,
   UART_RX     = PA_3,
+
+  // mbed mandatory namings
+  LED1 = PA_5,
+  LED2 = PA_5,
+  LED3 = PA_5,  
+  LED4 = PA_5,
   
   // Not connected
   NC = (int)0xFFFFFFFF
