@@ -33,7 +33,6 @@ typedef enum {
 
 typedef enum {
     I2C_0 = (int)I2C0_BASE,
-    //I2C_1 = (int)I2C1_BASE,
 } I2CName;
 
 #define TPM_SHIFT   8
@@ -52,24 +51,17 @@ typedef enum {
     PWM_10 = (2 << TPM_SHIFT) | (1)   // TPM2 CH1
 } PWMName;
 
-#define CHANNELS_A_SHIFT 5
 typedef enum {
-    ADC0_SE0  =  0,
-    ADC0_SE3  =  3,
-    ADC0_SE4a =  (1 << CHANNELS_A_SHIFT) | (4),
     ADC0_SE4b =  4,
     ADC0_SE5b =  5,
     ADC0_SE6b =  6,
-    ADC0_SE7a =  (1 << CHANNELS_A_SHIFT) | (7),
     ADC0_SE7b =  7,
     ADC0_SE8  =  8,
     ADC0_SE9  =  9,
-    ADC0_SE11 = 11,
     ADC0_SE12 = 12,
     ADC0_SE13 = 13,
     ADC0_SE14 = 14,
-    ADC0_SE15 = 15,
-    ADC0_SE23 = 23
+    ADC0_SE15 = 15
 } ADCName;
 
 typedef enum {
@@ -79,7 +71,6 @@ typedef enum {
 
 typedef enum {
     SPI_0 = (int)SPI0_BASE,
-    //SPI_1 = (int)SPI1_BASE,
 } SPIName;
 
 #ifdef __cplusplus

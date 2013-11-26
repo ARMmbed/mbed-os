@@ -19,7 +19,7 @@
 #include "gpio_irq_api.h"
 #include "error.h"
 
-#define CHANNEL_NUM    64
+#define CHANNEL_NUM    160
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
@@ -39,8 +39,9 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
             uint32_t id = channel_ids[ch_base + i];
             if (id == 0) continue;
 
-            GPIO_Type *gpio;
+            GPIO_Type *gpio = PTA;
             gpio_irq_event event = IRQ_NONE;
+            uint32_t port_num = (port - PORTA) >> 12;
             switch (port->PCR[i] & PORT_PCR_IRQC_MASK) {
                 case IRQ_RAISING_EDGE:
                     event = IRQ_RISE;
@@ -51,7 +52,8 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
                     break;
 
                 case IRQ_EITHER_EDGE:
-                    gpio = (port == PORTA) ? (PTA) : (PTD);
+                    gpio += (port_num * 0x40);
+                    //gpio = (port == PORTA) ? (PTA) : (PTD);
                     event = (gpio->PDIR & pmask) ? (IRQ_RISE) : (IRQ_FALL);
                     break;
             }
@@ -63,7 +65,10 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
 }
 
 void gpio_irqA(void) {handle_interrupt_in(PORTA, 0);}
-void gpio_irqD(void) {handle_interrupt_in(PORTD, 32);}
+void gpio_irqB(void) {handle_interrupt_in(PORTB, 32);}
+void gpio_irqC(void) {handle_interrupt_in(PORTC, 64);}
+void gpio_irqD(void) {handle_interrupt_in(PORTD, 96);}
+void gpio_irqE(void) {handle_interrupt_in(PORTE, 128);}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
     if (pin == NC) return -1;
@@ -76,17 +81,25 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t ch_base, vector;
     IRQn_Type irq_n;
     switch (obj->port) {
-            case PortA:
-                ch_base = 0;  irq_n = PORTA_IRQn; vector = (uint32_t)gpio_irqA;
-                break;
+        case PortA:
+            ch_base = 0;  irq_n = PORTA_IRQn; vector = (uint32_t)gpio_irqA;
+            break;
+        case PortB:
+            ch_base = 0;  irq_n = PORTB_IRQn; vector = (uint32_t)gpio_irqB;
+            break;
+        case PortC:
+            ch_base = 0;  irq_n = PORTC_IRQn; vector = (uint32_t)gpio_irqC;
+            break;
+        case PortD:
+            ch_base = 32; irq_n = PORTD_IRQn; vector = (uint32_t)gpio_irqD;
+            break;
+        case PortE:
+            ch_base = 0;  irq_n = PORTE_IRQn; vector = (uint32_t)gpio_irqE;
+            break;
 
-            case PortD:
-                ch_base = 32; irq_n = PORTD_IRQn; vector = (uint32_t)gpio_irqD;
-                break;
-
-            default:
-                error("gpio_irq only supported on port A and D\n");
-                break;
+        default:
+            error("gpio_irq only supported on port A and D\n");
+            break;
     }
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);

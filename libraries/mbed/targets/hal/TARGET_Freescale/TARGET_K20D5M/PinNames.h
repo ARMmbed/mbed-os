@@ -224,12 +224,12 @@ typedef enum {
     D14 = PTB3,
     D15 = PTB2,
 
-    A0 = PTB0,
-    A1 = PTB1,
-    A2 = PTD5,
-    A3 = PTD6,
-    A4 = PTC1,
-    A5 = PTC0,
+    A0 = PTC0,
+    A1 = PTC1,
+    A2 = PTD6,
+    A3 = PTD5,
+    A4 = PTB1,
+    A5 = PTB0,
 
     // Not connected
     NC = (int)0xFFFFFFFF

@@ -20,23 +20,17 @@
 #include "error.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PTE20, ADC0_SE0,  0},
-    {PTE22, ADC0_SE3,  0},
-    {PTE21, ADC0_SE4a, 0},
-    {PTE29, ADC0_SE4b, 0},
-    {PTE30, ADC0_SE23, 0},
-    {PTE23, ADC0_SE7a, 0},
-    {PTB0,  ADC0_SE8,  0},
-    {PTB1,  ADC0_SE9,  0},
-    {PTB2,  ADC0_SE12, 0},
-    {PTB3,  ADC0_SE13, 0},
-    {PTC0,  ADC0_SE14, 0},
-    {PTC1,  ADC0_SE15, 0},
-    {PTC2,  ADC0_SE11, 0},
-    {PTD1,  ADC0_SE5b, 0},
-    {PTD5,  ADC0_SE6b, 0},
-    {PTD6,  ADC0_SE7b, 0},
-    {NC,    NC,        0}
+    {PTC2, ADC0_SE4b, 0},
+    {PTD1, ADC0_SE5b, 0},
+    {PTD5, ADC0_SE6b, 0},
+    {PTD6, ADC0_SE7b, 0},
+    {PTB0, ADC0_SE8,  0},
+    {PTB1, ADC0_SE9,  0},
+    {PTB2, ADC0_SE12, 0},
+    {PTB3, ADC0_SE13, 0},
+    {PTC0, ADC0_SE14, 0},
+    {PTC1, ADC0_SE15, 0},
+    {NC,   NC,        0}
 };
 
 void analogin_init(analogin_t *obj, PinName pin) {
@@ -50,12 +44,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint32_t port = (uint32_t)pin >> PORT_SHIFT;
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
 
-    uint32_t cfg2_muxsel = ADC_CFG2_MUXSEL_MASK;
-    if (obj->adc & (1 << CHANNELS_A_SHIFT)) {
-        cfg2_muxsel = 0;
-    }
-
-    ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc & ~(1 << CHANNELS_A_SHIFT));
+    ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc);
 
     ADC0->CFG1 = ADC_CFG1_ADLPC_MASK    // Low-Power Configuration
                | ADC_CFG1_ADIV(3)       // Clock Divide Select: (Input Clock)/8
@@ -63,7 +52,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
                | ADC_CFG1_MODE(3)       // (16)bits Resolution
                | ADC_CFG1_ADICLK(1);    // Input Clock: (Bus Clock)/2
 
-    ADC0->CFG2 = cfg2_muxsel            // ADxxb or ADxxa channels
+    ADC0->CFG2 = ADC_CFG2_MUXSEL_MASK            // ADxxb or ADxxa channels
                | ADC_CFG2_ADACKEN_MASK  // Asynchronous Clock Output Enable
                | ADC_CFG2_ADHSC_MASK    // High-Speed Configuration
                | ADC_CFG2_ADLSTS(0);    // Long Sample Time Select
@@ -78,7 +67,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     // start conversion
-    ADC0->SC1[0] = ADC_SC1_ADCH(obj->adc & ~(1 << CHANNELS_A_SHIFT));
+    ADC0->SC1[0] = ADC_SC1_ADCH(obj->adc);
 
     // Wait Conversion Complete
     while ((ADC0->SC1[0] & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
