@@ -89,7 +89,7 @@ public:
      *
      *  @returns
      *    0 if the sending was failed,
-     *    1 if the package is successfully sent.
+     *    or the size of the packet successfully sent.
      */
     int send();
 

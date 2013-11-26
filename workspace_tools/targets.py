@@ -26,6 +26,7 @@ CORE_LABELS = {
 import os
 import shutil
 
+
 class Target:
     def __init__(self):
         # ARM Core
@@ -50,6 +51,7 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
+
 
 class LPC2368(Target):
     def __init__(self):
@@ -168,16 +170,11 @@ class LPC4088(Target):
         self.extra_labels = ['NXP', 'LPC408X']
         
         self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
-
-# Use this target to generate the custom binary image for LPC4088 EA boards
-class LPC4088_EA(LPC4088):
-    def __init__(self):
-        LPC4088.__init__(self)
-
+    
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-
+    
     @staticmethod
     def binary_hook(t_self, elf, binf):
         if not os.path.isdir(binf):
@@ -206,6 +203,7 @@ class LPC4088_EA(LPC4088):
         os.rename(binf + '.temp', binf)
         t_self.debug("Generated custom binary file (internal flash + SPIFI)")
 
+
 class LPC4330_M4(Target):
     def __init__(self):
         Target.__init__(self)
@@ -214,7 +212,7 @@ class LPC4330_M4(Target):
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
 
 
 class LPC4330_M0(Target):
@@ -293,25 +291,28 @@ class LPC11C24(Target):
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
+
 class LPC11U35_401(Target):
     def __init__(self):
         Target.__init__(self)
-
+        
         self.core = "Cortex-M0"
-
+        
         self.extra_labels = ['NXP', 'LPC11UXX']
-
+        
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
 
 class nRF51822(Target):
     def __init__(self):
         Target.__init__(self)
-
+        
         self.core = "Cortex-M0"
-
+        
         self.extra_labels = ["NORDIC"]
-
+        
         self.supported_toolchains = ["ARM"]
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -332,7 +333,6 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    LPC4088_EA(),
     nRF51822()
 ]
 
@@ -342,3 +342,6 @@ for t in TARGETS:
     TARGET_MAP[t.name] = t
 
 TARGET_NAMES = TARGET_MAP.keys()
+
+# Some targets with different name have the same exporters
+EXPORT_MAP = {}
