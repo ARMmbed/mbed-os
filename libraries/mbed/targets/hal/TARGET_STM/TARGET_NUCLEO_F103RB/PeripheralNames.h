@@ -46,14 +46,10 @@ typedef enum {
     I2C_2 = (int)I2C2_BASE
 } I2CName;
 
-// typedef enum {
-    // PWM_1 = 1,
-    // PWM_2,
-    // PWM_3,
-    // PWM_4,
-    // PWM_5,
-    // PWM_6
-// } PWMName;
+typedef enum {
+    PWM_2 = (int)TIM2_BASE,
+    PWM_3 = (int)TIM3_BASE
+} PWMName;
 
 typedef enum {
      CAN_1 = (int)CAN1_BASE

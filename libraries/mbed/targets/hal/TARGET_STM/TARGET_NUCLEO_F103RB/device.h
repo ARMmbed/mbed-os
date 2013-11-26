@@ -35,7 +35,7 @@
 
 #define DEVICE_RTC              0
 
-#define DEVICE_PWMOUT           0
+#define DEVICE_PWMOUT           1
 
 //=======================================
 

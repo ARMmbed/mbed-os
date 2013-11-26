@@ -17,13 +17,14 @@
 #include "error.h"
 
 // Alternate-function mapping
-// TODO: add lines if needed...
 static const uint32_t AF_mapping[] = {
-  0,                 // 0 = No AF
-  GPIO_Remap_SPI1,   // 1
-  GPIO_Remap_I2C1,   // 2
-  GPIO_Remap_USART1, // 3
-  GPIO_Remap_USART2  // 4
+  0,                   // 0 = No AF
+  GPIO_Remap_SPI1,     // 1
+  GPIO_Remap_I2C1,     // 2
+  GPIO_Remap_USART1,   // 3
+  GPIO_Remap_USART2,   // 4
+  GPIO_FullRemap_TIM2, // 5
+  GPIO_FullRemap_TIM3  // 6
 };
 
 /**
@@ -42,8 +43,9 @@ void pin_function(PinName pin, int data) {
     uint32_t port_index = (pin_number >> 4);
     GPIO_TypeDef *gpio  = ((GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10)));
 
-    // Enable GPIO clock
+    // Enable GPIO and AFIO clocks
     RCC_APB2PeriphClockCmd((uint32_t)(RCC_APB2Periph_GPIOA << port_index), ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
   
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -53,10 +55,18 @@ void pin_function(PinName pin, int data) {
     GPIO_Init(gpio, &GPIO_InitStructure);
 
     // Configure Alternate Function
-    if ((afnum > 0) && (afnum < 5)) {
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-      GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
+    if (afnum > 0) {
+        GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
     }
+    
+    // Disconnect JTAG-DP + SW-DP signals.
+    // Warning: Need to reconnect under reset
+    if ((pin == PA_13) || (pin == PA_14)) {
+        GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
+    }
+    if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
+        GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+    }    
 }
 
 /**
