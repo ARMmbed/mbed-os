@@ -54,10 +54,6 @@ struct analogin_s {
     ADCName adc;
 };
 
-struct dac_s {
-    DACName dac;
-};
-
 struct i2c_s {
     I2C_Type *i2c;
 };

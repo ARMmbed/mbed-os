@@ -21,45 +21,16 @@
 
 static const PinMap PinMap_PWM[] = {
     // LEDs
-    {LED_RED  , PWM_9 , 3}, // PTB18, FTM2 CH0
-    {LED_GREEN, PWM_10, 3}, // PTB19, FTM2 CH1
-    {LED_BLUE , PWM_2 , 4}, // PTD1 , FTM0 CH1
+    {LED_RED  , PWM_3 , 3}, // PTC3, FTM0 CH2
+    {LED_GREEN, PWM_5, 3}, // PTD4, FTM0 CH4
+    {LED_BLUE , PWM_9 , 3}, // PTA2 , FTM0 CH7
 
     // Arduino digital pinout
-    {D0,  PWM_9 , 3}, // PTA1 , FTM2 CH0
-    {D1,  PWM_10, 3}, // PTA2 , FTM2 CH1
-    {D2,  PWM_5 , 4}, // PTD4 , FTM0 CH4
-    {D3,  PWM_7 , 3}, // PTA12, FTM1 CH0
-    {D4,  PWM_2 , 3}, // PTA4 , FTM0 CH1
-    {D5,  PWM_3 , 3}, // PTA5 , FTM0 CH2
-    {D6,  PWM_5 , 3}, // PTC8 , FTM0 CH4
-    {D7,  PWM_6 , 3}, // PTC9 , FTM0 CH5
-    {D8,  PWM_8 , 3}, // PTA13, FTM1 CH1
-    {D9,  PWM_6 , 4}, // PTD5 , FTM0 CH5
-    {D10, PWM_1 , 4}, // PTD0 , FTM0 CH0
-    {D11, PWM_3 , 4}, // PTD2 , FTM0 CH2
-    {D12, PWM_4 , 4}, // PTD3 , FTM0 CH3
-    {D13, PWM_2 , 4}, // PTD1 , FTM0 CH1,
-
-    {PTA0, PWM_6, 3},
-    {PTA3, PWM_1, 3},
-    {PTB0, PWM_7, 3},
-    {PTB1, PWM_8, 3},
-    {PTB2, PWM_9, 3},
-    {PTB3, PWM_10, 3},
-    {PTC1, PWM_1, 4},
-    {PTC2, PWM_2, 4},
-    {PTC3, PWM_3, 4},
-    {PTC4, PWM_4, 4},
-    {PTE20, PWM_7, 3},
-    {PTE21, PWM_8, 3},
-    {PTE22, PWM_9, 3},
-    {PTE23, PWM_10, 3},
-    {PTE24, PWM_1, 3},
-    {PTE25, PWM_2, 3},
-    {PTE29, PWM_3, 3},
-    {PTE30, PWM_4, 3},
-    {PTE31, PWM_5, 3},
+    {D3,  PWM_5 , 3}, // PTA12, FTM0 CH4
+    {D5,  PWM_7 , 3}, // PTA1 , FTM0 CH6
+    {D6,  PWM_3 , 3}, // PTC3 , FTM0 CH2
+    {D9,  PWM_8 , 4}, // PTD2 , FTM0 CH7
+    {D10, PWM_2 , 4}, // PTC2 , FTM0 CH1
 
     {NC , NC    , 0}
 };
@@ -78,7 +49,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
     SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
-    SIM->SOPT2 |= SIM_SOPT2_CLKOUTSEL(1); // Clock source: MCGFLLCLK or MCGPLLCLK
 
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
     ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz

@@ -22,54 +22,26 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PTA15, SPI_0, 2},
-    {PTB11, SPI_0, 2},
-    {PTC5,  SPI_0, 2},
-    {PTD1,  SPI_0, 2},
-    {PTD5,  SPI_0, 2},
-    {PTE2,  SPI_0, 2},
+    {PTC5, SPI_0, 2},
+    {PTD1, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PTA16, SPI_0, 2},
-    {PTA17, SPI_0, 5},
-    {PTB16, SPI_0, 2},
-    {PTB17, SPI_0, 5},
-    {PTC6,  SPI_0, 2},
-    {PTC7,  SPI_0, 5},
-    {PTD2,  SPI_0, 2},
-    {PTD3,  SPI_0, 5},
-    {PTD6,  SPI_0, 2},
-    {PTD7,  SPI_0, 5},
-    {PTE1,  SPI_0, 2},
-    {PTE3,  SPI_0, 5},
+    {PTD2, SPI_0, 2},
+    {PTC6, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PTA16, SPI_0, 5},
-    {PTA17, SPI_0, 2},
-    {PTB16, SPI_0, 5},
-    {PTB17, SPI_0, 2},
-    {PTC6,  SPI_0, 5},
-    {PTC7,  SPI_0, 2},
-    {PTD2,  SPI_0, 5},
-    {PTD3,  SPI_0, 2},
-    {PTD6,  SPI_0, 5},
-    {PTD7,  SPI_0, 2},
-    {PTE1,  SPI_0, 5},
-    {PTE3,  SPI_0, 2},
+    {PTD3, SPI_0, 2},
+    {PTC7, SPI_0, 2},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PTA14, SPI_0, 2},
-    {PTB10, SPI_0, 2},
-    {PTC4,  SPI_0, 2},
-    {PTD0,  SPI_0, 2},
-    {PTD4,  SPI_0, 2},
-    {PTE4,  SPI_0, 2},
+    {PTD0, SPI_0, 2},
+    {PTC4, SPI_0, 2},
     {NC  ,  NC   , 0}
 };
 
@@ -90,7 +62,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // enable power and clocking
     switch ((int)obj->spi) {
         case SPI_0: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 22; break;
-        //case SPI_1: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 23; break;
     }
 
     // set default format and frequency
@@ -137,35 +108,35 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // uint32_t error = 0;
-    // uint32_t p_error = 0xffffffff;
-    // uint32_t ref = 0;
-    // uint8_t  spr = 0;
-    // uint8_t  ref_spr = 0;
-    // uint8_t  ref_prescaler = 0;
+    uint32_t error = 0;
+    uint32_t p_error = 0xffffffff;
+    uint32_t ref = 0;
+    uint8_t  spr = 0;
+    uint8_t  ref_spr = 0;
+    uint8_t  ref_prescaler = 0;
 
-    // // bus clk
-    // uint32_t PCLK = 48000000u;
-    // uint8_t prescaler = 1;
-    // uint8_t divisor = 2;
+    // bus clk
+    uint32_t PCLK = 48000000u;
+    uint8_t prescaler = 1;
+    uint8_t divisor = 2;
 
-    // for (prescaler = 1; prescaler <= 8; prescaler++) {
-    //     divisor = 2;
-    //     for (spr = 0; spr <= 8; spr++, divisor *= 2) {
-    //         ref = PCLK / (prescaler*divisor);
-    //         if (ref > (uint32_t)hz)
-    //             continue;
-    //         error = hz - ref;
-    //         if (error < p_error) {
-    //             ref_spr = spr;
-    //             ref_prescaler = prescaler - 1;
-    //             p_error = error;
-    //         }
-    //     }
-    // }
+    for (prescaler = 1; prescaler <= 8; prescaler++) {
+        divisor = 2;
+        for (spr = 0; spr <= 8; spr++, divisor *= 2) {
+            ref = PCLK / (prescaler*divisor);
+            if (ref > (uint32_t)hz)
+                continue;
+            error = hz - ref;
+            if (error < p_error) {
+                ref_spr = spr;
+                ref_prescaler = prescaler - 1;
+                p_error = error;
+            }
+        }
+    }
 
-    // // set SPPR and SPR
-    // obj->spi->CTAR = ((ref_prescaler & 0x7) << 4) | (ref_spr & 0xf);
+    // set SPPR and SPR
+    obj->spi->CTAR[0] = ((ref_prescaler & 0x7) << 4) | (ref_spr & 0xf);
 }
 
 static inline int spi_writeable(spi_t * obj) {
