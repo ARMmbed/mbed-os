@@ -20,10 +20,11 @@ from shutil import copyfile
 from copy import copy
 from types import ListType
 from inspect import getmro
+from time import time
 
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
-from workspace_tools.settings import BUILD_OPTIONS
+from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 
 import workspace_tools.hooks as hooks
 import re
@@ -184,6 +185,7 @@ class mbedToolchain:
         self.has_config = False
         
         self.build_all = False
+        self.timestamp = time()
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -203,6 +205,11 @@ class mbedToolchain:
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+
+            # Symbols defined by the on-line build.system
+            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
+            if MBED_ORG_USER:
+                self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
         
         return self.symbols
     
