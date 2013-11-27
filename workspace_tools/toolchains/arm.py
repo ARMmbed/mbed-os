@@ -35,7 +35,7 @@ class ARM(mbedToolchain):
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
-        elif target.core == "Cortex-M4":
+        elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
         else:
             cpu = target.core

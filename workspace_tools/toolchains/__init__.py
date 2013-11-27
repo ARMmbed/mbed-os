@@ -151,7 +151,8 @@ class mbedToolchain:
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4"],
+        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
 
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
