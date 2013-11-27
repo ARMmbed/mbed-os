@@ -41,6 +41,7 @@ struct port_s {
 
 struct analogin_s {
     ADCName adc;
+    PinName pin;
 };
 
 struct serial_s {

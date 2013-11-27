@@ -29,11 +29,13 @@ static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
     {PA_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
     {PA_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PB_0, ADC_2, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_1, ADC_2, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_0, ADC_2, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
+    {PB_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
+    {PC_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
+    {PC_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
     {NC,   NC,    0}
 };
+
+int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin) {
   
@@ -47,48 +49,75 @@ void analogin_init(analogin_t *obj, PinName pin) {
       error("ADC pin mapping failed");
     }
 
-    // Get ADC registers structure address
-    adc = (ADC_TypeDef *)(obj->adc);
-  
-    // Enable ADC clock
-    RCC_ADCCLKConfig(RCC_PCLK2_Div4);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
-        
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);
 
-    // Configure ADC
-    ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-    ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-    ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-    ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-    ADC_InitStructure.ADC_NbrOfChannel = 1;
-    ADC_Init(adc, &ADC_InitStructure);
+    // Save pin number for the read function
+    obj->pin = pin;
 
-    // Configure ADC channel
-    if (pin == PA_0) { ADC_RegularChannelConfig(adc, ADC_Channel_0,  1, ADC_SampleTime_7Cycles5); }
-    if (pin == PA_1) { ADC_RegularChannelConfig(adc, ADC_Channel_1,  1, ADC_SampleTime_7Cycles5); }
-    if (pin == PA_4) { ADC_RegularChannelConfig(adc, ADC_Channel_4,  1, ADC_SampleTime_7Cycles5); }
-    if (pin == PB_0) { ADC_RegularChannelConfig(adc, ADC_Channel_8,  1, ADC_SampleTime_7Cycles5); }
-    if (pin == PC_1) { ADC_RegularChannelConfig(adc, ADC_Channel_11, 1, ADC_SampleTime_7Cycles5); }
-    if (pin == PC_0) { ADC_RegularChannelConfig(adc, ADC_Channel_10, 1, ADC_SampleTime_7Cycles5); }
+    // The ADC initialization is done once
+    if (adc_inited == 0) {
+        adc_inited = 1;
 
-    // Enable ADC
-    ADC_Cmd(adc, ENABLE);
+        // Get ADC registers structure address
+        adc = (ADC_TypeDef *)(obj->adc);
+      
+        // Enable ADC clock
+        RCC_ADCCLKConfig(RCC_PCLK2_Div4);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+               
+        // Configure ADC
+        ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+        ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+        ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+        ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+        ADC_InitStructure.ADC_NbrOfChannel = 1;
+        ADC_Init(adc, &ADC_InitStructure);
 
-    // Calibrate ADC
-    ADC_ResetCalibration(adc);
-    while(ADC_GetResetCalibrationStatus(adc));
-    ADC_StartCalibration(adc);
-    while(ADC_GetCalibrationStatus(adc));
+        // Enable ADC
+        ADC_Cmd(adc, ENABLE);
+
+        // Calibrate ADC
+        ADC_ResetCalibration(adc);
+        while(ADC_GetResetCalibrationStatus(adc));
+        ADC_StartCalibration(adc);
+        while(ADC_GetCalibrationStatus(adc));    
+    }
 }
 
 static inline uint16_t adc_read(analogin_t *obj) {
   // Get ADC registers structure address
   ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
+  
+  // Configure ADC channel
+  switch (obj->pin) {
+      case PA_0:
+          ADC_RegularChannelConfig(adc, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
+          break;
+      case PA_1:
+          ADC_RegularChannelConfig(adc, ADC_Channel_1, 1, ADC_SampleTime_7Cycles5);
+          break;
+      case PA_4:
+          ADC_RegularChannelConfig(adc, ADC_Channel_4, 1, ADC_SampleTime_7Cycles5);
+          break;
+      case PB_0:
+          ADC_RegularChannelConfig(adc, ADC_Channel_8, 1, ADC_SampleTime_7Cycles5);
+          break;
+      case PC_1:
+          ADC_RegularChannelConfig(adc, ADC_Channel_11, 1, ADC_SampleTime_7Cycles5);
+          break;
+      case PC_0:
+          ADC_RegularChannelConfig(adc, ADC_Channel_10, 1, ADC_SampleTime_7Cycles5);
+          break;
+      default:
+          return 0;
+  }
+
   ADC_SoftwareStartConvCmd(adc, ENABLE); // Start conversion
+  
   while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
+  
   return(ADC_GetConversionValue(adc)); // Get conversion value
 }
 
