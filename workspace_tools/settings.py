@@ -73,6 +73,9 @@ GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.1.4/bin"
 
 BUILD_OPTIONS = []
 
+# mbed.org username
+MBED_ORG_USER = ""
+
 ##############################################################################
 # Test System Settings
 ##############################################################################

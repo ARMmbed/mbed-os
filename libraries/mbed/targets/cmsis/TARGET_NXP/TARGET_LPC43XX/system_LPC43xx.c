@@ -89,6 +89,10 @@ void SystemInit(void)
     extern void *__vector_table;
 
     *pSCB_VTOR = (unsigned int) &__vector_table;
+#elif defined(TOOLCHAIN_GCC_ARM)
+    extern void *__isr_vector;
+
+    *pSCB_VTOR = (unsigned int) &__isr_vector;
 #else /* defined(__GNUC__) and others */
     extern void *g_pfnVectors;
 
