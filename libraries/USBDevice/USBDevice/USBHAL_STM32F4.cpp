@@ -1,0 +1,281 @@
+/* Copyright (c) 2010-2011 mbed.org, MIT License
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+* and associated documentation files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all copies or
+* substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+* BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#if defined(TARGET_STM32F4XX)
+
+#include "USBHAL.h"
+#include "USBRegs_STM32.h"
+#include "pinmap.h"
+
+USBHAL * USBHAL::instance;
+
+static volatile int epComplete = 0;
+
+static uint32_t bufferEnd = 0;
+static const uint32_t rxFifoSize = 512;
+static uint32_t rxFifoCount = 0;
+
+static uint32_t setupBuffer[MAX_PACKET_SIZE_EP0 >> 2];
+
+uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
+    return 0;
+}
+
+USBHAL::USBHAL(void) {    
+    NVIC_DisableIRQ(OTG_FS_IRQn);
+    epCallback[0] = &USBHAL::EP1_OUT_callback;
+    epCallback[1] = &USBHAL::EP1_IN_callback;
+    epCallback[2] = &USBHAL::EP2_OUT_callback;
+    epCallback[3] = &USBHAL::EP2_IN_callback;
+    epCallback[4] = &USBHAL::EP3_OUT_callback;
+    epCallback[5] = &USBHAL::EP3_IN_callback;
+
+    // Enable power and clocking
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+    pin_function(PA_8, STM_PIN_DATA(2, 10));
+    pin_function(PA_9, STM_PIN_DATA(0, 0));
+    pin_function(PA_10, STM_PIN_DATA(2, 10));
+    pin_function(PA_11, STM_PIN_DATA(2, 10));
+    pin_function(PA_12, STM_PIN_DATA(2, 10));
+
+    // Set ID pin to open drain with pull-up resistor
+    pin_mode(PA_10, OpenDrain);
+    GPIOA->PUPDR &= ~(0x3 << 20);
+    GPIOA->PUPDR |= 1 << 20;
+
+    // Set VBUS pin to open drain
+    pin_mode(PA_9, OpenDrain);
+
+    RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+
+    OTG_FS->GREGS.GAHBCFG |= (1 << 0); // Set GINTMSK
+    OTG_FS->GREGS.GINTSTS |= (1 << 4); // RXFLVL
+
+    OTG_FS->GREGS.GUSBCFG |= (0xF << 10); // TRDT to 0xF for 72MHz AHB2
+    OTG_FS->GREGS.GINTMSK |= (1 << 1) | // Mode mismatch
+                             (1 << 2) | // OTG
+                             (1 << 3) | // SOF
+                             (1 << 4) | // RX FIFO not empty
+                             (1 << 10) | // Early suspend
+                             (1 << 11) | // USB suspend
+                             (1 << 12) | // USB reset
+                             (1 << 13); // Enumeration Done
+
+    OTG_FS->DREGS.DCFG |= (0x3 << 0) | // Full speed
+                          (1 << 2); // Non-zero-length status OUT handshake
+
+    OTG_FS->GREGS.GCCFG |= (1 << 19) | // VBUS sensing
+                           (1 << 16); // Power Up
+
+    instance = this;
+    NVIC_SetVector(OTG_FS_IRQn, (uint32_t)&_usbisr);
+    NVIC_SetPriority(OTG_FS_IRQn, 1);
+}
+
+USBHAL::~USBHAL(void) {
+}
+
+void USBHAL::connect(void) {
+    NVIC_EnableIRQ(OTG_FS_IRQn);
+}
+
+void USBHAL::disconnect(void) {
+    NVIC_DisableIRQ(OTG_FS_IRQn);
+}
+
+void USBHAL::configureDevice(void) {
+}
+
+void USBHAL::unconfigureDevice(void) {
+}
+
+void USBHAL::setAddress(uint8_t address) {
+    OTG_FS->DREGS.DCFG |= (address << 4);
+    EP0write(0, 0);
+}
+
+bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flags) {
+    if (endpoint & 0x1) { // In Endpoint
+    }
+    else {
+    }
+    return true;
+}
+
+// read setup packet
+void USBHAL::EP0setup(uint8_t *buffer) {
+    memcpy(buffer, setupBuffer, MAX_PACKET_SIZE_EP0);
+}
+
+void USBHAL::EP0readStage(void) {
+}
+
+void USBHAL::EP0read(void) {
+}
+
+uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
+    uint32_t* buffer32 = (uint32_t *) buffer;
+    uint32_t length = rxFifoCount;
+    for (uint32_t i = 0; i < length; i += 4) {
+        buffer32[i >> 2] = OTG_FS->FIFO[0][0];
+    }
+                        
+    rxFifoCount = 0;
+    return length;
+}
+
+void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
+    OTG_FS->INEP_REGS[0].DIEPTSIZ = (1 << 19) | // 1 packet
+                                    (size << 0); // Size of packet
+    OTG_FS->INEP_REGS[0].DIEPCTL |= (1 << 31) | // Enable endpoint
+                                    (1 << 26); // CNAK
+
+    while ((OTG_FS->INEP_REGS[0].DTXFSTS & 0XFFFF) < ((size + 3) >> 2));
+
+    for (uint32_t i=0; i<(size + 3) >> 2; i++, buffer+=4) {
+        OTG_FS->FIFO[0][0] = *(uint32_t *)buffer;
+    }
+}
+
+void USBHAL::EP0getWriteResult(void) {
+}
+
+void USBHAL::EP0stall(void) {
+    stallEndpoint(EP0IN);
+//    stallEndpoint(EP0OUT);
+}
+
+EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+    return EP_PENDING;
+}
+
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) {
+    return EP_COMPLETED;
+}
+
+EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) {
+    return EP_COMPLETED;
+}
+
+EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
+    return EP_COMPLETED;
+}
+
+void USBHAL::stallEndpoint(uint8_t endpoint) {
+    if (endpoint & 0x1) { // In EP
+        OTG_FS->INEP_REGS[endpoint >> 1].DIEPCTL |= (1 << 30) | // Disable
+                                                    (1 << 21); // Stall
+    }
+    else {  // Out EP
+        OTG_FS->DREGS.DCTL |= (1 << 9); // Set global out NAK
+        OTG_FS->OUTEP_REGS[endpoint >> 1].DOEPCTL |= (1 << 30) | // Disable
+                                                     (1 << 21); // Stall
+    }
+}
+
+void USBHAL::unstallEndpoint(uint8_t endpoint) {
+    
+}
+
+bool USBHAL::getEndpointStallState(uint8_t endpoint) {
+    return false;
+}
+
+void USBHAL::remoteWakeup(void) {
+}
+
+
+void USBHAL::_usbisr(void) {
+    instance->usbisr();
+}
+
+
+void USBHAL::usbisr(void) {
+    if (OTG_FS->GREGS.GINTSTS & (1 << 12)) { // USB Reset
+        // Set SNAK bits
+        OTG_FS->OUTEP_REGS[0].DOEPCTL |= (1 << 27);
+        OTG_FS->OUTEP_REGS[1].DOEPCTL |= (1 << 27);
+        OTG_FS->OUTEP_REGS[2].DOEPCTL |= (1 << 27);
+        OTG_FS->OUTEP_REGS[3].DOEPCTL |= (1 << 27);
+
+        OTG_FS->DREGS.DAINTMSK = (1 << 0) | // In 0 EP Mask
+                                 (1 << 16); // Out 0 EP Mask
+        OTG_FS->DREGS.DOEPMSK = (1 << 0) | // Transfer complete
+                                (1 << 3); // Setup phase done
+
+        OTG_FS->DREGS.DIEPEMPMSK = (1 << 0);
+
+        bufferEnd = 0;
+
+        OTG_FS->GREGS.GRXFSIZ = rxFifoSize >> 2;
+        bufferEnd += rxFifoSize >> 2;
+
+        OTG_FS->GREGS.DIEPTXF0_HNPTXFSIZ = ((MAX_PACKET_SIZE_EP0 >> 2) << 16) |
+                                           bufferEnd << 0;
+        bufferEnd += (MAX_PACKET_SIZE_EP0 >> 2);
+        OTG_FS->OUTEP_REGS[0].DOEPTSIZ |= (0x3 << 29); // 3 setup packets
+
+        OTG_FS->GREGS.GINTSTS |= (1 << 12);
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 13)) { // Enumeration done
+        OTG_FS->INEP_REGS[0].DIEPCTL &= ~(0x3 << 0); // 64 byte packet size
+        OTG_FS->GREGS.GINTSTS |= (1 << 13);
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 4)) { // RX FIFO not empty
+        uint32_t status = OTG_FS->GREGS.GRXSTSP;
+
+        uint32_t endpoint = status & 0xF;
+        uint32_t length = (status >> 4) & 0x7FF;
+        uint32_t type = (status >> 17) & 0xF;
+
+        rxFifoCount = length;
+
+        if (type == 0x6) {
+            // Setup packet
+            for (uint32_t i=0; i<length; i+=4) {
+                setupBuffer[i >> 2] = OTG_FS->FIFO[0][i >> 2];
+            }
+            rxFifoCount = 0;
+        }
+
+        if (type == 0x4) {
+            // Setup complete
+            EP0setupCallback();
+            OTG_FS->OUTEP_REGS[0].DOEPCTL |= (1 << 31) |
+                                             (1 << 26); // CNAK
+        }
+
+        for (uint32_t i=0; i<rxFifoCount; i+=4) {
+            (void) OTG_FS->FIFO[0][0];
+        }   
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 18)) { // In endpoint interrupt
+        if (OTG_FS->DREGS.DAINT & (1 << 0)) { // In EP 0
+            if (OTG_FS->INEP_REGS[0].DIEPINT & (1 << 7)) {
+                EP0in();
+            }
+        }
+    }
+}
+
+
+#endif
