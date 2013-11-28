@@ -34,6 +34,8 @@ class GCC(mbedToolchain):
         
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
+        elif target.core == "Cortex-M4F":
+            cpu = "cortex-m4"
         else:
             cpu = target.core.lower()
         
@@ -41,7 +43,7 @@ class GCC(mbedToolchain):
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
         
-        if target.core == "Cortex-M4":
+        if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
         

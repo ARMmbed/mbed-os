@@ -20,7 +20,8 @@ CORE_LABELS = {
     "Cortex-M0" : "M0",
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
-    "Cortex-M4" : "M4"
+    "Cortex-M4" : "M4",
+    "Cortex-M4F" : "M4F"
 }
 
 import os
@@ -165,7 +166,7 @@ class LPC4088(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC408X']
         
@@ -208,7 +209,7 @@ class LPC4330_M4(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
@@ -241,7 +242,7 @@ class STM32F407(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F4XX']
         
