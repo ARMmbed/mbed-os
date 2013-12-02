@@ -24,7 +24,8 @@ static const uint32_t AF_mapping[] = {
   GPIO_Remap_USART1,   // 3
   GPIO_Remap_USART2,   // 4
   GPIO_FullRemap_TIM2, // 5
-  GPIO_FullRemap_TIM3  // 6
+  GPIO_FullRemap_TIM3, // 6
+  GPIO_Remap_I2C1      // 7
 };
 
 /**

@@ -64,7 +64,8 @@ struct spi_s {
 };
 
 struct i2c_s {
-    I2CName i2c;
+    I2CName  i2c;
+    uint32_t clk_speed;
 };
 
 struct pwmout_s {
