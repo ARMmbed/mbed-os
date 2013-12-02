@@ -30,19 +30,25 @@ struct serial_s {
     int index;
 };
 
+struct spi_s {
+    NRF_SPI_Type *spi;
+	NRF_SPIS_Type *spis;
+};
+
+struct port_s {
+    __IO uint32_t *reg_cnf;
+    __IO uint32_t *reg_out;
+    __I  uint32_t *reg_in;
+    PortName port;
+    uint32_t mask;
+};
+
+
 /*
 struct gpio_irq_s {
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
-};
-
-struct port_s {
-    __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_out;
-    __I  uint32_t *reg_in;
-    PortName port;
-    uint32_t mask;
 };
 
 struct pwmout_s {
@@ -64,9 +70,6 @@ struct i2c_s {
     I2C_Type *i2c;
 };
 
-struct spi_s {
-    SPI_Type *spi;
-};
 */
 #include "gpio_object.h"
 

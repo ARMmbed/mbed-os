@@ -25,5 +25,12 @@ void pin_mode(PinName pin, PinMode mode) {
     
     uint32_t pin_number = (uint32_t)pin;
     
+
 	NRF_GPIO->PIN_CNF[pin_number] |= (mode<<GPIO_PIN_CNF_PULL_Pos);
 }
+
+/*
+NRF_GPIO->PIN_CNF[pin_number] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                        | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                        | (mode << GPIO_PIN_CNF_PULL_Pos)
+                                        | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos);*/

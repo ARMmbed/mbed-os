@@ -21,10 +21,10 @@ extern "C" {
 #endif
 
 typedef enum {
-    Port0 = 0,
-    Port1 = 1,
-    Port2 = 2,
-    Port3 = 3,
+    Port0 = 0, //GPIO pins 0-7
+    Port1 = 1, //GPIO pins 8-15
+    Port2 = 2, //GPIO pins 16-22
+    Port3 = 3, //GPIO pins 24-31
 } PortName;
 
 #ifdef __cplusplus
