@@ -226,6 +226,7 @@ class mbedToolchain:
         target_mod_time = stat(target).st_mtime
         
         for d in dependencies:
+
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
             if not d or not exists(d):
@@ -323,7 +324,11 @@ class mbedToolchain:
     def copy_files(self, files_paths, trg_path, rel_path=None):
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
-        
+
+        for source in files_paths:
+            if source is None:
+                files_paths.remove(source)
+
         for source in files_paths:
             if rel_path is not None:
                 relative_path = relpath(source, rel_path)
