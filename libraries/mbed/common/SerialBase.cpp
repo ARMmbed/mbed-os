@@ -81,6 +81,26 @@ void SerialBase::send_break() {
   serial_break_clear(&_serial);
 }
 
+void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
+    FlowControl flow_type = (FlowControl)type;
+    switch(type) {
+        case RTS:
+            serial_set_flow_control(&_serial, flow_type, flow1, NC);
+            break;
+            
+        case CTS:
+            serial_set_flow_control(&_serial, flow_type, NC, flow1);
+            break;
+            
+        case RTSCTS:
+            serial_set_flow_control(&_serial, flow_type, flow1, flow2);
+            break;
+            
+        default:
+            break;
+    }
+}
+
 } // namespace mbed
 
 #endif

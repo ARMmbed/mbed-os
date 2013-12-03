@@ -13,31 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PINMAP_H
-#define MBED_PINMAP_H
 
-#include "PinNames.h"
+// Default versions of various HAL functions that might not be implemented for some platforms.
+  
+#include "toolchain.h"
+#include "serial_api.h"
+#include "error.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct {
-    PinName pin;
-    int peripheral;
-    int function;
-} PinMap;
-
-void pin_function(PinName pin, int function);
-void pin_mode    (PinName pin, PinMode mode);
-
-uint32_t pinmap_peripheral(PinName pin, const PinMap* map);
-uint32_t pinmap_merge     (uint32_t a, uint32_t b);
-void     pinmap_pinout    (PinName pin, const PinMap *map);
-uint32_t pinmap_find_peripheral(PinName pin, const PinMap* map);
-
-#ifdef __cplusplus
+WEAK void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow);
+WEAK void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+    if (FlowControlNone != type)
+        error("hardware flow control not implemented on this platform");
 }
-#endif
 
-#endif

@@ -21,6 +21,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "gpio_api.h"
 
 /******************************************************************************
  * INITIALIZATION
@@ -51,11 +52,34 @@ static const PinMap PinMap_UART_RX[] = {
     {NC   , NC    , 0}
 };
 
+static const PinMap PinMap_UART_RTS[] = {
+    {P0_22, UART_1, 1},
+    {P2_7,  UART_1, 2},
+    {NC,    NC,     0}
+};
+
+static const PinMap PinMap_UART_CTS[] = {
+    {P0_17, UART_1, 1},
+    {P2_2,  UART_1, 2},
+    {NC,    NC,     0}
+};
+
+#define UART_MCR_RTSEN_MASK     (1 << 6)
+#define UART_MCR_CTSEN_MASK     (1 << 7)
+#define UART_MCR_FLOWCTRL_MASK  (UART_MCR_RTSEN_MASK | UART_MCR_CTSEN_MASK)
+
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
+
+struct serial_global_data_s {
+    gpio_t sw_rts, sw_cts;
+    uint8_t count, initialized, irq_set_flow, irq_set_api;
+};
+
+static struct serial_global_data_s uart_data[UART_NUM];
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     int is_stdio_uart = 0;
@@ -106,7 +130,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_2: obj->index = 2; break;
         case UART_3: obj->index = 3; break;
     }
-    obj->count = 0;
+    if (!uart_data[obj->index].initialized) {
+        uart_data[obj->index].sw_rts.pin = NC;
+        uart_data[obj->index].sw_cts.pin = NC;
+        uart_data[obj->index].initialized = 1;
+    }
     
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     
@@ -234,7 +262,9 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
         case 2: irq_type = RxIrq; break;
         default: return;
     }
-    
+
+    if ((RxIrq == irq_type) && (uart_data[index].sw_rts.pin != NC))
+        gpio_write(&uart_data[index].sw_rts, 1);
     if (serial_irq_ids[index] != 0)
         irq_handler(serial_irq_ids[index], irq_type);
 }
@@ -249,7 +279,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     serial_irq_ids[obj->index] = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
@@ -263,7 +293,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         obj->uart->IER |= 1 << irq;
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-    } else { // disable
+    } else if (uart_data[obj->index].irq_set_api + uart_data[obj->index].irq_set_flow == 0) { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         obj->uart->IER &= ~(1 << irq);
@@ -273,18 +303,30 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
 }
 
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+    uart_data[obj->index].irq_set_api = enable;
+    serial_irq_set_internal(obj, irq, enable);
+}
+
+static void serial_flow_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+    uart_data[obj->index].irq_set_flow = enable;
+    serial_irq_set_internal(obj, irq, enable);
+}
+
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
+    if (NC != uart_data[obj->index].sw_rts.pin)
+        gpio_write(&uart_data[obj->index].sw_rts, 0);
     return obj->uart->RBR;
 }
 
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
-    obj->count++;
+    uart_data[obj->index].count++;
 }
 
 int serial_readable(serial_t *obj) {
@@ -293,11 +335,14 @@ int serial_readable(serial_t *obj) {
 
 int serial_writable(serial_t *obj) {
     int isWritable = 1;
-    if (obj->uart->LSR & 0x20)
-        obj->count = 0;
-    else if (obj->count >= 16)
-        isWritable = 0;
-        
+    if (NC != uart_data[obj->index].sw_cts.pin)
+        isWritable = gpio_read(&uart_data[obj->index].sw_cts) == 0;
+    if (isWritable) {
+        if (obj->uart->LSR & 0x20)
+            uart_data[obj->index].count = 0;
+        else if (uart_data[obj->index].count >= 16)
+            isWritable = 0;
+    }
     return isWritable;
 }
 
@@ -318,5 +363,49 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     obj->uart->LCR &= ~(1 << 6);
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+    // Only UART1 has hardware flow control on LPC176x
+    LPC_UART1_TypeDef *uart1 = (uint32_t)obj->uart == (uint32_t)LPC_UART1 ? LPC_UART1 : NULL;
+    int index = obj->index;
+
+    // First, disable flow control completely
+    if (uart1)
+        uart1->MCR = uart1->MCR & ~UART_MCR_FLOWCTRL_MASK;
+    serial_flow_irq_set(obj, RxIrq, 0);
+    uart_data[index].sw_rts.pin = uart_data[index].sw_cts.pin = NC;
+    if (FlowControlNone == type)
+        return;
+    // Check type(s) of flow control to use
+    UARTName uart_rts = (UARTName)pinmap_find_peripheral(rxflow, PinMap_UART_RTS);
+    UARTName uart_cts = (UARTName)pinmap_find_peripheral(txflow, PinMap_UART_CTS);
+    if (((FlowControlCTS == type) || (FlowControlRTSCTS == type)) && (NC != txflow)) {
+        // Can this be enabled in hardware?
+        if ((UART_1 == uart_cts) && (NULL != uart1)) {
+            // Enable auto-CTS mode
+            uart1->MCR |= UART_MCR_CTSEN_MASK;
+        } else {
+            // Can't enable in hardware, use software emulation
+            gpio_init(&uart_data[index].sw_cts, txflow, PIN_INPUT);
+        }
+    }
+    if (((FlowControlRTS == type) || (FlowControlRTSCTS == type)) && (NC != rxflow)) {
+        // Enable FIFOs, trigger level of 1 char on RX FIFO
+        obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                       | 1 << 1  // Rx Fifo Reset
+                       | 1 << 2  // Tx Fifo Reset
+                       | 0 << 6; // Rx irq trigger level - 0 = 1 char, 1 = 4 chars, 2 = 8 chars, 3 = 14 chars
+         // Can this be enabled in hardware?
+        if ((UART_1 == uart_rts) && (NULL != uart1)) {
+            // Enable auto-RTS mode
+            uart1->MCR |= UART_MCR_RTSEN_MASK;
+        } else { // can't enable in hardware, use software emulation
+            gpio_init(&uart_data[index].sw_rts, rxflow, PIN_OUTPUT);
+            gpio_write(&uart_data[index].sw_rts, 0);
+            // Enable RX interrupt
+            serial_flow_irq_set(obj, RxIrq, 1);
+        }
+    }
 }
 
