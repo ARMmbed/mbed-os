@@ -20,10 +20,11 @@ from shutil import copyfile
 from copy import copy
 from types import ListType
 from inspect import getmro
+from time import time
 
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
-from workspace_tools.settings import BUILD_OPTIONS
+from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 
 import workspace_tools.hooks as hooks
 import re
@@ -59,6 +60,10 @@ class Resources:
         
         # mbed special files
         self.lib_builds = []
+        self.lib_refs = []
+        
+        self.repo_dirs = []
+        self.repo_files = []
         
         self.linker_script = None
     
@@ -75,13 +80,18 @@ class Resources:
         self.libraries += resources.libraries
         
         self.lib_builds += resources.lib_builds
+        self.lib_refs += resources.lib_refs
+        
+        self.repo_dirs += resources.repo_dirs
+        self.repo_files += resources.repo_files
         
         if resources.linker_script is not None:
             self.linker_script = resources.linker_script
     
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries']:
+                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -89,7 +99,8 @@ class Resources:
     
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries']:
+                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -139,14 +150,15 @@ class mbedToolchain:
     CORTEX_SYMBOLS = {
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
+        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4"],
+        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
 
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
-    def __init__(self, target, options=None, notify=None):
+    def __init__(self, target, options=None, notify=None, macros=None):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
@@ -162,6 +174,7 @@ class mbedToolchain:
             self.options = []
         else:
             self.options = options
+        self.macros = macros or []
         self.options.extend(BUILD_OPTIONS)
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
@@ -170,8 +183,10 @@ class mbedToolchain:
         
         self.symbols = None
         self.labels = None
+        self.has_config = False
         
         self.build_all = False
+        self.timestamp = time()
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -185,10 +200,17 @@ class mbedToolchain:
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
+            if self.has_config:
+                self.symbols.append('HAVE_MBED_CONFIG_H')
             
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+
+            # Symbols defined by the on-line build.system
+            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
+            if MBED_ORG_USER:
+                self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
         
         return self.symbols
     
@@ -225,6 +247,7 @@ class mbedToolchain:
     def scan_resources(self, path):
         labels = self.get_labels()
         resources = Resources(path)
+        self.has_config = False
         
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
@@ -239,6 +262,11 @@ class mbedToolchain:
         for root, dirs, files in walk(path):
             # Remove ignored directories
             for d in copy(dirs):
+                if d == '.hg':
+                    dir_path = join(root, d)
+                    resources.repo_dirs.append(dir_path)
+                    resources.repo_files.extend(self.scan_repository(dir_path))
+
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
@@ -262,6 +290,8 @@ class mbedToolchain:
                     resources.cpp_sources.append(file_path)
                 
                 elif ext == '.h':
+                    if basename(file_path) == "mbed_config.h":
+                        self.has_config = True
                     resources.headers.append(file_path)
                 
                 elif ext == '.o':
@@ -274,11 +304,30 @@ class mbedToolchain:
                 elif ext == self.LINKER_EXT:
                     resources.linker_script = file_path
                 
+                elif ext == '.lib':
+                    resources.lib_refs.append(file_path)
                 elif ext == '.bld':
                     resources.lib_builds.append(file_path)
+                elif file == '.hgignore':
+                    resources.repo_files.append(file_path)
         
         return resources
-    
+
+    def scan_repository(self, path):
+        resources = []
+        
+        for root, dirs, files in walk(path):
+            # Remove ignored directories
+            for d in copy(dirs):
+                if d == '.' or d == '..':
+                    dirs.remove(d)
+            
+            for file in files:
+                file_path = join(root, file)
+                resources.append(file_path)
+        
+        return resources
+
     def copy_files(self, files_paths, trg_path, rel_path=None):
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
@@ -313,13 +362,12 @@ class mbedToolchain:
             inc_paths.extend(inc_dirs)
         
         base_path = resources.base_path
-        
         for source in resources.s_sources:
             self.compiled += 1
             object = self.relative_object_path(build_path, base_path, source)
             if self.need_update(object, [source]):
                 self.progress("assemble", source, build_update=True)
-                self.assemble(source, object)
+                self.assemble(source, object, inc_paths)
             objects.append(object)
         
         # The dependency checking for C/C++ is delegated to the specific compiler
@@ -347,7 +395,7 @@ class mbedToolchain:
             self.progress("compile", source, build_update=True)
             
             # Compile
-            command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+            command = cc + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
             if hasattr(self, "get_dep_opt"):
                 command.extend(self.get_dep_opt(dep_path))
             

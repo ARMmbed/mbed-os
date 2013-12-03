@@ -99,9 +99,21 @@ protected:
     * @returns true if successful
     */
     bool readEP_NB(uint8_t * buffer, uint32_t * size);
+
+    /*
+    * Called by USBCallback_requestCompleted when CDC line coding is changed
+    * Warning: Called in ISR
+    *
+    * @param baud The baud rate
+    * @param bits The number of bits in a word (5-8)
+    * @param parity The parity
+    * @param stop The number of stop bits (1 or 2)
+    */
+    virtual void lineCodingChanged(int baud, int bits, int parity, int stop) {};
     
 protected:
     virtual bool USBCallback_request();
+    virtual void USBCallback_requestCompleted(uint8_t *buf, uint32_t length);
     virtual bool USBCallback_setConfiguration(uint8_t configuration);
     volatile bool terminal_connected;
 

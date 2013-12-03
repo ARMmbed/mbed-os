@@ -78,8 +78,11 @@ static inline void can_enable(can_t *obj) {
     }
 }
 
-int can_mode(can_t *obj, CanMode mode)
-{
+int can_mode(can_t *obj, CanMode mode) {
+    return 0; // not implemented
+}
+
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {
     return 0; // not implemented
 }
 
@@ -355,7 +358,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     return 0;
 }
 
-int can_read(can_t *obj, CAN_Message *msg) {
+int can_read(can_t *obj, CAN_Message *msg, int handle) {
     CANMsg x;
     unsigned int *i = (unsigned int *)&x;
 

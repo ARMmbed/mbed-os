@@ -29,8 +29,8 @@ class IAR(mbedToolchain):
     
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         c_flags = [
             "-Oh",
@@ -90,8 +90,8 @@ class IAR(mbedToolchain):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
     
-    def assemble(self, source, object):
-        self.default_cmd(self.asm + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])
     
     def archive(self, objects, lib_path):
         if exists(lib_path):

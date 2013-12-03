@@ -30,12 +30,12 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     
-    def __init__(self, target, options=None, notify=None):
-        mbedToolchain.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        mbedToolchain.__init__(self, target, options, notify, macros)
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
-        elif target.core == "Cortex-M4":
+        elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
         else:
             cpu = target.core
@@ -58,7 +58,7 @@ class ARM(mbedToolchain):
             '-I%s' % ARM_INC
         ]
         
-        self.asm = [main_cc] + common
+        self.asm = [main_cc] + common + ['-I%s' % ARM_INC]
         if not "analyze" in self.options:
             self.cc = [main_cc] + common + common_c + ["--c99"]
             self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
@@ -77,8 +77,11 @@ class ARM(mbedToolchain):
             if option in tool:
                 tool.remove(option)
     
-    def assemble(self, source, object):
-        self.default_cmd(self.cc + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        # Preprocess first, then assemble
+        tempfile = object + '.E.s'
+        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source])
+        self.default_cmd(self.asm + ["-o", object, tempfile])
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -123,16 +126,16 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, options, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
     
-    def __init__(self, target, options=None, notify=None):
-        ARM.__init__(self, target, notify)
+    def __init__(self, target, options=None, notify=None, macros=None):
+        ARM.__init__(self, target, options, notify, macros)
         
         # Compiler
         self.asm  += ["-D__MICROLIB"]

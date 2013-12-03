@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
 *    
-* $Date:        15. February 2012  
-* $Revision: 	V1.1.0  
+* $Date:        1. March 2013 
+* $Revision: 	V1.4.1
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_mat_inverse_f32.c    
@@ -11,23 +11,31 @@
 *    
 * Target Processor: Cortex-M4/Cortex-M3/Cortex-M0
 *  
-* Version 1.1.0 2012/02/15 
-*    Updated with more optimizations, bug fixes and minor API changes.  
-*   
-* Version 1.0.10 2011/7/15  
-*    Big Endian support added and Merged M0 and M3/M4 Source code.   
-*    
-* Version 1.0.3 2010/11/29   
-*    Re-organized the CMSIS folders and updated documentation.    
-*     
-* Version 1.0.2 2010/11/11    
-*    Documentation updated.     
-*    
-* Version 1.0.1 2010/10/05     
-*    Production release and review comments incorporated.    
-*    
-* Version 1.0.0 2010/09/20     
-*    Production release and review comments incorporated.    
+* Redistribution and use in source and binary forms, with or without 
+* modification, are permitted provided that the following conditions
+* are met:
+*   - Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*   - Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in
+*     the documentation and/or other materials provided with the 
+*     distribution.
+*   - Neither the name of ARM LIMITED nor the names of its contributors
+*     may be used to endorse or promote products derived from this
+*     software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.    
 * -------------------------------------------------------------------- */
 
 #include "arm_math.h"
@@ -86,7 +94,8 @@ arm_status arm_mat_inverse_f32(
   uint32_t numRows = pSrc->numRows;              /* Number of rows in the matrix  */
   uint32_t numCols = pSrc->numCols;              /* Number of Cols in the matrix  */
 
-#ifndef ARM_MATH_CM0
+#ifndef ARM_MATH_CM0_FAMILY
+  float32_t maxC;                                /* maximum value in the column */
 
   /* Run the below code for Cortex-M4 and Cortex-M3 */
 
@@ -125,12 +134,13 @@ arm_status arm_mat_inverse_f32(
 	 *    
 	 *		3. Begin with the first row. Let i = 1.    
 	 *    
-	 *	    4. Check to see if the pivot for row i is zero.    
+	 *	    4. Check to see if the pivot for column i is the greatest of the column.    
 	 *		   The pivot is the element of the main diagonal that is on the current row.    
 	 *		   For instance, if working with row i, then the pivot element is aii.    
-	 *		   If the pivot is zero, exchange that row with a row below it that does not    
-	 *		   contain a zero in column i. If this is not possible, then an inverse    
-	 *		   to that matrix does not exist.    
+	 *		   If the pivot is not the most significant of the coluimns, exchange that row with a row
+	 *		   below it that does contain the most significant value in column i. If the most
+	 *         significant value of the column is zero, then an inverse to that matrix does not exist.
+	 *		   The most significant value of the column is the absolut maximum.
 	 *    
 	 *	    5. Divide every element of row i by the pivot.    
 	 *    
@@ -204,8 +214,26 @@ arm_status arm_mat_inverse_f32(
       /* Destination pointer modifier */
       k = 1u;
 
-      /* Check if the pivot element is zero */
-      if(*pInT1 == 0.0f)
+     /* Grab the most significant value from column l */
+      maxC = 0;
+      for (i = 0; i < numRows; i++)
+      {
+        maxC = *pInT1 > 0 ? (*pInT1 > maxC ? *pInT1 : maxC) : (-*pInT1 > maxC ? -*pInT1 : maxC);
+        pInT1 += numCols;
+      }
+
+      /* Update the status if the matrix is singular */
+      if(maxC == 0.0f)
+      {
+        status = ARM_MATH_SINGULAR;
+        break;
+      }
+
+      /* Restore pInT1  */
+      pInT1 -= numRows * numCols;
+      
+      /* Check if the pivot element is the most significant of the column */
+      if( (in > 0.0f ? in : -in) != maxC)
       {
         /* Loop over the number rows present below */
         i = numRows - (l + 1u);
@@ -216,9 +244,9 @@ arm_status arm_mat_inverse_f32(
           pInT2 = pInT1 + (numCols * l);
           pInT4 = pInT3 + (numCols * k);
 
-          /* Check if there is a non zero pivot element to    
+          /* Look for the most significant element to    
            * replace in the rows below */
-          if(*pInT2 != 0.0f)
+          if((*pInT2 > 0.0f ? *pInT2: -*pInT2) == maxC)
           {
             /* Loop over number of columns    
              * to the right of the pilot element */
@@ -281,7 +309,7 @@ arm_status arm_mat_inverse_f32(
       pInT2 = pPivotRowDst;
 
       /* Pivot element of the row */
-      in = *(pIn + (l * numCols));
+      in = *pPivotRowIn;
 
       /* Loop over number of columns    
        * to the right of the pilot element */
@@ -583,13 +611,15 @@ arm_status arm_mat_inverse_f32(
       {
         /* Divide each element of the row of the input matrix     
          * by the pivot element */
-        *pInT1++ = *pInT1 / in;
+        *pInT1 = *pInT1 / in;
+        pInT1++;
       }
       for (j = 0u; j < numCols; j++)
       {
         /* Divide each element of the row of the destination matrix     
          * by the pivot element */
-        *pInT2++ = *pInT2 / in;
+        *pInT2 = *pInT2 / in;
+        pInT2++;
       }
 
       /* Replace the rows with the sum of that row and a multiple of row i     
@@ -624,7 +654,8 @@ arm_status arm_mat_inverse_f32(
           {
             /* Replace the element by the sum of that row     
                and a multiple of the reference row  */
-            *pInT1++ = *pInT1 - (in * *pPRT_in++);
+            *pInT1 = *pInT1 - (in * *pPRT_in++);
+            pInT1++;
           }
           /* Loop over the number of columns to     
              replace the elements in the destination matrix */
@@ -632,7 +663,8 @@ arm_status arm_mat_inverse_f32(
           {
             /* Replace the element by the sum of that row     
                and a multiple of the reference row  */
-            *pInT2++ = *pInT2 - (in * *pPRT_pDst++);
+            *pInT2 = *pInT2 - (in * *pPRT_pDst++);
+            pInT2++;
           }
 
         }
@@ -649,7 +681,7 @@ arm_status arm_mat_inverse_f32(
     }
 
 
-#endif /* #ifndef ARM_MATH_CM0 */
+#endif /* #ifndef ARM_MATH_CM0_FAMILY */
 
     /* Set status as ARM_MATH_SUCCESS */
     status = ARM_MATH_SUCCESS;

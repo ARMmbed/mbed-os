@@ -106,6 +106,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_2: obj->index = 2; break;
         case UART_3: obj->index = 3; break;
     }
+    obj->count = 0;
     
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     
@@ -156,22 +157,47 @@ void serial_baud(serial_t *obj, int baudrate) {
     uint16_t dlv;
     uint8_t mv, dav;
     if ((PCLK % (16 * baudrate)) != 0) {     // Checking for zero remainder
-        float err_best = (float) baudrate;
-        uint16_t dlmax = DL;
-        for ( dlv = (dlmax/2); (dlv <= dlmax) && !hit; dlv++) {
-            for ( mv = 1; mv <= 15; mv++) {
-                for ( dav = 1; dav < mv; dav++) {
-                    float ratio = 1.0f + ((float) dav / (float) mv);
-                    float calcbaud = (float)PCLK / (16.0f * (float) dlv * ratio);
-                    float err = fabs(((float) baudrate - calcbaud) / (float) baudrate);
-                    if (err < err_best) {
-                        DL = dlv;
-                        DivAddVal = dav;
-                        MulVal = mv;
-                        err_best = err;
-                        if (err < 0.001f) {
-                            hit = 1;
-                        }
+        int err_best = baudrate, b;
+        for (mv = 1; mv < 16 && !hit; mv++)
+        {
+            for (dav = 0; dav < mv; dav++)
+            {
+                // baudrate = PCLK / (16 * dlv * (1 + (DivAdd / Mul))
+                // solving for dlv, we get dlv = mul * PCLK / (16 * baudrate * (divadd + mul))
+                // mul has 4 bits, PCLK has 27 so we have 1 bit headroom which can be used for rounding
+                // for many values of mul and PCLK we have 2 or more bits of headroom which can be used to improve precision
+                // note: X / 32 doesn't round correctly. Instead, we use ((X / 16) + 1) / 2 for correct rounding
+
+                if ((mv * PCLK * 2) & 0x80000000) // 1 bit headroom
+                    dlv = ((((2 * mv * PCLK) / (baudrate * (dav + mv))) / 16) + 1) / 2;
+                else // 2 bits headroom, use more precision
+                    dlv = ((((4 * mv * PCLK) / (baudrate * (dav + mv))) / 32) + 1) / 2;
+
+                // datasheet says if DLL==DLM==0, then 1 is used instead since divide by zero is ungood
+                if (dlv == 0)
+                    dlv = 1;
+
+                // datasheet says if dav > 0 then DL must be >= 2
+                if ((dav > 0) && (dlv < 2))
+                    dlv = 2;
+
+                // integer rearrangement of the baudrate equation (with rounding)
+                b = ((PCLK * mv / (dlv * (dav + mv) * 8)) + 1) / 2;
+
+                // check to see how we went
+                b = abs(b - baudrate);
+                if (b < err_best)
+                {
+                    err_best  = b;
+
+                    DL        = dlv;
+                    MulVal    = mv;
+                    DivAddVal = dav;
+
+                    if (b == baudrate)
+                    {
+                        hit = 1;
+                        break;
                     }
                 }
             }
@@ -283,6 +309,7 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
+    obj->count++;
 }
 
 int serial_readable(serial_t *obj) {
@@ -290,7 +317,13 @@ int serial_readable(serial_t *obj) {
 }
 
 int serial_writable(serial_t *obj) {
-    return obj->uart->LSR & 0x20;
+    int isWritable = 1;
+    if (obj->uart->LSR & 0x20)
+        obj->count = 0;
+    else if (obj->count >= 16)
+        isWritable = 0;
+        
+    return isWritable;
 }
 
 void serial_clear(serial_t *obj) {

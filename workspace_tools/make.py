@@ -48,8 +48,26 @@ if __name__ == '__main__':
                       help="The name of the desired test program")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
-    
+    parser.add_option("-D", "", action="append", dest="macros",
+                      help="Add a macro definition")
+
     # Local run
+    parser.add_option("--automated", action="store_true", dest="automated",
+                      default=False, help="Automated test")
+    parser.add_option("--host", dest="host_test",
+                      default=None, help="Host test")
+    parser.add_option("--extra", dest="extra",
+                      default=None, help="Extra files")
+    parser.add_option("--peripherals", dest="peripherals",
+                      default=None, help="Required peripherals")
+    parser.add_option("--dep", dest="dependencies",
+                      default=None, help="Dependencies")
+    parser.add_option("--source", dest="source_dir",
+                      default=None, help="The source (input) directory")
+    parser.add_option("--duration", type="int", dest="duration",
+                      default=None, help="Duration of the test")
+    parser.add_option("--build", dest="build_dir",
+                      default=None, help="The build (output) directory")
     parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_option("-s", "--serial", dest="serial",
@@ -67,9 +85,15 @@ if __name__ == '__main__':
                       default=None, help="use the specified linker script")
     
     (options, args) = parser.parse_args()
-    
+
+    # force program to "0" if a source dir is specified
+    if options.source_dir is not None:
+        p = 0
+        n = None
+    else:
     # Program Number or name
-    p, n = options.program, options.program_name
+        p, n = options.program, options.program_name
+
     if n is not None and p is not None:
         args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
     if n:
@@ -99,6 +123,19 @@ if __name__ == '__main__':
     
     # Test
     test = Test(p)
+    if options.automated is not None:
+        test.automated = options.automated
+    if options.dependencies is not None:
+        test.dependencies = options.dependencies
+    if options.host_test is not None:
+        test.host_test = options.host_test;
+    if options.peripherals is not None:
+        test.peripherals = options.peripherals;
+    if options.duration is not None:
+        test.duration = options.duration;
+    if options.extra is not None:
+        test.extra_files = options.extra
+
     if not test.is_supported(mcu, toolchain):
         print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
         sys.exit()
@@ -108,13 +145,20 @@ if __name__ == '__main__':
         test.dependencies.append(RTOS_LIBRARIES)
     
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
+    if options.source_dir is not None: 
+        test.source_dir = options.source_dir
+        build_dir = options.source_dir
+
+    if options.build_dir is not None: 
+        build_dir = options.build_dir
     
     target = TARGET_MAP[mcu]
     try:
         bin = build_project(test.source_dir, build_dir, target, toolchain,
                             test.dependencies, options.options,
                             linker_script=options.linker_script,
-                            clean=options.clean, verbose=options.verbose)
+                            clean=options.clean, verbose=options.verbose,
+                            macros=options.macros)
         print 'Image: %s' % bin
         
         if options.disk:

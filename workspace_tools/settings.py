@@ -53,7 +53,7 @@ ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 
 # GCC ARM
-GCC_ARM_PATH = "C:/arm-none-eabi-gcc-4_7/bin"
+GCC_ARM_PATH = ""
 
 # GCC CodeSourcery
 GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
@@ -72,6 +72,9 @@ CW_EWL_PATH = "C:/Freescale/CW MCU v10.3/MCU/ARM_GCC_Support/ewl/lib"
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.1.4/bin"
 
 BUILD_OPTIONS = []
+
+# mbed.org username
+MBED_ORG_USER = ""
 
 ##############################################################################
 # Test System Settings

@@ -42,8 +42,6 @@ if __name__ == '__main__':
                       default=False, help="Compile the rtos")
     parser.add_option("-e", "--eth", action="store_true", dest="eth",
                       default=False, help="Compile the ethernet library")
-    parser.add_option("-V", "--vodafone", action="store_true", dest="vodafone",
-                      default=False, help="Compile the Vodafone library")
     parser.add_option("-U", "--usb_host", action="store_true", dest="usb_host",
                       default=False, help="Compile the USB Host library")
     parser.add_option("-u", "--usb", action="store_true", dest="usb",
@@ -52,6 +50,10 @@ if __name__ == '__main__':
                       default=False, help="Compile the DSP library")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
+    parser.add_option("-b", "--ublox", action="store_true", dest="ublox",
+                      default=False, help="Compile the u-blox library")
+    parser.add_option("-D", "", action="append", dest="macros",
+                      help="Add a macro definition")
     (options, args) = parser.parse_args()
     
     # Get target list
@@ -74,14 +76,14 @@ if __name__ == '__main__':
         libraries.extend(["rtx", "rtos"])
     if options.eth:
         libraries.append("eth")
-    if options.vodafone:
-        libraries.append("vodafone")
     if options.usb:
         libraries.append("usb")
     if options.usb_host:
         libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["cmsis_dsp", "dsp"])
+    if options.ublox:
+        libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
     
     # Build
     failures = []
@@ -92,10 +94,12 @@ if __name__ == '__main__':
             try:
                 mcu = TARGET_MAP[target]
                 build_mbed_libs(mcu, toolchain, options=options.options,
-                                verbose=options.verbose, clean=options.clean)
+                                verbose=options.verbose, clean=options.clean,
+                                macros=options.macros)
                 for lib_id in libraries:
                     build_lib(lib_id, mcu, toolchain, options=options.options,
-                              verbose=options.verbose, clean=options.clean)
+                              verbose=options.verbose, clean=options.clean,
+                              macros=options.macros)
                 successes.append(id)
             except Exception, e:
                 if options.verbose:
@@ -116,3 +120,4 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
+        sys.exit(1)
