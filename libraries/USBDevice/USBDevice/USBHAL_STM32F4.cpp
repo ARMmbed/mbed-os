@@ -63,24 +63,22 @@ USBHAL::USBHAL(void) {
     pin_mode(PA_9, OpenDrain);
 
     RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+    
+    // Enable interrupts
+    OTG_FS->GREGS.GAHBCFG |= (1 << 0);
 
-    OTG_FS->GREGS.GAHBCFG |= (1 << 0); // Set GINTMSK
-    OTG_FS->GREGS.GINTSTS |= (1 << 4); // RXFLVL
+    // Turnaround time to maximum value - too small causes packet loss
+    OTG_FS->GREGS.GUSBCFG |= (0xF << 10);
 
-    OTG_FS->GREGS.GUSBCFG |= (0xF << 10); // TRDT to 0xF for 72MHz AHB2
-    OTG_FS->GREGS.GINTMSK |= (1 << 1) | // Mode mismatch
-                             (1 << 2) | // OTG
-                             (1 << 3) | // SOF
+    // Unmask global interrupts
+    OTG_FS->GREGS.GINTMSK |= (1 << 3) | // SOF
                              (1 << 4) | // RX FIFO not empty
-                             (1 << 10) | // Early suspend
-                             (1 << 11) | // USB suspend
-                             (1 << 12) | // USB reset
-                             (1 << 13); // Enumeration Done
+                             (1 << 12); // USB reset
 
     OTG_FS->DREGS.DCFG |= (0x3 << 0) | // Full speed
                           (1 << 2); // Non-zero-length status OUT handshake
 
-    OTG_FS->GREGS.GCCFG |= (1 << 19) | // VBUS sensing
+    OTG_FS->GREGS.GCCFG |= (1 << 19) | // Enable VBUS sensing
                            (1 << 16); // Power Up
 
     instance = this;
@@ -100,9 +98,11 @@ void USBHAL::disconnect(void) {
 }
 
 void USBHAL::configureDevice(void) {
+    // Not needed
 }
 
 void USBHAL::unconfigureDevice(void) {
+    // Not needed
 }
 
 void USBHAL::setAddress(uint8_t address) {
@@ -140,8 +140,14 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
 
     if (endpoint & 0x1) { // In Endpoint
         // Set up the Tx FIFO
-        OTG_FS->GREGS.DIEPTXF[epIndex - 1] = ((maxPacket >> 2) << 16) |
-                                             (bufferEnd << 0);
+        if (endpoint == EP0IN) {
+            OTG_FS->GREGS.DIEPTXF0_HNPTXFSIZ = ((maxPacket >> 2) << 16) |
+                                               (bufferEnd << 0);
+        }
+        else {
+            OTG_FS->GREGS.DIEPTXF[epIndex - 1] = ((maxPacket >> 2) << 16) |
+                                                 (bufferEnd << 0);
+        }
         bufferEnd += maxPacket >> 2;
 
         // Set the In EP specific control settings
@@ -197,15 +203,22 @@ void USBHAL::EP0getWriteResult(void) {
 }
 
 void USBHAL::EP0stall(void) {
+    // If we stall the out endpoint here then we have problems transferring
+    // and setup requests after the (stalled) get device qualifier requests.
+    // TODO: Find out if this is correct behavior, or whether we are doing
+    // something else wrong
     stallEndpoint(EP0IN);
 //    stallEndpoint(EP0OUT);
 }
 
 EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
     uint32_t epIndex = endpoint >> 1;
-    OTG_FS->OUTEP_REGS[epIndex].DOEPTSIZ = (1 << 29) | // 1 packet per frame
-                                           (1 << 19) | // 1 packet
-                                           (maximumSize << 0); // Packet size
+    uint32_t size = (1 << 19) | // 1 packet
+                    (maximumSize << 0); // Packet size
+//    if (endpoint == EP0OUT) {
+        size |= (1 << 29); // 1 setup packet
+//    }
+    OTG_FS->OUTEP_REGS[epIndex].DOEPTSIZ = size;
     OTG_FS->OUTEP_REGS[epIndex].DOEPCTL |= (1 << 31) | // Enable endpoint
                                            (1 << 26); // Clear NAK
 
@@ -293,28 +306,20 @@ void USBHAL::usbisr(void) {
         OTG_FS->OUTEP_REGS[2].DOEPCTL |= (1 << 27);
         OTG_FS->OUTEP_REGS[3].DOEPCTL |= (1 << 27);
 
-        OTG_FS->DREGS.DAINTMSK = (1 << 0) | // In 0 EP Mask
-                                 (1 << 16); // Out 0 EP Mask
-        OTG_FS->DREGS.DOEPMSK = (1 << 0) | // Transfer complete
-                                (1 << 3); // Setup phase done
-        OTG_FS->DREGS.DIEPMSK |= (1 << 0);
+        OTG_FS->DREGS.DIEPMSK = (1 << 0);
 
         bufferEnd = 0;
 
+        // Set the receive FIFO size
         OTG_FS->GREGS.GRXFSIZ = rxFifoSize >> 2;
         bufferEnd += rxFifoSize >> 2;
 
-        OTG_FS->GREGS.DIEPTXF0_HNPTXFSIZ = ((MAX_PACKET_SIZE_EP0 >> 2) << 16) |
-                                           bufferEnd << 0;
-        bufferEnd += (MAX_PACKET_SIZE_EP0 >> 2);
-        OTG_FS->OUTEP_REGS[0].DOEPTSIZ |= (0x3 << 29); // 3 setup packets
+        // Create the endpoints, and wait for setup packets on out EP0
+        realiseEndpoint(EP0IN, MAX_PACKET_SIZE_EP0, 0);
+        realiseEndpoint(EP0OUT, MAX_PACKET_SIZE_EP0, 0);
+        endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
 
         OTG_FS->GREGS.GINTSTS = (1 << 12);
-    }
-
-    if (OTG_FS->GREGS.GINTSTS & (1 << 13)) { // Enumeration done
-        OTG_FS->INEP_REGS[0].DIEPCTL &= ~(0x3 << 0); // 64 byte packet size
-        OTG_FS->GREGS.GINTSTS = (1 << 13);
     }
 
     if (OTG_FS->GREGS.GINTSTS & (1 << 4)) { // RX FIFO not empty
@@ -337,8 +342,7 @@ void USBHAL::usbisr(void) {
         if (type == 0x4) {
             // Setup complete
             EP0setupCallback();
-            OTG_FS->OUTEP_REGS[0].DOEPCTL |= (1 << 31) |
-                                             (1 << 26); // CNAK
+            endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
         }
 
         if (type == 0x2) {
@@ -365,8 +369,6 @@ void USBHAL::usbisr(void) {
         for (uint32_t i=0; i<4; i++) {
             if (OTG_FS->DREGS.DAINT & (1 << i)) { // Interrupt is on endpoint
 
-                // If the Tx FIFO is empty on EP0 we need to send a further
-                // packet, so call EP0in()
                 if (OTG_FS->INEP_REGS[i].DIEPINT & (1 << 7)) {// Tx FIFO empty
                     // If the Tx FIFO is empty on EP0 we need to send a further
                     // packet, so call EP0in()
@@ -394,23 +396,6 @@ void USBHAL::usbisr(void) {
         SOF((OTG_FS->GREGS.GRXSTSR >> 17) & 0xF);
         OTG_FS->GREGS.GINTSTS = (1 << 3);
     }
-
-    if (OTG_FS->GREGS.GINTSTS & (1 << 1)) {
-       OTG_FS->GREGS.GINTSTS = (1 << 1);
-    }
-
-    if (OTG_FS->GREGS.GINTSTS & (1 << 2)) {
-        OTG_FS->GREGS.GINTSTS = (1 << 2);
-    }
-
-    if (OTG_FS->GREGS.GINTSTS & (1 << 10)) {
-        OTG_FS->GREGS.GINTSTS = (1 << 10);
-    }
- 
-    if (OTG_FS->GREGS.GINTSTS & (1 << 11)) {
-        OTG_FS->GREGS.GINTSTS = (1 << 11);
-    }
-
 }
 
 
