@@ -256,7 +256,7 @@ void USBHAL::EP0readStage(void) {
 void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
     // Start and endpoint 0 write
 
-    // The USB SR will call USBDevice_EP0in() when the data has
+    // The USB ISR will call USBDevice_EP0in() when the data has
     // been written, the USBDevice layer then calls
     // USBBusInterface_EP0getWriteResult() to complete the transaction.
 
