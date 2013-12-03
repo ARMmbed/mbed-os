@@ -110,10 +110,59 @@ void USBHAL::setAddress(uint8_t address) {
     EP0write(0, 0);
 }
 
-bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flags) {
-    if (endpoint & 0x1) { // In Endpoint
+bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
+                             uint32_t flags) {
+    uint32_t epIndex = endpoint >> 1;
+
+    uint32_t type;
+    switch (endpoint) {
+        case EP0IN:  
+        case EP0OUT:
+            type = 0;
+            break;   
+        case EPISO_IN:
+        case EPISO_OUT:
+            type = 1; 
+        case EPBULK_IN:
+        case EPBULK_OUT:
+            type = 2;  
+            break;   
+        case EPINT_IN:
+        case EPINT_OUT:
+            type = 3; 
+            break;   
     }
-    else {
+
+    // Generic in or out EP controls
+    uint32_t control = (maxPacket << 0) | // Packet size
+                       (1 << 15) | // Active endpoint
+                       (type << 18); // Endpoint type
+
+    if (endpoint & 0x1) { // In Endpoint
+        // Set up the Tx FIFO
+        OTG_FS->GREGS.DIEPTXF[epIndex - 1] = ((maxPacket >> 2) << 16) |
+                                             (bufferEnd << 0);
+        bufferEnd += maxPacket >> 2;
+
+        // Set the In EP specific control settings
+        if (endpoint != EP0IN) {
+            control |= (1 << 28); // SD0PID
+        }
+        
+        control |= (epIndex << 22) | // TxFIFO index
+                   (1 << 27); // SNAK
+        OTG_FS->INEP_REGS[epIndex].DIEPCTL = control;
+
+        // Unmask the interrupt
+        OTG_FS->DREGS.DAINTMSK |= (1 << epIndex);
+    }
+    else { // Out endpoint
+        // Set the out EP specific control settings
+        control |= (1 << 26); // CNAK
+        OTG_FS->OUTEP_REGS[epIndex].DOEPCTL = control;
+        
+        // Unmask the interrupt
+        OTG_FS->DREGS.DAINTMSK |= (1 << (epIndex + 16));
     }
     return true;
 }
@@ -141,16 +190,7 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
 }
 
 void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
-    OTG_FS->INEP_REGS[0].DIEPTSIZ = (1 << 19) | // 1 packet
-                                    (size << 0); // Size of packet
-    OTG_FS->INEP_REGS[0].DIEPCTL |= (1 << 31) | // Enable endpoint
-                                    (1 << 26); // CNAK
-
-    while ((OTG_FS->INEP_REGS[0].DTXFSTS & 0XFFFF) < ((size + 3) >> 2));
-
-    for (uint32_t i=0; i<(size + 3) >> 2; i++, buffer+=4) {
-        OTG_FS->FIFO[0][0] = *(uint32_t *)buffer;
-    }
+    endpointWrite(0, buffer, size);
 }
 
 void USBHAL::EP0getWriteResult(void) {
@@ -162,19 +202,58 @@ void USBHAL::EP0stall(void) {
 }
 
 EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+    uint32_t epIndex = endpoint >> 1;
+    OTG_FS->OUTEP_REGS[epIndex].DOEPTSIZ = (1 << 29) | // 1 packet per frame
+                                           (1 << 19) | // 1 packet
+                                           (maximumSize << 0); // Packet size
+    OTG_FS->OUTEP_REGS[epIndex].DOEPCTL |= (1 << 31) | // Enable endpoint
+                                           (1 << 26); // Clear NAK
+
+    epComplete &= ~(1 << endpoint);
     return EP_PENDING;
 }
 
 EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) {
+    if (!(epComplete & (1 << endpoint))) {
+        return EP_PENDING;
+    }
+
+    uint32_t* buffer32 = (uint32_t *) buffer;
+    uint32_t length = rxFifoCount;
+    for (uint32_t i = 0; i < length; i += 4) {
+        buffer32[i >> 2] = OTG_FS->FIFO[endpoint >> 1][0];
+    }
+    rxFifoCount = 0;
+    *bytesRead = length;
     return EP_COMPLETED;
 }
 
 EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) {
-    return EP_COMPLETED;
+    uint32_t epIndex = endpoint >> 1;
+    OTG_FS->INEP_REGS[epIndex].DIEPTSIZ = (1 << 19) | // 1 packet
+                                          (size << 0); // Size of packet
+    OTG_FS->INEP_REGS[epIndex].DIEPCTL |= (1 << 31) | // Enable endpoint
+                                          (1 << 26); // CNAK
+    OTG_FS->DREGS.DIEPEMPMSK = (1 << epIndex);
+
+    while ((OTG_FS->INEP_REGS[epIndex].DTXFSTS & 0XFFFF) < ((size + 3) >> 2));
+
+    for (uint32_t i=0; i<(size + 3) >> 2; i++, data+=4) {
+        OTG_FS->FIFO[epIndex][0] = *(uint32_t *)data;
+    }
+
+    epComplete &= ~(1 << endpoint);
+
+    return EP_PENDING;
 }
 
 EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
-    return EP_COMPLETED;
+    if (epComplete & (1 << endpoint)) {
+        epComplete &= ~(1 << endpoint);
+        return EP_COMPLETED;
+    }
+
+    return EP_PENDING; 
 }
 
 void USBHAL::stallEndpoint(uint8_t endpoint) {
@@ -218,8 +297,7 @@ void USBHAL::usbisr(void) {
                                  (1 << 16); // Out 0 EP Mask
         OTG_FS->DREGS.DOEPMSK = (1 << 0) | // Transfer complete
                                 (1 << 3); // Setup phase done
-
-        OTG_FS->DREGS.DIEPEMPMSK = (1 << 0);
+        OTG_FS->DREGS.DIEPMSK |= (1 << 0);
 
         bufferEnd = 0;
 
@@ -231,18 +309,18 @@ void USBHAL::usbisr(void) {
         bufferEnd += (MAX_PACKET_SIZE_EP0 >> 2);
         OTG_FS->OUTEP_REGS[0].DOEPTSIZ |= (0x3 << 29); // 3 setup packets
 
-        OTG_FS->GREGS.GINTSTS |= (1 << 12);
+        OTG_FS->GREGS.GINTSTS = (1 << 12);
     }
 
     if (OTG_FS->GREGS.GINTSTS & (1 << 13)) { // Enumeration done
         OTG_FS->INEP_REGS[0].DIEPCTL &= ~(0x3 << 0); // 64 byte packet size
-        OTG_FS->GREGS.GINTSTS |= (1 << 13);
+        OTG_FS->GREGS.GINTSTS = (1 << 13);
     }
 
     if (OTG_FS->GREGS.GINTSTS & (1 << 4)) { // RX FIFO not empty
         uint32_t status = OTG_FS->GREGS.GRXSTSP;
 
-        uint32_t endpoint = status & 0xF;
+        uint32_t endpoint = (status & 0xF) << 1;
         uint32_t length = (status >> 4) & 0x7FF;
         uint32_t type = (status >> 17) & 0xF;
 
@@ -263,18 +341,76 @@ void USBHAL::usbisr(void) {
                                              (1 << 26); // CNAK
         }
 
+        if (type == 0x2) {
+            // Out packet
+            if (endpoint == 0) {
+                EP0out();
+            }
+            else {
+                epComplete |= (1 << endpoint);
+                if ((instance->*(epCallback[endpoint - 2]))()) {
+                    epComplete &= (1 << endpoint);
+                }
+            }
+        }
+
         for (uint32_t i=0; i<rxFifoCount; i+=4) {
             (void) OTG_FS->FIFO[0][0];
-        }   
+        }
+        OTG_FS->GREGS.GINTSTS = (1 << 4);
     }
 
     if (OTG_FS->GREGS.GINTSTS & (1 << 18)) { // In endpoint interrupt
-        if (OTG_FS->DREGS.DAINT & (1 << 0)) { // In EP 0
-            if (OTG_FS->INEP_REGS[0].DIEPINT & (1 << 7)) {
-                EP0in();
+        // Loop through the in endpoints
+        for (uint32_t i=0; i<4; i++) {
+            if (OTG_FS->DREGS.DAINT & (1 << i)) { // Interrupt is on endpoint
+
+                // If the Tx FIFO is empty on EP0 we need to send a further
+                // packet, so call EP0in()
+                if (OTG_FS->INEP_REGS[i].DIEPINT & (1 << 7)) {// Tx FIFO empty
+                    // If the Tx FIFO is empty on EP0 we need to send a further
+                    // packet, so call EP0in()
+                    if (i == 0) {
+                        EP0in();
+                    }
+                    // Clear the interrupt
+                    OTG_FS->INEP_REGS[i].DIEPINT = (1 << 7);
+                    // Stop firing Tx empty interrupts
+                    // Will get turned on again if another write is called
+                    OTG_FS->DREGS.DIEPEMPMSK &= ~(1 << i);
+                }
+
+                // If the transfer is complete
+                if (OTG_FS->INEP_REGS[i].DIEPINT & (1 << 0)) { // Tx Complete
+                    epComplete |= (1 << (1 + (i << 1)));
+                    OTG_FS->INEP_REGS[i].DIEPINT = (1 << 0);
+                }
             }
         }
+        OTG_FS->GREGS.GINTSTS = (1 << 18);
     }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 3)) { // Start of frame
+        SOF((OTG_FS->GREGS.GRXSTSR >> 17) & 0xF);
+        OTG_FS->GREGS.GINTSTS = (1 << 3);
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 1)) {
+       OTG_FS->GREGS.GINTSTS = (1 << 1);
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 2)) {
+        OTG_FS->GREGS.GINTSTS = (1 << 2);
+    }
+
+    if (OTG_FS->GREGS.GINTSTS & (1 << 10)) {
+        OTG_FS->GREGS.GINTSTS = (1 << 10);
+    }
+ 
+    if (OTG_FS->GREGS.GINTSTS & (1 << 11)) {
+        OTG_FS->GREGS.GINTSTS = (1 << 11);
+    }
+
 }
 
 
