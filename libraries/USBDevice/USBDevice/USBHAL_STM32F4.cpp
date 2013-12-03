@@ -347,7 +347,7 @@ void USBHAL::usbisr(void) {
 
         if (type == 0x2) {
             // Out packet
-            if (endpoint == 0) {
+            if (endpoint == EP0OUT) {
                 EP0out();
             }
             else {
