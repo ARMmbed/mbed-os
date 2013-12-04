@@ -76,7 +76,7 @@ serial_t stdio_uart;
 
 struct serial_global_data_s {
     gpio_t sw_rts, sw_cts;
-    uint8_t count, initialized, irq_set_flow, irq_set_api;
+    uint8_t count, initialized, rx_irq_set_flow, rx_irq_set_api;
 };
 
 static struct serial_global_data_s uart_data[UART_NUM];
@@ -254,7 +254,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t iir, uint32_t index) {
+static inline void uart_irq(uint32_t iir, uint32_t index, LPC_UART_TypeDef *puart) {
     // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
     switch (iir) {
@@ -263,16 +263,20 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
         default: return;
     }
 
-    if ((RxIrq == irq_type) && (uart_data[index].sw_rts.pin != NC))
+    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) {
         gpio_write(&uart_data[index].sw_rts, 1);
+        // Disable interrupt if it wasn't enabled by other part of the application
+        if (!uart_data[index].rx_irq_set_api)
+            puart->IER &= ~(1 << RxIrq);
+    }
     if (serial_irq_ids[index] != 0)
         irq_handler(serial_irq_ids[index], irq_type);
 }
 
-void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0);}
-void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1);}
-void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2);}
-void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3);}
+void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0, (LPC_UART_TypeDef*)LPC_UART0);}
+void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1, (LPC_UART_TypeDef*)LPC_UART1);}
+void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2, (LPC_UART_TypeDef*)LPC_UART2);}
+void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3, (LPC_UART_TypeDef*)LPC_UART3);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -293,7 +297,7 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
         obj->uart->IER |= 1 << irq;
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-    } else if (uart_data[obj->index].irq_set_api + uart_data[obj->index].irq_set_flow == 0) { // disable
+    } else if ((TxIrq == irq) || (uart_data[obj->index].rx_irq_set_api + uart_data[obj->index].rx_irq_set_flow == 0)) { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         obj->uart->IER &= ~(1 << irq);
@@ -304,13 +308,14 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    uart_data[obj->index].irq_set_api = enable;
+    if (RxIrq == irq)
+        uart_data[obj->index].rx_irq_set_api = enable;
     serial_irq_set_internal(obj, irq, enable);
 }
 
-static void serial_flow_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    uart_data[obj->index].irq_set_flow = enable;
-    serial_irq_set_internal(obj, irq, enable);
+static void serial_flow_irq_set(serial_t *obj, uint32_t enable) {
+    uart_data[obj->index].rx_irq_set_flow = enable;
+    serial_irq_set_internal(obj, RxIrq, enable);
 }
 
 /******************************************************************************
@@ -318,9 +323,12 @@ static void serial_flow_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
-    if (NC != uart_data[obj->index].sw_rts.pin)
+    int data = obj->uart->RBR;
+    if (NC != uart_data[obj->index].sw_rts.pin) {
         gpio_write(&uart_data[obj->index].sw_rts, 0);
-    return obj->uart->RBR;
+        obj->uart->IER |= 1 << RxIrq;
+    }
+    return data;
 }
 
 void serial_putc(serial_t *obj, int c) {
@@ -373,8 +381,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     // First, disable flow control completely
     if (uart1)
         uart1->MCR = uart1->MCR & ~UART_MCR_FLOWCTRL_MASK;
-    serial_flow_irq_set(obj, RxIrq, 0);
     uart_data[index].sw_rts.pin = uart_data[index].sw_cts.pin = NC;
+    serial_flow_irq_set(obj, 0);
     if (FlowControlNone == type)
         return;
     // Check type(s) of flow control to use
@@ -404,7 +412,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             gpio_init(&uart_data[index].sw_rts, rxflow, PIN_OUTPUT);
             gpio_write(&uart_data[index].sw_rts, 0);
             // Enable RX interrupt
-            serial_flow_irq_set(obj, RxIrq, 1);
+            serial_flow_irq_set(obj, 1);
         }
     }
 }
