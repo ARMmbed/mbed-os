@@ -27,7 +27,7 @@
 
 #define DEVICE_SERIAL           1
 
-#define DEVICE_I2C              0
+#define DEVICE_I2C              1
 #define DEVICE_I2CSLAVE         0
 
 #define DEVICE_SPI              1
