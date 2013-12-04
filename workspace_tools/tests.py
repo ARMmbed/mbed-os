@@ -203,6 +203,15 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
     },
+    {
+        "id": "MBED_A22", "description": "Serial echo with RTS/CTS flow control",
+        "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
+        "dependencies": [MBED_LIBRARIES],
+        "automated": "True",
+        "host_test": "echo_flow_control",
+        "mcu": ["LPC1768"],
+        "peripherals": ["extra_serial"]
+    },
 
     # Size benchmarks
     {
@@ -392,7 +401,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
     },	
- 
+
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
