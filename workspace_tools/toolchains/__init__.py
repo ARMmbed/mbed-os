@@ -403,7 +403,7 @@ class mbedToolchain:
                 command.extend(self.cc_extra(base))
             
             self.debug(command)
-            _, stderr, rc = run_cmd(command, dirname(object))
+            _, stderr, rc = run_cmd(self.hook.get_cmdline_compiler(command), dirname(object))
             
             # Parse output for Warnings and Errors
             self.parse_output(stderr)
