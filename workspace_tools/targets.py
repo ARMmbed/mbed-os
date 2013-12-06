@@ -21,7 +21,7 @@ CORE_LABELS = {
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
     "Cortex-M4" : "M4",
-    "Cortex-M4F" : "M4F"
+    "Cortex-M4F" : "M4"
 }
 
 import os
