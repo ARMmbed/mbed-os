@@ -45,12 +45,10 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {NC   , NC   , 0}
 };
 //   {SPI_PSELSS0 , SPI_0, 0x01},
-#define SPIS_MESSAGE_SIZE 4
-volatile uint8_t m_tx_buf[SPIS_MESSAGE_SIZE] = {0,0,0,0};
-volatile uint8_t m_rx_buf[SPIS_MESSAGE_SIZE] = {5,5,5,5};
+#define SPIS_MESSAGE_SIZE 1
+volatile uint8_t m_tx_buf[SPIS_MESSAGE_SIZE] = {0};//{0,0,0,0};
+volatile uint8_t m_rx_buf[SPIS_MESSAGE_SIZE] = {0};//{0,0,0,0};
 
-static inline int ssp_disable(spi_t *obj);
-static inline int ssp_enable(spi_t *obj);
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
     // determine the SPI to use
@@ -203,11 +201,6 @@ static inline int spi_writeable(spi_t *obj) {
 }
 
 
-/*static inline void spi_write(spi_t *obj, int value) {
-    
-    obj->spi->DR = value;
-}*/
-
 static inline int spi_read(spi_t *obj) {
     while (!spi_readable(obj)); //timeout ?
 	obj->spi->EVENTS_READY =0;
@@ -220,12 +213,8 @@ int spi_master_write(spi_t *obj, int value) {
     return spi_read(obj);
 }
 
-static inline int spis_readable(spi_t *obj) {
-}
-
 static inline int spis_writeable(spi_t *obj) {	
 	return (obj->spis->EVENTS_ACQUIRED==1);
-	
 }
 
 int spi_slave_receive(spi_t *obj) {
@@ -238,7 +227,11 @@ int spi_slave_receive(spi_t *obj) {
 
 int spi_slave_read(spi_t *obj) {
 	//&m_rx_buf[0] = obj->spis->RXDPTR;
-	int val = m_rx_buf[3]<<24 | m_rx_buf[2] <<16 | m_rx_buf[1] <<8  | m_rx_buf[0];
+	int val =m_rx_buf[0];// m_rx_buf[3]<<24 | m_rx_buf[2] <<16 | m_rx_buf[1] <<8  | m_rx_buf[0];
+	//m_rx_buf[0] =0;
+	//m_rx_buf[1] =0;
+	//m_rx_buf[2] =0;
+	//m_rx_buf[3] =0;
     return val;//m_rx_buf[3];//obj->spis->RXDPTR;//
 }
 
@@ -247,9 +240,9 @@ void spi_slave_write(spi_t *obj, int value) {
 	while (!spis_writeable(obj)) ;
 	//obj->spis->TXDPTR = value;
 	m_tx_buf[0]= value & 0xFF;
-	m_tx_buf[1]= value & 0xFF00;
-	m_tx_buf[2]= value & 0xFF0000;
-	m_tx_buf[3]= value & 0xFF000000;
+	//m_tx_buf[1]= value & 0xFF00;
+	//m_tx_buf[2]= value & 0xFF0000;
+	//m_tx_buf[3]= value & 0xFF000000;
 	obj->spis->TXDPTR = (uint32_t)m_tx_buf;
 	//obj->spis->RXDPTR = (uint32_t)m_rx_buf;  	
 	obj->spis->TASKS_RELEASE=1;

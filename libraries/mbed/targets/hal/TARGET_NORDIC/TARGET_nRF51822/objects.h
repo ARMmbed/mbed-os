@@ -43,6 +43,10 @@ struct port_s {
     uint32_t mask;
 };
 
+struct pwmout_s {
+    PWMName pwm;
+	PinName pin;
+};
 
 /*
 struct gpio_irq_s {

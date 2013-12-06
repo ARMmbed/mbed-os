@@ -61,7 +61,7 @@ typedef enum {
 	p28=28,
 	p29=29,
 	p30=30,
-	p31=31,	
+//	p31=31,	
 	
 	LED_START = p18,
 	LED_STOP = p19,
@@ -83,10 +83,10 @@ typedef enum {
 	USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
 	
-	SPI_PSELSCK0 = p31,
+	SPI_PSELSCK0 = p25,
 	SPI_PSELMOSI0 = p20,
 	SPI_PSELMISO0 = p22,
-	SPI_PSELSS0 = p30,
+	SPI_PSELSS0 = p24,
 	
 	SPI_PSELSCK1 = p29,
 	SPI_PSELMOSI1 = p21,
