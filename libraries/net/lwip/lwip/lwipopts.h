@@ -48,7 +48,11 @@
 // 32-bit alignment
 #define MEM_ALIGNMENT               4
 
+#if defined(TARGET_LPC4088)
+#define MEM_SIZE                    15360
+#elif
 #define MEM_SIZE                    16362
+#endif
 
 #define PBUF_POOL_SIZE              5
 #define MEMP_NUM_TCP_PCB_LISTEN     4
