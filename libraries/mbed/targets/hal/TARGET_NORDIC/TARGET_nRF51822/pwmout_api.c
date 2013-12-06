@@ -206,23 +206,30 @@ static void ppi_init(uint8_t pwm)
                     | (1 << (channel_number+1));
 }
 
-void changeTimerIRQ(pwmout_t* obj,uint8_t enable)
+void setModulation(pwmout_t* obj,uint8_t toggle,uint8_t high)
 {
-	NRF_TIMER_Type *timer = Timers[obj->pwm/2];
-	if(obj->pwm%2){
-		if(enable){
-			timer->INTENSET |= (TIMER_INTENSET_COMPARE3_Enabled << TIMER_INTENSET_COMPARE3_Pos);
+	if(high){
+		NRF_GPIOTE->CONFIG[obj->pwm] |=((uint32_t)GPIOTE_CONFIG_OUTINIT_High << GPIOTE_CONFIG_OUTINIT_Pos);
+		if(toggle)
+		{
+			NRF_GPIOTE->CONFIG[obj->pwm] |= (GPIOTE_CONFIG_MODE_Task << GPIOTE_CONFIG_MODE_Pos)   |
+										((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos);
 		}
 		else{
-			timer->INTENSET &= ~(TIMER_INTENSET_COMPARE3_Enabled << TIMER_INTENSET_COMPARE3_Pos);
+			NRF_GPIOTE->CONFIG[obj->pwm] &=~((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos);
+			NRF_GPIOTE->CONFIG[obj->pwm] |= ((uint32_t)GPIOTE_CONFIG_POLARITY_LoToHi      << GPIOTE_CONFIG_POLARITY_Pos);
 		}
 	}
 	else{
-		if(enable){
-			timer->INTENSET |= (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
+		NRF_GPIOTE->CONFIG[obj->pwm] &=~((uint32_t)GPIOTE_CONFIG_OUTINIT_High << GPIOTE_CONFIG_OUTINIT_Pos);
+		if(toggle)
+		{
+			NRF_GPIOTE->CONFIG[obj->pwm] |= (GPIOTE_CONFIG_MODE_Task << GPIOTE_CONFIG_MODE_Pos)   |
+										((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos);
 		}
 		else{
-			timer->INTENSET &= ~(TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
+			NRF_GPIOTE->CONFIG[obj->pwm] &=~((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos);
+			NRF_GPIOTE->CONFIG[obj->pwm] |= ((uint32_t)GPIOTE_CONFIG_POLARITY_HiToLo      << GPIOTE_CONFIG_POLARITY_Pos);
 		}
 	}
 }
@@ -279,24 +286,16 @@ void pwmout_write(pwmout_t* obj, float value) {
 	uint16_t oldPulseWidth = ACTUAL_PULSE[obj->pwm];
 	ACTUAL_PULSE[obj->pwm] = PULSE_WIDTH[obj->pwm]  = value* PERIOD[obj->pwm];
 	if(PULSE_WIDTH[obj->pwm]==0){
-		PULSE_WIDTH[obj->pwm]=1;		
-	//	NRF_GPIOTE->CONFIG[obj->pwm] &= ~(((uint32_t)GPIOTE_CONFIG_POLARITY_LoToHi      << GPIOTE_CONFIG_POLARITY_Pos) | 
-	//									((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos));
-	//	NRF_GPIOTE->CONFIG[obj->pwm] |=     ((uint32_t)GPIOTE_CONFIG_POLARITY_HiToLo      << GPIOTE_CONFIG_POLARITY_Pos);
+		PULSE_WIDTH[obj->pwm]=1;
+		setModulation(obj,0,0);	
 	}
 	else if(PULSE_WIDTH[obj->pwm]==PERIOD[obj->pwm]){
 		PULSE_WIDTH[obj->pwm]=PERIOD[obj->pwm]-1;
-		//NRF_GPIOTE->CONFIG[obj->pwm] &= ~(((uint32_t)GPIOTE_CONFIG_POLARITY_HiToLo      << GPIOTE_CONFIG_POLARITY_Pos) | 
-	//									((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos));
-	//	NRF_GPIOTE->CONFIG[obj->pwm] |=     ((uint32_t)GPIOTE_CONFIG_POLARITY_LoToHi      << GPIOTE_CONFIG_POLARITY_Pos);
+		setModulation(obj,0,1);
 	}
 	else if(oldPulseWidth==0 || oldPulseWidth== PERIOD[obj->pwm])
 	{
-		//changeTimerIRQ(obj,1);
-		//NRF_GPIO->OUTSET = (1UL << obj->pin);
-	//	NRF_GPIOTE->CONFIG[obj->pwm] &= ~(((uint32_t)GPIOTE_CONFIG_POLARITY_LoToHi      << GPIOTE_CONFIG_POLARITY_Pos) | 
-	//									((uint32_t)GPIOTE_CONFIG_POLARITY_HiToLo       << GPIOTE_CONFIG_POLARITY_Pos));
-		//NRF_GPIOTE->CONFIG[obj->pwm] |=  ((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos);
+		setModulation(obj,1,oldPulseWidth== PERIOD[obj->pwm]);
 	}	
 	
 }
@@ -325,8 +324,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 	}
 	else{
 		PERIOD[obj->pwm] =periodInTicks;
-	}
-	
+	}	
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -339,13 +337,19 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
 	uint32_t pulseInTicks = us/8;
-	if(pulseInTicks>0){
-		PULSE_WIDTH[obj->pwm] = 1;
+	
+	uint16_t oldPulseWidth = ACTUAL_PULSE[obj->pwm];
+	ACTUAL_PULSE[obj->pwm] = PULSE_WIDTH[obj->pwm]  = pulseInTicks;
+	if(PULSE_WIDTH[obj->pwm]==0){
+		PULSE_WIDTH[obj->pwm]=1;
+		setModulation(obj,0,0);	
 	}
-	else if(pulseInTicks>=PERIOD[obj->pwm]){
-		PULSE_WIDTH[obj->pwm]  = PERIOD[obj->pwm]-1;
+	else if(PULSE_WIDTH[obj->pwm]==PERIOD[obj->pwm]){
+		PULSE_WIDTH[obj->pwm]=PERIOD[obj->pwm]-1;
+		setModulation(obj,0,1);
 	}
-	else{
-		PULSE_WIDTH[obj->pwm]  =pulseInTicks;
-	}
+	else if(oldPulseWidth==0 || oldPulseWidth== PERIOD[obj->pwm])
+	{
+		setModulation(obj,1,oldPulseWidth== PERIOD[obj->pwm]);
+	}	
 }
