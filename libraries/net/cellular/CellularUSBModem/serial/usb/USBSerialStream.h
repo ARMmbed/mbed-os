@@ -36,7 +36,7 @@ This class is not thread-safe, except for the *Abort() methods that can be calle
 class USBSerialStream : public IOStream, IUSBHostSerialListener
 {
 public:
-  enum { CIRCBUF_SIZE = 127 }
+  enum { CIRCBUF_SIZE = 127 };
   USBSerialStream(IUSBHostSerial& serial);
   /*virtual*/ ~USBSerialStream();
 
