@@ -3,8 +3,12 @@
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 
+#ifndef TARGET_NUCLEO_F103RB
 Serial computer(USBTX, USBRX);
- 
+#else
+Serial computer(UART_TX, UART_RX);
+#endif
+
 // This function is called when a character goes into the TX buffer.
 void txCallback() {
     led1 = !led1;

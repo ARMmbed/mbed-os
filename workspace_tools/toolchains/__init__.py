@@ -20,10 +20,11 @@ from shutil import copyfile
 from copy import copy
 from types import ListType
 from inspect import getmro
+from time import time
 
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
 from workspace_tools.patch import patch
-from workspace_tools.settings import BUILD_OPTIONS
+from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 
 import workspace_tools.hooks as hooks
 import re
@@ -150,7 +151,8 @@ class mbedToolchain:
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4"],
+        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
     }
 
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
@@ -184,6 +186,7 @@ class mbedToolchain:
         self.has_config = False
         
         self.build_all = False
+        self.timestamp = time()
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -203,6 +206,11 @@ class mbedToolchain:
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+
+            # Symbols defined by the on-line build.system
+            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
+            if MBED_ORG_USER:
+                self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
         
         return self.symbols
     
@@ -395,7 +403,7 @@ class mbedToolchain:
                 command.extend(self.cc_extra(base))
             
             self.debug(command)
-            _, stderr, rc = run_cmd(command, dirname(object))
+            _, stderr, rc = run_cmd(self.hook.get_cmdline_compiler(command), dirname(object))
             
             # Parse output for Warnings and Errors
             self.parse_output(stderr)

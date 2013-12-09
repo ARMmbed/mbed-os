@@ -33,7 +33,6 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC812', ('uARM',)),
     ('LPC1347', ('ARM',)),
     ('LPC4088', ('ARM', 'GCC_ARM', 'GCC_CR')),
-    ('LPC4088_EA', ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC1114', ('uARM',)),
 )
 
