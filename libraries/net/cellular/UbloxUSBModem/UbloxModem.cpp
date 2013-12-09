@@ -443,6 +443,7 @@ int UbloxUSBModem::init()
     {
       INFO("Using a u-blox LISA-C200 CDMA Modem");
       m_gsm = false;
+      m_onePort = false;
     }
     else
     {

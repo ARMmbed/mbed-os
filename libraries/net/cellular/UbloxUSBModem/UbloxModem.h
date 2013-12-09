@@ -128,8 +128,8 @@ private:
   bool m_ussdInit;        //< Has USSDInterface object (m_ussd) been initialised? true/false
   bool m_linkMonitorInit; //< Has LinkMonitor object (m_linkMonitor) been initialised? true/false
   bool m_atOpen;          //< Is the interface to the ATCommandsInterface open? true/false
-  bool m_onePort;
 protected:
+  bool m_onePort;
   bool m_gsm;
 };
 
