@@ -44,6 +44,15 @@
 #define P2_1    (1 << 5)  // PTC5
 #define P2_2    (1 << 6)  // PTC6
 #define PORT_2  PortC
+
+#elif defined(TARGET_NUCLEO_F103RB)
+#define P1_1    (1 << 6)  // PC_6
+#define P1_2    (1 << 5)  // PC_5
+#define PORT_1  PortC
+
+#define P2_1    (1 << 8)  // PB_8
+#define P2_2    (1 << 9)  // PB_9
+#define PORT_2  PortB
 #endif
 
 #define MASK_1   (P1_1 | P1_2)
