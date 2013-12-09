@@ -40,7 +40,7 @@ UbloxModem::UbloxModem(IOStream* atStream, IOStream* pppStream) :
    m_ussdInit(false),                       // USSDInterface starts un-initialised 
    m_linkMonitorInit(false),                // LinkMonitor subsystem starts un-initialised
    m_atOpen(false),                          // ATCommandsInterface starts in a closed state
-   m_onePort(pppStream != NULL),
+   m_onePort(pppStream == NULL),
    m_gsm(true)
 {
 }
