@@ -175,10 +175,10 @@ class LPC4088(Target):
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-            hook.hook_cmdline_linker(self.cmdline_hook)
+            hook.hook_cmdline_linker(self.link_cmdline_hook)
 
     @staticmethod
-    def cmdline_hook(toolchain, cmdline):
+    def link_cmdline_hook(toolchain, cmdline):
         return cmdline + ["--any_placement=first_fit"]
     
     @staticmethod
