@@ -182,30 +182,21 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  ******************************************************************************/
 
 // not api
-void uart1_irq(void) {
-    USART_TypeDef *usart = (USART_TypeDef *)UART_1;  
-    if (serial_irq_ids[0] != 0) {
-        if (USART_GetITStatus(usart, USART_IT_TXE) != RESET) {
-            irq_handler(serial_irq_ids[0], TxIrq);
+static void uart_irq(USART_TypeDef* usart, int id) {
+    if (serial_irq_ids[id] != 0) {
+        if (USART_GetITStatus(usart, USART_IT_TC) != RESET) {
+            irq_handler(serial_irq_ids[id], TxIrq);
+            USART_ClearITPendingBit(usart, USART_IT_TC);
         }
         if (USART_GetITStatus(usart, USART_IT_RXNE) != RESET) {
-            irq_handler(serial_irq_ids[0], RxIrq);
+            irq_handler(serial_irq_ids[id], RxIrq);
+            USART_ClearITPendingBit(usart, USART_IT_RXNE);
         }
     }
 }
 
-// not api
-void uart2_irq(void) {
-    USART_TypeDef *usart = (USART_TypeDef *)UART_2;  
-    if (serial_irq_ids[1] != 0) {
-        if (USART_GetITStatus(usart, USART_IT_TXE) != RESET) {
-            irq_handler(serial_irq_ids[1], TxIrq);
-        }
-        if (USART_GetITStatus(usart, USART_IT_RXNE) != RESET) {
-            irq_handler(serial_irq_ids[1], RxIrq);
-        }
-    }
-}
+static void uart1_irq(void) {uart_irq((USART_TypeDef*)UART_1, 0);}
+static void uart2_irq(void) {uart_irq((USART_TypeDef*)UART_2, 1);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -233,7 +224,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
             USART_ITConfig(usart, USART_IT_RXNE, ENABLE);
         }
         else { // TxIrq
-            USART_ITConfig(usart, USART_IT_TXE, ENABLE);
+            USART_ITConfig(usart, USART_IT_TC, ENABLE);
         }        
         
         NVIC_SetVector(irq_n, vector);
