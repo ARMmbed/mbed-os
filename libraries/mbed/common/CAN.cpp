@@ -27,8 +27,8 @@ CAN::CAN(PinName rd, PinName td) {
 }
 
 CAN::~CAN() {
-    can_free(&_can);
     can_irq_free(&_can);
+    can_free(&_can);
 }
 
 int CAN::frequency(int f) {

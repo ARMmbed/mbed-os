@@ -81,6 +81,37 @@ typedef enum {
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_0
 
+// Default peripherals
+#define MBED_SPI0         p5, p6, p7
+#define MBED_SPI1         p11, p12, p13, p14
+#define MBED_SPI2         p39, p38, p32, p31
+
+#define MBED_UART3        p9, p10
+#define MBED_UART4        p37, p31
+#define MBED_UARTUSB      USBTX, USBRX
+
+#define MBED_I2C0         p32, p31
+#define MBED_I2C1         p9, p10
+
+#define MBED_CAN1         p9, p10
+#define MBED_CAN2         p34, p33
+
+#define MBED_ANALOGOUT0   p18
+
+#define MBED_ANALOGIN0    p15
+#define MBED_ANALOGIN1    p16
+#define MBED_ANALOGIN2    p17
+#define MBED_ANALOGIN3    p18
+#define MBED_ANALOGIN4    p19
+#define MBED_ANALOGIN5    p20
+
+#define MBED_PWMOUT0      p30
+#define MBED_PWMOUT1      p29
+#define MBED_PWMOUT2      p28
+#define MBED_PWMOUT3      p27
+#define MBED_PWMOUT4      p26
+#define MBED_PWMOUT5      p25
+
 #ifdef __cplusplus
 }
 #endif

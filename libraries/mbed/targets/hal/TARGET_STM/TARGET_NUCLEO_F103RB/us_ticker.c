@@ -33,6 +33,7 @@ void us_ticker_init(void) {
   
     // Time base configuration
     // TIM1 is used as "master", "TIM4" as "slave". TIM4 is clocked by TIM1.
+    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
     TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
@@ -42,6 +43,7 @@ void us_ticker_init(void) {
     TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);  
 
     // Master timer configuration
+    TIM_OCStructInit(&TIM_OCInitStructure);
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Toggle;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse = 0;
@@ -51,7 +53,7 @@ void us_ticker_init(void) {
     TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
     
     // Slave timer configuration
-    TIM_SelectSlaveMode(TIM4, TIM_SlaveMode_Gated);
+    TIM_SelectSlaveMode(TIM4, TIM_SlaveMode_External1);
     TIM_SelectInputTrigger(TIM4, TIM_TS_ITR0);
   
     // Enable timers
@@ -60,10 +62,21 @@ void us_ticker_init(void) {
 }
 
 uint32_t us_ticker_read() {
-    uint32_t counter;
+    uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
-    counter = (uint32_t)((uint32_t)TIM_GetCounter(TIM4) << 16) + (uint32_t)TIM_GetCounter(TIM1);
-    return counter;
+    // A situation might appear when TIM1 overflows right after TIM4 is read and before the
+    // new (overflowed) value of TIM1 is read, which would make the code below consider the
+    // previous (incorrect) value of TIM4 and the new value of TIM1, which would return a
+    // value in the past. Avoid this by computing consecutive values of the timer until they
+    // are properly ordered.
+    counter = counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM4) << 16) + (uint32_t)TIM_GetCounter(TIM1);
+    while (1) {
+        counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM4) << 16) + (uint32_t)TIM_GetCounter(TIM1);
+        if (counter2 > counter)
+            break;
+        counter = counter2;
+    }
+    return counter2;
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp) {

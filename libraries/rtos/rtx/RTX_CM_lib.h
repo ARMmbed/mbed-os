@@ -203,7 +203,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #define INITIAL_SP            (0x10008000UL)
 
 #elif TARGET_LPC11U24
-#define INITIAL_SP            (0x10001000UL)
+#define INITIAL_SP            (0x10002000UL)
 
 #elif TARGET_LPC1114
 #define INITIAL_SP            (0x10001000UL)
@@ -226,8 +226,8 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
 #elif defined(__GNUC__)
-extern unsigned char     __HeapLimit[];
-#define HEAP_START      (__HeapLimit)
+extern unsigned char     __end__[];
+#define HEAP_START      (__end__)
 #endif
 
 void set_main_stack(void) {

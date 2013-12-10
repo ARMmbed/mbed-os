@@ -55,14 +55,12 @@ LIBRARIES = [
         "source_dir": DSP_CMSIS,
         "build_dir": DSP_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT
     },
     {
         "id": "dsp",
         "source_dir": DSP_ABSTRACTION,
         "build_dir": DSP_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, DSP_CMSIS],
-        "supported": CORTEX_ARM_SUPPORT
     },
     
     # Network libraries

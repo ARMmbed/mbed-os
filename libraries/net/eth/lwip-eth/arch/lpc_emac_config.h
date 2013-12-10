@@ -86,7 +86,7 @@ extern "C"
 /** \brief  Defines the number of descriptors used for TX. Must
  *          be a minimum value of 2.
  */
-#define LPC_NUM_BUFF_TXDESCS 3
+#define LPC_NUM_BUFF_TXDESCS (TCP_SND_QUEUELEN + 1)
 
 /** \brief  Set this define to 1 to enable bounce buffers for transmit pbufs
  *          that cannot be sent via the zero-copy method. Some chained pbufs

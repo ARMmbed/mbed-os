@@ -55,7 +55,9 @@ public:
     * @param product_release Your preoduct_release (default: 0x0001)
     *
     */
-    USBSerial(uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001): USBCDC(vendor_id, product_id, product_release), buf(128){ };
+    USBSerial(uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001): USBCDC(vendor_id, product_id, product_release), buf(128){
+        settingsChangedCallback = 0;
+    };
 
 
     /**
@@ -79,6 +81,22 @@ public:
     * @returns the number of bytes available
     */
     uint8_t available(); 
+
+    /** Determine if there is a character available to read
+     *
+     *  @returns
+     *    1 if there is a character available to read,
+     *    0 otherwise
+     */
+    int readable() { return available() ? 1 : 0; }
+    
+    /** Determine if there is space available to write a character
+     *
+     *  @returns
+     *    1 if there is space to write a character,
+     *    0 otherwise
+     */
+    int writeable() { return 1; } // always return 1, for write operation is blocking
     
     /**
     * Write a block of data. 
@@ -110,19 +128,33 @@ public:
      *
      * @param fptr function pointer
      */
-    void attach(void (*fn)(void)) {
-        if(fn != NULL) {
-            rx.attach(fn);
+    void attach(void (*fptr)(void)) {
+        if(fptr != NULL) {
+            rx.attach(fptr);
         }
     }
 
+    /**
+     * Attach a callback to call when serial's settings are changed.
+     *
+     * @param fptr function pointer
+     */
+    void attach(void (*fptr)(int baud, int bits, int parity, int stop)) {
+        settingsChangedCallback = fptr;
+    }
 
 protected:
     virtual bool EP2_OUT_callback();
+    virtual void lineCodingChanged(int baud, int bits, int parity, int stop){
+        if (settingsChangedCallback) {
+            settingsChangedCallback(baud, bits, parity, stop);
+        }
+    }
 
 private:
     FunctionPointer rx;
     CircBuffer<uint8_t> buf;
+    void (*settingsChangedCallback)(int baud, int bits, int parity, int stop);
 };
 
 #endif

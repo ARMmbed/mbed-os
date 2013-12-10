@@ -41,10 +41,12 @@ Wiring:
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
+      * NUCLEO_F103RB: (PC_6 <-> PB_8)
   
   * port_loop (Port(In|Out|InOut)):
       * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
+      * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
   
   * analog_loop (AnalogIn, AnalogOut):
       * LPC1*: (p17   <-> p18 )
@@ -611,7 +613,6 @@ TESTS = [
         "id": "CMSIS_DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "cmsis", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # mbed DSP
@@ -619,7 +620,6 @@ TESTS = [
         "id": "DSP_1", "description": "FIR",
         "source_dir": join(TEST_DIR, "dsp", "mbed", "fir_f32"),
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
     },
     
     # KL25Z

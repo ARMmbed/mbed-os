@@ -22,7 +22,7 @@ from shutil import copytree, rmtree
 from workspace_tools.utils import mkdir
 from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
-
+from workspace_tools.targets import EXPORT_MAP
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
@@ -67,6 +67,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/', tempdir
             report['errormsg'] = "Unsupported toolchain"
         else:
             Exporter = EXPORTERS[ide]
+            target = EXPORT_MAP.get(target, target)
             if target not in Exporter.TARGETS:
                 report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
             else:

@@ -35,7 +35,7 @@ class ARM(mbedToolchain):
         
         if   target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
-        elif target.core == "Cortex-M4":
+        elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
         else:
             cpu = target.core
@@ -58,7 +58,7 @@ class ARM(mbedToolchain):
             '-I%s' % ARM_INC
         ]
         
-        self.asm = [main_cc] + common
+        self.asm = [main_cc] + common + ['-I%s' % ARM_INC]
         if not "analyze" in self.options:
             self.cc = [main_cc] + common + common_c + ["--c99"]
             self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
@@ -77,8 +77,11 @@ class ARM(mbedToolchain):
             if option in tool:
                 tool.remove(option)
     
-    def assemble(self, source, object):
-        self.default_cmd(self.cc + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        # Preprocess first, then assemble
+        tempfile = object + '.E.s'
+        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source])
+        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile]))
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -111,15 +114,15 @@ class ARM(mbedToolchain):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
     
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt", "--any_placement=first_fit"]
+        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
         if mem_map:
             args.extend(["--scatter", mem_map])
         
-        self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
+        self.default_cmd(self.hook.get_cmdline_linker(self.ld + args + objects + libraries + self.sys_libs))
     
     @hook_tool
     def binary(self, elf, bin):
-        self.default_cmd([self.elf2bin, '--bin', '-o', bin, elf])
+        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', '-o', bin, elf]))
 
 
 class ARM_STD(ARM):

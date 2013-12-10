@@ -1,0 +1,5 @@
+--- 
+install: "sudo $TRAVIS_BUILD_DIR/travis/install_dependencies.sh > /dev/null"
+python: 
+  - "2.7"
+script: "python workspace_tools/build_travis.py"

@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
 *    
-* $Date:        15. February 2012  
-* $Revision: 	V1.1.0  
+* $Date:        17. January 2013  
+* $Revision: 	V1.4.1  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_rfft_f32.c    
@@ -11,111 +11,56 @@
 *    
 * Target Processor: Cortex-M4/Cortex-M3/Cortex-M0
 *  
-* Version 1.1.0 2012/02/15 
-*    Updated with more optimizations, bug fixes and minor API changes.  
-*   
-* Version 1.0.10 2011/7/15  
-*    Big Endian support added and Merged M0 and M3/M4 Source code.   
-*    
-* Version 1.0.3 2010/11/29   
-*    Re-organized the CMSIS folders and updated documentation.    
-*     
-* Version 1.0.2 2010/11/11    
-*    Documentation updated.     
-*    
-* Version 1.0.1 2010/10/05     
-*    Production release and review comments incorporated.    
-*    
-* Version 1.0.0 2010/09/20     
-*    Production release and review comments incorporated.    
-*    
-* Version 0.0.7  2010/06/10     
-*    Misra-C changes done    
+* Redistribution and use in source and binary forms, with or without 
+* modification, are permitted provided that the following conditions
+* are met:
+*   - Redistributions of source code must retain the above copyright
+*     notice, this list of conditions and the following disclaimer.
+*   - Redistributions in binary form must reproduce the above copyright
+*     notice, this list of conditions and the following disclaimer in
+*     the documentation and/or other materials provided with the 
+*     distribution.
+*   - Neither the name of ARM LIMITED nor the names of its contributors
+*     may be used to endorse or promote products derived from this
+*     software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.  
 * -------------------------------------------------------------------- */
 
 #include "arm_math.h"
 
-/**    
- * @ingroup groupTransforms    
- */
+extern void arm_radix4_butterfly_f32(
+    float32_t * pSrc,
+    uint16_t fftLen,
+    float32_t * pCoef,
+    uint16_t twidCoefModifier);
+
+extern void arm_radix4_butterfly_inverse_f32(
+    float32_t * pSrc,
+    uint16_t fftLen,
+    float32_t * pCoef,
+    uint16_t twidCoefModifier,
+    float32_t onebyfftLen);
+
+extern void arm_bitreversal_f32(
+    float32_t * pSrc,
+    uint16_t fftSize,
+    uint16_t bitRevFactor,
+    uint16_t * pBitRevTab);
 
 /**    
- * @defgroup RFFT_RIFFT Real FFT Functions    
- *    
- * \par    
- * Complex FFT/IFFT typically assumes complex input and output. However many applications use real valued data in time domain.     
- * Real FFT/IFFT efficiently process real valued sequences with the advantage of requirement of low memory and with less complexity.    
- *    
- * \par    
- * This set of functions implements Real Fast Fourier Transforms(RFFT) and Real Inverse Fast Fourier Transform(RIFFT)    
- * for Q15, Q31, and floating-point data types.      
- *    
- *    
- * \par Algorithm:    
- *    
- * <b>Real Fast Fourier Transform:</b>    
- * \par    
- * Real FFT of N-point is calculated using CFFT of N/2-point and Split RFFT process as shown below figure.    
- * \par    
- * \image html RFFT.gif "Real Fast Fourier Transform"    
- * \par    
- * The RFFT functions operate on blocks of input and output data and each call to the function processes    
- * <code>fftLenR</code> samples through the transform.  <code>pSrc</code>  points to input array containing <code>fftLenR</code> values.    
- * <code>pDst</code>  points to output array containing <code>2*fftLenR</code> values. \n   
- * Input for real FFT is in the order of     
- * <pre>{real[0], real[1], real[2], real[3], ..}</pre>    
- * Output for real FFT is complex and are in the order of    
- * <pre>{real(0), imag(0), real(1), imag(1), ...}</pre>     
- *    
- * <b>Real Inverse Fast Fourier Transform:</b>    
- * \par    
- * Real IFFT of N-point is calculated using Split RIFFT process and CFFT of N/2-point as shown below figure.    
- * \par    
- * \image html RIFFT.gif "Real Inverse Fast Fourier Transform"    
- * \par    
- * The RIFFT functions operate on blocks of input and output data and each call to the function processes    
- * <code>2*fftLenR</code> samples through the transform.  <code>pSrc</code>  points to input array containing <code>2*fftLenR</code> values.    
- * <code>pDst</code>  points to output array containing <code>fftLenR</code> values. \n    
- * Input for real IFFT is complex and are in the order of   
- * <pre>{real(0), imag(0), real(1), imag(1), ...}</pre>   
- *  Output for real IFFT is real and in the order of     
- * <pre>{real[0], real[1], real[2], real[3], ..}</pre>   
- *    
- * \par Lengths supported by the transform:   
- * \par    
- * Real FFT/IFFT supports the lengths [128, 512, 2048], as it internally uses CFFT/CIFFT.    
- *    
- * \par Instance Structure    
- * A separate instance structure must be defined for each Instance but the twiddle factors can be reused.    
- * There are separate instance structure declarations for each of the 3 supported data types.    
- *    
- * \par Initialization Functions    
- * There is also an associated initialization function for each data type.    
- * The initialization function performs the following operations:    
- * - Sets the values of the internal structure fields.    
- * - Initializes twiddle factor tables.   
- * - Initializes CFFT data structure fields.     
- * \par    
- * Use of the initialization function is optional.    
- * However, if the initialization function is used, then the instance structure cannot be placed into a const data section.    
- * To place an instance structure into a const data section, the instance structure must be manually initialized.    
- * Manually initialize the instance structure as follows:    
- * <pre>    
- *arm_rfft_instance_f32 S = {fftLenReal, fftLenBy2, ifftFlagR, bitReverseFlagR, twidCoefRModifier, pTwiddleAReal, pTwiddleBReal, pCfft};    
- *arm_rfft_instance_q31 S = {fftLenReal, fftLenBy2, ifftFlagR, bitReverseFlagR, twidCoefRModifier, pTwiddleAReal, pTwiddleBReal, pCfft};    
- *arm_rfft_instance_q15 S = {fftLenReal, fftLenBy2, ifftFlagR, bitReverseFlagR, twidCoefRModifier, pTwiddleAReal, pTwiddleBReal, pCfft};    
- * </pre>    
- * where <code>fftLenReal</code> length of RFFT/RIFFT; <code>fftLenBy2</code> length of CFFT/CIFFT.     
- * <code>ifftFlagR</code> Flag for selection of RFFT or RIFFT(Set ifftFlagR to calculate RIFFT otherwise calculates RFFT);    
- * <code>bitReverseFlagR</code> Flag for selection of output order(Set bitReverseFlagR to output in normal order otherwise output in bit reversed order);     
- * <code>twidCoefRModifier</code> modifier for twiddle factor table which supports 128, 512, 2048 RFFT lengths with same table;    
- * <code>pTwiddleAReal</code>points to A array of twiddle coefficients; <code>pTwiddleBReal</code>points to B array of twiddle coefficients;    
- * <code>pCfft</code> points to the CFFT Instance structure. The CFFT structure also needs to be initialized, refer to arm_cfft_radix4_f32() for details regarding    
- * static initialization of cfft structure.    
- *    
- * \par Fixed-Point Behavior    
- * Care must be taken when using the fixed-point versions of the RFFT/RIFFT function.    
- * Refer to the function specific documentation below for usage guidelines.    
+ * @ingroup groupTransforms    
  */
 
 /*--------------------------------------------------------------------    
@@ -138,12 +83,14 @@ void arm_split_rifft_f32(
   uint32_t modifier);
 
 /**    
- * @addtogroup RFFT_RIFFT    
+ * @addtogroup RealFFT    
  * @{    
  */
 
 /**    
  * @brief Processing function for the floating-point RFFT/RIFFT.   
+ * @deprecated Do not use this function.  It has been superceded by \ref arm_rfft_fast_f32 and will be removed
+ * in the future.
  * @param[in]  *S    points to an instance of the floating-point RFFT/RIFFT structure.   
  * @param[in]  *pSrc points to the input buffer.   
  * @param[out] *pDst points to the output buffer.   
@@ -204,7 +151,7 @@ void arm_rfft_f32(
 }
 
 /**    
-   * @} end of RFFT_RIFFT group    
+   * @} end of RealFFT group    
    */
 
 /**    

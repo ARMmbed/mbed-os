@@ -20,11 +20,13 @@ CORE_LABELS = {
     "Cortex-M0" : "M0",
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
-    "Cortex-M4" : "M4"
+    "Cortex-M4" : "M4",
+    "Cortex-M4F" : "M4"
 }
 
 import os
 import shutil
+
 
 class Target:
     def __init__(self):
@@ -50,6 +52,7 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
+
 
 class LPC2368(Target):
     def __init__(self):
@@ -139,7 +142,7 @@ class LPC812(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -152,7 +155,7 @@ class LPC810(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['NXP', 'LPC81X', 'LPC81X_COMMON']
+        self.extra_labels = ['NXP', 'LPC81X']
         
         self.supported_toolchains = ["uARM"]
         
@@ -163,21 +166,21 @@ class LPC4088(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC408X']
         
-        self.supported_toolchains = ["ARM", "GCC_CR"]
-
-# Use this target to generate the custom binary image for LPC4088 EA boards
-class LPC4088_EA(LPC4088):
-    def __init__(self):
-        LPC4088.__init__(self)
-
+        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
+    
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
+            hook.hook_cmdline_linker(self.link_cmdline_hook)
 
+    @staticmethod
+    def link_cmdline_hook(toolchain, cmdline):
+        return cmdline + ["--any_placement=first_fit"]
+    
     @staticmethod
     def binary_hook(t_self, elf, binf):
         if not os.path.isdir(binf):
@@ -206,15 +209,16 @@ class LPC4088_EA(LPC4088):
         os.rename(binf + '.temp', binf)
         t_self.debug("Generated custom binary file (internal flash + SPIFI)")
 
+
 class LPC4330_M4(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
 
 
 class LPC4330_M0(Target):
@@ -243,7 +247,7 @@ class STM32F407(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F4XX']
         
@@ -304,15 +308,28 @@ class LPC11C24(Target):
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
+
 class LPC11U35_401(Target):
     def __init__(self):
         Target.__init__(self)
-
+        
         self.core = "Cortex-M0"
-
+        
         self.extra_labels = ['NXP', 'LPC11UXX']
-
+        
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+
+class nRF51822(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ["NORDIC"]
+        
+        self.supported_toolchains = ["ARM"]
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -334,7 +351,7 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    LPC4088_EA()
+    nRF51822()
 ]
 
 # Map each target name to its unique instance
@@ -343,3 +360,6 @@ for t in TARGETS:
     TARGET_MAP[t.name] = t
 
 TARGET_NAMES = TARGET_MAP.keys()
+
+# Some targets with different name have the same exporters
+EXPORT_MAP = {}

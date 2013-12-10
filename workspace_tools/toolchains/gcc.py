@@ -34,6 +34,8 @@ class GCC(mbedToolchain):
         
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
+        elif target.core == "Cortex-M4F":
+            cpu = "cortex-m4"
         else:
             cpu = target.core.lower()
         
@@ -41,7 +43,7 @@ class GCC(mbedToolchain):
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
         
-        if target.core == "Cortex-M4":
+        if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
         
@@ -60,10 +62,9 @@ class GCC(mbedToolchain):
         if "debug-info" in self.options:
             common_flags.append("-g")
 
-        self.asm = [join(tool_path, "arm-none-eabi-as")] + self.cpu
-
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
+        self.asm = [main_cc, "-x", "assembler-with-cpp"] + common_flags
         if not "analyze" in self.options:
             self.cc  = [main_cc, "-std=gnu99"] + common_flags
             self.cppc =[main_cppc, "-std=gnu++98"] + common_flags
@@ -77,8 +78,8 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
     
-    def assemble(self, source, object):
-        self.default_cmd(self.asm + ["-o", object, source])
+    def assemble(self, source, object, includes):
+        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -154,11 +155,11 @@ class GCC(mbedToolchain):
         if self.CIRCULAR_DEPENDENCIES:
             libs.extend(libs)
         
-        self.default_cmd(self.ld + ["-T%s" % mem_map, "-o", output] +
-            objects + ["-L%s" % L for L in lib_dirs] + libs)
+        self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
+            objects + ["-L%s" % L for L in lib_dirs] + libs))
     
     def binary(self, elf, bin):
-        self.default_cmd([self.elf2bin, "-O", "binary", elf, bin])
+        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
 
 
 class GCC_ARM(GCC):
@@ -167,7 +168,7 @@ class GCC_ARM(GCC):
         
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4330"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
         
         self.sys_libs.append("nosys")
