@@ -313,19 +313,19 @@ int UbloxModem::init()
   //Wait for network registration
   do
   {
-	DBG("Waiting for network registration");
-	ret = m_at.execute(cregProcessor.getAtCommand(), &cregProcessor, &result);
-	DBG("Result of command: Err code=%d\n", ret);
-	DBG("ATResult: AT return=%d (code %d)\n", result.result, result.code);
-	if(cregProcessor.getStatus() == CREGProcessor::STATUS_REGISTERING)
-	{
-	  Thread::wait(3000);
-	}
+    DBG("Waiting for network registration");
+    ret = m_at.execute(cregProcessor.getAtCommand(), &cregProcessor, &result);
+    DBG("Result of command: Err code=%d\n", ret);
+    DBG("ATResult: AT return=%d (code %d)\n", result.result, result.code);
+    if(cregProcessor.getStatus() == CREGProcessor::STATUS_REGISTERING)
+    {
+      Thread::wait(3000);
+    }
   } while(cregProcessor.getStatus() == CREGProcessor::STATUS_REGISTERING);
   if(cregProcessor.getStatus() == CREGProcessor::STATUS_FAILED)
   {
-	ERR("Registration denied");
-	return NET_AUTH;
+    ERR("Registration denied");
+    return NET_AUTH;
   }
  
   m_atOpen = true;
@@ -443,7 +443,7 @@ int UbloxUSBModem::init()
     {
       INFO("Using a u-blox LISA-C200 CDMA Modem");
       m_gsm = false;
-      m_onePort = false;
+      m_onePort = true;
     }
     else
     {
@@ -466,6 +466,6 @@ UbloxSerModem::UbloxSerModem() :
    m_Serial(P0_15,P0_16),
    m_atStream(m_Serial)
 {
-    m_Serial.baud(115200);
+  m_Serial.baud(115200);
 }
 
