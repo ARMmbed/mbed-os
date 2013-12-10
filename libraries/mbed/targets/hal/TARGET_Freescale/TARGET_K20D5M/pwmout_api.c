@@ -22,11 +22,11 @@
 static const PinMap PinMap_PWM[] = {
     // LEDs
     {LED_RED  , PWM_3 , 3}, // PTC3, FTM0 CH2
-    {LED_GREEN, PWM_5, 3}, // PTD4, FTM0 CH4
+    {LED_GREEN, PWM_5, 3},  // PTD4, FTM0 CH4
     {LED_BLUE , PWM_9 , 3}, // PTA2 , FTM0 CH7
 
     // Arduino digital pinout
-    {D3,  PWM_5 , 3}, // PTA12, FTM0 CH4
+    {D3,  PWM_5 , 3}, // PTD4, FTM0 CH4
     {D5,  PWM_7 , 3}, // PTA1 , FTM0 CH6
     {D6,  PWM_3 , 3}, // PTC3 , FTM0 CH2
     {D9,  PWM_8 , 4}, // PTD2 , FTM0 CH7
@@ -51,12 +51,18 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
 
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
+    ftm->MODE |= FTM_MODE_WPDIS_MASK; //write protection disabled
+    ftm->CONF |= FTM_CONF_BDMMODE(3);
     ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
+    ftm->PWMLOAD |= FTM_PWMLOAD_LDOK_MASK; //loading updated values enabled
+    //ftm->SYNCONF |= FTM_SYNCONF_SWRSTCNT_MASK;
+    ftm->MODE |= FTM_MODE_INIT_MASK;
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
     obj->MOD = &ftm->MOD;
     obj->CNT = &ftm->CNT;
+    obj->SYNC = &ftm->SYNC;
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -77,6 +83,7 @@ void pwmout_write(pwmout_t* obj, float value) {
 
     *obj->CnV = (uint32_t)((float)(*obj->MOD) * value);
     *obj->CNT = 0;
+    //*obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
 }
 
 float pwmout_read(pwmout_t* obj) {
