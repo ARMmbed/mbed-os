@@ -150,10 +150,17 @@ typedef enum {
   D14         = PB_9,
   D15         = PB_8,
 
+  // Generic signals
   USER_BUTTON = PC_13,
-  UART_TX     = PA_2,
-  UART_RX     = PA_3,
-
+  SERIAL_TX   = PA_2,
+  SERIAL_RX   = PA_3,
+  I2C_SCL     = PB_8,
+  I2C_SDA     = PB_9,
+  SPI_MOSI    = PA_7,
+  SPI_MISO    = PA_6,
+  SPI_SCK     = PA_5,
+  PWM_OUT     = PB_3,
+  
   // mbed mandatory namings
   LED1 = PA_5,
   LED2 = PA_5,
