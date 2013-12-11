@@ -107,6 +107,7 @@ public:
      */
     void send_break();
     
+#if DEVICE_SERIAL_FC
     /** Set the flow control type on the serial port
      *
      *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)     
@@ -114,6 +115,7 @@ public:
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
     void set_flow_control(Flow type, PinName flow1=NC, PinName flow2=NC);
+#endif
 
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
 
