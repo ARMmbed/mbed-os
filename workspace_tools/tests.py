@@ -205,6 +205,20 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
     },
+    {
+        "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
+        "source_dir": join(TEST_DIR, "mbed", "spifi1"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "mcu": ["LPC4088"]
+    },
+    {
+        "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
+        "source_dir": join(TEST_DIR, "mbed", "spifi2"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "mcu": ["LPC4088"]
+    },
 
     # Size benchmarks
     {
@@ -393,7 +407,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
-    },	
+    },
  
     # CMSIS RTOS tests
     {

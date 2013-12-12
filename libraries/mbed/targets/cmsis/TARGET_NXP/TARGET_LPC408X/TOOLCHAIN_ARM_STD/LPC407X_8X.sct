@@ -6,7 +6,9 @@ LR_IROM1 0x00000000 0x00080000  {    ; load region size_region
   ER_IROM1 0x00000000 0x00080000  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
-   .ANY (+RO)
+   *.o (+RO-CODE)                    ; forces all CODE to IFLASH
+   .ANY2 (+RO-DATA)                  ; prioritizes DATA in IFLASH before SPIFI
+   .ANY (+RO)                        ; remaining RO
   }
   RW_IRAM1 0x100000E8 0x0000FF18  {  ; RW data
    .ANY (+RW +ZI)
@@ -21,7 +23,8 @@ LR_IROM1 0x00000000 0x00080000  {    ; load region size_region
 
 LR_IROM2 0x28000000 0x01000000  {
   ER_IROM2 0x28000000 0x01000000  {  ; load address = execution address
-    .ANY (+RO)
+    .ANY1 (+RO-DATA)                 ; all DATA not fitting in IFLASH
+    .ANY (SPIFI_MEM)                 ; DATA tagged as SPIFI_MEM
   }
 }
 
