@@ -175,8 +175,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int timeout;
     int count;
   
-    if (length == 0) return 0;
-
 /*
     // Wait until the bus is not busy anymore
     timeout = LONG_TIMEOUT;
