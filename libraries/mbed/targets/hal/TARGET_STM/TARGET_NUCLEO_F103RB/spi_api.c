@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//==============================================================================
-// STM32F103
-//==============================================================================
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -45,16 +42,33 @@ static const PinMap PinMap_SPI_SCLK[] = {
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 1)}, // Remap
+    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)}, // Generic IO, not real H/W NSS pin
+    //{PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
+    //{PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 1)}, // Remap
     {NC,    NC,    0}
 };
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-
-    SPI_TypeDef *spi;
+static void init_spi(spi_t *obj) {
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     SPI_InitTypeDef SPI_InitStructure;
-  
+
+    SPI_Cmd(spi, DISABLE);
+
+    SPI_InitStructure.SPI_Mode = obj->mode;
+    SPI_InitStructure.SPI_NSS = obj->nss;    
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
+    SPI_InitStructure.SPI_DataSize = obj->bits;
+    SPI_InitStructure.SPI_CPOL = obj->cpol;
+    SPI_InitStructure.SPI_CPHA = obj->cpha;    
+    SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
+    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_Init(spi, &SPI_InitStructure);
+
+    SPI_Cmd(spi, ENABLE);
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
     // Determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -69,9 +83,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == (SPIName)NC) {
         error("SPI pinout mapping failed");
     }
-
-    // Get SPI registers structure address
-    spi = (SPI_TypeDef *)(obj->spi);
     
     // Enable SPI clock
     if (obj->spi == SPI_1) {
@@ -99,22 +110,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Hard;
+        obj->nss = SPI_NSS_Soft;
     }
 
-    // SPI configuration    
-    SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
-    SPI_InitStructure.SPI_DataSize = obj->bits;
-    SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
-    SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;
-    SPI_Init(spi, &SPI_InitStructure);
-
-    SPI_Cmd(spi, ENABLE);    
+    init_spi(obj);
 }
 
 void spi_free(spi_t *obj) {
@@ -122,12 +121,8 @@ void spi_free(spi_t *obj) {
     SPI_I2S_DeInit(spi);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    SPI_InitTypeDef SPI_InitStructure;
-
+void spi_format(spi_t *obj, int bits, int mode, int slave) {  
     // Save new values
-  
     if (bits == 8) {
         obj->bits = SPI_DataSize_8b;
     }
@@ -163,26 +158,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
         obj->nss = SPI_NSS_Hard;      
     }
     
-    SPI_Cmd(spi, DISABLE);
-
-    SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
-    SPI_InitStructure.SPI_DataSize = obj->bits;
-    SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
-    SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;    
-    SPI_Init(spi, &SPI_InitStructure);
-
-    SPI_Cmd(spi, ENABLE);
+    init_spi(obj);
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    SPI_InitTypeDef SPI_InitStructure;
-
     // Get SPI clock frequency
     uint32_t PCLK = SystemCoreClock >> 1;
 
@@ -203,20 +182,7 @@ void spi_frequency(spi_t *obj, int hz) {
     // Save new value
     obj->br_presc = ((baud_rate > 7) ? (7 << 3) : (baud_rate << 3));
  
-    SPI_Cmd(spi, DISABLE);
-    
-    SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
-    SPI_InitStructure.SPI_DataSize = obj->bits;
-    SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
-    SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;    
-    SPI_Init(spi, &SPI_InitStructure);
-
-    SPI_Cmd(spi, ENABLE);
+    init_spi(obj);
 }
 
 static inline int ssp_readable(spi_t *obj) {

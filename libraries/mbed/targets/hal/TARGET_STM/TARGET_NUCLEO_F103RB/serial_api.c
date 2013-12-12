@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//==============================================================================
-// STM32F103
-//==============================================================================  
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
 #include <string.h>
-
-/******************************************************************************
- * INITIALIZATION
- ******************************************************************************/
 
 static const PinMap PinMap_UART_TX[] = {
     {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
@@ -47,11 +40,24 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
-    
-    USART_TypeDef *usart;
+static void init_usart(serial_t *obj) {
+    USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     USART_InitTypeDef USART_InitStructure;
   
+    USART_Cmd(usart, DISABLE);
+
+    USART_InitStructure.USART_BaudRate = obj->baudrate;
+    USART_InitStructure.USART_WordLength = obj->databits;
+    USART_InitStructure.USART_StopBits = obj->stopbits;
+    USART_InitStructure.USART_Parity = obj->parity;
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART_Init(usart, &USART_InitStructure);
+    
+    USART_Cmd(usart, ENABLE);
+}
+
+void serial_init(serial_t *obj, PinName tx, PinName rx) {  
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -62,10 +68,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == (UARTName)NC) {
         error("Serial pinout mapping failed");
     }
-    
-    // Get UART registers structure address
-    usart = (USART_TypeDef *)(obj->uart);
-  
+
     // Enable USART clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); 
@@ -84,15 +87,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->stopbits = USART_StopBits_1;
     obj->parity = USART_Parity_No;    
 
-    USART_InitStructure.USART_BaudRate = obj->baudrate;
-    USART_InitStructure.USART_WordLength = obj->databits;
-    USART_InitStructure.USART_StopBits = obj->stopbits;
-    USART_InitStructure.USART_Parity = obj->parity;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART_Init(usart, &USART_InitStructure);
-    
-    USART_Cmd(usart, ENABLE);
+    init_usart(obj);
 
     // The index is used by irq
     if (obj->uart == UART_1) obj->index = 0;
@@ -111,31 +106,11 @@ void serial_free(serial_t *obj) {
 }
 
 void serial_baud(serial_t *obj, int baudrate) {
-    USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
-    USART_InitTypeDef USART_InitStructure;
-    
-    // Save new value
     obj->baudrate = baudrate;
-
-    USART_Cmd(usart, DISABLE);
-
-    USART_InitStructure.USART_BaudRate = obj->baudrate;
-    USART_InitStructure.USART_WordLength = obj->databits;
-    USART_InitStructure.USART_StopBits = obj->stopbits;
-    USART_InitStructure.USART_Parity = obj->parity;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART_Init(usart, &USART_InitStructure);
-    
-    USART_Cmd(usart, ENABLE);
+    init_usart(obj);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
-    USART_InitTypeDef USART_InitStructure;
-
-    // Save new values
-  
     if (data_bits == 8) {
         obj->databits = USART_WordLength_8b;
     }
@@ -164,17 +139,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         obj->stopbits = USART_StopBits_1;
     }
 
-    USART_Cmd(usart, DISABLE);
-      
-    USART_InitStructure.USART_BaudRate = obj->baudrate;
-    USART_InitStructure.USART_WordLength = obj->databits;
-    USART_InitStructure.USART_StopBits = obj->stopbits;
-    USART_InitStructure.USART_Parity = obj->parity;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART_Init(usart, &USART_InitStructure);
-    
-    USART_Cmd(usart, ENABLE);
+    init_usart(obj);
 }
 
 /******************************************************************************

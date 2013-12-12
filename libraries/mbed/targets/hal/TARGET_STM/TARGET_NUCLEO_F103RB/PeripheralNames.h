@@ -32,8 +32,8 @@ typedef enum {
     UART_2 = (int)USART2_BASE
 } UARTName;
 
-#define STDIO_UART_TX  UART_TX
-#define STDIO_UART_RX  UART_RX
+#define STDIO_UART_TX  PA_2
+#define STDIO_UART_RX  PA_3
 #define STDIO_UART     UART_2
 
 typedef enum {
