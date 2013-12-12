@@ -408,7 +408,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
     },
- 
+    {
+        "id": "MBED_31", "description": "PWM LED test",
+        "source_dir": join(TEST_DIR, "mbed", "pwm_led"),
+        "dependencies": [MBED_LIBRARIES],
+    },
+
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
