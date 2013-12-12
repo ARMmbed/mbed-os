@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//==============================================================================
-// STM32F103
-//==============================================================================  
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
 #include <string.h>
-
-/******************************************************************************
- * INITIALIZATION
- ******************************************************************************/
 
 static const PinMap PinMap_UART_TX[] = {
     {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},

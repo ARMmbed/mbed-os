@@ -88,45 +88,10 @@ typedef enum {
   PC_14 = 0x2E,
   PC_15 = 0x2F,
 
-  PD_0  = 0x30,
-  PD_1  = 0x31,
   PD_2  = 0x32,
-  PD_3  = 0x33,
-  PD_4  = 0x34,
-  PD_5  = 0x35,
-  PD_6  = 0x36,
-  PD_7  = 0x37,
   PD_8  = 0x38,
-  PD_9  = 0x39,
-  PD_10 = 0x3A,
-  PD_11 = 0x3B,
-  PD_12 = 0x3C,
-  PD_13 = 0x3D,
-  PD_14 = 0x3E,
-  PD_15 = 0x3F,
 
-  PE_0  = 0x40,
-  PE_1  = 0x41,
-  PE_2  = 0x42,
-  PE_3  = 0x43,
-  PE_4  = 0x44,
-  PE_5  = 0x45,
-  PE_6  = 0x46,
-  PE_7  = 0x47,
-  PE_8  = 0x48,
-  PE_9  = 0x49,
-  PE_10 = 0x4A,
-  PE_11 = 0x4B,
-  PE_12 = 0x4C,
-  PE_13 = 0x4D,
-  PE_14 = 0x4E,
-  PE_15 = 0x4F,
-
-  //--------------------
-  // NUCLEO_F103RB board
-  //--------------------
-
-  // Arduino connectors
+  // Arduino connector namings
   A0          = PA_0,
   A1          = PA_1,
   A2          = PA_4,
@@ -150,7 +115,11 @@ typedef enum {
   D14         = PB_9,
   D15         = PB_8,
 
-  // Generic signals
+  // Generic signals namings
+  LED1        = PA_5,
+  LED2        = PA_5,
+  LED3        = PA_5,  
+  LED4        = PA_5,  
   USER_BUTTON = PC_13,
   SERIAL_TX   = PA_2,
   SERIAL_RX   = PA_3,
@@ -159,13 +128,8 @@ typedef enum {
   SPI_MOSI    = PA_7,
   SPI_MISO    = PA_6,
   SPI_SCK     = PA_5,
+  SPI_CS      = PB_6,
   PWM_OUT     = PB_3,
-  
-  // mbed mandatory namings
-  LED1 = PA_5,
-  LED2 = PA_5,
-  LED3 = PA_5,  
-  LED4 = PA_5,
   
   // Not connected
   NC = (int)0xFFFFFFFF
