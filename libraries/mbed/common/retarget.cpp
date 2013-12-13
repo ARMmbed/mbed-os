@@ -191,7 +191,7 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     return fhc->close();
 }
 
-#if defined(__ICCARM__)
+#if defined(__ICCARM__) || defined(TOOLCHAIN_GCC_ARM)
 extern "C" size_t    __write (int        fh, const unsigned char *buffer, size_t length) {
 #else
 extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode) {
@@ -201,6 +201,9 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
         for (unsigned int i = 0; i < length; i++) {
+            if (buffer[i] == '\n') {
+                serial_putc(&stdio_uart, '\r');
+            }
             serial_putc(&stdio_uart, buffer[i]);
         }
 #endif
@@ -218,7 +221,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 }
 
-#if defined(__ICCARM__)
+#if defined(__ICCARM__) || defined(TOOLCHAIN_GCC_ARM)
 extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       length) {
 #else
 extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode) {
