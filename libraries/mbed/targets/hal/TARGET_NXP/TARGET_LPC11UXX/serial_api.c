@@ -63,9 +63,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     
     // [TODO] Consider more elegant approach
     // disconnect USBTX/RX mapping mux, for case when switching ports
+#ifdef USBTX
     pin_function(USBTX, 0);
     pin_function(USBRX, 0);
-    
+#endif
+
     // enable fifos and default rx trigger level
     obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
                    | 0 << 1  // Rx Fifo Reset
