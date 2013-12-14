@@ -20,7 +20,7 @@
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
 #define DEVICE_ANALOGOUT        0
@@ -37,13 +37,13 @@
 
 #define DEVICE_PWMOUT           1
 
+#define DEVICE_SLEEP            0
+
 //=======================================
 
 #define DEVICE_SEMIHOST         0
 #define DEVICE_LOCALFILESYSTEM  0
 #define DEVICE_ID_LENGTH       24
-
-#define DEVICE_SLEEP            0
 
 #define DEVICE_DEBUG_AWARENESS  0
 
