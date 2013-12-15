@@ -131,6 +131,13 @@ __isr_vector:
 
     .size    __isr_vector, . - __isr_vector
 
+/* Flash Configuration */
+    .org    0x400, 0xFF
+    .long   0xFFFFFFFF
+    .long   0xFFFFFFFF
+    .long   0xFFFFFFFF
+    .long   0xFFFFFFFE
+
     .section .text.Reset_Handler
     .thumb
     .thumb_func
@@ -221,16 +228,5 @@ Reset_Handler:
 
     .weak   DEF_IRQHandler
     .set    DEF_IRQHandler, Default_Handler
-
-/* Flash protection region, placed at 0x400 */
-    .text
-    .thumb
-    .align 2
-    .section .kinetis_flash_config_field,"a",%progbits
-kinetis_flash_config:
-    .long 0xffffffff
-    .long 0xffffffff
-    .long 0xffffffff
-    .long 0xfffffffe
 
     .end
