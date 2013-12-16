@@ -27,7 +27,7 @@
 
 enum
 {
-  WAN_DONGLE_TYPE_UBLOXC200
+  WAN_DONGLE_TYPE_UBLOX_LISAC200 = 0xC200,
 };
 
 class UbloxCDMAModemInitializer : public WANDongleInitializer
