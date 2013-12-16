@@ -38,12 +38,15 @@ static void handle_interrupt_in(uint32_t channel) {
     {
         EXTI_ClearITPendingBit(exti_line);
     }
-    // Check if it's a rising or a falling event
-    if (EXTI->RTSR & (uint32_t)(1 << channel)) {
-        irq_handler(channel_ids[channel], IRQ_RISE);
+    
+    // Warning:
+    // On this device we don't know if a rising or falling event occured.
+    // In case both rise and fall events are set, only the FALL event will be reported. 
+    if (EXTI->FTSR & (uint32_t)(1 << channel)) {
+        irq_handler(channel_ids[channel], IRQ_FALL);
     }
     else {
-        irq_handler(channel_ids[channel], IRQ_FALL);
+        irq_handler(channel_ids[channel], IRQ_RISE);
     }
 }
 
