@@ -109,6 +109,6 @@ int UbloxCDMAModemInitializer::getSerialPortCount()
 
 /*virtual*/ int UbloxCDMAModemInitializer::getType()
 {
-    return WAN_DONGLE_TYPE_UBLOXC200;
+    return WAN_DONGLE_TYPE_UBLOX_LISAC200;
 }
 

@@ -63,30 +63,33 @@ int ATCommandsInterface::open()
 }
 
 //Initialize AT link & start events processing
-int ATCommandsInterface::init()
+int ATCommandsInterface::init(bool reset /* = true*/)
 {
-  DBG("Sending ATZ E1 V1");
   
   //Lock transaction mutex
   m_transactionMtx.lock();
   
-  //Should we flush m_pStream at this point ???
-  int err;
-  int tries = 5;
-  do
+  if (reset)
   {
-    err = executeInternal("ATZ E1 V1", this, NULL, 3000); //Enable echo and verbosity
-    if(err && tries)
+    DBG("Sending ATZ E1 V1");
+    //Should we flush m_pStream at this point ???
+    int err;
+    int tries = 5;
+    do
     {
-      WARN("No response, trying again");
-      Thread::wait(1000); //Give dongle time to recover
+      err = executeInternal("ATZ E1 V1", this, NULL, 3000); //Enable echo and verbosity
+      if(err && tries)
+      {
+        WARN("No response, trying again");
+        Thread::wait(1000); //Give dongle time to recover
+      }
+    } while(err && tries--);
+    if( err )
+    {
+      ERR("Sending ATZ E1 V1 returned with err code %d", err);
+      m_transactionMtx.unlock();
+      return err;
     }
-  } while(err && tries--);
-  if( err )
-  {
-    ERR("Sending ATZ E1 V1 returned with err code %d", err);
-    m_transactionMtx.unlock();
-    return err;
   }
   
   //Enable events handling and execute events enabling commands

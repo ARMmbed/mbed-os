@@ -50,22 +50,15 @@ extern "C" {
 #include "netif/ppp/ppp.h"
 }
 
-PPPIPInterface::PPPIPInterface(IOStream* pStream, const char* msisdn) : LwIPInterface(), m_linkStatusSphre(1), m_pppErrCode(0), m_pStream(pStream), m_streamAvail(true), m_pppd(-1)
+PPPIPInterface::PPPIPInterface(IOStream* pStream) : LwIPInterface(), m_linkStatusSphre(1), m_pppErrCode(0), m_pStream(pStream), m_streamAvail(true), m_pppd(-1)
 {
-  m_connectCmd = new char[strlen(CONNECT_CMD_PREFIX) + strlen(msisdn) + strlen(CONNECT_CMD_SUFFIX) + 1];
-  sprintf(m_connectCmd, "%s%s%s", CONNECT_CMD_PREFIX, msisdn, CONNECT_CMD_SUFFIX);
-  m_expectedResp = new char[strlen(m_connectCmd) + strlen(EXPECTED_RESP_SUFFIX) + 1];
-  sprintf(m_expectedResp, "%s%s", m_connectCmd, EXPECTED_RESP_SUFFIX);
-  m_expectedRespDatarate = new char[strlen(m_connectCmd) + strlen(EXPECTED_RESP_DATARATE_SUFFIX) + 1];
-  sprintf(m_expectedRespDatarate, "%s%s", m_connectCmd, EXPECTED_RESP_DATARATE_SUFFIX);
   m_linkStatusSphre.wait();
 }
 
+
+
 /*virtual*/ PPPIPInterface::~PPPIPInterface()
 {
-  delete m_connectCmd;
-  delete m_expectedResp;
-  delete m_expectedRespDatarate;
 }
 
 /*virtual*/ int PPPIPInterface::init() //Init PPP-specific stuff, create the right bindings, etc
@@ -78,10 +71,11 @@ PPPIPInterface::PPPIPInterface(IOStream* pStream, const char* msisdn) : LwIPInte
   return OK;
 }
 
-int PPPIPInterface::setup(const char* user, const char* pw)
+int PPPIPInterface::setup(const char* user, const char* pw, const char* msisdn)
 {
   DBG("Configuring PPP authentication method");
   pppSetAuth(PPPAUTHTYPE_ANY, user, pw);
+  m_msisdn = msisdn;
   DBG("Done");
   return OK;
 }
@@ -89,22 +83,22 @@ int PPPIPInterface::setup(const char* user, const char* pw)
 /*virtual*/ int PPPIPInterface::connect()
 {
   int ret;
+  char cmd[32];
+  int cmdLen;
   char buf[32];
   size_t len;
   DBG("Trying to connect with PPP");
   
   cleanupLink();
   
-  DBG("Sending %s", m_connectCmd);
-  
-  ret = m_pStream->write((uint8_t*)m_connectCmd, strlen(m_connectCmd), osWaitForever);
+  cmdLen = sprintf(cmd, "%s%s%s", CONNECT_CMD_PREFIX, m_msisdn, CONNECT_CMD_SUFFIX);
+  DBG("Sending %s", cmd);
+  ret = m_pStream->write((uint8_t*)cmd, cmdLen, osWaitForever);
   if( ret != OK )
   {
     return NET_UNKNOWN;
   }
   
-  DBG("Expect %s", m_expectedResp);
-    
   len = 0;
   size_t readLen;
   ret = m_pStream->read((uint8_t*)buf + len, &readLen, EXPECTED_RESP_MIN_LEN, 10000);
@@ -128,16 +122,21 @@ int PPPIPInterface::setup(const char* user, const char* pw)
   DBG("Got %s[len %d]", buf, len);
   
   int datarate = 0;
-  if( (sscanf(buf, m_expectedRespDatarate, &datarate ) != 1) && (strcmp(m_expectedResp, buf) != 0) )
+  strcpy(&cmd[cmdLen], EXPECTED_RESP_DATARATE_SUFFIX);
+  if( (sscanf(buf, cmd, &datarate ) != 1)) 
   {
-    //Discard buffer
-    do //Clear buf
+    strcpy(&cmd[cmdLen], EXPECTED_RESP_SUFFIX);
+    if (strcmp(cmd, buf) != 0)
     {
-      ret = m_pStream->read((uint8_t*)buf, &len, 32, 0);
-    } while( (ret == OK) && (len > 0) );
-    return NET_CONN;
-  }
-      
+      //Discard buffer
+      do //Clear buf
+      {
+        ret = m_pStream->read((uint8_t*)buf, &len, 32, 0);
+      } while( (ret == OK) && (len > 0) );
+      return NET_CONN;
+    }
+  }    
+  
   DBG("Transport link open");
   if(datarate != 0)
   {

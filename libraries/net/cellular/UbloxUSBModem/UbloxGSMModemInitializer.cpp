@@ -126,6 +126,6 @@ int UbloxGSMModemInitializer::getSerialPortCount()
 
 /*virtual*/ int UbloxGSMModemInitializer::getType()
 {
-  return WAN_DONGLE_TYPE_UBX;
+  return WAN_DONGLE_TYPE_UBLOX_LISAU200;
 }
 
