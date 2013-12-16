@@ -84,7 +84,7 @@ bool USBHostSerial::connect() {
 
 /*virtual*/ bool USBHostSerial::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
-    if ((ports_found < USBHOST_MAXSERIAL) && 
+    if (!ports_found && 
         CHECK_INTERFACE(intf_class, intf_subclass, intf_protocol)) {
         port_intf = intf_nb;
         ports_found = true;
