@@ -234,7 +234,8 @@ typedef enum {
 /* PullDown not available for KL46 */
 typedef enum {
     PullNone = 0,
-    PullUp = 2,
+    PullDown = 2,
+    PullUp = 3
 } PinMode;
 
 #ifdef __cplusplus
