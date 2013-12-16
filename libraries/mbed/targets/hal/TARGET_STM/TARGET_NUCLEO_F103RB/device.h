@@ -33,7 +33,7 @@
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         0
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_PWMOUT           1
 
