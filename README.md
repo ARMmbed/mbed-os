@@ -35,8 +35,9 @@ NXP:
 * LPC11C24 (Cortex-M0)
 
 Freescale:
-* [KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
 * KL05Z (Cortex-M0+)
+* [KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
+* KL46Z (Cortex-M0+)
 
 STMicroelectronics:
 * STM32F407 (Cortex-M4)
