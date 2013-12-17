@@ -33,7 +33,7 @@
 UbloxUSBCDMAModem::UbloxUSBCDMAModem(PinName powerGatingPin /*= NC*/, bool powerGatingOnWhenPinHigh /* = true*/, int serial /* 0 */) : m_dongle(),
 m_stream(m_dongle.getSerial(serial)), 
 m_at(&m_stream),
-m_sms(&m_at), m_ppp(&m_stream, DEFAULT_MSISDN_CDMA),
+m_sms(&m_at), m_ppp(&m_stream),
 m_dongleConnected(false), m_ipInit(false), m_smsInit(false), m_atOpen(false),
 m_powerGatingPin(powerGatingPin), m_powerGatingOnWhenPinHigh(powerGatingOnWhenPinHigh)
 {
@@ -88,7 +88,7 @@ int UbloxUSBCDMAModem::connect(const char* apn, const char* user, const char* pa
     m_ipInit = true;
     m_ppp.init();
   }
-  m_ppp.setup(user, password);
+  m_ppp.setup(user, password, DEFAULT_MSISDN_CDMA);
 
   int ret = init();
   if(ret)
@@ -341,7 +341,7 @@ int UbloxUSBCDMAModem::init()
     return ret;
   }
 
- if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBLOXC200)
+ if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBLOX_LISAC200)
   {
     INFO("Using a UBLOX C200 Dongle");
   }

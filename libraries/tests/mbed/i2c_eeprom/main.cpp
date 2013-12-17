@@ -30,6 +30,8 @@ static const int i2c_delay_us = 0;
 
 #if defined(TARGET_KL25Z)
 I2C i2c(PTE0, PTE1);
+#elif defined(TARGET_NUCLEO_F103RB)
+I2C i2c(I2C_SDA, I2C_SCL);
 #else
 I2C i2c(p28, p27);
 #endif

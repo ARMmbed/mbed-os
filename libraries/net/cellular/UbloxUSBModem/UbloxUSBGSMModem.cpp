@@ -36,7 +36,7 @@ UbloxUSBGSMModem::UbloxUSBGSMModem(PinName powerGatingPin /*= NC*/, bool powerGa
    m_sms(&m_at),                            // Construct SMSInterface with the ATCommandsInterface
    m_ussd(&m_at),                           // Construct USSDInterface with the ATCommandsInterface
    m_linkMonitor(&m_at),                    // Construct LinkMonitor with the ATCommandsInterface
-   m_ppp(&m_pppStream, DEFAULT_MSISDN_GSM), // Construct PPPIPInterface with the PPP serial channel
+   m_ppp(&m_pppStream), 					// Construct PPPIPInterface with the PPP serial channel
    m_dongleConnected(false),                // Dongle is initially not ready for anything
    m_ipInit(false),                         // PPIPInterface connection is initially down
    m_smsInit(false),                        // SMSInterface starts un-initialised
@@ -185,7 +185,7 @@ int UbloxUSBGSMModem::connect(const char* apn, const char* user, const char* pas
     m_ipInit = true;
     m_ppp.init();
   }
-  m_ppp.setup(user, password);
+  m_ppp.setup(user, password, DEFAULT_MSISDN_GSM);
 
   int ret = init();
   if(ret)
@@ -543,7 +543,7 @@ int UbloxUSBGSMModem::init()
     return ret;
   }
 
-  if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBX)
+  if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBLOX_LISAU200)
   {
     INFO("Using a u-blox LISA-U");
   }

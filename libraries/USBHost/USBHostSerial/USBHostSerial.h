@@ -28,12 +28,12 @@
 /** 
  * A class to communicate a USB virtual serial port
  */
-class USBHostSerial : public IUSBEnumerator, public Stream {
+class USBHostSerialPort : public Stream {
 public:
     /**
     * Constructor
     */
-    USBHostSerial();
+    USBHostSerialPort();
 
     enum IrqType {
         RxIrq,
@@ -48,20 +48,9 @@ public:
         Space
     };
 
-    /**
-    * Check if a virtual serial port is connected
-    *
-    * @returns true if a serial device is connected
-    */
-    bool connected();
-    
-    /**
-     * Try to connect a serial device
-     *
-     * @return true if connection was successful
-     */
-    bool connect();
-    
+    void connect(USBHost* _host, USBDeviceConnected * _dev, 
+        uint8_t _serial_intf, USBEndpoint* _bulk_in, USBEndpoint* _bulk_out);
+
     /**
     * Check the number of bytes available.
     *
@@ -111,34 +100,29 @@ public:
     /** Set the transmission format used by the Serial port
      *
      *  @param bits The number of bits in a word (default = 8)
-     *  @param parity The parity used (USBHostSerial::None, USBHostSerial::Odd, USBHostSerial::Even, USBHostSerial::Mark, USBHostSerial::Space; default = USBHostSerial::None)
+     *  @param parity The parity used (USBHostSerialPort::None, USBHostSerialPort::Odd, USBHostSerialPort::Even, USBHostSerialPort::Mark, USBHostSerialPort::Space; default = USBHostSerialPort::None)
      *  @param stop The number of stop bits (1 or 2; default = 1)
      */
-    void format(int bits = 8, Parity parity = USBHostSerial::None, int stop_bits = 1);
-
+    void format(int bits = 8, Parity parity = USBHostSerialPort::None, int stop_bits = 1);
+    virtual int writeBuf(const char* b, int s);
+    virtual int readBuf(char* b, int s);
 
 protected:
-    //From IUSBEnumerator
-    virtual void setVidPid(uint16_t vid, uint16_t pid);
-    virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
-    virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
-
     virtual int _getc();
     virtual int _putc(int c);
     
 private:
     USBHost * host;
     USBDeviceConnected * dev;
+
     USBEndpoint * bulk_in;
     USBEndpoint * bulk_out;
     uint32_t size_bulk_in;
     uint32_t size_bulk_out;
 
-    bool dev_connected;
-
     void init();
 
-    MtxCircBuffer<uint8_t, 64> circ_buf;
+    MtxCircBuffer<uint8_t, 128> circ_buf;
 
     uint8_t buf[64];
 
@@ -156,10 +140,91 @@ private:
     FunctionPointer rx;
     FunctionPointer tx;
 
-    int serial_intf;
-    bool serial_device_found;
-
+    uint8_t serial_intf;
 };
+
+#if (USBHOST_SERIAL <= 1)
+
+class USBHostSerial : public IUSBEnumerator, public USBHostSerialPort 
+{
+public: 
+    USBHostSerial();
+    
+    /**
+     * Try to connect a serial device
+     *
+     * @return true if connection was successful
+     */
+    bool connect();
+    
+    void disconnect();
+
+    /**
+    * Check if a any serial port is connected
+    *
+    * @returns true if a serial device is connected
+    */
+    bool connected();
+  
+protected:
+    USBHost* host;
+    USBDeviceConnected* dev;
+    uint8_t port_intf;
+    int ports_found;
+
+    //From IUSBEnumerator
+    virtual void setVidPid(uint16_t vid, uint16_t pid);
+    virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
+    virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
+    
+private:
+    bool dev_connected;
+};
+
+#else // (USBHOST_SERIAL > 1)
+
+class USBHostMultiSerial : public IUSBEnumerator {
+public: 
+    USBHostMultiSerial();
+    virtual ~USBHostMultiSerial();
+    
+    USBHostSerialPort* getPort(int port) 
+    { 
+        return port < USBHOST_SERIAL ? ports[port] : NULL; 
+    }
+
+    /**
+     * Try to connect a serial device
+     *
+     * @return true if connection was successful
+     */
+    bool connect();
+    
+    void disconnect();
+
+    /**
+    * Check if a any serial port is connected
+    *
+    * @returns true if a serial device is connected
+    */
+    bool connected();
+  
+protected:
+    USBHost* host;
+    USBDeviceConnected* dev;
+    USBHostSerialPort* ports[USBHOST_SERIAL];
+    uint8_t port_intf[USBHOST_SERIAL];
+    int ports_found;
+
+    //From IUSBEnumerator
+    virtual void setVidPid(uint16_t vid, uint16_t pid);
+    virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
+    virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
+    
+private:
+    bool dev_connected;
+};
+#endif // (USBHOST_SERIAL <= 1)
 
 #endif
 

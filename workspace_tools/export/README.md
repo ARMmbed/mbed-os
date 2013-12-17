@@ -74,4 +74,13 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
   </tr>
+  <tr>
+    <td>Freescale KL46Z</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
 </table>

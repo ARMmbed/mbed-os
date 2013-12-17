@@ -21,7 +21,7 @@ CORE_LABELS = {
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
     "Cortex-M4" : "M4",
-    "Cortex-M4F" : "M4F"
+    "Cortex-M4F" : "M4"
 }
 
 import os
@@ -106,7 +106,7 @@ class KL05Z(Target):
         
         self.extra_labels = ['Freescale']
         
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         
         self.is_disk_virtual = True
 
@@ -187,7 +187,7 @@ class LPC4088(Target):
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-    
+
     @staticmethod
     def binary_hook(t_self, elf, binf):
         if not os.path.isdir(binf):
@@ -260,7 +260,18 @@ class STM32F407(Target):
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
-
+        
+class NUCLEO_F103RB(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32F10X', 'STM32F103RB']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+        
 class MBED_MCU(Target):
     def __init__(self):
         Target.__init__(self)
@@ -342,6 +353,7 @@ TARGETS = [
     LPC4088(),
     LPC4330_M4(),
     STM32F407(),
+    NUCLEO_F103RB(),
     MBED_MCU(),
     LPC1347(),
     LPC1114(),
