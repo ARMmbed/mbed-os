@@ -114,7 +114,7 @@ static void lptmr_isr(void) {
     }
 }
 
-void us_ticker_set_interrupt(uint32_t timestamp) {
+void us_ticker_set_interrupt(unsigned int timestamp) {
     int32_t delta = (int32_t)(timestamp - us_ticker_read());
     if (delta <= 0) {
         // This event was in the past:

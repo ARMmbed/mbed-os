@@ -231,10 +231,11 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-/* PullDown not available for KL46 */
+/* Pull modes for input pins */
 typedef enum {
     PullNone = 0,
-    PullUp = 2,
+    PullDown = 2,
+    PullUp = 3
 } PinMode;
 
 #ifdef __cplusplus
