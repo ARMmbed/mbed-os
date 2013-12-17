@@ -33,20 +33,24 @@ using std::sscanf;
 
 LinkMonitor::LinkMonitor(ATCommandsInterface* pIf) : m_pIf(pIf), m_rssi(0), m_registrationState(REGISTRATION_STATE_UNKNOWN), m_bearer(BEARER_UNKNOWN)
 {
-
+  m_gsm = true;
 }
 
-int LinkMonitor::init()
+int LinkMonitor::init(bool gsm)
 {
-  // we need to make sure that we setup the operator selection to be in 'numeric' format.
-  // i.e. it is made up of a network and country code when returned by the modem e.g. Operator = 23415. This allows easy logic parsing for
-  // setting up other network parameters in future.
-  DBG("LinkMonitor::init() being called. This should only happen once: executinging AT+COPS=0,2");  
-  int ret = m_pIf->executeSimple("AT+COPS=0,2", NULL, DEFAULT_TIMEOUT); //Configure to set the operator string to Country Code and mobile network code
-  if(ret != OK)
+  m_gsm = gsm;
+  if (m_gsm)
   {
-    WARN(" NET_PROTOCOL error from sending the AT+COPS command to the modem. ");
-    return NET_PROTOCOL;
+    // we need to make sure that we setup the operator selection to be in 'numeric' format.
+    // i.e. it is made up of a network and country code when returned by the modem e.g. Operator = 23415. This allows easy logic parsing for
+    // setting up other network parameters in future.
+    DBG("LinkMonitor::init() being called. This should only happen once: executinging AT+COPS=0,2");  
+    int ret = m_pIf->executeSimple("AT+COPS=0,2", NULL, DEFAULT_TIMEOUT); //Configure to set the operator string to Country Code and mobile network code
+    if(ret != OK)
+    {
+      WARN(" NET_PROTOCOL error from sending the AT+COPS command to the modem. ");
+      return NET_PROTOCOL;
+    }
   }
   return OK;
 }
@@ -136,7 +140,7 @@ int LinkMonitor::getState(int* pRssi, REGISTRATION_STATE* pRegistrationState, BE
   m_rssi = 0;
   m_registrationState = REGISTRATION_STATE_UNKNOWN;
   m_bearer = BEARER_UNKNOWN;
-  int ret = m_pIf->execute("AT+CREG?;+COPS?;+CSQ", this, NULL, DEFAULT_TIMEOUT); //Configure to get registration info & get it; get signal quality
+  int ret = m_pIf->execute(m_gsm ? "AT+CREG?;+COPS?;+CSQ" : "AT+CREG?;+CSQ", this, NULL, DEFAULT_TIMEOUT); //Configure to get registration info & get it; get signal quality
   if(ret != OK)
   {
     return NET_PROTOCOL;
