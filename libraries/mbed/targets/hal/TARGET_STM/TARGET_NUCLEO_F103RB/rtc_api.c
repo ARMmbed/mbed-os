@@ -24,12 +24,18 @@ void rtc_init(void) {
   
     BKP_DeInit(); // Reset Backup Domain
   
+    // Uncomment these lines if you use the LSE
     // Enable LSE and wait till it's ready
-    RCC_LSEConfig(RCC_LSE_ON);
-    while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {}
+    //RCC_LSEConfig(RCC_LSE_ON);
+    //while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {}     
+    //RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select LSE as RTC Clock Source
       
-    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select LSE as RTC Clock Source
-      
+    // Uncomment these lines if you use the LSI
+    // Enable LSI and wait till it's ready  
+    RCC_LSICmd(ENABLE);
+    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {}
+    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select LSI as RTC Clock Source
+  
     RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
       
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
@@ -37,8 +43,9 @@ void rtc_init(void) {
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
 
     // Set RTC period to 1 sec
-    // RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1)
-    RTC_SetPrescaler(32767);
+    // For LSE: prescaler = RTCCLK/RTC period = 32768Hz/1Hz = 32768
+    // For LSI: prescaler = RTCCLK/RTC period = 40000Hz/1Hz = 40000      
+    RTC_SetPrescaler(39999);
     
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
       
