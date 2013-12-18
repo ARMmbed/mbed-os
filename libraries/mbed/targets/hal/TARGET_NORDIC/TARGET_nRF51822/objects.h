@@ -48,33 +48,21 @@ struct pwmout_s {
 	PinName pin;
 };
 
-/*
-struct gpio_irq_s {
-    uint32_t port;
-    uint32_t pin;
-    uint32_t ch;
+struct i2c_s {
+    NRF_TWI_Type *i2c;
+	PinName sda;
+	PinName scl;
+	int freq;
 };
-
-struct pwmout_s {
-    __IO uint32_t *MOD;
-    __IO uint32_t *CNT;
-    __IO uint32_t *CnV;
-};
-
 
 struct analogin_s {
     ADCName adc;
 };
 
-struct dac_s {
-    DACName dac;
+struct gpio_irq_s {
+    uint32_t ch;
 };
 
-struct i2c_s {
-    I2C_Type *i2c;
-};
-
-*/
 #include "gpio_object.h"
 
 #ifdef __cplusplus
