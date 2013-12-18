@@ -1,2 +1,3 @@
 graft workspace_tools
-include __init__.py LICENSE
+recursive-exclude workspace_tools *.pyc
+include LICENSE
