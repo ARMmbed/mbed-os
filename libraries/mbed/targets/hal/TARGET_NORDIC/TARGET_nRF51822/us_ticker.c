@@ -34,6 +34,12 @@ void TIMER1_IRQHandler(void)
 		US_TICKER_TIMER->CC[1] =0;//US_TICKER_TIMER->CC[1]+ 1;
 
     }
+	if ((US_TICKER_TIMER->EVENTS_COMPARE[0] != 0) && 
+       ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE0_Msk) != 0))
+    {
+		us_ticker_irq_handler();
+    }
+	
 }
 
 void us_ticker_init(void)
