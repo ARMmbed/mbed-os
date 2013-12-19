@@ -27,7 +27,7 @@ import json
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.utils import delete_dir_files
 from workspace_tools.settings import * 

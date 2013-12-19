@@ -21,7 +21,7 @@ import datetime
 from time import time
 
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_project, build_mbed_libs
 from workspace_tools.tests import TEST_MAP, GROUPS
