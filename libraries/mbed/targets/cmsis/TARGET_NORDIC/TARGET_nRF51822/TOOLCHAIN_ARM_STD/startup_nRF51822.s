@@ -100,6 +100,7 @@ NRF_POWER_RAMON_RAMxON_ONMODE_Msk EQU   0xF         ; All RAM blocks on in onmod
 
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
+				IMPORT	EnableSoftDevice
                 IMPORT  SystemInit
                 IMPORT  __main
                 LDR     R0, =NRF_POWER_RAMON_ADDRESS

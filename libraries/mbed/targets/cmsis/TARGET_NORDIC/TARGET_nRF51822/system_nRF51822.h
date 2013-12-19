@@ -35,6 +35,17 @@ extern uint32_t SystemCoreClock;    /*!< System Clock Frequency (Core Clock)  */
 extern void SystemInit (void);
 
 /**
+ * Enable Soft Device
+ *
+ * @param  none
+ * @return none
+ *
+ * @brief  Initializes softdevice with NRF_CLOCK_LFCLKSRC_XTAL_20_PPM
+ */
+extern void EnableSoftDevice (void);
+
+
+/**
  * Update SystemCoreClock variable
  *
  * @param  none

@@ -14,20 +14,9 @@
 #ifndef NRF_H
 #define NRF_H
 
-//#ifndef _WIN32
 
 #include "compiler_abstraction.h"
-
-/* Family selection for main includes. NRF51 must be selected. */
-//#ifdef NRF51
-    #include "nrf51.h"
-    #include "nrf51_bitfields.h"
- //   #include "nrf51_deprecated.h"
-//#else
-//    #error "Device family must be defined. See nrf.h."
-//#endif /* NRF51 */
-
-//#endif /* _WIN32 */
-
+#include "nrf51.h"
+#include "nrf51_bitfields.h"
 #endif /* NRF_H */
 

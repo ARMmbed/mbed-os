@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include "nrf51822.h"
 #include "system_nrf51822.h"
-
+#include "nrf_sdm.h"
 /*lint ++flb "Enter library region" */
 
 
@@ -36,6 +36,13 @@ static bool is_disabled_in_debug_needed(void);
 #elif defined   ( __GNUC__ )
     uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #endif
+
+static void softdevice_assertion_handler(uint32_t pc, uint16_t line_num, const uint8_t * file_name)
+{
+   // UNUSED_PARAMETER(pc);
+   // assert_nrf_callback(line_num, file_name);
+}
+
 
 void SystemCoreClockUpdate(void)
 {
@@ -67,6 +74,10 @@ void SystemInit(void)
     }
 }
 
+void EnableSoftDevice(void)
+{
+	sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, softdevice_assertion_handler);
+}
 
 static bool is_manual_peripheral_setup_needed(void) 
 {
