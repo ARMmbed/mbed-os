@@ -39,9 +39,7 @@ typedef enum {
 
 typedef enum {
     PWM_1 = 0,
-    PWM_2,
-    PWM_3,
-    PWM_4
+    PWM_2
 } PWMName;
 
 typedef enum {

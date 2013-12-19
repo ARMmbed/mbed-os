@@ -18,6 +18,7 @@
 #include "pinmap.h"
 #include "error.h"
 
+#define NO_PWMS		2
 
 static const PinMap PinMap_PWM[] = {
     {p0,  PWM_1, 1},
@@ -54,19 +55,19 @@ static const PinMap PinMap_PWM[] = {
     {NC, NC, 0}
 };
 
-static NRF_TIMER_Type *Timers[2] = {
-    NRF_TIMER2, NRF_TIMER1    
+static NRF_TIMER_Type *Timers[1] = {
+    NRF_TIMER2    
 };
 
-uint8_t PWM_taken[4] = {0,0,0,0};
-uint16_t PERIOD[4] = {2500,2500,2500,2500};//20ms
-uint16_t PULSE_WIDTH[4] ={1,1,1,1};//set to 1 instead of 0
-uint16_t ACTUAL_PULSE[4] = {0,0,0,0};
+uint8_t PWM_taken[NO_PWMS] = {0,0};
+uint16_t PERIOD[NO_PWMS] = {2500,2500};//20ms
+uint16_t PULSE_WIDTH[NO_PWMS] ={1,1};//set to 1 instead of 0
+uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0};
 
 
 /** @brief Function for handling timer 1 peripheral interrupts.
  */
-void TIMER1_IRQHandler(void)
+/*void TIMER1_IRQHandler(void)
 {
     static uint16_t CCVal1=2501;//PERIOD[2] + 1;
 	static uint16_t CCVal2=2501;//PERIOD[3] + 1;
@@ -89,7 +90,7 @@ void TIMER1_IRQHandler(void)
     
         CCVal2 = NRF_TIMER1->CC[3] + PULSE_WIDTH[3];        
     }	
-}
+}*/
 
 /** @brief Function for handling timer 2 peripheral interrupts.
  */
@@ -144,12 +145,12 @@ void timer_init(uint8_t pwmChoice)
 		timer->INTENSET |= (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
 	}
 	
-	if(pwmChoice<2){
+	//if(pwmChoice<2){
 		NVIC_EnableIRQ(TIMER2_IRQn);
-	}
-	else{
-		NVIC_EnableIRQ(TIMER1_IRQn);
-	}
+	//}
+//	else{
+//		NVIC_EnableIRQ(TIMER1_IRQn);
+//	}
 	//__enable_irq();
 	
 	timer->TASKS_START = 0x01;
@@ -194,6 +195,7 @@ void gpiote_init(PinName pin,uint8_t channel_number)
  */
 static void ppi_init(uint8_t pwm)
 {
+//using ppi channels 0-3 (0-7 are available)
 	uint8_t channel_number = 2*pwm;
 	NRF_TIMER_Type *timer = Timers[pwm/2];
 	
@@ -240,7 +242,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (pwm == (PWMName)NC)
         error("PwmOut pin mapping failed");
     if(PWM_taken[(uint8_t)pwm]){
-		for(uint8_t i=1;!pwmOutSuccess && i<4;i++){
+		for(uint8_t i=1;!pwmOutSuccess && i<NO_PWMS;i++){
 			if(!PWM_taken[i]){
 				pwm = (PWMName)i;
 				PWM_taken[i]=1;

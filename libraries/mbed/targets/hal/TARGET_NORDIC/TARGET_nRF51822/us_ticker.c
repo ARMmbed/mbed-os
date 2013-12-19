@@ -18,10 +18,23 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 
-#define US_TICKER_TIMER      NRF_TIMER0
-#define US_TICKER_TIMER_IRQn TIMER0_IRQn
+#define US_TICKER_TIMER      NRF_TIMER1
+#define US_TICKER_TIMER_IRQn TIMER1_IRQn
 
 int us_ticker_inited = 0;
+uint16_t overflow=0;
+void TIMER1_IRQHandler(void)
+{
+	
+    if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
+       ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
+    {
+		US_TICKER_TIMER->EVENTS_COMPARE[1] = 0;
+        overflow++;     
+		US_TICKER_TIMER->CC[1] =0;//US_TICKER_TIMER->CC[1]+ 1;
+
+    }
+}
 
 void us_ticker_init(void)
 {
@@ -38,8 +51,9 @@ void us_ticker_init(void)
     US_TICKER_TIMER->MODE = TIMER_MODE_MODE_Timer;
     
     US_TICKER_TIMER->PRESCALER = 4;
-    US_TICKER_TIMER->BITMODE = TIMER_BITMODE_BITMODE_32Bit; 
-
+    US_TICKER_TIMER->BITMODE = TIMER_BITMODE_BITMODE_16Bit; 
+	US_TICKER_TIMER->CC[1] = 0;
+	US_TICKER_TIMER->INTENSET = TIMER_INTENSET_COMPARE1_Set << TIMER_INTENSET_COMPARE1_Pos;
 	//NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
     
@@ -53,8 +67,8 @@ uint32_t us_ticker_read()
         us_ticker_init();
     }
 		
-    US_TICKER_TIMER->TASKS_CAPTURE[3] = 1;
-    return US_TICKER_TIMER->CC[3];// / 16;
+    US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
+    return ((uint32_t) US_TICKER_TIMER->CC[2] + ((uint32_t)overflow<<16));
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp)
@@ -64,7 +78,7 @@ void us_ticker_set_interrupt(unsigned int timestamp)
         us_ticker_init();
     }
     
-    US_TICKER_TIMER->INTENSET = TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos;
+    US_TICKER_TIMER->INTENSET |= TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos;
     US_TICKER_TIMER->TASKS_CAPTURE[0] = 1;
     US_TICKER_TIMER->CC[0] += timestamp;// * 16;
 }
