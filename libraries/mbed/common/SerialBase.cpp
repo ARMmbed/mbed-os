@@ -94,6 +94,7 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
             break;
             
         case RTSCTS:
+        case Disabled:
             serial_set_flow_control(&_serial, flow_type, flow1, flow2);
             break;
             
