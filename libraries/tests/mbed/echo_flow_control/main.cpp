@@ -1,11 +1,11 @@
 #include "mbed.h"
 
 #if defined(TARGET_LPC1768)
-#define UART_TX             p13
-#define UART_RX             p14
+#define UART_TX             p9
+#define UART_RX             p10
 #define FLOW_CONTROL_RTS    p30
-#define FLOW_CONTROL_CTS    p12
-#define RTS_CHECK_PIN       p15
+#define FLOW_CONTROL_CTS    p29
+#define RTS_CHECK_PIN       p8
 #else
 #error This test is not supported on this target
 #endif
