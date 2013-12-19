@@ -21,25 +21,19 @@
 
 // Only TIM2 and TIM3 can be used (TIM1 and TIM4 are used by the us_ticker)
 static const PinMap PinMap_PWM[] = {
-    // TIM2
-    {PA_2,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH3 OK
-    {PA_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH4 OK
-    // TIM2 remap
-    {PA_15, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2r_CH1 FAIL
-    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2r_CH2 FAIL - ARDUINO D3
-    {PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2r_CH3 OK - ARDUINO D6
-    {PB_11, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2r_CH4 OK
-    // TIM3
-    {PA_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH1 OK
-    {PA_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH2 OK - ARDUINO D11
-    {PB_1,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH4 OK
-    // TIM3 remap
-    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH1 FAIL - ARDUINO D5
-    {PC_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH1 OK
-    {PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH2 OK - ARDUINO D9
-    {PB_5,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH2 FAIL - Bug confirmed in ES
-    {PC_8,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH3 OK
-    {PC_9,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3r_CH4 OK
+    // TIM2 default
+    //{PA_2,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH3 - ARDUINO D1
+    //{PA_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH4 - ARDUINO D0
+    // TIM2 full remap
+    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2fr_CH2 - ARDUINO D3
+    //{PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2fr_CH3 - ARDUINO D6
+    // TIM3 default
+    //{PA_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH1 - ARDUINO D12
+    //{PA_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH2 - ARDUINO D11
+    // TIM3 full remap
+    //{PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3fr_CH2 - ARDUINO D9
+    // TIM3 partial remap
+    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3pr_CH1 - ARDUINO D5
     {NC,    NC,    0}
 };
 
@@ -90,25 +84,29 @@ void pwmout_write(pwmout_t* obj, float value) {
     TIM_OCInitStructure.TIM_Pulse = obj->pulse;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-    if ((obj->pin == PA_6) || (obj->pin == PA_15) || (obj->pin == PB_4) || (obj->pin == PC_6)) { // TIM Channel 1
+    // Configure channel 1
+    if (obj->pin == PB_4) {
         TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
         TIM_OC1Init(tim, &TIM_OCInitStructure);
     }
 
-    if ((obj->pin == PA_7) || (obj->pin == PB_3) || (obj->pin == PB_5) || (obj->pin == PC_7)) { // TIM Channel 2
+    // Configure channel 2
+    if (obj->pin == PB_3) {
         TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
         TIM_OC2Init(tim, &TIM_OCInitStructure);
     }
 
-    if ((obj->pin == PA_2) || (obj->pin == PB_10) || (obj->pin == PC_8)) { // TIM Channel 3
-        TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
-        TIM_OC3Init(tim, &TIM_OCInitStructure);
-    }
+    // Configure channel 3
+    //if (obj->pin == PB_10) {
+    //    TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
+    //    TIM_OC3Init(tim, &TIM_OCInitStructure);
+    //}
 
-    if ((obj->pin == PA_3) || (obj->pin == PB_1) || (obj->pin == PB_11) || (obj->pin == PC_9)) { // TIM Channel 4
-        TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
-        TIM_OC4Init(tim, &TIM_OCInitStructure);
-    }
+    // Configure channel 4
+    //if (obj->pin == PA_3) {
+    //    TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
+    //    TIM_OC4Init(tim, &TIM_OCInitStructure);
+    //}
 }
 
 float pwmout_read(pwmout_t* obj) {

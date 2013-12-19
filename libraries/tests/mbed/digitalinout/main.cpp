@@ -12,6 +12,10 @@ DigitalInOut d2(PTB1);
 DigitalInOut d1(dp1);
 DigitalInOut d2(dp2);
 
+#elif defined(TARGET_NUCLEO_F103RB)
+DigitalInOut d1(PC_6);
+DigitalInOut d2(PB_8);
+
 #else
 DigitalInOut d1(p5);
 DigitalInOut d2(p25);

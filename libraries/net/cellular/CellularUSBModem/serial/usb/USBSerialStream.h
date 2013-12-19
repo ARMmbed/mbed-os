@@ -32,10 +32,11 @@
 /* Input Serial Stream for USB virtual serial ports interfaces
 This class is not thread-safe, except for the *Abort() methods that can be called by any thread/ISR
 */
-#define CIRCBUF_SIZE 127
+
 class USBSerialStream : public IOStream, IUSBHostSerialListener
 {
 public:
+  enum { CIRCBUF_SIZE = 127 };
   USBSerialStream(IUSBHostSerial& serial);
   /*virtual*/ ~USBSerialStream();
 

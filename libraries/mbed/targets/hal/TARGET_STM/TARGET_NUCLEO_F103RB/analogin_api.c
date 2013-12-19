@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//==============================================================================
-// STM32F103
-//============================================================================== 
 #include "analogin_api.h"
 #include "wait_api.h"
 

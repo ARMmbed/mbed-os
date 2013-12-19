@@ -21,7 +21,7 @@ CORE_LABELS = {
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
     "Cortex-M4" : "M4",
-    "Cortex-M4F" : "M4F"
+    "Cortex-M4F" : "M4"
 }
 
 import os
@@ -106,7 +106,7 @@ class KL05Z(Target):
         
         self.extra_labels = ['Freescale']
         
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         
         self.is_disk_virtual = True
 
@@ -175,7 +175,7 @@ class LPC4088(Target):
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-    
+
     @staticmethod
     def binary_hook(t_self, elf, binf):
         if not os.path.isdir(binf):

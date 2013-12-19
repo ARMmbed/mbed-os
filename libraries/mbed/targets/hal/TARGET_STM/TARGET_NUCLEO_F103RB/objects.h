@@ -26,9 +26,9 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
-    uint32_t port;
-    uint32_t pin;
     uint32_t ch;
+    IRQn_Type irq_n;
+    uint32_t event; // 0=none, 1=rise, 2=fall, 3=rise+fall
 };
 
 struct port_s {
@@ -65,7 +65,6 @@ struct spi_s {
 
 struct i2c_s {
     I2CName  i2c;
-    uint32_t clk_speed;
 };
 
 struct pwmout_s {

@@ -18,14 +18,15 @@
 
 // Alternate-function mapping
 static const uint32_t AF_mapping[] = {
-  0,                   // 0 = No AF
-  GPIO_Remap_SPI1,     // 1
-  GPIO_Remap_I2C1,     // 2
-  GPIO_Remap_USART1,   // 3
-  GPIO_Remap_USART2,   // 4
-  GPIO_FullRemap_TIM2, // 5
-  GPIO_FullRemap_TIM3, // 6
-  GPIO_Remap_I2C1      // 7
+  0,                      // 0 = No AF
+  GPIO_Remap_SPI1,        // 1
+  GPIO_Remap_I2C1,        // 2
+  GPIO_Remap_USART1,      // 3
+  GPIO_Remap_USART2,      // 4
+  GPIO_FullRemap_TIM2,    // 5
+  GPIO_FullRemap_TIM3,    // 6
+  GPIO_PartialRemap_TIM3, // 7
+  GPIO_Remap_I2C1         // 8
 };
 
 /**

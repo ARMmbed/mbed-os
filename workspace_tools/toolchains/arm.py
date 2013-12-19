@@ -81,7 +81,7 @@ class ARM(mbedToolchain):
         # Preprocess first, then assemble
         tempfile = object + '.E.s'
         self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source])
-        self.default_cmd(self.asm + ["-o", object, tempfile])
+        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile]))
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -114,15 +114,15 @@ class ARM(mbedToolchain):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
     
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt", "--any_placement=first_fit"]
+        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
         if mem_map:
             args.extend(["--scatter", mem_map])
         
-        self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
+        self.default_cmd(self.hook.get_cmdline_linker(self.ld + args + objects + libraries + self.sys_libs))
     
     @hook_tool
     def binary(self, elf, bin):
-        self.default_cmd([self.elf2bin, '--bin', '-o', bin, elf])
+        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', '-o', bin, elf]))
 
 
 class ARM_STD(ARM):
