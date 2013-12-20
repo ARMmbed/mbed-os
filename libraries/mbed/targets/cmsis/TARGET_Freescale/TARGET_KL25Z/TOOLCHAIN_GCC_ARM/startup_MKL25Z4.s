@@ -150,16 +150,16 @@ Reset_Handler:
     ldr    r3, =__data_end__
 
     subs    r3, r2
-    ble    .flash_to_ram_loop_end
+    ble    .Lflash_to_ram_loop_end
 
     movs    r4, 0
-.flash_to_ram_loop:
+.Lflash_to_ram_loop:
     ldr    r0, [r1,r4]
     str    r0, [r2,r4]
     adds    r4, 4
     cmp    r4, r3
-    blt    .flash_to_ram_loop
-.flash_to_ram_loop_end:
+    blt    .Lflash_to_ram_loop
+.Lflash_to_ram_loop_end:
 
     ldr    r0, =SystemInit
     blx    r0
@@ -189,38 +189,41 @@ Reset_Handler:
     def_default_handler     SysTick_Handler
     def_default_handler     Default_Handler
 
-    def_default_handler     DMA0_IRQHandler
-    def_default_handler     DMA1_IRQHandler
-    def_default_handler     DMA2_IRQHandler
-    def_default_handler     DMA3_IRQHandler
-    def_default_handler     FTFA_IRQHandler
-    def_default_handler     LVD_LVW_IRQHandler
-    def_default_handler     LLW_IRQHandler
-    def_default_handler     I2C0_IRQHandler
-    def_default_handler     I2C1_IRQHandler
-    def_default_handler     SPI0_IRQHandler
-    def_default_handler     SPI1_IRQHandler
-    def_default_handler     UART0_IRQHandler
-    def_default_handler     UART1_IRQHandler
-    def_default_handler     UART2_IRQHandler
-    def_default_handler     ADC0_IRQHandler
-    def_default_handler     CMP0_IRQHandler
-    def_default_handler     TPM0_IRQHandler
-    def_default_handler     TPM1_IRQHandler
-    def_default_handler     TPM2_IRQHandler
-    def_default_handler     RTC_IRQHandler
-    def_default_handler     RTC_Seconds_IRQHandler
-    def_default_handler     PIT_IRQHandler
-    def_default_handler     USB0_IRQHandler
-    def_default_handler     DAC0_IRQHandler
-    def_default_handler     TSI0_IRQHandler
-    def_default_handler     MCG_IRQHandler
-    def_default_handler     LPTimer_IRQHandler
-    def_default_handler     PORTA_IRQHandler
-    def_default_handler     PORTD_IRQHandler
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
 
-    .weak   DEF_IRQHandler
-    .set    DEF_IRQHandler, Default_Handler
+    def_irq_default_handler     DMA0_IRQHandler
+    def_irq_default_handler     DMA1_IRQHandler
+    def_irq_default_handler     DMA2_IRQHandler
+    def_irq_default_handler     DMA3_IRQHandler
+    def_irq_default_handler     FTFA_IRQHandler
+    def_irq_default_handler     LVD_LVW_IRQHandler
+    def_irq_default_handler     LLW_IRQHandler
+    def_irq_default_handler     I2C0_IRQHandler
+    def_irq_default_handler     I2C1_IRQHandler
+    def_irq_default_handler     SPI0_IRQHandler
+    def_irq_default_handler     SPI1_IRQHandler
+    def_irq_default_handler     UART0_IRQHandler
+    def_irq_default_handler     UART1_IRQHandler
+    def_irq_default_handler     UART2_IRQHandler
+    def_irq_default_handler     ADC0_IRQHandler
+    def_irq_default_handler     CMP0_IRQHandler
+    def_irq_default_handler     TPM0_IRQHandler
+    def_irq_default_handler     TPM1_IRQHandler
+    def_irq_default_handler     TPM2_IRQHandler
+    def_irq_default_handler     RTC_IRQHandler
+    def_irq_default_handler     RTC_Seconds_IRQHandler
+    def_irq_default_handler     PIT_IRQHandler
+    def_irq_default_handler     USB0_IRQHandler
+    def_irq_default_handler     DAC0_IRQHandler
+    def_irq_default_handler     TSI0_IRQHandler
+    def_irq_default_handler     MCG_IRQHandler
+    def_irq_default_handler     LPTimer_IRQHandler
+    def_irq_default_handler     PORTA_IRQHandler
+    def_irq_default_handler     PORTD_IRQHandler
+    def_irq_default_handler     DEF_IRQHandler
 
 /* Flash protection region, placed at 0x400 */
     .text

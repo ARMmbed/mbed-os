@@ -135,12 +135,12 @@ Reset_Handler:
     ldr    r2, =__data_start__
     ldr    r3, =__data_end__
 
-.flash_to_ram_loop:
+.Lflash_to_ram_loop:
     cmp     r2, r3
     ittt    lt
     ldrlt   r0, [r1], #4
     strlt   r0, [r2], #4
-    blt    .flash_to_ram_loop
+    blt    .Lflash_to_ram_loop
 
     ldr    r0, =SystemInit
     blx    r0
@@ -149,6 +149,7 @@ Reset_Handler:
     .pool
     .size Reset_Handler, . - Reset_Handler
     
+    .text
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
@@ -161,7 +162,7 @@ Reset_Handler:
     b    .
     .size    \handler_name, . - \handler_name
     .endm
-    
+
     def_default_handler    NMI_Handler
     def_default_handler    HardFault_Handler
     def_default_handler    MemManage_Handler
@@ -173,37 +174,40 @@ Reset_Handler:
     def_default_handler    SysTick_Handler
     def_default_handler    Default_Handler
 
-    def_default_handler    PIN_INT0_Handler
-    def_default_handler    PIN_INT1_Handler
-    def_default_handler    PIN_INT2_Handler
-    def_default_handler    PIN_INT3_Handler
-    def_default_handler    PIN_INT4_Handler
-    def_default_handler    PIN_INT5_Handler
-    def_default_handler    PIN_INT6_Handler
-    def_default_handler    PIN_INT7_Handler
-    def_default_handler    GINT0_Handler
-    def_default_handler    GINT1_Handler
-    def_default_handler    OSTIMER_Handler
-    def_default_handler    SSP1_Handler
-    def_default_handler    I2C_Handler
-    def_default_handler    CT16B0_Handler
-    def_default_handler    CT16B1_Handler
-    def_default_handler    CT32B0_Handler
-    def_default_handler    CT32B1_Handler
-    def_default_handler    SSP0_Handler
-    def_default_handler    USART_Handler
-    def_default_handler    USB_Handler
-    def_default_handler    USB_FIQHandler
-    def_default_handler    ADC_Handler
-    def_default_handler    WDT_Handler
-    def_default_handler    BOD_Handler
-    def_default_handler    FMC_Handler
-    def_default_handler    OSCFAIL_Handler
-    def_default_handler    PVTCIRCUIT_Handler
-    def_default_handler    USBWakeup_Handler
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
 
-    .weak    DEF_IRQHandler
-    .set    DEF_IRQHandler, Default_Handler
+    def_irq_default_handler    PIN_INT0_Handler
+    def_irq_default_handler    PIN_INT1_Handler
+    def_irq_default_handler    PIN_INT2_Handler
+    def_irq_default_handler    PIN_INT3_Handler
+    def_irq_default_handler    PIN_INT4_Handler
+    def_irq_default_handler    PIN_INT5_Handler
+    def_irq_default_handler    PIN_INT6_Handler
+    def_irq_default_handler    PIN_INT7_Handler
+    def_irq_default_handler    GINT0_Handler
+    def_irq_default_handler    GINT1_Handler
+    def_irq_default_handler    OSTIMER_Handler
+    def_irq_default_handler    SSP1_Handler
+    def_irq_default_handler    I2C_Handler
+    def_irq_default_handler    CT16B0_Handler
+    def_irq_default_handler    CT16B1_Handler
+    def_irq_default_handler    CT32B0_Handler
+    def_irq_default_handler    CT32B1_Handler
+    def_irq_default_handler    SSP0_Handler
+    def_irq_default_handler    USART_Handler
+    def_irq_default_handler    USB_Handler
+    def_irq_default_handler    USB_FIQHandler
+    def_irq_default_handler    ADC_Handler
+    def_irq_default_handler    WDT_Handler
+    def_irq_default_handler    BOD_Handler
+    def_irq_default_handler    FMC_Handler
+    def_irq_default_handler    OSCFAIL_Handler
+    def_irq_default_handler    PVTCIRCUIT_Handler
+    def_irq_default_handler    USBWakeup_Handler
+    def_irq_default_handler    DEF_IRQHandler
 
     .end
 
