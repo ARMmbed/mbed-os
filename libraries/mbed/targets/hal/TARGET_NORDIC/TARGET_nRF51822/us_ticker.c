@@ -22,24 +22,25 @@
 #define US_TICKER_TIMER_IRQn TIMER1_IRQn
 
 int us_ticker_inited = 0;
-uint16_t overflow=0;
+volatile uint16_t overflow=0; //overflow value that forms the upper 16 bits of the counter
+volatile uint32_t overflowShifted=0; //reduces number of times the overflow is shifted
 void TIMER1_IRQHandler(void)
 {
-	
     if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
        ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
     {
 		US_TICKER_TIMER->EVENTS_COMPARE[1] = 0;
-        overflow++;     
-		US_TICKER_TIMER->CC[1] =0;//US_TICKER_TIMER->CC[1]+ 1;
+		overflow++;    
+		overflowShifted = ((uint32_t)overflow<<16);
+        US_TICKER_TIMER->CC[1] =0;//US_TICKER_TIMER->CC[1]+ 1;
 
     }
 	if ((US_TICKER_TIMER->EVENTS_COMPARE[0] != 0) && 
-       ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE0_Msk) != 0))
+    ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE0_Msk) != 0))
     {
-		us_ticker_irq_handler();
+        us_ticker_irq_handler();
     }
-	
+        
 }
 
 void us_ticker_init(void)
@@ -60,7 +61,7 @@ void us_ticker_init(void)
     US_TICKER_TIMER->BITMODE = TIMER_BITMODE_BITMODE_16Bit; 
 	US_TICKER_TIMER->CC[1] = 0;
 	US_TICKER_TIMER->INTENSET = TIMER_INTENSET_COMPARE1_Set << TIMER_INTENSET_COMPARE1_Pos;
-	//NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
+
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
     
     US_TICKER_TIMER->TASKS_START = 0x01;
@@ -72,9 +73,16 @@ uint32_t us_ticker_read()
     {
         us_ticker_init();
     }
-		
+    uint32_t bufferedOverFlow   =         overflowShifted;
+	
     US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
-    return ((uint32_t) US_TICKER_TIMER->CC[2] + ((uint32_t)overflow<<16));
+	__NOP(); //essential to register the capture
+	if(overflowShifted!=bufferedOverFlow){
+		bufferedOverFlow   =         overflowShifted;
+		US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
+	}
+		
+    return (bufferedOverFlow | US_TICKER_TIMER->CC[2]);
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp)
@@ -85,7 +93,7 @@ void us_ticker_set_interrupt(unsigned int timestamp)
     }
     
     US_TICKER_TIMER->INTENSET |= TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos;
-    US_TICKER_TIMER->TASKS_CAPTURE[0] = 1;
+    US_TICKER_TIMER->TASKS_CAPTURE[0] = 1;	
     US_TICKER_TIMER->CC[0] += timestamp;// * 16;
 }
 
