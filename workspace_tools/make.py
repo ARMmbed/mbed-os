@@ -25,7 +25,7 @@ from time import sleep
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_project

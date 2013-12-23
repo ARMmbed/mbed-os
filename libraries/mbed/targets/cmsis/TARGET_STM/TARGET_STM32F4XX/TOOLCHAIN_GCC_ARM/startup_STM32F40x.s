@@ -196,27 +196,6 @@ Reset_Handler:
     strlt   r0, [r2], #4
     blt    .LC0
 
-/*     This part of work usually is done in C library startup code. Otherwise,
- *     define this macro to enable it in this startup.
- *
- *     Loop to zero out BSS section, which uses following symbols
- *     in linker script:
- *      __bss_start__: start of BSS section. Must align to 4
- *      __bss_end__: end of BSS section. Must align to 4
- *
- *      Question - Why is this not in the mbed version?
- */
-    ldr r1, =__bss_start__
-    ldr r2, =__bss_end__
-
-    movs    r0, 0
-.LC2:
-    cmp     r1, r2
-    itt    lt
-    strlt   r0, [r1], #4
-    blt    .LC2
-# End clearing the BSS section
-
     ldr    r0, =SystemInit
     blx    r0
     ldr    r0, =_start
@@ -224,6 +203,7 @@ Reset_Handler:
     .pool
     .size Reset_Handler, . - Reset_Handler
 
+    .text
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
@@ -248,91 +228,93 @@ Reset_Handler:
     def_default_handler    SysTick_Handler
     def_default_handler    Default_Handler
 
-    def_default_handler     WWDG_IRQHandler
-    def_default_handler     PVD_IRQHandler
-    def_default_handler     TAMP_STAMP_IRQHandler
-    def_default_handler     RTC_WKUP_IRQHandler
-    def_default_handler     FLASH_IRQHandler
-    def_default_handler     RCC_IRQHandler
-    def_default_handler     EXTI0_IRQHandler
-    def_default_handler     EXTI1_IRQHandler
-    def_default_handler     EXTI2_IRQHandler
-    def_default_handler     EXTI3_IRQHandler
-    def_default_handler     EXTI4_IRQHandler
-    def_default_handler     DMA1_Stream0_IRQHandler
-    def_default_handler     DMA1_Stream1_IRQHandler
-    def_default_handler     DMA1_Stream2_IRQHandler
-    def_default_handler     DMA1_Stream3_IRQHandler
-    def_default_handler     DMA1_Stream4_IRQHandler
-    def_default_handler     DMA1_Stream5_IRQHandler
-    def_default_handler     DMA1_Stream6_IRQHandler
-    def_default_handler     ADC_IRQHandler
-    def_default_handler     CAN1_TX_IRQHandler
-    def_default_handler     CAN1_RX0_IRQHandler
-    def_default_handler     CAN1_RX1_IRQHandler
-    def_default_handler     CAN1_SCE_IRQHandler
-    def_default_handler     EXTI9_5_IRQHandler
-    def_default_handler     TIM1_BRK_TIM9_IRQHandler
-    def_default_handler     TIM1_UP_TIM10_IRQHandler
-    def_default_handler     TIM1_TRG_COM_TIM11_IRQHandler
-    def_default_handler     TIM1_CC_IRQHandler
-    def_default_handler     TIM2_IRQHandler
-    def_default_handler     TIM3_IRQHandler
-    def_default_handler     TIM4_IRQHandler
-    def_default_handler     I2C1_EV_IRQHandler
-    def_default_handler     I2C1_ER_IRQHandler
-    def_default_handler     I2C2_EV_IRQHandler
-    def_default_handler     I2C2_ER_IRQHandler
-    def_default_handler     SPI1_IRQHandler
-    def_default_handler     SPI2_IRQHandler
-    def_default_handler     USART1_IRQHandler
-    def_default_handler     USART2_IRQHandler
-    def_default_handler     USART3_IRQHandler
-    def_default_handler     EXTI15_10_IRQHandler
-    def_default_handler     RTC_Alarm_IRQHandler
-    def_default_handler     OTG_FS_WKUP_IRQHandler
-    def_default_handler     TIM8_BRK_TIM12_IRQHandler
-    def_default_handler     TIM8_UP_TIM13_IRQHandler
-    def_default_handler     TIM8_TRG_COM_TIM14_IRQHandler
-    def_default_handler     TIM8_CC_IRQHandler
-    def_default_handler     DMA1_Stream7_IRQHandler
-    def_default_handler     FSMC_IRQHandler
-    def_default_handler     SDIO_IRQHandler
-    def_default_handler     TIM5_IRQHandler
-    def_default_handler     SPI3_IRQHandler
-    def_default_handler     UART4_IRQHandler
-    def_default_handler     UART5_IRQHandler
-    def_default_handler     TIM6_DAC_IRQHandler
-    def_default_handler     TIM7_IRQHandler
-    def_default_handler     DMA2_Stream0_IRQHandler
-    def_default_handler     DMA2_Stream1_IRQHandler
-    def_default_handler     DMA2_Stream2_IRQHandler
-    def_default_handler     DMA2_Stream3_IRQHandler
-    def_default_handler     DMA2_Stream4_IRQHandler
-    def_default_handler     ETH_IRQHandler
-    def_default_handler     ETH_WKUP_IRQHandler
-    def_default_handler     CAN2_TX_IRQHandler
-    def_default_handler     CAN2_RX0_IRQHandler
-    def_default_handler     CAN2_RX1_IRQHandler
-    def_default_handler     CAN2_SCE_IRQHandler
-    def_default_handler     OTG_FS_IRQHandler
-    def_default_handler     DMA2_Stream5_IRQHandler
-    def_default_handler     DMA2_Stream6_IRQHandler
-    def_default_handler     DMA2_Stream7_IRQHandler
-    def_default_handler     USART6_IRQHandler
-    def_default_handler     I2C3_EV_IRQHandler
-    def_default_handler     I2C3_ER_IRQHandler
-    def_default_handler     OTG_HS_EP1_OUT_IRQHandler
-    def_default_handler     OTG_HS_EP1_IN_IRQHandler
-    def_default_handler     OTG_HS_WKUP_IRQHandler
-    def_default_handler     OTG_HS_IRQHandler
-    def_default_handler     DCMI_IRQHandler
-    def_default_handler     CRYP_IRQHandler
-    def_default_handler     HASH_RNG_IRQHandler
-    def_default_handler     FPU_IRQHandler
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
 
-
-    .weak    DEF_IRQHandler
-    .set    DEF_IRQHandler, Default_Handler
+    def_irq_default_handler     WWDG_IRQHandler
+    def_irq_default_handler     PVD_IRQHandler
+    def_irq_default_handler     TAMP_STAMP_IRQHandler
+    def_irq_default_handler     RTC_WKUP_IRQHandler
+    def_irq_default_handler     FLASH_IRQHandler
+    def_irq_default_handler     RCC_IRQHandler
+    def_irq_default_handler     EXTI0_IRQHandler
+    def_irq_default_handler     EXTI1_IRQHandler
+    def_irq_default_handler     EXTI2_IRQHandler
+    def_irq_default_handler     EXTI3_IRQHandler
+    def_irq_default_handler     EXTI4_IRQHandler
+    def_irq_default_handler     DMA1_Stream0_IRQHandler
+    def_irq_default_handler     DMA1_Stream1_IRQHandler
+    def_irq_default_handler     DMA1_Stream2_IRQHandler
+    def_irq_default_handler     DMA1_Stream3_IRQHandler
+    def_irq_default_handler     DMA1_Stream4_IRQHandler
+    def_irq_default_handler     DMA1_Stream5_IRQHandler
+    def_irq_default_handler     DMA1_Stream6_IRQHandler
+    def_irq_default_handler     ADC_IRQHandler
+    def_irq_default_handler     CAN1_TX_IRQHandler
+    def_irq_default_handler     CAN1_RX0_IRQHandler
+    def_irq_default_handler     CAN1_RX1_IRQHandler
+    def_irq_default_handler     CAN1_SCE_IRQHandler
+    def_irq_default_handler     EXTI9_5_IRQHandler
+    def_irq_default_handler     TIM1_BRK_TIM9_IRQHandler
+    def_irq_default_handler     TIM1_UP_TIM10_IRQHandler
+    def_irq_default_handler     TIM1_TRG_COM_TIM11_IRQHandler
+    def_irq_default_handler     TIM1_CC_IRQHandler
+    def_irq_default_handler     TIM2_IRQHandler
+    def_irq_default_handler     TIM3_IRQHandler
+    def_irq_default_handler     TIM4_IRQHandler
+    def_irq_default_handler     I2C1_EV_IRQHandler
+    def_irq_default_handler     I2C1_ER_IRQHandler
+    def_irq_default_handler     I2C2_EV_IRQHandler
+    def_irq_default_handler     I2C2_ER_IRQHandler
+    def_irq_default_handler     SPI1_IRQHandler
+    def_irq_default_handler     SPI2_IRQHandler
+    def_irq_default_handler     USART1_IRQHandler
+    def_irq_default_handler     USART2_IRQHandler
+    def_irq_default_handler     USART3_IRQHandler
+    def_irq_default_handler     EXTI15_10_IRQHandler
+    def_irq_default_handler     RTC_Alarm_IRQHandler
+    def_irq_default_handler     OTG_FS_WKUP_IRQHandler
+    def_irq_default_handler     TIM8_BRK_TIM12_IRQHandler
+    def_irq_default_handler     TIM8_UP_TIM13_IRQHandler
+    def_irq_default_handler     TIM8_TRG_COM_TIM14_IRQHandler
+    def_irq_default_handler     TIM8_CC_IRQHandler
+    def_irq_default_handler     DMA1_Stream7_IRQHandler
+    def_irq_default_handler     FSMC_IRQHandler
+    def_irq_default_handler     SDIO_IRQHandler
+    def_irq_default_handler     TIM5_IRQHandler
+    def_irq_default_handler     SPI3_IRQHandler
+    def_irq_default_handler     UART4_IRQHandler
+    def_irq_default_handler     UART5_IRQHandler
+    def_irq_default_handler     TIM6_DAC_IRQHandler
+    def_irq_default_handler     TIM7_IRQHandler
+    def_irq_default_handler     DMA2_Stream0_IRQHandler
+    def_irq_default_handler     DMA2_Stream1_IRQHandler
+    def_irq_default_handler     DMA2_Stream2_IRQHandler
+    def_irq_default_handler     DMA2_Stream3_IRQHandler
+    def_irq_default_handler     DMA2_Stream4_IRQHandler
+    def_irq_default_handler     ETH_IRQHandler
+    def_irq_default_handler     ETH_WKUP_IRQHandler
+    def_irq_default_handler     CAN2_TX_IRQHandler
+    def_irq_default_handler     CAN2_RX0_IRQHandler
+    def_irq_default_handler     CAN2_RX1_IRQHandler
+    def_irq_default_handler     CAN2_SCE_IRQHandler
+    def_irq_default_handler     OTG_FS_IRQHandler
+    def_irq_default_handler     DMA2_Stream5_IRQHandler
+    def_irq_default_handler     DMA2_Stream6_IRQHandler
+    def_irq_default_handler     DMA2_Stream7_IRQHandler
+    def_irq_default_handler     USART6_IRQHandler
+    def_irq_default_handler     I2C3_EV_IRQHandler
+    def_irq_default_handler     I2C3_ER_IRQHandler
+    def_irq_default_handler     OTG_HS_EP1_OUT_IRQHandler
+    def_irq_default_handler     OTG_HS_EP1_IN_IRQHandler
+    def_irq_default_handler     OTG_HS_WKUP_IRQHandler
+    def_irq_default_handler     OTG_HS_IRQHandler
+    def_irq_default_handler     DCMI_IRQHandler
+    def_irq_default_handler     CRYP_IRQHandler
+    def_irq_default_handler     HASH_RNG_IRQHandler
+    def_irq_default_handler     FPU_IRQHandler
+    def_irq_default_handler     DEF_IRQHandler
 
     .end

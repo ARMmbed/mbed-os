@@ -23,7 +23,7 @@ from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.toolchains import TOOLCHAINS
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP

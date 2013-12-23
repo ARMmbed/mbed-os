@@ -66,8 +66,6 @@ static LPC_CTxxBx_Type *Timers[4] = {
     LPC_CT32B0, LPC_CT32B1
 };
 
-static unsigned int pwm_clock_mhz;
-
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
@@ -91,8 +89,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     
     /* Reset Functionality on MR3 controlling the PWM period */
     timer->MCR = 1 << 10;
-    
-    pwm_clock_mhz = SystemCoreClock / 1000000;
     
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -141,11 +137,18 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     int i = 0;
-    uint32_t period_ticks = pwm_clock_mhz * us;
+    uint32_t period_ticks = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
     
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
     uint32_t old_period_ticks = timer->MR3;
+
+    // for 16bit timer, set prescaler to avoid overflow
+    uint16_t high_period_ticks = period_ticks >> 16; 
+    if ((high_period_ticks) && (timer == LPC_CT16B0 || timer == LPC_CT16B1)) {
+        timer->PR = high_period_ticks;
+        period_ticks /= (high_period_ticks + 1);
+    }
     
     timer->TCR = TCR_RESET;
     timer->MR3 = period_ticks;
@@ -169,13 +172,14 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    uint32_t t_on = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
+    uint32_t t_on = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000 / (timer->PR + 1));
     
     timer->TCR = TCR_RESET;
     if (t_on > timer->MR3) {
         pwmout_period_us(obj, us);
+        t_on = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000 / (timer->PR + 1));
     }
     uint32_t t_off = timer->MR3 - t_on;
     timer->MR[tid.mr] = t_off;

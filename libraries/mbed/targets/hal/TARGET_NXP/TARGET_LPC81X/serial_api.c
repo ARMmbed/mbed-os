@@ -39,6 +39,18 @@ static const SWM_Map SWM_UART_RX[] = {
     {2, 24},
 };
 
+static const SWM_Map SWM_UART_RTS[] = {
+    {0, 16},
+    {1, 24},
+    {3, 0},
+};
+ 
+static const SWM_Map SWM_UART_CTS[] = {
+    {0, 24},
+    {2, 0},
+    {3, 8}
+};
+
 // bit flags for used UARTs
 static unsigned char uart_used = 0;
 static int get_available_uart(void) {
@@ -60,6 +72,7 @@ static int get_available_uart(void) {
 #define TXRDY         (0x01<<2)
 
 #define TXBRKEN       (0x01<<1)
+#define CTSEN         (0x01<<9)
 
 static uint32_t UARTSysClk;
 
@@ -276,5 +289,36 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     obj->uart->CTRL &= ~TXBRKEN;
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+    const SWM_Map *swm_rts, *swm_cts;
+    uint32_t regVal_rts, regVal_cts;
+    
+    swm_rts = &SWM_UART_RTS[obj->index];
+    swm_cts = &SWM_UART_CTS[obj->index];    
+    regVal_rts = LPC_SWM->PINASSIGN[swm_rts->n] & ~(0xFF << swm_rts->offset);
+    regVal_cts = LPC_SWM->PINASSIGN[swm_cts->n] & ~(0xFF << swm_cts->offset);
+    
+    if (FlowControlNone == type) {
+        LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);
+        LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (0xFF << swm_cts->offset);
+        obj->uart->CFG &= ~CTSEN;
+        return;
+    }
+    if ((FlowControlRTS == type || FlowControlRTSCTS == type) && (rxflow != NC)) {
+        LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (rxflow << swm_rts->offset);
+        if (FlowControlRTS == type) {
+            LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (0xFF << swm_cts->offset);
+            obj->uart->CFG &= ~CTSEN;           
+        }
+    }
+    if ((FlowControlCTS == type || FlowControlRTSCTS == type) && (txflow != NC)) {
+        LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (txflow << swm_cts->offset);
+        obj->uart->CFG |= CTSEN;
+        if (FlowControlCTS == type) {
+            LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);        
+        }
+    }    
 }
 
