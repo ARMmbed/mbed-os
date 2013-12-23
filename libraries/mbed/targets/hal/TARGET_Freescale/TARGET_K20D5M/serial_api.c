@@ -24,20 +24,18 @@
 #include "pinmap.h"
 #include "error.h"
 
-/******************************************************************************
- * INITIALIZATION
- ******************************************************************************/
 static const PinMap PinMap_UART_TX[] = {
-    {PTB17,  UART_0, 3},
+    {PTB17, UART_0, 3},
     {NC  ,  NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PTB16,  UART_0, 3},
+    {PTB16, UART_0, 3},
     {NC  ,  NC    , 0}
 };
 
 #define UART_NUM    3
+
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
@@ -49,9 +47,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
+    if ((int)uart == NC)
         error("Serial pinout mapping failed");
-    }
 
     obj->uart = (UART_Type *)uart;
     // enable clk
@@ -63,7 +60,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     switch (uart) {
         case UART_0: obj->index = 0; break;
         case UART_1: obj->index = 1; break;
@@ -94,27 +91,13 @@ void serial_free(serial_t *obj) {
     serial_irq_ids[obj->index] = 0;
 }
 
-// serial_baud
-//
-// set the baud rate, taking in to account the current SystemFrequency
-//
-// The LPC2300 and LPC1700 have a divider and a fractional divider to control the
-// baud rate. The formula is:
-//
-// Baudrate = (1 / PCLK) * 16 * DL * (1 + DivAddVal / MulVal)
-//   where:
-//     1 < MulVal <= 15
-//     0 <= DivAddVal < 14
-//     DivAddVal < MulVal
-//
 void serial_baud(serial_t *obj, int baudrate) {
-    
     // save C2 state
-    uint8_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
-    
+    uint32_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     // [TODO] not hardcode this value
     uint32_t PCLK = (obj->uart == UART0) ? 48000000u : 24000000u;
 
@@ -129,27 +112,26 @@ void serial_baud(serial_t *obj, int baudrate) {
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);
     obj->uart->BDL = (obj->uart->BDL & ~(0xff)) | ((DL >> 0) & 0xff);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-  //  uint8_t m10 = 0;
-    
+
     // save C2 state
-    uint8_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
-    
+    uint32_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-    
+
     // 8 data bits = 0 ... 9 data bits = 1
-    if ((data_bits < 8) || (data_bits > 9)) {
+    if ((data_bits < 8) || (data_bits > 9))
         error("Invalid number of bits (%d) in serial format, should be 8..9\r\n", data_bits);
-    }
+
     data_bits -= 8;
 
-    uint8_t parity_enable, parity_select;
+    uint32_t parity_enable, parity_select;
     switch (parity) {
         case ParityNone: parity_enable = 0; parity_select = 0; break;
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
@@ -160,36 +142,36 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
 
     // 1 stop bits = 0, 2 stop bits = 1
-    if ((stop_bits != 1) && (stop_bits != 2)) {
+    if ((stop_bits != 1) && (stop_bits != 2))
         error("Invalid stop bits specified\r\n");
-    }
     stop_bits -= 1;
-    
+
+    uint32_t m10 = 0;
+
     // 9 data bits + parity
     if (data_bits == 2) {
         // only uart0 supports 10 bit communication
-        if (obj->index != 0) {
+        if (obj->index != 0)
             error("Invalid number of bits (9) to be used with parity\r\n");
-        }
         data_bits = 0;
-        //m10 = 1;
+        m10 = 1;
     }
 
     // data bits, parity and parity mode
     obj->uart->C1 = ((data_bits << 4)
                   |  (parity_enable << 1)
                   |  (parity_select << 0));
-    
-    // enable 10bit mode if needed
-    // if (obj->index == 0) {
-    //     obj->uart->C4 &= ~UARTLP_C4_M10_MASK;
-    //     obj->uart->C4 |= (m10 << UARTLP_C4_M10_SHIFT);
-    // }
-    
+
+    //enable 10bit mode if needed
+    if (obj->index == 0) {
+        obj->uart->C4 &= ~UART_C4_M10_MASK;
+        obj->uart->C4 |= (m10 << UART_C4_M10_SHIFT);
+    }
+
     // stop bits
     obj->uart->BDH &= ~UART_BDH_SBR_MASK;
     obj->uart->BDH |= (stop_bits << UART_BDH_SBR_SHIFT);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
@@ -220,15 +202,28 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
-        case UART_0: irq_n=UART0_RX_TX_IRQn; vector = (uint32_t)&uart0_irq; break;
-        case UART_1: irq_n=UART1_RX_TX_IRQn; vector = (uint32_t)&uart1_irq; break;
-        case UART_2: irq_n=UART2_RX_TX_IRQn; vector = (uint32_t)&uart2_irq; break;
+        case UART_0:
+            irq_n=UART0_RX_TX_IRQn;
+            vector = (uint32_t)&uart0_irq;
+            break;
+        case UART_1:
+            irq_n=UART1_RX_TX_IRQn;
+            vector = (uint32_t)&uart1_irq;
+            break;
+        case UART_2:
+            irq_n=UART2_RX_TX_IRQn;
+            vector = (uint32_t)&uart2_irq;
+            break;
     }
 
     if (enable) {
         switch (irq) {
-            case RxIrq: obj->uart->C2 |= (UART_C2_RIE_MASK); break;
-            case TxIrq: obj->uart->C2 |= (UART_C2_TIE_MASK); break;
+            case RxIrq:
+                obj->uart->C2 |= (UART_C2_RIE_MASK);
+                break;
+            case TxIrq:
+                obj->uart->C2 |= (UART_C2_TIE_MASK);
+                break;
         }
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -237,21 +232,26 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         switch (irq) {
-            case RxIrq: obj->uart->C2 &= ~(UART_C2_RIE_MASK); break;
-            case TxIrq: obj->uart->C2 &= ~(UART_C2_TIE_MASK); break;
+            case RxIrq:
+                obj->uart->C2 &= ~(UART_C2_RIE_MASK);
+                break;
+            case TxIrq:
+                obj->uart->C2 &= ~(UART_C2_TIE_MASK);
+                break;
         }
         switch (other_irq) {
-            case RxIrq: all_disabled = (obj->uart->C2 & (UART_C2_RIE_MASK)) == 0; break;
-            case TxIrq: all_disabled = (obj->uart->C2 & (UART_C2_TIE_MASK)) == 0; break;
+            case RxIrq:
+                all_disabled = (obj->uart->C2 & (UART_C2_RIE_MASK)) == 0;
+                break;
+            case TxIrq:
+                all_disabled = (obj->uart->C2 & (UART_C2_TIE_MASK)) == 0;
+                break;
         }
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
 }
 
-/******************************************************************************
- * READ/WRITE
- ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
     return obj->uart->D;
@@ -263,7 +263,7 @@ void serial_putc(serial_t *obj, int c) {
 }
 
 int serial_readable(serial_t *obj) {
-   
+
     return (obj->uart->S1 & UART_S1_RDRF_MASK);
 }
 
@@ -280,7 +280,7 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->C2 |= UART_C2_SBK_MASK; 
+    obj->uart->C2 |= UART_C2_SBK_MASK;
 }
 
 void serial_break_clear(serial_t *obj) {

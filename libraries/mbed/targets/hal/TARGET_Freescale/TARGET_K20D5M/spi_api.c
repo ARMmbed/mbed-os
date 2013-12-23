@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,25 +24,25 @@
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTC5, SPI_0, 2},
     {PTD1, SPI_0, 2},
-    {NC  ,  NC   , 0}
+    {NC  , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PTD2, SPI_0, 2},
     {PTC6, SPI_0, 2},
-    {NC  ,  NC   , 0}
+    {NC  , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {PTD3, SPI_0, 2},
     {PTC7, SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC  , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {PTD0, SPI_0, 2},
     {PTC4, SPI_0, 2},
-    {NC  ,  NC   , 0}
+    {NC  , NC   , 0}
 };
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
@@ -59,10 +59,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         error("SPI pinout mapping failed");
     }
 
-    // enable power and clocking
-    switch ((int)obj->spi) {
-        case SPI_0: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 22; break;
-    }
+    SIM->SCGC5 |= (1 << 11) | (1 << 12); // PortC & D
+    SIM->SCGC6 |= 1 << 12;               // spi clocks
+
+    // halted state
+    obj->spi->MCR = SPI_MCR_HALT_MASK;
 
     // set default format and frequency
     if (ssel == NC) {
@@ -72,8 +73,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
     spi_frequency(obj, 1000000);
 
+    // not halt in the debug mode
+    obj->spi->SR |= SPI_SR_EOQF_MASK;
     // enable SPI
-    obj->spi->MCR |= SPI_MCR_CONT_SCKE_MASK;
+    obj->spi->MCR &= (~SPI_MCR_HALT_MASK);
 
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -88,37 +91,38 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if (bits != 8) {
-        error("Only 8bits SPI supported");
+    if ((bits != 8) && (bits != 16)) {
+        error("Only 8/16 bits SPI supported");
     }
 
     if ((mode < 0) || (mode > 3)) {
         error("SPI mode unsupported");
     }
 
-    uint8_t polarity = (mode & 0x2) ? 1 : 0;
-    uint8_t phase = (mode & 0x1) ? 1 : 0;
-    uint8_t c1_data = ((!slave) << 4) | (polarity << 3) | (phase << 2);
+    uint32_t polarity = (mode & 0x2) ? 1 : 0;
+    uint32_t phase = (mode & 0x1) ? 1 : 0;
 
-    // clear MSTR, CPOL and CPHA bits
+    // set master/slave
     obj->spi->MCR &= ~SPI_MCR_MSTR_MASK;
+    obj->spi->MCR |= ((!slave) << SPI_MCR_MSTR_SHIFT);
 
-    // write new value
-    obj->spi->MCR |= c1_data;
+    // CTAR0 is used
+    obj->spi->CTAR[0] &= ~(SPI_CTAR_CPHA_MASK | SPI_CTAR_CPOL_MASK);
+    obj->spi->CTAR[0] |= (polarity << SPI_CTAR_CPOL_SHIFT) | (phase << SPI_CTAR_CPHA_SHIFT);
 }
 
 void spi_frequency(spi_t *obj, int hz) {
     uint32_t error = 0;
     uint32_t p_error = 0xffffffff;
     uint32_t ref = 0;
-    uint8_t  spr = 0;
-    uint8_t  ref_spr = 0;
-    uint8_t  ref_prescaler = 0;
+    uint32_t spr = 0;
+    uint32_t ref_spr = 0;
+    uint32_t ref_prescaler = 0;
 
     // bus clk
     uint32_t PCLK = 48000000u;
-    uint8_t prescaler = 1;
-    uint8_t divisor = 2;
+    uint32_t prescaler = 1;
+    uint32_t divisor = 2;
 
     for (prescaler = 1; prescaler <= 8; prescaler++) {
         divisor = 2;
@@ -140,32 +144,31 @@ void spi_frequency(spi_t *obj, int hz) {
 }
 
 static inline int spi_writeable(spi_t * obj) {
-    return 0;//(obj->spi->S & SPI_S_SPTEF_MASK) ? 1 : 0;
+    return (obj->spi->SR & SPI_SR_TCF_MASK) ? 1 : 0;
 }
 
 static inline int spi_readable(spi_t * obj) {
-    return 0;//(obj->spi->S & SPI_S_SPRF_MASK) ? 1 : 0;
+    return (obj->spi->SR & SPI_SR_TFFF_MASK) ? 1 : 0;
 }
 
 int spi_master_write(spi_t *obj, int value) {
     // wait tx buffer empty
-    // while(!spi_writeable(obj));
-    // obj->spi->D = (value & 0xff);
+    while(!spi_writeable(obj));
+    obj->spi->PUSHR = SPI_PUSHR_TXDATA(value & 0xff);
 
-    // // wait rx buffer full
-    // while (!spi_readable(obj));
-    return 0;//obj->spi->D & 0xff;
+    // wait rx buffer full
+    while (!spi_readable(obj));
+    return obj->spi->POPR;
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return 0;//spi_readable(obj);
+    return spi_readable(obj);
 }
 
 int spi_slave_read(spi_t *obj) {
-    return 0;//obj->spi->D;
+    return obj->spi->POPR;
 }
 
 void spi_slave_write(spi_t *obj, int value) {
-    // while (!spi_writeable(obj));
-    // obj->spi->D = value;
+    while (!spi_writeable(obj));
 }

@@ -22,7 +22,8 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
-    if(pin == NC) return;
+    if(pin == NC)
+        return;
 
     obj->pin = pin;
     obj->mask = gpio_set(pin);
@@ -37,8 +38,12 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
 
     gpio_dir(obj, direction);
     switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullUp); break;
+        case PIN_OUTPUT:
+            pin_mode(pin, PullNone);
+            break;
+        case PIN_INPUT :
+            pin_mode(pin, PullUp);
+            break;
     }
 }
 
@@ -48,7 +53,11 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT : *obj->reg_dir &= ~obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_dir |=  obj->mask; break;
+        case PIN_INPUT :
+            *obj->reg_dir &= ~obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir |=  obj->mask;
+            break;
     }
 }
