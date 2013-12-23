@@ -31,7 +31,7 @@ void rtc_init(void) {
     init();
 
     // Enable the oscillator
-    RTC_CR |= RTC_CR_OSCE_MASK;
+    RTC->CR |= RTC_CR_OSCE_MASK;
 
     //Configure the TSR. default value: 1
     RTC->TSR = 1;

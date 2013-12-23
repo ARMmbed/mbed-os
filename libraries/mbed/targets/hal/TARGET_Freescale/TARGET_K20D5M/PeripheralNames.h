@@ -45,9 +45,8 @@ typedef enum {
     PWM_6  = (0 << TPM_SHIFT) | (5),  // FTM0 CH5
     PWM_7  = (0 << TPM_SHIFT) | (6),  // FTM0 CH6
     PWM_8  = (0 << TPM_SHIFT) | (7),  // FTM0 CH7
-
-    PWM_9  =  (1 << TPM_SHIFT) | (0),  // FTM1 CH0
-    PWM_10  = (1 << TPM_SHIFT) | (1),  // FTM1 CH1
+    PWM_9  = (1 << TPM_SHIFT) | (0),  // FTM1 CH0
+    PWM_10 = (1 << TPM_SHIFT) | (1),  // FTM1 CH1
 } PWMName;
 
 typedef enum {
