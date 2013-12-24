@@ -145,6 +145,7 @@ SECTIONS
         . = ALIGN(4) ;
         _ebss = .;
         PROVIDE(end = .);
+        __end__ = .;
     } > RamLoc8
     
     PROVIDE(_pvHeapStart = .);
