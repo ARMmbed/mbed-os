@@ -86,39 +86,52 @@ __isr_vector:
     .long    SysTick_Handler       /* SysTick Handler */
 
     /* External interrupts */
-    .long    WDT_IRQHandler        /*  0:  Watchdog Timer            */
-    .long    RTC_IRQHandler        /*  1:  Real Time Clock           */
-    .long    TIM0_IRQHandler       /*  2:  Timer0 / Timer1           */
-    .long    TIM2_IRQHandler       /*  3:  Timer2 / Timer3           */
-    .long    MCIA_IRQHandler       /*  4:  MCIa                      */
-    .long    MCIB_IRQHandler       /*  5:  MCIb                      */
-    .long    UART0_IRQHandler      /*  6:  UART0 - DUT FPGA          */
-    .long    UART1_IRQHandler      /*  7:  UART1 - DUT FPGA          */
-    .long    UART2_IRQHandler      /*  8:  UART2 - DUT FPGA          */
-    .long    UART4_IRQHandler      /*  9:  UART4 - not connected     */
-    .long    AACI_IRQHandler       /* 10: AACI / AC97                */
-    .long    CLCD_IRQHandler       /* 11: CLCD Combined Interrupt    */
-    .long    ENET_IRQHandler       /* 12: Ethernet                   */
-    .long    USBDC_IRQHandler      /* 13: USB Device                 */
-    .long    USBHC_IRQHandler      /* 14: USB Host Controller        */
-    .long    CHLCD_IRQHandler      /* 15: Character LCD              */
-    .long    FLEXRAY_IRQHandler    /* 16: Flexray                    */
-    .long    CAN_IRQHandler        /* 17: CAN                        */
-    .long    LIN_IRQHandler        /* 18: LIN                        */
-    .long    I2C_IRQHandler        /* 19: I2C ADC/DAC                */
-    .long    0                     /* 20: Reserved                   */
-    .long    0                     /* 21: Reserved                   */
-    .long    0                     /* 22: Reserved                   */
-    .long    0                     /* 23: Reserved                   */
-    .long    0                     /* 24: Reserved                   */
-    .long    0                     /* 25: Reserved                   */
-    .long    0                     /* 26: Reserved                   */
-    .long    0                     /* 27: Reserved                   */
-    .long    CPU_CLCD_IRQHandler   /* 28: Reserved - CPU FPGA CLCD   */
-    .long    0                     /* 29: Reserved - CPU FPGA        */
-    .long    UART3_IRQHandler      /* 30: UART3    - CPU FPGA        */
-    .long    SPI_IRQHandler        /* 31: SPI Touchscreen - CPU FPGA */
-
+    .long    DMA0_IRQHandler        /*  0:  Watchdog Timer            */
+    .long    DMA1_IRQHandler        /*  1:  Real Time Clock           */
+    .long    DMA2_IRQHandler       /*  2:  Timer0 / Timer1           */
+    .long    DMA3_IRQHandler       /*  3:  Timer2 / Timer3           */
+    .long    DMA_Error_IRQHandler       /*  4:  MCIa                      */
+    .long    0       /*  5:  MCIb                      */
+    .long    FTFL_IRQHandler      /*  6:  UART0 - DUT FPGA          */
+    .long    Read_Collision_IRQHandler      /*  7:  UART1 - DUT FPGA          */
+    .long    LVD_LVW_IRQHandler      /*  8:  UART2 - DUT FPGA          */
+    .long    LLW_IRQHandler      /*  9:  UART4 - not connected     */
+    .long    Watchdog_IRQHandler       /* 10: AACI / AC97                */
+    .long    I2C0_IRQHandler       /* 11: CLCD Combined Interrupt    */
+    .long    SPI0_IRQHandler       /* 12: Ethernet                   */
+    .long    I2S0_Tx_IRQHandler      /* 13: USB Device                 */
+    .long    I2S0_Rx_IRQHandler      /* 14: USB Host Controller        */
+    .long    UART0_LON_IRQHandler      /* 15: Character LCD              */
+    .long    UART0_RX_TX_IRQHandler    /* 16: Flexray                    */
+    .long    UART0_ERR_IRQHandler        /* 17: CAN                        */
+    .long    UART1_RX_TX_IRQHandler        /* 18: LIN                        */
+    .long    UART1_ERR_IRQHandler        /* 19: I2C ADC/DAC                */
+    .long    UART2_RX_TX_IRQHandler                     /* 20: Reserved                   */
+    .long    UART2_ERR_IRQHandler                     /* 21: Reserved                   */
+    .long    ADC0_IRQHandler                     /* 22: Reserved                   */
+    .long    CMP0_IRQHandler                     /* 23: Reserved                   */
+    .long    CMP1_IRQHandler                     /* 24: Reserved                   */
+    .long    FTM0_IRQHandler                     /* 25: Reserved                   */
+    .long    FTM1_IRQHandler                     /* 26: Reserved                   */
+    .long    CMT_IRQHandler                     /* 27: Reserved                   */
+    .long    RTC_IRQHandler   /* 28: Reserved - CPU FPGA CLCD   */
+    .long    RTC_Seconds_IRQHandler                     /* 29: Reserved - CPU FPGA        */
+    .long    PIT0_IRQHandler      /* 30: UART3    - CPU FPGA        */
+    .long    PIT1_IRQHandler        /* 31: SPI Touchscreen - CPU FPGA */
+    .long    PIT2_IRQHandler
+    .long    PIT3_IRQHandler
+    .long    PDB0_IRQHandler
+    .long    USB0_IRQHandler
+    .long    USBDCD_IRQHandler
+    .long    TSI0_IRQHandler
+    .long    MCG_IRQHandler
+    .long    LPTimer_IRQHandler
+    .long    PORTA_IRQHandler
+    .long    PORTB_IRQHandler
+    .long    PORTC_IRQHandler
+    .long    PORTD_IRQHandler
+    .long    PORTE_IRQHandler
+    .long    SWI_IRQHandler
     .size    __isr_vector, . - __isr_vector
 
     .text

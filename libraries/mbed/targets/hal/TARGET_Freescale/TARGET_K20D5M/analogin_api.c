@@ -35,9 +35,8 @@ static const PinMap PinMap_ADC[] = {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (ADCName)NC) {
+    if (obj->adc == (ADCName)NC)
         error("ADC pin mapping failed");
-    }
 
     SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;
 
@@ -72,7 +71,6 @@ uint16_t analogin_read_u16(analogin_t *obj) {
     // Wait Conversion Complete
     while ((ADC0->SC1[0] & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
 
-    // Return value
     return (uint16_t)ADC0->R[0];
 }
 

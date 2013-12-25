@@ -37,7 +37,8 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
         if (port->ISFR & pmask) {
             mask |= pmask;
             uint32_t id = channel_ids[ch_base + i];
-            if (id == 0) continue;
+            if (id == 0)
+                continue;
 
             GPIO_Type *gpio = PTA;
             gpio_irq_event event = IRQ_NONE;
@@ -70,7 +71,8 @@ void gpio_irqD(void) {handle_interrupt_in(PORTD, 96);}
 void gpio_irqE(void) {handle_interrupt_in(PORTE, 128);}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
-    if (pin == NC) return -1;
+    if (pin == NC)
+        return -1;
 
     irq_handler = handler;
 
@@ -129,9 +131,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
 
     switch (port->PCR[obj->pin] & PORT_PCR_IRQC_MASK) {
         case IRQ_DISABLED:
-            if (enable) {
+            if (enable)
                 irq_settings = (event == IRQ_RISE) ? (IRQ_RAISING_EDGE) : (IRQ_FALLING_EDGE);
-            }
             break;
 
         case IRQ_RAISING_EDGE:

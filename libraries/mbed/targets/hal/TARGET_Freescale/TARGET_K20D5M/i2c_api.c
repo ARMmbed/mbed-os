@@ -79,12 +79,11 @@ int i2c_start(i2c_t *obj) {
     // if we are in the middle of a transaction
     // activate the repeat_start flag
     if (obj->i2c->S & I2C_S_BUSY_MASK) {
-        // KL25Z errata sheet: repeat start cannot be generated if the
-        // I2Cx_F[MULT] field is set to a non-zero value
         temp = obj->i2c->F >> 6;
         obj->i2c->F &= 0x3F;
         obj->i2c->C1 |= 0x04;
-        for (i = 0; i < 100; i ++) __NOP();
+        for (i = 0; i < 100; i ++)
+            __NOP();
         obj->i2c->F |= temp << 6;
     } else {
         obj->i2c->C1 |= I2C_C1_MST_MASK;
@@ -274,9 +273,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
     }
 
-    if (stop) {
+    if (stop)
         i2c_stop(obj);
-    }
 
     return length;
 }
@@ -333,12 +331,15 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 int i2c_slave_receive(i2c_t *obj) {
     switch(obj->i2c->S) {
         // read addressed
-        case 0xE6: return 1;
+        case 0xE6:
+            return 1;
 
         // write addressed
-        case 0xE2: return 3;
+        case 0xE2:
+            return 3;
 
-        default: return 0;
+        default:
+            return 0;
     }
 }
 
@@ -352,22 +353,19 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 
     // first dummy read
     dummy_read = obj->i2c->D;
-    if(i2c_wait_end_rx_transfer(obj)) {
+    if (i2c_wait_end_rx_transfer(obj))
         return 0;
-    }
 
     // read address
     dummy_read = obj->i2c->D;
-    if(i2c_wait_end_rx_transfer(obj)) {
+    if (i2c_wait_end_rx_transfer(obj))
         return 0;
-    }
 
     // read (length - 1) bytes
     for (count = 0; count < (length - 1); count++) {
         data[count] = obj->i2c->D;
-        if (i2c_wait_end_rx_transfer(obj)) {
+        if (i2c_wait_end_rx_transfer(obj))
             return count;
-        }
     }
 
     // read last byte
@@ -384,9 +382,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     obj->i2c->C1 |= I2C_C1_TX_MASK;
 
     for (i = 0; i < length; i++) {
-        if(i2c_do_write(obj, data[count++]) == 2) {
+        if (i2c_do_write(obj, data[count++]) == 2)
             return i;
-        }
     }
 
     // set rx mode
@@ -395,9 +392,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     // dummy rx transfer needed
     // otherwise the master cannot generate a stop bit
     obj->i2c->D;
-    if(i2c_wait_end_rx_transfer(obj) == 2) {
+    if (i2c_wait_end_rx_transfer(obj) == 2)
         return count;
-    }
 
     return count;
 }
