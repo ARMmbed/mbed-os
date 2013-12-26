@@ -312,6 +312,9 @@ extern unsigned int __bss_section_table_end;
 // library.
 //
 // *****************************************************************************
+
+extern "C" void software_init_hook(void) __attribute__((weak));
+
 void
 ResetISR(void) {
 
@@ -342,20 +345,23 @@ ResetISR(void) {
 		bss_init(ExeAddr, SectionLen);
 	}
 
-	#if defined(__cplusplus)
-	//
-	// Call C++ library initialisation
-	//
-	__libc_init_array();
-	#endif
+  if (software_init_hook) // give control to the RTOS
+    software_init_hook(); // this will also call __libc_init_array
+  else {
+    #if defined(__cplusplus)
+    //
+    // Call C++ library initialisation
+    //
+    __libc_init_array();
+    #endif
 
-	#if defined(__REDLIB__)
-	// Call the Redlib library, which in turn calls main()
-	__main();
-	#else
-	main();
-	#endif
-
+    #if defined(__REDLIB__)
+    // Call the Redlib library, which in turn calls main()
+    __main();
+    #else
+    main();
+    #endif
+  }
 	//
 	// main() shouldn't return, but if it does, we'll just enter an infinite loop
 	//

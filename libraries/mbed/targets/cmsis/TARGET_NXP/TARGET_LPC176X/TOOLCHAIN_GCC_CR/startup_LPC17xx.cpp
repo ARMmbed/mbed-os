@@ -22,7 +22,7 @@ WEAK void HardFault_Handler (void);
 WEAK void MemManage_Handler (void);
 WEAK void BusFault_Handler  (void);
 WEAK void UsageFault_Handler(void);
-WEAK void SVCall_Handler    (void);
+WEAK void SVC_Handler       (void);
 WEAK void DebugMon_Handler  (void);
 WEAK void PendSV_Handler    (void);
 WEAK void SysTick_Handler   (void);
@@ -75,7 +75,7 @@ void (* const g_pfnVectors[])(void) = {
     0,
     0,
     0,
-    SVCall_Handler,
+    SVC_Handler,
     DebugMon_Handler,
     0,
     PendSV_Handler,
@@ -130,6 +130,8 @@ AFTER_VECTORS void bss_init(unsigned int start, unsigned int len) {
     for (loop = 0; loop < len; loop = loop + 4) *pulDest++ = 0;
 }
 
+extern "C" void software_init_hook(void) __attribute__((weak));
+
 AFTER_VECTORS void ResetISR(void) {
     unsigned int LoadAddr, ExeAddr, SectionLen;
     unsigned int *SectionTableAddr;
@@ -149,8 +151,12 @@ AFTER_VECTORS void ResetISR(void) {
     }
     
     SystemInit();
-    __libc_init_array();
-    main();
+    if (software_init_hook) // give control to the RTOS
+        software_init_hook(); // this will also call __libc_init_array
+    else {
+        __libc_init_array();
+        main();
+    }
     while (1) {;}
 }
 
@@ -159,7 +165,7 @@ AFTER_VECTORS void HardFault_Handler (void) {}
 AFTER_VECTORS void MemManage_Handler (void) {}
 AFTER_VECTORS void BusFault_Handler  (void) {}
 AFTER_VECTORS void UsageFault_Handler(void) {}
-AFTER_VECTORS void SVCall_Handler    (void) {}
+AFTER_VECTORS void SVC_Handler       (void) {}
 AFTER_VECTORS void DebugMon_Handler  (void) {}
 AFTER_VECTORS void PendSV_Handler    (void) {}
 AFTER_VECTORS void SysTick_Handler   (void) {}
