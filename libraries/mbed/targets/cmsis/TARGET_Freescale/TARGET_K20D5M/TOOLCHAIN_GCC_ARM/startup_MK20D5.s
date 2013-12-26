@@ -1,4 +1,4 @@
-/* File: startup_ARMCM4.S
+/* File: startup_MK20D5.s
  * Purpose: startup file for Cortex-M4 devices. Should use with
  *   GCC for ARM Embedded Processors
  * Version: V1.3
@@ -134,7 +134,7 @@ __isr_vector:
     .long    SWI_IRQHandler
     .size    __isr_vector, . - __isr_vector
 
-    .text
+    .section .text.Reset_Handler
     .thumb
     .thumb_func
     .align 2
@@ -152,34 +152,27 @@ Reset_Handler:
     ldr    r2, =__data_start__
     ldr    r3, =__data_end__
 
-
-/* Here are two copies of loop implemenations. First one favors code size
- * and the second one favors performance. Default uses the first one.
- * Change to "#if 0" to use the second one */
-.flash_to_ram_loop:
+.Lflash_to_ram_loop:
     cmp     r2, r3
     ittt    lt
     ldrlt   r0, [r1], #4
     strlt   r0, [r2], #4
-    blt    .flash_to_ram_loop
+    blt    .Lflash_to_ram_loop
 
-.flash_to_ram_loop_end:
+.Lflash_to_ram_loop_end:
 
-
-#ifndef __NO_SYSTEM_INIT
     ldr    r0, =SystemInit
     blx    r0
-#endif
-
     ldr    r0, =_start
     bx    r0
     .pool
     .size Reset_Handler, . - Reset_Handler
 
+    .text
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
-    .macro    def_irq_handler    handler_name
+    .macro    def_default_handler    handler_name
     .align 1
     .thumb_func
     .weak    \handler_name
@@ -189,40 +182,68 @@ Reset_Handler:
     .size    \handler_name, . - \handler_name
     .endm
 
-    def_irq_handler    NMI_Handler
-    def_irq_handler    HardFault_Handler
-    def_irq_handler    MemManage_Handler
-    def_irq_handler    BusFault_Handler
-    def_irq_handler    UsageFault_Handler
-    def_irq_handler    SVC_Handler
-    def_irq_handler    DebugMon_Handler
-    def_irq_handler    PendSV_Handler
-    def_irq_handler    SysTick_Handler
-    def_irq_handler    Default_Handler
+    def_default_handler    NMI_Handler
+    def_default_handler    HardFault_Handler
+    def_default_handler    MemManage_Handler
+    def_default_handler    BusFault_Handler
+    def_default_handler    UsageFault_Handler
+    def_default_handler    SVC_Handler
+    def_default_handler    DebugMon_Handler
+    def_default_handler    PendSV_Handler
+    def_default_handler    SysTick_Handler
+    def_default_handler    Default_Handler
 
-    def_irq_handler    WDT_IRQHandler
-    def_irq_handler    RTC_IRQHandler
-    def_irq_handler    TIM0_IRQHandler
-    def_irq_handler    TIM2_IRQHandler
-    def_irq_handler    MCIA_IRQHandler
-    def_irq_handler    MCIB_IRQHandler
-    def_irq_handler    UART0_IRQHandler
-    def_irq_handler    UART1_IRQHandler
-    def_irq_handler    UART2_IRQHandler
-    def_irq_handler    UART3_IRQHandler
-    def_irq_handler    UART4_IRQHandler
-    def_irq_handler    AACI_IRQHandler
-    def_irq_handler    CLCD_IRQHandler
-    def_irq_handler    ENET_IRQHandler
-    def_irq_handler    USBDC_IRQHandler
-    def_irq_handler    USBHC_IRQHandler
-    def_irq_handler    CHLCD_IRQHandler
-    def_irq_handler    FLEXRAY_IRQHandler
-    def_irq_handler    CAN_IRQHandler
-    def_irq_handler    LIN_IRQHandler
-    def_irq_handler    I2C_IRQHandler
-    def_irq_handler    CPU_CLCD_IRQHandler
-    def_irq_handler    SPI_IRQHandler
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
+
+    def_irq_default_handler    DMA0_IRQHandler
+    def_irq_default_handler    DMA1_IRQHandler
+    def_irq_default_handler    DMA2_IRQHandler
+    def_irq_default_handler    DMA3_IRQHandler
+    def_irq_default_handler    DMA_Error_IRQHandler
+    def_irq_default_handler    FTFL_IRQHandler
+    def_irq_default_handler    Read_Collision_IRQHandler
+    def_irq_default_handler    LVD_LVW_IRQHandler
+    def_irq_default_handler    LLW_IRQHandler
+    def_irq_default_handler    Watchdog_IRQHandler
+    def_irq_default_handler    I2C0_IRQHandler
+    def_irq_default_handler    SPI0_IRQHandler
+    def_irq_default_handler    I2S0_Tx_IRQHandler
+    def_irq_default_handler    I2S0_Rx_IRQHandler
+    def_irq_default_handler    UART0_LON_IRQHandler
+    def_irq_default_handler    UART0_RX_TX_IRQHandler
+    def_irq_default_handler    UART0_ERR_IRQHandler
+    def_irq_default_handler    UART1_RX_TX_IRQHandler
+    def_irq_default_handler    UART1_ERR_IRQHandler
+    def_irq_default_handler    UART2_RX_TX_IRQHandler
+    def_irq_default_handler    UART2_ERR_IRQHandler
+    def_irq_default_handler    ADC0_IRQHandler
+    def_irq_default_handler    CMP0_IRQHandler
+    def_irq_default_handler    CMP1_IRQHandler
+    def_irq_default_handler    FTM0_IRQHandler
+    def_irq_default_handler    FTM1_IRQHandler
+    def_irq_default_handler    CMT_IRQHandler
+    def_irq_default_handler    RTC_IRQHandler
+    def_irq_default_handler    RTC_Seconds_IRQHandler
+    def_irq_default_handler    PIT0_IRQHandler
+    def_irq_default_handler    PIT1_IRQHandler
+    def_irq_default_handler    PIT2_IRQHandler
+    def_irq_default_handler    PIT3_IRQHandler
+    def_irq_default_handler    PDB0_IRQHandler
+    def_irq_default_handler    USB0_IRQHandler
+    def_irq_default_handler    USBDCD_IRQHandler
+    def_irq_default_handler    TSI0_IRQHandler
+    def_irq_default_handler    MCG_IRQHandler
+    def_irq_default_handler    LPTimer_IRQHandler
+    def_irq_default_handler    PORTA_IRQHandler
+    def_irq_default_handler    PORTB_IRQHandler
+    def_irq_default_handler    PORTC_IRQHandler
+    def_irq_default_handler    PORTD_IRQHandler
+    def_irq_default_handler    PORTE_IRQHandler
+    def_irq_default_handler    SWI_IRQHandler
+    def_irq_default_handler    DEF_IRQHandler
 
 /* Flash protection region, placed at 0x400 */
     .text
