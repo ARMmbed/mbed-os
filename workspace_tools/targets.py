@@ -135,6 +135,18 @@ class KL46Z(Target):
 
         self.is_disk_virtual = True
 
+class K20D5M(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['Freescale']
+        
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        
+        self.is_disk_virtual = True
+
 
 class LPC812(Target):
     def __init__(self):
@@ -335,6 +347,7 @@ TARGETS = [
     KL05Z(),
     KL25Z(),
     KL46Z(),
+    K20D5M(),
     LPC812(),
     LPC810(),
     LPC4088(),
