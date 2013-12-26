@@ -74,17 +74,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 int i2c_start(i2c_t *obj) {
-    uint32_t temp;
-    volatile int i;
     // if we are in the middle of a transaction
     // activate the repeat_start flag
     if (obj->i2c->S & I2C_S_BUSY_MASK) {
-        temp = obj->i2c->F >> 6;
-        obj->i2c->F &= 0x3F;
         obj->i2c->C1 |= 0x04;
-        for (i = 0; i < 100; i ++)
-            __NOP();
-        obj->i2c->F |= temp << 6;
     } else {
         obj->i2c->C1 |= I2C_C1_MST_MASK;
         obj->i2c->C1 |= I2C_C1_TX_MASK;
