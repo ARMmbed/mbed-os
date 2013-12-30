@@ -108,11 +108,13 @@ public:
      */
     void mode(PinMode pull);
 
-    /** Enable IRQ
+    /** Enable IRQ. This method depends on hw implementation, might enable one
+     *  port interrupts. For further information, check gpio_irq_enable().
      */
     void enable_irq();
 
-    /** Disable IRQ
+    /** Disable IRQ. This method depends on hw implementation, might disable one
+     *  port interrupts. For further information, check gpio_irq_disable().
      */
     void disable_irq();
 
