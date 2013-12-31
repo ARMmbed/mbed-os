@@ -73,10 +73,13 @@ void gpio_irqA(void) {
     handle_interrupt_in(PORTA, 0);
 }
 
+/* PORTC and PORTD share same vector */
 void gpio_irqCD(void) {
-    /* PORTC and PORTD share same vector */
-    handle_interrupt_in(PORTC, 32);
-    handle_interrupt_in(PORTD, 64);
+    if ((SIM->SCGC5 & SIM_SCGC5_PORTC_MASK) && (PORTC->ISFR)) {
+        handle_interrupt_in(PORTC, 32);
+    } else if ((SIM->SCGC5 & SIM_SCGC5_PORTD_MASK) && (PORTD->ISFR)) {
+        handle_interrupt_in(PORTD, 64);
+    }
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
