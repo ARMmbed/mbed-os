@@ -183,9 +183,9 @@ static inline int ssp_read(spi_t *obj) {
 }
 
 static inline int ssp_busy(spi_t *obj) {
-    // TODO
-    return 0;
-}
+    // checking RXOV(Receiver Overrun interrupt flag)
+    return obj->spi->STAT & (1 << 2);
+    }
 
 int spi_master_write(spi_t *obj, int value) {
     ssp_write(obj, value);
