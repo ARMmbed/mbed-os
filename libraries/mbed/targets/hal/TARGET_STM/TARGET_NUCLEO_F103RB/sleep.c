@@ -30,6 +30,8 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 
+// This function is only necessary if the HSE is used.
+/*
 static void SYSCLKConfig_STOP(void)
 {
     ErrorStatus HSEStartUpStatus;
@@ -45,6 +47,7 @@ static void SYSCLKConfig_STOP(void)
         while(RCC_GetSYSCLKSource() != 0x08) {} // Wait till PLL is used as system clock source
     }
 }
+*/
 
 void sleep(void)
 {
@@ -63,5 +66,5 @@ void deepsleep(void)
     // At this stage the system has resumed from STOP mode.
     // Re-configure the system clock: enable HSE, PLL and select 
     // PLL as system clock source (because HSE and PLL are disabled in STOP mode).
-    SYSCLKConfig_STOP();
+    //SYSCLKConfig_STOP();
 }
