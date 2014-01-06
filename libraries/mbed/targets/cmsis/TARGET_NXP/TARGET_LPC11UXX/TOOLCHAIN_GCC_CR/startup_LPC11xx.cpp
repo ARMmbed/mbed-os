@@ -9,7 +9,7 @@ extern "C" {
      void ResetISR            (void);
 WEAK void NMI_Handler         (void);
 WEAK void HardFault_Handler   (void);
-WEAK void SVCall_Handler      (void);
+WEAK void SVC_Handler         (void);
 WEAK void PendSV_Handler      (void);
 WEAK void SysTick_Handler     (void);
 WEAK void IntDefaultHandler   (void);
@@ -57,7 +57,7 @@ void (* const g_pfnVectors[])(void) = {
     0,
     0,
     0,
-    SVCall_Handler,
+    SVC_Handler,
     0,
     0,
     PendSV_Handler,
@@ -113,6 +113,8 @@ extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table_end;
 
+extern "C" void software_init_hook(void) __attribute__((weak));
+
 AFTER_VECTORS void ResetISR(void) {
     unsigned int LoadAddr, ExeAddr, SectionLen;
     unsigned int *SectionTableAddr;
@@ -134,14 +136,18 @@ AFTER_VECTORS void ResetISR(void) {
     }
     
     SystemInit();
-    __libc_init_array();
-    main();
+    if (software_init_hook) // give control to the RTOS
+        software_init_hook(); // this will also call __libc_init_array
+    else {
+        __libc_init_array();
+        main();
+    }
     while (1) {;}
 }
 
 AFTER_VECTORS void NMI_Handler      (void) {while(1){}}
 AFTER_VECTORS void HardFault_Handler(void) {while(1){}}
-AFTER_VECTORS void SVCall_Handler   (void) {while(1){}}
+AFTER_VECTORS void SVC_Handler      (void) {while(1){}}
 AFTER_VECTORS void PendSV_Handler   (void) {while(1){}}
 AFTER_VECTORS void SysTick_Handler  (void) {while(1){}}
 AFTER_VECTORS void IntDefaultHandler(void) {while(1){}}

@@ -45,6 +45,36 @@ UbloxModem::UbloxModem(IOStream* atStream, IOStream* pppStream) :
 {
 }
 
+
+class AtiProcessor : public IATCommandsProcessor
+{
+public:
+  AtiProcessor()
+  { 
+    i = 0; 
+    str[0] = '\0'; 
+  }
+  const char* getInfo(void) { return str; }
+private:
+  virtual int onNewATResponseLine(ATCommandsInterface* pInst, const char* line)
+  {
+    int l = strlen(line);
+    if (i + l + 2 > sizeof(str))
+        return NET_OVERFLOW;
+    if (i) str[i++] = ',';
+    strcat(&str[i], line);
+    i += l;
+    return OK;
+  }
+  virtual int onNewEntryPrompt(ATCommandsInterface* pInst)
+  {
+    return OK;
+  }
+protected:
+  char str[256];
+  int i;
+};
+
 class CREGProcessor : public IATCommandsProcessor
 {
 public:
@@ -309,6 +339,22 @@ int UbloxModem::init()
   }
 
   ATCommandsInterface::ATResult result;
+  AtiProcessor atiProcessor;
+  do
+  {
+    ret = m_at.execute("ATI", &atiProcessor, &result);
+  }
+  while (ret != OK);
+  {
+    const char* info = atiProcessor.getInfo();
+    DBG("Modem Identification [%s]", info);
+    if (strstr(info, "LISA-C200"))
+    {
+        m_gsm = false;    // it is CDMA modem
+        m_onePort = true; // force use of only one port
+    }
+  }
+  
   CREGProcessor cregProcessor(m_gsm);
   //Wait for network registration
   do
@@ -393,6 +439,7 @@ int UbloxModem::getLinkState(int* pRssi, LinkMonitor::REGISTRATION_STATE* pRegis
   if(!m_linkMonitorInit)
   {
     ret = m_linkMonitor.init();
+    ret = m_linkMonitor.init(m_gsm);
     if(ret)
     {
       return ret;

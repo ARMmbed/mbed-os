@@ -39,7 +39,7 @@ public:
 
   /** Initialize monitor
    */
-  int init();
+  int init(bool gsm = true);
 
   /** Registration State
   */  
@@ -82,6 +82,7 @@ private:
   ATCommandsInterface* m_pIf;
   
   int m_rssi;
+  bool m_gsm;
   REGISTRATION_STATE m_registrationState;
   BEARER m_bearer;
 

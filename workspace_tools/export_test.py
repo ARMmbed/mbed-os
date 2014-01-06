@@ -17,7 +17,7 @@ limitations under the License.
 import sys
 from os.path import join, abspath, dirname, exists
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from shutil import move
 

@@ -144,12 +144,12 @@ Reset_Handler:
     ldr    r2, =__data_start__
     ldr    r3, =__data_end__
 
-.flash_to_ram_loop:
+.Lflash_to_ram_loop:
     cmp     r2, r3
     ittt    lt
     ldrlt   r0, [r1], #4
     strlt   r0, [r2], #4
-    blt    .flash_to_ram_loop
+    blt    .Lflash_to_ram_loop
 
     ldr    r0, =SystemInit
     blx    r0
@@ -158,6 +158,7 @@ Reset_Handler:
     .pool
     .size Reset_Handler, . - Reset_Handler
     
+    .text
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
@@ -170,7 +171,7 @@ Reset_Handler:
     b    .
     .size    \handler_name, . - \handler_name
     .endm
-    
+
     def_default_handler    NMI_Handler
     def_default_handler    HardFault_Handler
     def_default_handler    MemManage_Handler
@@ -181,51 +182,54 @@ Reset_Handler:
     def_default_handler    PendSV_Handler
     def_default_handler    SysTick_Handler
     def_default_handler    Default_Handler
-    
-    def_default_handler     WDT_IRQHandler
-    def_default_handler     TIMER0_IRQHandler
-    def_default_handler     TIMER1_IRQHandler
-    def_default_handler     TIMER2_IRQHandler
-    def_default_handler     TIMER3_IRQHandler
-    def_default_handler     UART0_IRQHandler
-    def_default_handler     UART1_IRQHandler
-    def_default_handler     UART2_IRQHandler
-    def_default_handler     UART3_IRQHandler
-    def_default_handler     PWM1_IRQHandler
-    def_default_handler     I2C0_IRQHandler
-    def_default_handler     I2C1_IRQHandler
-    def_default_handler     I2C2_IRQHandler
-/*    def_default_handler     SPI_IRQHandler */
-    def_default_handler     SSP0_IRQHandler
-    def_default_handler     SSP1_IRQHandler
-    def_default_handler     PLL0_IRQHandler
-    def_default_handler     RTC_IRQHandler
-    def_default_handler     EINT0_IRQHandler
-    def_default_handler     EINT1_IRQHandler
-    def_default_handler     EINT2_IRQHandler
-    def_default_handler     EINT3_IRQHandler
-    def_default_handler     ADC_IRQHandler
-    def_default_handler     BOD_IRQHandler
-    def_default_handler     USB_IRQHandler
-    def_default_handler     CAN_IRQHandler
-    def_default_handler     DMA_IRQHandler
-    def_default_handler     I2S_IRQHandler
-    def_default_handler     ENET_IRQHandler
-    def_default_handler     MCI_IRQHandler
-    def_default_handler     MCPWM_IRQHandler
-    def_default_handler     QEI_IRQHandler
-    def_default_handler     PLL1_IRQHandler
-    def_default_handler     USBActivity_IRQHandler
-    def_default_handler     CANActivity_IRQHandler
-    def_default_handler     UART4_IRQHandler
-    def_default_handler     SSP2_IRQHandler
-    def_default_handler     LCD_IRQHandler
-    def_default_handler     GPIO_IRQHandler
-    def_default_handler     PWM0_IRQHandler
-    def_default_handler     EEPROM_IRQHandler    
 
-    .weak    DEF_IRQHandler
-    .set    DEF_IRQHandler, Default_Handler
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
+    
+    def_irq_default_handler     WDT_IRQHandler
+    def_irq_default_handler     TIMER0_IRQHandler
+    def_irq_default_handler     TIMER1_IRQHandler
+    def_irq_default_handler     TIMER2_IRQHandler
+    def_irq_default_handler     TIMER3_IRQHandler
+    def_irq_default_handler     UART0_IRQHandler
+    def_irq_default_handler     UART1_IRQHandler
+    def_irq_default_handler     UART2_IRQHandler
+    def_irq_default_handler     UART3_IRQHandler
+    def_irq_default_handler     PWM1_IRQHandler
+    def_irq_default_handler     I2C0_IRQHandler
+    def_irq_default_handler     I2C1_IRQHandler
+    def_irq_default_handler     I2C2_IRQHandler
+/*    def_irq_default_handler     SPI_IRQHandler */
+    def_irq_default_handler     SSP0_IRQHandler
+    def_irq_default_handler     SSP1_IRQHandler
+    def_irq_default_handler     PLL0_IRQHandler
+    def_irq_default_handler     RTC_IRQHandler
+    def_irq_default_handler     EINT0_IRQHandler
+    def_irq_default_handler     EINT1_IRQHandler
+    def_irq_default_handler     EINT2_IRQHandler
+    def_irq_default_handler     EINT3_IRQHandler
+    def_irq_default_handler     ADC_IRQHandler
+    def_irq_default_handler     BOD_IRQHandler
+    def_irq_default_handler     USB_IRQHandler
+    def_irq_default_handler     CAN_IRQHandler
+    def_irq_default_handler     DMA_IRQHandler
+    def_irq_default_handler     I2S_IRQHandler
+    def_irq_default_handler     ENET_IRQHandler
+    def_irq_default_handler     MCI_IRQHandler
+    def_irq_default_handler     MCPWM_IRQHandler
+    def_irq_default_handler     QEI_IRQHandler
+    def_irq_default_handler     PLL1_IRQHandler
+    def_irq_default_handler     USBActivity_IRQHandler
+    def_irq_default_handler     CANActivity_IRQHandler
+    def_irq_default_handler     UART4_IRQHandler
+    def_irq_default_handler     SSP2_IRQHandler
+    def_irq_default_handler     LCD_IRQHandler
+    def_irq_default_handler     GPIO_IRQHandler
+    def_irq_default_handler     PWM0_IRQHandler
+    def_irq_default_handler     EEPROM_IRQHandler    
+    def_irq_default_handler     DEF_IRQHandler
 
     .end
 

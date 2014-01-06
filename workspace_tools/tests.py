@@ -219,6 +219,15 @@ TESTS = [
         "automated": True,
         "mcu": ["LPC4088"]
     },
+    {
+        "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
+        "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
+        "dependencies": [MBED_LIBRARIES],
+        "automated": "True",
+        "host_test": "echo_flow_control",
+        "mcu": ["LPC1768"],
+        "peripherals": ["extra_serial"]
+    },
 
     # Size benchmarks
     {

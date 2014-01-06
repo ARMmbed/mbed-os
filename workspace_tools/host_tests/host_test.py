@@ -38,6 +38,9 @@ class Mbed:
         
         parser.add_option("-t", "--timeout", dest="timeout",
                       help="Timeout", metavar="TIMEOUT")
+
+        parser.add_option("-e", "--extra", dest="extra",
+                      help="Extra serial port (used by some tests)", metavar="EXTRA")
         
         (self.options, _) = parser.parse_args()
         
@@ -46,14 +49,19 @@ class Mbed:
         
         self.port = self.options.port
         self.disk = self.options.disk
+        self.extra_port = self.options.extra
+        self.extra_serial = None
         self.serial = None
         self.timeout = 10 if self.options.timeout is None else self.options.timeout
         
         print 'Mbed: "%s" "%s"' % (self.port, self.disk)
     
-    def init_serial(self, baud=9600):
+    def init_serial(self, baud=9600, extra_baud=9600):
         self.serial = Serial(self.port, timeout = 1)
         self.serial.setBaudrate(baud)
+        if self.extra_port:
+            self.extra_serial = Serial(self.extra_port, timeout = 1)
+            self.extra_serial.setBaudrate(extra_baud)
         self.flush()
     
     def reset(self):
@@ -64,7 +72,9 @@ class Mbed:
     def flush(self):
         self.serial.flushInput()
         self.serial.flushOutput()
-
+        if self.extra_serial:
+            self.extra_serial.flushInput()
+            self.extra_serial.flushOutput()
 
 class Test:
     def __init__(self):

@@ -259,6 +259,9 @@ extern unsigned int __bss_section_table_end;
 // Sets up a simple runtime environment and initializes the C/C++
 // library.
 //*****************************************************************************
+
+extern "C" void software_init_hook(void) __attribute__((weak));
+
 __attribute__ ((section(".after_vectors")))
 void
 ResetISR(void) {
@@ -319,21 +322,23 @@ ResetISR(void) {
 //#ifdef __USE_CMSIS
 	SystemInit();
 //#endif
-
+  if (software_init_hook) // give control to the RTOS
+    software_init_hook(); // this will also call __libc_init_array
+  else {
 #if defined (__cplusplus)
-	//
-	// Call C++ library initialisation
-	//
-	__libc_init_array();
+    //
+    // Call C++ library initialisation
+    //
+    __libc_init_array();
 #endif
 
 #if defined (__REDLIB__)
-	// Call the Redlib library, which in turn calls main()
-	__main() ;
+    // Call the Redlib library, which in turn calls main()
+    __main() ;
 #else
-	main();
+    main();
 #endif
-
+  }
 	//
 	// main() shouldn't return, but if it does, we'll just enter an infinite loop 
 	//

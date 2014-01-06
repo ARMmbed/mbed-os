@@ -29,7 +29,7 @@ import re
 import string
 
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
 from workspace_tools.paths import LIB_DIR
