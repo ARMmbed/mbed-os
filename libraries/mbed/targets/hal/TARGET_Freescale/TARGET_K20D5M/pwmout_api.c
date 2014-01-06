@@ -54,14 +54,12 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     ftm->MODE |= FTM_MODE_WPDIS_MASK; //write protection disabled
     ftm->CONF |= FTM_CONF_BDMMODE(3);
     ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
-    ftm->PWMLOAD |= FTM_PWMLOAD_LDOK_MASK;
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
-    ftm->SYNCONF |= FTM_SYNCONF_SYNCMODE_MASK | FTM_SYNCONF_SWWRBUF_MASK; //enhanced
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
     obj->MOD = &ftm->MOD;
     obj->CNT = &ftm->CNT;
-    obj->SYNC = &ftm->SYNC;
+    obj->PWMLOAD = &ftm->PWMLOAD;
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -81,8 +79,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 
     *obj->CnV = (uint32_t)((float)(*obj->MOD) * value);
+    *obj->PWMLOAD |= FTM_PWMLOAD_LDOK_MASK;
     *obj->CNT = 0;
-    *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -115,5 +113,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     *obj->CnV = PWM_CLOCK_MHZ * us;
-    *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
+    *obj->PWMLOAD |= FTM_PWMLOAD_LDOK_MASK;
 }
