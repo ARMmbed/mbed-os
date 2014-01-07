@@ -59,11 +59,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         error("SPI pinout mapping failed");
     }
 
-    SIM->SCGC5 |= (1 << 11) | (1 << 12); // PortC & D
-    SIM->SCGC6 |= 1 << 12;               // spi clocks
+    SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK;
+    SIM->SCGC6 |= SIM_SCGC6_SPI0_MASK;
 
     // halted state
-    obj->spi->MCR = SPI_MCR_HALT_MASK;
+    obj->spi->MCR &= ~SPI_MCR_MDIS_MASK;
+    obj->spi->MCR |= SPI_MCR_HALT_MASK | SPI_MCR_DIS_RXF_MASK | SPI_MCR_DIS_TXF_MASK;
 
     // set default format and frequency
     if (ssel == NC) {
@@ -111,50 +112,60 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi->CTAR[0] |= (polarity << SPI_CTAR_CPOL_SHIFT) | (phase << SPI_CTAR_CPHA_SHIFT);
 }
 
+static const uint8_t baudrate_prescaler[] = {2,3,5,7};
+static const uint32_t baudrate_scaler[] = {2, 4, 6, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+static const uint8_t delay_prescaler[] = {1, 3, 5, 7};
+
 void spi_frequency(spi_t *obj, int hz) {
     uint32_t error = 0;
     uint32_t p_error = 0xffffffff;
     uint32_t ref = 0;
-    uint32_t spr = 0;
+    uint32_t br = 0;
     uint32_t ref_spr = 0;
     uint32_t ref_prescaler = 0;
 
     // bus clk
-    uint32_t PCLK = 48000000u;
-    uint32_t prescaler = 1;
+    uint32_t PCLK = SystemCoreClock;
     uint32_t divisor = 2;
+    uint32_t prescaler;
 
-    for (prescaler = 1; prescaler <= 8; prescaler++) {
+    /* TODO */
+    for (uint32_t i = 0; i < 4; i++) {
+        prescaler = baudrate_prescaler[i];
         divisor = 2;
-        for (spr = 0; spr <= 8; spr++, divisor *= 2) {
-            ref = PCLK / (prescaler*divisor);
-            if (ref > (uint32_t)hz)
-                continue;
-            error = hz - ref;
-            if (error < p_error) {
-                ref_spr = spr;
-                ref_prescaler = prescaler - 1;
-                p_error = error;
+        for (br = 0; br <= 15; br++, divisor *= 2) {
+            for (uint32_t dr = 0; dr < 2; dr++) {
+                ref = (PCLK / prescaler) * ((1U + dr) / divisor);
+                if (ref > (uint32_t)hz)
+                    continue;
+                error = hz - ref;
+                if (error < p_error) {
+                    ref_spr = br;
+                    ref_prescaler = i;
+                    p_error = error;
+                }
             }
         }
     }
 
-    // set SPPR and SPR
-    obj->spi->CTAR[0] = ((ref_prescaler & 0x7) << 4) | (ref_spr & 0xf);
+    // set PBR and BR
+    obj->spi->CTAR[0] = ((ref_prescaler & 0x3) << SPI_CTAR_PBR_SHIFT) | (ref_spr & 0xf);
 }
 
-static inline int spi_writeable(spi_t * obj) {
-    return (obj->spi->SR & SPI_SR_TCF_MASK) ? 1 : 0;
-}
-
-static inline int spi_readable(spi_t * obj) {
+static inline int spi_writeable(spi_t *obj) {
     return (obj->spi->SR & SPI_SR_TFFF_MASK) ? 1 : 0;
+}
+
+static inline int spi_readable(spi_t *obj) {
+    return (obj->spi->SR & SPI_SR_RFDF_MASK) ? 0 : 1;
 }
 
 int spi_master_write(spi_t *obj, int value) {
     // wait tx buffer empty
     while(!spi_writeable(obj));
-    obj->spi->PUSHR = SPI_PUSHR_TXDATA(value & 0xff);
+    obj->spi->PUSHR = SPI_PUSHR_TXDATA(value & 0xff) /*| SPI_PUSHR_EOQ_MASK*/;
+
+    while (!obj->spi->SR & SPI_SR_TCF_MASK); // wait for transfer to be complete
 
     // wait rx buffer full
     while (!spi_readable(obj));
