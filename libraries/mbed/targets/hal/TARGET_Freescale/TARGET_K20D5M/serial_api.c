@@ -98,8 +98,7 @@ void serial_baud(serial_t *obj, int baudrate) {
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
 
-    // [TODO] not hardcode this value
-    uint32_t PCLK = (obj->uart == UART0) ? 48000000u : 24000000u;
+    uint32_t PCLK = (obj->uart == UART0) ? SystemCoreClock : SystemCoreClock/2;
 
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,

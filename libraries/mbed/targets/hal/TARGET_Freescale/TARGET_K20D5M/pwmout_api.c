@@ -33,14 +33,14 @@ static const PinMap PinMap_PWM[] = {
     {D10, PWM_2 , 4}, // PTC2, FTM0 CH1
 
     {PTA0,  PWM_6 , 3}, // PTA0, FTM0 CH5
-    {PTA3,  PWM_0 , 3}, // PTA3, FTM0 CH0
-    {PTA4,  PWM_1 , 3}, // PTA4, FTM0 CH1
+    {PTA3,  PWM_1 , 3}, // PTA3, FTM0 CH0
+    {PTA4,  PWM_2 , 3}, // PTA4, FTM0 CH1
     {PTA5,  PWM_3 , 3}, // PTA5, FTM0 CH2
     {PTA12, PWM_9 , 3}, // PTA12, FTM1 CH0
     {PTA13, PWM_10, 3}, // PTA13, FTM1 CH1
     {PTB0,  PWM_9 , 3}, // PTB0, FTM1 CH0
     {PTB1,  PWM_10, 3}, // PTB1, FTM1 CH1
-    {PTC1,  PWM_0 , 4}, // PTC1, FTM0 CH0
+    {PTC1,  PWM_1 , 4}, // PTC1, FTM0 CH0
     {PTD4,  PWM_4 , 4}, // PTD4, FTM0 CH3
     {PTD6,  PWM_7 , 4}, // PTD6, FTM0 CH6
     {PTD7,  PWM_8 , 4}, // PTD7, FTM0 CH7
