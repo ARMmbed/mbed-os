@@ -20,6 +20,7 @@ TEST BUILD & RUN
 """
 import sys
 from os.path import join, abspath, dirname
+from subprocess import call
 from shutil import copy
 from time import sleep
 
@@ -74,7 +75,8 @@ if __name__ == '__main__':
                       default=None, help="The mbed serial port")
     parser.add_option("-b", "--baud", type="int", dest="baud",
                       default=None, help="The mbed serial baud rate")
-    
+    parser.add_option("--nrfjprog",dest="nrfjprog",default=None,help="Program nRF Chip via J-Link")
+
     # Ideally, all the tests with a single "main" thread can be run with, or
     # without the rtos
     parser.add_option("--rtos", action="store_true", dest="rtos",
@@ -164,7 +166,10 @@ if __name__ == '__main__':
         if options.disk:
             # Simple copy to the mbed disk
             copy(bin, options.disk)
-        
+        if options.nrfjprog:
+            #Convert bin to Hex and Program nrf chip via jlink
+            call(["c:\\msdos\\msdos.exe","c:\\BIN2HEX.EXE",bin])
+            call(["nrfjprog","-e","--program",bin.replace(".bin",".hex"),"--verify","-p"])
         if options.serial:
             # Import pyserial: https://pypi.python.org/pypi/pyserial
             from serial import Serial

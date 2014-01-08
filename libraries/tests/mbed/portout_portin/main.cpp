@@ -44,6 +44,15 @@
 #define P2_1    (1 << 5)  // PTC5
 #define P2_2    (1 << 6)  // PTC6
 #define PORT_2  PortC
+
+#elif defined(TARGET_nRF51822)
+#define P1_1    (1 << 4)  // p4
+#define P1_2    (1 << 5)  // p5
+#define PORT_1  Port0
+
+#define P2_1    (1 << 0)  // p24
+#define P2_2    (1 << 1)  // p25
+#define PORT_2  Port3
 #endif
 
 #define MASK_1   (P1_1 | P1_2)

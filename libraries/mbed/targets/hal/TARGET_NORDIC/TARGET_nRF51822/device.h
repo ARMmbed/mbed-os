@@ -51,8 +51,6 @@
 
 #define DEVICE_STDIO_MESSAGES   0
 
-//#define DEVICE_ERROR_RED        0
-
 #include "objects.h"
 
 #endif

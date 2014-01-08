@@ -25,15 +25,13 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     if(pin == NC) return;
 
     obj->pin = pin;
-    obj->mask = (1<<pin);//gpio_set(pin);
+    obj->mask = (1<<pin);
 
-    unsigned int port = (unsigned int)pin/8;//(unsigned int)pin >> PORT_SHIFT;
-
-   // FGPIO_Type *reg = (FGPIO_Type *)(FPTA_BASE + port * 0x40);
-    obj->reg_set = &NRF_GPIO->OUTSET;// &reg->PSOR;
-    obj->reg_clr = &NRF_GPIO->OUTCLR;//&reg->PCOR;
-    obj->reg_in  = &NRF_GPIO->IN;//&reg->PDIR;
-    obj->reg_dir = &NRF_GPIO->DIR;//&reg->PDDR;
+    unsigned int port = (unsigned int)pin/8;
+    obj->reg_set = &NRF_GPIO->OUTSET;
+    obj->reg_clr = &NRF_GPIO->OUTCLR;
+    obj->reg_in  = &NRF_GPIO->IN;
+    obj->reg_dir = &NRF_GPIO->DIR;
 
     gpio_dir(obj, direction);
     switch (direction) {
@@ -63,15 +61,4 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
 										break;
     }
 }
-/*
-void gpio_write(gpio_t *obj, int value) {
-    if (value)
-        *obj->reg_set = obj->mask;
-    else
-        *obj->reg_clr = obj->mask;
-}
- 
-int gpio_read(gpio_t *obj) {
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}*/
 

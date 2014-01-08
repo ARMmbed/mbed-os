@@ -57,12 +57,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 	
 	//pin configurations -- 
 	//outputs	
-	//nrf_gpio_cfg_output(TX_PIN_NUMBER);
 	NRF_GPIO->DIR |= (1<<tx);//TX_PIN_NUMBER);
 	NRF_GPIO->DIR |= (1<<RTS_PIN_NUMBER);
-	//nrf_gpio_cfg_output(RTS_PIN_NUMBER);
-	
-	//nrf_gpio_cfg_input(RX_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);  
+
 	NRF_GPIO->DIR &= ~(1<<rx);//RX_PIN_NUMBER);
 	NRF_GPIO->DIR &= ~(1<<CTS_PIN_NUMBER);
 	
@@ -71,12 +68,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 	//inputs
 	obj->uart->PSELCTS = CTS_PIN_NUMBER;
 	obj->uart->PSELRXD = rx;//RX_PIN_NUMBER;
-		
-   // LPC_SYSCON->SYSAHBCLKCTRL |= (1<<12);
-
-    //disconnect USBTX/RX mapping mux, for case when switching ports
-    //pin_function(USBTX, 0);
-    //pin_function(USBRX, 0);
     
     
     // set default baud rate and format
@@ -87,9 +78,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 	obj->uart->TASKS_STARTTX = 1;
 	obj->uart->TASKS_STARTRX = 1;
 	obj->uart->EVENTS_RXDRDY =0;
-    // pinout the chosen uart
-   // pinmap_pinout(tx, PinMap_UART_TX);
-   // pinmap_pinout(rx, PinMap_UART_RX);
     
     // set rx/tx pins in PullUp mode
     pin_mode(tx, PullUp);
@@ -144,8 +132,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 			obj->uart->CONFIG  = (UART_CONFIG_PARITY_Included<<UART_CONFIG_PARITY_Pos);
             return;
     }
-	//enable HW flow control
-    obj->uart->CONFIG  |= (UART_CONFIG_HWFC_Enabled << UART_CONFIG_HWFC_Pos);
+	//no Flow Control
 }
 
 //******************************************************************************
@@ -164,7 +151,7 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
         irq_handler(serial_irq_ids[index], irq_type);
 }
 
-void uart0_irq() 
+void UART0_IRQHandler() 
 {
 	uint32_t irtype =0;
 	if(NRF_UART0->EVENTS_TXDRDY)
@@ -188,32 +175,22 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
     
     if (enable) {
-	switch (irq) {
-            case RxIrq:// obj->uart->INTEN |= (UART_INTENSET_RXDRDY_Msk); 
-						obj->uart->INTENSET |= (UART_INTENSET_RXDRDY_Msk);
-			break;
-			
-            case TxIrq: //obj->uart->INTEN |= (UART_INTENSET_TXDRDY_Msk); 
-						obj->uart->INTENSET |= (UART_INTENSET_TXDRDY_Msk);
-			break;
-    }
-     //   NVIC_SetVector(irq_n, vector);
-        NVIC_EnableIRQ(irq_n);
-    } else { // disable
-		int all_disabled = 0;
-		
 		switch (irq) {
-            case RxIrq: //obj->uart->INTEN &= ~(UART_INTENSET_RXDRDY_Msk); 
-						obj->uart->INTENSET &= ~(UART_INTENSET_RXDRDY_Msk);
+			case RxIrq: obj->uart->INTENSET |= (UART_INTENSET_RXDRDY_Msk);break;
+			case TxIrq: obj->uart->INTENSET |= (UART_INTENSET_TXDRDY_Msk);break;
+		}
+        NVIC_EnableIRQ(irq_n);
+    }
+	else { // disable
+		int all_disabled = 0;
+		switch (irq) {
+            case RxIrq: obj->uart->INTENSET &= ~(UART_INTENSET_RXDRDY_Msk);
 						all_disabled = (obj->uart->INTENSET& (UART_INTENSET_TXDRDY_Msk))==0;
-							
 			break;
-            case TxIrq://obj->uart->INTEN &= ~(UART_INTENSET_TXDRDY_Msk); 
-						obj->uart->INTENSET &= ~(UART_INTENSET_TXDRDY_Msk);
+            case TxIrq: obj->uart->INTENSET &= ~(UART_INTENSET_TXDRDY_Msk);
 						all_disabled = (obj->uart->INTENSET& (UART_INTENSET_RXDRDY_Msk))==0;
 			break;
 		}
-        
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
@@ -224,16 +201,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 //******************************************************************************
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
-	
     obj->uart->EVENTS_RXDRDY = 0;
 	return (uint8_t)obj->uart->RXD;
 }
 
 void serial_putc(serial_t *obj, int c) {
-   
     obj->uart->TXD = (uint8_t)c;
-	 while (!serial_writable(obj));
-	 obj->uart->EVENTS_TXDRDY =0;
+	while (!serial_writable(obj));
+	obj->uart->EVENTS_TXDRDY =0;
 }
 
 int serial_readable(serial_t *obj) {
@@ -244,18 +219,11 @@ int serial_writable(serial_t *obj) {
     return (obj->uart->EVENTS_TXDRDY ==1);
 }
 
-void serial_clear(serial_t *obj) {
-}
-
-void serial_pinout_tx(PinName tx) {
- //   pinmap_pinout(tx, PinMap_UART_TX);
-	//obj->uart->PSELTXD = (1<<tx));//TX_PIN_NUMBER);
-}
-
 void serial_break_set(serial_t *obj) {
-  //  obj->uart->LCR |= (1 << 6);
+    obj->uart->TASKS_SUSPEND = 1;
 }
 
 void serial_break_clear(serial_t *obj) {
-  //  obj->uart->LCR &= ~(1 << 6);
+    obj->uart->TASKS_STARTTX = 1;
+	obj->uart->TASKS_STARTRX = 1;
 }

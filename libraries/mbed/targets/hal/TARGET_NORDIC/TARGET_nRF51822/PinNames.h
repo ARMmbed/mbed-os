@@ -63,6 +63,42 @@ typedef enum {
 	p30=30,
 //	p31=31,	
 	
+	P0_0 = p0,
+	P0_1 = p1,
+	P0_2 = p2,
+	P0_3 = p3,
+	P0_4 = p4,
+	P0_5 = p5,
+	P0_6 = p6,
+	P0_7 = p7,
+	
+	P1_0 = p8,
+	P1_1 = p9,
+	P1_2 = p10,
+	P1_3 = p11,
+	P1_4 = p12,
+	P1_5 = p13,
+	P1_6 = p14,
+	P1_7 = p15,
+	
+	P2_0 = p16,
+	P2_1 = p17,
+	P2_2 = p18,
+	P2_3 = p19,
+	P2_4 = p20,
+	P2_5 = p21,
+	P2_6 = p22,
+	P2_7 = p23,
+	
+	P3_0 = p24,
+	P3_1 = p25,
+	P3_2 = p26,
+	P3_3 = p27,
+	P3_4 = p28,
+	P3_5 = p29,
+	P3_6 = p30,
+	//P3_7 = p31,
+	
 	LED_START = p18,
 	LED_STOP = p19,
     LED1 = LED_START,
@@ -82,20 +118,20 @@ typedef enum {
 	
 	USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
-	
-	SPI_PSELSCK0 = p25,
+		
 	SPI_PSELMOSI0 = p20,
 	SPI_PSELMISO0 = p22,
 	SPI_PSELSS0 = p24,
+	SPI_PSELSCK0 = p25,
+		
+	SPI_PSELMOSI1 = p12,
+	SPI_PSELMISO1 = p13,
+	SPI_PSELSS1 = p14,
+	SPI_PSELSCK1 = p15,
 	
-	SPI_PSELSCK1 = p29,
-	SPI_PSELMOSI1 = p21,
-	SPI_PSELMISO1 = p23,
-	SPI_PSELSS1 = p28,
-	
-	SPIS_PSELMISO = p12,
-	SPIS_PSELSS = p13,
-	SPIS_PSELMOSI = p14,
+	SPIS_PSELMOSI = p12,
+	SPIS_PSELMISO = p13,
+	SPIS_PSELSS = p14,	
 	SPIS_PSELSCK = p15,
 	
     // Not connected

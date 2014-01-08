@@ -22,6 +22,10 @@
 extern "C" {
 #endif
 
+#define STDIO_UART_TX     TX_PIN_NUMBER
+#define STDIO_UART_RX     RX_PIN_NUMBER
+#define STDIO_UART        UART_0
+
 typedef enum {
     UART_0 = (int)NRF_UART0_BASE
 } UARTName;
@@ -32,10 +36,6 @@ typedef enum {
     SPI_1 = (int)NRF_SPI1_BASE,
 	SPIS = (int)NRF_SPIS1_BASE
 } SPIName;
-
-#define STDIO_UART_TX     TX_PIN_NUMBER
-#define STDIO_UART_RX     RX_PIN_NUMBER
-#define STDIO_UART        UART_0
 
 typedef enum {
     PWM_1 = 0,
@@ -50,13 +50,7 @@ typedef enum {
 typedef enum {
     ADC0_0 = (int)NRF_ADC_BASE
 } ADCName;
-/*
 
-typedef enum {
-    DAC_0 = 0
-} DACName;
-
-*/
 #ifdef __cplusplus
 }
 #endif

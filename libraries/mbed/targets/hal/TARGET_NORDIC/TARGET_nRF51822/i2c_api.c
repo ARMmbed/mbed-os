@@ -19,16 +19,18 @@
 #include "error.h"
 
 
-/*
+
 static const PinMap PinMap_I2C_SDA[] = {
-    {p9, I2C_0, 1},
+    {p22, I2C_0, 1},
+	{p13, I2C_1, 2},
     {NC  , NC   , 0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {p8, I2C_0, 1},
+    {p20, I2C_0, 1},
+	{p15, I2C_1, 2},
     {NC  , NC,    0}
-};*/
+};
 uint8_t I2C_USED[] = {0,0};
 uint8_t addrSet=0;
 void i2c_interface_enable(i2c_t *obj)
@@ -57,9 +59,11 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency) {
 }
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // determine the SPI to use
-   // I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
-   // I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-   if(I2C_USED[0]){
+    I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
+    I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
+	I2CName i2c = (I2CName)pinmap_merge(i2c_sda,i2c_scl);
+	obj->i2c = (NRF_TWI_Type            *)i2c;
+   /*if(I2C_USED[0]){
 		if(I2C_USED[1]){
 			error("All TWI peripherals in use.");
 		}
@@ -68,7 +72,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 	}
 	else{
 		obj->i2c = (NRF_TWI_Type            *)I2C_0;
-	}
+	}*/
     
     if ((int)obj->i2c == NC) {
         error("I2C pin mapping failed");
@@ -185,20 +189,6 @@ int checkError(i2c_t *obj)
 	return 0;
 }
 
-// The I2C does a read or a write as a whole operation
-// There are two types of error conditions it can encounter
-//  1) it can not obtain the bus
-//  2) it gets error responses at part of the transmission
-//
-// We tackle them as follows:
-//  1) we retry until we get the bus. we could have a "timeout" if we can not get it
-//      which basically turns it in to a 2)
-//  2) on error, we use the standard error mechanisms to report/debug
-//
-// Therefore an I2C transaction should always complete. If it doesn't it is usually
-// because something is setup wrong (e.g. wiring), and we don't need to programatically
-// check for that
-
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 	int status,count;
 	obj->i2c->ADDRESS               = (address>>1);
@@ -217,11 +207,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         }
     }
 
-	/*status = i2c_do_read(obj,&data[length-2], 1);
-    if (status) {
-		i2c_reset(obj);
-        return length - 2;
-    }*/
     // read in last byte
     status = i2c_do_read(obj,&data[length-1], 1);
     if (status) {

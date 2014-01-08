@@ -28,14 +28,6 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
 	obj->reg_out = &NRF_GPIO->OUT;
     obj->reg_in  = &NRF_GPIO->IN;
     obj->reg_cnf = NRF_GPIO->PIN_CNF;
-	
-    uint32_t i;
-    // The function is set per pin: reuse gpio logic
-   /* for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
-            gpio_set(port_pin(obj->port, i));
-        }
-    }*/
     
     port_dir(obj, dir);
 }

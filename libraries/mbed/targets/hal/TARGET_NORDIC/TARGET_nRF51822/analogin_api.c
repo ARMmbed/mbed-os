@@ -22,9 +22,7 @@
 
 #define ADC_10BIT_RANGE             0x3FF
 
-static inline int div_round_up(int x, int y) {
-  return (x + (y - 1)) / y;
-}
+#define ADC_RANGE    ADC_10BIT_RANGE
 
 static const PinMap PinMap_ADC[] = {
    // {p26, ADC0_0, 1},
@@ -38,15 +36,14 @@ static const PinMap PinMap_ADC[] = {
     {NC   , NC    , 0}
 };
 
-#define ADC_RANGE    ADC_10BIT_RANGE
-
 void analogin_init(analogin_t *obj, PinName pin) {
-    obj->adc = (NRF_ADC_Type            *) ((ADCName)pinmap_peripheral(pin, PinMap_ADC));
+    obj->adc = (ADCName)((NRF_ADC_Type            *)pinmap_peripheral(pin, PinMap_ADC));
     if (obj->adc == (ADCName)NC) {
         error("ADC pin mapping failed");
     }
+	
     int analogInputPin=0;
-	PinMap *map = PinMap_ADC;
+	const PinMap *map = PinMap_ADC;
 	while (map->pin != NC) {
         if (map->pin == pin){
 			analogInputPin = map->function;
@@ -62,7 +59,6 @@ void analogin_init(analogin_t *obj, PinName pin) {
 					  (analogInputPin << ADC_CONFIG_PSEL_Pos) |
 					  (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);	
 }
-
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     NRF_ADC->TASKS_START = 1;

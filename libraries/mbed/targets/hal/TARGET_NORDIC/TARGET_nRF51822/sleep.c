@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pinmap.h"
-#include "error.h"
+#include "sleep_api.h"
+#include "cmsis.h"
+#include "mbed_interface.h"
 
-void pin_function(PinName pin, int function) {
-
+void sleep(void) {
+    // ensure debug is disconnected if semihost is enabled....
+   // mbed_interface_disconnect();
+    
+    NRF_POWER->TASKS_LOWPWR=1;
+    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+    
+    // wait for interrupt
+    __WFI();
 }
 
-void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (PinName)NC) { return; }
+void deepsleep(void) {
     
-    uint32_t pin_number = (uint32_t)pin;
-    
-	NRF_GPIO->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
-	NRF_GPIO->PIN_CNF[pin_number] |= (mode<<GPIO_PIN_CNF_PULL_Pos);
+    // PCON[PD] set to deepsleep
+   // sleep();
+	NRF_POWER->TASKS_LOWPWR=1;
+	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+	__WFI();
 }

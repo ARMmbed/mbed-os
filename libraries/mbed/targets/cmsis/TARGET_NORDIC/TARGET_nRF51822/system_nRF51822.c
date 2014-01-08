@@ -37,11 +37,11 @@ static bool is_disabled_in_debug_needed(void);
     uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #endif
 
-static void softdevice_assertion_handler(uint32_t pc, uint16_t line_num, const uint8_t * file_name)
-{
+//static void softdevice_assertion_handler(uint32_t pc, uint16_t line_num, const uint8_t * file_name)
+//{
    // UNUSED_PARAMETER(pc);
    // assert_nrf_callback(line_num, file_name);
-}
+//}
 
 
 void SystemCoreClockUpdate(void)
@@ -72,11 +72,21 @@ void SystemInit(void)
     {
         NRF_MPU->DISABLEINDEBUG = MPU_DISABLEINDEBUG_DISABLEINDEBUG_Disabled << MPU_DISABLEINDEBUG_DISABLEINDEBUG_Pos;
     }
+	
+	// Start 16 MHz crystal oscillator.
+    NRF_CLOCK->EVENTS_HFCLKSTARTED  = 0;
+    NRF_CLOCK->TASKS_HFCLKSTART     = 1;
+
+    // Wait for the external oscillator to start up.
+    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) 
+    {
+        // Do nothing.
+    }  
 }
 
 void EnableSoftDevice(void)
 {
-	sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, softdevice_assertion_handler);
+//	sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, softdevice_assertion_handler);
 }
 
 static bool is_manual_peripheral_setup_needed(void) 

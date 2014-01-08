@@ -44,34 +44,44 @@
 #define P2_1    (1 << 5)  // PTC5
 #define P2_2    (1 << 6)  // PTC6
 #define PORT_2  PortC
+
+#elif defined(TARGET_nRF51822)
+#define P1_1    (1 << 4)  // p4
+#define P1_2    (1 << 5)  // p5
+#define PORT_1  Port0
+
+#define P2_1    (1 << 0)  // p24
+#define P2_2    (1 << 1)  // p25
+#define PORT_2  Port3
+
 #endif
 
 #define MASK_1   (P1_1 | P1_2)
 #define MASK_2   (P2_1 | P2_2)
 
-PortInOut p1(PORT_1, MASK_1);
-PortInOut p2(PORT_2, MASK_2);
+PortInOut port1(PORT_1, MASK_1);
+PortInOut port2(PORT_2, MASK_2);
 
 int main() {
     bool check = true;
     
-    p1.output();
-    p2.input();
+    port1.output();
+    port2.input();
     
-    p1 = MASK_1; wait(0.1);
-    if (p2 != MASK_2) check = false;
+    port1 = MASK_1; wait(0.1);
+    if (port2 != MASK_2) check = false;
     
-    p1 = 0; wait(0.1);
-    if (p2 != 0) check = false;
+    port1 = 0; wait(0.1);
+    if (port2 != 0) check = false;
     
-    p1.input();
-    p2.output();
+    port1.input();
+    port2.output();
     
-    p2 = MASK_2; wait(0.1);
-    if (p1 != MASK_1) check = false;
+    port2 = MASK_2; wait(0.1);
+    if (port1 != MASK_1) check = false;
     
-    p2 = 0; wait(0.1);
-    if (p1 != 0) check = false;
+    port2 = 0; wait(0.1);
+    if (port1 != 0) check = false;
     
     notify_completion(check);
 }
