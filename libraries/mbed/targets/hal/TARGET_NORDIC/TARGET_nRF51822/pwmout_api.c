@@ -146,7 +146,8 @@ void timer_init(uint8_t pwmChoice)
 	}
 	
 	//if(pwmChoice<2){
-		NVIC_EnableIRQ(TIMER2_IRQn);
+	NVIC_SetPriority(TIMER2_IRQn, 3);
+	NVIC_EnableIRQ(TIMER2_IRQn);
 	//}
 //	else{
 //		NVIC_EnableIRQ(TIMER1_IRQn);

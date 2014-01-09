@@ -179,6 +179,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 			case RxIrq: obj->uart->INTENSET |= (UART_INTENSET_RXDRDY_Msk);break;
 			case TxIrq: obj->uart->INTENSET |= (UART_INTENSET_TXDRDY_Msk);break;
 		}
+		NVIC_SetPriority(irq_n, 3);
         NVIC_EnableIRQ(irq_n);
     }
 	else { // disable

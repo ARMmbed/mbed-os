@@ -67,6 +67,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 	channel_ids[pin]=id;
 	channel_enabled[pin]=1;
 	NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Set<<GPIOTE_INTENSET_PORT_Pos;
+	NVIC_SetPriority(GPIOTE_IRQn, 3);
     NVIC_EnableIRQ(GPIOTE_IRQn);	
 	return 0;
 }
