@@ -13,7 +13,7 @@
    You can override this function in your code to reserve a number of bytes
    for the stack.
 */
-extern "C" WEAK uint32_t __reserved_stack_size();
-extern "C" WEAK uint32_t __reserved_stack_size() {
+extern "C" __attribute__((weak)) uint32_t __reserved_stack_size();
+extern "C" __attribute__((weak)) uint32_t __reserved_stack_size() {
     return 0; // return 0 to indicate that nothing is reserved
 }

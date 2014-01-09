@@ -2,7 +2,6 @@
 #define SYS_HELPER_H
 
 #include <stdint.h>
-#include "toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {
