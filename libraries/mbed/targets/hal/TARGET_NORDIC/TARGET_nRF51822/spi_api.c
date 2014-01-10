@@ -71,10 +71,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     
     if ((int)obj->spi == NC && (int)obj->spis == NC) {
         error("SPI pinout mapping failed");
-    }
-    
-    // enable power and clocking ?
-    
+    }    
 	  // pin out the spi pins	
     if (ssel != NC) {//slave
 		obj->spis->POWER=1;

@@ -38,10 +38,13 @@ static const PinMap PinMap_UART_RX[] = {
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
+static uint32_t acceptedSpeeds[16][2] = {{1200,UART_BAUDRATE_BAUDRATE_Baud1200},{2400,UART_BAUDRATE_BAUDRATE_Baud2400},{4800,UART_BAUDRATE_BAUDRATE_Baud4800},{9600,UART_BAUDRATE_BAUDRATE_Baud9600},{14400,UART_BAUDRATE_BAUDRATE_Baud14400},{19200,UART_BAUDRATE_BAUDRATE_Baud19200},{28800,UART_BAUDRATE_BAUDRATE_Baud28800},{38400,UART_BAUDRATE_BAUDRATE_Baud38400},{57600,UART_BAUDRATE_BAUDRATE_Baud57600},{76800,UART_BAUDRATE_BAUDRATE_Baud76800},{115200,UART_BAUDRATE_BAUDRATE_Baud115200},{230400,UART_BAUDRATE_BAUDRATE_Baud230400},{250000,UART_BAUDRATE_BAUDRATE_Baud250000},{460800,UART_BAUDRATE_BAUDRATE_Baud460800},{921600,UART_BAUDRATE_BAUDRATE_Baud921600},{1000000,UART_BAUDRATE_BAUDRATE_Baud1M}};
+
+
+
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
 
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
@@ -101,26 +104,18 @@ void serial_free(serial_t *obj) {
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
-	switch(baudrate)
-	{
-		case 1200:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1200; break;
-		case 2400:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud2400; break;
-		case 4800:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud4800; break;
-		case 9600:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud9600; break;
-		case 14400:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud14400; break;
-		case 19200:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud19200; break;
-		case 28800:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud28800; break;
-		case 38400:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud38400; break;
-		case 57600:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud57600; break;
-		case 76800:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud76800; break;
-		case 115200:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud115200; break;
-		case 230400:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud230400; break;
-		case 250000:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud250000; break;
-		case 460800:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud460800; break;
-		case 921600:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud921600; break;
-		case 1000000:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1M; break;
-		default:obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud9600; break;
+	if(baudrate<=1200){
+		obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1200;
+		return;
+	}	
+	for(int i=1;i<16;i++)
+	{	
+		if(baudrate<acceptedSpeeds[i][0]){
+			obj->uart->BAUDRATE = acceptedSpeeds[i-1][1];
+			return;
+		}
 	}
+	obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1M;
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {

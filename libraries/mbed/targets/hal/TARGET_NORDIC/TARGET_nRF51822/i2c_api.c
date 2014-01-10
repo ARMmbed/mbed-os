@@ -31,7 +31,6 @@ static const PinMap PinMap_I2C_SCL[] = {
 	{p15, I2C_1, 2},
     {NC  , NC,    0}
 };
-uint8_t I2C_USED[] = {0,0};
 uint8_t addrSet=0;
 void i2c_interface_enable(i2c_t *obj)
 {
@@ -63,17 +62,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 	I2CName i2c = (I2CName)pinmap_merge(i2c_sda,i2c_scl);
 	obj->i2c = (NRF_TWI_Type            *)i2c;
-   /*if(I2C_USED[0]){
-		if(I2C_USED[1]){
-			error("All TWI peripherals in use.");
-		}
-		else
-			obj->i2c = (NRF_TWI_Type            *)I2C_1;
-	}
-	else{
-		obj->i2c = (NRF_TWI_Type            *)I2C_0;
-	}*/
-    
     if ((int)obj->i2c == NC) {
         error("I2C pin mapping failed");
     }
@@ -104,7 +92,7 @@ inline int i2c_start(i2c_t *obj) {
     return status;
 }
 
-inline int i2c_stop(i2c_t *obj) {
+int i2c_stop(i2c_t *obj) {
     int timeOut = 100000;
 	obj->i2c->EVENTS_STOPPED = 0;
     // write the stop bit
@@ -243,11 +231,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
             return i;
         }
     }
-			
-    
-    // clearing the serial interrupt here might cause an unintended rewrite of the last byte
-    // see also issue report https://mbed.org/users/mbed_official/code/mbed/issues/1
-    // i2c_clear_SI(obj);
     
     // If not repeated start, send stop.
     if (stop) {

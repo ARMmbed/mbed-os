@@ -43,7 +43,6 @@
 
 #define DEVICE_SEMIHOST         0
 #define DEVICE_LOCALFILESYSTEM  0
-//#define DEVICE_ID_LENGTH       24
 
 #define DEVICE_SLEEP            1
 

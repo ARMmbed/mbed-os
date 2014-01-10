@@ -47,8 +47,6 @@ static const PinMap PinMap_PWM[] = {
 	{p23,  PWM_1, 1},	
 	{p24,  PWM_1, 1},
 	{p25,  PWM_1, 1},
-	{p26,  PWM_1, 1},
-	{p27,  PWM_1, 1},
 	{p28,  PWM_1, 1},
 	{p29,  PWM_1, 1},
 	{p30,  PWM_1, 1},
@@ -64,33 +62,6 @@ uint16_t PERIOD[NO_PWMS] = {2500,2500};//20ms
 uint16_t PULSE_WIDTH[NO_PWMS] ={1,1};//set to 1 instead of 0
 uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0};
 
-
-/** @brief Function for handling timer 1 peripheral interrupts.
- */
-/*void TIMER1_IRQHandler(void)
-{
-    static uint16_t CCVal1=2501;//PERIOD[2] + 1;
-	static uint16_t CCVal2=2501;//PERIOD[3] + 1;
-	
-    if ((NRF_TIMER1->EVENTS_COMPARE[1] != 0) && 
-       ((NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
-    {
-        NRF_TIMER1->CC[0] = CCVal1;
-        NRF_TIMER1->EVENTS_COMPARE[1] = 0;
-        NRF_TIMER1->CC[1]             = (NRF_TIMER1->CC[1] + PERIOD[2]);
-    
-        CCVal1 = NRF_TIMER1->CC[1] + PULSE_WIDTH[2];        
-    }
-	if ((NRF_TIMER1->EVENTS_COMPARE[3] != 0) && 
-       ((NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE3_Msk) != 0))
-    {
-        NRF_TIMER1->CC[2] = CCVal2;
-        NRF_TIMER1->EVENTS_COMPARE[3] = 0;
-        NRF_TIMER1->CC[3]             = (NRF_TIMER1->CC[3] + PERIOD[3]);
-    
-        CCVal2 = NRF_TIMER1->CC[3] + PULSE_WIDTH[3];        
-    }	
-}*/
 
 /** @brief Function for handling timer 2 peripheral interrupts.
  */
@@ -144,15 +115,8 @@ void timer_init(uint8_t pwmChoice)
 		// Interrupt setup.
 		timer->INTENSET |= (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
 	}
-	
-	//if(pwmChoice<2){
 	NVIC_SetPriority(TIMER2_IRQn, 3);
 	NVIC_EnableIRQ(TIMER2_IRQn);
-	//}
-//	else{
-//		NVIC_EnableIRQ(TIMER1_IRQn);
-//	}
-	//__enable_irq();
 	
 	timer->TASKS_START = 0x01;
 }

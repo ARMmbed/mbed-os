@@ -25,8 +25,6 @@
 #define ADC_RANGE    ADC_10BIT_RANGE
 
 static const PinMap PinMap_ADC[] = {
-   // {p26, ADC0_0, 1},
-  //  {p27, ADC0_0, 2},
     {p1, ADC0_0, 4},
     {p2, ADC0_0, 8},
     {p3, ADC0_0, 16},

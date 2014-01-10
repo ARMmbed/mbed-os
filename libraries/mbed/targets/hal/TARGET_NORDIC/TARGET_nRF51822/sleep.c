@@ -19,19 +19,13 @@
 
 void sleep(void) {
     // ensure debug is disconnected if semihost is enabled....
-   // mbed_interface_disconnect();
-    
+   // mbed_interface_disconnect();    
     NRF_POWER->TASKS_LOWPWR=1;
- //  SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    
     // wait for interrupt
     __WFI();
 }
 
 void deepsleep(void) {
-    
-    // PCON[PD] set to deepsleep
     sleep();
 	NRF_POWER->SYSTEMOFF=1;
-//	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;	
 }
