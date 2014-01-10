@@ -19,6 +19,8 @@
 #include "pinmap.h"
 #include "error.h"
 
+#define MAX_FADC        6000000
+
 static const PinMap PinMap_ADC[] = {
     {PTE20, ADC0_SE0,  0},
     {PTE22, ADC0_SE3,  0},
@@ -54,14 +56,24 @@ void analogin_init(analogin_t *obj, PinName pin) {
     if (obj->adc & (1 << CHANNELS_A_SHIFT)) {
         cfg2_muxsel = 0;
     }
+    
+    // bus clk
+    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    uint32_t clkdiv;
+    for (clkdiv = 0; clkdiv < 4; clkdiv++) {
+        if ((PCLK >> clkdiv) <= MAX_FADC)
+            break;
+    }
+    if (clkdiv == 4)                    //Set max div
+        clkdiv = 0x7;
 
     ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc & ~(1 << CHANNELS_A_SHIFT));
 
-    ADC0->CFG1 = ADC_CFG1_ADLPC_MASK    // Low-Power Configuration
-               | ADC_CFG1_ADIV(3)       // Clock Divide Select: (Input Clock)/8
-               | ADC_CFG1_ADLSMP_MASK   // Long Sample Time
-               | ADC_CFG1_MODE(3)       // (16)bits Resolution
-               | ADC_CFG1_ADICLK(1);    // Input Clock: (Bus Clock)/2
+    ADC0->CFG1 = ADC_CFG1_ADLPC_MASK            // Low-Power Configuration
+               | ADC_CFG1_ADIV(clkdiv & 0x3)    // Clock Divide Select: (Input Clock)/8
+               | ADC_CFG1_ADLSMP_MASK           // Long Sample Time
+               | ADC_CFG1_MODE(3)               // (16)bits Resolution
+               | ADC_CFG1_ADICLK(clkdiv >> 2);  // Input Clock: (Bus Clock)/2
 
     ADC0->CFG2 = cfg2_muxsel            // ADxxb or ADxxa channels
                | ADC_CFG2_ADACKEN_MASK  // Asynchronous Clock Output Enable

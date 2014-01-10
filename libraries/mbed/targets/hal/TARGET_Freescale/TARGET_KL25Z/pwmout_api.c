@@ -64,14 +64,25 @@ static const PinMap PinMap_PWM[] = {
     {NC , NC    , 0}
 };
 
-#define PWM_CLOCK_MHZ       (0.75) // (48)MHz / 64 = (0.75)MHz
+static float pwm_clock;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     if (pwm == (PWMName)NC)
         error("PwmOut pin mapping failed");
-
+    
+    uint32_t clkdiv = 0;
+    float clkval = SystemCoreClock / 1000000.0f;
+    
+    while (clkval > 1) {
+        clkdiv++;
+        clkval /= 2.0;  
+        if (clkdiv == 7)
+            break;
+    }
+    
+    pwm_clock = clkval;
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
     unsigned int tpm_n = (pwm >> TPM_SHIFT);
     unsigned int ch_n = (pwm & 0xFF);
@@ -125,7 +136,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
-    *obj->MOD = PWM_CLOCK_MHZ * us;
+    *obj->MOD = (uint32_t)(pwm_clock * (float)us);
     pwmout_write(obj, dc);
 }
 
@@ -138,5 +149,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    *obj->CnV = PWM_CLOCK_MHZ * us;
+    *obj->CnV = (uint32_t)(pwm_clock * (float)us);
 }

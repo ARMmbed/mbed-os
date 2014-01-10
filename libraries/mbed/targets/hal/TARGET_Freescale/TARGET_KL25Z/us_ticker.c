@@ -43,7 +43,8 @@ static void pit_init(void) {
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
     
     // Use channel 0 as a prescaler for channel 1
-    PIT->CHANNEL[0].LDVAL = 23;
+    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    PIT->CHANNEL[0].LDVAL = PCLK / 1000000 - 1;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
 }
 

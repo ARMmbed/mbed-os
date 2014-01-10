@@ -111,16 +111,6 @@ void serial_free(serial_t *obj) {
 // serial_baud
 //
 // set the baud rate, taking in to account the current SystemFrequency
-//
-// The LPC2300 and LPC1700 have a divider and a fractional divider to control the
-// baud rate. The formula is:
-//
-// Baudrate = (1 / PCLK) * 16 * DL * (1 + DivAddVal / MulVal)
-//   where:
-//     1 < MulVal <= 15
-//     0 <= DivAddVal < 14
-//     DivAddVal < MulVal
-//
 void serial_baud(serial_t *obj, int baudrate) {
     
     // save C2 state
@@ -130,7 +120,7 @@ void serial_baud(serial_t *obj, int baudrate) {
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
     
     // [TODO] not hardcode this value
-    uint32_t PCLK = (obj->uart == UART0) ? 48000000u : 24000000u;
+    uint32_t PCLK = (obj->uart == UART0) ? SystemCoreClock : SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
 
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
