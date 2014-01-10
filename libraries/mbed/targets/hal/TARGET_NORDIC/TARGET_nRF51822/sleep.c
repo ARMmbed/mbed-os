@@ -22,7 +22,7 @@ void sleep(void) {
    // mbed_interface_disconnect();
     
     NRF_POWER->TASKS_LOWPWR=1;
-    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+ //  SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
     
     // wait for interrupt
     __WFI();
@@ -31,8 +31,7 @@ void sleep(void) {
 void deepsleep(void) {
     
     // PCON[PD] set to deepsleep
-   // sleep();
-	NRF_POWER->TASKS_LOWPWR=1;
-	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-	__WFI();
+    sleep();
+	NRF_POWER->SYSTEMOFF=1;
+//	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;	
 }

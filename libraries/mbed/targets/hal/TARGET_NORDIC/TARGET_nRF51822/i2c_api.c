@@ -105,13 +105,16 @@ inline int i2c_start(i2c_t *obj) {
 }
 
 inline int i2c_stop(i2c_t *obj) {
-   // int timeout = 0;
+    int timeOut = 100000;
 	obj->i2c->EVENTS_STOPPED = 0;
     // write the stop bit
     obj->i2c->TASKS_STOP=1;
 	while(!obj->i2c->EVENTS_STOPPED)
 	{
-	}
+		timeOut--;
+		if(timeOut<0)
+			return 1;
+	}	
 	//obj->i2c->ADDRESS     = 0;
 	addrSet=0;
 	i2c_reset(obj);
@@ -121,7 +124,7 @@ inline int i2c_stop(i2c_t *obj) {
 
 
 int i2c_do_write(i2c_t *obj, int value) {
-    int timeOut=1000;
+    int timeOut=100000;
 	obj->i2c->TXD = value;
 	while(!obj->i2c->EVENTS_TXDSENT){
 		timeOut--;
@@ -132,7 +135,7 @@ int i2c_do_write(i2c_t *obj, int value) {
     return 0;
 }
 int i2c_do_read(i2c_t *obj, char * data, int last) {
-	int timeOut=1000;
+	int timeOut=100000;
 	while(!obj->i2c->EVENTS_RXDREADY){
 	timeOut--;
 	if(timeOut<0)
@@ -153,39 +156,40 @@ int i2c_do_read(i2c_t *obj, char * data, int last) {
 
 
 void i2c_frequency(i2c_t *obj, int hz) {
-	obj->freq=hz;
-	switch(hz){
-		case 100000:obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K100 << TWI_FREQUENCY_FREQUENCY_Pos);break;
-		case 250000:obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K250 << TWI_FREQUENCY_FREQUENCY_Pos);break;
-		case 400000:obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K400 << TWI_FREQUENCY_FREQUENCY_Pos);break;
-		default:error("I2C frequency requested is not supported"); break;
+	if(hz<250000){
+		obj->freq=100000;
+		obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K100 << TWI_FREQUENCY_FREQUENCY_Pos);
 	}
-    
+	else if(hz<400000){
+		obj->freq=250000;
+		obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K250 << TWI_FREQUENCY_FREQUENCY_Pos);
+	}
+	else{
+		obj->freq=400000;
+		obj->i2c->FREQUENCY             = (TWI_FREQUENCY_FREQUENCY_K400 << TWI_FREQUENCY_FREQUENCY_Pos);
+	}
 }
 
 int checkError(i2c_t *obj)
 {
 	if (obj->i2c->EVENTS_ERROR == 1)
     {        
-        if ((obj->i2c->ERRORSRC & TWI_ERRORSRC_ANACK_Msk) == (TWI_ERRORSRC_ANACK_Present << TWI_ERRORSRC_ANACK_Pos))
-        {
-			obj->i2c->EVENTS_ERROR  = 0;
+        if (obj->i2c->ERRORSRC & TWI_ERRORSRC_ANACK_Msk)
+        {			
+            obj->i2c->EVENTS_ERROR  = 0;
 			obj->i2c->TASKS_STOP    = 1;
-            obj->i2c->ERRORSRC |= (TWI_ERRORSRC_ANACK_Present << TWI_ERRORSRC_ANACK_Pos);            
+			
 			return I2C_ERROR_BUS_BUSY;
         }
-    }	
-	if (obj->i2c->EVENTS_ERROR == 1)
-    {
-        obj->i2c->EVENTS_ERROR  = 0;
-        obj->i2c->TASKS_STOP    = 1;
-		
-        if ((obj->i2c->ERRORSRC & TWI_ERRORSRC_DNACK_Msk) == (TWI_ERRORSRC_DNACK_Present << TWI_ERRORSRC_DNACK_Pos))
-        {
-            obj->i2c->ERRORSRC |= (TWI_ERRORSRC_DNACK_Present << TWI_ERRORSRC_DNACK_Pos);
+		//else if (obj->i2c->ERRORSRC & TWI_ERRORSRC_DNACK_Msk)
+      //  {
+            obj->i2c->EVENTS_ERROR  = 0;
+			obj->i2c->TASKS_STOP    = 1;
             return I2C_ERROR_NO_SLAVE; 
-        }
-    }
+     //   }
+		
+		
+    }	
 	return 0;
 }
 
@@ -198,9 +202,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     // Read in all except last byte
     for (count = 0; count < (length - 1); count++) {
         status = i2c_do_read(obj,&data[count], 0);
-        if (status) {
-			i2c_reset(obj);
+        if (status) {			
 			int errorResult = checkError(obj);
+			i2c_reset(obj);
 			if(errorResult<0)
 				return errorResult;
             return count;
@@ -247,7 +251,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     // If not repeated start, send stop.
     if (stop) {
-        i2c_stop(obj);
+        if(i2c_stop(obj)){
+			return I2C_ERROR_NO_SLAVE;
+		}
     }
     
 	

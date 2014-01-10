@@ -4,12 +4,16 @@
 
 #if defined(TARGET_KL25Z)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+#elif defined(TARGET_nRF51822)
+//SDFileSystem sd(p20, p22, p25, p24, "sd");
+SDFileSystem sd(p12, p13, p15, p14, "sd");
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 
 #define SIZE 120
 
+DigitalOut led1(LED1);
 int main() {
     FILE *f = fopen("/sd/out.txt", "w");
     

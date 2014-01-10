@@ -178,17 +178,29 @@ void spi_frequency(spi_t *obj, int hz) {
 	if((int)obj->spi==NC)
 		return;
     spi_disable(obj,0);
-	switch(hz)
-	{
-		case 125000: obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL); break;
-		case 250000:obj->spi->FREQUENCY  = (uint32_t)( 0x02000000UL << 1 ); break;
-		case 500000:obj->spi->FREQUENCY  = (uint32_t)( 0x02000000UL << 2 ); break;
-		case 1000000:obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 3 ); break;
-		case 2000000:obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 4 ); break;
-		case 4000000:obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 5 ); break;
-		case 8000000:obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 6 ); break;
-		default:error("Couldn't setup requested SPI frequency"); return;
+	
+	if(hz<250000) { //125Khz
+		obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL); 
 	}
+	else if(hz<500000){//250KHz
+		obj->spi->FREQUENCY  = (uint32_t)( 0x02000000UL << 1 );
+	}
+	else if(hz<1000000){//500KHz
+		obj->spi->FREQUENCY  = (uint32_t)( 0x02000000UL << 2 );
+	}
+	else if(hz<2000000){//1Mhz
+		obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 3 );
+	}
+	else if(hz<4000000){//2MHz
+		obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 4 );
+	}
+	else if(hz<8000000){//4MHz
+		obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 5 );
+	}
+	else{//8MHz
+		obj->spi->FREQUENCY = (uint32_t)( 0x02000000UL << 6 ); 
+	}
+	
 	spi_enable(obj,0);
 }
 
