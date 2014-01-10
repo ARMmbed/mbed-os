@@ -267,11 +267,44 @@ class NUCLEO_F103RB(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['STM', 'STM32F10X', 'STM32F103RB']
+        self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         
         
+class NUCLEO_L152RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+        
+class NUCLEO_F401RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+        
+class NUCLEO_F030R8(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+                
+                
 class MBED_MCU(Target):
     def __init__(self):
         Target.__init__(self)
@@ -354,6 +387,9 @@ TARGETS = [
     LPC4330_M4(),
     STM32F407(),
     NUCLEO_F103RB(),
+    NUCLEO_L152RE(),
+    NUCLEO_F401RE(),
+    NUCLEO_F030R8(),
     MBED_MCU(),
     LPC1347(),
     LPC1114(),
