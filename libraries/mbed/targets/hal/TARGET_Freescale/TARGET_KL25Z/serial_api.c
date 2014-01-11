@@ -23,6 +23,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 /******************************************************************************
  * INITIALIZATION
@@ -70,7 +71,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UARTLP_Type *)uart;
     // enable clk
     switch (uart) {
-        case UART_0: SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | (1<<SIM_SOPT2_UART0SRC_SHIFT);
+        case UART_0: if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0))   //PLL/FLL is selected
+                        SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | (1<<SIM_SOPT2_UART0SRC_SHIFT);
+                     else
+                        SIM->SOPT2 |= (2<<SIM_SOPT2_UART0SRC_SHIFT);
                      SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK; SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; break;
         case UART_1: SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK; SIM->SCGC4 |= SIM_SCGC4_UART1_MASK; break;
         case UART_2: SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK; SIM->SCGC4 |= SIM_SCGC4_UART2_MASK; break;
@@ -119,8 +123,7 @@ void serial_baud(serial_t *obj, int baudrate) {
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
     
-    // [TODO] not hardcode this value
-    uint32_t PCLK = (obj->uart == UART0) ? SystemCoreClock : SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    uint32_t PCLK = (obj->uart == UART0) ? SystemCoreClock : bus_frequency();
 
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,

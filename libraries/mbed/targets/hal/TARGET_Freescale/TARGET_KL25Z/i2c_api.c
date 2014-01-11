@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PTE25, I2C_0, 5},
@@ -206,7 +207,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     uint32_t ref = 0;
     uint8_t i, j;
     // bus clk
-    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    uint32_t PCLK = bus_frequency();
     uint32_t pulse = PCLK / (hz * 2);
 
     // we look for the values that minimize the error

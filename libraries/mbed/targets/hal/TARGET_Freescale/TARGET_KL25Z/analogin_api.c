@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 #define MAX_FADC        6000000
 
@@ -58,7 +59,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     }
     
     // bus clk
-    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    uint32_t PCLK = bus_frequency();
     uint32_t clkdiv;
     for (clkdiv = 0; clkdiv < 4; clkdiv++) {
         if ((PCLK >> clkdiv) <= MAX_FADC)

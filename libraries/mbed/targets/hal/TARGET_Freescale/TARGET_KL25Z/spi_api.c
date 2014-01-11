@@ -20,6 +20,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTA15, SPI_0, 2},
@@ -145,7 +146,7 @@ void spi_frequency(spi_t *obj, int hz) {
     uint8_t  ref_prescaler = 0;
 
     // bus clk
-    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    uint32_t PCLK = bus_frequency();
     uint8_t prescaler = 1;
     uint8_t divisor = 2;
 
