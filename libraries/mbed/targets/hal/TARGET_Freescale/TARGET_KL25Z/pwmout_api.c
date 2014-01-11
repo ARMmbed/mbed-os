@@ -92,7 +92,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1); // Clock source: MCGFLLCLK or MCGPLLCLK
 
     TPM_Type *tpm = (TPM_Type *)(TPM0_BASE + 0x1000 * tpm_n);
-    tpm->SC = TPM_SC_CMOD(1) | TPM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
+    tpm->SC = TPM_SC_CMOD(1) | TPM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
     tpm->CONTROLS[ch_n].CnSC = (TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
 
     obj->CnV = &tpm->CONTROLS[ch_n].CnV;
