@@ -20,10 +20,11 @@ from os.path import splitext, basename
 
 class CoIDE(Exporter):
     NAME = 'CoIDE'
+    # seems like CoIDE currently supports only one type
     FILE_TYPES = {
         'c_sources':'1',
-        'cpp_sources':'8',
-        's_sources':'2'
+        'cpp_sources':'1',
+        's_sources':'1'
     }
     TARGETS = ['KL25Z']
     TOOLCHAIN = 'GCC_ARM'
@@ -34,7 +35,7 @@ class CoIDE(Exporter):
         for r_type, n in CoIDE.FILE_TYPES.iteritems():
             for file in getattr(self.resources, r_type):
                 source_files.append({
-                    'name': basename(file), 'path': file
+                    'name': basename(file), 'type': n, 'path': file
                 })
 
         libraries = []
