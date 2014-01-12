@@ -20,17 +20,22 @@ from os.path import splitext, basename
 
 class CoIDE(Exporter):
     NAME = 'CoIDE'
+    FILE_TYPES = {
+        'c_sources':'1',
+        'cpp_sources':'8',
+        's_sources':'2'
+    }
     TARGETS = ['KL25Z']
     TOOLCHAIN = 'GCC_ARM'
 
     def generate(self):
-        to_be_compiled = []
-        for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
-            r = getattr(self.resources, r_type)
-            if r:
-                for source in r:
-                    base, ext = splitext(source)
-                    to_be_compiled.append(base + '.o')
+        self.resources.win_to_unix()
+        source_files = []
+        for r_type, n in CoIDE.FILE_TYPES.iteritems():
+            for file in getattr(self.resources, r_type):
+                source_files.append({
+                    'name': basename(file), 'path': file
+                })
 
         libraries = []
         for lib in self.resources.libraries:
@@ -39,14 +44,14 @@ class CoIDE(Exporter):
 
         ctx = {
             'name': self.program_name,
-            'to_be_compiled': to_be_compiled,
+            'source_files': source_files,
             'include_paths': self.resources.inc_dirs,
-            'library_paths': self.resources.lib_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects,
+            'libraries': libraries,
             'symbols': self.toolchain.get_symbols()
         }
         target = self.target.lower()
 
         # Project file
-        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '.coproj')
+        self.gen_file('coide_%s.coproj.tmpl' % target, ctx, '%s.coproj' % self.program_name)

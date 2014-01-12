@@ -4,17 +4,14 @@
     <Device manufacturerId="4" manufacturerName="Freescale" chipId="86" chipName="MKL25Z128VLK4" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-Wl, --specs=nano.specs -fno-common; -fmessage-length=0; -Wall; -fno-exceptions; -ffunction-sections; -fdata-sections; {% for s in symbols %}-D{{s}}; {% endfor %} -std=gnu++98"/>
+        <Option name="UserEditCompiler" value="-fno-common; -fmessage-length=0; -Wall; -fno-strict-aliasing; -fno-rtti; -fno-exceptions; -ffunction-sections; -fdata-sections; -std=gnu++98"/>
         <Includepaths>
-          <Includepath path="."/>
-          <Includepath path="mbed"/>
-          <Includepath path="mbed/target_kl25z"/>
-          <Includepath path="mbed/target_kl25z/toolchain_gcc_arm"/>
+          {% for path in include_paths %} <Includepath path="{{path}}"/> {% endfor %}
         </Includepaths>
         <DefinedSymbols>
-          <Define name="MKL25Z128VLK4"/>
+          {% for s in symbols %} <Define name="{{s}}"/> {% endfor %}
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -25,7 +22,8 @@
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Not use C Library"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="UserEditLinker" value="C:/CooCox/CoIDE/workspace/{{name}}/mbed/target_kl25z/toolchain_gcc_arm/cmsis_nvic.o; C:/CooCox/CoIDE/workspace/{{name}}/mbed/target_kl25z/toolchain_gcc_arm/retarget.o; C:/CooCox/CoIDE/workspace/{{name}}/mbed/target_kl25z/toolchain_gcc_arm/startup_MKL25Z4.o; C:/CooCox/CoIDE/workspace/{{name}}/mbed/target_kl25z/toolchain_gcc_arm/system_MKL25Z4.o; -lmbed; -lstdc++; -lsupc++; -lm; -lc; -lgcc; -lnosys; -lmbed; -lstdc++; -lsupc++; -lm; -lc; -lgcc; -lnosys; "/>
+        <Option name="UserEditLinker" value="--specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
+        ${project.path}/{{file}}; {% endfor %} {% for lib in libraries %} -l{{lib}}; {% endfor %} -lstdc++; -lsupc++; -lm; -lc; -lgcc; -lnosys;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x00000000"/>
@@ -33,7 +31,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="mbed/target_kl25z/toolchain_gcc_arm/mkl25z4.ld" type="0"/>
+        <LocateLinkFile path="{{scatter_file}}" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -70,6 +68,8 @@
   </Target>
   <Components path="./"/>
   <Files>
-    <File name="main.cpp" path="main.cpp" type="1"/>
+    {% for file in source_files %}
+    <File name="{{file.name}}" path="{{file.path}}.{{file.type}}" type="1"/>
+    {% endfor %}
   </Files>
 </Project>
