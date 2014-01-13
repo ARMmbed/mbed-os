@@ -102,8 +102,9 @@ typedef enum {
   PC_14 = 0x2E,
   PC_15 = 0x2F,
 
+  PD_0  = 0x30,
+  PD_1  = 0x31,
   PD_2  = 0x32,
-  PD_8  = 0x38,
 
   // Arduino connector namings
   A0          = PA_0,
