@@ -44,33 +44,24 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
   
     if (pin == NC) return;
 
-    // Get GPIO structure base address
     uint32_t pin_number = (uint32_t)pin;
     uint32_t port_index = (pin_number >> 4);  
 
+    // Get GPIO structure base address
     switch (port_index) {
-        case 0:
+        case PortA:
             gpio = (GPIO_TypeDef *)GPIOA_BASE;
             break;
-        case 1:
+        case PortB:
             gpio = (GPIO_TypeDef *)GPIOB_BASE;
             break;
-        case 2:
+        case PortC:
             gpio = (GPIO_TypeDef *)GPIOC_BASE;
             break;
-        case 3:
+        case PortD:
             gpio = (GPIO_TypeDef *)GPIOD_BASE;
             break;
-        case 4:
-            gpio = (GPIO_TypeDef *)GPIOE_BASE;
-            break;
-        case 5:
-            gpio = (GPIO_TypeDef *)GPIOF_BASE;
-            break;
-        case 6:
-            gpio = (GPIO_TypeDef *)GPIOG_BASE;
-            break;
-        case 7:
+        case PortH:
             gpio = (GPIO_TypeDef *)GPIOH_BASE;
             break;
         default:

@@ -47,35 +47,23 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
 
     // Get GPIO structure base address and enable clock
      switch (port_index) {
-        case 0:
+        case PortA:
             gpio = (GPIO_TypeDef *)GPIOA_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
             break;
-        case 1:
+        case PortB:
             gpio = (GPIO_TypeDef *)GPIOB_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
             break;
-        case 2:
+        case PortC:
             gpio = (GPIO_TypeDef *)GPIOC_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
             break;
-        case 3:
+        case PortD:
             gpio = (GPIO_TypeDef *)GPIOD_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
             break;
-        case 4:
-            gpio = (GPIO_TypeDef *)GPIOE_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOE, ENABLE);
-            break;
-        case 5:
-            gpio = (GPIO_TypeDef *)GPIOF_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
-            break;
-        case 6:
-            gpio = (GPIO_TypeDef *)GPIOG_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOG, ENABLE);
-            break;
-        case 7:
+        case PortH:
             gpio = (GPIO_TypeDef *)GPIOH_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, ENABLE);
             break;
