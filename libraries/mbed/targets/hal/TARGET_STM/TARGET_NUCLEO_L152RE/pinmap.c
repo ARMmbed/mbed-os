@@ -85,8 +85,8 @@ void pin_function(PinName pin, int data) {
     GPIO_Init(gpio, &GPIO_InitStructure);
 
     // Configure Alternate Function
-    if (afnum > 0) {
-        GPIO_PinAFConfig(gpio, (uint16_t)(1 << pin_index), afnum);
+    if (afnum != 0xFF) {
+        GPIO_PinAFConfig(gpio, (uint16_t)pin_index, afnum);
     }
     
     // *** TODO ***

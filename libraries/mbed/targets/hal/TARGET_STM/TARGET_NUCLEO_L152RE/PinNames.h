@@ -39,7 +39,7 @@ extern "C" {
 // MODE (see GPIOMode_TypeDef structure)
 // OTYPE (see GPIOOType_TypeDef structure)
 // PUPD (see GPIOPuPd_TypeDef structure)
-// AFNUM (see AF_mapping constant table)
+// AFNUM (see AF_mapping constant table, 0xFF is not used)
 #define STM_PIN_DATA(MODE, OTYPE, PUPD, AFNUM)  (((AFNUM)<<8)|((PUPD)<<4)|((OTYPE)<<2)|((MODE)<<0))
 #define STM_PIN_MODE(X)   (((X)>>0) & 0x3)
 #define STM_PIN_OTYPE(X)  (((X)>>2) & 0x1)

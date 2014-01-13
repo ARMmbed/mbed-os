@@ -34,14 +34,14 @@
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
+    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
+    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
+    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
+    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {NC,    NC,     0}
 };
 
@@ -94,7 +94,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
-
+    pin_mode(tx, PullUp);
+    pin_mode(rx, PullUp);
+    
     // Configure UART
     obj->baudrate = 9600;
     obj->databits = USART_WordLength_8b;
