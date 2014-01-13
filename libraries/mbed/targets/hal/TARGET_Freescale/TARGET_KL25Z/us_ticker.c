@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "clk_freqs.h"
 
 static void pit_init(void);
 static void lptmr_init(void);
@@ -43,7 +44,7 @@ static void pit_init(void) {
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
     
     // Use channel 0 as a prescaler for channel 1
-    PIT->CHANNEL[0].LDVAL = 23;
+    PIT->CHANNEL[0].LDVAL = bus_frequency() / 1000000 - 1;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
 }
 
@@ -76,8 +77,36 @@ static void lptmr_init(void) {
     NVIC_EnableIRQ(LPTimer_IRQn);
     
     /* Clock at (1)MHz -> (1)tick/us */
-    LPTMR0->PSR = LPTMR_PSR_PCS(3);       // OSCERCLK -> 8MHz
-    LPTMR0->PSR |= LPTMR_PSR_PRESCALE(2); // divide by 8
+    /* Check if the external oscillator can be divided to 1MHz */
+    uint32_t extosc = extosc_frequency();
+    
+    if (extosc != 0) {                      //If external oscillator found
+        if (extosc % 1000000u == 0) {       //If it is a multiple if 1MHz
+            extosc /= 1000000;
+            if (extosc == 1)    {           //1MHz, set timerprescaler in bypass mode
+                LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PBYP_MASK;
+                return;
+            } else {                        //See if we can divide it to 1MHz
+                uint32_t divider = 0;
+                extosc >>= 1;
+                while (1) {
+                    if (extosc == 1) {
+                        LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PRESCALE(divider);
+                        return;
+                    }
+                    if (extosc % 2 != 0)    //If we can't divide by two anymore
+                        break;
+                    divider++;
+                    extosc >>= 1;
+                }
+            }
+        }
+    }
+    //No suitable external oscillator clock -> Use fast internal oscillator (4MHz)
+    MCG->C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG->C2 |= MCG_C2_IRCS_MASK;
+    LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(1);
+    
 }
 
 void us_ticker_disable_interrupt(void) {
