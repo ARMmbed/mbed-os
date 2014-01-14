@@ -75,7 +75,8 @@ if __name__ == '__main__':
                       default=None, help="The mbed serial port")
     parser.add_option("-b", "--baud", type="int", dest="baud",
                       default=None, help="The mbed serial baud rate")
-    parser.add_option("--nrfjprog",dest="nrfjprog",default=None,help="Program nRF Chip via J-Link")
+    parser.add_option("--nrfjprog", dest="nrfjprog", action="store_true",
+                      default=None, help="Program nRF Chip via J-Link")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
     # without the rtos
@@ -168,8 +169,7 @@ if __name__ == '__main__':
             copy(bin, options.disk)
         if options.nrfjprog:
             #Convert bin to Hex and Program nrf chip via jlink
-            call(["c:\\msdos\\msdos.exe","c:\\BIN2HEX.EXE",bin])
-            call(["nrfjprog","-e","--program",bin.replace(".bin",".hex"),"--verify","-p"])
+            call(["nrfjprog","-e","--program",bin.replace(".bin", ".hex"),"--verify","-p"])
         if options.serial:
             # Import pyserial: https://pypi.python.org/pypi/pyserial
             from serial import Serial

@@ -65,6 +65,9 @@ class Resources:
         self.repo_files = []
         
         self.linker_script = None
+
+        # Other files
+        self.hex_files = []
     
     def add(self, resources):
         self.inc_dirs += resources.inc_dirs
@@ -86,11 +89,13 @@ class Resources:
         
         if resources.linker_script is not None:
             self.linker_script = resources.linker_script
-    
+
+        self.hex_files += resources.hex_files
+ 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -99,7 +104,7 @@ class Resources:
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -118,7 +123,9 @@ class Resources:
                 
                 ('Library directories', self.lib_dirs),
                 ('Objects', self.objects),
-                ('Libraries', self.libraries)
+                ('Libraries', self.libraries),
+
+                ('Hex files', self.hex_files),
             ):
             if resources:
                 s.append('%s:\n  ' % label + '\n  '.join(resources))
@@ -296,14 +303,19 @@ class mbedToolchain:
                 
                 elif ext == self.LINKER_EXT:
                     resources.linker_script = file_path
-                
+
                 elif ext == '.lib':
                     resources.lib_refs.append(file_path)
+
                 elif ext == '.bld':
                     resources.lib_builds.append(file_path)
+
                 elif file == '.hgignore':
                     resources.repo_files.append(file_path)
-        
+
+                elif ext == '.hex':
+                    resources.hex_files.append(file_path)
+
         return resources
 
     def scan_repository(self, path):
@@ -432,7 +444,7 @@ class mbedToolchain:
         
         if self.need_update(bin, [elf]):
             self.progress("elf2bin", name)
-            self.binary(elf, bin)
+            self.binary(r, elf, bin)
             
             if self.target.name.startswith('LPC'):
                 self.debug("LPC Patch %s" % (name + '.bin'))

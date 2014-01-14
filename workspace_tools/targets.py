@@ -176,7 +176,7 @@ class LPC4088(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, elf, binf):
+    def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
             return
@@ -304,6 +304,9 @@ class LPC11U35_401(Target):
 
 
 class nRF51822(Target):
+
+    EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
+
     def __init__(self):
         Target.__init__(self)
         
@@ -313,6 +316,26 @@ class nRF51822(Target):
         
         self.supported_toolchains = ["ARM"]
 
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
+            hook.hook_add_binary("post", self.binary_hook)
+
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        for hexf in resources.hex_files:
+            if hexf.find(nRF51822.EXPECTED_SOFTDEVICE) != -1:
+                break
+        else:
+            return
+        from intelhex import IntelHex
+        binh = IntelHex()
+        binh.loadbin(binf, offset = 0x14000)
+        sdh = IntelHex(hexf)
+        sdh.merge(binh)
+        outname = binf.replace(".bin", ".hex")
+        with open(outname, "w") as f:
+            sdh.tofile(f, format = 'hex')
+        t_self.debug("Generated SoftDevice-enabled image in '%s'" % outname)
 
 # Get a single instance for each target
 TARGETS = [

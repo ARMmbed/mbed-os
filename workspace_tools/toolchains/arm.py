@@ -121,7 +121,7 @@ class ARM(mbedToolchain):
         self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
     
     @hook_tool
-    def binary(self, elf, bin):
+    def binary(self, resources, elf, bin):
         self.default_cmd([self.elf2bin, '--bin', '-o', bin, elf])
 
 

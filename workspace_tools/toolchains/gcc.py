@@ -156,7 +156,7 @@ class GCC(mbedToolchain):
         self.default_cmd(self.ld + ["-T%s" % mem_map, "-o", output] +
             objects + ["-L%s" % L for L in lib_dirs] + libs)
     
-    def binary(self, elf, bin):
+    def binary(self, resources, elf, bin):
         self.default_cmd([self.elf2bin, "-O", "binary", elf, bin])
 
 
