@@ -72,8 +72,8 @@ static uint32_t extosc_frequency(void) {
             }
         } else {             //PLL is selected
             divider = (1u + (MCG->C5 & MCG_C5_PRDIV0_MASK));
-            multiplier = ((MCG->C6 & MCG_C6_VDIV0_MASK) + 24u);
-            return MCGClock * divider / multiplier;            
+            multiplier = ((MCG->C6 & MCG_C6_VDIV0_MASK) + 24u); 
+            return MCGClock * divider / multiplier;         
         }
     }
     
@@ -83,6 +83,23 @@ static uint32_t extosc_frequency(void) {
     return 0;
 }
 
+//Get MCG PLL/2 or FLL frequency, depending on which one is active, sets PLLFLLSEL bit
+static uint32_t mcgpllfll_frequency(void) { 
+    if ((MCG->C1 & MCG_C1_CLKS_MASK) != MCG_C1_CLKS(0))   //PLL/FLL is not selected
+        return 0;
+    
+    uint32_t MCGClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
+    if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {         //FLL is selected
+        SIM->SOPT2 &= ~SIM_SOPT2_PLLFLLSEL_MASK;        //MCG peripheral clock is FLL output
+        return MCGClock;
+    } else {                                            //PLL is selected
+        SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;         //MCG peripheral clock is PLL output
+        return (MCGClock >> 1);
+    }
+    
+    //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active 
+    //for the peripherals, this is however an unlikely setup
+}
 
 #ifdef __cplusplus
 }

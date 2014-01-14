@@ -102,10 +102,22 @@ static void lptmr_init(void) {
             }
         }
     }
-    //No suitable external oscillator clock -> Use fast internal oscillator (4MHz)
+    //No suitable external oscillator clock -> Use fast internal oscillator (4MHz / divider)
     MCG->C1 |= MCG_C1_IRCLKEN_MASK;
     MCG->C2 |= MCG_C2_IRCS_MASK;
-    LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(1);
+    LPTMR0->PSR =  LPTMR_PSR_PCS(0);
+    switch (MCG->SC & MCG_SC_FCRDIV_MASK) {
+        case MCG_SC_FCRDIV(0):                  //4MHz
+            LPTMR0->PSR |= LPTMR_PSR_PRESCALE(1);
+            break;
+        case MCG_SC_FCRDIV(1):                  //2MHz
+            LPTMR0->PSR |= LPTMR_PSR_PRESCALE(0);
+            break;
+        default:                                //1MHz or anything else, in which case we put it on 1MHz
+            MCG->SC &= ~MCG_SC_FCRDIV_MASK;
+            MCG->SC |= MCG_SC_FCRDIV(2);
+            LPTMR0->PSR |= LPTMR_PSR_PBYP_MASK;
+    }
     
 }
 
