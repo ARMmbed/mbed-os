@@ -20,7 +20,7 @@ from os import makedirs
 from shutil import copytree, rmtree
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, coide
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import EXPORT_MAP
 
@@ -30,7 +30,8 @@ EXPORTERS = {
     'codesourcery': codesourcery.CodeSourcery,
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,
-    'iar': iar.IAREmbeddedWorkbench
+    'iar': iar.IAREmbeddedWorkbench,
+    'coide' : coide.CoIDE
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -51,16 +52,16 @@ def export(project_path, project_name, ide, target, destination='/tmp/', tempdir
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
-    
+
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
-    
+
     if ide is None:
         # Simply copy everything, no project files to be generated
         for d in ['src', 'lib']:
             os.system("cp -r %s/* %s" % (join(project_path, d), tempdir))
         report = {'success': True}
-    
+
     else:
         report = {'success': False}
         if ide not in EXPORTERS:
@@ -78,11 +79,11 @@ def export(project_path, project_name, ide, target, destination='/tmp/', tempdir
                     report['success'] = True
                 except OldLibrariesException, e:
                     report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
-    
+
     zip_path = None
     if report['success']:
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
-    
+
     return zip_path, report
 
 
@@ -95,7 +96,7 @@ def copy_tree(src, dst, clean=True):
             rmtree(dst)
         else:
             return
-    
+
     copytree(src, dst)
 
 
@@ -104,14 +105,14 @@ def setup_user_prj(user_dir, prj_path, lib_paths=None):
     Setup a project with the same directory structure of the mbed online IDE
     """
     mkdir(user_dir)
-    
+
     # Project Path
     copy_tree(prj_path, join(user_dir, "src"))
-    
+
     # Project Libraries
     user_lib = join(user_dir, "lib")
     mkdir(user_lib)
-    
+
     if lib_paths is not None:
         for lib_path in lib_paths:
             copy_tree(lib_path, join(user_lib, basename(lib_path)))

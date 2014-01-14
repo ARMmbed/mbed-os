@@ -115,7 +115,7 @@ void spi_frequency(spi_t *obj, int hz) {
     uint8_t  ref_prescaler = 0;
 
     // bus clk
-    uint32_t PCLK = 23986176u;
+    uint32_t PCLK = SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
     uint8_t prescaler = 1;
     uint8_t divisor = 2;
 
