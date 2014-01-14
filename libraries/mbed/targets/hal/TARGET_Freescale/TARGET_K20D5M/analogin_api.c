@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_ADC[] = {
     {PTC2, ADC0_SE4b, 0},
@@ -33,6 +34,8 @@ static const PinMap PinMap_ADC[] = {
     {NC,   NC,        0}
 };
 
+#define MAX_FADC        6000000
+
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     if (obj->adc == (ADCName)NC)
@@ -43,13 +46,23 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint32_t port = (uint32_t)pin >> PORT_SHIFT;
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
 
+    // bus clk
+    uint32_t PCLK = bus_frequency();
+    uint32_t clkdiv;
+    for (clkdiv = 0; clkdiv < 4; clkdiv++) {
+        if ((PCLK >> clkdiv) <= MAX_FADC)
+            break;
+    }
+    if (clkdiv == 4)                    //Set max div
+        clkdiv = 0x7;
+
     ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc);
 
     ADC0->CFG1 = ADC_CFG1_ADLPC_MASK    // Low-Power Configuration
-               | ADC_CFG1_ADIV(3)       // Clock Divide Select: (Input Clock)/8
+               | ADC_CFG1_ADIV(clkdiv & 0x3)       // Clock Divide Select
                | ADC_CFG1_ADLSMP_MASK   // Long Sample Time
                | ADC_CFG1_MODE(3)       // (16)bits Resolution
-               | ADC_CFG1_ADICLK(1);    // Input Clock: (Bus Clock)/2
+               | ADC_CFG1_ADICLK(clkdiv >> 2);    // Input Clock
 
     ADC0->CFG2 = ADC_CFG2_MUXSEL_MASK   // ADxxb or ADxxa channels
                | ADC_CFG2_ADACKEN_MASK  // Asynchronous Clock Output Enable

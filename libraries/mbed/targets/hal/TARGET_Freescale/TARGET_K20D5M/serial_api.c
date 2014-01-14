@@ -53,7 +53,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UART_Type *)uart;
     // enable clk
     switch (uart) {
-        case UART_0: SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | (1<<SIM_SOPT5_UART0TXSRC_SHIFT);
+        case UART_0: SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
                      SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK; SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; break;
         case UART_1: SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK; SIM->SCGC4 |= SIM_SCGC4_UART1_MASK; break;
         case UART_2: SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK; SIM->SCGC4 |= SIM_SCGC4_UART2_MASK; break;

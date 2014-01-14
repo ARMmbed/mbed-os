@@ -48,7 +48,7 @@ static const PinMap PinMap_PWM[] = {
     {NC , NC    , 0}
 };
 
-#define PWM_CLOCK_MHZ       (0.75) // (48)MHz / 64 = (0.75)MHz
+static float pwm_clock = 0;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
@@ -56,6 +56,17 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (pwm == (PWMName)NC)
         error("PwmOut pin mapping failed");
 
+    uint32_t clkdiv = 0;
+    float clkval = SystemCoreClock / 1000000.0f;
+
+    while (clkval > 1) {
+        clkdiv++;
+        clkval /= 2.0;
+        if (clkdiv == 7)
+            break;
+    }
+
+    pwm_clock = clkval;
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
     unsigned int ftm_n = (pwm >> TPM_SHIFT);
     unsigned int ch_n = (pwm & 0xFF);
@@ -65,7 +76,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
     ftm->CONF |= FTM_CONF_BDMMODE(3);
-    ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
+    ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
@@ -108,7 +119,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
-    *obj->MOD = PWM_CLOCK_MHZ * us;
+    *obj->MOD = (uint32_t)(pwm_clock * (float)us);
     pwmout_write(obj, dc);
 }
 
@@ -121,5 +132,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    *obj->CnV = PWM_CLOCK_MHZ * us;
+    *obj->CnV = (uint32_t)(pwm_clock * (float)us);
 }
