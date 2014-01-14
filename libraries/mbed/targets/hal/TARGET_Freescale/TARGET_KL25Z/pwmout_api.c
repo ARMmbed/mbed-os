@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_PWM[] = {
     // LEDs
@@ -73,7 +74,14 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         error("PwmOut pin mapping failed");
     
     uint32_t clkdiv = 0;
-    float clkval = SystemCoreClock / 1000000.0f;
+    float clkval;
+    if (mcgpllfll_frequency()) {
+        SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1); // Clock source: MCGFLLCLK or MCGPLLCLK
+        clkval = mcgpllfll_frequency() / 1000000.0f;
+    } else {
+        SIM->SOPT2 |= SIM_SOPT2_TPMSRC(2); // Clock source: ExtOsc
+        clkval = extosc_frequency() / 1000000.0f;
+    } 
     
     while (clkval > 1) {
         clkdiv++;
@@ -89,7 +97,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
     SIM->SCGC6 |= 1 << (SIM_SCGC6_TPM0_SHIFT + tpm_n);
-    SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1); // Clock source: MCGFLLCLK or MCGPLLCLK
 
     TPM_Type *tpm = (TPM_Type *)(TPM0_BASE + 0x1000 * tpm_n);
     tpm->SC = TPM_SC_CMOD(1) | TPM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
