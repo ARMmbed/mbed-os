@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PTB1,  I2C_0, 2},
@@ -165,10 +166,11 @@ static int i2c_do_write(i2c_t *obj, int value) {
 }
 
 static int i2c_do_read(i2c_t *obj, char * data, int last) {
-    if (last)
+    if (last) {
         i2c_send_nack(obj);
-    else
+    } else {
         i2c_send_ack(obj);
+    }
 
     *data = (obj->i2c->D & 0xFF);
 
@@ -184,7 +186,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     uint32_t ref = 0;
     uint8_t i, j;
     // bus clk
-    uint32_t PCLK = 24000000u;
+    uint32_t PCLK = bus_frequency();
     uint32_t pulse = PCLK / (hz * 2);
 
     // we look for the values that minimize the error
@@ -237,9 +239,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     }
 
     // If not repeated start, send stop.
-    if (stop) {
+    if (stop)
         i2c_stop(obj);
-    }
 
     // last read
     data[count-1] = obj->i2c->D;
@@ -326,11 +327,9 @@ int i2c_slave_receive(i2c_t *obj) {
         // read addressed
         case 0xE6:
             return 1;
-
         // write addressed
         case 0xE2:
             return 3;
-
         default:
             return 0;
     }
