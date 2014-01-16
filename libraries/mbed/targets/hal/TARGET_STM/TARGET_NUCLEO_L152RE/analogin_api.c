@@ -35,12 +35,12 @@
 #include "error.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PA_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PA_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PB_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
+    {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN0
+    {PA_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN1
+    {PA_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN4
+    {PB_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN8
+    {PC_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN11
+    {PC_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN10
     {NC,   NC,    0}
 };
 
@@ -72,26 +72,14 @@ void analogin_init(analogin_t *obj, PinName pin) {
         adc = (ADC_TypeDef *)(obj->adc);
       
         // Enable ADC clock
-        RCC_ADCCLKConfig(RCC_PCLK2_Div4);
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
                
         // Configure ADC
-        ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-        ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-        ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_NbrOfChannel = 1;
+        ADC_StructInit(&ADC_InitStructure);
         ADC_Init(adc, &ADC_InitStructure);
 
         // Enable ADC
         ADC_Cmd(adc, ENABLE);
-
-        // Calibrate ADC
-        ADC_ResetCalibration(adc);
-        while(ADC_GetResetCalibrationStatus(adc));
-        ADC_StartCalibration(adc);
-        while(ADC_GetCalibrationStatus(adc));    
     }
 }
 
@@ -102,28 +90,28 @@ static inline uint16_t adc_read(analogin_t *obj) {
   // Configure ADC channel
   switch (obj->pin) {
       case PA_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_0, 1, ADC_SampleTime_4Cycles);
           break;
       case PA_1:
-          ADC_RegularChannelConfig(adc, ADC_Channel_1, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_1, 1, ADC_SampleTime_4Cycles);
           break;
       case PA_4:
-          ADC_RegularChannelConfig(adc, ADC_Channel_4, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_4, 1, ADC_SampleTime_4Cycles);
           break;
       case PB_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_8, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_8, 1, ADC_SampleTime_4Cycles);
           break;
       case PC_1:
-          ADC_RegularChannelConfig(adc, ADC_Channel_11, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_11, 1, ADC_SampleTime_4Cycles);
           break;
       case PC_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_10, 1, ADC_SampleTime_7Cycles5);
+          ADC_RegularChannelConfig(adc, ADC_Channel_10, 1, ADC_SampleTime_4Cycles);
           break;
       default:
           return 0;
   }
 
-  ADC_SoftwareStartConvCmd(adc, ENABLE); // Start conversion
+  ADC_SoftwareStartConv(adc); // Start conversion
   
   while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
   
