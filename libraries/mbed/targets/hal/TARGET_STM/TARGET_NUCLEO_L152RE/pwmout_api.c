@@ -33,21 +33,11 @@
 #include "pinmap.h"
 #include "error.h"
 
-// Only TIM2 and TIM3 can be used (TIM1 and TIM4 are used by the us_ticker)
 static const PinMap PinMap_PWM[] = {
-    // TIM2 default
-    //{PA_2,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH3 - ARDUINO D1
-    //{PA_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH4 - ARDUINO D0
-    // TIM2 full remap
-    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2fr_CH2 - ARDUINO D3
-    //{PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2fr_CH3 - ARDUINO D6
-    // TIM3 default
-    //{PA_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH1 - ARDUINO D12
-    //{PA_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH2 - ARDUINO D11
-    // TIM3 full remap
-    //{PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM3fr_CH2 - ARDUINO D9
-    // TIM3 partial remap
-    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3pr_CH1 - ARDUINO D5
+    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)}, // TIM2_CH2
+    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)}, // TIM3_CH1
+    //{PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)}, // TIM2_CH3
+    //{PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)}, // TIM3_CH2
     {NC,    NC,    0}
 };
 
@@ -109,18 +99,6 @@ void pwmout_write(pwmout_t* obj, float value) {
         TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
         TIM_OC2Init(tim, &TIM_OCInitStructure);
     }
-
-    // Configure channel 3
-    //if (obj->pin == PB_10) {
-    //    TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
-    //    TIM_OC3Init(tim, &TIM_OCInitStructure);
-    //}
-
-    // Configure channel 4
-    //if (obj->pin == PA_3) {
-    //    TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
-    //    TIM_OC4Init(tim, &TIM_OCInitStructure);
-    //}
 }
 
 float pwmout_read(pwmout_t* obj) {
