@@ -11,6 +11,7 @@ extern "C" {
 
 #include <rt_misc.h>
 #include <stdint.h>
+#include "sys_helper.h"
 
 extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
@@ -22,7 +23,7 @@ extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_
 
     struct __initial_stackheap r;
     r.heap_base = zi_limit;
-    r.heap_limit = sp_limit;
+    r.heap_limit = sp_limit - __reserved_stack_size();
     return r;
 }
 

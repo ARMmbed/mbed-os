@@ -21,21 +21,34 @@
 
 static const PinMap PinMap_PWM[] = {
     // LEDs
-    {LED_RED  , PWM_3 , 3}, // PTC3, FTM0 CH2
-    {LED_GREEN, PWM_5, 3},  // PTD4, FTM0 CH4
-    {LED_BLUE , PWM_9 , 3}, // PTA2 , FTM0 CH7
+    {LED_RED  , PWM_3 , 4}, // PTC3, FTM0 CH2
+    {LED_GREEN, PWM_5,  4}, // PTD4, FTM0 CH4
+    {LED_BLUE , PWM_8 , 3}, // PTA2, FTM0 CH7
 
     // Arduino digital pinout
-    {D3,  PWM_5 , 3}, // PTD4, FTM0 CH4
-    {D5,  PWM_7 , 3}, // PTA1 , FTM0 CH6
-    {D6,  PWM_3 , 3}, // PTC3 , FTM0 CH2
-    {D9,  PWM_8 , 4}, // PTD2 , FTM0 CH7
-    {D10, PWM_2 , 4}, // PTC2 , FTM0 CH1
+    {D3,  PWM_5 , 4}, // PTD4, FTM0 CH4
+    {D5,  PWM_7 , 3}, // PTA1, FTM0 CH6
+    {D6,  PWM_3 , 4}, // PTC3, FTM0 CH2
+    {D9,  PWM_6 , 4}, // PTD5, FTM0 CH6
+    {D10, PWM_2 , 4}, // PTC2, FTM0 CH1
+
+    {PTA0,  PWM_6 , 3}, // PTA0, FTM0 CH5
+    {PTA3,  PWM_1 , 3}, // PTA3, FTM0 CH0
+    {PTA4,  PWM_2 , 3}, // PTA4, FTM0 CH1
+    {PTA5,  PWM_3 , 3}, // PTA5, FTM0 CH2
+    {PTA12, PWM_9 , 3}, // PTA12, FTM1 CH0
+    {PTA13, PWM_10, 3}, // PTA13, FTM1 CH1
+    {PTB0,  PWM_9 , 3}, // PTB0, FTM1 CH0
+    {PTB1,  PWM_10, 3}, // PTB1, FTM1 CH1
+    {PTC1,  PWM_1 , 4}, // PTC1, FTM0 CH0
+    {PTD4,  PWM_4 , 4}, // PTD4, FTM0 CH3
+    {PTD6,  PWM_7 , 4}, // PTD6, FTM0 CH6
+    {PTD7,  PWM_8 , 4}, // PTD7, FTM0 CH7
 
     {NC , NC    , 0}
 };
 
-#define PWM_CLOCK_MHZ       (0.75) // (48)MHz / 64 = (0.75)MHz
+static float pwm_clock = 0;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
@@ -43,6 +56,17 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (pwm == (PWMName)NC)
         error("PwmOut pin mapping failed");
 
+    uint32_t clkdiv = 0;
+    float clkval = SystemCoreClock / 1000000.0f;
+
+    while (clkval > 1) {
+        clkdiv++;
+        clkval /= 2.0;
+        if (clkdiv == 7)
+            break;
+    }
+
+    pwm_clock = clkval;
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
     unsigned int ftm_n = (pwm >> TPM_SHIFT);
     unsigned int ch_n = (pwm & 0xFF);
@@ -51,22 +75,17 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
 
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
-    ftm->MODE |= FTM_MODE_WPDIS_MASK; //write protection disabled
     ftm->CONF |= FTM_CONF_BDMMODE(3);
-    ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(6); // (48)MHz / 64 = (0.75)MHz
+    ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
-    ftm->PWMLOAD |= FTM_PWMLOAD_LDOK_MASK; //loading updated values enabled
-    //ftm->SYNCONF |= FTM_SYNCONF_SWRSTCNT_MASK;
-    ftm->MODE |= FTM_MODE_INIT_MASK;
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
     obj->MOD = &ftm->MOD;
     obj->CNT = &ftm->CNT;
-    obj->SYNC = &ftm->SYNC;
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
@@ -82,8 +101,6 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 
     *obj->CnV = (uint32_t)((float)(*obj->MOD) * value);
-    *obj->CNT = 0;
-    //*obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -102,7 +119,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
-    *obj->MOD = PWM_CLOCK_MHZ * us;
+    *obj->MOD = (uint32_t)(pwm_clock * (float)us);
     pwmout_write(obj, dc);
 }
 
@@ -115,5 +132,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    *obj->CnV = PWM_CLOCK_MHZ * us;
+    *obj->CnV = (uint32_t)(pwm_clock * (float)us);
 }

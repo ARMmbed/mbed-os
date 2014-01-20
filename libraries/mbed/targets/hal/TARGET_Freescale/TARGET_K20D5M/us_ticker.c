@@ -16,11 +16,14 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "clk_freqs.h"
 
 static void pit_init(void);
 static void lptmr_init(void);
 
+
 static int us_ticker_inited = 0;
+static uint32_t pit_ldval = 0;
 
 void us_ticker_init(void) {
     if (us_ticker_inited)
@@ -35,7 +38,7 @@ static uint32_t pit_us_ticker_counter = 0;
 
 void pit0_isr(void) {
     pit_us_ticker_counter++;
-    PIT->CHANNEL[0].LDVAL = 48; // 1us
+    PIT->CHANNEL[0].LDVAL = pit_ldval; // 1us
     PIT->CHANNEL[0].TFLG = 1;
 }
 
@@ -46,7 +49,9 @@ static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;  // Clock PIT
     PIT->MCR = 0;  // Enable PIT
 
-    PIT->CHANNEL[0].LDVAL = 48;  // 1us
+    pit_ldval = bus_frequency() / 1000000;
+
+    PIT->CHANNEL[0].LDVAL = pit_ldval;  // 1us
     PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TIE_MASK;
     PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TEN_MASK;  // Start timer 1
 
@@ -82,10 +87,36 @@ static void lptmr_init(void) {
     NVIC_EnableIRQ(LPTimer_IRQn);
 
     /* Clock at (1)MHz -> (1)tick/us */
-    OSC0->CR |= OSC_CR_ERCLKEN_MASK;
-    LPTMR0->PSR = 0;
-    LPTMR0->PSR |= LPTMR_PSR_PCS(3);       // OSCERCLK -> 8MHz
-    LPTMR0->PSR |= LPTMR_PSR_PRESCALE(2); // divide by 8
+    /* Check if the external oscillator can be divided to 1MHz */
+    uint32_t extosc = extosc_frequency();
+
+    if (extosc != 0) {                      //If external oscillator found
+        OSC0->CR |= OSC_CR_ERCLKEN_MASK;
+        if (extosc % 1000000u == 0) {       //If it is a multiple if 1MHz
+            extosc /= 1000000;
+            if (extosc == 1)    {           //1MHz, set timerprescaler in bypass mode
+                LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PBYP_MASK;
+                return;
+            } else {                        //See if we can divide it to 1MHz
+                uint32_t divider = 0;
+                extosc >>= 1;
+                while (1) {
+                    if (extosc == 1) {
+                        LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PRESCALE(divider);
+                        return;
+                    }
+                    if (extosc % 2 != 0)    //If we can't divide by two anymore
+                        break;
+                    divider++;
+                    extosc >>= 1;
+                }
+            }
+        }
+    }
+    //No suitable external oscillator clock -> Use fast internal oscillator (4MHz)
+    MCG->C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG->C2 |= MCG_C2_IRCS_MASK;
+    LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(1);
 }
 
 void us_ticker_disable_interrupt(void) {
