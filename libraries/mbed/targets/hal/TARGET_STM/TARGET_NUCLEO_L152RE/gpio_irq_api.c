@@ -87,9 +87,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
   
     if (pin == NC) return -1;
 
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);  
-    uint32_t port_index = (pin_number >> 4); 
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
   
     // Select irq number and vector
     switch (pin_index) {
@@ -161,12 +160,33 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             return -1;
     }
     
-    // Enable GPIO and AFIO clocks
-    RCC_APB2PeriphClockCmd((uint32_t)(RCC_APB2Periph_GPIOA << port_index), ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    // Enable GPIO clock
+    switch (port_index) {
+        case PortA:
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+            break;
+        case PortB:
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+            break;
+        case PortC:
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+            break;
+        case PortD:
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+            break;
+        case PortH:
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, ENABLE);
+            break;
+        default:
+            error("GPIO port number is not correct.");
+            break;          
+    }
   
+    // Enable SYSCFG clock
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    
     // Connect EXTI line to pin
-    GPIO_EXTILineConfig(port_index, pin_index);
+    SYSCFG_EXTILineConfig(port_index, pin_index);
 
     // Configure EXTI line
     EXTI_InitTypeDef EXTI_InitStructure;    

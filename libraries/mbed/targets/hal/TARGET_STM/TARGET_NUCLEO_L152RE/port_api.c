@@ -43,10 +43,10 @@ PinName port_pin(PortName port, int pin_n) {
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     GPIO_TypeDef *gpio;
     
-    uint32_t port_index = (uint32_t)port;
+    uint32_t port_index = (uint32_t)port; // (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 
     // Get GPIO structure base address and enable clock
-     switch (port_index) {
+    switch (port_index) {
         case PortA:
             gpio = (GPIO_TypeDef *)GPIOA_BASE;
             RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
