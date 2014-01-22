@@ -53,10 +53,10 @@ void pin_function(PinName pin, int data) {
     uint32_t mode  = STM_PIN_MODE(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
 
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
+  
     // Get GPIO structure base address
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
     GPIO_TypeDef *gpio  = ((GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10)));
 
     // Enable GPIO and AFIO clocks
@@ -92,11 +92,11 @@ void pin_mode(PinName pin, PinMode mode) {
     if (pin == NC) return;
 
     GPIO_InitTypeDef GPIO_InitStructure;
+
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
   
     // Get GPIO structure base address
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
     GPIO_TypeDef *gpio  = ((GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10)));
 
     // Enable GPIO clock

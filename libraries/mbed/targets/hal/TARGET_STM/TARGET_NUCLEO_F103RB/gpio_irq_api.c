@@ -87,9 +87,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
   
     if (pin == NC) return -1;
 
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);  
-    uint32_t port_index = (pin_number >> 4); 
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
   
     // Select irq number and vector
     switch (pin_index) {
