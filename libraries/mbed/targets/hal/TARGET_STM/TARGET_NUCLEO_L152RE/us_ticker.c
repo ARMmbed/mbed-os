@@ -32,15 +32,15 @@
 // Timers selection:
 // The Master timer clocks the Slave timer
 
-#define TIM_MST     TIM3
-#define TIM_MST_IRQ TIM3_IRQn
-#define TIM_MST_RCC RCC_APB1Periph_TIM3
+#define TIM_MST     TIM9
+#define TIM_MST_IRQ TIM9_IRQn
+#define TIM_MST_RCC RCC_APB2Periph_TIM9
 
 #define TIM_SLV     TIM4
 #define TIM_SLV_IRQ TIM4_IRQn
 #define TIM_SLV_RCC RCC_APB1Periph_TIM4
 
-#define MST_SLV_ITR TIM_TS_ITR2
+#define MST_SLV_ITR TIM_TS_ITR3
 
 int us_ticker_inited = 0;
 
@@ -53,7 +53,7 @@ void us_ticker_init(void) {
     us_ticker_inited = 1;
   
     // Enable Timers clock
-    RCC_APB1PeriphClockCmd(TIM_MST_RCC, ENABLE);
+    RCC_APB2PeriphClockCmd(TIM_MST_RCC, ENABLE);
     RCC_APB1PeriphClockCmd(TIM_SLV_RCC, ENABLE);
   
     // Master and Slave timers time base configuration

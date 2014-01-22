@@ -58,6 +58,11 @@ struct analogin_s {
     PinName pin;
 };
 
+struct dac_s {
+    DACName dac;
+    PinName channel;
+};
+
 struct serial_s {
     UARTName uart;
     int index; // Used by irq

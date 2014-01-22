@@ -45,10 +45,9 @@ void pin_function(PinName pin, int data) {
     uint32_t pupd  = STM_PIN_PUPD(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
 
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
-
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
+  
     // Get GPIO structure base address and enable clock  
     switch (port_index) {
         case PortA:
@@ -108,9 +107,8 @@ void pin_mode(PinName pin, PinMode mode) {
   
     if (pin == NC) return;
   
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
 
     // Get GPIO structure base address and enable clock  
     switch (port_index) {

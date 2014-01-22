@@ -44,8 +44,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
   
     if (pin == NC) return;
 
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t port_index = (pin_number >> 4);  
+    uint32_t port_index = STM_PORT(pin);
 
     // Get GPIO structure base address
     switch (port_index) {
