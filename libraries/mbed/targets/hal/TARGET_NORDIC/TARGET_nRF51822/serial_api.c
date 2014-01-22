@@ -145,8 +145,10 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
     if (serial_irq_ids[index] != 0)
         irq_handler(serial_irq_ids[index], irq_type);
 }
-
-void UART0_IRQHandler() 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+void UART0_IRQHandler()
 {
 	uint32_t irtype =0;
 	if(NRF_UART0->EVENTS_TXDRDY)
@@ -155,7 +157,9 @@ void UART0_IRQHandler()
 		irtype =2;
 	uart_irq(irtype, 0);
 }
-
+#ifdef __cplusplus
+}
+#endif 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;

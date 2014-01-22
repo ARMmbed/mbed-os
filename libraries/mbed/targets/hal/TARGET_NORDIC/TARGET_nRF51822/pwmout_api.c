@@ -65,6 +65,9 @@ uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0};
 
 /** @brief Function for handling timer 2 peripheral interrupts.
  */
+ #ifdef __cplusplus
+extern "C" {
+#endif 
 void TIMER2_IRQHandler(void)
 {
     static uint16_t CCVal1=2501;
@@ -89,7 +92,9 @@ void TIMER2_IRQHandler(void)
         CCVal2 = NRF_TIMER2->CC[3] + PULSE_WIDTH[1];        
     }	
 }
-
+#ifdef __cplusplus
+}
+#endif 
 /** @brief Function for initializing the Timer peripherals.
  */
 void timer_init(uint8_t pwmChoice)

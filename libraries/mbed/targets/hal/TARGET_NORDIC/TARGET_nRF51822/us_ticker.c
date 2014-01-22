@@ -24,6 +24,10 @@
 int us_ticker_inited = 0;
 volatile uint16_t overflow=0; //overflow value that forms the upper 16 bits of the counter
 volatile uint16_t timeStamp=0;
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 void TIMER1_IRQHandler(void)
 {
     if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
@@ -54,7 +58,9 @@ void TIMER1_IRQHandler(void)
     }
         
 }
-
+#ifdef __cplusplus
+}
+#endif 
 void us_ticker_init(void)
 {
     if (us_ticker_inited)
