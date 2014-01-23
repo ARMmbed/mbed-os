@@ -926,7 +926,7 @@ uint8_t * USBDevice::stringLangidDesc() {
     static uint8_t stringLangidDescriptor[] = {
         0x04,               /*bLength*/
         STRING_DESCRIPTOR,  /*bDescriptorType 0x03*/
-        0x09,0x00,          /*bString Lang ID - 0x009 - English*/
+        0x09,0x04,          /*bString Lang ID - 0x0409 - English*/
     };
     return stringLangidDescriptor;
 }

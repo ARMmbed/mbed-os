@@ -49,7 +49,7 @@
 
 /* Descriptors */
 #define DESCRIPTOR_TYPE(wValue)  (wValue >> 8)
-#define DESCRIPTOR_INDEX(wValue) (wValue & 0xf)
+#define DESCRIPTOR_INDEX(wValue) (wValue & 0xff)
 
 typedef struct {
     struct {
