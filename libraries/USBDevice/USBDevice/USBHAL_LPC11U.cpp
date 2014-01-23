@@ -16,11 +16,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_LPC11U24) || defined(TARGET_LPC1347)
+#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347)
 
 #if defined(TARGET_LPC1347)
 #define USB_IRQ USB_IRQ_IRQn
-#elif defined(TARGET_LPC11U24)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)
 #define USB_IRQ USB_IRQn
 #endif
 
@@ -145,6 +145,11 @@ USBHAL::USBHAL(void) {
     epCallback[6] = &USBHAL::EP4_OUT_callback;
     epCallback[7] = &USBHAL::EP4_IN_callback;
 
+    #if defined(TARGET_LPC11U35_401)
+    // USB_VBUS input with pull-down
+    LPC_IOCON->PIO0_3 = 0x00000009;
+    #endif
+    
     // nUSB_CONNECT output
     LPC_IOCON->PIO0_6 = 0x00000001;
 
