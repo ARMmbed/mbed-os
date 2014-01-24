@@ -37,7 +37,7 @@
 #define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        1
+#define DEVICE_ANALOGOUT        0 // Not present on this device
 
 #define DEVICE_SERIAL           1
 
@@ -47,7 +47,7 @@
 #define DEVICE_SPI              0
 #define DEVICE_SPISLAVE         0
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_PWMOUT           0
 
