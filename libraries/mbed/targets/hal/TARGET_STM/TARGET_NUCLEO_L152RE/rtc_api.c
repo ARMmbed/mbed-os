@@ -32,36 +32,32 @@
 static int rtc_inited = 0;
 
 void rtc_init(void) {
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE); // Enable PWR and Backup clock
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE); // Enable PWR clock
 
-    PWR_BackupAccessCmd(ENABLE); // Allow access to Backup Domain
+    PWR_RTCAccessCmd(ENABLE); // Enable access to RTC
+
+    // Note: the LSI is used as RTC source clock
+    // The RTC Clock may vary due to LSI frequency dispersion.  
+   
+    RCC_LSICmd(ENABLE); // Enable LSI
   
-    BKP_DeInit(); // Reset Backup Domain
-  
-    // Uncomment these lines if you use the LSE
-    // Enable LSE and wait till it's ready
-    //RCC_LSEConfig(RCC_LSE_ON);
-    //while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {}     
-    //RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select LSE as RTC Clock Source
-      
-    // Uncomment these lines if you use the LSI
-    // Enable LSI and wait till it's ready  
-    RCC_LSICmd(ENABLE);
-    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {}
+    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
+    
     RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select LSI as RTC Clock Source
   
     RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
       
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
-      
-    RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
 
-    // Set RTC period to 1 sec
-    // For LSE: prescaler = RTCCLK/RTC period = 32768Hz/1Hz = 32768
-    // For LSI: prescaler = RTCCLK/RTC period = 40000Hz/1Hz = 40000      
-    RTC_SetPrescaler(39999);
+    uint32_t lsi_freq = 40000; // *** TODO** To be measured precisely using a timer input capture
+
+    RTC_InitTypeDef RTC_InitStructure;
+    RTC_InitStructure.RTC_AsynchPrediv = 127;
+    RTC_InitStructure.RTC_SynchPrediv	 = (lsi_freq / 128) - 1;
+    RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
+    RTC_Init(&RTC_InitStructure);
     
-    RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
+    PWR_RTCAccessCmd(DISABLE); // Disable access to RTC
       
     rtc_inited = 1;
 }
@@ -75,12 +71,67 @@ int rtc_isenabled(void) {
     return rtc_inited;
 }
 
+/*
+ RTC Registers
+   RTC_WeekDay 1=monday, 2=tuesday, ..., 7=sunday
+   RTC_Month   1=january, 2=february, ..., 12=december
+   RTC_Date    day of the month 1-31
+   RTC_Year    year 0-99
+ struct tm
+   tm_sec      seconds after the minute 0-61
+   tm_min      minutes after the hour 0-59
+   tm_hour     hours since midnight 0-23
+   tm_mday     day of the month 1-31
+   tm_mon      months since January 0-11
+   tm_year     years since 1900
+   tm_wday     days since Sunday 0-6
+   tm_yday     days since January 1 0-365
+   tm_isdst    Daylight Saving Time flag
+*/
 time_t rtc_read(void) {
-    return (time_t)RTC_GetCounter();
+    RTC_DateTypeDef dateStruct;
+    RTC_TimeTypeDef timeStruct;
+    struct tm timeinfo;
+        
+    // Read actual date and time
+    RTC_GetTime(RTC_Format_BIN, &timeStruct);
+    RTC_GetDate(RTC_Format_BIN, &dateStruct);
+    
+    // Setup a tm structure based on the RTC
+    timeinfo.tm_wday = dateStruct.RTC_WeekDay;
+    timeinfo.tm_mon  = dateStruct.RTC_Month - 1;
+    timeinfo.tm_mday = dateStruct.RTC_Date;
+    timeinfo.tm_year = dateStruct.RTC_Year + 100;
+    timeinfo.tm_hour = timeStruct.RTC_Hours;
+    timeinfo.tm_min  = timeStruct.RTC_Minutes;
+    timeinfo.tm_sec  = timeStruct.RTC_Seconds;
+    
+    // Convert to timestamp
+    time_t t = mktime(&timeinfo);
+    
+    return t;    
 }
 
 void rtc_write(time_t t) {
-    RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
-    RTC_SetCounter(t); // Change the current time
-    RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
+    RTC_DateTypeDef dateStruct;
+    RTC_TimeTypeDef timeStruct;
+
+    // Convert the time into a tm
+    struct tm *timeinfo = localtime(&t);
+    
+    // Fill RTC structures
+    dateStruct.RTC_WeekDay = timeinfo->tm_wday;
+    dateStruct.RTC_Month   = timeinfo->tm_mon + 1;
+    dateStruct.RTC_Date    = timeinfo->tm_mday;
+    dateStruct.RTC_Year    = timeinfo->tm_year - 100;
+    timeStruct.RTC_Hours   = timeinfo->tm_hour;
+    timeStruct.RTC_Minutes = timeinfo->tm_min;
+    timeStruct.RTC_Seconds = timeinfo->tm_sec;
+    timeStruct.RTC_H12     = RTC_HourFormat_24;
+    
+    // Change the RTC current date/time
+    PWR_RTCAccessCmd(ENABLE); // Enable access to RTC    
+    RTC_SetDate(RTC_Format_BIN, &dateStruct);
+    RTC_SetTime(RTC_Format_BIN, &timeStruct);    
+    PWR_RTCAccessCmd(DISABLE); // Disable access to RTC
 }
