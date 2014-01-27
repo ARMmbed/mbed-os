@@ -96,7 +96,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
     pin_mode(tx, PullUp);
     pin_mode(rx, PullUp);
-    
+
     // Configure UART
     obj->baudrate = 9600;
     obj->databits = USART_WordLength_8b;

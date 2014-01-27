@@ -75,13 +75,13 @@ void analogin_init(analogin_t *obj, PinName pin) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
                
         // Configure ADC
-        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-        ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+        ADC_InitStructure.ADC_Resolution           = ADC_Resolution_12b;
+        ADC_InitStructure.ADC_ScanConvMode         = DISABLE;
+        ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE;
         ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-        ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_CC2;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_NbrOfConversion = 1;
+        ADC_InitStructure.ADC_ExternalTrigConv     = ADC_ExternalTrigConv_T2_CC2;
+        ADC_InitStructure.ADC_DataAlign            = ADC_DataAlign_Right;
+        ADC_InitStructure.ADC_NbrOfConversion      = 1;
         ADC_Init(adc, &ADC_InitStructure);
 
         // Enable ADC
