@@ -34,11 +34,11 @@
 
 #define TIM_MST     TIM1
 #define TIM_MST_IRQ TIM1_CC_IRQn
-#define TIM_MST_RCC RCC_APB2Periph_TIM1
+#define TIM_MST_RCC RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
 
 #define TIM_SLV     TIM4
 #define TIM_SLV_IRQ TIM4_IRQn
-#define TIM_SLV_RCC RCC_APB1Periph_TIM4
+#define TIM_SLV_RCC RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE)
 
 #define MST_SLV_ITR TIM_TS_ITR0
 
@@ -53,8 +53,8 @@ void us_ticker_init(void) {
     us_ticker_inited = 1;
   
     // Enable Timers clock
-    RCC_APB2PeriphClockCmd(TIM_MST_RCC, ENABLE);
-    RCC_APB1PeriphClockCmd(TIM_SLV_RCC, ENABLE);
+    TIM_MST_RCC;
+    TIM_SLV_RCC;
   
     // Master and Slave timers time base configuration
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
@@ -94,9 +94,11 @@ uint32_t us_ticker_read() {
     // previous (incorrect) value of Slave and the new value of Master, which would return a
     // value in the past. Avoid this by computing consecutive values of the timer until they
     // are properly ordered.
-    counter = counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16) + (uint32_t)TIM_GetCounter(TIM_MST);
+    counter = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16);
+    counter += (uint32_t)TIM_GetCounter(TIM_MST);
     while (1) {
-        counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16) + (uint32_t)TIM_GetCounter(TIM_MST);
+        counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16);
+        counter2 += (uint32_t)TIM_GetCounter(TIM_MST);
         if (counter2 > counter) {
             break;
         }

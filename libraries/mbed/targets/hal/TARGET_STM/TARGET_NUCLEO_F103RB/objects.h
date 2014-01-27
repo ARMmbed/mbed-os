@@ -40,9 +40,9 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
-    uint32_t ch;
     IRQn_Type irq_n;
-    uint32_t event; // 0=none, 1=rise, 2=fall, 3=rise+fall
+    uint32_t irq_index;
+    uint32_t event;
 };
 
 struct port_s {

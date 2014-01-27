@@ -30,8 +30,11 @@
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
+#include "error.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
+
+extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
 // high nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 // low nibble  = pin number
@@ -40,14 +43,13 @@ PinName port_pin(PortName port, int pin_n) {
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
-
+    GPIO_TypeDef *gpio;
+  
     uint32_t port_index = (uint32_t)port; // (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 
     // Enable GPIO clock
-    RCC_APB2PeriphClockCmd((RCC_APB2Periph_GPIOA << port_index), ENABLE);
-
-    // Get GPIO structure base address
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10));
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
 
     // Fill PORT object structure for future use
     obj->port      = port;

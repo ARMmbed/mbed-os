@@ -31,6 +31,7 @@
 #include "cmsis.h"
 
 #include "gpio_irq_api.h"
+#include "pinmap.h"
 #include "error.h"
 
 #define EDGE_NONE (0)
@@ -38,132 +39,88 @@
 #define EDGE_FALL (2)
 #define EDGE_BOTH (3)
 
-#define CHANNEL_NUM (16)
+#define CHANNEL_NUM (4)
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static uint32_t channel_ids[CHANNEL_NUM]  = {0, 0, 0, 0};
+static uint32_t channel_gpio[CHANNEL_NUM] = {0, 0, 0, 0};
+static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0, 0};
 
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(uint32_t channel) {
-    if (channel_ids[channel] == 0) return;
+static void handle_interrupt_in(uint32_t irq_index) {
   
-    uint32_t exti_line = (uint32_t)(1 << channel);
-    if (EXTI_GetITStatus(exti_line) != RESET)
+    // Retrieve the gpio and pin that generate the irq
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
+    uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
+     
+    // Clear interrupt flag
+    if (EXTI_GetITStatus(pin) != RESET)
     {
-        EXTI_ClearITPendingBit(exti_line);
+        EXTI_ClearITPendingBit(pin);
     }
     
-    // Warning:
-    // On this device we don't know if a rising or falling event occured.
-    // In case both rise and fall events are set, only the FALL event will be reported. 
-    if (EXTI->FTSR & (uint32_t)(1 << channel)) {
-        irq_handler(channel_ids[channel], IRQ_FALL);
+    if (channel_ids[irq_index] == 0) return;
+    
+    // Check which edge has generated the irq
+    if ((gpio->IDR & pin) == 0) {
+        irq_handler(channel_ids[irq_index], IRQ_FALL);
     }
-    else {
-        irq_handler(channel_ids[channel], IRQ_RISE);
+    else  {
+        irq_handler(channel_ids[irq_index], IRQ_RISE);
     }
 }
 
+// The irq_index is passed to the function
 static void gpio_irq0(void) {handle_interrupt_in(0);}
 static void gpio_irq1(void) {handle_interrupt_in(1);}
 static void gpio_irq2(void) {handle_interrupt_in(2);}
 static void gpio_irq3(void) {handle_interrupt_in(3);}
-static void gpio_irq4(void) {handle_interrupt_in(4);}
-static void gpio_irq5(void) {handle_interrupt_in(5);}
-static void gpio_irq6(void) {handle_interrupt_in(6);}
-static void gpio_irq7(void) {handle_interrupt_in(7);}
-static void gpio_irq8(void) {handle_interrupt_in(8);}
-static void gpio_irq9(void) {handle_interrupt_in(9);}
-static void gpio_irq10(void) {handle_interrupt_in(10);}
-static void gpio_irq11(void) {handle_interrupt_in(11);}
-static void gpio_irq12(void) {handle_interrupt_in(12);}
-static void gpio_irq13(void) {handle_interrupt_in(13);}
-static void gpio_irq14(void) {handle_interrupt_in(14);}
-static void gpio_irq15(void) {handle_interrupt_in(15);}
+
+extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
-    IRQn_Type irq_n = (IRQn_Type)0;  
+    IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
-  
+    uint32_t irq_index;
+
     if (pin == NC) return -1;
 
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
-  
-    // Select irq number and vector
-    switch (pin_index) {
-        case 0:
-            irq_n = EXTI0_IRQn;
+
+    // Select irq number and interrupt routine
+    switch (pin) {
+        case PC_13: // User button
+            irq_n = EXTI15_10_IRQn;
             vector = (uint32_t)&gpio_irq0;
+            irq_index = 0;
             break;
-        case 1:
-            irq_n = EXTI1_IRQn;
-            vector = (uint32_t)&gpio_irq1;
-            break;
-        case 2:
-            irq_n = EXTI2_IRQn;
-            vector = (uint32_t)&gpio_irq2;
-            break;
-        case 3:
+        case PB_3:
             irq_n = EXTI3_IRQn;
-            vector = (uint32_t)&gpio_irq3;        
+            vector = (uint32_t)&gpio_irq1;
+            irq_index = 1;
             break;
-        case 4:
+        case PB_4:
             irq_n = EXTI4_IRQn;
-            vector = (uint32_t)&gpio_irq4;        
+            vector = (uint32_t)&gpio_irq2;
+            irq_index = 2;
             break;
-        case 5:
+        case PB_5:
             irq_n = EXTI9_5_IRQn;
-            vector = (uint32_t)&gpio_irq5;        
-            break;          
-        case 6:
-            irq_n = EXTI9_5_IRQn;
-            vector = (uint32_t)&gpio_irq6;        
-            break;          
-        case 7:
-            irq_n = EXTI9_5_IRQn;
-            vector = (uint32_t)&gpio_irq7;        
-            break;          
-        case 8:
-            irq_n = EXTI9_5_IRQn;
-            vector = (uint32_t)&gpio_irq8;        
-            break;          
-        case 9:       
-            irq_n = EXTI9_5_IRQn;
-            vector = (uint32_t)&gpio_irq9;
+            vector = (uint32_t)&gpio_irq3;
+            irq_index = 3;
             break;
-        case 10:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq10;
-            break;          
-        case 11:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq11;        
-            break;          
-        case 12:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq12;        
-            break;          
-        case 13:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq13;        
-            break;          
-        case 14:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq14;
-            break;          
-        case 15:
-            irq_n = EXTI15_10_IRQn;
-            vector = (uint32_t)&gpio_irq15;
-            break;        
         default:
+            error("This pin is not supported with InterruptIn.\n");
             return -1;
     }
+
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
     
-    // Enable GPIO and AFIO clocks
-    RCC_APB2PeriphClockCmd((uint32_t)(RCC_APB2Periph_GPIOA << port_index), ENABLE);
+    // Enable AFIO clock
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-  
+
     // Connect EXTI line to pin
     GPIO_EXTILineConfig(port_index, pin_index);
 
@@ -186,20 +143,23 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
 
-    // Save for future use
-    obj->ch = pin_index;
+    // Save informations for future use
     obj->irq_n = irq_n;
+    obj->irq_index = irq_index;
     obj->event = EDGE_NONE;
+    channel_ids[irq_index] = id;
+    channel_gpio[irq_index] = gpio_add;
+    channel_pin[irq_index] = pin_index;
     
-    channel_ids[obj->ch] = id;
-  
     irq_handler = handler; 
   
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
-    channel_ids[obj->ch] = 0;
+    channel_ids[obj->irq_index] = 0;
+    channel_gpio[obj->irq_index] = 0;
+    channel_pin[obj->irq_index] = 0;
     // Disable EXTI line
     EXTI_InitTypeDef EXTI_InitStructure;
     EXTI_StructInit(&EXTI_InitStructure);
@@ -210,7 +170,9 @@ void gpio_irq_free(gpio_irq_t *obj) {
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     EXTI_InitTypeDef EXTI_InitStructure;
     
-    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << obj->ch);
+    uint32_t pin_index = channel_pin[obj->irq_index];
+
+    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     
     if (event == IRQ_RISE) {
