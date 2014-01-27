@@ -43,28 +43,58 @@ static const uint32_t AF_mapping[] = {
   GPIO_Remap_I2C1         // 8
 };
 
+// Not an API function
+// Enable GPIO clock and return GPIO base address
+uint32_t Set_GPIO_Clock(uint32_t port_idx) {
+    uint32_t gpio_add = 0;
+    switch (port_idx) {
+        case PortA:
+            gpio_add = GPIOA_BASE;
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+            break;
+        case PortB:
+            gpio_add = GPIOB_BASE;
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+            break;
+        case PortC:
+            gpio_add = GPIOC_BASE;
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+            break;
+        case PortD:
+            gpio_add = GPIOD_BASE;
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+            break;
+        default:
+            error("Port number is not correct.");
+            break;
+    }
+    return gpio_add;
+}
+
 /**
- * Set the pin function (input, output, alternate function or analog) + output speed + AF
+ * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
 void pin_function(PinName pin, int data) {
+    GPIO_TypeDef *gpio;
+    GPIO_InitTypeDef GPIO_InitStructure;
+  
     if (pin == NC) return;
 
-    // Get the pin mode and alternate-function number
+    // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
 
-    // Get GPIO structure base address
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
-    GPIO_TypeDef *gpio  = ((GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10)));
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
 
-    // Enable GPIO and AFIO clocks
-    RCC_APB2PeriphClockCmd((uint32_t)(RCC_APB2Periph_GPIOA << port_index), ENABLE);
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
+  
+    // Enable AFIO clock
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
   
     // Configure GPIO
-    GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -86,21 +116,20 @@ void pin_function(PinName pin, int data) {
 }
 
 /**
- * Set the pin mode (open-drain/push-pull + pull-up/pull-down)
+ * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
+    GPIO_TypeDef *gpio;
+    GPIO_InitTypeDef GPIO_InitStructure;
+
     if (pin == NC) return;
 
-    GPIO_InitTypeDef GPIO_InitStructure;
-  
-    // Get GPIO structure base address
-    uint32_t pin_number = (uint32_t)pin;
-    uint32_t pin_index  = (pin_number & 0xF);
-    uint32_t port_index = (pin_number >> 4);
-    GPIO_TypeDef *gpio  = ((GPIO_TypeDef *)(GPIOA_BASE + (port_index << 10)));
+    uint32_t port_index = STM_PORT(pin);
+    uint32_t pin_index  = STM_PIN(pin);
 
     // Enable GPIO clock
-    RCC_APB2PeriphClockCmd((uint32_t)(RCC_APB2Periph_GPIOA << port_index), ENABLE);
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
   
     // Configure open-drain and pull-up/down
     switch (mode) {

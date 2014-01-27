@@ -42,15 +42,17 @@ extern "C" {
 #define STM_PIN_MODE(X)            ((X) >> 8)
 #define STM_PIN_AFNUM(X)           ((X) & 0xFF)
 
+// High nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H)
+// Low nibble  = pin number
+#define STM_PORT(X) (((uint32_t)(X) >> 4) & 0xF)
+#define STM_PIN(X)  ((uint32_t)(X) & 0xF)
+    
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT
 } PinDirection;
 
 typedef enum {
-  
-  // high nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F)
-  // low nibble  = pin number
   PA_0  = 0x00,
   PA_1  = 0x01,
   PA_2  = 0x02,
@@ -102,8 +104,9 @@ typedef enum {
   PC_14 = 0x2E,
   PC_15 = 0x2F,
 
+  PD_0  = 0x30,
+  PD_1  = 0x31,
   PD_2  = 0x32,
-  PD_8  = 0x38,
 
   // Arduino connector namings
   A0          = PA_0,
