@@ -27,56 +27,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "gpio_api.h"
-#include "pinmap.h"
-#include "error.h"
+#include "sleep_api.h"
+#include "cmsis.h"
 
-extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
-
-uint32_t gpio_set(PinName pin) {  
-    if (pin == NC) return 0;
-
-    pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
-
-    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
+void sleep(void)
+{
+    SCB->SCR = 0; // Normal sleep mode for ARM core
+    __WFI();
 }
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
-    GPIO_TypeDef *gpio;
-
-    if (pin == NC) return;
-
-    uint32_t port_index = STM_PORT(pin);
-  
-    // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+void deepsleep(void)
+{    
+    // Enable PWR clock
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     
-    // Fill GPIO object structure for future use
-    obj->pin     = pin;
-    obj->mask    = gpio_set(pin);
-    obj->reg_in  = &gpio->IDR;
-    obj->reg_set = &gpio->BSRR;
-    obj->reg_clr = &gpio->BRR;
-  
-    // Configure GPIO
-    if (direction == PIN_OUTPUT) {
-        pin_function(pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
-    }
-    else { // PIN_INPUT
-        pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
-    }
-}
-
-void gpio_mode(gpio_t *obj, PinMode mode) {
-    pin_mode(obj->pin, mode);
-}
-
-void gpio_dir(gpio_t *obj, PinDirection direction) {
-    if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
-    }
-    else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
-    }
+    // Request to enter STOP mode with regulator in low power mode
+    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);  
 }

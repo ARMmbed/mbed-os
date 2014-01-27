@@ -34,6 +34,8 @@
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 
+extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+
 // high nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 // low nibble  = pin number
 PinName port_pin(PortName port, int pin_n) {
@@ -42,35 +44,12 @@ PinName port_pin(PortName port, int pin_n) {
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     GPIO_TypeDef *gpio;
-    
-    uint32_t port_index = (uint32_t)port;
+  
+    uint32_t port_index = (uint32_t)port; // (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 
-    // Get GPIO structure base address and enable clock
-    switch (port_index) {
-        case PortA:
-            gpio = (GPIO_TypeDef *)GPIOA_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-            break;
-        case PortB:
-            gpio = (GPIO_TypeDef *)GPIOB_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-            break;
-        case PortC:
-            gpio = (GPIO_TypeDef *)GPIOC_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
-            break;
-        case PortD:
-            gpio = (GPIO_TypeDef *)GPIOD_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
-            break;
-        case PortF:
-            gpio = (GPIO_TypeDef *)GPIOF_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
-            break;
-        default:
-            error("GPIO port number is not correct.");
-            break;          
-    } 
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
 
     // Fill PORT object structure for future use
     obj->port      = port;

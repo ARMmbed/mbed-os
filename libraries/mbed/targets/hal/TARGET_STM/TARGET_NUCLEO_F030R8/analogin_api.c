@@ -122,7 +122,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
   }
 
   while(!ADC_GetFlagStatus(adc, ADC_FLAG_ADRDY)); // Wait ADC ready
-  
+
   ADC_StartOfConversion(adc); // Start conversion
   
   while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion

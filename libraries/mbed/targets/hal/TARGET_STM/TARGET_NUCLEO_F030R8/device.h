@@ -49,9 +49,9 @@
 
 #define DEVICE_RTC              1
 
-#define DEVICE_PWMOUT           0
+#define DEVICE_PWMOUT           1
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
 //=======================================
 

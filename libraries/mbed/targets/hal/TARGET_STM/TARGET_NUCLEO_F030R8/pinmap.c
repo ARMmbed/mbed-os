@@ -30,6 +30,38 @@
 #include "pinmap.h"
 #include "error.h"
 
+// Not an API function
+// Enable GPIO clock and return GPIO base address
+uint32_t Set_GPIO_Clock(uint32_t port_idx) {
+    uint32_t gpio_add = 0;
+    switch (port_idx) {
+        case PortA:
+            gpio_add = GPIOA_BASE;
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+            break;
+        case PortB:
+            gpio_add = GPIOB_BASE;
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+            break;
+        case PortC:
+            gpio_add = GPIOC_BASE;
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+            break;
+        case PortD:
+            gpio_add = GPIOD_BASE;
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+            break;
+        case PortF:
+            gpio_add = GPIOF_BASE;
+            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+            break;
+        default:
+            error("Port number is not correct.");
+            break;
+    }
+    return gpio_add;
+}
+
 /**
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
@@ -47,34 +79,11 @@ void pin_function(PinName pin, int data) {
 
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
-  
-    // Get GPIO structure base address and enable clock  
-    switch (port_index) {
-        case PortA:
-            gpio = (GPIO_TypeDef *)GPIOA_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-            break;
-        case PortB:
-            gpio = (GPIO_TypeDef *)GPIOB_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-            break;
-        case PortC:
-            gpio = (GPIO_TypeDef *)GPIOC_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
-            break;
-        case PortD:
-            gpio = (GPIO_TypeDef *)GPIOD_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
-            break;
-        case PortF:
-            gpio = (GPIO_TypeDef *)GPIOF_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
-            break;
-        default:
-            error("GPIO port number is not correct.");
-            break;          
-    }
-      
+
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
+ 
     // Configure GPIO
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
@@ -104,38 +113,15 @@ void pin_function(PinName pin, int data) {
  */
 void pin_mode(PinName pin, PinMode mode) {
     GPIO_TypeDef *gpio;
-  
+
     if (pin == NC) return;
-  
+
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
 
-    // Get GPIO structure base address and enable clock  
-    switch (port_index) {
-        case PortA:
-            gpio = (GPIO_TypeDef *)GPIOA_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-            break;
-        case PortB:
-            gpio = (GPIO_TypeDef *)GPIOB_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-            break;
-        case PortC:
-            gpio = (GPIO_TypeDef *)GPIOC_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
-            break;
-        case PortD:
-            gpio = (GPIO_TypeDef *)GPIOD_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
-            break;
-        case PortF:
-            gpio = (GPIO_TypeDef *)GPIOF_BASE;
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
-            break;
-        default:
-            error("GPIO port number is not correct.");
-            break;          
-    }
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    gpio = (GPIO_TypeDef *)gpio_add;
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;
