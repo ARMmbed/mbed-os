@@ -23,8 +23,18 @@
         <Option name="Library" value="Not use C Library"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="UserEditLinker" value="--specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
-        ${project.path}/{{file}}; {% endfor %} {% for lib in libraries %} -l{{lib}}; {% endfor %} -lstdc++; -lsupc++; -lm; -lc; -lgcc; -lnosys;"/>
-        <LinkedLibraries/>
+        ${project.path}/{{file}}; {% endfor %} {% for p in library_paths %}-L{{p}}; {% endfor %}"/>
+        <LinkedLibraries>
+          {% for lib in libraries %}
+          <Libset dir="" libs="{{lib}}"/>
+          {% endfor %}
+          <Libset dir="" libs="stdc++"/>
+          <Libset dir="" libs="supc++"/>
+          <Libset dir="" libs="m"/>
+          <Libset dir="" libs="gcc"/>
+          <Libset dir="" libs="c"/>
+          <Libset dir="" libs="nosys"/>
+        </LinkedLibraries>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x00000000"/>
           <Memory name="IRAM1" type="ReadWrite" size="0x00001000" startValue="0x1FFFF000"/>
