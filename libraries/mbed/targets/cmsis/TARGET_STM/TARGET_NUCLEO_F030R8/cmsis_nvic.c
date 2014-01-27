@@ -38,7 +38,7 @@ static unsigned char vtor_remap = 0; // To keep track that the vectors remap is 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     int i;
     // Space for dynamic vectors, initialised to allocate in R/W
-    static volatile uint32_t* vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
+    static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     
     // Copy and switch to dynamic vectors if first time called
     if (vtor_remap == 0) {
@@ -46,6 +46,7 @@ void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
       for (i = 0; i < NVIC_NUM_VECTORS; i++) {    
           vectors[i] = old_vectors[i];
       }
+      SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
       vtor_remap = 1; // The vectors remap is done
     }
 
