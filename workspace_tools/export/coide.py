@@ -26,7 +26,7 @@ class CoIDE(Exporter):
         'cpp_sources':'1',
         's_sources':'1'
     }
-    TARGETS = ['KL25Z']
+    TARGETS = ['KL25Z','KL05Z']
     TOOLCHAIN = 'GCC_ARM'
 
     def generate(self):

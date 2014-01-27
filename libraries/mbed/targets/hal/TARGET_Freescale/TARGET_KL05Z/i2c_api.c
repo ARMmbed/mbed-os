@@ -197,7 +197,9 @@ void i2c_frequency(i2c_t *obj, int hz) {
     for (i = 1; i < 5; i*=2) {
         for (j = 0; j < 0x40; j++) {
             ref = PCLK / (i*ICR[j]);
-            error = (ref > hz) ? ref - hz : hz - ref;
+            if (ref > (uint32_t)hz)
+                continue;
+            error = hz - ref;
             if (error < p_error) {
                 icr = j;
                 mult = i/2;
@@ -371,7 +373,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
-    uint32_t i, count = 0;
+    int32_t i, count = 0;
 
     // set tx mode
     obj->i2c->C1 |= I2C_C1_TX_MASK;
