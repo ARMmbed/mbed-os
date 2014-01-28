@@ -19,29 +19,7 @@
 #include "pinmap.h"
 #include "error.h"
 #include "clk_freqs.h"
-
-static const PinMap PinMap_I2C_SDA[] = {
-    {PTE25, I2C_0, 5},
-    {PTC9,  I2C_0, 2},
-    {PTE0,  I2C_1, 6},
-    {PTB1,  I2C_0, 2},
-    {PTB3,  I2C_0, 2},
-    {PTC11, I2C_1, 2},
-    {PTC2,  I2C_1, 2},
-    {PTA4,  I2C_1, 2},
-    {NC  ,  NC   , 0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {PTE24, I2C_0, 5},
-    {PTC8,  I2C_0, 2},
-    {PTE1,  I2C_1, 6},
-    {PTB0,  I2C_0, 2},
-    {PTB2,  I2C_0, 2},
-    {PTC10, I2C_1, 2},
-    {PTC1,  I2C_1, 2},
-    {NC  ,  NC,    0}
-};
+#include "PeripheralPins.h"
 
 static const uint16_t ICR[0x40] = {
       20,   22,   24,   26,   28,

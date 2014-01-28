@@ -13,34 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
+
+#include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PinName  pin;
-    uint32_t mask;
+#ifdef TARGET_KL46Z
+#define UARTLP_Type UART0_Type
+#endif
 
+struct gpio_irq_s {
+    uint32_t port;
+    uint32_t pin;
+    uint32_t ch;
+};
+
+struct port_s {
     __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
+    __IO uint32_t *reg_out;
     __I  uint32_t *reg_in;
-} gpio_t;
+    PortName port;
+    uint32_t mask;
+};
 
-static inline void gpio_write(gpio_t *obj, int value) {
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-        *obj->reg_clr = obj->mask;
-    }
-}
+struct pwmout_s {
+    __IO uint32_t *MOD;
+    __IO uint32_t *CNT;
+    __IO uint32_t *CnV;
+};
 
-static inline int gpio_read(gpio_t *obj) {
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
+struct serial_s {
+    UARTLP_Type *uart;
+    int index;
+};
+
+struct analogin_s {
+    ADCName adc;
+};
+
+struct dac_s {
+    DACName dac;
+};
+
+struct i2c_s {
+    I2C_Type *i2c;
+};
+
+struct spi_s {
+    SPI_Type *spi;
+};
+
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

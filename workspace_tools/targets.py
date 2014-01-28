@@ -104,7 +104,7 @@ class KL05Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         
@@ -117,7 +117,7 @@ class KL25Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM"]
         
@@ -129,7 +129,7 @@ class KL46Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
 
         self.supported_toolchains = ["GCC_ARM", "ARM"]
 

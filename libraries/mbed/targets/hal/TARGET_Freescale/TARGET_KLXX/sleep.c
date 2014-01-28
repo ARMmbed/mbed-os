@@ -15,6 +15,7 @@
  */
 #include "sleep_api.h"
 #include "cmsis.h"
+#include "PeripheralPins.h"
 
 //Normal wait mode
 void sleep(void)
@@ -43,8 +44,10 @@ void deepsleep(void)
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
     if (PLL_FLL_en) {
+		#ifdef MCG_C5_PLLCLKEN0_MASK		//PLL available
         if (MCG->C6 & (1<<MCG_C6_PLLS_SHIFT) != 0) /* If PLL */
             while((MCG->S & MCG_S_LOCK0_MASK) == 0x00U); /* Wait until locked */
+		#endif
         MCG->C1 &= ~MCG_C1_CLKS_MASK;
     }
 

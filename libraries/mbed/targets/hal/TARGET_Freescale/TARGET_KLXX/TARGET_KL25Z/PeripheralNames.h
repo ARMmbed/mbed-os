@@ -23,6 +23,11 @@ extern "C" {
 #endif
 
 typedef enum {
+	OSC32KCLK = 0,
+	RTC_CLKIN = 2
+} RTCName;
+
+typedef enum {
     UART_0 = (int)UART0_BASE,
     UART_1 = (int)UART1_BASE,
     UART_2 = (int)UART2_BASE
@@ -52,7 +57,7 @@ typedef enum {
     PWM_10 = (2 << TPM_SHIFT) | (1)   // TPM2 CH1
 } PWMName;
 
-#define CHANNELS_A_SHIFT 5
+#define CHANNELS_A_SHIFT	5
 typedef enum {
     ADC0_SE0  =  0,
     ADC0_SE3  =  3,

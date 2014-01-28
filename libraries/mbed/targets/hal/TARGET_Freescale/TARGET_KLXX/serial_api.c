@@ -23,19 +23,32 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
+#include "PeripheralPins.h"
 
-#define UART_CLOCK_HZ 47972352u
-#define UART_NUM    1
+//Devices either user UART0 or UARTLP
+#ifndef UARTLP_BASES
+	#define UARTLP_C2_RE_MASK		UART0_C2_RE_MASK
+	#define UARTLP_C2_TE_MASK		UART0_C2_TE_MASK
+	#define UARTLP_BDH_SBNS_MASK	UART0_BDH_SBNS_MASK
+	#define	UARTLP_BDH_SBNS_SHIFT	UART0_BDH_SBNS_SHIFT
+	#define UARTLP_S1_TDRE_MASK		UART0_S1_TDRE_MASK
+	#define UARTLP_S1_OR_MASK		UART0_S1_OR_MASK
+	#define UARTLP_C2_RIE_MASK		UART0_C2_RIE_MASK
+	#define UARTLP_C2_TIE_MASK		UART0_C2_TIE_MASK
+	#define UARTLP_C2_SBK_MASK		UART0_C2_SBK_MASK
+	#define UARTLP_S1_RDRF_MASK		UART0_S1_RDRF_MASK
+#endif
 
-static const PinMap PinMap_UART_TX[] = {
-    {PTB1, UART_0, 2},
-    {NC  , NC    , 0}
-};
+#ifdef UART2
+	#define UART_NUM		3
+#else
+	#define UART_NUM		1
+#endif
 
-static const PinMap PinMap_UART_RX[] = {
-    {PTB2, UART_0, 2},
-    {NC  , NC    , 0}
-};
+/******************************************************************************
+ * INITIALIZATION
+ ******************************************************************************/
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -55,19 +68,25 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UARTLP_Type *)uart;
     // enable clk
     switch (uart) {
-        case UART_0:
-            SIM->SOPT2 |= 1 << SIM_SOPT2_UART0SRC_SHIFT;
-            SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
-            SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
-            break;
+        case UART_0: if (mcgpllfll_frequency() != 0)                    //PLL/FLL is selected
+                        SIM->SOPT2 |= (1<<SIM_SOPT2_UART0SRC_SHIFT);
+                     else
+                        SIM->SOPT2 |= (2<<SIM_SOPT2_UART0SRC_SHIFT);
+                     SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; break;
+	#if UART_NUM > 1
+        case UART_1: SIM->SCGC4 |= SIM_SCGC4_UART1_MASK; break;
+        case UART_2: SIM->SCGC4 |= SIM_SCGC4_UART2_MASK; break;
+	#endif
     }
     // Disable UART before changing registers
-    obj->uart->C2 &= ~(UART0_C2_RE_MASK | UART0_C2_TE_MASK);
-
+    obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
+    
     switch (uart) {
-        case UART_0:
-            obj->index = 0;
-            break;
+        case UART_0: obj->index = 0; break;
+	#if UART_NUM > 1
+        case UART_1: obj->index = 1; break;
+        case UART_2: obj->index = 2; break;
+	#endif
     }
 
     // set default baud rate and format
@@ -82,7 +101,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pin_mode(tx, PullUp);
     pin_mode(rx, PullUp);
 
-    obj->uart->C2 |= (UART0_C2_RE_MASK | UART0_C2_TE_MASK);
+    obj->uart->C2 |= (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
 
     if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
@@ -94,12 +113,25 @@ void serial_free(serial_t *obj) {
     serial_irq_ids[obj->index] = 0;
 }
 
+// serial_baud
+//
+// set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
+    
     // save C2 state
-    uint8_t c2_state = (obj->uart->C2 & (UART0_C2_RE_MASK | UART0_C2_TE_MASK));
-
+    uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
+    
     // Disable UART before changing registers
-    obj->uart->C2 &= ~(UART0_C2_RE_MASK | UART0_C2_TE_MASK);
+    obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
+    
+    uint32_t PCLK;
+    if (obj->uart == UART0) {
+        if (mcgpllfll_frequency() != 0)
+            PCLK = mcgpllfll_frequency();
+        else
+            PCLK = extosc_frequency();
+    } else
+        PCLK = bus_frequency();
 
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
@@ -107,30 +139,28 @@ void serial_baud(serial_t *obj, int baudrate) {
     // the closest match. This could be more elegant, using search methods
     // and/or lookup tables, but the brute force method is not that much
     // slower, and is more maintainable.
-    uint16_t DL = UART_CLOCK_HZ / (16 * baudrate);
+    uint16_t DL = PCLK / (16 * baudrate);
 
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);
     obj->uart->BDL = (obj->uart->BDL & ~(0xff)) | ((DL >> 0) & 0xff);
-
+    
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    uint8_t m10 = 0;
-
+    
     // save C2 state
-    uint8_t c2_state = (obj->uart->C2 & (UART0_C2_RE_MASK | UART0_C2_TE_MASK));
-
+    uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
+    
     // Disable UART before changing registers
-    obj->uart->C2 &= ~(UART0_C2_RE_MASK | UART0_C2_TE_MASK);
-
-    // 8 data bits = 0 ... 9 data bits = 1
-    if ((data_bits < 8) || (data_bits > 9)) {
-        error("Invalid number of bits (%d) in serial format, should be 8..9\r\n", data_bits);
+    obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
+    
+	// TODO: Support other number of data bits (also in the write method!)
+    if ((data_bits < 8) || (data_bits > 8)) {
+        error("Invalid number of bits (%d) in serial format, should be 8\r\n", data_bits);
     }
-    data_bits -= 8;
 
     uint8_t parity_enable, parity_select;
     switch (parity) {
@@ -148,50 +178,40 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
     stop_bits -= 1;
 
-    // 9 data bits + parity
-    if (data_bits == 2) {
-        // only uart0 supports 10 bit communication
-        if (obj->index != 0) {
-            error("Invalid number of bits (9) to be used with parity\r\n");
-        }
-        data_bits = 0;
-        m10 = 1;
-    }
-
     // data bits, parity and parity mode
-    obj->uart->C1 = ((data_bits << 4)
-                  |  (parity_enable << 1)
+    obj->uart->C1 = ((parity_enable << 1)
                   |  (parity_select << 0));
-
-    // enable 10bit mode if needed
-    if (obj->index == 0) {
-        obj->uart->C4 &= ~UARTLP_C4_M10_MASK;
-        obj->uart->C4 |= (m10 << UARTLP_C4_M10_SHIFT);
-    }
-
+    
     // stop bits
-    obj->uart->BDH &= ~UART0_BDH_SBNS_MASK;
-    obj->uart->BDH |= (stop_bits << UART0_BDH_SBNS_SHIFT);
-
+    obj->uart->BDH &= ~UARTLP_BDH_SBNS_MASK;
+    obj->uart->BDH |= (stop_bits << UARTLP_BDH_SBNS_SHIFT);
+    
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
 
+/******************************************************************************
+ * INTERRUPTS HANDLING
+ ******************************************************************************/
 static inline void uart_irq(uint8_t status, uint32_t index) {
     if (serial_irq_ids[index] != 0) {
-        if (status & UART0_S1_TDRE_MASK)
+        if (status & UARTLP_S1_TDRE_MASK)
             irq_handler(serial_irq_ids[index], TxIrq);
 
-        if (status & UART0_S1_RDRF_MASK)
+        if (status & UARTLP_S1_RDRF_MASK)
             irq_handler(serial_irq_ids[index], RxIrq);
     }
 }
 
 void uart0_irq() {
     uart_irq(UART0->S1, 0);
-    if (UART0->S1 & UART0_S1_OR_MASK)
-        UART0->S1 |= UART0_S1_OR_MASK;
+    if (UART0->S1 & UARTLP_S1_OR_MASK)
+        UART0->S1 |= UARTLP_S1_OR_MASK;
 }
+#if UART_NUM > 1
+void uart1_irq() {uart_irq(UART1->S1, 1);}
+void uart2_irq() {uart_irq(UART2->S1, 2);}
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -202,20 +222,17 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
-        case UART_0:
-            irq_n=UART0_IRQn;
-            vector = (uint32_t)&uart0_irq;
-            break;
+        case UART_0: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
+		#if UART_NUM > 1
+        case UART_1: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
+        case UART_2: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
+		#endif
     }
 
     if (enable) {
         switch (irq) {
-            case RxIrq:
-                obj->uart->C2 |= (UART0_C2_RIE_MASK);
-                break;
-            case TxIrq:
-                obj->uart->C2 |= (UART0_C2_TIE_MASK);
-                break;
+            case RxIrq: obj->uart->C2 |= (UARTLP_C2_RIE_MASK); break;
+            case TxIrq: obj->uart->C2 |= (UARTLP_C2_TIE_MASK); break;
         }
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -224,26 +241,21 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         switch (irq) {
-            case RxIrq:
-                obj->uart->C2 &= ~(UART0_C2_RIE_MASK);
-                break;
-            case TxIrq:
-                obj->uart->C2 &= ~(UART0_C2_TIE_MASK);
-                break;
+            case RxIrq: obj->uart->C2 &= ~(UARTLP_C2_RIE_MASK); break;
+            case TxIrq: obj->uart->C2 &= ~(UARTLP_C2_TIE_MASK); break;
         }
         switch (other_irq) {
-            case RxIrq:
-                all_disabled = (obj->uart->C2 & (UART0_C2_RIE_MASK)) == 0;
-                break;
-            case TxIrq:
-                all_disabled = (obj->uart->C2 & (UART0_C2_TIE_MASK)) == 0;
-                break;
+            case RxIrq: all_disabled = (obj->uart->C2 & (UARTLP_C2_RIE_MASK)) == 0; break;
+            case TxIrq: all_disabled = (obj->uart->C2 & (UARTLP_C2_TIE_MASK)) == 0; break;
         }
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
 }
 
+/******************************************************************************
+ * READ/WRITE
+ ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
     return obj->uart->D;
@@ -256,22 +268,21 @@ void serial_putc(serial_t *obj, int c) {
 
 int serial_readable(serial_t *obj) {
     // check overrun
-    if (obj->uart->S1 &  UART0_S1_OR_MASK) {
-        obj->uart->S1 |= UART0_S1_OR_MASK;
+    if (obj->uart->S1 &  UARTLP_S1_OR_MASK) {
+        obj->uart->S1 |= UARTLP_S1_OR_MASK;
     }
-    return (obj->uart->S1 & UART0_S1_RDRF_MASK);
+    return (obj->uart->S1 & UARTLP_S1_RDRF_MASK);
 }
 
 int serial_writable(serial_t *obj) {
     // check overrun
-    if (obj->uart->S1 &  UART0_S1_OR_MASK) {
-        obj->uart->S1 |= UART0_S1_OR_MASK;
+    if (obj->uart->S1 &  UARTLP_S1_OR_MASK) {
+        obj->uart->S1 |= UARTLP_S1_OR_MASK;
     }
-    return (obj->uart->S1 & UART0_S1_TDRE_MASK);
+    return (obj->uart->S1 & UARTLP_S1_TDRE_MASK);
 }
 
 void serial_clear(serial_t *obj) {
-
 }
 
 void serial_pinout_tx(PinName tx) {
@@ -279,10 +290,10 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->C2 |= UART0_C2_SBK_MASK; 
+    obj->uart->C2 |= UARTLP_C2_SBK_MASK; 
 }
 
 void serial_break_clear(serial_t *obj) {
-    obj->uart->C2 &= ~UART0_C2_SBK_MASK;
+    obj->uart->C2 &= ~UARTLP_C2_SBK_MASK;
 }
 

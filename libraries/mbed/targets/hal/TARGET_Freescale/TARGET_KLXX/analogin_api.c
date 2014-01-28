@@ -18,30 +18,16 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "clk_freqs.h"
+#include "PeripheralPins.h"
 
-static const PinMap PinMap_ADC[] = {
-    /* A0-A5 pins */
-    {PTA0,  ADC0_SE12, 0},
-    {PTA8,  ADC0_SE3,  0},
-    {PTA9,  ADC0_SE2,  0},
-    {PTB8,  ADC0_SE11, 0},
-    {PTB9,  ADC0_SE10, 0},
-    {PTB13, ADC0_SE13, 0},
-    /* Rest of pins ADC Mux */
-    {PTB2, ADC0_SE4,  0},
-    {PTB1, ADC0_SE5,  0},
-    {PTB5, ADC0_SE1,  0},
-    {PTA12, ADC0_SE0, 0},
-    {PTB10, ADC0_SE9, 0},
-    {PTB11, ADC0_SE8, 0},
-    {PTB7, ADC0_SE7, 0},
-    {PTB0, ADC0_SE6,  0},
-    {NC,    NC,       0}
-};
+#define MAX_FADC			6000000
+#define CHANNELS_A_SHIFT 	5
+
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (uint32_t)NC) {
+    if (obj->adc == (ADCName)NC) {
         error("ADC pin mapping failed");
     }
 
@@ -50,15 +36,30 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint32_t port = (uint32_t)pin >> PORT_SHIFT;
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
 
-    ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc);
+    uint32_t cfg2_muxsel = ADC_CFG2_MUXSEL_MASK;
+    if (obj->adc & (1 << CHANNELS_A_SHIFT)) {
+        cfg2_muxsel = 0;
+    }
+    
+    // bus clk
+    uint32_t PCLK = bus_frequency();
+    uint32_t clkdiv;
+    for (clkdiv = 0; clkdiv < 4; clkdiv++) {
+        if ((PCLK >> clkdiv) <= MAX_FADC)
+            break;
+    }
+    if (clkdiv == 4)                    //Set max div
+        clkdiv = 0x7;
 
-    ADC0->CFG1 = ADC_CFG1_ADLPC_MASK    // Low-Power Configuration
-               | ADC_CFG1_ADIV(3)       // Clock Divide Select: (Input Clock)/8
-               | ADC_CFG1_ADLSMP_MASK   // Long Sample Time
-               | ADC_CFG1_MODE(1)       // (12)bits Resolution
-               | ADC_CFG1_ADICLK(1);    // Input Clock: (Bus Clock)/2
+    ADC0->SC1[1] = ADC_SC1_ADCH(obj->adc & ~(1 << CHANNELS_A_SHIFT));
 
-    ADC0->CFG2 = ADC_CFG2_MUXSEL_MASK   // ADxxb channels are selected
+    ADC0->CFG1 = ADC_CFG1_ADLPC_MASK            // Low-Power Configuration
+               | ADC_CFG1_ADIV(clkdiv & 0x3)    // Clock Divide Select: (Input Clock)/8
+               | ADC_CFG1_ADLSMP_MASK           // Long Sample Time
+               | ADC_CFG1_MODE(3)               // (16)bits Resolution
+               | ADC_CFG1_ADICLK(clkdiv >> 2);  // Input Clock: (Bus Clock)/2
+
+    ADC0->CFG2 = cfg2_muxsel            // ADxxb or ADxxa channels
                | ADC_CFG2_ADACKEN_MASK  // Asynchronous Clock Output Enable
                | ADC_CFG2_ADHSC_MASK    // High-Speed Configuration
                | ADC_CFG2_ADLSTS(0);    // Long Sample Time Select
@@ -73,12 +74,12 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     // start conversion
-    ADC0->SC1[0] = ADC_SC1_ADCH(obj->adc);
+    ADC0->SC1[0] = ADC_SC1_ADCH(obj->adc & ~(1 << CHANNELS_A_SHIFT));
 
     // Wait Conversion Complete
     while ((ADC0->SC1[0] & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
 
-    // Return value (12bit)
+    // Return value
     return (uint16_t)ADC0->R[0];
 }
 

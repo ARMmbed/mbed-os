@@ -19,51 +19,7 @@
 #include "pinmap.h"
 #include "error.h"
 #include "clk_freqs.h"
-
-static const PinMap PinMap_PWM[] = {
-    // LEDs
-    {LED_RED  , PWM_9 , 3}, // PTB18, TPM2 CH0
-    {LED_GREEN, PWM_10, 3}, // PTB19, TPM2 CH1
-    {LED_BLUE , PWM_2 , 4}, // PTD1 , TPM0 CH1
-
-    // Arduino digital pinout
-    {D0,  PWM_9 , 3}, // PTA1 , TPM2 CH0
-    {D1,  PWM_10, 3}, // PTA2 , TPM2 CH1
-    {D2,  PWM_5 , 4}, // PTD4 , TPM0 CH4
-    {D3,  PWM_7 , 3}, // PTA12, TPM1 CH0
-    {D4,  PWM_2 , 3}, // PTA4 , TPM0 CH1
-    {D5,  PWM_3 , 3}, // PTA5 , TPM0 CH2
-    {D6,  PWM_5 , 3}, // PTC8 , TPM0 CH4
-    {D7,  PWM_6 , 3}, // PTC9 , TPM0 CH5
-    {D8,  PWM_8 , 3}, // PTA13, TPM1 CH1
-    {D9,  PWM_6 , 4}, // PTD5 , TPM0 CH5
-    {D10, PWM_1 , 4}, // PTD0 , TPM0 CH0
-    {D11, PWM_3 , 4}, // PTD2 , TPM0 CH2
-    {D12, PWM_4 , 4}, // PTD3 , TPM0 CH3
-    {D13, PWM_2 , 4}, // PTD1 , TPM0 CH1,
-
-    {PTA0, PWM_6, 3},
-    {PTA3, PWM_1, 3},
-    {PTB0, PWM_7, 3},
-    {PTB1, PWM_8, 3},
-    {PTB2, PWM_9, 3},
-    {PTB3, PWM_10, 3},
-    {PTC1, PWM_1, 4},
-    {PTC2, PWM_2, 4},
-    {PTC3, PWM_3, 4},
-    {PTC4, PWM_4, 4},
-    {PTE20, PWM_7, 3},
-    {PTE21, PWM_8, 3},
-    {PTE22, PWM_9, 3},
-    {PTE23, PWM_10, 3},
-    {PTE24, PWM_1, 3},
-    {PTE25, PWM_2, 3},
-    {PTE29, PWM_3, 3},
-    {PTE30, PWM_4, 3},
-    {PTE31, PWM_5, 3},
-
-    {NC , NC    , 0}
-};
+#include "PeripheralPins.h"
 
 static float pwm_clock;
 

@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#include "PeripheralPins.h"
+
 //Get the peripheral bus clock frequency
 static inline uint32_t bus_frequency(void) {
     return SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
@@ -32,9 +34,11 @@ static uint32_t extosc_frequency(void) {
     if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(2))     //MCG clock = external reference clock
         return MCGClock;
     
+	uint32_t divider, multiplier;
+	#ifdef MCG_C5_PLLCLKEN0_MASK 							//PLL available
     if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0)) {   //PLL/FLL is selected
-        uint32_t divider, multiplier;
         if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {         //FLL is selected
+	#endif
             if ((MCG->S & MCG_S_IREFST_MASK) == 0x0u) {     //FLL uses external reference
                 divider = (uint8_t)(1u << ((MCG->C1 & MCG_C1_FRDIV_MASK) >> MCG_C1_FRDIV_SHIFT));
                 if ((MCG->C2 & MCG_C2_RANGE0_MASK) != 0x0u)
@@ -70,12 +74,14 @@ static uint32_t extosc_frequency(void) {
                 
                 return MCGClock * divider / multiplier;
             }
+	#ifdef MCG_C5_PLLCLKEN0_MASK
         } else {             //PLL is selected
             divider = (1u + (MCG->C5 & MCG_C5_PRDIV0_MASK));
             multiplier = ((MCG->C6 & MCG_C6_VDIV0_MASK) + 24u); 
             return MCGClock * divider / multiplier;         
         }
     }
+	#endif
     
     //In all other cases either there is no crystal or we cannot determine it
     //For example when the FLL is running on the internal reference, and there is also an
@@ -89,13 +95,17 @@ static uint32_t mcgpllfll_frequency(void) {
         return 0;
     
     uint32_t MCGClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
+	#ifdef MCG_C5_PLLCLKEN0_MASK
     if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {         //FLL is selected
         SIM->SOPT2 &= ~SIM_SOPT2_PLLFLLSEL_MASK;        //MCG peripheral clock is FLL output
+	#endif
         return MCGClock;
+	#ifdef MCG_C5_PLLCLKEN0_MASK
     } else {                                            //PLL is selected
         SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;         //MCG peripheral clock is PLL output
         return (MCGClock >> 1);
     }
+	#endif
     
     //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active 
     //for the peripherals, this is however an unlikely setup
