@@ -23,7 +23,7 @@
 
 /************RTC***************/
 static const PinMap PinMap_RTC[] = {
-	{PTC1, RTC_CLKIN, 2},
+    {PTC1, RTC_CLKIN, 2},
 };
 
 /************ADC***************/

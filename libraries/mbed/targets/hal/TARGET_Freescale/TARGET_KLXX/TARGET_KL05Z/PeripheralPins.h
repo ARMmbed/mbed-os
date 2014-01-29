@@ -22,7 +22,7 @@
 
 /************RTC***************/
 static const PinMap PinMap_RTC[] = {
-	{NC, OSC32KCLK, 0},
+    {NC, OSC32KCLK, 0},
 };
 
 /************ADC***************/

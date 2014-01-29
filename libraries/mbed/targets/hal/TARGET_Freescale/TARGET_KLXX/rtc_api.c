@@ -20,7 +20,7 @@ static void init(void) {
     // enable RTC clock
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
 
-	pinmap_pinout(PinMap_RTC[0].pin, PinMap_RTC);		//Map RTC clk input (if not NC)
+    pinmap_pinout(PinMap_RTC[0].pin, PinMap_RTC);        //Map RTC clk input (if not NC)
 
     // select RTC clock source
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
@@ -32,12 +32,12 @@ void rtc_init(void) {
 
     //Configure the TSR. default value: 1
     RTC->TSR = 1;
-	
-	if (PinMap_RTC[0].pin == NC) {		//Use OSC32K
-		RTC->CR |= RTC_CR_OSCE_MASK;
-		//delay for OSCE stabilization
-		for(int i=0; i<0x1000; i++) __NOP();
-	}
+    
+    if (PinMap_RTC[0].pin == NC) {        //Use OSC32K
+        RTC->CR |= RTC_CR_OSCE_MASK;
+        //delay for OSCE stabilization
+        for(int i=0; i<0x1000; i++) __NOP();
+    }
 
     // enable counter
     RTC->SR |= RTC_SR_TCE_MASK;
@@ -58,7 +58,7 @@ int rtc_isenabled(void) {
     // call init() if the rtc is enabled
 
     // if RTC not enabled return 0
-	SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
+    SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
     if ((RTC->SR & RTC_SR_TCE_MASK) == 0)
         return 0;

@@ -21,8 +21,8 @@
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
-#define MAX_FADC			6000000
-#define CHANNELS_A_SHIFT 	5
+#define MAX_FADC            6000000
+#define CHANNELS_A_SHIFT     5
 
 
 void analogin_init(analogin_t *obj, PinName pin) {

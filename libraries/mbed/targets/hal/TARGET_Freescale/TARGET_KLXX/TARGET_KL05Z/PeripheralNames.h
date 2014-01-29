@@ -23,8 +23,8 @@ extern "C" {
 #endif
 
 typedef enum {
-	OSC32KCLK = 0,
-	RTC_CLKIN = 2
+    OSC32KCLK = 0,
+    RTC_CLKIN = 2
 } RTCName;
 
 typedef enum {
@@ -37,7 +37,7 @@ typedef enum {
 
 typedef enum {
     I2C_0 = (int)I2C0_BASE,
-	I2C_1 = -1
+    I2C_1 = -1
 } I2CName;
 
 typedef enum {

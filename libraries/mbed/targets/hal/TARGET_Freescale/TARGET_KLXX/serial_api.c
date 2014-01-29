@@ -28,22 +28,22 @@
 
 //Devices either user UART0 or UARTLP
 #ifndef UARTLP_BASES
-	#define UARTLP_C2_RE_MASK		UART0_C2_RE_MASK
-	#define UARTLP_C2_TE_MASK		UART0_C2_TE_MASK
-	#define UARTLP_BDH_SBNS_MASK	UART0_BDH_SBNS_MASK
-	#define	UARTLP_BDH_SBNS_SHIFT	UART0_BDH_SBNS_SHIFT
-	#define UARTLP_S1_TDRE_MASK		UART0_S1_TDRE_MASK
-	#define UARTLP_S1_OR_MASK		UART0_S1_OR_MASK
-	#define UARTLP_C2_RIE_MASK		UART0_C2_RIE_MASK
-	#define UARTLP_C2_TIE_MASK		UART0_C2_TIE_MASK
-	#define UARTLP_C2_SBK_MASK		UART0_C2_SBK_MASK
-	#define UARTLP_S1_RDRF_MASK		UART0_S1_RDRF_MASK
+    #define UARTLP_C2_RE_MASK        UART0_C2_RE_MASK
+    #define UARTLP_C2_TE_MASK        UART0_C2_TE_MASK
+    #define UARTLP_BDH_SBNS_MASK    UART0_BDH_SBNS_MASK
+    #define    UARTLP_BDH_SBNS_SHIFT    UART0_BDH_SBNS_SHIFT
+    #define UARTLP_S1_TDRE_MASK        UART0_S1_TDRE_MASK
+    #define UARTLP_S1_OR_MASK        UART0_S1_OR_MASK
+    #define UARTLP_C2_RIE_MASK        UART0_C2_RIE_MASK
+    #define UARTLP_C2_TIE_MASK        UART0_C2_TIE_MASK
+    #define UARTLP_C2_SBK_MASK        UART0_C2_SBK_MASK
+    #define UARTLP_S1_RDRF_MASK        UART0_S1_RDRF_MASK
 #endif
 
 #ifdef UART2
-	#define UART_NUM		3
+    #define UART_NUM        3
 #else
-	#define UART_NUM		1
+    #define UART_NUM        1
 #endif
 
 /******************************************************************************
@@ -73,20 +73,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
                      else
                         SIM->SOPT2 |= (2<<SIM_SOPT2_UART0SRC_SHIFT);
                      SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; break;
-	#if UART_NUM > 1
+    #if UART_NUM > 1
         case UART_1: SIM->SCGC4 |= SIM_SCGC4_UART1_MASK; break;
         case UART_2: SIM->SCGC4 |= SIM_SCGC4_UART2_MASK; break;
-	#endif
+    #endif
     }
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
     
     switch (uart) {
         case UART_0: obj->index = 0; break;
-	#if UART_NUM > 1
+    #if UART_NUM > 1
         case UART_1: obj->index = 1; break;
         case UART_2: obj->index = 2; break;
-	#endif
+    #endif
     }
 
     // set default baud rate and format
@@ -157,7 +157,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
     
-	// TODO: Support other number of data bits (also in the write method!)
+    // TODO: Support other number of data bits (also in the write method!)
     if ((data_bits < 8) || (data_bits > 8)) {
         error("Invalid number of bits (%d) in serial format, should be 8\r\n", data_bits);
     }
@@ -223,10 +223,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     uint32_t vector = 0;
     switch ((int)obj->uart) {
         case UART_0: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
-		#if UART_NUM > 1
+        #if UART_NUM > 1
         case UART_1: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
         case UART_2: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
-		#endif
+        #endif
     }
 
     if (enable) {
