@@ -26,7 +26,7 @@ class CoIDE(Exporter):
         'cpp_sources':'1',
         's_sources':'1'
     }
-    TARGETS = ['KL25Z']
+    TARGETS = ['KL25Z','KL05Z']
     TOOLCHAIN = 'GCC_ARM'
 
     def generate(self):
@@ -48,6 +48,7 @@ class CoIDE(Exporter):
             'source_files': source_files,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
+            'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
             'symbols': self.toolchain.get_symbols()

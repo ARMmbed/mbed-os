@@ -123,7 +123,9 @@ void spi_frequency(spi_t *obj, int hz) {
         divisor = 2;
         for (spr = 0; spr <= 8; spr++) {
             ref = PCLK / (prescaler*divisor);
-            error = (ref > hz) ? ref - hz : hz - ref;
+            if (ref > (uint32_t)hz)
+                continue;
+            error = hz - ref;
             if (error < p_error) {
                 ref_spr = spr;
                 ref_prescaler = prescaler - 1;
