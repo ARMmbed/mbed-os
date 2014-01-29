@@ -19,10 +19,10 @@
 
 WEAK void mbed_die(void);
 WEAK void mbed_die(void) {
-#if   defined(DEVICE_ERROR_RED)
+#if  defined(DEVICE_ERROR_RED)
     gpio_t led_red; gpio_init(&led_red, LED_RED, PIN_OUTPUT);
 
-#elif defined(DEVICE_ERROR_PATTERN)
+#elif (DEVICE_ERROR_PATTERN == 1)
     gpio_t led_1; gpio_init(&led_1, LED1, PIN_OUTPUT);
     gpio_t led_2; gpio_init(&led_2, LED2, PIN_OUTPUT);
     gpio_t led_3; gpio_init(&led_3, LED3, PIN_OUTPUT);
@@ -33,7 +33,7 @@ WEAK void mbed_die(void) {
 #if defined(DEVICE_ERROR_RED)
         gpio_write(&led_red, 1);
 
-#elif  defined(DEVICE_ERROR_PATTERN)
+#elif  (DEVICE_ERROR_PATTERN == 1)
         gpio_write(&led_1, 1);
         gpio_write(&led_2, 0);
         gpio_write(&led_3, 0);
@@ -41,10 +41,10 @@ WEAK void mbed_die(void) {
 #endif
         wait_ms(150);
 
-#if   defined(DEVICE_ERROR_RED)
+#if  defined(DEVICE_ERROR_RED)
         gpio_write(&led_red, 0);
 
-#elif defined(DEVICE_ERROR_PATTERN)
+#elif (DEVICE_ERROR_PATTERN == 1)
         gpio_write(&led_1, 0);
         gpio_write(&led_2, 1);
         gpio_write(&led_3, 1);

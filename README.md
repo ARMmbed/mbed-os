@@ -24,6 +24,7 @@ Supported Microcontrollers
 --------------------------
 NXP:
 * [LPC1768](http://mbed.org/platforms/mbed-LPC1768/) (Cortex-M3)
+* [LPC1768](http://mbed.org/platforms/u-blox-C027/) (Cortex-M3)
 * [LPC11U24](http://mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
 * LPC2368 (ARM7TDMI-S)
 * LPC810 (Cortex-M0+)
