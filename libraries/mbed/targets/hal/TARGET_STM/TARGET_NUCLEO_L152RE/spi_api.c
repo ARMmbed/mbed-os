@@ -114,7 +114,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DataSize_8b;
     obj->cpol = SPI_CPOL_Low;
     obj->cpha = SPI_CPHA_1Edge;
-    obj->br_presc = SPI_BaudRatePrescaler_64; // Closest to 1MHz (72MHz/64 = 1.125MHz)
+    obj->br_presc = SPI_BaudRatePrescaler_16; // 1 MHz
     
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
@@ -176,7 +176,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
 void spi_frequency(spi_t *obj, int hz) {
     // Get SPI clock frequency
-    uint32_t PCLK = SystemCoreClock >> 1;
+    uint32_t PCLK = SystemCoreClock;
 
     // Choose the baud rate divisor (between 2 and 256)
     uint32_t divisor = PCLK / hz;
