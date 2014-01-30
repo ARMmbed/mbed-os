@@ -14,19 +14,15 @@
  * limitations under the License.
  */
  
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
-
-#include "pinmap.h"
-#include "PeripheralNames.h"
+#include "PeripheralPins.h"
 
 /************RTC***************/
-static const PinMap PinMap_RTC[] = {
+const PinMap PinMap_RTC[] = {
     {PTC1, RTC_CLKIN, 2},
 };
 
 /************ADC***************/
-static const PinMap PinMap_ADC[] = {
+const PinMap PinMap_ADC[] = {
     {PTE20, ADC0_SE0,  0},
     {PTE22, ADC0_SE3,  0},
     {PTE21, ADC0_SE4a, 0},
@@ -47,13 +43,13 @@ static const PinMap PinMap_ADC[] = {
 };
 
 /************DAC***************/
-static const PinMap PinMap_DAC[] = {
+const PinMap PinMap_DAC[] = {
     {PTE30, DAC_0, 0},
     {NC   , NC   , 0}
 };
 
 /************I2C***************/
-static const PinMap PinMap_I2C_SDA[] = {
+const PinMap PinMap_I2C_SDA[] = {
     {PTE25, I2C_0, 5},
     {PTC9,  I2C_0, 2},
     {PTE0,  I2C_1, 6},
@@ -65,7 +61,7 @@ static const PinMap PinMap_I2C_SDA[] = {
     {NC  ,  NC   , 0}
 };
 
-static const PinMap PinMap_I2C_SCL[] = {
+const PinMap PinMap_I2C_SCL[] = {
     {PTE24, I2C_0, 5},
     {PTC8,  I2C_0, 2},
     {PTE1,  I2C_1, 6},
@@ -77,7 +73,7 @@ static const PinMap PinMap_I2C_SCL[] = {
 };
 
 /************UART***************/
-static const PinMap PinMap_UART_TX[] = {
+const PinMap PinMap_UART_TX[] = {
     {PTA2,  UART_0, 2},
     {PTA14, UART_0, 3},
     {PTC4,  UART_1, 3},
@@ -91,7 +87,7 @@ static const PinMap PinMap_UART_TX[] = {
     {NC  ,  NC    , 0}
 };
 
-static const PinMap PinMap_UART_RX[] = {
+const PinMap PinMap_UART_RX[] = {
     {PTA1,  UART_0, 2},
     {PTA15,  UART_0, 3},
     {PTC3,  UART_1, 3},
@@ -106,7 +102,7 @@ static const PinMap PinMap_UART_RX[] = {
 };
 
 /************SPI***************/
-static const PinMap PinMap_SPI_SCLK[] = {
+const PinMap PinMap_SPI_SCLK[] = {
     {PTA15, SPI_0, 2},
     {PTB9,  SPI_1, 2},
     {PTB11, SPI_1, 2},
@@ -118,7 +114,7 @@ static const PinMap PinMap_SPI_SCLK[] = {
     {NC  ,  NC   , 0}
 };
 
-static const PinMap PinMap_SPI_MOSI[] = {
+const PinMap PinMap_SPI_MOSI[] = {
     {PTA16, SPI_0, 2},
     {PTA17, SPI_0, 5},
     {PTB16, SPI_1, 2},
@@ -136,7 +132,7 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {NC  ,  NC   , 0}
 };
 
-static const PinMap PinMap_SPI_MISO[] = {
+const PinMap PinMap_SPI_MISO[] = {
     {PTA16, SPI_0, 5},
     {PTA17, SPI_0, 2},
     {PTB16, SPI_1, 5},
@@ -154,7 +150,7 @@ static const PinMap PinMap_SPI_MISO[] = {
     {NC   , NC   , 0}
 };
 
-static const PinMap PinMap_SPI_SSEL[] = {
+const PinMap PinMap_SPI_SSEL[] = {
     {PTA14, SPI_0, 2},
     {PTB10, SPI_1, 2},
     {PTC4,  SPI_0, 2},
@@ -166,7 +162,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
 };
 
 /************PWM***************/
-static const PinMap PinMap_PWM[] = {
+const PinMap PinMap_PWM[] = {
     // LEDs - only RED pin is PWM capable
     {LED_RED, PWM_3, 3}, // PTE29, TPM0 CH2
 
@@ -211,5 +207,3 @@ static const PinMap PinMap_PWM[] = {
 
     {NC , NC    , 0}
 };
-
-#endif

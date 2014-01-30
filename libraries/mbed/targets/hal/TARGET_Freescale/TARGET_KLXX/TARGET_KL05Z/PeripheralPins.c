@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
 
-#include "pinmap.h"
-#include "PeripheralNames.h"
+#include "PeripheralPins.h"
 
 /************RTC***************/
-static const PinMap PinMap_RTC[] = {
+const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
 };
 
 /************ADC***************/
-static const PinMap PinMap_ADC[] = {
+const PinMap PinMap_ADC[] = {
     /* A0-A5 pins */
     {PTA0,  ADC0_SE12, 0},
     {PTA8,  ADC0_SE3,  0},
@@ -47,55 +43,55 @@ static const PinMap PinMap_ADC[] = {
 };
 
 /************DAC***************/
-static const PinMap PinMap_DAC[] = {
+const PinMap PinMap_DAC[] = {
     {PTB1, DAC_0, 0},
     {NC  , NC   , 0}
 };
 
 /************I2C***************/
-static const PinMap PinMap_I2C_SDA[] = {
+const PinMap PinMap_I2C_SDA[] = {
     {PTB4, I2C_0, 2},
     {NC  , NC   , 0}
 };
 
-static const PinMap PinMap_I2C_SCL[] = {
+const PinMap PinMap_I2C_SCL[] = {
     {PTB3, I2C_0, 2},
     {NC  , NC   , 0}
 };
 /************UART***************/
-static const PinMap PinMap_UART_TX[] = {
+const PinMap PinMap_UART_TX[] = {
     {PTB1, UART_0, 2},
     {NC  , NC    , 0}
 };
 
-static const PinMap PinMap_UART_RX[] = {
+const PinMap PinMap_UART_RX[] = {
     {PTB2, UART_0, 2},
     {NC  , NC    , 0}
 };
 
 /************SPI***************/
-static const PinMap PinMap_SPI_SCLK[] = {
+const PinMap PinMap_SPI_SCLK[] = {
     {PTB0, SPI_0, 3},
     {NC  , NC   , 0}
 };
 
-static const PinMap PinMap_SPI_MOSI[] = {
+const PinMap PinMap_SPI_MOSI[] = {
     {PTA7, SPI_0, 3},
     {NC  , NC   , 0}
 };
 
-static const PinMap PinMap_SPI_MISO[] = {
+const PinMap PinMap_SPI_MISO[] = {
     {PTA6, SPI_0, 3},
     {NC  , NC   , 0}
 };
 
-static const PinMap PinMap_SPI_SSEL[] = {
+const PinMap PinMap_SPI_SSEL[] = {
     {PTA5, SPI_0, 3},
     {NC  , NC   , 0}
 };
 
 /************PWM***************/
-static const PinMap PinMap_PWM[] = {
+const PinMap PinMap_PWM[] = {
     // LEDs
     {LED_RED  , PWM_4 , 2}, // PTB8 , TPM0 CH3
     {LED_GREEN, PWM_3,  2}, // PTB9 , TPM0 CH2
@@ -113,4 +109,3 @@ static const PinMap PinMap_PWM[] = {
     {NC , NC    , 0}
 };
 
-#endif
