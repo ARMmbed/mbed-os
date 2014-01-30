@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_gpio.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the GPIO peripheral:           
   *           + Initialization and Configuration
@@ -55,7 +55,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -179,6 +179,7 @@ void GPIO_DeInit(GPIO_TypeDef* GPIOx)
 void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 {
   uint32_t pinpos = 0x00, pos = 0x00 , currentpin = 0x00;
+  uint32_t tmpreg = 0x00;
   
   /* Check the parameters */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
@@ -197,30 +198,42 @@ void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 
     if (currentpin == pos)
     {
-      GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << (pinpos * 2));
-
-      GPIOx->MODER |= (((uint32_t)GPIO_InitStruct->GPIO_Mode) << (pinpos * 2));
+      /* Use temporary variable to update MODER register configuration, to avoid 
+         unexpected transition in the GPIO pin configuration. */
+      tmpreg = GPIOx->MODER;
+      tmpreg &= ~(GPIO_MODER_MODER0 << (pinpos * 2));
+      tmpreg |= (((uint32_t)GPIO_InitStruct->GPIO_Mode) << (pinpos * 2));
+      GPIOx->MODER = tmpreg;
 
       if ((GPIO_InitStruct->GPIO_Mode == GPIO_Mode_OUT) || (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_AF))
       {
         /* Check Speed mode parameters */
         assert_param(IS_GPIO_SPEED(GPIO_InitStruct->GPIO_Speed));
 
-        /* Speed mode configuration */
-        GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << (pinpos * 2));
-        GPIOx->OSPEEDR |= ((uint32_t)(GPIO_InitStruct->GPIO_Speed) << (pinpos * 2));
+        /* Use temporary variable to update OSPEEDR register configuration, to avoid 
+          unexpected transition in the GPIO pin configuration. */
+        tmpreg = GPIOx->OSPEEDR;
+        tmpreg &= ~(GPIO_OSPEEDER_OSPEEDR0 << (pinpos * 2));
+        tmpreg |= ((uint32_t)(GPIO_InitStruct->GPIO_Speed) << (pinpos * 2));
+        GPIOx->OSPEEDR = tmpreg;
 
         /*Check Output mode parameters */
         assert_param(IS_GPIO_OTYPE(GPIO_InitStruct->GPIO_OType));
 
-        /* Output mode configuration */
-        GPIOx->OTYPER  &= ~((GPIO_OTYPER_OT_0) << ((uint16_t)pinpos)) ;
-        GPIOx->OTYPER |= (uint16_t)(((uint16_t)GPIO_InitStruct->GPIO_OType) << ((uint16_t)pinpos));
+        /* Use temporary variable to update OTYPER register configuration, to avoid 
+          unexpected transition in the GPIO pin configuration. */
+        tmpreg = GPIOx->OTYPER;
+        tmpreg &= ~((GPIO_OTYPER_OT_0) << ((uint16_t)pinpos));
+        tmpreg |= (uint16_t)(((uint16_t)GPIO_InitStruct->GPIO_OType) << ((uint16_t)pinpos));
+        GPIOx->OTYPER = tmpreg;
       }
 
-      /* Pull-up Pull down resistor configuration */
-      GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((uint16_t)pinpos * 2));
-      GPIOx->PUPDR |= (((uint32_t)GPIO_InitStruct->GPIO_PuPd) << (pinpos * 2));
+      /* Use temporary variable to update PUPDR register configuration, to avoid 
+         unexpected transition in the GPIO pin configuration. */
+      tmpreg = GPIOx->PUPDR;
+      tmpreg &= ~(GPIO_PUPDR_PUPDR0 << ((uint16_t)pinpos * 2));
+      tmpreg |= (((uint32_t)GPIO_InitStruct->GPIO_PuPd) << (pinpos * 2));
+      GPIOx->PUPDR = tmpreg;
     }
   }
 }

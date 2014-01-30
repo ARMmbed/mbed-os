@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_lcd.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the LCD controller (LCD) peripheral:
   *           + Initialization and configuration
@@ -61,7 +61,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -128,6 +128,8 @@
 #define DEAD_MASK                    ((uint32_t)0xFFFFFC7F)  /* LCD DEAD Mask */
 #define BLINK_MASK                   ((uint32_t)0xFFFC1FFF)  /* LCD BLINK Mask */
 #define CONTRAST_MASK                ((uint32_t)0xFFFFE3FF)  /* LCD CONTRAST Mask */
+
+#define SYNCHRO_TIMEOUT          ((uint32_t) 0x00008000)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -236,10 +238,15 @@ void LCD_Cmd(FunctionalState NewState)
   */
 void LCD_WaitForSynchro(void)
 {
+  uint32_t synchrocounter = 0;
+  uint32_t synchrostatus = 0x00;
+  
   /* Loop until FCRSF flag is set */
-  while ((LCD->SR & LCD_FLAG_FCRSF) == (uint32_t)RESET)
+  do
   {
-  }
+    synchrostatus = LCD->SR & LCD_FLAG_FCRSF;
+    synchrocounter++;  
+  } while((synchrocounter != SYNCHRO_TIMEOUT) && (synchrostatus == 0x00));
 }
 
 /**

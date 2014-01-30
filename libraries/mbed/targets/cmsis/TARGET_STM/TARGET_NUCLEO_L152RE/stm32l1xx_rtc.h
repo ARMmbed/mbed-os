@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l1xx_rtc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file contains all the functions prototypes for the RTC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -744,8 +744,8 @@ typedef struct
                                ((FLAG) == RTC_FLAG_RSF) || ((FLAG) == RTC_FLAG_WUTWF) || \
                                ((FLAG) == RTC_FLAG_ALRBWF) || ((FLAG) == RTC_FLAG_ALRAWF) || \
                                ((FLAG) == RTC_FLAG_TAMP1F) || ((FLAG) == RTC_FLAG_TAMP2F) || \
-                                ((FLAG) == RTC_FLAG_TAMP3F) || ((FLAG) == RTC_FLAG_RECALPF) || \
-                                ((FLAG) == RTC_FLAG_SHPF))
+                               ((FLAG) == RTC_FLAG_TAMP3F) || ((FLAG) == RTC_FLAG_RECALPF) || \
+                               ((FLAG) == RTC_FLAG_SHPF)|| ((FLAG) == RTC_FLAG_INITS))
 #define IS_RTC_CLEAR_FLAG(FLAG) (((FLAG) != (uint32_t)RESET) && (((FLAG) & 0xFFFF00DF) == (uint32_t)RESET))
 
 /**

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_rtc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Real-Time Clock (RTC) peripheral:
   *           + Initialization
@@ -204,7 +204,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -851,8 +851,6 @@ void RTC_GetTime(uint32_t RTC_Format, RTC_TimeTypeDef* RTC_TimeStruct)
 
 /**
   * @brief  Gets the RTC current Calendar Subseconds value.
-  * @note   This function freeze the Time and Date registers after reading the 
-  *         SSR register.
   * @param  None
   * @retval RTC current Calendar Subseconds value.
   */

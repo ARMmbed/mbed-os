@@ -37,28 +37,27 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
+    {PA_12, SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
+    {PA_11, SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
+    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
     {NC,    NC,    0}
 };
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)}, // Generic IO, not real H/W NSS pin
-    //{PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    //{PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 1)}, // Remap
+    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
+    {PA_15,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
     {NC,    NC,    0}
 };
 

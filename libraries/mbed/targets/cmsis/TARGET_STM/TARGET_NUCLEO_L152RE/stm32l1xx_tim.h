@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l1xx_tim.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file contains all the functions prototypes for the TIM firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -175,7 +175,12 @@ typedef struct
                                      ((PERIPH) == TIM10) || \
                                      ((PERIPH) == TIM11))
 
-
+/* LIST3: TIM2, TIM3, TIM4, TIM5 and TIM9 */
+#define IS_TIM_LIST7_PERIPH(PERIPH) (((PERIPH) == TIM2) || \
+                                     ((PERIPH) == TIM3) || \
+                                     ((PERIPH) == TIM4) || \
+                                     ((PERIPH) == TIM5) || \
+                                     ((PERIPH) == TIM9))
 
 /** @defgroup TIM_Output_Compare_and_PWM_modes 
   * @{

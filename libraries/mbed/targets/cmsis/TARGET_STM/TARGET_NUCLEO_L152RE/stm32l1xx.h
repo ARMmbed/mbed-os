@@ -2,12 +2,12 @@
   ******************************************************************************
   * @file    stm32l1xx.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer Header File. 
   *          This file contains all the peripheral register's definitions, bits 
-  *          definitions and memory mapping for STM32L1xx High-density, Medium-density
-  *          and Medium-density Plus devices.
+  *          definitions and memory mapping for STM32L1xx High-density, Medium-density,
+  *          Medium-density and XL-density Plus devices.
   *
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
@@ -26,7 +26,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -66,23 +66,27 @@
    application 
   */
 
-#if !defined (STM32L1XX_MD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_HD)
+#if !defined (STM32L1XX_MD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_HD) && !defined (STM32L1XX_XL)
 
 /* #define STM32L1XX_MD  */   /*!< - Ultra Low Power Medium-density devices: STM32L151x6xx, STM32L151x8xx,
-                                     STM32L151xBxx, STM32L152x6xx, STM32L152x8xx and STM32L152xBxx. 
+                                     STM32L151xBxx, STM32L152x6xx, STM32L152x8xx, STM32L152xBxx,
+                                     STM32L151x6xxA, STM32L151x8xxA, STM32L151xBxxA, STM32L152x6xxA,
+                                     STM32L152x8xxA and STM32L152xBxxA.
                                    - Ultra Low Power Medium-density Value Line devices: STM32L100x6xx,
                                      STM32L100x8xx and STM32L100xBxx.  */
 
-//#define STM32L1XX_MDP      /*!< - Ultra Low Power Medium-density Plus devices: STM32L151xCxx, STM32L152xCxx and STM32L162xCxx 
-//                                   - Ultra Low Power Medium-density Plus Value Line devices: STM32L100xCxx  */
+/* #define STM32L1XX_MDP */   /*!< - Ultra Low Power Medium-density Plus devices: STM32L151xCxx, STM32L152xCxx and STM32L162xCxx 
+                                   - Ultra Low Power Medium-density Plus Value Line devices: STM32L100xCxx  */
 
-#define STM32L1XX_HD     /*!< Ultra Low Power High-density devices: STM32L151xDxx, STM32L152xDxx and STM32L162xDxx */
+/* #define STM32L1XX_HD */     /*!< Ultra Low Power High-density devices: STM32L151xDxx, STM32L152xDxx and STM32L162xDxx */
+
+#define STM32L1XX_XL     /*!< Ultra Low Power XL-density devices: STM32L151xExx, STM32L152xExx and STM32L162xExx */
 #endif
 /*  Tip: To avoid modifying this file each time you need to switch between these
         devices, you can define the device in your toolchain compiler preprocessor.
   */
 
-#if !defined (STM32L1XX_MD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_HD)
+#if !defined (STM32L1XX_MD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_HD) && !defined (STM32L1XX_XL)
  #error "Please select first the target STM32L1xx device used in your application (in stm32l1xx.h file)"
 #endif
 
@@ -111,7 +115,7 @@
    Timeout value 
    */
 #if !defined  (HSE_STARTUP_TIMEOUT)
-#define HSE_STARTUP_TIMEOUT   ((uint16_t)0x0500) /*!< Time out for HSE start up */
+#define HSE_STARTUP_TIMEOUT   ((uint16_t)0x5000) /*!< Time out for HSE start up */
 #endif
 
 /**
@@ -119,7 +123,7 @@
    Timeout value 
    */
 #if !defined  (HSI_STARTUP_TIMEOUT)
-#define HSI_STARTUP_TIMEOUT   ((uint16_t)0x0500) /*!< Time out for HSI start up */
+#define HSI_STARTUP_TIMEOUT   ((uint16_t)0x5000) /*!< Time out for HSI start up */
 #endif
 
 #if !defined  (HSI_VALUE)
@@ -139,10 +143,10 @@
 #endif
 
 /**
- * @brief STM32L1xx Standard Peripheral Library version number V1.2.0
+ * @brief STM32L1xx Standard Peripheral Library version number V1.3.0
    */
 #define __STM32L1XX_STDPERIPH_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L1XX_STDPERIPH_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32L1XX_STDPERIPH_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */
 #define __STM32L1XX_STDPERIPH_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32L1XX_STDPERIPH_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32L1XX_STDPERIPH_VERSION       ( (__STM32L1XX_STDPERIPH_VERSION_MAIN << 24)\
@@ -225,6 +229,7 @@ typedef enum IRQn
   RTC_Alarm_IRQn              = 41,     /*!< RTC Alarm through EXTI Line Interrupt                   */
   USB_FS_WKUP_IRQn            = 42,     /*!< USB FS WakeUp from suspend through EXTI Line Interrupt  */
   TIM6_IRQn                   = 43,     /*!< TIM6 global Interrupt                                   */
+
 #ifdef STM32L1XX_MD
   TIM7_IRQn                   = 44      /*!< TIM7 global Interrupt                                   */
 #endif /* STM32L1XX_MD */
@@ -257,6 +262,21 @@ typedef enum IRQn
   AES_IRQn                    = 55,     /*!< AES global Interrupt                                    */
   COMP_ACQ_IRQn               = 56      /*!< Comparator Channel Acquisition global Interrupt         */
 #endif /* STM32L1XX_HD */
+
+#ifdef STM32L1XX_XL
+  TIM7_IRQn                   = 44,     /*!< TIM7 global Interrupt                                   */
+  TIM5_IRQn                   = 46,     /*!< TIM5 global Interrupt                                   */
+  SPI3_IRQn                   = 47,     /*!< SPI3 global Interrupt                                   */
+  UART4_IRQn                  = 48,     /*!< UART4 global Interrupt                                  */
+  UART5_IRQn                  = 49,     /*!< UART5 global Interrupt                                  */
+  DMA2_Channel1_IRQn          = 50,     /*!< DMA2 Channel 1 global Interrupt                         */
+  DMA2_Channel2_IRQn          = 51,     /*!< DMA2 Channel 2 global Interrupt                         */
+  DMA2_Channel3_IRQn          = 52,     /*!< DMA2 Channel 3 global Interrupt                         */
+  DMA2_Channel4_IRQn          = 53,     /*!< DMA2 Channel 4 global Interrupt                         */
+  DMA2_Channel5_IRQn          = 54,     /*!< DMA2 Channel 5 global Interrupt                         */
+  AES_IRQn                    = 55,     /*!< AES global Interrupt                                    */
+  COMP_ACQ_IRQn               = 56      /*!< Comparator Channel Acquisition global Interrupt         */
+#endif /* STM32L1XX_XL */
 } IRQn_Type;
 
 /**
@@ -557,8 +577,10 @@ typedef struct
   __IO uint16_t BSRRH;        /*!< GPIO port bit set/reset high registerBSRR,   Address offset: 0x1A      */
   __IO uint32_t LCKR;         /*!< GPIO port configuration lock register,       Address offset: 0x1C      */
   __IO uint32_t AFR[2];       /*!< GPIO alternate function low register,        Address offset: 0x20-0x24 */
+#if defined (STM32L1XX_HD) || defined (STM32L1XX_XL)
   __IO uint16_t BRR;          /*!< GPIO bit reset register,                     Address offset: 0x28      */
   uint16_t RESERVED3;         /*!< Reserved,                                    0x2A                      */
+#endif 
 } GPIO_TypeDef;
 
 /** 
@@ -663,13 +685,28 @@ typedef struct
 
 typedef struct
 {
-  __IO uint32_t ICR;       /*!< RI input capture register,             Address offset: 0x00 */
-  __IO uint32_t ASCR1;     /*!< RI analog switches control register,   Address offset: 0x04 */
-  __IO uint32_t ASCR2;     /*!< RI analog switch control register 2,   Address offset: 0x08 */
-  __IO uint32_t HYSCR1;     /*!< RI hysteresis control register,       Address offset: 0x0C */
-  __IO uint32_t HYSCR2;     /*!< RI Hysteresis control register,       Address offset: 0x10 */
-  __IO uint32_t HYSCR3;     /*!< RI Hysteresis control register,       Address offset: 0x14 */
-  __IO uint32_t HYSCR4;     /*!< RI Hysteresis control register,       Address offset: 0x18 */
+  __IO uint32_t ICR;       /*!< RI input capture register,                           Address offset: 0x04 */
+  __IO uint32_t ASCR1;     /*!< RI analog switches control register,                 Address offset: 0x08 */
+  __IO uint32_t ASCR2;     /*!< RI analog switch control register 2,                 Address offset: 0x0C */
+  __IO uint32_t HYSCR1;    /*!< RI hysteresis control register 1,                    Address offset: 0x10 */
+  __IO uint32_t HYSCR2;    /*!< RI Hysteresis control register 2,                    Address offset: 0x14 */
+  __IO uint32_t HYSCR3;    /*!< RI Hysteresis control register 3,                    Address offset: 0x18 */
+  __IO uint32_t HYSCR4;    /*!< RI Hysteresis control register 4,                    Address offset: 0x1C */
+  __IO uint32_t ASMR1;     /*!< RI Analog switch mode register 1,                    Address offset: 0x20 */
+  __IO uint32_t CMR1;      /*!< RI Channel mask register 1,                          Address offset: 0x24 */
+  __IO uint32_t CICR1;     /*!< RI Channel identification for capture register 1,    Address offset: 0x28 */
+  __IO uint32_t ASMR2;     /*!< RI Analog switch mode register 2,                    Address offset: 0x2C */
+  __IO uint32_t CMR2;      /*!< RI Channel mask register 2,                          Address offset: 0x30 */
+  __IO uint32_t CICR2;     /*!< RI Channel identification for capture register 2,    Address offset: 0x34 */
+  __IO uint32_t ASMR3;     /*!< RI Analog switch mode register 3,                    Address offset: 0x38 */
+  __IO uint32_t CMR3;      /*!< RI Channel mask register 3,                          Address offset: 0x3C */
+  __IO uint32_t CICR3;     /*!< RI Channel identification for capture register3 ,    Address offset: 0x40 */
+  __IO uint32_t ASMR4;     /*!< RI Analog switch mode register 4,                    Address offset: 0x44 */
+  __IO uint32_t CMR4;      /*!< RI Channel mask register 4,                          Address offset: 0x48 */
+  __IO uint32_t CICR4;     /*!< RI Channel identification for capture register 4,    Address offset: 0x4C */
+  __IO uint32_t ASMR5;     /*!< RI Analog switch mode register 5,                    Address offset: 0x50 */
+  __IO uint32_t CMR5;      /*!< RI Channel mask register 5,                          Address offset: 0x54 */
+  __IO uint32_t CICR5;     /*!< RI Channel identification for capture register 5,    Address offset: 0x58 */
 } RI_TypeDef;
 
 /** 
@@ -4884,6 +4921,291 @@ typedef struct
 #define  RI_HYSCR4_PG_13                ((uint32_t)0x00002000) /*!< Bit 13 */
 #define  RI_HYSCR4_PG_14                ((uint32_t)0x00004000) /*!< Bit 14 */
 #define  RI_HYSCR4_PG_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_ASMR1 register  ********************/
+#define  RI_ASMR1_PA                   ((uint32_t)0x0000FFFF) /*!< PA[15:0] Port A analog switch mode selection */
+#define  RI_ASMR1_PA_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_ASMR1_PA_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_ASMR1_PA_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_ASMR1_PA_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_ASMR1_PA_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_ASMR1_PA_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_ASMR1_PA_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_ASMR1_PA_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_ASMR1_PA_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_ASMR1_PA_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_ASMR1_PA_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_ASMR1_PA_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_ASMR1_PA_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_ASMR1_PA_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_ASMR1_PA_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_ASMR1_PA_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CMR1 register  ********************/
+#define  RI_CMR1_PA                   ((uint32_t)0x0000FFFF) /*!< PA[15:0] Port A channel masking */
+#define  RI_CMR1_PA_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CMR1_PA_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CMR1_PA_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CMR1_PA_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CMR1_PA_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CMR1_PA_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CMR1_PA_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CMR1_PA_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CMR1_PA_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CMR1_PA_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CMR1_PA_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CMR1_PA_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CMR1_PA_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CMR1_PA_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CMR1_PA_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CMR1_PA_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CICR1 register  ********************/
+#define  RI_CICR1_PA                   ((uint32_t)0x0000FFFF) /*!< PA[15:0] Port A channel identification for capture */
+#define  RI_CICR1_PA_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CICR1_PA_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CICR1_PA_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CICR1_PA_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CICR1_PA_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CICR1_PA_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CICR1_PA_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CICR1_PA_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CICR1_PA_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CICR1_PA_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CICR1_PA_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CICR1_PA_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CICR1_PA_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CICR1_PA_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CICR1_PA_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CICR1_PA_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_ASMR2 register  ********************/
+#define  RI_ASMR2_PB                   ((uint32_t)0x0000FFFF) /*!< PB[15:0] Port B analog switch mode selection */
+#define  RI_ASMR2_PB_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_ASMR2_PB_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_ASMR2_PB_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_ASMR2_PB_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_ASMR2_PB_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_ASMR2_PB_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_ASMR2_PB_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_ASMR2_PB_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_ASMR2_PB_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_ASMR2_PB_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_ASMR2_PB_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_ASMR2_PB_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_ASMR2_PB_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_ASMR2_PB_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_ASMR2_PB_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_ASMR2_PB_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CMR2 register  ********************/
+#define  RI_CMR2_PB                   ((uint32_t)0x0000FFFF) /*!< PB[15:0] Port B channel masking */
+#define  RI_CMR2_PB_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CMR2_PB_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CMR2_PB_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CMR2_PB_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CMR2_PB_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CMR2_PB_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CMR2_PB_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CMR2_PB_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CMR2_PB_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CMR2_PB_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CMR2_PB_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CMR2_PB_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CMR2_PB_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CMR2_PB_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CMR2_PB_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CMR2_PB_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CICR2 register  ********************/
+#define  RI_CICR2_PB                   ((uint32_t)0x0000FFFF) /*!< PB[15:0] Port B channel identification for capture */
+#define  RI_CICR2_PB_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CICR2_PB_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CICR2_PB_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CICR2_PB_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CICR2_PB_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CICR2_PB_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CICR2_PB_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CICR2_PB_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CICR2_PB_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CICR2_PB_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CICR2_PB_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CICR2_PB_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CICR2_PB_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CICR2_PB_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CICR2_PB_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CICR2_PB_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_ASMR3 register  ********************/
+#define  RI_ASMR3_PC                   ((uint32_t)0x0000FFFF) /*!< PC[15:0] Port C analog switch mode selection */
+#define  RI_ASMR3_PC_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_ASMR3_PC_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_ASMR3_PC_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_ASMR3_PC_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_ASMR3_PC_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_ASMR3_PC_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_ASMR3_PC_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_ASMR3_PC_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_ASMR3_PC_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_ASMR3_PC_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_ASMR3_PC_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_ASMR3_PC_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_ASMR3_PC_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_ASMR3_PC_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_ASMR3_PC_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_ASMR3_PC_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CMR3 register  ********************/
+#define  RI_CMR3_PC                   ((uint32_t)0x0000FFFF) /*!< PC[15:0] Port C channel masking */
+#define  RI_CMR3_PC_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CMR3_PC_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CMR3_PC_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CMR3_PC_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CMR3_PC_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CMR3_PC_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CMR3_PC_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CMR3_PC_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CMR3_PC_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CMR3_PC_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CMR3_PC_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CMR3_PC_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CMR3_PC_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CMR3_PC_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CMR3_PC_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CMR3_PC_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CICR3 register  ********************/
+#define  RI_CICR3_PC                   ((uint32_t)0x0000FFFF) /*!< PC[15:0] Port C channel identification for capture */
+#define  RI_CICR3_PC_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CICR3_PC_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CICR3_PC_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CICR3_PC_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CICR3_PC_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CICR3_PC_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CICR3_PC_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CICR3_PC_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CICR3_PC_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CICR3_PC_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CICR3_PC_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CICR3_PC_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CICR3_PC_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CICR3_PC_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CICR3_PC_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CICR3_PC_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_ASMR4 register  ********************/
+#define  RI_ASMR4_PF                   ((uint32_t)0x0000FFFF) /*!< PF[15:0] Port F analog switch mode selection */
+#define  RI_ASMR4_PF_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_ASMR4_PF_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_ASMR4_PF_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_ASMR4_PF_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_ASMR4_PF_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_ASMR4_PF_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_ASMR4_PF_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_ASMR4_PF_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_ASMR4_PF_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_ASMR4_PF_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_ASMR4_PF_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_ASMR4_PF_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_ASMR4_PF_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_ASMR4_PF_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_ASMR4_PF_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_ASMR4_PF_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CMR4 register  ********************/
+#define  RI_CMR4_PF                   ((uint32_t)0x0000FFFF) /*!< PF[15:0] Port F channel masking */
+#define  RI_CMR4_PF_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CMR4_PF_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CMR4_PF_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CMR4_PF_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CMR4_PF_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CMR4_PF_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CMR4_PF_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CMR4_PF_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CMR4_PF_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CMR4_PF_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CMR4_PF_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CMR4_PF_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CMR4_PF_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CMR4_PF_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CMR4_PF_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CMR4_PF_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CICR4 register  ********************/
+#define  RI_CICR4_PF                   ((uint32_t)0x0000FFFF) /*!< PF[15:0] Port F channel identification for capture */
+#define  RI_CICR4_PF_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CICR4_PF_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CICR4_PF_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CICR4_PF_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CICR4_PF_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CICR4_PF_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CICR4_PF_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CICR4_PF_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CICR4_PF_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CICR4_PF_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CICR4_PF_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CICR4_PF_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CICR4_PF_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CICR4_PF_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CICR4_PF_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CICR4_PF_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_ASMR5 register  ********************/
+#define  RI_ASMR5_PG                   ((uint32_t)0x0000FFFF) /*!< PG[15:0] Port G analog switch mode selection */
+#define  RI_ASMR5_PG_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_ASMR5_PG_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_ASMR5_PG_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_ASMR5_PG_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_ASMR5_PG_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_ASMR5_PG_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_ASMR5_PG_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_ASMR5_PG_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_ASMR5_PG_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_ASMR5_PG_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_ASMR5_PG_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_ASMR5_PG_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_ASMR5_PG_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_ASMR5_PG_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_ASMR5_PG_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_ASMR5_PG_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CMR5 register  ********************/
+#define  RI_CMR5_PG                   ((uint32_t)0x0000FFFF) /*!< PG[15:0] Port G channel masking */
+#define  RI_CMR5_PG_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CMR5_PG_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CMR5_PG_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CMR5_PG_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CMR5_PG_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CMR5_PG_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CMR5_PG_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CMR5_PG_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CMR5_PG_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CMR5_PG_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CMR5_PG_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CMR5_PG_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CMR5_PG_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CMR5_PG_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CMR5_PG_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CMR5_PG_15                ((uint32_t)0x00008000) /*!< Bit 15 */
+
+/********************  Bit definition for RI_CICR5 register  ********************/
+#define  RI_CICR5_PG                   ((uint32_t)0x0000FFFF) /*!< PG[15:0] Port G channel identification for capture */
+#define  RI_CICR5_PG_0                 ((uint32_t)0x00000001) /*!< Bit 0 */
+#define  RI_CICR5_PG_1                 ((uint32_t)0x00000002) /*!< Bit 1 */
+#define  RI_CICR5_PG_2                 ((uint32_t)0x00000004) /*!< Bit 2 */
+#define  RI_CICR5_PG_3                 ((uint32_t)0x00000008) /*!< Bit 3 */
+#define  RI_CICR5_PG_4                 ((uint32_t)0x00000010) /*!< Bit 4 */
+#define  RI_CICR5_PG_5                 ((uint32_t)0x00000020) /*!< Bit 5 */
+#define  RI_CICR5_PG_6                 ((uint32_t)0x00000040) /*!< Bit 6 */
+#define  RI_CICR5_PG_7                 ((uint32_t)0x00000080) /*!< Bit 7 */
+#define  RI_CICR5_PG_8                 ((uint32_t)0x00000100) /*!< Bit 8 */
+#define  RI_CICR5_PG_9                 ((uint32_t)0x00000200) /*!< Bit 9 */
+#define  RI_CICR5_PG_10                ((uint32_t)0x00000400) /*!< Bit 10 */
+#define  RI_CICR5_PG_11                ((uint32_t)0x00000800) /*!< Bit 11 */
+#define  RI_CICR5_PG_12                ((uint32_t)0x00001000) /*!< Bit 12 */
+#define  RI_CICR5_PG_13                ((uint32_t)0x00002000) /*!< Bit 13 */
+#define  RI_CICR5_PG_14                ((uint32_t)0x00004000) /*!< Bit 14 */
+#define  RI_CICR5_PG_15                ((uint32_t)0x00008000) /*!< Bit 15 */
 
 /******************************************************************************/
 /*                                                                            */
