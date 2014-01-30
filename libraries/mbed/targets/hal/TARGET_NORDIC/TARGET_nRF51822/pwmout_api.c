@@ -71,7 +71,7 @@ extern "C" {
 void TIMER2_IRQHandler(void)
 {
     static uint16_t CCVal1=2501;
-	static uint16_t CCVal2=2501;
+    static uint16_t CCVal2=2501;
 	
     if ((NRF_TIMER2->EVENTS_COMPARE[1] != 0) && 
        ((NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
@@ -120,7 +120,7 @@ void timer_init(uint8_t pwmChoice)
 		// Interrupt setup.
 		timer->INTENSET |= (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
 	}
-	NVIC_SetPriority(TIMER2_IRQn, 3);
+	NVIC_SetPriority(TIMER2_IRQn, 1);
 	NVIC_EnableIRQ(TIMER2_IRQn);
 	
 	timer->TASKS_START = 0x01;
@@ -175,7 +175,7 @@ static void ppi_init(uint8_t pwm)
 	NRF_PPI->CH[channel_number+1].EEP = (uint32_t)&timer->EVENTS_COMPARE[channel_number+1-(4*(channel_number/4))];	
     // Enable PPI channels.
     NRF_PPI->CHEN |= (1 << channel_number)
-                    | (1 << (channel_number+1));
+                  | (1 << (channel_number+1));
 }
 
 void setModulation(pwmout_t* obj,uint8_t toggle,uint8_t high)
@@ -249,13 +249,14 @@ void pwmout_free(pwmout_t* obj) {
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
+    uint16_t oldPulseWidth;
     if (value < 0.0f) {
         value = 0.0;
     } else if (value > 1.0f) {
         value = 1.0;
     }    	
 	
-	uint16_t oldPulseWidth = ACTUAL_PULSE[obj->pwm];
+	oldPulseWidth = ACTUAL_PULSE[obj->pwm];
 	ACTUAL_PULSE[obj->pwm] = PULSE_WIDTH[obj->pwm]  = value* PERIOD[obj->pwm];
 	if(PULSE_WIDTH[obj->pwm]==0){
 		PULSE_WIDTH[obj->pwm]=1;
@@ -269,7 +270,6 @@ void pwmout_write(pwmout_t* obj, float value) {
 	{
 		setModulation(obj,1,oldPulseWidth== PERIOD[obj->pwm]);
 	}	
-	
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -287,9 +287,9 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
 	uint32_t periodInTicks = us/8;
-	if(periodInTicks>(1<<16 -1))
+	if(periodInTicks>((1<<16) -1))
 	{
-		PERIOD[obj->pwm] = 1<<16 -1;//262ms
+		PERIOD[obj->pwm] = (1<<16 )-1;//262ms
 	}
 	else if(periodInTicks<5){
 		PERIOD[obj->pwm] = 5;
