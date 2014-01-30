@@ -53,6 +53,7 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
+// should only enable one or the other, not both
 #define DEVICE_ERROR_PATTERN    0
 #define DEVICE_ERROR_RED		1
 
