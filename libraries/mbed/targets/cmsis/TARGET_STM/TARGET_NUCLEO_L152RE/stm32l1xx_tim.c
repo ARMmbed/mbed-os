@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_tim.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the TIM peripheral:
   *            + TimeBase management
@@ -89,7 +89,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -2540,7 +2540,9 @@ void TIM_ETRConfig(TIM_TypeDef* TIMx, uint16_t TIM_ExtTRGPrescaler, uint16_t TIM
 
 /**
   * @brief  Configures the TIMx Encoder Interface.
-  * @param  TIMx: where x can be  2, 3, 4 or 5 to select the TIM peripheral.
+  * @param  TIMx: where x can be  2, 3, 4, 5 or 9 to select the TIM peripheral.
+  * @note   TIM9 is supporting Encoder Interface only in STM32L1XX_MDP, STM32L1XX_HD
+  *         and STM32L1XX_XL devices.  
   * @param  TIM_EncoderMode: specifies the TIMx Encoder Mode.
   *   This parameter can be one of the following values:
   *     @arg TIM_EncoderMode_TI1: Counter counts on TI1FP1 edge depending on TI2FP2 level.
@@ -2565,7 +2567,7 @@ void TIM_EncoderInterfaceConfig(TIM_TypeDef* TIMx, uint16_t TIM_EncoderMode,
   uint16_t tmpccer = 0;
     
   /* Check the parameters */
-  assert_param(IS_TIM_LIST3_PERIPH(TIMx));
+  assert_param(IS_TIM_LIST7_PERIPH(TIMx));
   assert_param(IS_TIM_ENCODER_MODE(TIM_EncoderMode));
   assert_param(IS_TIM_IC_POLARITY(TIM_IC1Polarity));
   assert_param(IS_TIM_IC_POLARITY(TIM_IC2Polarity));

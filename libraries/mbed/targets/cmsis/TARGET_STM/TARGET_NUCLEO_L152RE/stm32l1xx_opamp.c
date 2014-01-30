@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_opamp.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides firmware functions to manage the following
   *          functionalities of the operational amplifiers (opamp) peripheral:
   *           + Initialization and configuration
@@ -44,7 +44,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -276,10 +276,10 @@ void OPAMP_OffsetTrimmingModeSelect(uint32_t OPAMP_Trimming)
   assert_param(IS_OPAMP_TRIMMING(OPAMP_Trimming));
 
   /* Reset the OPAMP_OTR range bit */
-  OPAMP->CSR &= (~(uint32_t) (OPAMP_OTR_OT_USER));
+  OPAMP->OTR &= (~(uint32_t) (OPAMP_OTR_OT_USER));
 
   /* Select the OPAMP offset trimming  */
-  OPAMP->CSR |= OPAMP_Trimming;
+  OPAMP->OTR |= OPAMP_Trimming;
 
 }
 

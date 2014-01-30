@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides all the Flash firmware functions which should be
   *          executed from the internal SRAM. This file should be placed in 
   *          internal SRAM. 
@@ -39,7 +39,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -140,17 +140,19 @@ __RAM_FUNC FLASH_RUNPowerDownCmd(FunctionalState NewState)
 
 /**
   * @brief  Erases a specified 2 page in program memory in parallel.
-  * @note   This function can be used only for STM32L1XX_HD density devices.
+  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_XL devices.
   *         To correctly run this function, the FLASH_Unlock() function
   *         must be called before.
   *         Call the FLASH_Lock() to disable the flash memory access 
   *        (recommended to protect the FLASH memory against possible unwanted operation).
   * @param  Page_Address1: The page address in program memory to be erased in 
-  *         the first Bank (BANK1). This parameter should be between 0x08000000
-  *         and 0x0802FF00.
+  *         the first Bank (BANK1). This parameter should be:
+  *            - between 0x08000000 and 0x0802FF00 for STM32L1XX_HD devices
+  *            - between 0x08000000 and 0x0803FF00 for STM32L1XX_XL devices  
   * @param  Page_Address2: The page address in program memory to be erased in 
-  *         the second Bank (BANK2). This parameter should be between 0x08030000
-  *         and 0x0805FF00.
+  *         the second Bank (BANK2). This parameter should be:
+  *            - between 0x08030000 and 0x0805FF00 for STM32L1XX_HD devices
+  *            - between 0x08040000 and 0x0807FF00 for STM32L1XX_XL devices  
   * @note   A Page is erased in the Program memory only if the address to load 
   *         is the start address of a page (multiple of 256 bytes).
   * @retval FLASH Status: The returned value can be: 
@@ -262,14 +264,18 @@ __RAM_FUNC FLASH_ProgramHalfPage(uint32_t Address, uint32_t* pBuffer)
 /**
   * @brief  Programs 2 half page in program memory in parallel.
   * @param  Address1: specifies the first address to be written in the first bank 
-  *        (BANK1). This parameter should be between 0x08000000 and 0x0802FF80.
+  *        (BANK1).This parameter should be:
+  *            - between 0x08000000 and 0x0802FF80 for STM32L1XX_HD devices
+  *            - between 0x08000000 and 0x0803FF80 for STM32L1XX_XL devices 
   * @param  pBuffer1: pointer to the buffer  containing the data to be  written 
   *         to the first half page in the first bank.
   * @param  Address2: specifies the second address to be written in the second bank
-  *        (BANK2). This parameter should be between 0x08030000 and 0x0805FF80.
+  *        (BANK2).  This parameter should be:
+  *            - between 0x08030000 and 0x0805FF80 for STM32L1XX_HD devices
+  *            - between 0x08040000 and 0x0807FF80 for STM32L1XX_XL devices
   * @param  pBuffer2: pointer to the buffer containing the data to be  written 
   *         to the second half page in the second bank.
-  * @note   This function can be used only for STM32L1XX_HD density devices.
+  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_XL devices.
   * @note   To correctly run this function, the FLASH_Unlock() function
   *         must be called before.
   *         Call the FLASH_Lock() to disable the flash memory access  

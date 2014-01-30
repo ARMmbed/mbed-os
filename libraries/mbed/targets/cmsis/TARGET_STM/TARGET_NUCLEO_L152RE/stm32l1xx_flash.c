@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_flash.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    22-February-2013
+  * @version V1.3.0
+  * @date    31-January-2014
   * @brief   This file provides all the Flash firmware functions. These functions 
   *          can be executed from Internal FLASH or Internal SRAM memories. 
   *          The functions that should be called from SRAM are defined inside 
@@ -75,7 +75,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -497,11 +497,11 @@ void DATA_EEPROM_FixedTimeProgramCmd(FunctionalState NewState)
 /**
   * @brief  Erase a byte in data memory.
   * @param  Address: specifies the address to be erased.
-  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_MDP 
-  *         density devices.
+  * @note   This function can be used only for STM32L1XX_HD, STM32L1XX_MDP and  
+  *         STM32L1XX_XL devices.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @retval FLASH Status: The returned value can be: 
@@ -530,11 +530,11 @@ FLASH_Status DATA_EEPROM_EraseByte(uint32_t Address)
 /**
   * @brief  Erase a halfword in data memory.
   * @param  Address: specifies the address to be erased.
-  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_MDP 
-  *         density devices.
+  * @note   This function can be used only for STM32L1XX_HD, STM32L1XX_MDP and  
+  *         STM32L1XX_XL devices.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @retval FLASH Status: The returned value can be: 
@@ -567,7 +567,7 @@ FLASH_Status DATA_EEPROM_EraseHalfWord(uint32_t Address)
   *         if the address to load is the start address of a word (multiple of a word).
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @retval FLASH Status: The returned value can be: 
@@ -597,7 +597,7 @@ FLASH_Status DATA_EEPROM_EraseWord(uint32_t Address)
   * @brief  Write a Byte at a specified address in data memory.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @param  Address: specifies the address to be written.
@@ -609,7 +609,7 @@ FLASH_Status DATA_EEPROM_EraseWord(uint32_t Address)
 FLASH_Status DATA_EEPROM_FastProgramByte(uint32_t Address, uint8_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
   uint32_t tmp = 0, tmpaddr = 0;
 #endif
   
@@ -624,7 +624,7 @@ FLASH_Status DATA_EEPROM_FastProgramByte(uint32_t Address, uint8_t Data)
     /* Clear the FTDW bit */
     FLASH->PECR &= (uint32_t)(~((uint32_t)FLASH_PECR_FTDW));
 
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
     if(Data != (uint8_t)0x00) 
     {
       /* If the previous operation is completed, proceed to write the new Data */
@@ -642,7 +642,7 @@ FLASH_Status DATA_EEPROM_FastProgramByte(uint32_t Address, uint8_t Data)
       status = DATA_EEPROM_EraseWord(Address & 0xFFFFFFFC);
       status = DATA_EEPROM_FastProgramWord((Address & 0xFFFFFFFC), tmp);
     }       
-#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP)
+#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP) || defined (STM32L1XX_XL)
     /* If the previous operation is completed, proceed to write the new Data */
     *(__IO uint8_t *)Address = Data;
             
@@ -658,7 +658,7 @@ FLASH_Status DATA_EEPROM_FastProgramByte(uint32_t Address, uint8_t Data)
   * @brief  Writes a half word at a specified address in data memory.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @param  Address: specifies the address to be written.
@@ -670,7 +670,7 @@ FLASH_Status DATA_EEPROM_FastProgramByte(uint32_t Address, uint8_t Data)
 FLASH_Status DATA_EEPROM_FastProgramHalfWord(uint32_t Address, uint16_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
   uint32_t tmp = 0, tmpaddr = 0;
 #endif
   
@@ -685,7 +685,7 @@ FLASH_Status DATA_EEPROM_FastProgramHalfWord(uint32_t Address, uint16_t Data)
     /* Clear the FTDW bit */
     FLASH->PECR &= (uint32_t)(~((uint32_t)FLASH_PECR_FTDW));
 
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
     if(Data != (uint16_t)0x0000) 
     {
       /* If the previous operation is completed, proceed to write the new data */
@@ -711,7 +711,7 @@ FLASH_Status DATA_EEPROM_FastProgramHalfWord(uint32_t Address, uint16_t Data)
         DATA_EEPROM_FastProgramByte(Address + 1, 0x00);
       }
     }
-#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP)
+#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP) || defined (STM32L1XX_XL)
     /* If the previous operation is completed, proceed to write the new data */
     *(__IO uint16_t *)Address = Data;
   
@@ -727,7 +727,7 @@ FLASH_Status DATA_EEPROM_FastProgramHalfWord(uint32_t Address, uint16_t Data)
   * @brief  Programs a word at a specified address in data memory.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to the data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @param  Address: specifies the address to be written.
@@ -765,7 +765,7 @@ FLASH_Status DATA_EEPROM_FastProgramWord(uint32_t Address, uint32_t Data)
   * @brief  Write a Byte at a specified address in data memory without erase.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @note   The function  DATA_EEPROM_FixedTimeProgramCmd() can be called before 
@@ -778,7 +778,7 @@ FLASH_Status DATA_EEPROM_FastProgramWord(uint32_t Address, uint32_t Data)
 FLASH_Status DATA_EEPROM_ProgramByte(uint32_t Address, uint8_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
   uint32_t tmp = 0, tmpaddr = 0;
 #endif
   
@@ -790,7 +790,7 @@ FLASH_Status DATA_EEPROM_ProgramByte(uint32_t Address, uint8_t Data)
   
   if(status == FLASH_COMPLETE)
   {
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
     if(Data != (uint8_t) 0x00)
     {  
       *(__IO uint8_t *)Address = Data;
@@ -808,7 +808,7 @@ FLASH_Status DATA_EEPROM_ProgramByte(uint32_t Address, uint8_t Data)
       status = DATA_EEPROM_EraseWord(Address & 0xFFFFFFFC);
       status = DATA_EEPROM_FastProgramWord((Address & 0xFFFFFFFC), tmp);
     }
-#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP)
+#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP) || defined (STM32L1XX_XL)
     *(__IO uint8_t *)Address = Data;
     
     /* Wait for last operation to be completed */
@@ -823,7 +823,7 @@ FLASH_Status DATA_EEPROM_ProgramByte(uint32_t Address, uint8_t Data)
   * @brief  Writes a half word at a specified address in data memory without erase.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @note   The function  DATA_EEPROM_FixedTimeProgramCmd() can be called before 
@@ -836,7 +836,7 @@ FLASH_Status DATA_EEPROM_ProgramByte(uint32_t Address, uint8_t Data)
 FLASH_Status DATA_EEPROM_ProgramHalfWord(uint32_t Address, uint16_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
   uint32_t tmp = 0, tmpaddr = 0;
 #endif
   
@@ -848,7 +848,7 @@ FLASH_Status DATA_EEPROM_ProgramHalfWord(uint32_t Address, uint16_t Data)
   
   if(status == FLASH_COMPLETE)
   {
-#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP)
+#if !defined (STM32L1XX_HD) && !defined (STM32L1XX_MDP) && !defined (STM32L1XX_XL)
     if(Data != (uint16_t)0x0000)
     {
       *(__IO uint16_t *)Address = Data;
@@ -873,7 +873,7 @@ FLASH_Status DATA_EEPROM_ProgramHalfWord(uint32_t Address, uint16_t Data)
         DATA_EEPROM_FastProgramByte(Address + 1, 0x00);
       }
     }
-#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP)
+#elif defined (STM32L1XX_HD) || defined (STM32L1XX_MDP) || defined (STM32L1XX_XL)
     *(__IO uint16_t *)Address = Data;
    
     /* Wait for last operation to be completed */
@@ -888,7 +888,7 @@ FLASH_Status DATA_EEPROM_ProgramHalfWord(uint32_t Address, uint16_t Data)
   * @brief  Programs a word at a specified address in data memory without erase.
   * @note   To correctly run this function, the DATA_EEPROM_Unlock() function
   *         must be called before.
-  *         Call the DATA_EEPROM_Lock() to he data EEPROM access
+  *         Call the DATA_EEPROM_Lock() to disable the data EEPROM access
   *         and Flash program erase control register access(recommended to protect 
   *         the DATA_EEPROM against possible unwanted operation).
   * @note   The function  DATA_EEPROM_FixedTimeProgramCmd() can be called before 
@@ -1087,8 +1087,8 @@ FLASH_Status FLASH_OB_WRPConfig(uint32_t OB_WRP, FunctionalState NewState)
 
 /**
   * @brief  Write protects the desired pages of the second 128KB of the Flash.
-  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_MDP 
-  *         density devices.
+  * @note   This function can be used only for STM32L1XX_HD, STM32L1XX_MDP and  
+  *         STM32L1XX_XL devices.
   * @param  OB_WRP1: specifies the address of the pages to be write protected.
   *   This parameter can be:
   *     @arg  value between OB_WRP_Pages512to527 and OB_WRP_Pages1008to1023
@@ -1146,7 +1146,7 @@ FLASH_Status FLASH_OB_WRP1Config(uint32_t OB_WRP1, FunctionalState NewState)
 
 /**
   * @brief  Write protects the desired pages of the third 128KB of the Flash.
-  * @note   This function can be used only for STM32L1XX_HD density devices.
+  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_XL devices.
   * @param  OB_WRP2: specifies the address of the pages to be write protected.
   *   This parameter can be:
   *     @arg  value between OB_WRP_Pages1024to1039 and OB_WRP_Pages1520to1535
@@ -1509,7 +1509,7 @@ FLASH_Status FLASH_OB_BORConfig(uint8_t OB_BOR)
 
 /**
   * @brief  Configures to boot from Bank1 or Bank2.
-  * @note   This function can be used only for STM32L1XX_HD density devices.
+  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_XL devices.
   * @param  OB_BOOT: select the FLASH Bank to boot from.
   *   This parameter can be one of the following values:
   *     @arg OB_BOOT_BANK2: At startup, if boot pins are set in boot from user Flash
@@ -1580,8 +1580,8 @@ uint32_t FLASH_OB_GetWRP(void)
 
 /**
   * @brief  Returns the FLASH Write Protection Option Bytes value.
-  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_MDP 
-  *         density devices.
+  * @note   This function can be used only for STM32L1XX_HD, STM32L1XX_MDP and  
+  *         STM32L1XX_XL devices.
   * @param  None
   * @retval The FLASH Write Protection Option Bytes value.
   */
@@ -1593,7 +1593,7 @@ uint32_t FLASH_OB_GetWRP1(void)
 
 /**
   * @brief  Returns the FLASH Write Protection Option Bytes value.
-  * @note   This function can be used only for STM32L1XX_HD density devices.
+  * @note   This function can be used only for STM32L1XX_HD and STM32L1XX_XL devices.
   * @param  None
   * @retval The FLASH Write Protection Option Bytes value.
   */
