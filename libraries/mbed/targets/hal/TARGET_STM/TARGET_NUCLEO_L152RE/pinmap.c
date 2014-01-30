@@ -83,7 +83,13 @@ void pin_function(PinName pin, int data) {
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     gpio = (GPIO_TypeDef *)gpio_add;
- 
+
+    // Configure Alternate Function
+    // Warning: Must be done before the GPIO is initialized
+    if (afnum != 0xFF) {
+        GPIO_PinAFConfig(gpio, (uint16_t)pin_index, afnum);
+    }
+  
     // Configure GPIO
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
@@ -91,11 +97,6 @@ void pin_function(PinName pin, int data) {
     GPIO_InitStructure.GPIO_OType = (GPIOOType_TypeDef)otype;
     GPIO_InitStructure.GPIO_PuPd  = (GPIOPuPd_TypeDef)pupd;
     GPIO_Init(gpio, &GPIO_InitStructure);
-
-    // Configure Alternate Function
-    if (afnum != 0xFF) {
-        GPIO_PinAFConfig(gpio, (uint16_t)pin_index, afnum);
-    }
     
     // *** TODO ***
     // Disconnect JTAG-DP + SW-DP signals.
