@@ -90,20 +90,21 @@ void pin_function(PinName pin, int data) {
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     gpio = (GPIO_TypeDef *)gpio_add;
-  
+
     // Enable AFIO clock
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+
+    // Configure Alternate Function
+    // Warning: Must be done before the GPIO is initialized
+    if (afnum > 0) {
+        GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
+    }
   
     // Configure GPIO
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(gpio, &GPIO_InitStructure);
-
-    // Configure Alternate Function
-    if (afnum > 0) {
-        GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
-    }
     
     // Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
