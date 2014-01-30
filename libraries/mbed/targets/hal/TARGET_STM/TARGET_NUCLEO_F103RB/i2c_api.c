@@ -71,10 +71,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     }
 
     // Configure I2C pins
-    pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-    pin_mode(sda, OpenDrain);
     pin_mode(scl, OpenDrain);
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pin_mode(sda, OpenDrain);
     
     // Reset to clear pending flags if any
     i2c_reset(obj);
