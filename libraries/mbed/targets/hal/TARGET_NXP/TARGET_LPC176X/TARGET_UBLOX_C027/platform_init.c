@@ -3,7 +3,7 @@
 #include "wait_api.h"
 
  // called before main
-void mbed_main()
+void mbed_sdk_init()
 {
     gpio_t modemEn, modemRst, modemPwrOn, modemLvlOe, modemILvlOe, modemUsbDet;
     gpio_t gpsEn, gpsRst, led, modemRts;
