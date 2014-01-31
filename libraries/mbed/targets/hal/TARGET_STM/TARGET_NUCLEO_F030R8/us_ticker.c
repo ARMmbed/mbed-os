@@ -29,60 +29,77 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-// Timers selection:
-// The Master timer clocks the Slave timer
+// Timer selection:
+#define TIM_MST            TIM1
+#define TIM_MST_UP_IRQ     TIM1_BRK_UP_TRG_COM_IRQn
+#define TIM_MST_OC_IRQ     TIM1_CC_IRQn
+#define TIM_MST_RCC        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
 
-#define TIM_MST     TIM3
-#define TIM_MST_IRQ TIM3_IRQn
-#define TIM_MST_RCC RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE)
+static int      us_ticker_inited = 0;
+static uint32_t SlaveCounter = 0;
+static uint32_t us_ticker_int_counter = 0;
+static uint16_t us_ticker_int_remainder = 0;
 
-#define TIM_SLV     TIM15
-#define TIM_SLV_IRQ TIM15_IRQn
-#define TIM_SLV_RCC RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM15, ENABLE)
+// Used to increment the slave counter
+static void tim_update_irq_handler(void) {
+    SlaveCounter++;
+    if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
+        TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
+    }
+}
 
-#define MST_SLV_ITR TIM_TS_ITR1
-
-int us_ticker_inited = 0;
-
-void us_ticker_init(void) {
+// Used by interrupt system
+static void tim_oc_irq_handler(void) {
+    // Clear interrupt flag
+    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
+        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
+    }
     
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef TIM_OCInitStructure;
+    if (us_ticker_int_counter > 0) {
+        TIM_SetCompare1(TIM_MST, 0xFFFF);
+        us_ticker_int_counter--;
+    } else {
+        if (us_ticker_int_remainder > 0) {
+            TIM_SetCompare1(TIM_MST, us_ticker_int_remainder);
+            us_ticker_int_remainder = 0;
+        } else {
+            // This function is going to disable the interrupts if there are
+            // no other events in the queue
+            us_ticker_irq_handler();
+        }
+    }    
+}
 
+void us_ticker_init(void) {    
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+  
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
   
-    // Enable Timers clock
+    // Enable Timer clock
     TIM_MST_RCC;
-    TIM_SLV_RCC;
   
-    // Master and Slave timers time base configuration
+    // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
     TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Prescaler = 0;
-    TIM_TimeBaseInit(TIM_SLV, &TIM_TimeBaseStructure);  
-
-    // Master timer configuration
-    TIM_OCStructInit(&TIM_OCInitStructure);
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Toggle;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 0;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-    TIM_OC1Init(TIM_MST, &TIM_OCInitStructure);
-    TIM_SelectMasterSlaveMode(TIM_MST, TIM_MasterSlaveMode_Enable);
-    TIM_SelectOutputTrigger(TIM_MST, TIM_TRGOSource_Update);
     
-    // Slave timer configuration
-    TIM_SelectSlaveMode(TIM_SLV, TIM_SlaveMode_External1);
-    // The connection between Master and Slave is done here
-    TIM_SelectInputTrigger(TIM_SLV, MST_SLV_ITR);
+    // Configure interrupts
+    TIM_ITConfig(TIM_MST, TIM_IT_Update, ENABLE);
+    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
+    
+    // For 32-bit counter
+    NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)tim_update_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_UP_IRQ);
+    
+    // For ouput compare
+    NVIC_SetVector(TIM_MST_OC_IRQ, (uint32_t)tim_oc_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_OC_IRQ);
   
-    // Enable timers
-    TIM_Cmd(TIM_SLV, ENABLE);
+    // Enable timer
     TIM_Cmd(TIM_MST, ENABLE);
 }
 
@@ -94,10 +111,10 @@ uint32_t us_ticker_read() {
     // previous (incorrect) value of Slave and the new value of Master, which would return a
     // value in the past. Avoid this by computing consecutive values of the timer until they
     // are properly ordered.
-    counter = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16);
+    counter = (uint32_t)(SlaveCounter << 16);
     counter += (uint32_t)TIM_GetCounter(TIM_MST);
     while (1) {
-        counter2 = (uint32_t)((uint32_t)TIM_GetCounter(TIM_SLV) << 16);
+        counter2 = (uint32_t)(SlaveCounter << 16);
         counter2 += (uint32_t)TIM_GetCounter(TIM_MST);
         if (counter2 > counter) {
             break;
@@ -108,26 +125,31 @@ uint32_t us_ticker_read() {
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
-    if (timestamp > 0xFFFF) {
-        TIM_SetCompare1(TIM_SLV, (uint16_t)((timestamp >> 16) & 0xFFFF));
-        TIM_ITConfig(TIM_SLV, TIM_IT_CC1, ENABLE);
-        NVIC_SetVector(TIM_SLV_IRQ, (uint32_t)us_ticker_irq_handler);
-        NVIC_EnableIRQ(TIM_SLV_IRQ);      
+    int delta = (int)(timestamp - us_ticker_read());
+
+    if (delta <= 0) { // This event was in the past
+        us_ticker_irq_handler();
+        return;
     }
     else {
-        TIM_SetCompare1(TIM_MST, (uint16_t)timestamp);
-        TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);  
-        NVIC_SetVector(TIM_MST_IRQ, (uint32_t)us_ticker_irq_handler);
-        NVIC_EnableIRQ(TIM_MST_IRQ);
+        us_ticker_int_counter   = (uint32_t)(delta >> 16);
+        us_ticker_int_remainder = (uint16_t)(delta & 0xFFFF);
+        if (us_ticker_int_counter > 0) { // means delta > 0xFFFF
+            TIM_SetCompare1(TIM_MST, 0xFFFF);
+            us_ticker_int_counter--;
+        } else {
+            TIM_SetCompare1(TIM_MST, us_ticker_int_remainder);
+            us_ticker_int_remainder = 0;
+        }
     }
 }
 
 void us_ticker_disable_interrupt(void) {
     TIM_ITConfig(TIM_MST, TIM_IT_CC1, DISABLE);
-    TIM_ITConfig(TIM_SLV, TIM_IT_CC1, DISABLE);
 }
 
 void us_ticker_clear_interrupt(void) {
-    TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
-    TIM_ClearITPendingBit(TIM_SLV, TIM_IT_CC1);
+    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
+        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
+    }
 }
