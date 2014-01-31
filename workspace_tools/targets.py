@@ -71,7 +71,7 @@ class LPC1768(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['NXP', 'LPC176X']
+        self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
@@ -104,7 +104,7 @@ class KL05Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         
@@ -117,7 +117,7 @@ class KL25Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM"]
         
@@ -129,7 +129,7 @@ class KL46Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
 
         self.supported_toolchains = ["GCC_ARM", "ARM"]
 
@@ -369,6 +369,17 @@ class nRF51822(Target):
         self.extra_labels = ["NORDIC"]
         
         self.supported_toolchains = ["ARM"]
+        
+
+class C027(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
 
 # Get a single instance for each target
@@ -395,7 +406,8 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    nRF51822()
+    nRF51822(),
+    C027()
 ]
 
 # Map each target name to its unique instance
