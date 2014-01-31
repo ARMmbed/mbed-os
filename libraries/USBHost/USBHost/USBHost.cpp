@@ -855,7 +855,7 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
         return res;
     }
 
-#if DEBUG
+#if (DEBUG > 3)
     USB_DBG("CONFIGURATION DESCRIPTOR:\r\n");
     for (int i = 0; i < total_conf_descr_length; i++)
         printf("%02X ", data[i]);
