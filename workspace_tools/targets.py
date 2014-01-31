@@ -360,7 +360,7 @@ class LPC11U35_401(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 
-class nRF51822(Target):
+class NRF51822(Target):
     def __init__(self):
         Target.__init__(self)
         
@@ -406,7 +406,7 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    nRF51822(),
+    NRF51822(),
     C027()
 ]
 
