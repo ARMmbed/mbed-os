@@ -111,7 +111,7 @@ void sleep(void)
     // Request to enter SLEEP mode with regulator ON
     PWR_EnterSleepMode(PWR_Regulator_ON, PWR_SLEEPEntry_WFI);
 
-    // Re-ensable us_ticker update interrupt
+    // Re-enable us_ticker update interrupt
     TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
 }
 

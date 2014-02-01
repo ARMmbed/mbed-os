@@ -38,7 +38,7 @@ void sleep(void)
     SCB->SCR = 0; // Normal sleep mode for ARM core
     __WFI();
   
-    // Re-ensable us_ticker update interrupt
+    // Re-enable us_ticker update interrupt
     TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
 }
 

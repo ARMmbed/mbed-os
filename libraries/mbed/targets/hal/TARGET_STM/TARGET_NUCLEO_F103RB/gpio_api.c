@@ -42,22 +42,20 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
-    GPIO_TypeDef *gpio;
-
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
   
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
     
     // Fill GPIO object structure for future use
     obj->pin     = pin;
     obj->mask    = gpio_set(pin);
     obj->reg_in  = &gpio->IDR;
     obj->reg_set = &gpio->BSRR;
-    obj->reg_clr = &gpio->BRR;    
+    obj->reg_clr = &gpio->BRR;
   
     // Configure GPIO
     if (direction == PIN_OUTPUT) {

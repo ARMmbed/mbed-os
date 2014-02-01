@@ -48,7 +48,6 @@ static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0};
 static gpio_irq_handler irq_handler;
 
 static void handle_interrupt_in(uint32_t irq_index) {
-  
     // Retrieve the gpio and pin that generate the irq
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);

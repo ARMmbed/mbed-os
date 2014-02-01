@@ -38,7 +38,7 @@ void sleep(void)
     SCB->SCR = 0; // Normal sleep mode for ARM core
     __WFI();
   
-    // Re-ensable us_ticker update interrupt
+    // Re-enable us_ticker update interrupt
     TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
 }
 
@@ -53,6 +53,6 @@ void deepsleep(void)
     // Request to enter STOP mode with regulator in low power mode
     PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 
-    // Re-ensable us_ticker update interrupt
+    // Re-enable us_ticker update interrupt
     TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
 }
