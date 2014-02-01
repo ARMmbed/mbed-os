@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_i2c.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the I2C firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -1343,4 +1343,4 @@ void I2C_ClearITPendingBit(I2C_TypeDef* I2Cx, uint32_t I2C_IT)
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

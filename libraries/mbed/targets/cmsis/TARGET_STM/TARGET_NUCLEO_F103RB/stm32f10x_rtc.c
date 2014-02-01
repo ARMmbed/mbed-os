@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_rtc.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the RTC firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -147,9 +147,22 @@ void RTC_ExitConfigMode(void)
   */
 uint32_t RTC_GetCounter(void)
 {
-  uint16_t tmp = 0;
-  tmp = RTC->CNTL;
-  return (((uint32_t)RTC->CNTH << 16 ) | tmp) ;
+  uint16_t high1 = 0, high2 = 0, low = 0;
+
+  high1 = RTC->CNTH;
+  low   = RTC->CNTL;
+  high2 = RTC->CNTH;
+
+  if (high1 != high2)
+  { /* In this case the counter roll over during reading of CNTL and CNTH registers, 
+       read again CNTL register then return the counter value */
+    return (((uint32_t) high2 << 16 ) | RTC->CNTL);
+  }
+  else
+  { /* No counter roll over during reading of CNTL and CNTH registers, counter 
+       value is equal to first value of CNTL and CNTH */
+    return (((uint32_t) high1 << 16 ) | low);
+  }
 }
 
 /**
@@ -351,4 +364,4 @@ void RTC_ClearITPendingBit(uint16_t RTC_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

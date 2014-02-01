@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_pwr.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the PWR firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -319,4 +319,4 @@ void PWR_ClearFlag(uint32_t PWR_FLAG)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

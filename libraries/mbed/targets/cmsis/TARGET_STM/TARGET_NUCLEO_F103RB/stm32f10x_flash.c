@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_flash.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the FLASH firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -87,11 +87,6 @@
 #define WRP2_Mask                ((uint32_t)0x00FF0000)
 #define WRP3_Mask                ((uint32_t)0xFF000000)
 #define OB_USER_BFB2             ((uint16_t)0x0008)
-
-/* FLASH Keys */
-#define RDP_Key                  ((uint16_t)0x00A5)
-#define FLASH_KEY1               ((uint32_t)0x45670123)
-#define FLASH_KEY2               ((uint32_t)0xCDEF89AB)
 
 /* FLASH BANK address */
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
@@ -1696,4 +1691,4 @@ FLASH_Status FLASH_WaitForLastBank2Operation(uint32_t Timeout)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_dma.h
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file contains all the functions prototypes for the DMA firmware 
   *          library.
  *******************************************************************************
@@ -451,4 +451,4 @@ void DMA_ClearITPendingBit(uint32_t DMAy_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

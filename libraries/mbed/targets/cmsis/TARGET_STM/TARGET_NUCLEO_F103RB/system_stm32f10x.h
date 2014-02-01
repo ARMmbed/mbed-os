@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f10x.h
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.2
+  * @date    28-February-2013
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Header File.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -110,4 +110,4 @@ extern void SystemCoreClockUpdate(void);
 /**
   * @}
   */  
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_conf.h 
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    08-April-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   Library configuration file.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -89,4 +89,4 @@
 
 #endif /* __STM32F10x_CONF_H */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

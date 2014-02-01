@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_can.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the CAN firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -1427,4 +1427,4 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
