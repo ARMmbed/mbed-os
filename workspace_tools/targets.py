@@ -371,7 +371,7 @@ class NRF51822(Target):
         self.supported_toolchains = ["ARM"]
         
 
-class C027(Target):
+class UBLOX_C027(Target):
     def __init__(self):
         Target.__init__(self)
         
@@ -407,7 +407,7 @@ TARGETS = [
     LPC11C24(),
     LPC11U35_401(),
     NRF51822(),
-    C027()
+    UBLOX_C027()
 ]
 
 # Map each target name to its unique instance
