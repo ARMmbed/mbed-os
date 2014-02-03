@@ -303,7 +303,7 @@ class LPC11U35_401(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 
-class nRF51822(Target):
+class NRF51822(Target):
 
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
     UICR_START = 0x10001000
@@ -325,7 +325,7 @@ class nRF51822(Target):
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         for hexf in resources.hex_files:
-            if hexf.find(nRF51822.EXPECTED_SOFTDEVICE) != -1:
+            if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
         else:
             return
@@ -334,7 +334,7 @@ class nRF51822(Target):
         # combined binary file (below) will be used
         from intelhex import IntelHex
         binh = IntelHex()
-        binh.loadbin(binf, offset = nRF51822.APPCODE_OFFSET)
+        binh.loadbin(binf, offset = NRF51822.APPCODE_OFFSET)
         sdh = IntelHex(hexf)
         sdh.merge(binh)
         outname = binf.replace(".bin", ".hex")
@@ -345,12 +345,12 @@ class nRF51822(Target):
         # Currently, this is only supported for SoftDevice images that have
         # an UICR area
         sdh = IntelHex(hexf)
-        if sdh.maxaddr() < nRF51822.UICR_START:
+        if sdh.maxaddr() < NRF51822.UICR_START:
             t_self.error("SoftDevice image does not have UICR area, aborting")
             return
         addrlist = sdh.addresses()
         try:
-            uicr_start_index = addrlist.index(nRF51822.UICR_START)
+            uicr_start_index = addrlist.index(NRF51822.UICR_START)
         except ValueError:
             t_self.error("UICR start address not found in the SoftDevice image, aborting")
             return
@@ -361,7 +361,7 @@ class nRF51822(Target):
         # First part: SoftDevice code
         bindata = sdh[:softdevice_code_size].tobinstr()
         # Second part: pad with 0xFF up to APPCODE_OFFSET
-        bindata = bindata + '\xFF' * (nRF51822.APPCODE_OFFSET - softdevice_code_size)
+        bindata = bindata + '\xFF' * (NRF51822.APPCODE_OFFSET - softdevice_code_size)
         # Last part: the application code
         with open(binf, 'r+b') as f:
             bindata = bindata + f.read()
@@ -389,7 +389,7 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    nRF51822()
+    NRF51822()
 ]
 
 # Map each target name to its unique instance
