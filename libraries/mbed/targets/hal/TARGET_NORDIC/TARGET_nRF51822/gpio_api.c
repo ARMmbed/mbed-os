@@ -15,19 +15,13 @@
  */
 #include "gpio_api.h"
 #include "pinmap.h"
-/*
-uint32_t gpio_set(PinName pin) {
-    pin_function(pin, 1);
-    return 1 << ((pin & 0x7F) >> 2);
-}
-*/
+
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     if(pin == NC) return;
 
     obj->pin = pin;
     obj->mask = (1<<pin);
 
-    unsigned int port = (unsigned int)pin/8;
     obj->reg_set = &NRF_GPIO->OUTSET;
     obj->reg_clr = &NRF_GPIO->OUTCLR;
     obj->reg_in  = &NRF_GPIO->IN;
@@ -46,19 +40,19 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT :// *obj->reg_dir &= ~obj->mask; 
-		NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+        case PIN_INPUT :
+        NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-										| (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
-										break;
-        case PIN_OUTPUT: //*obj->reg_dir |=  obj->mask; 
-		NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                        | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                        break;
+        case PIN_OUTPUT: 
+        NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-										| (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-										break;
+                                        | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+                                        break;
     }
 }
 

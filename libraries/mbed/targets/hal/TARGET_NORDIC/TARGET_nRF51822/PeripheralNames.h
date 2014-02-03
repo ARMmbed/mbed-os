@@ -34,7 +34,7 @@ typedef enum {
 typedef enum {
     SPI_0 = (int)NRF_SPI0_BASE,
     SPI_1 = (int)NRF_SPI1_BASE,
-	SPIS = (int)NRF_SPIS1_BASE
+    SPIS = (int)NRF_SPIS1_BASE
 } SPIName;
 
 typedef enum {
@@ -44,7 +44,7 @@ typedef enum {
 
 typedef enum {
     I2C_0 = (int)NRF_TWI0_BASE,
-	I2C_1 = (int)NRF_TWI1_BASE
+    I2C_1 = (int)NRF_TWI1_BASE
 } I2CName;
 
 typedef enum {

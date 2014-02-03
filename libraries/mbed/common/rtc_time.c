@@ -19,11 +19,15 @@
 #include "rtc_time.h"
 #include "us_ticker_api.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
 #if defined (__ICCARM__)
 time_t __time32(time_t *timer)
 #else
 time_t time(time_t *timer)
 #endif
+
 {
 #if DEVICE_RTC
     if (!(rtc_isenabled())) {
@@ -53,3 +57,7 @@ clock_t clock() {
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
     return t;
 }
+
+#ifdef __cplusplus
+}
+#endif 

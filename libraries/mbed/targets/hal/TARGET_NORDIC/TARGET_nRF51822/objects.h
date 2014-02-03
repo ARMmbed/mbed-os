@@ -32,7 +32,7 @@ struct serial_s {
 
 struct spi_s {
     NRF_SPI_Type *spi;
-	NRF_SPIS_Type *spis;
+    NRF_SPIS_Type *spis;
 };
 
 struct port_s {
@@ -45,14 +45,14 @@ struct port_s {
 
 struct pwmout_s {
     PWMName pwm;
-	PinName pin;
+    PinName pin;
 };
 
 struct i2c_s {
     NRF_TWI_Type *i2c;
-	PinName sda;
-	PinName scl;
-	int freq;
+    PinName sda;
+    PinName scl;
+    int freq;
 };
 
 struct analogin_s {

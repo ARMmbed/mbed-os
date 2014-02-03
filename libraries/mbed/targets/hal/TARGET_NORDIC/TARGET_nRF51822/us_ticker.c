@@ -28,8 +28,7 @@ volatile uint16_t timeStamp=0;
 #ifdef __cplusplus
 extern "C" {
 #endif 
-void TIMER1_IRQHandler(void)
-{
+void TIMER1_IRQHandler(void){
     if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
        ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
     {
@@ -61,10 +60,8 @@ void TIMER1_IRQHandler(void)
 #ifdef __cplusplus
 }
 #endif 
-void us_ticker_init(void)
-{
-    if (us_ticker_inited)
-    {
+void us_ticker_init(void){
+    if (us_ticker_inited){
         return;
     }
     
@@ -87,27 +84,27 @@ void us_ticker_init(void)
     US_TICKER_TIMER->TASKS_START = 0x01;
 }
 
-uint32_t us_ticker_read() 
-{
-    if (!us_ticker_inited)
-    {
+uint32_t us_ticker_read(){
+    if (!us_ticker_inited){
         us_ticker_init();
     }
+    
     uint16_t bufferedOverFlow   =         overflow;
     US_TICKER_TIMER->TASKS_CAPTURE[2] = 1; 
-	if(overflow!=bufferedOverFlow){
-		bufferedOverFlow   =         overflow;
+	
+    if(overflow!=bufferedOverFlow){
+		bufferedOverFlow = overflow;
 		US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
 	}
     return (((uint32_t)bufferedOverFlow<<16) | US_TICKER_TIMER->CC[2]);
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp)
-{
+void us_ticker_set_interrupt(unsigned int timestamp){
     if (!us_ticker_inited)
     {
         us_ticker_init();
-    }		
+    }	
+	
 	US_TICKER_TIMER->TASKS_CAPTURE[0] = 1;	
 	uint16_t tsUpper16 = (uint16_t)((timestamp-us_ticker_read())>>16);
 	if(tsUpper16>0){
@@ -121,11 +118,9 @@ void us_ticker_set_interrupt(unsigned int timestamp)
 	}
 }
 
-void us_ticker_disable_interrupt(void) 
-{
+void us_ticker_disable_interrupt(void){
     US_TICKER_TIMER->INTENCLR = TIMER_INTENCLR_COMPARE0_Clear << TIMER_INTENCLR_COMPARE0_Pos;
 }
-void us_ticker_clear_interrupt(void) 
-{
+void us_ticker_clear_interrupt(void){
     US_TICKER_TIMER->EVENTS_COMPARE[0] = 0;
 }

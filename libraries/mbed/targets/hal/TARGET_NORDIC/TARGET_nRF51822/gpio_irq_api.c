@@ -26,55 +26,60 @@ static uint8_t channel_enabled[CHANNEL_NUM] = {0};
 static uint32_t  portRISE= 0; 
 static uint32_t  portFALL= 0; 
 static gpio_irq_handler irq_handler;
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
-void GPIOTE_IRQHandler(void)
-{
-	volatile uint32_t newVal = NRF_GPIO->IN;	
-	if ((NRF_GPIOTE->EVENTS_PORT != 0) && ((NRF_GPIOTE->INTENSET & GPIOTE_INTENSET_PORT_Msk) != 0)){			
-        NRF_GPIOTE->EVENTS_PORT = 0;				
-        for(uint8_t i=0;i<31;i++)
-		{
-			if(channel_ids[i]>0){
-				if(channel_enabled[i]){	
-					if(((newVal>>i)&1)  && ((NRF_GPIO->PIN_CNF[i] >>GPIO_PIN_CNF_SENSE_Pos)&GPIO_PIN_CNF_SENSE_Low) != GPIO_PIN_CNF_SENSE_Low && (portRISE>>i)&1){
-							irq_handler(channel_ids[i], IRQ_RISE);			
-					}					
-					else if( ((newVal>>i)&1)==0&& ((NRF_GPIO->PIN_CNF[i] >>GPIO_PIN_CNF_SENSE_Pos)&GPIO_PIN_CNF_SENSE_Low) == GPIO_PIN_CNF_SENSE_Low && (portFALL>>i)&1){
-							irq_handler(channel_ids[i], IRQ_FALL);
-					}					
-				}
-				if(NRF_GPIO->PIN_CNF[i] &GPIO_PIN_CNF_SENSE_Msk)
-				{
-					NRF_GPIO->PIN_CNF[i] &= ~(GPIO_PIN_CNF_SENSE_Msk);
-					if(newVal>>i &1){
-						NRF_GPIO->PIN_CNF[i] |= (GPIO_PIN_CNF_SENSE_Low     << GPIO_PIN_CNF_SENSE_Pos) ;
-					}
-					else{
-						NRF_GPIO->PIN_CNF[i] |= (GPIO_PIN_CNF_SENSE_High     << GPIO_PIN_CNF_SENSE_Pos) ;
-					}
-				}
-			}
-		}				
+void GPIOTE_IRQHandler(void){
+    volatile uint32_t newVal = NRF_GPIO->IN;    
+    
+    if ( (NRF_GPIOTE->EVENTS_PORT != 0) && ( (NRF_GPIOTE->INTENSET & GPIOTE_INTENSET_PORT_Msk) != 0) ){            
+        NRF_GPIOTE->EVENTS_PORT = 0;                
+        
+        for(uint8_t i=0;i<31;i++){
+            if(channel_ids[i]>0){
+                if(channel_enabled[i]){    
+                    if( ((newVal>>i)&1)  && ( ( (NRF_GPIO->PIN_CNF[i] >>GPIO_PIN_CNF_SENSE_Pos) & GPIO_PIN_CNF_SENSE_Low) != GPIO_PIN_CNF_SENSE_Low) && ( (portRISE>>i)&1) ){
+                            irq_handler(channel_ids[i], IRQ_RISE);            
+                    }                    
+                    else if( ( ((newVal>>i)&1) == 0) && ( ( (NRF_GPIO->PIN_CNF[i] >>GPIO_PIN_CNF_SENSE_Pos)&GPIO_PIN_CNF_SENSE_Low) == GPIO_PIN_CNF_SENSE_Low) && ( (portFALL>>i)&1) ){
+                            irq_handler(channel_ids[i], IRQ_FALL);
+                    }                    
+                }
+                
+                if(NRF_GPIO->PIN_CNF[i] &GPIO_PIN_CNF_SENSE_Msk){
+                    NRF_GPIO->PIN_CNF[i] &= ~(GPIO_PIN_CNF_SENSE_Msk);
+                    
+                    if(newVal>>i &1){
+                        NRF_GPIO->PIN_CNF[i] |= (GPIO_PIN_CNF_SENSE_Low     << GPIO_PIN_CNF_SENSE_Pos) ;
+                    }
+                    else{
+                        NRF_GPIO->PIN_CNF[i] |= (GPIO_PIN_CNF_SENSE_High     << GPIO_PIN_CNF_SENSE_Pos) ;
+                    }
+                }
+            }
+        }                
     }
 }
 #ifdef __cplusplus
 }
 #endif 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
-	if (pin == NC) return -1;
-	irq_handler = handler;
 
-    obj->ch = pin;
-	
-    NRF_GPIOTE->EVENTS_PORT  = 0;	
-	channel_ids[pin]=id;
-	channel_enabled[pin]=1;
-	NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Set<<GPIOTE_INTENSET_PORT_Pos;
-	NVIC_SetPriority(GPIOTE_IRQn, 3);
-    NVIC_EnableIRQ(GPIOTE_IRQn);	
-	return 0;
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+    if (pin == NC) {
+        return -1;
+    }
+    
+    irq_handler = handler;
+    obj->ch = pin;    
+    NRF_GPIOTE->EVENTS_PORT  = 0;    
+    channel_ids[pin]     = id;
+    channel_enabled[pin] = 1;
+    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Set<<GPIOTE_INTENSET_PORT_Pos;
+    
+    NVIC_SetPriority(GPIOTE_IRQn, 3);
+    NVIC_EnableIRQ  (GPIOTE_IRQn);    
+    return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
@@ -82,41 +87,39 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {   
-	NRF_GPIO->PIN_CNF[obj->ch] &= ~(GPIO_PIN_CNF_SENSE_Msk);
-	if(enable){
-		if(event == IRQ_RISE){
-			portRISE |=(1<<obj->ch);
-		}
-		else if(event == IRQ_FALL){
-			portFALL |=(1<<obj->ch);
-		}		
-	}
-	else{
-		if(event == IRQ_RISE){
-			portRISE &=~(1<<obj->ch);
-		}
-		else if(event == IRQ_FALL){
-			portFALL &=~(1<<obj->ch);
-		}		
-		
-	}		
-	if( (portRISE>>obj->ch) || (portFALL>>obj->ch) )
-	{			
-		if((NRF_GPIO->IN>>obj->ch)&1)
-		{
-			NRF_GPIO->PIN_CNF[obj->ch] |= (GPIO_PIN_CNF_SENSE_Low     << GPIO_PIN_CNF_SENSE_Pos);// | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos);
-			
-		}
-		else{
-			NRF_GPIO->PIN_CNF[obj->ch] |= (GPIO_PIN_CNF_SENSE_High     << GPIO_PIN_CNF_SENSE_Pos) ;//| (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos);
-		}
-	}
+    NRF_GPIO->PIN_CNF[obj->ch] &= ~(GPIO_PIN_CNF_SENSE_Msk);
+    if(enable){
+        if(event == IRQ_RISE){
+            portRISE |= (1<<obj->ch);
+        }
+        else if(event == IRQ_FALL){
+            portFALL |= (1<<obj->ch);
+        }        
+    }
+    else{
+        if(event == IRQ_RISE){
+            portRISE &= ~(1<<obj->ch);
+        }
+        else if(event == IRQ_FALL){
+            portFALL &= ~(1<<obj->ch);
+        }        
+        
+    } 
+       
+    if( ( (portRISE>>obj->ch) & 1) || ( (portFALL>>obj->ch) & 1)  ){            
+        if((NRF_GPIO->IN>>obj->ch)&1){
+            NRF_GPIO->PIN_CNF[obj->ch] |= (GPIO_PIN_CNF_SENSE_Low     << GPIO_PIN_CNF_SENSE_Pos);// | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos);   
+        }
+        else{
+            NRF_GPIO->PIN_CNF[obj->ch] |= (GPIO_PIN_CNF_SENSE_High     << GPIO_PIN_CNF_SENSE_Pos) ;//| (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos);
+        }
+    }
 }
 
 void gpio_irq_enable(gpio_irq_t *obj) {
-	channel_enabled[obj->ch]=1;
+    channel_enabled[obj->ch] = 1;
 }
 
 void gpio_irq_disable(gpio_irq_t *obj) {
-	channel_enabled[obj->ch]=0;
+    channel_enabled[obj->ch] = 0;
 }

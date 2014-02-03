@@ -19,7 +19,6 @@
 
 void sleep(void) {
     // ensure debug is disconnected if semihost is enabled....
-   // mbed_interface_disconnect();    
     NRF_POWER->TASKS_LOWPWR=1;
     // wait for interrupt
     __WFI();
@@ -27,5 +26,5 @@ void sleep(void) {
 
 void deepsleep(void) {
     sleep();
-	NRF_POWER->SYSTEMOFF=1;
+    NRF_POWER->SYSTEMOFF=1;
 }

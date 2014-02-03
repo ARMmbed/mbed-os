@@ -19,9 +19,7 @@
 #include "error.h"
 
 #define ANALOGIN_MEDIAN_FILTER      1
-
 #define ADC_10BIT_RANGE             0x3FF
-
 #define ADC_RANGE    ADC_10BIT_RANGE
 
 static const PinMap PinMap_ADC[] = {
@@ -35,35 +33,36 @@ static const PinMap PinMap_ADC[] = {
 };
 
 void analogin_init(analogin_t *obj, PinName pin) {
-    obj->adc = (ADCName)((NRF_ADC_Type            *)pinmap_peripheral(pin, PinMap_ADC));
+    int analogInputPin=0;
+    const PinMap *map = PinMap_ADC;
+    
+    obj->adc = (ADCName)((NRF_ADC_Type *)pinmap_peripheral(pin, PinMap_ADC));
     if (obj->adc == (ADCName)NC) {
         error("ADC pin mapping failed");
     }
-	
-    int analogInputPin=0;
-	const PinMap *map = PinMap_ADC;
-	while (map->pin != NC) {
+        
+    while (map->pin != NC) {
         if (map->pin == pin){
-			analogInputPin = map->function;
-			break;
-		}
+            analogInputPin = map->function;
+            break;
+        }
         map++;
     }
-	
-	NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; 
-	NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
-					  (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling<< ADC_CONFIG_INPSEL_Pos) |
-					  (ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling << ADC_CONFIG_REFSEL_Pos) |
-					  (analogInputPin << ADC_CONFIG_PSEL_Pos) |
-					  (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);	
+    
+    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; 
+    NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
+                      (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling<< ADC_CONFIG_INPSEL_Pos) |
+                      (ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling << ADC_CONFIG_REFSEL_Pos) |
+                      (analogInputPin << ADC_CONFIG_PSEL_Pos) |
+                      (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);    
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     NRF_ADC->TASKS_START = 1;
-	while (((NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy)
-	{
-	}
-	
+    while ( ( (NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy)
+    {
+    }
+    
     return (uint16_t)NRF_ADC->RESULT; // 10 bit
 }
 

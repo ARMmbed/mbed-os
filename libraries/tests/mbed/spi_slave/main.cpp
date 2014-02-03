@@ -2,6 +2,8 @@
 
 #if defined(TARGET_KL25Z)
 SPISlave device(PTD2, PTD3, PTD1, PTD0);    // mosi, miso, sclk, ssel
+#elif defined(TARGET_nRF51822)
+SPISlave device(p12, p13, p15, p14);  // mosi, miso, sclk, ssel
 #else
 SPISlave device(p5, p6, p7, p8);            // mosi, miso, sclk, ssel
 #endif
