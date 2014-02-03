@@ -19,8 +19,6 @@
 #include <stdbool.h>
 #include "nrf51822.h"
 #include "system_nrf51822.h"
-#include "nrf_sdm.h"
-/*lint ++flb "Enter library region" */
 
 
 #define __SYSTEM_CLOCK      (16000000UL)     /*!< nRF51 devices use a fixed System Clock Frequency of 16MHz */
@@ -36,12 +34,6 @@ static bool is_disabled_in_debug_needed(void);
 #elif defined   ( __GNUC__ )
     uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #endif
-
-//static void softdevice_assertion_handler(uint32_t pc, uint16_t line_num, const uint8_t * file_name)
-//{
-   // UNUSED_PARAMETER(pc);
-   // assert_nrf_callback(line_num, file_name);
-//}
 
 
 void SystemCoreClockUpdate(void)
@@ -81,12 +73,7 @@ void SystemInit(void)
     while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) 
     {
         // Do nothing.
-    }  
-}
-
-void EnableSoftDevice(void)
-{
-//	sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, softdevice_assertion_handler);
+    }
 }
 
 static bool is_manual_peripheral_setup_needed(void) 
@@ -123,4 +110,3 @@ static bool is_disabled_in_debug_needed(void)
     return false;
 }
 
-/*lint --flb "Leave library region" */

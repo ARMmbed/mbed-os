@@ -36,7 +36,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     int analogInputPin=0;
     const PinMap *map = PinMap_ADC;
     
-    obj->adc = (ADCName)((NRF_ADC_Type *)pinmap_peripheral(pin, PinMap_ADC));
+    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC); //(NRF_ADC_Type *)
     if (obj->adc == (ADCName)NC) {
         error("ADC pin mapping failed");
     }
