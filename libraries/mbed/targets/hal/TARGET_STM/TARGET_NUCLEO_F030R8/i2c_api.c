@@ -42,12 +42,12 @@
 #define LONG_TIMEOUT ((int)0x8000)
 
 static const PinMap PinMap_I2C_SDA[] = {
-    {PB_9,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_NOPULL, GPIO_AF_1)},
+    {PB_9,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {PB_8,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_NOPULL, GPIO_AF_1)},
+    {PB_8,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {NC,    NC,    0}
 };
 
@@ -71,10 +71,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     //}
 
     // Configure I2C pins
-    pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-    pin_mode(sda, OpenDrain);
     pin_mode(scl, OpenDrain);
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pin_mode(sda, OpenDrain);
     
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -120,12 +120,15 @@ void i2c_frequency(i2c_t *obj, int hz) {
 
 inline int i2c_start(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout = LONG_TIMEOUT;
+    int timeout;
 
     // Test BUSY Flag
-    while (I2C_GetFlagStatus(i2c, I2C_ISR_BUSY) != RESET)
-    {
-      if ((timeout--) == 0) return 0;
+    timeout = LONG_TIMEOUT;
+    while (I2C_GetFlagStatus(i2c, I2C_ISR_BUSY) != RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
     }
 
     I2C_GenerateSTART(i2c, ENABLE);
@@ -135,27 +138,21 @@ inline int i2c_start(i2c_t *obj) {
 
 inline int i2c_stop(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-
+  
     I2C_GenerateSTOP(i2c, ENABLE);
-
+  
     return 0;
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
     int count;
     int value;
-
+  
     if (length == 0) return 0;
 
     // Configure slave address, nbytes, reload, end mode and start or stop generation
-    if (stop) {
-        I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
-    }
-    else {
-        I2C_TransferHandling(i2c, address, length, I2C_Reload_Mode, I2C_Generate_Start_Read);
-    }
+    I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
     
     // Read all bytes
     for (count = 0; count < length; count++) {
@@ -163,40 +160,25 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         data[count] = (char)value;
     }
     
-    if (stop) {
-        // Wait until STOPF flag is set
-        timeout = LONG_TIMEOUT;
-        while (I2C_GetFlagStatus(i2c, I2C_ISR_STOPF) == RESET)
-        {
-          if ((timeout--) == 0) return 0;
-        }   
-        
-        // Clear STOPF flag
-        I2C_ClearFlag(i2c, I2C_ICR_STOPCF);
-    }
-    
     return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
+    //int timeout;
     int count;
+    
+    if (length == 0) return 0;
 
-    // Test BUSY Flag
-    //timeout = LONG_TIMEOUT;
-    //while (I2C_GetFlagStatus(i2c, I2C_ISR_BUSY) != RESET)
-    //{
-    //  if((timeout--) == 0) return 0;
-    //}
-  
+    // TODO: the stop is always sent even with I2C_SoftEnd_Mode. To be corrected.
+
     // Configure slave address, nbytes, reload, end mode and start or stop generation
-    if (stop) {
+    //if (stop) {
         I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
-    }
-    else {
-        I2C_TransferHandling(i2c, address, length, I2C_Reload_Mode, I2C_Generate_Start_Write);
-    }
+    //}
+    //else {
+    //    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
+    //}
     
     // Write all bytes
     for (count = 0; count < length; count++) {
@@ -206,17 +188,20 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
     }
 
+    /*
     if (stop) {
         // Wait until STOPF flag is set
         timeout = LONG_TIMEOUT;
-        while (I2C_GetFlagStatus(i2c, I2C_ISR_STOPF) == RESET)
-        {
-          if ((timeout--) == 0) return 0;
-        }   
-        
+        while (I2C_GetFlagStatus(i2c, I2C_ISR_STOPF) == RESET) {
+            timeout--;
+            if (timeout == 0) {
+                return 0;
+            }
+        }
         // Clear STOPF flag
         I2C_ClearFlag(i2c, I2C_ICR_STOPCF);
     }
+    */
     
     return count;
 }
@@ -224,11 +209,15 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 int i2c_byte_read(i2c_t *obj, int last) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint8_t data;
-    int timeout = FLAG_TIMEOUT;
+    int timeout;
   
     // Wait until the byte is received
+    timeout = FLAG_TIMEOUT;  
     while (I2C_GetFlagStatus(i2c, I2C_ISR_RXNE) == RESET) {
-      if ((timeout--) == 0) return 0;
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
     }
 
     data = I2C_ReceiveData(i2c);
@@ -238,21 +227,18 @@ int i2c_byte_read(i2c_t *obj, int last) {
 
 int i2c_byte_write(i2c_t *obj, int data) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout = FLAG_TIMEOUT;
+    int timeout;
 
-    // Wait until TXIS flag is set
-    timeout = LONG_TIMEOUT;
-    while (I2C_GetFlagStatus(i2c, I2C_ISR_TXIS) == RESET)   
-    {
-      if ((timeout--) == 0) return 0;
+    // Wait until the previous byte is transmitted
+    timeout = FLAG_TIMEOUT;
+    while (I2C_GetFlagStatus(i2c, I2C_ISR_TXIS) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
     }
-        
+    
     I2C_SendData(i2c, (uint8_t)data);
-
-    // Wait until the byte is transmitted
-    //while (I2C_GetFlagStatus(i2c, I2C_ISR_TCR) == RESET) {
-    //    if ((timeout--) == 0) return 0;
-    //}
     
     return 1;
 }

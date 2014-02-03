@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_sdio.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the SDIO firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -268,8 +268,7 @@ void SDIO_SetPowerState(uint32_t SDIO_PowerState)
   /* Check the parameters */
   assert_param(IS_SDIO_POWER_STATE(SDIO_PowerState));
   
-  SDIO->POWER &= PWR_PWRCTRL_MASK;
-  SDIO->POWER |= SDIO_PowerState;
+  SDIO->POWER = SDIO_PowerState;
 }
 
 /**
@@ -811,4 +810,4 @@ void SDIO_ClearITPendingBit(uint32_t SDIO_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

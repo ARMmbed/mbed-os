@@ -102,10 +102,17 @@ static void SetSysClock_HSI(void)
 // MCU SLEEP mode
 void sleep(void)
 {
+    // Disable us_ticker update interrupt
+    TIM_ITConfig(TIM9, TIM_IT_Update, DISABLE);
+
     // Enable PWR clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);    
+
     // Request to enter SLEEP mode with regulator ON
-    PWR_EnterSleepMode(PWR_Regulator_ON, PWR_SLEEPEntry_WFI); 
+    PWR_EnterSleepMode(PWR_Regulator_ON, PWR_SLEEPEntry_WFI);
+
+    // Re-enable us_ticker update interrupt
+    TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
 }
 
 // MCU STOP mode (Regulator in LP mode, LSI, HSI and HSE OFF)

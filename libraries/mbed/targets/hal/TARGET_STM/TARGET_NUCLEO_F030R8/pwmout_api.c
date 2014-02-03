@@ -34,10 +34,10 @@
 #include "error.h"
 
 static const PinMap PinMap_PWM[] = {
-    {PB_3, PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)}, // TIM2_CH2
-    {PB_4, PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)}, // TIM3_CH1
-    {PB_6, PWM_4,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM4)}, // TIM4_CH1
-    {NC,   NC,     0}
+    {PA_7,  TIM_14, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_4)}, // TIM14_CH1
+    {PC_7,  TIM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)}, // TIM3_CH2
+    {PB_6,  TIM_16, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_2)}, // TIM16_CH1N --> FAIL
+    {NC,    NC,    0}
 };
 
 void pwmout_init(pwmout_t* obj, PinName pin) {  
@@ -49,12 +49,13 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
     
     // Enable TIM clock
-    if (obj->pwm == PWM_2) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    if (obj->pwm == PWM_3) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-    if (obj->pwm == PWM_4) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-    
+    if (obj->pwm == TIM_3)  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    if (obj->pwm == TIM_14) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
+    if (obj->pwm == TIM_16) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
+
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
+    //pin_mode(pin, PullUp);
     
     obj->pin = pin;
     obj->period = 0;
@@ -77,25 +78,35 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0) {
         value = 1.0;
     }
-   
+    
     obj->pulse = (uint32_t)((float)obj->period * value);
     
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse = obj->pulse;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
     // Configure channel 1
-    if ((obj->pin == PB_4) || (obj->pin == PB_6)) {
+    if (obj->pin == PA_7) {
+        TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
         TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
         TIM_OC1Init(tim, &TIM_OCInitStructure);
     }
 
+    // Configure channel 1N
+    if (obj->pin == PB_6) {
+        TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+        TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+        TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
+        TIM_OC1Init(tim, &TIM_OCInitStructure);
+    }
+    
     // Configure channel 2
-    if (obj->pin == PB_3) {
+    if (obj->pin == PC_7) {
+        TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;      
         TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
         TIM_OC2Init(tim, &TIM_OCInitStructure);
-    }
+    }    
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -132,7 +143,8 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     // Set duty cycle again
     pwmout_write(obj, dc);
   
-    TIM_ARRPreloadConfig(tim, ENABLE);    
+    TIM_ARRPreloadConfig(tim, ENABLE);
+
     TIM_Cmd(tim, ENABLE);
 }
 

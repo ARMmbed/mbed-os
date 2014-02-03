@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_usart.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the USART firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -962,7 +962,8 @@ void USART_ClearFlag(USART_TypeDef* USARTx, uint16_t USART_FLAG)
   *     @arg USART_IT_TC:   Transmission complete interrupt
   *     @arg USART_IT_RXNE: Receive Data register not empty interrupt
   *     @arg USART_IT_IDLE: Idle line detection interrupt
-  *     @arg USART_IT_ORE:  OverRun Error interrupt
+  *     @arg USART_IT_ORE_RX : OverRun Error interrupt if the RXNEIE bit is set
+  *     @arg USART_IT_ORE_ER : OverRun Error interrupt if the EIE bit is set 
   *     @arg USART_IT_NE:   Noise Error interrupt
   *     @arg USART_IT_FE:   Framing Error interrupt
   *     @arg USART_IT_PE:   Parity Error interrupt
@@ -1070,4 +1071,4 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

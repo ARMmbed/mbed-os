@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_exti.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the EXTI firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -281,4 +281,4 @@ void EXTI_ClearITPendingBit(uint32_t EXTI_Line)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

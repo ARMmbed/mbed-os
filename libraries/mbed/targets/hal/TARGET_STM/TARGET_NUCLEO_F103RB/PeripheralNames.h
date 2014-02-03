@@ -62,12 +62,9 @@ typedef enum {
 
 typedef enum {
     PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE
+    PWM_3 = (int)TIM3_BASE,
+    PWM_4 = (int)TIM4_BASE
 } PWMName;
-
-typedef enum {
-    CAN_1 = (int)CAN1_BASE
-} CANName;
 
 #ifdef __cplusplus
 }

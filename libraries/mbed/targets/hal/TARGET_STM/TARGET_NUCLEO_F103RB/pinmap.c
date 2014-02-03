@@ -43,7 +43,6 @@ static const uint32_t AF_mapping[] = {
   GPIO_Remap_I2C1         // 8
 };
 
-// Not an API function
 // Enable GPIO clock and return GPIO base address
 uint32_t Set_GPIO_Clock(uint32_t port_idx) {
     uint32_t gpio_add = 0;
@@ -75,9 +74,6 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
 void pin_function(PinName pin, int data) {
-    GPIO_TypeDef *gpio;
-    GPIO_InitTypeDef GPIO_InitStructure;
-  
     if (pin == NC) return;
 
     // Get the pin informations
@@ -89,7 +85,7 @@ void pin_function(PinName pin, int data) {
 
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Enable AFIO clock
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -101,6 +97,7 @@ void pin_function(PinName pin, int data) {
     }
   
     // Configure GPIO
+    GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -120,9 +117,8 @@ void pin_function(PinName pin, int data) {
  * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
-    GPIO_TypeDef *gpio;
     GPIO_InitTypeDef GPIO_InitStructure;
-
+    
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
@@ -130,7 +126,7 @@ void pin_mode(PinName pin, PinMode mode) {
 
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
   
     // Configure open-drain and pull-up/down
     switch (mode) {

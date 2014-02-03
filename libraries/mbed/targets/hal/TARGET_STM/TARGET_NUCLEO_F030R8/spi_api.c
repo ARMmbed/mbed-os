@@ -37,27 +37,23 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
-    {PA_12, SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
+    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
-    {PA_11, SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
+    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
-    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
+    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, 
-    {PA_15,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_SPI1)}, // REMAP
+    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0)}, // Generic IO, not real H/W NSS pin
     {NC,    NC,    0}
 };
 
@@ -77,6 +73,8 @@ static void init_spi(spi_t *obj) {
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStructure.SPI_CRCPolynomial = 7;
     SPI_Init(spi, &SPI_InitStructure);
+
+    SPI_RxFIFOThresholdConfig(spi, SPI_RxFIFOThreshold_QF);
 
     SPI_Cmd(spi, ENABLE);
 }
@@ -114,7 +112,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DataSize_8b;
     obj->cpol = SPI_CPOL_Low;
     obj->cpha = SPI_CPHA_1Edge;
-    obj->br_presc = SPI_BaudRatePrescaler_16; // 1 MHz
+    obj->br_presc = SPI_BaudRatePrescaler_8; // 1 MHz
     
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
@@ -217,13 +215,13 @@ static inline int ssp_writeable(spi_t *obj) {
 static inline void ssp_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
     while (!ssp_writeable(obj));
-    SPI_I2S_SendData(spi, (uint16_t)value);
+    SPI_SendData8(spi, (uint8_t)value);
 }
 
 static inline int ssp_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);   
     while (!ssp_readable(obj));
-    return (int)SPI_I2S_ReceiveData(spi);
+    return (int)SPI_ReceiveData8(spi);
 }
 
 static inline int ssp_busy(spi_t *obj) {
@@ -244,13 +242,13 @@ int spi_slave_receive(spi_t *obj) {
 
 int spi_slave_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    return (int)SPI_I2S_ReceiveData(spi);
+    return (int)SPI_ReceiveData8(spi);
 }
 
 void spi_slave_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
     while (!ssp_writeable(obj));  
-    SPI_I2S_SendData(spi, (uint16_t)value);
+    SPI_SendData8(spi, (uint8_t)value);
 }
 
 int spi_busy(spi_t *obj) {

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    misc.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the miscellaneous firmware functions (add-on
   *          to CMSIS functions).
  *******************************************************************************
@@ -237,4 +237,4 @@ void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

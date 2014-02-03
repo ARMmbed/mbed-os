@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_exti.h
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file contains all the functions prototypes for the EXTI firmware
   *          library.
  *******************************************************************************
@@ -97,7 +97,7 @@ typedef struct
                                          This parameter can be a value of @ref EXTIMode_TypeDef */
 
   EXTITrigger_TypeDef EXTI_Trigger; /*!< Specifies the trigger signal active edge for the EXTI lines.
-                                         This parameter can be a value of @ref EXTIMode_TypeDef */
+                                         This parameter can be a value of @ref EXTITrigger_TypeDef */
 
   FunctionalState EXTI_LineCmd;     /*!< Specifies the new state of the selected EXTI lines.
                                          This parameter can be set either to ENABLE or DISABLE */ 
@@ -196,4 +196,4 @@ void EXTI_ClearITPendingBit(uint32_t EXTI_Line);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

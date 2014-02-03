@@ -30,7 +30,6 @@
 #include "pinmap.h"
 #include "error.h"
 
-// Not an API function
 // Enable GPIO clock and return GPIO base address
 uint32_t Set_GPIO_Clock(uint32_t port_idx) {
     uint32_t gpio_add = 0;
@@ -66,9 +65,6 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
 void pin_function(PinName pin, int data) {
-    GPIO_TypeDef *gpio;
-    GPIO_InitTypeDef GPIO_InitStructure;
-  
     if (pin == NC) return;
 
     // Get the pin informations
@@ -82,7 +78,7 @@ void pin_function(PinName pin, int data) {
 
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Configure Alternate Function
     // Warning: Must be done before the GPIO is initialized
@@ -91,6 +87,7 @@ void pin_function(PinName pin, int data) {
     }
   
     // Configure GPIO
+    GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
@@ -113,8 +110,6 @@ void pin_function(PinName pin, int data) {
  * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
-    GPIO_TypeDef *gpio;
-
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
@@ -122,7 +117,7 @@ void pin_mode(PinName pin, PinMode mode) {
 
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;

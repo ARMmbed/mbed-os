@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_crc.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the CRC firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -172,4 +172,4 @@ uint8_t CRC_GetIDRegister(void)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

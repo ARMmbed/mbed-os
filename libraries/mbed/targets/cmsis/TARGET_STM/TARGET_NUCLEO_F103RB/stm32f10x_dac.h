@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_dac.h
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file contains all the functions prototypes for the DAC firmware 
   *          library.
  *******************************************************************************
@@ -329,4 +329,4 @@ void DAC_ClearITPendingBit(uint32_t DAC_Channel, uint32_t DAC_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

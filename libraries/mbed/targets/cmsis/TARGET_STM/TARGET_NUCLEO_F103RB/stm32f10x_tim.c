@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_tim.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   This file provides all the TIM firmware functions.
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
@@ -2126,10 +2126,10 @@ void TIM_UpdateDisableConfig(TIM_TypeDef* TIMx, FunctionalState NewState)
   * @param  TIMx: where x can be 1 to 17 to select the TIM peripheral.
   * @param  TIM_UpdateSource: specifies the Update source.
   *   This parameter can be one of the following values:
-  *     @arg TIM_UpdateSource_Regular: Source of update is the counter overflow/underflow
+  *     @arg TIM_UpdateSource_Global: Source of update is the counter overflow/underflow
                                        or the setting of UG bit, or an update generation
                                        through the slave mode controller.
-  *     @arg TIM_UpdateSource_Global: Source of update is counter overflow/underflow.
+  *     @arg TIM_UpdateSource_Regular: Source of update is counter overflow/underflow.
   * @retval None
   */
 void TIM_UpdateRequestConfig(TIM_TypeDef* TIMx, uint16_t TIM_UpdateSource)
@@ -2902,4 +2902,4 @@ static void TI4_Config(TIM_TypeDef* TIMx, uint16_t TIM_ICPolarity, uint16_t TIM_
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

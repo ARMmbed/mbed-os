@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f10x.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    05-March-2012
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
   * 
   * 1.  This file provides two functions and one global variable to be called from 
@@ -1106,4 +1106,4 @@ static void SetSysClockTo72(void)
 /**
   * @}
   */    
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
