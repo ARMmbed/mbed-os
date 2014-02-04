@@ -26,7 +26,7 @@ static uint8_t channel_enabled[CHANNEL_NUM] = {0};
 static uint32_t  portRISE= 0; 
 static uint32_t  portFALL= 0; 
 static gpio_irq_handler irq_handler;
-/*
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
@@ -64,7 +64,7 @@ void GPIOTE_IRQHandler(void){
 #ifdef __cplusplus
 }
 #endif 
-*/
+
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
     if (pin == NC) {
         return -1;
