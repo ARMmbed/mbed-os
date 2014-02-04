@@ -7,7 +7,7 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
-#include "nRF51822.h"
+#include "nrf51822.h"
 #include "cmsis_nvic.h"
 
 #endif
