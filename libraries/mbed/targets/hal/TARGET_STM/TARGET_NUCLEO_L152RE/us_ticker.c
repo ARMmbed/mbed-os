@@ -132,6 +132,7 @@ void us_ticker_set_interrupt(unsigned int timestamp) {
             TIM_SetCompare1(TIM_MST, us_ticker_int_remainder);
             us_ticker_int_remainder = 0;
         }
+        TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
     }
 }
 
