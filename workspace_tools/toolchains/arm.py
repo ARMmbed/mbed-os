@@ -114,16 +114,27 @@ class ARM(mbedToolchain):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
     
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
+        if len(lib_dirs):
+            args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
+        else:
+            args = ["-o", output, "--info=totals", "--list=.link_totals.txt"]
+
         if mem_map:
             args.extend(["--scatter", mem_map])
-        
-        self.default_cmd(self.hook.get_cmdline_linker(self.ld + args + objects + libraries + self.sys_libs))
+
+        if hasattr(self.target, "link_cmdline_hook"):
+            args = self.target.link_cmdline_hook(self.__class__.__name__, args)
+
+        self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
     
     @hook_tool
     def binary(self, elf, bin):
-        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', '-o', bin, elf]))
+        args = [self.elf2bin, '--bin', '-o', bin, elf]
 
+        if hasattr(self.target, "binary_cmdline_hook"):
+            args = self.target.binary_cmdline_hook(self.__class__.__name__, args)
+
+        self.default_cmd(args)
 
 class ARM_STD(ARM):
     def __init__(self, target, options=None, notify=None, macros=None):
