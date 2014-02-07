@@ -129,7 +129,7 @@ class ARM(mbedToolchain):
     
     @hook_tool
 
-    def binary(self, elf, bin):
+    def binary(self, resources, elf, bin):
         args = [self.elf2bin, '--bin', '-o', bin, elf]
 
         if hasattr(self.target, "binary_cmdline_hook"):

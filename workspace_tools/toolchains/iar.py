@@ -102,5 +102,5 @@ class IAR(mbedToolchain):
         args = [self.ld, "-o", output, "--config", mem_map]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
     
-    def binary(self, elf, bin):
+    def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))
