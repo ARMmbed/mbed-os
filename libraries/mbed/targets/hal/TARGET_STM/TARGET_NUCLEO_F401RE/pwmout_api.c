@@ -48,7 +48,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
   
     if (obj->pwm == (PWMName)NC) {
-        error("PWM pinout mapping failed");
+        error("PWM error: pinout mapping failed.");
     }
     
     // Enable TIM clock

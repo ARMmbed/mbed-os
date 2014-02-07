@@ -35,14 +35,14 @@
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA_9,  UART_1, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
+    {PA_9,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_2,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PA_3,  UART_2, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
+    {PA_10, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_3,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
     {NC,    NC,     0}
 };
 
@@ -79,7 +79,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
 
     if (obj->uart == (UARTName)NC) {
-        error("Serial pinout mapping failed");
+        error("Serial error: pinout mapping failed.");
     }
 
     // Enable USART clock

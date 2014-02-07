@@ -41,17 +41,37 @@ void rtc_init(void) {
 
     RtcHandle.Instance = RTC;
 
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
+
+    // Allow access to RTC
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE(); 
+    __HAL_RCC_BACKUPRESET_RELEASE();
+  
     // Enable LSI clock
     RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        error("RTC error: Cannot initialize the LSI."); 
+        error("RTC error: LSI clock initialization failed."); 
     }
     
-    // *** TODO** To be measured precisely using a timer input capture
-    uint32_t lsi_freq = 32700;
- 
+    // Connect LSI to RTC
+    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+    
+    // Enable RTC clock
+    __HAL_RCC_RTC_ENABLE();
+    
+    // This is LSI typical value
+    // To be measured precisely using a timer input capture [TODO]
+    uint32_t lsi_freq = 32000;
+    
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
     RtcHandle.Init.AsynchPrediv   = 127;
     RtcHandle.Init.SynchPrediv    = (lsi_freq / 128) - 1;
@@ -59,15 +79,28 @@ void rtc_init(void) {
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
-        error("RTC error: Cannot initialize the RTC peripheral."); 
+        error("RTC error: RTC initialization failed."); 
     }
 }
 
 void rtc_free(void) {
-    RtcHandle.Instance = RTC;
-  
-    HAL_RTC_DeInit(&RtcHandle);
-  
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
+
+    // Allow access to RTC
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE(); 
+    __HAL_RCC_BACKUPRESET_RELEASE();
+
+    // Disable LSI clock
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
+    HAL_RCC_OscConfig(&RCC_OscInitStruct);
+    
     rtc_inited = 0;
 }
 
@@ -100,8 +133,9 @@ time_t rtc_read(void) {
     RtcHandle.Instance = RTC;
   
     // Read actual date and time
-    HAL_RTC_GetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
+    // Warning: the time must be read first!
     HAL_RTC_GetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
+    HAL_RTC_GetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
     
     // Setup a tm structure based on the RTC
     timeinfo.tm_wday = dateStruct.WeekDay;

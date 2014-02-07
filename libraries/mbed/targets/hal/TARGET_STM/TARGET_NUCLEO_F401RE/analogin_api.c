@@ -36,12 +36,12 @@
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PA_0, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
-    {PA_1, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
-    {PA_4, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
-    {PB_0, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
-    {PC_1, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11
-    {PC_0, ADC_1, STM_PIN_DATA(GPIO_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
+    {PA_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
+    {PA_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PA_4, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
+    {PB_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
+    {PC_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11
+    {PC_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
     {NC,   NC,    0}
 };
 
@@ -54,7 +54,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
 
     if (obj->adc == (ADCName)NC) {
-      error("ADC pin mapping failed");
+        error("ADC error: pinout mapping failed.");
     }
 
     // Configure GPIO

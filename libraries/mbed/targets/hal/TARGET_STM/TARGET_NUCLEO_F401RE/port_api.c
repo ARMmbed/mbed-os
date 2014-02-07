@@ -66,10 +66,10 @@ void port_dir(port_t *obj, PinDirection dir) {
     for (i = 0; i < 16; i++) { // Process all pins
         if (obj->mask & (1 << i)) { // If the pin is used
             if (dir == PIN_OUTPUT) {
-                pin_function(port_pin(obj->port, i), STM_PIN_DATA(GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+                pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
             }
             else { // PIN_INPUT
-                pin_function(port_pin(obj->port, i), STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0));
+                pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
             }
         }
     }  

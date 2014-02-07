@@ -31,6 +31,22 @@
 #include "error.h"
 #include "stm32f4xx_hal.h"
 
+// GPIO mode look-up table
+static const uint32_t gpio_mode[12] = {
+    0x00000000, //  0 = GPIO_MODE_INPUT
+    0x00000001, //  1 = GPIO_MODE_OUTPUT_PP
+    0x00000011, //  2 = GPIO_MODE_OUTPUT_OD
+    0x00000002, //  3 = GPIO_MODE_AF_PP
+    0x00000012, //  4 = GPIO_MODE_AF_OD
+    0x00000003, //  5 = GPIO_MODE_ANALOG
+    0x10110000, //  6 = GPIO_MODE_IT_RISING
+    0x10210000, //  7 = GPIO_MODE_IT_FALLING
+    0x10310000, //  8 = GPIO_MODE_IT_RISING_FALLING
+    0x10120000, //  9 = GPIO_MODE_EVT_RISING
+    0x10220000, // 10 = GPIO_MODE_EVT_FALLING
+    0x10320000  // 11 = GPIO_MODE_EVT_RISING_FALLING
+};
+
 // Enable GPIO clock and return GPIO base address
 uint32_t Set_GPIO_Clock(uint32_t port_idx) {
     uint32_t gpio_add = 0;
@@ -56,7 +72,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
             __GPIOH_CLK_ENABLE();
             break;
         default:
-            error("GPIO port number is not correct.");
+            error("Pinmap error: wrong port number.");
             break;          
     }
     return gpio_add;
@@ -83,7 +99,7 @@ void pin_function(PinName pin, int data) {
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.Pin       = (uint32_t)(1 << pin_index);
-    GPIO_InitStructure.Mode      = mode;
+    GPIO_InitStructure.Mode      = gpio_mode[mode];
     GPIO_InitStructure.Pull      = pupd;
     GPIO_InitStructure.Speed     = GPIO_SPEED_HIGH;
     GPIO_InitStructure.Alternate = afnum;

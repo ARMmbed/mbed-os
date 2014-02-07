@@ -95,7 +95,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
   
     if (obj->spi == (SPIName)NC) {
-        error("SPI pinout mapping failed");
+        error("SPI error: pinout mapping failed.");
     }
     
     // Enable SPI clock

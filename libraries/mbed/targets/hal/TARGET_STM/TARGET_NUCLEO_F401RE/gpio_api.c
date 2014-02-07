@@ -37,7 +37,7 @@ extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 uint32_t gpio_set(PinName pin) {  
     if (pin == NC) return 0;
 
-    pin_function(pin, STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
@@ -60,10 +60,10 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
   
     // Configure GPIO
     if (direction == PIN_OUTPUT) {
-        pin_function(pin, STM_PIN_DATA(GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+        pin_function(pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
     }
     else { // PIN_INPUT
-        pin_function(pin, STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0));
+        pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     }
 }
 
@@ -73,9 +73,9 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
     }
     else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0));
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     }
 }

@@ -62,7 +62,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     
     if (obj->i2c == (I2CName)NC) {
-        error("I2C pin mapping failed");
+        error("I2C error: pinout mapping failed.");
     }
 
     // Enable I2C clock
@@ -99,7 +99,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
         HAL_I2C_Init(&I2cHandle);    
     }
     else {
-        error("I2C error: max frequency is 400 kHz");
+        error("I2C error: frequency setting failed (max 400kHz).");
     }
 }
 
