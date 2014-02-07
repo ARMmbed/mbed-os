@@ -45,6 +45,15 @@
 #define P2_2    (1 << 6)  // PTC6
 #define PORT_2  PortC
 
+#elif defined(TARGET_nRF51822)
+#define P1_1    (1 << 4)  // p4
+#define P1_2    (1 << 5)  // p5
+#define PORT_1  Port0
+
+#define P2_1    (1 << 24)  // p24
+#define P2_2    (1 << 25)  // p25
+#define PORT_2  Port0
+
 #elif defined(TARGET_NUCLEO_F103RB)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5

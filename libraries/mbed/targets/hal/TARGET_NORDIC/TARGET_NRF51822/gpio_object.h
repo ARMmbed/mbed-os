@@ -13,51 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "rtc_api.h"
-
-#include <time.h>
-#include "rtc_time.h"
-#include "us_ticker_api.h"
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
-#if defined (__ICCARM__)
-time_t __time32(time_t *timer)
-#else
-time_t time(time_t *timer)
 #endif
 
-{
-#if DEVICE_RTC
-    if (!(rtc_isenabled())) {
-        set_time(0);
-    }
-    time_t t = rtc_read();
+typedef struct {
+    PinName  pin;
+    uint32_t mask;
 
-#else
-    time_t t = 0;
-#endif
+    __IO uint32_t *reg_dir;
+    __IO uint32_t *reg_set;
+    __IO uint32_t *reg_clr;
+    __I  uint32_t *reg_in;
+} gpio_t;
 
-    if (timer != NULL) {
-        *timer = t;
-    }
-    return t;
+static inline void gpio_write(gpio_t *obj, int value) {
+    if (value)
+        *obj->reg_set = obj->mask;
+    else
+        *obj->reg_clr = obj->mask;
 }
 
-void set_time(time_t t) {
-#if DEVICE_RTC
-    rtc_init();
-    rtc_write(t);
-#endif
-}
-
-clock_t clock() {
-    clock_t t = us_ticker_read();
-    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    return t;
+static inline int gpio_read(gpio_t *obj) {
+    return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
+
+#endif

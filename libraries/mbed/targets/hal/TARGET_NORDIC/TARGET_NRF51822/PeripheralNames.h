@@ -13,51 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "rtc_api.h"
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#include <time.h>
-#include "rtc_time.h"
-#include "us_ticker_api.h"
+#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
-#if defined (__ICCARM__)
-time_t __time32(time_t *timer)
-#else
-time_t time(time_t *timer)
 #endif
 
-{
-#if DEVICE_RTC
-    if (!(rtc_isenabled())) {
-        set_time(0);
-    }
-    time_t t = rtc_read();
+#define STDIO_UART_TX     TX_PIN_NUMBER
+#define STDIO_UART_RX     RX_PIN_NUMBER
+#define STDIO_UART        UART_0
 
-#else
-    time_t t = 0;
-#endif
+typedef enum {
+    UART_0 = (int)NRF_UART0_BASE
+} UARTName;
 
-    if (timer != NULL) {
-        *timer = t;
-    }
-    return t;
-}
 
-void set_time(time_t t) {
-#if DEVICE_RTC
-    rtc_init();
-    rtc_write(t);
-#endif
-}
+typedef enum {
+    SPI_0 = (int)NRF_SPI0_BASE,
+    SPI_1 = (int)NRF_SPI1_BASE,
+    SPIS = (int)NRF_SPIS1_BASE
+} SPIName;
 
-clock_t clock() {
-    clock_t t = us_ticker_read();
-    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    return t;
-}
+typedef enum {
+    PWM_1 = 0,
+    PWM_2
+} PWMName;
+
+typedef enum {
+    I2C_0 = (int)NRF_TWI0_BASE,
+    I2C_1 = (int)NRF_TWI1_BASE
+} I2CName;
+
+typedef enum {
+    ADC0_0 = (int)NRF_ADC_BASE
+} ADCName;
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
+
+#endif

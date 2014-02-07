@@ -49,13 +49,19 @@ void test_close(FILE* f) {
     }
 }
 
+DigitalOut led2(LED2);
+
 int main() {
 #if defined(TARGET_KL25Z)
     SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+#elif defined(TARGET_nRF51822)
+//SDFileSystem sd(p20, p22, p25, p24, "sd");
+SDFileSystem sd(p12, p13, p15, p14, "sd");
 #else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
-    
+    led2=1;
+	wait(0.5);
     FILE *f;
     char* str = TEST_STRING;
     char* buffer = (char*) malloc(sizeof(unsigned char)*strlen(TEST_STRING));
@@ -67,6 +73,7 @@ int main() {
         sprintf(filename, "/sd/test_%d.txt", i);
         printf("Creating file: %s\n", filename);
         f = test_open(filename, "w");
+		led2=0;
         test_write(f, str);
         test_close(f);
     }

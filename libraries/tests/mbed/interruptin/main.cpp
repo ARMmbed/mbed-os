@@ -48,14 +48,13 @@ void flipper() {
 
 int main() {
     out = 0; myled = 0;
-
     //Test falling edges first
     in.rise(NULL);
     in.fall(in_handler);
     flipper();
 
     if(checks != 5) {
-        printf("falling edges test failed\n");
+        printf("falling edges test failed: %d\n",checks);
         notify_completion(false);
     }
 
@@ -65,7 +64,7 @@ int main() {
     flipper();
 
     if (checks != 10) {
-        printf("raising edges test failed\n");
+        printf("raising edges test failed: %d\n",checks);
         notify_completion(false);
     }
 

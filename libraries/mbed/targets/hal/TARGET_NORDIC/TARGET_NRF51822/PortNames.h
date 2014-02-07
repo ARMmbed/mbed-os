@@ -13,51 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "rtc_api.h"
-
-#include <time.h>
-#include "rtc_time.h"
-#include "us_ticker_api.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
-#if defined (__ICCARM__)
-time_t __time32(time_t *timer)
-#else
-time_t time(time_t *timer)
 #endif
 
-{
-#if DEVICE_RTC
-    if (!(rtc_isenabled())) {
-        set_time(0);
-    }
-    time_t t = rtc_read();
-
-#else
-    time_t t = 0;
-#endif
-
-    if (timer != NULL) {
-        *timer = t;
-    }
-    return t;
-}
-
-void set_time(time_t t) {
-#if DEVICE_RTC
-    rtc_init();
-    rtc_write(t);
-#endif
-}
-
-clock_t clock() {
-    clock_t t = us_ticker_read();
-    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    return t;
-}
+typedef enum {
+    Port0 = 0 //GPIO pins 0-31
+} PortName;
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
+#endif

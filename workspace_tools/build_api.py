@@ -116,6 +116,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
     dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
     
+    toolchain.resources = resources
+
     # Compile Sources
     objects = []
     for resource in resources:
@@ -175,7 +177,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     # Target specific sources
     HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
-    toolchain.copy_files(hal_implementation.headers, BUILD_TARGET)
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET)
     objects  = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
     
     # Common Sources
