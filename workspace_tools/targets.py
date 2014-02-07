@@ -176,7 +176,7 @@ class LPC4088(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, elf, binf):
+    def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
             return
@@ -318,64 +318,50 @@ class NRF51822(Target):
         
         self.supported_toolchains = ["ARM"]
 
-        self.binary_format = "hex"
-
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
 
     @staticmethod
-    def binary_hook(t_self, elf, binf):
-        for hexf in t_self.resources.hex_files:
+    def binary_hook(t_self, resources, elf, binf):
+        for hexf in resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
         else:
-            t_self.debug("Hex file not found. Aborting.")
             return
-
         # Generate hex file
         # NOTE: this is temporary, it will be removed later and only the
         # combined binary file (below) will be used
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset = NRF51822.APPCODE_OFFSET)
-
         sdh = IntelHex(hexf)
         sdh.merge(binh)
-        outname = binf + ".temp"
+        outname = binf.replace(".bin", ".hex")
         with open(outname, "w") as f:
             sdh.tofile(f, format = 'hex')
         t_self.debug("Generated SoftDevice-enabled image in '%s'" % outname)
-
-        if t_self.target.binary_format == "hex":
-            os.rename(outname, binf)
-            return
-
         # Generate concatenated SoftDevice + application binary
         # Currently, this is only supported for SoftDevice images that have
         # an UICR area
         sdh = IntelHex(hexf)
         if sdh.maxaddr() < NRF51822.UICR_START:
-            t_self.error("SoftDevice image does not have UICR area. Aborting.")
+            t_self.error("SoftDevice image does not have UICR area, aborting")
             return
         addrlist = sdh.addresses()
         try:
             uicr_start_index = addrlist.index(NRF51822.UICR_START)
         except ValueError:
-            t_self.error("UICR start address not found in the SoftDevice image. Aborting.")
+            t_self.error("UICR start address not found in the SoftDevice image, aborting")
             return
-
         # Assume that everything up to uicr_start_index are contiguous addresses
         # in the SoftDevice code area
         softdevice_code_size = addrlist[uicr_start_index - 1] + 1
         t_self.debug("SoftDevice code size is %d bytes" % softdevice_code_size)
-
         # First part: SoftDevice code
         bindata = sdh[:softdevice_code_size].tobinstr()
-
         # Second part: pad with 0xFF up to APPCODE_OFFSET
         bindata = bindata + '\xFF' * (NRF51822.APPCODE_OFFSET - softdevice_code_size)
-
         # Last part: the application code
         with open(binf, 'r+b') as f:
             bindata = bindata + f.read()
