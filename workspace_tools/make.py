@@ -190,4 +190,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
     except Exception,e:
-        print "[ERROR] %s" % str(e)
+        if options.verbose:
+            import traceback
+            traceback.print_exc(file=sys.stdout)
+        else:
+            print "[ERROR] %s" % str(e)
