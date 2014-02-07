@@ -17,7 +17,7 @@ limitations under the License.
 import sys
 from os.path import join, abspath, dirname, exists
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from shutil import move
 
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     
     for toolchain, target in [
             ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'), ('uvision', 'LPC4088'),
+            ('uvision', 'NUCLEO_F103RB'), ('uvision', 'NUCLEO_L152RE'), ('uvision', 'NUCLEO_F401RE'), ('uvision', 'NUCLEO_F030R8'),
             
             ('codered', 'LPC1768'), ('codered', 'LPC4088'),
             

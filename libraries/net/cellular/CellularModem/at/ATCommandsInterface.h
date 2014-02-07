@@ -77,7 +77,7 @@ public:
   int open();
 
   //Initialize AT link
-  int init();
+  int init(bool reset = true);
 
   //Close connection
   int close();

@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.append(ROOT)
+sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.targets import TARGET_MAP
@@ -34,6 +34,12 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1347', ('ARM',)),
     ('LPC4088', ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC1114', ('uARM',)),
+    ('KL46Z', ('ARM', 'GCC_ARM')),
+    ('LPC11U35_401', ('ARM', 'uARM')),
+    ('NUCLEO_F103RB', ('ARM',)),
+#    ('NUCLEO_L152RE', ('ARM',)),
+#    ('NUCLEO_F401RE', ('ARM',)),
+#    ('NUCLEO_F030R8', ('ARM',)),
 )
 
 

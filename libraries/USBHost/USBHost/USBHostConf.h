@@ -49,7 +49,7 @@
 #define USBHOST_MOUSE               1
 
 /*
-* Enable USBHostSerial
+* Enable USBHostSerial or USBHostMultiSerial (if set > 1)
 */
 #define USBHOST_SERIAL              1
 

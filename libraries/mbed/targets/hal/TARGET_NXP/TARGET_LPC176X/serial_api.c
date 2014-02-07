@@ -21,6 +21,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "gpio_api.h"
 
 /******************************************************************************
  * INITIALIZATION
@@ -51,11 +52,34 @@ static const PinMap PinMap_UART_RX[] = {
     {NC   , NC    , 0}
 };
 
-static uint32_t serial_irq_ids[UART_NUM] = {0};
+static const PinMap PinMap_UART_RTS[] = {
+    {P0_22, UART_1, 1},
+    {P2_7,  UART_1, 2},
+    {NC,    NC,     0}
+};
+
+static const PinMap PinMap_UART_CTS[] = {
+    {P0_17, UART_1, 1},
+    {P2_2,  UART_1, 2},
+    {NC,    NC,     0}
+};
+
+#define UART_MCR_RTSEN_MASK     (1 << 6)
+#define UART_MCR_CTSEN_MASK     (1 << 7)
+#define UART_MCR_FLOWCTRL_MASK  (UART_MCR_RTSEN_MASK | UART_MCR_CTSEN_MASK)
+
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
+
+struct serial_global_data_s {
+    uint32_t serial_irq_id;
+    gpio_t sw_rts, sw_cts;
+    uint8_t rx_irq_set_flow, rx_irq_set_api;
+};
+
+static struct serial_global_data_s uart_data[UART_NUM];
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     int is_stdio_uart = 0;
@@ -106,7 +130,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_2: obj->index = 2; break;
         case UART_3: obj->index = 3; break;
     }
-    obj->count = 0;
+    uart_data[obj->index].sw_rts.pin = NC;
+    uart_data[obj->index].sw_cts.pin = NC;
+    serial_set_flow_control(obj, FlowControlNone, NC, NC);
     
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     
@@ -117,7 +143,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
-    serial_irq_ids[obj->index] = 0;
+    uart_data[obj->index].serial_irq_id = 0;
 }
 
 // serial_baud
@@ -157,22 +183,47 @@ void serial_baud(serial_t *obj, int baudrate) {
     uint16_t dlv;
     uint8_t mv, dav;
     if ((PCLK % (16 * baudrate)) != 0) {     // Checking for zero remainder
-        float err_best = (float) baudrate;
-        uint16_t dlmax = DL;
-        for ( dlv = (dlmax/2); (dlv <= dlmax) && !hit; dlv++) {
-            for ( mv = 1; mv <= 15; mv++) {
-                for ( dav = 1; dav < mv; dav++) {
-                    float ratio = 1.0f + ((float) dav / (float) mv);
-                    float calcbaud = (float)PCLK / (16.0f * (float) dlv * ratio);
-                    float err = fabs(((float) baudrate - calcbaud) / (float) baudrate);
-                    if (err < err_best) {
-                        DL = dlv;
-                        DivAddVal = dav;
-                        MulVal = mv;
-                        err_best = err;
-                        if (err < 0.001f) {
-                            hit = 1;
-                        }
+        int err_best = baudrate, b;
+        for (mv = 1; mv < 16 && !hit; mv++)
+        {
+            for (dav = 0; dav < mv; dav++)
+            {
+                // baudrate = PCLK / (16 * dlv * (1 + (DivAdd / Mul))
+                // solving for dlv, we get dlv = mul * PCLK / (16 * baudrate * (divadd + mul))
+                // mul has 4 bits, PCLK has 27 so we have 1 bit headroom which can be used for rounding
+                // for many values of mul and PCLK we have 2 or more bits of headroom which can be used to improve precision
+                // note: X / 32 doesn't round correctly. Instead, we use ((X / 16) + 1) / 2 for correct rounding
+
+                if ((mv * PCLK * 2) & 0x80000000) // 1 bit headroom
+                    dlv = ((((2 * mv * PCLK) / (baudrate * (dav + mv))) / 16) + 1) / 2;
+                else // 2 bits headroom, use more precision
+                    dlv = ((((4 * mv * PCLK) / (baudrate * (dav + mv))) / 32) + 1) / 2;
+
+                // datasheet says if DLL==DLM==0, then 1 is used instead since divide by zero is ungood
+                if (dlv == 0)
+                    dlv = 1;
+
+                // datasheet says if dav > 0 then DL must be >= 2
+                if ((dav > 0) && (dlv < 2))
+                    dlv = 2;
+
+                // integer rearrangement of the baudrate equation (with rounding)
+                b = ((PCLK * mv / (dlv * (dav + mv) * 8)) + 1) / 2;
+
+                // check to see how we went
+                b = abs(b - baudrate);
+                if (b < err_best)
+                {
+                    err_best  = b;
+
+                    DL        = dlv;
+                    MulVal    = mv;
+                    DivAddVal = dav;
+
+                    if (b == baudrate)
+                    {
+                        hit = 1;
+                        break;
                     }
                 }
             }
@@ -226,7 +277,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t iir, uint32_t index) {
+static inline void uart_irq(uint32_t iir, uint32_t index, LPC_UART_TypeDef *puart) {
     // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
     switch (iir) {
@@ -234,22 +285,28 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
         case 2: irq_type = RxIrq; break;
         default: return;
     }
-    
-    if (serial_irq_ids[index] != 0)
-        irq_handler(serial_irq_ids[index], irq_type);
+    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) {
+        gpio_write(&uart_data[index].sw_rts, 1);
+        // Disable interrupt if it wasn't enabled by other part of the application
+        if (!uart_data[index].rx_irq_set_api)
+            puart->IER &= ~(1 << RxIrq);
+    }
+    if (uart_data[index].serial_irq_id != 0)
+        if ((irq_type != RxIrq) || (uart_data[index].rx_irq_set_api))
+            irq_handler(uart_data[index].serial_irq_id, irq_type);
 }
 
-void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0);}
-void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1);}
-void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2);}
-void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3);}
+void uart0_irq() {uart_irq((LPC_UART0->IIR >> 1) & 0x7, 0, (LPC_UART_TypeDef*)LPC_UART0);}
+void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1, (LPC_UART_TypeDef*)LPC_UART1);}
+void uart2_irq() {uart_irq((LPC_UART2->IIR >> 1) & 0x7, 2, (LPC_UART_TypeDef*)LPC_UART2);}
+void uart3_irq() {uart_irq((LPC_UART3->IIR >> 1) & 0x7, 3, (LPC_UART_TypeDef*)LPC_UART3);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
-    serial_irq_ids[obj->index] = id;
+    uart_data[obj->index].serial_irq_id = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
@@ -263,7 +320,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         obj->uart->IER |= 1 << irq;
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-    } else { // disable
+    } else if ((TxIrq == irq) || (uart_data[obj->index].rx_irq_set_api + uart_data[obj->index].rx_irq_set_flow == 0)) { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         obj->uart->IER &= ~(1 << irq);
@@ -273,18 +330,33 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
 }
 
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+    if (RxIrq == irq)
+        uart_data[obj->index].rx_irq_set_api = enable;
+    serial_irq_set_internal(obj, irq, enable);
+}
+
+static void serial_flow_irq_set(serial_t *obj, uint32_t enable) {
+    uart_data[obj->index].rx_irq_set_flow = enable;
+    serial_irq_set_internal(obj, RxIrq, enable);
+}
+
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
-    return obj->uart->RBR;
+    int data = obj->uart->RBR;
+    if (NC != uart_data[obj->index].sw_rts.pin) {
+        gpio_write(&uart_data[obj->index].sw_rts, 0);
+        obj->uart->IER |= 1 << RxIrq;
+    }
+    return data;
 }
 
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
-    obj->count++;
 }
 
 int serial_readable(serial_t *obj) {
@@ -293,11 +365,10 @@ int serial_readable(serial_t *obj) {
 
 int serial_writable(serial_t *obj) {
     int isWritable = 1;
-    if (obj->uart->LSR & 0x20)
-        obj->count = 0;
-    else if (obj->count >= 16)
-        isWritable = 0;
-        
+    if (NC != uart_data[obj->index].sw_cts.pin)
+        isWritable = gpio_read(&uart_data[obj->index].sw_cts) == 0;
+    if (isWritable)
+        isWritable = obj->uart->LSR & 0x40;
     return isWritable;
 }
 
@@ -318,5 +389,51 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     obj->uart->LCR &= ~(1 << 6);
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+    // Only UART1 has hardware flow control on LPC176x
+    LPC_UART1_TypeDef *uart1 = (uint32_t)obj->uart == (uint32_t)LPC_UART1 ? LPC_UART1 : NULL;
+    int index = obj->index;
+
+    // First, disable flow control completely
+    if (uart1)
+        uart1->MCR = uart1->MCR & ~UART_MCR_FLOWCTRL_MASK;
+    uart_data[index].sw_rts.pin = uart_data[index].sw_cts.pin = NC;
+    serial_flow_irq_set(obj, 0);
+    if (FlowControlNone == type)
+        return;
+    // Check type(s) of flow control to use
+    UARTName uart_rts = (UARTName)pinmap_find_peripheral(rxflow, PinMap_UART_RTS);
+    UARTName uart_cts = (UARTName)pinmap_find_peripheral(txflow, PinMap_UART_CTS);
+    if (((FlowControlCTS == type) || (FlowControlRTSCTS == type)) && (NC != txflow)) {
+        // Can this be enabled in hardware?
+        if ((UART_1 == uart_cts) && (NULL != uart1)) {
+            // Enable auto-CTS mode
+            uart1->MCR |= UART_MCR_CTSEN_MASK;
+            pinmap_pinout(txflow, PinMap_UART_CTS);
+        } else {
+            // Can't enable in hardware, use software emulation
+            gpio_init(&uart_data[index].sw_cts, txflow, PIN_INPUT);
+        }
+    }
+    if (((FlowControlRTS == type) || (FlowControlRTSCTS == type)) && (NC != rxflow)) {
+        // Enable FIFOs, trigger level of 1 char on RX FIFO
+        obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                       | 1 << 1  // Rx Fifo Reset
+                       | 1 << 2  // Tx Fifo Reset
+                       | 0 << 6; // Rx irq trigger level - 0 = 1 char, 1 = 4 chars, 2 = 8 chars, 3 = 14 chars
+         // Can this be enabled in hardware?
+        if ((UART_1 == uart_rts) && (NULL != uart1)) {
+            // Enable auto-RTS mode
+            uart1->MCR |= UART_MCR_RTSEN_MASK;
+            pinmap_pinout(rxflow, PinMap_UART_RTS);
+        } else { // can't enable in hardware, use software emulation
+            gpio_init(&uart_data[index].sw_rts, rxflow, PIN_OUTPUT);
+            gpio_write(&uart_data[index].sw_rts, 0);
+            // Enable RX interrupt
+            serial_flow_irq_set(obj, 1);
+        }
+    }
 }
 

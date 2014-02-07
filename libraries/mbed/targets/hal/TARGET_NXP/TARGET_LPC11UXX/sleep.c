@@ -19,7 +19,9 @@
 
 void sleep(void) {
     // ensure debug is disconnected
+    #if DEVICE_SEMIHOST
     mbed_interface_disconnect();
+    #endif
     
     // PCON[PD] set to sleep
     LPC_PMU->PCON = 0x0;
@@ -59,7 +61,9 @@ void sleep(void) {
 
 void deepsleep(void) {
     // ensure debug is disconnected
+    #if DEVICE_SEMIHOST
     mbed_interface_disconnect();
+    #endif
     
     // PCON[PD] set to deepsleep
     LPC_PMU->PCON = 0x1;

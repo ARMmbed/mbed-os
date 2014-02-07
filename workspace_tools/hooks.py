@@ -11,7 +11,7 @@ _hooks = {}
 _running_hooks = {}
 
 # Available hook types
-_hook_types = ["binary"]
+_hook_types = ["binary", "compile", "link", "assemble"]
 
 # Available hook steps
 _hook_steps = ["pre", "replace", "post"]
@@ -59,10 +59,12 @@ def hook_tool(function):
 class Hook:
     def __init__(self, target, toolchain):
         _hooks.clear()
+        self._cmdline_hooks = {}
         self.toolchain = toolchain
         target.init_hooks(self, toolchain.__class__.__name__)
 
-    def hook_add(self, hook_type, hook_step, function):
+    # Hook various functions directly
+    def _hook_add(self, hook_type, hook_step, function):
         if not hook_type in _hook_types or not hook_step in _hook_steps:
             return False
         if not hook_type in _hooks:
@@ -70,8 +72,54 @@ class Hook:
         _hooks[hook_type][hook_step] = function
         return True
 
+    def hook_add_compiler(self, hook_step, function):
+        return self._hook_add("compile", hook_step, function)
+
+    def hook_add_linker(self, hook_step, function):
+        return self._hook_add("link", hook_step, function)
+
+    def hook_add_assembler(self, hook_step, function):
+        return self._hook_add("assemble", hook_step, function)
+
     def hook_add_binary(self, hook_step, function):
-        return self.hook_add("binary", hook_step, function)
+        return self._hook_add("binary", hook_step, function)
+
+    # Hook command lines
+    def _hook_cmdline(self, hook_type, function):
+        if not hook_type in _hook_types:
+            return False
+        self._cmdline_hooks[hook_type] = function
+        return True
+
+    def hook_cmdline_compiler(self, function):
+        return self._hook_cmdline("compile", function)
+
+    def hook_cmdline_linker(self, function):
+        return self._hook_cmdline("link", function)
+
+    def hook_cmdline_assembler(self, function):
+        return self._hook_cmdline("assemble", function)
+
+    def hook_cmdline_binary(self, function):
+        return self._hook_cmdline("binary", function)
+
+    # Return the command line after applying the hook
+    def _get_cmdline(self, hook_type, cmdline):
+        if self._cmdline_hooks.has_key(hook_type):
+            cmdline = self._cmdline_hooks[hook_type](self.toolchain.__class__.__name__, cmdline)
+        return cmdline
+
+    def get_cmdline_compiler(self, cmdline):
+        return self._get_cmdline("compile", cmdline)
+
+    def get_cmdline_linker(self, cmdline):
+        return self._get_cmdline("link", cmdline)
+
+    def get_cmdline_assembler(self, cmdline):
+        return self._get_cmdline("assemble", cmdline)
+
+    def get_cmdline_binary(self, cmdline):
+        return self._get_cmdline("binary", cmdline)
 
 ################################################################################
 

@@ -150,16 +150,16 @@ Reset_Handler:
     ldr    r3, =__data_end__
 
     subs    r3, r2
-    ble    .flash_to_ram_loop_end
+    ble    .Lflash_to_ram_loop_end
 
     movs    r4, 0
-.flash_to_ram_loop:
+.Lflash_to_ram_loop:
     ldr    r0, [r1,r4]
     str    r0, [r2,r4]
     adds    r4, 4
     cmp    r4, r3
-    blt    .flash_to_ram_loop
-.flash_to_ram_loop_end:
+    blt    .Lflash_to_ram_loop
+.Lflash_to_ram_loop_end:
 
     ldr    r0, =SystemInit
     blx    r0
@@ -181,33 +181,36 @@ Reset_Handler:
     b    .
     .size    \handler_name, . - \handler_name
     .endm
-    
-    def_default_handler    NMI_Handler
-    def_default_handler    HardFault_Handler
-    def_default_handler    SVC_Handler
-    def_default_handler    PendSV_Handler
-    def_default_handler    SysTick_Handler
-    def_default_handler    Default_Handler
-    
-    def_default_handler    WAKEUP_IRQHandler
-    def_default_handler    SSP1_IRQHandler
-    def_default_handler    I2C_IRQHandler
-    def_default_handler    TIMER16_0_IRQHandler
-    def_default_handler    TIMER16_1_IRQHandler
-    def_default_handler    TIMER32_0_IRQHandler
-    def_default_handler    TIMER32_1_IRQHandler
-    def_default_handler    SSP0_IRQHandler
-    def_default_handler    UART_IRQHandler
-    def_default_handler    ADC_IRQHandler
-    def_default_handler    WDT_IRQHandler
-    def_default_handler    BOD_IRQHandler
-    def_default_handler    PIOINT3_IRQHandler
-    def_default_handler    PIOINT2_IRQHandler
-    def_default_handler    PIOINT1_IRQHandler
-    def_default_handler    PIOINT0_IRQHandler
 
-    .weak    DEF_IRQHandler
-    .set    DEF_IRQHandler, Default_Handler
+    def_default_handler     NMI_Handler
+    def_default_handler     HardFault_Handler
+    def_default_handler     SVC_Handler
+    def_default_handler     PendSV_Handler
+    def_default_handler     SysTick_Handler
+    def_default_handler     Default_Handler
+
+    .macro    def_irq_default_handler    handler_name
+    .weak     \handler_name
+    .set      \handler_name, Default_Handler
+    .endm
+    
+    def_irq_default_handler    WAKEUP_IRQHandler
+    def_irq_default_handler    SSP1_IRQHandler
+    def_irq_default_handler    I2C_IRQHandler
+    def_irq_default_handler    TIMER16_0_IRQHandler
+    def_irq_default_handler    TIMER16_1_IRQHandler
+    def_irq_default_handler    TIMER32_0_IRQHandler
+    def_irq_default_handler    TIMER32_1_IRQHandler
+    def_irq_default_handler    SSP0_IRQHandler
+    def_irq_default_handler    UART_IRQHandler
+    def_irq_default_handler    ADC_IRQHandler
+    def_irq_default_handler    WDT_IRQHandler
+    def_irq_default_handler    BOD_IRQHandler
+    def_irq_default_handler    PIOINT3_IRQHandler
+    def_irq_default_handler    PIOINT2_IRQHandler
+    def_irq_default_handler    PIOINT1_IRQHandler
+    def_irq_default_handler    PIOINT0_IRQHandler
+    def_irq_default_handler    DEF_IRQHandler
 
     .end
 

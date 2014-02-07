@@ -41,10 +41,12 @@ Wiring:
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
+      * NUCLEO_F103RB: (PC_6 <-> PB_8)
   
   * port_loop (Port(In|Out|InOut)):
       * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
+      * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
   
   * analog_loop (AnalogIn, AnalogOut):
       * LPC1*: (p17   <-> p18 )
@@ -202,6 +204,29 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+    },
+    {
+        "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
+        "source_dir": join(TEST_DIR, "mbed", "spifi1"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "mcu": ["LPC4088"]
+    },
+    {
+        "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
+        "source_dir": join(TEST_DIR, "mbed", "spifi2"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "mcu": ["LPC4088"]
+    },
+    {
+        "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
+        "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
+        "dependencies": [MBED_LIBRARIES],
+        "automated": "True",
+        "host_test": "echo_flow_control",
+        "mcu": ["LPC1768"],
+        "peripherals": ["extra_serial"]
     },
 
     # Size benchmarks
@@ -391,8 +416,13 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088"]
-    },	
- 
+    },
+    {
+        "id": "MBED_31", "description": "PWM LED test",
+        "source_dir": join(TEST_DIR, "mbed", "pwm_led"),
+        "dependencies": [MBED_LIBRARIES],
+    },
+
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
@@ -651,7 +681,7 @@ TESTS = [
         "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z"],
+        "mcu": ["KL25Z", "KL05Z", "KL46Z"],
     },
     
     # Examples

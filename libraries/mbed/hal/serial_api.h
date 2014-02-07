@@ -37,6 +37,13 @@ typedef enum {
     TxIrq
 } SerialIrq;
 
+typedef enum {
+    FlowControlNone,
+    FlowControlRTS,
+    FlowControlCTS,
+    FlowControlRTSCTS
+} FlowControl;
+
 typedef void (*uart_irq_handler)(uint32_t id, SerialIrq event);
 
 typedef struct serial_s serial_t;
@@ -59,6 +66,8 @@ void serial_break_set  (serial_t *obj);
 void serial_break_clear(serial_t *obj);
 
 void serial_pinout_tx(PinName tx);
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow);
 
 #ifdef __cplusplus
 }

@@ -71,6 +71,16 @@ public:
      * @returns The char read from the serial port
      */
     int getc();
+
+    /** Write a string to the serial port
+     *
+     * @param str The string to write
+     *
+     * @returns 0 if the write succeeds, EOF for error
+     */
+    int puts(const char *str);
+
+    int printf(const char *format, ...);
 };
 
 } // namespace mbed

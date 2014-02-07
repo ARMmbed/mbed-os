@@ -20,7 +20,8 @@ CORE_LABELS = {
     "Cortex-M0" : "M0",
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
-    "Cortex-M4" : "M4"
+    "Cortex-M4" : "M4",
+    "Cortex-M4F" : "M4"
 }
 
 import os
@@ -70,7 +71,7 @@ class LPC1768(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['NXP', 'LPC176X']
+        self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
@@ -103,9 +104,9 @@ class KL05Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         
         self.is_disk_virtual = True
 
@@ -116,7 +117,7 @@ class KL25Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
         
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM"]
         
@@ -128,10 +129,22 @@ class KL46Z(Target):
         
         self.core = "Cortex-M0+"
         
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'KLXX']
 
         self.supported_toolchains = ["GCC_ARM", "ARM"]
 
+        self.is_disk_virtual = True
+
+class K20D5M(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['Freescale']
+        
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        
         self.is_disk_virtual = True
 
 
@@ -165,7 +178,7 @@ class LPC4088(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC408X']
         
@@ -174,7 +187,7 @@ class LPC4088(Target):
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-    
+
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
@@ -208,7 +221,7 @@ class LPC4330_M4(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['NXP', 'LPC43XX']
         
@@ -241,13 +254,65 @@ class STM32F407(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F4XX']
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
+        
+class NUCLEO_F103RB(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+        self.binary_naming = "8.3"
+        
+        
+class NUCLEO_L152RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+        self.binary_naming = "8.3"
 
+        
+class NUCLEO_F401RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+        self.binary_naming = "8.3"
+
+        
+class NUCLEO_F030R8(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+        self.binary_naming = "8.3"
+                
+                
 class MBED_MCU(Target):
     def __init__(self):
         Target.__init__(self)
@@ -304,7 +369,6 @@ class LPC11U35_401(Target):
 
 
 class NRF51822(Target):
-
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
     UICR_START = 0x10001000
     APPCODE_OFFSET = 0x14000
@@ -317,6 +381,17 @@ class NRF51822(Target):
         self.extra_labels = ["NORDIC"]
         
         self.supported_toolchains = ["ARM"]
+        
+
+class UBLOX_C027(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
@@ -379,17 +454,23 @@ TARGETS = [
     KL05Z(),
     KL25Z(),
     KL46Z(),
+    K20D5M(),
     LPC812(),
     LPC810(),
     LPC4088(),
     LPC4330_M4(),
     STM32F407(),
+    NUCLEO_F103RB(),
+    NUCLEO_L152RE(),
+    NUCLEO_F401RE(),
+    NUCLEO_F030R8(),
     MBED_MCU(),
     LPC1347(),
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
-    NRF51822()
+    NRF51822(),
+    UBLOX_C027()
 ]
 
 # Map each target name to its unique instance

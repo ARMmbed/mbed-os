@@ -398,15 +398,23 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 // ****************************************************************************
 // mbed_main is a function that is called before main()
+// mbed_sdk_init() is also a function that is called before main(), but unlike
+// mbed_main(), it is not meant for user code, but for the SDK itself to perform
+// initializations before main() is called.
 
 extern "C" WEAK void mbed_main(void);
 extern "C" WEAK void mbed_main(void) {
+}
+
+extern "C" WEAK void mbed_sdk_init(void);
+extern "C" WEAK void mbed_sdk_init(void) {
 }
 
 #if defined(TOOLCHAIN_ARM)
 extern "C" int $Super$$main(void);
 
 extern "C" int $Sub$$main(void) {
+    mbed_sdk_init();
     mbed_main();
     return $Super$$main();
 }
@@ -414,6 +422,7 @@ extern "C" int $Sub$$main(void) {
 extern "C" int __real_main(void);
 
 extern "C" int __wrap_main(void) {
+    mbed_sdk_init();
     mbed_main();
     return __real_main();
 }
@@ -424,6 +433,7 @@ extern "C" int __wrap_main(void) {
 // code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
 // Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
 extern "C" void __iar_argc_argv() {
+    mbed_sdk_init();
     mbed_main();
 }
 #endif

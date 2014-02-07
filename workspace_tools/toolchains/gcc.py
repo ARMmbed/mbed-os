@@ -34,6 +34,8 @@ class GCC(mbedToolchain):
         
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
+        elif target.core == "Cortex-M4F":
+            cpu = "cortex-m4"
         else:
             cpu = target.core.lower()
         
@@ -41,9 +43,9 @@ class GCC(mbedToolchain):
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
         
-        if target.core == "Cortex-M4":
+        if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
-            self.cpu.append("-mfloat-abi=softfp")
+            self.cpu.append("-mfloat-abi=hard")
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
@@ -77,7 +79,7 @@ class GCC(mbedToolchain):
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
     
     def assemble(self, source, object, includes):
-        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])
+        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
     
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -153,11 +155,11 @@ class GCC(mbedToolchain):
         if self.CIRCULAR_DEPENDENCIES:
             libs.extend(libs)
         
-        self.default_cmd(self.ld + ["-T%s" % mem_map, "-o", output] +
-            objects + ["-L%s" % L for L in lib_dirs] + libs)
+        self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
+            objects + ["-L%s" % L for L in lib_dirs] + libs))
     
-    def binary(self, resources, elf, bin):
-        self.default_cmd([self.elf2bin, "-O", "binary", elf, bin])
+    def binary(self, elf, bin):
+        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
 
 
 class GCC_ARM(GCC):

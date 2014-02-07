@@ -156,6 +156,7 @@ SECTIONS
         . = ALIGN(4) ;
         _ebss = .;
         PROVIDE(end = .);
+        __end__ = .;
     } > RamLoc64
         
     /* NOINIT section for RamPeriph32 */

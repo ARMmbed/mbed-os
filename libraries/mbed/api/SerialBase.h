@@ -51,6 +51,13 @@ public:
         TxIrq
     };
 
+    enum Flow {
+        Disabled = 0,
+        RTS,
+        CTS,
+        RTSCTS
+    };
+
     /** Set the transmission format used by the serial port
      *
      *  @param bits The number of bits in a word (5-8; default = 8)
@@ -99,6 +106,16 @@ public:
     /** Generate a break condition on the serial line
      */
     void send_break();
+    
+#if DEVICE_SERIAL_FC
+    /** Set the flow control type on the serial port
+     *
+     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)     
+     *  @param flow1 the first flow control pin (RTS for RTS or RTSCTS, CTS for CTS)
+     *  @param flow2 the second flow control pin (CTS for RTSCTS)
+     */
+    void set_flow_control(Flow type, PinName flow1=NC, PinName flow2=NC);
+#endif
 
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
 

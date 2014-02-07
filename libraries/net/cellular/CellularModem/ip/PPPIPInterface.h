@@ -40,11 +40,11 @@ using namespace rtos;
 class PPPIPInterface : public LwIPInterface
 {
 public:
-    PPPIPInterface(IOStream* pStream, const char* msisdn);
+    PPPIPInterface(IOStream* pStream);
     virtual ~PPPIPInterface();
 
     int init(); //Init PPP-specific stuff, create the right bindings, etc
-    int setup(const char* user, const char* pw); //Setup authentication
+    int setup(const char* user, const char* pw, const char* msisdn); //Setup authentication
     virtual int connect();
     virtual int disconnect();
 
@@ -57,16 +57,13 @@ private:
 
     IOStream* m_pStream; //Serial stream
     bool m_streamAvail;
+    const char* m_msisdn;
 
     int m_pppd;
 
     friend u32_t sio_write(sio_fd_t fd, u8_t *data, u32_t len);
     friend u32_t sio_read(sio_fd_t fd, u8_t *data, u32_t len);
     friend void sio_read_abort(sio_fd_t fd);
-
-    char* m_connectCmd;
-    char* m_expectedResp;
-    char* m_expectedRespDatarate;
 };
 
 #endif /* PPPIPINTERFACE_H_ */
