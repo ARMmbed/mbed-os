@@ -368,6 +368,16 @@ class LPC11U35_401(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 
+class UBLOX_C027(Target):
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]        
+
 class NRF51822(Target):
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
     UICR_START = 0x10001000
@@ -382,19 +392,8 @@ class NRF51822(Target):
         
         self.supported_toolchains = ["ARM"]
         
-
-class UBLOX_C027(Target):
-    def __init__(self):
-        Target.__init__(self)
-        
-        self.core = "Cortex-M3"
-        
-        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
-        
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
-
         self.binary_format = "hex"
-
+        
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
