@@ -49,7 +49,7 @@ class Target:
     
     def get_labels(self):
         return [self.name, CORE_LABELS[self.core]] + self.extra_labels
-
+    
     def init_hooks(self, hook, toolchain_name):
         pass
 
@@ -123,6 +123,7 @@ class KL25Z(Target):
         
         self.is_disk_virtual = True
 
+
 class KL46Z(Target):
     def __init__(self):
         Target.__init__(self)
@@ -130,10 +131,11 @@ class KL46Z(Target):
         self.core = "Cortex-M0+"
         
         self.extra_labels = ['Freescale', 'KLXX']
-
+        
         self.supported_toolchains = ["GCC_ARM", "ARM"]
-
+        
         self.is_disk_virtual = True
+
 
 class K20D5M(Target):
     def __init__(self):
@@ -183,13 +185,15 @@ class LPC4088(Target):
         self.extra_labels = ['NXP', 'LPC408X']
         
         self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
+        
+        self.is_disk_virtual = True
     
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-
+    
     @staticmethod
-    def binary_hook(t_self, elf, binf):
+    def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
             return
@@ -260,7 +264,7 @@ class STM32F407(Target):
         
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
-        
+
 class NUCLEO_F103RB(Target):
     def __init__(self):
         Target.__init__(self)
@@ -272,8 +276,8 @@ class NUCLEO_F103RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         
         self.binary_naming = "8.3"
-        
-        
+
+
 class NUCLEO_L152RE(Target):
     def __init__(self):
         Target.__init__(self)
@@ -286,7 +290,7 @@ class NUCLEO_L152RE(Target):
         
         self.binary_naming = "8.3"
 
-        
+
 class NUCLEO_F401RE(Target):
     def __init__(self):
         Target.__init__(self)
@@ -299,7 +303,7 @@ class NUCLEO_F401RE(Target):
         
         self.binary_naming = "8.3"
 
-        
+
 class NUCLEO_F030R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -311,17 +315,6 @@ class NUCLEO_F030R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         
         self.binary_naming = "8.3"
-                
-                
-class MBED_MCU(Target):
-    def __init__(self):
-        Target.__init__(self)
-        
-        self.core = "Cortex-M0+"
-        
-        self.extra_labels = ['ARM']
-        
-        self.supported_toolchains = ["ARM"]
 
 
 class LPC1347(Target):
@@ -378,11 +371,14 @@ class UBLOX_C027(Target):
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]        
 
+
 class NRF51822(Target):
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
     UICR_START = 0x10001000
     APPCODE_OFFSET = 0x14000
-
+    
+    OUTPUT_EXT = '.hex'
+    
     def __init__(self):
         Target.__init__(self)
         
@@ -391,43 +387,39 @@ class NRF51822(Target):
         self.extra_labels = ["NORDIC"]
         
         self.supported_toolchains = ["ARM"]
-        
-        self.binary_format = "hex"
-        
+    
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
-
+    
     @staticmethod
-    def binary_hook(t_self, elf, binf):
-        for hexf in t_self.resources.hex_files:
+    def binary_hook(t_self, resources, elf, binf):
+        for hexf in resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
         else:
             t_self.debug("Hex file not found. Aborting.")
             return
-
+        
         # Generate hex file
         # NOTE: this is temporary, it will be removed later and only the
         # combined binary file (below) will be used
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset = NRF51822.APPCODE_OFFSET)
-
+        
         sdh = IntelHex(hexf)
         sdh.merge(binh)
-        outname = binf + ".temp"
+        
+        outname = binf.replace('.bin', '.hex')
         with open(outname, "w") as f:
             sdh.tofile(f, format = 'hex')
         t_self.debug("Generated SoftDevice-enabled image in '%s'" % outname)
-
-        if t_self.target.binary_format == "hex":
-            os.rename(outname, binf)
-            return
-
+        
         # Generate concatenated SoftDevice + application binary
         # Currently, this is only supported for SoftDevice images that have
         # an UICR area
+        """
         sdh = IntelHex(hexf)
         if sdh.maxaddr() < NRF51822.UICR_START:
             t_self.error("SoftDevice image does not have UICR area. Aborting.")
@@ -438,18 +430,18 @@ class NRF51822(Target):
         except ValueError:
             t_self.error("UICR start address not found in the SoftDevice image. Aborting.")
             return
-
+        
         # Assume that everything up to uicr_start_index are contiguous addresses
         # in the SoftDevice code area
         softdevice_code_size = addrlist[uicr_start_index - 1] + 1
         t_self.debug("SoftDevice code size is %d bytes" % softdevice_code_size)
-
+        
         # First part: SoftDevice code
         bindata = sdh[:softdevice_code_size].tobinstr()
-
+        
         # Second part: pad with 0xFF up to APPCODE_OFFSET
         bindata = bindata + '\xFF' * (NRF51822.APPCODE_OFFSET - softdevice_code_size)
-
+        
         # Last part: the application code
         with open(binf, 'r+b') as f:
             bindata = bindata + f.read()
@@ -457,6 +449,8 @@ class NRF51822(Target):
             f.seek(0)
             f.write(bindata)
         t_self.debug("Generated concatenated binary of %d bytes" % len(bindata))
+        """
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -477,7 +471,6 @@ TARGETS = [
     NUCLEO_L152RE(),
     NUCLEO_F401RE(),
     NUCLEO_F030R8(),
-    MBED_MCU(),
     LPC1347(),
     LPC1114(),
     LPC11C24(),

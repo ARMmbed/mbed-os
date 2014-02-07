@@ -443,38 +443,39 @@ class mbedToolchain:
             self.archive(objects, fout)
     
     def link_program(self, r, tmp_path, name):
-        if hasattr(self.target, 'binary_format'):
-            ext = self.target.binary_format
-        else:
-            ext = 'bin'
-
+        ext = 'bin'
+        
         if hasattr(self.target, 'binary_naming'):
             if self.target.binary_naming == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
-
+        
         filename = name+'.'+ext
-
+        
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
         
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
-
+        
         if self.need_update(bin, [elf]):
             self.progress("elf2bin", name)
+            
             self.binary(r, elf, bin)
             
             if self.target.name.startswith('LPC'):
                 self.debug("LPC Patch %s" % filename)
                 patch(bin)
-            
+        
         self.var("compile_succeded", True)
         self.var("binary", filename)
         if hasattr(self.target, 'binary_naming'):
             self.var("binary_naming", self.target.binary_naming)
-
+        
+        if hasattr(self.target, 'OUTPUT_EXT'):
+            bin = bin.replace('.bin', self.target.OUTPUT_EXT)
+        
         return bin
     
     def default_cmd(self, command):

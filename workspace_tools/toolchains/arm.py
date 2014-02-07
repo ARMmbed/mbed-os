@@ -128,13 +128,12 @@ class ARM(mbedToolchain):
         self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
     
     @hook_tool
-
     def binary(self, resources, elf, bin):
         args = [self.elf2bin, '--bin', '-o', bin, elf]
-
+        
         if hasattr(self.target, "binary_cmdline_hook"):
             args = self.target.binary_cmdline_hook(self.__class__.__name__, args)
-
+        
         self.default_cmd(args)
 
 class ARM_STD(ARM):
