@@ -1,13 +1,18 @@
-/* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
+/* mbed Microcontroller Library
+
+ * Copyright (c) 2006-2013 ARM Limited
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 
@@ -33,16 +38,6 @@ extern uint32_t SystemCoreClock;    /*!< System Clock Frequency (Core Clock)  */
  *         Initialize the System and update the SystemCoreClock variable.
  */
 extern void SystemInit (void);
-
-/**
- * Enable Soft Device
- *
- * @param  none
- * @return none
- *
- * @brief  Initializes softdevice with NRF_CLOCK_LFCLKSRC_XTAL_20_PPM
- */
-extern void EnableSoftDevice (void);
 
 
 /**

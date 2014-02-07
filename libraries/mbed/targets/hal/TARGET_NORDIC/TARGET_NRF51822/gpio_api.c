@@ -20,7 +20,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     if(pin == NC) return;
 
     obj->pin = pin;
-    obj->mask = (1<<pin);
+    obj->mask = (1ul<<pin);
 
     obj->reg_set = &NRF_GPIO->OUTSET;
     obj->reg_clr = &NRF_GPIO->OUTCLR;

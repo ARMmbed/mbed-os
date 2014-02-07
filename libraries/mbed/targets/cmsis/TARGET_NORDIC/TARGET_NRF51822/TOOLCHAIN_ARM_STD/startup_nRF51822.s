@@ -1,15 +1,14 @@
-; Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
-;
-; The information contained herein is property of Nordic Semiconductor ASA.
-; Terms and conditions of usage are described in detail in NORDIC
-; SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
-;
-; Licensees are granted free, non-transferable use of the information. NO
-; WARRANTY of ANY KIND is provided. This heading must NOT be removed from
-; the file.
- 
-; NOTE: Template files (including this one) are application specific and therefore 
-; expected to be copied into the application project folder prior to its use!
+; mbed Microcontroller Library
+; Copyright (c) 2006-2013 ARM Limited
+;Licensed under the Apache License, Version 2.0 (the "License");
+;you may not use this file except in compliance with the License.
+;You may obtain a copy of the License at
+;http://www.apache.org/licenses/LICENSE-2.0
+;Unless required by applicable law or agreed to in writing, software
+;distributed under the License is distributed on an "AS IS" BASIS,
+;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;See the License for the specific language governing permissions and
+;limitations under the License.
 
 ; Description message
 
