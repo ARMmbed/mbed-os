@@ -37,7 +37,9 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
         if (port->ISFR & pmask) {
             mask |= pmask;
             uint32_t id = channel_ids[ch_base + i];
-            if (id == 0) continue;
+            if (id == 0) {
+                continue;
+            }
 
             FGPIO_Type *gpio;
             gpio_irq_event event = IRQ_NONE;
@@ -169,4 +171,14 @@ void gpio_irq_disable(gpio_irq_t *obj) {
     } else if (obj->port == PortB) {
         NVIC_DisableIRQ(PORTB_IRQn);
     }
+}
+
+// Change the NMI pin to an input. This allows NMI pin to 
+//  be used as a low power mode wakeup.  The application will
+//  need to change the pin back to NMI_b or wakeup only occurs once!
+extern void gpio_init(gpio_t *obj, PinName pin, PinDirection direction);
+void NMI_Handler(void)
+{
+    gpio_t gpio;
+    gpio_init(&gpio, PTB5, PIN_INPUT);
 }
