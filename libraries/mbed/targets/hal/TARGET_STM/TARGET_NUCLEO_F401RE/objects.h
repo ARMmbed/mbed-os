@@ -27,48 +27,69 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
 #include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;  
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+};
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity; 
+};
 
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+};
 
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
+struct i2c_s {
+    I2CName  i2c;
+};
 
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t period;
+    uint32_t pulse;
+};
+
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

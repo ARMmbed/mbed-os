@@ -27,51 +27,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
-
-#include "cmsis.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
-
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
-
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
-
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
-
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
+    PortA = 0,
+    PortB = 1,
+    PortC = 2,
+    PortD = 3,
+    PortH = 7
+} PortName;
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

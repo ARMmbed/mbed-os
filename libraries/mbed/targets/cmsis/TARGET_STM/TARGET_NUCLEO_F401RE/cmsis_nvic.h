@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -26,9 +27,17 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+ */ 
+
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
+
+// STM32F401RE
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 85 vectors = 340 bytes from 0x40 to ...
+// Total: 101 vectors = 404 bytes (0x194) to be reserved in RAM
+#define NVIC_NUM_VECTORS      101
+#define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
 
@@ -36,39 +45,8 @@
 extern "C" {
 #endif
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
-
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
-
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
-
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
-
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
 #ifdef __cplusplus
 }

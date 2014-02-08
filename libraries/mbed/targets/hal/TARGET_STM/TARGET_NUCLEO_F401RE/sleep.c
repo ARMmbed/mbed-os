@@ -27,51 +27,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
-
+#include "sleep_api.h"
 #include "cmsis.h"
+#include "stm32f4xx_hal.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+static TIM_HandleTypeDef TimMasterHandle;
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
-
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
-
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
-
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
-
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
-
-#ifdef __cplusplus
+void sleep(void)
+{
+    // Disable us_ticker update interrupt
+    TimMasterHandle.Instance = TIM1;
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
+  
+    // Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+  
+    // Re-enable us_ticker update interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
 }
-#endif
 
-#endif
+void deepsleep(void)
+{
+    // Disable us_ticker update interrupt
+    TimMasterHandle.Instance = TIM1;
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
+    
+    // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+    // Re-enable us_ticker update interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
+}

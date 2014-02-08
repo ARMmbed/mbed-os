@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -24,54 +26,31 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
-
-#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
+#include <rt_misc.h>
+#include <stdint.h>
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
 
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
+}
 
 #ifdef __cplusplus
 }
-#endif
-
-#endif
+#endif 

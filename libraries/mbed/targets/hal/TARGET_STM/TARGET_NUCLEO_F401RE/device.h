@@ -27,51 +27,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#include "cmsis.h"
+#define DEVICE_PORTIN           1
+#define DEVICE_PORTOUT          1
+#define DEVICE_PORTINOUT        1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define DEVICE_INTERRUPTIN      1
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
+#define DEVICE_ANALOGIN         1
+#define DEVICE_ANALOGOUT        0 // Not present on this device
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
+#define DEVICE_SERIAL           1
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
+#define DEVICE_I2C              1
+#define DEVICE_I2CSLAVE         0
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
+#define DEVICE_SPI              1
+#define DEVICE_SPISLAVE         0
 
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
+#define DEVICE_RTC              1
 
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
+#define DEVICE_PWMOUT           1
 
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
+#define DEVICE_SLEEP            1
 
-#ifdef __cplusplus
-}
-#endif
+//=======================================
+
+#define DEVICE_SEMIHOST         0
+#define DEVICE_LOCALFILESYSTEM  0
+#define DEVICE_ID_LENGTH       24
+
+#define DEVICE_DEBUG_AWARENESS  0
+
+#define DEVICE_STDIO_MESSAGES   1
+
+//#define DEVICE_ERROR_RED      0
+
+#include "objects.h"
 
 #endif

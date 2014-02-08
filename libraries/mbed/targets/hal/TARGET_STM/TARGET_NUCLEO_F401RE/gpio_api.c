@@ -27,51 +27,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#include "gpio_api.h"
+#include "pinmap.h"
+#include "error.h"
+#include "stm32f4xx_hal.h"
 
-#include "cmsis.h"
+extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+uint32_t gpio_set(PinName pin) {  
+    if (pin == NC) return 0;
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC_BASE
-} ADCName;
+    pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
-
-typedef enum {
-    UART_1 = (int)USART1_BASE,  
-    UART_2 = (int)USART2_BASE
-} UARTName;
-
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
-
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-} I2CName;
-
-typedef enum {
-    PWM_2 = (int)TIM2_BASE,
-    PWM_3 = (int)TIM3_BASE,
-    PWM_4 = (int)TIM4_BASE
-} PWMName;
-
-#ifdef __cplusplus
+    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
-#endif
 
-#endif
+void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+    if (pin == NC) return;
+
+    uint32_t port_index = STM_PORT(pin);
+  
+    // Enable GPIO clock
+    uint32_t gpio_add = Set_GPIO_Clock(port_index);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    
+    // Fill GPIO object structure for future use
+    obj->pin     = pin;
+    obj->mask    = gpio_set(pin);
+    obj->reg_in  = &gpio->IDR;
+    obj->reg_set = &gpio->BSRRL;
+    obj->reg_clr = &gpio->BSRRH;
+  
+    // Configure GPIO
+    if (direction == PIN_OUTPUT) {
+        pin_function(pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+    }
+    else { // PIN_INPUT
+        pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+}
+
+void gpio_mode(gpio_t *obj, PinMode mode) {
+    pin_mode(obj->pin, mode);
+}
+
+void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (direction == PIN_OUTPUT) {
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+    }
+    else { // PIN_INPUT
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+}
