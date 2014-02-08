@@ -92,20 +92,18 @@ const PinMap PinMap_SPI_SSEL[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-    // LEDs
-    {LED_RED  , PWM_4 , 2}, // PTB8 , TPM0 CH3
-    {LED_GREEN, PWM_3,  2}, // PTB9 , TPM0 CH2
-    {LED_BLUE , PWM_2 , 2}, // PTB10, TPM0 CH1
-
-    // Arduino digital pinout
-    {D3,  PWM_8 , 2}, // PTB5 , TPM1 CH1
-    {D5,  PWM_7 , 2}, // PTA12, TPM1 CH0
-    {D6,  PWM_4 , 2}, // PTB6 , TPM0 CH3
-    {D7,  PWM_3 , 2}, // PTB7 , TPM0 CH2
-    {D8,  PWM_2 , 2}, // PTB10, TPM0 CH1
-    {D9,  PWM_1 , 2}, // PTB11, TPM0 CH0
-    {D10, PWM_6 , 2}, // PTA5 , TPM0 CH5
-    {D12, PWM_5 , 2}, // PTA6 , TPM0 CH4
-    {NC , NC    , 0}
+    {PTA0,  PWM_7,  2}, // PTA0 , TPM1 CH0
+    {PTA5,  PWM_6 , 2}, // PTA5 , TPM0 CH5
+    {PTA6,  PWM_5,  2}, // PTA6 , TPM0 CH4
+    {PTA12, PWM_7 , 2}, // PTA12, TPM1 CH0
+    
+    {PTB5,  PWM_8,  2}, // PTB5 , TPM1 CH1
+    {PTB6,  PWM_4,  2}, // PTB6 , TPM0 CH3
+    {PTB7,  PWM_3,  2}, // PTB7 , TPM0 CH2
+    {PTB8,  PWM_4,  2}, // PTB8 , TPM0 CH3
+    {PTB9,  PWM_3,  2}, // PTB9 , TPM0 CH2
+    {PTB10, PWM_2,  2}, // PTB10 , TPM0 CH1
+    {PTB11, PWM_1,  2}, // PTB11 , TPM0 CH0
+    {PTB13, PWM_8,  2}, // PTB13 , TPM1 CH1
+    {NC   , NC,     0}
 };
-
