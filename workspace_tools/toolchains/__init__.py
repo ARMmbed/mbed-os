@@ -445,8 +445,9 @@ class mbedToolchain:
     def link_program(self, r, tmp_path, name):
         ext = 'bin'
         
-        if hasattr(self.target, 'binary_naming'):
-            if self.target.binary_naming == "8.3":
+        if hasattr(self.target, 'OUTPUT_NAMING'):
+            self.var("binary_naming", self.target.OUTPUT_NAMING)
+            if self.target.OUTPUT_NAMING == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
         
@@ -470,9 +471,7 @@ class mbedToolchain:
         
         self.var("compile_succeded", True)
         self.var("binary", filename)
-        if hasattr(self.target, 'binary_naming'):
-            self.var("binary_naming", self.target.binary_naming)
-        
+
         if hasattr(self.target, 'OUTPUT_EXT'):
             bin = bin.replace('.bin', self.target.OUTPUT_EXT)
         

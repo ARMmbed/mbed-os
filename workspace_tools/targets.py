@@ -193,7 +193,7 @@ class LPC4088(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
+    def binary_hook(t_self, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
             return
@@ -266,6 +266,8 @@ class STM32F407(Target):
 
 
 class NUCLEO_F103RB(Target):
+    OUTPUT_NAMING = "8.3"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -274,11 +276,11 @@ class NUCLEO_F103RB(Target):
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        
-        self.binary_naming = "8.3"
 
 
 class NUCLEO_L152RE(Target):
+    OUTPUT_NAMING = "8.3"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -287,11 +289,11 @@ class NUCLEO_L152RE(Target):
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        
-        self.binary_naming = "8.3"
 
 
 class NUCLEO_F401RE(Target):
+    OUTPUT_NAMING = "8.3"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -300,11 +302,11 @@ class NUCLEO_F401RE(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        
-        self.binary_naming = "8.3"
 
 
 class NUCLEO_F030R8(Target):
+    OUTPUT_NAMING = "8.3"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -313,8 +315,6 @@ class NUCLEO_F030R8(Target):
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        
-        self.binary_naming = "8.3"
 
 
 class LPC1347(Target):
@@ -393,8 +393,8 @@ class NRF51822(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        for hexf in resources.hex_files:
+    def binary_hook(t_self, elf, binf):
+        for hexf in t_self.resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
         else:
