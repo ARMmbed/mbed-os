@@ -38,23 +38,23 @@
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PA_7,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PA_6,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PA_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
     {NC,    NC,    0}
 };
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0)}, // Generic IO, not real H/W NSS pin
+    {PB_6,  SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0)}, // Generic IO, not real H/W NSS pin
     {NC,    NC,    0}
 };
 

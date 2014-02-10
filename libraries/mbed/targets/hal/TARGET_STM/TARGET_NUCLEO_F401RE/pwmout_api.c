@@ -35,9 +35,9 @@
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_PWM[] = {
-    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH2
-    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)}, // TIM3_CH1
-    {PB_6,  PWM_4, STM_PIN_DATA(GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM4)}, // TIM4_CH1
+    {PB_3,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH2
+    {PB_4,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)}, // TIM3_CH1
+    {PB_6,  PWM_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM4)}, // TIM4_CH1
     {NC,    NC,    0}
 };
 
@@ -71,7 +71,7 @@ void pwmout_free(pwmout_t* obj) {
   
     HAL_TIM_PWM_DeInit(&TimHandle);
   
-    pin_function(obj->pin, STM_PIN_DATA(GPIO_MODE_INPUT, GPIO_NOPULL, 0));    
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));    
 }
 
 void pwmout_write(pwmout_t* obj, float value) {

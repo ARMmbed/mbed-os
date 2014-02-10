@@ -57,8 +57,6 @@ static const PinMap PinMap_SPI_SCLK[] = {
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
     {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)}, // Generic IO, not real H/W NSS pin
-    //{PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    //{PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 1)}, // Remap
     {NC,    NC,    0}
 };
 
@@ -102,9 +100,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); 
     }
-    if (obj->spi == SPI_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); 
-    }
     
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -115,7 +110,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DataSize_8b;
     obj->cpol = SPI_CPOL_Low;
     obj->cpha = SPI_CPHA_1Edge;
-    obj->br_presc = SPI_BaudRatePrescaler_64; // Closest to 1MHz (72MHz/64 = 1.125MHz)
+    obj->br_presc = SPI_BaudRatePrescaler_256; // 1MHz
     
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
@@ -176,11 +171,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // Get SPI clock frequency
-    uint32_t PCLK = SystemCoreClock >> 1;
-
     // Choose the baud rate divisor (between 2 and 256)
-    uint32_t divisor = PCLK / hz;
+    uint32_t divisor = SystemCoreClock / hz;
 
     // Find the nearest power-of-2
     divisor = (divisor > 0 ? divisor-1 : 0);
