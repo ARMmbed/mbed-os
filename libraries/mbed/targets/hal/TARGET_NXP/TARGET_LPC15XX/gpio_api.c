@@ -17,32 +17,20 @@
 #include "pinmap.h"
 
 static int  gpio_enabled = 0;
+
 static void gpio_enable(void) {
     gpio_enabled = 1;
     
-    /* Enable AHB clock to the GPIO domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL0 |= (1<<14);
-    LPC_SYSCON->SYSAHBCLKCTRL0 |= (1<<15);
-    LPC_SYSCON->SYSAHBCLKCTRL0 |= (1<<16);
-    
-    /* Peripheral reset control to GPIO and GPIO INT, a "1" bring it out of reset. */
-    LPC_SYSCON->PRESETCTRL0 &= ~(0x1<<14);
-    LPC_SYSCON->PRESETCTRL0 |=  (0x1<<14);
-    LPC_SYSCON->PRESETCTRL0 &= ~(0x1<<15);
-    LPC_SYSCON->PRESETCTRL0 |=  (0x1<<15);
-    LPC_SYSCON->PRESETCTRL0 &= ~(0x1<<16);
-    LPC_SYSCON->PRESETCTRL0 |=  (0x1<<16);
+    /* Enable AHB clock to the GPIO0/1/2 and IOCON domain. */
+    LPC_SYSCON->SYSAHBCLKCTRL0 |= (0xFUL << 13);
 }
 
 uint32_t gpio_set(PinName pin) {
-    int f = 0;
     
     if (!gpio_enabled)
          gpio_enable();
     
-    pin_function(pin, f);
-    
-    return (1 << ((int)pin & 0x1F));
+    return (1UL << ((int)pin & 0x1f));
 }
 
 void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
@@ -51,7 +39,7 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->pin = pin;
     obj->mask = gpio_set(pin);
     
-    unsigned int port = (unsigned int)pin >> PORT_SHIFT;
+    unsigned int port = (unsigned int)(pin >> 5);
     
     obj->reg_set = &LPC_GPIO_PORT->SET[port];
     obj->reg_clr = &LPC_GPIO_PORT->CLR[port];

@@ -16,51 +16,19 @@
 #include "pinmap.h"
 #include "error.h"
 
-__IO uint32_t* IOCON_REGISTERS[76] = {
-        &LPC_IOCON->PIO0_0 , &LPC_IOCON->PIO0_1 , &LPC_IOCON->PIO0_2 ,
-        &LPC_IOCON->PIO0_3 , &LPC_IOCON->PIO0_4 , &LPC_IOCON->PIO0_5 ,
-        &LPC_IOCON->PIO0_6 , &LPC_IOCON->PIO0_7 , &LPC_IOCON->PIO0_8 ,
-        &LPC_IOCON->PIO0_9 , &LPC_IOCON->PIO0_10, &LPC_IOCON->PIO0_11,
-        &LPC_IOCON->PIO0_12, &LPC_IOCON->PIO0_13, &LPC_IOCON->PIO0_14,
-        &LPC_IOCON->PIO0_15, &LPC_IOCON->PIO0_16, &LPC_IOCON->PIO0_17,
-        &LPC_IOCON->PIO0_18, &LPC_IOCON->PIO0_19, &LPC_IOCON->PIO0_20,
-        &LPC_IOCON->PIO0_21, &LPC_IOCON->PIO0_22, &LPC_IOCON->PIO0_23,
-        &LPC_IOCON->PIO0_24, &LPC_IOCON->PIO0_25, &LPC_IOCON->PIO0_26,
-        &LPC_IOCON->PIO0_27, &LPC_IOCON->PIO0_28, &LPC_IOCON->PIO0_29,
-        &LPC_IOCON->PIO0_30, &LPC_IOCON->PIO0_31,
-
-        &LPC_IOCON->PIO1_0 , &LPC_IOCON->PIO1_1 , &LPC_IOCON->PIO1_2 ,
-        &LPC_IOCON->PIO1_3 , &LPC_IOCON->PIO1_4 , &LPC_IOCON->PIO1_5 ,
-        &LPC_IOCON->PIO1_6 , &LPC_IOCON->PIO1_7 , &LPC_IOCON->PIO1_8 ,
-        &LPC_IOCON->PIO1_9 , &LPC_IOCON->PIO1_10, &LPC_IOCON->PIO1_11,
-        &LPC_IOCON->PIO1_12, &LPC_IOCON->PIO1_13, &LPC_IOCON->PIO1_14,
-        &LPC_IOCON->PIO1_15, &LPC_IOCON->PIO1_16, &LPC_IOCON->PIO1_17,
-        &LPC_IOCON->PIO1_18, &LPC_IOCON->PIO1_19, &LPC_IOCON->PIO1_20,
-        &LPC_IOCON->PIO1_21, &LPC_IOCON->PIO1_22, &LPC_IOCON->PIO1_23,
-        &LPC_IOCON->PIO1_24, &LPC_IOCON->PIO1_25, &LPC_IOCON->PIO1_26,
-        &LPC_IOCON->PIO1_27, &LPC_IOCON->PIO1_28, &LPC_IOCON->PIO1_29,
-        &LPC_IOCON->PIO1_30, &LPC_IOCON->PIO1_31,
-
-        &LPC_IOCON->PIO2_0 , &LPC_IOCON->PIO2_1 , &LPC_IOCON->PIO2_2 ,
-        &LPC_IOCON->PIO2_3 , &LPC_IOCON->PIO2_4 , &LPC_IOCON->PIO2_5 ,
-        &LPC_IOCON->PIO2_6 , &LPC_IOCON->PIO2_7 , &LPC_IOCON->PIO2_8 ,
-        &LPC_IOCON->PIO2_9 , &LPC_IOCON->PIO2_10, &LPC_IOCON->PIO2_11,
-};
-
 void pin_function(PinName pin, int function) {
-    
 }
 
 void pin_mode(PinName pin, PinMode mode) {
     if (pin == (uint32_t)NC) { return; }
     
-    if ((pin == 22) || (pin == 23)) {
+    if ((pin == P0_22) || (pin == P0_23)) {
         // The true open-drain pins PIO0_22 and PIO0_23 can be configured for different I2C-bus speeds.
         return;
     }
     
-    __IO uint32_t *reg = IOCON_REGISTERS[pin];
-    
+    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + (pin * 4));
+      
     if (mode == OpenDrain) {
         *reg |= (1 << 10);
     } else {
