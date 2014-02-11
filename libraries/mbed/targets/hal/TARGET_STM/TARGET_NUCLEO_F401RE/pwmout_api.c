@@ -79,9 +79,9 @@ void pwmout_write(pwmout_t* obj, float value) {
   
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
   
-    if (value < 0.0) {
+    if (value < (float)0.0) {
         value = 0.0;
-    } else if (value > 1.0) {
+    } else if (value > (float)1.0) {
         value = 1.0;
     }
    
@@ -108,7 +108,7 @@ float pwmout_read(pwmout_t* obj) {
     if (obj->period > 0) {
         value = (float)(obj->pulse) / (float)(obj->period);
     }
-    return ((value > 1.0) ? (1.0) : (value));
+    return ((value > (float)1.0) ? (float)(1.0) : (value));
 }
 
 void pwmout_period(pwmout_t* obj, float seconds) {
