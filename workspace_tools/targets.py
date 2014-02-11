@@ -193,7 +193,7 @@ class LPC4088(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, elf, binf):
+    def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
             return
@@ -393,8 +393,8 @@ class NRF51822(Target):
             hook.hook_add_binary("post", self.binary_hook)
     
     @staticmethod
-    def binary_hook(t_self, elf, binf):
-        for hexf in t_self.resources.hex_files:
+    def binary_hook(t_self, resources, elf, binf):
+        for hexf in resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
         else:
