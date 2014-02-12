@@ -141,7 +141,7 @@
 //   </e>
 //
 //   <e> SCT Clock Configuration
-#define SCT_CLOCK_SETUP       0
+#define SCT_CLOCK_SETUP       1
 //     <h> SCT PLL Control (SCTPLLCTRL)
 //              <i> F_clkout = M * F_clkin = F_CCO / (2 * P)
 //              <i> F_clkin must be in the range of  10 MHz to  25 MHz
@@ -503,7 +503,7 @@ void SystemInit (void) {
   LPC_SYSCON->PDRUNCFG     &= ~(1 << 24);       /* Power-up SCT PLL           */
   LPC_SYSCON->SCTPLLCLKSEL  = SCTPLLCLKSEL_Val; /* Select PLL Input           */
 
-  LPC_SYSCON->USBPLLCTRL    = SCTPLLCTRL_Val;
+  LPC_SYSCON->SCTPLLCTRL    = SCTPLLCTRL_Val;
   while (!(LPC_SYSCON->SCTPLLSTAT   & 0x01));   /* Wait Until PLL Locked      */
 #else                                           /* SCT clock is not used      */
   LPC_SYSCON->PDRUNCFG     |=  (1 << 24);       /* Power-down SCT PLL         */

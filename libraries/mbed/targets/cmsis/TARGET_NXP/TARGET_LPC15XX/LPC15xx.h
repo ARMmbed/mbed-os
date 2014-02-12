@@ -12,6 +12,7 @@
  *           from CMSIS SVD File 'H2_v0.3.svd' Version 0.3,
  *
  *                                                                                      modified by Keil
+ *                                                                                      modified by ytsuboi
  *******************************************************************************************************/
 
 
@@ -1029,25 +1030,30 @@ typedef struct {                                    /*!< WWDT Structure         
   */
 
 typedef struct {                                    /*!< SWM Structure                                                         */
-  __IO uint32_t  PINASSIGN0;                        /*!< Pin assign register 0. Assign movable functions U0_TXD, U0_RXD,
-                                                         U0_RTS, U0_CTS.                                                       */
-  __IO uint32_t  PINASSIGN1;                        /*!< Pin assign register 1. Assign movable functions U0_SCLK, U1_TXD,
-                                                         U1_RXD, U1_RTS.                                                       */
-  __IO uint32_t  PINASSIGN2;                        /*!< Pin assign register 2. Assign movable functions U1_CTS, U1_SCLK,
-                                                         U2_TXD, U2_RXD.                                                       */
-  __IO uint32_t  PINASSIGN3;                        /*!< Pin assign register 3. Assign movable function .                      */
-  __IO uint32_t  PINASSIGN4;                        /*!< Pin assign register 4. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN5;                        /*!< Pin assign register 5. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN6;                        /*!< Pin assign register 6. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN7;                        /*!< Pin assign register 7. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN8;                        /*!< Pin assign register 8. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN9;                        /*!< Pin assign register 9. Assign movable functions                       */
-  __IO uint32_t  PINASSIGN10;                       /*!< Pin assign register 10. Assign movable functions                      */
-  __IO uint32_t  PINASSIGN11;                       /*!< Pin assign register 11. Assign movable functions                      */
-  __IO uint32_t  PINASSIGN12;                       /*!< Pin assign register 12. Assign movable functions                      */
-  __IO uint32_t  PINASSIGN13;                       /*!< Pin assign register 13. Assign movable functions                      */
-  __IO uint32_t  PINASSIGN14;                       /*!< Pin assign register 14. Assign movable functions                      */
-  __IO uint32_t  PINASSIGN15;                       /*!< Pin assign register 15. Assign movable functions                      */
+  union {
+    __IO uint32_t PINASSIGN[16];
+    struct {
+	  __IO uint32_t  PINASSIGN0;                        /*!< Pin assign register 0. Assign movable functions U0_TXD, U0_RXD,
+	                                                         U0_RTS, U0_CTS.                                                       */
+	  __IO uint32_t  PINASSIGN1;                        /*!< Pin assign register 1. Assign movable functions U0_SCLK, U1_TXD,
+	                                                         U1_RXD, U1_RTS.                                                       */
+	  __IO uint32_t  PINASSIGN2;                        /*!< Pin assign register 2. Assign movable functions U1_CTS, U1_SCLK,
+	                                                         U2_TXD, U2_RXD.                                                       */
+	  __IO uint32_t  PINASSIGN3;                        /*!< Pin assign register 3. Assign movable function .                      */
+	  __IO uint32_t  PINASSIGN4;                        /*!< Pin assign register 4. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN5;                        /*!< Pin assign register 5. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN6;                        /*!< Pin assign register 6. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN7;                        /*!< Pin assign register 7. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN8;                        /*!< Pin assign register 8. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN9;                        /*!< Pin assign register 9. Assign movable functions                       */
+	  __IO uint32_t  PINASSIGN10;                       /*!< Pin assign register 10. Assign movable functions                      */
+	  __IO uint32_t  PINASSIGN11;                       /*!< Pin assign register 11. Assign movable functions                      */
+	  __IO uint32_t  PINASSIGN12;                       /*!< Pin assign register 12. Assign movable functions                      */
+	  __IO uint32_t  PINASSIGN13;                       /*!< Pin assign register 13. Assign movable functions                      */
+	  __IO uint32_t  PINASSIGN14;                       /*!< Pin assign register 14. Assign movable functions                      */
+	  __IO uint32_t  PINASSIGN15;                       /*!< Pin assign register 15. Assign movable functions                      */
+    };
+  };
   __I  uint32_t  RESERVED0[96];
   __IO uint32_t  PINENABLE0;                        /*!< Pin enable register 0. Enables fixed-pin functions                    */
   __IO uint32_t  PINENABLE1;                        /*!< Pin enable register 0. Enables fixed-pin functions                    */
