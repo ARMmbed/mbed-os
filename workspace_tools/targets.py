@@ -379,7 +379,7 @@ class UBLOX_C027(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
+        self.extra_labels = ['NXP', 'LPC176X']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
