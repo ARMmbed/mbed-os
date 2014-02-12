@@ -28,12 +28,14 @@ from workspace_tools.targets import TARGET_MAP
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM')),
     ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
+    ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM',)),
     ('LPC812',       ('uARM',)),
     ('LPC1347',      ('ARM',)),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC1114',      ('uARM',)),
     ('LPC11U35_401', ('ARM', 'uARM')),
+    
     
     ('KL25Z', ('ARM', 'GCC_ARM')),
     ('KL46Z', ('ARM', 'GCC_ARM')),
