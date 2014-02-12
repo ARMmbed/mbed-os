@@ -26,7 +26,7 @@ void us_ticker_init(void) {
     us_ticker_inited = 1;
     
     // Enable the SCT0 clock
-    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 3);
+    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 2);
     
     // Clear peripheral reset the SCT0:
     LPC_SYSCON->PRESETCTRL1 |= (1 << 2);

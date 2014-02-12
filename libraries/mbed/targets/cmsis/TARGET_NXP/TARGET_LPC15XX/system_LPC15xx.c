@@ -511,4 +511,7 @@ void SystemInit (void) {
 
 #endif                                          /* Clock Setup                */
 
+
+  LPC_SYSCON->SYSAHBCLKCTRL0 |= (1UL << 12); /* enable clock for SWM       */
+
 }
