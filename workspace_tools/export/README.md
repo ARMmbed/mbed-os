@@ -6,6 +6,7 @@ Exporter Toolchain/Platform Support
     <th></th>
     <th>Code Red</th>
     <th>Code Sourcery</th>
+    <th>CoIDE</th>
     <th>DS-5</th>
     <th>GCC ARM</th>
     <th>IAR</th>
@@ -19,9 +20,11 @@ Exporter Toolchain/Platform Support
     <td>&#10003;</td>
     <td>&#10003;</td>
     <td>&#10003;</td>
+    <td>&#10003;</td>
   </tr>
   <tr>
     <td>NXP LPC11U24</td>
+    <td></td>
     <td></td>
     <td></td>
     <td>&#10003;</td>
@@ -31,6 +34,7 @@ Exporter Toolchain/Platform Support
   </tr>
   <tr>
     <td>NXP LPC812</td>
+    <td></td>
     <td></td>
     <td></td>
     <td>&#10003;</td>
@@ -43,12 +47,14 @@ Exporter Toolchain/Platform Support
     <td>&#10003;</td>
     <td></td>
     <td></td>
+    <td></td>
     <td>&#10003;</td>
     <td></td>
     <td>&#10003;</td>
   </tr>
   <tr>
     <td>NXP LPC1347</td>
+    <td></td>
     <td></td>
     <td></td>
     <td></td>
@@ -63,12 +69,34 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>Freescale KL05Z</td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+    <td></td>
+    <td>&#10003;</td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>Freescale KL20D5M</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
     <td>&#10003;</td>
   </tr>
   <tr>
     <td>Freescale KL25Z</td>
     <td></td>
     <td></td>
+    <td>&#10003;</td>
     <td></td>
     <td>&#10003;</td>
     <td></td>
@@ -79,7 +107,48 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
     <td>&#10003;</td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>ST Nucleo F030R8</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>ST Nucleo F103RB</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>ST Nucleo F401RE</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
+    <td>ST Nucleo L152RE</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
     <td></td>
     <td>&#10003;</td>
   </tr>
