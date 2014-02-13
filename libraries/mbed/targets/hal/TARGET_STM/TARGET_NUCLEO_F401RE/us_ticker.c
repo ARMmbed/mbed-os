@@ -31,7 +31,6 @@
 #include "stm32f4xx_hal.h"
 
 // Timer selection:
-
 #define TIM_MST            TIM1
 #define TIM_MST_UP_IRQ     TIM1_UP_TIM10_IRQn
 #define TIM_MST_OC_IRQ     TIM1_CC_IRQn
@@ -41,8 +40,15 @@ static TIM_HandleTypeDef TimMasterHandle;
     
 static int      us_ticker_inited = 0;
 static uint32_t SlaveCounter = 0;
-static uint32_t us_ticker_int_counter = 0;
-static uint16_t us_ticker_int_remainder = 0;
+static uint32_t oc_int_part = 0;
+static uint16_t oc_rem_part = 0;
+
+void set_compare(uint16_t count) {
+    // Set new output compare value
+    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
+    // Enable IT
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+}
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
@@ -55,24 +61,27 @@ static void tim_update_irq_handler(void) {
 
 // Used by interrupt system
 static void tim_oc_irq_handler(void) {
+    uint16_t cval = TIM_MST->CNT;
+  
     // Clear interrupt flag
     if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_CC1) == SET) {
         __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
     }
-    
-    if (us_ticker_int_counter > 0) {
-        __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, 0xFFFF);
-        us_ticker_int_counter--;
-    } else {
-        if (us_ticker_int_remainder > 0) {
-            __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, us_ticker_int_remainder);
-            us_ticker_int_remainder = 0;
-        } else {
-            // This function is going to disable the interrupts if there are
-            // no other events in the queue
+
+    if (oc_rem_part > 0) {
+        set_compare(oc_rem_part); // Finish the remaining time left
+        oc_rem_part = 0;
+    }
+    else {
+        if (oc_int_part > 0) {
+            set_compare(0xFFFF);
+            oc_rem_part = cval; // To finish the counter loop the next time
+            oc_int_part--;
+        }
+        else {
             us_ticker_irq_handler();
         }
-    }    
+    }
 }
 
 void us_ticker_init(void) {
@@ -89,31 +98,20 @@ void us_ticker_init(void) {
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
-    //HAL_TIM_Base_Init(&TimMasterHandle);
     HAL_TIM_OC_Init(&TimMasterHandle);
-
-    /*
-    TIM_OC_InitTypeDef sConfig;
-    sConfig.OCMode     = TIM_OCMODE_INACTIVE;
-    sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfig.Pulse      = 0;
-    HAL_TIM_OC_ConfigChannel(&TimMasterHandle, &sConfig, TIM_CHANNEL_1);
-    */
-    
+   
     // Configure interrupts
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
     
-    // For 32-bit counter
+    // Update interrupt used for 32-bit counter
     NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)tim_update_irq_handler);
     NVIC_EnableIRQ(TIM_MST_UP_IRQ);
     
-    // For ouput compare
+    // Output compare interrupt used for timeout feature
     NVIC_SetVector(TIM_MST_OC_IRQ, (uint32_t)tim_oc_irq_handler);
     NVIC_EnableIRQ(TIM_MST_OC_IRQ);
   
     // Enable timer
-    //HAL_TIM_Base_Start(&TimMasterHandle);
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 }
 
@@ -140,22 +138,21 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
     int delta = (int)(timestamp - us_ticker_read());
+    uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
         us_ticker_irq_handler();
-        return;
     }
     else {
-        us_ticker_int_counter   = (uint32_t)(delta >> 16);
-        us_ticker_int_remainder = (uint16_t)(delta & 0xFFFF);
-        if (us_ticker_int_counter > 0) { // means delta > 0xFFFF
-            __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, 0xFFFF);
-            us_ticker_int_counter--;
+        oc_int_part = (uint32_t)(delta >> 16);
+        oc_rem_part = (uint16_t)(delta & 0xFFFF);
+        if (oc_rem_part <= (0xFFFF - cval)) {
+            set_compare(cval + oc_rem_part);
+            oc_rem_part = 0;
         } else {
-            __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, us_ticker_int_remainder);
-            us_ticker_int_remainder = 0;
+            set_compare(0xFFFF);
+            oc_rem_part = oc_rem_part - (0xFFFF - cval);
         }
-        __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
     }
 }
 
