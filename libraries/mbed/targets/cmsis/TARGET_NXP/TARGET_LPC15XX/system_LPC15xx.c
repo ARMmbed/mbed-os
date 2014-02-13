@@ -156,7 +156,7 @@
 //            <2=> P = 4
 //            <3=> P = 8
 //     </h>
-#define SCTPLLCTRL_Val        0x00000023              // Reset value: 0x000
+#define SCTPLLCTRL_Val        0x00000005              // Reset value: 0x000
 //
 //     <o.0..1> SCT PLL Clock Source Select (SCTPLLCLKSEL.SEL)
 //                   <0=> IRC Oscillator

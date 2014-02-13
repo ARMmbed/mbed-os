@@ -30,6 +30,7 @@ void us_ticker_init(void) {
     
     // Clear peripheral reset the SCT0:
     LPC_SYSCON->PRESETCTRL1 |= (1 << 2);
+    LPC_SYSCON->PRESETCTRL1 &= ~(1 << 2);
     
     // Unified counter (32 bits)
     LPC_SCT0->CONFIG |= 1;
