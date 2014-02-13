@@ -363,6 +363,8 @@ class LPC11C24(Target):
 
 
 class LPC11U35_401(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
