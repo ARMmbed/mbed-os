@@ -36,10 +36,19 @@
 
 static int      us_ticker_inited = 0;
 static uint32_t SlaveCounter = 0;
-static uint32_t us_ticker_int_counter = 0;
-static uint16_t us_ticker_int_remainder = 0;
+static uint32_t oc_int_part = 0;
+static uint16_t oc_rem_part = 0;
+
+void set_compare(uint16_t count) {
+    // Set new output compare value
+    TIM_SetCompare1(TIM_MST, count);
+    // Enable IT
+    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
+}
 
 static void tim_update_oc_irq_handler(void) {
+    uint16_t cval = TIM_MST->CNT;
+  
     // Update interrupt: increment the slave counter
     if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
         TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
@@ -48,24 +57,26 @@ static void tim_update_oc_irq_handler(void) {
 
     // Output compare interrupt: used by interrupt system
     if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);    
-        if (us_ticker_int_counter > 0) {
-            TIM_SetCompare1(TIM_MST, 0xFFFF);
-            us_ticker_int_counter--;
-        } else {
-            if (us_ticker_int_remainder > 0) {
-                TIM_SetCompare1(TIM_MST, us_ticker_int_remainder);
-                us_ticker_int_remainder = 0;
-            } else {
-                // This function is going to disable the interrupts if there are
-                // no other events in the queue
-                us_ticker_irq_handler();
-            }
+        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
+    }
+
+    if (oc_rem_part > 0) {
+        set_compare(oc_rem_part); // Finish the remaining time left
+        oc_rem_part = 0;
+    }
+    else {
+        if (oc_int_part > 0) {
+            set_compare(0xFFFF);
+            oc_rem_part = cval; // To finish the counter loop the next time
+            oc_int_part--;
+        }
+        else {
+            us_ticker_irq_handler();
         }
     }
 }
 
-void us_ticker_init(void) {    
+void us_ticker_init(void) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
   
     if (us_ticker_inited) return;
@@ -84,7 +95,6 @@ void us_ticker_init(void) {
     
     // Configure interrupts
     TIM_ITConfig(TIM_MST, TIM_IT_Update, ENABLE);
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
     
     // For 32-bit counter and output compare
     NVIC_SetVector(TIM_MST_IRQ, (uint32_t)tim_update_oc_irq_handler);
@@ -103,10 +113,10 @@ uint32_t us_ticker_read() {
     // value in the past. Avoid this by computing consecutive values of the timer until they
     // are properly ordered.
     counter = (uint32_t)(SlaveCounter << 16);
-    counter += (uint32_t)TIM_GetCounter(TIM_MST);
+    counter += TIM_MST->CNT;
     while (1) {
         counter2 = (uint32_t)(SlaveCounter << 16);
-        counter2 += (uint32_t)TIM_GetCounter(TIM_MST);
+        counter2 += TIM_MST->CNT;
         if (counter2 > counter) {
             break;
         }
@@ -117,22 +127,21 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
     int delta = (int)(timestamp - us_ticker_read());
+    uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
         us_ticker_irq_handler();
-        return;
     }
     else {
-        us_ticker_int_counter   = (uint32_t)(delta >> 16);
-        us_ticker_int_remainder = (uint16_t)(delta & 0xFFFF);
-        if (us_ticker_int_counter > 0) { // means delta > 0xFFFF
-            TIM_SetCompare1(TIM_MST, 0xFFFF);
-            us_ticker_int_counter--;
+        oc_int_part = (uint32_t)(delta >> 16);
+        oc_rem_part = (uint16_t)(delta & 0xFFFF);
+        if (oc_rem_part <= (0xFFFF - cval)) {
+            set_compare(cval + oc_rem_part);
+            oc_rem_part = 0;
         } else {
-            TIM_SetCompare1(TIM_MST, us_ticker_int_remainder);
-            us_ticker_int_remainder = 0;
+            set_compare(0xFFFF);
+            oc_rem_part = oc_rem_part - (0xFFFF - cval);
         }
-        TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
     }
 }
 
