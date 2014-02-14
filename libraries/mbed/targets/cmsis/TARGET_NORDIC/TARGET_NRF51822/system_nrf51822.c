@@ -43,33 +43,7 @@ void SystemCoreClockUpdate(void)
 }
 
 void SystemInit(void)
-{
-
-    //Write the necessary UICR and FWID values if needed
-    if (NRF_UICR->CLENR0 == 0xFFFFFFFF){
-        NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
-        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-        }
-    
-        NRF_UICR->CLENR0 = 0x14000;
-        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-        }
-        
-        //write FWID (NRF_UICR->FWID is readonly)
-        *(uint32_t *)0x10001010 = 0xFFFF0049;
-       
-        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-        }
-        
-        NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
-        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-        }
-    
-        NVIC_SystemReset();
-        while (true){
-        }
-    }
-    
+{   
     // Prepare the peripherals for use as indicated by the PAN 26 "System: Manual setup is required
     // to enable the use of peripherals" found at Product Anomaly document for your device found at
     // https://www.nordicsemi.com/. The side effect of executing these instructions in the devices 
