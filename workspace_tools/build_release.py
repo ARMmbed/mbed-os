@@ -36,7 +36,6 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1114',      ('uARM',)),
     ('LPC11U35_401', ('ARM', 'uARM')),
     
-    
     ('KL25Z', ('ARM', 'GCC_ARM')),
     ('KL46Z', ('ARM', 'GCC_ARM')),
     
@@ -45,7 +44,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F401RE', ('ARM', 'uARM')),
     ('NUCLEO_F030R8', ('ARM', 'uARM')),
     
-    ('NRF51822', ('ARM', )),
+    # ('NRF51822', ('ARM', )),
 )
 
 

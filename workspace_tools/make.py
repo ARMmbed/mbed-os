@@ -187,6 +187,8 @@ if __name__ == '__main__':
             
             if options.nrfjprog:
                 call(["nrfjprog", "-r"])
+            elif mcu.startswith('NUCLEO'):
+                call(["ST-LINK_CLI.exe", "-Rst"])
             else:
                 serial.sendBreak()
             
