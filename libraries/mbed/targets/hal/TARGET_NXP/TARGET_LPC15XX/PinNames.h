@@ -48,6 +48,28 @@ typedef enum {
     USBTX = P0_18,
     USBRX = P0_13,
     
+    // Arduino Shield Receptacles Names
+    D0 = P0_18,
+    D1 = P0_13,
+    D2 = P0_29,
+    D3 = P0_9,
+    D4 = P0_10,
+    D5 = P0_16,
+    D6 = P1_3,
+    D7 = P0_0,
+    D8 = P0_24,
+    D9 = P0_2,
+    D10= P0_27,
+    D11= P0_28,
+    D12= P0_12,
+    D13= P0_16,
+    A0 = P0_8,
+    A1 = P0_7,
+    A2 = P0_6,
+    A3 = P0_5,
+    A4 = P0_23,
+    A5 = P0_22,
+    
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
