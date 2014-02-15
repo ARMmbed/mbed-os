@@ -34,6 +34,10 @@ struct serial_s {
     unsigned char index;
 };
 
+struct analogin_s {
+    ADCName adc;
+};
+
 struct i2c_s {
     LPC_I2C0_Type *i2c;
 };

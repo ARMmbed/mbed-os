@@ -67,8 +67,10 @@ typedef enum {
     A1 = P0_7,
     A2 = P0_6,
     A3 = P0_5,
-    A4 = P0_23,
-    A5 = P0_22,
+    A4 = P0_23, // same port as SDA
+    A5 = P0_22, // same port as SCL
+    SDA= P0_23, // same port as A4
+    SCL= P0_22, // same port as A5
     
     // Not connected
     NC = (int)0xFFFFFFFF,

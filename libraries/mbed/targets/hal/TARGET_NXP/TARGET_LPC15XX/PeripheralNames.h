@@ -22,6 +22,33 @@
 extern "C" {
 #endif
 
+typedef enum {
+    ADC0_0 = 0,
+    ADC0_1,
+    ADC0_2,
+    ADC0_3,
+    ADC0_4,
+    ADC0_5,
+    ADC0_6,
+    ADC0_7,
+    ADC0_8,
+    ADC0_9,
+    ADC0_10,
+    ADC0_11,
+    ADC1_0,
+    ADC1_1,
+    ADC1_2,
+    ADC1_3,
+    ADC1_4,
+    ADC1_5,
+    ADC1_6,
+    ADC1_7,
+    ADC1_8,
+    ADC1_9,
+    ADC1_10,
+    ADC1_11,
+} ADCName;
+
 
 #ifdef __cplusplus
 }
