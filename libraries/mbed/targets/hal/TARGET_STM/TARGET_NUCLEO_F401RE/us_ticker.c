@@ -115,6 +115,12 @@ void us_ticker_init(void) {
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 }
 
+#if defined(__CC_ARM) // Keil/MDK-ARM
+#pragma O0
+#pragma Ospace
+#elif defined(__IAR_SYSTEMS_ICC__) // IAR/EWARM
+#pragma optimize=low
+#endif
 uint32_t us_ticker_read() {
     uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
