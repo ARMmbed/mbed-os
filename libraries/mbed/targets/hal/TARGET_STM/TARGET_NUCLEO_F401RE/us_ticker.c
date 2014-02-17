@@ -51,6 +51,12 @@ void set_compare(uint16_t count) {
 }
 
 // Used to increment the slave counter
+#if defined(__CC_ARM) // Keil/MDK-ARM
+#pragma O0
+#pragma Ospace
+#elif defined(__IAR_SYSTEMS_ICC__) // IAR/EWARM
+#pragma optimize=low
+#endif
 static void tim_update_irq_handler(void) {
     SlaveCounter++;
     if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_UPDATE) == SET) {
@@ -115,6 +121,12 @@ void us_ticker_init(void) {
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 }
 
+#if defined(__CC_ARM) // Keil/MDK-ARM
+#pragma O0
+#pragma Ospace
+#elif defined(__IAR_SYSTEMS_ICC__) // IAR/EWARM
+#pragma optimize=low
+#endif
 uint32_t us_ticker_read() {
     uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
