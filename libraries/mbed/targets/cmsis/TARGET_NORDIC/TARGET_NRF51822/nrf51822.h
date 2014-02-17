@@ -19,7 +19,7 @@
 #ifndef NRF_H
 #define NRF_H
 
-
+#include "nordic_global.h"
 #include "compiler_abstraction.h"
 #include "nrf51.h"
 #include "nrf51_bitfields.h"
