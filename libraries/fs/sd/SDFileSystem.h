@@ -77,6 +77,7 @@ protected:
     SPI _spi;
     DigitalOut _cs;
     int cdv;
+    int _is_initialized;
 };
 
 #endif

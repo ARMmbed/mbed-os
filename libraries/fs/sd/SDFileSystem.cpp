@@ -120,7 +120,7 @@
 #define SD_DBG             0
 
 SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs, const char* name) :
-    FATFileSystem(name), _spi(mosi, miso, sclk), _cs(cs) {
+    FATFileSystem(name), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0) {
     _cs = 1;
 }
 
@@ -200,8 +200,12 @@ int SDFileSystem::initialise_card_v2() {
 }
 
 int SDFileSystem::disk_initialize() {
-    int i = initialise_card();
-    debug_if(SD_DBG, "init card = %d\n", i);
+    _is_initialized = initialise_card();
+    if (_is_initialized == 0) {
+        debug("Fail to initialize card\n");
+        return 1;
+    }
+    debug_if(SD_DBG, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
     
     // Set block length to 512 (CMD16)
@@ -215,6 +219,10 @@ int SDFileSystem::disk_initialize() {
 }
 
 int SDFileSystem::disk_write(const uint8_t *buffer, uint64_t block_number) {
+    if (!_is_initialized) {
+        return -1;
+    }
+
     // set write address for single block (CMD24)
     if (_cmd(24, block_number * cdv) != 0) {
         return 1;
@@ -226,6 +234,10 @@ int SDFileSystem::disk_write(const uint8_t *buffer, uint64_t block_number) {
 }
 
 int SDFileSystem::disk_read(uint8_t *buffer, uint64_t block_number) {
+    if (!_is_initialized) {
+        return -1;
+    }
+
     // set read address for single block (CMD17)
     if (_cmd(17, block_number * cdv) != 0) {
         return 1;
@@ -236,7 +248,15 @@ int SDFileSystem::disk_read(uint8_t *buffer, uint64_t block_number) {
     return 0;
 }
 
-int SDFileSystem::disk_status() { return 0; }
+int SDFileSystem::disk_status() {
+    // FATFileSystem::disk_status() returns 0 when initialized
+    if (_is_initialized) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int SDFileSystem::disk_sync() { return 0; }
 uint64_t SDFileSystem::disk_sectors() { return _sectors; }
 
