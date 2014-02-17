@@ -122,6 +122,10 @@
 SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs, const char* name) :
     FATFileSystem(name), _spi(mosi, miso, sclk), _cs(cs) {
     _cs = 1;
+
+    // Set default to 100kHz for initialisation and 1MHz for data transfer
+    _init_sck = 100000;
+    _transfer_sck = 1000000;
 }
 
 #define R1_IDLE_STATE           (1 << 0)
@@ -143,8 +147,8 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 #define SDCARD_V2HC 3
 
 int SDFileSystem::initialise_card() {
-    // Set to 100kHz for initialisation, and clock card with cs = 1
-    _spi.frequency(100000);
+    // Set to SCK for initialisation, and clock card with cs = 1
+    _spi.frequency(_init_sck);
     _cs = 1;
     for (int i = 0; i < 16; i++) {
         _spi.write(0xFF);
@@ -209,8 +213,9 @@ int SDFileSystem::disk_initialize() {
         debug("Set 512-byte block timed out\n");
         return 1;
     }
-    
-    _spi.frequency(1000000); // Set to 1MHz for data transfer
+
+    // Set SCK for data transfer
+    _spi.frequency(_transfer_sck);
     return 0;
 }
 
