@@ -43,7 +43,7 @@ class ARM(mbedToolchain):
         main_cc = join(ARM_BIN, "armcc")
         common = ["-c",
             "--cpu=%s" % cpu, "--gnu",
-            "-Ospace", "--split_sections", "--apcs=interwork",
+            "-O3", "-Otime", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics", "--restrict"
         ]
         

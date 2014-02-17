@@ -422,7 +422,12 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "pwm_led"),
         "dependencies": [MBED_LIBRARIES],
     },
-
+    {
+        "id": "MBED_32", "description": "Pin toggling",
+        "source_dir": join(TEST_DIR, "mbed", "pin_toggling"),
+        "dependencies": [MBED_LIBRARIES],
+    },
+    
     # CMSIS RTOS tests
     {
         "id": "CMSIS_RTOS_1", "description": "Basic",
