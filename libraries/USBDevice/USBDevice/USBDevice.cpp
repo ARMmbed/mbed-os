@@ -703,12 +703,15 @@ bool USBDevice::configured(void)
     return (device.state == CONFIGURED);
 }
 
-void USBDevice::connect(void)
+void USBDevice::connect(bool blocking)
 {
     /* Connect device */
     USBHAL::connect();
-    /* Block if not configured */
-    while (!configured());
+    
+    if (blocking) {
+        /* Block if not configured */
+        while (!configured());
+    }
 }
 
 void USBDevice::disconnect(void)
