@@ -46,6 +46,12 @@ void set_compare(uint16_t count) {
     TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
 }
 
+#if defined(__CC_ARM) // Keil/MDK-ARM
+#pragma O0
+#pragma Ospace
+#elif defined(__IAR_SYSTEMS_ICC__) // IAR/EWARM
+#pragma optimize=low
+#endif
 static void tim_update_oc_irq_handler(void) {
     uint16_t cval = TIM_MST->CNT;
   

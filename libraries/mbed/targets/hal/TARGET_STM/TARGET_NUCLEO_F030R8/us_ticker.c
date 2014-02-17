@@ -48,6 +48,12 @@ void set_compare(uint16_t count) {
 }
 
 // Used to increment the slave counter
+#if defined(__CC_ARM) // Keil/MDK-ARM
+#pragma O0
+#pragma Ospace
+#elif defined(__IAR_SYSTEMS_ICC__) // IAR/EWARM
+#pragma optimize=low
+#endif
 static void tim_update_irq_handler(void) {
     SlaveCounter++;
     if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
