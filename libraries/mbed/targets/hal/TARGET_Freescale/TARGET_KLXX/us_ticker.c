@@ -44,7 +44,7 @@ static void pit_init(void) {
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
     
     // Use channel 0 as a prescaler for channel 1
-    PIT->CHANNEL[0].LDVAL = bus_frequency() / 1000000 - 1;
+    PIT->CHANNEL[0].LDVAL = (bus_frequency() + 500000) / 1000000 - 1;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
 }
 
