@@ -37,8 +37,10 @@ public:
     
     /*
     * Connect a device
+    * 
+    * @param blocking: block if not configured
     */
-    void connect(void);
+    void connect(bool blocking = true);
     
     /*
     * Disconnect a device
