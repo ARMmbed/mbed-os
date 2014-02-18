@@ -63,6 +63,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Configure and enable DAC channel
     DAC_InitStructure.DAC_Trigger        = DAC_Trigger_None;
     DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
+    DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
     DAC_InitStructure.DAC_OutputBuffer   = DAC_OutputBuffer_Disable;
     
     if (obj->channel == PA_4) {
