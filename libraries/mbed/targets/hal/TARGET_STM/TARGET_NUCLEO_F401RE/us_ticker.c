@@ -52,10 +52,10 @@ void set_compare(uint16_t count) {
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
-    SlaveCounter++;
     if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_UPDATE) == SET) {
         __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_UPDATE);
         __HAL_TIM_SetCounter(&TimMasterHandle, 0); // Reset counter !!!
+        SlaveCounter++;
     }
 }
 

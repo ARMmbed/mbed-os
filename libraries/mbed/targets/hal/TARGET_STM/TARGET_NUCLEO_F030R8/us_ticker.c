@@ -49,9 +49,9 @@ void set_compare(uint16_t count) {
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
-    SlaveCounter++;
     if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
         TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
+        SlaveCounter++;
     }
 }
 
