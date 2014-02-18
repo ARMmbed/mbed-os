@@ -40,8 +40,8 @@ static TIM_HandleTypeDef TimMasterHandle;
     
 static int      us_ticker_inited = 0;
 static volatile uint32_t SlaveCounter = 0;
-static uint32_t oc_int_part = 0;
-static uint16_t oc_rem_part = 0;
+static volatile uint32_t oc_int_part = 0;
+static volatile uint16_t oc_rem_part = 0;
 
 void set_compare(uint16_t count) {
     // Set new output compare value
