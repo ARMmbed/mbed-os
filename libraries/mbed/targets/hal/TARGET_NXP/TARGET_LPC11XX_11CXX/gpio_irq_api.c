@@ -47,7 +47,7 @@ static inline void handle_interrupt_in(uint32_t port) {
     LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (port * 0x10000)));
     
     // Get index of function table from Mask Interrupt Status register
-    channel = numofbits(port_reg->MIS - 1);
+    channel = numofbits(port_reg->MIS - 1) + (port * 12);
     
     if (port_reg->MIS & port_reg->IBE) {
         // both edge, read the level of pin
