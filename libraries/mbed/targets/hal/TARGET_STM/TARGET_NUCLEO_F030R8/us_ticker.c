@@ -36,7 +36,7 @@
 #define TIM_MST_RCC        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
 
 static int      us_ticker_inited = 0;
-static uint32_t SlaveCounter = 0;
+static volatile uint32_t SlaveCounter = 0;
 static uint32_t oc_int_part = 0;
 static uint16_t oc_rem_part = 0;
 

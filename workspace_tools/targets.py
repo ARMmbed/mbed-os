@@ -77,6 +77,8 @@ class LPC1768(Target):
 
 
 class LPC11U24(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -151,6 +153,8 @@ class K20D5M(Target):
 
 
 class LPC812(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -164,6 +168,8 @@ class LPC812(Target):
 
 
 class LPC810(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -266,6 +272,7 @@ class STM32F407(Target):
 
 
 class NUCLEO_F103RB(Target):
+    ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
 
     def __init__(self):
@@ -279,6 +286,7 @@ class NUCLEO_F103RB(Target):
 
 
 class NUCLEO_L152RE(Target):
+    ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
 
     def __init__(self):
@@ -292,6 +300,7 @@ class NUCLEO_L152RE(Target):
 
 
 class NUCLEO_F401RE(Target):
+    ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
 
     def __init__(self):
@@ -305,6 +314,7 @@ class NUCLEO_F401RE(Target):
 
 
 class NUCLEO_F030R8(Target):
+    ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
 
     def __init__(self):
@@ -329,6 +339,8 @@ class LPC1347(Target):
 
 
 class LPC1114(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -351,6 +363,8 @@ class LPC11C24(Target):
 
 
 class LPC11U35_401(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -367,17 +381,17 @@ class UBLOX_C027(Target):
         
         self.core = "Cortex-M3"
         
-        self.extra_labels = ['NXP', 'LPC176X', 'UBLOX_C027']
+        self.extra_labels = ['NXP', 'LPC176X']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
 
 
 class NRF51822(Target):
+    OUTPUT_EXT = '.hex'
+
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
     UICR_START = 0x10001000
     APPCODE_OFFSET = 0x14000
-    
-    OUTPUT_EXT = '.hex'
     
     def __init__(self):
         Target.__init__(self)
