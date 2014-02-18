@@ -23,23 +23,22 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    /* A0-A5 pins */
     {PTA0,  ADC0_SE12, 0},
+    {PTA7,  ADC0_SE7,  0},
     {PTA8,  ADC0_SE3,  0},
     {PTA9,  ADC0_SE2,  0},
+    {PTA12, ADC0_SE0,  0},
+    
+    {PTB0,  ADC0_SE6,  0},
+    {PTB1,  ADC0_SE5,  0},
+    {PTB2,  ADC0_SE4,  0},
+    {PTB5,  ADC0_SE1,  0},
     {PTB8,  ADC0_SE11, 0},
     {PTB9,  ADC0_SE10, 0},
+    {PTB10, ADC0_SE9,  0},
+    {PTB11, ADC0_SE8,  0},
     {PTB13, ADC0_SE13, 0},
-    /* Rest of pins ADC Mux */
-    {PTB2, ADC0_SE4,  0},
-    {PTB1, ADC0_SE5,  0},
-    {PTB5, ADC0_SE1,  0},
-    {PTA12, ADC0_SE0, 0},
-    {PTB10, ADC0_SE9, 0},
-    {PTB11, ADC0_SE8, 0},
-    {PTB7, ADC0_SE7, 0},
-    {PTB0, ADC0_SE6,  0},
-    {NC,    NC,       0}
+    {NC,    NC,        0}
 };
 
 /************DAC***************/
@@ -50,44 +49,59 @@ const PinMap PinMap_DAC[] = {
 
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
+    {PTA3, I2C_0, 3},
+    {PTA4, I2C_0, 2},
     {PTB4, I2C_0, 2},
     {NC  , NC   , 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
+    {PTA3, I2C_0, 2},
+    {PTA4, I2C_0, 3},
     {PTB3, I2C_0, 2},
     {NC  , NC   , 0}
 };
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {PTB1, UART_0, 2},
+    {PTB2, UART_0, 3},
+    {PTB3, UART_0, 3},
     {NC  , NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
+    {PTB1, UART_0, 3},
     {PTB2, UART_0, 2},
+    {PTB4, UART_0, 3},
     {NC  , NC    , 0}
 };
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
-    {PTB0, SPI_0, 3},
-    {NC  , NC   , 0}
+    {PTB0,  SPI_0, 3},
+    {PTB17, SPI_0, 3},
+    {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
-    {PTA7, SPI_0, 3},
-    {NC  , NC   , 0}
+    {PTA7 , SPI_0, 3},
+    {PTB15, SPI_0, 2},
+    {PTB16, SPI_0, 3},
+    {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-    {PTA6, SPI_0, 3},
-    {NC  , NC   , 0}
+    {PTA6 , SPI_0, 3},
+    {PTA7 , SPI_0, 2},
+    {PTB15, SPI_0, 3},
+    {PTB16, SPI_0, 2},
+    {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
-    {PTA5, SPI_0, 3},
-    {NC  , NC   , 0}
+    {PTA5 , SPI_0, 3},
+    {PTA19, SPI_0, 3},
+    {NC   , NC   , 0}
 };
 
 /************PWM***************/
