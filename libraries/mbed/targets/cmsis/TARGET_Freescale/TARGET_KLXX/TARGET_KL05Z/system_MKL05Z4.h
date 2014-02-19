@@ -1,37 +1,52 @@
 /*
 ** ###################################################################
-**     Processor:           MKL05Z128VLK4
+**     Processors:          MKL05Z32FK4
+**                          MKL05Z32LC4
+**                          MKL05Z32VLF4
+**
 **     Compilers:           ARM Compiler
 **                          Freescale C/C++ for Embedded ARM
 **                          GNU C Compiler
 **                          IAR ANSI C/C++ Compiler for ARM
 **
-**     Reference manual:    KL05RM, Rev.1, Jun 2012
-**     Version:             rev. 1.1, 2012-06-21
+**     Reference manual:    KL05P48M48SF1RM, Rev.3, Sep 2012
+**     Version:             rev. 1.6, 2013-04-11
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
 **         contains the system frequency. It configures the device and initializes
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
-**     Copyright: 2012 Freescale Semiconductor, Inc. All Rights Reserved.
+**     Copyright: 2013 Freescale, Inc. All Rights Reserved.
 **
 **     http:                 www.freescale.com
 **     mail:                 support@freescale.com
 **
 **     Revisions:
-**     - rev. 1.0 (2012-06-13)
+**     - rev. 1.0 (2012-06-08)
 **         Initial version.
 **     - rev. 1.1 (2012-06-21)
 **         Update according to reference manual rev. 1.
+**     - rev. 1.2 (2012-08-01)
+**         Device type UARTLP changed to UART0.
+**         Missing PORTB_IRQn interrupt number definition added.
+**     - rev. 1.3 (2012-10-04)
+**         Update according to reference manual rev. 3.
+**     - rev. 1.4 (2012-11-22)
+**         MCG module - bit LOLS in MCG_S register renamed to LOLS0.
+**         NV registers - bit EZPORT_DIS in NV_FOPT register removed.
+**     - rev. 1.5 (2013-04-05)
+**         Changed start of doxygen comment.
+**     - rev. 1.6 (2013-04-11)
+**         SystemInit methods updated with predefined initialization sequence.
 **
 ** ###################################################################
 */
 
-/**
+/*!
  * @file MKL05Z4
- * @version 1.1
- * @date 2012-06-21
+ * @version 1.6
+ * @date 2013-04-11
  * @brief Device specific configuration file for MKL05Z4 (header file)
  *
  * Provides a system configuration function and a global variable that contains
