@@ -36,9 +36,9 @@
 #define TIM_MST_RCC        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
 
 static int      us_ticker_inited = 0;
-static uint32_t SlaveCounter = 0;
-static uint32_t oc_int_part = 0;
-static uint16_t oc_rem_part = 0;
+static volatile uint32_t SlaveCounter = 0;
+static volatile uint32_t oc_int_part = 0;
+static volatile uint16_t oc_rem_part = 0;
 
 void set_compare(uint16_t count) {
     // Set new output compare value
@@ -49,9 +49,9 @@ void set_compare(uint16_t count) {
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
-    SlaveCounter++;
     if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
         TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
+        SlaveCounter++;
     }
 }
 

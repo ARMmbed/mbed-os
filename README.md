@@ -42,6 +42,10 @@ Freescale:
 * [KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
 
 STMicroelectronics:
+* [Nucleo-F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB/) (Cortex-M3)
+* [Nucleo-L152RE](https://mbed.org/platforms/ST-Nucleo-L152RE/) (Cortex-M3)
+* [Nucleo-F030R8](https://mbed.org/platforms/ST-Nucleo-F030R8/) (Cortex-M0)
+* [Nucleo-F401RE](https://mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4)
 * STM32F407 (Cortex-M4)
 
 Supported Toolchains and IDEs

@@ -73,10 +73,17 @@ protected:
     int _write(const uint8_t *buffer, uint32_t length);
     uint64_t _sd_sectors();
     uint64_t _sectors;
-    
+
+    void set_init_sck(uint32_t sck) { _init_sck = sck; }
+    // Note: The highest SPI clock rate is 20 MHz for MMC and 25 MHz for SD
+    void set_transfer_sck(uint32_t sck) { _transfer_sck = sck; }
+    uint32_t _init_sck;
+    uint32_t _transfer_sck;
+
     SPI _spi;
     DigitalOut _cs;
     int cdv;
+    int _is_initialized;
 };
 
 #endif

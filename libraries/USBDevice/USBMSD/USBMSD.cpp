@@ -103,8 +103,7 @@ bool USBMSD::USBCallback_request(void) {
 }
 
 
-bool USBMSD::connect() {
-
+bool USBMSD::connect(bool blocking) {
     //disk initialization
     if (disk_status() & NO_INIT) {
         if (disk_initialize()) {
@@ -131,7 +130,7 @@ bool USBMSD::connect() {
     }
 
     //connect the device
-    USBDevice::connect();
+    USBDevice::connect(blocking);
     return true;
 }
 

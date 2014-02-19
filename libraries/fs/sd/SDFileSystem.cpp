@@ -120,8 +120,12 @@
 #define SD_DBG             0
 
 SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs, const char* name) :
-    FATFileSystem(name), _spi(mosi, miso, sclk), _cs(cs) {
+    FATFileSystem(name), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0) {
     _cs = 1;
+
+    // Set default to 100kHz for initialisation and 1MHz for data transfer
+    _init_sck = 100000;
+    _transfer_sck = 1000000;
 }
 
 #define R1_IDLE_STATE           (1 << 0)
@@ -143,8 +147,8 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 #define SDCARD_V2HC 3
 
 int SDFileSystem::initialise_card() {
-    // Set to 100kHz for initialisation, and clock card with cs = 1
-    _spi.frequency(100000);
+    // Set to SCK for initialisation, and clock card with cs = 1
+    _spi.frequency(_init_sck);
     _cs = 1;
     for (int i = 0; i < 16; i++) {
         _spi.write(0xFF);
@@ -200,8 +204,12 @@ int SDFileSystem::initialise_card_v2() {
 }
 
 int SDFileSystem::disk_initialize() {
-    int i = initialise_card();
-    debug_if(SD_DBG, "init card = %d\n", i);
+    _is_initialized = initialise_card();
+    if (_is_initialized == 0) {
+        debug("Fail to initialize card\n");
+        return 1;
+    }
+    debug_if(SD_DBG, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
     
     // Set block length to 512 (CMD16)
@@ -209,12 +217,17 @@ int SDFileSystem::disk_initialize() {
         debug("Set 512-byte block timed out\n");
         return 1;
     }
-    
-    _spi.frequency(1000000); // Set to 1MHz for data transfer
+
+    // Set SCK for data transfer
+    _spi.frequency(_transfer_sck);
     return 0;
 }
 
 int SDFileSystem::disk_write(const uint8_t *buffer, uint64_t block_number) {
+    if (!_is_initialized) {
+        return -1;
+    }
+
     // set write address for single block (CMD24)
     if (_cmd(24, block_number * cdv) != 0) {
         return 1;
@@ -226,6 +239,10 @@ int SDFileSystem::disk_write(const uint8_t *buffer, uint64_t block_number) {
 }
 
 int SDFileSystem::disk_read(uint8_t *buffer, uint64_t block_number) {
+    if (!_is_initialized) {
+        return -1;
+    }
+
     // set read address for single block (CMD17)
     if (_cmd(17, block_number * cdv) != 0) {
         return 1;
@@ -236,7 +253,15 @@ int SDFileSystem::disk_read(uint8_t *buffer, uint64_t block_number) {
     return 0;
 }
 
-int SDFileSystem::disk_status() { return 0; }
+int SDFileSystem::disk_status() {
+    // FATFileSystem::disk_status() returns 0 when initialized
+    if (_is_initialized) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int SDFileSystem::disk_sync() { return 0; }
 uint64_t SDFileSystem::disk_sectors() { return _sectors; }
 

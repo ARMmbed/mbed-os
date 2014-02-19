@@ -39,9 +39,9 @@
 static TIM_HandleTypeDef TimMasterHandle;
     
 static int      us_ticker_inited = 0;
-static uint32_t SlaveCounter = 0;
-static uint32_t oc_int_part = 0;
-static uint16_t oc_rem_part = 0;
+static volatile uint32_t SlaveCounter = 0;
+static volatile uint32_t oc_int_part = 0;
+static volatile uint16_t oc_rem_part = 0;
 
 void set_compare(uint16_t count) {
     // Set new output compare value
@@ -52,10 +52,10 @@ void set_compare(uint16_t count) {
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
-    SlaveCounter++;
     if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_UPDATE) == SET) {
         __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_UPDATE);
         __HAL_TIM_SetCounter(&TimMasterHandle, 0); // Reset counter !!!
+        SlaveCounter++;
     }
 }
 

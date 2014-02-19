@@ -108,7 +108,7 @@ class KL05Z(Target):
         
         self.extra_labels = ['Freescale', 'KLXX']
         
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         
         self.is_disk_virtual = True
 

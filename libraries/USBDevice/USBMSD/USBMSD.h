@@ -70,9 +70,10 @@ public:
     /**
     * Connect the USB MSD device. Establish disk initialization before really connect the device.
     *
+    * @param blocking if not configured
     * @returns true if successful
     */
-    bool connect();
+    bool connect(bool blocking = true);
 
     /**
     * Disconnect the USB MSD device.
