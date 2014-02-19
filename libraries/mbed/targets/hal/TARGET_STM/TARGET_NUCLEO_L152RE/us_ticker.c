@@ -29,51 +29,12 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-// Timer selection:
-#define TIM_MST            TIM9
-#define TIM_MST_IRQ        TIM9_IRQn
-#define TIM_MST_RCC        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE)
+// 32-bit timer selection
+#define TIM_MST            TIM5
+#define TIM_MST_IRQ        TIM5_IRQn
+#define TIM_MST_RCC        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE)
 
-static int      us_ticker_inited = 0;
-static volatile uint32_t SlaveCounter = 0;
-static volatile uint32_t oc_int_part = 0;
-static volatile uint16_t oc_rem_part = 0;
-
-void set_compare(uint16_t count) {
-    // Set new output compare value
-    TIM_SetCompare1(TIM_MST, count);
-    // Enable IT
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
-}
-
-static void tim_update_oc_irq_handler(void) {
-    uint16_t cval = TIM_MST->CNT;
-  
-    // Update interrupt: increment the slave counter
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
-        SlaveCounter++;
-    }
-
-    // Output compare interrupt: used by interrupt system
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
-        if (oc_rem_part > 0) {
-            set_compare(oc_rem_part); // Finish the remaining time left
-            oc_rem_part = 0;
-        }
-        else {
-            if (oc_int_part > 0) {
-                set_compare(0xFFFF);
-                oc_rem_part = cval; // To finish the counter loop the next time
-                oc_int_part--;
-            }
-            else {
-                us_ticker_irq_handler();
-            }
-        }
-    }
-}
+static int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
@@ -81,22 +42,18 @@ void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
   
-    // Enable Timer clock
+    // Enable timer clock
     TIM_MST_RCC;
   
     // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
+    TIM_TimeBaseStructure.TIM_Period = 0xFFFFFFFF;
     TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
-    
-    // Configure interrupts
-    TIM_ITConfig(TIM_MST, TIM_IT_Update, ENABLE);
-    
-    // For 32-bit counter and output compare
-    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)tim_update_oc_irq_handler);
+  
+    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(TIM_MST_IRQ);
   
     // Enable timer
@@ -104,44 +61,15 @@ void us_ticker_init(void) {
 }
 
 uint32_t us_ticker_read() {
-    uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
-    // A situation might appear when Master overflows right after Slave is read and before the
-    // new (overflowed) value of Master is read. Which would make the code below consider the
-    // previous (incorrect) value of Slave and the new value of Master, which would return a
-    // value in the past. Avoid this by computing consecutive values of the timer until they
-    // are properly ordered.
-    counter = (uint32_t)(SlaveCounter << 16);
-    counter += TIM_MST->CNT;
-    while (1) {
-        counter2 = (uint32_t)(SlaveCounter << 16);
-        counter2 += TIM_MST->CNT;
-        if (counter2 > counter) {
-            break;
-        }
-        counter = counter2;
-    }
-    return counter2;
+    return TIM_MST->CNT;
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
-    int delta = (int)(timestamp - us_ticker_read());
-    uint16_t cval = TIM_MST->CNT;
-
-    if (delta <= 0) { // This event was in the past
-        us_ticker_irq_handler();
-    }
-    else {
-        oc_int_part = (uint32_t)(delta >> 16);
-        oc_rem_part = (uint16_t)(delta & 0xFFFF);
-        if (oc_rem_part <= (0xFFFF - cval)) {
-            set_compare(cval + oc_rem_part);
-            oc_rem_part = 0;
-        } else {
-            set_compare(0xFFFF);
-            oc_rem_part = oc_rem_part - (0xFFFF - cval);
-        }
-    }
+    // Set new output compare value
+    TIM_SetCompare1(TIM_MST, timestamp);
+    // Enable IT
+    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
 }
 
 void us_ticker_disable_interrupt(void) {
@@ -149,7 +77,5 @@ void us_ticker_disable_interrupt(void) {
 }
 
 void us_ticker_clear_interrupt(void) {
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
-    }
+    TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
 }
