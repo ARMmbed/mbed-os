@@ -49,8 +49,8 @@ typedef enum {
     USBRX = P0_13,
     
     // Arduino Shield Receptacles Names
-    D0 = P0_18,
-    D1 = P0_13,
+    D0 = P0_13,
+    D1 = P0_18,
     D2 = P0_29,
     D3 = P0_9,
     D4 = P0_10,
