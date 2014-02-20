@@ -431,7 +431,7 @@ class NRF51822(Target):
         # Remove UICR section
         del sdh[NRF51822.UICR_START:NRF51822.UICR_END+1]
         
-        with open(binf, "w") as f:
+        with open(binf, "wb") as f:
             sdh.tofile(f, format = 'bin')
 
 
