@@ -387,11 +387,12 @@ class UBLOX_C027(Target):
 
 
 class NRF51822(Target):
-    OUTPUT_EXT = '.hex'
-
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
-    UICR_START = 0x10001000
+    
     APPCODE_OFFSET = 0x14000
+    
+    UICR_START = 0x10001000
+    UICR_END   = 0x10001013
     
     def __init__(self):
         Target.__init__(self)
@@ -401,6 +402,8 @@ class NRF51822(Target):
         self.extra_labels = ["NORDIC"]
         
         self.supported_toolchains = ["ARM"]
+        
+        self.is_disk_virtual = True
     
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
@@ -425,45 +428,11 @@ class NRF51822(Target):
         sdh = IntelHex(hexf)
         sdh.merge(binh)
         
-        outname = binf.replace('.bin', '.hex')
-        with open(outname, "w") as f:
-            sdh.tofile(f, format = 'hex')
-        t_self.debug("Generated SoftDevice-enabled image in '%s'" % outname)
+        # Remove UICR section
+        del sdh[NRF51822.UICR_START:NRF51822.UICR_END+1]
         
-        # Generate concatenated SoftDevice + application binary
-        # Currently, this is only supported for SoftDevice images that have
-        # an UICR area
-        """
-        sdh = IntelHex(hexf)
-        if sdh.maxaddr() < NRF51822.UICR_START:
-            t_self.error("SoftDevice image does not have UICR area. Aborting.")
-            return
-        addrlist = sdh.addresses()
-        try:
-            uicr_start_index = addrlist.index(NRF51822.UICR_START)
-        except ValueError:
-            t_self.error("UICR start address not found in the SoftDevice image. Aborting.")
-            return
-        
-        # Assume that everything up to uicr_start_index are contiguous addresses
-        # in the SoftDevice code area
-        softdevice_code_size = addrlist[uicr_start_index - 1] + 1
-        t_self.debug("SoftDevice code size is %d bytes" % softdevice_code_size)
-        
-        # First part: SoftDevice code
-        bindata = sdh[:softdevice_code_size].tobinstr()
-        
-        # Second part: pad with 0xFF up to APPCODE_OFFSET
-        bindata = bindata + '\xFF' * (NRF51822.APPCODE_OFFSET - softdevice_code_size)
-        
-        # Last part: the application code
-        with open(binf, 'r+b') as f:
-            bindata = bindata + f.read()
-            # Write back the binary
-            f.seek(0)
-            f.write(bindata)
-        t_self.debug("Generated concatenated binary of %d bytes" % len(bindata))
-        """
+        with open(binf, "w") as f:
+            sdh.tofile(f, format = 'bin')
 
 
 # Get a single instance for each target
