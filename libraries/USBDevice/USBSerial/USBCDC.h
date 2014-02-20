@@ -35,8 +35,9 @@ public:
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
     * @param product_release Your preoduct_release
+    * @param connect_blocking define if the connection must be blocked if USB not plugged in
     */
-    USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
+    USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
 
 protected:
     

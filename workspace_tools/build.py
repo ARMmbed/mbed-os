@@ -58,12 +58,18 @@ if __name__ == '__main__':
     
     # Get target list
     if options.mcu:
+        if options.mcu not in TARGET_NAMES:
+            print "Given MCU '%s' not into the supported list:\n%s" % (options.mcu, TARGET_NAMES)
+            sys.exit(1)
         targets = [options.mcu]
     else:
         targets = TARGET_NAMES
     
     # Get toolchains list
     if options.tool:
+        if options.tool not in TOOLCHAINS:
+            print "Given toolchain '%s' not into the supported list:\n%s" % (options.tool, TOOLCHAINS)
+            sys.exit(1)
         toolchains = [options.tool]
     else:
         toolchains = TOOLCHAINS
