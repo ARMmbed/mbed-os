@@ -700,6 +700,11 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
+    {
+        "id": "NORDIC_1", "description": "BLE Health Thermometer full",
+        "source_dir": join(TEST_DIR, "nordic", "BLE_Health_Thermometer_full"),
+        "dependencies": [MBED_LIBRARIES, join(PERIPHERALS, 'TMP102')],
+    },
 ]
 
 # Group tests with the same goals into categories

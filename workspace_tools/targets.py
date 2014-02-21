@@ -418,9 +418,7 @@ class NRF51822(Target):
             t_self.debug("Hex file not found. Aborting.")
             return
         
-        # Generate hex file
-        # NOTE: this is temporary, it will be removed later and only the
-        # combined binary file (below) will be used
+        # Merge user code with softdevice
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset = NRF51822.APPCODE_OFFSET)
@@ -433,6 +431,9 @@ class NRF51822(Target):
         
         with open(binf, "wb") as f:
             sdh.tofile(f, format = 'bin')
+        
+        #with open(binf.replace(".bin", ".hex"), "w") as f:
+        #   sdh.tofile(f, format = 'hex')
 
 class LPC1549(Target):
     ONLINE_TOOLCHAIN = "uARM"
