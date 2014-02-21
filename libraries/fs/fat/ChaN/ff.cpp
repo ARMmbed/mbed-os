@@ -2526,7 +2526,7 @@ FRESULT f_write (
     UINT wcnt, cc;
     const BYTE *wbuff = (const BYTE *)buff;
     BYTE csect;
-
+    bool need_sync = false;
 
     *bw = 0;    /* Clear write byte counter */
 
@@ -2559,6 +2559,13 @@ FRESULT f_write (
                 if (clst == 1) ABORT(fp->fs, FR_INT_ERR);
                 if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
                 fp->clust = clst;           /* Update current cluster */
+
+#ifdef FLUSH_ON_NEW_CLUSTER
+                // We do not need to flush for the first cluster
+                if (fp->fptr != 0) {
+                    need_sync = true;
+                }
+#endif
             }
 #if _FS_TINY
             if (fp->fs->winsect == fp->dsect && move_window(fp->fs, 0)) /* Write-back sector cache */
@@ -2591,6 +2598,9 @@ FRESULT f_write (
                 }
 #endif
                 wcnt = SS(fp->fs) * cc;     /* Number of bytes transferred */
+#ifdef FLUSH_ON_NEW_SECTOR
+                need_sync = true;
+#endif
                 continue;
             }
 #if _FS_TINY
@@ -2622,6 +2632,10 @@ FRESULT f_write (
 
     if (fp->fptr > fp->fsize) fp->fsize = fp->fptr; /* Update file size if needed */
     fp->flag |= FA__WRITTEN;                        /* Set file change flag */
+
+    if (need_sync) {
+        f_sync (fp);
+    }
 
     LEAVE_FF(fp->fs, FR_OK);
 }
