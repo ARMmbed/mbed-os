@@ -52,7 +52,7 @@ uint32_t NVIC_GetVector(IRQn_Type IRQn) {
 }*/
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
-    int i;
+   // int i;
     // Space for dynamic vectors, initialised to allocate in R/W
     static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
     /*
