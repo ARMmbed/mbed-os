@@ -187,5 +187,12 @@
 /* To enable file lock control feature, set _FS_LOCK to 1 or greater.
    The value defines how many files can be opened simultaneously. */
 
+#define FLUSH_ON_NEW_CLUSTER    0   /* Sync the file on every new cluster */
+#define FLUSH_ON_NEW_SECTOR     1   /* Sync the file on every new sector */
+/* Only one of these two defines needs to be set to 1. If both are set to 0
+   the file is only sync when closed.
+   Clusters are group of sectors (eg: 8 sectors). Flushing on new cluster means
+   it would be less often than flushing on new sector. Sectors are generally
+   512 Bytes long. */
 
 #endif /* _FFCONFIG */

@@ -2559,6 +2559,13 @@ FRESULT f_write (
                 if (clst == 1) ABORT(fp->fs, FR_INT_ERR);
                 if (clst == 0xFFFFFFFF) ABORT(fp->fs, FR_DISK_ERR);
                 fp->clust = clst;           /* Update current cluster */
+
+#ifdef FLUSH_ON_NEW_CLUSTER
+                // We do not need to flush for the first cluster
+                if (fp->fptr != 0) {
+                    f_sync (fp);
+                }
+#endif
             }
 #if _FS_TINY
             if (fp->fs->winsect == fp->dsect && move_window(fp->fs, 0)) /* Write-back sector cache */
@@ -2591,6 +2598,9 @@ FRESULT f_write (
                 }
 #endif
                 wcnt = SS(fp->fs) * cc;     /* Number of bytes transferred */
+#ifdef FLUSH_ON_NEW_SECTOR
+                f_sync (fp);
+#endif
                 continue;
             }
 #if _FS_TINY
