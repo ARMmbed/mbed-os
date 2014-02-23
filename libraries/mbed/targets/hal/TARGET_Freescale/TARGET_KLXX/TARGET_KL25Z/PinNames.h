@@ -229,9 +229,12 @@ typedef enum {
     A3 = PTB3,
     A4 = PTC2,
     A5 = PTC1,
-    
+
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    TSI_ELEC0 = 9,
+    TSI_ELEC1 = 10,
 
     // Not connected
     NC = (int)0xFFFFFFFF
