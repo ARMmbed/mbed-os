@@ -145,6 +145,8 @@ typedef enum {
   USER_BUTTON = PC_13,
   SERIAL_TX   = PA_2,
   SERIAL_RX   = PA_3,
+  USBTX       = PA_2,
+  USBRX       = PA_3,
   I2C_SCL     = PB_8,
   I2C_SDA     = PB_9,
   SPI_MOSI    = PA_7,
