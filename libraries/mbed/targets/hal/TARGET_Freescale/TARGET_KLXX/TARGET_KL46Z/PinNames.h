@@ -236,8 +236,8 @@ typedef enum {
     I2C_SCL = D15,
     I2C_SDA = D14,
 
-    TSI_ELEC0 = 9,
-    TSI_ELEC1 = 10,
+    TSI_ELEC0 = PTB16,
+    TSI_ELEC1 = PTB17,
 
     // Not connected
     NC = (int)0xFFFFFFFF
