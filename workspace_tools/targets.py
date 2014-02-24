@@ -101,6 +101,8 @@ class LPC11U24_301(Target):
 
 
 class KL05Z(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
