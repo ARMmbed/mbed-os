@@ -438,6 +438,8 @@ class NRF51822(Target):
         #   sdh.tofile(f, format = 'hex')
 
 class LPC1549(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    
     def __init__(self):
         Target.__init__(self)
         
