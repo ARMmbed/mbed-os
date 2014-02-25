@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   DCMI HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Digital Camera Interface (DCMI) peripheral:
@@ -54,7 +54,7 @@
       (+) __HAL_DCMI_CLEAR_FLAG: Clear the DCMI pending flags.
       (+) __HAL_DCMI_ENABLE_IT: Enable the specified DCMI interrupts.
       (+) __HAL_DCMI_DISABLE_IT: Disable the specified DCMI interrupts.
-      (+) __HAL_DCMI_IT_STATUS: Check whether the specified DCMI interrupt has occurred or not.
+      (+) __HAL_DCMI_GET_IT_SOURCE: Check whether the specified DCMI interrupt has occurred or not.
  
      [..] 
        (@) You can refer to the DCMI HAL driver header file for more useful macros
@@ -110,8 +110,8 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-static void       HAL_DCMI_DMAConvCplt(DMA_HandleTypeDef *hdma);
-static void       HAL_DCMI_DMAError(DMA_HandleTypeDef *hdma);
+static void       DCMI_DMAConvCplt(DMA_HandleTypeDef *hdma);
+static void       DCMI_DMAError(DMA_HandleTypeDef *hdma);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -231,6 +231,9 @@ HAL_StatusTypeDef HAL_DCMI_DeInit(DCMI_HandleTypeDef *hdcmi)
   /* Initialize the DCMI state*/
   hdcmi->State = HAL_DCMI_STATE_RESET;
 
+  /* Release Lock */
+  __HAL_UNLOCK(hdcmi);
+
   return HAL_OK;
 }
 
@@ -311,10 +314,10 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   hdcmi->Instance->CR |=  (uint32_t)(DCMI_Mode);
 
   /* Set the DMA memory0 conversion complete callback */
-  hdcmi->DMA_Handle->XferCpltCallback = HAL_DCMI_DMAConvCplt;
+  hdcmi->DMA_Handle->XferCpltCallback = DCMI_DMAConvCplt;
 
   /* Set the DMA error callback */
-  hdcmi->DMA_Handle->XferErrorCallback = HAL_DCMI_DMAError;
+  hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMAError;
 
   if(Length <= 0xFFFF)
   {
@@ -324,7 +327,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   else /* DCMI_DOUBLE_BUFFER Mode */
   {
     /* Set the DMA memory1 conversion complete callback */
-    hdcmi->DMA_Handle->XferM1CpltCallback = HAL_DCMI_DMAConvCplt; 
+    hdcmi->DMA_Handle->XferM1CpltCallback = DCMI_DMAConvCplt; 
 
     /* Initialise transfer parameters */
     hdcmi->XferCount = 1;
@@ -421,7 +424,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   /* Synchronization error interrupt management *******************************/
   if(__HAL_DCMI_GET_FLAG(hdcmi, DCMI_FLAG_ERRRI) != RESET)
   {
-    if(__HAL_DCMI_IT_STATUS(hdcmi, DCMI_IT_ERR) != RESET)
+    if(__HAL_DCMI_GET_IT_SOURCE(hdcmi, DCMI_IT_ERR) != RESET)
     {
       /* Disable the Synchronization error interrupt */
       __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_ERR); 
@@ -448,7 +451,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   /* Overflow interrupt management ********************************************/
   if(__HAL_DCMI_GET_FLAG(hdcmi, DCMI_FLAG_OVFRI) != RESET) 
   {
-    if(__HAL_DCMI_IT_STATUS(hdcmi, DCMI_IT_OVF) != RESET)
+    if(__HAL_DCMI_GET_IT_SOURCE(hdcmi, DCMI_IT_OVF) != RESET)
     {
       /* Disable the Overflow interrupt */
       __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_OVF);
@@ -475,7 +478,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   /* Line Interrupt management ************************************************/
   if(__HAL_DCMI_GET_FLAG(hdcmi, DCMI_FLAG_LINERI) != RESET)
   {
-    if(__HAL_DCMI_IT_STATUS(hdcmi, DCMI_IT_LINE) != RESET)
+    if(__HAL_DCMI_GET_IT_SOURCE(hdcmi, DCMI_IT_LINE) != RESET)
     {
       /* Clear the Line interrupt flag */  
       __HAL_DCMI_CLEAR_FLAG(hdcmi, DCMI_FLAG_LINERI);
@@ -490,7 +493,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   /* VSYNC interrupt management ***********************************************/
   if(__HAL_DCMI_GET_FLAG(hdcmi, DCMI_FLAG_VSYNCRI) != RESET)
   {
-    if(__HAL_DCMI_IT_STATUS(hdcmi, DCMI_IT_VSYNC) != RESET)
+    if(__HAL_DCMI_GET_IT_SOURCE(hdcmi, DCMI_IT_VSYNC) != RESET)
     {
       /* Disable the VSYNC interrupt */
       __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_VSYNC);   
@@ -508,7 +511,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   /* End of Frame interrupt management ****************************************/
   if(__HAL_DCMI_GET_FLAG(hdcmi, DCMI_FLAG_FRAMERI) != RESET)
   {
-    if(__HAL_DCMI_IT_STATUS(hdcmi, DCMI_IT_FRAME) != RESET)
+    if(__HAL_DCMI_GET_IT_SOURCE(hdcmi, DCMI_IT_FRAME) != RESET)
     {
       /* Disable the End of Frame interrupt */
       __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_FRAME);
@@ -736,7 +739,7 @@ uint32_t HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi)
   * @param  hdma: pointer to DMA handle.
   * @retval None
   */
-static void HAL_DCMI_DMAConvCplt(DMA_HandleTypeDef *hdma)
+static void DCMI_DMAConvCplt(DMA_HandleTypeDef *hdma)
 {
   uint32_t tmp = 0;
  
@@ -789,7 +792,7 @@ static void HAL_DCMI_DMAConvCplt(DMA_HandleTypeDef *hdma)
   * @param  hdma: pointer to DMA handle.
   * @retval None
   */
-static void HAL_DCMI_DMAError(DMA_HandleTypeDef *hdma)
+static void DCMI_DMAError(DMA_HandleTypeDef *hdma)
 {
     DCMI_HandleTypeDef* hdcmi = ( DCMI_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;     
     hdcmi->State= HAL_DCMI_STATE_READY;

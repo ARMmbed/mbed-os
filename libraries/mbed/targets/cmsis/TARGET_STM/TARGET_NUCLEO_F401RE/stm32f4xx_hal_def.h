@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -115,7 +115,30 @@ typedef enum
   #endif /* __packed */
 #endif /* __GNUC__ */
 
-  
+
+/* Macro to get variable aligned on 4-bytes, for __ICCARM__ the directive "#pragma data_alignment=4" must be used instead */
+#if defined   (__GNUC__)        /* GNU Compiler */
+  #ifndef __ALIGN_END
+    #define __ALIGN_END    __attribute__ ((aligned (4)))
+  #endif /* __ALIGN_END */
+  #ifndef __ALIGN_BEGIN  
+    #define __ALIGN_BEGIN
+  #endif /* __ALIGN_BEGIN */
+#else
+  #ifndef __ALIGN_END
+    #define __ALIGN_END
+  #endif /* __ALIGN_END */
+  #ifndef __ALIGN_BEGIN      
+    #if defined   (__CC_ARM)      /* ARM Compiler */
+      #define __ALIGN_BEGIN    __align(4)  
+    #elif defined (__ICCARM__)    /* IAR Compiler */
+      #define __ALIGN_BEGIN 
+    #elif defined  (__TASKING__)  /* TASKING Compiler */
+      #define __ALIGN_BEGIN    __align(4) 
+    #endif /* __CC_ARM */
+  #endif /* __ALIGN_BEGIN */
+#endif /* __GNUC__ */
+
 #ifdef __cplusplus
 }
 #endif

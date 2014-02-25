@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -735,8 +735,8 @@ typedef struct
 HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan);
 HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTypeDef* sFilterConfig);
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan);
-__weak void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan);
-__weak void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan);
+void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan);
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan);
 
 /* I/O operation functions ******************************************************/
 HAL_StatusTypeDef HAL_CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t Timeout);
@@ -751,9 +751,9 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan);
 uint32_t HAL_CAN_GetError(CAN_HandleTypeDef *hcan);
 HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
 
-__weak void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan);
-__weak void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
-__weak void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan);
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
+void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan);
 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
 
