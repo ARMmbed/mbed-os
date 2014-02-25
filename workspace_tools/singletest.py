@@ -20,13 +20,13 @@ Usage:
 1.  Update your private_settings.py with all MUTs you can possibly connect.
     Make sure mcu / port / serial names are concretely inputed.
 2.  Update test_spec dictionary in __main__ section.
-    
+
     Example 1:
-    In below example only LPC11U24 will be tested 
+    In below example only LPC11U24 will be tested
     and test will be prepared using only uARM toolchain. Note that other
     targets are just commented.
     Uncomment or add your own targets at will.
-    
+
     test_spec = {
         "targets": {
             # "KL25Z": ["ARM", "GCC_ARM"],
@@ -51,19 +51,17 @@ from time import sleep, time
 
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
-
 from workspace_tools.build_api import build_project, build_mbed_libs
-# from workspace_tools.tests import TEST_MAP, GROUPS
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.tests import TEST_MAP
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from workspace_tools.utils import delete_dir_files
-from workspace_tools.settings import *
-from workspace_tools.tests import *
+from workspace_tools.settings import MUTs
 
 
 class SingleTestRunner():
@@ -71,11 +69,14 @@ class SingleTestRunner():
     def __init__(self):
         pass
 
-    def reset(self, mcu_name, serial, verbose=False):
+    def reset(self, mcu_name, serial,
+              verbose=False, sleep_before_reset=0, sleep_after_reset=0):
         """
         Functions resets target using various methods (e.g. serial break)
         depending on target type.
         """
+        if sleep_before_reset > 0:
+            sleep(sleep_before_reset)
         verbose_msg = "Reset::cmd(sendBreak)"
         if mcu_name.startswith('NRF51822'): # Nordic
             call(["nrfjprog", "-r"])
@@ -85,6 +86,8 @@ class SingleTestRunner():
             verbose_msg = "Reset::cmd(ST-LINK_CLI.exe)"
         else:
             serial.sendBreak()
+        if sleep_before_reset > 0:
+            sleep(sleep_after_reset)
         if verbose:
             print verbose_msg
 
@@ -92,6 +95,23 @@ class SingleTestRunner():
         """ Flushing serial in/out. """
         serial.flushInput()
         serial.flushOutput()
+
+    def is_peripherals_available(self, target, peripherals=None):
+        if peripherals is not None:
+            peripherals = set(peripherals)
+
+        for id, mut in MUTs.iteritems():
+            # Target check
+            if mut["mcu"] != target:
+                continue
+            # Peripherals check
+            if peripherals is not None:
+                if 'peripherals' not in mut:
+                    continue
+                if not peripherals.issubset(set(mut['peripherals'])):
+                    continue
+            return True
+        return False
 
     def run_host_test(self, name, target_name, disk, port,
                       duration, extra_serial, verbose=True):
@@ -172,7 +192,7 @@ class SingleTestRunner():
                 break
 
         if mut is None:
-            print "Error: No mbed available: %s" % data['mcu']
+            print "Error: No mbed available: mut[%s]" % data['mcu']
             return
 
         disk = mut['disk']
@@ -235,9 +255,14 @@ if __name__ == '__main__':
         "targets": {
             # "KL25Z": ["ARM", "GCC_ARM"],
             # "LPC1768": ["ARM", "GCC_ARM", "GCC_CR", "GCC_CS", "IAR"],
-            "LPC11U24": ["uARM"]
+            # "LPC11U24": ["uARM"]
+            # "UBLOX_C027": ["IAR"]
             # "NRF51822": ["ARM"]
-            # "NUCLEO_F103RB": ["ARM"]
+            # "NUCLEO_F103RB": ["ARM"],
+            # "LPC2368": ["ARM"],
+            # "LPC812": ["uARM"],
+            # "LPC1549": ["uARM"]
+            "LPC4088": ["ARM"]  # , "GCC_CR", "GCC_ARM"
         }
     }
 
@@ -261,6 +286,9 @@ if __name__ == '__main__':
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
+                    if not single_test.is_peripherals_available(target, test.peripherals):
+                        print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test.peripherals))
+                        continue
 
                     test_result = {
                         'target': target,
