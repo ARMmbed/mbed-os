@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -85,7 +85,6 @@
 #define HSE_TIMEOUT_VALUE          HSE_STARTUP_TIMEOUT
 #define HSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
 #define LSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
-#define LSE_TIMEOUT_VALUE          ((uint32_t)5000) /* 5 s    */
 #define PLL_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
 #define CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000) /* 5 s    */
 
@@ -476,15 +475,23 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     /* Check the parameters */
     assert_param(IS_RCC_LSE(RCC_OscInitStruct->LSEState));
     
-    /* Check the LSE State before enabling the access to the Bachup domain */
-    if((RCC_OscInitStruct->LSEState) != RCC_LSE_OFF)
+    /* Enable Power Clock*/
+    __PWR_CLK_ENABLE();
+    
+    /* Enable write access to Backup domain */
+    PWR->CR |= PWR_CR_DBP;
+    
+    /* Wait for Backup domain Write protection disable */
+    timeout = HAL_GetTick() + DBP_TIMEOUT_VALUE;
+    
+    while((PWR->CR & PWR_CR_DBP) == RESET)
     {
-      /* Enable Power Controller clock */
-      __PWR_CLK_ENABLE();
-      
-      /* Enable write access to Backup domain */
-      PWR->CR |= PWR_CR_DBP;
+      if(HAL_GetTick() >= timeout)
+      {
+        return HAL_TIMEOUT;
+      }      
     }
+
     /* Reset LSEON and LSEBYP bits before configuring the LSE ----------------*/
     __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
     

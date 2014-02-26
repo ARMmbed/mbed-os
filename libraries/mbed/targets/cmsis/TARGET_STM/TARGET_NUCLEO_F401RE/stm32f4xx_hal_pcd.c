@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -177,11 +177,9 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
  /* Init Device */
  USB_DevInit(hpcd->Instance, hpcd->Init);
  
- /* Enable the Interrupts */
- __HAL_PCD_ENABLE(hpcd);
- 
  hpcd->State= PCD_READY;
  
+ USB_DevDisconnect (hpcd->Instance);  
  return HAL_OK;
 }
 
@@ -200,6 +198,9 @@ HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
 
   hpcd->State = PCD_BUSY;
   
+  /* Stop Device */
+  HAL_PCD_Stop(hpcd);
+    
   /* DeInit the low level hardware */
   HAL_PCD_MspDeInit(hpcd);
   
@@ -413,8 +414,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
           }       
           if(( epint & USB_OTG_DIEPINT_TXFE) == USB_OTG_DIEPINT_TXFE)
           {
-            fifoemptymsk = 0x1 << epnum;
-            USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
             PCD_WriteEmptyTxFifo(hpcd , epnum);
           }
         }
@@ -423,33 +422,9 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
       }
     }
     
-    /* Handle Suspend Interrupt */
-    if(__HAL_GET_FLAG(hpcd, USB_OTG_GINTSTS_USBSUSP))
-    {
-
-      HAL_PCD_SuspendCallback(hpcd);
-      
-      if( (hpcd->Init.low_power_enable) && \
-        ( (USBx_DEVICE->DSTS & USB_OTG_DSTS_SUSPSTS) == USB_OTG_DSTS_SUSPSTS))
-      {
-        /* un-gate USB Core clock */
-        USBx_PCGCCTL |= (USB_OTG_PCGCCTL_STOPCLK | USB_OTG_PCGCCTL_GATECLK);
-        
-        /* Request to enter Sleep mode after exit from current ISR */
-        SCB->SCR |= (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);
-      }
-      __HAL_CLEAR_FLAG(hpcd, USB_OTG_GINTSTS_USBSUSP);
-    }
-    
     /* Handle Resume Interrupt */
     if(__HAL_GET_FLAG(hpcd, USB_OTG_GINTSTS_WKUINT))
-    {
-     if( hpcd->Init.low_power_enable)
-     {
-       /* un-gate USB Core clock */
-       USBx_PCGCCTL &= ~(USB_OTG_PCGCCTL_STOPCLK | USB_OTG_PCGCCTL_GATECLK);
-     }
-     
+    {    
      /* Clear the Remote Wake-up Signaling */
       USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_RWUSIG;
      
@@ -457,6 +432,20 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 
      __HAL_CLEAR_FLAG(hpcd, USB_OTG_GINTSTS_WKUINT);
     }
+    
+    /* Handle Suspend Interrupt */
+    if(__HAL_GET_FLAG(hpcd, USB_OTG_GINTSTS_USBSUSP))
+    {
+
+      if((USBx_DEVICE->DSTS & USB_OTG_DSTS_SUSPSTS) == USB_OTG_DSTS_SUSPSTS)
+      {
+        
+        HAL_PCD_SuspendCallback(hpcd);
+      }
+      __HAL_CLEAR_FLAG(hpcd, USB_OTG_GINTSTS_USBSUSP);
+    }
+    
+
 
     /* Handle Reset Interrupt */
     if(__HAL_GET_FLAG(hpcd, USB_OTG_GINTSTS_USBRST))
@@ -488,8 +477,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
       
       /* setup EP0 to receive SETUP packets */
       USB_EP0_OutStart(hpcd->Instance, hpcd->Init.dma_enable, (uint8_t *)hpcd->Setup);
-            
-      HAL_PCD_ResetCallback(hpcd);
         
       __HAL_CLEAR_FLAG(hpcd, USB_OTG_GINTSTS_USBRST);
     }
@@ -512,6 +499,9 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
         hpcd->Init.ep0_mps          = USB_OTG_FS_MAX_PACKET_SIZE ;  
         hpcd->Instance->GUSBCFG |= (USB_OTG_GUSBCFG_TRDT_0 | USB_OTG_GUSBCFG_TRDT_2);
       }
+      
+      HAL_PCD_ResetCallback(hpcd);
+      
       __HAL_CLEAR_FLAG(hpcd, USB_OTG_GINTSTS_ENUMDNE);
     }
     
@@ -640,6 +630,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
             the HAL_PCD_DataOutStageCallback could be implenetd in the user file
    */ 
 }
+
 
 /**
   * @brief  Suspend event callbacks
@@ -1054,16 +1045,26 @@ HAL_StatusTypeDef HAL_PCD_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint1
   
   Tx_Offset = hpcd->Instance->GRXFSIZ;
   
-  for (i = 0; i < fifo; i++)
+  if(fifo == 0)
   {
-    Tx_Offset += (hpcd->Instance->DIEPTXF[i] >> 16);
+    hpcd->Instance->DIEPTXF0_HNPTXFSIZ = (size << 16) | Tx_Offset;
   }
-  
-  /* Multiply Tx_Size by 2 to get higher performance */
-  hpcd->Instance->DIEPTXF[fifo] = (size << 16) | Tx_Offset;
+  else
+  {
+    Tx_Offset += (hpcd->Instance->DIEPTXF0_HNPTXFSIZ) >> 16;
+    for (i = 0; i < (fifo - 1); i++)
+    {
+      Tx_Offset += (hpcd->Instance->DIEPTXF[i] >> 16);
+    }
+    
+    /* Multiply Tx_Size by 2 to get higher performance */
+    hpcd->Instance->DIEPTXF[fifo - 1] = (size << 16) | Tx_Offset;
+    
+  }
   
   return HAL_OK;
 }
+
 
 /**
   * @brief  Update FIFO configuration
@@ -1078,6 +1079,37 @@ HAL_StatusTypeDef HAL_PCD_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size)
   return HAL_OK;
 }
 
+
+/**
+  * @brief  HAL_PCD_ActiveRemoteWakeup : active remote wakeup signalling
+  * @param  hpcd: PCD handle
+  * @retval status
+  */
+HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+    
+  if((USBx_DEVICE->DSTS & USB_OTG_DSTS_SUSPSTS) == USB_OTG_DSTS_SUSPSTS)
+  {
+    /* active Remote wakeup signaling */
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_RWUSIG;
+  }
+  return HAL_OK;  
+}
+
+/**
+  * @brief  HAL_PCD_DeActiveRemoteWakeup : de-active remote wakeup signalling
+  * @param  hpcd: PCD handle
+  * @retval status
+  */
+HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+  
+  /* active Remote wakeup signaling */
+   USBx_DEVICE->DCTL &= ~(USB_OTG_DCTL_RWUSIG);
+  return HAL_OK;  
+}
 /**
   * @}
   */
@@ -1120,9 +1152,10 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
   USB_OTG_EPTypeDef *ep;
-  uint32_t len = 0;
+  int32_t len = 0;
   uint32_t len32b;
-  
+  uint32_t fifoemptymsk = 0;
+
   ep = &hpcd->IN_ep[epnum];
   len = ep->xfer_len - ep->xfer_count;
   
@@ -1130,6 +1163,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
   {
     len = ep->maxpacket;
   }
+  
   
   len32b = (len + 3) / 4;
  
@@ -1150,6 +1184,13 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     
     ep->xfer_buff  += len;
     ep->xfer_count += len;
+  }
+  
+  if(len <= 0)
+  {
+    fifoemptymsk = 0x1 << epnum;
+    USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
+    
   }
   
   return HAL_OK;  
