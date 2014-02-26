@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sdram.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   SDRAM HAL module driver.
   *          This file provides a generic firmware to drive SDRAM memories mounted 
   *          as external device.
@@ -102,7 +102,6 @@
   * @{
   */
 #ifdef HAL_SDRAM_MODULE_ENABLED
-
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
 /* Private typedef -----------------------------------------------------------*/
@@ -176,10 +175,16 @@ HAL_StatusTypeDef HAL_SDRAM_DeInit(SDRAM_HandleTypeDef *hsdram)
 {
   /* Initialize the low level hardware (MSP) */
   HAL_SDRAM_MspDeInit(hsdram);
-  
+
   /* Configure the SDRAM registers with their reset values */
   FMC_SDRAM_DeInit(hsdram->Instance, hsdram->Init.SDBank);
-  
+
+  /* Reset the SDRAM controller state */
+  hsdram->State = HAL_SDRAM_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hsdram);
+
   return HAL_OK;
 }
 
@@ -309,11 +314,11 @@ HAL_StatusTypeDef HAL_SDRAM_Read_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddr
   {
     *pDstBuffer = *(__IO uint8_t *)pSdramAddress;  
     pDstBuffer++;
-    pSdramAddress++;               
+    pSdramAddress++;
   }
   
   /* Process Unlocked */
-  __HAL_UNLOCK(hsdram);       
+  __HAL_UNLOCK(hsdram);
   
   return HAL_OK; 
 }
@@ -352,7 +357,7 @@ HAL_StatusTypeDef HAL_SDRAM_Write_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
   {
     *(__IO uint8_t *)pSdramAddress = *pSrcBuffer;
     pSrcBuffer++;
-    pSdramAddress++;           
+    pSdramAddress++;
   }
   
   /* Process Unlocked */

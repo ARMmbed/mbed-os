@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of RTC HAL module.
   ******************************************************************************
   * @attention
@@ -694,8 +694,8 @@ typedef struct
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc);
-__weak void       HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc);
-__weak void       HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc);
+void       HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc);
+void       HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc);
 
 /* RTC Time and Date functions ************************************************/
 HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format);
@@ -710,7 +710,7 @@ HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alar
 HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Alarm, uint32_t Format);
 void                HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef   HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
-__weak void         HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc);
+void         HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc);
 
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef   HAL_RTC_WaitForSynchro(RTC_HandleTypeDef* hrtc);

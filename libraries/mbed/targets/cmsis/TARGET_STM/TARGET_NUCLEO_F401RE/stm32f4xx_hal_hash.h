@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -304,11 +304,11 @@ void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash);
 
 /* Peripheral State functions  ************************************************/
 HAL_HASH_STATETypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash);
-__weak void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash);
-__weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash);
-__weak void HAL_HASH_InCpltCallback(HASH_HandleTypeDef *hhash);
-__weak void HAL_HASH_DgstCpltCallback(HASH_HandleTypeDef *hhash);
-__weak void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash);
+void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash);
+void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash);
+void HAL_HASH_InCpltCallback(HASH_HandleTypeDef *hhash);
+void HAL_HASH_DgstCpltCallback(HASH_HandleTypeDef *hhash);
+void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash);
 
 #endif /* STM32F415xx || STM32F417xx || STM32F437xx || STM32F439xx */
 /**

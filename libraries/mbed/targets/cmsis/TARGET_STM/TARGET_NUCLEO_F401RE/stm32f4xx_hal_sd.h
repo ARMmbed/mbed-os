@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sd.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of SD HAL module.
   ******************************************************************************
   * @attention
@@ -610,8 +610,8 @@ typedef enum
 /* Initialization/de-initialization functions  **********************************/
 HAL_SD_ErrorTypedef HAL_SD_Init(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTypedef *SDCardInfo);
 HAL_StatusTypeDef   HAL_SD_DeInit (SD_HandleTypeDef *hsd);
-__weak void HAL_SD_MspInit(SD_HandleTypeDef *hsd);
-__weak void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd);
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd);
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd);
 
 /* I/O operation functions  *****************************************************/
 /* Blocking mode: Polling */
@@ -623,12 +623,12 @@ HAL_SD_ErrorTypedef HAL_SD_Erase(SD_HandleTypeDef *hsd, uint64_t startaddr, uint
 void HAL_SD_IRQHandler(SD_HandleTypeDef *hsd);
 
 /* Callback in non blocking modes (DMA) */
-__weak void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SD_DMA_TxErrorCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SD_XferCpltCallback(SD_HandleTypeDef *hsd);
-__weak void HAL_SD_XferErrorCallback(SD_HandleTypeDef *hsd);
+void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma);
+void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma);
+void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma);
+void HAL_SD_DMA_TxErrorCallback(DMA_HandleTypeDef *hdma);
+void HAL_SD_XferCpltCallback(SD_HandleTypeDef *hsd);
+void HAL_SD_XferErrorCallback(SD_HandleTypeDef *hsd);
 
 /* Non-Blocking mode: DMA */
 HAL_SD_ErrorTypedef HAL_SD_ReadBlocks_DMA(SD_HandleTypeDef *hsd, uint32_t *pReadBuffer, uint64_t ReadAddr, uint32_t BlockSize, uint32_t NumberOfBlocks);

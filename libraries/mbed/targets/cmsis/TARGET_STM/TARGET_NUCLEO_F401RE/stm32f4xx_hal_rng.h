@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention
@@ -182,15 +182,15 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng);
 HAL_StatusTypeDef HAL_RNG_DeInit (RNG_HandleTypeDef *hrng);
-__weak void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng);
-__weak void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng);
+void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng);
+void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng);
 
 /* Peripheral Control functions  ************************************************/
 uint32_t HAL_RNG_GetRandomNumber(RNG_HandleTypeDef *hrng);
 uint32_t HAL_RNG_GetRandomNumber_IT(RNG_HandleTypeDef *hrng);
 void HAL_RNG_IRQHandler(RNG_HandleTypeDef *hrng);
-__weak void HAL_RNG_ReadyCallback(RNG_HandleTypeDef* hrng);
-__weak void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng);
+void HAL_RNG_ReadyCallback(RNG_HandleTypeDef* hrng);
+void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng);
 
 /* Peripheral State functions  **************************************************/
 HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng);

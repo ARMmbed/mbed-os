@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   USART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Synchronous Asynchronous Receiver Transmitter (USART) peripheral:
@@ -151,6 +151,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define DYMMY_DATA      0xFFFF
+#define USART_TIMEOUT_VALUE  22000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -280,7 +281,10 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
 
   husart->ErrorCode = HAL_USART_ERROR_NONE;
   husart->State = HAL_USART_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(husart);
+
   return HAL_OK;
 }
 
@@ -1084,10 +1088,16 @@ HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
   husart->Instance->CR3 &= ~USART_CR3_DMAT;
   husart->Instance->CR3 &= ~USART_CR3_DMAR;
 
-  /* Disable the USART DMA Stream */
-  __HAL_DMA_DISABLE(husart->hdmatx);
-  __HAL_DMA_DISABLE(husart->hdmarx);
-
+  /* Abort the USART DMA Tx Stream */
+  if(husart->hdmatx != NULL)
+  {
+    HAL_DMA_Abort(husart->hdmatx);
+  }
+  /* Abort the USART DMA Rx Stream */
+  if(husart->hdmarx != NULL)
+  {  
+    HAL_DMA_Abort(husart->hdmarx);
+  }
   /* Disable USART peripheral */
   __USART_DISABLE(husart);
 
@@ -1316,18 +1326,28 @@ static void USART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
   husart->TxXferCount = 0;
   if(husart->State == HAL_USART_STATE_BUSY_TX)
   {
-    /* Disable the DMA transfer for transmit request by setting the DMAT bit
-     in the USART CR3 register */
-    husart->Instance->CR3 &= ~(USART_CR3_DMAT);
-    husart->State= HAL_USART_STATE_READY;
+    /* Wait for USART TC Flag */
+    if(USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_TC, RESET, USART_TIMEOUT_VALUE) != HAL_OK)
+    {
+      /* Timeout Occured */ 
+      husart->State = HAL_USART_STATE_TIMEOUT;
+      HAL_USART_ErrorCallback(husart);
+    }
+    else
+    {
+      /* No Timeout */
+      /* Disable the DMA transfer for transmit request by setting the DMAT bit
+       in the USART CR3 register */
+      husart->Instance->CR3 &= ~(USART_CR3_DMAT);
+      husart->State= HAL_USART_STATE_READY;
+    }
   }
   /* the usart state is HAL_USART_STATE_BUSY_TX_RX*/
   else
   {
     husart->State= HAL_USART_STATE_BUSY_RX;
+    HAL_USART_TxCpltCallback(husart);
   }
-
-  HAL_USART_TxCpltCallback(husart);
 }
 
 /**

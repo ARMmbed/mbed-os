@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *         
@@ -62,17 +62,15 @@
   * @{
   */
 
-#ifdef HAL_MODULE_ENABLED
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /**
- * @brief STM32F4xx HAL Driver version number V1.0.0RC1
+ * @brief STM32F4xx HAL Driver version number V1.0.0
    */
 #define __STM32F4xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
 #define __STM32F4xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
 #define __STM32F4xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32F4xx_HAL_VERSION_RC     (0x01) /*!< [7:0]  release candidate */ 
+#define __STM32F4xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F4xx_HAL_VERSION         ((__STM32F4xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F4xx_HAL_VERSION_SUB1 << 16)\
                                         |(__STM32F4xx_HAL_VERSION_SUB2 << 8 )\
@@ -96,6 +94,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static __IO uint32_t uwTick;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -121,18 +120,20 @@ static __IO uint32_t uwTick;
   */
 
 /**
-  * @brief  This function configures the Flash prefetch, instruction and Data caches,
-  *         Configures systick, NVIC and Low level hardware
-  * 
-  * @note   This function is called at the beginning of program after reset and before 
-  *         the clock configuration
-  *             
-  * @note   The Systick configuration is based on HSI clock, as HSI is the clock
-  *         used after a system Reset and the NVIC configuration is set to Priority group 4 
+  * @brief  This function is used to initialize the HAL Library; it must be the first 
+  *         instruction to be executed in the main program (before to call any other
+  *         HAL function), it performs the following:
+  *           - Configure the Flash prefetch, instruction and Data caches
+  *           - Configures the SysTick to generate an interrupt each 1 millisecond,
+  *             which is clocked by the HSI (at this stage, the clock is not yet
+  *             configured and thus the system is running from the internal HSI at 16 MHz)
+  *           - Set NVIC Group Priority to 4
+  *           - Calls the HAL_MspInit() callback function defined in user file 
+  *             stm32f4xx_hal_msp.c to do the global low level hardware initialization 
   *            
-  * @note   The Systick Interrupt is defined with the lowest priority in "core_cm4.h" file
-  *         In this case HAL_Delay() must not be used under interrupt with higher priority.
-  *         
+  * @note   SysTick is used as time base for the HAL_Delay() function, the application
+  *         need to ensure that the SysTick time base is always set to 1 millisecond
+  *         to have correct HAL operation.
   * @note                  
   * @param  None
   * @retval HAL status
@@ -247,8 +248,8 @@ __weak void HAL_MspDeInit(void)
   */
 
 /**
-  * @brief  This function is used when systick configuration should be changed. 
-  *         It is used to provide the HAL a timer base service.
+  * @brief  This function is called from SysTick ISR each 1 millisecond, to increment
+  *         a global variable "uwTick" used as time base.
   * @param  None
   * @retval None
   */
@@ -258,7 +259,7 @@ void HAL_IncTick(void)
 }
 
 /**
-  * @brief  This method used to provide a tick value in millisecond.
+  * @brief  Povides a tick value in millisecond.
   * @param  Non
   * @retval tick value
   */
@@ -268,7 +269,13 @@ uint32_t HAL_GetTick(void)
 }
 
 /**
-  * @brief  This method used to provide blocking delay
+  * @brief  Provides a blocking delay in millisecond.
+  * @note   Care must be taken when using HAL_Delay(), this function provides accurate delay
+  *         (in milliseconds) based on variable incremented in SysTick ISR. This implies that
+  *         if HAL_Delay() is called from a peripheral ISR process, then the SysTick interrupt
+  *         must have higher priority (numerically lower) than the peripheral interrupt. 
+  *         Otherwise the caller ISR process will be blocked. To change the SysTick interrupt
+  *         priority you have to use HAL_NVIC_SetPriority() function.
   * @param  Delay : specifies the delay time length, in milliseconds.
   * @retval None
   */
@@ -283,7 +290,7 @@ void HAL_Delay(__IO uint32_t Delay)
 }
 
 /**
-  * @brief  This method returns the HAL revision
+  * @brief  Returns the HAL revision
   * @param  None
   * @retval version : 0xXYZR (8bits for each decimal, R for RC)
   */
@@ -435,7 +442,6 @@ void HAL_DisableMemorySwappingBank(void)
   * @}
   */
 
-#endif /* HAL_MODULE_ENABLED */
 /**
   * @}
   */

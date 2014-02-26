@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -109,40 +109,40 @@
 
 /** @brief  Main Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FLASH             (SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE))
+#define __HAL_REMAPMEMORY_FLASH()             (SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE))
 
 /** @brief  System Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SYSTEMFLASH       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
-                                                SYSCFG->MEMRMP |= SYSCFG_MEMRMP_MEM_MODE_0;\
-                                               }while(0);
+#define __HAL_REMAPMEMORY_SYSTEMFLASH()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
+                                                  SYSCFG->MEMRMP |= SYSCFG_MEMRMP_MEM_MODE_0;\
+                                                 }while(0);
 
 /** @brief  Embedded SRAM mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SRAM       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
-                                         SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_0 | SYSCFG_MEMRMP_MEM_MODE_1);\
-                                         }while(0);
+#define __HAL_REMAPMEMORY_SRAM()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
+                                           SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_0 | SYSCFG_MEMRMP_MEM_MODE_1);\
+                                          }while(0);
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx)|| defined(STM32F417xx)
 /** @brief  FSMC Bank1 (NOR/PSRAM 1 and 2) mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FSMC       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
-                                         SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_1);\
-                                        }while(0);
+#define __HAL_REMAPMEMORY_FSMC()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
+                                           SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_1);\
+                                          }while(0);
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) 
 /** @brief  FMC Bank1 (NOR/PSRAM 1 and 2) mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FMC       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
-                                        SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_1);\
-                                        }while(0);
+#define __HAL_REMAPMEMORY_FMC()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
+                                          SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_1);\
+                                         }while(0);
 
 /** @brief  FMC/SDRAM Bank 1 and 2 mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FMC_SDRAM       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
-                                              SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_2);\
-                                             }while(0);
+#define __HAL_REMAPMEMORY_FMC_SDRAM()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
+                                                SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_2);\
+                                               }while(0);
 #endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */ 
 
 /* Exported functions --------------------------------------------------------*/
@@ -150,8 +150,8 @@
 /* Initialization and de-initialization functions  ******************************/
 HAL_StatusTypeDef HAL_Init(void);
 HAL_StatusTypeDef HAL_DeInit(void);
-__weak void HAL_MspInit(void);
-__weak void HAL_MspDeInit(void);
+void HAL_MspInit(void);
+void HAL_MspDeInit(void);
 
 /* Peripheral Control functions  ************************************************/
 void     HAL_IncTick(void);

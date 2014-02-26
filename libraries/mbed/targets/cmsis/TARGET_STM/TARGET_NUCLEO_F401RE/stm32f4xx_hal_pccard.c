@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pccard.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   PCCARD HAL module driver.
   *          This file provides a generic firmware to drive PCCARD memories mounted 
   *          as external device.
@@ -86,12 +86,11 @@
   * @{
   */
 #ifdef HAL_PCCARD_MODULE_ENABLED
-
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/    
+/* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -169,18 +168,18 @@ HAL_StatusTypeDef HAL_PCCARD_Init(PCCARD_HandleTypeDef *hpccard, FMC_NAND_PCC_Ti
   */
 HAL_StatusTypeDef  HAL_PCCARD_DeInit(PCCARD_HandleTypeDef *hpccard)
 {
-  /* Update the PCCARD controller state */
-  hpccard->State = HAL_PCCARD_STATE_BUSY;
-  
   /* De-Initialize the low level hardware (MSP) */
-  HAL_PCCARD_MspDeInit(hpccard);  
+  HAL_PCCARD_MspDeInit(hpccard);
    
   /* Configure the PCCARD registers with their reset values */
   FMC_PCCARD_DeInit(hpccard->Instance);
   
   /* Update the PCCARD controller state */
   hpccard->State = HAL_PCCARD_STATE_RESET;
-    
+
+  /* Release Lock */
+  __HAL_UNLOCK(hpccard);
+
   return HAL_OK; 
 }
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
@@ -1910,7 +1910,7 @@ typedef struct
   * @param  __INTERRUPT__: specifies the interrupt pending bit to clear. @defgroup ETH_DMA_Interrupts
   * @retval None
   */
-#define __HAL_ETH_DMA_CLEAR_IT_PENDING_BIT(__HANDLE__, __INTERRUPT__)      ((__HANDLE__)->Instance->DMASR =(__INTERRUPT__))
+#define __HAL_ETH_DMA_CLEAR_IT(__HANDLE__, __INTERRUPT__)      ((__HANDLE__)->Instance->DMASR =(__INTERRUPT__))
 
 /**
   * @brief  Checks whether the specified ETHERNET DMA flag is set or not.
@@ -2134,8 +2134,8 @@ typedef struct
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth);
 HAL_StatusTypeDef HAL_ETH_DeInit(ETH_HandleTypeDef *heth);
-__weak void HAL_ETH_MspInit(ETH_HandleTypeDef *heth);
-__weak void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth);
+void HAL_ETH_MspInit(ETH_HandleTypeDef *heth);
+void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth);
 HAL_StatusTypeDef HAL_ETH_DMATxDescListInit(ETH_HandleTypeDef *heth, ETH_DMADescTypeDef *DMATxDescTab, uint8_t* TxBuff, uint32_t TxBuffCount);
 HAL_StatusTypeDef HAL_ETH_DMARxDescListInit(ETH_HandleTypeDef *heth, ETH_DMADescTypeDef *DMARxDescTab, uint8_t *RxBuff, uint32_t RxBuffCount);
 
@@ -2148,9 +2148,9 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth);
 void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth);
 
  /* Callback in non blocking modes (Interrupt) */
-__weak void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth);
-__weak void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth);
-__weak void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth);
+void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth);
+void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth);
+void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth);
 
 /* Cmmunication with PHY functions*/
 HAL_StatusTypeDef HAL_ETH_ReadPHYRegister(ETH_HandleTypeDef *heth, uint16_t PHYReg, uint32_t *RegValue);

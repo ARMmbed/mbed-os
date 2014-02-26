@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sdram.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of SDRAM HAL module.
   ******************************************************************************
   * @attention
@@ -96,13 +96,13 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_SDRAM_Init(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_TimingTypeDef *Timing);
 HAL_StatusTypeDef HAL_SDRAM_DeInit(SDRAM_HandleTypeDef *hsdram);
-__weak void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram);
-__weak void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef *hsdram);
+void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram);
+void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef *hsdram);
 
 void HAL_SDRAM_IRQHandler(SDRAM_HandleTypeDef *hsdram);
-__weak void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram);
-__weak void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SDRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma);
+void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram);
+void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma);
+void HAL_SDRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma);
 
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef HAL_SDRAM_Read_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint8_t *pDstBuffer, uint32_t BufferSize);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -186,8 +186,11 @@ typedef struct
 #define CIR_BYTE2_ADDRESS         ((uint32_t)(RCC_BASE + 0x0C + 0x02))
 
 /* BDCR register base address */
-#define BDCR_BYTE0_ADDRESS              (PERIPH_BASE + RCC_BDCR_OFFSET)
+#define BDCR_BYTE0_ADDRESS        (PERIPH_BASE + RCC_BDCR_OFFSET)
 
+
+#define DBP_TIMEOUT_VALUE          ((uint32_t)100)
+#define LSE_TIMEOUT_VALUE          ((uint32_t)5000)
 /**
   * @}
   */
@@ -195,6 +198,7 @@ typedef struct
 /** @defgroup RCC_Oscillator_Type
   * @{
   */
+#define RCC_OSCILLATORTYPE_NONE            ((uint32_t)0x00000000)
 #define RCC_OSCILLATORTYPE_HSE             ((uint32_t)0x00000001)
 #define RCC_OSCILLATORTYPE_HSI             ((uint32_t)0x00000002)
 #define RCC_OSCILLATORTYPE_LSE             ((uint32_t)0x00000004)
@@ -934,8 +938,8 @@ typedef struct
   *         RTC clock source).
   */
 #define __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__) (((__RTCCLKSource__) & RCC_BDCR_RTCSEL) == RCC_BDCR_RTCSEL) ?    \
-                                                 MODIFY_REG(RCC->CFGR, RCC_CFGR_RTCPRE, ((__RTCCLKSource__) & 0xFFFFCFF)) : 0
-
+                                                 MODIFY_REG(RCC->CFGR, RCC_CFGR_RTCPRE, ((__RTCCLKSource__) & 0xFFFFCFF)) : CLEAR_BIT(RCC->CFGR, RCC_CFGR_RTCPRE)
+                                                   
 #define __HAL_RCC_RTC_CONFIG(__RTCCLKSource__) do { __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__);    \
                                                     RCC->BDCR |= ((__RTCCLKSource__) & 0x00000FFF);  \
                                                    } while (0)
@@ -1100,7 +1104,7 @@ typedef struct
 /** @brief Set RMVF bit to clear the reset flags: RCC_FLAG_PINRST, RCC_FLAG_PORRST, 
   *        RCC_FLAG_SFTRST, RCC_FLAG_IWDGRST, RCC_FLAG_WWDGRST and RCC_FLAG_LPWRRST.
   */
-#define __HAL_RCC_CLEAR_FLAG() (RCC->CSR |= RCC_CSR_RMVF)
+#define __HAL_RCC_CLEAR_RESET_FLAGS() (RCC->CSR |= RCC_CSR_RMVF)
 
 /** @brief  Check RCC flag is set or not.
   * @param  __FLAG__: specifies the flag to check.
@@ -1154,7 +1158,7 @@ void     HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t 
 void HAL_RCC_NMI_IRQHandler(void);
 
 /* User Callbacks in non blocking mode (IT mode) */ 
-__weak void HAL_RCC_CCSCallback(void);
+void HAL_RCC_CCSCallback(void);
 
 /**
   * @}

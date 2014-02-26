@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   HCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -88,10 +88,10 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-static void HAL_HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum);
-static void HAL_HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum); 
-static void HAL_HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd);
-static void HAL_HCD_Port_IRQHandler     (HCD_HandleTypeDef *hhcd);
+static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum);
+static void HCD_HC_OUT_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum); 
+static void HCD_RXQLVL_IRQHandler(HCD_HandleTypeDef *hhcd);
+static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
 /* Private functions ---------------------------------------------------------*/
 
 /** @defgroup HCD_Private_Functions
@@ -489,16 +489,17 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
-         
+       
       /* Handle Host Port Interrupts */
       HAL_HCD_Disconnect_Callback(hhcd);
+       USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
     }
     
     /* Handle Host Port Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
     {
-      HAL_HCD_Port_IRQHandler (hhcd);
+      HCD_Port_IRQHandler (hhcd);
     }
     
     /* Handle Host SOF Interrupts */
@@ -519,11 +520,11 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
         {
           if ((USBx_HC(i)->HCCHAR) &  USB_OTG_HCCHAR_EPDIR)
           {
-            HAL_HCD_HC_IN_IRQHandler (hhcd, i);
+            HCD_HC_IN_IRQHandler (hhcd, i);
           }
           else
           {
-            HAL_HCD_HC_OUT_IRQHandler (hhcd, i);
+            HCD_HC_OUT_IRQHandler (hhcd, i);
           }
         }
       }
@@ -535,7 +536,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     {
       USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_RXFLVL);
       
-      HAL_HCD_RXQLVL_IRQHandler (hhcd);
+      HCD_RXQLVL_IRQHandler (hhcd);
       
       USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_RXFLVL);
     }
@@ -644,7 +645,6 @@ HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
 { 
   __HAL_LOCK(hhcd); 
   USB_StopHost(hhcd->Instance);
-  USB_DriveVbus(hhcd->Instance, 0);
   __HAL_UNLOCK(hhcd); 
   return HAL_OK;
 }
@@ -773,7 +773,7 @@ uint32_t HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd)
   *         This parameter can be a value from 1 to 15
   * @retval none
   */
-static void HAL_HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
+static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
     
@@ -912,7 +912,7 @@ static void HAL_HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
   *         This parameter can be a value from 1 to 15
   * @retval none
   */
-static void HAL_HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
+static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
   
@@ -1052,7 +1052,7 @@ static void HAL_HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
   * @param  hhcd: HCD handle
   * @retval none
   */
-static void HAL_HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
+static void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;  
   uint8_t                       channelnum =0;  
@@ -1102,7 +1102,7 @@ static void HAL_HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
   * @param  hhcd: HCD handle
   * @retval none
   */
-static void HAL_HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
+static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;  
   __IO uint32_t hprt0, hprt0_dup;
@@ -1116,9 +1116,10 @@ static void HAL_HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   
   /* Check wether Port Connect Detected */
   if((hprt0 & USB_OTG_HPRT_PCDET) == USB_OTG_HPRT_PCDET)
-  {
+  {  
     if((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
     {
+      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
       HAL_HCD_Connect_Callback(hhcd);
     }
     hprt0_dup  |= USB_OTG_HPRT_PCDET;
@@ -1138,17 +1139,33 @@ static void HAL_HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
         {
           USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_6_MHZ );
         }
-        else if ((hprt0 & USB_OTG_HPRT_PSPD) == (HPRT0_PRTSPD_FULL_SPEED << 17))
+        else
         {
           USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
         }
       }
       else
       {
-        USB_InitFSLSPClkSel(USBx , HCFG_30_60_MHZ); 
+        if(hhcd->Init.speed == HCD_SPEED_FULL)
+        {
+          USBx_HOST->HFIR = (uint32_t)60000;
+        }
       }
       HAL_HCD_Connect_Callback(hhcd);
+      
+      if(hhcd->Init.speed == HCD_SPEED_HIGH)
+      {
+        USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT); 
+      }
     }
+    else
+    {
+      /* Cleanup HPRT */
+      USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
+        USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
+      
+      USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT); 
+    }    
   }
   
   /* Check For an overcurrent */

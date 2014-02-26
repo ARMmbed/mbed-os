@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -372,7 +372,11 @@ HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
   HAL_I2C_MspDeInit(hi2c);
 
   hi2c->ErrorCode = HAL_I2C_ERROR_NONE;
+
   hi2c->State = HAL_I2C_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hi2c);
 
   return HAL_OK;
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -151,18 +151,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Masks Definition */
-#define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
-#define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F) 
-#define RTC_INIT_MASK           ((uint32_t)0xFFFFFFFF)  
-#define RTC_RSF_MASK            ((uint32_t)0xFFFFFF5F)
-#define RTC_FLAGS_MASK          ((uint32_t)(RTC_FLAG_TSOVF | RTC_FLAG_TSF | RTC_FLAG_WUTF | \
-                                            RTC_FLAG_ALRBF | RTC_FLAG_ALRAF | RTC_FLAG_INITF | \
-                                            RTC_FLAG_RSF | RTC_FLAG_INITS | RTC_FLAG_WUTWF | \
-                                            RTC_FLAG_ALRBWF | RTC_FLAG_ALRAWF | RTC_FLAG_TAMP1F | \
-                                            RTC_FLAG_RECALPF | RTC_FLAG_SHPF))
-
-#define RTC_TIMEOUT_VALUE  1000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -334,7 +322,7 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     hrtc->Instance->WUTR = (uint32_t)0x0000FFFF;
     hrtc->Instance->PRER = (uint32_t)0x007F00FF;
     hrtc->Instance->CALIBR = (uint32_t)0x00000000;
-    hrtc->Instance->ALRMAR = (uint32_t)0x00000000;        
+    hrtc->Instance->ALRMAR = (uint32_t)0x00000000;
     hrtc->Instance->ALRMBR = (uint32_t)0x00000000;
     hrtc->Instance->SHIFTR = (uint32_t)0x00000000;
     hrtc->Instance->CALR = (uint32_t)0x00000000;
@@ -363,13 +351,16 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
   }
   
   /* Enable the write protection for RTC registers */
-  __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);  
+  __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
   
   /* De-Initialize RTC MSP */
   HAL_RTC_MspDeInit(hrtc);
   
   hrtc->State = HAL_RTC_STATE_RESET; 
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hrtc);
+
   return HAL_OK;
 }
 
@@ -1030,7 +1021,10 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
   {
     /* Disable the Alarm A interrupt */
     __HAL_RTC_ALARMA_DISABLE(hrtc);
-     
+
+    /* Clear flag alarm A */
+    __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRAF);
+
     timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
     /* Wait till RTC ALRAWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET)
@@ -1061,7 +1055,10 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
   {
     /* Disable the Alarm B interrupt */
     __HAL_RTC_ALARMB_DISABLE(hrtc);
-        
+
+    /* Clear flag alarm B */
+    __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
+
     timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
     /* Wait till RTC ALRBWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET)

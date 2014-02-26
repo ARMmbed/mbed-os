@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
@@ -222,9 +222,9 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg);
-__weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg);
-__weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg);
-__weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg);
+void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg);
+void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg);
+void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg);
 
 /* I/O operation functions ******************************************************/
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg);

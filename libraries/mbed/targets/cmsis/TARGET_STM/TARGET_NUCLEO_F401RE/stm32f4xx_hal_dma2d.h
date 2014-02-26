@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of DMA2D HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F429xx) || defined(STM32F439xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -449,15 +449,15 @@ typedef struct __DMA2D_HandleTypeDef
   *            @arg DMA2D_IT_TE:  Transfer error interrupt mask
   * @retval The state of INTERRUPT.
   */
-#define __HAL_DMA2D_IT_STATUS(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->CR & (__INTERRUPT__))
+#define __HAL_DMA2D_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->CR & (__INTERRUPT__))
 
 /* Exported functions --------------------------------------------------------*/  
 
 /* Initialization and de-initialization functions *******************************/
 HAL_StatusTypeDef HAL_DMA2D_Init(DMA2D_HandleTypeDef *hdma2d); 
 HAL_StatusTypeDef HAL_DMA2D_DeInit (DMA2D_HandleTypeDef *hdma2d);
-__weak void HAL_DMA2D_MspInit(DMA2D_HandleTypeDef* hdma2d);
-__weak void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d);
+void HAL_DMA2D_MspInit(DMA2D_HandleTypeDef* hdma2d);
+void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d);
 
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_DMA2D_Start(DMA2D_HandleTypeDef *hdma2d, uint32_t pdata, uint32_t DstAddress, uint32_t Width, uint32_t Heigh);
@@ -481,7 +481,7 @@ HAL_StatusTypeDef  HAL_DMA2D_ProgramLineEvent(DMA2D_HandleTypeDef *hdma2d, uint3
 HAL_DMA2D_StateTypeDef HAL_DMA2D_GetState(DMA2D_HandleTypeDef *hdma2d);
 uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
 
-#endif /* STM32F429xx || STM32F439xx */
+#endif /* STM32F427xx || STM32F437xx  || STM32F429xx || STM32F439xx */
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of SAI HAL module.
   ******************************************************************************
   * @attention
@@ -735,11 +735,11 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai);
 
 /* SAI IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */
 void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai);
-__weak void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai);
-__weak void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai);
-__weak void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai);
-__weak void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai);
-__weak void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai);
+void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai);
+void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai);
+void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai);
+void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai);
+void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai);
 
 /* Peripheral State functions  **************************************************/
 HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai);
