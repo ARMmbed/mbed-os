@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   FMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -15,7 +15,7 @@
   @verbatim
   ==============================================================================
                         ##### FMC peripheral features #####
-  ==============================================================================                 
+  ==============================================================================
   [..] The Flexible memory controller (FMC) includes three memory controllers:
        (+) The NOR/PSRAM memory controller
        (+) The NAND/PC Card memory controller
@@ -91,7 +91,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/    
+/* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -170,7 +170,7 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
   assert_param(IS_FMC_WRITE_BURST(Init->WriteBurst));
   assert_param(IS_FMC_CONTINOUS_CLOCK(Init->ContinuousClock)); 
   
-  /* Set NORSRAM device control parameters */                                     
+  /* Set NORSRAM device control parameters */
   tmpr = (uint32_t)(Init->DataAddressMux       |\
                     Init->MemoryType           |\
                     Init->MemoryDataWidth      |\
@@ -399,7 +399,7 @@ HAL_StatusTypeDef FMC_NORSRAM_WriteOperation_Disable(FMC_NORSRAM_TypeDef *Device
   * @brief    PCCARD Controller functions 
   *
   @verbatim 
-  ==============================================================================   
+  ==============================================================================
                     ##### How to use NAND device driver #####
   ==============================================================================
   [..]
@@ -1035,9 +1035,9 @@ HAL_StatusTypeDef FMC_SDRAM_Timing_Init(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Tim
                                                (((Timing->WriteRecoveryTime)-1) <<16)    |\
                                                (((Timing->RPDelay)-1) << 20)             |\
                                                (((Timing->RCDDelay)-1) << 24)
-                                               );                                                                                     
+                                               );
   }
-  else /* FMC_Bank2_SDRAM */                      
+  else /* FMC_Bank2_SDRAM */
   {  
 
     tmpr1 = (uint32_t)(((Timing->LoadToActiveDelay)-1)           |\
@@ -1161,7 +1161,7 @@ HAL_StatusTypeDef FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Com
                     ((Command->ModeRegisterDefinition) << 9)     
                     );
     
-  Device->SDCMR = tmpr;                                                        
+  Device->SDCMR = tmpr;
    
   timeout = HAL_GetTick() + Timeout;
 

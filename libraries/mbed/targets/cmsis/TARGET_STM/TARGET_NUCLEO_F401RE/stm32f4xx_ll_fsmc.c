@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   FSMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -165,7 +165,7 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_
   assert_param(IS_FSMC_ASYNWAIT(Init->AsynchronousWait));
   assert_param(IS_FSMC_WRITE_BURST(Init->WriteBurst));
   
-  /* Set NORSRAM device control parameters */                                     
+  /* Set NORSRAM device control parameters */
   tmpr = (uint32_t)(Init->DataAddressMux       |\
                     Init->MemoryType           |\
                     Init->MemoryDataWidth      |\
@@ -312,7 +312,7 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeD
 @verbatim   
   ==============================================================================
                       ##### FSMC_NORSRAM Control functions #####
-  ==============================================================================  
+  ==============================================================================
   [..]
     This subsection provides a set of functions allowing to control dynamically
     the FSMC NORSRAM interface.

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -1414,12 +1414,12 @@ HAL_StatusTypeDef HAL_TIM_GenerateEvent(TIM_HandleTypeDef *htim, uint32_t EventS
 uint32_t HAL_TIM_ReadCapturedValue(TIM_HandleTypeDef *htim, uint32_t Channel);
 
 /* Callback in non blocking modes (Interrupt and DMA) *************************/
-__weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
-__weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim);
-__weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
-__weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim);
-__weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim);
-__weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim);
+void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim);
 
 /* Peripheral State functions  **************************************************/
 HAL_TIM_StateTypeDef HAL_TIM_Base_GetState(TIM_HandleTypeDef *htim);
