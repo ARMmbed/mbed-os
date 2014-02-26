@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   HASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the HASH peripheral:
@@ -219,7 +219,10 @@ HAL_StatusTypeDef HAL_HASH_DeInit(HASH_HandleTypeDef *hhash)
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_RESET;  
-   
+
+  /* Release Lock */
+  __HAL_UNLOCK(hhash);
+
   /* Return function status */
   return HAL_OK;
 }

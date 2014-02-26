@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   DMA HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -77,7 +77,7 @@
       (+) __HAL_DMA_CLEAR_FLAG: Clear the DMA Stream pending flags.
       (+) __HAL_DMA_ENABLE_IT: Enable the specified DMA Stream interrupts.
       (+) __HAL_DMA_DISABLE_IT: Disable the specified DMA Stream interrupts.
-      (+) __HAL_DMA_IT_STATUS: Check whether the specified DMA Stream interrupt has occurred or not. 
+      (+) __HAL_DMA_GET_IT_SOURCE: Check whether the specified DMA Stream interrupt has occurred or not. 
      
      [..] 
       (@) You can refer to the DMA HAL driver header file for more useful macros  
@@ -300,6 +300,9 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
 
   /* Initialize the DMA state */
   hdma->State = HAL_DMA_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hdma);
 
   return HAL_OK;
 }
@@ -606,7 +609,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   /* Transfer Error Interrupt management ***************************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma)) != RESET)
   {
-    if(__HAL_DMA_IT_STATUS(hdma, DMA_IT_TE) != RESET)
+    if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_TE) != RESET)
     {
       /* Disable the transfer error interrupt */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TE);
@@ -633,7 +636,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   /* FIFO Error Interrupt management ******************************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_FE_FLAG_INDEX(hdma)) != RESET)
   {
-    if(__HAL_DMA_IT_STATUS(hdma, DMA_IT_FE) != RESET)
+    if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_FE) != RESET)
     {
       /* Disable the FIFO Error interrupt */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_FE);
@@ -660,7 +663,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   /* Direct Mode Error Interrupt management ***********************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_DME_FLAG_INDEX(hdma)) != RESET)
   {
-    if(__HAL_DMA_IT_STATUS(hdma, DMA_IT_DME) != RESET)
+    if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_DME) != RESET)
     {
       /* Disable the direct mode Error interrupt */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_DME);
@@ -687,7 +690,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   /* Half Transfer Complete Interrupt management ******************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma)) != RESET)
   {
-    if(__HAL_DMA_IT_STATUS(hdma, DMA_IT_HT) != RESET)
+    if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_HT) != RESET)
     { 
       /* Multi_Buffering mode enabled */
       if(((hdma->Instance->CR) & (uint32_t)(DMA_SxCR_DBM)) != 0)
@@ -733,7 +736,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   /* Transfer Complete Interrupt management ***********************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma)) != RESET)
   {
-    if(__HAL_DMA_IT_STATUS(hdma, DMA_IT_TC) != RESET)
+    if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_TC) != RESET)
     {
       if(((hdma->Instance->CR) & (uint32_t)(DMA_SxCR_DBM)) != 0)
       {

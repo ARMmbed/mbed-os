@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
@@ -348,8 +348,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda);
-__weak void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda);
-__weak void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda);
 
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -359,9 +359,9 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
 HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size);
 void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda);
-__weak void HAL_IRDA_TxCpltCallback(IRDA_HandleTypeDef *hirda);
-__weak void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda);
-__weak void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_TxCpltCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda);
 
 /* Peripheral State functions  **************************************************/
 HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda);
