@@ -257,21 +257,22 @@ def shape_test_request(mcu, image_path, test_id, duration=10):
     return json.dumps(test_spec)
 
 
-def get_test_scenario_from_file(test_spec_filename, verbose=False):
-    test_spec = None
+def get_json_data_from_file(json_spec_filename, verbose=False):
+    result = None
     try:
-        with open(test_spec_filename) as data_file:
+        with open(json_spec_filename) as data_file:
             try:
-                test_spec = json.load(data_file)
+                result = json.load(data_file)
             except ValueError as json_error_msg:
-                test_spec = None
+                result = None
                 print "Error: %s" % (json_error_msg)
     except IOError as fileopen_error_msg:
         print "Error: %s" % (fileopen_error_msg)
-    if verbose and test_spec:
+    if verbose and result:
         pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(test_spec)
-    return test_spec
+        pp.pprint(result)
+    return result
+
 
 if __name__ == '__main__':
     # Command line options
@@ -280,6 +281,11 @@ if __name__ == '__main__':
                       dest='test_spec_filename',
                       metavar="FILE",
                       help='Points to file with test specification')
+
+    parser.add_option('-M', '--MUTS',
+                      dest='muts_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
 
     parser.add_option('-s', '--suppress-summary',
                       dest='suppress_summary',
@@ -296,16 +302,20 @@ if __name__ == '__main__':
     parser.epilog="Example: singletest.py -i test_spec.json"
     (opts, args) = parser.parse_args()
 
-    # Below list tells script which targets and their toolchain(s)
-    # should be covered by the test scenario
-
     # Open file with test specification
-    test_spec = get_test_scenario_from_file(opts.test_spec_filename, opts.verbose) if opts.test_spec_filename else None
-
+    # test_spec_filename tells script which targets and their toolchain(s)
+    # should be covered by the test scenario
+    test_spec = get_json_data_from_file(opts.test_spec_filename, opts.verbose) if opts.test_spec_filename else None
     if test_spec is None:
         parser.print_help()
         exit(-1)
 
+    if opts.muts_spec_filename:
+        MUTs = get_json_data_from_file(opts.muts_spec_filename, opts.verbose)
+    if MUTs is None:
+        parser.print_help()
+        exit(-1)
+        
     # Magic happens here... ;)
     start = time()
     single_test = SingleTestRunner()
@@ -341,12 +351,9 @@ if __name__ == '__main__':
                         'test_id': test_id,
                     }
 
-                    path = build_project(test.source_dir, join(build_dir, test_id), T, toolchain, test.dependencies, clean=clean, verbose=opts.verbose)
-
-                    if target.startswith('NRF51822'): # Nordic:
-                        #Convert bin to Hex and Program nrf chip via jlink
-                        print "NORDIC board"
-                        # call(["nrfjprog.exe", "-e", "--program", path.replace(".bin", ".hex"), "--verify"])
+                    path = build_project(test.source_dir, join(build_dir, test_id),
+                                         T, toolchain, test.dependencies,
+                                         clean=clean, verbose=opts.verbose)
 
                     test_result_cache = join(dirname(path), "test_result.json")
 
