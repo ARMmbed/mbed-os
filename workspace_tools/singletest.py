@@ -257,6 +257,22 @@ def shape_test_request(mcu, image_path, test_id, duration=10):
     return json.dumps(test_spec)
 
 
+def get_test_scenario_from_file(test_spec_filename, verbose=False):
+    test_spec = None
+    try:
+        with open(test_spec_filename) as data_file:
+            try:
+                test_spec = json.load(data_file)
+            except ValueError as json_error_msg:
+                test_spec = None
+                print "Error: %s" % (json_error_msg)
+    except IOError as fileopen_error_msg:
+        print "Error: %s" % (fileopen_error_msg)
+    if verbose and test_spec:
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(test_spec)
+    return test_spec
+
 if __name__ == '__main__':
     # Command line options
     parser = optparse.OptionParser()
@@ -282,22 +298,9 @@ if __name__ == '__main__':
 
     # Below list tells script which targets and their toolchain(s)
     # should be covered by the test scenario
-    test_spec = None
 
     # Open file with test specification
-    if opts.test_spec_filename:
-        try:
-            with open(opts.test_spec_filename) as data_file:
-                try:
-                    test_spec = json.load(data_file)
-                except ValueError as json_error_msg:
-                    test_spec = None
-                    print "Error: %s" % (json_error_msg)
-        except IOError as fileopen_error_msg:
-            print "Error: %s" % (fileopen_error_msg)
-        if opts.verbose and test_spec:
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint(test_spec)
+    test_spec = get_test_scenario_from_file(opts.test_spec_filename, opts.verbose) if opts.test_spec_filename else None
 
     if test_spec is None:
         parser.print_help()
