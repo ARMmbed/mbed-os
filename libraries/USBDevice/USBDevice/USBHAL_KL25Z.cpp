@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_KL25Z)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M)
 
 #include "USBHAL.h"
 
@@ -59,7 +59,7 @@ typedef struct BDT {
     uint8_t   dummy;      // RSVD: BD[8:15]
     uint16_t  byte_count; // BD[16:32]
     uint32_t  address;    // Addr
-} BDT; 
+} BDT;
 
 
 // there are:
@@ -82,10 +82,10 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
     return 0;
 }
 
-USBHAL::USBHAL(void) {    
+USBHAL::USBHAL(void) {
     // Disable IRQ
     NVIC_DisableIRQ(USB0_IRQn);
-    
+
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -117,11 +117,11 @@ USBHAL::USBHAL(void) {
     epCallback[27] = &USBHAL::EP14_IN_callback;
     epCallback[28] = &USBHAL::EP15_OUT_callback;
     epCallback[29] = &USBHAL::EP15_IN_callback;
-    
-    
+
+
     // choose usb src as PLL
     SIM->SOPT2 |= (SIM_SOPT2_USBSRC_MASK | SIM_SOPT2_PLLFLLSEL_MASK);
-    
+
     // enable OTG clock
     SIM->SCGC4 |= SIM_SCGC4_USBOTG_MASK;
 
@@ -129,12 +129,12 @@ USBHAL::USBHAL(void) {
     instance = this;
     NVIC_SetVector(USB0_IRQn, (uint32_t)&_usbisr);
     NVIC_EnableIRQ(USB0_IRQn);
-    
+
     // USB Module Configuration
     // Reset USB Module
     USB0->USBTRC0 |= USB_USBTRC0_USBRESET_MASK;
     while(USB0->USBTRC0 & USB_USBTRC0_USBRESET_MASK);
-    
+
     // Set BDT Base Register
     USB0->BDTPAGE1=(uint8_t)((uint32_t)bdt>>8);
     USB0->BDTPAGE2=(uint8_t)((uint32_t)bdt>>16);
@@ -144,14 +144,14 @@ USBHAL::USBHAL(void) {
     USB0->ISTAT = 0xff;
 
     // USB Interrupt Enablers
-    USB0->INTEN |= USB_INTEN_TOKDNEEN_MASK | 
-                   USB_INTEN_SOFTOKEN_MASK | 
+    USB0->INTEN |= USB_INTEN_TOKDNEEN_MASK |
+                   USB_INTEN_SOFTOKEN_MASK |
                    USB_INTEN_ERROREN_MASK  |
                    USB_INTEN_USBRSTEN_MASK;
-    
-    // Disable weak pull downs 
-    USB0->USBCTRL &= ~(USB_USBCTRL_PDE_MASK | USB_USBCTRL_SUSP_MASK);   
-    
+
+    // Disable weak pull downs
+    USB0->USBCTRL &= ~(USB_USBCTRL_PDE_MASK | USB_USBCTRL_SUSP_MASK);
+
     USB0->USBTRC0 |= 0x40;
 }
 
@@ -296,9 +296,9 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     uint32_t n, sz, idx, setup = 0;
     uint8_t not_iso;
     uint8_t * ep_buf;
-    
+
     uint32_t log_endpoint = PHY_TO_LOG(endpoint);
-    
+
     if (endpoint > NUMBER_OF_PHYSICAL_ENDPOINTS - 1) {
         return EP_INVALID;
     }
@@ -335,7 +335,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     if (((Data1 >> endpoint) & 1) == ((bdt[idx].info >> 6) & 1)) {
         if (setup && (buffer[6] == 0))  // if no setup data stage,
             Data1 &= ~1UL;              // set DATA0
-        else 
+        else
             Data1 ^= (1 << endpoint);
     }
 
@@ -345,7 +345,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     else {
         bdt[idx].info = BD_DTS_MASK | BD_OWN_MASK;
     }
-        
+
     USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
     *bytesRead = sz;
 
@@ -368,27 +368,27 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
 
     idx = EP_BDT_IDX(PHY_TO_LOG(endpoint), TX, 0);
     bdt[idx].byte_count = size;
-    
-    
+
+
     // non iso endpoint
     if (USB0->ENDPOINT[PHY_TO_LOG(endpoint)].ENDPT & USB_ENDPT_EPHSHK_MASK) {
         ep_buf = endpoint_buffer[idx];
     } else {
         ep_buf = endpoint_buffer_iso[2];
     }
-    
+
     for (n = 0; n < size; n++) {
         ep_buf[n] = data[n];
     }
-    
+
     if ((Data1 >> endpoint) & 1) {
         bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK;
     } else {
         bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK | BD_DATA01_MASK;
     }
-    
+
     Data1 ^= (1 << endpoint);
-    
+
     return EP_PENDING;
 }
 
@@ -429,7 +429,7 @@ void USBHAL::usbisr(void) {
     uint8_t istat = USB0->ISTAT;
 
     // reset interrupt
-    if (istat & USB_ISTAT_USBRST_MASK) {            
+    if (istat & USB_ISTAT_USBRST_MASK) {
         // disable all endpt
         for(i = 0; i < 16; i++) {
             USB0->ENDPOINT[i].ENDPT = 0x00;
@@ -457,11 +457,11 @@ void USBHAL::usbisr(void) {
 
     // SOF interrupt
     if (istat & USB_ISTAT_SOFTOK_MASK) {
-        USB0->ISTAT = USB_ISTAT_SOFTOK_MASK;  
+        USB0->ISTAT = USB_ISTAT_SOFTOK_MASK;
         // SOF event, read frame number
         SOF(frameNumber());
     }
-    
+
     // stall interrupt
     if (istat & 1<<7) {
         if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK)
@@ -483,7 +483,7 @@ void USBHAL::usbisr(void) {
 
             // EP0 SETUP event (SETUP data received)
             EP0setupCallback();
-                    
+
         } else {
             // OUT packet
             if (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == OUT_TOKEN) {
@@ -517,11 +517,11 @@ void USBHAL::usbisr(void) {
 
         USB0->ISTAT = USB_ISTAT_TOKDNE_MASK;
     }
-        
+
     // sleep interrupt
     if (istat & 1<<4) {
         USB0->ISTAT |= USB_ISTAT_SLEEP_MASK;
-    }    
+    }
 
     // error interrupt
     if (istat & USB_ISTAT_ERROR_MASK) {
