@@ -41,7 +41,7 @@ typedef enum {
 #include "USBEndpoints_LPC17_LPC23.h"
 #elif defined(TARGET_LPC11UXX) || defined(TARGET_LPC1347)
 #include "USBEndpoints_LPC11U.h"
-#elif defined(TARGET_KL25Z)
+#elif defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M)
 #include "USBEndpoints_KL25Z.h"
 #elif defined (TARGET_STM32F4XX)
 #include "USBEndpoints_STM32F4.h"

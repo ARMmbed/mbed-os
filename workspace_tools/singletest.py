@@ -41,6 +41,8 @@ Usage:
 
 import sys
 import json
+import optparse
+import pprint
 from prettytable import PrettyTable
 from serial import Serial
 
@@ -51,6 +53,7 @@ from time import sleep, time
 
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+# Imports related to mbed build pi
 from workspace_tools.build_api import build_project, build_mbed_libs
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.targets import TARGET_MAP
@@ -60,6 +63,7 @@ from workspace_tools.tests import TEST_MAP
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+# Imports related to mbed build pi
 from workspace_tools.utils import delete_dir_files
 from workspace_tools.settings import MUTs
 
@@ -77,7 +81,9 @@ class SingleTestRunner():
         """
         if sleep_before_reset > 0:
             sleep(sleep_before_reset)
-        verbose_msg = "Reset::cmd(sendBreak)"
+        if verbose:
+            verbose_msg = "Reset::cmd(sendBreak)"
+        # Reset type decision
         if mcu_name.startswith('NRF51822'): # Nordic
             call(["nrfjprog", "-r"])
             verbose_msg = "Reset::cmd(nrfjprog)"
@@ -86,6 +92,7 @@ class SingleTestRunner():
             verbose_msg = "Reset::cmd(ST-LINK_CLI.exe)"
         else:
             serial.sendBreak()
+
         if sleep_before_reset > 0:
             sleep(sleep_after_reset)
         if verbose:
@@ -97,6 +104,7 @@ class SingleTestRunner():
         serial.flushOutput()
 
     def is_peripherals_available(self, target, peripherals=None):
+        """ Checks if specified target should run specific peripheral test case."""
         if peripherals is not None:
             peripherals = set(peripherals)
 
@@ -114,7 +122,7 @@ class SingleTestRunner():
         return False
 
     def run_host_test(self, name, target_name, disk, port,
-                      duration, extra_serial, verbose=True):
+                      duration, extra_serial, verbose=False):
         """
         Functions resets target and grabs by timeouted pooling test log
         via serial port.
@@ -151,10 +159,14 @@ class SingleTestRunner():
         # Parse test 'output' data
         result = "UNDEF"
         for line in output.splitlines():
-            if '{success}' in line: result = "OK"
-            if '{failure}' in line: result = "FAIL"
-            if '{error}' in line: result = "ERROR"
-            if '{end}' in line: break
+            if '{success}' in line:
+                result = "OK"
+            if '{failure}' in line:
+                result = "FAIL"
+            if '{error}' in line:
+                result = "ERROR"
+            if '{end}' in line:
+                break
         return result
 
     def print_test_result(self, test_result, target_name, toolchain_name,
@@ -246,25 +258,54 @@ def shape_test_request(mcu, image_path, test_id, duration=10):
 
 
 if __name__ == '__main__':
-    start = time()
-    single_test = SingleTestRunner()
+    # Command line options
+    parser = optparse.OptionParser()
+    parser.add_option('-i', '--tests',
+                      dest='test_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with test specification')
+
+    parser.add_option('-s', '--suppress-summary',
+                      dest='suppress_summary',
+                      default=False,
+                      action="store_true",
+                      help='Suppresses display of wellformatted table with test results')
+
+    parser.add_option('-v', '--verbose',
+                      dest='verbose',
+                      default=False,
+                      action="store_true",
+                      help='Verbose mode (pronts some extra information)')
+
+    parser.epilog="Example: singletest.py -i test_spec.json"
+    (opts, args) = parser.parse_args()
 
     # Below list tells script which targets and their toolchain(s)
     # should be covered by the test scenario
-    test_spec = {
-        "targets": {
-            # "KL25Z": ["ARM", "GCC_ARM"],
-            # "LPC1768": ["ARM", "GCC_ARM", "GCC_CR", "GCC_CS", "IAR"],
-            # "LPC11U24": ["uARM"]
-            # "UBLOX_C027": ["IAR"]
-            # "NRF51822": ["ARM"]
-            # "NUCLEO_F103RB": ["ARM"],
-            # "LPC2368": ["ARM"],
-            # "LPC812": ["uARM"],
-            # "LPC1549": ["uARM"]
-            "LPC4088": ["ARM"]  # , "GCC_CR", "GCC_ARM"
-        }
-    }
+    test_spec = None
+
+    # Open file with test specification
+    if opts.test_spec_filename:
+        try:
+            with open(opts.test_spec_filename) as data_file:
+                try:
+                    test_spec = json.load(data_file)
+                except ValueError as json_error_msg:
+                    test_spec = None
+                    print "Error: %s" % (json_error_msg)
+        except IOError as fileopen_error_msg:
+            print "Error: %s" % (fileopen_error_msg)
+        if opts.verbose and test_spec:
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(test_spec)
+
+    if test_spec is None:
+        parser.print_help()
+        exit(-1)
+
+    # Magic happens here... ;)
+    start = time()
+    single_test = SingleTestRunner()
 
     clean = test_spec.get('clean', False)
     test_ids = test_spec.get('test_ids', [])
@@ -287,7 +328,8 @@ if __name__ == '__main__':
 
                 if test.automated and test.is_supported(target, toolchain):
                     if not single_test.is_peripherals_available(target, test.peripherals):
-                        print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test.peripherals))
+                        if opts.verbose:
+                            print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test.peripherals))
                         continue
 
                     test_result = {
@@ -296,7 +338,7 @@ if __name__ == '__main__':
                         'test_id': test_id,
                     }
 
-                    path = build_project(test.source_dir, join(build_dir, test_id), T, toolchain, test.dependencies, clean=clean, verbose=False)
+                    path = build_project(test.source_dir, join(build_dir, test_id), T, toolchain, test.dependencies, clean=clean, verbose=opts.verbose)
 
                     if target.startswith('NRF51822'): # Nordic:
                         #Convert bin to Hex and Program nrf chip via jlink
@@ -314,19 +356,21 @@ if __name__ == '__main__':
 
     elapsed_time = time() - start
 
-    print
-    print "Test summary:"
-    # Pretty table package is used to print results
-    pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                      "Elapsed Time (sec)", "Timeout (sec)"])
-    pt.align["Result"] = "l" # Left align
-    pt.align["Target"] = "l" # Left align
-    pt.align["Toolchain"] = "l" # Left align
-    pt.align["Test ID"] = "l" # Left align
-    pt.align["Test Description"] = "l" # Left align
-    pt.padding_width = 1 # One space between column edges and contents (default)
+    # Human readable summary
+    if not opts.suppress_summary:
+        print
+        print "Test summary:"
+        # Pretty table package is used to print results
+        pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
+                          "Elapsed Time (sec)", "Timeout (sec)"])
+        pt.align["Result"] = "l" # Left align
+        pt.align["Target"] = "l" # Left align
+        pt.align["Toolchain"] = "l" # Left align
+        pt.align["Test ID"] = "l" # Left align
+        pt.align["Test Description"] = "l" # Left align
+        pt.padding_width = 1 # One space between column edges and contents (default)
 
-    for test in test_summary:
-        pt.add_row(test)
-    print pt
+        for test in test_summary:
+            pt.add_row(test)
+        print pt
     print "Completed in %d sec" % (time() - start)
