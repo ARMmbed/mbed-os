@@ -159,10 +159,14 @@ class SingleTestRunner():
         # Parse test 'output' data
         result = "UNDEF"
         for line in output.splitlines():
-            if '{success}' in line: result = "OK"
-            if '{failure}' in line: result = "FAIL"
-            if '{error}' in line: result = "ERROR"
-            if '{end}' in line: break
+            if '{success}' in line:
+                result = "OK"
+            if '{failure}' in line:
+                result = "FAIL"
+            if '{error}' in line:
+                result = "ERROR"
+            if '{end}' in line:
+                break
         return result
 
     def print_test_result(self, test_result, target_name, toolchain_name,
