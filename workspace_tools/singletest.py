@@ -69,22 +69,21 @@ from workspace_tools.utils import delete_dir_files
 from workspace_tools.settings import MUTs
 
 
-class SingleTestRunner():
+class SingleTestRunner(object):
     """ Object wrapper for single test run which may involve multiple MUTs."""
 
     re_detect_testcase_result = None
-    
     TEST_RESULT_UNDEF = "UNDEF"
-    
+
     # mbed test suite -> SingleTestRunner
-    TEST_RESULT_MAPPING = {"success" : "OK",  
-                           "failure" : "FAIL",  
-                           "error"   : "ERROR",  
+    TEST_RESULT_MAPPING = {"success" : "OK",
+                           "failure" : "FAIL",
+                           "error"   : "ERROR",
                            "end"     : TEST_RESULT_UNDEF}
-    
+
     def __init__(self):
-        PATTERN = "\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) +  ")\}"
-        self.re_detect_testcase_result = re.compile(PATTERN)
+        pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
+        self.re_detect_testcase_result = re.compile(pattern)
 
     def run_host_test(self, target_name, port,
                       duration, verbose=False):
@@ -95,9 +94,9 @@ class SingleTestRunner():
         """
         output = ""
         # Prepare serial for receiving data from target
-        BAUD = 9600
+        baud = 9600
         serial = Serial(port, timeout=1)
-        serial.setBaudrate(BAUD)
+        serial.setBaudrate(baud)
         flush_serial(serial)
         # Resetting target and pooling
         reset(target_name, serial, verbose=verbose)
@@ -119,13 +118,13 @@ class SingleTestRunner():
             print "Test::Output::Start"
             print output
             print "Test::Output::Finish"
-            
+
         # Parse test 'output' data
-        result = self.TEST_RESULT_UNDEF        
+        result = self.TEST_RESULT_UNDEF
         for line in output.splitlines():
-            m = self.re_detect_testcase_result.search(line)
-            if m and len(m.groups()):
-                result = self.TEST_RESULT_MAPPING[m.groups(0)[0]]
+            search_result = self.re_detect_testcase_result.search(line)
+            if search_result and len(search_result.groups()):
+                result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
                 break
         return result
 
@@ -155,8 +154,7 @@ class SingleTestRunner():
 
         disk = mut['disk']
         port = mut['port']
-        extra_serial = mut.get('extra_serial', "")
-        target = TARGET_MAP[mut['mcu']]
+        target_by_mcu = TARGET_MAP[mut['mcu']]
 
         # Program
         # When the build and test system were separate, this was relative to a
@@ -169,23 +167,23 @@ class SingleTestRunner():
             return (test_result, target_name, toolchain_name,
                     test_id, test_description, round(elapsed_time, 2), duration)
 
-        if not target.is_disk_virtual:
+        if not target_by_mcu.is_disk_virtual:
             delete_dir_files(disk)
 
         # Program MUT with proper image file
         copy(image_path, disk)
 
         # Copy Extra Files
-        if not target.is_disk_virtual and test.extra_files:
+        if not target_by_mcu.is_disk_virtual and test.extra_files:
             for f in test.extra_files:
                 copy(f, disk)
 
-        sleep(target.program_cycle_s())
+        sleep(target_by_mcu.program_cycle_s())
 
         # Host test execution
-        start = time()
+        start_host_exec_time = time()
         test_result = self.run_host_test(target_name, port, duration)
-        elapsed_time = time() - start
+        elapsed_time = time() - start_host_exec_time
         print print_test_result(test_result, target_name, toolchain_name,
                                 test_id, test_description, elapsed_time, duration)
         return (test_result, target_name, toolchain_name,
@@ -223,13 +221,13 @@ def reset(mcu_name, serial, verbose=False, sleep_before_reset=0, sleep_after_res
         print verbose_msg
 
 
-def is_peripherals_available(target, peripherals=None):
+def is_peripherals_available(target_mcu_name, peripherals=None):
     """ Checks if specified target should run specific peripheral test case."""
     if peripherals is not None:
         peripherals = set(peripherals)
     for id, mut in MUTs.iteritems():
-        # Target check
-        if mut["mcu"] != target:
+        # Target MCU name check
+        if mut["mcu"] != target_mcu_name:
             continue
         # Peripherals check
         if peripherals is not None:
