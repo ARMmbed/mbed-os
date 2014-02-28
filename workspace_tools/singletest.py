@@ -249,7 +249,7 @@ def print_test_result(test_result, target_name, toolchain_name,
     tokens.append(test_id)
     tokens.append(test_description)
     separator = "::"
-    time_info = " in %d of %d sec" % (elapsed_time, duration)
+    time_info = " in %.2f of %d sec" % (round(elapsed_time, 2), duration)
     result = separator.join(tokens) + " [" + test_result +"]" + time_info
     return result
 
