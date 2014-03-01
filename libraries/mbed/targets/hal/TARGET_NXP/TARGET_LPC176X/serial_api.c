@@ -368,7 +368,7 @@ int serial_writable(serial_t *obj) {
     if (NC != uart_data[obj->index].sw_cts.pin)
         isWritable = gpio_read(&uart_data[obj->index].sw_cts) == 0;
     if (isWritable)
-        isWritable = obj->uart->LSR & 0x20;
+        isWritable = obj->uart->LSR & 0x40;
     return isWritable;
 }
 
