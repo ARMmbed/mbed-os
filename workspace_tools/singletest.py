@@ -266,6 +266,7 @@ def shape_test_request(mcu, image_path, test_id, duration=10):
 
 
 def get_json_data_from_file(json_spec_filename, verbose=False):
+    """ Loads from file JSON formatted string to data structure """
     result = None
     try:
         with open(json_spec_filename) as data_file:
