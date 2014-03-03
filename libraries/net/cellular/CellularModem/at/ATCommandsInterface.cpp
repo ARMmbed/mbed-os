@@ -753,15 +753,12 @@ void ATCommandsInterface::enableEvents()
     {
       m_eventsHandlers[i]->onDispatchStart();
       //Enable this kind of events
-      if(m_eventsHandlers[i]->getEventsEnableCommand() != NULL)
       const char* cmd = m_eventsHandlers[i]->getEventsEnableCommand();
       if(cmd != NULL)
       {
-        int ret = executeInternal(m_eventsHandlers[i]->getEventsEnableCommand(), this, NULL); //Execute enable command
         int ret = executeInternal(cmd, this, NULL); //Execute enable command
         if(ret)
         {
-          WARN("Events enabling command failed");
           WARN("Events enabling command \"%s\" failed", cmd);
         }
       }
@@ -781,15 +778,12 @@ void ATCommandsInterface::disableEvents()
     {
       m_eventsHandlers[i]->onDispatchStart();
       //Disable this kind of events
-      if(m_eventsHandlers[i]->getEventsDisableCommand() != NULL)
       const char* cmd = m_eventsHandlers[i]->getEventsDisableCommand();
       if(cmd != NULL)
       {
-        int ret = executeInternal(m_eventsHandlers[i]->getEventsDisableCommand(), this, NULL); //Execute disable command
         int ret = executeInternal(cmd, this, NULL); //Execute disable command
         if(ret)
         {
-          WARN("Events disabling command failed");
           WARN("Events disabling command \"%s\" failed", cmd);
         }
       }
