@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -253,8 +253,8 @@ typedef struct
 /* Initialization/de-initialization functions ***********************************/ 
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac);
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac);
-__weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac);
-__weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
+void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac);
+void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
 
 /* I/O operation functions ******************************************************/
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel);
@@ -272,10 +272,10 @@ HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
 uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
 
-__weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
-__weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
-__weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
-__weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
+void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
+void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
+void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
+void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Extension RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -76,16 +76,28 @@
     [..]
     This subsection provides a set of functions allowing to control the RCC Clocks 
     frequencies.
+    [..] 
+    (@) Important note: Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to
+        select the RTC clock source; in this case the Backup domain will be reset in  
+        order to modify the RTC Clock source, as consequence RTC registers (including 
+        the backup registers) and RCC_BDCR register are set to their reset values.
       
 @endverbatim
   * @{
   */
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) 
 /**
-  * @brief  Initializes the RCC extended peripherals clocks according to the specified parameters in the
-  *         RCC_PeriphCLKInitTypeDef.
+  * @brief  Initializes the RCC extended peripherals clocks according to the specified
+  *         parameters in the RCC_PeriphCLKInitTypeDef.
   * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
-  *         contains the configuration information for the Extended Peripherals clocks(I2S, SAI, LTDC RTC and TIM clocks).
+  *         contains the configuration information for the Extended Peripherals
+  *         clocks(I2S, SAI, LTDC RTC and TIM).
+  *         
+  * @note   Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to select 
+  *         the RTC clock source; in this case the Backup domain will be reset in  
+  *         order to modify the RTC Clock source, as consequence RTC registers (including 
+  *         the backup registers) and RCC_BDCR register are set to their reset values.
+  *
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
@@ -246,7 +258,51 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   /*---------------------------- RTC configuration -------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+    /* Enable Power Clock*/
+    __PWR_CLK_ENABLE();
+    
+    /* Enable write access to Backup domain */
+    PWR->CR |= PWR_CR_DBP;
+    
+    /* Wait for Backup domain Write protection disable */
+    timeout = HAL_GetTick() + DBP_TIMEOUT_VALUE;
+    
+    while((PWR->CR & PWR_CR_DBP) == RESET)
+    {
+      if(HAL_GetTick() >= timeout)
+      {
+        return HAL_TIMEOUT;
+      }      
+    }
+    
+    /* Reset the Backup domain only if the RTC Clock source selction is modified */ 
+    if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
+    {
+      /* Store the content of BDCR register before the reset of Backup Domain */
+      tmpreg = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
+      /* RTC Clock selection can be changed only if the Backup Domain is reset */
+      __HAL_RCC_BACKUPRESET_FORCE();
+      __HAL_RCC_BACKUPRESET_RELEASE();
+      /* Restore the Content of BDCR register */
+      RCC->BDCR = tmpreg;
+    }
+    
+    /* If LSE is selected as RTC clock source, wait for LSE reactivation */
+    if(PeriphClkInit->RTCClockSelection == RCC_RTCCLKSOURCE_LSE)
+    {
+      /* Get timeout */
+      timeout = HAL_GetTick() + LSE_TIMEOUT_VALUE;
+      
+      /* Wait till LSE is ready */  
+      while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
+      {
+        if(HAL_GetTick() >= timeout)
+        {
+          return HAL_TIMEOUT;
+        }      
+      }  
+    }
+    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection); 
   }
   
   /*---------------------------- TIM configuration -------------------------------*/
@@ -304,11 +360,17 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   *         RCC_PeriphCLKInitTypeDef.
   * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals clocks(I2S and RTC clocks).
+  *         
+  * @note   A caution to be taken when HAL_RCCEx_PeriphCLKConfig() is used to select RTC clock selection, in this case 
+  *         the Reset of Backup domain will be applied in order to modify the RTC Clock source as consequence all backup 
+  *        domain (RTC and RCC_BDCR register expect BKPSRAM) will be reset
+  *              
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
   uint32_t timeout = 0;
+  uint32_t tmpreg = 0;
     
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
@@ -356,7 +418,51 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   /*---------------------------- RTC configuration -------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+    /* Enable Power Clock*/
+    __PWR_CLK_ENABLE();
+    
+    /* Enable write access to Backup domain */
+    PWR->CR |= PWR_CR_DBP;
+    
+    /* Wait for Backup domain Write protection disable */
+    timeout = HAL_GetTick() + DBP_TIMEOUT_VALUE;
+    
+    while((PWR->CR & PWR_CR_DBP) == RESET)
+    {
+      if(HAL_GetTick() >= timeout)
+      {
+        return HAL_TIMEOUT;
+      }      
+    }
+        
+    /* Reset the Backup domain only if the RTC Clock source selction is modified */ 
+    if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
+    {
+      /* Store the content of BDCR register before the reset of Backup Domain */
+      tmpreg = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
+      /* RTC Clock selection can be changed only if the Backup Domain is reset */
+      __HAL_RCC_BACKUPRESET_FORCE();
+      __HAL_RCC_BACKUPRESET_RELEASE();
+      /* Restore the Content of BDCR register */
+      RCC->BDCR = tmpreg;
+    }
+      
+    /* If LSE is selected as RTC clock source, wait for LSE reactivation */
+    if(PeriphClkInit->RTCClockSelection == RCC_RTCCLKSOURCE_LSE)
+    {
+      /* Get timeout */
+      timeout = HAL_GetTick() + LSE_TIMEOUT_VALUE;
+      
+      /* Wait till LSE is ready */  
+      while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
+      {
+        if(HAL_GetTick() >= timeout)
+        {
+          return HAL_TIMEOUT;
+        }      
+      }  
+    }
+    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection); 
   }
   
   return HAL_OK;

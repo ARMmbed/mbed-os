@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   NOR HAL module driver.
   *          This file provides a generic firmware to drive NOR memories mounted 
   *          as external device.
@@ -94,12 +94,11 @@
   * @{
   */
 #ifdef HAL_NOR_MODULE_ENABLED
-
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/    
+/* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
@@ -144,7 +143,7 @@ HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDe
   {
     /* Initialize the low level hardware (MSP) */
     HAL_NOR_MspInit(hnor);
-  }    
+  }
 
   /* Initialize NOR control Interface */
   FMC_NORSRAM_Init(hnor->Instance, &(hnor->Init));
@@ -154,15 +153,14 @@ HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDe
 
   /* Initialize NOR extended mode timing Interface */
   FMC_NORSRAM_Extended_Timing_Init(hnor->Extended, ExtTiming, hnor->Init.NSBank, hnor->Init.ExtendedMode);
-  
+
   /* Enable the NORSRAM device */
   __FMC_NORSRAM_ENABLE(hnor->Instance, hnor->Init.NSBank);  
-  
+
   /* Check the NOR controller state */
   hnor->State = HAL_NOR_STATE_READY; 
   
   return HAL_OK;
-
 }
 
 /**
@@ -172,9 +170,6 @@ HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDe
   */
 HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor)  
 {
-  /* Update the NOR controller state */
-  hnor->State = HAL_NOR_STATE_BUSY;
-  
   /* De-Initialize the low level hardware (MSP) */
   HAL_NOR_MspDeInit(hnor);
  
@@ -182,8 +177,11 @@ HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor)
   FMC_NORSRAM_DeInit(hnor->Instance, hnor->Extended, hnor->Init.NSBank);
   
   /* Update the NOR controller state */
-  hnor->State = HAL_NOR_STATE_READY;  
-    
+  hnor->State = HAL_NOR_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hnor);
+
   return HAL_OK;
 }
 
@@ -309,7 +307,6 @@ HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
   return HAL_OK;
 }
 
-
 /**
   * @brief  Read data from NOR memory 
   * @param  hnor: pointer to NOR handle
@@ -348,7 +345,6 @@ HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint
   return HAL_OK;  
 }
 
-
 /**
   * @brief  Program data to NOR memory 
   * @param  hnor: pointer to NOR handle
@@ -386,7 +382,6 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
   
   return HAL_OK;  
 }
-
 
 /**
   * @brief  Reads a block of data from the FMC NOR memory.
@@ -432,7 +427,6 @@ HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress
   
   return HAL_OK;  
 }
-
 
 /**
   * @brief  Writes a half-word buffer to the FMC NOR memory. This function 
@@ -536,7 +530,6 @@ HAL_StatusTypeDef HAL_NOR_Erase_Block(NOR_HandleTypeDef *hnor, uint32_t BlockAdd
  
 }
 
-
 /**
   * @brief  Erase the entire NOR chip.
   * @param  hnor: pointer to NOR handle
@@ -573,7 +566,6 @@ HAL_StatusTypeDef HAL_NOR_Erase_Chip(NOR_HandleTypeDef *hnor, uint32_t Address)
   
   return HAL_OK;  
 }
-
 
 /**
   * @brief  Read NOR flash CFI IDs
@@ -613,7 +605,6 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
   return HAL_OK;
 }
 
-
 /**
   * @}
   */
@@ -624,7 +615,7 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
 @verbatim   
   ==============================================================================
                         ##### NOR Control functions #####
-  ==============================================================================  
+  ==============================================================================
   [..]
     This subsection provides a set of functions allowing to control dynamically
     the NOR interface.

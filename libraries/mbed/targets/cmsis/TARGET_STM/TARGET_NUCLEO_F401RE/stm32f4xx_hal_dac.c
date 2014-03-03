@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -263,22 +263,25 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   {
      return HAL_ERROR;
   }
-  
+
   /* Check the parameters */
   assert_param(IS_DAC_ALL_INSTANCE(hdac->Instance));
-  
+
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_BUSY;
-  
+
   /* DeInit the low level hardware */
   HAL_DAC_MspDeInit(hdac);
-  
+
   /* Set DAC error code to none */
   hdac->ErrorCode = HAL_DAC_ERROR_NONE;
-  
+
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hdac);
+
   /* Return function status */
   return HAL_OK;
 }

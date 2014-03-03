@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -432,8 +432,8 @@ HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength);
 HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Address, uint32_t WakeUpMethode);
 HAL_StatusTypeDef HAL_UART_DeInit (UART_HandleTypeDef *huart);
-__weak void HAL_UART_MspInit(UART_HandleTypeDef *huart);
-__weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
+void HAL_UART_MspInit(UART_HandleTypeDef *huart);
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
 
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -446,11 +446,11 @@ HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart);
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart);
-__weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
-__weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
-__weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
-__weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
-__weak void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
 
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   LTDC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LTDC peripheral:
@@ -60,7 +60,7 @@
       (+) __HAL_LTDC_CLEAR_FLAG: Clears the LTDC pending flags.
       (+) __HAL_LTDC_ENABLE_IT: Enables the specified LTDC interrupts. 
       (+) __HAL_LTDC_DISABLE_IT: Disables the specified LTDC interrupts.
-      (+) __HAL_LTDC_IT_STATUS: Checks whether the specified LTDC interrupt has occurred or not.
+      (+) __HAL_LTDC_GET_IT_SOURCE: Checks whether the specified LTDC interrupt has occurred or not.
       
      [..] 
        (@) You can refer to the LTDC HAL driver header file for more useful macros
@@ -247,6 +247,9 @@ HAL_StatusTypeDef HAL_LTDC_DeInit(LTDC_HandleTypeDef *hltdc)
   /* Initialize the LTDC state*/
   hltdc->State = HAL_LTDC_STATE_RESET;
 
+  /* Release Lock */
+  __HAL_UNLOCK(hltdc);
+
   return HAL_OK;
 }
 
@@ -304,7 +307,7 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
   /* Transfer Error Interrupt management ***************************************/
   if(__HAL_LTDC_GET_FLAG(hltdc, LTDC_FLAG_TE) != RESET)
   {
-    if(__HAL_LTDC_IT_STATUS(hltdc, LTDC_IT_TE) != RESET)
+    if(__HAL_LTDC_GET_IT_SOURCE(hltdc, LTDC_IT_TE) != RESET)
     {
       /* Disable the transfer Error interrupt */
       __HAL_LTDC_DISABLE_IT(hltdc, LTDC_IT_TE);
@@ -328,7 +331,7 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
   /* FIFO underrun Interrupt management ***************************************/
   if(__HAL_LTDC_GET_FLAG(hltdc, LTDC_FLAG_FU) != RESET)
   {
-    if(__HAL_LTDC_IT_STATUS(hltdc, LTDC_IT_FU) != RESET)
+    if(__HAL_LTDC_GET_IT_SOURCE(hltdc, LTDC_IT_FU) != RESET)
     {
       /* Disable the FIFO underrun interrupt */
       __HAL_LTDC_DISABLE_IT(hltdc, LTDC_IT_FU);
@@ -352,7 +355,7 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
   /* Line Interrupt management ************************************************/
   if(__HAL_LTDC_GET_FLAG(hltdc, LTDC_FLAG_LI) != RESET)
   {
-    if(__HAL_LTDC_IT_STATUS(hltdc, LTDC_IT_LI) != RESET)
+    if(__HAL_LTDC_GET_IT_SOURCE(hltdc, LTDC_IT_LI) != RESET)
     {
       /* Disable the Line interrupt */
       __HAL_LTDC_DISABLE_IT(hltdc, LTDC_IT_LI);

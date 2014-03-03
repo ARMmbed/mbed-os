@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -440,14 +440,14 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
     /*Set MCKDIV value in CR1 register*/
     hsai->Instance->CR1 |= (tmpclock << 20);
 
-  } 
+  }
 
   /* Initialise the error code */
   hsai->ErrorCode = HAL_SAI_ERROR_NONE;
-    
+
   /* Initialize the SAI state */
   hsai->State= HAL_SAI_STATE_READY;
-  
+
   return HAL_OK;
 }
 
@@ -463,9 +463,9 @@ HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai)
   {
     return HAL_ERROR;
   }
-   
+
   hsai->State = HAL_SAI_STATE_BUSY;
-  
+
   /* DeInit the low level hardware: GPIO, CLOCK, NVIC and DMA */
   HAL_SAI_MspDeInit(hsai);
 
@@ -474,7 +474,10 @@ HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai)
   
   /* Initialize the SAI state */
   hsai->State = HAL_SAI_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hsai);
+
   return HAL_OK;
 }
 
@@ -910,10 +913,17 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
   /* Disable the SAI DMA request */
   hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
   
-  /* Disable the SAI DMA Stream */
-  __HAL_DMA_DISABLE(hsai->hdmatx);
-  __HAL_DMA_DISABLE(hsai->hdmarx);
-  
+  /* Abort the SAI DMA Tx Stream */
+  if(hsai->hdmatx != NULL)
+  {
+    HAL_DMA_Abort(hsai->hdmatx);
+  }
+  /* Abort the SAI DMA Rx Stream */
+  if(hsai->hdmarx != NULL)
+  {  
+    HAL_DMA_Abort(hsai->hdmarx);
+  }
+
   /* Disable SAI peripheral */
   __HAL_SAI_DISABLE(hsai);
   
@@ -1219,19 +1229,37 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai)
   */
 static void SAI_DMATxCplt(DMA_HandleTypeDef *hdma)   
 {
+  uint32_t timeout = 0x00;
+  
   SAI_HandleTypeDef* hsai = (SAI_HandleTypeDef*)((DMA_HandleTypeDef* )hdma)->Parent;
-   
-  hsai->TxXferCount = 0;
-  hsai->RxXferCount = 0;
-  
-  /* Disable SAI Tx DMA Request */  
-  hsai->Instance->CR1 &= (uint32_t)(~SAI_xCR1_DMAEN);
-  
-  /* Flush Fifo*/
-  hsai->Instance->CR2 |= SAI_xCR2_FFLUSH;
- 
-  hsai->State= HAL_SAI_STATE_READY;
-  
+
+  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0)
+  { 
+    hsai->TxXferCount = 0;
+    hsai->RxXferCount = 0;
+    
+    /* Disable SAI Tx DMA Request */  
+    hsai->Instance->CR1 &= (uint32_t)(~SAI_xCR1_DMAEN);
+
+    /* Set timeout: 10 is the max delay to send the remaining data in the SAI FIFO */
+    timeout = HAL_GetTick() + 10;
+    
+    /* Wait until FIFO is empty */    
+    while(__HAL_SAI_GET_FLAG(hsai, SAI_xSR_FLVL) != RESET)
+    {
+      /* Check for the Timeout */
+      if(HAL_GetTick() >= timeout)
+      {         
+        /* Update error code */
+        hsai->ErrorCode |= HAL_SAI_ERROR_TIMEOUT;
+        
+        /* Change the SAI state */
+        HAL_SAI_ErrorCallback(hsai);
+      }
+    } 
+    
+    hsai->State= HAL_SAI_STATE_READY;
+  }
   HAL_SAI_TxCpltCallback(hsai);
 }
 
@@ -1255,12 +1283,14 @@ static void SAI_DMATxHalfCplt(DMA_HandleTypeDef *hdma)
 static void SAI_DMARxCplt(DMA_HandleTypeDef *hdma)   
 {
   SAI_HandleTypeDef* hsai = ( SAI_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
-  /* Disable Rx DMA Request */
-  hsai->Instance->CR1 &= (uint32_t)(~SAI_xCR1_DMAEN);
-  hsai->RxXferCount = 0;
-  
-  hsai->State = HAL_SAI_STATE_READY; 
+  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0)
+  {
+    /* Disable Rx DMA Request */
+    hsai->Instance->CR1 &= (uint32_t)(~SAI_xCR1_DMAEN);
+    hsai->RxXferCount = 0;
+    
+    hsai->State = HAL_SAI_STATE_READY;
+  }
   HAL_SAI_RxCpltCallback(hsai); 
 }
 

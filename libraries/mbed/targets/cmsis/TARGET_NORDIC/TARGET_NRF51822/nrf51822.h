@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
 
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2013 Nordic Semiconductor.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #ifndef NRF_H
 #define NRF_H
 
-
+#include "nordic_global.h"
 #include "compiler_abstraction.h"
 #include "nrf51.h"
 #include "nrf51_bitfields.h"

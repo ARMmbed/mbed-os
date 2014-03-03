@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
@@ -116,8 +116,9 @@ typedef struct
   * @{
   */
 #define HCD_SPEED_HIGH               0
-#define HCD_SPEED_FULL               1
 #define HCD_SPEED_LOW                2  
+#define HCD_SPEED_FULL               3
+
 /**
   * @}
   */
@@ -174,8 +175,8 @@ HAL_StatusTypeDef      HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
 HAL_StatusTypeDef       HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd,  
                                   uint8_t ch_num);
 
-__weak void            HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd);
-__weak void            HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
+void            HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd);
+void            HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
 
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef       HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
@@ -189,10 +190,10 @@ HAL_StatusTypeDef       HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 
  /* Non-Blocking mode: Interrupt */
 void                    HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
-__weak void             HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
-__weak void             HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
-__weak void             HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
-__weak void             HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, 
+void             HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
+void             HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
+void             HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
+void             HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, 
                                                             uint8_t chnum, 
                                                             HCD_URBStateTypeDef urb_state);
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f401xe.h
   * @author  MCD Application Team
-  * @version V2.0.0RC6
-  * @date    03-February-2014
+  * @version V2.0.0
+  * @date    18-February-2014
   * @brief   CMSIS STM32F401xExx Device Peripheral Access Layer Header File. 
   *
   *          This file contains:

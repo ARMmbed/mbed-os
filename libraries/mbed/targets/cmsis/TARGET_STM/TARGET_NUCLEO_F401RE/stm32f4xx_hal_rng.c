@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:
@@ -118,9 +118,6 @@ HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
     /* Init the low level hardware */
     HAL_RNG_MspInit(hrng);
   }
-  
-  /* Change RNG peripheral state */
-  hrng->State = HAL_RNG_STATE_BUSY;
 
   /* Enable the RNG Peripheral */
   __HAL_RNG_ENABLE(hrng);
@@ -131,7 +128,6 @@ HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
   /* Return function status */
   return HAL_OK;
 }
-
 
 /**
   * @brief  DeInitializes the RNG peripheral. 
@@ -160,10 +156,13 @@ HAL_StatusTypeDef HAL_RNG_DeInit(RNG_HandleTypeDef *hrng)
   /* DeInit the low level hardware */
   HAL_RNG_MspDeInit(hrng);
   
-  /* Update the RNG state */    
+  /* Update the RNG state */
   hrng->State = HAL_RNG_STATE_RESET; 
 
-  /* Return the function status */  
+  /* Release Lock */
+  __HAL_UNLOCK(hrng);
+  
+  /* Return the function status */
   return HAL_OK;
 }
 
