@@ -41,23 +41,24 @@ UbloxModem::UbloxModem(IOStream* atStream, IOStream* pppStream) :
    m_linkMonitorInit(false),                // LinkMonitor subsystem starts un-initialised
    m_atOpen(false),                          // ATCommandsInterface starts in a closed state
    m_onePort(pppStream == NULL),
-   m_gsm(true)
+   m_type(UNKNOWN)
 {
 }
 
 
-class AtiProcessor : public IATCommandsProcessor
-{
-public:
-  AtiProcessor()
-  { 
+genericAtProcessor::genericAtProcessor()
+{ 
     i = 0; 
     str[0] = '\0'; 
-  }
-  const char* getInfo(void) { return str; }
-private:
-  virtual int onNewATResponseLine(ATCommandsInterface* pInst, const char* line)
-  {
+}
+
+const char* genericAtProcessor::getResponse(void) 
+{ 
+    return str; 
+}
+
+int genericAtProcessor::onNewATResponseLine(ATCommandsInterface* pInst, const char* line)
+{
     int l = strlen(line);
     if (i + l + 2 > sizeof(str))
         return NET_OVERFLOW;
@@ -65,15 +66,12 @@ private:
     strcat(&str[i], line);
     i += l;
     return OK;
-  }
-  virtual int onNewEntryPrompt(ATCommandsInterface* pInst)
-  {
+}
+
+int genericAtProcessor::onNewEntryPrompt(ATCommandsInterface* pInst)
+{
     return OK;
-  }
-protected:
-  char str[256];
-  int i;
-};
+}
 
 class CREGProcessor : public IATCommandsProcessor
 {
@@ -130,7 +128,7 @@ int UbloxModem::connect(const char* apn, const char* user, const char* password)
     m_ipInit = true;
     m_ppp.init();
   }
-  m_ppp.setup(user, password, m_gsm ? DEFAULT_MSISDN_GSM : DEFAULT_MSISDN_CDMA);
+  m_ppp.setup(user, password, (m_type != LISA_C200) ? DEFAULT_MSISDN_GSM : DEFAULT_MSISDN_CDMA);
 
   int ret = init();
   if(ret)
@@ -231,8 +229,8 @@ int UbloxModem::sendSM(const char* number, const char* message)
   }
 
   ISMSInterface* sms;
-  if (m_gsm)  sms = &m_GsmSms;
-  else        sms = &m_CdmaSms;
+  if (m_type == LISA_C200)  sms = &m_CdmaSms;
+  else                      sms = &m_GsmSms;
   if(!m_smsInit)
   {
     ret = sms->init();
@@ -261,8 +259,8 @@ int UbloxModem::getSM(char* number, char* message, size_t maxLength)
   }
 
   ISMSInterface* sms;
-  if (m_gsm)  sms = &m_GsmSms;
-  else        sms = &m_CdmaSms;
+  if (m_type == LISA_C200)  sms = &m_CdmaSms;
+  else                      sms = &m_GsmSms;
   if(!m_smsInit)
   {
     ret = sms->init();
@@ -291,8 +289,8 @@ int UbloxModem::getSMCount(size_t* pCount)
   }
 
   ISMSInterface* sms;
-  if (m_gsm)  sms = &m_GsmSms;
-  else        sms = &m_CdmaSms;
+  if (m_type == LISA_C200)  sms = &m_CdmaSms;
+  else                      sms = &m_GsmSms;
   if(!m_smsInit)
   {
     ret = sms->init();
@@ -337,25 +335,40 @@ int UbloxModem::init()
   {
     return ret;
   }
-
+  
+  
   ATCommandsInterface::ATResult result;
-  AtiProcessor atiProcessor;
-  do
-  {
-    ret = m_at.execute("ATI", &atiProcessor, &result);
+  genericAtProcessor atiProcessor;
+  ret = m_at.execute("ATI", &atiProcessor, &result);
+  if (OK != ret)
+    return ret;
+  const char* info = atiProcessor.getResponse();
+  INFO("Modem Identification [%s]", info);
+  if (strstr(info, "LISA-C200")) {
+      m_type = LISA_C200;
+      m_onePort = true; // force use of only one port
   }
-  while (ret != OK);
-  {
-    const char* info = atiProcessor.getInfo();
-    DBG("Modem Identification [%s]", info);
-    if (strstr(info, "LISA-C200"))
-    {
-        m_gsm = false;    // it is CDMA modem
-        m_onePort = true; // force use of only one port
-    }
+  else if (strstr(info, "LISA-U200")) {
+      m_type = LISA_U200;
+  }
+  else if (strstr(info, "SARA-G350")) {
+      m_type = SARA_G350;
   }
   
-  CREGProcessor cregProcessor(m_gsm);
+  // enable the network indicator 
+  if (m_type == SARA_G350) {
+      m_at.executeSimple("AT+UGPIOC=16,2", &result);
+  }
+  else if (m_type == LISA_U200) {
+      m_at.executeSimple("AT+UGPIOC=20,2", &result); 
+  }
+  else if (m_type == LISA_C200) {
+      // LISA-C200 02S/22S : GPIO1 do not support network status indication
+      // m_at.executeSimple("AT+UGPIOC=20,2", &result); 
+  }
+  INFO("Modem Identification [%s]", info);
+  
+  CREGProcessor cregProcessor(m_type != LISA_C200);
   //Wait for network registration
   do
   {
@@ -438,8 +451,7 @@ int UbloxModem::getLinkState(int* pRssi, LinkMonitor::REGISTRATION_STATE* pRegis
   
   if(!m_linkMonitorInit)
   {
-    ret = m_linkMonitor.init();
-    ret = m_linkMonitor.init(m_gsm);
+    ret = m_linkMonitor.init(m_type != LISA_C200);
     if(ret)
     {
       return ret;
@@ -448,6 +460,33 @@ int UbloxModem::getLinkState(int* pRssi, LinkMonitor::REGISTRATION_STATE* pRegis
   }
 
   ret = m_linkMonitor.getState(pRssi, pRegistrationState, pBearer);
+  if(ret)
+  {
+    return ret;
+  }
+
+  return OK;
+}
+
+int UbloxModem::getPhoneNumber(char* phoneNumber)
+{
+  int ret = init();
+  if(ret)
+  {
+    return ret;
+  }
+  
+  if(!m_linkMonitorInit)
+  {
+    ret = m_linkMonitor.init(m_type != LISA_C200);
+    if(ret)
+    {
+      return ret;
+    }
+    m_linkMonitorInit = true;
+  }
+
+  ret = m_linkMonitor.getPhoneNumber(phoneNumber);
   if(ret)
   {
     return ret;
@@ -485,11 +524,12 @@ int UbloxUSBModem::init()
     if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBLOX_LISAU200)
     {
       INFO("Using a u-blox LISA-U200 3G/WCDMA Modem");
+      m_type = LISA_U200;
     }
     else if(m_dongle.getDongleType() == WAN_DONGLE_TYPE_UBLOX_LISAC200)
     {
       INFO("Using a u-blox LISA-C200 CDMA Modem");
-      m_gsm = false;
+      m_type = LISA_C200;
       m_onePort = true;
     }
     else
@@ -510,9 +550,10 @@ int UbloxUSBModem::cleanup()
 
 UbloxSerModem::UbloxSerModem() :
    UbloxModem(&m_atStream, NULL),
-   m_Serial(P0_15,P0_16),
+   m_Serial(P0_15/*MDMTXD*/,P0_16/*MDMRXD*/),
    m_atStream(m_Serial)
 {
-  m_Serial.baud(115200);
+  m_Serial.baud(115200/*MDMBAUD*/);
+  m_Serial.set_flow_control(SerialBase::RTSCTS, P0_22/*MDMRTS*/, P0_17/*MDMCTS*/);
 }
 
