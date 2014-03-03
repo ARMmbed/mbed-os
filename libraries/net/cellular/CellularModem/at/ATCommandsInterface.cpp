@@ -32,7 +32,7 @@ using std::memmove;
 #include "ATCommandsInterface.h"
 
 ATCommandsInterface::ATCommandsInterface(IOStream* pStream) :
-   m_pStream(pStream), m_open(false), m_env2AT(), m_AT2Env(), m_processingMtx(),
+   m_pStream(pStream), m_open(false), m_transactionState(IDLE), m_env2AT(), m_AT2Env(), m_processingMtx(),
    m_processingThread(&ATCommandsInterface::staticCallback, this, (osPriority)AT_THREAD_PRIORITY, 4*192),
    m_eventsMgmtMtx(), m_eventsProcessingMtx()
 {
