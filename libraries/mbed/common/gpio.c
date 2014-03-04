@@ -15,23 +15,27 @@
  */
 #include "gpio_api.h"
 
-#define GPIO_INIT_IN(obj, pin, mode) \
-    gpio_init(obj, pin), \
-    gpio_mode(obj, mode), \
-    gpio_dir(obj, PIN_INPUT)
+static inline void _gpio_init_in(gpio_t* gpio, PinName pin, PinMode mode)
+{
+    gpio_init(gpio, pin);
+    gpio_mode(gpio, mode);
+    gpio_dir(gpio, PIN_INPUT);
+}
     
-#define GPIO_INIT_OUT(obj, pin, mode, value) \
-    gpio_init(obj, pin), \
-    gpio_write(obj, value), \
-    gpio_dir(obj, PIN_OUTPUT), \
-    gpio_mode(obj, mode)
+static inline void _gpio_init_out(gpio_t* gpio, PinName pin, PinMode mode, int value)
+{
+    gpio_init(gpio, pin);
+    gpio_write(gpio, value);
+    gpio_dir(gpio, PIN_OUTPUT);
+    gpio_mode(gpio, mode);
+}
 
 void gpio_init_in(gpio_t* gpio, PinName pin) {
     gpio_init_in_ex(gpio, pin, PullDefault);
 }
 
 void gpio_init_in_ex(gpio_t* gpio, PinName pin, PinMode mode) {
-    GPIO_INIT_IN(gpio, pin, mode);
+    _gpio_init_in(gpio, pin, mode);
 }
 
 void gpio_init_out(gpio_t* gpio, PinName pin) {
@@ -39,14 +43,14 @@ void gpio_init_out(gpio_t* gpio, PinName pin) {
 }
 
 void gpio_init_out_ex(gpio_t* gpio, PinName pin, int value) {
-    GPIO_INIT_OUT(gpio, pin, PullNone, value);
+    _gpio_init_out(gpio, pin, PullNone, value);
 }
 
 void gpio_init_inout(gpio_t* gpio, PinName pin, PinDirection direction, PinMode mode, int value) {
     if (direction == PIN_INPUT) {
-        GPIO_INIT_IN(gpio, pin, mode);
-        gpio_write(gpio, value); // we prepare the value in case direction is switched later
+        _gpio_init_in(gpio, pin, mode);
+        gpio_write(gpio, value); // we prepare the value in case it is switched later
     } else {
-        GPIO_INIT_OUT(gpio, pin, mode, value);
+        _gpio_init_out(gpio, pin, mode, value);
     }
 }
