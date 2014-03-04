@@ -37,16 +37,12 @@ void gpio_dir  (gpio_t *obj, PinDirection direction);
 void gpio_write(gpio_t *obj, int value);
 int  gpio_read (gpio_t *obj);
 
-#define GPIO_INIT_IN(obj, pin, mode) \
-    gpio_init(obj, pin), \
-    gpio_mode(obj, mode), \
-    gpio_dir(obj, PIN_INPUT)
-    
-#define GPIO_INIT_OUT(obj, pin, mode, value) \
-    gpio_init(obj, pin), \
-    gpio_write(obj, value), \
-    gpio_dir(obj, PIN_OUTPUT), \
-    gpio_mode(obj, mode)
+// the following set of functions are generic and are implemented in the common gpio.c file
+void gpio_init_in(gpio_t* gpio, PinName pin);
+void gpio_init_in_ex(gpio_t* gpio, PinName pin, PinMode mode);
+void gpio_init_out(gpio_t* gpio, PinName pin);
+void gpio_init_out_ex(gpio_t* gpio, PinName pin, int value);
+void gpio_init_inout(gpio_t* gpio, PinName pin, PinDirection direction, PinMode mode, int value);
 
 #ifdef __cplusplus
 }

@@ -190,5 +190,5 @@ void gpio_irq_disable(gpio_irq_t *obj) {
 void NMI_Handler(void)
 {
     gpio_t gpio;
-    GPIO_INIT_IN(&gpio, PTA4, PIN_INPUT, PullDefault);
+    gpio_init_in(&gpio, PTA4);
 }

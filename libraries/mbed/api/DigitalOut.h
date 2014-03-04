@@ -44,11 +44,19 @@ public:
     /** Create a DigitalOut connected to the specified pin
      *
      *  @param pin DigitalOut pin to connect to
+     */
+    DigitalOut(PinName pin) {
+        gpio_init_out(&gpio, pin);
+	}
+
+    /** Create a DigitalOut connected to the specified pin
+     *
+     *  @param pin DigitalOut pin to connect to
      *  @param value the initial pin value
      */
-    DigitalOut(PinName pin, int value = 0) {
-        GPIO_INIT_OUT(&gpio, pin, PullNone, value);
-    }
+    DigitalOut(PinName pin, int value){
+        gpio_init_out_ex(&gpio, pin, value);
+	}
 
     /** Set the output, specified as 0 or 1 (int)
      *

@@ -412,7 +412,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             pinmap_pinout(txflow, PinMap_UART_CTS);
         } else {
             // Can't enable in hardware, use software emulation
-            GPIO_INIT_IN(&uart_data[index].sw_cts, txflow, PullDown);
+            gpio_init_in(&uart_data[index].sw_cts, txflow);
         }
     }
     if (((FlowControlRTS == type) || (FlowControlRTSCTS == type)) && (NC != rxflow)) {
@@ -427,7 +427,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             uart1->MCR |= UART_MCR_RTSEN_MASK;
             pinmap_pinout(rxflow, PinMap_UART_RTS);
         } else { // can't enable in hardware, use software emulation
-            GPIO_INIT_OUT(&uart_data[index].sw_rts, rxflow, PullNone, 0);
+            gpio_init_out_ex(&uart_data[index].sw_rts, rxflow, 0);
             // Enable RX interrupt
             serial_flow_irq_set(obj, 1);
         }
