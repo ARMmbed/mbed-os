@@ -377,6 +377,19 @@ class LPC11U35_401(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 
+class LPC11U35_501(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        
+        self.supported_toolchains = ["ARM", "uARM"]
+
+
 class UBLOX_C027(Target):
     def __init__(self):
         Target.__init__(self)
@@ -472,6 +485,7 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
+    LPC11U35_501(),
     NRF51822(),
     UBLOX_C027(),
     LPC1549()
