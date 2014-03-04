@@ -44,9 +44,10 @@ public:
     /** Create a DigitalOut connected to the specified pin
      *
      *  @param pin DigitalOut pin to connect to
+     *  @param value the initial pin value
      */
-    DigitalOut(PinName pin) {
-        gpio_init(&gpio, pin, PIN_OUTPUT);
+    DigitalOut(PinName pin, int value = 0) {
+        GPIO_INIT_OUT(&gpio, pin, PullNone, value);
     }
 
     /** Set the output, specified as 0 or 1 (int)

@@ -39,7 +39,7 @@ uint32_t gpio_set(PinName pin) {
     return (1 << ((int)pin & 0x1F));
 }
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+void gpio_init(gpio_t *obj, PinName pin) {
     if(pin == NC) return;
     
     obj->pin = pin;
@@ -49,12 +49,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_clr = &LPC_GPIO_PORT->CLR0;
     obj->reg_in  = &LPC_GPIO_PORT->PIN0;
     obj->reg_dir = &LPC_GPIO_PORT->DIR0;
-    
-    gpio_dir(obj, direction);
-    switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullDown); break;
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {

@@ -34,7 +34,7 @@ uint32_t gpio_set(PinName pin) {
     return ((pin & 0x0F00) >> 8);
 }
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+void gpio_init(gpio_t *obj, PinName pin) {
     if(pin == NC) return;
 
     obj->pin = pin;
@@ -43,13 +43,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_mask_read = &port_reg->MASKED_ACCESS[1 << gpio_set(pin)];
     obj->reg_dir       = &port_reg->DIR;
     obj->reg_write     = &port_reg->DATA;
-    
-    gpio_dir(obj, direction);
-    
-    switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullDown); break;
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
