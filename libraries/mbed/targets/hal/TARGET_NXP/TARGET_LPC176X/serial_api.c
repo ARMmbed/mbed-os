@@ -76,7 +76,7 @@ serial_t stdio_uart;
 struct serial_global_data_s {
     uint32_t serial_irq_id;
     gpio_t sw_rts, sw_cts;
-    uint8_t rx_irq_set_flow, rx_irq_set_api;
+    uint8_t count, rx_irq_set_flow, rx_irq_set_api;
 };
 
 static struct serial_global_data_s uart_data[UART_NUM];
@@ -357,6 +357,7 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
+    uart_data[obj->index].count++;    
 }
 
 int serial_readable(serial_t *obj) {
@@ -364,10 +365,16 @@ int serial_readable(serial_t *obj) {
 }
 
 int serial_writable(serial_t *obj) {
+    int isWritable = 1;
     if (NC != uart_data[obj->index].sw_cts.pin)
-        return (gpio_read(&uart_data[obj->index].sw_cts) == 0) && (obj->uart->LSR & 0x40);  //If flow control: writable if CTS low + UART done
-    else
-        return obj->uart->LSR & 0x20;                                                       //No flow control: writable if space in holding register
+        isWritable = (gpio_read(&uart_data[obj->index].sw_cts) == 0) && (obj->uart->LSR & 0x40);
+    else {
+        if (obj->uart->LSR & 0x20)
+            uart_data[obj->index].count = 0;
+        else if (uart_data[obj->index].count >= 16)
+            isWritable = 0;
+    }
+    return isWritable;
 }
 
 void serial_clear(serial_t *obj) {

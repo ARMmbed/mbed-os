@@ -30,6 +30,19 @@
 #include "link/LinkMonitor.h"
 #include "CellularModem.h"
 
+class genericAtProcessor : public IATCommandsProcessor
+{
+public:
+  genericAtProcessor();
+  const char* getResponse(void);
+private:
+  virtual int onNewATResponseLine(ATCommandsInterface* pInst, const char* line);
+  virtual int onNewEntryPrompt(ATCommandsInterface* pInst);
+protected:
+  char str[256];
+  int i;
+};
+
 /** u-blox WCDMA modem (LISA-U200)
  */
 class UbloxModem: public CellularModem
@@ -92,6 +105,8 @@ public:
   */
   int getLinkState(int* pRssi, LinkMonitor::REGISTRATION_STATE* pRegistrationState, LinkMonitor::BEARER* pBearer);  
 
+  int getPhoneNumber(char* phoneNumber);  
+
   /** Get the ATCommandsInterface instance
     @return Pointer to the ATCommandsInterface instance
    */
@@ -130,7 +145,7 @@ private:
   bool m_atOpen;          //< Is the interface to the ATCommandsInterface open? true/false
 protected:
   bool m_onePort;
-  bool m_gsm;
+  enum { LISA_C200, LISA_U200, SARA_G350, UNKNOWN } m_type;
 };
 
 #include "WANDongle.h"
