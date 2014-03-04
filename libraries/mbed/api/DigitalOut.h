@@ -47,7 +47,7 @@ public:
      */
     DigitalOut(PinName pin) {
         gpio_init_out(&gpio, pin);
-	}
+    }
 
     /** Create a DigitalOut connected to the specified pin
      *
@@ -56,7 +56,7 @@ public:
      */
     DigitalOut(PinName pin, int value){
         gpio_init_out_ex(&gpio, pin, value);
-	}
+    }
 
     /** Set the output, specified as 0 or 1 (int)
      *
