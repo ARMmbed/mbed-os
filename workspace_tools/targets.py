@@ -284,7 +284,7 @@ class NUCLEO_F103RB(Target):
         
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_L152RE(Target):
@@ -298,7 +298,7 @@ class NUCLEO_L152RE(Target):
         
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_F401RE(Target):
@@ -312,7 +312,7 @@ class NUCLEO_F401RE(Target):
         
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_F030R8(Target):
@@ -326,7 +326,7 @@ class NUCLEO_F030R8(Target):
         
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class LPC1347(Target):
