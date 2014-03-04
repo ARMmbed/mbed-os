@@ -20,15 +20,15 @@
 WEAK void mbed_die(void);
 WEAK void mbed_die(void) {
 	__disable_irq();	// dont allow interrupts to disturb the flash pattern
-	
-#if   (DEVICE_ERROR_RED == 1)
-    gpio_t led_red; gpio_init(&led_red, LED_RED, PIN_OUTPUT);
 
+#if   (DEVICE_ERROR_RED == 1)
+    gpio_t led_red; GPIO_INIT_OUT(&led_red, LED_RED, PullNone, 0);
+    
 #elif (DEVICE_ERROR_PATTERN == 1)
-    gpio_t led_1; gpio_init(&led_1, LED1, PIN_OUTPUT);
-    gpio_t led_2; gpio_init(&led_2, LED2, PIN_OUTPUT);
-    gpio_t led_3; gpio_init(&led_3, LED3, PIN_OUTPUT);
-    gpio_t led_4; gpio_init(&led_4, LED4, PIN_OUTPUT);
+    gpio_t led_1; GPIO_INIT_OUT(&led_1, LED1, PullNone, 0);
+    gpio_t led_2; GPIO_INIT_OUT(&led_2, LED2, PullNone, 0);
+    gpio_t led_3; GPIO_INIT_OUT(&led_3, LED3, PullNone, 0);
+    gpio_t led_4; GPIO_INIT_OUT(&led_4, LED4, PullNone, 0);
 #endif
     
     while (1) {

@@ -30,9 +30,17 @@ public:
     /** Create a DigitalInOut connected to the specified pin
      *
      *  @param pin DigitalInOut pin to connect to
+     *  @param direction the initial direction of the pin
+     *  @param mode the initial mode of the pin
+     *  @param value the initial value of the pin if is an output
      */
-    DigitalInOut(PinName pin) {
-        gpio_init(&gpio, pin, PIN_INPUT);
+    DigitalInOut(PinName pin, PinDirection direction = PIN_INPUT, PinMode mode = PullDefault, int value = 0) {
+        if (direction == PIN_INPUT) {
+            GPIO_INIT_IN(&gpio, pin, mode);
+            gpio_write(&gpio, value); // we prepare the value in case it is switched later
+        } else {
+            GPIO_INIT_OUT(&gpio, pin, mode, value);
+        }
     }
 
     /** Set the output, specified as 0 or 1 (int)
