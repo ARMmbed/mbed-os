@@ -1,5 +1,5 @@
-mbed SDK 
-======== 
+mbed SDK
+========
 
 [![Build Status](https://travis-ci.org/mbedmicro/mbed.png)](https://travis-ci.org/mbedmicro/mbed/builds)
 
@@ -38,6 +38,7 @@ NXP:
 * [LPC1549](https://mbed.org/platforms/LPCXpresso1549/) (Cortex-M3)
 
 Freescale:
+* FRDM-K20D50M
 * [FRDM-KL05Z](https://mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
 * [FRDM-KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
 * [FRDM-KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
