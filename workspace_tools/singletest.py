@@ -238,7 +238,7 @@ def is_peripherals_available(target_mcu_name, peripherals=None):
 
 def print_test_result(test_result, target_name, toolchain_name,
                       test_id, test_description, elapsed_time, duration):
-    """ Use specific convention to pront test result and related data."""
+    """ Use specific convention to print test result and related data."""
     tokens = []
     tokens.append("TargetTest")
     tokens.append(target_name)
