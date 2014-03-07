@@ -29,6 +29,11 @@ struct gpio_irq_s {
     uint32_t ch;
 };
 
+struct pwmout_s {
+     LPC_SCT0_Type* pwm;
+     uint32_t pwm_ch;
+};
+
 struct serial_s {
     LPC_USART0_Type *uart;
     unsigned char index;
