@@ -112,7 +112,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DATASIZE_8BIT;
     obj->cpol = SPI_POLARITY_LOW;
     obj->cpha = SPI_PHASE_1EDGE;
-    obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 1MHz (with HSI=16MHz and APB2CLKDivider=2)
+    obj->br_presc = SPI_BAUDRATEPRESCALER_256;
     
     if (ssel == NC) { // Master
         obj->mode = SPI_MODE_MASTER;
@@ -173,26 +173,31 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // Get SPI clock frequency
-    uint32_t PCLK = SystemCoreClock >> 1;
-
-    // Choose the baud rate divisor (between 2 and 256)
-    uint32_t divisor = PCLK / hz;
-
-    // Find the nearest power-of-2
-    divisor = (divisor > 0 ? divisor-1 : 0);
-    divisor |= divisor >> 1;
-    divisor |= divisor >> 2;
-    divisor |= divisor >> 4;
-    divisor |= divisor >> 8;
-    divisor |= divisor >> 16;
-    divisor++;
-
-    uint32_t baud_rate = __builtin_ffs(divisor) - 2;
-    
-    // Save new value
-    obj->br_presc = ((baud_rate > 7) ? (7 << 3) : (baud_rate << 3));
- 
+    // Note: The frequencies are obtained with SPI1 clock = 84 MHz (APB2 clock)
+    if (hz < 500000) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 331 kHz
+    }
+    else if ((hz >= 500000) && (hz < 1000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 663 kHz
+    }
+    else if ((hz >= 1000000) && (hz < 2000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 1.3 MHz
+    }
+    else if ((hz >= 2000000) && (hz < 5000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 2.65 MHz
+    }
+    else if ((hz >= 5000000) && (hz < 10000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 5.3 MHz
+    }
+    else if ((hz >= 10000000) && (hz < 20000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 10.6 MHz
+    }
+    else if ((hz >= 20000000) && (hz < 40000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 21.2 MHz
+    }
+    else { // >= 40000000
+        obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 42 MHz
+    }
     init_spi(obj);
 }
 
