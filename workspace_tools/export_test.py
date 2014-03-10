@@ -88,6 +88,7 @@ if __name__ == '__main__':
             # Linux path: /home/emimon01/bin/gcc-arm/bin/
             # Windows path: C:/arm-none-eabi-gcc-4_7/bin/
             ('gcc_arm', 'LPC1768'),
+            ('gcc_arm', 'LPC1114'),
             
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
             
