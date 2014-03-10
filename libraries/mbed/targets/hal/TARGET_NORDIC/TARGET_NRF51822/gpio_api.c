@@ -16,7 +16,7 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+void gpio_init(gpio_t *obj, PinName pin) {
     if(pin == NC) return;
 
     obj->pin = pin;
@@ -26,12 +26,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_clr = &NRF_GPIO->OUTCLR;
     obj->reg_in  = &NRF_GPIO->IN;
     obj->reg_dir = &NRF_GPIO->DIR;
-
-    gpio_dir(obj, direction);
-    switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullUp); break;
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {

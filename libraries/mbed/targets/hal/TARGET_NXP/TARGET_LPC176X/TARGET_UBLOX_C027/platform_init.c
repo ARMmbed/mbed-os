@@ -8,29 +8,19 @@ void mbed_sdk_init()
     gpio_t modemEn, modemRst, modemPwrOn, modemLvlOe, modemILvlOe, modemUsbDet;
     gpio_t gpsEn, gpsRst, led, modemRts;
     
-    gpio_init(&modemEn, MDMEN, PIN_OUTPUT);
-    gpio_init(&modemRst, MDMRST, PIN_OUTPUT);
-    gpio_init(&modemPwrOn, MDMPWRON, PIN_OUTPUT);
-    gpio_init(&modemLvlOe, MDMLVLOE, PIN_OUTPUT);
-    gpio_init(&modemILvlOe, MDMILVLOE, PIN_OUTPUT);
-    gpio_init(&modemUsbDet, MDMUSBDET, PIN_OUTPUT);
-    gpio_init(&gpsEn, GPSEN, PIN_OUTPUT);
-    gpio_init(&gpsRst, GPSRST, PIN_OUTPUT);
-    gpio_init(&led, LED, PIN_OUTPUT);
-    gpio_init(&modemRts, MDMRTS, PIN_OUTPUT);
-    
-    gpio_write(&led, 0);  			// LED1:   0=off
-    gpio_write(&modemRts, 0);		// RTS:    0=ready to send 
-    // we start with the gps disabled
-    gpio_write(&gpsEn, 0);  		// LDOEN:  1=on,0=off
-    gpio_write(&gpsRst, 0); 		// RESET:  0=reset,1=operating
-    // we start with the modem disabled
-    gpio_write(&modemLvlOe, 1);		// LVLEN:  1=disabled (uart/gpio)
-    gpio_write(&modemILvlOe, 0);  	// ILVLEN: 0=disabled (i2c)
-    gpio_write(&modemUsbDet, 0); 	// USBDET: 0=disabled
-    gpio_write(&modemPwrOn, 1);		// PWRON:  1=idle, 0=action
-    gpio_write(&modemEn, 0);  		// LDOEN:  1=on, 0=off
-    gpio_write(&modemRst, 0);  		// RESET:  0=reset, 1=operating
+    // start with modem disabled 
+    gpio_init_out_ex(&modemEn,     MDMEN,     PullNone, 0);
+    gpio_init_out_ex(&modemRst,    MDMRST,    PullNone, 1);
+    gpio_init_out_ex(&modemPwrOn,  MDMPWRON,  PullNone, 1);
+    gpio_init_out_ex(&modemLvlOe,  MDMLVLOE,  PullNone, 1);
+    gpio_init_out_ex(&modemILvlOe, MDMILVLOE, PullNone, 0);
+    gpio_init_out_ex(&modemUsbDet, MDMUSBDET, PullNone, 0);
+    gpio_init_out_ex(&modemRts,    MDMRTS,    PullNone, 0);
+    // start with gps disabled 
+    gpio_init_out_ex(&gpsEn,       GPSEN,     PullNone, 0);
+    gpio_init_out_ex(&gpsRst,      GPSRST,    PullNone, 1);
+    // led should be off
+    gpio_init_out_ex(&led,         LED,       PullNone, 0);
     
     wait_ms(50); // when USB cable is inserted the interface chip issues 
     // multiple resets to the target CPU We wait here for a short period to 

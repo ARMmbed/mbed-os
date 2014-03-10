@@ -49,12 +49,19 @@ public:
     /** Create a DigitalIn connected to the specified pin
      *
      *  @param pin DigitalIn pin to connect to
-     *  @param name (optional) A string to identify the object
      */
     DigitalIn(PinName pin) {
-        gpio_init(&gpio, pin, PIN_INPUT);
+        gpio_init_in(&gpio, pin);
     }
 
+    /** Create a DigitalIn connected to the specified pin
+     *
+     *  @param pin DigitalIn pin to connect to
+     *  @param mode the initial mode of the pin
+     */
+    DigitalIn(PinName pin, PinMode mode) {
+        gpio_init_in_ex(&gpio, pin, mode);
+    }
     /** Read the input, represented as 0 or 1 (int)
      *
      *  @returns

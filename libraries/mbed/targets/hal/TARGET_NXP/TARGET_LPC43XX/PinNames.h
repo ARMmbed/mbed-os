@@ -556,7 +556,8 @@ typedef enum {
     PullDown = 3,
     PullNone = 2,
     Repeater = 1,
-    OpenDrain = 4
+    OpenDrain = 4,
+    PullDefault = PullDown
 } PinMode;
 
 #ifdef __cplusplus
