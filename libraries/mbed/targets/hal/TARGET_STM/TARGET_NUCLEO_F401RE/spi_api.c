@@ -39,22 +39,42 @@
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PA_7,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PB_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PC_3,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PB_15, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PC_12, SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
+    {PB_5 , SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {PA_6,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PB_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PC_2,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PB_14, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PC_11, SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
+    {PB_4 , SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PA_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PB_3,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
+    {PB_10, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PB_13, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PC_10, SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
+    {PB_3 , SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_SPI3)},
     {NC,    NC,    0}
 };
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PB_6,  SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0)}, // Generic IO, not real H/W NSS pin
+	{PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI1)},
+	{PA_15, SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI1)},
+	{PB_9 , SPI_2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI2)},
+	{PB_12, SPI_2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI2)},
+	{PA_4 , SPI_3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF6_SPI3)},
+	{PA_15, SPI_3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF6_SPI3)},
     {NC,    NC,    0}
 };
 
@@ -102,11 +122,20 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         __SPI1_CLK_ENABLE();
     }
+    if (obj->spi == SPI_2) {
+        __SPI2_CLK_ENABLE();
+    }
+    if (obj->spi == SPI_3) {
+        __SPI3_CLK_ENABLE();
+    }
     
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
+    if (ssel != NC) {									// slave mode
+            pinmap_pinout(ssel, PinMap_SPI_SSEL);
+        }
     
     // Save new values
     obj->bits = SPI_DATASIZE_8BIT;
@@ -114,7 +143,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_PHASE_1EDGE;
     obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 1MHz (with HSI=16MHz and APB2CLKDivider=2)
     
-    if (ssel == NC) { // Master
+    if (ssel == NC) { // SW NSS Master mode
         obj->mode = SPI_MODE_MASTER;
         obj->nss = SPI_NSS_SOFT;
     }
@@ -174,8 +203,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
 void spi_frequency(spi_t *obj, int hz) {
     // Get SPI clock frequency
-    uint32_t PCLK = SystemCoreClock >> 1;
 
+	// SPI1 runs from PCLK2, which runs at SystemCoreClock / 2.  SPI2 and SPI3
+    // run from PCLK1, which runs at SystemCoreClock / 4.
+    uint32_t PCLK = SystemCoreClock;
+    switch ((int)obj->spi) {
+           case SPI_1: PCLK = PCLK >> 1; break;
+           case SPI_2: PCLK = PCLK >> 2; break;
+           case SPI_3: PCLK = PCLK >> 2; break;
+    }
     // Choose the baud rate divisor (between 2 and 256)
     uint32_t divisor = PCLK / hz;
 
@@ -215,7 +251,9 @@ static inline int ssp_writeable(spi_t *obj) {
 static inline void ssp_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
-    spi->DR = (uint8_t)value;
+    if(obj->bits == SPI_DATASIZE_8BIT)
+            spi->DR = (uint8_t)value;       // 8 bit mode
+    else spi->DR = (uint16_t)value;   		// 16 bit mode
 }
 
 static inline int ssp_read(spi_t *obj) {
