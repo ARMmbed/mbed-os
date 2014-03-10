@@ -293,6 +293,12 @@ if __name__ == '__main__':
                       metavar="FILE",
                       help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
 
+    parser.add_option('-g', '--goanna-for-tests',
+                      dest='goanna_for_tests',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for tests')
+
     parser.add_option('-s', '--suppress-summary',
                       dest='suppress_summary',
                       default=False,
@@ -360,8 +366,9 @@ if __name__ == '__main__':
                         'test_id': test_id,
                     }
 
+                    build_project_options = ["analyze"] if opts.goanna_for_tests else None
                     path = build_project(test.source_dir, join(build_dir, test_id),
-                                         T, toolchain, test.dependencies,
+                                         T, toolchain, test.dependencies, options=build_project_options,
                                          clean=clean, verbose=opts.verbose)
 
                     test_result_cache = join(dirname(path), "test_result.json")
