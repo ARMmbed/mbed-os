@@ -299,6 +299,12 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Run Goanna static analyse tool for tests')
 
+    parser.add_option('-G', '--goanna-for-sdk',
+                      dest='goanna_for_mbed_sdk',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for mbed SDK')
+
     parser.add_option('-s', '--suppress-summary',
                       dest='suppress_summary',
                       default=False,
@@ -347,7 +353,8 @@ if __name__ == '__main__':
             # print '=== %s::%s ===' % (target, toolchain)
             # Let's build our test
             T = TARGET_MAP[target]
-            build_mbed_libs(T, toolchain)
+            build_mbed_libs_options = ["analyze"] if opts.goanna_for_mbed_sdk else None
+            build_mbed_libs(T, toolchain, options=build_mbed_libs_options)
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
             for test_id, test in TEST_MAP.iteritems():
