@@ -73,12 +73,15 @@ class SingleTestRunner(object):
     """ Object wrapper for single test run which may involve multiple MUTs."""
 
     re_detect_testcase_result = None
+    TEST_RESULT_OK    = "OK"
+    TEST_RESULT_FAIL  = "FAIL"
+    TEST_RESULT_ERROR = "ERROR"
     TEST_RESULT_UNDEF = "UNDEF"
 
     # mbed test suite -> SingleTestRunner
-    TEST_RESULT_MAPPING = {"success" : "OK",
-                           "failure" : "FAIL",
-                           "error"   : "ERROR",
+    TEST_RESULT_MAPPING = {"success" : TEST_RESULT_OK,
+                           "failure" : TEST_RESULT_FAIL,
+                           "error"   : TEST_RESULT_ERROR,
                            "end"     : TEST_RESULT_UNDEF}
 
     def __init__(self):
@@ -391,6 +394,11 @@ if __name__ == '__main__':
 
     # Human readable summary
     if not opts.suppress_summary:
+        result_dict = { single_test.TEST_RESULT_OK    : 0,
+                        single_test.TEST_RESULT_FAIL  : 0,
+                        single_test.TEST_RESULT_ERROR : 0,
+                        single_test.TEST_RESULT_UNDEF : 0 }
+        
         print
         print "Test summary:"
         # Pretty table package is used to print results
@@ -404,6 +412,12 @@ if __name__ == '__main__':
         pt.padding_width = 1 # One space between column edges and contents (default)
 
         for test in test_summary:
+            if test[0] in result_dict:
+                result_dict[test[0]] += 1
             pt.add_row(test)
         print pt
+        
+        # Print result count
+        print "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        #print result_dict
     print "Completed in %d sec" % (time() - start)
