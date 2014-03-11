@@ -1,8 +1,8 @@
 #include "mbed.h"
 
-#ifdef TARGET_NUCLEO_F103RB
-#define TXPIN     SERIAL_TX
-#define RXPIN     SERIAL_RX
+#if defined(TARGET_NUCLEO_F103RB) || defined(TARGET_NUCLEO_L152RE) || defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_F030R8)
+#define TXPIN     PA_2
+#define RXPIN     PA_3
 #else
 #define TXPIN     USBTX
 #define RXPIN     USBRX
