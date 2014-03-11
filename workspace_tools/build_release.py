@@ -47,7 +47,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F401RE', ('ARM', 'uARM')),
     ('NUCLEO_F030R8', ('ARM', 'uARM')),
     
-    # ('NRF51822', ('ARM', )),
+    ('NRF51822', ('ARM', )),
 )
 
 
