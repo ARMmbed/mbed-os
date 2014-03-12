@@ -16,26 +16,55 @@ limitations under the License.
 
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
-Usage:
-1.  Update your private_settings.py with all MUTs you can possibly connect.
-    Make sure mcu / port / serial names are concretely inputed.
-2.  Update test_spec dictionary in __main__ section.
+-------------------------------------------------------------------------------
 
-    Example 1:
-    In below example only LPC11U24 will be tested
-    and test will be prepared using only uARM toolchain. Note that other
-    targets are just commented.
-    Uncomment or add your own targets at will.
+Usage: singletest.py [options]
 
-    test_spec = {
-        "targets": {
-            # "KL25Z": ["ARM", "GCC_ARM"],
-            # "LPC1768": ["ARM", "GCC_ARM", "GCC_CR", "GCC_CS", "IAR"],
-            "LPC11U24": ["uARM"]
-            # "NRF51822": ["ARM"]
-            # "NUCLEO_F103RB": ["ARM"]
-        }
+This script allows you to run mbed defined test cases for particular MCU(s)
+and corresponding toolchain(s).
+
+Options:
+  -h, --help            show this help message and exit
+  -i FILE, --tests=FILE
+                        Points to file with test specification
+  -M FILE, --MUTS=FILE  Points to file with MUTs specification (overwrites
+                        settings.py and private_settings.py)
+  -g, --goanna-for-tests
+                        Run Goanna static analyse tool for tests
+  -G, --goanna-for-sdk  Run Goanna static analyse tool for mbed SDK
+  -s, --suppress-summary
+                        Suppresses display of wellformatted table with test
+                        results
+  -v, --verbose         Verbose mode (pronts some extra information)
+
+Example: singletest.py -i test_spec.json -M muts_all.json
+
+-------------------------------------------------------------------------------
+
+File format example: test_spec.json
+
+{
+    "targets": {
+        "KL46Z": ["ARM", "GCC_ARM"],
+        "LPC1768": ["ARM", "GCC_ARM", "GCC_CR", "GCC_CS", "IAR"],
+        "LPC11U24": ["uARM"],
+        "NRF51822": ["ARM"]
     }
+}
+
+File format example: muts_all.json
+
+{
+    "1" : {"mcu": "LPC1768",
+        "port":"COM4", "disk":"J:\\",
+        "peripherals": ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
+    },
+
+    "2" : {"mcu": "KL25Z",
+        "port":"COM7", "disk":"G:\\",
+        "peripherals": ["digital_loop", "port_loop", "analog_loop"]
+    }
+}
 
 """
 
