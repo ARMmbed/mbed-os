@@ -43,6 +43,10 @@ struct analogin_s {
     ADCName adc;
 };
 
+struct dac_s {
+    DACName dac;
+};
+
 struct i2c_s {
     LPC_I2C0_Type *i2c;
 };
