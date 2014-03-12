@@ -30,8 +30,7 @@ static LPC_SCT0_Type *SCTs[4] = {
 static unsigned char sct_used = 0;
 static int get_available_sct(void) {
     int i;
-    // start from 1, since 0 is used by ticker at the moment
-    for (i=1; i<4; i++) {
+    for (i=0; i<4; i++) {
         if ((sct_used & (1 << i)) == 0)
             return i;
     }
@@ -61,6 +60,11 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     LPC_SYSCON->PRESETCTRL1 &= ~(1 << (obj->pwm_ch + 2));
     
     switch(obj->pwm_ch) {
+    	case 0:
+            // SCT0_OUT0
+            LPC_SWM->PINASSIGN[7] &= ~0x0000FF00;
+            LPC_SWM->PINASSIGN[7] |= (pin << 8);
+    		break;
     	case 1:
             // SCT1_OUT0
             LPC_SWM->PINASSIGN[8] &= ~0x000000FF;
