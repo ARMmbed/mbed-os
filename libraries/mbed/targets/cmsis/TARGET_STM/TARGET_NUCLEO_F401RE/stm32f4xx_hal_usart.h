@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -410,8 +410,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart);
-__weak void HAL_USART_MspInit(USART_HandleTypeDef *husart);
-__weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart);
+void HAL_USART_MspInit(USART_HandleTypeDef *husart);
+void HAL_USART_MspDeInit(USART_HandleTypeDef *husart);
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size, uint32_t Timeout);
@@ -426,12 +426,12 @@ HAL_StatusTypeDef HAL_USART_DMAPause(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAResume(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart);
 void HAL_USART_IRQHandler(USART_HandleTypeDef *husart);
-__weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
-__weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
-__weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart);
-__weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart);
-__weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart);
-__weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart);
+void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart);
 
 /* Peripheral State functions  **************************************************/
 HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart);

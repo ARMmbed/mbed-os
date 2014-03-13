@@ -32,7 +32,18 @@ public:
      *  @param pin DigitalInOut pin to connect to
      */
     DigitalInOut(PinName pin) {
-        gpio_init(&gpio, pin, PIN_INPUT);
+        gpio_init_in(&gpio, pin);
+    }
+
+    /** Create a DigitalInOut connected to the specified pin
+     *
+     *  @param pin DigitalInOut pin to connect to
+     *  @param direction the initial direction of the pin
+     *  @param mode the initial mode of the pin
+     *  @param value the initial value of the pin if is an output
+     */
+    DigitalInOut(PinName pin, PinDirection direction, PinMode mode, int value) {
+        gpio_init_inout(&gpio, pin, direction, mode, value);
     }
 
     /** Set the output, specified as 0 or 1 (int)

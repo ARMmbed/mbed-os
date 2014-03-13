@@ -1,5 +1,5 @@
-mbed SDK 
-======== 
+mbed SDK
+========
 
 [![Build Status](https://travis-ci.org/mbedmicro/mbed.png)](https://travis-ci.org/mbedmicro/mbed/builds)
 
@@ -20,26 +20,28 @@ Documentation
 * [mbed library internals](http://mbed.org/handbook/mbed-library-internals)
 * [Adding a new target microcontroller](http://mbed.org/handbook/mbed-SDK-porting)
 
-Supported Microcontrollers
---------------------------
+Supported Microcontrollers and Boards
+-------------------------------------
 NXP:
-* [LPC1768](http://mbed.org/platforms/mbed-LPC1768/) (Cortex-M3)
-* [LPC1768](http://mbed.org/platforms/u-blox-C027/) (Cortex-M3)
-* [LPC11U24](http://mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
-* [LPC11U35](http://mbed.org/platforms/EA-LPC11U35/) (Cortex-M0)
-* LPC2368 (ARM7TDMI-S)
+* [mbed LPC1768](http://mbed.org/platforms/mbed-LPC1768/) (Cortex-M3)
+* [u-blox C027 LPC1768](http://mbed.org/platforms/u-blox-C027/) (Cortex-M3)
+* [mbed LPC11U24](http://mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
+* [EA LPC11U35](http://mbed.org/platforms/EA-LPC11U35/) (Cortex-M0)
+* mbed LPC2368 (ARM7TDMI-S)
 * LPC810 (Cortex-M0+)
 * [LPC812](http://mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
-* [LPC4088](http://mbed.org/platforms/EA-LPC4088/) (Cortex-M4)
+* [EA LPC4088](http://mbed.org/platforms/EA-LPC4088/) (Cortex-M4)
 * LPC4330 (Cortex-M4 + Cortex-M0)
 * [LPC1347](http://mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
 * [LPC1114](http://mbed.org/platforms/LPC1114FN28/) (Cortex-M0)
 * LPC11C24 (Cortex-M0)
+* [LPC1549](https://mbed.org/platforms/LPCXpresso1549/) (Cortex-M3)
 
 Freescale:
-* KL05Z (Cortex-M0+)
-* [KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
-* [KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
+* FRDM-K20D50M
+* [FRDM-KL05Z](https://mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
+* [FRDM-KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
+* [FRDM-KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
 
 STMicroelectronics:
 * [Nucleo-F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB/) (Cortex-M3)
@@ -47,6 +49,9 @@ STMicroelectronics:
 * [Nucleo-F030R8](https://mbed.org/platforms/ST-Nucleo-F030R8/) (Cortex-M0)
 * [Nucleo-F401RE](https://mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4)
 * STM32F407 (Cortex-M4)
+
+Nordic:
+* [nRF51822-mKIT](https://mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
 
 Supported Toolchains and IDEs
 -----------------------------

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
@@ -97,8 +97,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc);
 HAL_StatusTypeDef HAL_CRC_DeInit (CRC_HandleTypeDef *hcrc);
-__weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc);
-__weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc);
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc);
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc);
 
 /* Peripheral Control functions  ************************************************/
 uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength);

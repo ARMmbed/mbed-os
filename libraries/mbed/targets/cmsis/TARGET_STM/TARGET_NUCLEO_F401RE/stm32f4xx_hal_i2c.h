@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -392,8 +392,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c);
 HAL_StatusTypeDef HAL_I2C_DeInit (I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
 
 /* I/O operation functions  *****************************************************/
 /******* Blocking mode: Polling */
@@ -424,13 +424,13 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
 /******* I2C IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */
 void HAL_I2C_EV_IRQHandler(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_ER_IRQHandler(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
-__weak void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
 
 /* Peripheral Control and State functions  **************************************/
 HAL_I2C_StateTypeDef HAL_I2C_GetState(I2C_HandleTypeDef *hi2c);

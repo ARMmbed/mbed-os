@@ -41,7 +41,7 @@ uint32_t gpio_set(PinName pin) {
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+void gpio_init(gpio_t *obj, PinName pin) {
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
@@ -56,14 +56,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_in  = &gpio->IDR;
     obj->reg_set = &gpio->BSRR;
     obj->reg_clr = &gpio->BRR;
-  
-    // Configure GPIO
-    if (direction == PIN_OUTPUT) {
-        pin_function(pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
-    }
-    else { // PIN_INPUT
-        pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {

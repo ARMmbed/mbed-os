@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA SIR ENDEC block (IrDA):
@@ -140,6 +140,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define IRDA_TIMEOUT_VALUE  22000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -279,9 +280,13 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   /* DeInit the low level hardware */
   HAL_IRDA_MspDeInit(hirda);
   
-  hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
+  hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
+
   hirda->State = HAL_IRDA_STATE_RESET; 
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hirda);
+
   return HAL_OK;
 }
 
@@ -938,21 +943,33 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda)
   * @param  hdma : DMA handle
   * @retval None
   */
-static void IRDA_DMATransmitCplt(DMA_HandleTypeDef *hdma)   
+static void IRDA_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   IRDA_HandleTypeDef* hirda = ( IRDA_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
+
   hirda->TxXferCount = 0;
-  
-  if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
+
+  /* Wait for IRDA TC Flag */
+  if(IRDA_WaitOnFlagUntilTimeout(hirda, IRDA_FLAG_TC, RESET, IRDA_TIMEOUT_VALUE) != HAL_OK)
   {
-    hirda->State = HAL_IRDA_STATE_BUSY_RX;
+    /* Timeout Occured */ 
+    hirda->State = HAL_IRDA_STATE_TIMEOUT;
+    HAL_IRDA_ErrorCallback(hirda);
   }
   else
   {
-    hirda->State = HAL_IRDA_STATE_READY;
+    /* No Timeout */
+    /* Check if a receive process is ongoing or not */
+    if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX)
+    {
+      hirda->State = HAL_IRDA_STATE_BUSY_RX;
+    }
+    else
+    {
+      hirda->State = HAL_IRDA_STATE_READY;
+    }
+    HAL_IRDA_TxCpltCallback(hirda);
   }
-  HAL_IRDA_TxCpltCallback(hirda);
 }
 
 /**

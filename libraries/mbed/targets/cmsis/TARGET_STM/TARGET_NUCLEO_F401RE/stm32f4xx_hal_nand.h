@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
@@ -193,10 +193,10 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef  HAL_NAND_Init(NAND_HandleTypeDef *hnand, FMC_NAND_PCC_TimingTypeDef *ComSpace_Timing, FMC_NAND_PCC_TimingTypeDef *AttSpace_Timing);
 HAL_StatusTypeDef  HAL_NAND_DeInit(NAND_HandleTypeDef *hnand);
-__weak void        HAL_NAND_MspInit(NAND_HandleTypeDef *hnand);
-__weak void        HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand);
+void        HAL_NAND_MspInit(NAND_HandleTypeDef *hnand);
+void        HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand);
 void               HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand);
-__weak void        HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
+void        HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
 
 /* IO operation functions  *****************************************************/
 HAL_StatusTypeDef  HAL_NAND_Read_ID(NAND_HandleTypeDef *hnand, NAND_IDTypeDef *pNAND_ID);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -410,8 +410,8 @@ typedef struct
 HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc);
 HAL_StatusTypeDef HAL_SMARTCARD_ReInit(SMARTCARD_HandleTypeDef *hsc);
 HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc);
-__weak void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsc);
-__weak void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsc);
+void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsc);
+void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsc);
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -420,9 +420,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc, uint8_t
 HAL_StatusTypeDef HAL_SMARTCARD_Transmit_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SMARTCARD_Receive_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size);
 void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc);
-__weak void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
-__weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
-__weak void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsc);
+void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
+void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
+void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsc);
 
 /* Peripheral State functions  **************************************************/
 HAL_SMARTCARD_StateTypeDef HAL_SMARTCARD_GetState(SMARTCARD_HandleTypeDef *hsc);

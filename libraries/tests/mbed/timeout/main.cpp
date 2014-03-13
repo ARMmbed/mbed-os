@@ -5,10 +5,10 @@ DigitalOut led(LED1);
 #ifdef TARGET_KL25Z
 DigitalOut out(PTA1);
 
-#elif TARGET_KL05Z
+#elif defined(TARGET_KL05Z)
 DigitalOut out(PTB1);
 
-#elif TARGET_KL46Z
+#elif defined(TARGET_KL46Z)
 DigitalOut out(PTA1);
 
 #elif defined(TARGET_LPC812)

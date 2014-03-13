@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -392,7 +392,10 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   HAL_I2S_MspDeInit(hi2s);
   
   hi2s->State = HAL_I2S_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hi2s);
+
   return HAL_OK;
 }
 
@@ -530,7 +533,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
     if (I2S_WaitFlagStateUntilTimeout(hi2s, I2S_FLAG_BSY, SET, Timeout) != HAL_OK)
     {
       return HAL_TIMEOUT;
-    }    
+    }
 
     hi2s->State = HAL_I2S_STATE_READY; 
     
@@ -1053,10 +1056,17 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
     I2SxEXT(hi2s->Instance)->CR2 &= (uint32_t)(~SPI_CR2_RXDMAEN);
   }
   
-  /* Disable the I2S DMA Stream */
-  __HAL_DMA_DISABLE(hi2s->hdmatx);
-  __HAL_DMA_DISABLE(hi2s->hdmarx);
-  
+  /* Abort the I2S DMA Stream tx */
+  if(hi2s->hdmatx != NULL)
+  {
+    HAL_DMA_Abort(hi2s->hdmatx);
+  }
+  /* Abort the I2S DMA Stream rx */
+  if(hi2s->hdmarx != NULL)
+  {
+    HAL_DMA_Abort(hi2s->hdmarx);
+  }
+
   /* Disable I2S peripheral */
   __HAL_I2S_DISABLE(hi2s);
   

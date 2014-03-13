@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
@@ -258,7 +258,7 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void          HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
 void          HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void          HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
-__weak void   HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void   HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 /**
   * @}

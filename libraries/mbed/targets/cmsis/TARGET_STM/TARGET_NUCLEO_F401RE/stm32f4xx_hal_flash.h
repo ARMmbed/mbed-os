@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of FLASH HAL module.
   ******************************************************************************
   * @attention
@@ -302,7 +302,7 @@ typedef struct
   *            @arg FLASH_FLAG_BSY   : FLASH Busy flag
   * @retval The new state of __FLAG__ (SET or RESET).
   */
-#define __HAL_FLASH_GET_FLAG(__FLAG__)   ((FLASH->SR & (__FLAG__)) == (__FLAG__))
+#define __HAL_FLASH_GET_FLAG(__FLAG__)   ((FLASH->SR & (__FLAG__)))
 
 /**
   * @brief  Clear the specified FLASH flag.
@@ -329,8 +329,8 @@ HAL_StatusTypeDef   HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address,
 /* FLASH IRQ handler method */
 void                HAL_FLASH_IRQHandler(void);
 /* Callbacks in non blocking modes */ 
-__weak void         HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
-__weak void         HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
+void         HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
+void         HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
 
 /* Peripheral Control functions  **********************************************/
 HAL_StatusTypeDef   HAL_FLASH_Unlock(void);

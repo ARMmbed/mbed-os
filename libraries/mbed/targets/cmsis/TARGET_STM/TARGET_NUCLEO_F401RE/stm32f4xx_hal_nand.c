@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   NAND HAL module driver.
   *          This file provides a generic firmware to drive NAND memories mounted 
   *          as external device.
@@ -154,13 +154,12 @@ HAL_StatusTypeDef  HAL_NAND_Init(NAND_HandleTypeDef *hnand, FMC_NAND_PCC_TimingT
   FMC_NAND_AttributeSpace_Timing_Init(hnand->Instance, AttSpace_Timing, hnand->Init.NandBank);
   
   /* Enable the NAND device */
-  __FMC_NAND_ENABLE(hnand->Instance, hnand->Init.NandBank);   
+  __FMC_NAND_ENABLE(hnand->Instance, hnand->Init.NandBank);
   
   /* Update the NAND controller state */
-  hnand->State = HAL_NAND_STATE_READY;  
-  
-  return HAL_OK;
+  hnand->State = HAL_NAND_STATE_READY;
 
+  return HAL_OK;
 }
 
 /**
@@ -172,12 +171,17 @@ HAL_StatusTypeDef HAL_NAND_DeInit(NAND_HandleTypeDef *hnand)
 {
   /* Initialize the low level hardware (MSP) */
   HAL_NAND_MspDeInit(hnand);
-  
+
   /* Configure the NAND registers with their reset values */
   FMC_NAND_DeInit(hnand->Instance, hnand->Init.NandBank);
 
-  return HAL_OK;  
-  
+  /* Reset the NAND controller state */
+  hnand->State = HAL_NAND_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hnand);
+
+  return HAL_OK;
 }
 
 /**

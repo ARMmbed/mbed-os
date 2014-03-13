@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -399,11 +399,11 @@ HAL_I2S_StateTypeDef HAL_I2S_GetState(I2S_HandleTypeDef *hi2s);
 HAL_I2S_ErrorTypeDef HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
 
 /* Callbacks used in non blocking modes (Interrupt and DMA) *******************/
-__weak void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s);
-__weak void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s);
-__weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s);
-__weak void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s);
-__weak void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
+void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s);
+void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s);
+void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s);
+void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s);
+void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 
 void              I2S_DMATxCplt(DMA_HandleTypeDef *hdma);
 void              I2S_DMATxHalfCplt(DMA_HandleTypeDef *hdma); 

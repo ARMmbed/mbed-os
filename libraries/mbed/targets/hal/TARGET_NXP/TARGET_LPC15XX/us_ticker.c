@@ -17,7 +17,7 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-#define US_TICKER_TIMER_IRQn     SCT0_IRQn
+#define US_TICKER_TIMER_IRQn     RIT_IRQn
 
 int us_ticker_inited = 0;
 
@@ -25,25 +25,24 @@ void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
     
-    // Enable the SCT0 clock
-    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 2);
+    // Enable the RIT clock
+    LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 1);
     
-    // Clear peripheral reset the SCT0:
-    LPC_SYSCON->PRESETCTRL1 |= (1 << 2);
-    LPC_SYSCON->PRESETCTRL1 &= ~(1 << 2);
+    // Clear peripheral reset the RIT
+    LPC_SYSCON->PRESETCTRL1 |= (1 << 1);
+    LPC_SYSCON->PRESETCTRL1 &= ~(1 << 1);
     
-    // Unified counter (32 bits)
-    LPC_SCT0->CONFIG |= 1;
+    LPC_RIT->MASK = 0;
+    LPC_RIT->MASK_H = 0;
     
-    // halt and clear the counter
-    LPC_SCT0->CTRL |= (1 << 2) | (1 << 3);
-    
-    // System Clock (12)MHz -> us_ticker (1)MHz
-    LPC_SCT0->CTRL |= ((SystemCoreClock/1000000 - 1) << 5);
-    
-    // unhalt the counter:
-    //    - clearing bit 2 of the CTRL register
-    LPC_SCT0->CTRL &= ~(1 << 2);
+    LPC_RIT->COUNTER = 0;
+    LPC_RIT->COUNTER_H = 0;
+
+    LPC_RIT->COMPVAL = 0xffffffff;
+    LPC_RIT->COMPVAL_H = 0x0000ffff;
+
+    // Timer enable, enable for debug
+    LPC_RIT->CTRL = 0xC;
     
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
@@ -53,42 +52,22 @@ uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
     
-    return LPC_SCT0->COUNT;
+    uint64_t temp;
+    temp = LPC_RIT->COUNTER | ((uint64_t)LPC_RIT->COUNTER_H << 32);
+    temp /= (SystemCoreClock/1000000);
+    return (uint32_t)temp;
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
-    // halt the counter: 
-    //    - setting bit 2 of the CTRL register
-    LPC_SCT0->CTRL |= (1 << 2);
-    
-    // set timestamp in compare register
-    LPC_SCT0->MATCH0 = timestamp;
-    
-    // unhalt the counter:
-    //    - clearing bit 2 of the CTRL register
-    LPC_SCT0->CTRL &= ~(1 << 2);
-    
-    // if events are not enabled, enable them
-    if (!(LPC_SCT0->EVEN & 0x01)) {
-        
-        // comb mode = match only
-        LPC_SCT0->EV0_CTRL = (1 << 12);
-        
-        // ref manual:
-        //   In simple applications that do not 
-        //   use states, write 0x01 to this 
-        //   register to enable an event
-        LPC_SCT0->EV0_STATE |= 0x1;
-        
-        // enable events
-        LPC_SCT0->EVEN |= 0x1;
-    }
+	uint64_t temp = ((uint64_t)timestamp * (SystemCoreClock/1000000));
+    LPC_RIT->COMPVAL = (temp & 0xFFFFFFFFL);
+    LPC_RIT->COMPVAL_H = ((temp >> 32)& 0x0000FFFFL);
 }
 
 void us_ticker_disable_interrupt(void) {
-    LPC_SCT0->EVEN &= ~1;
+    LPC_RIT->CTRL |= (1 << 3);
 }
 
 void us_ticker_clear_interrupt(void) {
-    LPC_SCT0->EVFLAG = 1;
+    LPC_RIT->CTRL |= (1 << 0);
 }

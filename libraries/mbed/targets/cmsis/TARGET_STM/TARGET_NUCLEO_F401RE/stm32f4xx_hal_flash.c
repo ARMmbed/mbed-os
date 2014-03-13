@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -281,7 +281,7 @@ void HAL_FLASH_IRQHandler(void)
   FLASH->CR &= (~FLASH_MER_BIT);
 
   /* Check FLASH End of Operation flag  */
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_EOP))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_EOP) != RESET)
   {
     if(pFlash.ProcedureOnGoing == FLASH_PROC_SECTERASE)
     {
@@ -338,7 +338,7 @@ void HAL_FLASH_IRQHandler(void)
   
   /* Check FLASH operation error flags */
   if(__HAL_FLASH_GET_FLAG((FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | \
-                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)))
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)) != RESET)
   {
     if(pFlash.ProcedureOnGoing == FLASH_PROC_SECTERASE)
     {
@@ -568,7 +568,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
     
   uint32_t timeout = HAL_GetTick() + Timeout;
      
-  while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) 
+  while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) 
   { 
     if(Timeout != HAL_MAX_DELAY)
     {
@@ -580,7 +580,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   }
   
   if(__HAL_FLASH_GET_FLAG((FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | \
-                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)))
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)) != RESET)
   {
     /*Save the error code*/
     FLASH_SetErrorCode();
@@ -700,32 +700,32 @@ static void FLASH_Program_Byte(uint32_t Address, uint8_t Data)
   */
 static void FLASH_SetErrorCode(void)
 { 
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR) != RESET)
   {
    pFlash.ErrorCode = FLASH_ERROR_WRP;
   }
   
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR) != RESET)
   {
    pFlash.ErrorCode |= FLASH_ERROR_PGA;
   }
   
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGPERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGPERR) != RESET)
   {
     pFlash.ErrorCode |= FLASH_ERROR_PGP;
   }
   
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGSERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGSERR) != RESET)
   {
     pFlash.ErrorCode |= FLASH_ERROR_PGS;
   }
   
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR) != RESET)
   {
     pFlash.ErrorCode |= FLASH_ERROR_RD;
   }
   
-  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPERR))
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPERR) != RESET)
   {
     pFlash.ErrorCode |= FLASH_ERROR_OPERATION;
   }

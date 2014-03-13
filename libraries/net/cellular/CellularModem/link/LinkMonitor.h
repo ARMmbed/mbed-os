@@ -73,6 +73,11 @@ public:
   */
   int getState(int* pRssi, REGISTRATION_STATE* pRegistrationState, BEARER* pBearer);
   
+  /** Get my phone number
+    @param phoneNumber pointer to store the current phoneNumber
+    @return 0 on success, error code on failure
+  */
+  int getPhoneNumber(char* phoneNumber);
 protected:
   //IATCommandsProcessor
   virtual int onNewATResponseLine(ATCommandsInterface* pInst, const char* line);
@@ -85,7 +90,7 @@ private:
   bool m_gsm;
   REGISTRATION_STATE m_registrationState;
   BEARER m_bearer;
-
+  char m_phoneNumber[16];
 };
 
 #endif /* LINKMONITOR_H_ */

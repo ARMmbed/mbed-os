@@ -58,6 +58,8 @@ int LinkMonitor::init(bool gsm)
 /*virtual*/ int LinkMonitor::onNewATResponseLine(ATCommandsInterface* pInst, const char* line)
 {
   DBG("Line is %s", line);
+  char n[32] = "";
+  char s[32] = "";
   int v;
   if( sscanf(line, "+CREG: %*d,%d", &v) >= 1 ) //Reg state is valid
   {
@@ -127,6 +129,13 @@ int LinkMonitor::init(bool gsm)
       m_rssi = -113 + 2*v;
     }
   }
+  else if ( (sscanf(line, "+CNUM: \"%[^\"]\",\"%[^\"]\",%d", n, s, &v) == 3) || 
+            (sscanf(line, "+CNUM: \"\",\"%[^\"]\",%d", s, &v) == 2) )
+  {
+      if (*s && ((v == 145/*number includes + */) || (v == 129/*otherwise*/))) {
+        strcpy(m_phoneNumber, s);
+      }
+  }
   return OK;
 }
 
@@ -148,5 +157,19 @@ int LinkMonitor::getState(int* pRssi, REGISTRATION_STATE* pRegistrationState, BE
   *pRssi = m_rssi;
   *pRegistrationState = m_registrationState;
   *pBearer = m_bearer;
+  return OK;
+}
+
+int LinkMonitor::getPhoneNumber(char* phoneNumber)
+{
+  *m_phoneNumber = '\0';
+  if (m_gsm) {
+    int ret = m_pIf->execute("AT+CNUM", this, NULL, DEFAULT_TIMEOUT);
+    if(ret != OK)
+    {
+      return NET_PROTOCOL;
+    }
+  }
+  strcpy(phoneNumber, m_phoneNumber);
   return OK;
 }

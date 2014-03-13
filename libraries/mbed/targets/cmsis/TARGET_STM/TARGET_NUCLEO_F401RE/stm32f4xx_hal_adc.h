@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of ADC HAL extension module.
   ******************************************************************************
   * @attention
@@ -687,8 +687,8 @@ typedef struct
 /* Initialization/de-initialization functions ***********************************/
 HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef *hadc);
-__weak void       HAL_ADC_MspInit(ADC_HandleTypeDef* hadc);
-__weak void       HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_MspInit(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
 
 /* I/O operation functions ******************************************************/
 HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc);
@@ -707,10 +707,10 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc);
 
 uint32_t          HAL_ADC_GetValue(ADC_HandleTypeDef* hadc);
 
-__weak void       HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
-__weak void       HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc);
-__weak void       HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc);
-__weak void       HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
+void       HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
 
 /* Peripheral Control functions *************************************************/
 HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConfTypeDef* sConfig);

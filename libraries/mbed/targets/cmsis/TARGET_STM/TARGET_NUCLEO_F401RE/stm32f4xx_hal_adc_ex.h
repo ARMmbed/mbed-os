@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of ADC HAL module.
   ******************************************************************************
   * @attention
@@ -264,7 +264,7 @@ uint32_t          HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t I
 HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
 HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc);
 uint32_t          HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc);
-__weak void       HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc);
 
 /* Peripheral Control functions *************************************************/
 HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc,ADC_InjectionConfTypeDef* sConfigInjected);

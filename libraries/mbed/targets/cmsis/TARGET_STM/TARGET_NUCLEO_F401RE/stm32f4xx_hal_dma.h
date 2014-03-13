@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -626,7 +626,7 @@ typedef struct __DMA_HandleTypeDef
   *            @arg DMA_IT_DME: Direct mode error interrupt.
   * @retval The state of DMA_IT.
   */
-#define __HAL_DMA_IT_STATUS(__HANDLE__, __INTERRUPT__)  (((__INTERRUPT__) != DMA_IT_FE)? \
+#define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  (((__INTERRUPT__) != DMA_IT_FE)? \
                                                         ((__HANDLE__)->Instance->CR & (__INTERRUPT__)) : \
                                                         ((__HANDLE__)->Instance->FCR & (__INTERRUPT__)))
 

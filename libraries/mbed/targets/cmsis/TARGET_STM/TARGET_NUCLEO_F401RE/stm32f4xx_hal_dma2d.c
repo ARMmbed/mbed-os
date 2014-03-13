@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   DMA2D HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DMA2D peripheral:
@@ -79,7 +79,7 @@
       (+) __HAL_DMA2D_CLEAR_FLAG: Clears the DMA2D pending flags.
       (+) __HAL_DMA2D_ENABLE_IT: Enables the specified DMA2D interrupts.
       (+) __HAL_DMA2D_DISABLE_IT: Disables the specified DMA2D interrupts.
-      (+) __HAL_DMA2D_IT_STATUS: Checks whether the specified DMA2D interrupt has occurred or not.
+      (+) __HAL_DMA2D_GET_IT_SOURCE: Checks whether the specified DMA2D interrupt has occurred or not.
      
      [..] 
       (@) You can refer to the DMA2D HAL driver header file for more useful macros
@@ -128,7 +128,7 @@
 
 #ifdef HAL_DMA2D_MODULE_ENABLED
 
-#if defined(STM32F429xx) || defined(STM32F439xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -264,6 +264,9 @@ HAL_StatusTypeDef HAL_DMA2D_DeInit(DMA2D_HandleTypeDef *hdma2d)
 
   /* Initialize the DMA2D state*/
   hdma2d->State  = HAL_DMA2D_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hdma2d);
 
   return HAL_OK;
 }
@@ -720,7 +723,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
   /* Transfer Error Interrupt management ***************************************/
   if(__HAL_DMA2D_GET_FLAG(hdma2d, DMA2D_FLAG_TE) != RESET)
   {
-    if(__HAL_DMA2D_IT_STATUS(hdma2d, DMA2D_IT_TE) != RESET)
+    if(__HAL_DMA2D_GET_IT_SOURCE(hdma2d, DMA2D_IT_TE) != RESET)
     {
       /* Disable the transfer Error interrupt */
       __HAL_DMA2D_DISABLE_IT(hdma2d, DMA2D_IT_TE);  
@@ -747,7 +750,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
   /* Configuration Error Interrupt management **********************************/
   if(__HAL_DMA2D_GET_FLAG(hdma2d, DMA2D_FLAG_CE) != RESET)
   {
-    if(__HAL_DMA2D_IT_STATUS(hdma2d, DMA2D_IT_CE) != RESET)
+    if(__HAL_DMA2D_GET_IT_SOURCE(hdma2d, DMA2D_IT_CE) != RESET)
     {
       /* Disable the Configuration Error interrupt */
       __HAL_DMA2D_DISABLE_IT(hdma2d, DMA2D_IT_CE);
@@ -774,7 +777,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
   /* Transfer Complete Interrupt management ************************************/
   if(__HAL_DMA2D_GET_FLAG(hdma2d, DMA2D_FLAG_TC) != RESET)
   {
-    if(__HAL_DMA2D_IT_STATUS(hdma2d, DMA2D_IT_TC) != RESET)
+    if(__HAL_DMA2D_GET_IT_SOURCE(hdma2d, DMA2D_IT_TC) != RESET)
     { 
       /* Disable the transfer complete interrupt */
       __HAL_DMA2D_DISABLE_IT(hdma2d, DMA2D_IT_TC);
@@ -1223,7 +1226,7 @@ static void DMA2D_SetConfig(DMA2D_HandleTypeDef *hdma2d, uint32_t pdata, uint32_
 /**
   * @}
   */
-#endif /* STM32F429xx || STM32F439xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
 #endif /* HAL_DMA2D_MODULE_ENABLED */
 /**
   * @}

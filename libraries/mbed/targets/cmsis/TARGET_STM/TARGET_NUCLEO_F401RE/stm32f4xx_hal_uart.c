@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   UART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Asynchronous Receiver Transmitter (UART) peripheral:
@@ -168,6 +168,7 @@
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define UART_TIMEOUT_VALUE  22000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -466,7 +467,10 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   
   huart->ErrorCode = HAL_UART_ERROR_NONE;
   huart->State = HAL_UART_STATE_RESET;
-  
+
+  /* Process Lock */
+  __HAL_UNLOCK(huart);
+
   return HAL_OK;
 }
 
@@ -1008,6 +1012,12 @@ HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart)
     /* Disable the UART DMA Rx request */
     huart->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAR);
   }
+  else if (huart->State == HAL_UART_STATE_BUSY_TX_RX)
+  {
+    /* Disable the UART DMA Tx & Rx requests */
+    huart->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAT);
+    huart->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAR);
+  }
   
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -1033,6 +1043,12 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
   else if(huart->State == HAL_UART_STATE_BUSY_RX)
   {
     /* Enable the UART DMA Rx request */
+    huart->Instance->CR3 |= USART_CR3_DMAR;
+  }
+  else if(huart->State == HAL_UART_STATE_BUSY_TX_RX)
+  {
+    /* Enable the UART DMA Tx & Rx request */
+    huart->Instance->CR3 |= USART_CR3_DMAT;
     huart->Instance->CR3 |= USART_CR3_DMAR;
   }
 
@@ -1063,10 +1079,16 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   huart->Instance->CR3 &= ~USART_CR3_DMAT;
   huart->Instance->CR3 &= ~USART_CR3_DMAR;
   
-  /* Disable the UART DMA Stream */
-  __HAL_DMA_DISABLE(huart->hdmatx);
-  __HAL_DMA_DISABLE(huart->hdmarx);
-  
+  /* Abort the UART DMA tx Stream */
+  if(huart->hdmatx != NULL)
+  {
+    HAL_DMA_Abort(huart->hdmatx);
+  }
+  /* Abort the UART DMA rx Stream */
+  if(huart->hdmarx != NULL)
+  {
+    HAL_DMA_Abort(huart->hdmarx);
+  }
   /* Disable UART peripheral */
   __HAL_UART_DISABLE(huart);
   
@@ -1442,17 +1464,28 @@ static void UART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
   /* Disable the DMA transfer for transmit request by setting the DMAT bit
      in the UART CR3 register */
   huart->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_DMAT);
-  
-  /* Check if a receive process is ongoing or not */
-  if(huart->State == HAL_UART_STATE_BUSY_TX_RX) 
+
+  /* Wait for UART TC Flag */
+  if(UART_WaitOnFlagUntilTimeout(huart, UART_FLAG_TC, RESET, UART_TIMEOUT_VALUE) != HAL_OK)
   {
-    huart->State = HAL_UART_STATE_BUSY_RX;
+    /* Timeout Occured */ 
+    huart->State = HAL_UART_STATE_TIMEOUT;
+    HAL_UART_ErrorCallback(huart);
   }
   else
   {
-    huart->State = HAL_UART_STATE_READY;
+    /* No Timeout */
+    /* Check if a receive process is ongoing or not */
+    if(huart->State == HAL_UART_STATE_BUSY_TX_RX)
+    {
+      huart->State = HAL_UART_STATE_BUSY_RX;
+    }
+    else
+    {
+      huart->State = HAL_UART_STATE_READY;
+    }
+    HAL_UART_TxCpltCallback(huart);
   }
-  HAL_UART_TxCpltCallback(huart);
 }
 
 /**

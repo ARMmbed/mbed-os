@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pccard.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of PCCARD HAL module.
   ******************************************************************************
   * @attention
@@ -143,8 +143,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef  HAL_PCCARD_Init(PCCARD_HandleTypeDef *hpccard, FMC_NAND_PCC_TimingTypeDef *ComSpaceTiming, FMC_NAND_PCC_TimingTypeDef *AttSpaceTiming, FMC_NAND_PCC_TimingTypeDef *IOSpaceTiming);
 HAL_StatusTypeDef  HAL_PCCARD_DeInit(PCCARD_HandleTypeDef *hpccard);   
-__weak void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard);
-__weak void HAL_PCCARD_MspDeInit(PCCARD_HandleTypeDef *hpccard);
+void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard);
+void HAL_PCCARD_MspDeInit(PCCARD_HandleTypeDef *hpccard);
 
 /* IO operation functions  *****************************************************/
 HAL_StatusTypeDef  HAL_CF_Read_ID(PCCARD_HandleTypeDef *hpccard, uint8_t CompactFlash_ID[], uint8_t *pStatus);
@@ -153,7 +153,7 @@ HAL_StatusTypeDef  HAL_CF_Read_Sector(PCCARD_HandleTypeDef *hpccard, uint16_t *p
 HAL_StatusTypeDef  HAL_CF_Erase_Sector(PCCARD_HandleTypeDef *hpccard, uint16_t SectorAddress, uint8_t *pStatus);
 HAL_StatusTypeDef  HAL_CF_Reset(PCCARD_HandleTypeDef *hpccard);
 void               HAL_PCCARD_IRQHandler(PCCARD_HandleTypeDef *hpccard);
-__weak void        HAL_PCCARD_ITCallback(PCCARD_HandleTypeDef *hpccard);
+void        HAL_PCCARD_ITCallback(PCCARD_HandleTypeDef *hpccard);
 
 /* PCCARD State functions *******************************************************/
 HAL_PCCARD_StateTypeDef HAL_PCCARD_GetState(PCCARD_HandleTypeDef *hpccard);

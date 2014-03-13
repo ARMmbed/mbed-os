@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -248,6 +248,9 @@ HAL_StatusTypeDef HAL_TIM_Base_DeInit(TIM_HandleTypeDef *htim)
   /* Change TIM state */  
   htim->State = HAL_TIM_STATE_RESET; 
   
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 
@@ -511,7 +514,10 @@ HAL_StatusTypeDef HAL_TIM_OC_DeInit(TIM_HandleTypeDef *htim)
     
   /* Change TIM state */  
   htim->State = HAL_TIM_STATE_RESET; 
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 
@@ -1005,7 +1011,10 @@ HAL_StatusTypeDef HAL_TIM_PWM_DeInit(TIM_HandleTypeDef *htim)
     
   /* Change TIM state */  
   htim->State = HAL_TIM_STATE_RESET; 
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 
@@ -1502,7 +1511,10 @@ HAL_StatusTypeDef HAL_TIM_IC_DeInit(TIM_HandleTypeDef *htim)
     
   /* Change TIM state */  
   htim->State = HAL_TIM_STATE_RESET;
-   
+
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 
@@ -1971,8 +1983,11 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_DeInit(TIM_HandleTypeDef *htim)
   HAL_TIM_OnePulse_MspDeInit(htim);
     
   /* Change TIM state */  
-  htim->State = HAL_TIM_STATE_RESET; 
-  
+  htim->State = HAL_TIM_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 
@@ -2274,8 +2289,11 @@ HAL_StatusTypeDef HAL_TIM_Encoder_DeInit(TIM_HandleTypeDef *htim)
   HAL_TIM_Encoder_MspDeInit(htim);
     
   /* Change TIM state */  
-  htim->State = HAL_TIM_STATE_RESET; 
-  
+  htim->State = HAL_TIM_STATE_RESET;
+ 
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
   return HAL_OK;
 }
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
@@ -375,13 +375,13 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp);
 HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
 
 /* MSP functions  *************************************************************/
-__weak void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp);
-__weak void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp);
+void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp);
+void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp);
 
 /* CallBack functions  ********************************************************/
-__weak void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp);
-__weak void HAL_CRYP_OutCpltCallback(CRYP_HandleTypeDef *hcryp);
-__weak void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp);
+void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp);
+void HAL_CRYP_OutCpltCallback(CRYP_HandleTypeDef *hcryp);
+void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp);
 
 #endif /* STM32F415xx || STM32F417xx || STM32F437xx || STM32F439xx */
 
