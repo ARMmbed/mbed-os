@@ -28,8 +28,9 @@ volatile uint16_t timeStamp=0;
 #ifdef __cplusplus
 extern "C" {
 #endif 
-void TIMER1_IRQHandler(void){
-    if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
+void TIMER1_IRQHandler(void){ 
+
+     if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) && 
        ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
     {
 		US_TICKER_TIMER->EVENTS_COMPARE[1] = 0;
