@@ -81,11 +81,16 @@ from shutil import copy
 from subprocess import call
 from time import sleep, time
 
+from subprocess import Popen, PIPE
+from threading import Thread
+from Queue import Queue, Empty
+
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 # Imports related to mbed build pi
 from workspace_tools.build_api import build_project, build_mbed_libs
 from workspace_tools.paths import BUILD_DIR
+from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
 
@@ -96,6 +101,28 @@ sys.path.insert(0, ROOT)
 # Imports related to mbed build pi
 from workspace_tools.utils import delete_dir_files
 from workspace_tools.settings import MUTs
+
+
+class ProcessObserver(Thread):
+    def __init__(self, proc):
+        Thread.__init__(self)
+        self.proc = proc
+        self.queue = Queue()
+        self.daemon = True
+        self.active = True
+        self.start()
+
+    def run(self):
+        while self.active:
+            c = self.proc.stdout.read(1)
+            self.queue.put(c)
+
+    def stop(self):
+        self.active = False
+        try:
+            self.proc.terminate()
+        except Exception, _:
+            pass
 
 
 class SingleTestRunner(object):
@@ -117,8 +144,8 @@ class SingleTestRunner(object):
         pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.re_detect_testcase_result = re.compile(pattern)
 
-    def run_host_test(self, target_name, port,
-                      duration, verbose=False):
+    def run_simple_test(self, target_name, port,
+                        duration, verbose=False):
         """
         Functions resets target and grabs by timeouted pooling test log
         via serial port.
@@ -214,12 +241,58 @@ class SingleTestRunner(object):
 
         # Host test execution
         start_host_exec_time = time()
-        test_result = self.run_host_test(target_name, port, duration)
+        #test_result = self.run_simple_test(target_name, port, duration, verbose=opts.verbose)
+        test_result = self.run_host_test(test.host_test, disk, port, duration)
         elapsed_time = time() - start_host_exec_time
         print print_test_result(test_result, target_name, toolchain_name,
                                 test_id, test_description, elapsed_time, duration)
         return (test_result, target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2), duration)
+
+
+    def run_host_test(self, name, disk, port, duration, extra_serial=""):
+        # print "{%s} port:%s disk:%s"  % (name, port, disk),
+        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
+        proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
+        obs = ProcessObserver(proc)
+        start = time()
+        line = ''
+        output = []
+        while (time() - start) < duration:
+            # Give the client a way to interrupt the test
+            """
+            try:
+                c = client.recv(1)
+                if c == '!':
+                    break
+            except Exception, _:
+                pass
+            """
+            try:
+                c = obs.queue.get(block=True, timeout=1)
+            except Empty, _:
+                c = None
+
+            if c:
+                output.append(c)
+                # Give the mbed under test a way to communicate the end of the test
+                if c in ['\n', '\r']:
+                    if '{end}' in line: break
+                    line = ''
+                else:
+                    line += c
+
+        # Stop test process
+        obs.stop()
+
+        # Parse test 'output' data
+        result = self.TEST_RESULT_UNDEF
+        for line in "".join(output).splitlines():
+            search_result = self.re_detect_testcase_result.search(line)
+            if search_result and len(search_result.groups()):
+                result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
+                break
+        return result
 
 
 def flush_serial(serial):
@@ -427,7 +500,7 @@ if __name__ == '__main__':
                         single_test.TEST_RESULT_FAIL  : 0,
                         single_test.TEST_RESULT_ERROR : 0,
                         single_test.TEST_RESULT_UNDEF : 0 }
-        
+
         print
         print "Test summary:"
         # Pretty table package is used to print results
@@ -445,7 +518,7 @@ if __name__ == '__main__':
                 result_dict[test[0]] += 1
             pt.add_row(test)
         print pt
-        
+
         # Print result count
         print "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
         #print result_dict
