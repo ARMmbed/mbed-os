@@ -199,11 +199,11 @@ typedef enum {
     LED2 = LED_RED,
     LED3 = LED_GREEN,
     LED4 = LED_RED,
-    
+
     //Push buttons
     SW1 = PTC3,
     SW3 = PTC12,
-    
+
     // USB Pins
     USBTX = PTA2,
     USBRX = PTA1,
@@ -232,9 +232,12 @@ typedef enum {
     A3 = PTB3,
     A4 = PTC2,
     A5 = PTC1,
-    
+
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    TSI_ELEC0 = PTB16,
+    TSI_ELEC1 = PTB17,
 
     // Not connected
     NC = (int)0xFFFFFFFF
@@ -244,7 +247,8 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullDown = 2,
-    PullUp = 3
+    PullUp = 3,
+    PullDefault = PullUp
 } PinMode;
 
 #ifdef __cplusplus

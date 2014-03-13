@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   IWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Independent Watchdog (IWDG) peripheral:
@@ -213,18 +213,6 @@ __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IWDG_MspInit could be implemented in the user file
-   */
-}
-
-/**
-  * @brief  DeInitializes the IWDG MSP.
-  * @param  hiwdg: IWDG handle
-  * @retval None
-  */
-__weak void HAL_IWDG_MspDeInit(IWDG_HandleTypeDef *hiwdg)
-{
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_IWDG_MspDeInit could be implemented in the user file
    */
 }
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of DCMI HAL module.
   ******************************************************************************
   * @attention
@@ -453,23 +453,23 @@ typedef struct
   *            @arg DCMI_IT_LINE: Line interrupt mask
   * @retval The state of INTERRUPT.
   */
-#define __HAL_DCMI_IT_STATUS(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->MISR & (__INTERRUPT__))
+#define __HAL_DCMI_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->MISR & (__INTERRUPT__))
     
 /* Exported functions --------------------------------------------------------*/  
 
 /* Initialization and de-initialization functions *******************************/
 HAL_StatusTypeDef HAL_DCMI_Init(DCMI_HandleTypeDef *hdcmi);
 HAL_StatusTypeDef HAL_DCMI_DeInit(DCMI_HandleTypeDef *hdcmi);
-__weak void       HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi);
-__weak void       HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi);
+void       HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi);
+void       HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi);
 
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mode, uint32_t pData, uint32_t Length);
 HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi);
-__weak void       HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi);
-__weak void       HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi);
-__weak void       HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi);
-__weak void       HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi);
+void       HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi);
+void       HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi);
+void       HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi);
+void       HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi);
 void              HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi);
 
 /* Peripheral Control functions *************************************************/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sram.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of SRAM HAL module.
   ******************************************************************************
   * @attention
@@ -104,8 +104,8 @@ typedef struct
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_SRAM_Init(SRAM_HandleTypeDef *hsram, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming);
 HAL_StatusTypeDef HAL_SRAM_DeInit(SRAM_HandleTypeDef *hsram);
-__weak void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram);
-__weak void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram);
+void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram);
+void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram);
 
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef HAL_SRAM_Read_8b(SRAM_HandleTypeDef *hsram, uint32_t *pAddress, uint8_t *pDstBuffer, uint32_t BufferSize);
@@ -117,8 +117,8 @@ HAL_StatusTypeDef HAL_SRAM_Write_32b(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
 HAL_StatusTypeDef HAL_SRAM_Read_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddress, uint32_t *pDstBuffer, uint32_t BufferSize);
 HAL_StatusTypeDef HAL_SRAM_Write_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddress, uint32_t *pSrcBuffer, uint32_t BufferSize);
 
-__weak void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma);
-__weak void HAL_SRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma);
+void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma);
+void HAL_SRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma);
 
 /* SRAM Control functions  ******************************************************/
 HAL_StatusTypeDef HAL_SRAM_WriteOperation_Enable(SRAM_HandleTypeDef *hsram);

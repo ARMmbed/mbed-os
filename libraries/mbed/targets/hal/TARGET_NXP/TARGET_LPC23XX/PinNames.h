@@ -84,7 +84,8 @@ typedef enum {
     PullUp = 0,
     PullDown = 3,
     PullNone = 2,
-    OpenDrain = 4
+    OpenDrain = 4,
+    PullDefault = PullDown
 } PinMode;
 
 // version of PINCON_TypeDef using register arrays

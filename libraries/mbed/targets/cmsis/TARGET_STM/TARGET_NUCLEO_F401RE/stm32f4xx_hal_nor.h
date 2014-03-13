@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of NOR HAL module.
   ******************************************************************************
   * @attention
@@ -190,16 +190,16 @@ typedef struct
   * @param  __DATA__: Data to write
   * @retval None
   */
-#define __NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint32_t *)(__ADDRESS__) = (__DATA__))
+#define __NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint16_t *)((uint32_t)(__ADDRESS__)) = (__DATA__))
 
 /* Exported functions --------------------------------------------------------*/
 
 /* Initialization/de-initialization functions  **********************************/  
 HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming);
 HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor);
-__weak void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor);
-__weak void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor);
-__weak void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout);
+void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor);
+void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor);
+void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout);
 
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_ID);

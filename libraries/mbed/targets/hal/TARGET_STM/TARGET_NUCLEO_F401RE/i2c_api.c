@@ -44,11 +44,15 @@
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PB_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
+    {PB_3,  I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C2)},
+    {PB_4,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C3)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
     {PB_8,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
+    {PB_10, I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},
+    {PA_8,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},
     {NC,    NC,    0}
 };
 
@@ -68,6 +72,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Enable I2C clock
     if (obj->i2c == I2C_1) {    
         __I2C1_CLK_ENABLE();
+    }
+    if (obj->i2c == I2C_2) {
+        __I2C2_CLK_ENABLE();
+    }
+
+    if (obj->i2c == I2C_3) {
+        __I2C3_CLK_ENABLE();
     }
 
     // Configure I2C pins
@@ -206,6 +217,14 @@ void i2c_reset(i2c_t *obj) {
     if (obj->i2c == I2C_1) {    
         __I2C1_FORCE_RESET();
         __I2C1_RELEASE_RESET();
+    }
+    if (obj->i2c == I2C_2) {
+        __I2C2_FORCE_RESET();
+        __I2C2_RELEASE_RESET();
+    }
+    if (obj->i2c == I2C_3) {
+        __I2C3_FORCE_RESET();
+        __I2C3_RELEASE_RESET();
     }
 }
 

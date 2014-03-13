@@ -187,6 +187,18 @@ public:
         }
     }
     
+    /**
+     * Instantiate to protect USB thread from accessing shared objects (USBConnectedDevices and Interfaces)
+     */
+    class Lock
+    {
+    public:
+      Lock(USBHost* pHost);  
+      ~Lock();  
+    private:
+      USBHost* m_pHost;
+    };
+    
     friend class USBHostHub;
 
 protected:

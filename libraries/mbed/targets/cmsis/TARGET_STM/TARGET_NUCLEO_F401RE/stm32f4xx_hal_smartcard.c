@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   SMARTCARD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the SMARTCARD peripheral:
@@ -64,7 +64,7 @@
           add his own code by customization of function pointer HAL_SMARTCARD_TxCpltCallback
       (+) Receive an amount of data in non blocking mode using HAL_SMARTCARD_Receive_IT() 
       (+) At reception end of transfer HAL_SMARTCARD_RxCpltCallback is executed and user can 
-          add his own code by customization of function pointer HAL_SMARTCARD_RxCpltCallback                                      
+          add his own code by customization of function pointer HAL_SMARTCARD_RxCpltCallback
       (+) In case of transfer Error, HAL_SMARTCARD_ErrorCallback() function is executed and user can 
           add his own code by customization of function pointer HAL_SMARTCARD_ErrorCallback
 
@@ -76,7 +76,7 @@
           add his own code by customization of function pointer HAL_SMARTCARD_TxCpltCallback
       (+) Receive an amount of data in non blocking mode (DMA) using HAL_SMARTCARD_Receive_DMA() 
       (+) At reception end of transfer HAL_SMARTCARD_RxCpltCallback is executed and user can 
-          add his own code by customization of function pointer HAL_SMARTCARD_RxCpltCallback                                      
+          add his own code by customization of function pointer HAL_SMARTCARD_RxCpltCallback
       (+) In case of transfer Error, HAL_SMARTCARD_ErrorCallback() function is executed and user can 
           add his own code by customization of function pointer HAL_SMARTCARD_ErrorCallback    
 
@@ -140,6 +140,7 @@
 #ifdef HAL_SMARTCARD_MODULE_ENABLED
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define SMARTCARD_TIMEOUT_VALUE  22000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -291,7 +292,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc)
   */
 HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
 {
-   /* Check the SMARTCARD handle allocation */
+  /* Check the SMARTCARD handle allocation */
   if(hsc == NULL)
   {
     return HAL_ERROR;
@@ -307,6 +308,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
 
   hsc->ErrorCode = HAL_SMARTCARD_ERROR_NONE;
   hsc->State = HAL_SMARTCARD_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hsc);
 
   return HAL_OK;
 }
@@ -899,7 +903,7 @@ uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsc)
   * @param hdma : DMA handle
   * @retval None
   */
-static void SMARTCARD_DMATransmitCplt(DMA_HandleTypeDef *hdma)   
+static void SMARTCARD_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   SMARTCARD_HandleTypeDef* hsc = ( SMARTCARD_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   
@@ -908,10 +912,20 @@ static void SMARTCARD_DMATransmitCplt(DMA_HandleTypeDef *hdma)
   /* Disable the DMA transfer for transmit request by setting the DMAT bit
   in the USART CR3 register */
   hsc->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_DMAT);
-  
-  hsc->State= HAL_SMARTCARD_STATE_READY;
-  
-  HAL_SMARTCARD_TxCpltCallback(hsc);
+
+  /* Wait for SMARTCARD TC Flag */
+  if(SMARTCARD_WaitOnFlagUntilTimeout(hsc, SMARTCARD_FLAG_TC, RESET, SMARTCARD_TIMEOUT_VALUE) != HAL_OK)
+  {
+    /* Timeout Occured */ 
+    hsc->State = HAL_SMARTCARD_STATE_TIMEOUT;
+    HAL_SMARTCARD_ErrorCallback(hsc);
+  }
+  else
+  {
+    /* No Timeout */
+    hsc->State= HAL_SMARTCARD_STATE_READY;
+    HAL_SMARTCARD_TxCpltCallback(hsc);
+  }
 }
 
 /**

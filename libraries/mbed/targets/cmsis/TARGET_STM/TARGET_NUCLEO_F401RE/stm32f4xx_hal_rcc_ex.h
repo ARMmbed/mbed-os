@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -154,7 +154,7 @@ typedef struct
   RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters
                                       This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint8_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection
+  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection
                                       This parameter can be a value of @ref RCC_RTC_Clock_Source */
 
 }RCC_PeriphCLKInitTypeDef;

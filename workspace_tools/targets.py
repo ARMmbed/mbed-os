@@ -101,6 +101,8 @@ class LPC11U24_301(Target):
 
 
 class KL05Z(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
     def __init__(self):
         Target.__init__(self)
         
@@ -282,7 +284,7 @@ class NUCLEO_F103RB(Target):
         
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_L152RE(Target):
@@ -296,7 +298,7 @@ class NUCLEO_L152RE(Target):
         
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_F401RE(Target):
@@ -310,7 +312,7 @@ class NUCLEO_F401RE(Target):
         
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class NUCLEO_F030R8(Target):
@@ -324,7 +326,7 @@ class NUCLEO_F030R8(Target):
         
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM"]
 
 
 class LPC1347(Target):
@@ -375,6 +377,19 @@ class LPC11U35_401(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 
+class LPC11U35_501(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        
+        self.supported_toolchains = ["ARM", "uARM"]
+
+
 class UBLOX_C027(Target):
     def __init__(self):
         Target.__init__(self)
@@ -418,9 +433,7 @@ class NRF51822(Target):
             t_self.debug("Hex file not found. Aborting.")
             return
         
-        # Generate hex file
-        # NOTE: this is temporary, it will be removed later and only the
-        # combined binary file (below) will be used
+        # Merge user code with softdevice
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset = NRF51822.APPCODE_OFFSET)
@@ -433,8 +446,13 @@ class NRF51822(Target):
         
         with open(binf, "wb") as f:
             sdh.tofile(f, format = 'bin')
+        
+        #with open(binf.replace(".bin", ".hex"), "w") as f:
+        #   sdh.tofile(f, format = 'hex')
 
 class LPC1549(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    
     def __init__(self):
         Target.__init__(self)
         
@@ -467,6 +485,7 @@ TARGETS = [
     LPC1114(),
     LPC11C24(),
     LPC11U35_401(),
+    LPC11U35_501(),
     NRF51822(),
     UBLOX_C027(),
     LPC1549()

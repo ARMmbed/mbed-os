@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_iwdg.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of IWDG HAL module.
   ******************************************************************************
   * @attention
@@ -54,7 +54,7 @@
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 
 /** 
   * @brief  IWDG HAL State Structure definition  
@@ -63,7 +63,7 @@ typedef enum
 {
   HAL_IWDG_STATE_RESET     = 0x00,  /*!< IWDG not yet initialized or disabled */
   HAL_IWDG_STATE_READY     = 0x01,  /*!< IWDG initialized and ready for use   */
-  HAL_IWDG_STATE_BUSY      = 0x02,  /*!< IWDG internal process is ongoing     */ 
+  HAL_IWDG_STATE_BUSY      = 0x02,  /*!< IWDG internal process is ongoing     */
   HAL_IWDG_STATE_TIMEOUT   = 0x03,  /*!< IWDG timeout state                   */
   HAL_IWDG_STATE_ERROR     = 0x04   /*!< IWDG error state                     */
     
@@ -78,7 +78,7 @@ typedef struct
                             This parameter can be a value of @ref IWDG_Prescaler */
   
   uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value. 
-                            This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */                                    
+                            This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */
 
 }IWDG_InitTypeDef;
 
@@ -221,16 +221,15 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 
-/* Initialization/de-initialization functions  **********************************/
+/* Initialization/de-initialization functions  ********************************/
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg);
-__weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg);
-__weak void HAL_IWDG_MspDeInit(IWDG_HandleTypeDef *hiwdg);
+void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg);
 
-/* I/O operation functions ******************************************************/
+/* I/O operation functions ****************************************************/
 HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg);
 HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg);
 
-/* Peripheral State functions  **************************************************/
+/* Peripheral State functions  ************************************************/
 HAL_IWDG_StateTypeDef HAL_IWDG_GetState(IWDG_HandleTypeDef *hiwdg);
 
 /**

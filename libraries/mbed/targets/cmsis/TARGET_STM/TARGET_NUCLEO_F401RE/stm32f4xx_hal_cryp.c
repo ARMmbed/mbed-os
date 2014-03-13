@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   CRYP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cryptography (CRYP) peripheral:
@@ -233,7 +233,10 @@ HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp)
   
   /* Change the CRYP state */
   hcryp->State = HAL_CRYP_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(hcryp);
+
   /* Return function status */
   return HAL_OK;
 }
@@ -1038,7 +1041,7 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
         /* Change state */
         hcryp->State = HAL_CRYP_STATE_TIMEOUT;
         
-        /* Process Unlocked */          
+        /* Process Unlocked */
         __HAL_UNLOCK(hcryp);
         
         return HAL_TIMEOUT;

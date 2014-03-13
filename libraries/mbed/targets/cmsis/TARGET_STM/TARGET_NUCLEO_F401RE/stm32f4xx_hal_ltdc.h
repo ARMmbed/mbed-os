@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of LTDC HAL module.
   ******************************************************************************
   * @attention
@@ -524,17 +524,17 @@ typedef struct
   *            @arg LTDC_IT_RR: Register Reload Interrupt Flag
   * @retval The state of INTERRUPT (SET or RESET).
   */
-#define __HAL_LTDC_IT_STATUS(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->ISR & (__INTERRUPT__))
+#define __HAL_LTDC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->ISR & (__INTERRUPT__))
     
 /* Exported functions --------------------------------------------------------*/  
 
 /* Initialization and de-initialization functions *******************************/
 HAL_StatusTypeDef HAL_LTDC_Init(LTDC_HandleTypeDef *hltdc);
 HAL_StatusTypeDef HAL_LTDC_DeInit(LTDC_HandleTypeDef *hltdc);
-__weak void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc);
-__weak void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* hltdc);
-__weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc);
-__weak void HAL_LTDC_LineEvenCallback(LTDC_HandleTypeDef *hltdc);
+void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc);
+void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* hltdc);
+void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc);
+void HAL_LTDC_LineEvenCallback(LTDC_HandleTypeDef *hltdc);
 
 /* IO operation functions *******************************************************/
 void  HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc);

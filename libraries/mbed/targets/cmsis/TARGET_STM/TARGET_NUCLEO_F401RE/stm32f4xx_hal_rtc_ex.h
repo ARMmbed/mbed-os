@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   Header file of RTC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -638,9 +638,9 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
 HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t Tamper);
 void              HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc);
 
-__weak void       HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc);
-__weak void       HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc);
-__weak void       HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc);
+void       HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc);
+void       HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc);
+void       HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTCEx_PollForTimeStampEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
 HAL_StatusTypeDef HAL_RTCEx_PollForTamper1Event(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
 HAL_StatusTypeDef HAL_RTCEx_PollForTamper2Event(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
@@ -651,7 +651,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
 uint32_t          HAL_RTCEx_DeactivateWakeUpTimer(RTC_HandleTypeDef *hrtc);
 uint32_t          HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc);
 void              HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc);
-__weak void       HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc);
+void       HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTCEx_PollForWakeUpTimerEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
 
 /* Extension Control functions ************************************************/
@@ -670,7 +670,7 @@ HAL_StatusTypeDef HAL_RTCEx_EnableBypassShadow(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTCEx_DisableBypassShadow(RTC_HandleTypeDef *hrtc);
 
 /* Extension RTC features functions *******************************************/
-__weak void       HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc); 
+void       HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc); 
 HAL_StatusTypeDef HAL_RTCEx_PollForAlarmBEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
 
 

@@ -32,7 +32,7 @@ using std::memmove;
 #include "ATCommandsInterface.h"
 
 ATCommandsInterface::ATCommandsInterface(IOStream* pStream) :
-   m_pStream(pStream), m_open(false), m_env2AT(), m_AT2Env(), m_processingMtx(),
+   m_pStream(pStream), m_open(false), m_transactionState(IDLE), m_env2AT(), m_AT2Env(), m_processingMtx(),
    m_processingThread(&ATCommandsInterface::staticCallback, this, (osPriority)AT_THREAD_PRIORITY, 4*192),
    m_eventsMgmtMtx(), m_eventsProcessingMtx()
 {
@@ -270,6 +270,7 @@ int ATCommandsInterface::executeInternal(const char* command, IATCommandsProcess
     } while(msgResult != AT_TIMEOUT);  
 
     WARN("Command returned no message");
+    WARN("Command \"%s\" returned no message", command);
     return NET_TIMEOUT;
   }
   DBG("Command returned with message %d", *msg);
@@ -285,6 +286,7 @@ int ATCommandsInterface::executeInternal(const char* command, IATCommandsProcess
   if(ret != OK)
   {
     WARN("Command returned AT result %d with code %d", m_transactionResult.result, m_transactionResult.code);
+    WARN("Command \"%s\" returned AT result %d with code %d", command, m_transactionResult.result, m_transactionResult.code);
   }
 
   DBG("Command returned successfully");
@@ -751,12 +753,13 @@ void ATCommandsInterface::enableEvents()
     {
       m_eventsHandlers[i]->onDispatchStart();
       //Enable this kind of events
-      if(m_eventsHandlers[i]->getEventsEnableCommand() != NULL)
+      const char* cmd = m_eventsHandlers[i]->getEventsEnableCommand();
+      if(cmd != NULL)
       {
-        int ret = executeInternal(m_eventsHandlers[i]->getEventsEnableCommand(), this, NULL); //Execute enable command
+        int ret = executeInternal(cmd, this, NULL); //Execute enable command
         if(ret)
         {
-          WARN("Events enabling command failed");
+          WARN("Events enabling command \"%s\" failed", cmd);
         }
       }
     }
@@ -775,12 +778,13 @@ void ATCommandsInterface::disableEvents()
     {
       m_eventsHandlers[i]->onDispatchStart();
       //Disable this kind of events
-      if(m_eventsHandlers[i]->getEventsDisableCommand() != NULL)
+      const char* cmd = m_eventsHandlers[i]->getEventsDisableCommand();
+      if(cmd != NULL)
       {
-        int ret = executeInternal(m_eventsHandlers[i]->getEventsDisableCommand(), this, NULL); //Execute disable command
+        int ret = executeInternal(cmd, this, NULL); //Execute disable command
         if(ret)
         {
-          WARN("Events disabling command failed");
+          WARN("Events disabling command \"%s\" failed", cmd);
         }
       }
     }

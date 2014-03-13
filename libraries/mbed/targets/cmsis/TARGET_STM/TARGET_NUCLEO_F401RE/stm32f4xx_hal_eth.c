@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   ETH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Ethernet (ETH) peripheral:
@@ -402,7 +402,10 @@ HAL_StatusTypeDef HAL_ETH_DeInit(ETH_HandleTypeDef *heth)
   
   /* Set ETH HAL state to Disabled */
   heth->State= HAL_ETH_STATE_RESET;
-  
+
+  /* Release Lock */
+  __HAL_UNLOCK(heth);
+
   /* Return function status */
   return HAL_OK;
 }
@@ -882,7 +885,7 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
     HAL_ETH_RxCpltCallback(heth);
     
      /* Clear the Eth DMA Rx IT pending bits */
-    __HAL_ETH_DMA_CLEAR_IT_PENDING_BIT(heth, ETH_DMA_IT_R);
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_R);
 
     /* Set HAL State to Ready */
     heth->State = HAL_ETH_STATE_READY;
@@ -898,7 +901,7 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
     HAL_ETH_TxCpltCallback(heth);
     
     /* Clear the Eth DMA Tx IT pending bits */
-    __HAL_ETH_DMA_CLEAR_IT_PENDING_BIT(heth, ETH_DMA_IT_T);
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_T);
 
     /* Set HAL State to Ready */
     heth->State = HAL_ETH_STATE_READY;
@@ -908,7 +911,7 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
   }
   
   /* Clear the interrupt flags */
-  __HAL_ETH_DMA_CLEAR_IT_PENDING_BIT(heth, ETH_DMA_IT_NIS);
+  __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_NIS);
   
   /* ETH DMA Error */
   if(__HAL_ETH_DMA_GET_FLAG(heth, ETH_DMA_FLAG_AIS))
@@ -917,7 +920,7 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
     HAL_ETH_ErrorCallback(heth);
 
     /* Clear the interrupt flags */
-    __HAL_ETH_DMA_CLEAR_IT_PENDING_BIT(heth, ETH_DMA_FLAG_AIS);
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_FLAG_AIS);
   
     /* Set HAL State to Ready */
     heth->State = HAL_ETH_STATE_READY;

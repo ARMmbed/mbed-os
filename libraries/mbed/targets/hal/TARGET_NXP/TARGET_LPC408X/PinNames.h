@@ -91,7 +91,8 @@ typedef enum {
     PullUp = 2,
     PullDown = 1,
     PullNone = 0,
-    OpenDrain = 4
+    OpenDrain = 4,
+    PullDefault = PullDown
 } PinMode;
 
 

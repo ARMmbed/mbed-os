@@ -229,9 +229,12 @@ typedef enum {
     A3 = PTB3,
     A4 = PTC2,
     A5 = PTC1,
-    
+
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    TSI_ELEC0 = PTB16,
+    TSI_ELEC1 = PTB17,
 
     // Not connected
     NC = (int)0xFFFFFFFF
@@ -241,6 +244,7 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullUp = 2,
+    PullDefault = PullUp
 } PinMode;
 
 #ifdef __cplusplus

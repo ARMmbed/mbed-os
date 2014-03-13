@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.0.0RC2
-  * @date    04-February-2014
+  * @version V1.0.0
+  * @date    18-February-2014
   * @brief   SPI HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -98,7 +98,7 @@
 /* Private function prototypes -----------------------------------------------*/
 static void SPI_TxCloseIRQHandler(SPI_HandleTypeDef *hspi);
 static void SPI_TxISR(SPI_HandleTypeDef *hspi);
-static void SPI_RxClose_IRQHandler(SPI_HandleTypeDef *hspi);
+static void SPI_RxCloseIRQHandler(SPI_HandleTypeDef *hspi);
 static void SPI_2LinesRxISR(SPI_HandleTypeDef *hspi);
 static void SPI_RxISR(SPI_HandleTypeDef *hspi);
 static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma);
@@ -228,6 +228,9 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
 
   hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   hspi->State = HAL_SPI_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(hspi);
 
   return HAL_OK;
 }
@@ -653,7 +656,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
     /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
     if(hspi->State == HAL_SPI_STATE_READY)
     {
-      hspi->State     = HAL_SPI_STATE_BUSY_TX_RX;
+      hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
     }
 
      /* Configure communication */   
@@ -1047,7 +1050,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
     /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
     if(hspi->State == HAL_SPI_STATE_READY)
     {
-      hspi->State      = HAL_SPI_STATE_BUSY_TX_RX;
+      hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
     }
 
     /* Configure communication */
@@ -1281,7 +1284,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
     /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
     if(hspi->State == HAL_SPI_STATE_READY)
     {
-      hspi->State     = HAL_SPI_STATE_BUSY_TX_RX;
+      hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
     }
 
     /* Configure communication */
@@ -1305,9 +1308,15 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
       __HAL_SPI_RESET_CRC(hspi);
     }
 
-    /* Set the SPI Rx DMA transfer complete callback because the last generated transfer request is 
-    the reception request (RXNE) */
-    hspi->hdmarx->XferCpltCallback = SPI_DMATransmitReceiveCplt;
+    /* Check if we are in Rx only or in Rx/Tx Mode and configure the DMA transfer complete callback */
+    if(hspi->State == HAL_SPI_STATE_BUSY_RX)
+    {
+      hspi->hdmarx->XferCpltCallback = SPI_DMAReceiveCplt;
+    }
+    else
+    {
+      hspi->hdmarx->XferCpltCallback = SPI_DMATransmitReceiveCplt;
+    }
 
     /* Set the DMA error callback */
     hspi->hdmarx->XferErrorCallback = SPI_DMAError;
@@ -1518,13 +1527,10 @@ HAL_SPI_ErrorTypeDef HAL_SPI_GetError(SPI_HandleTypeDef *hspi)
   */
 static void SPI_TxCloseIRQHandler(SPI_HandleTypeDef *hspi)
 {
-  if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLED)
+  /* Wait until TXE flag is set to send data */
+  if(SPI_WaitOnFlagUntilTimeout(hspi, SPI_FLAG_TXE, RESET, SPI_TIMEOUT_VALUE) != HAL_OK)
   {
-    /* Wait until TXE flag is set to send data */
-    if(SPI_WaitOnFlagUntilTimeout(hspi, SPI_FLAG_TXE, RESET, SPI_TIMEOUT_VALUE) != HAL_OK)
-    {
-      hspi->ErrorCode |= HAL_SPI_ERROR_FLAG;
-    }
+    hspi->ErrorCode |= HAL_SPI_ERROR_FLAG;
   }
 
   /* Disable TXE interrupt */
@@ -1547,24 +1553,27 @@ static void SPI_TxCloseIRQHandler(SPI_HandleTypeDef *hspi)
       __HAL_SPI_CLEAR_OVRFLAG(hspi);
     }
     
-    /* Set state to READY before run the Callback Complete */
-    hspi->State = HAL_SPI_STATE_READY;
-
     /* Check if Errors has been detected during transfer */
     if(hspi->ErrorCode ==  HAL_SPI_ERROR_NONE)
     {
       /* Check if we are in Tx or in Rx/Tx Mode */
       if(hspi->State == HAL_SPI_STATE_BUSY_TX_RX)
       {
+        /* Set state to READY before run the Callback Complete */
+        hspi->State = HAL_SPI_STATE_READY;
         HAL_SPI_TxRxCpltCallback(hspi);
       }
       else
       {
-        HAL_SPI_TxRxCpltCallback(hspi);
+        /* Set state to READY before run the Callback Complete */
+        hspi->State = HAL_SPI_STATE_READY;
+        HAL_SPI_TxCpltCallback(hspi);
       }
     }
     else
     {
+      /* Set state to READY before run the Callback Complete */
+      hspi->State = HAL_SPI_STATE_READY;
       /* Call Error call back in case of Error */
       HAL_SPI_ErrorCallback(hspi);
     }
@@ -1607,7 +1616,7 @@ static void SPI_TxISR(SPI_HandleTypeDef *hspi)
   * @param  hspi: SPI handle
   * @retval void
   */
-static void SPI_RxClose_IRQHandler(SPI_HandleTypeDef *hspi)
+static void SPI_RxCloseIRQHandler(SPI_HandleTypeDef *hspi)
 {
   __IO uint16_t tmpreg;
 
@@ -1653,22 +1662,26 @@ static void SPI_RxClose_IRQHandler(SPI_HandleTypeDef *hspi)
       __HAL_SPI_DISABLE(hspi);
     }
     
-    /* Set state to READY before run the Callback Complete */
-    hspi->State = HAL_SPI_STATE_READY;
     /* Check if Errors has been detected during transfer */
     if(hspi->ErrorCode ==  HAL_SPI_ERROR_NONE)
     {
       /* Check if we are in Rx or in Rx/Tx Mode */
       if(hspi->State == HAL_SPI_STATE_BUSY_TX_RX)
       {
+        /* Set state to READY before run the Callback Complete */
+        hspi->State = HAL_SPI_STATE_READY;
         HAL_SPI_TxRxCpltCallback(hspi);
       }else
       {
+        /* Set state to READY before run the Callback Complete */
+        hspi->State = HAL_SPI_STATE_READY;
         HAL_SPI_RxCpltCallback(hspi);
       }
     }
     else
     {
+      /* Set state to READY before run the Callback Complete */
+      hspi->State = HAL_SPI_STATE_READY;
       /* Call Error call back in case of Error */
       HAL_SPI_ErrorCallback(hspi);
     }
@@ -1697,7 +1710,7 @@ static void SPI_2LinesRxISR(SPI_HandleTypeDef *hspi)
 
   if(hspi->RxXferCount==0)
   {
-    SPI_RxClose_IRQHandler(hspi);
+    SPI_RxCloseIRQHandler(hspi);
   }
 }
 
@@ -1730,7 +1743,7 @@ static void SPI_RxISR(SPI_HandleTypeDef *hspi)
 
   if(hspi->RxXferCount == 0)
   {
-    SPI_RxClose_IRQHandler(hspi);
+    SPI_RxCloseIRQHandler(hspi);
   }
 }
 

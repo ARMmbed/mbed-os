@@ -81,6 +81,29 @@ typedef enum {
     USBTX = P0_2,
     USBRX = P0_3,
 
+    // Arch Pro Pin Names
+    D0 = P4_29,
+    D1 = P4_28,
+    D2 = P0_4,
+    D3 = P0_5,
+    D4 = P2_2,
+    D5 = P2_3,
+    D6 = P2_4,
+    D7 = P2_5,
+    D8 = P0_0,
+    D9 = P0_1,
+    D10 = P0_6,
+    D11 = P0_9,
+    D12 = P0_8,
+    D13 = P0_7,
+
+    A0 = P0_23,
+    A1 = P0_24,
+    A2 = P0_25,
+    A3 = P0_26,
+    A4 = P1_30,
+    A5 = P1_31,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
@@ -89,7 +112,8 @@ typedef enum {
     PullUp = 0,
     PullDown = 3,
     PullNone = 2,
-    OpenDrain = 4
+    OpenDrain = 4,
+    PullDefault = PullDown
 } PinMode;
 
 // version of PINCON_TypeDef using register arrays
