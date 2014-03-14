@@ -31,8 +31,9 @@
 Stack_Size      EQU     0x00000200
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
+                EXPORT  __initial_sp
+
+__initial_sp        EQU     0x02009000  ; Top of RAM from LPC1549
 
 
 ; <h> Heap Configuration
