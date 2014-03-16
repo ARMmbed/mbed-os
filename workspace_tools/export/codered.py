@@ -20,7 +20,7 @@ from os.path import splitext, basename
 
 class CodeRed(Exporter):
     NAME = 'CodeRed'
-    TARGETS = ['LPC1768', 'LPC4088','LPC1114']
+    TARGETS = ['LPC1768', 'LPC4088','LPC1114','LPC11U35_401','LPC11U35_501']
     TOOLCHAIN = 'GCC_CR'
     
     def generate(self):
