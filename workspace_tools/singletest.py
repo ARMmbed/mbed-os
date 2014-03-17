@@ -242,14 +242,14 @@ class SingleTestRunner(object):
         # Host test execution
         start_host_exec_time = time()
         #test_result = self.run_simple_test(target_name, port, duration, verbose=opts.verbose)
-        test_result = self.run_host_test(test.host_test, disk, port, duration)
+        test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
         elapsed_time = time() - start_host_exec_time
         print print_test_result(test_result, target_name, toolchain_name,
                                 test_id, test_description, elapsed_time, duration)
         return (test_result, target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2), duration)
 
-    def run_host_test(self, name, disk, port, duration, extra_serial=""):
+    def run_host_test(self, name, disk, port, duration, verbose=False, extra_serial=""):
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
@@ -283,6 +283,12 @@ class SingleTestRunner(object):
 
         # Stop test process
         obs.stop()
+
+        # Handle verbose mode
+        if verbose:
+            print "Test::Output::Start"
+            print "".join(output)
+            print "Test::Output::Finish"
 
         # Parse test 'output' data
         result = self.TEST_RESULT_UNDEF
