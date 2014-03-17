@@ -30,15 +30,14 @@ class StdioTest(DefaultTest):
        print "\n{%s}\n{end}" % result
 
     def run(self):
-        
         test_result = True
-        
+
         for i in range(1, 5):
             random_integer = random.randint(-10000, 10000)
             print "Generated number: " + str(random_integer)
             self.mbed.serial.write(str(random_integer) + "\n")
             serial_stdio_msg = ""
-            
+
             ip_msg_timeout = self.mbed.options.timeout
             start_serial_pool = time();
             while (time() - start_serial_pool) < ip_msg_timeout:

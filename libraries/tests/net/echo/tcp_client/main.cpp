@@ -14,7 +14,6 @@ int main() {
     char out_buffer[] = "Hello World\n";
     char out_success[] = "{{success}}\n{{end}}\n";
     char out_failure[] = "{{failure}}\n{{end}}\n";
-
     s_ip_address ip_addr = {0, 0, 0, 0};
     int port = 0;
 
@@ -25,7 +24,7 @@ int main() {
     EthernetInterface eth;
     eth.init(); //Use DHCP
     eth.connect();
-    
+
     printf("TCPClient IP Address is %s\r\n", eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
 

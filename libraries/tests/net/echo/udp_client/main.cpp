@@ -32,34 +32,34 @@ int main() {
     CHECK(rc, "connect");
     printf("IP: %s\n", eth.getIPAddress());
 
-    UDPSocket sock;
-    rc = sock.init();
-    CHECK(rc, "sock init");
+    UDPSocket socket;
+    rc = socket.init();
+    CHECK(rc, "socket init");
 
     printf("UDPClient IP Address is %s\r\n", eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
-    
+
     Endpoint echo_server;
     rc = echo_server.set_address(buffer, port);
     CHECK(rc, "set_address");
 
-    rc = sock.sendTo(echo_server, out_buffer, sizeof(out_buffer));
+    rc = socket.sendTo(echo_server, out_buffer, sizeof(out_buffer));
     CHECK(rc, "sendTo");
 
-    int n = sock.receiveFrom(echo_server, buffer, sizeof(buffer));
+    int n = socket.receiveFrom(echo_server, buffer, sizeof(buffer));
     CHECK(n, "receiveFrom");
     if (n > 0)
     {
         buffer[n] = '\0';
         printf("%s", buffer);
         if (strncmp(out_buffer, buffer, sizeof(out_buffer) - 1) == 0) {
-            sock.sendTo(echo_server, out_success, sizeof(out_success) - 1);
+            socket.sendTo(echo_server, out_success, sizeof(out_success) - 1);
         }
     }
 
-    sock.sendTo(echo_server, out_failure, sizeof(out_failure) - 1);
+    socket.sendTo(echo_server, out_failure, sizeof(out_failure) - 1);
 
-    sock.close();
+    socket.close();
     eth.disconnect();
     return 0;
 }
