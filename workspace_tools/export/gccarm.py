@@ -21,7 +21,7 @@ from os.path import splitext, basename
 class GccArm(Exporter):
     NAME = 'GccArm'
     TOOLCHAIN = 'GCC_ARM'
-    TARGETS = ['LPC1768','KL05Z','KL25Z','KL46Z','K20D5M','LPC4088','LPC11U24','LPC1114']
+    TARGETS = ['LPC1768','KL05Z','KL25Z','KL46Z','K20D5M','LPC4088','LPC11U24','LPC1114','LPC11U35_401','LPC11U35_501']
     DOT_IN_RELATIVE_PATH = True
     
     def generate(self):
