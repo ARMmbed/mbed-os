@@ -387,7 +387,7 @@ class LPC11U35_501(Target):
         
         self.extra_labels = ['NXP', 'LPC11UXX']
         
-        self.supported_toolchains = ["ARM", "uARM","GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM","GCC_ARM","GCC_CR"]
 
 
 class UBLOX_C027(Target):
