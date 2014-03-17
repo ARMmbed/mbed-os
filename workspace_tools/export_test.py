@@ -90,6 +90,9 @@ if __name__ == '__main__':
             # Windows path: C:/arm-none-eabi-gcc-4_7/bin/
             ('gcc_arm', 'LPC1768'),
             ('gcc_arm', 'LPC1114'),
+            ('gcc_arm', 'LPC11U35_401'),
+            ('gcc_arm', 'LPC11U35_501'),
+
             
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
             
