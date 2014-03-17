@@ -249,7 +249,6 @@ class SingleTestRunner(object):
         return (test_result, target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2), duration)
 
-
     def run_host_test(self, name, disk, port, duration, extra_serial=""):
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
