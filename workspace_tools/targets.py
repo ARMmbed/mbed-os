@@ -350,7 +350,7 @@ class LPC1114(Target):
         
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
         
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM","GCC_CR"]
 
 
 class LPC11C24(Target):

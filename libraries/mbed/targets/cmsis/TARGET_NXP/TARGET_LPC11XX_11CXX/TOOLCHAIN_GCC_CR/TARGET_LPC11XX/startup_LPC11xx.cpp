@@ -1,6 +1,6 @@
 extern "C" {
 
-#include "LPC11Uxx.h"
+#include "LPC11xx.h"
 
 #define WEAK          __attribute__ ((weak))
 #define ALIAS(f)      __attribute__ ((weak, alias (#f)))
