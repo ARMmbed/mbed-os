@@ -258,15 +258,6 @@ class SingleTestRunner(object):
         line = ''
         output = []
         while (time() - start) < duration:
-            # Give the client a way to interrupt the test
-            """
-            try:
-                c = client.recv(1)
-                if c == '!':
-                    break
-            except Exception, _:
-                pass
-            """
             try:
                 c = obs.queue.get(block=True, timeout=1)
             except Empty, _:
