@@ -40,7 +40,7 @@ class Uvision4(Exporter):
         'NUCLEO_F401RE',
         'UBLOX_C027',
         'LPC1549',
-        'LPC11U35_501',
+#        'LPC11U35_501',
     ]
 
     USING_MICROLIB = [
