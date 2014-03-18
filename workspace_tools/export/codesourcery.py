@@ -20,8 +20,12 @@ from os.path import splitext, basename
 
 class CodeSourcery(Exporter):
     NAME = 'CodeSourcery'
-    TARGETS = ['LPC1768']
     TOOLCHAIN = 'GCC_CS'
+    
+    TARGETS = [
+        'LPC1768',
+    ]
+    
     DOT_IN_RELATIVE_PATH = True
     
     def generate(self):
