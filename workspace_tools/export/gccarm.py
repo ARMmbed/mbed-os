@@ -33,6 +33,7 @@ class GccArm(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
+        'STM32F407',
     ]
     
     DOT_IN_RELATIVE_PATH = True

@@ -40,7 +40,6 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text.Reset_Handler)
-        *(.text.SystemInit)
         
         /* Only vectors and code running at reset are safe to be in first 512
            bytes since RAM can be mapped into this area for RAM based interrupt
