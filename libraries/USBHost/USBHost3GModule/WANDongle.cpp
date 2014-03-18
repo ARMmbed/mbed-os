@@ -20,11 +20,6 @@
 
 #ifdef USBHOST_3GMODULE
 
-#define __DEBUG__ 0
-#ifndef __MODULE__
-#define __MODULE__ "WANDongle.cpp"
-#endif
-
 #include "dbg.h"
 #include <stdint.h>
 #include "rtos.h"
@@ -50,10 +45,14 @@ bool WANDongle::tryConnect()
   USB_DBG("Trying to connect device");
 
   if (dev_connected) {
+      USB_DBG("Device is already connected!");    
       return true;
   }
   
   m_pInitializer = NULL;
+  
+  //Protect from concurrent access from USB thread
+  USBHost::Lock lock(host);
 
   for (int i = 0; i < MAX_DEVICE_CONNECTED; i++)
   {

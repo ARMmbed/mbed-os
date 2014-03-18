@@ -17,6 +17,7 @@
 #include "cmsis.h"
 
 #include "gpio_irq_api.h"
+#include "gpio_api.h"
 #include "error.h"
 
 #define CHANNEL_NUM    96
@@ -186,9 +187,8 @@ void gpio_irq_disable(gpio_irq_t *obj) {
 // Change the NMI pin to an input. This allows NMI pin to 
 //  be used as a low power mode wakeup.  The application will
 //  need to change the pin back to NMI_b or wakeup only occurs once!
-extern void gpio_init(gpio_t *obj, PinName pin, PinDirection direction);
 void NMI_Handler(void)
 {
     gpio_t gpio;
-    gpio_init(&gpio, PTA4, PIN_INPUT);
+    gpio_init_in(&gpio, PTA4);
 }

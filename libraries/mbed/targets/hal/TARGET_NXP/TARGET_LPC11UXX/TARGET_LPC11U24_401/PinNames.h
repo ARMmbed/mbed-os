@@ -135,6 +135,29 @@ typedef enum {
     USBTX = P0_19,
     USBRX = P0_18,
 
+    // for Arch V1.1
+    D0 = P0_18,
+    D1 = P0_19,
+    D2 = P0_17,
+    D3 = P1_17,
+    D4 = P1_18,
+    D5 = P1_24,
+    D6 = P1_25,
+    D7 = P1_5,
+    D8 = P1_26,
+    D9 = P1_27,
+    D10 = P0_2,
+    D11 = P0_9,  // P1_29 for Arch V1.0
+    D12 = P0_8,
+    D13 = P1_29, // P0_9 for Arch V1.0
+
+    A0 = P0_11,
+    A1 = P0_12,
+    A2 = P0_13,
+    A3 = P0_14,
+    A4 = P0_16,
+    A5 = P0_22,
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
@@ -155,7 +178,8 @@ typedef enum {
     PullDown = 1,
     PullNone = 0,
     Repeater = 3,
-    OpenDrain = 4
+    OpenDrain = 4,
+    PullDefault = PullDown
 } PinMode;
 
 #ifdef __cplusplus

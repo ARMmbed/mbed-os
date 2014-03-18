@@ -244,6 +244,7 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullUp = 2,
+    PullDefault = PullUp
 } PinMode;
 
 #ifdef __cplusplus

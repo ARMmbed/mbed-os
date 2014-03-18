@@ -49,6 +49,9 @@ typedef enum {
     ADC1_11,
 } ADCName;
 
+typedef enum {
+    DAC0_0 = 0,
+} DACName;
 
 #ifdef __cplusplus
 }

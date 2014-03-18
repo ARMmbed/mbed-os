@@ -5,19 +5,11 @@
  * In the past we had an issue where the stdio retargeting was not linked in.
  */
 
-int main() {
-    int Value = -1;
-    
-    printf("\r\n\r\nGCC4MBED Test Suite\r\n");
-    printf("Standard I/O Unit Tests\r\n");
-    
-    printf("Test 1: printf() test\r\n");
-    
-    printf("Test 2: scanf() test\r\n");
-    printf("    Type number and press Enter: \n");
+/*
     scanf("%d", &Value);
-    printf("\n    Your value was: %d\r\n", Value);
-    
+    fprintf(stdout, "Test 3: fprintf(stdout, ...) test\r\n");
+    fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
+    fscanf(stdin, "%d", &Value);
     fprintf(stdout, "Test 3: fprintf(stdout, ...) test\r\n");
     
     fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
@@ -28,4 +20,26 @@ int main() {
     printf("\n    Your value was: %d\r\n", Value);
     
     printf("Test complete\r\n");
+
+*/
+
+int main() {
+    union {
+        int value_int;
+    };
+
+    while (true)
+    {
+        // SCANFm PRINTF family
+        value_int = 0;
+        scanf("%d", &value_int);
+        printf("Your value was: %d\r\n", value_int);
+
+        // FSCANF, FPRINTF family
+        value_int = 0;
+        fscanf(stdin, "%d", &value_int);
+        fprintf(stdout, "Your value was: %d\r\n", value_int);
+
+        //...
+    }
 }

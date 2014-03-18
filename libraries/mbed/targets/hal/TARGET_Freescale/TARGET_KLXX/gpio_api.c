@@ -21,7 +21,7 @@ uint32_t gpio_set(PinName pin) {
     return 1 << ((pin & 0x7F) >> 2);
 }
 
-void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
+void gpio_init(gpio_t *obj, PinName pin) {
     if(pin == (PinName)NC) return;
 
     obj->pin = pin;
@@ -34,12 +34,6 @@ void gpio_init(gpio_t *obj, PinName pin, PinDirection direction) {
     obj->reg_clr = &reg->PCOR;
     obj->reg_in  = &reg->PDIR;
     obj->reg_dir = &reg->PDDR;
-
-    gpio_dir(obj, direction);
-    switch (direction) {
-        case PIN_OUTPUT: pin_mode(pin, PullNone); break;
-        case PIN_INPUT : pin_mode(pin, PullUp); break;
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {

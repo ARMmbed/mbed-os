@@ -77,10 +77,11 @@ if __name__ == '__main__':
     
     for toolchain, target in [
             ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'), ('uvision', 'LPC4088'),
-            ('uvision', 'NUCLEO_F103RB'), ('uvision', 'NUCLEO_L152RE'), ('uvision', 'NUCLEO_F401RE'), ('uvision', 'NUCLEO_F030R8'),
+            ('uvision', 'NUCLEO_F103RB'), ('uvision', 'NUCLEO_L152RE'), ('uvision', 'NUCLEO_F401RE'), ('uvision', 'NUCLEO_F030R8'), ('uvision', 'LPC11U35_501'),
             
-            ('codered', 'LPC1768'), ('codered', 'LPC4088'),
-            
+            ('codered', 'LPC1768'), ('codered', 'LPC4088'),('codered', 'LPC1114'),
+            ('codered', 'LPC11U35_401'),
+            ('codered', 'LPC11U35_501'),
             # Linux path: /home/emimon01/bin/gcc-cs/bin/
             # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"
             ('codesourcery', 'LPC1768'),
@@ -88,6 +89,10 @@ if __name__ == '__main__':
             # Linux path: /home/emimon01/bin/gcc-arm/bin/
             # Windows path: C:/arm-none-eabi-gcc-4_7/bin/
             ('gcc_arm', 'LPC1768'),
+            ('gcc_arm', 'LPC1114'),
+            ('gcc_arm', 'LPC11U35_401'),
+            ('gcc_arm', 'LPC11U35_501'),
+
             
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
             
