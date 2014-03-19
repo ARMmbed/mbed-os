@@ -98,13 +98,13 @@ typedef enum {
     P0_29 = p29,
     P0_30 = p30,
     
-    LED1 = p18,
-    LED2 = p19,
-    LED3 = p18,
-    LED4 = p19,
-
-    BUTTON0 = p16,
-    BUTTON1 = p17,
+    LED1    = p18,
+    LED2    = p19,
+    LED3    = p18,
+    LED4    = p19,
+    
+    BUTTON1 = p16,
+    BUTTON2 = p17,
         
     RX_PIN_NUMBER = p11,
     TX_PIN_NUMBER = p9,

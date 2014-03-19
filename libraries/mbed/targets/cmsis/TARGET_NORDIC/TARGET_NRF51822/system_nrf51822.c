@@ -43,25 +43,12 @@ void SystemCoreClockUpdate(void)
 }
 
 void SystemInit(void)
-{   
-    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
-    while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-    }
-    //write FWID (NRF_UICR->FWID is readonly)
-    *(uint32_t *)0x10001010 = 0xFFFF0049;
-
-    while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-    }
-
-    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
-    while (NRF_NVMC->READY == NVMC_READY_READY_Busy){
-    }
+{     
     // Prepare the peripherals for use as indicated by the PAN 26 "System: Manual setup is required
     // to enable the use of peripherals" found at Product Anomaly document for your device found at
     // https://www.nordicsemi.com/. The side effect of executing these instructions in the devices 
     // that do not need it is that the new peripherals in the second generation devices (LPCOMP for
     // example) will not be available.
-    
     if (is_manual_peripheral_setup_needed()){
         *(uint32_t volatile *)0x40000504 = 0xC007FFDF;
         *(uint32_t volatile *)0x40006C18 = 0x00008000;
