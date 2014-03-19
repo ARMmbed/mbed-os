@@ -68,8 +68,7 @@ void rtc_init(void) {
     // Enable RTC clock
     __HAL_RCC_RTC_ENABLE();
     
-    // This is LSI typical value
-    // To be measured precisely using a timer input capture [TODO]
+    // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
     uint32_t lsi_freq = 32000;
     
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
