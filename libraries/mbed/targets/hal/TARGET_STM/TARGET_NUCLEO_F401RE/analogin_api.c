@@ -38,10 +38,20 @@
 static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
     {PA_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PA_2, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN2
+    {PA_3, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN3
     {PA_4, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
+    {PA_5, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN5
+    {PA_5, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6
+    {PA_6, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7
     {PB_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
-    {PC_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11
+    {PB_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN9
     {PC_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
+    {PC_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11
+    {PC_2, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN12
+    {PC_3, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN13
+    {PC_4, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN14
+    {PC_5, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN15
     {NC,   NC,    0}
 };
 
@@ -105,18 +115,48 @@ static inline uint16_t adc_read(analogin_t *obj) {
       case PA_1:
           sConfig.Channel = ADC_CHANNEL_1;
           break;
+      case PA_2:
+          sConfig.Channel = ADC_CHANNEL_2;
+          break;
+      case PA_3:
+          sConfig.Channel = ADC_CHANNEL_3;
+          break;          
       case PA_4:
           sConfig.Channel = ADC_CHANNEL_4;
           break;
+      case PA_5:
+          sConfig.Channel = ADC_CHANNEL_5;
+          break;
+      case PA_6:
+          sConfig.Channel = ADC_CHANNEL_6;
+          break;
+      case PA_7:
+          sConfig.Channel = ADC_CHANNEL_7;
+          break;          
       case PB_0:
           sConfig.Channel = ADC_CHANNEL_8;
+          break;
+      case PB_1:
+          sConfig.Channel = ADC_CHANNEL_9;
+          break;          
+      case PC_0:
+          sConfig.Channel = ADC_CHANNEL_10;
           break;
       case PC_1:
           sConfig.Channel = ADC_CHANNEL_11;
           break;
-      case PC_0:
-          sConfig.Channel = ADC_CHANNEL_10;
+      case PC_2:
+          sConfig.Channel = ADC_CHANNEL_12;
           break;
+      case PC_3:
+          sConfig.Channel = ADC_CHANNEL_13;
+          break;
+      case PC_4:
+          sConfig.Channel = ADC_CHANNEL_14;
+          break;
+      case PC_5:
+          sConfig.Channel = ADC_CHANNEL_15;
+          break;          
       default:
           return 0;
   }
