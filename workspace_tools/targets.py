@@ -328,6 +328,19 @@ class NUCLEO_F030R8(Target):
         
         self.supported_toolchains = ["ARM", "uARM"]
 
+class DISCO_F100RB(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32F1', 'STM32F100RB']
+        
+        self.supported_toolchains = ["GCC_ARM"]
+
 
 class LPC1347(Target):
     def __init__(self):
@@ -474,6 +487,7 @@ TARGETS = [
     NUCLEO_L152RE(),
     NUCLEO_F401RE(),
     NUCLEO_F030R8(),
+    DISCO_F100RB(),
     LPC1347(),
     LPC1114(),
     LPC11C24(),
@@ -481,7 +495,8 @@ TARGETS = [
     LPC11U35_501(),
     NRF51822(),
     UBLOX_C027(),
-    LPC1549()
+    LPC1549(),
+    DISCO_F100RB()
 ]
 
 # Map each target name to its unique instance

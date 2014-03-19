@@ -51,7 +51,7 @@
 #ifndef OS_TASKCNT
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC1347) || defined(TARGET_KL46Z)
 #    define OS_TASKCNT         14
-#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_LPC812) || defined(TARGET_KL25Z)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_LPC812) || defined(TARGET_KL25Z) || defined(TARGET_STM32F100RB)
 #    define OS_TASKCNT         6
 #  endif
 #endif
@@ -60,7 +60,7 @@
 #ifndef OS_SCHEDULERSTKSIZE
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC1347) || defined(TARGET_KL46Z)
 #      define OS_SCHEDULERSTKSIZE    256
-#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_LPC812) || defined(TARGET_KL25Z)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_LPC812) || defined(TARGET_KL25Z) || defined(TARGET_STM32F100RB)
 #      define OS_SCHEDULERSTKSIZE    128
 #  endif
 #endif
@@ -109,10 +109,13 @@
 
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) || defined(TARGET_KL46Z)
 #    define OS_CLOCK       48000000
-#
+
 #  elif defined(TARGET_LPC812)
 #    define OS_CLOCK       36000000
-#
+
+#  elif  defined(TARGET_STM32F100RB)
+#    define OS_CLOCK       24000000
+
 #  elif defined(TARGET_LPC4088)
 #    define OS_CLOCK       120000000
 #  endif

@@ -17,7 +17,8 @@ void flip_1() {
 
 Ticker flipper_2;
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC1114) || defined(TARGET_LPC2368)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC1114) || defined(TARGET_LPC2368) \
+	                        || defined(TARGET_DISCO_F100RB)
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2
