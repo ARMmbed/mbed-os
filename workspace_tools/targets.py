@@ -329,6 +329,20 @@ class NUCLEO_F030R8(Target):
         self.supported_toolchains = ["ARM", "uARM"]
 
 
+class NUCLEO_F302R8(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
+        
+        self.supported_toolchains = ["ARM", "uARM"]
+
+        
 class LPC1347(Target):
     def __init__(self):
         Target.__init__(self)
@@ -474,6 +488,7 @@ TARGETS = [
     NUCLEO_L152RE(),
     NUCLEO_F401RE(),
     NUCLEO_F030R8(),
+    NUCLEO_F302R8(),
     LPC1347(),
     LPC1114(),
     LPC11C24(),

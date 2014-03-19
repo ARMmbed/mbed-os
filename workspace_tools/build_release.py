@@ -46,6 +46,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L152RE', ('ARM', 'uARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM')),
     ('NUCLEO_F030R8', ('ARM', 'uARM')),
+    ('NUCLEO_F302R8', ('ARM', 'uARM')),
     
     ('NRF51822', ('ARM', )),
 )
