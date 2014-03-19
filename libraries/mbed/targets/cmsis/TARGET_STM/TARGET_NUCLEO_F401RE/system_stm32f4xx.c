@@ -126,7 +126,7 @@
   */
 
 /* [ADDED FOR MBED] */
-static void SystemClock_Config(void);
+void SystemClock_Config(void);
     
 /**
   * @}
@@ -266,7 +266,7 @@ void SystemCoreClockUpdate(void)
 
 /* [ADDED FOR MBED]
    Configure the System clock to 84 MHz (max value) using the internal HSI 16 MHz clock */
-static void SystemClock_Config(void)
+void SystemClock_Config(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
