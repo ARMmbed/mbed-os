@@ -31,6 +31,9 @@
 #include "cmsis.h"
 #include "stm32f4xx_hal.h"
 
+// This function is in the system_stm32f4xx.c file
+extern void SystemClock_Config(void);
+
 static TIM_HandleTypeDef TimMasterHandle;
 
 void sleep(void)
@@ -43,4 +46,6 @@ void deepsleep(void)
 {
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+    // After wake-up from STOP reconfigure the PLL
+    SystemClock_Config();
 }

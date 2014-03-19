@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import socket
- 
-ECHO_SERVER_ADDRESS = '10.2.200.41'
+
+ECHO_SERVER_ADDRESS = '10.2.202.45'
 ECHO_PORT = 7
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

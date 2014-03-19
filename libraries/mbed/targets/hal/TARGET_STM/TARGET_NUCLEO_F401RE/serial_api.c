@@ -35,16 +35,20 @@
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA_9,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PA_2,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
-    {PC_6,  UART_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
+    {PA_9,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_11, UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
+    {PB_6,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PC_6,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PA_3,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
-    {PC_7,  UART_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
+    {PA_10, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PA_12, UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
+    {PB_7,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
+    {PC_7,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
     {NC,    NC,     0}
 };
 
@@ -91,10 +95,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == UART_2) {
         __USART2_CLK_ENABLE();
     }
-    if (obj->uart == UART_3) {
-       __USART6_CLK_ENABLE();
+    if (obj->uart == UART_6) {
+        __USART6_CLK_ENABLE();
     }
-            
+    
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
@@ -112,7 +116,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // The index is used by irq
     if (obj->uart == UART_1) obj->index = 0;
     if (obj->uart == UART_2) obj->index = 1;
-    if (obj->uart == UART_3) obj->index = 2;
+    if (obj->uart == UART_6) obj->index = 2;
     
     // For stdio management
     if (obj->uart == STDIO_UART) {
@@ -186,7 +190,7 @@ static void uart_irq(UARTName name, int id) {
 // Not part of mbed api
 static void uart1_irq(void) {uart_irq(UART_1, 0);}
 static void uart2_irq(void) {uart_irq(UART_2, 1);}
-static void uart3_irq(void) {uart_irq(UART_3, 2);}
+static void uart6_irq(void) {uart_irq(UART_6, 2);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -208,12 +212,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
       irq_n = USART2_IRQn;
       vector = (uint32_t)&uart2_irq;
     }
-    
-    if (obj->uart == UART_3) {
-       irq_n = USART6_IRQn;
-       vector = (uint32_t)&uart3_irq;
-    }
 
+    if (obj->uart == UART_6) {
+      irq_n = USART6_IRQn;
+      vector = (uint32_t)&uart6_irq;
+    }
+    
     if (enable) {
       
         if (irq == RxIrq) {

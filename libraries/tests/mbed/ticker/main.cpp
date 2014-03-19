@@ -1,5 +1,9 @@
 #include "mbed.h"
 
+#if defined(TARGET_STM32F407)
+#define LED1 LED3
+#endif
+
 Ticker flipper_1;
 DigitalOut led1(LED1);
 int led1_state = 0;
@@ -19,6 +23,8 @@ Ticker flipper_2;
 #   define LED_NAME LED2
 #elif defined(TARGET_KL46Z)
 #   define LED_NAME LED2
+#elif defined(TARGET_STM32F407)
+#   define LED_NAME LED4
 #else
 #   define LED_NAME PTE31
 #endif

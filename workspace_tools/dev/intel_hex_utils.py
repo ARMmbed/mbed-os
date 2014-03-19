@@ -1,7 +1,8 @@
-def print_section(start, end):
-    print "[0x%08X - 0x%08X]" % (start, end)
+from intelhex import IntelHex
+from cStringIO import StringIO
 
-def print_sections(h):
+
+def sections(h):
     start, last_address = None, None
     for a in h.addresses():
         if last_address is None:
@@ -9,10 +10,22 @@ def print_sections(h):
             continue
         
         if a > last_address + 1:
-            print_section(start, last_address)
+            yield (start, last_address)
             start = a
         
         last_address = a
     
     if start:
-        print_section(start, last_address)
+        yield (start, last_address)
+
+
+def print_sections(h):
+    for s in sections(h):
+        print "[0x%08X - 0x%08X]" % s
+
+
+def decode(record):
+    h = IntelHex()
+    f = StringIO(record)
+    h.loadhex(f)
+    h.dump()

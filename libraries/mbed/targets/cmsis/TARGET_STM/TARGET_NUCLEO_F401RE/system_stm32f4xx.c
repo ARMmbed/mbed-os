@@ -64,6 +64,7 @@
   */
 
 #include "stm32f4xx_hal.h"
+#include "error.h" /* [ADDED FOR MBED] */
 
 /**
   * @}
@@ -113,7 +114,7 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-  uint32_t SystemCoreClock = 16000000;
+  uint32_t SystemCoreClock = 84000000; /* [CHANGED FOR MBED] */
   __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
@@ -124,6 +125,9 @@
   * @{
   */
 
+/* [ADDED FOR MBED] */
+void SystemClock_Config(void);
+    
 /**
   * @}
   */
@@ -171,21 +175,9 @@ void SystemInit(void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-  // [ADDED FOR MBED]
+  /* [ADDED FOR MBED] */
   HAL_Init();
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1; // 16 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1; // 16 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2; // 8 MHz for the SPI
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);  
-}
-
-// [ADDED FOR MBED]
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
+  SystemClock_Config();
 }
 
 /**
@@ -270,6 +262,64 @@ void SystemCoreClockUpdate(void)
   tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
   /* HCLK frequency */
   SystemCoreClock >>= tmp;
+}
+
+/* [ADDED FOR MBED]
+   Configure the System clock to 84 MHz (max value) using the internal HSI 16 MHz clock */
+void SystemClock_Config(void)
+{
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+
+  /* The voltage scaling allows optimizing the power consumption when the device is 
+     clocked below the maximum system frequency, to update the voltage scaling value 
+     regarding system frequency refer to product datasheet. */
+  __PWR_CLK_ENABLE();
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+  
+  /* Enable HSI Oscillator and activate PLL with HSI as source */
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
+  RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+  RCC_OscInitStruct.LSEState            = RCC_LSE_OFF;
+  RCC_OscInitStruct.LSIState            = RCC_LSI_OFF;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM            = 16;
+  RCC_OscInitStruct.PLL.PLLN            = 336;
+  RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLQ            = 7;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    error("System clock initialization failed.");
+  }
+ 
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
+  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1; // 84 MHz
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;   // 42 MHz
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;   // 84 MHz (SPI1 clock...)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    error("System clock initialization failed.");
+  }
+
+  /* Update the SystemCoreClock variable
+  - Not needed because the variable is already set on top of this file.
+  - Warning: this function call is removed by the compiler with -O3/-Otime options. */
+  //SystemCoreClockUpdate();
+
+  /* Output SYSCLK on MCO2 pin(PC9) for debugging purpose */
+  //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_4); // 84 MHz / 4 = 21 MHz
+}
+
+/* [ADDED FOR MBED]
+   Used for the different timeouts in the HAL */
+void SysTick_Handler(void)
+{
+  HAL_IncTick();
 }
 
 /**

@@ -199,13 +199,13 @@ extern int main (void);
 osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL};
 
 // This define should be probably moved to the CMSIS layer
-#ifdef TARGET_LPC1768
+#if   defined(TARGET_LPC1768)
 #define INITIAL_SP            (0x10008000UL)
 
 #elif defined(TARGET_LPC11U24)
 #define INITIAL_SP            (0x10002000UL)
 
-#elif defined(TARGET_LPC11U35_401)
+#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
 #define INITIAL_SP            (0x10002000UL)
 
 #elif defined(TARGET_LPC1114)
@@ -216,6 +216,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #elif defined(TARGET_KL25Z)
 #define INITIAL_SP            (0x20003000UL)
+
+#elif defined(TARGET_KL46Z)
+#define INITIAL_SP            (0x20006000UL)
 
 #elif defined(TARGET_LPC4088)
 #define INITIAL_SP            (0x10010000UL)

@@ -19,8 +19,11 @@ from exporters import Exporter
 
 class IAREmbeddedWorkbench(Exporter):
     NAME = 'IAR'
-    TARGETS = ['LPC1768']
     TOOLCHAIN = 'IAR'
+    
+    TARGETS = [
+        'LPC1768',
+    ]
     
     def generate(self):
         ctx = {

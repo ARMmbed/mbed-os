@@ -105,8 +105,7 @@ void pin_function(PinName pin, int data) {
     GPIO_InitStructure.Alternate = afnum;
     HAL_GPIO_Init(gpio, &GPIO_InitStructure);
     
-    // *** TODO ***
-    // Disconnect JTAG-DP + SW-DP signals.
+    // [TODO] Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     //if ((pin == PA_13) || (pin == PA_14)) {
     //

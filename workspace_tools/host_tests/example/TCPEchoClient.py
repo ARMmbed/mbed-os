@@ -16,10 +16,10 @@ limitations under the License.
 """
 import socket
 
-ECHO_SERVER_ADDRESS = "10.2.200.41"
+ECHO_SERVER_ADDRESS = "10.2.202.45"
 ECHO_PORT = 7
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ECHO_SERVER_ADDRESS, ECHO_PORT))
 
 s.sendall('Hello, world')
