@@ -19,11 +19,11 @@
 
 WEAK void mbed_die(void);
 WEAK void mbed_die(void) {
+#ifndef NRF51_H
 	__disable_irq();	// dont allow interrupts to disturb the flash pattern
-
+#endif
 #if   (DEVICE_ERROR_RED == 1)
     gpio_t led_red; gpio_init_out(&led_red, LED_RED);
-    
 #elif (DEVICE_ERROR_PATTERN == 1)
     gpio_t led_1; gpio_init_out(&led_1, LED1);
     gpio_t led_2; gpio_init_out(&led_2, LED2);
