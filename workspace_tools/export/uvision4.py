@@ -38,6 +38,7 @@ class Uvision4(Exporter):
         'NUCLEO_L152RE',
         'NUCLEO_F030R8',
         'NUCLEO_F401RE',
+        'NUCLEO_F302R8',
         'UBLOX_C027',
         'LPC1549',
         'LPC11U35_501',
@@ -52,6 +53,7 @@ class Uvision4(Exporter):
         'NUCLEO_L152RE',
         'NUCLEO_F030R8',
         'NUCLEO_F401RE',
+        'NUCLEO_F302R8',
         'LPC1549',
         'LPC11U35_501',
     ]
