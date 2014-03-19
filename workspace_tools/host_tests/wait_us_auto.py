@@ -34,17 +34,17 @@ class WaitusTest(DefaultTest):
             c = self.mbed.serial.read(1)
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
-                deviation = abs(delta - 1) 
+                deviation = abs(delta - 1)
                 deviation_ok = True if delta > 0 and deviation <= 0.5 else False # +/-5%
                 test_result = test_result and deviation_ok
                 msg = "OK" if deviation_ok else "FAIL"
-                print ". in %.2f sec (%.2f) [%s]" % (delta, abs(delta - 0.95), msg)
+                print ". in %.2f sec (%.2f) [%s]" % (delta, deviation, msg)
             else:
-                print "."
+                print ". skipped"
             start = time();
         measurement_time = time() - start_serial_pool
         print "Completed in %.2f sec" % (measurement_time)
-        
+
         if test_result: # All numbers are the same
             self.print_result('success')
         else:

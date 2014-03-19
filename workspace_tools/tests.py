@@ -391,6 +391,9 @@ TESTS = [
         "id": "MBED_25", "description": "Time us",
         "source_dir": join(TEST_DIR, "mbed", "time_us"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
     },
     {
         "id": "MBED_26", "description": "Integer constant division",
