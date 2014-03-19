@@ -20,13 +20,22 @@ from os.path import basename
 
 class DS5_5(Exporter):
     NAME = 'DS5'
-    TARGETS = ['LPC1768', 'LPC11U24', 'LPC812']
+    
+    TARGETS = [
+        'LPC1768',
+        'LPC11U24',
+        'LPC812',
+    ]
+    
+    USING_MICROLIB = [
+        'LPC812',
+    ]
+    
     FILE_TYPES = {
         'c_sources':'1',
         'cpp_sources':'8',
         's_sources':'2'
     }
-    USING_MICROLIB = ['LPC812']
 
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'

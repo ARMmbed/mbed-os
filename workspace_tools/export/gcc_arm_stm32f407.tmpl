@@ -19,11 +19,11 @@ OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
 
-CPU = -mcpu=cortex-m0 -mthumb
+CPU = -mcpu=cortex-m4 -mthumb
 CC_FLAGS = $(CPU) -c -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections 
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
-LD_FLAGS = -mcpu=cortex-m0 -mthumb -Wl,--gc-sections --specs=nano.specs
+LD_FLAGS  = -mcpu=cortex-m3 -mthumb -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float
 LD_FLAGS += -Wl,-Map=$(PROJECT).map,--cref
 LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 
@@ -44,11 +44,6 @@ clean:
 
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS)
 	$(LD) $(LD_FLAGS) -T$(LINKER_SCRIPT) $(LIBRARY_PATHS) -o $@ $^ $(LIBRARIES) $(LD_SYS_LIBS) $(LIBRARIES) $(LD_SYS_LIBS)
-	@echo ""
-	@echo "*****"
-	@echo "***** You must modify vector checksum value in *.bin and *.hex files."
-	@echo "*****"
-	@echo ""
 
 $(PROJECT).bin: $(PROJECT).elf
 	@$(OBJCOPY) -O binary $< $@

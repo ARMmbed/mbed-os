@@ -403,11 +403,9 @@ class UBLOX_C027(Target):
 
 class NRF51822(Target):
     EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
+    OUTPUT_EXT = '.hex'
     
     APPCODE_OFFSET = 0x14000
-    
-    UICR_START = 0x10001000
-    UICR_END   = 0x10001013
     
     def __init__(self):
         Target.__init__(self)
@@ -441,14 +439,9 @@ class NRF51822(Target):
         sdh = IntelHex(hexf)
         sdh.merge(binh)
         
-        # Remove UICR section
-        del sdh[NRF51822.UICR_START:NRF51822.UICR_END+1]
-        
-        with open(binf, "wb") as f:
-            sdh.tofile(f, format = 'bin')
-        
-        #with open(binf.replace(".bin", ".hex"), "w") as f:
-        #   sdh.tofile(f, format = 'hex')
+        with open(binf.replace(".bin", ".hex"), "w") as f:
+           sdh.tofile(f, format = 'hex')
+
 
 class LPC1549(Target):
     ONLINE_TOOLCHAIN = "uARM"
