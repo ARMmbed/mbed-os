@@ -320,6 +320,9 @@ TESTS = [
         "id": "MBED_11", "description": "Ticker",
         "source_dir": join(TEST_DIR, "mbed", "ticker"),
         "dependencies": [MBED_LIBRARIES],
+        "automated": True,
+        "host_test": "wait_us_auto",
+        "duration": 20
     },
     {
         "id": "MBED_12", "description": "C++",
