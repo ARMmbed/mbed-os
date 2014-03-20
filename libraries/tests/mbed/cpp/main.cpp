@@ -72,7 +72,7 @@ int main (void) {
         if (m->check_init() == false)
         {
             result = false;
-        }    
+        }
         delete m;
         break;
     }
