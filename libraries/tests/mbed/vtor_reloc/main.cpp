@@ -18,8 +18,10 @@ static uint32_t int_table[NUM_VECTORS];
 
 void flipper() {
     for (int i = 0; i < 5; i++) {
-        out = 1; wait(0.2);
-        out = 0; wait(0.2);
+        out = 1;
+        wait(0.2);
+        out = 0;
+        wait(0.2);
     }
 }
 
@@ -30,31 +32,30 @@ void in_handler() {
 
 static bool test_once() {
     InterruptIn in(PIN_IN);
-
     checks = 0;
-    printf("  Interrupt table location: 0x%08X\r\n", SCB->VTOR);
+    printf("Interrupt table location: 0x%08X\r\n", SCB->VTOR);
     in.rise(NULL);
     in.fall(in_handler);
     flipper();
     in.fall(NULL);
-    if (checks != 5) {
-        printf("  Test failed.\r\n");
-        return false;
-    }
-    printf("  Test passed.\r\n");
-    return true;
+    bool result = (checks == 5);
+    printf(result ? "Test passed.\r\n" : "Test failed.\r\n");
+    return result;
 }
 
 int main() {
     printf("Starting first test (interrupts not relocated).\r\n");
-    if (!test_once())
+    if (!test_once()) {
         notify_completion(false);
+        return 1;
+    }
 
     // Relocate interrupt table and test again
     memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
     SCB->VTOR = (uint32_t)int_table;
     printf("Starting second test (interrupts relocated).\r\n");
 
-    notify_completion(test_once());  
+    notify_completion(test_once());
+    return 0;
 }
 

@@ -183,7 +183,8 @@ TESTS = [
         "id": "MBED_A18", "description": "Interrupt vector relocation",
         "source_dir": join(TEST_DIR, "mbed", "vtor_reloc"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "mcu": ["LPC1768"]
+        "mcu": ["LPC1768"],
+        "automated": True,
     },
     {
         "id": "MBED_A19", "description": "I2C EEPROM read/write test",
