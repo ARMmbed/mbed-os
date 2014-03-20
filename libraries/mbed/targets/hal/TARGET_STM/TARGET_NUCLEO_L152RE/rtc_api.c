@@ -49,7 +49,7 @@ void rtc_init(void) {
       
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
 
-    uint32_t lsi_freq = 40000; // *** TODO** To be measured precisely using a timer input capture
+    uint32_t lsi_freq = 40000; // [TODO] To be measured precisely using a timer input capture
 
     RTC_InitTypeDef RTC_InitStructure;
     RTC_InitStructure.RTC_AsynchPrediv = 127;

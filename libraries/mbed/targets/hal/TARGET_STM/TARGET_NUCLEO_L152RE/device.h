@@ -42,10 +42,10 @@
 #define DEVICE_SERIAL           1
 
 #define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         0
+#define DEVICE_I2CSLAVE         0 // Not yet supported
 
 #define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         0
+#define DEVICE_SPISLAVE         0 // Not yet supported
 
 #define DEVICE_RTC              1
 
@@ -63,7 +63,7 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
-//#define DEVICE_ERROR_RED      0
+#define DEVICE_ERROR_RED        0
 
 #include "objects.h"
 
