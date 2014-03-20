@@ -4,6 +4,12 @@
 #define LED1 LED3
 #endif
 
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
 Ticker flipper_1;
 DigitalOut led1(LED1);
 
@@ -14,8 +20,7 @@ void flip_1() {
     } else {
         led1 = 1; led1_state = 1;
     }
-    printf("*");
-    fflush(stdout);
+    print_char();
 }
 
 Ticker flipper_2;

@@ -386,6 +386,9 @@ TESTS = [
         "id": "MBED_23", "description": "Ticker 2",
         "source_dir": join(TEST_DIR, "mbed", "ticker_2"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
     },
     {
         "id": "MBED_24", "description": "Timeout",
