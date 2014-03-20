@@ -28,6 +28,11 @@ class WaitusTest(DefaultTest):
         # First character to start test (to know after reset when test starts)
         self.mbed.serial.timeout = None
         c = self.mbed.serial.read(1)
+        if c == '$':    # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
+            #Read additional 39 bytes of TargetID
+            self.mbed.serial.read(39)
+            c = self.mbed.serial.read(1) # Re-read first 'tick'
+
         print "Test started"
         start_serial_pool = start = time();
         for i in range(0, 10):
