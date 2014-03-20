@@ -40,7 +40,7 @@ void toggleOn (void) {
     if (toggle_counter == MS_INTERVALS) {
         print_char();
         toggle_counter = 0;
-    } 
+    }
     toggle_counter++;
     timer.attach_us(toggleOff, 500);
 }
