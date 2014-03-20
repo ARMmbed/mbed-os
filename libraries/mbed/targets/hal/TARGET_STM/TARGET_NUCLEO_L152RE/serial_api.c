@@ -34,24 +34,24 @@
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
+    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PB_6,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {PB_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
-    {PC_10, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},       
-    //{PC_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},       //The consructor will find UART4
-    {PC_12, UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},          //which share the same PIN
+  //{PC_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
+    {PC_10, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},
+    {PC_12, UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
-    {PB_7 , UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
+    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
+    {PB_7,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PB_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
+  //{PC_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
     {PC_11, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},
-    //{PC_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
-    {PC_2 , UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
+    {PD_2,  UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
     {NC,    NC,     0}
 };
 
@@ -70,12 +70,12 @@ static void init_usart(serial_t *obj) {
   
     USART_Cmd(usart, DISABLE);
 
-    USART_InitStructure.USART_BaudRate = obj->baudrate;
-    USART_InitStructure.USART_WordLength = obj->databits;
-    USART_InitStructure.USART_StopBits = obj->stopbits;
-    USART_InitStructure.USART_Parity = obj->parity;
+    USART_InitStructure.USART_BaudRate            = obj->baudrate;
+    USART_InitStructure.USART_WordLength          = obj->databits;
+    USART_InitStructure.USART_StopBits            = obj->stopbits;
+    USART_InitStructure.USART_Parity              = obj->parity;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(usart, &USART_InitStructure);
     
     USART_Cmd(usart, ENABLE);
@@ -100,17 +100,16 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == UART_2) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE); 
     }
-     if (obj->uart == UART_3) {
+    if (obj->uart == UART_3) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE); 
     }
-     if (obj->uart == UART_4) {
+    if (obj->uart == UART_4) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE); 
     }
-     if (obj->uart == UART_5) {
+    if (obj->uart == UART_5) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE); 
     }
-    
-            
+
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
@@ -136,8 +135,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-    
+    }    
 }
 
 void serial_free(serial_t *obj) {
@@ -224,22 +222,21 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
       irq_n = USART2_IRQn;
       vector = (uint32_t)&uart2_irq;
     }
-    
+
     if (obj->uart == UART_3) {
       irq_n = USART3_IRQn;
       vector = (uint32_t)&uart3_irq;
     }
-    
+
     if (obj->uart == UART_4) {
       irq_n = UART4_IRQn;
       vector = (uint32_t)&uart4_irq;
     }
-    
+
     if (obj->uart == UART_5) {
       irq_n = UART5_IRQn;
       vector = (uint32_t)&uart5_irq;
     }
-    
     
     if (enable) {
       

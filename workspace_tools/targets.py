@@ -349,7 +349,7 @@ class NUCLEO_F302R8(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M3"
+        self.core = "Cortex-M4"
         
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
         

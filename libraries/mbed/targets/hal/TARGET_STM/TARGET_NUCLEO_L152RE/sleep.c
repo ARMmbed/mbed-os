@@ -30,74 +30,8 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 
-static void SetSysClock_HSI(void)
-{
-  __IO uint32_t StartUpCounter = 0, HSIStatus = 0;
-  
-  /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/
-  /* Enable HSI */
-  RCC->CR |= ((uint32_t)RCC_CR_HSION);
- 
-  /* Wait till HSI is ready and if Time out is reached exit */
-  do
-  {
-    HSIStatus = RCC->CR & RCC_CR_HSIRDY;
-  } while((HSIStatus == 0) && (StartUpCounter != HSI_STARTUP_TIMEOUT));
-
-  if ((RCC->CR & RCC_CR_HSIRDY) != RESET)
-  {
-    HSIStatus = (uint32_t)0x01;
-  }
-  else
-  {
-    HSIStatus = (uint32_t)0x00;
-  }
-    
-  if (HSIStatus == (uint32_t)0x01)
-  {
-    /* Flash 0 wait state */
-    FLASH->ACR &= ~FLASH_ACR_LATENCY;
-    
-    /* Disable Prefetch Buffer */
-    FLASH->ACR &= ~FLASH_ACR_PRFTEN;
-
-    /* Disable 64-bit access */
-    FLASH->ACR &= ~FLASH_ACR_ACC64;
-    
-    /* Power enable */
-    RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-  
-    /* Select the Voltage Range 1 (1.8 V) */
-    PWR->CR = PWR_CR_VOS_0;
-  
-    /* Wait Until the Voltage Regulator is ready */
-    while((PWR->CSR & PWR_CSR_VOSF) != RESET)
-    {
-    }
-      
-    /* HCLK = SYSCLK /1*/
-    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
-    /* PCLK2 = HCLK /1*/
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
-    
-    /* PCLK1 = HCLK /1*/
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
-    
-    /* Select HSI as system clock source */
-    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
-    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_HSI;
-
-    /* Wait till HSI is used as system clock source */
-    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_HSI)
-    {
-    }
-  }
-  else
-  {
-    /* If HSI fails to start-up, the application will have wrong clock
-       configuration. User can add here some code to deal with this error */
-  }
-}
+// This function is in the system_stm32l1xx.c file
+extern void SetSysClock(void);
 
 // MCU SLEEP mode
 void sleep(void)
@@ -121,7 +55,6 @@ void deepsleep(void)
     // Enter Stop Mode
     PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);  
   
-    // After wake-up from STOP reconfigure the system clock (HSI)
-    SetSysClock_HSI();
-      
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
 }
