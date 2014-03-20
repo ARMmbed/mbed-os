@@ -350,6 +350,9 @@ TESTS = [
         "id": "MBED_16", "description": "RTC",
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
         "dependencies": [MBED_LIBRARIES],
+        "automated": True,
+        "host_test": "rtc_auto",
+        "duration": 15
     },
     {
         "id": "MBED_17", "description": "Serial Interrupt 2",
