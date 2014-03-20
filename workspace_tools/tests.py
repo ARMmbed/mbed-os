@@ -391,9 +391,12 @@ TESTS = [
         "host_test": "wait_us_auto"
     },
     {
-        "id": "MBED_24", "description": "Timeout",
+        "id": "MBED_24", "description": "Timeout Int us",
         "source_dir": join(TEST_DIR, "mbed", "timeout"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
     },
     {
         "id": "MBED_25", "description": "Time us",
