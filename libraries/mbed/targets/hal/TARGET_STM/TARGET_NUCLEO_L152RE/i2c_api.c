@@ -90,21 +90,24 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 void i2c_frequency(i2c_t *obj, int hz) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
+
+    if (hz == 0) return;
+    if (hz > 400000) hz = 400000;
+
+    /* Warning: To use the I2C at 400 kHz (in fast mode), the PCLK1 frequency
+      (I2C peripheral input clock) must be a multiple of 10 MHz.
+      With the actual clock configuration, the max frequency is measured at 296 kHz */
   
-    if ((hz != 0) && (hz <= 400000)) {
-        I2C_DeInit(i2c);
-      
-        // I2C configuration
-        I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-        I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-        I2C_InitStructure.I2C_OwnAddress1 = 0;
-        I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-        I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-        I2C_InitStructure.I2C_ClockSpeed = hz;
-        I2C_Init(i2c, &I2C_InitStructure);
-      
-        I2C_Cmd(i2c, ENABLE);
-    }
+    // I2C configuration
+    I2C_DeInit(i2c);
+    I2C_InitStructure.I2C_Mode                = I2C_Mode_I2C;
+    I2C_InitStructure.I2C_DutyCycle           = I2C_DutyCycle_2;
+    I2C_InitStructure.I2C_OwnAddress1         = 0;
+    I2C_InitStructure.I2C_Ack                 = I2C_Ack_Enable;
+    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+    I2C_InitStructure.I2C_ClockSpeed          = hz;
+    I2C_Init(i2c, &I2C_InitStructure);
+    I2C_Cmd(i2c, ENABLE);
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -118,7 +121,6 @@ inline int i2c_start(i2c_t *obj) {
   
     // Wait the START condition has been correctly sent
     timeout = FLAG_TIMEOUT;
-    //while (I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT) == ERROR) {
     while (I2C_GetFlagStatus(i2c, I2C_FLAG_SB) == RESET) {
         timeout--;
         if (timeout == 0) {
@@ -131,9 +133,25 @@ inline int i2c_start(i2c_t *obj) {
 
 inline int i2c_stop(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-  
-    I2C_GenerateSTOP(i2c, ENABLE);
-  
+    int timeout;
+    volatile int temp;
+    
+    if (I2C_GetFlagStatus(i2c, I2C_FLAG_MSL) == RESET) {
+        timeout = LONG_TIMEOUT;
+        // wait for STOP 
+        while (I2C_GetFlagStatus(i2c, I2C_FLAG_STOPF) == RESET) {
+            timeout--;
+            if (timeout == 0) {
+                return 0;
+            }
+        }
+        temp = i2c->SR1;
+        I2C_Cmd(i2c, ENABLE);
+    }        
+    else {  
+        I2C_GenerateSTOP(i2c, ENABLE);
+    }
+        
     return 0;
 }
 
@@ -145,17 +163,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
   
     if (length == 0) return 0;
 
-/*
-    // Wait until the bus is not busy anymore
-    timeout = LONG_TIMEOUT;
-    while (I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY) == SET) {
-        timeout--;
-        if (timeout == 0) {
-            return 0;
-        }
-    }
-*/
-  
     i2c_start(obj);
 
     // Send slave address for read
@@ -193,17 +200,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
     int count;
-  
-/*
-    // Wait until the bus is not busy anymore
-    timeout = LONG_TIMEOUT;
-    while (I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY) == SET) {
-        timeout--;
-        if (timeout == 0) {
-            return 0;
-        }
-    }
-*/
 
     i2c_start(obj);
 
@@ -268,8 +264,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     I2C_SendData(i2c, (uint8_t)data);
 
     // Wait until the byte is transmitted
-    timeout = FLAG_TIMEOUT;  
-    //while (I2C_CheckEvent(i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED) == ERROR) {
+    timeout = FLAG_TIMEOUT;
     while ((I2C_GetFlagStatus(i2c, I2C_FLAG_TXE) == RESET) &&
            (I2C_GetFlagStatus(i2c, I2C_FLAG_BTF) == RESET)) {
         timeout--;
@@ -319,7 +314,6 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
 int i2c_slave_receive(i2c_t *obj) {
-    // TO BE DONE
     return(0);
 }
 
