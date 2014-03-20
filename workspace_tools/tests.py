@@ -324,6 +324,7 @@ TESTS = [
         "id": "MBED_12", "description": "C++",
         "source_dir": join(TEST_DIR, "mbed", "cpp"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True
     },
     {
         "id": "MBED_13", "description": "Heap & Stack",

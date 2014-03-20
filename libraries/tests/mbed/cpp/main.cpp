@@ -1,45 +1,40 @@
 #include "test_env.h"
 
-#define CHECK    0xF0F0F0F0
+#define PATTERN_CHECK_VALUE  0xF0F0ADAD
 
 class Test {
 
 private:
-    char* name;
-    int i;
+    const char* name;
+    const int pattern;
 
 public:
-    Test(char *name) {
-        this->i = 0xF0F0F0F0;
-        this->name = name;
-        this->print("init");
+    Test(const char* _name) : name(_name), pattern(PATTERN_CHECK_VALUE)  {
+        print("init");
     }
-    
-    void print(char *message) {
-        printf("%s::%s\n", this->name, message);
+
+    void print(const char *message) {
+        printf("%s::%s\n", name, message);
     }
-    
-    void check_init(void) {
-        if (this->i == CHECK) {
-            this->print("check_init: OK");
-        } else {
-            this->print("check_init: ERROR");
-            notify_completion(false);
-        }
+
+    bool check_init(void) {
+        bool result = (pattern == PATTERN_CHECK_VALUE);
+        print(result ? "check_init: OK" : "check_init: ERROR");
+        return result;
     }
-    
+
     void stack_test(void) {
-        this->print("stack_test");
+        print("stack_test");
         Test t("Stack");
         t.hello();
     }
-    
+
     void hello(void) {
-        this->print("hello");
+        print("hello");
     }
-    
+
     ~Test() {
-        this->print("destroy");
+        print("destroy");
     }
 };
 
@@ -59,13 +54,29 @@ Heap::hello
 Heap::destroy
 *******************/
 int main (void) {
-    s.stack_test();
-    s.check_init();
-    
-    /* Heap Test */
-    Test *m = new Test("Heap");
-    m->hello();
-    delete m;
-    
-    notify_completion(true);
+    bool result = true;
+    for (;;)
+    {
+        // Global stack object simple test
+        s.stack_test();
+        if (s.check_init() == false)
+        {
+            result = false;
+            break;
+        }
+
+        // Heap test object simple test
+        Test *m = new Test("Heap");
+        m->hello();
+
+        if (m->check_init() == false)
+        {
+            result = false;
+        }    
+        delete m;
+        break;
+    }
+
+    notify_completion(result);
+    return 0;
 }
