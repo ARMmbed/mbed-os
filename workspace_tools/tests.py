@@ -317,7 +317,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
     },
     {
-        "id": "MBED_11", "description": "Ticker",
+        "id": "MBED_11", "description": "Ticker Int",
         "source_dir": join(TEST_DIR, "mbed", "ticker"),
         "dependencies": [MBED_LIBRARIES],
         "automated": True,
@@ -383,7 +383,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     {
-        "id": "MBED_23", "description": "Ticker 2",
+        "id": "MBED_23", "description": "Ticker Int us",
         "source_dir": join(TEST_DIR, "mbed", "ticker_2"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
