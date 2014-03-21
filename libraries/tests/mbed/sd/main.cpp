@@ -8,6 +8,8 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 SDFileSystem sd(p12, p13, p15, p14, "sd");
 #elif defined(TARGET_NUCLEO_F103RB)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
+#elif defined(TARGET_DISCO_F051R8)
+SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
