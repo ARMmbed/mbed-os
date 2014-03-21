@@ -1,9 +1,5 @@
 #include "mbed.h"
 
-#if defined(TARGET_STM32F407)
-#define LED1 LED3
-#endif
-
 void print_char(char c = '*')
 {
     printf("%c", c);
