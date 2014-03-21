@@ -43,6 +43,8 @@ typedef enum {
     PF_0, PF_1, PF_2, PF_3, PF_4, PF_5, PF_6, PF_7, PF_8, PF_9, PF_10, PF_11, PF_12, PF_13, PF_14, PF_15,
     PH_0, PH_1, PH_2, PH_3, PH_4, PH_5, PH_6, PH_7, PH_8, PH_9, PH_10, PH_11,
 
+    LED1        = PD_13,
+    LED2        = PD_12,
     LED3        = PD_13,
     LED4        = PD_12,
     LED5        = PD_14,
