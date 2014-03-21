@@ -67,6 +67,15 @@ int main() {
 
     printf("Initialize PWM on pin PB_3 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin PB_4 with duty cycle: %.2f\n", pwm_2.read());
+#elif defined(TARGET_DISCO_F051R8)
+    PwmOut pwm_1(PA_7); 
+    PwmOut pwm_2(PC_7);
+
+    pwm_1.write(0.75);
+    pwm_2.write(0.50);
+
+    printf("Initialize PWM on pin PA_7 with duty cycle: %.2f\n", pwm_1.read());
+    printf("Initialize PWM on pin PC_7 with duty cycle: %.2f\n", pwm_2.read());
 #endif
 
     notify_completion(true);
