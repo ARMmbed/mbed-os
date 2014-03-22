@@ -36,8 +36,8 @@
 #include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will 
-   not remain stuck if the I2C communication is corrupted. */   
+   not based on accurate values, they just guarantee that the application will
+   not remain stuck if the I2C communication is corrupted. */
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
@@ -62,19 +62,19 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,    NC,    0}
 };
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {  
+void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    
+
     if (obj->i2c == (I2CName)NC) {
         error("I2C pin mapping failed");
     }
 
     // Enable I2C clock
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     }
     if (obj->i2c == I2C_2) {
@@ -83,18 +83,18 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj->i2c == I2C_3) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C3, ENABLE);
     }
-    
+
     // Configure I2C pins
     pinmap_pinout(scl, PinMap_I2C_SCL);
     pin_mode(scl, OpenDrain);
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pin_mode(sda, OpenDrain);
-    
+
     // Reset to clear pending flags if any
     i2c_reset(obj);
-    
+
     // I2C configuration
-    i2c_frequency(obj, 100000); // 100 kHz per default    
+    i2c_frequency(obj, 100000); // 100 kHz per default
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
@@ -106,7 +106,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); // Enable SYSCFG clock
     SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, DISABLE);
     SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, DISABLE);
-  
+
     /*
        Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
        * Standard mode (up to 100 kHz)
@@ -120,30 +120,30 @@ void i2c_frequency(i2c_t *obj, int hz) {
        - Fall time = 10ns
     */
     switch (hz) {
-      case 100000:
-          tim = 0x00201D2B; // Standard mode
-          break;
-      case 200000:
-          tim = 0x0010021E; // Fast Mode
-          break;
-      case 400000:
-          tim = 0x0010020A; // Fast Mode
-          break;
-      case 1000000:
-          tim = 0x00100001; // Fast Mode Plus
-          // Enable the Fast Mode Plus capability
-          if (obj->i2c == I2C_1) {
-              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
-          }
-          if (obj->i2c == I2C_2) {
-              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
-          }
-          break;
-      default:
-          error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
-          break;
+        case 100000:
+            tim = 0x00201D2B; // Standard mode
+            break;
+        case 200000:
+            tim = 0x0010021E; // Fast Mode
+            break;
+        case 400000:
+            tim = 0x0010020A; // Fast Mode
+            break;
+        case 1000000:
+            tim = 0x00100001; // Fast Mode Plus
+            // Enable the Fast Mode Plus capability
+            if (obj->i2c == I2C_1) {
+                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
+            }
+            if (obj->i2c == I2C_2) {
+                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
+            }
+            break;
+        default:
+            error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
+            break;
     }
-    
+
     // I2C configuration
     I2C_DeInit(i2c);
     I2C_InitStructure.I2C_Mode                = I2C_Mode_I2C;
@@ -154,7 +154,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
     I2C_InitStructure.I2C_Timing              = tim;
     I2C_Init(i2c, &I2C_InitStructure);
-    
+
     I2C_Cmd(i2c, ENABLE);
 }
 
@@ -178,9 +178,9 @@ inline int i2c_start(i2c_t *obj) {
 
 inline int i2c_stop(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-  
+
     I2C_GenerateSTOP(i2c, ENABLE);
-  
+
     return 0;
 }
 
@@ -188,18 +188,18 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int count;
     int value;
-  
+
     if (length == 0) return 0;
 
     // Configure slave address, nbytes, reload, end mode and start or stop generation
     I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
-    
+
     // Read all bytes
     for (count = 0; count < length; count++) {
         value = i2c_byte_read(obj, 0);
         data[count] = (char)value;
     }
-    
+
     return length;
 }
 
@@ -207,19 +207,19 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     //int timeout;
     int count;
-    
+
     if (length == 0) return 0;
 
     // [TODO] The stop is always sent even with I2C_SoftEnd_Mode. To be corrected.
 
     // Configure slave address, nbytes, reload, end mode and start or stop generation
     //if (stop) {
-        I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
+    I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
     //}
     //else {
     //    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
     //}
-    
+
     // Write all bytes
     for (count = 0; count < length; count++) {
         if (i2c_byte_write(obj, data[count]) != 1) {
@@ -242,7 +242,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         I2C_ClearFlag(i2c, I2C_ICR_STOPCF);
     }
     */
-    
+
     return count;
 }
 
@@ -250,9 +250,9 @@ int i2c_byte_read(i2c_t *obj, int last) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint8_t data;
     int timeout;
-  
+
     // Wait until the byte is received
-    timeout = FLAG_TIMEOUT;  
+    timeout = FLAG_TIMEOUT;
     while (I2C_GetFlagStatus(i2c, I2C_ISR_RXNE) == RESET) {
         timeout--;
         if (timeout == 0) {
@@ -261,7 +261,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     }
 
     data = I2C_ReceiveData(i2c);
-    
+
     return (int)data;
 }
 
@@ -277,14 +277,14 @@ int i2c_byte_write(i2c_t *obj, int data) {
             return 0;
         }
     }
-    
+
     I2C_SendData(i2c, (uint8_t)data);
-    
+
     return 1;
 }
 
 void i2c_reset(i2c_t *obj) {
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
     }
@@ -294,7 +294,7 @@ void i2c_reset(i2c_t *obj) {
     }
     if (obj->i2c == I2C_3) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, ENABLE);
-        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, DISABLE);      
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C3, DISABLE);
     }
 }
 
@@ -303,7 +303,7 @@ void i2c_reset(i2c_t *obj) {
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint16_t tmpreg;
-  
+
     // Get the old register value
     tmpreg = i2c->OAR1;
     // Reset address bits
@@ -326,28 +326,28 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 
 int i2c_slave_receive(i2c_t *obj) {
     // TO BE DONE
-    return(0);
+    return (0);
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
     int count = 0;
- 
+
     // Read all bytes
     for (count = 0; count < length; count++) {
         data[count] = i2c_byte_read(obj, 0);
     }
-    
+
     return count;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     int count = 0;
- 
+
     // Write all bytes
     for (count = 0; count < length; count++) {
         i2c_byte_write(obj, data[count]);
     }
-    
+
     return count;
 }
 

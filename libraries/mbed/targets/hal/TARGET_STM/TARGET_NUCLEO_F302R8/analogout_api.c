@@ -63,7 +63,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 
     // Configure and enable DAC channel
-    DAC_StructInit(&DAC_InitStructure);    
+    DAC_StructInit(&DAC_InitStructure);
     DAC_Init(dac, DAC_Channel_1, &DAC_InitStructure);
     DAC_Cmd(dac, DAC_Channel_1, ENABLE);
 
@@ -95,10 +95,9 @@ void analogout_write(dac_t *obj, float value) {
 
 void analogout_write_u16(dac_t *obj, uint16_t value) {
     if (value > (uint16_t)RANGE_12BIT) {
-      dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
-    }
-    else {
-      dac_write(obj, value);
+        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+    } else {
+        dac_write(obj, value);
     }
 }
 
