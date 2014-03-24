@@ -740,6 +740,16 @@ TESTS = [
         "source_dir": join(TEST_DIR, "ble", "Health_Thermometer"),
         "dependencies": [MBED_LIBRARIES, TMP102, BLE_NORDIC_NATIVE],
     },
+    {
+        "id": "NORDIC_2", "description": "BLE Heart Rate Monitor",
+        "source_dir": join(TEST_DIR, "ble", "HeartRate"),
+        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
+    },
+    {
+        "id": "NORDIC_3", "description": "BLE iBeacon",
+        "source_dir": join(TEST_DIR, "ble", "iBeacon"),
+        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
+    },
 ]
 
 # Group tests with the same goals into categories
