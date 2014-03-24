@@ -189,6 +189,15 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         if o.endswith('retarget.o'):
             retargeting = o
     objects.remove(retargeting)
+    # We need to have a file that overrides weak delcatations on a per board basis and the
+    #   lesser evil is to pull in this file if it extist rather than add board specific 
+    #   startup code in the /targets/cmsis directory
+    platform_initialize = None
+    for p in objects:
+        if p.endswith('platform_init.o'):
+            platform_initialize = p
+            objects.remove(platform_initialize)
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
     toolchain.copy_files(retargeting, BUILD_TOOLCHAIN)
+    toolchain.copy_files(platform_initialize, BUILD_TOOLCHAIN)
 
