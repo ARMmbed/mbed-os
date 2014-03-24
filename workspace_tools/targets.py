@@ -367,6 +367,19 @@ class DISCO_F051R8(Target):
         self.extra_labels = ['STM', 'STM32F0', 'STM32F051','STM32F051R8']
         
         self.supported_toolchains = ["GCC_ARM"]
+
+class DISCO_F407VG(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4F"
+        
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F407','STM32F407VG']
+        
+        self.supported_toolchains = ["GCC_ARM"]
         
 class LPC1347(Target):
     def __init__(self):
@@ -523,7 +536,8 @@ TARGETS = [
     UBLOX_C027(),
     LPC1549(),
     DISCO_F100RB(),
-    DISCO_F051R8()
+    DISCO_F051R8(),
+    DISCO_F407VG(),
 ]
 
 # Map each target name to its unique instance

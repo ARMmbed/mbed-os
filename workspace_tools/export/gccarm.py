@@ -36,6 +36,7 @@ class GccArm(Exporter):
         'STM32F407',
         'DISCO_F100RB',
         'DISCO_F051R8',
+        'DISCO_F407VG',
     ]
     
     DOT_IN_RELATIVE_PATH = True
