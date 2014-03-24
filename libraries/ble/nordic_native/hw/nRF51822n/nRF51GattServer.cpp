@@ -136,8 +136,13 @@ ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], ui
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], uint16_t len)
+ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
 {
+  if (localOnly)
+  {
+    /* Only update locally regardless of notify/indicate */
+    ASSERT_INT( ERROR_NONE, sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer), BLE_ERROR_PARAM_OUT_OF_RANGE );
+  }
   if ((p_characteristics[charHandle]->properties & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
       (m_connectionHandle != BLE_CONN_HANDLE_INVALID) )
   {
