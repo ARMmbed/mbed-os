@@ -526,6 +526,9 @@ TESTS = [
         "id": "RTOS_5", "description": "Queue",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
     },
     {
         "id": "RTOS_6", "description": "Mail",

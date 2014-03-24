@@ -7,16 +7,22 @@ typedef struct {
     uint32_t counter;   /* A counter value               */
 } message_t;
 
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
 MemoryPool<message_t, 16> mpool;
 Queue<message_t, 16> queue;
 
 /* Send Thread */
 void send_thread (void const *argument) {
-    uint32_t i = 0;
+    static uint32_t i = 0;
     while (true) {
         i++; // fake data update
         message_t *message = mpool.alloc();
-        message->voltage = (i * 0.1) * 33; 
+        message->voltage = (i * 0.1) * 33;
         message->current = (i * 0.1) * 11;
         message->counter = i;
         queue.put(message);
@@ -26,15 +32,16 @@ void send_thread (void const *argument) {
 
 int main (void) {
     Thread thread(send_thread);
-    
+
     while (true) {
         osEvent evt = queue.get();
         if (evt.status == osEventMessage) {
             message_t *message = (message_t*)evt.value.p;
-            printf("\nVoltage: %.2f V\n\r"   , message->voltage);
-            printf("Current: %.2f A\n\r"     , message->current);
-            printf("Number of cycles: %u\n\r", message->counter);
-            
+            // Each queue get message is handled every second
+            print_char();
+            // printf("\nVoltage: %.2f V\r\n"   , message->voltage);
+            // printf("Current: %.2f A\r\n"     , message->current);
+            // printf("Number of cycles: %u\r\n", message->counter);
             mpool.free(message);
         }
     }
