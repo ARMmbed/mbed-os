@@ -22,7 +22,10 @@ TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
 
 PERIPHERALS = join(TEST_DIR, "peripherals")
 BENCHMARKS_DIR = join(TEST_DIR, "benchmarks")
+
 SD = join(TEST_DIR, "sd")
+TMP102 = join(PERIPHERALS, 'TMP102')
+BLE_NORDIC_NATIVE = join(LIB_DIR, "ble", "nordic_native")
 
 """
 Wiring:
@@ -90,7 +93,7 @@ TESTS = [
     {
         "id": "MBED_A4", "description": "I2C TMP102",
         "source_dir": join(TEST_DIR, "mbed", "i2c_TMP102"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'TMP102')],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, TMP102],
         "automated": True,
         "peripherals": ["TMP102"]
     },
@@ -738,9 +741,19 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
     {
-        "id": "NORDIC_1", "description": "BLE Health Thermometer full",
-        "source_dir": join(TEST_DIR, "nordic", "BLE_Health_Thermometer_full"),
-        "dependencies": [MBED_LIBRARIES, join(PERIPHERALS, 'TMP102')],
+        "id": "NORDIC_1", "description": "BLE Health Thermometer",
+        "source_dir": join(TEST_DIR, "ble", "Health_Thermometer"),
+        "dependencies": [MBED_LIBRARIES, TMP102, BLE_NORDIC_NATIVE],
+    },
+    {
+        "id": "NORDIC_2", "description": "BLE Heart Rate Monitor",
+        "source_dir": join(TEST_DIR, "ble", "HeartRate"),
+        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
+    },
+    {
+        "id": "NORDIC_3", "description": "BLE iBeacon",
+        "source_dir": join(TEST_DIR, "ble", "iBeacon"),
+        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
     },
 ]
 
