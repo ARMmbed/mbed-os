@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2014 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
  */
 
 #include "mbed.h"
-#include "nRF51822n.h"
 #include "TMP102.h"
+#include "nRF51822n.h"
 
-nRF51822n   nrf;                /* BLE radio driver */
+nRF51822n   nrf;                               /* BLE radio driver */
+TMP102      healthThemometer(p22, p20, 0x90);  /* The TMP102 connected to our board */
 
-DigitalOut  led1(LED1);
-DigitalOut  led2(LED2);
-Serial      pc(USBTX,USBRX);
-TMP102      healthThemometer(p22, p20, 0x90);
+/* LEDs for indication: */
+DigitalOut  oneSecondLed(LED1);        /* LED1 is toggled every second. */
+DigitalOut  advertisingStateLed(LED2); /* LED2 is on when we are advertising, otherwise off. */
 
-/* Device Information service */
-uint8_t            manufacturerName[4] = { 'm', 'b', 'e', 'd' };
-GattService        deviceInformationService ( GattService::UUID_DEVICE_INFORMATION_SERVICE );
-GattCharacteristic deviceManufacturer ( GattCharacteristic::UUID_MANUFACTURER_NAME_STRING_CHAR,
-                                        sizeof(manufacturerName), sizeof(manufacturerName),
-                                        GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ);
+
+/* Health Thermometer Service */ 
+uint8_t             thermTempPayload[5] = { 0, 0, 0, 0, 0 };
+GattService         thermService (GattService::UUID_HEALTH_THERMOMETER_SERVICE);
+GattCharacteristic  thermTemp (GattCharacteristic::UUID_TEMPERATURE_MEASUREMENT_CHAR,
+                               5, 5, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE);
 
 /* Battery Level Service */
 uint8_t            batt = 100;     /* Battery level */
@@ -41,19 +41,13 @@ GattCharacteristic battLevel   ( GattCharacteristic::UUID_BATTERY_LEVEL_CHAR, 1,
                                  GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ);
 
 
-/* Health Thermometer Service */ 
-uint8_t             thermTempPayload[5] = { 0, 0, 0, 0, 0 };
-GattService         thermService (GattService::UUID_HEALTH_THERMOMETER_SERVICE);
-GattCharacteristic  thermTemp (GattCharacteristic::UUID_TEMPERATURE_MEASUREMENT_CHAR,
-                               5, 5, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE);
-
 /* Advertising data and parameters */
 GapAdvertisingData   advData;
 GapAdvertisingData   scanResponse;
 GapAdvertisingParams advParams ( GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED );
-uint16_t             uuid16_list[] = { GattService::UUID_BATTERY_SERVICE, 
-                                       GattService::UUID_DEVICE_INFORMATION_SERVICE,
-                                       GattService::UUID_HEALTH_THERMOMETER_SERVICE };
+
+uint16_t             uuid16_list[] = {GattService::UUID_HEALTH_THERMOMETER_SERVICE,
+                                      GattService::UUID_BATTERY_SERVICE};
 
 uint32_t quick_ieee11073_from_float(float temperature);
 void updateServiceValues(void);
@@ -66,59 +60,18 @@ void updateServiceValues(void);
 /**************************************************************************/
 class GapEventHandler : public GapEvents
 {
-    virtual void onTimeout(void) 
-    {
-        pc.printf("Advertising Timeout!\n\r");
-        // Restart the advertising process with a much slower interval,
-        // only start advertising again after a button press, etc.
-    }    
-
+    //virtual void onTimeout(void) {}   
+     
     virtual void onConnected(void)
     {
-        pc.printf("Connected!\n\r");
+        advertisingStateLed = 0;
     }
 
+    /* When a client device disconnects we need to start advertising again. */
     virtual void onDisconnected(void)
     {
-        pc.printf("Disconnected!\n\r");
-        pc.printf("Restarting the advertising process\n\r");
         nrf.getGap().startAdvertising(advParams);
-    }
-};
-
-/**************************************************************************/
-/*!
-    @brief  This custom class can be used to override any GattServerEvents
-            that you are interested in handling on an application level.
-*/
-/**************************************************************************/
-class GattServerEventHandler : public GattServerEvents
-{
-    //virtual void onDataSent(void) {}
-    //virtual void onDataWritten(void) {}
-    
-    virtual void onUpdatesEnabled(uint16_t charHandle)
-    {
-        if (charHandle == thermTemp.handle)
-        {
-            pc.printf("Temperature indication enabled\n\r");
-        }
-    }
-    
-    virtual void onUpdatesDisabled(uint16_t charHandle)
-    {
-        if (charHandle == thermTemp.handle)
-        {
-            pc.printf("Temperature indication disabled\n\r");
-        }
-    }
-    
-    virtual void onConfirmationReceived(uint16_t charHandle)
-    {
-        if (charHandle == thermTemp.handle)
-        {
-            pc.printf("Temperature indication received\n\r");
-        }
+        advertisingStateLed = 1;
     }
 };
 
@@ -129,18 +82,14 @@ class GattServerEventHandler : public GattServerEvents
 /**************************************************************************/
 int main(void)
 {
-    pc.baud(115200);
     
-    /* Setup blinky: led1 is toggled in main, led2 is toggled via Ticker */
-    led1=1;
-    led2=1;
-
-    /* Setup the local GAP/GATT event handlers */
+    /* Setup blinky led */
+    oneSecondLed=1;
+    
+    /* Setup an event handler for GAP events i.e. Client/Server connection events. */
     nrf.getGap().setEventHandler(new GapEventHandler());
-    nrf.getGattServer().setEventHandler(new GattServerEventHandler());
-
+    
     /* Initialise the nRF51822 */
-    pc.printf("Initialising the nRF51822\n\r");
     nrf.init();
 
     /* Make sure we get a clean start */
@@ -153,55 +102,46 @@ int main(void)
     advData.addAppearance(GapAdvertisingData::GENERIC_THERMOMETER);
     nrf.getGap().setAdvertisingData(advData, scanResponse);
 
+    /* Health Thermometer Service */
+    thermService.addCharacteristic(thermTemp);
+    nrf.getGattServer().addService(thermService);
+    
     /* Add the Battery Level service */
     battService.addCharacteristic(battLevel);
     nrf.getGattServer().addService(battService);
 
-    /* Add the Device Information service */
-    deviceInformationService.addCharacteristic(deviceManufacturer);
-    nrf.getGattServer().addService(deviceInformationService);
-    
-    
-    /* Health Thermometer Service */
-    thermService.addCharacteristic(thermTemp);
-    nrf.getGattServer().addService(thermService);
-
     /* Start advertising (make sure you've added all your data first) */
     nrf.getGap().startAdvertising(advParams);
-    
-    /* Now that we're live, update the battery level characteristic, and */
-    /* change the device manufacturer characteristic to 'mbed' */
-    nrf.getGattServer().updateValue(battLevel.handle, (uint8_t*)&batt, sizeof(batt));
-    nrf.getGattServer().updateValue(deviceManufacturer.handle, manufacturerName, sizeof(manufacturerName));
-    nrf.getGattServer().updateValue(thermTemp.handle, thermTempPayload, sizeof(thermTempPayload));
-
+    advertisingStateLed = 1;
 
     for (;;)
     {
-        wait(1);
+        /* Now that we're live, update the battery level & temperature characteristics */
         updateServiceValues();
+        wait(1);
     }
 }
 
 /**************************************************************************/
 /*!
-    @brief  Ticker callback to switch led2 state
+    @brief  Ticker callback to switch advertisingStateLed state
 */
 /**************************************************************************/
 void updateServiceValues(void)
 {
-      /* Toggle the LED */
-      led1 = !led1;
+      /* Toggle the one second LEDs */
+      oneSecondLed = !oneSecondLed;
       
       /* Update battery level */
       nrf.getGattServer().updateValue(battLevel.handle, (uint8_t*)&batt, sizeof(batt));
+      /* Decrement the battery level. */
+      batt <=50 ? batt=100 : batt--;;
       
-      /* Update the temperature */
+      /* Update the temperature. Note that we need to convert to an ieee11073 format float. */
       float temperature = healthThemometer.read();
       uint32_t temp_ieee11073 = quick_ieee11073_from_float(temperature);
       memcpy(thermTempPayload+1, &temp_ieee11073, 4);
       nrf.getGattServer().updateValue(thermTemp.handle, thermTempPayload, sizeof(thermTempPayload));
-      printf("Temperature: %f Celsius\r\n", temperature);
 }
 
 /**
@@ -216,3 +156,4 @@ uint32_t quick_ieee11073_from_float(float temperature)
     
     return ( ((uint32_t)exponent) << 24) | mantissa;
 }
+

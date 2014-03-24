@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/* Copyright (c)  2013 Nordic Semiconductor. All Rights Reserved.
  *
  * The information contained herein is property of Nordic Semiconductor ASA.
  * Terms and conditions of usage are described in detail in NORDIC

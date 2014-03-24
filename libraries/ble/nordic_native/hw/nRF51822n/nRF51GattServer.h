@@ -43,7 +43,7 @@ class nRF51GattServer : public GattServer
         /* Functions that must be implemented from GattServer */
         virtual ble_error_t addService(GattService &);
         virtual ble_error_t readValue(uint16_t, uint8_t[], uint16_t);
-        virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t);
+        virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
         
         /* nRF51 Functions */
         void eventCallback(void);

@@ -162,7 +162,7 @@ ble_error_t nRF51Gap::startAdvertising(GapAdvertisingParams & params)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-    /* ToDo: Start Advertising */
+    /* Start Advertising */
     ble_gap_adv_params_t adv_para = { 0 };
 
     adv_para.type        = params.getAdvertisingType() ;
@@ -174,7 +174,7 @@ ble_error_t nRF51Gap::startAdvertising(GapAdvertisingParams & params)
 
     ASSERT( ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
 		
-		state.advertising = 1;
+	state.advertising = 1;
 
     return BLE_ERROR_NONE;
 }
@@ -197,12 +197,10 @@ ble_error_t nRF51Gap::startAdvertising(GapAdvertisingParams & params)
 /**************************************************************************/
 ble_error_t nRF51Gap::stopAdvertising(void)
 {
-    /* ToDo: Stop Advertising */
+    /* Stop Advertising */
+    ASSERT( ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
-    /* ToDo: Check response */
-    wait(0.1);
-	
-	  state.advertising = 0;
+	state.advertising = 0;
 
     return BLE_ERROR_NONE;
 }
@@ -225,10 +223,11 @@ ble_error_t nRF51Gap::stopAdvertising(void)
 /**************************************************************************/
 ble_error_t nRF51Gap::disconnect(void)
 {
-	/* ToDo: Disconnect if we are connected to a central device */
-	
-	  state.advertising = 0;
-	  state.connected = 0;
+	/* Disconnect if we are connected to a central device */
+    // ASSERT( ERROR_NONE == sd_ble_gap_disconnect(), BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+	state.advertising = 0;
+    state.connected = 0;
 	
     return BLE_ERROR_NONE;
 }
