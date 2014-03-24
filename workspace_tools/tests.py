@@ -496,9 +496,12 @@ TESTS = [
 
     # mbed RTOS tests
     {
-        "id": "RTOS_1", "description": "Basic",
+        "id": "RTOS_1", "description": "Basic Thread",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "basic"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
     },
     {
         "id": "RTOS_2", "description": "Mutex",
@@ -537,9 +540,11 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
     },
     {
-        "id": "RTOS_9", "description": "File",
+        "id": "RTOS_9", "description": "SD File write-read",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+        "automated": True,
+        "peripherals": ["SD"]
     },
 
     # Networking Tests
