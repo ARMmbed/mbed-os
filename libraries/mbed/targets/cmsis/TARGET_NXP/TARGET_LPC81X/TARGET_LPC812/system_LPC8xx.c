@@ -100,13 +100,23 @@
 //   </h>
 // </e>
 */
-#define CLOCK_SETUP           1
-#define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
-#define WDTOSCCTRL_Val        0x00000000              // Reset: 0x000
-#define SYSPLLCTRL_Val        0x00000041              // Reset: 0x000
-#define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000
-#define MAINCLKSEL_Val        0x00000000              // Reset: 0x000
-#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001
+#define CLOCK_SETUP     1	// 1 == IRC: 2 == System Oscillator 12Mhz Xtal:
+
+#if (CLOCK_SETUP == 1)
+	#define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
+	#define WDTOSCCTRL_Val        0x00000000              // Reset: 0x000
+	#define SYSPLLCTRL_Val        0x00000041              // Reset: 0x000
+	#define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000
+	#define MAINCLKSEL_Val        0x00000000              // Reset: 0x000
+	#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001
+#elif (CLOCK_SETUP == 2)         
+	#define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
+	#define WDTOSCCTRL_Val        0x00000000              // Reset: 0x000
+	#define SYSPLLCTRL_Val        0x00000040              // Reset: 0x000
+	#define SYSPLLCLKSEL_Val      0x00000001              // Reset: 0x000
+	#define MAINCLKSEL_Val        0x00000003              // Reset: 0x000
+	#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001
+#endif
 
 /*
 //-------- <<< end of configuration section >>> ------------------------------
