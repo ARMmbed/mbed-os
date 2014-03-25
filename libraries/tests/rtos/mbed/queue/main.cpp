@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "rtos.h"
 
 typedef struct {
@@ -7,42 +8,54 @@ typedef struct {
     uint32_t counter;   /* A counter value               */
 } message_t;
 
-void print_char(char c = '*')
-{
-    printf("%c", c);
-    fflush(stdout);
-}
+#define CREATE_VOLTAGE(COUNTER) (COUNTER * 0.1) * 33
+#define CREATE_CURRENT(COUNTER) (COUNTER * 0.1) * 11
+#define QUEUE_SIZE       16
+#define QUEUE_PUT_DELAY  100
 
-MemoryPool<message_t, 16> mpool;
-Queue<message_t, 16> queue;
+MemoryPool<message_t, QUEUE_SIZE> mpool;
+Queue<message_t, QUEUE_SIZE> queue;
 
 /* Send Thread */
 void send_thread (void const *argument) {
     static uint32_t i = 0;
     while (true) {
-        i++; // fake data update
+        i++; // Fake data update
         message_t *message = mpool.alloc();
-        message->voltage = (i * 0.1) * 33;
-        message->current = (i * 0.1) * 11;
+        message->voltage = CREATE_VOLTAGE(i);
+        message->current = CREATE_CURRENT(i);
         message->counter = i;
         queue.put(message);
-        Thread::wait(1000);
+        Thread::wait(QUEUE_PUT_DELAY);
     }
 }
 
 int main (void) {
     Thread thread(send_thread);
+    bool result = true;
+    int result_counter = 0;
 
     while (true) {
         osEvent evt = queue.get();
         if (evt.status == osEventMessage) {
             message_t *message = (message_t*)evt.value.p;
-            // Each queue get message is handled every second
-            print_char();
-            // printf("\nVoltage: %.2f V\r\n"   , message->voltage);
-            // printf("Current: %.2f A\r\n"     , message->current);
-            // printf("Number of cycles: %u\r\n", message->counter);
+            float expected_voltage = CREATE_VOLTAGE(message->counter);
+            float expected_current = CREATE_CURRENT(message->counter);
+            // Check using macros if received values correspond to values sent via queue
+            bool expected_values = (expected_voltage == message->voltage) &&
+                                   (expected_current == message->current);
+            result = result && expected_values;
+            const char *result_msg = expected_values ? "OK" : "FAIL";
+            printf("%3d %.2fV %.2fA ... [%s]\r\n", message->counter,
+                                                   message->voltage,
+                                                   message->current,
+                                                   result_msg);
             mpool.free(message);
+            if (result == false || ++result_counter == QUEUE_SIZE) {
+                break;
+            }
         }
     }
+    notify_completion(result);
+    return 0;
 }
