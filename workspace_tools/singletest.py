@@ -306,13 +306,9 @@ def reset(mcu_name, serial, verbose=False, sleep_before_reset=0, sleep_after_res
         sleep(sleep_before_reset)
     if verbose:
         verbose_msg = "Reset::cmd(sendBreak)"
-    # Reset type decision
-    if mcu_name.startswith('NUCLEO'): # ST NUCLEO
-        call(["ST-LINK_CLI.exe", "-Rst"])
-        verbose_msg = "Reset::cmd(ST-LINK_CLI.exe)"
-    else:
-        serial.sendBreak()
-
+    
+    serial.sendBreak()
+    
     if sleep_before_reset > 0:
         sleep(sleep_after_reset)
     if verbose:

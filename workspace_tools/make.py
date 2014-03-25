@@ -75,9 +75,7 @@ if __name__ == '__main__':
                       default=None, help="The mbed serial port")
     parser.add_option("-b", "--baud", type="int", dest="baud",
                       default=None, help="The mbed serial baud rate")
-    parser.add_option("--nrfjprog", dest="nrfjprog", action="store_true",
-                      default=None, help="Program nRF Chip via J-Link")
-
+    
     # Ideally, all the tests with a single "main" thread can be run with, or
     # without the rtos
     parser.add_option("--rtos", action="store_true", dest="rtos",
@@ -168,10 +166,6 @@ if __name__ == '__main__':
             # Simple copy to the mbed disk
             copy(bin, options.disk)
         
-        if options.nrfjprog:
-            #Convert bin to Hex and Program nrf chip via jlink
-            call(["nrfjprog","-e","--program",bin.replace(".bin", ".hex"),"--verify"])
-        
         if options.serial:
             # Import pyserial: https://pypi.python.org/pypi/pyserial
             from serial import Serial
@@ -185,12 +179,7 @@ if __name__ == '__main__':
             serial.flushInput()
             serial.flushOutput()
             
-            if options.nrfjprog:
-                call(["nrfjprog", "-r"])
-            elif mcu.startswith('NUCLEO'):
-                call(["ST-LINK_CLI.exe", "-Rst"])
-            else:
-                serial.sendBreak()
+            serial.sendBreak()
             
             while True:
                 c = serial.read(512)
