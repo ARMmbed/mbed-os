@@ -499,7 +499,7 @@ TESTS = [
 
     # mbed RTOS tests
     {
-        "id": "RTOS_1", "description": "Basic Thread",
+        "id": "RTOS_1", "description": "Basic thread",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "basic"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
         "duration": 15,
@@ -507,32 +507,32 @@ TESTS = [
         "host_test": "wait_us_auto"
     },
     {
-        "id": "RTOS_2", "description": "Mutex resource lock/1",
+        "id": "RTOS_2", "description": "Mutex resource lock",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mutex"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
     },
     {
-        "id": "RTOS_3", "description": "Semaphore",
+        "id": "RTOS_3", "description": "Semaphore resource lock",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "semaphore"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
     },
     {
-        "id": "RTOS_4", "description": "Signals",
+        "id": "RTOS_4", "description": "Signals messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
     },
     {
-        "id": "RTOS_5", "description": "Queue",
+        "id": "RTOS_5", "description": "Queue messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
     },
     {
-        "id": "RTOS_6", "description": "Mail",
+        "id": "RTOS_6", "description": "Mail messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
