@@ -18,7 +18,7 @@ Queue<message_t, QUEUE_SIZE> queue;
 
 /* Send Thread */
 void send_thread (void const *argument) {
-    static uint32_t i = 0;
+    static uint32_t i = 10;
     while (true) {
         i++; // Fake data update
         message_t *message = mpool.alloc();
