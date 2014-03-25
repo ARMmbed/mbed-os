@@ -149,9 +149,9 @@ typedef enum {
     USBRX       = PA_3,
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
+    SPI_MOSI    = PB_15,
+    SPI_MISO    = PB_14,
+    SPI_SCK     = PB_13,
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
 
