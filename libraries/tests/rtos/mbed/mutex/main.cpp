@@ -1,24 +1,69 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "rtos.h"
 
-Mutex stdio_mutex; 
+#define THREAD_DELAY     50
+#define SIGNALS_TO_EMIT  100
 
-void notify(const char* name, int state) {
-    stdio_mutex.lock();
-    printf("%s: %d\n\r", name, state);
-    stdio_mutex.unlock();
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
+Mutex stdio_mutex;
+DigitalOut led(LED1);
+
+volatile int change_counter = 0;
+volatile bool changing_counter = false;
+
+bool manipulate_protected_zone(const int thread_delay) {
+    bool result = true;
+
+    stdio_mutex.lock(); // LOCK
+    if (changing_counter == true) {
+        print_char('e');    // if changing_counter is true access is not exclusively
+        result = false;
+        notify_completion(false);
+        exit(1);
+    }
+    changing_counter = true;
+
+    // Some action on protected
+    led = !led;
+    change_counter++;
+    print_char('.');
+    Thread::wait(thread_delay);
+
+    changing_counter = false;
+    stdio_mutex.unlock();   // UNLOCK
+    return result;
 }
 
 void test_thread(void const *args) {
+    const int thread_delay = int(args);
     while (true) {
-        notify((const char*)args, 0); Thread::wait(1000);
-        notify((const char*)args, 1); Thread::wait(1000);
+        manipulate_protected_zone(thread_delay);
     }
 }
 
 int main() {
-    Thread t2(test_thread, (void *)"Th 2");
-    Thread t3(test_thread, (void *)"Th 3");
-    
-    test_thread((void *)"Th 1");
+    const int t1_delay = THREAD_DELAY * 1;
+    const int t2_delay = THREAD_DELAY * 2;
+    const int t3_delay = THREAD_DELAY * 3;
+    Thread t2(test_thread, (void *)t2_delay);
+    Thread t3(test_thread, (void *)t3_delay);
+    bool result = true;
+
+    while (true) {
+        // Thread 1 action
+        Thread::wait(t1_delay);
+        manipulate_protected_zone(t1_delay);
+        if (change_counter >= SIGNALS_TO_EMIT) {
+            break;
+        }
+    }
+
+    notify_completion(result);
+    return 0;
 }

@@ -507,15 +507,17 @@ TESTS = [
         "host_test": "wait_us_auto"
     },
     {
-        "id": "RTOS_2", "description": "Mutex",
+        "id": "RTOS_2", "description": "Mutex resource lock/1",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mutex"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
-        "duration": 20
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
+        "duration": 20,
+        "automated": True,
     },
     {
         "id": "RTOS_3", "description": "Semaphore",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "semaphore"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "RTOS_4", "description": "Signals",
