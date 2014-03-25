@@ -141,10 +141,7 @@
   * @{
   */
 
-// [TODO] Do the same for other compilers
-// Warning: the RAM is initialized AFTER the SetSysClock function is called.
-// This variable must be placed outside the initialized section (see scatter file).
-uint32_t SystemCoreClock __attribute__((at(0x20000188))) = 64000000; /* Default with HSI. Will be updated if HSE is used */
+uint32_t SystemCoreClock = 64000000; /* Default with HSI. Will be updated if HSE is used */
 
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
@@ -361,10 +358,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   __IO uint32_t HSEStatus = 0;
 
   /* Bypass HSE: can be done only if HSE is OFF */
+  RCC->CR &= ((uint32_t)~RCC_CR_HSEON); /* To be sure HSE is OFF */  
   if (bypass != 0)
   {
-    RCC->CR &= ((uint32_t)~RCC_CR_HSEON); /* To be sure HSE is OFF */
     RCC->CR |= ((uint32_t)RCC_CR_HSEBYP);
+  }
+  else
+  {
+    RCC->CR &= ((uint32_t)~RCC_CR_HSEBYP);
   }
   
   /* Enable HSE */
@@ -412,7 +413,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     {
     }
 
-    SystemCoreClock = 72000000;
     return 1; // OK
   }
   else
@@ -460,7 +460,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   {
   }
 
-  SystemCoreClock = 64000000;
   return 1; // OK
 }
 

@@ -37,8 +37,7 @@ LR_IROM1 0x08000000 0x10000  {    ; load region size_region
   }
 
   ; 98 vectors (16 core + 82 peripheral) * 4 bytes = 392 bytes to reserve (0x188)
-  ; + 4 more bytes reserved for the SystemCoreClock variable
-  RW_IRAM1 (0x20000000+(0x188+4)) (0x4000-(0x188+4))  {  ; RW data
+  RW_IRAM1 (0x20000000+0x188) (0x4000-0x188)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
