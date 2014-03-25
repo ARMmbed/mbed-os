@@ -1,6 +1,6 @@
 ;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 ;* File Name          : startup_stm32f302x8.s
-; STM32F302x8 Devices vector table for MDK ARM_MICRO toolchain
+; STM32F302x8 Devices vector table for MDK ARM_STD toolchain
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2014, STMicroelectronics
 ; All rights reserved.
