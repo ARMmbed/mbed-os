@@ -141,7 +141,10 @@
   * @{
   */
 
-uint32_t SystemCoreClock = 64000000; /* Default with HSI. Will be updated if HSE is used */
+// [TODO] Do the same for other compilers
+// Warning: the RAM is initialized AFTER the SetSysClock function is called.
+// This variable must be placed outside the initialized section (see scatter file).
+uint32_t SystemCoreClock __attribute__((at(0x20000188))) = 64000000; /* Default with HSI. Will be updated if HSE is used */
 
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
@@ -208,16 +211,16 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
 
+  /* Configure the System clock source, PLL Multiplier and Divider factors, 
+     AHB/APBx prescalers and Flash settings */
+  SetSysClock();
+
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors, 
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
 }
 
 /**
@@ -330,9 +333,6 @@ void SetSysClock(void)
       }
     }
   }
- 
-  /* Update SystemCoreClock variable */
-  SystemCoreClockUpdate();
   
   /* Output SYSCLK on MCO pin(PA8) for debugging purpose */
   /*
@@ -411,7 +411,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
     {
     }
-    
+
+    SystemCoreClock = 72000000;
     return 1; // OK
   }
   else
@@ -459,6 +460,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   {
   }
 
+  SystemCoreClock = 64000000;
   return 1; // OK
 }
 
