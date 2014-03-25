@@ -38,24 +38,24 @@ static int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-  
+
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
-  
+
     // Enable timer clock
     TIM_MST_RCC;
-  
+
     // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = 0xFFFFFFFF;
-    TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TIM_TimeBaseStructure.TIM_Period        = 0xFFFFFFFF;
+    TIM_TimeBaseStructure.TIM_Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
-  
+
     NVIC_SetVector(TIM_MST_IRQ, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(TIM_MST_IRQ);
-  
+
     // Enable timer
     TIM_Cmd(TIM_MST, ENABLE);
 }
