@@ -532,7 +532,8 @@ TESTS = [
     {
         "id": "RTOS_6", "description": "Mail",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "RTOS_7", "description": "Timer",
