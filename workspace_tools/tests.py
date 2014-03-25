@@ -347,6 +347,7 @@ TESTS = [
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
+        "automated": True,
         "host_test": "rpc",
     },
     {
