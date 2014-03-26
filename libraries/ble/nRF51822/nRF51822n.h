@@ -25,8 +25,8 @@
 #include "mbed.h"
 #include "blecommon.h"
 #include "hw/BLEDevice.h"
-#include "hw/nRF51822n/nRF51Gap.h"
-#include "hw/nRF51822n/nRF51GattServer.h"
+#include "nRF51Gap.h"
+#include "nRF51GattServer.h"
 
 /**************************************************************************/
 /*!
