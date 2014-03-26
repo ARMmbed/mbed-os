@@ -33,8 +33,8 @@
 #include "pstorage.h"
 
 #include "hw/GapEvents.h"
-#include "hw/nRF51822n/nRF51Gap.h"
-#include "hw/nRF51822n/nRF51GattServer.h"
+#include "nRF51Gap.h"
+#include "nRF51GattServer.h"
 
 static void service_error_callback(uint32_t nrf_error);
 void        assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name);
