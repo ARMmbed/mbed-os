@@ -36,13 +36,16 @@ from workspace_tools.paths import LIB_DIR
 from workspace_tools.utils import run_cmd
 
 MBED_URL = "mbed.org"
+MBED_USER = "mbed_official"
 
 changed = []
 push_remote = True
 quiet = False
 commit_msg = ''
 
-# mbed_official code that does have a mirror in the mbed SDK
+# Code that does have a mirror in the mbed SDK
+# Tuple data: (repo_name, list_of_code_dirs, [team])
+# team is optional - if not specified, the code is published under mbed_official
 OFFICIAL_CODE = ( 
     ("mbed-src" , "mbed"),
     ("mbed-rtos", "rtos"),
@@ -64,10 +67,13 @@ OFFICIAL_CODE = (
     ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
     ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusb"]),
     ("UbloxModemSMSTest", ["tests/net/cellular/sms/common", "tests/net/cellular/sms/ubloxusb"]),
+
+    ("ble-api", "ble/ble-api"),
+    ("nRF51822", "ble/nRF51822", "Nordic-Semiconductor"),
 )
 
 
-# mbed_official code that does have dependencies to libraries should point to
+# Code that does have dependencies to libraries should point to
 # the latest revision. By default, they point to a specific revision.
 CODE_WITH_DEPENDENCIES = (
     # Libraries
@@ -115,24 +121,25 @@ def ignore_path(name, reg_exps):
             return True
     return False
 
-class MbedOfficialRepository:
-    URL = "http://" + MBED_URL + "/users/mbed_official/code/%s/"
-
+class MbedRepository:
     @staticmethod
     def run_and_print(command, cwd):
         stdout, _, _ = run_cmd(command, wd=cwd, redirect=True)
         print(stdout)
     
-    def __init__(self, name):
+    def __init__(self, name, team = None):
         self.name = name
         self.path = join(MBED_ORG_PATH, name)
-        
+        if team is None:
+            self.url = "http://" + MBED_URL + "/users/" + MBED_USER + "/code/%s/"
+        else:
+            self.url = "http://" + MBED_URL + "/teams/" + team + "/code/%s/"
         if not exists(self.path):
             # Checkout code
             if not exists(MBED_ORG_PATH):
                 makedirs(MBED_ORG_PATH)
             
-            self.run_and_print(['hg', 'clone', MbedOfficialRepository.URL % name], cwd=MBED_ORG_PATH)
+            self.run_and_print(['hg', 'clone', self.url % name], cwd=MBED_ORG_PATH)
         
         else:
             # Update
@@ -241,8 +248,8 @@ def visit_files(path, visit):
             visit(join(root, file))
 
 
-def update_repo(repo_name, sdk_paths):
-    repo = MbedOfficialRepository(repo_name)
+def update_repo(repo_name, sdk_paths, team_name):
+    repo = MbedRepository(repo_name, team_name)
     # copy files from mbed SDK to mbed_official repository
     def visit_mbed_sdk(sdk_file):
         repo_file = join(repo.path, relpath(sdk_file, sdk_path))
@@ -271,17 +278,25 @@ def update_repo(repo_name, sdk_paths):
 
 
 def update_code(repositories):
-    for repo_name, sdk_dir in repositories:
+    for r in repositories:
+        repo_name, sdk_dir = r[0], r[1]
+        team_name = r[2] if len(r) == 3 else None
         print '\n=== Updating "%s" ===' % repo_name
         sdk_dirs = [sdk_dir] if type(sdk_dir) != type([]) else sdk_dir
         sdk_path = [join(LIB_DIR, d) for d in sdk_dirs]
-        update_repo(repo_name, sdk_path)
+        update_repo(repo_name, sdk_path, team_name)
 
+def update_single_repo(repo):
+    repos = [r for r in OFFICIAL_CODE if r[0] == repo]
+    if not repos:
+        print "Repository '%s' not found" % repo
+    else:
+        update_code(repos)
 
 def update_dependencies(repositories):
     for repo_name in repositories:
         print '\n=== Updating "%s" ===' % repo_name
-        repo = MbedOfficialRepository(repo_name)
+        repo = MbedRepository(repo_name)
         
         # point to the latest libraries
         def visit_repo(repo_file):
@@ -315,6 +330,9 @@ def do_sync(options):
     if options.mbed:
         update_mbed()
 
+    if options.repo:
+        update_single_repo(options.repo)
+
     if changed:
         print "Repositories with changes:", changed
 
@@ -342,6 +360,11 @@ if __name__ == '__main__':
     parser.add_option("", "--commit_message",
                   action="store", type="string", default='', dest='msg',
                   help="Commit message to use for all the commits")
+
+    parser.add_option("-r", "--repository",
+                  action="store", type="string", default='', dest='repo',
+                  help="Synchronize only the given repository")
+                 
     parser.add_option("-q", "--quiet",
                   action="store_true", default=False,
                   help="Don't ask for confirmation before commiting or pushing")

@@ -25,7 +25,8 @@ BENCHMARKS_DIR = join(TEST_DIR, "benchmarks")
 
 SD = join(TEST_DIR, "sd")
 TMP102 = join(PERIPHERALS, 'TMP102')
-BLE_NORDIC_NATIVE = join(LIB_DIR, "ble", "nordic_native")
+BLE_API = join(LIB_DIR, "ble", "ble-api")
+BLE_NRF51822 = join(LIB_DIR, "ble", "nRF51822")
 
 """
 Wiring:
@@ -346,8 +347,8 @@ TESTS = [
     {
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
-        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc")],
-        "host_test": "rpc",
+        "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "MBED_16", "description": "RTC",
@@ -600,17 +601,21 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "automated": True,
         "host_test" : "udpecho_client_auto",
-        "peripherals": ["ethernet"]
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_7", "description": "HTTP client",
         "source_dir": join(TEST_DIR, "net", "protocols", "HTTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_8", "description": "NTP client",
         "source_dir": join(TEST_DIR, "net", "protocols", "NTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_9", "description": "Multicast Send",
@@ -752,17 +757,17 @@ TESTS = [
     {
         "id": "NORDIC_1", "description": "BLE Health Thermometer",
         "source_dir": join(TEST_DIR, "ble", "Health_Thermometer"),
-        "dependencies": [MBED_LIBRARIES, TMP102, BLE_NORDIC_NATIVE],
+        "dependencies": [MBED_LIBRARIES, TMP102, BLE_API, BLE_NRF51822],
     },
     {
         "id": "NORDIC_2", "description": "BLE Heart Rate Monitor",
         "source_dir": join(TEST_DIR, "ble", "HeartRate"),
-        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
+        "dependencies": [MBED_LIBRARIES, BLE_API, BLE_NRF51822],
     },
     {
         "id": "NORDIC_3", "description": "BLE iBeacon",
         "source_dir": join(TEST_DIR, "ble", "iBeacon"),
-        "dependencies": [MBED_LIBRARIES, BLE_NORDIC_NATIVE],
+        "dependencies": [MBED_LIBRARIES, BLE_API, BLE_NRF51822],
     },
 ]
 

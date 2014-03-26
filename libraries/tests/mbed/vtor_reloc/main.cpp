@@ -13,11 +13,13 @@
 DigitalOut out(PIN_OUT);
 DigitalOut myled(LED1);
 
-static volatile int checks;
-static uint32_t int_table[NUM_VECTORS];
+volatile int checks = 0;
+uint32_t int_table[NUM_VECTORS];
+
+#define FALLING_EDGE_COUNT 5
 
 void flipper() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < FALLING_EDGE_COUNT; i++) {
         out = 1;
         wait(0.2);
         out = 0;
@@ -38,24 +40,36 @@ static bool test_once() {
     in.fall(in_handler);
     flipper();
     in.fall(NULL);
-    bool result = (checks == 5);
-    printf(result ? "Test passed.\r\n" : "Test failed.\r\n");
+    bool result = (checks == FALLING_EDGE_COUNT);
+    printf("Falling edge checks counted: %d ... [%s]\r\n", checks, result ? "OK" : "FAIL");
     return result;
 }
 
 int main() {
-    printf("Starting first test (interrupts not relocated).\r\n");
-    if (!test_once()) {
-        notify_completion(false);
-        return 1;
+
+    // First test, no table reallocation
+    {
+        printf("Starting first test (interrupts not relocated).\r\n");
+        bool ret = test_once();
+        if (ret == false) {
+            notify_completion(false);
+            return 1;
+        }
     }
 
     // Relocate interrupt table and test again
-    memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
-    SCB->VTOR = (uint32_t)int_table;
-    printf("Starting second test (interrupts relocated).\r\n");
+    {
+        printf("Starting second test (interrupts relocated).\r\n");
+        memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
+        SCB->VTOR = (uint32_t)int_table;
 
-    notify_completion(test_once());
+        bool ret = test_once();
+        if (ret == false) {
+            notify_completion(false);
+            return 1;
+        }
+    }
+
+    notify_completion(true);
     return 0;
 }
-
