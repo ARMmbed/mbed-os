@@ -1,5 +1,4 @@
 /* mbed Microcontroller Library
- *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
@@ -25,40 +24,12 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
  */
-#include "sleep_api.h"
-#include "cmsis.h"
 
-// This function is in the system_stm32f10x.c file
-extern void SetSysClock(void);
+extern void SystemCoreClockUpdate(void); 
 
-void sleep(void)
-{
-    // Disable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
-  
-    SCB->SCR = 0; // Normal sleep mode for ARM core
-    __WFI();
-  
-    // Re-enable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
-}
-
-void deepsleep(void)
-{
-    // Disable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
-  
-    // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-    
-    // Request to enter STOP mode with regulator in low power mode
-    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-  
-    // Re-enable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init() {
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
 }

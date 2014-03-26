@@ -38,25 +38,29 @@
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PB_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
+    {PB_15, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PB_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
+    {PB_14, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // Remap
+    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
+    {PB_13, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
     {NC,    NC,    0}
 };
 
-// Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)}, // Generic IO, not real H/W NSS pin
+    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
+    {PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
+    {PB_12, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
     {NC,    NC,    0}
 };
 
@@ -66,15 +70,15 @@ static void init_spi(spi_t *obj) {
 
     SPI_Cmd(spi, DISABLE);
 
-    SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
-    SPI_InitStructure.SPI_DataSize = obj->bits;
-    SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
+    SPI_InitStructure.SPI_Mode              = obj->mode;
+    SPI_InitStructure.SPI_NSS               = obj->nss;
+    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex;    
+    SPI_InitStructure.SPI_DataSize          = obj->bits;
+    SPI_InitStructure.SPI_CPOL              = obj->cpol;
+    SPI_InitStructure.SPI_CPHA              = obj->cpha;
     SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;
+    SPI_InitStructure.SPI_CRCPolynomial     = 7;
     SPI_Init(spi, &SPI_InitStructure);
 
     SPI_Cmd(spi, ENABLE);
@@ -100,7 +104,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); 
     }
-    
+    if (obj->spi == SPI_2) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+    }
+
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -110,7 +117,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DataSize_8b;
     obj->cpol = SPI_CPOL_Low;
     obj->cpha = SPI_CPHA_1Edge;
-    obj->br_presc = SPI_BaudRatePrescaler_256; // 1MHz
+    obj->br_presc = SPI_BaudRatePrescaler_256;
     
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
@@ -171,23 +178,62 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // Choose the baud rate divisor (between 2 and 256)
-    uint32_t divisor = SystemCoreClock / hz;
-
-    // Find the nearest power-of-2
-    divisor = (divisor > 0 ? divisor-1 : 0);
-    divisor |= divisor >> 1;
-    divisor |= divisor >> 2;
-    divisor |= divisor >> 4;
-    divisor |= divisor >> 8;
-    divisor |= divisor >> 16;
-    divisor++;
-
-    uint32_t baud_rate = __builtin_ffs(divisor) - 2;
+    if (obj->spi == SPI_1) {
+        // Values depend of PCLK2: 64 MHz if HSI is used, 72 MHz if HSE is used
+        if (hz < 500000) {
+            obj->br_presc = SPI_BaudRatePrescaler_256; // 250 kHz - 281 kHz
+        }
+        else if ((hz >= 500000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_128; // 500 kHz - 563 kHz
+        }
+        else if ((hz >= 1000000) && (hz < 2000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_64; // 1 MHz - 1.13 MHz
+        }
+        else if ((hz >= 2000000) && (hz < 4000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_32; // 2 MHz - 2.25 MHz
+        }
+        else if ((hz >= 4000000) && (hz < 8000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_16; // 4 MHz - 4.5 MHz
+        }
+        else if ((hz >= 8000000) && (hz < 16000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_8; // 8 MHz - 9 MHz
+        }
+        else if ((hz >= 16000000) && (hz < 32000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_4; // 16 MHz - 18 MHz
+        }
+        else { // >= 32000000
+            obj->br_presc = SPI_BaudRatePrescaler_2; // 32 MHz - 36 MHz
+        }
+    }
     
-    // Save new value
-    obj->br_presc = ((baud_rate > 7) ? (7 << 3) : (baud_rate << 3));
- 
+    if (obj->spi == SPI_2) {
+        // Values depend of PCLK1: 32 MHz if HSI is used, 36 MHz if HSE is used
+        if (hz < 250000) {
+            obj->br_presc = SPI_BaudRatePrescaler_256; // 125 kHz - 141 kHz
+        }
+        else if ((hz >= 250000) && (hz < 500000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_128; // 250 kHz - 281 kHz
+        }
+        else if ((hz >= 500000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_64; // 500 kHz - 563 kHz
+        }
+        else if ((hz >= 1000000) && (hz < 2000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_32; // 1 MHz - 1.13 MHz
+        }
+        else if ((hz >= 2000000) && (hz < 4000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_16; // 2 MHz - 2.25 MHz
+        }
+        else if ((hz >= 4000000) && (hz < 8000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_8; // 4 MHz - 4.5 MHz
+        }
+        else if ((hz >= 8000000) && (hz < 16000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_4; // 8 MHz - 9 MHz
+        }
+        else { // >= 16000000
+            obj->br_presc = SPI_BaudRatePrescaler_2; // 16 MHz - 18 MHz
+        }
+    }
+
     init_spi(obj);
 }
 
