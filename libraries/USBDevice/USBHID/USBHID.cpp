@@ -59,6 +59,9 @@ bool USBHID::readNB(HID_REPORT *report)
     uint32_t bytesRead = 0;
     bool result;
     result = USBDevice::readEP_NB(EPINT_OUT, report->data, &bytesRead, MAX_HID_REPORT_SIZE);
+    // if readEP_NB did not succeed, does not issue a readStart
+    if (!result)
+        return false;
     report->length = bytesRead;
     if(!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE))
         return false;
