@@ -548,9 +548,10 @@ TESTS = [
         "host_test": "wait_us_auto"
     },
     {
-        "id": "RTOS_8", "description": "ISR",
+        "id": "RTOS_8", "description": "ISR (Queue)",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
@@ -608,6 +609,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "protocols", "HTTPClient_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
+        "duration": 15,
         "peripherals": ["ethernet"],
     },
     {
