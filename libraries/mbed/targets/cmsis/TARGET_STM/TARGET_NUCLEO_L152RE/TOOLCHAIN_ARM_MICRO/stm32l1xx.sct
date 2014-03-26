@@ -27,7 +27,8 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-LR_IROM1 0x08000000 0x80000  {    ; load region size_region (512 KB)
+; STM32L152RE: 512KB FLASH + 80KB SRAM
+LR_IROM1 0x08000000 0x80000  {    ; load region size_region
 
   ER_IROM1 0x08000000 0x80000  {  ; load address = execution address
    *.o (RESET, +First)
