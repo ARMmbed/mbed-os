@@ -600,17 +600,21 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "automated": True,
         "host_test" : "udpecho_client_auto",
-        "peripherals": ["ethernet"]
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_7", "description": "HTTP client",
         "source_dir": join(TEST_DIR, "net", "protocols", "HTTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_8", "description": "NTP client",
         "source_dir": join(TEST_DIR, "net", "protocols", "NTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_9", "description": "Multicast Send",

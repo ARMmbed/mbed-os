@@ -2,16 +2,14 @@
 #include "test_env.h"
 #include "mbed_rpc.h"
 
-char outbuf[RPC_MAX_STRING] = {0};
-float f = 0;
-
 void foo(Arguments *args, Reply *reply) {
     reply->putData<float>(args->getArg<float>() * 3.3);
 }
 
 bool rpc_test(const char *input, const char *expected) {
-    printf("RPC: %s -> ", input);
+    char outbuf[RPC_MAX_STRING] = {0};
     bool result = RPC::call(input, outbuf);
+    printf("RPC: %s -> ", input);
 
     if (result == false) {
         printf("Procedure call ... [FAIL]\r\n");
@@ -27,6 +25,7 @@ bool rpc_test(const char *input, const char *expected) {
 #define RPC_TEST(INPUT,EXPECTED) result = result && rpc_test(INPUT,EXPECTED); if (result == false) { notify_completion(result); exit(1); }
 
 int main() {
+    float f = 0;
     bool result = true;
     // Variable
     RPCVariable<float> rpc_f(&f, "f");
