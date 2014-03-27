@@ -75,17 +75,24 @@ if __name__ == '__main__':
                       default=None, help="The mbed serial port")
     parser.add_option("-b", "--baud", type="int", dest="baud",
                       default=None, help="The mbed serial baud rate")
-    
+    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests",
+                      default=False, help="List available tests in order and exit")
+
     # Ideally, all the tests with a single "main" thread can be run with, or
     # without the rtos
     parser.add_option("--rtos", action="store_true", dest="rtos",
                       default=False, help="Link to the rtos")
-    
+
     # Specify a different linker script
     parser.add_option("-l", "--linker", dest="linker_script",
                       default=None, help="use the specified linker script")
-    
+
     (options, args) = parser.parse_args()
+
+    # Print available tests in order and exit
+    if options.list_tests is True:
+        print '\n'.join(map(str, sorted(TEST_MAP.values())))
+        sys.exit()
 
     # force program to "0" if a source dir is specified
     if options.source_dir is not None:
@@ -106,22 +113,22 @@ if __name__ == '__main__':
                     args_error(parser, "[ERROR] Program with name '%s' not found" % n)
                 else:
                     n = alias
-        p = TEST_MAP[n].n  
+        p = TEST_MAP[n].n
     if p is None or (p < 0) or (p > (len(TESTS)-1)):
         message = "[ERROR] You have to specify one of the following tests:\n"
         message += '\n'.join(map(str, sorted(TEST_MAP.values())))
         args_error(parser, message)
-    
+
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
     mcu = options.mcu
-    
+
     # Toolchain
     if options.tool is None:
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
     toolchain = options.tool
-    
+
     # Test
     test = Test(p)
     if options.automated is not None:
@@ -140,19 +147,19 @@ if __name__ == '__main__':
     if not test.is_supported(mcu, toolchain):
         print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
         sys.exit()
-    
+
     # RTOS
     if options.rtos:
         test.dependencies.append(RTOS_LIBRARIES)
-    
+
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
-    if options.source_dir is not None: 
+    if options.source_dir is not None:
         test.source_dir = options.source_dir
         build_dir = options.source_dir
 
-    if options.build_dir is not None: 
+    if options.build_dir is not None:
         build_dir = options.build_dir
-    
+
     target = TARGET_MAP[mcu]
     try:
         bin = build_project(test.source_dir, build_dir, target, toolchain,
@@ -161,31 +168,31 @@ if __name__ == '__main__':
                             clean=options.clean, verbose=options.verbose,
                             macros=options.macros)
         print 'Image: %s' % bin
-        
+
         if options.disk:
             # Simple copy to the mbed disk
             copy(bin, options.disk)
-        
+
         if options.serial:
             # Import pyserial: https://pypi.python.org/pypi/pyserial
             from serial import Serial
-            
+
             sleep(target.program_cycle_s())
-            
+
             serial = Serial(options.serial, timeout = 1)
             if options.baud:
                 serial.setBaudrate(options.baud)
-            
+
             serial.flushInput()
             serial.flushOutput()
-            
+
             serial.sendBreak()
-            
+
             while True:
                 c = serial.read(512)
                 sys.stdout.write(c)
                 sys.stdout.flush()
-    
+
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
     except Exception,e:
