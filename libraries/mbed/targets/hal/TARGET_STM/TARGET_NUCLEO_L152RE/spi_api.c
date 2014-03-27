@@ -191,30 +191,58 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // Note: The frequencies are obtained with SPI clock = 32 MHz (APB1 & APB2 clocks)
-    if (hz < 250000) {
-        obj->br_presc = SPI_BaudRatePrescaler_256; // 125 kHz
+    // Values depend of PCLK1 and PCLK2: 32 MHz if HSI is used, 24 MHz if HSE is used
+    if (SystemCoreClock == 32000000) { // HSI
+        if (hz < 250000) {
+            obj->br_presc = SPI_BaudRatePrescaler_256; // 125 kHz
+        }
+        else if ((hz >= 250000) && (hz < 500000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_128; // 250 kHz
+        }
+        else if ((hz >= 500000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_64; // 500 kHz
+        }
+        else if ((hz >= 1000000) && (hz < 2000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_32; // 1 MHz
+        }
+        else if ((hz >= 2000000) && (hz < 4000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_16; // 2 MHz
+        }
+        else if ((hz >= 4000000) && (hz < 8000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_8; // 4 MHz
+        }
+        else if ((hz >= 8000000) && (hz < 16000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_4; // 8 MHz
+        }
+        else { // >= 16000000
+            obj->br_presc = SPI_BaudRatePrescaler_2; // 16 MHz
+        }
     }
-    else if ((hz >= 250000) && (hz < 500000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_128; // 250 kHz
-    }
-    else if ((hz >= 500000) && (hz < 1000000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_64; // 500 kHz
-    }
-    else if ((hz >= 1000000) && (hz < 2000000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_32; // 1 MHz
-    }
-    else if ((hz >= 2000000) && (hz < 4000000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_16; // 2 MHz
-    }
-    else if ((hz >= 4000000) && (hz < 8000000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_8; // 4 MHz
-    }
-    else if ((hz >= 8000000) && (hz < 16000000)) {
-        obj->br_presc = SPI_BaudRatePrescaler_4; // 8 MHz
-    }
-    else { // >= 16000000
-        obj->br_presc = SPI_BaudRatePrescaler_2; // 16 MHz
+    else { // 24 MHz - HSE
+        if (hz < 180000) {
+            obj->br_presc = SPI_BaudRatePrescaler_256; // 94 kHz
+        }
+        else if ((hz >= 180000) && (hz < 350000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_128; // 188 kHz
+        }
+        else if ((hz >= 350000) && (hz < 750000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_64; // 375 kHz
+        }        
+        else if ((hz >= 750000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_32; // 750 kHz
+        }
+        else if ((hz >= 1000000) && (hz < 3000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_16; // 1.5 MHz
+        }
+        else if ((hz >= 3000000) && (hz < 6000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_8; // 3 MHz
+        }
+        else if ((hz >= 6000000) && (hz < 12000000)) {
+            obj->br_presc = SPI_BaudRatePrescaler_4; // 6 MHz
+        }
+        else { // >= 12000000
+            obj->br_presc = SPI_BaudRatePrescaler_2; // 12 MHz
+        }      
     }
     init_spi(obj);
 }
