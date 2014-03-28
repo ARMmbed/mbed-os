@@ -138,6 +138,8 @@ typedef enum {
     LED3        = PA_5,
     LED4        = PA_5,
     USER_BUTTON = PC_13,
+    SERIAL_TX   = PA_2,
+    SERIAL_RX   = PA_3,
     USBTX       = PA_2,
     USBRX       = PA_3,
     I2C_SCL     = PB_8,
