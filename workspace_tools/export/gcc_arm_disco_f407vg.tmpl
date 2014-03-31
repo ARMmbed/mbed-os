@@ -20,7 +20,8 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
 
 CPU = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-CC_FLAGS = $(CPU) -c -g3 -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections
+CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections
+CC_FLAGS += -MMD -MP
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
 LD_FLAGS = -mcpu=cortex-m4 -mthumb -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float
@@ -36,7 +37,7 @@ endif
 all: $(PROJECT).bin $(PROJECT).hex size
 
 clean:
-	rm -f $(PROJECT).bin $(PROJECT).elf $(PROJECT).hex $(PROJECT).map $(PROJECT).lst $(OBJECTS)
+	rm -f $(PROJECT).bin $(PROJECT).elf $(PROJECT).hex $(PROJECT).map $(PROJECT).lst $(OBJECTS) $(DEPS)
 
 .s.o:
 	$(AS) $(CPU) -o $@ $<
@@ -64,3 +65,7 @@ lst: $(PROJECT).lst
 
 size:
 	$(SIZE) $(PROJECT).elf
+
+DEPS = $(OBJECTS:.o=.d) $(SYS_OBJECTS:.o=.d)
+-include $(DEPS)
+
