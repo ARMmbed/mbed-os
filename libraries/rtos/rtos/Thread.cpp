@@ -37,7 +37,7 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     } else {
         _thread_def.stack_pointer = new unsigned char[stack_size];
         if (_thread_def.stack_pointer == NULL)
-            error("Error allocating the stack memory");
+            error("Error allocating the stack memory\n");
         _dynamic_stack = true;
     }
 #endif
