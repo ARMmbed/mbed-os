@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "device.h"
 #include "pinmap.h"
 #include "error.h"
 #include "stm32f4xx_hal.h"
