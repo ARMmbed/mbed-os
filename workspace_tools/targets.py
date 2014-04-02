@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -328,7 +328,59 @@ class NUCLEO_F030R8(Target):
         
         self.supported_toolchains = ["ARM", "uARM"]
 
+class DISCO_F100RB(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
 
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M3"
+        
+        self.extra_labels = ['STM', 'STM32F1', 'STM32F100RB']
+        
+        self.supported_toolchains = ["GCC_ARM"]
+
+
+class NUCLEO_F302R8(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
+        
+        self.supported_toolchains = ["ARM", "uARM"]
+
+class DISCO_F051R8(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M0"
+        
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F051','STM32F051R8']
+        
+        self.supported_toolchains = ["GCC_ARM"]
+
+class DISCO_F407VG(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4F"
+        
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F407','STM32F407VG']
+        
+        self.supported_toolchains = ["GCC_ARM"]
+        
 class LPC1347(Target):
     def __init__(self):
         Target.__init__(self)
@@ -474,6 +526,7 @@ TARGETS = [
     NUCLEO_L152RE(),
     NUCLEO_F401RE(),
     NUCLEO_F030R8(),
+    NUCLEO_F302R8(),
     LPC1347(),
     LPC1114(),
     LPC11C24(),
@@ -481,7 +534,10 @@ TARGETS = [
     LPC11U35_501(),
     NRF51822(),
     UBLOX_C027(),
-    LPC1549()
+    LPC1549(),
+    DISCO_F100RB(),
+    DISCO_F051R8(),
+    DISCO_F407VG(),
 ]
 
 # Map each target name to its unique instance
