@@ -77,7 +77,7 @@ static const PinMap PinMap_PWM[] = {
     {PC_6,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH1
     {PC_7,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH2
     {PC_8,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH3
-    {PC_9,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH3
+    {PC_9,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH4
     
     {NC,    NC,    0}
 };
@@ -189,7 +189,6 @@ void pwmout_write(pwmout_t* obj, float value) {
         case PB_8:
         case PB_10:
         case PC_8:
-        case PC_9:          
             channel = TIM_CHANNEL_3;
             break;
         // Channels 3N
@@ -202,7 +201,8 @@ void pwmout_write(pwmout_t* obj, float value) {
         //case PA_3:
         case PA_11:
         //case PB_1:
-        case PB_9:          
+        case PB_9:
+        case PC_9:        
             channel = TIM_CHANNEL_4;
             break;        
         default:
