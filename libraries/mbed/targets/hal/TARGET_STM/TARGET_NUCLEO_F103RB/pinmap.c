@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "pinmap.h"
+#include "PortNames.h"
 #include "error.h"
 
 // Alternate-function mapping
