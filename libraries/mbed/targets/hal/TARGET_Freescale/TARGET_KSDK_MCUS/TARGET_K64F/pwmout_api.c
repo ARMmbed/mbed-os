@@ -23,7 +23,49 @@
 #include "fsl_clock_manager.h"
 
 static const PinMap PinMap_PWM[] = {
+    {PTA0 , PWM_6 , 3},
+    {PTA1 , PWM_7 , 3},
+    {PTA2 , PWM_8 , 3},
+    {PTA3 , PWM_1 , 3},
+    {PTA4 , PWM_2 , 3},
+    {PTA5 , PWM_3 , 3},
+    {PTA6 , PWM_4 , 3},
+    {PTA7 , PWM_5 , 3},
+    {PTA8 , PWM_9 , 3},
+    {PTA9 , PWM_10, 3},
+    {PTA10, PWM_17, 3},
+    {PTA11, PWM_18, 3},
+    {PTA12, PWM_9 , 3},
+    {PTA13, PWM_10, 3},
+    
+    {PTB0 , PWM_9 , 3},
+    {PTB1 , PWM_10, 3},
     {PTB18, PWM_17, 3},
+    {PTB19, PWM_18, 3},
+    
+    {PTC1 , PWM_1 , 4},
+    {PTC2 , PWM_2 , 4},
+    {PTC3 , PWM_3 , 4},
+    {PTC4 , PWM_4 , 4},
+    {PTC5 , PWM_3 , 7},
+    {PTC8 , PWM_29, 3},
+    {PTC9 , PWM_30, 3},
+    {PTC10, PWM_31, 3},
+    {PTC11, PWM_32, 3},
+    
+    {PTD0 , PWM_25, 4},
+    {PTD1 , PWM_26, 4},
+    {PTD2 , PWM_27, 4},
+    {PTD3 , PWM_28, 4},
+    {PTD4 , PWM_5 , 4},
+    {PTD5 , PWM_6 , 4},
+    {PTD6 , PWM_7 , 4},
+    {PTD4 , PWM_5 , 4},
+    {PTD7 , PWM_8 , 4},
+    
+    {PTE5 , PWM_25, 6},
+    {PTE6 , PWM_26, 6},
+        
     {NC   , NC    , 0}
 };
 
