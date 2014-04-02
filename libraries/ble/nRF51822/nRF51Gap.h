@@ -39,6 +39,7 @@ class nRF51Gap : public Gap
         }
 
         /* Functions that must be implemented from Gap */
+        virtual ble_error_t setAddress(addr_type_t type, uint8_t address[6]);
         virtual ble_error_t setAdvertisingData(GapAdvertisingData &, GapAdvertisingData &);
         virtual ble_error_t startAdvertising(GapAdvertisingParams &);
         virtual ble_error_t stopAdvertising(void);
