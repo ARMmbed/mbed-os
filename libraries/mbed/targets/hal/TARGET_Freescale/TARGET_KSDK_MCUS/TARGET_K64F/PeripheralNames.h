@@ -70,6 +70,16 @@ typedef enum {
     PWM_22 = (2 << TPM_SHIFT) | (5),  // FTM2 CH5
     PWM_23 = (2 << TPM_SHIFT) | (6),  // FTM2 CH6
     PWM_24 = (2 << TPM_SHIFT) | (7),  // FTM2 CH7
+    // could be 4 or could be 3... not sure what register
+    //  this is for... too much abstraction
+    PWM_25 = (3 << TPM_SHIFT) | (0),  // FTM3 CH0
+    PWM_26 = (3 << TPM_SHIFT) | (1),  // FTM3 CH1
+    PWM_27 = (3 << TPM_SHIFT) | (2),  // FTM3 CH2
+    PWM_28 = (3 << TPM_SHIFT) | (3),  // FTM3 CH3
+    PWM_29 = (3 << TPM_SHIFT) | (4),  // FTM3 CH4
+    PWM_30 = (3 << TPM_SHIFT) | (5),  // FTM3 CH5
+    PWM_31 = (3 << TPM_SHIFT) | (6),  // FTM3 CH6
+    PWM_32 = (3 << TPM_SHIFT) | (7),  // FTM3 CH7
 } PWMName;
 
 #define ADC_INSTANCE_SHIFT           8
