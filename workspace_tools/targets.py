@@ -163,7 +163,7 @@ class K64F(Target):
 
         self.core = "Cortex-M4F"
 
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
+        self.extra_labels = ['Freescale', 'KSDK_MCUS', 'KSDK_CODE']
 
         self.macros = ["CPU_MK64FN1M0VMD12"]
 
