@@ -26,7 +26,7 @@ from workspace_tools.targets import EXPORT_MAP
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
-    'codered': codered.CodeRed,
+    'lpcxpresso': codered.CodeRed,
     'codesourcery': codesourcery.CodeSourcery,
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,

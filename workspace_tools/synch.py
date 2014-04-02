@@ -68,7 +68,7 @@ OFFICIAL_CODE = (
     ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusb"]),
     ("UbloxModemSMSTest", ["tests/net/cellular/sms/common", "tests/net/cellular/sms/ubloxusb"]),
 
-    ("ble-api", "ble/ble-api"),
+    ("BLE_API", "ble/ble-api", "Bluetooth-Low-Energy"),
     ("nRF51822", "ble/nRF51822", "Nordic-Semiconductor"),
 )
 

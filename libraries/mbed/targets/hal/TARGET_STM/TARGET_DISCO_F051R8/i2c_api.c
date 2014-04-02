@@ -86,7 +86,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 void i2c_frequency(i2c_t *obj, int hz) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
-    uint32_t tim;
+    uint32_t tim = 0;
   
     // Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
     // with Rise time = 100ns and Fall time = 10ns

@@ -37,7 +37,7 @@
 #define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
+#define DEVICE_ANALOGOUT        1 
 
 #define DEVICE_SERIAL           1
 
