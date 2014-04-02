@@ -218,7 +218,10 @@ class mbedToolchain:
             self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
             if MBED_ORG_USER:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
-        
+            # add target's symbols
+            for macro in self.target.macros:
+                self.symbols.append(macro)
+
         return self.symbols
     
     def get_labels(self):

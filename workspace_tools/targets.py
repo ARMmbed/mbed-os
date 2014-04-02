@@ -41,7 +41,10 @@ class Target:
         
         # list of extra specific labels
         self.extra_labels = []
-        
+
+        # list of macros (-D)
+        self.macros = []
+
         self.name = self.__class__.__name__
     
     def program_cycle_s(self):
@@ -151,6 +154,21 @@ class K20D5M(Target):
         
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         
+        self.is_disk_virtual = True
+
+
+class K64F(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M4F"
+
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
+
+        self.macros = ["CPU_MK64FN1M0VMD12"]
+
+        self.supported_toolchains = ["ARM"]
+
         self.is_disk_virtual = True
 
 
@@ -517,6 +535,7 @@ TARGETS = [
     KL25Z(),
     KL46Z(),
     K20D5M(),
+    K64F(),
     LPC812(),
     LPC810(),
     LPC4088(),
