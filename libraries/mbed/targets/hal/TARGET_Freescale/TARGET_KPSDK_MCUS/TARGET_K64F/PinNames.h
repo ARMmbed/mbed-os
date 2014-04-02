@@ -224,11 +224,11 @@ typedef enum {
     D11 = PTD2,
     D12 = PTD3,
     D13 = PTD1,
-    D14 = PTE24,
-    D15 = PTE25,
+    D14 = PTE25,
+    D15 = PTE24,
     
-    I2C_SCL = D14,
-    I2C_SDA = D15,
+    I2C_SCL = D15,
+    I2C_SDA = D14,
 
     A0 = PTB2,
     A1 = PTB3,
