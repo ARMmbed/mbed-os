@@ -20,7 +20,7 @@
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"
 
-#include "hw/nRF51822n/nRF51Gap.h"
+#include "nRF51Gap.h"
 
 /**************************************************************************/
 /*!
