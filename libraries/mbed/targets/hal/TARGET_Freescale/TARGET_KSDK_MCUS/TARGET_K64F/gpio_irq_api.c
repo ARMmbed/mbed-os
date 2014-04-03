@@ -205,10 +205,3 @@ void gpio_irq_disable(gpio_irq_t *obj) {
     }
 }
 
-// Change the NMI pin to an input. This allows NMI pin to
-//  be used as a low power mode wakeup.  The application will
-//  need to change the pin back to NMI_b or wakeup only occurs once!
-void NMI_Handler(void) {
-    gpio_t gpio;
-    gpio_init_in(&gpio, PTA4);
-}
