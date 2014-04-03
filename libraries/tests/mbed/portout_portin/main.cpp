@@ -1,6 +1,15 @@
 #include "test_env.h"
 
-#if defined(TARGET_LPC11U24)
+#if defined(TARGET_K64F)
+#define P1_1    D0
+#define P1_2    D1
+#define PORT_1  PortC
+
+#define P2_1    D7
+#define P2_2    D6
+#define PORT_2  PortC
+
+#elif defined(TARGET_LPC11U24)
 #define P1_1    (1 <<  9) // p0.9
 #define P1_2    (1 <<  8) // p0.8
 #define PORT_1  Port0

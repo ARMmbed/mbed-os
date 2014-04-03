@@ -1,10 +1,16 @@
 #include "mbed.h"
 
-#ifdef TARGET_NUCLEO_F103RB
-PwmOut led(D3);
+#if defined(TARGET_K64F)
+#define TEST_LED D5
+
+#elif defined(TARGET_NUCLEO_F103RB)
+#define TEST_LED D3
+
 #else
 #error This test is not supported on this target.
 #endif
+
+PwmOut led(TEST_LED);
 
 int main() {
     float crt = 1.0, delta = 0.05;

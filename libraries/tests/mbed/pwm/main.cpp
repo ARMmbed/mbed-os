@@ -13,10 +13,23 @@ CT32B0/MR0  p25 (P1_24)
 CT32B0/MR1  p26 (P1_25) and USBTX (P0_19)
 CT32B0/MR2  p10 (P1_26)
  */
+ 
+float value = 0.75;
 
 int main() {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
-	PwmOut pwm_p25(p25);
+#if defined(TARGET_K64F) || defined(TARGET_KL05Z) || defined(TARGET_KL25Z) || defined(TARGET_NUCLEO_F401RE)
+    PwmOut pwm(D9);
+
+    pwm.period_ms(10);
+    pwm.write(value);
+
+    float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
+    printf("%.2f\n", result);
+
+    notify_completion(result == value ? true : false);
+
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
+    PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
 
     pwm_p25.write(0.75);
@@ -35,22 +48,9 @@ int main() {
     printf("Initialize PWM on pin 24 with duty cycle: %.2f\n", pwm_dp24.read());
     printf("Initialize PWM on pin 18 with duty cycle: %.2f\n", pwm_dp18.read());
 
-#elif defined(TARGET_KL25Z)
-    PwmOut pwm_d2(D2);
-
-    pwm_d2.period_ms(10);
-    pwm_d2.write(0.75);
-    printf("%.2f\n", pwm_d2.read());
-
-#elif defined(TARGET_KL05Z)
-    PwmOut pwm_d2(D3);
-
-    pwm_d2.period_ms(10);
-    pwm_d2.write(0.75);
-    printf("%.2f\n", pwm_d2.read());
 #elif defined(TARGET_nRF51822)
     PwmOut pwm_p24(p24);
-	PwmOut pwm_p25(p25);
+    PwmOut pwm_p25(p25);
 
     pwm_p24.write(0.75);
     pwm_p25.write(0.50);
@@ -76,6 +76,8 @@ int main() {
 
     printf("Initialize PWM on pin PA_7 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin PC_7 with duty cycle: %.2f\n", pwm_2.read());
+#else
+#error This test is not supported on this target.
 #endif
 
     notify_completion(true);

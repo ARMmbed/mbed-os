@@ -9,6 +9,9 @@ DigitalOut out(PTB1);
 #elif defined(TARGET_KL46Z)
 DigitalOut out(PTA1);
 
+#elif defined(TARGET_K64F)
+DigitalOut out(PTA1);
+
 #elif defined(TARGET_LPC812)
 DigitalOut out(D10);
 

@@ -25,13 +25,15 @@ that uses two byte addresses should work.
 static const int ntests = 10000;
 static const int i2c_freq_hz = 400000;
 static const int i2c_delay_us = 0;
-//#define I2C_EEPROM_VERBOSE
+#define I2C_EEPROM_VERBOSE
 // End of test configuration block
 
 #if defined(TARGET_KL25Z)
 I2C i2c(PTE0, PTE1);
 #elif defined(TARGET_NUCLEO_F103RB)
 I2C i2c(I2C_SDA, I2C_SCL);
+#elif defined(TARGET_K64F)
+I2C i2c(PTE25, PTE24);
 #else
 I2C i2c(p28, p27);
 #endif

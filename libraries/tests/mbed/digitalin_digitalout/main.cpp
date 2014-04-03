@@ -1,6 +1,10 @@
 #include "test_env.h"
 
-#if defined(TARGET_KL25Z)
+#if defined(TARGET_K64F)
+DigitalOut out(D0);
+DigitalIn  in(D7);
+
+#elif defined(TARGET_KL25Z)
 DigitalOut out(PTA5);
 DigitalIn  in(PTC6);
 
