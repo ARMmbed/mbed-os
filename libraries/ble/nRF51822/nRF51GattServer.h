@@ -49,13 +49,11 @@ class nRF51GattServer : public GattServer
         void eventCallback(void);
         void hwCallback(ble_evt_t * p_ble_evt);
         
-        uint16_t m_connectionHandle; // TODO move to private
-
     private:
         GattCharacteristic* p_characteristics[BLE_TOTAL_CHARACTERISTICS];
         ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
 
-        nRF51GattServer() { serviceCount = 0; characteristicCount = 0; m_connectionHandle = BLE_CONN_HANDLE_INVALID; };
+        nRF51GattServer() { serviceCount = 0; characteristicCount = 0; };
 
         nRF51GattServer(nRF51GattServer const&);
         void operator=(nRF51GattServer const&);
