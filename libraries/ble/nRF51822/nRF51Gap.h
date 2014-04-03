@@ -45,10 +45,12 @@ class nRF51Gap : public Gap
         virtual ble_error_t startAdvertising(GapAdvertisingParams &);
         virtual ble_error_t stopAdvertising(void);
         virtual ble_error_t disconnect(void);
-
-        uint16_t m_connectionHandle; // TODO move to private
         
+        void     setConnectionHandle(uint16_t con_handle);
+        uint16_t getConnectionHandle(void);
+         
     private:
+        uint16_t m_connectionHandle;
         nRF51Gap() { m_connectionHandle = BLE_CONN_HANDLE_INVALID; };
         nRF51Gap(nRF51Gap const&);
         void operator=(nRF51Gap const&);

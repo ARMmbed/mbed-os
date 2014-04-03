@@ -236,6 +236,26 @@ ble_error_t nRF51Gap::disconnect(void)
 
 /**************************************************************************/
 /*!
+    @brief  Sets the 16-bit connection handle
+*/
+/**************************************************************************/
+void nRF51Gap::setConnectionHandle(uint16_t con_handle)
+{
+  m_connectionHandle = con_handle;
+}
+ 
+/**************************************************************************/
+/*!
+    @brief  Gets the 16-bit connection handle
+*/
+/**************************************************************************/
+uint16_t nRF51Gap::getConnectionHandle(void)
+{
+  return m_connectionHandle;
+}
+ 
+/**************************************************************************/
+/*!
     @brief      Sets the BLE device address
             
     @returns    ble_error_t
