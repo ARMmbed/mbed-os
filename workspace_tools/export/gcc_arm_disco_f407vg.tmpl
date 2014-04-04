@@ -28,10 +28,10 @@ LD_FLAGS = $(CPU) -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scan
 LD_FLAGS += -Wl,-Map=$(PROJECT).map,--cref
 LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 
-ifeq ($(SOFTFP),1)
-	FLOAT_ABI = softfp
-else
+ifeq ($(HARDFP),1)
 	FLOAT_ABI = hard
+else
+	FLOAT_ABI = softfp
 endif
 
 ifeq ($(DEBUG), 1)
