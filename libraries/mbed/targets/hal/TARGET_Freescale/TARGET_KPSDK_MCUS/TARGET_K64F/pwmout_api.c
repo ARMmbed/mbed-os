@@ -87,9 +87,12 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
             break;
         }
     }
+
+    pwm_clock = clkval;
     uint32_t channel = pwm & 0xF;
     uint32_t instance = pwm >> TPM_SHIFT;
     clock_manager_set_gate(kClockModuleFTM, instance, true);
+    ftm_hal_set_tof_frequency(instance, 3);
     ftm_hal_set_clock_ps(instance, (ftm_clock_ps_t)clkdiv);
     ftm_hal_set_clock_source(instance, kClock_source_FTM_SystemClk);
     ftm_hal_set_channel_edge_level(instance, channel, 2);
