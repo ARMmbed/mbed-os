@@ -151,12 +151,18 @@ typedef enum {
     D12 = P0_8,
     D13 = P1_29, // P0_9 for Arch V1.0
 
+    D14 = P0_5,
+    D15 = P0_4,
+
     A0 = P0_11,
     A1 = P0_12,
     A2 = P0_13,
     A3 = P0_14,
     A4 = P0_16,
     A5 = P0_22,
+
+    I2C_SCL = D15,
+    I2C_SDA = D14,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
