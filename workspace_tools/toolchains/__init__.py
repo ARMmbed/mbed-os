@@ -207,6 +207,8 @@ class mbedToolchain:
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
+            
+            # Config support
             if self.has_config:
                 self.symbols.append('HAVE_MBED_CONFIG_H')
             
@@ -218,10 +220,15 @@ class mbedToolchain:
             self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
             if MBED_ORG_USER:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
-            # add target's symbols
+            
+            # Add target's symbols
             for macro in self.target.macros:
                 self.symbols.append(macro)
 
+            # Form factor variables
+            if hasattr(self.target, 'supported_form_factors'):
+                self.symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
+            
         return self.symbols
     
     def get_labels(self):

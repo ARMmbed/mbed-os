@@ -17,8 +17,8 @@ CT32B0/MR2  p10 (P1_26)
 float value = 0.75;
 
 int main() {
-#if defined(TARGET_K64F) || defined(TARGET_KL05Z) || defined(TARGET_KL25Z) || defined(TARGET_NUCLEO_F401RE)
-    PwmOut pwm(D9);
+#if defined(TARGET_FF_ARDUINO)
+    PwmOut pwm(D5);
 
     pwm.period_ms(10);
     pwm.write(value);
