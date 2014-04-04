@@ -46,18 +46,22 @@ void port_mode(port_t *obj, PinMode mode) {
 }
 
 void port_dir(port_t *obj, PinDirection dir) {
+    uint32_t direction = gpio_hal_get_port_direction((uint32_t)obj->port);
     switch (dir) {
         case PIN_INPUT :
-            gpio_hal_set_port_direction((uint32_t)obj->port, kGpioDigitalInput);
+            direction &= ~obj->mask;
+            gpio_hal_set_port_direction((uint32_t)obj->port, direction);
             break;
         case PIN_OUTPUT:
-            gpio_hal_set_port_direction((uint32_t)obj->port, kGpioDigitalOutput);
+            direction |= obj->mask;
+            gpio_hal_set_port_direction((uint32_t)obj->port, direction);
             break;
     }
 }
 
 void port_write(port_t *obj, int value) {
-    gpio_hal_write_port_output((uint32_t)obj->port, (uint32_t)(value & obj->mask));
+    uint32_t input = gpio_hal_read_port_input((uint32_t)obj->port) & ~obj->mask;
+    gpio_hal_write_port_output((uint32_t)obj->port, input | (uint32_t)(value & obj->mask));
 }
 
 int port_read(port_t *obj) {
