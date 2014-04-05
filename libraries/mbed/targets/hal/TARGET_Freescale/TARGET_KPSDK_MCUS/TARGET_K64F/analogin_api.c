@@ -27,12 +27,12 @@
 static const PinMap PinMap_ADC[] = {
     {PTC2,  ADC0_SE4b, 0},
     {PTC8,  ADC1_SE4b, 0},
-    {PTC9,  ADC0_SE5b, 0},
+    {PTC9,  ADC1_SE5b, 0},
     {PTD1,  ADC0_SE5b, 0},
-    {PTC10, ADC0_SE6b, 0},
+    {PTC10, ADC1_SE6b, 0},
     {PTD5,  ADC0_SE6b, 0},
-    {PTC11, ADC0_SE7b, 0},
-    {PTD7,  ADC0_SE7b, 0},
+    {PTC11, ADC1_SE7b, 0},
+    {PTD6,  ADC0_SE7b, 0},
     {PTB0 , ADC0_SE8 , 0},
     {PTB1 , ADC0_SE9 , 0},
     {PTB2 , ADC0_SE12, 0},
@@ -41,9 +41,9 @@ static const PinMap PinMap_ADC[] = {
     {PTB10, ADC1_SE14, 0},
     {PTB11, ADC1_SE15, 0},
     {PTC1 , ADC0_SE15, 0},
-    {PTE24, ADC0_SE17, 0},
     {PTA17, ADC1_SE17, 0},
-    {PTE25, ADC0_SE18, 0},
+    //{PTE24, ADC0_SE17, 0}, //I2C pull up
+    //{PTE25, ADC0_SE18, 0}, //I2C pull up
     {NC   , NC       , 0}
 };
 
@@ -63,30 +63,29 @@ void analogin_init(analogin_t *obj, PinName pin) {
         if ((bus_clock >> clkdiv) <= MAX_FADC)
             break;
     }
-    if (clkdiv == 4) {//Set max div
-        clkdiv = 0x7;
+    if (clkdiv == 4) {
+        clkdiv = 0x7; //Set max div
     }
-
+    /* adc is enabled/triggered when reading. */
     adc_hal_set_clock_source_mode(instance, (adc_clock_source_mode_t)(clkdiv >> 2));
     adc_hal_set_clock_divider_mode(instance, (adc_clock_divider_mode_t)(clkdiv & 0x3));
     adc_hal_set_reference_voltage_mode(instance, kAdcVoltageVref);
     adc_hal_set_resolution_mode(instance, kAdcSingleDiff16);
     adc_hal_configure_continuous_conversion(instance, false);
+    adc_hal_configure_hw_trigger(instance, false); /* sw trigger */
+    adc_hal_configure_hw_average(instance, true);
+    adc_hal_set_hw_average_mode(instance, kAdcHwAverageCount4);
+    adc_hal_set_group_mux(instance, kAdcChannelMuxB); /* only B channels are avail */
 
-    adc_group_mux_mode_t mode  = (obj->adc & (1 << ADC_B_CHANNEL_SHIFT)) ?
-                                 kAdcChannelMuxB : kAdcChannelMuxA;
-    adc_hal_disable(instance, mode);
-    adc_hal_set_group_mux(instance, mode);
-    adc_hal_enable(instance, mode, (adc_channel_mode_t)(obj->adc & 0xF), false);
+    pinmap_pinout(pin, PinMap_ADC);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
-    adc_group_mux_mode_t mode  = (obj->adc & (1 << ADC_B_CHANNEL_SHIFT)) ?
-                                 kAdcChannelMuxB : kAdcChannelMuxA;
-    adc_hal_enable(instance, mode, (adc_channel_mode_t)(obj->adc & 0xF), false);
-    while (!adc_hal_is_conversion_completed(instance, mode));
-    return adc_hal_get_conversion_value(instance, mode);
+    /* sw trigger (SC1A) */
+    adc_hal_enable(instance, 0, (adc_channel_mode_t)(obj->adc & 0xF), false);
+    while (!adc_hal_is_conversion_completed(instance, 0));
+    return adc_hal_get_conversion_value(instance, 0);
 }
 
 float analogin_read(analogin_t *obj) {
