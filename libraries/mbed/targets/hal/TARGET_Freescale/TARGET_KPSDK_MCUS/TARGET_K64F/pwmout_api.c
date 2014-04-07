@@ -69,7 +69,7 @@ static const PinMap PinMap_PWM[] = {
     {NC   , NC    , 0}
 };
 
-static float pwm_clock;
+static float pwm_clock_mhz;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
@@ -78,7 +78,9 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
     obj->pwm_name = pwm;
 
-    float clkval = clock_hal_get_fllclk() / 1000000.0f;
+    uint32_t pwm_base_clock;
+    clock_manager_get_frequency(kBusClock, &pwm_base_clock);
+    float clkval = (float)pwm_base_clock / 1000000.0f;
     uint32_t clkdiv = 0;
     while (clkval > 1) {
         clkdiv++;
@@ -88,17 +90,23 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         }
     }
 
-    pwm_clock = clkval;
+    pwm_clock_mhz = clkval;
     uint32_t channel = pwm & 0xF;
     uint32_t instance = pwm >> TPM_SHIFT;
     clock_manager_set_gate(kClockModuleFTM, instance, true);
     ftm_hal_set_tof_frequency(instance, 3);
-    ftm_hal_set_clock_ps(instance, (ftm_clock_ps_t)clkdiv);
     ftm_hal_set_clock_source(instance, kClock_source_FTM_SystemClk);
-    ftm_hal_set_channel_edge_level(instance, channel, 2);
+    ftm_hal_set_clock_ps(instance, (ftm_clock_ps_t)clkdiv);
+    ftm_hal_set_counter_init_val(instance, 0);
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
     pwmout_write    (obj, 0);
+    ftm_config_t config = {
+        .mode = kFtmEdgeAlignedPWM,
+        .channel = channel,
+        .edge_mode = {.ftm_pwm_edge_mode = kFtmHighTrue}
+    };
+    ftm_hal_enable_pwm_mode(instance, &config);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
@@ -116,11 +124,14 @@ void pwmout_write(pwmout_t* obj, float value) {
     uint16_t mod = ftm_hal_get_mod(obj->pwm_name >> TPM_SHIFT);
     uint32_t new_count = (uint32_t)((float)(mod) * value);
     ftm_hal_set_channel_count_value(obj->pwm_name >> TPM_SHIFT, obj->pwm_name & 0xF, new_count);
+    ftm_hal_set_counter(obj->pwm_name >> TPM_SHIFT, 0);
 }
 
 float pwmout_read(pwmout_t* obj) {
     uint16_t count = ftm_hal_get_channel_count_value(obj->pwm_name >> TPM_SHIFT, obj->pwm_name & 0xF, 0);
     uint16_t mod = ftm_hal_get_mod(obj->pwm_name >> TPM_SHIFT);
+    if (mod == 0)
+        return 0.0;
     float v = (float)(count) / (float)(mod);
     return (v > 1.0f) ? (1.0f) : (v);
 }
@@ -135,10 +146,13 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
+    uint32_t instance = obj->pwm_name >> TPM_SHIFT;
     float dc = pwmout_read(obj);
-    ftm_hal_set_mod(obj->pwm_name >> TPM_SHIFT, (uint32_t)(pwm_clock * (float)us));
+    // Stop FTM clock to ensure instant update of MOD register
+    ftm_hal_set_clock_source(instance, kClock_source_FTM_None);
+    ftm_hal_set_mod(instance, (uint32_t)(pwm_clock_mhz * (float)us) - 1);
     pwmout_write(obj, dc);
-
+    ftm_hal_set_clock_source(instance, kClock_source_FTM_SystemClk);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -150,6 +164,6 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    uint32_t value = (uint32_t)(pwm_clock * (float)us);
+    uint32_t value = (uint32_t)(pwm_clock_mhz * (float)us);
     ftm_hal_set_channel_count_value(obj->pwm_name >> TPM_SHIFT, obj->pwm_name & 0xF, value);
 }
