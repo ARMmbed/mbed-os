@@ -380,12 +380,11 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
 
 def get_result_summary_table():
         # get all unique test ID prefixes
-        pattern = "([a-zA-Z_]+)(\d+)"
-        re_test_id_core = re.compile(pattern)
         unique_test_id = []
         for test in TESTS:
-            sr = re_test_id_core.search(test['id'])
-            test_id_prefix = sr.group(1)
+            split = test['id'].split('_')[:-1]
+            test_id_prefix = '_'.join(split)
+            print test_id_prefix
             if test_id_prefix not in unique_test_id:
                 unique_test_id.append(test_id_prefix)
         unique_test_id.sort()
@@ -403,8 +402,8 @@ def get_result_summary_table():
         pt.padding_width = 1 # One space between column edges and contents (default)
         for test in TESTS:
             row = []
-            sr = re_test_id_core.search(test['id'])
-            test_id_prefix = sr.group(1)
+            split = test['id'].split('_')[:-1]
+            test_id_prefix = '_'.join(split)
 
             for col in test_properties:
                 row.append(test[col] if col in test else "")
