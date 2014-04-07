@@ -116,15 +116,19 @@ void pwmout_free(pwmout_t* obj) {
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
+    uint32_t instance = obj->pwm_name >> TPM_SHIFT;
     if (value < 0.0f) {
         value = 0.0f;
     } else if (value > 1.0f) {
         value = 1.0f;
     }
-    uint16_t mod = ftm_hal_get_mod(obj->pwm_name >> TPM_SHIFT);
+    uint16_t mod = ftm_hal_get_mod(instance);
     uint32_t new_count = (uint32_t)((float)(mod) * value);
-    ftm_hal_set_channel_count_value(obj->pwm_name >> TPM_SHIFT, obj->pwm_name & 0xF, new_count);
-    ftm_hal_set_counter(obj->pwm_name >> TPM_SHIFT, 0);
+    // Stop FTM clock to ensure instant update of MOD register
+    ftm_hal_set_clock_source(instance, kClock_source_FTM_None);
+    ftm_hal_set_channel_count_value(instance, obj->pwm_name & 0xF, new_count);
+    ftm_hal_set_counter(instance, 0);
+    ftm_hal_set_clock_source(instance, kClock_source_FTM_SystemClk);
 }
 
 float pwmout_read(pwmout_t* obj) {

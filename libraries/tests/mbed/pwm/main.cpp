@@ -18,7 +18,7 @@ float value = 0.75;
 
 int main() {
 #if defined(TARGET_FF_ARDUINO)
-    PwmOut pwm(D5);
+    PwmOut pwm(D9);
 
     pwm.period_ms(10);
     pwm.write(value);
