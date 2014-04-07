@@ -384,7 +384,6 @@ def get_result_summary_table():
         for test in TESTS:
             split = test['id'].split('_')[:-1]
             test_id_prefix = '_'.join(split)
-            print test_id_prefix
             if test_id_prefix not in unique_test_id:
                 unique_test_id.append(test_id_prefix)
         unique_test_id.sort()
