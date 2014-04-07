@@ -33,6 +33,10 @@ void in_handler() {
 #define PIN_IN      (PB_8)
 #define PIN_OUT     (PC_6)
 
+#elif defined(TARGET_FF_ARDUINO)
+#define PIN_OUT    D0
+#define PIN_IN     D7
+
 #else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
