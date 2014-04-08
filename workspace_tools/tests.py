@@ -423,6 +423,7 @@ TESTS = [
         "id": "MBED_26", "description": "Integer constant division",
         "source_dir": join(TEST_DIR, "mbed", "div"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "MBED_27", "description": "SPI ADXL345",
