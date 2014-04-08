@@ -51,7 +51,7 @@ static void handle_interrupt_in(uint32_t irq_index) {
     // Retrieve the gpio and pin that generate the irq
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
-     
+
     // Clear interrupt flag
     if (EXTI_GetITStatus(pin) != RESET)
     {
@@ -87,25 +87,24 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_index  = STM_PIN(pin);
 
     // Select irq number and interrupt routine
-    switch (pin) {
-        case PC_13: // User button
-            irq_n = EXTI4_15_IRQn;
-            vector = (uint32_t)&gpio_irq0;
-            irq_index = 0;
-            break;
-        case PA_0:
-            irq_n = EXTI0_1_IRQn;
-            vector = (uint32_t)&gpio_irq1;
-            irq_index = 1;
-            break;
-        case PB_3:
-            irq_n = EXTI2_3_IRQn;
-            vector = (uint32_t)&gpio_irq2;
-            irq_index = 2;
-            break;
-        default:
-            error("This pin is not supported\n");
-            return -1;
+    if ((pin_index == 0) || (pin_index == 1)) {
+        irq_n = EXTI0_1_IRQn;
+        vector = (uint32_t)&gpio_irq0;
+        irq_index = 0;
+    }
+    else if ((pin_index == 2) || (pin_index == 3)) {
+        irq_n = EXTI2_3_IRQn;
+        vector = (uint32_t)&gpio_irq1;
+        irq_index = 1;
+    }
+    else if ((pin_index > 3) && (pin_index < 16)) {
+        irq_n = EXTI4_15_IRQn;
+        vector = (uint32_t)&gpio_irq2;
+        irq_index = 2;
+    }
+    else {
+        error("InterruptIn error: pin not supported.\n");
+        return -1;
     }
 
     // Enable GPIO clock
