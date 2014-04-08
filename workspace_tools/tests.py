@@ -393,6 +393,7 @@ TESTS = [
         "id": "MBED_22", "description": "Semihost",
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "MBED_23", "description": "Ticker Int us",
