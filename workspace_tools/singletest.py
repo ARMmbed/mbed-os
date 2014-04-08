@@ -472,6 +472,12 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Prints information about all tests and exits')
 
+    parser.add_option('-P', '--only-peripheral',
+                      dest='test_only_peripheral',
+                      default=False,
+                      action="store_true",
+                      help='Test only peripheral declared for MUT and skip common tests')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -525,6 +531,11 @@ if __name__ == '__main__':
 
             for test_id, test in TEST_MAP.iteritems():
                 if test_ids and test_id not in test_ids:
+                    continue
+
+                if opts.test_only_peripheral and not test.peripherals:
+                    if opts.verbose:
+                        print "TargetTest::%s::NotPeripheralTestSkipped(%s)" % (target, ",".join(test.peripherals))
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
