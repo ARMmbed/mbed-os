@@ -20,6 +20,8 @@
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"
 
+#include "nRF51Gap.h"
+
 /**************************************************************************/
 /*!
     @brief  Adds a new service to the GATT table on the peripheral
@@ -138,13 +140,16 @@ ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], ui
 /**************************************************************************/
 ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
 {
+  uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
+  
   if (localOnly)
   {
     /* Only update locally regardless of notify/indicate */
     ASSERT_INT( ERROR_NONE, sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer), BLE_ERROR_PARAM_OUT_OF_RANGE );
   }
+  
   if ((p_characteristics[charHandle]->properties & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-      (m_connectionHandle != BLE_CONN_HANDLE_INVALID) )
+      (gapConnectionHandle != BLE_CONN_HANDLE_INVALID) )
   {
     /* HVX update for the characteristic value */
     ble_gatts_hvx_params_t hvx_params;
@@ -155,7 +160,7 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
     hvx_params.p_data = buffer;
     hvx_params.p_len  = &len;
 
-    error_t error = (error_t) sd_ble_gatts_hvx(m_connectionHandle, &hvx_params);
+    error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
 
     /* ERROR_INVALID_STATE, ERROR_BUSY, ERROR_GATTS_SYS_ATTR_MISSING and ERROR_NO_TX_BUFFERS the ATT table has been updated. */
     if ( (error != ERROR_NONE                      ) && (error != ERROR_INVALID_STATE) &&

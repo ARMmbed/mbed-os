@@ -19,6 +19,7 @@
 
 #include "mbed.h"
 #include "blecommon.h"
+#include "ble.h"
 #include "GapAdvertisingParams.h"
 #include "GapAdvertisingData.h"
 #include "hw/Gap.h"
@@ -39,13 +40,18 @@ class nRF51Gap : public Gap
         }
 
         /* Functions that must be implemented from Gap */
+        virtual ble_error_t setAddress(addr_type_t type, uint8_t address[6]);
         virtual ble_error_t setAdvertisingData(GapAdvertisingData &, GapAdvertisingData &);
         virtual ble_error_t startAdvertising(GapAdvertisingParams &);
         virtual ble_error_t stopAdvertising(void);
         virtual ble_error_t disconnect(void);
         
+        void     setConnectionHandle(uint16_t con_handle);
+        uint16_t getConnectionHandle(void);
+         
     private:
-        nRF51Gap() { };
+        uint16_t m_connectionHandle;
+        nRF51Gap() { m_connectionHandle = BLE_CONN_HANDLE_INVALID; };
         nRF51Gap(nRF51Gap const&);
         void operator=(nRF51Gap const&);
 };

@@ -63,6 +63,9 @@ typedef enum {
     D11= P0_28,
     D12= P0_12,
     D13= P0_16, // same port as D5
+    D14= P0_23,
+    D15= P0_22,
+
     A0 = P0_8,
     A1 = P0_7,
     A2 = P0_6,

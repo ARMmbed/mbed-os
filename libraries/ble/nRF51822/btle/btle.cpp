@@ -94,13 +94,13 @@ static void btle_handler(ble_evt_t * p_ble_evt)
   switch (p_ble_evt->header.evt_id)
   {
     case BLE_GAP_EVT_CONNECTED:
-      nRF51GattServer::getInstance().m_connectionHandle = p_ble_evt->evt.gap_evt.conn_handle;
+      nRF51Gap::getInstance().setConnectionHandle( p_ble_evt->evt.gap_evt.conn_handle );
       nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_CONNECTED);
       break;
 
     case BLE_GAP_EVT_DISCONNECTED:
       // Since we are not in a connection and have not started advertising, store bonds
-      nRF51GattServer::getInstance().m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+      nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
       ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store() );
       nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_DISCONNECTED);
       break;
@@ -117,7 +117,7 @@ static void btle_handler(ble_evt_t * p_ble_evt)
         sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE    ;
         sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE    ;
 
-        ASSERT_STATUS_RET_VOID ( sd_ble_gap_sec_params_reply(nRF51GattServer::getInstance().m_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &sec_params) );
+        ASSERT_STATUS_RET_VOID ( sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(), BLE_GAP_SEC_STATUS_SUCCESS, &sec_params) );
       }
       break;
 

@@ -38,17 +38,22 @@ NXP:
 * [LPC1549](https://mbed.org/platforms/LPCXpresso1549/) (Cortex-M3)
 
 Freescale:
-* FRDM-K20D50M
+* FRDM-K20D50M (Cortex-M4)
 * [FRDM-KL05Z](https://mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
 * [FRDM-KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
 * [FRDM-KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
+* FRDM-K64F (Cortex-M4)
 
 STMicroelectronics:
 * [Nucleo-F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB/) (Cortex-M3)
 * [Nucleo-L152RE](https://mbed.org/platforms/ST-Nucleo-L152RE/) (Cortex-M3)
 * [Nucleo-F030R8](https://mbed.org/platforms/ST-Nucleo-F030R8/) (Cortex-M0)
 * [Nucleo-F401RE](https://mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4)
-* STM32F407 (Cortex-M4)
+* STM32F407 (Cortex-M4F)
+* STM32F0-Discovery (Cortex-M0)
+* STM32VL-Discovery (Cortex-M3)
+* STM32F4-Discovery (Cortex-M4F)
+
 
 Nordic:
 * [nRF51822-mKIT](https://mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)

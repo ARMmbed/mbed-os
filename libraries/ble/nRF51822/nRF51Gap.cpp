@@ -19,6 +19,7 @@
 
 #include "common/common.h"
 #include "ble_advdata.h"
+#include "ble_hci.h"
 
 /**************************************************************************/
 /*!
@@ -197,12 +198,12 @@ ble_error_t nRF51Gap::startAdvertising(GapAdvertisingParams & params)
 /**************************************************************************/
 ble_error_t nRF51Gap::stopAdvertising(void)
 {
-    /* Stop Advertising */
-    ASSERT( ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
+  /* Stop Advertising */
+  ASSERT( ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
 	state.advertising = 0;
 
-    return BLE_ERROR_NONE;
+  return BLE_ERROR_NONE;
 }
 
 /**************************************************************************/
@@ -223,11 +224,61 @@ ble_error_t nRF51Gap::stopAdvertising(void)
 /**************************************************************************/
 ble_error_t nRF51Gap::disconnect(void)
 {
-	/* Disconnect if we are connected to a central device */
-    // ASSERT( ERROR_NONE == sd_ble_gap_disconnect(), BLE_ERROR_PARAM_OUT_OF_RANGE);
-
 	state.advertising = 0;
-    state.connected = 0;
+  state.connected = 0;
 	
-    return BLE_ERROR_NONE;
+	/* Disconnect if we are connected to a central device */
+  ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(m_connectionHandle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION),
+  	         BLE_ERROR_PARAM_OUT_OF_RANGE);
+   
+  return BLE_ERROR_NONE;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Sets the 16-bit connection handle
+*/
+/**************************************************************************/
+void nRF51Gap::setConnectionHandle(uint16_t con_handle)
+{
+  m_connectionHandle = con_handle;
+}
+ 
+/**************************************************************************/
+/*!
+    @brief  Gets the 16-bit connection handle
+*/
+/**************************************************************************/
+uint16_t nRF51Gap::getConnectionHandle(void)
+{
+  return m_connectionHandle;
+}
+ 
+/**************************************************************************/
+/*!
+    @brief      Sets the BLE device address
+            
+    @returns    ble_error_t
+
+    @section EXAMPLE
+
+    @code
+
+    uint8_t device_address[6] = { 0xca, 0xfe, 0xf0, 0xf0, 0xf0, 0xf0 };
+    nrf.getGap().setAddress(Gap::ADDR_TYPE_RANDOM_STATIC, device_address);
+
+    @endcode
+*/
+/**************************************************************************/
+ble_error_t nRF51Gap::setAddress(addr_type_t type, uint8_t address[6])
+{
+  if ( type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) return BLE_ERROR_PARAM_OUT_OF_RANGE;
+ 
+  ble_gap_addr_t dev_addr;
+  dev_addr.addr_type = type;
+  memcpy(dev_addr.addr, address, 6);
+ 
+  ASSERT_INT(ERROR_NONE, sd_ble_gap_address_set(&dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
+ 
+  return BLE_ERROR_NONE;
 }

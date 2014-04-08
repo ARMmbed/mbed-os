@@ -17,6 +17,9 @@ DigitalOut out(P0_12);
 #elif defined(TARGET_LPC1114)
 DigitalOut out(LED2);
 
+#elif defined(TARGET_K64F)
+DigitalOut out(LED1);
+
 #else
 DigitalOut out(p5);
 #endif

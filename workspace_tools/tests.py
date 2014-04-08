@@ -43,16 +43,19 @@ Wiring:
       * KL25Z: (SDA=PTC9, SCL=PTC8)
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
+      * Arduino headers: (D0 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
       * NUCLEO_F103RB: (PC_6 <-> PB_8)
 
   * port_loop (Port(In|Out|InOut)):
-      * LPC1*: (p5   <-> p25 ), (p6   <-> p26 )
+      * Arduino headers: (D0 <-> D7), (D1 <-> D6)
+      * LPC1*: (p5   <-> p25), (p6   <-> p26)
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
       * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
 
   * analog_loop (AnalogIn, AnalogOut):
+      * Arduino headers: (A0 <-> A5)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
@@ -125,7 +128,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z", "LPC4088"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -319,6 +322,8 @@ TESTS = [
         "id": "MBED_10", "description": "Hello World",
         "source_dir": join(TEST_DIR, "mbed", "hello"),
         "dependencies": [MBED_LIBRARIES],
+        "automated": True,
+        "host_test": "hello_auto",    
     },
     {
         "id": "MBED_11", "description": "Ticker Int",
@@ -388,6 +393,7 @@ TESTS = [
         "id": "MBED_22", "description": "Semihost",
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "MBED_23", "description": "Ticker Int us",
@@ -417,6 +423,7 @@ TESTS = [
         "id": "MBED_26", "description": "Integer constant division",
         "source_dir": join(TEST_DIR, "mbed", "div"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
     },
     {
         "id": "MBED_27", "description": "SPI ADXL345",

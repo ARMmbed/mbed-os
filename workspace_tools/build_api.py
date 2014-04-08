@@ -175,12 +175,13 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     # Target specific sources
     HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET)
-    objects  = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
-    
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
+    objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
+
     # Common Sources
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
-    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
+    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
     # A number of compiled files need to be copied as objects as opposed to
     # being part of the mbed library, for reasons that have to do with the way

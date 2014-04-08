@@ -93,6 +93,7 @@ from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
+from workspace_tools.tests import TESTS
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -306,9 +307,9 @@ def reset(mcu_name, serial, verbose=False, sleep_before_reset=0, sleep_after_res
         sleep(sleep_before_reset)
     if verbose:
         verbose_msg = "Reset::cmd(sendBreak)"
-    
+
     serial.sendBreak()
-    
+
     if sleep_before_reset > 0:
         sleep(sleep_after_reset)
     if verbose:
@@ -377,6 +378,63 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
     return result
 
 
+def get_result_summary_table():
+        # get all unique test ID prefixes
+        unique_test_id = []
+        for test in TESTS:
+            split = test['id'].split('_')[:-1]
+            test_id_prefix = '_'.join(split)
+            if test_id_prefix not in unique_test_id:
+                unique_test_id.append(test_id_prefix)
+        unique_test_id.sort()
+        counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
+        counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
+
+        test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration']
+        pt = PrettyTable(test_properties)
+        for col in test_properties:
+            pt.align[col] = "l" # Left align
+
+        counter_all = 0
+        counter_automated = 0
+
+        pt.padding_width = 1 # One space between column edges and contents (default)
+        for test in TESTS:
+            row = []
+            split = test['id'].split('_')[:-1]
+            test_id_prefix = '_'.join(split)
+
+            for col in test_properties:
+                row.append(test[col] if col in test else "")
+            if 'automated' in test and test['automated'] == True:
+                counter_dict_test_id_types[test_id_prefix] += 1
+                counter_automated += 1
+            pt.add_row(row)
+            # Update counters
+            counter_all += 1
+            counter_dict_test_id_types_all[test_id_prefix] += 1
+        print pt
+        print "Result:"
+        percent_progress = round(100.0 * counter_automated / float(counter_all), 2)
+        print "\tAutomated: %d / %d (%s %%)" % (counter_automated, counter_all, percent_progress)
+        print
+        test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
+        pt = PrettyTable(test_id_cols)
+        pt.align['id'] = "l" # Left align
+        for unique_id in unique_test_id:
+            # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
+            percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 2)
+            step = int(percent_progress / 2)
+            str_progress = '#' * step + '.' * int(50 - step)
+            row = [unique_id,
+                   counter_dict_test_id_types[unique_id],
+                   counter_dict_test_id_types_all[unique_id],
+                   percent_progress,
+                   "[" + str_progress + "]"]
+            pt.add_row(row)
+        print pt
+
+
 if __name__ == '__main__':
     # Command line options
     parser = optparse.OptionParser()
@@ -408,6 +466,12 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Suppresses display of wellformatted table with test results')
 
+    parser.add_option('-r', '--test-automation-report',
+                      dest='test_automation_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all tests and exits')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -418,6 +482,11 @@ if __name__ == '__main__':
     parser.epilog = """Example: singletest.py -i test_spec.json [-M muts_all.json]"""
 
     (opts, args) = parser.parse_args()
+
+    # Print summary / information about automation test status
+    if opts.test_automation_report:
+        get_result_summary_table()
+        exit(0)
 
     # Open file with test specification
     # test_spec_filename tells script which targets and their toolchain(s)

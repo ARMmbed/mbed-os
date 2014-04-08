@@ -36,7 +36,15 @@ class Gap
         GapEvents *m_pEventHandler;
 
     public:
+				typedef enum addr_type_e{
+                 ADDR_TYPE_PUBLIC = 0,
+                 ADDR_TYPE_RANDOM_STATIC,
+                 ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE,
+                 ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE
+               } addr_type_t;
+             
 				/* These functions must be defined in the sub-class */
+        virtual ble_error_t setAddress(addr_type_t type, uint8_t address[6]) = 0;
 				virtual ble_error_t setAdvertisingData(GapAdvertisingData &, GapAdvertisingData &) = 0;
 				virtual ble_error_t startAdvertising(GapAdvertisingParams &) = 0;
 				virtual ble_error_t stopAdvertising(void) = 0;
