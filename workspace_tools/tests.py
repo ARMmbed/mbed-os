@@ -323,7 +323,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "hello"),
         "dependencies": [MBED_LIBRARIES],
         "automated": True,
-        "host_test": "hello_auto",    
+        "host_test": "hello_auto",
     },
     {
         "id": "MBED_11", "description": "Ticker Int",
@@ -572,12 +572,16 @@ TESTS = [
     {
         "id": "NET_1", "description": "TCP client hello world",
         "source_dir": join(TEST_DIR, "net", "helloworld", "tcpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
     },
     {
         "id": "NET_2", "description": "UDP client hello world",
         "source_dir": join(TEST_DIR, "net", "helloworld", "udpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
     },
     {
         "id": "NET_3", "description": "TCP echo server",
