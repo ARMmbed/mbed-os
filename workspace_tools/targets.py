@@ -381,6 +381,21 @@ class NUCLEO_F302R8(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
         
+class STM32F3XX(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4"
+        
+        self.extra_labels = ['STM', 'STM32F3XX']
+        
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+
+        
 class LPC1347(Target):
     def __init__(self):
         Target.__init__(self)
@@ -586,6 +601,7 @@ TARGETS = [
     DISCO_F100RB(),
     DISCO_F051R8(),
     DISCO_F407VG(),
+    STM32F3XX(),
 ]
 
 # Map each target name to its unique instance
