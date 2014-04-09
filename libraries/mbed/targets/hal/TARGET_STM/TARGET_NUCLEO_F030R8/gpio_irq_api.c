@@ -104,7 +104,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             irq_index = 2;
             break;
         default:
-            error("This pin is not supported\n");
+            error("This pin is not supported");
             return -1;
     }
 

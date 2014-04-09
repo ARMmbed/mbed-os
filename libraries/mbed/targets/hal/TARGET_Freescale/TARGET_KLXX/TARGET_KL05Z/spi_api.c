@@ -52,7 +52,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
     if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed\n");
+        error("SPI pinout mapping failed");
     }
 
     // enable power and clocking
@@ -88,11 +88,11 @@ void spi_free(spi_t *obj) {
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     if (bits != 8) {
-        error("Only 8bits SPI supported\n");
+        error("Only 8bits SPI supported");
     }
 
     if ((mode < 0) || (mode > 3)) {
-        error("SPI mode unsupported\n");
+        error("SPI mode unsupported");
     }
 
     uint8_t polarity = (mode & 0x2) ? 1 : 0;

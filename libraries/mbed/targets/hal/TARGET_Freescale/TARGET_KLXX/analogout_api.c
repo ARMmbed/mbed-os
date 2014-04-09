@@ -26,7 +26,7 @@
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed\n");
+        error("DAC pin mapping failed");
     }
 
     SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;

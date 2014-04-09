@@ -57,7 +57,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (I2C_Type*)pinmap_merge(i2c_sda, i2c_scl);
     if ((int)obj->i2c == NC)
-        error("I2C pin mapping failed\n");
+        error("I2C pin mapping failed");
 
     SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
     SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;

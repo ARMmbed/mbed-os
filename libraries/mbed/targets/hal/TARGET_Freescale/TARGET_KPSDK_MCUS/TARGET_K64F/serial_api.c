@@ -86,7 +86,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
     obj->index = (UARTName)pinmap_merge(uart_tx, uart_rx);
     if ((int)obj->index == NC) {
-        error("Serial pinout mapping failed\n");
+        error("Serial pinout mapping failed");
     }
 
     uart_config_t uart_config;

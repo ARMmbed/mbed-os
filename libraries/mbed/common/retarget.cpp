@@ -386,7 +386,7 @@ extern "C" int mkdir(const char *path, mode_t mode) {
 #include "error.h"
 namespace __gnu_cxx {
     void __verbose_terminate_handler() {
-        error("Exception\n");
+        error("Exception");
     }
 }
 extern "C" WEAK void __cxa_pure_virtual(void);

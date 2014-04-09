@@ -37,7 +37,7 @@
  * To generate a fatal run-time error, you can use the mbed error() function.
  *
  * @code
- * error("That shouldn't have happened!\n");
+ * error("That shouldn't have happened!");
  * @endcode
  *
  * If the mbed running the program executes this function, it will print the
@@ -48,7 +48,7 @@
  *
  * @code
  * if(x >= 5) {
- *     error("expected x to be less than 5, but got %d\n", x);
+ *     error("expected x to be less than 5, but got %d", x);
  * }
  * #endcode
  */

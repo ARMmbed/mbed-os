@@ -50,7 +50,7 @@ static const PinMap PinMap_ADC[] = {
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     if (obj->adc == (ADCName)NC) {
-        error("ADC pin mapping failed\n");
+        error("ADC pin mapping failed");
     }
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
 

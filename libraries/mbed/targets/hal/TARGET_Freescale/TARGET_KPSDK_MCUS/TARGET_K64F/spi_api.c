@@ -94,7 +94,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     obj->instance = pinmap_merge(spi_data, spi_cntl);
     if ((int)obj->instance == NC) {
-        error("SPI pinout mapping failed\n");
+        error("SPI pinout mapping failed");
     }
 
     // enable power and clocking
@@ -133,7 +133,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     config.direction = kDspiMsbFirst;
     dspi_status_t result = dspi_hal_configure_data_format(obj->instance, kDspiCtar0, &config);
     if (result != kStatus_DSPI_Success) {
-        error("Failed to configure SPI data format\n");
+        error("Failed to configure SPI data format");
     }
 
     if (slave) {

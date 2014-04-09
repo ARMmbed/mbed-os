@@ -62,7 +62,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
     if ((int)uart == NC) {
-        error("Serial pinout mapping failed\n");
+        error("Serial pinout mapping failed");
     }
 
     obj->uart = (UARTLP_Type *)uart;
@@ -159,7 +159,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     
     // TODO: Support other number of data bits (also in the write method!)
     if ((data_bits < 8) || (data_bits > 8)) {
-        error("Invalid number of bits (%d) in serial format, should be 8\n", data_bits);
+        error("Invalid number of bits (%d) in serial format, should be 8", data_bits);
     }
 
     uint8_t parity_enable, parity_select;
@@ -168,13 +168,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
         case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
         default:
-            error("Invalid serial parity setting\n");
+            error("Invalid serial parity setting");
             return;
     }
 
     // 1 stop bits = 0, 2 stop bits = 1
     if ((stop_bits != 1) && (stop_bits != 2)) {
-        error("Invalid stop bits specified\n");
+        error("Invalid stop bits specified");
     }
     stop_bits -= 1;
 
