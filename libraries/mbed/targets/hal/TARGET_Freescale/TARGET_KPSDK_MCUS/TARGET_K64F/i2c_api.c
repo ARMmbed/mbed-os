@@ -51,7 +51,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
     if ((int)obj->instance == NC) {
-        error("I2C pin mapping failed");
+        error("I2C pin mapping failed\n");
     }
 
     clock_manager_set_gate(kClockModuleI2C, obj->instance, true);

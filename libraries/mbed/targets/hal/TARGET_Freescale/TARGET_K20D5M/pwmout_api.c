@@ -54,7 +54,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     if (pwm == (PWMName)NC)
-        error("PwmOut pin mapping failed");
+        error("PwmOut pin mapping failed\n");
 
     uint32_t clkdiv = 0;
     float clkval = SystemCoreClock / 1000000.0f;

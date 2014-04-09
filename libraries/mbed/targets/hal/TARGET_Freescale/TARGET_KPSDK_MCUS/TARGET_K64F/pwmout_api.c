@@ -74,7 +74,7 @@ static float pwm_clock_mhz;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     if (pwm == (PWMName)NC) {
-        error("PwmOut pin mapping failed");
+        error("PwmOut pin mapping failed\n");
     }
     obj->pwm_name = pwm;
 

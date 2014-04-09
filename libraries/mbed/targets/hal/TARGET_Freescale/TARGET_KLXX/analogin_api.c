@@ -28,7 +28,7 @@
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     if (obj->adc == (ADCName)NC) {
-        error("ADC pin mapping failed");
+        error("ADC pin mapping failed\n");
     }
 
     SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;

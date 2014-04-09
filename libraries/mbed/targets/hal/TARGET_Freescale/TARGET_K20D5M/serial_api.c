@@ -48,7 +48,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
     if ((int)uart == NC)
-        error("Serial pinout mapping failed");
+        error("Serial pinout mapping failed\n");
 
     obj->uart = (UART_Type *)uart;
     // enable clk
@@ -126,7 +126,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     // 8 data bits = 0 ... 9 data bits = 1
     if ((data_bits < 8) || (data_bits > 9))
-        error("Invalid number of bits (%d) in serial format, should be 8..9\r\n", data_bits);
+        error("Invalid number of bits (%d) in serial format, should be 8..9\n", data_bits);
 
     data_bits -= 8;
 
@@ -136,13 +136,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
         case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
         default:
-            error("Invalid serial parity setting\r\n");
+            error("Invalid serial parity setting\n");
             return;
     }
 
     // 1 stop bits = 0, 2 stop bits = 1
     if ((stop_bits != 1) && (stop_bits != 2))
-        error("Invalid stop bits specified\r\n");
+        error("Invalid stop bits specified\n");
     stop_bits -= 1;
 
     uint32_t m10 = 0;
@@ -151,7 +151,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     if (data_bits == 2) {
         // only uart0 supports 10 bit communication
         if (obj->index != 0)
-            error("Invalid number of bits (9) to be used with parity\r\n");
+            error("Invalid number of bits (9) to be used with parity\n");
         data_bits = 0;
         m10 = 1;
     }
