@@ -545,7 +545,7 @@ if __name__ == '__main__':
 
                 if opts.test_only_peripheral and not test.peripherals:
                     if opts.verbose:
-                        print "TargetTest::%s::NotPeripheralTestSkipped(%s)" % (target, ",".join(test.peripherals))
+                        print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
