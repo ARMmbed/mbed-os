@@ -660,6 +660,8 @@ TESTS = [
         "id": "NET_13", "description": "TCP client echo loop",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "automated": True,
+        "duration": 15,
         "peripherals": ["ethernet"],
     },
 
