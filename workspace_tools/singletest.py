@@ -424,10 +424,7 @@ def get_result_summary_table():
         for unique_id in unique_test_id:
             # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
             percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 2)
-            step = int(percent_progress / 2)
-            str_progress = '#' * step + '.' * int(50 - step)
-            c = '!' if str_progress[38] == '.' else '|'
-            str_progress = str_progress[:38] + c + str_progress[38:]
+            str_progress = progress_bar(percent_progress, 75)
             row = [unique_id,
                    counter_dict_test_id_types[unique_id],
                    counter_dict_test_id_types_all[unique_id],
@@ -435,6 +432,17 @@ def get_result_summary_table():
                    "[" + str_progress + "]"]
             pt.add_row(row)
         print pt
+
+
+def progress_bar(percent_progress, saturation=0):
+    """ This function creates progress bar with optional simple saturation mark"""
+    step = int(percent_progress / 2)    # Scale by to (scale: 1 - 50)
+    str_progress = '#' * step + '.' * int(50 - step)
+    c = '!' if str_progress[38] == '.' else '|'
+    if (saturation > 0):
+        saturation = saturation / 2
+        str_progress = str_progress[:saturation] + c + str_progress[saturation:]
+    return str_progress
 
 
 if __name__ == '__main__':
@@ -487,7 +495,7 @@ if __name__ == '__main__':
                       help='Verbose mode (pronts some extra information)')
 
     parser.description = """This script allows you to run mbed defined test cases for particular MCU(s) and corresponding toolchain(s)."""
-    parser.epilog = """Example: singletest.py -i test_spec.json [-M muts_all.json]"""
+    parser.epilog = """Example: singletest.py -i test_spec.json -M muts_all.json"""
 
     (opts, args) = parser.parse_args()
 
