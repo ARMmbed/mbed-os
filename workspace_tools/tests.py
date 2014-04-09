@@ -662,6 +662,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "automated": True,
         "duration": 15,
+        "host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"],
     },
 
