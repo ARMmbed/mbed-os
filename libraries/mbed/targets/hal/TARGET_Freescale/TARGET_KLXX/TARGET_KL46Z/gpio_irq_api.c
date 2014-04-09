@@ -109,7 +109,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
                 break;
 
             default:
-                error("gpio_irq only supported on port A,C and D\n");
+                error("gpio_irq only supported on port A,C and D");
                 break;
     }
     NVIC_SetVector(irq_n, vector);
