@@ -426,6 +426,8 @@ def get_result_summary_table():
             percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 2)
             step = int(percent_progress / 2)
             str_progress = '#' * step + '.' * int(50 - step)
+            c = '!' if str_progress[38] == '.' else '|'
+            str_progress = str_progress[:38] + c + str_progress[38:]
             row = [unique_id,
                    counter_dict_test_id_types[unique_id],
                    counter_dict_test_id_types_all[unique_id],
