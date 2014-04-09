@@ -37,6 +37,7 @@
 
 static const PinMap PinMap_DAC[] = {
     {PA_4, DAC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // DAC_OUT1
+    {PA_5, DAC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // DAC_OUT2
     {NC,   NC,    0}
 };
 
@@ -64,8 +65,15 @@ void analogout_init(dac_t *obj, PinName pin) {
 
     // Configure and enable DAC channel
     DAC_StructInit(&DAC_InitStructure);    
-    DAC_Init(dac, DAC_Channel_1, &DAC_InitStructure);
-    DAC_Cmd(dac, DAC_Channel_1, ENABLE);
+
+    if (obj->channel == PA_4) {
+        DAC_Init(dac,DAC_Channel_1, &DAC_InitStructure);
+        DAC_Cmd(dac,DAC_Channel_1, ENABLE);
+    }
+    if (obj->channel == PA_5) {
+        DAC_Init(dac,DAC_Channel_2, &DAC_InitStructure);
+        DAC_Cmd(dac,DAC_Channel_2, ENABLE);
+    }
 
     analogout_write_u16(obj, 0);
 }
@@ -74,13 +82,24 @@ void analogout_free(dac_t *obj) {
 }
 
 static inline void dac_write(dac_t *obj, uint16_t value) {
-    DAC_TypeDef *dac = (DAC_TypeDef *)(obj->dac);
-    DAC_SetChannel1Data(dac, DAC_Align_12b_R, value);
+ DAC_TypeDef *dac = (DAC_TypeDef *)(obj->dac);
+    if (obj->channel == PA_4) {
+        DAC_SetChannel1Data(dac,DAC_Align_12b_R, value);
+    }
+    if (obj->channel == PA_5) {
+        DAC_SetChannel2Data(dac,DAC_Align_12b_R, value);
+    }
 }
 
 static inline int dac_read(dac_t *obj) {
-    DAC_TypeDef *dac = (DAC_TypeDef *)(obj->dac);
-    return (int)DAC_GetDataOutputValue(dac, DAC_Channel_1);
+	 DAC_TypeDef *dac = (DAC_TypeDef *)(obj->dac);
+    if (obj->channel == PA_4) {
+        return (int)DAC_GetDataOutputValue(dac,DAC_Channel_1);
+    }
+    if (obj->channel == PA_5) {
+        return (int)DAC_GetDataOutputValue(dac,DAC_Channel_2);
+    }
+    return 0;
 }
 
 void analogout_write(dac_t *obj, float value) {
@@ -96,7 +115,8 @@ void analogout_write(dac_t *obj, float value) {
 void analogout_write_u16(dac_t *obj, uint16_t value) {
     if (value > (uint16_t)RANGE_12BIT) {
       dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
-    } else {
+    }
+    else {
       dac_write(obj, value);
     }
 }
