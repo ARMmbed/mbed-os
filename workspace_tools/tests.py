@@ -767,7 +767,9 @@ TESTS = [
     {
         "id": "EXAMPLE_1", "description": "/dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "host_test" : "dev_null_auto",
     },
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
