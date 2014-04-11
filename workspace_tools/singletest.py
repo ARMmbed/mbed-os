@@ -424,8 +424,7 @@ def get_result_summary_table():
         for unique_id in unique_test_id:
             # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
             percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 2)
-            step = int(percent_progress / 2)
-            str_progress = '#' * step + '.' * int(50 - step)
+            str_progress = progress_bar(percent_progress, 75)
             row = [unique_id,
                    counter_dict_test_id_types[unique_id],
                    counter_dict_test_id_types_all[unique_id],
@@ -433,6 +432,17 @@ def get_result_summary_table():
                    "[" + str_progress + "]"]
             pt.add_row(row)
         print pt
+
+
+def progress_bar(percent_progress, saturation=0):
+    """ This function creates progress bar with optional simple saturation mark"""
+    step = int(percent_progress / 2)    # Scale by to (scale: 1 - 50)
+    str_progress = '#' * step + '.' * int(50 - step)
+    c = '!' if str_progress[38] == '.' else '|'
+    if (saturation > 0):
+        saturation = saturation / 2
+        str_progress = str_progress[:saturation] + c + str_progress[saturation:]
+    return str_progress
 
 
 if __name__ == '__main__':
@@ -472,6 +482,12 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Prints information about all tests and exits')
 
+    parser.add_option('-P', '--only-peripheral',
+                      dest='test_only_peripheral',
+                      default=False,
+                      action="store_true",
+                      help='Test only peripheral declared for MUT and skip common tests')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -479,7 +495,7 @@ if __name__ == '__main__':
                       help='Verbose mode (pronts some extra information)')
 
     parser.description = """This script allows you to run mbed defined test cases for particular MCU(s) and corresponding toolchain(s)."""
-    parser.epilog = """Example: singletest.py -i test_spec.json [-M muts_all.json]"""
+    parser.epilog = """Example: singletest.py -i test_spec.json -M muts_all.json"""
 
     (opts, args) = parser.parse_args()
 
@@ -525,6 +541,11 @@ if __name__ == '__main__':
 
             for test_id, test in TEST_MAP.iteritems():
                 if test_ids and test_id not in test_ids:
+                    continue
+
+                if opts.test_only_peripheral and not test.peripherals:
+                    if opts.verbose:
+                        print "TargetTest::%s::NotPeripheralTestSkipped(%s)" % (target, ",".join(test.peripherals))
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):

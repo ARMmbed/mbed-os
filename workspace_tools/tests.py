@@ -323,7 +323,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "hello"),
         "dependencies": [MBED_LIBRARIES],
         "automated": True,
-        "host_test": "hello_auto",    
+        "host_test": "hello_auto",
     },
     {
         "id": "MBED_11", "description": "Ticker Int",
@@ -572,12 +572,18 @@ TESTS = [
     {
         "id": "NET_1", "description": "TCP client hello world",
         "source_dir": join(TEST_DIR, "net", "helloworld", "tcpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_2", "description": "UDP client hello world",
         "source_dir": join(TEST_DIR, "net", "helloworld", "udpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_3", "description": "TCP echo server",
@@ -585,7 +591,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
         "automated": True,
         "host_test" : "tcpecho_server_auto",
-        "peripherals": ["ethernet"]
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_4", "description": "TCP echo client",
@@ -630,26 +636,31 @@ TESTS = [
         "id": "NET_9", "description": "Multicast Send",
         "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_send"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_10", "description": "Multicast Receive",
         "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_receive"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_11", "description": "Broadcast Send",
         "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_send"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_12", "description": "Broadcast Receive",
         "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_receive"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "peripherals": ["ethernet"],
     },
     {
         "id": "NET_13", "description": "TCP client echo loop",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "peripherals": ["ethernet"],
     },
 
     # u-blox tests
@@ -756,7 +767,9 @@ TESTS = [
     {
         "id": "EXAMPLE_1", "description": "/dev/null",
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "host_test" : "dev_null_auto",
     },
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
