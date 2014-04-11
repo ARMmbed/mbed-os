@@ -76,6 +76,15 @@ int main() {
 
     printf("Initialize PWM on pin PA_7 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin PC_7 with duty cycle: %.2f\n", pwm_2.read());
+#elif defined(TARGET_DISCO_F303VC)
+    PwmOut pwm_1(PA_8); 
+    PwmOut pwm_2(PA_9);
+
+    pwm_1.write(0.75);
+    pwm_2.write(0.50);
+
+    printf("Initialize PWM on pin PA_7 with duty cycle: %.2f\n", pwm_1.read());
+    printf("Initialize PWM on pin PC_7 with duty cycle: %.2f\n", pwm_2.read());
 #else
 #error This test is not supported on this target.
 #endif
