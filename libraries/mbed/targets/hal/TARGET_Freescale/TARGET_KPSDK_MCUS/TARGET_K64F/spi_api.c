@@ -42,8 +42,7 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {PTB16, SPI_1, 2},
     {PTB22, SPI_2, 2},
     {PTC6 , SPI_0, 2},
-    {PTD2 , SPI_0, 2},
-    {PTD6 , SPI_0, 7},
+    {PTD6 , SPI_1, 7},
     {NC   , NC   , 0}
 };
 
@@ -55,7 +54,6 @@ static const PinMap PinMap_SPI_MISO[] = {
     {PTB17, SPI_1, 2},
     {PTB23, SPI_2, 2},
     {PTC7 , SPI_0, 2},
-    {PTD3 , SPI_0, 2},
     {PTD7 , SPI_1, 7},
     {NC   , NC   , 0}
 };

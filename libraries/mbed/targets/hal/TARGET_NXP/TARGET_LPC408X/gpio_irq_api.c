@@ -102,7 +102,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     
     // Interrupts available only on GPIO0 and GPIO2
     if (obj->port != LPC_GPIO0_BASE && obj->port != LPC_GPIO2_BASE) {
-        error("pins on this port cannot generate interrupts\n");
+        error("pins on this port cannot generate interrupts");
     }
     
     // put us in the interrupt table

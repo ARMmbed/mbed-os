@@ -37,6 +37,7 @@ class GccArm(Exporter):
         'DISCO_F100RB',
         'DISCO_F051R8',
         'DISCO_F407VG',
+        'DISCO_F303VC',
     ]
     
     DOT_IN_RELATIVE_PATH = True

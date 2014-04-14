@@ -15,12 +15,20 @@
  */
 #include "semihost_api.h"
 #include "mbed_interface.h"
+#if DEVICE_STDIO_MESSAGES
+#include <stdio.h>
+#endif
 
 #ifdef TOOLCHAIN_GCC_CW
 // TODO: Ideally, we would like to define directly "_ExitProcess"
 void mbed_exit(int return_code) {
 #else
 void exit(int return_code) {
+#endif
+
+#if DEVICE_STDIO_MESSAGES
+    fflush(stdout);
+    fflush(stderr);
 #endif
 
 #if DEVICE_SEMIHOST

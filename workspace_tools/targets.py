@@ -567,6 +567,19 @@ class DISCO_F407VG(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407','STM32F407VG']
         
         self.supported_toolchains = ["GCC_ARM"]
+
+class DISCO_F303VC(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4F"
+        
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F303','STM32F303VC']
+        
+        self.supported_toolchains = ["GCC_ARM"]
         
 
 # Get a single instance for each target
@@ -602,6 +615,7 @@ TARGETS = [
     DISCO_F051R8(),
     DISCO_F407VG(),
     STM32F3XX(),
+    DISCO_F303VC()
 ]
 
 # Map each target name to its unique instance
