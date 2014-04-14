@@ -51,7 +51,13 @@ public:
      *   An integer with each bit corresponding to the value read from the associated DigitalIn pin
      */
     int read();
-
+    
+    /** Set the input pin mode
+     *
+     *  @param mode PullUp, PullDown, PullNone
+     */
+    void mode(PinMode pull);
+	
 #ifdef MBED_OPERATORS
     /** A shorthand for read()
      */
