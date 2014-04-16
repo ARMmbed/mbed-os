@@ -391,9 +391,12 @@ def get_result_summary_table():
         counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
         test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration']
+
+        # All tests status table print
         pt = PrettyTable(test_properties)
         for col in test_properties:
-            pt.align[col] = "l" # Left align
+            pt.align[col] = "l"
+        pt.align['duration'] = "r"
 
         counter_all = 0
         counter_automated = 0
@@ -414,16 +417,32 @@ def get_result_summary_table():
             counter_all += 1
             counter_dict_test_id_types_all[test_id_prefix] += 1
         print pt
-        print "Result:"
-        percent_progress = round(100.0 * counter_automated / float(counter_all), 2)
-        print "\tAutomated: %d / %d (%s %%)" % (counter_automated, counter_all, percent_progress)
         print
+
+        # Automation result summary
+        test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
+        pt = PrettyTable(test_id_cols)
+        pt.align['automated'] = "r"
+        pt.align['all'] = "r"
+        pt.align['percent [%]'] = "r"
+
+        percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
+        str_progress = progress_bar(percent_progress, 75)        
+        pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
+        print "Automation coverage:"
+        print pt
+        print
+        
+        # Test automation coverage table print
         test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
         pt = PrettyTable(test_id_cols)
-        pt.align['id'] = "l" # Left align
+        pt.align['id'] = "l"
+        pt.align['automated'] = "r"
+        pt.align['all'] = "r"
+        pt.align['percent [%]'] = "r"
         for unique_id in unique_test_id:
             # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
-            percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 2)
+            percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 1)
             str_progress = progress_bar(percent_progress, 75)
             row = [unique_id,
                    counter_dict_test_id_types[unique_id],
@@ -431,7 +450,9 @@ def get_result_summary_table():
                    percent_progress,
                    "[" + str_progress + "]"]
             pt.add_row(row)
+        print "Test automation coverage:"
         print pt
+        print
 
 
 def progress_bar(percent_progress, saturation=0):
