@@ -49,6 +49,14 @@ int BusIn::read() {
     return v;
 }
 
+void BusIn::mode(PinMode pull) {
+    for (int i=0; i<16; i++) {
+        if (_pin[i] != 0) {
+            _pin[i]->mode(pull);
+        }
+    }
+}
+
 #ifdef MBED_OPERATORS
 BusIn::operator int() {
     return read();
