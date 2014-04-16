@@ -764,7 +764,9 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z", "KL05Z", "KL46Z"],
-    },
+        "automated": True,
+        "duration": 15,
+        },
 
     # Examples
     {
