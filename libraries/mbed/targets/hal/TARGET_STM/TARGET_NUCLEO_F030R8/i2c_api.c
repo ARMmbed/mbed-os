@@ -86,19 +86,18 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 void i2c_frequency(i2c_t *obj, int hz) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
-    uint32_t tim;
   
     // Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
     // with Rise time = 100ns and Fall time = 10ns
     switch (hz) {
       case 100000:
-          tim = 0x00201D2B; // Standard mode
+          I2C_InitStructure.I2C_Timing = 0x00201D2B; // Standard mode
           break;
       case 200000:
-          tim = 0x0010021E; // Fast mode
+          I2C_InitStructure.I2C_Timing = 0x0010021E; // Fast mode
           break;
       case 400000:
-          tim = 0x0010020A; // Fast mode
+          I2C_InitStructure.I2C_Timing = 0x0010020A; // Fast mode
           break;
       default:
           error("Only 100kHz, 200kHz and 400kHz I2C frequencies are supported.");
@@ -112,7 +111,6 @@ void i2c_frequency(i2c_t *obj, int hz) {
     I2C_InitStructure.I2C_OwnAddress1         = 0x00;
     I2C_InitStructure.I2C_Ack                 = I2C_Ack_Enable;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-    I2C_InitStructure.I2C_Timing              = tim;
     I2C_Init(i2c, &I2C_InitStructure);
     
     I2C_Cmd(i2c, ENABLE);
