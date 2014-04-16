@@ -660,6 +660,9 @@ TESTS = [
         "id": "NET_13", "description": "TCP client echo loop",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "automated": True,
+        "duration": 15,
+        "host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"],
     },
 
@@ -761,7 +764,9 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z", "KL05Z", "KL46Z"],
-    },
+        "automated": True,
+        "duration": 15,
+        },
 
     # Examples
     {

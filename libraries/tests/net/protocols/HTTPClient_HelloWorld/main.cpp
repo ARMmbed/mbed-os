@@ -39,14 +39,14 @@ int main()
     {
         bool result = true;
         const char *url_httpbin_post = "http://httpbin.org/post";
-        HTTPMap map;
         HTTPText text(http_request_buffer, BUFFER_SIZE);
+        HTTPMap map;
         map.put("Hello", "World");
         map.put("test", "1234");
         printf("HTTP_POST: Trying to post data to '%s' ...\r\n", url_httpbin_post);
         const int ret = http.post(url_httpbin_post, map, &text);
         if (ret == 0) {
-          printf("HTTP_POST: Read %d chars ... [OK]\n", strlen(http_request_buffer));
+          printf("HTTP_POST: Read %d chars ... [OK]\r\n", strlen(http_request_buffer));
           printf("HTTP_POST: %s\r\n", http_request_buffer);
         }
         else {

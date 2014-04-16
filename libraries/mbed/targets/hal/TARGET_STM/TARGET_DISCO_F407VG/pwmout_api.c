@@ -43,7 +43,7 @@ static const PinMap PinMap_PWM[] = {
     {PA_2,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH3
   //{PA_2,  PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)}, // TIM5_CH3
   //{PA_2,  PWM_9, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM9)}, // TIM9_CH1
-    {PA_3,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH3
+    {PA_3,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH4
   //{PA_3,  PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)}, // TIM5_CH4
   //{PA_3,  PWM_9, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM9)}, // TIM9_CH2
     {PA_5,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH1
@@ -77,7 +77,7 @@ static const PinMap PinMap_PWM[] = {
     {PC_6,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH1
     {PC_7,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH2
     {PC_8,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH3
-    {PC_9,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH3
+    {PC_9,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH4
     
     {NC,    NC,    0}
 };
@@ -183,13 +183,13 @@ void pwmout_write(pwmout_t* obj, float value) {
             break;
         // Channels 3
         case PA_2:
-        case PA_3:
+        //case PA_3:
         case PA_10:
         //case PB_0:
         case PB_8:
         case PB_10:
         case PC_8:
-        case PC_9:          
+        //case PC_9:          
             channel = TIM_CHANNEL_3;
             break;
         // Channels 3N
@@ -199,10 +199,11 @@ void pwmout_write(pwmout_t* obj, float value) {
             complementary_channel = 1;
             break;
         // Channels 4
-        //case PA_3:
+        case PA_3:
         case PA_11:
         //case PB_1:
         case PB_9:          
+        case PC_9:          
             channel = TIM_CHANNEL_4;
             break;        
         default:
