@@ -34,22 +34,29 @@ void us_ticker_init(void) {
     lptmr_init();
 }
 
-static uint32_t pit_us_ticker_counter = 0;
+static volatile uint32_t pit_msb_counter = 0;
+static uint32_t pit_division;               //Division used to get LSB bits
 
 void pit0_isr(void) {
-    pit_us_ticker_counter++;
-    PIT->CHANNEL[0].LDVAL = pit_ldval; // 1us
+    pit_msb_counter++;
+    PIT->CHANNEL[0].LDVAL = pit_ldval;
     PIT->CHANNEL[0].TFLG = 1;
 }
 
 /******************************************************************************
  * Timer for us timing.
+ *
+ * The K20D5M does not have a prescaler on its PIT timer nor the option
+ * to chain timers, which is why a software timer is required to get 32-bit
+ * word length.
  ******************************************************************************/
 static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;  // Clock PIT
     PIT->MCR = 0;  // Enable PIT
-
-    pit_ldval = bus_frequency() / 1000000;
+    
+    pit_division = bus_frequency() / 1000000;
+    //CLZ counts the leading zeros, returning number of bits not used by pit_division
+    pit_ldval = pit_division << __CLZ(pit_division);
 
     PIT->CHANNEL[0].LDVAL = pit_ldval;  // 1us
     PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TIE_MASK;
@@ -62,8 +69,20 @@ static void pit_init(void) {
 uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
+        
+    uint32_t retval;
+    __disable_irq(); 
+    retval = (pit_ldval - PIT->CHANNEL[0].CVAL) / pit_division; //Hardware bits
+    retval |= pit_msb_counter << __CLZ(pit_division);  				  //Software bits
+    
+    if (PIT->CHANNEL[0].TFLG == 1) {                					  //If overflow bit is set, force it to be handled
+				pit0_isr();                                 					  //Handle IRQ, read again to make sure software/hardware bits are synced
+				NVIC_ClearPendingIRQ(PIT0_IRQn);
+        return us_ticker_read();
+    } 
 
-    return pit_us_ticker_counter;
+    __enable_irq();
+    return retval;
 }
 
 /******************************************************************************
