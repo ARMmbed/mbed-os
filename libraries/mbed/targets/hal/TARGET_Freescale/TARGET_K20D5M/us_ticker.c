@@ -73,11 +73,11 @@ uint32_t us_ticker_read() {
     uint32_t retval;
     __disable_irq(); 
     retval = (pit_ldval - PIT->CHANNEL[0].CVAL) / pit_division; //Hardware bits
-    retval |= pit_msb_counter << __CLZ(pit_division);  				  //Software bits
+    retval |= pit_msb_counter << __CLZ(pit_division);           //Software bits
     
-    if (PIT->CHANNEL[0].TFLG == 1) {                					  //If overflow bit is set, force it to be handled
-				pit0_isr();                                 					  //Handle IRQ, read again to make sure software/hardware bits are synced
-				NVIC_ClearPendingIRQ(PIT0_IRQn);
+    if (PIT->CHANNEL[0].TFLG == 1) {                            //If overflow bit is set, force it to be handled
+        pit0_isr();                                             //Handle IRQ, read again to make sure software/hardware bits are synced
+        NVIC_ClearPendingIRQ(PIT0_IRQn);
         return us_ticker_read();
     } 
 
