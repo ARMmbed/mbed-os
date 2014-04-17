@@ -18,29 +18,30 @@
 #include "PeripheralNames.h"
 #include "clk_freqs.h"
 
-static void pit_init(void);
-static void lptmr_init(void);
+#define PIT_TIMER           PIT->CHANNEL[0]
+#define PIT_TIMER_IRQ       PIT0_IRQn
+#define PIT_TICKER          PIT->CHANNEL[1]
+#define PIT_TICKER_IRQ      PIT1_IRQn
+
+static void timer_init(void);
+static void ticker_init(void);
 
 
 static int us_ticker_inited = 0;
-static uint32_t pit_ldval = 0;
+static uint32_t clk_mhz;
 
 void us_ticker_init(void) {
     if (us_ticker_inited)
         return;
     us_ticker_inited = 1;
+    
+    SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
+    PIT->MCR = 0;                       // Enable PIT
+    
+    clk_mhz = bus_frequency() / 1000000;
 
-    pit_init();
-    lptmr_init();
-}
-
-static volatile uint32_t pit_msb_counter = 0;
-static uint32_t pit_division;               //Division used to get LSB bits
-
-void pit0_isr(void) {
-    pit_msb_counter++;
-    PIT->CHANNEL[0].LDVAL = pit_ldval;
-    PIT->CHANNEL[0].TFLG = 1;
+    timer_init();
+    ticker_init();
 }
 
 /******************************************************************************
@@ -50,20 +51,24 @@ void pit0_isr(void) {
  * to chain timers, which is why a software timer is required to get 32-bit
  * word length.
  ******************************************************************************/
-static void pit_init(void) {
-    SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;  // Clock PIT
-    PIT->MCR = 0;  // Enable PIT
-    
-    pit_division = bus_frequency() / 1000000;
-    //CLZ counts the leading zeros, returning number of bits not used by pit_division
-    pit_ldval = pit_division << __CLZ(pit_division);
+static volatile uint32_t msb_counter = 0;
+static uint32_t timer_ldval = 0;
 
-    PIT->CHANNEL[0].LDVAL = pit_ldval;  // 1us
-    PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TIE_MASK;
-    PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TEN_MASK;  // Start timer 1
+static void timer_isr(void) {
+    msb_counter++;
+    PIT_TIMER.TFLG = 1;
+}
 
-    NVIC_SetVector(PIT0_IRQn, (uint32_t)pit0_isr);
-    NVIC_EnableIRQ(PIT0_IRQn);
+static void timer_init(void) {  
+    //CLZ counts the leading zeros, returning number of bits not used by clk_mhz
+    timer_ldval = clk_mhz << __CLZ(clk_mhz);
+
+    PIT_TIMER.LDVAL = timer_ldval;  // 1us
+    PIT_TIMER.TCTRL |= PIT_TCTRL_TIE_MASK;
+    PIT_TIMER.TCTRL |= PIT_TCTRL_TEN_MASK;  // Start timer 0
+
+    NVIC_SetVector(PIT_TIMER_IRQ, (uint32_t)timer_isr);
+    NVIC_EnableIRQ(PIT_TIMER_IRQ);
 }
 
 uint32_t us_ticker_read() {
@@ -72,14 +77,14 @@ uint32_t us_ticker_read() {
         
     uint32_t retval;
     __disable_irq(); 
-    retval = (pit_ldval - PIT->CHANNEL[0].CVAL) / pit_division; //Hardware bits
-    retval |= pit_msb_counter << __CLZ(pit_division);           //Software bits
+    retval = (timer_ldval - PIT_TIMER.CVAL) / clk_mhz; //Hardware bits
+    retval |= msb_counter << __CLZ(clk_mhz);           //Software bits
     
-    if (PIT->CHANNEL[0].TFLG == 1) {                            //If overflow bit is set, force it to be handled
-        pit0_isr();                                             //Handle IRQ, read again to make sure software/hardware bits are synced
-        NVIC_ClearPendingIRQ(PIT0_IRQn);
+    if (PIT_TIMER.TFLG == 1) {                         //If overflow bit is set, force it to be handled
+        timer_isr();                                   //Handle IRQ, read again to make sure software/hardware bits are synced
+        NVIC_ClearPendingIRQ(PIT_TIMER_IRQ);
         return us_ticker_read();
-    } 
+    }
 
     __enable_irq();
     return retval;
@@ -89,57 +94,19 @@ uint32_t us_ticker_read() {
  * Timer Event
  *
  * It schedules interrupts at given (32bit)us interval of time.
- * It is implemented used the 16bit Low Power Timer that remains powered in all
- * power modes.
+ * It is implemented using PIT channel 1, since no prescaler is available,
+ * some bits are implemented in software.
  ******************************************************************************/
-static void lptmr_isr(void);
+static void ticker_isr(void);
 
-static void lptmr_init(void) {
-    /* Clock the timer */
-    SIM->SCGC5 |= SIM_SCGC5_LPTIMER_MASK;
-
-    /* Reset */
-    LPTMR0->CSR = 0;
-
+static void ticker_init(void) {
     /* Set interrupt handler */
-    NVIC_SetVector(LPTimer_IRQn, (uint32_t)lptmr_isr);
-    NVIC_EnableIRQ(LPTimer_IRQn);
-
-    /* Clock at (1)MHz -> (1)tick/us */
-    /* Check if the external oscillator can be divided to 1MHz */
-    uint32_t extosc = extosc_frequency();
-
-    if (extosc != 0) {                      //If external oscillator found
-        OSC0->CR |= OSC_CR_ERCLKEN_MASK;
-        if (extosc % 1000000u == 0) {       //If it is a multiple if 1MHz
-            extosc /= 1000000;
-            if (extosc == 1)    {           //1MHz, set timerprescaler in bypass mode
-                LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PBYP_MASK;
-                return;
-            } else {                        //See if we can divide it to 1MHz
-                uint32_t divider = 0;
-                extosc >>= 1;
-                while (1) {
-                    if (extosc == 1) {
-                        LPTMR0->PSR = LPTMR_PSR_PCS(3) | LPTMR_PSR_PRESCALE(divider);
-                        return;
-                    }
-                    if (extosc % 2 != 0)    //If we can't divide by two anymore
-                        break;
-                    divider++;
-                    extosc >>= 1;
-                }
-            }
-        }
-    }
-    //No suitable external oscillator clock -> Use fast internal oscillator (4MHz)
-    MCG->C1 |= MCG_C1_IRCLKEN_MASK;
-    MCG->C2 |= MCG_C2_IRCS_MASK;
-    LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(1);
+    NVIC_SetVector(PIT_TICKER_IRQ, (uint32_t)ticker_isr);
+    NVIC_EnableIRQ(PIT_TICKER_IRQ);
 }
 
 void us_ticker_disable_interrupt(void) {
-    LPTMR0->CSR &= ~LPTMR_CSR_TIE_MASK;
+    PIT_TICKER.TCTRL &= ~PIT_TCTRL_TIE_MASK;
 }
 
 void us_ticker_clear_interrupt(void) {
@@ -147,40 +114,24 @@ void us_ticker_clear_interrupt(void) {
 }
 
 static uint32_t us_ticker_int_counter = 0;
-static uint16_t us_ticker_int_remainder = 0;
 
-static void lptmr_set(unsigned short count) {
-    /* Reset */
-    LPTMR0->CSR = 0;
-
-    /* Set the compare register */
-    LPTMR0->CMR = count;
-
-    /* Enable interrupt */
-    LPTMR0->CSR |= LPTMR_CSR_TIE_MASK;
-
-    /* Start the timer */
-    LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
+inline static void ticker_set(uint32_t count) {
+    PIT_TICKER.TCTRL = 0;
+    PIT_TICKER.LDVAL = count;
+    PIT_TICKER.TCTRL = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK;
 }
 
-static void lptmr_isr(void) {
-    // write 1 to TCF to clear the LPT timer compare flag
-    LPTMR0->CSR |= LPTMR_CSR_TCF_MASK;
+static void ticker_isr(void) {
+    // Clear IRQ flag
+    PIT_TICKER.TFLG = 1;
 
     if (us_ticker_int_counter > 0) {
-        lptmr_set(0xFFFF);
+        ticker_set(0xFFFFFFFF);
         us_ticker_int_counter--;
-
     } else {
-        if (us_ticker_int_remainder > 0) {
-            lptmr_set(us_ticker_int_remainder);
-            us_ticker_int_remainder = 0;
-
-        } else {
-            // This function is going to disable the interrupts if there are
-            // no other events in the queue
-            us_ticker_irq_handler();
-        }
+        // This function is going to disable the interrupts if there are
+        // no other events in the queue
+        us_ticker_irq_handler();
     }
 }
 
@@ -192,13 +143,17 @@ void us_ticker_set_interrupt(unsigned int timestamp) {
         return;
     }
 
-    us_ticker_int_counter   = (uint32_t)(delta >> 16);
-    us_ticker_int_remainder = (uint16_t)(0xFFFF & delta);
-    if (us_ticker_int_counter > 0) {
-        lptmr_set(0xFFFF);
+    //Calculate how much falls outside the 32-bit after multiplying with clk_mhz
+    //We shift twice 16-bit to keep everything within the 32-bit variable
+    us_ticker_int_counter = (uint32_t)(delta >> 16);
+    us_ticker_int_counter *= clk_mhz;
+    us_ticker_int_counter >>= 16;
+    
+    uint32_t us_ticker_int_remainder = (uint32_t)delta * clk_mhz;
+    if (us_ticker_int_remainder == 0) {
+        ticker_set(0xFFFFFFFF);
         us_ticker_int_counter--;
     } else {
-        lptmr_set(us_ticker_int_remainder);
-        us_ticker_int_remainder = 0;
+        ticker_set(us_ticker_int_remainder);
     }
 }
