@@ -29,6 +29,8 @@
  */
 #include "rtc_api.h"
 
+#if DEVICE_RTC
+
 static int rtc_inited = 0;
 
 void rtc_init(void) {
@@ -136,3 +138,5 @@ void rtc_write(time_t t) {
     RTC_SetTime(RTC_Format_BIN, &timeStruct);
     PWR_BackupAccessCmd(DISABLE); // Disable access to RTC
 }
+
+#endif

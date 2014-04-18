@@ -25,11 +25,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-extern void SystemCoreClockUpdate(void); 
+#include "cmsis.h"
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init() {
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+     AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
 }

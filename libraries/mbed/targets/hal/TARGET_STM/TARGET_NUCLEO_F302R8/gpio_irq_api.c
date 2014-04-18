@@ -29,7 +29,6 @@
  */
 #include <stddef.h>
 #include "cmsis.h"
-
 #include "gpio_irq_api.h"
 #include "pinmap.h"
 #include "error.h"
