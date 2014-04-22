@@ -340,7 +340,7 @@ class NUCLEO_F401RE(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         
@@ -372,7 +372,7 @@ class NUCLEO_F302R8(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
         
