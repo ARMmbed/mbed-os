@@ -153,8 +153,6 @@ __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9}
   * @{
   */
 
-void SetSysClock(void);
-
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #endif
@@ -207,10 +205,6 @@ void SystemInit(void)
   
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors, 
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
