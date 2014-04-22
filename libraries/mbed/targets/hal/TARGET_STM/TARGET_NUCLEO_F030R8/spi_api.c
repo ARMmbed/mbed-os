@@ -173,26 +173,31 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
-    // Get SPI clock frequency
-    uint32_t PCLK = SystemCoreClock;
-
-    // Choose the baud rate divisor (between 2 and 256)
-    uint32_t divisor = PCLK / hz;
-
-    // Find the nearest power-of-2
-    divisor = (divisor > 0 ? divisor-1 : 0);
-    divisor |= divisor >> 1;
-    divisor |= divisor >> 2;
-    divisor |= divisor >> 4;
-    divisor |= divisor >> 8;
-    divisor |= divisor >> 16;
-    divisor++;
-
-    uint32_t baud_rate = __builtin_ffs(divisor) - 2;
-    
-    // Save new value
-    obj->br_presc = ((baud_rate > 7) ? (7 << 3) : (baud_rate << 3));
- 
+    // Note: The frequencies are obtained with SPI clock = 48 MHz (APB1 & APB2 clocks)
+    if (hz < 300000) {
+        obj->br_presc = SPI_BaudRatePrescaler_256; // 188 kHz
+    }
+    else if ((hz >= 300000) && (hz < 700000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_128; // 375 kHz
+    }
+    else if ((hz >= 700000) && (hz < 1000000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_64; // 750 kHz
+    }
+    else if ((hz >= 1000000) && (hz < 3000000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_32; // 1.5 MHz
+    }
+    else if ((hz >= 3000000) && (hz < 6000000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_16; // 3 MHz
+    }
+    else if ((hz >= 6000000) && (hz < 12000000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_8; // 6 MHz
+    }
+    else if ((hz >= 12000000) && (hz < 24000000)) {
+        obj->br_presc = SPI_BaudRatePrescaler_4; // 12 MHz
+    }
+    else { // >= 24000000
+        obj->br_presc = SPI_BaudRatePrescaler_2; // 24 MHz
+    }
     init_spi(obj);
 }
 
@@ -215,19 +220,23 @@ static inline int ssp_writeable(spi_t *obj) {
 static inline void ssp_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
     while (!ssp_writeable(obj));
-    if(obj->bits == SPI_DataSize_8b)  // 8 bit mode
-    	SPI_SendData8(spi, (uint8_t)value);
-    else
-    	SPI_I2S_SendData16(spi, (uint16_t)value);
+    if (obj->bits == SPI_DataSize_8b) {
+        SPI_SendData8(spi, (uint8_t)value);
+    }
+    else { // 16-bit
+        SPI_I2S_SendData16(spi, (uint16_t)value);
+    }
 }
 
 static inline int ssp_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);   
     while (!ssp_readable(obj));
-    if(obj->bits == SPI_DataSize_8b)  // 8 bit mode
-    	return (int)SPI_ReceiveData8(spi);
-    else 								// 16 bit mode
-    	return (int)SPI_I2S_ReceiveData16(spi); 
+    if (obj->bits == SPI_DataSize_8b) {
+        return (int)SPI_ReceiveData8(spi);
+    }
+    else { // 16-bit
+        return (int)SPI_I2S_ReceiveData16(spi);
+    }
 }
 
 static inline int ssp_busy(spi_t *obj) {
@@ -248,19 +257,23 @@ int spi_slave_receive(spi_t *obj) {
 
 int spi_slave_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    if(obj->bits == SPI_DataSize_8b)  // 8 bit mode
-    	return (int)SPI_ReceiveData8(spi);
-    else 
-    	return (int)SPI_I2S_ReceiveData16(spi); 
+    if (obj->bits == SPI_DataSize_8b) {
+        return (int)SPI_ReceiveData8(spi);
+    }
+    else { // 16-bit
+        return (int)SPI_I2S_ReceiveData16(spi);
+    }
 }
 
 void spi_slave_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
-    while (!ssp_writeable(obj)); 
-    if(obj->bits == SPI_DataSize_8b)  // 8 bit mode
-    	SPI_SendData8(spi, (uint8_t)value);
-    else 
-    	SPI_I2S_SendData16(spi, (uint16_t)value);
+    while (!ssp_writeable(obj));  
+    if (obj->bits == SPI_DataSize_8b) {
+        SPI_SendData8(spi, (uint8_t)value);
+    }
+    else { // 16-bit
+        SPI_I2S_SendData16(spi, (uint16_t)value);
+    }
 }
 
 int spi_busy(spi_t *obj) {

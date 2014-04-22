@@ -86,31 +86,59 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 void i2c_frequency(i2c_t *obj, int hz) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
+    uint32_t tim = 0;
+
+    // Disable the Fast Mode Plus capability
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); // Enable SYSCFG clock
+    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, DISABLE);
+    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, DISABLE);
   
-    // Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
-    // with Rise time = 100ns and Fall time = 10ns
+    /*
+       Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
+       * Standard mode (up to 100 kHz)
+       * Fast Mode (up to 400 kHz)
+       * Fast Mode Plus (up to 1 MHz)
+       Below values obtained with:
+       - I2C clock source = 8 MHz (HSI clock per default)
+       - Analog filter delay = ON
+       - Digital filter coefficient = 0
+       - Rise time = 100 ns
+       - Fall time = 10ns
+    */
     switch (hz) {
       case 100000:
-          I2C_InitStructure.I2C_Timing = 0x00201D2B; // Standard mode
+          tim = 0x00201D2B; // Standard mode
           break;
       case 200000:
-          I2C_InitStructure.I2C_Timing = 0x0010021E; // Fast mode
+          tim = 0x0010021E; // Fast Mode
           break;
       case 400000:
-          I2C_InitStructure.I2C_Timing = 0x0010020A; // Fast mode
+          tim = 0x0010020A; // Fast Mode
+          break;
+      case 1000000:
+          tim = 0x00100001; // Fast Mode Plus
+          // Enable the Fast Mode Plus capability
+          if (obj->i2c == I2C_1) {
+              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
+          }
+          if (obj->i2c == I2C_2) {
+              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
+          }
           break;
       default:
-          error("Only 100kHz, 200kHz and 400kHz I2C frequencies are supported.");
+          error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
           break;
     }
     
     // I2C configuration
+    I2C_DeInit(i2c);
     I2C_InitStructure.I2C_Mode                = I2C_Mode_I2C;
     I2C_InitStructure.I2C_AnalogFilter        = I2C_AnalogFilter_Enable;
     I2C_InitStructure.I2C_DigitalFilter       = 0x00;
     I2C_InitStructure.I2C_OwnAddress1         = 0x00;
     I2C_InitStructure.I2C_Ack                 = I2C_Ack_Enable;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+    I2C_InitStructure.I2C_Timing              = tim;
     I2C_Init(i2c, &I2C_InitStructure);
     
     I2C_Cmd(i2c, ENABLE);

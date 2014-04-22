@@ -28,6 +28,9 @@
  *******************************************************************************
  */
 #include "serial_api.h"
+
+#if DEVICE_SERIAL
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
@@ -281,3 +284,5 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
 }
+
+#endif
