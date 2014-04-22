@@ -25,7 +25,7 @@ extern "C" {
  * \return Bus frequency
  */
 static inline uint32_t bus_frequency(void) {
-    return SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    return SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT) + 1);
 }
 
 /*!
