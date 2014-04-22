@@ -39,11 +39,11 @@
 #define EDGE_FALL (2)
 #define EDGE_BOTH (3)
 
-#define CHANNEL_NUM (4)
+#define CHANNEL_NUM (7)
 
-static uint32_t channel_ids[CHANNEL_NUM]  = {0, 0, 0, 0};
-static uint32_t channel_gpio[CHANNEL_NUM] = {0, 0, 0, 0};
-static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0, 0};
+static uint32_t channel_ids[CHANNEL_NUM]  = {0, 0, 0, 0, 0, 0, 0};
+static uint32_t channel_gpio[CHANNEL_NUM] = {0, 0, 0, 0, 0, 0, 0};
+static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0, 0, 0, 0, 0};
 
 static gpio_irq_handler irq_handler;
 
@@ -51,7 +51,7 @@ static void handle_interrupt_in(uint32_t irq_index) {
     // Retrieve the gpio and pin that generate the irq
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
-     
+
     // Clear interrupt flag
     if (EXTI_GetITStatus(pin) != RESET)
     {
@@ -70,10 +70,13 @@ static void handle_interrupt_in(uint32_t irq_index) {
 }
 
 // The irq_index is passed to the function
-static void gpio_irq0(void) {handle_interrupt_in(0);}
-static void gpio_irq1(void) {handle_interrupt_in(1);}
-static void gpio_irq2(void) {handle_interrupt_in(2);}
-static void gpio_irq3(void) {handle_interrupt_in(3);}
+static void gpio_irq0(void) {handle_interrupt_in(0);} // EXTI line 0
+static void gpio_irq1(void) {handle_interrupt_in(1);} // EXTI line 1
+static void gpio_irq2(void) {handle_interrupt_in(2);} // EXTI line 2
+static void gpio_irq3(void) {handle_interrupt_in(3);} // EXTI line 3
+static void gpio_irq4(void) {handle_interrupt_in(4);} // EXTI line 4
+static void gpio_irq5(void) {handle_interrupt_in(5);} // EXTI lines 5 to 9
+static void gpio_irq6(void) {handle_interrupt_in(6);} // EXTI lines 10 to 15
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
@@ -88,29 +91,53 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_index  = STM_PIN(pin);
 
     // Select irq number and interrupt routine
-    switch (pin) {
-        case PC_13: // User button
-            irq_n = EXTI15_10_IRQn;
+    switch (pin_index) {
+        case 0:
+            irq_n = EXTI0_IRQn;
             vector = (uint32_t)&gpio_irq0;
             irq_index = 0;
             break;
-        case PB_3:
-            irq_n = EXTI3_IRQn;
+        case 1:
+            irq_n = EXTI1_IRQn;
             vector = (uint32_t)&gpio_irq1;
             irq_index = 1;
             break;
-        case PB_4:
-            irq_n = EXTI4_IRQn;
+        case 2:
+            irq_n = EXTI2_IRQn;
             vector = (uint32_t)&gpio_irq2;
             irq_index = 2;
             break;
-        case PB_5:
-            irq_n = EXTI9_5_IRQn;
+        case 3:
+            irq_n = EXTI3_IRQn;
             vector = (uint32_t)&gpio_irq3;
             irq_index = 3;
             break;
+        case 4:
+            irq_n = EXTI4_IRQn;
+            vector = (uint32_t)&gpio_irq4;
+            irq_index = 4;
+            break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            irq_n = EXTI9_5_IRQn;
+            vector = (uint32_t)&gpio_irq5;
+            irq_index = 5;
+            break;
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            irq_n = EXTI15_10_IRQn;
+            vector = (uint32_t)&gpio_irq6;
+            irq_index = 6;
+            break;
         default:
-            error("This pin is not supported with InterruptIn.");
+            error("InterruptIn error: pin not supported.\n");
             return -1;
     }
 
