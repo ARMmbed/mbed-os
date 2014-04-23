@@ -32,16 +32,18 @@
 #include "error.h"
 
 // Alternate-function mapping
-static const uint32_t AF_mapping[] = {
-  0,                      // 0 = No AF
-  GPIO_Remap_SPI1,        // 1
-  GPIO_Remap_I2C1,        // 2
-  GPIO_Remap_USART1,      // 3
-  GPIO_Remap_USART2,      // 4
-  GPIO_FullRemap_TIM2,    // 5
-  GPIO_FullRemap_TIM3,    // 6
-  GPIO_PartialRemap_TIM3, // 7
-  GPIO_Remap_I2C1         // 8
+#define AF_NUM (10)
+static const uint32_t AF_mapping[AF_NUM] = {
+  0,                        // 0 = No AF
+  GPIO_Remap_SPI1,          // 1
+  GPIO_Remap_I2C1,          // 2
+  GPIO_Remap_USART1,        // 3
+  GPIO_Remap_USART2,        // 4
+  GPIO_PartialRemap_USART3, // 5
+  GPIO_PartialRemap_TIM1,   // 6
+  GPIO_PartialRemap_TIM3,   // 7
+  GPIO_FullRemap_TIM2,      // 8
+  GPIO_FullRemap_TIM3       // 9
 };
 
 // Enable GPIO clock and return GPIO base address
@@ -93,7 +95,7 @@ void pin_function(PinName pin, int data) {
 
     // Configure Alternate Function
     // Warning: Must be done before the GPIO is initialized
-    if (afnum > 0) {
+    if ((afnum > 0) && (afnum < AF_NUM)) {
         GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
     }
   

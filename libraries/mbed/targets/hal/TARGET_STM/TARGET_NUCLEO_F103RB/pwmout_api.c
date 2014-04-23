@@ -33,13 +33,41 @@
 #include "pinmap.h"
 #include "error.h"
 
+// TIM4 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
-    // TIM2 full remap
-    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // TIM2fr_CH2 - ARDUINO D3
-    // TIM3 partial remap
-    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3pr_CH1 - ARDUINO D5
-    // TIM4 default
-    {PB_6,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH1 - ARDUINO D10    
+    {PA_1,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH2 - Default
+    {PA_2,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH3 - Default (warning: not connected on D1 per default)
+    {PA_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH4 - Default (warning: not connected on D0 per default)
+    {PA_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH1 - Default
+    {PA_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH2 - Default
+  //{PA_7,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH1N - GPIO_PartialRemap_TIM1
+    {PA_8,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH1 - Default
+    {PA_9,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH2 - Default
+    {PA_10, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH3 - Default
+    {PA_11, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH4 - Default
+    {PA_15, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH1_ETR - GPIO_FullRemap_TIM2
+
+    {PB_0,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH3 - Default
+  //{PB_0,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH2N - GPIO_PartialRemap_TIM1
+    {PB_1,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH4 - Default    
+  //{PB_1,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH3N - GPIO_PartialRemap_TIM1    
+    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH2 - GPIO_FullRemap_TIM2
+    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3_CH1 - GPIO_PartialRemap_TIM3
+    {PB_5,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3_CH2 - GPIO_PartialRemap_TIM3
+  //{PB_6,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH1 - Default (used by ticker)
+  //{PB_7,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH2 - Default (used by ticker)
+  //{PB_8,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH3 - Default (used by ticker)
+  //{PB_9,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH4 - Default (used by ticker)
+    {PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH3 - GPIO_FullRemap_TIM2
+    {PB_11, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH4 - GPIO_FullRemap_TIM2
+    {PB_13, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH1N - Default
+    {PB_14, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH2N - Default
+    {PB_15, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH3N - Default
+    
+    {PC_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH1 - GPIO_FullRemap_TIM3
+    {PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH2 - GPIO_FullRemap_TIM3
+    {PC_8,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH3 - GPIO_FullRemap_TIM3
+    {PC_9,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH4 - GPIO_FullRemap_TIM3
     {NC,    NC,    0}
 };
 
@@ -52,6 +80,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
     
     // Enable TIM clock
+    if (obj->pwm == PWM_1) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
     if (obj->pwm == PWM_2) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     if (obj->pwm == PWM_3) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     if (obj->pwm == PWM_4) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
@@ -83,22 +112,86 @@ void pwmout_write(pwmout_t* obj, float value) {
    
     obj->pulse = (uint32_t)((float)obj->period * value);
     
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = obj->pulse;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+    TIM_OCInitStructure.TIM_OCMode       = TIM_OCMode_PWM1;
+    TIM_OCInitStructure.TIM_Pulse        = obj->pulse;
+    TIM_OCInitStructure.TIM_OCPolarity   = TIM_OCPolarity_High;
+    TIM_OCInitStructure.TIM_OCNPolarity  = TIM_OCNPolarity_High;
+    TIM_OCInitStructure.TIM_OCIdleState  = TIM_OCIdleState_Reset;
+    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
 
-    // Configure channel 1
-    if ((obj->pin == PB_4) || (obj->pin == PB_6)) {
-        TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
-        TIM_OC1Init(tim, &TIM_OCInitStructure);
+    // Configure channels
+    switch (obj->pin) {
+        // Channels 1
+        case PA_6:
+        case PA_8:
+        case PA_15:
+        case PB_4:
+      //case PB_6:
+        case PC_6:
+            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+            TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC1Init(tim, &TIM_OCInitStructure);
+            break;
+        // Channels 1N
+      //case PA_7:
+        case PB_13:
+            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+            TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC1Init(tim, &TIM_OCInitStructure);
+            break;
+        // Channels 2
+        case PA_1:
+        case PA_7:
+        case PA_9:
+        case PB_3:
+        case PB_5:
+      //case PB_7:
+        case PC_7:
+            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;          
+            TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC2Init(tim, &TIM_OCInitStructure);
+            break;
+        // Channels 2N
+      //case PB_0:
+        case PB_14:
+            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;          
+            TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC2Init(tim, &TIM_OCInitStructure);
+            break; 
+        // Channels 3        
+        case PA_2:
+        case PA_10:
+        case PB_0:
+      //case PB_8:
+        case PB_10:
+        case PC_8:
+            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+            TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC3Init(tim, &TIM_OCInitStructure);
+            break;
+        // Channels 3N        
+      //case PB_1:
+        case PB_15:
+            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+            TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC3Init(tim, &TIM_OCInitStructure);
+            break;        
+        // Channels 4    
+        case PA_3:
+        case PA_11:
+        case PB_1:
+      //case PB_9:
+        case PB_11:
+        case PC_9:
+            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+            TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
+            TIM_OC4Init(tim, &TIM_OCInitStructure);
+            break;        
+        default:
+            return;
     }
-
-    // Configure channel 2
-    if (obj->pin == PB_3) {
-        TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
-        TIM_OC2Init(tim, &TIM_OCInitStructure);
-    }
+    
+    TIM_CtrlPWMOutputs(tim, ENABLE);
 }
 
 float pwmout_read(pwmout_t* obj) {

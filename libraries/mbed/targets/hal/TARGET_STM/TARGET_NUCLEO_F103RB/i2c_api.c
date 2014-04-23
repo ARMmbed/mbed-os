@@ -42,12 +42,16 @@
 #define LONG_TIMEOUT ((int)0x8000)
 
 static const PinMap PinMap_I2C_SDA[] = {
-    {PB_9,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 8)}, // GPIO_Remap_I2C1
+    {PB_7,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 0)},
+    {PB_9,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 2)}, // GPIO_Remap_I2C1
+    {PB_11, I2C_2, STM_PIN_DATA(GPIO_Mode_AF_OD, 0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {PB_8,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 8)}, // GPIO_Remap_I2C1
+    {PB_6,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 0)},
+    {PB_8,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF_OD, 2)}, // GPIO_Remap_I2C1
+    {PB_10, I2C_2, STM_PIN_DATA(GPIO_Mode_AF_OD, 0)},
     {NC,    NC,    0}
 };
 
@@ -91,12 +95,12 @@ void i2c_frequency(i2c_t *obj, int hz) {
         I2C_DeInit(i2c);
       
         // I2C configuration
-        I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-        I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-        I2C_InitStructure.I2C_OwnAddress1 = 0;
-        I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+        I2C_InitStructure.I2C_Mode                = I2C_Mode_I2C;
+        I2C_InitStructure.I2C_DutyCycle           = I2C_DutyCycle_2;
+        I2C_InitStructure.I2C_OwnAddress1         = 0;
+        I2C_InitStructure.I2C_Ack                 = I2C_Ack_Enable;
         I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-        I2C_InitStructure.I2C_ClockSpeed = hz;
+        I2C_InitStructure.I2C_ClockSpeed          = hz;
         I2C_Init(i2c, &I2C_InitStructure);
       
         I2C_Cmd(i2c, ENABLE);
