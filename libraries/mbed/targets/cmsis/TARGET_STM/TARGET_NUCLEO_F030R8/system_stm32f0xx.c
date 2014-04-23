@@ -191,6 +191,10 @@ void SystemInit (void)
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
+  
+  /* Configure the System clock source, PLL Multiplier and Divider factors,
+   AHB/APBx prescalers and Flash settings */
+  SetSysClock();  
 }
 
 /**
