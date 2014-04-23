@@ -29,10 +29,6 @@
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init() {
-    /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-    SetSysClock();
-
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
 }
