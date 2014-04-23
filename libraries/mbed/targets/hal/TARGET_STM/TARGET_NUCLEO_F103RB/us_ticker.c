@@ -62,9 +62,8 @@ static void tim_irq_handler(void) {
         }
         else {
             if (oc_int_part > 0) {
-                //set_compare(0);
-                //oc_rem_part = cval; // To finish the counter loop the next time
-                //if (oc_rem_part == 0) GPIOB->ODR ^= (1 << 6); // DEBUG         
+                set_compare(0xFFFF);
+                oc_rem_part = cval; // To finish the counter loop the next time
                 oc_int_part--;
             }
             else {
