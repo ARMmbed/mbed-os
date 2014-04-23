@@ -34,7 +34,7 @@
 #include "netif/ppp_oe.h"
 
 #include "lpc17xx_emac.h"
-#include "lpc17_emac.h"
+#include "eth_arch.h"
 #include "lpc_emac_config.h"
 #include "lpc_phy.h"
 #include "sys_arch.h"
@@ -155,92 +155,6 @@ struct lpc_enetdata {
 /** \brief  LPC EMAC driver work data
  */
 ETHMEM_SECTION struct lpc_enetdata lpc_enetdata;
-
-/* Write a value via the MII link (non-blocking) */
-void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
-{
-	/* Write value at PHY address and register */
-	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
-	LPC_EMAC->MWTD = Value;
-}
-
-/* Write a value via the MII link (blocking) */
-err_t lpc_mii_write(u32_t PhyReg, u32_t Value)
-{
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
-
-	/* Write value at PHY address and register */
-	lpc_mii_write_noblock(PhyReg, Value);
-
-	/* Wait for unbusy status */
-	while (mst > 0) {
-		sts = LPC_EMAC->MIND;
-		if ((sts & EMAC_MIND_BUSY) == 0)
-			mst = 0;
-		else {
-			mst--;
-			osDelay(1);
-		}
-	}
-
-	if (sts != 0)
-		sts = ERR_TIMEOUT;
-
-	return sts;
-}
-
-/* Reads current MII link busy status */
-u32_t lpc_mii_is_busy(void)
-{
-	return (u32_t) (LPC_EMAC->MIND & EMAC_MIND_BUSY);
-}
-
-/* Starts a read operation via the MII link (non-blocking) */
-u32_t lpc_mii_read_data(void)
-{
-	u32_t data = LPC_EMAC->MRDD;
-	LPC_EMAC->MCMD = 0;
-
-	return data;
-}
-
-/* Starts a read operation via the MII link (non-blocking) */
-void lpc_mii_read_noblock(u32_t PhyReg)
-{
-	/* Read value at PHY address and register */
-	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
-	LPC_EMAC->MCMD = EMAC_MCMD_READ;
-}
-
-/* Read a value via the MII link (blocking) */
-err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
-{
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
-
-	/* Read value at PHY address and register */
-	lpc_mii_read_noblock(PhyReg);
-
-	/* Wait for unbusy status */
-	while (mst > 0) {
-		sts = LPC_EMAC->MIND & ~EMAC_MIND_MII_LINK_FAIL;
-		if ((sts & EMAC_MIND_BUSY) == 0) {
-			mst = 0;
-			*data = LPC_EMAC->MRDD;
-		} else {
-			mst--;
-			osDelay(1);
-		}
-	}
-
-	LPC_EMAC->MCMD = 0;
-
-	if (sts != 0)
-		sts = ERR_TIMEOUT;
-
-	return sts;
-}
 
 /** \brief  Queues a pbuf into the RX descriptor list
  *
@@ -1043,7 +957,7 @@ osTimerDef(phy_update, phy_update);
  *         ERR_MEM if private data couldn't be allocated
  *         any other err_t on error
  */
-err_t lpc_enetif_init(struct netif *netif)
+err_t eth_arch_enetif_init(struct netif *netif)
 {
 	err_t err;
 
@@ -1114,6 +1028,15 @@ err_t lpc_enetif_init(struct netif *netif)
 #endif
 
     return ERR_OK;
+}
+
+void eth_arch_enable_interrupts(void) {
+    NVIC_SetPriority(ENET_IRQn, ((0x01 << 3) | 0x01));
+    NVIC_EnableIRQ(ENET_IRQn);
+}
+
+void eth_arch_disable_interrupts(void) {
+    NVIC_DisableIRQ(ENET_IRQn);
 }
 
 /**

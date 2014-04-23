@@ -29,6 +29,7 @@
 #include "lwip/snmp.h"
 #include "lpc_emac_config.h"
 #include "lpc_phy.h"
+#include "lpc17xx_emac.h"
 
 /** @defgroup dp83848_phy	PHY status and control for the DP83848.
  * @ingroup lwip_phy
@@ -129,6 +130,94 @@ static u32_t phy_id;
 
 /** \brief  Temporary holder of link status for LAN7420 */
 static u32_t phy_lan7420_sts_tmp;
+
+/* Write a value via the MII link (non-blocking) */
+void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
+{
+	/* Write value at PHY address and register */
+	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
+	LPC_EMAC->MWTD = Value;
+}
+
+/* Write a value via the MII link (blocking) */
+err_t lpc_mii_write(u32_t PhyReg, u32_t Value)
+{
+	u32_t mst = 250;
+	err_t sts = ERR_OK;
+
+	/* Write value at PHY address and register */
+	lpc_mii_write_noblock(PhyReg, Value);
+
+	/* Wait for unbusy status */
+	while (mst > 0) {
+		sts = LPC_EMAC->MIND;
+		if ((sts & EMAC_MIND_BUSY) == 0)
+			mst = 0;
+		else {
+			mst--;
+			osDelay(1);
+		}
+	}
+
+	if (sts != 0)
+		sts = ERR_TIMEOUT;
+
+	return sts;
+}
+
+/* Reads current MII link busy status */
+u32_t lpc_mii_is_busy(void)
+{
+	return (u32_t) (LPC_EMAC->MIND & EMAC_MIND_BUSY);
+}
+
+/* Starts a read operation via the MII link (non-blocking) */
+u32_t lpc_mii_read_data(void)
+{
+	u32_t data = LPC_EMAC->MRDD;
+	LPC_EMAC->MCMD = 0;
+
+	return data;
+}
+
+/* Starts a read operation via the MII link (non-blocking) */
+void lpc_mii_read_noblock(u32_t PhyReg)
+{
+	/* Read value at PHY address and register */
+	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
+	LPC_EMAC->MCMD = EMAC_MCMD_READ;
+}
+
+/* Read a value via the MII link (blocking) */
+err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
+{
+	u32_t mst = 250;
+	err_t sts = ERR_OK;
+
+	/* Read value at PHY address and register */
+	lpc_mii_read_noblock(PhyReg);
+
+	/* Wait for unbusy status */
+	while (mst > 0) {
+		sts = LPC_EMAC->MIND & ~EMAC_MIND_MII_LINK_FAIL;
+		if ((sts & EMAC_MIND_BUSY) == 0) {
+			mst = 0;
+			*data = LPC_EMAC->MRDD;
+		} else {
+			mst--;
+			osDelay(1);
+		}
+	}
+
+	LPC_EMAC->MCMD = 0;
+
+	if (sts != 0)
+		sts = ERR_TIMEOUT;
+
+	return sts;
+}
+
+
 
 /** \brief  Update PHY status from passed value
  *
