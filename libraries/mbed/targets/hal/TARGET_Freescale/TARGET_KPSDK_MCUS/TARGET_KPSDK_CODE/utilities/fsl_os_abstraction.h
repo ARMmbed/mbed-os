@@ -66,6 +66,9 @@ typedef enum
     kEventManualClr    /*!< The flags of the event will be cleared manually.      */
 }event_clear_type;
 
+// Temporary "fix", until the proper macros are integrated in the on-line build system
+#define FSL_RTOS_MBED
+
 /* Include required header file based on RTOS selection */
 #if defined (FSL_RTOS_MQX)
     /*! @brief Macro to set message queue copy messages to internal memory or not. */
