@@ -7,18 +7,23 @@ DigitalOut led2(LED2);
 
 #define SIZE 120
 
-void sd_thread(void const *argument) {
+void sd_thread(void const *argument)
+{
     const char *FILE_NAME = "/sd/out.txt";
 
 #if defined(TARGET_KL25Z)
     SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+
+#elif defined(TARGET_KL46Z)
+    SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+
 #else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 
     // Allocate data buffers
-    uint8_t data_written[SIZE] = {0};
-    uint8_t data_read[SIZE] = {0};
+    uint8_t data_written[SIZE] = { 0 };
+    uint8_t data_read[SIZE] = { 0 };
 
     {
         // fill data_written buffer with random data
@@ -30,13 +35,11 @@ void sd_thread(void const *argument) {
                 data_written[i] = rand() % 0xff;
                 fprintf(f, "%c", data_written[i]);
                 printf("%02X ", data_written[i]);
-                if (i && ((i % 20) == 19)) {
+                if (i && ((i % 20) == 19))
                     printf("\r\n");
-                }
             }
             fclose(f);
-        }
-        else {
+        } else {
             notify_completion(false);
             return;
         }
@@ -51,13 +54,11 @@ void sd_thread(void const *argument) {
             for (int i = 0; i < SIZE; i++) {
                 data_read[i] = fgetc(f);
                 printf("%02X ", data_read[i]);
-                if (i && ((i % 20) == 19)) {
+                if (i && ((i % 20) == 19))
                     printf("\r\n");
-                }
             }
             fclose(f);
-        }
-        else {
+        } else {
             notify_completion(false);
             return;
         }
@@ -74,7 +75,8 @@ void sd_thread(void const *argument) {
     notify_completion(true);
 }
 
-int main() {
+int main()
+{
     Thread t(sd_thread, NULL, osPriorityNormal, (DEFAULT_STACK_SIZE * 2.25));
 
     while (true) {

@@ -329,7 +329,7 @@ TESTS = [
     {
         "id": "MBED_10", "description": "Hello World",
         "source_dir": join(TEST_DIR, "mbed", "hello"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "host_test": "hello_auto",
     },
@@ -339,7 +339,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
         "automated": True,
         "host_test": "wait_us_auto",
-        "duration": 20
+        "duration": 20,
     },
     {
         "id": "MBED_12", "description": "C++",
