@@ -61,9 +61,9 @@ int main()
     bool result = true;
 
     i2c.frequency(i2c_freq_hz);
+    printf("I2C: I2C Frequency: %d Hz\r\n", i2c_freq_hz);
 
     printf("I2C: Lines pattern write test ... ");
-
     int write_errors = 0;
     for (int i = 0; i < ntests; i++) {
         char data[] = { 0 /*MSB*/, 0 /*LSB*/, PATTERN_MASK };
