@@ -21,15 +21,6 @@
 *  that uses two byte addresses should work.
 ******************************************************************************/
 
-// Test configuration block
-namespace {
-const int ntests = 10000;
-const int i2c_freq_hz = 400000;
-const int i2c_delay_us = 0;
-const int EEPROM_24LC256_SIZE = (256 * 1024 / 8);   // 256 kbit memory
-}
-// End of test configuration block
-
 #if defined(TARGET_KL25Z)
 I2C i2c(PTC9, PTC8);
 
@@ -52,6 +43,12 @@ I2C i2c(PTE25, PTE24);
 I2C i2c(p28, p27);
 #endif
 
+namespace {
+const int ntests = 10000;
+const int i2c_freq_hz = 400000;
+const int i2c_delay_us = 0;
+}
+
 int main()
 {
     const int EEPROM_MEM_ADDR = 0xA0;
@@ -63,7 +60,9 @@ int main()
     bool result = true;
 
     i2c.frequency(i2c_freq_hz);
+    printf("I2C: I2C Frequency: %d Hz\r\n", i2c_freq_hz);
 
+    printf("I2C: Write 0x%2X at address 0x0000 test ... \r\n", MARK);
     // Data write
     {
         char data[] = { 0, 0, MARK };
@@ -78,6 +77,7 @@ int main()
             ;
     }
 
+    printf("I2C: Read data from address 0x0000 test ... \r\n");
     // Data read (actual test)
     for (int i = 0; i < ntests; i++) {
         // Write data to EEPROM memory
