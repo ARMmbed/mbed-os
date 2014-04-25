@@ -38,22 +38,30 @@
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_15, SPI_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_14, SPI_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
+    {PB_13, SPI_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_0)},
     {NC,    NC,    0}
 };
 
 // Only used in Slave mode
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PB_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0)}, // Generic IO, not real H/W NSS pin
+    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0)},
+    {PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0)},
+    {PB_12, SPI_2, STM_PIN_DATA(GPIO_Mode_IN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0)},
     {NC,    NC,    0}
 };
 
@@ -121,7 +129,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     }
 
     init_spi(obj);
