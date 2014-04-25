@@ -42,12 +42,16 @@
 #define LONG_TIMEOUT ((int)0x8000)
 
 static const PinMap PinMap_I2C_SDA[] = {
+    {PB_7,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {PB_9,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PB_11, I2C_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
+    {PB_6,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {PB_8,  I2C_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PB_10, I2C_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_OD, GPIO_PuPd_UP, GPIO_AF_1)},
     {NC,    NC,    0}
 };
 
@@ -66,9 +70,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj->i2c == I2C_1) {    
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     }
-    //if (obj->i2c == I2C_2) {
-    //    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
-    //}
+    if (obj->i2c == I2C_2) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+    }
 
     // Configure I2C pins
     pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -196,39 +200,23 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     if (length == 0) return 0;
 
-    // TODO: the stop is always sent even with I2C_SoftEnd_Mode. To be corrected.
-
     // Configure slave address, nbytes, reload, end mode and start or stop generation
-    //if (stop) {
+    if (stop) {
         I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
-    //}
-    //else {
-    //    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
-    //}
+  
+    }
+    else {
+        I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
+    }
     
     // Write all bytes
     for (count = 0; count < length; count++) {
         if (i2c_byte_write(obj, data[count]) != 1) {
-            i2c_stop(obj);
+            if(!stop) i2c_stop(obj);
             return 0;
         }
     }
 
-    /*
-    if (stop) {
-        // Wait until STOPF flag is set
-        timeout = LONG_TIMEOUT;
-        while (I2C_GetFlagStatus(i2c, I2C_ISR_STOPF) == RESET) {
-            timeout--;
-            if (timeout == 0) {
-                return 0;
-            }
-        }
-        // Clear STOPF flag
-        I2C_ClearFlag(i2c, I2C_ICR_STOPCF);
-    }
-    */
-    
     return count;
 }
 
@@ -274,10 +262,10 @@ void i2c_reset(i2c_t *obj) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
     }
-    //if (obj->i2c == I2C_2) {
-    //    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
-    //    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);      
-    //}
+    if (obj->i2c == I2C_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);      
+    }
 }
 
 #if DEVICE_I2CSLAVE
@@ -286,6 +274,9 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint16_t tmpreg;
   
+    // reset own address enable
+    i2c->OAR1 &=~ I2C_OAR1_OA1EN;
+  
     // Get the old register value
     tmpreg = i2c->OAR1;
     // Reset address bits
@@ -293,7 +284,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     // Set new address
     tmpreg |= (uint16_t)((uint16_t)address & (uint16_t)0x00FE); // 7-bits
     // Store the new register value
-    i2c->OAR1 = tmpreg;
+    i2c->OAR1 = tmpreg | I2C_OAR1_OA1EN;
 }
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
@@ -307,8 +298,27 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
 int i2c_slave_receive(i2c_t *obj) {
-    // TO BE DONE
-    return(0);
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+    int event = 0;
+    int timeout;
+  
+    // Wait until address match
+    timeout = FLAG_TIMEOUT;
+    while (I2C_GetFlagStatus(i2c, I2C_ISR_ADDR) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
+    }
+        // Check direction
+        if (i2c->ISR & I2C_ISR_DIR) {
+            event = ReadAddressed;
+        }
+        else event = WriteAddressed;
+        // Clear adress match flag to generate an acknowledge
+        i2c->ICR |= I2C_ICR_ADDRCF;
+
+    return event;
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
