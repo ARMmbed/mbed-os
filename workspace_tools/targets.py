@@ -171,7 +171,7 @@ class K64F(Target):
 
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
 
-        self.macros = ["CPU_MK64FN1M0VMD12"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
 
         self.supported_toolchains = ["ARM"]
         

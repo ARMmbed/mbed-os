@@ -27,30 +27,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#if !defined(__FSL_ENET_FEATURES_H__)
-#define __FSL_ENET_FEATURES_H__
+#ifndef K64F_EMAC_CONFIG_H__
+#define K64F_EMAC_CONFIG_H__
+ 
+#define ENET_RX_RING_LEN              (16)
+#define ENET_TX_RING_LEN              (8)
+#define ENET_RX_LARGE_BUFFER_NUM      (0)
+#define ENET_RX_BUFFER_ALIGNMENT      (16)  
+#define ENET_TX_BUFFER_ALIGNMENT      (16)
+#define ENET_BD_ALIGNMENT             (16)
+#define ENET_MII_CLOCK                (2500000L)
+#define RX_BUF_ALIGNMENT              (16)
+#define TX_BUF_ALIGNMENT              (8)
+#define BOARD_DEBUG_ENET_INSTANCE     (0)
 
+#define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 
-#if defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK63FN1M0VMD12WS)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
-	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
-#elif  defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VMD12)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (0)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
-	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
-#elif defined(CPU_MK70FN1M0VMJ12)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
-#else
-    #error "No valid CPU defined"
-#endif
+#endif // #define K64F_EMAC_CONFIG_H__
 
-
-#endif /* __FSL_ENET_FEATURES_H__*/
-/*******************************************************************************
- * EOF
- ******************************************************************************/

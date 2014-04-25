@@ -27,30 +27,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#if !defined(__FSL_ENET_FEATURES_H__)
-#define __FSL_ENET_FEATURES_H__
+#ifndef __FSL_INTERRUPT_FEATURES_H__
+#define __FSL_INTERRUPT_FEATURES_H__
 
-
-#if defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK63FN1M0VMD12WS)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
-	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
-#elif  defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VMD12)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (0)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
-	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
-#elif defined(CPU_MK70FN1M0VMJ12)
-  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
-	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
-	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
+#if (defined(CPU_MKL25Z32VFM4) || defined(CPU_MKL25Z64VFM4) || defined(CPU_MKL25Z128VFM4) || \
+     defined(CPU_MKL25Z32VFT4) || defined(CPU_MKL25Z64VFT4) || defined(CPU_MKL25Z128VFT4) || \
+     defined(CPU_MKL25Z32VLH4) || defined(CPU_MKL25Z64VLH4) || defined(CPU_MKL25Z128VLH4) || \
+     defined(CPU_MKL25Z32VLK4) || defined(CPU_MKL25Z64VLK4) || defined(CPU_MKL25Z128VLK4))
+    #define FSL_FEATURE_INTERRUPT_IRQ_MAX (31)
+    #define FSL_FEATURE_INTERRUPT_IRQ_MIN (-14)
+#elif (defined(CPU_MK70FN1M0VMJ12) || defined(CPU_MK70FX512VMJ12) || \
+       defined(CPU_MK70FN1M0VMJ15) || defined(CPU_MK70FX512VMJ15))
+    #define FSL_FEATURE_INTERRUPT_IRQ_MAX (105)
+    #define FSL_FEATURE_INTERRUPT_IRQ_MIN (-14)
+#elif (defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FX512VLL12) || \
+    defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \
+    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12))
+    #define FSL_FEATURE_INTERRUPT_IRQ_MAX (85)
+    #define FSL_FEATURE_INTERRUPT_IRQ_MIN (-14)
+#elif  (defined(CPU_MK22FN512VDC12))
+    #define FSL_FEATURE_INTERRUPT_IRQ_MAX (85)
+    #define FSL_FEATURE_INTERRUPT_IRQ_MIN (-14)
 #else
     #error "No valid CPU defined"
 #endif
 
-
-#endif /* __FSL_ENET_FEATURES_H__*/
+#endif /* __FSL_INTERRUPT_FEATURES_H__*/
 /*******************************************************************************
  * EOF
  ******************************************************************************/
+
