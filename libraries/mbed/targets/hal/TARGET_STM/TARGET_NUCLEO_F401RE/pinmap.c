@@ -30,7 +30,6 @@
 #include "pinmap.h"
 #include "PortNames.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 // GPIO mode look-up table
 static const uint32_t gpio_mode[12] = {
@@ -74,7 +73,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
             break;
         default:
             error("Pinmap error: wrong port number.");
-            break;          
+            break;
     }
     return gpio_add;
 }
@@ -105,7 +104,7 @@ void pin_function(PinName pin, int data) {
     GPIO_InitStructure.Speed     = GPIO_SPEED_HIGH;
     GPIO_InitStructure.Alternate = afnum;
     HAL_GPIO_Init(gpio, &GPIO_InitStructure);
-    
+
     // [TODO] Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     //if ((pin == PA_13) || (pin == PA_14)) {
@@ -113,7 +112,7 @@ void pin_function(PinName pin, int data) {
     //}
     //if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
     //
-    //}    
+    //}
 }
 
 /**
@@ -134,5 +133,5 @@ void pin_mode(PinName pin, PinMode mode) {
     if (pupd > 2) pupd = 0; // Open-drain = No pull-up/No pull-down
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
-    
+
 }

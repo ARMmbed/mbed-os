@@ -28,11 +28,13 @@
  *******************************************************************************
  */
 #include "serial_api.h"
+
+#if DEVICE_SERIAL
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
 #include <string.h>
-#include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_UART_TX[] = {
     {PA_2,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
@@ -54,33 +56,33 @@ static const PinMap PinMap_UART_RX[] = {
 
 #define UART_NUM (3)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
 
 static uart_irq_handler irq_handler;
 
 UART_HandleTypeDef UartHandle;
-    
+
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 static void init_uart(serial_t *obj) {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    
+
     UartHandle.Init.BaudRate   = obj->baudrate;
     UartHandle.Init.WordLength = obj->databits;
     UartHandle.Init.StopBits   = obj->stopbits;
     UartHandle.Init.Parity     = obj->parity;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
     UartHandle.Init.Mode       = UART_MODE_TX_RX;
-  
-    HAL_UART_Init(&UartHandle);    
+
+    HAL_UART_Init(&UartHandle);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {  
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-  
+
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
 
@@ -98,18 +100,18 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == UART_6) {
         __USART6_CLK_ENABLE();
     }
-    
+
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
     pin_mode(tx, PullUp);
     pin_mode(rx, PullUp);
-    
+
     // Configure UART
     obj->baudrate = 9600;
     obj->databits = UART_WORDLENGTH_8B;
     obj->stopbits = UART_STOPBITS_1;
-    obj->parity   = UART_PARITY_NONE;    
+    obj->parity   = UART_PARITY_NONE;
 
     init_uart(obj);
 
@@ -117,13 +119,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == UART_1) obj->index = 0;
     if (obj->uart == UART_2) obj->index = 1;
     if (obj->uart == UART_6) obj->index = 2;
-    
+
     // For stdio management
     if (obj->uart == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-    
+
 }
 
 void serial_free(serial_t *obj) {
@@ -138,29 +140,27 @@ void serial_baud(serial_t *obj, int baudrate) {
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     if (data_bits == 8) {
         obj->databits = UART_WORDLENGTH_8B;
-    }
-    else {
+    } else {
         obj->databits = UART_WORDLENGTH_9B;
     }
 
     switch (parity) {
-      case ParityOdd:
-      case ParityForced0:
-          obj->parity = UART_PARITY_ODD;
-      break;
-      case ParityEven:
-      case ParityForced1:        
-          obj->parity = UART_PARITY_EVEN;
-      break;
-      default: // ParityNone
-          obj->parity = UART_PARITY_NONE;
-      break;
+        case ParityOdd:
+        case ParityForced0:
+            obj->parity = UART_PARITY_ODD;
+            break;
+        case ParityEven:
+        case ParityForced1:
+            obj->parity = UART_PARITY_EVEN;
+            break;
+        default: // ParityNone
+            obj->parity = UART_PARITY_NONE;
+            break;
     }
-    
+
     if (stop_bits == 2) {
         obj->stopbits = UART_STOPBITS_2;
-    }
-    else {
+    } else {
         obj->stopbits = UART_STOPBITS_1;
     }
 
@@ -171,10 +171,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-// Not part of mbed api
 static void uart_irq(UARTName name, int id) {
     UartHandle.Instance = (USART_TypeDef *)name;
-      
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) {
             irq_handler(serial_irq_ids[id], TxIrq);
@@ -187,10 +185,15 @@ static void uart_irq(UARTName name, int id) {
     }
 }
 
-// Not part of mbed api
-static void uart1_irq(void) {uart_irq(UART_1, 0);}
-static void uart2_irq(void) {uart_irq(UART_2, 1);}
-static void uart6_irq(void) {uart_irq(UART_6, 2);}
+static void uart1_irq(void) {
+    uart_irq(UART_1, 0);
+}
+static void uart2_irq(void) {
+    uart_irq(UART_2, 1);
+}
+static void uart6_irq(void) {
+    uart_irq(UART_6, 2);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -200,54 +203,52 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
-    
+
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    
+
     if (obj->uart == UART_1) {
-      irq_n = USART1_IRQn;
-      vector = (uint32_t)&uart1_irq;
+        irq_n = USART1_IRQn;
+        vector = (uint32_t)&uart1_irq;
     }
-  
+
     if (obj->uart == UART_2) {
-      irq_n = USART2_IRQn;
-      vector = (uint32_t)&uart2_irq;
+        irq_n = USART2_IRQn;
+        vector = (uint32_t)&uart2_irq;
     }
 
     if (obj->uart == UART_6) {
-      irq_n = USART6_IRQn;
-      vector = (uint32_t)&uart6_irq;
+        irq_n = USART6_IRQn;
+        vector = (uint32_t)&uart6_irq;
     }
-    
+
     if (enable) {
-      
+
         if (irq == RxIrq) {
             __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_RXNE);
-        }
-        else { // TxIrq
+        } else { // TxIrq
             __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TC);
-        }        
-        
+        }
+
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-        
+
     } else { // disable
-      
+
         int all_disabled = 0;
-        
+
         if (irq == RxIrq) {
-             __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_RXNE);
+            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_RXNE);
             // Check if TxIrq is disabled too
             if ((UartHandle.Instance->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
-        }
-        else { // TxIrq
+        } else { // TxIrq
             __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
             // Check if RxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;          
+            if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
-        
+
         if (all_disabled) NVIC_DisableIRQ(irq_n);
-        
-    }    
+
+    }
 }
 
 /******************************************************************************
@@ -299,3 +300,5 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
 }
+
+#endif
