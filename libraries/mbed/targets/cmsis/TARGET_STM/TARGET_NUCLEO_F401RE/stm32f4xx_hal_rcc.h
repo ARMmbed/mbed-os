@@ -190,7 +190,7 @@ typedef struct
 
 
 #define DBP_TIMEOUT_VALUE          ((uint32_t)100)
-#define LSE_TIMEOUT_VALUE          ((uint32_t)5000)
+#define LSE_TIMEOUT_VALUE          ((uint32_t)100)
 /**
   * @}
   */

@@ -34,11 +34,10 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will 
-   not remain stuck if the I2C communication is corrupted. */   
+   not based on accurate values, they just guarantee that the application will
+   not remain stuck if the I2C communication is corrupted. */
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
@@ -61,19 +60,19 @@ static const PinMap PinMap_I2C_SCL[] = {
 
 I2C_HandleTypeDef I2cHandle;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {  
+void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    
+
     if (obj->i2c == (I2CName)NC) {
         error("I2C error: pinout mapping failed.");
     }
 
     // Enable I2C clock
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         __I2C1_CLK_ENABLE();
     }
     if (obj->i2c == I2C_2) {
@@ -88,17 +87,17 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     pinmap_pinout(scl, PinMap_I2C_SCL);
     pin_mode(sda, OpenDrain);
     pin_mode(scl, OpenDrain);
-    
+
     // Reset to clear pending flags if any
     i2c_reset(obj);
-    
+
     // I2C configuration
-    i2c_frequency(obj, 100000); // 100 kHz per default    
+    i2c_frequency(obj, 100000); // 100 kHz per default
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
-  
+
     if ((hz != 0) && (hz <= 400000)) {
         // I2C configuration      
         I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -119,38 +118,38 @@ void i2c_frequency(i2c_t *obj, int hz) {
 inline int i2c_start(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
-    
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
-  
+
     // Clear Acknowledge failure flag
     __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_AF);
-  
+
     // Generate the START condition
     i2c->CR1 |= I2C_CR1_START;
-  
+
     // Wait the START condition has been correctly sent
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_SB) == RESET) {
-      if ((timeout--) == 0) {
-          return 1;
-      }
+        if ((timeout--) == 0) {
+            return 1;
+        }
     }
-    
+
     return 0;
 }
 
 inline int i2c_stop(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-  
+
     // Generate the STOP condition
     i2c->CR1 |= I2C_CR1_STOP;
 
     return 0;
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {  
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     if (length == 0) return 0;
-  
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     // Reception process with 5 seconds timeout
@@ -163,21 +162,21 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     if (length == 0) return 0;
-  
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     // Transmission process with 5 seconds timeout
     if (HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)address, (uint8_t *)data, length, 5000) != HAL_OK) {
         return 0; // Error
     }
-    
+
     return length;
 }
 
 int i2c_byte_read(i2c_t *obj, int last) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
-  
+
     if (last) {
         // Don't acknowledge the last byte
         i2c->CR1 &= ~I2C_CR1_ACK;
@@ -189,11 +188,11 @@ int i2c_byte_read(i2c_t *obj, int last) {
     // Wait until the byte is received
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_RXNE) == RESET) {
-      if ((timeout--) == 0) {
-          return 0;
-      }
+        if ((timeout--) == 0) {
+            return 0;
+        }
     }
-    
+
     return (int)i2c->DR;
 }
 
@@ -204,19 +203,19 @@ int i2c_byte_write(i2c_t *obj, int data) {
     i2c->DR = (uint8_t)data;
 
     // Wait until the byte is transmitted
-    timeout = FLAG_TIMEOUT;  
+    timeout = FLAG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TXE) == RESET) &&
            (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == RESET)) {
         if ((timeout--) == 0) {
             return 0;
         }
     }
-    
+
     return 1;
 }
 
 void i2c_reset(i2c_t *obj) {
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         __I2C1_FORCE_RESET();
         __I2C1_RELEASE_RESET();
     }
@@ -263,7 +262,7 @@ int i2c_slave_receive(i2c_t *obj) {
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
     if (length == 0) return 0;
-  
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     // Reception process with 5 seconds timeout
@@ -276,7 +275,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     if (length == 0) return 0;
-  
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     // Transmission process with 5 seconds timeout

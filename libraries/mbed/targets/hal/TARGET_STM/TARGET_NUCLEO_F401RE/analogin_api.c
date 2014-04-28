@@ -26,14 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "analogin_api.h"
-#include "wait_api.h"
 
 #if DEVICE_ANALOGIN
 
+#include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
@@ -59,8 +58,8 @@ ADC_HandleTypeDef AdcHandle;
 
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin) {  
-    // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
+void analogin_init(analogin_t *obj, PinName pin) {
+    // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
 
     if (obj->adc == (ADCName)NC) {
@@ -76,7 +75,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     // The ADC initialization is done once
     if (adc_inited == 0) {
         adc_inited = 1;
-      
+
         // Enable ADC clock
         __ADC1_CLK_ENABLE();
 
@@ -93,97 +92,93 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
         AdcHandle.Init.NbrOfConversion       = 1;
         AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.EOCSelection          = DISABLE;      
-        HAL_ADC_Init(&AdcHandle);   
+        AdcHandle.Init.EOCSelection          = DISABLE;
+        HAL_ADC_Init(&AdcHandle);
     }
 }
 
 static inline uint16_t adc_read(analogin_t *obj) {
-  ADC_ChannelConfTypeDef sConfig;
-  
-  AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+    ADC_ChannelConfTypeDef sConfig;
 
-  // Configure ADC channel
-  sConfig.Rank         = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  sConfig.Offset       = 0;
+    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
-  switch (obj->pin) {
-      case PA_0:
-          sConfig.Channel = ADC_CHANNEL_0;
-          break;
-      case PA_1:
-          sConfig.Channel = ADC_CHANNEL_1;
-          break;
-      case PA_2:
-          sConfig.Channel = ADC_CHANNEL_2;
-          break;
-      case PA_3:
-          sConfig.Channel = ADC_CHANNEL_3;
-          break;          
-      case PA_4:
-          sConfig.Channel = ADC_CHANNEL_4;
-          break;
-      case PA_5:
-          sConfig.Channel = ADC_CHANNEL_5;
-          break;
-      case PA_6:
-          sConfig.Channel = ADC_CHANNEL_6;
-          break;
-      case PA_7:
-          sConfig.Channel = ADC_CHANNEL_7;
-          break;          
-      case PB_0:
-          sConfig.Channel = ADC_CHANNEL_8;
-          break;
-      case PB_1:
-          sConfig.Channel = ADC_CHANNEL_9;
-          break;          
-      case PC_0:
-          sConfig.Channel = ADC_CHANNEL_10;
-          break;
-      case PC_1:
-          sConfig.Channel = ADC_CHANNEL_11;
-          break;
-      case PC_2:
-          sConfig.Channel = ADC_CHANNEL_12;
-          break;
-      case PC_3:
-          sConfig.Channel = ADC_CHANNEL_13;
-          break;
-      case PC_4:
-          sConfig.Channel = ADC_CHANNEL_14;
-          break;
-      case PC_5:
-          sConfig.Channel = ADC_CHANNEL_15;
-          break;          
-      default:
-          return 0;
-  }
-  
-  HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
-    
-  HAL_ADC_Start(&AdcHandle); // Start conversion
-  
-  HAL_ADC_PollForConversion(&AdcHandle, 10); // Wait end of conversion
-  
-  if (HAL_ADC_GetState(&AdcHandle) == HAL_ADC_STATE_EOC_REG)
-  {  
-      return(HAL_ADC_GetValue(&AdcHandle)); // Get conversion value
-  }
-  else
-  {
-      return 0;
-  }
+    // Configure ADC channel
+    sConfig.Rank         = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.Offset       = 0;
+
+    switch (obj->pin) {
+        case PA_0:
+            sConfig.Channel = ADC_CHANNEL_0;
+            break;
+        case PA_1:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PA_2:
+            sConfig.Channel = ADC_CHANNEL_2;
+            break;
+        case PA_3:
+            sConfig.Channel = ADC_CHANNEL_3;
+            break;
+        case PA_4:
+            sConfig.Channel = ADC_CHANNEL_4;
+            break;
+        case PA_5:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PA_6:
+            sConfig.Channel = ADC_CHANNEL_6;
+            break;
+        case PA_7:
+            sConfig.Channel = ADC_CHANNEL_7;
+            break;
+        case PB_0:
+            sConfig.Channel = ADC_CHANNEL_8;
+            break;
+        case PB_1:
+            sConfig.Channel = ADC_CHANNEL_9;
+            break;
+        case PC_0:
+            sConfig.Channel = ADC_CHANNEL_10;
+            break;
+        case PC_1:
+            sConfig.Channel = ADC_CHANNEL_11;
+            break;
+        case PC_2:
+            sConfig.Channel = ADC_CHANNEL_12;
+            break;
+        case PC_3:
+            sConfig.Channel = ADC_CHANNEL_13;
+            break;
+        case PC_4:
+            sConfig.Channel = ADC_CHANNEL_14;
+            break;
+        case PC_5:
+            sConfig.Channel = ADC_CHANNEL_15;
+            break;
+        default:
+            return 0;
+    }
+
+    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+
+    HAL_ADC_Start(&AdcHandle); // Start conversion
+
+    // Wait end of conversion and get value
+    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&AdcHandle));
+    } else {
+        return 0;
+    }
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
-  return(adc_read(obj));
+    return (adc_read(obj));
 }
 
 float analogin_read(analogin_t *obj) {
-  uint16_t value = adc_read(obj);
-  return (float)value * (1.0f / (float)0xFFF); // 12 bits range
+    uint16_t value = adc_read(obj);
+    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif
