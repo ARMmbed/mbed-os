@@ -29,25 +29,27 @@
  */
 #include "pwmout_api.h"
 
+#if DEVICE_PWMOUT
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
 
 // TIM5 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
-  //{PA_0,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH1
+//  {PA_0,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH1
     {PA_1,  PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH2
-  //{PA_1,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH1
+//  {PA_1,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH1
     {PA_2,  PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH3
-  //{PA_2,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH3
-  //{PA_2,  PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH1
+//  {PA_2,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH3
+//  {PA_2,  PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH1
     {PA_3,  PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH4
-  //{PA_3,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH4
-  //{PA_3,  PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH2
+//  {PA_3,  PWM_5,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM5)},  // TIM5_CH4
+//  {PA_3,  PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH2
     {PA_6,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH1
-  //{PA_6,  PWM_10, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM10)}, // TIM10_CH1
+//  {PA_6,  PWM_10, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM10)}, // TIM10_CH1
     {PA_7,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH2
-  //{PA_7,  PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1    
+//  {PA_7,  PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1
     {PB_0,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH3
     {PB_1,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH4
     {PB_3,  PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH2
@@ -56,30 +58,30 @@ static const PinMap PinMap_PWM[] = {
     {PB_6,  PWM_4,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM4)},  // TIM4_CH1
     {PB_7,  PWM_4,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM4)},  // TIM4_CH2
     {PB_8,  PWM_4,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM4)},  // TIM4_CH3
-  //{PB_8,  PWM_10, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM10)}, // TIM10_CH1
+//  {PB_8,  PWM_10, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM10)}, // TIM10_CH1
     {PB_9,  PWM_4,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM4)},  // TIM4_CH4
-  //{PB_9,  PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1
+//  {PB_9,  PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1
     {PB_10, PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH3
     {PB_11, PWM_2,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM2)},  // TIM2_CH4
     {PB_12, PWM_10, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM10)}, // TIM10_CH1
     {PB_13, PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH1
     {PB_14, PWM_9,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM9)},  // TIM9_CH2
-    {PB_15, PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1    
+    {PB_15, PWM_11, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM11)}, // TIM11_CH1
     {PC_6,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH1
     {PC_7,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH2
     {PC_8,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH3
-    {PC_9,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH4    
+    {PC_9,  PWM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_TIM3)},  // TIM3_CH4
     {NC,    NC,     0}
 };
 
-void pwmout_init(pwmout_t* obj, PinName pin) {  
+void pwmout_init(pwmout_t* obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-  
+
     if (obj->pwm == (PWMName)NC) {
         error("PWM pinout mapping failed");
     }
-    
+
     // Enable TIM clock
     if (obj->pwm == PWM_2) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     if (obj->pwm == PWM_3) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
@@ -88,14 +90,14 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (obj->pwm == PWM_9) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
     if (obj->pwm == PWM_10) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
     if (obj->pwm == PWM_11) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
-    
+
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
-    
+
     obj->pin = pin;
     obj->period = 0;
     obj->pulse = 0;
-    
+
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
 
@@ -113,9 +115,9 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0) {
         value = 1.0;
     }
-   
+
     obj->pulse = (uint32_t)((float)obj->period * value);
-    
+
     TIM_OCInitStructure.TIM_OCMode      = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse       = obj->pulse;
@@ -124,15 +126,15 @@ void pwmout_write(pwmout_t* obj, float value) {
     // Configure the channels
     switch (obj->pin) {
         // Channels 1
-      //case PA_0:
-      //case PA_1:
-      //case PA_2:
+        //case PA_0:
+        //case PA_1:
+        //case PA_2:
         case PA_6:
-      //case PA_7:
+        //case PA_7:
         case PB_4:
         case PB_6:
-      //case PB_8:
-      //case PB_9:
+        //case PB_8:
+        //case PB_9:
         case PB_12:
         case PB_13:
         case PB_15:
@@ -142,7 +144,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             break;
         // Channels 2
         case PA_1:
-      //case PA_3:
+        //case PA_3:
         case PA_7:
         case PB_3:
         case PB_5:
@@ -169,7 +171,7 @@ void pwmout_write(pwmout_t* obj, float value) {
         case PC_9:
             TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
             TIM_OC4Init(tim, &TIM_OCInitStructure);
-            break;        
+            break;
         default:
             return;
     }
@@ -196,10 +198,10 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     float dc = pwmout_read(obj);
 
-    TIM_Cmd(tim, DISABLE);  
-    
+    TIM_Cmd(tim, DISABLE);
+
     obj->period = us;
-  
+
     TIM_TimeBaseStructure.TIM_Period        = obj->period - 1;
     TIM_TimeBaseStructure.TIM_Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
@@ -208,8 +210,8 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
     // Set duty cycle again
     pwmout_write(obj, dc);
-  
-    TIM_ARRPreloadConfig(tim, ENABLE);    
+
+    TIM_ARRPreloadConfig(tim, ENABLE);
     TIM_Cmd(tim, ENABLE);
 }
 
@@ -225,3 +227,5 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);
 }
+
+#endif
