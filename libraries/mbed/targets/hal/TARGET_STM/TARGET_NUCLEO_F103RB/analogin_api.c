@@ -26,13 +26,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "analogin_api.h"
-#include "wait_api.h"
 
 #if DEVICE_ANALOGIN
 
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "wait_api.h"
 
 static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN0
@@ -57,15 +57,14 @@ static const PinMap PinMap_ADC[] = {
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin) {
-  
-    ADC_TypeDef     *adc;
+    ADC_TypeDef *adc;
     ADC_InitTypeDef ADC_InitStructure;
-  
+
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
- 
+
     if (obj->adc == (ADCName)NC) {
-      error("ADC pin mapping failed");
+        error("ADC pin mapping failed");
     }
 
     // Configure GPIO
@@ -80,12 +79,12 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
         // Get ADC registers structure address
         adc = (ADC_TypeDef *)(obj->adc);
-      
+
         // Enable ADC clock (14 MHz maximum)
         // PCLK2 = 64 MHz --> ADC clock = 64/6 = 10.666 MHz
         RCC_ADCCLKConfig(RCC_PCLK2_Div6);
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-               
+
         // Configure ADC
         ADC_InitStructure.ADC_Mode               = ADC_Mode_Independent;
         ADC_InitStructure.ADC_ScanConvMode       = DISABLE;
@@ -100,87 +99,87 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
         // Calibrate ADC
         ADC_ResetCalibration(adc);
-        while(ADC_GetResetCalibrationStatus(adc));
+        while (ADC_GetResetCalibrationStatus(adc));
         ADC_StartCalibration(adc);
-        while(ADC_GetCalibrationStatus(adc));    
+        while (ADC_GetCalibrationStatus(adc));
     }
 }
 
 static inline uint16_t adc_read(analogin_t *obj) {
-  // Get ADC registers structure address
-  ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
-  int channel = 0;
-  
-  // Configure ADC channel
-  switch (obj->pin) {
-      case PA_0:
-          channel = 0;
-          break;
-      case PA_1:
-          channel = 1;
-          break;
-      case PA_2:
-          channel = 2;
-          break;
-      case PA_3:
-          channel = 3;
-          break;      
-      case PA_4:
-          channel = 4;
-          break;
-      case PA_5:
-          channel = 5;
-          break;
-      case PA_6:
-          channel = 6;
-          break;     
-      case PA_7:
-          channel = 7;
-          break;      
-      case PB_0:
-          channel = 8;
-          break;
-      case PB_1:
-          channel = 9;
-          break;       
-      case PC_0:
-          channel = 10;
-          break;
-      case PC_1:
-          channel = 11;
-          break;
-      case PC_2:
-          channel = 12;
-          break;
-      case PC_3:
-          channel = 13;
-          break;
-      case PC_4:
-          channel = 14;
-          break;
-      case PC_5:
-          channel = 15;
-          break;       
-      default:
-          return 0;
-  }
+    // Get ADC registers structure address
+    ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
+    int channel = 0;
 
-  ADC_RegularChannelConfig(adc, channel, 1, ADC_SampleTime_7Cycles5);
-  
-  ADC_SoftwareStartConvCmd(adc, ENABLE); // Start conversion
-  
-  while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
-  
-  return(ADC_GetConversionValue(adc)); // Get conversion value
+    // Configure ADC channel
+    switch (obj->pin) {
+        case PA_0:
+            channel = 0;
+            break;
+        case PA_1:
+            channel = 1;
+            break;
+        case PA_2:
+            channel = 2;
+            break;
+        case PA_3:
+            channel = 3;
+            break;
+        case PA_4:
+            channel = 4;
+            break;
+        case PA_5:
+            channel = 5;
+            break;
+        case PA_6:
+            channel = 6;
+            break;
+        case PA_7:
+            channel = 7;
+            break;
+        case PB_0:
+            channel = 8;
+            break;
+        case PB_1:
+            channel = 9;
+            break;
+        case PC_0:
+            channel = 10;
+            break;
+        case PC_1:
+            channel = 11;
+            break;
+        case PC_2:
+            channel = 12;
+            break;
+        case PC_3:
+            channel = 13;
+            break;
+        case PC_4:
+            channel = 14;
+            break;
+        case PC_5:
+            channel = 15;
+            break;
+        default:
+            return 0;
+    }
+
+    ADC_RegularChannelConfig(adc, channel, 1, ADC_SampleTime_7Cycles5);
+
+    ADC_SoftwareStartConvCmd(adc, ENABLE); // Start conversion
+
+    while (ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
+
+    return (ADC_GetConversionValue(adc)); // Get conversion value
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
-  return(adc_read(obj));
+    return (adc_read(obj));
 }
 
 float analogin_read(analogin_t *obj) {
-  uint16_t value = adc_read(obj);
-  return (float)value * (1.0f / (float)0xFFF); // 12 bits range
+    uint16_t value = adc_read(obj);
+    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif

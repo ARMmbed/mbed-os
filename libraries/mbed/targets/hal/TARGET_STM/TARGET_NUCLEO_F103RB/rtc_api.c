@@ -45,9 +45,9 @@ void rtc_init(void) {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE); // Enable PWR and Backup clock
 
     PWR_BackupAccessCmd(ENABLE); // Allow access to Backup Domain
-  
+
     BKP_DeInit(); // Reset Backup Domain
-  
+
     // Enable LSE clock
     RCC_LSEConfig(RCC_LSE_ON);
 
@@ -71,18 +71,18 @@ void rtc_init(void) {
         RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select the RTC Clock Source
         rtc_freq = LSE_VALUE;
     }
-            
-    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
-      
+
+    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock
+
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
-      
+
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
 
     // Set RTC period to 1 sec
     RTC_SetPrescaler(rtc_freq - 1);
-    
+
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
-      
+
     rtc_inited = 1;
 }
 

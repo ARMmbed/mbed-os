@@ -34,16 +34,16 @@
 // Alternate-function mapping
 #define AF_NUM (10)
 static const uint32_t AF_mapping[AF_NUM] = {
-  0,                        // 0 = No AF
-  GPIO_Remap_SPI1,          // 1
-  GPIO_Remap_I2C1,          // 2
-  GPIO_Remap_USART1,        // 3
-  GPIO_Remap_USART2,        // 4
-  GPIO_PartialRemap_USART3, // 5
-  GPIO_PartialRemap_TIM1,   // 6
-  GPIO_PartialRemap_TIM3,   // 7
-  GPIO_FullRemap_TIM2,      // 8
-  GPIO_FullRemap_TIM3       // 9
+    0,                        // 0 = No AF
+    GPIO_Remap_SPI1,          // 1
+    GPIO_Remap_I2C1,          // 2
+    GPIO_Remap_USART1,        // 3
+    GPIO_Remap_USART2,        // 4
+    GPIO_PartialRemap_USART3, // 5
+    GPIO_PartialRemap_TIM1,   // 6
+    GPIO_PartialRemap_TIM3,   // 7
+    GPIO_FullRemap_TIM2,      // 8
+    GPIO_FullRemap_TIM3       // 9
 };
 
 // Enable GPIO clock and return GPIO base address
@@ -98,14 +98,14 @@ void pin_function(PinName pin, int data) {
     if ((afnum > 0) && (afnum < AF_NUM)) {
         GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
     }
-  
+
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(gpio, &GPIO_InitStructure);
-    
+
     // Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     if ((pin == PA_13) || (pin == PA_14)) {
@@ -113,7 +113,7 @@ void pin_function(PinName pin, int data) {
     }
     if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
         GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
-    }    
+    }
 }
 
 /**
@@ -121,7 +121,7 @@ void pin_function(PinName pin, int data) {
  */
 void pin_mode(PinName pin, PinMode mode) {
     GPIO_InitTypeDef GPIO_InitStructure;
-    
+
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
@@ -130,35 +130,34 @@ void pin_mode(PinName pin, PinMode mode) {
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-  
+
     // Configure open-drain and pull-up/down
     switch (mode) {
-      case PullNone:       
-        return;
-      case PullUp:
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-      break;
-      case PullDown:
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-      break;
-      case OpenDrain:
-        if (pin_index < 8) {
-            if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
-                gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
+        case PullNone:
+            return;
+        case PullUp:
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+            break;
+        case PullDown:
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+            break;
+        case OpenDrain:
+            if (pin_index < 8) {
+                if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
+                    gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
+                }
+            } else {
+                if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) > 0) { // MODE bits = Output mode
+                    gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
+                }
             }
-        }
-        else {
-            if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) > 0) { // MODE bits = Output mode          
-                gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
-            }
-        }
-        return;
-      default:
-      break;
+            return;
+        default:
+            break;
     }
-    
+
     // Configure GPIO
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(gpio, &GPIO_InitStructure);    
+    GPIO_Init(gpio, &GPIO_InitStructure);
 }
