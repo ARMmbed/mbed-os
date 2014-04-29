@@ -50,7 +50,7 @@
 //   <i> Default: 6
 #ifndef OS_TASKCNT
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC1347) || defined(TARGET_K64F) \
-	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC)
+	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68)
 #    define OS_TASKCNT         14
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) \
 	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
@@ -63,7 +63,7 @@
 //   <o>Scheduler (+ interrupts) stack size [bytes] <64-4096:8><#/4>
 #ifndef OS_SCHEDULERSTKSIZE
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) \
-	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC)
+	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68)
 #      define OS_SCHEDULERSTKSIZE    256
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) \
 	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
@@ -112,10 +112,10 @@
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #    define OS_CLOCK       96000000
 
-#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC)
+#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549)
 #    define OS_CLOCK       72000000
 
-#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) || defined(TARGET_KL46Z) || defined(TARGET_STM32F051R8)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) || defined(TARGET_KL46Z) || defined(TARGET_STM32F051R8) || defined(TARGET_LPC11U68)
 #    define OS_CLOCK       48000000
 
 #  elif defined(TARGET_LPC812)
