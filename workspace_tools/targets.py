@@ -526,7 +526,20 @@ class LPC1549(Target):
         
         self.supported_form_factors = ["ARDUINO"]
 
+
+class LPC11U68(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    
+    def __init__(self):
+        Target.__init__(self)
         
+        self.core = "Cortex-M0+"
+        
+        self.extra_labels = ['NXP', 'LPC11U6X']
+        
+        self.supported_toolchains = ["uARM"]
+
+
 class DISCO_F100RB(Target):
     ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
@@ -611,6 +624,7 @@ TARGETS = [
     NRF51822(),
     UBLOX_C027(),
     LPC1549(),
+    LPC11U68(),
     DISCO_F100RB(),
     DISCO_F051R8(),
     DISCO_F407VG(),
