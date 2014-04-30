@@ -11,7 +11,7 @@ TMP102 temperature(D10, D11, 0x90);
 TMP102 temperature(p9, p10, 0x90);
 
 #elif defined(TARGET_LPC2368)
-TMP102 temperature(p9, p10, 0x90);
+TMP102 temperature(p28, p27, 0x90);
 
 #else
 TMP102 temperature(p28, p27, 0x90);
