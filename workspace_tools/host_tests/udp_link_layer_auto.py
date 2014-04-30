@@ -64,7 +64,7 @@ class UDPEchoServerTest(DefaultTest):
     s = None # Socket
 
     TEST_PACKET_COUNT = 1000    # how many packets should be send
-    TEST_STRESS_FACTOR = 0.001  # )in seconds) 10 ms
+    TEST_STRESS_FACTOR = 0.001  # stress factor: 10 ms
 
     pattern_server_ip = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
     re_detect_server_ip = re.compile(pattern_server_ip)
