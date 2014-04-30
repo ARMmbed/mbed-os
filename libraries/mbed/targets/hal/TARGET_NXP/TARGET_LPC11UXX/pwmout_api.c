@@ -144,8 +144,8 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     uint32_t old_period_ticks = timer->MR3;
 
     // for 16bit timer, set prescaler to avoid overflow
-    uint16_t high_period_ticks = period_ticks >> 16; 
-    if ((high_period_ticks) && (timer == LPC_CT16B0 || timer == LPC_CT16B1)) {
+    if (timer == LPC_CT16B0 || timer == LPC_CT16B1) {
+        uint16_t high_period_ticks = period_ticks >> 16; 
         timer->PR = high_period_ticks;
         period_ticks /= (high_period_ticks + 1);
     }
