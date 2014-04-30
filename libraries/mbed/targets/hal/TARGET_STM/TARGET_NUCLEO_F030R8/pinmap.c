@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "pinmap.h"
+#include "PortNames.h"
 #include "error.h"
 
 // Enable GPIO clock and return GPIO base address

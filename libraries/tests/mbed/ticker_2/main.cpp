@@ -14,6 +14,8 @@ DigitalOut out(PTB1);
 #elif defined(TARGET_KL46Z)
 DigitalOut out(PTA1);
 
+#elif defined(TARGET_K64F)
+DigitalOut out(PTA1);
 
 #else
 DigitalOut out(p5);
@@ -21,13 +23,27 @@ DigitalOut out(p5);
 
 Ticker tick;
 
+#define MS_INTERVALS 1000
+
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
 void togglePin (void) {
+    static int ticker_count = 0;
+    if (ticker_count == MS_INTERVALS) {
+        print_char();
+        ticker_count = 0;
+    }
     out = !out;
     led = !led;
+    ticker_count++;
 }
 
 int main() {
-    tick.attach_us(togglePin, 100000);
+    tick.attach_us(togglePin, 1000);
     while (true) {
         wait(1);
     }

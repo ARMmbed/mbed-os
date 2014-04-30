@@ -175,20 +175,27 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     # Target specific sources
     HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET)
-    objects  = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
-    
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
+    objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
+
     # Common Sources
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
-    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES, BUILD_TARGET])
-    
-    # Keep retargeting as a standalone object to be sure the
-    # C standard library symbols get overridden
-    retargeting = None
-    for o in objects:
-        if o.endswith('retarget.o'):
-            retargeting = o
-    objects.remove(retargeting)
-    toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
-    toolchain.copy_files(retargeting, BUILD_TOOLCHAIN)
+    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
+    # A number of compiled files need to be copied as objects as opposed to
+    # being part of the mbed library, for reasons that have to do with the way
+    # the linker search for symbols in archives. These are:
+    #   - retarget.o: to make sure that the C standard lib symbols get overridden
+    #   - board.o: mbed_die is weak
+    #   - mbed_overrides.o: this contains platform overrides of various weak SDK functions
+    separate_names, separate_objects = ['retarget.o', 'board.o', 'mbed_overrides.o'], []
+    for o in objects:
+        for name in separate_names:
+            if o.endswith(name):
+                separate_objects.append(o)
+    for o in separate_objects:
+        objects.remove(o)
+    toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+    for o in separate_objects:
+        toolchain.copy_files(o, BUILD_TOOLCHAIN)

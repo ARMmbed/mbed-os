@@ -40,34 +40,22 @@
   *    value to your own configuration.
   *
   * 5. This file configures the system clock as follows:
-  *=============================================================================
-  *                         Supported STM32F30x device                          
   *-----------------------------------------------------------------------------
-  *        System Clock source                    | PLL(HSI)
+  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
+  *                                    | (external 8 MHz clock) | (internal 8 MHz)
+  *                                    | 2- PLL_HSE_XTAL        |
+  *                                    | (external 8 MHz xtal)  |
   *-----------------------------------------------------------------------------
-  *        SYSCLK(Hz)                             | 64000000
+  * SYSCLK(MHz)                        | 72                     | 64
   *-----------------------------------------------------------------------------
-  *        HCLK(Hz)                               | 64000000
+  * AHBCLK (MHz)                       | 72                     | 64
   *-----------------------------------------------------------------------------
-  *        AHB Prescaler                          | 1
+  * APB1CLK (MHz)                      | 36                     | 32
   *-----------------------------------------------------------------------------
-  *        APB2 Prescaler                         | 1
+  * APB2CLK (MHz)                      | 72                     | 64
   *-----------------------------------------------------------------------------
-  *        APB1 Prescaler (Max = 36MHz)           | 2 (SPI, ...)
-  *-----------------------------------------------------------------------------
-  *        HSE Frequency(Hz)                      | 8000000
-  *----------------------------------------------------------------------------
-  *        PLLMUL                                 | 16
-  *-----------------------------------------------------------------------------
-  *        PREDIV                                 | 2
-  *-----------------------------------------------------------------------------
-  *        USB Clock                              | DISABLE
-  *-----------------------------------------------------------------------------
-  *        Flash Latency(WS)                      | 2
-  *-----------------------------------------------------------------------------
-  *        Prefetch Buffer                        | OFF
-  *-----------------------------------------------------------------------------
-  *=============================================================================
+  * USB capable (48 MHz precise clock) | YES                    | NO
+  *-----------------------------------------------------------------------------  
   ******************************************************************************
   * @attention
   *
@@ -97,6 +85,7 @@
   *
   ******************************************************************************
   */
+
 /** @addtogroup CMSIS
   * @{
   */
@@ -126,6 +115,7 @@
 /** @addtogroup STM32F30x_System_Private_Defines
   * @{
   */
+
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */ 
 /* #define VECT_TAB_SRAM */
@@ -139,6 +129,10 @@
   * @{
   */
 
+/* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
+#define USE_PLL_HSE_EXTC (1) /* Use external clock */
+#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+
 /**
   * @}
   */
@@ -147,9 +141,9 @@
   * @{
   */
 
-  uint32_t SystemCoreClock = 64000000;
+uint32_t SystemCoreClock = 64000000; /* Default with HSI. Will be updated if HSE is used */
 
-  __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+__I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
   * @}
@@ -159,7 +153,11 @@
   * @{
   */
 
-void SetSysClock(void);
+#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
+uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
+#endif
+
+uint8_t SetSysClock_PLL_HSI(void);
 
 /**
   * @}
@@ -208,31 +206,16 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
 
-  /* Configure the System clock source, PLL Multiplier and Divider factors, 
-     AHB/APBx prescalers and Flash settings ----------------------------------*/
-  SetSysClock();
-  
+  /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
-  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
-  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-  // ADDED FOR MBED DEBUGGING PURPOSE
-  /*
-  // Enable GPIOA clock
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-  // Configure MCO pin (PA8)
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;  
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  // Select the clock to output
-  RCC_MCOConfig(RCC_MCOSource_SYSCLK, RCC_MCOPrescaler_1);
-  */
+  /* Configure the System clock source, PLL Multiplier and Divider factors,
+     AHB/APBx prescalers and Flash settings */
+  SetSysClock();
 }
 
 /**
@@ -325,31 +308,138 @@ void SystemCoreClockUpdate (void)
   */
 void SetSysClock(void)
 {
+  /* 1- Try to start with HSE and external clock */
+#if USE_PLL_HSE_EXTC != 0
+  if (SetSysClock_PLL_HSE(1) == 0)
+#endif
+  {
+    /* 2- If fail try to start with HSE and external xtal */
+    #if USE_PLL_HSE_XTAL != 0
+    if (SetSysClock_PLL_HSE(0) == 0)
+    #endif
+    {
+      /* 3- If fail start with HSI clock */
+      if (SetSysClock_PLL_HSI() == 0)
+      {
+        while(1)
+        {
+          // [TODO] Put something here to tell the user that a problem occured...
+        }
+      }
+    }
+  }
+  
+  /* Output SYSCLK on MCO pin(PA8) for debugging purpose */
+  /*
+  // Enable GPIOA clock
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  // Configure MCO pin (PA8)
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;  
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  // Select the clock to output
+  RCC_MCOConfig(RCC_MCOSource_SYSCLK, RCC_MCOPrescaler_1);
+  */
+}
+
+#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
+/******************************************************************************/
+/*            PLL (clocked by HSE) used as System clock source                */
+/******************************************************************************/
+uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+{
+  __IO uint32_t StartUpCounter = 0;
+  __IO uint32_t HSEStatus = 0;
+
+  /* Bypass HSE: can be done only if HSE is OFF */
+  RCC->CR &= ((uint32_t)~RCC_CR_HSEON); /* To be sure HSE is OFF */  
+  if (bypass != 0)
+  {
+    RCC->CR |= ((uint32_t)RCC_CR_HSEBYP);
+  }
+  else
+  {
+    RCC->CR &= ((uint32_t)~RCC_CR_HSEBYP);
+  }
+  
+  /* Enable HSE */
+  RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+  
+  /* Wait till HSE is ready */
+  do
+  {
+    HSEStatus = RCC->CR & RCC_CR_HSERDY;
+    StartUpCounter++;
+  } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+
+  /* Check if HSE has started correctly */
+  if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+  {
+    /* Enable prefetch buffer and set flash latency
+       0WS for 0  < SYSCLK <= 24 MHz
+       1WS for 24 < SYSCLK <= 48 MHz
+       2WS for 48 < SYSCLK <= 72 MHz */    
+    FLASH->ACR = FLASH_ACR_PRFTBE | (uint32_t)FLASH_ACR_LATENCY_1; /* 2 WS */
+
+    /* Warning: values are obtained with external xtal or clock = 8 MHz */
+    /* SYSCLK = 72 MHz (8 MHz * 9) */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_PREDIV1 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL9
+                          | RCC_CFGR_HPRE_DIV1    /* HCLK   = 72 MHz */
+                          | RCC_CFGR_PPRE2_DIV1   /* PCLK2  = 72 MHz */
+                          | RCC_CFGR_PPRE1_DIV2); /* PCLK1  = 36 MHz */    
+                                                  /* USBCLK = 48 MHz (72 MHz / 1.5) --> USB OK */
+
+    /* Enable PLL */
+    RCC->CR |= RCC_CR_PLLON;
+
+    /* Wait till PLL is ready */
+    while((RCC->CR & RCC_CR_PLLRDY) == 0)
+    {
+    }
+    
+    /* Select PLL as system clock source */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+
+    /* Wait till PLL is used as system clock source */
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
+    {
+    }
+
+    return 1; // OK
+  }
+  else
+  {
+    return 0; // FAIL
+  }
+}
+#endif
+
 /******************************************************************************/
 /*            PLL (clocked by HSI) used as System clock source                */
 /******************************************************************************/
-
+uint8_t SetSysClock_PLL_HSI(void)
+{
   /* At this stage the HSI is already enabled and used as System clock source */
   
-  /* SYSCLK, HCLK, PCLK configuration ----------------------------------------*/
-
-  /* Disable Prefetch Buffer and set Flash Latency */
-  FLASH->ACR = (uint32_t)FLASH_ACR_LATENCY_1;
-
-  /* HCLK = 64 MHz */
-  RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
-
-  /* PCLK2 = 64 MHz */
-  RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
-
-  /* PCLK1 = 32 MHz (SPI, ...) */
-  RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
-
-  /* PLL configuration
-    SYSCLK = 4 MHz * 16 = 64 MHz
-  */
+  /* Enable prefetch buffer and set flash latency
+     0WS for 0  < SYSCLK <= 24 MHz
+     1WS for 24 < SYSCLK <= 48 MHz
+     2WS for 48 < SYSCLK <= 72 MHz */    
+  FLASH->ACR = FLASH_ACR_PRFTBE | (uint32_t)FLASH_ACR_LATENCY_1; /* 2 WS */
+  
+  /* SYSCLK = 64 MHz (8 MHz / 2 * 16) */
   RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
-  RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI_Div2 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL16);
+  RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI_Div2 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL16
+                        | RCC_CFGR_HPRE_DIV1    /* HCLK   = 64 MHz */
+                        | RCC_CFGR_PPRE2_DIV1   /* PCLK2  = 64 MHz */
+                        | RCC_CFGR_PPRE1_DIV2); /* PCLK1  = 32 MHz */    
+                                                /* USBCLK = 42.667 MHz (64 MHz / 1.5) --> USB NOT POSSIBLE */
 
   /* Enable PLL */
   RCC->CR |= RCC_CR_PLLON;
@@ -367,6 +457,8 @@ void SetSysClock(void)
   while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
   {
   }
+
+  return 1; // OK
 }
 
 /**
@@ -382,4 +474,3 @@ void SetSysClock(void)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

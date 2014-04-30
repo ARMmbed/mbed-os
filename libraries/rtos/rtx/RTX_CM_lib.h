@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -217,6 +217,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_KL25Z)
 #define INITIAL_SP            (0x20003000UL)
 
+#elif defined(TARGET_K64F)
+#define INITIAL_SP            (0x20030000UL)
+
 #elif defined(TARGET_KL46Z)
 #define INITIAL_SP            (0x20006000UL)
 
@@ -225,6 +228,24 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #elif defined(TARGET_LPC1347)
 #define INITIAL_SP            (0x10002000UL)
+
+#elif defined(TARGET_STM32F100RB) || defined(TARGET_STM32F051R8)
+#define INITIAL_SP            (0x20002000UL)
+
+#elif defined(TARGET_DISCO_F303VC)
+#define INITIAL_SP            (0x2000A000UL)
+
+#elif defined(TARGET_STM32F407) || defined(TARGET_F407VG)
+#define INITIAL_SP            (0x20020000UL)
+
+#elif defined(TARGET_LPC1549)
+#define INITIAL_SP            (0x02009000UL)
+
+#elif defined(TARGET_LPC11U68)
+#define INITIAL_SP            (0x10004000UL)
+
+#else
+#error "no target defined"
 
 #endif
 
@@ -327,7 +348,7 @@ __attribute ((noreturn)) void __cs3_start_c (void){
     if (src != dst)
       for (count = 0; count != limit; count += sizeof (long long))
         *dst++ = *src++;
-    else 
+    else
       dst = (long long *)((char *)dst + limit);
     limit = rptr->zero_size;
     for (count = 0; count != limit; count += sizeof (long long))

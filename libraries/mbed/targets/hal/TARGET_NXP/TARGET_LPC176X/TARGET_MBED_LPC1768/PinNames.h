@@ -96,6 +96,8 @@ typedef enum {
     D11 = P0_9,
     D12 = P0_8,
     D13 = P0_7,
+    D14 = P0_27,
+    D15 = P0_28,
 
     A0 = P0_23,
     A1 = P0_24,
@@ -103,6 +105,9 @@ typedef enum {
     A3 = P0_26,
     A4 = P1_30,
     A5 = P1_31,
+
+    I2C_SCL = D15,
+    I2C_SDA = D14,
 
     // Not connected
     NC = (int)0xFFFFFFFF

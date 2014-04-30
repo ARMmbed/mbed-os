@@ -137,7 +137,7 @@
    Timeout value 
    */
 #if !defined  (HSE_STARTUP_TIMEOUT)
-#define HSE_STARTUP_TIMEOUT   ((uint16_t)0x5000) /*!< Time out for HSE start up */
+#define HSE_STARTUP_TIMEOUT   ((uint16_t)1000) /*!< Time out for HSE start up */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**

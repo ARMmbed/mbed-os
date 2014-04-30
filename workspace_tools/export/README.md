@@ -4,7 +4,7 @@ Exporter Toolchain/Platform Support
 <table>
   <tr>
     <th></th>
-    <th>Code Red</th>
+    <th>LPCXpresso</th>
     <th>Code Sourcery</th>
     <th>CoIDE</th>
     <th>DS-5</th>
@@ -64,7 +64,7 @@ Exporter Toolchain/Platform Support
   </tr>
   <tr>
     <td>NXP LPC1114</td>
-    <td></td>
+    <td>&#10003;</td>
     <td></td>
     <td></td>
     <td></td>

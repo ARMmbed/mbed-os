@@ -9,6 +9,9 @@ DigitalOut out(PTB1);
 #elif defined(TARGET_KL46Z)
 DigitalOut out(PTA1);
 
+#elif defined(TARGET_K64F)
+DigitalOut out(PTA1);
+
 #elif defined(TARGET_LPC812)
 DigitalOut out(D10);
 
@@ -18,12 +21,22 @@ DigitalOut out(p5);
 
 DigitalOut led(LED1);
 
-int main() {
-    printf("Hello World\n");
+#define MS_INTERVALS 1000
 
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
+int main() {
     while (true) {
-        wait_us(1000);
-        out = !out;
+        for (int i = 0; i < MS_INTERVALS; i++)
+        {
+            wait_us(1000);
+            out = !out;
+        }
         led = !led;
+        print_char();
     }
 }

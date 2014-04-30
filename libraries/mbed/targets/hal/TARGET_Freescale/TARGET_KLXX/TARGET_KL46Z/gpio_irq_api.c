@@ -109,7 +109,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
                 break;
 
             default:
-                error("gpio_irq only supported on port A,C and D\n");
+                error("gpio_irq only supported on port A,C and D");
                 break;
     }
     NVIC_SetVector(irq_n, vector);
@@ -182,13 +182,4 @@ void gpio_irq_disable(gpio_irq_t *obj) {
     } else {
         NVIC_DisableIRQ(PORTC_PORTD_IRQn);
     }
-}
-
-// Change the NMI pin to an input. This allows NMI pin to 
-//  be used as a low power mode wakeup.  The application will
-//  need to change the pin back to NMI_b or wakeup only occurs once!
-void NMI_Handler(void)
-{
-    gpio_t gpio;
-    gpio_init_in(&gpio, PTA4);
 }

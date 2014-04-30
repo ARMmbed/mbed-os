@@ -17,24 +17,41 @@ DigitalOut out(P0_12);
 #elif defined(TARGET_LPC1114)
 DigitalOut out(LED2);
 
+#elif defined(TARGET_K64F)
+DigitalOut out(LED1);
+
 #else
 DigitalOut out(p5);
 #endif
 
 Timeout timer;
 
+#define MS_INTERVALS 1000
+
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
+
 void toggleOff (void);
 
 void toggleOn (void) {
+    static int toggle_counter = 0;
     out = 1;
     led = 1;
-    timer.attach_us(toggleOff, 10000);
+    if (toggle_counter == MS_INTERVALS) {
+        print_char();
+        toggle_counter = 0;
+    }
+    toggle_counter++;
+    timer.attach_us(toggleOff, 500);
 }
 
 void toggleOff(void) {
     out = 0;
     led = 0;
-    timer.attach_us(toggleOn, 30000);
+    timer.attach_us(toggleOn, 500);
 }
 
 int main() {

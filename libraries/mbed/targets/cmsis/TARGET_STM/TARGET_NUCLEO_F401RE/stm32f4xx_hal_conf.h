@@ -103,7 +103,7 @@
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    ((uint32_t)50)   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -114,6 +114,14 @@
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
+
+/**
+  * @brief External Low Speed oscillator (LSE) value.
+  *        This value is used by the UART, RTC HAL module to compute the system frequency
+  */
+#if !defined  (LSE_VALUE)
+  #define LSE_VALUE    ((uint32_t)32768) /*!< Value of the External oscillator in Hz*/
+#endif /* LSE_VALUE */
 
 /**
   * @brief External clock source for I2S peripheral
@@ -131,7 +139,8 @@
 /**
   * @brief This is the HAL system configuration section
   */     
-#define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */           
+#define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */
+#define  TICK_INT_PRIORITY            ((uint32_t)3)    /*!< tick interrupt priority */            
 #define  USE_RTOS                     0     
 #define  PREFETCH_ENABLE              1              
 #define  INSTRUCTION_CACHE_ENABLE     1

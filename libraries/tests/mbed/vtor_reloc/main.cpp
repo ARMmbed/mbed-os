@@ -13,13 +13,17 @@
 DigitalOut out(PIN_OUT);
 DigitalOut myled(LED1);
 
-static volatile int checks;
-static uint32_t int_table[NUM_VECTORS];
+volatile int checks = 0;
+uint32_t int_table[NUM_VECTORS];
+
+#define FALLING_EDGE_COUNT 5
 
 void flipper() {
-    for (int i = 0; i < 5; i++) {
-        out = 1; wait(0.2);
-        out = 0; wait(0.2);
+    for (int i = 0; i < FALLING_EDGE_COUNT; i++) {
+        out = 1;
+        wait(0.2);
+        out = 0;
+        wait(0.2);
     }
 }
 
@@ -30,31 +34,42 @@ void in_handler() {
 
 static bool test_once() {
     InterruptIn in(PIN_IN);
-
     checks = 0;
-    printf("  Interrupt table location: 0x%08X\r\n", SCB->VTOR);
+    printf("Interrupt table location: 0x%08X\r\n", SCB->VTOR);
     in.rise(NULL);
     in.fall(in_handler);
     flipper();
     in.fall(NULL);
-    if (checks != 5) {
-        printf("  Test failed.\r\n");
-        return false;
-    }
-    printf("  Test passed.\r\n");
-    return true;
+    bool result = (checks == FALLING_EDGE_COUNT);
+    printf("Falling edge checks counted: %d ... [%s]\r\n", checks, result ? "OK" : "FAIL");
+    return result;
 }
 
 int main() {
-    printf("Starting first test (interrupts not relocated).\r\n");
-    if (!test_once())
-        notify_completion(false);
+
+    // First test, no table reallocation
+    {
+        printf("Starting first test (interrupts not relocated).\r\n");
+        bool ret = test_once();
+        if (ret == false) {
+            notify_completion(false);
+            return 1;
+        }
+    }
 
     // Relocate interrupt table and test again
-    memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
-    SCB->VTOR = (uint32_t)int_table;
-    printf("Starting second test (interrupts relocated).\r\n");
+    {
+        printf("Starting second test (interrupts relocated).\r\n");
+        memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
+        SCB->VTOR = (uint32_t)int_table;
 
-    notify_completion(test_once());  
+        bool ret = test_once();
+        if (ret == false) {
+            notify_completion(false);
+            return 1;
+        }
+    }
+
+    notify_completion(true);
+    return 0;
 }
-

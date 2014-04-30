@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M) | defined(TARGET_K64F)
 
 #include "USBHAL.h"
 
@@ -86,6 +86,9 @@ USBHAL::USBHAL(void) {
     // Disable IRQ
     NVIC_DisableIRQ(USB0_IRQn);
 
+#if defined(TARGET_K64F)
+    MPU->CESR=0;
+#endif
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -136,9 +139,9 @@ USBHAL::USBHAL(void) {
     while(USB0->USBTRC0 & USB_USBTRC0_USBRESET_MASK);
 
     // Set BDT Base Register
-    USB0->BDTPAGE1=(uint8_t)((uint32_t)bdt>>8);
-    USB0->BDTPAGE2=(uint8_t)((uint32_t)bdt>>16);
-    USB0->BDTPAGE3=(uint8_t)((uint32_t)bdt>>24);
+    USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt>>8);
+    USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt>>16);
+    USB0->BDTPAGE3 = (uint8_t)((uint32_t)bdt>>24);
 
     // Clear interrupt flag
     USB0->ISTAT = 0xff;

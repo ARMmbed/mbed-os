@@ -53,14 +53,16 @@
  * #endcode
  */
 
-#include <stdlib.h>
-#include "device.h"
+#include "toolchain.h"
 
-#if DEVICE_STDIO_MESSAGES
-    #include <stdio.h>
-    #define error(...) (fprintf(stderr, __VA_ARGS__), exit(1))
-#else
-    #define error(...) (exit(1))
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void error(const char* format, ...);
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

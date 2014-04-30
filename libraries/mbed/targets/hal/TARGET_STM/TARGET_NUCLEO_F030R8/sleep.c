@@ -28,6 +28,9 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
+
+#if DEVICE_SLEEP
+
 #include "cmsis.h"
 
 void sleep(void)
@@ -51,4 +54,9 @@ void deepsleep(void)
     
     // Request to enter STOP mode with regulator in low power mode
     PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+  
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
 }
+
+#endif

@@ -28,30 +28,33 @@
  *******************************************************************************
  */
 #include "serial_api.h"
+
+#if DEVICE_SERIAL
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
+    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PB_6,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
     {PB_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
-    {PC_10, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},       
-    //{PC_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},       //The consructor will find UART4
-    {PC_12, UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},          //which share the same PIN
+//  {PC_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
+    {PC_10, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},
+    {PC_12, UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
-    {PB_7 , UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART2)},
+    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
+    {PB_7,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART1)},
     {PB_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
+//  {PC_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
     {PC_11, UART_4, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART4)},
-    //{PC_11, UART_3, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_USART3)},
-    {PC_2 , UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
+    {PD_2,  UART_5, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_UART5)},
     {NC,    NC,     0}
 };
 
@@ -67,25 +70,25 @@ serial_t stdio_uart;
 static void init_usart(serial_t *obj) {
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     USART_InitTypeDef USART_InitStructure;
-  
+
     USART_Cmd(usart, DISABLE);
 
-    USART_InitStructure.USART_BaudRate = obj->baudrate;
-    USART_InitStructure.USART_WordLength = obj->databits;
-    USART_InitStructure.USART_StopBits = obj->stopbits;
-    USART_InitStructure.USART_Parity = obj->parity;
+    USART_InitStructure.USART_BaudRate            = obj->baudrate;
+    USART_InitStructure.USART_WordLength          = obj->databits;
+    USART_InitStructure.USART_StopBits            = obj->stopbits;
+    USART_InitStructure.USART_Parity              = obj->parity;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(usart, &USART_InitStructure);
-    
+
     USART_Cmd(usart, ENABLE);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {  
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-  
+
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
 
@@ -95,22 +98,21 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // Enable USART clock
     if (obj->uart == UART_1) {
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); 
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
     }
     if (obj->uart == UART_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE); 
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     }
-     if (obj->uart == UART_3) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE); 
+    if (obj->uart == UART_3) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
     }
-     if (obj->uart == UART_4) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE); 
+    if (obj->uart == UART_4) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
     }
-     if (obj->uart == UART_5) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE); 
+    if (obj->uart == UART_5) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
     }
-    
-            
+
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
@@ -121,7 +123,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->baudrate = 9600;
     obj->databits = USART_WordLength_8b;
     obj->stopbits = USART_StopBits_1;
-    obj->parity = USART_Parity_No;    
+    obj->parity = USART_Parity_No;
 
     init_usart(obj);
 
@@ -131,13 +133,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == UART_3) obj->index = 2;
     if (obj->uart == UART_4) obj->index = 3;
     if (obj->uart == UART_5) obj->index = 4;
-    
+
     // For stdio management
     if (obj->uart == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-    
 }
 
 void serial_free(serial_t *obj) {
@@ -152,29 +153,27 @@ void serial_baud(serial_t *obj, int baudrate) {
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     if (data_bits == 8) {
         obj->databits = USART_WordLength_8b;
-    }
-    else {
+    } else {
         obj->databits = USART_WordLength_9b;
     }
 
     switch (parity) {
-      case ParityOdd:
-      case ParityForced0:
-          obj->parity = USART_Parity_Odd;
-      break;
-      case ParityEven:
-      case ParityForced1:        
-          obj->parity = USART_Parity_Even;
-      break;
-      default: // ParityNone
-          obj->parity = USART_Parity_No;
-      break;
+        case ParityOdd:
+        case ParityForced0:
+            obj->parity = USART_Parity_Odd;
+            break;
+        case ParityEven:
+        case ParityForced1:
+            obj->parity = USART_Parity_Even;
+            break;
+        default: // ParityNone
+            obj->parity = USART_Parity_No;
+            break;
     }
-    
+
     if (stop_bits == 2) {
         obj->stopbits = USART_StopBits_2;
-    }
-    else {
+    } else {
         obj->stopbits = USART_StopBits_1;
     }
 
@@ -199,11 +198,21 @@ static void uart_irq(USART_TypeDef* usart, int id) {
     }
 }
 
-static void uart1_irq(void) {uart_irq((USART_TypeDef*)UART_1, 0);}
-static void uart2_irq(void) {uart_irq((USART_TypeDef*)UART_2, 1);}
-static void uart3_irq(void) {uart_irq((USART_TypeDef*)UART_3, 2);}
-static void uart4_irq(void) {uart_irq((USART_TypeDef*)UART_4, 3);}
-static void uart5_irq(void) {uart_irq((USART_TypeDef*)UART_5, 4);}
+static void uart1_irq(void) {
+    uart_irq((USART_TypeDef*)UART_1, 0);
+}
+static void uart2_irq(void) {
+    uart_irq((USART_TypeDef*)UART_2, 1);
+}
+static void uart3_irq(void) {
+    uart_irq((USART_TypeDef*)UART_3, 2);
+}
+static void uart4_irq(void) {
+    uart_irq((USART_TypeDef*)UART_4, 3);
+}
+static void uart5_irq(void) {
+    uart_irq((USART_TypeDef*)UART_5, 4);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -216,61 +225,58 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
 
     if (obj->uart == UART_1) {
-      irq_n = USART1_IRQn;
-      vector = (uint32_t)&uart1_irq;
+        irq_n = USART1_IRQn;
+        vector = (uint32_t)&uart1_irq;
     }
-  
+
     if (obj->uart == UART_2) {
-      irq_n = USART2_IRQn;
-      vector = (uint32_t)&uart2_irq;
+        irq_n = USART2_IRQn;
+        vector = (uint32_t)&uart2_irq;
     }
-    
+
     if (obj->uart == UART_3) {
-      irq_n = USART3_IRQn;
-      vector = (uint32_t)&uart3_irq;
+        irq_n = USART3_IRQn;
+        vector = (uint32_t)&uart3_irq;
     }
-    
+
     if (obj->uart == UART_4) {
-      irq_n = UART4_IRQn;
-      vector = (uint32_t)&uart4_irq;
+        irq_n = UART4_IRQn;
+        vector = (uint32_t)&uart4_irq;
     }
-    
+
     if (obj->uart == UART_5) {
-      irq_n = UART5_IRQn;
-      vector = (uint32_t)&uart5_irq;
+        irq_n = UART5_IRQn;
+        vector = (uint32_t)&uart5_irq;
     }
-    
-    
+
     if (enable) {
-      
+
         if (irq == RxIrq) {
             USART_ITConfig(usart, USART_IT_RXNE, ENABLE);
-        }
-        else { // TxIrq
+        } else { // TxIrq
             USART_ITConfig(usart, USART_IT_TC, ENABLE);
-        }        
-        
+        }
+
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-        
+
     } else { // disable
-      
+
         int all_disabled = 0;
-        
+
         if (irq == RxIrq) {
             USART_ITConfig(usart, USART_IT_RXNE, DISABLE);
             // Check if TxIrq is disabled too
             if ((usart->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
-        }
-        else { // TxIrq
+        } else { // TxIrq
             USART_ITConfig(usart, USART_IT_TXE, DISABLE);
             // Check if RxIrq is disabled too
-            if ((usart->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;          
+            if ((usart->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
-        
+
         if (all_disabled) NVIC_DisableIRQ(irq_n);
-        
-    }    
+
+    }
 }
 
 /******************************************************************************
@@ -322,3 +328,5 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
 }
+
+#endif

@@ -1,37 +1,29 @@
 #include "mbed.h"
 
-#if defined(TARGET_STM32F407)
-#define LED1 LED3
-#endif
+void print_char(char c = '*')
+{
+    printf("%c", c);
+    fflush(stdout);
+}
 
 Ticker flipper_1;
 DigitalOut led1(LED1);
-int led1_state = 0;
+
 void flip_1() {
+    static int led1_state = 0;
     if (led1_state) {
         led1 = 0; led1_state = 0;
     } else {
         led1 = 1; led1_state = 1;
     }
+    print_char();
 }
 
 Ticker flipper_2;
+DigitalOut led2(LED2);
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC1114) || defined(TARGET_LPC2368)
-#   define LED_NAME LED2
-#elif defined(TARGET_KL05Z)
-#   define LED_NAME LED2
-#elif defined(TARGET_KL46Z)
-#   define LED_NAME LED2
-#elif defined(TARGET_STM32F407)
-#   define LED_NAME LED4
-#else
-#   define LED_NAME PTE31
-#endif
-
-DigitalOut led2(LED_NAME);
-int led2_state = 0;
 void flip_2() {
+    static int led2_state = 0;
     if (led2_state) {
         led2 = 0; led2_state = 0;
     } else {

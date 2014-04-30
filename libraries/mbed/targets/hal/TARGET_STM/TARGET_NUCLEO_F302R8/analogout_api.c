@@ -33,7 +33,7 @@
 #include "pinmap.h"
 #include "error.h"
 
-#define RANGE_12BIT (0xFFF)
+#define DAC_RANGE (0xFFF) // 12 bits
 
 static const PinMap PinMap_DAC[] = {
     {PA_4, DAC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // DAC_OUT1
@@ -56,14 +56,14 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    // Save the channel for the write and read functions
+    // Save the channel for future use
     obj->channel = pin;
 
     // Enable DAC clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 
     // Configure and enable DAC channel
-    DAC_StructInit(&DAC_InitStructure);    
+    DAC_StructInit(&DAC_InitStructure);
     DAC_Init(dac, DAC_Channel_1, &DAC_InitStructure);
     DAC_Cmd(dac, DAC_Channel_1, ENABLE);
 
@@ -71,6 +71,12 @@ void analogout_init(dac_t *obj, PinName pin) {
 }
 
 void analogout_free(dac_t *obj) {
+    DAC_TypeDef *dac = (DAC_TypeDef *)(obj->dac);
+    // Disable DAC
+    DAC_DeInit(dac);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, DISABLE);
+    // Configure GPIO
+    pin_function(obj->channel, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
 static inline void dac_write(dac_t *obj, uint16_t value) {
@@ -87,24 +93,23 @@ void analogout_write(dac_t *obj, float value) {
     if (value < 0.0f) {
         dac_write(obj, 0); // Min value
     } else if (value > 1.0f) {
-        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+        dac_write(obj, (uint16_t)DAC_RANGE); // Max value
     } else {
-        dac_write(obj, (uint16_t)(value * (float)RANGE_12BIT));
+        dac_write(obj, (uint16_t)(value * (float)DAC_RANGE));
     }
 }
 
 void analogout_write_u16(dac_t *obj, uint16_t value) {
-    if (value > (uint16_t)RANGE_12BIT) {
-      dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
-    }
-    else {
-      dac_write(obj, value);
+    if (value > (uint16_t)DAC_RANGE) {
+        dac_write(obj, (uint16_t)DAC_RANGE); // Max value
+    } else {
+        dac_write(obj, value);
     }
 }
 
 float analogout_read(dac_t *obj) {
     uint32_t value = dac_read(obj);
-    return (float)value * (1.0f / (float)RANGE_12BIT);
+    return (float)((float)value * (1.0f / (float)DAC_RANGE));
 }
 
 uint16_t analogout_read_u16(dac_t *obj) {

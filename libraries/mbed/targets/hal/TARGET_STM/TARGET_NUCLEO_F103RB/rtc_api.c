@@ -29,40 +29,60 @@
  */
 #include "rtc_api.h"
 
+#if DEVICE_RTC
+
+#include "wait_api.h"
+
+#define LSE_STARTUP_TIMEOUT ((uint16_t)700) // delay in ms
+
 static int rtc_inited = 0;
 
 void rtc_init(void) {
+    uint32_t StartUpCounter = 0;
+    uint32_t LSEStatus = 0;
+    uint32_t rtc_freq = 0;
+
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE); // Enable PWR and Backup clock
 
     PWR_BackupAccessCmd(ENABLE); // Allow access to Backup Domain
-  
+
     BKP_DeInit(); // Reset Backup Domain
-  
-    // Uncomment these lines if you use the LSE
-    // Enable LSE and wait till it's ready
-    //RCC_LSEConfig(RCC_LSE_ON);
-    //while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {}     
-    //RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select LSE as RTC Clock Source
-      
-    // Uncomment these lines if you use the LSI
-    // Enable LSI and wait till it's ready  
-    RCC_LSICmd(ENABLE);
-    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {}
-    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select LSI as RTC Clock Source
-  
-    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
-      
+
+    // Enable LSE clock
+    RCC_LSEConfig(RCC_LSE_ON);
+
+    // Wait till LSE is ready
+    do {
+        LSEStatus = RCC_GetFlagStatus(RCC_FLAG_LSERDY);
+        wait_ms(1);
+        StartUpCounter++;
+    } while ((LSEStatus == 0) && (StartUpCounter <= LSE_STARTUP_TIMEOUT));
+
+    if (StartUpCounter > LSE_STARTUP_TIMEOUT) {
+        // The LSE has not started, use LSI instead.
+        // The RTC Clock may vary due to LSI frequency dispersion.
+        RCC_LSEConfig(RCC_LSE_OFF);
+        RCC_LSICmd(ENABLE); // Enable LSI
+        while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select the RTC Clock Source
+        rtc_freq = 40000; // [TODO] To be measured precisely using a timer input capture
+    } else {
+        // The LSE has correctly started
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select the RTC Clock Source
+        rtc_freq = LSE_VALUE;
+    }
+
+    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock
+
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
-      
+
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
 
     // Set RTC period to 1 sec
-    // For LSE: prescaler = RTCCLK/RTC period = 32768Hz/1Hz = 32768
-    // For LSI: prescaler = RTCCLK/RTC period = 40000Hz/1Hz = 40000      
-    RTC_SetPrescaler(39999);
-    
+    RTC_SetPrescaler(rtc_freq - 1);
+
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
-      
+
     rtc_inited = 1;
 }
 
@@ -84,3 +104,5 @@ void rtc_write(time_t t) {
     RTC_SetCounter(t); // Change the current time
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
 }
+
+#endif

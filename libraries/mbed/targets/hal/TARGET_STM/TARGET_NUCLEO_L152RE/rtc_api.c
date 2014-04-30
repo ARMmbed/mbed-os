@@ -29,36 +29,63 @@
  */
 #include "rtc_api.h"
 
+#if DEVICE_RTC
+
+#include "wait_api.h"
+
+#define LSE_STARTUP_TIMEOUT ((uint16_t)400) // delay in ms
+
 static int rtc_inited = 0;
 
 void rtc_init(void) {
+    uint32_t StartUpCounter = 0;
+    uint32_t LSEStatus = 0;
+    uint32_t rtc_freq = 0;
+
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE); // Enable PWR clock
 
-    PWR_RTCAccessCmd(ENABLE); // Enable access to RTC
+    PWR_RTCAccessCmd(ENABLE); // Enable access to Backup domain
 
-    // Note: the LSI is used as RTC source clock
-    // The RTC Clock may vary due to LSI frequency dispersion.  
-   
-    RCC_LSICmd(ENABLE); // Enable LSI
-  
-    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
-    
-    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select LSI as RTC Clock Source
-  
-    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
-      
-    RTC_WaitForSynchro(); // Wait for RTC registers synchronization
+    // Reset RTC and Backup registers
+    RCC_RTCResetCmd(ENABLE);
+    RCC_RTCResetCmd(DISABLE);
 
-    uint32_t lsi_freq = 40000; // *** TODO** To be measured precisely using a timer input capture
+    // Enable LSE clock
+    RCC_LSEConfig(RCC_LSE_ON);
+
+    // Wait till LSE is ready
+    do {
+        LSEStatus = RCC_GetFlagStatus(RCC_FLAG_LSERDY);
+        wait_ms(1);
+        StartUpCounter++;
+    } while ((LSEStatus == 0) && (StartUpCounter <= LSE_STARTUP_TIMEOUT));
+
+    if (StartUpCounter > LSE_STARTUP_TIMEOUT) {
+        // The LSE has not started, use LSI instead.
+        // The RTC Clock may vary due to LSI frequency dispersion.
+        RCC_LSEConfig(RCC_LSE_OFF);
+        RCC_LSICmd(ENABLE); // Enable LSI
+        while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select the RTC Clock Source
+        rtc_freq = 40000; // [TODO] To be measured precisely using a timer input capture
+    } else {
+        // The LSE has correctly started
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select the RTC Clock Source
+        rtc_freq = LSE_VALUE;
+    }
 
     RTC_InitTypeDef RTC_InitStructure;
     RTC_InitStructure.RTC_AsynchPrediv = 127;
-    RTC_InitStructure.RTC_SynchPrediv	 = (lsi_freq / 128) - 1;
+    RTC_InitStructure.RTC_SynchPrediv    = (rtc_freq / 128) - 1;
     RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
     RTC_Init(&RTC_InitStructure);
-    
-    PWR_RTCAccessCmd(DISABLE); // Disable access to RTC
-      
+
+    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock
+
+    RTC_WaitForSynchro(); // Wait for RTC registers synchronization
+
+    PWR_RTCAccessCmd(DISABLE); // Disable access to Backup domain
+
     rtc_inited = 1;
 }
 
@@ -92,11 +119,11 @@ time_t rtc_read(void) {
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
-        
+
     // Read actual date and time
     RTC_GetTime(RTC_Format_BIN, &timeStruct);
     RTC_GetDate(RTC_Format_BIN, &dateStruct);
-    
+
     // Setup a tm structure based on the RTC
     timeinfo.tm_wday = dateStruct.RTC_WeekDay;
     timeinfo.tm_mon  = dateStruct.RTC_Month - 1;
@@ -105,11 +132,11 @@ time_t rtc_read(void) {
     timeinfo.tm_hour = timeStruct.RTC_Hours;
     timeinfo.tm_min  = timeStruct.RTC_Minutes;
     timeinfo.tm_sec  = timeStruct.RTC_Seconds;
-    
+
     // Convert to timestamp
     time_t t = mktime(&timeinfo);
-    
-    return t;    
+
+    return t;
 }
 
 void rtc_write(time_t t) {
@@ -118,7 +145,7 @@ void rtc_write(time_t t) {
 
     // Convert the time into a tm
     struct tm *timeinfo = localtime(&t);
-    
+
     // Fill RTC structures
     dateStruct.RTC_WeekDay = timeinfo->tm_wday;
     dateStruct.RTC_Month   = timeinfo->tm_mon + 1;
@@ -128,10 +155,12 @@ void rtc_write(time_t t) {
     timeStruct.RTC_Minutes = timeinfo->tm_min;
     timeStruct.RTC_Seconds = timeinfo->tm_sec;
     timeStruct.RTC_H12     = RTC_HourFormat_24;
-    
+
     // Change the RTC current date/time
-    PWR_RTCAccessCmd(ENABLE); // Enable access to RTC    
+    PWR_RTCAccessCmd(ENABLE); // Enable access to Backup domain
     RTC_SetDate(RTC_Format_BIN, &dateStruct);
-    RTC_SetTime(RTC_Format_BIN, &timeStruct);    
-    PWR_RTCAccessCmd(DISABLE); // Disable access to RTC
+    RTC_SetTime(RTC_Format_BIN, &timeStruct);
+    PWR_RTCAccessCmd(DISABLE); // Disable access to Backup domain
 }
+
+#endif
