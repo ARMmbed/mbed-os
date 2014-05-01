@@ -113,9 +113,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     LPC_CTxxBx_Type *timer = Timers[tid.timer];
     uint32_t t_off = timer->MR3 - (uint32_t)((float)(timer->MR3) * value);
     
-    timer->TCR = TCR_RESET;
     timer->MR[tid.mr] = t_off;
-    timer->TCR = TCR_CNT_EN;
 }
 
 float pwmout_read(pwmout_t* obj) {
