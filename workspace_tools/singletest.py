@@ -76,7 +76,7 @@ import re
 from prettytable import PrettyTable
 from serial import Serial
 
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, basename
 from shutil import copy
 from subprocess import call
 from time import sleep, time
@@ -100,7 +100,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 # Imports related to mbed build pi
-from workspace_tools.utils import delete_dir_files
+from workspace_tools.utils import delete_dir_files, copy_file
 from workspace_tools.settings import MUTs
 
 
@@ -227,11 +227,14 @@ class SingleTestRunner(object):
             return (test_result, target_name, toolchain_name,
                     test_id, test_description, round(elapsed_time, 2), duration)
 
-        if not target_by_mcu.is_disk_virtual:
-            delete_dir_files(disk)
+        #if not target_by_mcu.is_disk_virtual:
+        #    delete_dir_files(disk)
 
         # Program MUT with proper image file
-        copy(image_path, disk)
+        cmd = ["cp", image_path.encode('ascii','ignore'), disk.encode('ascii','ignore') +  basename(image_path).encode('ascii','ignore')]
+        # print cmd
+        call(cmd)
+        # copy(image_path, disk)
 
         # Copy Extra Files
         if not target_by_mcu.is_disk_virtual and test.extra_files:

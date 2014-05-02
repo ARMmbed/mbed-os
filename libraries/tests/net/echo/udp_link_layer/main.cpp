@@ -34,6 +34,7 @@ volatile int max_queue_len = 0;
 
 void udp_server_task(void const *argument)
 {
+    DigitalOut indicator(LED1);
     UDPSocket server;
 
     server.bind(ECHO_SERVER_PORT);
@@ -61,6 +62,7 @@ void udp_server_task(void const *argument)
             max_queue_len = datagram_queue.size() > max_queue_len ? datagram_queue.size() : max_queue_len;
             received_packets++;
             cli_serv_mutex.unlock(); // LOCK
+            indicator = !indicator;
         }
     }
 }
@@ -71,6 +73,7 @@ void udp_client_task(void const *argument)
         // Waiting for HOST port notification
     }
 
+    DigitalOut indicator(LED2);
     UDPSocket socket;
     socket.init();
 
@@ -93,6 +96,7 @@ void udp_client_task(void const *argument)
             //printf("[udp_client_task] Forwarded datagram: %s\r\n", datagram.c_str());
             socket.sendTo(echo_server, (char *)datagram.c_str(), datagram.length());
             forwarded_packets++;
+            indicator = !indicator;
         }
     }
 }
