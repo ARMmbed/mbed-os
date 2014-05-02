@@ -82,7 +82,7 @@ TESTS = [
         "automated": True,
     },
     {
-        "id": "MBED_A2", "description": "semihost file system",
+        "id": "MBED_A2", "description": "Semihost file system",
         "source_dir": join(TEST_DIR, "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
@@ -92,7 +92,7 @@ TESTS = [
         "id": "MBED_A3", "description": "C++ STL",
         "source_dir": join(TEST_DIR, "mbed", "stl"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
+        "automated": False,
     },
     {
         "id": "MBED_A4", "description": "I2C TMP102",
@@ -158,6 +158,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sd"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
         "automated": True,
+        "duration": 15,
         "peripherals": ["SD"]
     },
     {
@@ -211,7 +212,7 @@ TESTS = [
         "id": "MBED_A21", "description": "Call function before main (mbed_main)",
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
+        "automated": False,
     },
     {
         "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
@@ -235,6 +236,13 @@ TESTS = [
         "host_test": "echo_flow_control",
         "mcu": ["LPC1768"],
         "peripherals": ["extra_serial"]
+    },
+    {
+        "id": "MBED_A25", "description": "I2C EEPROM line read/write test",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom_line"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "peripherals": ["24LC256"],
+        "automated": True,
     },
 
     # Size benchmarks
@@ -321,7 +329,7 @@ TESTS = [
     {
         "id": "MBED_10", "description": "Hello World",
         "source_dir": join(TEST_DIR, "mbed", "hello"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "host_test": "hello_auto",
     },
@@ -331,7 +339,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
         "automated": True,
         "host_test": "wait_us_auto",
-        "duration": 20
+        "duration": 20,
     },
     {
         "id": "MBED_12", "description": "C++",
@@ -353,6 +361,7 @@ TESTS = [
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
+        "mcu": ["LPC1768"],
         "automated": True,
     },
     {
@@ -394,6 +403,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768", "LPC2368", "LPC11U24", "KL05Z", "KL25Z", "KL46Z"]
     },
     {
         "id": "MBED_23", "description": "Ticker Int us",
@@ -512,7 +522,8 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        "host_test": "wait_us_auto",
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -520,6 +531,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -527,24 +539,28 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -552,20 +568,23 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        "host_test": "wait_us_auto",
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
         "automated": True,
-        "peripherals": ["SD"]
+        "peripherals": ["SD"],
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "K64F", "KL46Z"],
     },
 
     # Networking Tests
@@ -660,6 +679,18 @@ TESTS = [
         "id": "NET_13", "description": "TCP client echo loop",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "automated": True,
+        "duration": 15,
+        "host_test": "tcpecho_client_auto",
+        "peripherals": ["ethernet"],
+    },
+    {
+        "id": "NET_14", "description": "UDP PHY/Data link layer",
+        "source_dir": join(TEST_DIR, "net", "echo", "udp_link_layer"),
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "automated": False,
+        "duration": 15,
+        "host_test": "udp_link_layer_auto.py",
         "peripherals": ["ethernet"],
     },
 
@@ -761,7 +792,9 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
         "mcu": ["KL25Z", "KL05Z", "KL46Z"],
-    },
+        "automated": True,
+        "duration": 15,
+        },
 
     # Examples
     {

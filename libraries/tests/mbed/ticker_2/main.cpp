@@ -17,6 +17,9 @@ DigitalOut out(PTA1);
 #elif defined(TARGET_K64F)
 DigitalOut out(PTA1);
 
+#elif defined(TARGET_NUCLEO_L152RE)
+DigitalOut out(PA_3);
+
 #else
 DigitalOut out(p5);
 #endif

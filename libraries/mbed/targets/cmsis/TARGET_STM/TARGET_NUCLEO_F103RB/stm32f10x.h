@@ -147,6 +147,10 @@
   #define HSI_VALUE    ((uint32_t)8000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
 
+#if !defined  (LSE_VALUE)
+#define LSE_VALUE  ((uint32_t)32768)    /*!< Value of the External Low Speed oscillator in Hz */
+#endif
+
 /**
  * @brief STM32F10x Standard Peripheral Library version number
    */

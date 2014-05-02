@@ -40,27 +40,17 @@
   *    value to your own configuration.
   *
   * 5. This file configures the system clock as follows:
-  *=============================================================================
-  *=============================================================================
-  *        System Clock source                    | HSI
   *-----------------------------------------------------------------------------
-  *        SYSCLK(Hz)                             | 8000000
+  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
+  *                                    | (external 8 MHz clock) | (internal 8 MHz)
+  *                                    | 2- PLL_HSE_XTAL        |
+  *                                    | (external 8 MHz xtal)  |
   *-----------------------------------------------------------------------------
-  *        HCLK(Hz)                               | 8000000
+  * SYSCLK(MHz)                        | 48                     | 48
   *-----------------------------------------------------------------------------
-  *        AHB Prescaler                          | 1
+  * AHBCLK (MHz)                       | 48                     | 48
   *-----------------------------------------------------------------------------
-  *        APB Prescaler                          | 1
-  *-----------------------------------------------------------------------------
-  *        HSE Frequency(Hz)                      | NA
-  *----------------------------------------------------------------------------
-  *        PLLMUL                                 | NA
-  *-----------------------------------------------------------------------------
-  *        PREDIV                                 | NA
-  *-----------------------------------------------------------------------------
-  *        Flash Latency(WS)                      | 0
-  *-----------------------------------------------------------------------------
-  *        Prefetch Buffer                        | ON
+  * APBCLK (MHz)                       | 48                     | 48
   *-----------------------------------------------------------------------------
   ******************************************************************************
   * @attention
@@ -129,6 +119,10 @@
   * @{
   */
 
+/* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
+#define USE_PLL_HSE_EXTC (1) /* Use external clock */
+#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+
 /**
   * @}
   */
@@ -136,7 +130,8 @@
 /** @addtogroup STM32F0xx_System_Private_Variables
   * @{
   */
-uint32_t SystemCoreClock    = 8000000;
+
+uint32_t SystemCoreClock = 48000000;
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
@@ -147,7 +142,11 @@ __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9}
   * @{
   */
 
-static void SetSysClock(void);
+#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
+uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
+#endif
+
+uint8_t SetSysClock_PLL_HSI(void);
 
 /**
   * @}
@@ -192,9 +191,10 @@ void SystemInit (void)
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
-
-  /* Configure the System clock frequency, AHB/APBx prescalers and Flash settings */
-  SetSysClock();
+  
+  /* Configure the System clock source, PLL Multiplier and Divider factors,
+   AHB/APBx prescalers and Flash settings */
+  SetSysClock();  
 }
 
 /**
@@ -277,30 +277,155 @@ void SystemCoreClockUpdate (void)
 }
 
 /**
-  * @brief  Configures the System clock frequency, AHB/APBx prescalers and Flash
-  *         settings.
-  * @note   This function should be called only once the RCC clock configuration
-  *         is reset to the default reset state (done in SystemInit() function).
+  * @brief  Configures the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers.
   * @param  None
   * @retval None
   */
-static void SetSysClock(void)
+void SetSysClock(void)
 {
+  /* 1- Try to start with HSE and external clock */
+#if USE_PLL_HSE_EXTC != 0
+  if (SetSysClock_PLL_HSE(1) == 0)
+#endif
+  {
+    /* 2- If fail try to start with HSE and external xtal */
+    #if USE_PLL_HSE_XTAL != 0
+    if (SetSysClock_PLL_HSE(0) == 0)
+    #endif
+    {
+      /* 3- If fail start with HSI clock */
+      if (SetSysClock_PLL_HSI() == 0)
+      {
+        while(1)
+        {
+          // [TODO] Put something here to tell the user that a problem occured...
+        }
+      }
+    }
+  }
+
+  // Output clock on MCO pin (PA8) for debugging purpose
+  /*
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_0);
+  // Output clock on MCO pin
+  // Warning: only RCC_MCOPrescaler_1 is available on STM32F030x8 devices
+  RCC_MCOConfig(RCC_MCOSource_SYSCLK, RCC_MCOPrescaler_1);
+  */
+}
+
+#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
 /******************************************************************************/
-/*                        HSI used as System clock source                     */
+/*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
+uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
+{
+  __IO uint32_t StartUpCounter = 0;
+  __IO uint32_t HSEStatus = 0;
 
-  /* At this stage the HSI is already enabled and used as System clock source */
+  /* Bypass HSE: can be done only if HSE is OFF */
+  RCC->CR &= ((uint32_t)~RCC_CR_HSEON); /* To be sure HSE is OFF */  
+  if (bypass != 0)
+  {
+    RCC->CR |= ((uint32_t)RCC_CR_HSEBYP);
+  }
+  else
+  {
+    RCC->CR &= ((uint32_t)~RCC_CR_HSEBYP);
+  }
+  
+  /* Enable HSE */
+  RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+  
+  /* Wait till HSE is ready */
+  do
+  {
+    HSEStatus = RCC->CR & RCC_CR_HSERDY;
+    StartUpCounter++;
+  } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
 
-    /* Enable Prefetch Buffer and Flash 0 wait state */
-    FLASH->ACR = FLASH_ACR_PRFTBE;
+  /* Check if HSE has started correctly */
+  if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+  {
+    /* Enable Prefetch Buffer */
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
 
-     /* HCLK = SYSCLK / 1 */
-     RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+    /* Enable Prefetch Buffer and set Flash Latency */
+    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY; 
 
-     /* PCLK = HCLK / 1 */
-     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE_DIV1;
+    /* PLL configuration
+       PLLCLK = 48 MHz (xtal 8 MHz * 6) */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_PREDIV1 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL6
+                        | RCC_CFGR_HPRE_DIV1   /* HCLK = 48 MHz */
+                        | RCC_CFGR_PPRE_DIV1); /* PCLK = 48 MHz */
+    
+    /* Enable PLL */
+    RCC->CR |= RCC_CR_PLLON;
 
+    /* Wait till PLL is ready */
+    while((RCC->CR & RCC_CR_PLLRDY) == 0)
+    {
+    }
+    
+    /* Select PLL as system clock source */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+
+    /* Wait till PLL is used as system clock source */
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
+    {
+    }
+
+    return 1; // OK
+  }
+  else
+  {
+    return 0; // FAIL
+  }
+}
+#endif
+
+/******************************************************************************/
+/*            PLL (clocked by HSI) used as System clock source                */
+/******************************************************************************/
+uint8_t SetSysClock_PLL_HSI(void)
+{
+  /* Enable Prefetch Buffer and set Flash Latency */
+  FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
+
+  /* PLL configuration
+     PLLCLK = 48 MHz ((HSI 8 MHz / 2) * 12) */
+  RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
+  RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI_Div2 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL12
+                        | RCC_CFGR_HPRE_DIV1   /* HCLK = 48 MHz */
+                        | RCC_CFGR_PPRE_DIV1); /* PCLK = 48 MHz */
+
+  /* Enable PLL */
+  RCC->CR |= RCC_CR_PLLON;
+
+  /* Wait till PLL is ready */
+  while((RCC->CR & RCC_CR_PLLRDY) == 0)
+  {
+  }
+
+  /* Select PLL as system clock source */
+  RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+  RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+
+  /* Wait till PLL is used as system clock source */
+  while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL)
+  {
+  }
+
+  return 1; // OK
 }
 
 /**

@@ -53,6 +53,7 @@
 
 #define DEVICE_SLEEP            1
 
+#define DEVICE_ERROR_PATTERN    1 //fast blink green and blue leds on error
 //=======================================
 
 #define DEVICE_SEMIHOST         0

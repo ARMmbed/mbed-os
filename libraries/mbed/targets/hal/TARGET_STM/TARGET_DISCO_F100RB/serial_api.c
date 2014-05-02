@@ -34,20 +34,22 @@
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {NC,    NC,     0}
+    {PA_9,   UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
+    {PA_2,   UART_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
+    {PB_10,  UART_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
+    {NC,     NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {NC,    NC,     0}
+    {PA_10,  UART_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
+    {PA_3,   UART_2, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
+    {PB_11,  UART_3, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
+    {NC,     NC,     0}
 };
 
-#define UART_NUM (2)
+#define UART_NUM (3)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0};
+static uint32_t serial_irq_ids[UART_NUM] = {0,0,0};
 
 static uart_irq_handler irq_handler;
 
@@ -86,9 +88,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Enable USART clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); 
-    }
-    if (obj->uart == UART_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE); 
+    } else if (obj->uart == UART_2 ) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    } else if (obj->uart == UART_3 ) {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
     }
             
     // Configure the UART pins
@@ -106,6 +109,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // The index is used by irq
     if (obj->uart == UART_1) obj->index = 0;
     if (obj->uart == UART_2) obj->index = 1;
+    if (obj->uart == UART_3) obj->index = 2;
     
     // For stdio management
     if (obj->uart == STDIO_UART) {
@@ -176,6 +180,7 @@ static void uart_irq(USART_TypeDef* usart, int id) {
 
 static void uart1_irq(void) {uart_irq((USART_TypeDef*)UART_1, 0);}
 static void uart2_irq(void) {uart_irq((USART_TypeDef*)UART_2, 1);}
+static void uart3_irq(void) {uart_irq((USART_TypeDef*)UART_3, 2);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -196,7 +201,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
       irq_n = USART2_IRQn;
       vector = (uint32_t)&uart2_irq;
     }
-    
+
+    if (obj->uart == UART_3) {
+      irq_n = USART3_IRQn;
+      vector = (uint32_t)&uart3_irq;
+    }
+
     if (enable) {
       
         if (irq == RxIrq) {

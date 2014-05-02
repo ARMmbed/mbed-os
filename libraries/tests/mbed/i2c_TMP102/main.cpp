@@ -10,19 +10,20 @@ TMP102 temperature(D10, D11, 0x90);
 #elif defined(TARGET_LPC4088)
 TMP102 temperature(p9, p10, 0x90);
 
+#elif defined(TARGET_LPC2368)
+TMP102 temperature(p28, p27, 0x90);
+
 #else
 TMP102 temperature(p28, p27, 0x90);
 #endif
 
-int main() {
+int main()
+{
     float t = temperature.read();
-    printf("Temperature: %f\n\r", t);
-    
+
+    printf("TMP102: Temperature: %f\n\r", t);
     // In our test environment (ARM office) we should get a temperature within
     // the range ]15, 30[C
-    if ((t > 15.0) && (t < 30.0)) {
-        notify_completion(true);
-    } else {
-        notify_completion(false);
-    }
+    bool result = (t > 15.0) && (t < 30.0);
+    notify_completion(result);
 }

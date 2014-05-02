@@ -171,7 +171,7 @@ class K64F(Target):
 
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
 
-        self.macros = ["CPU_MK64FN1M0VMD12"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
 
         self.supported_toolchains = ["ARM"]
         
@@ -340,7 +340,7 @@ class NUCLEO_F401RE(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         
@@ -372,7 +372,7 @@ class NUCLEO_F302R8(Target):
     def __init__(self):
         Target.__init__(self)
         
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
         
@@ -526,7 +526,20 @@ class LPC1549(Target):
         
         self.supported_form_factors = ["ARDUINO"]
 
+
+class LPC11U68(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    
+    def __init__(self):
+        Target.__init__(self)
         
+        self.core = "Cortex-M0+"
+        
+        self.extra_labels = ['NXP', 'LPC11U6X']
+        
+        self.supported_toolchains = ["uARM"]
+
+
 class DISCO_F100RB(Target):
     ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
@@ -567,6 +580,19 @@ class DISCO_F407VG(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407','STM32F407VG']
         
         self.supported_toolchains = ["GCC_ARM"]
+
+class DISCO_F303VC(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+        
+        self.core = "Cortex-M4F"
+        
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F303','STM32F303VC']
+        
+        self.supported_toolchains = ["GCC_ARM"]
         
 
 # Get a single instance for each target
@@ -598,10 +624,12 @@ TARGETS = [
     NRF51822(),
     UBLOX_C027(),
     LPC1549(),
+    LPC11U68(),
     DISCO_F100RB(),
     DISCO_F051R8(),
     DISCO_F407VG(),
     STM32F3XX(),
+    DISCO_F303VC()
 ]
 
 # Map each target name to its unique instance

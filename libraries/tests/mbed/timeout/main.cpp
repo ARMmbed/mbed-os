@@ -20,6 +20,9 @@ DigitalOut out(LED2);
 #elif defined(TARGET_K64F)
 DigitalOut out(LED1);
 
+#elif defined(TARGET_NUCLEO_L152RE)
+DigitalOut out(LED1);
+
 #else
 DigitalOut out(p5);
 #endif

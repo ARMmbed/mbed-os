@@ -86,7 +86,7 @@ void pin_function(PinName pin, int data) {
     if (afnum != 0xFF) {
         GPIO_PinAFConfig(gpio, (uint16_t)pin_index, afnum);
     }
-  
+
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
@@ -95,7 +95,7 @@ void pin_function(PinName pin, int data) {
     GPIO_InitStructure.GPIO_OType = (GPIOOType_TypeDef)otype;
     GPIO_InitStructure.GPIO_PuPd  = (GPIOPuPd_TypeDef)pupd;
     GPIO_Init(gpio, &GPIO_InitStructure);
-    
+
     // [TODO] Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     //if ((pin == PA_13) || (pin == PA_14)) {
@@ -103,7 +103,7 @@ void pin_function(PinName pin, int data) {
     //}
     //if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
     //
-    //}    
+    //}
 }
 
 /**
@@ -124,5 +124,5 @@ void pin_mode(PinName pin, PinMode mode) {
     if (pupd > 2) pupd = 0; // Open-drain = No pull-up/No pull-down
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
-    
+
 }

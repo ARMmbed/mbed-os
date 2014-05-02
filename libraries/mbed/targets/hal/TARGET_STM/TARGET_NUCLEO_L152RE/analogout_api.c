@@ -43,7 +43,7 @@ static const PinMap PinMap_DAC[] = {
 
 void analogout_init(dac_t *obj, PinName pin) {
     DAC_InitTypeDef DAC_InitStructure;
-  
+
     // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
 
@@ -65,7 +65,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     DAC_InitStructure.DAC_WaveGeneration               = DAC_WaveGeneration_None;
     DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
     DAC_InitStructure.DAC_OutputBuffer                 = DAC_OutputBuffer_Disable;
-    
+
     if (obj->channel == PA_4) {
         DAC_Init(DAC_Channel_1, &DAC_InitStructure);
         DAC_Cmd(DAC_Channel_1, ENABLE);
@@ -74,7 +74,7 @@ void analogout_init(dac_t *obj, PinName pin) {
         DAC_Init(DAC_Channel_2, &DAC_InitStructure);
         DAC_Cmd(DAC_Channel_2, ENABLE);
     }
-      
+
     analogout_write_u16(obj, 0);
 }
 
@@ -112,10 +112,9 @@ void analogout_write(dac_t *obj, float value) {
 
 void analogout_write_u16(dac_t *obj, uint16_t value) {
     if (value > (uint16_t)RANGE_12BIT) {
-      dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
-    }
-    else {
-      dac_write(obj, value);
+        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+    } else {
+        dac_write(obj, value);
     }
 }
 

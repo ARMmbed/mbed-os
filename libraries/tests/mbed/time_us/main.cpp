@@ -15,6 +15,9 @@ DigitalOut out(PTA1);
 #elif defined(TARGET_LPC812)
 DigitalOut out(D10);
 
+#elif defined(TARGET_NUCLEO_L152RE)
+DigitalOut out(LED1);
+
 #else
 DigitalOut out(p5);
 #endif

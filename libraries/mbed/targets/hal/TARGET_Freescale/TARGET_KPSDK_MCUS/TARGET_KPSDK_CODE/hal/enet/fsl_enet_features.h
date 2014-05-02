@@ -31,13 +31,18 @@
 #define __FSL_ENET_FEATURES_H__
 
 
-#if defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK63FN1M0VMD12WS) || defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VMD12)
-    #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
+#if defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK63FN1M0VMD12WS)
+  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
+	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
+	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
+	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
+#elif  defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VMD12)
+  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (0)
 	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
 	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
 	#define FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT     (0)
 #elif defined(CPU_MK70FN1M0VMJ12)
-    #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
+  #define FSL_FEATURE_ENET_DMA_BIG_ENDIAN_ONLY             (1)
 	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
 	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
 #else
