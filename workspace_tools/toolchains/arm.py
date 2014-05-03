@@ -43,7 +43,7 @@ class ARM(mbedToolchain):
         main_cc = join(ARM_BIN, "armcc")
         common = ["-c",
             "--cpu=%s" % cpu, "--gnu",
-            "-O3", "-Otime", "--split_sections", "--apcs=interwork",
+            "-Otime", "--split_sections", "--apcs=interwork",
             "--brief_diagnostics", "--restrict"
         ]
         
@@ -52,7 +52,10 @@ class ARM(mbedToolchain):
 
         if "debug-info" in self.options:
             common.append("-g")
-        
+            common.append("-O0")
+        else:
+            common.append("-O3")
+            
         common_c = [
             "--md", "--no_depend_system_headers",
             '-I%s' % ARM_INC
@@ -64,7 +67,7 @@ class ARM(mbedToolchain):
             self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
         else:
             self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--c99"]
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--cpp", "--no_rtti"] 
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--cpp", "--no_rtti"]
         
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []

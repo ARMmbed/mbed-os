@@ -49,7 +49,7 @@ class GCC(mbedToolchain):
         
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
-        common_flags = ["-c", "-O2", "-Wall", "-Wextra",
+        common_flags = ["-c", "-Wall", "-Wextra",
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
@@ -61,6 +61,9 @@ class GCC(mbedToolchain):
 
         if "debug-info" in self.options:
             common_flags.append("-g")
+            common_flags.append("-O0")
+        else:
+            common_flags.append("-O2")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -151,7 +154,7 @@ class GCC(mbedToolchain):
         # NOTE: There is a circular dependency between the mbed library and the clib
         # We could define a set of week symbols to satisfy the clib dependencies in "sys.o",
         # but if an application uses only clib symbols and not mbed symbols, then the final
-        # image is not correctly retargeted 
+        # image is not correctly retargeted
         if self.CIRCULAR_DEPENDENCIES:
             libs.extend(libs)
         
