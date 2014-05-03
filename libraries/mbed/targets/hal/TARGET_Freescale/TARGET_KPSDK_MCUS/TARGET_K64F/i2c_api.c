@@ -20,6 +20,8 @@
 #include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_i2c_hal.h"
+#include "fsl_port_hal.h"
+#include "fsl_sim_hal.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PTE25, I2C_0, 5},
@@ -55,11 +57,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     }
 
     clock_manager_set_gate(kClockModuleI2C, obj->instance, true);
+    clock_manager_set_gate(kClockModulePORT, sda >> GPIO_PORT_SHIFT, true);
+    clock_manager_set_gate(kClockModulePORT, scl >> GPIO_PORT_SHIFT, true);
     i2c_hal_enable(obj->instance);
     i2c_frequency(obj, 100000);
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
+    port_hal_configure_open_drain(sda >> GPIO_PORT_SHIFT, sda & 0xFF, true);
+    port_hal_configure_open_drain(scl >> GPIO_PORT_SHIFT, scl & 0xFF, true);
     first_read = 1;
 }
 
