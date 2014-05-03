@@ -33,7 +33,6 @@ class IAR(mbedToolchain):
         mbedToolchain.__init__(self, target, options, notify, macros)
         
         c_flags = [
-            "-Oh",
             "--cpu=%s" % target.core, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
             "-e", # Enable IAR language extension
@@ -47,6 +46,9 @@ class IAR(mbedToolchain):
 
         if "debug-info" in self.options:
             c_flags.append("-r")
+            c_flags.append("-On")
+        else:
+            c_flags.append("-Oh")
         
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
