@@ -15,7 +15,11 @@ DigitalOut out(PTA1);
 #elif defined(TARGET_LPC812)
 DigitalOut out(D10);
 
-#elif defined(TARGET_NUCLEO_L152RE)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE)
 DigitalOut out(LED1);
 
 #else
@@ -32,10 +36,10 @@ void print_char(char c = '*')
     fflush(stdout);
 }
 
-int main() {
+int main()
+{
     while (true) {
-        for (int i = 0; i < MS_INTERVALS; i++)
-        {
+        for (int i = 0; i < MS_INTERVALS; i++) {
             wait_us(1000);
             out = !out;
         }

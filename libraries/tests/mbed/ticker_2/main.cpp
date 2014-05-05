@@ -17,7 +17,11 @@ DigitalOut out(PTA1);
 #elif defined(TARGET_K64F)
 DigitalOut out(PTA1);
 
-#elif defined(TARGET_NUCLEO_L152RE)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE)
 DigitalOut out(PA_3);
 
 #else
@@ -34,8 +38,10 @@ void print_char(char c = '*')
     fflush(stdout);
 }
 
-void togglePin (void) {
+void togglePin(void)
+{
     static int ticker_count = 0;
+
     if (ticker_count == MS_INTERVALS) {
         print_char();
         ticker_count = 0;
@@ -45,9 +51,9 @@ void togglePin (void) {
     ticker_count++;
 }
 
-int main() {
+int main()
+{
     tick.attach_us(togglePin, 1000);
-    while (true) {
+    while (true)
         wait(1);
-    }
 }
