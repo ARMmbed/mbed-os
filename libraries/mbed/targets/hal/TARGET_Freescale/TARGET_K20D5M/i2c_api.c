@@ -68,6 +68,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
+    /* enable open drain for I2C pins, only port b available */
+    uint32_t pin_n  = (uint32_t)(sda & 0x7C) >> 2;
+    PORTB->PCR[pin_n] |= PORT_PCR_ODE_MASK;
+    pin_n  = (uint32_t)(scl & 0x7C) >> 2;
+    PORTB->PCR[pin_n] |= PORT_PCR_ODE_MASK;
 }
 
 int i2c_start(i2c_t *obj) {
