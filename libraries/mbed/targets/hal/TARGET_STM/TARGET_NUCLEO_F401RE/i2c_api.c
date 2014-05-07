@@ -155,29 +155,101 @@ inline int i2c_stop(i2c_t *obj) {
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+    I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
+    int timeout;
+    int count;
+    int value;
+
     if (length == 0) return 0;
 
-    I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
+    i2c_start(obj);
 
-    // Reception process with 5 seconds timeout
-    if (HAL_I2C_Master_Receive(&I2cHandle, (uint16_t)address, (uint8_t *)data, length, 5000) != HAL_OK) {
-        return 0; // Error
+    // Wait until SB flag is set
+    timeout = FLAG_TIMEOUT;
+    while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_SB) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
     }
+    
+   i2c->DR = __HAL_I2C_7BIT_ADD_READ(address);
+   
+  
+    // Wait address is acknowledged
+    timeout = FLAG_TIMEOUT;
+    while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
+    }
+    __HAL_I2C_CLEAR_ADDRFLAG(&I2cHandle);
+
+    // Read all bytes except last one
+    for (count = 0; count < (length - 1); count++) {
+        value = i2c_byte_read(obj, 0);
+        data[count] = (char)value;
+    }
+
+    // If not repeated start, send stop.
+    // Warning: must be done BEFORE the data is read.
+    if (stop) {
+        i2c_stop(obj);
+    }
+
+    // Read the last byte
+    value = i2c_byte_read(obj, 1);
+    data[count] = (char)value;
 
     return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
-    if (length == 0) return 0;
-
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
+    int timeout;
+    int count;
 
-    // Transmission process with 5 seconds timeout
-    if (HAL_I2C_Master_Transmit(&I2cHandle, (uint16_t)address, (uint8_t *)data, length, 5000) != HAL_OK) {
-        return 0; // Error
+    if (length == 0) return 0;
+    i2c_start(obj);
+
+    // Wait until SB flag is set
+    timeout = FLAG_TIMEOUT;
+    while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_SB) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
+    }
+    
+    i2c->DR = __HAL_I2C_7BIT_ADD_WRITE(address);
+   
+
+    // Wait address is acknowledged
+    timeout = FLAG_TIMEOUT;
+    while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == RESET) {
+        timeout--;
+        if (timeout == 0) {
+            return 0;
+        }
+    }
+    __HAL_I2C_CLEAR_ADDRFLAG(&I2cHandle);
+    
+    for (count = 0; count < length; count++) {
+        if (i2c_byte_write(obj, data[count]) != 1) {
+            i2c_stop(obj);
+            return 0;
+        }
     }
 
-    return length;
+    // If not repeated start, send stop.
+    if (stop) {
+        i2c_stop(obj);
+    }
+
+    return count;
 }
 
 int i2c_byte_read(i2c_t *obj, int last) {
