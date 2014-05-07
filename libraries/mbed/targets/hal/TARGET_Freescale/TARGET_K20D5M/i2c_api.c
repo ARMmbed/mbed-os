@@ -48,8 +48,6 @@ static const uint16_t ICR[0x40] = {
       2304, 2560, 3072, 3840
 };
 
-static uint8_t first_read;
-
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // determine the I2C to use
@@ -70,8 +68,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-
-    first_read = 1;
 }
 
 int i2c_start(i2c_t *obj) {
@@ -83,7 +79,6 @@ int i2c_start(i2c_t *obj) {
         obj->i2c->C1 |= I2C_C1_MST_MASK;
         obj->i2c->C1 |= I2C_C1_TX_MASK;
     }
-    first_read = 1;
     return 0;
 }
 
@@ -98,7 +93,6 @@ int i2c_stop(i2c_t *obj) {
     // code provided with the freedom board
     for (n = 0; n < 100; n++)
         __NOP();
-    first_read = 1;
     return 0;
 }
 
@@ -279,30 +273,19 @@ void i2c_reset(i2c_t *obj) {
 
 int i2c_byte_read(i2c_t *obj, int last) {
     char data;
-
+    
     // set rx mode
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
-
-    if(first_read) {
-        // first dummy read
-        i2c_do_read(obj, &data, 0);
-        first_read = 0;
-    }
-
-    if (last) {
-        // set tx mode
-        obj->i2c->C1 |= I2C_C1_TX_MASK;
-        return obj->i2c->D;
-    }
-
+    
+    // Setup read
     i2c_do_read(obj, &data, last);
 
-    return data;
+    // set tx mode
+    obj->i2c->C1 |= I2C_C1_TX_MASK;
+    return obj->i2c->D;
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
-    first_read = 1;
-
     // set tx mode
     obj->i2c->C1 |= I2C_C1_TX_MASK;
 
