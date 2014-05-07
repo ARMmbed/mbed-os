@@ -99,7 +99,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     if ((hz != 0) && (hz <= 400000)) {
-        // I2C configuration      
+        // I2C configuration
         I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
         I2cHandle.Init.ClockSpeed      = hz;
         I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
@@ -108,9 +108,8 @@ void i2c_frequency(i2c_t *obj, int hz) {
         I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
         I2cHandle.Init.OwnAddress1     = 0;
         I2cHandle.Init.OwnAddress2     = 0;
-        HAL_I2C_Init(&I2cHandle);    
-    }
-    else {
+        HAL_I2C_Init(&I2cHandle);
+    } else {
         error("I2C error: frequency setting failed (max 400kHz).");
     }
 }
