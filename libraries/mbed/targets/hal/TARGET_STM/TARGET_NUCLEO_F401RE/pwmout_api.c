@@ -74,12 +74,12 @@ static const PinMap PinMap_PWM[] = {
     {PB_13, PWM_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1)},  // TIM1_CH1N
     {PB_14, PWM_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1)},  // TIM1_CH2N
     {PB_15, PWM_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1)},  // TIM1_CH3N
-    
+
     {PC_6,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH1
     {PC_7,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH2
     {PC_8,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH3
     {PC_9,  PWM_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3)},  // TIM3_CH4
-    
+
     {NC,    NC,    0}
 };
 
@@ -170,7 +170,7 @@ void pwmout_write(pwmout_t* obj, float value) {
         case PB_3:
         case PB_5:
         case PB_7:
-        case PC_7:          
+        case PC_7:
             channel = TIM_CHANNEL_2;
             break;
         // Channels 2N
@@ -191,7 +191,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             break;
         // Channels 3N
         case PB_1:
-        case PB_15:          
+        case PB_15:
             channel = TIM_CHANNEL_3;
             complementary_channel = 1;
             break;
@@ -210,8 +210,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
     if (complementary_channel) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);
-    }
-    else {
+    } else {
         HAL_TIM_PWM_Start(&TimHandle, channel);
     }
 }
