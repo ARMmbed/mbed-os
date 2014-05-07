@@ -17,6 +17,7 @@ limitations under the License.
 import sys
 from time import time
 from os.path import join, abspath, dirname
+from optparse import OptionParser
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -55,10 +56,18 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
 
 if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option('-o', '--official', dest="official_only", default=False, action="store_true",
+                      help="Build using only the official toolchain for each target")
+    options, args = parser.parse_args()
     start = time()
     failures = []
     successes = []
-    for target_name, toolchains in OFFICIAL_MBED_LIBRARY_BUILD:
+    for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+        if options.official_only:
+            toolchains = (getattr(TARGET_MAP[target_name], 'ONLINE_TOOLCHAIN', 'ARM'),)
+        else:
+            toolchains = toolchain_list
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
