@@ -138,7 +138,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         LPC_I2C0->MSTCTL = (1 << 0);
         data[count] = (LPC_I2C0->MSTDAT & 0xFF);
         status = ((LPC_I2C0->STAT >> 1) & (0x07));
-        if (status != 0x00) {
+        if (status != 0x01) {
             i2c_stop(obj);
             return count;
         }

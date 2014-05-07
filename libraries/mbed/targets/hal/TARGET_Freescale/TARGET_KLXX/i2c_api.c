@@ -97,7 +97,7 @@ int i2c_stop(i2c_t *obj) {
 }
 
 static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
-    uint32_t i, timeout = 1000;
+    uint32_t i, timeout = 100000;
     
     for (i = 0; i < timeout; i++) {
         if (obj->i2c->S & mask)
