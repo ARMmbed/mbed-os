@@ -482,6 +482,8 @@ class UBLOX_C027(Target):
         self.extra_labels = ['NXP', 'LPC176X']
         
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+
+        self.macros = ['TARGET_LPC1768']
         
         self.supported_form_factors = ["ARDUINO"]
 
