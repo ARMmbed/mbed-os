@@ -43,6 +43,7 @@ class Uvision4(Exporter):
         'UBLOX_C027',
         'LPC1549',
         'LPC11U35_501',
+        'NRF51822',
     ]
 
     USING_MICROLIB = [
@@ -93,10 +94,10 @@ class Uvision4(Exporter):
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files.items(),
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.toolchain.get_symbols(),
+            'hex_files' : self.resources.hex_files,
         }
         target = self.target.lower()
-        
         # Project file
         self.gen_file('uvision4_%s.uvproj.tmpl' % target, ctx, '%s.uvproj' % self.program_name)
         self.gen_file('uvision4_%s.uvopt.tmpl' % target, ctx, '%s.uvopt' % self.program_name)
