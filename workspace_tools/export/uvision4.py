@@ -61,18 +61,26 @@ class Uvision4(Exporter):
         'LPC11U35_501',
         'KL05Z',
     ]
-    
+
     FILE_TYPES = {
         'c_sources':'1',
         'cpp_sources':'8',
         's_sources':'2'
     }
+
+    FLAGS = [
+        "--gnu",
+    ]
+
     # By convention uVision projects do not show header files in the editor:
     # 'headers':'5',
     
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
     
+    def get_flags(self):
+        return self.FLAGS
+
     def generate(self):
         source_files = {
             'mbed': [],
@@ -97,6 +105,7 @@ class Uvision4(Exporter):
             'source_files': source_files.items(),
             'symbols': self.toolchain.get_symbols(),
             'hex_files' : self.resources.hex_files,
+            'flags' : self.get_flags(),
         }
         target = self.target.lower()
         # Project file
