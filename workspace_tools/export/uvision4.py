@@ -59,6 +59,7 @@ class Uvision4(Exporter):
         'NUCLEO_L152RE',
         'LPC1549',
         'LPC11U35_501',
+        'KL05Z',
     ]
     
     FILE_TYPES = {
