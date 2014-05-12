@@ -22,14 +22,14 @@
 
 #define DEVICE_INTERRUPTIN      1
 
-#define DEVICE_ANALOGIN         0
+#define DEVICE_ANALOGIN         1
 #define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
 #define DEVICE_SERIAL_FC        1
 
 #define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         0
+#define DEVICE_I2CSLAVE         1
 
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         0

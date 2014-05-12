@@ -91,7 +91,7 @@
 //            <2=> P = 4
 //            <3=> P = 8
 //     </h>
-#define SYSPLLCTRL_Val        0x00000003              // Reset value: 0x000
+#define SYSPLLCTRL_Val        0x00000023              // Reset value: 0x000
 //
 //     <o.0..1> Main Clock Source Select (MAINCLKSEL)
 //        <0=> IRC Oscillator
@@ -445,6 +445,25 @@ void SystemCoreClockUpdate (void)               /* Get Core Clock Frequency   */
 
 }
 
+#define PDRUN_VALID_BITS    0x000025FFL
+#define PDRUN_RESERVED_ONE  0x0000C800L
+
+static void power_down_config(uint32_t val)
+{
+  volatile uint32_t tmp;
+  tmp = (LPC_SYSCON->PDRUNCFG & PDRUN_VALID_BITS);
+  tmp |= (val & PDRUN_VALID_BITS);
+  LPC_SYSCON->PDRUNCFG = (tmp | PDRUN_RESERVED_ONE);
+}
+
+static void power_up_config(uint32_t val)
+{
+  volatile uint32_t tmp;
+  tmp = (LPC_SYSCON->PDRUNCFG & PDRUN_VALID_BITS);
+  tmp &= ~(val & PDRUN_VALID_BITS);
+  LPC_SYSCON->PDRUNCFG = (tmp | PDRUN_RESERVED_ONE);
+}
+
 /**
  * Initialize the system
  *
@@ -455,27 +474,30 @@ void SystemCoreClockUpdate (void)               /* Get Core Clock Frequency   */
  */
 void SystemInit (void) {
 #if (CLOCK_SETUP)
-  volatile uint32_t i;
+  volatile uint32_t i, tmp;
 #endif
   LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
   LPC_SYSCON->SYSPLLCTRL    = SYSPLLCTRL_Val;
 
-#warning "should not return here, need to fix an issue with PLL lock"
-  return;
 #if (CLOCK_SETUP)                               /* Clock Setup                */
 
 #if ((SYSPLLCLKSEL_Val & 0x03) == 1)
+  // Initialize XTALIN/XTALOUT pins
+  LPC_IOCON->PIO2_0 = 0x01;
+  LPC_IOCON->PIO2_1 = 0x01;
+
   LPC_SYSCON->SYSOSCCTRL    = SYSOSCCTRL_Val;
-  LPC_SYSCON->PDRUNCFG     &= ~(1 << 5);        /* Power-up sysosc            */
-  for (i = 0; i < 200; i++) __NOP();            /* Wait for osc to stabilize  */
+  power_up_config(1<<5);                        /* Power-up sysosc            */
+  for (i = 0; i < 2500; i++) __NOP();           /* Wait for osc to stabilize  */
 #endif
+
 #if ((SYSPLLCLKSEL_Val & 0x03) == 3)
   LPC_SYSCON->RTCOSCCTRL    =  (1 << 0);        /* Enable 32 kHz output       */
   for (i = 0; i < 200; i++) __NOP();            /* Wait for osc to stabilize  */
 #endif
 
   LPC_SYSCON->SYSPLLCLKSEL  = SYSPLLCLKSEL_Val; /* Select PLL Input           */
-  //LPC_SYSCON->SYSPLLCLKUEN  = 0x01;             /* Update Clock Source        */
+  LPC_SYSCON->SYSPLLCLKUEN  = 0x01;             /* Update Clock Source        */
   LPC_SYSCON->SYSPLLCLKUEN  = 0x00;             /* Toggle Update Register     */
   LPC_SYSCON->SYSPLLCLKUEN  = 0x01;
   while (!(LPC_SYSCON->SYSPLLCLKUEN & 0x01));   /* Wait Until Updated         */
@@ -485,13 +507,13 @@ void SystemInit (void) {
 #if (((MAINCLKSEL_Val & 0x03) == 2) )
   LPC_SYSCON->WDTOSCCTRL    = WDTOSCCTRL_Val;
   LPC_SYSCON->PDRUNCFG     &= ~(1 << 6);        /* Power-up WDT Clock         */
-  for (i = 0; i < 2000; i++) __NOP();            /* Wait for osc to stabilize  */
+  for (i = 0; i < 2000; i++) __NOP();           /* Wait for osc to stabilize  */
 #endif
 
 #if ((MAINCLKSEL_Val & 0x03) == 3)              /* Main Clock is PLL Out      */
-  LPC_SYSCON->PDRUNCFG     |= (1 << 7);         /* Power-down SYSPLL          */
+  power_down_config(1<<7);                      /* Power-down SYSPLL          */
   LPC_SYSCON->SYSPLLCTRL    = SYSPLLCTRL_Val;
-  LPC_SYSCON->PDRUNCFG     &= ~(1 << 7);        /* Power-up SYSPLL            */
+  power_up_config(1<<7);                        /* Power-up SYSPLL            */
   while (!(LPC_SYSCON->SYSPLLSTAT & 0x01));     /* Wait Until PLL Locked      */
 #endif
 
@@ -549,7 +571,4 @@ void SystemInit (void) {
 
 #endif                                          /* Clock Setup                */
 
-  /* System clock to the IOCON needs to be enabled or
-    most of the I/O related peripherals won't work.  */
-  LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
 }
