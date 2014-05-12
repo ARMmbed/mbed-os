@@ -29,17 +29,17 @@
  * INITIALIZATION
  ******************************************************************************/
 
-#define UART_NUM    5
+#define UART_NUM    1
 
 static const PinMap PinMap_UART_TX[] = {
     {P0_19, UART_0, 1},
     {P1_18, UART_0, 2},
     {P1_27, UART_0, 2},
-    {P1_18, UART_1, 2},
-    {P1_0 , UART_2, 3},
-    {P1_23, UART_2, 3},
-    {P2_4 , UART_3, 1},
-    {P2_12, UART_4, 1},
+//    {P1_18, UART_1, 2},
+//    {P1_0 , UART_2, 3},
+//    {P1_23, UART_2, 3},
+//    {P2_4 , UART_3, 1},
+//    {P2_12, UART_4, 1},
     { NC  , NC    , 0}
 };
 
@@ -47,11 +47,11 @@ static const PinMap PinMap_UART_RX[] = {
     {P0_18, UART_0, 1},
     {P1_17, UART_0, 2},
     {P1_26, UART_0, 2},
-    {P1_2 , UART_1, 3},
-    {P0_20, UART_2, 2},
-    {P1_6 , UART_2, 2},
-    {P2_3 , UART_3, 1},
-    {P2_11, UART_4, 1},
+//    {P1_2 , UART_1, 3},
+//    {P0_20, UART_2, 2},
+//    {P1_6 , UART_2, 2},
+//    {P2_3 , UART_3, 1},
+//    {P2_11, UART_4, 1},
     {NC   , NC    , 0}
 };
 
@@ -129,8 +129,7 @@ void serial_free(serial_t *obj) {
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
     LPC_SYSCON->USART0CLKDIV = 0x1;
-#warning "[TODO] This should be fixed to handle system core clock correctly."
-    uint32_t PCLK = 12000000; //SystemCoreClock;
+    uint32_t PCLK = SystemCoreClock;
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
     // MulVal = 1. Otherwise, we search the valid ratio value range to find

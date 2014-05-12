@@ -27,8 +27,7 @@ void us_ticker_init(void) {
     us_ticker_inited = 1;
     
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<10); // Clock CT32B1
-#warning "[TODO] this should read from SystemCoreClock grobal variable."
-    uint32_t PCLK = 12000000;//SystemCoreClock;
+    uint32_t PCLK = SystemCoreClock;
     
     US_TICKER_TIMER->TCR = 0x2;  // reset
     
