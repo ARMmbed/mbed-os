@@ -314,7 +314,44 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
 int i2c_slave_receive(i2c_t *obj) {
-    return(0);
+    int retValue = NoData;
+    uint32_t event;
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+
+    event = I2C_GetLastEvent( i2c );
+    if(event != 0)
+    {
+        switch(event){
+            case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
+                retValue = WriteAddressed;
+                break;
+            case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:
+                retValue = ReadAddressed;
+                break;
+            case I2C_EVENT_SLAVE_GENERALCALLADDRESS_MATCHED:
+                retValue = WriteGeneral;
+                break;
+            default:
+                retValue = NoData;
+                break;
+        }
+
+        // clear ADDR 
+        if((retValue == WriteAddressed) || (retValue == ReadAddressed)){
+            i2c->SR1;// read status register 1
+            i2c->SR2;// read status register 2
+        }
+        // clear stopf
+        if(I2C_GetFlagStatus(i2c, I2C_FLAG_STOPF) == SET) {
+            i2c->SR1;// read status register 1
+            I2C_Cmd(i2c,  ENABLE);    
+        }
+        // clear AF
+        if(I2C_GetFlagStatus(i2c, I2C_FLAG_AF) == SET) {
+            I2C_ClearFlag(i2c, I2C_FLAG_AF);
+        }        
+    }
+    return(retValue);
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
