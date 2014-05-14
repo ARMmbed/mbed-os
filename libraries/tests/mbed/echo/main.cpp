@@ -1,6 +1,11 @@
 #include "mbed.h"
 
-#if defined(TARGET_NUCLEO_F103RB) || defined(TARGET_NUCLEO_L152RE) || defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_F030R8)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
 #define TXPIN     STDIO_UART_TX
 #define RXPIN     STDIO_UART_RX
 #else
