@@ -28,6 +28,8 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
+    if (obj->pin == (PinName)NC)
+        return;
     uint32_t pin_number = ((obj->pin & 0x0F00) >> 8);
     if (value)
         *obj->reg_write |= (1 << pin_number);
@@ -36,6 +38,8 @@ static inline void gpio_write(gpio_t *obj, int value) {
 }
 
 static inline int gpio_read(gpio_t *obj) {
+    if (obj->pin == (PinName)NC)
+        return;
     return ((*obj->reg_mask_read) ? 1 : 0);
 }
 

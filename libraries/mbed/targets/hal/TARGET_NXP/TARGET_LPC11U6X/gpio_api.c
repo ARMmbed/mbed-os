@@ -16,31 +16,21 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-static int  gpio_enabled = 0;
-
-static void gpio_enable(void) {
-    gpio_enabled = 1;
-    
+uint32_t gpio_set(PinName pin) {
     /* Enable AHB clock to the GPIO and IOCON domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= ((1 << 16) | (1 << 6));
-}
-
-uint32_t gpio_set(PinName pin) {
-    
-    if (!gpio_enabled)
-         gpio_enable();
-    
     return (1UL << ((int)pin >> PIN_SHIFT & 0x1F));
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if(pin == NC) return;
-    
+    if (pin == (PinName)NC)
+        return;
+
     obj->pin = pin;
     obj->mask = gpio_set(pin);
     
     unsigned int port = (unsigned int)(pin >> PORT_SHIFT);
-    
+
     obj->reg_set = &LPC_GPIO_PORT->SET[port];
     obj->reg_clr = &LPC_GPIO_PORT->CLR[port];
     obj->reg_in  = &LPC_GPIO_PORT->PIN[port];
@@ -52,8 +42,15 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (obj->pin == (PinName)NC)
+        return;
+
     switch (direction) {
-        case PIN_INPUT : *obj->reg_dir &= ~obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_dir |=  obj->mask; break;
+        case PIN_INPUT :
+            *obj->reg_dir &= ~obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir |=  obj->mask;
+            break;
     }
 }

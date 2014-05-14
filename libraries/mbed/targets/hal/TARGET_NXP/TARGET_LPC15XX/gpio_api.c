@@ -16,26 +16,15 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-static int  gpio_enabled = 0;
-
-static void gpio_enable(void) {
-    gpio_enabled = 1;
-    
-    /* Enable AHB clock to the GPIO0/1/2 and IOCON domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL0 |= (0xFUL << 13);
-}
-
 uint32_t gpio_set(PinName pin) {
-    
-    if (!gpio_enabled)
-         gpio_enable();
-    
+    LPC_SYSCON->SYSAHBCLKCTRL0 |= (0xFUL << 13);
     return (1UL << ((int)pin & 0x1f));
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if(pin == NC) return;
-    
+    if (pin == (PinName)NC)
+        return;
+
     obj->pin = pin;
     obj->mask = gpio_set(pin);
     
@@ -52,8 +41,15 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (obj->pin == (PinName)NC)
+        return;
+
     switch (direction) {
-        case PIN_INPUT : *obj->reg_dir &= ~obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_dir |=  obj->mask; break;
+        case PIN_INPUT :
+            *obj->reg_dir &= ~obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir |=  obj->mask;
+            break;
     }
 }

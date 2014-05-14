@@ -17,18 +17,16 @@
 #include "pinmap.h"
 
 uint32_t gpio_set(PinName pin) {
-    int f = ((pin == P0_11) ||
-             (pin == P0_12) ||
-             (pin == P0_13) ||
-             (pin == P0_14)) ? (1) : (0);
-    
+    int f = ((pin == P0_11) || (pin == P0_12) ||
+             (pin == P0_13) || (pin == P0_14)) ? (1) : (0);
     pin_function(pin, f);
-    
+
     return (1 << ((int)pin & 0x1F));
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if(pin == NC) return;
+    if (pin == (PinName)NC)
+        return;
 
     obj->pin = pin;
     obj->mask = gpio_set(pin);
@@ -46,6 +44,8 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (obj->pin == (PinName)NC)
+        return;
     switch (direction) {
         case PIN_INPUT : *obj->reg_dir &= ~obj->mask; break;
         case PIN_OUTPUT: *obj->reg_dir |=  obj->mask; break;

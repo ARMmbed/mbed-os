@@ -27,6 +27,8 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
+    if (obj->pin == (PinName)NC)
+        return;
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
 
@@ -34,6 +36,8 @@ static inline void gpio_write(gpio_t *obj, int value) {
 }
 
 static inline int gpio_read(gpio_t *obj) {
+    if (obj->pin == (PinName)NC)
+        return 0;
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
 

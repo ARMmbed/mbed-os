@@ -34,17 +34,17 @@
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-uint32_t gpio_set(PinName pin) {  
-    if (pin == NC) return 0;
+uint32_t gpio_set(PinName pin) {
+    if (pin == (PinName)NC)
+        return 0;
 
     pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if (pin == NC) return;
-
+    if (pin == (PinName)NC)
+        return;
     uint32_t port_index = STM_PORT(pin);
   
     // Enable GPIO clock

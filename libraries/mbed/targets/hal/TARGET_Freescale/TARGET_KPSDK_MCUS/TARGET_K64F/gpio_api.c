@@ -27,9 +27,8 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if (pin == NC) {
+    if (pin == (PinName)NC)
         return;
-    }
 
     obj->pinName = pin;
     uint32_t port = pin >> GPIO_PORT_SHIFT;
@@ -43,6 +42,8 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    if (obj->pin == (PinName)NC)
+        return;
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinName & 0xFF;
 
