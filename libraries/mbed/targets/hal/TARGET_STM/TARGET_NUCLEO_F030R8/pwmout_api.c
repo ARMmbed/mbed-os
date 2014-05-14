@@ -40,7 +40,7 @@ static const PinMap PinMap_PWM[] = {
     {PA_4,  TIM_14, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_4)}, // TIM14_CH1
     {PA_6,  TIM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_1)}, // TIM3_CH1
 //  {PA_6,  TIM_16, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_5)}, // TIM16_CH1
-    {PA_7,  TIM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_1)}, // TIM3_CH1
+    {PA_7,  TIM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_1)}, // TIM3_CH2
 //  {PA_7,  TIM_14, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_4)}, // TIM14_CH1
 //  {PA_7,  TIM_17, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_5)}, // TIM17_CH1
     {PB_0,  TIM_3,  STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_NOPULL, GPIO_AF_1)}, // TIM3_CH3
@@ -117,7 +117,6 @@ void pwmout_write(pwmout_t* obj, float value) {
         // Channels 1
         case PA_4:
         case PA_6:
-        case PA_7:
         case PB_1:
         case PB_4:
         case PB_8:
@@ -136,7 +135,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             TIM_OC1Init(tim, &TIM_OCInitStructure);
             break;
         // Channels 2
-//      case PA_7:
+        case PA_7:
         case PB_5:
         case PC_7:
             TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
