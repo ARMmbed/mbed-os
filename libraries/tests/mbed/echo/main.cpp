@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-#elif defined(TARGET_NUCLEO_F103RB) || \
+#if defined(TARGET_NUCLEO_F103RB) || \
     defined(TARGET_NUCLEO_L152RE) || \
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
