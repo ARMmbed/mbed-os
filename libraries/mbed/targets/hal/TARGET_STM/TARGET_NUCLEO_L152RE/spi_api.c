@@ -138,7 +138,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     } else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     }
 
     init_spi(obj);
@@ -270,7 +270,8 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    //return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0); // initial code
+    return (ssp_readable(obj)) ? (1) : (0); // works better like this
 };
 
 int spi_slave_read(spi_t *obj) {
