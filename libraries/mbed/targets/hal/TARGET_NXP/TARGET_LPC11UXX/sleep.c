@@ -18,11 +18,6 @@
 #include "mbed_interface.h"
 
 void sleep(void) {
-    // ensure debug is disconnected
-    #if DEVICE_SEMIHOST
-    mbed_interface_disconnect();
-    #endif
-    
     // PCON[PD] set to sleep
     LPC_PMU->PCON = 0x0;
     
@@ -33,46 +28,23 @@ void sleep(void) {
     __WFI();
 }
 
-/*
-* The mbed lpc1768 does not support the deepsleep mode
-* as a debugger is connected to it (the mbed interface).
-*
-* As mentionned in an application note from NXP:
-*
-*       http://www.po-star.com/public/uploads/20120319123122_141.pdf
-*
-*       {{{
-*       The user should be aware of certain limitations during debugging.
-*       The most important is that, due to limitations of the Cortex-M3
-*       integration, the LPC17xx cannot wake up in the usual manner from
-*       Deep Sleep and Power-down modes. It is recommended not to use these
-*       modes during debug. Once an application is downloaded via JTAG/SWD
-*       interface, the USB to SWD/JTAG debug adapter (Keil ULINK2 for example)
-*       should be removed from the target board, and thereafter, power cycle
-*       the LPC17xx to allow wake-up from deep sleep and power-down modes
-*       }}}
-*
-*       As the interface firmware does not reset the target when a
-*       mbed_interface_disconnect() semihosting call is made, the
-*       core cannot wake-up from deepsleep.
-*
-*       We treat a deepsleep() as a normal sleep().
-*/
-
 void deepsleep(void) {
     // ensure debug is disconnected
     #if DEVICE_SEMIHOST
     mbed_interface_disconnect();
     #endif
-    
-    // PCON[PD] set to deepsleep
-    LPC_PMU->PCON = 0x1;
+
+    // PCON[PD] set to powerdown
+    LPC_PMU->PCON = 0x2;
     
     // SRC[SLEEPDEEP] set to 1 = deep sleep
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
     
-    // Power up everything after powerdown
-    LPC_SYSCON->PDAWAKECFG &= 0xFFFFF800;
+    //If brownout detection and WDT are enabled, keep them enabled during sleep
+    LPC_SYSCON->PDSLEEPCFG = LPC_SYSCON->PDRUNCFG | (~((1 << 3) | (1 << 6)));
+    
+    //After wakeup same stuff as currently enabled:
+    LPC_SYSCON->PDAWAKECFG = LPC_SYSCON->PDRUNCFG;
     
     // wait for interrupt
     __WFI();
