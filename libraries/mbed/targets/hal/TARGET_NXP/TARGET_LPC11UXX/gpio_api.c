@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "gpio_api.h"
 #include "pinmap.h"
 
 uint32_t gpio_set(PinName pin) {
+    assert(pin != (PinName)NC);
     int f = ((pin == P0_11) || (pin == P0_12) ||
              (pin == P0_13) || (pin == P0_14)) ? (1) : (0);
     pin_function(pin, f);
@@ -25,10 +27,10 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
+    obj->pin = pin;
     if (pin == (PinName)NC)
         return;
 
-    obj->pin = pin;
     obj->mask = gpio_set(pin);
     
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
@@ -44,9 +46,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    if (obj->pin == (PinName)NC)
-        return;
-
+    assert(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir &= ~obj->mask;

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pinmap.h"
 #include "error.h"
 
@@ -20,7 +21,7 @@
 #define LPC_IOCON1_BASE (LPC_IOCON_BASE + 0x60)
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    assert(pin != (PinName)NC);
     
     uint32_t pin_number = (uint32_t)pin;
     
@@ -33,7 +34,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    assert(pin != (PinName)NC);
     
     uint32_t pin_number = (uint32_t)pin;
     uint32_t drain = ((uint32_t) mode & (uint32_t) OpenDrain) >> 2;

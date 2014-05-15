@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "gpio_api.h"
 #include "pinmap.h"
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if(pin == (PinName)NC)
+    obj->pin = pin;
+    if (pin == (PinName)NC)
         return;
 
-    obj->pin = pin;
     obj->mask = (1ul << pin);
 
     obj->reg_set = &NRF_GPIO->OUTSET;
@@ -34,22 +35,21 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    if (obj->pin == (PinName)NC)
-        return;
+    assert(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
-        NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+            NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
-                                        break;
+            break;
         case PIN_OUTPUT:
-        NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+            NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-                                        break;
+            break;
     }
 }
 

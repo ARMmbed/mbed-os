@@ -17,7 +17,8 @@
 #include "error.h"
 
 void pinmap_pinout(PinName pin, const PinMap *map) {
-    if (pin == NC) return;
+    if (pin == NC)
+        return;
 
     while (map->pin != NC) {
         if (map->pin == pin) {
@@ -33,11 +34,14 @@ void pinmap_pinout(PinName pin, const PinMap *map) {
 
 uint32_t pinmap_merge(uint32_t a, uint32_t b) {
     // both are the same (inc both NC)
-    if (a == b) return a;
+    if (a == b)
+        return a;
 
     // one (or both) is not connected
-    if (a == (uint32_t)NC) return b;
-    if (b == (uint32_t)NC) return a;
+    if (a == (uint32_t)NC)
+        return b;
+    if (b == (uint32_t)NC)
+        return a;
 
     // mis-match error case
     error("pinmap mis-match");

@@ -16,6 +16,7 @@
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
+#include <assert.h>
 #include "fsl_gpio_hal.h"
 
 #ifdef __cplusplus
@@ -27,8 +28,7 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    if (obj->pin == (PinName)NC)
-        return;
+    assert(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
 
@@ -36,8 +36,7 @@ static inline void gpio_write(gpio_t *obj, int value) {
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    if (obj->pin == (PinName)NC)
-        return 0;
+    assert(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
 

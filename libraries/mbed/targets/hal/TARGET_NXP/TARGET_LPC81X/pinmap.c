@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pinmap.h"
 #include "error.h"
 
@@ -30,8 +31,8 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
-    
+    assert(pin != (PinName)NC);
+
     if ((pin == 10) || (pin == 11)) {
         // True open-drain pins can be configured for different I2C-bus speeds
         return;

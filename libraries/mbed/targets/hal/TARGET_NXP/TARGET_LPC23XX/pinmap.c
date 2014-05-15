@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pinmap.h"
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (PinName)NC) return;
+    assert(pin != (PinName)NC);
     
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 4;
@@ -28,15 +29,13 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (PinName)NC) { return; }
-    
+    assert((pin != (PinName)NC) && (mode != OpenDrain));
+
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 5;
     int offset = pin_number & 0x1F;
     uint32_t drain = ((uint32_t) mode & (uint32_t) OpenDrain) >> 2;
-    
-    if (mode == OpenDrain) error("OpenDrain not supported on LPC2368");
-    
+
     if (!drain) {
         index = pin_number >> 4;
         offset = (pin_number & 0xF) << 1;
