@@ -145,6 +145,9 @@ typedef enum {
     // Other mbed Pin Names
     LED     = P3_25,
     LED1    = LED,
+    LED2    = LED,
+    LED3    = LED,
+    LED4    = LED,
     LED_RED = LED,
     
    	// mbed / debug IF (LPC11)
