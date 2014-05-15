@@ -20,8 +20,7 @@
 static gpio_t mdmEn, mdmLvlOe, mdmILvlOe, mdmUsbDet;
 static gpio_t gpsEn;
 
-void c027_init(void)
-{
+void c027_init(void) {
     gpio_t led, mdmRts, mdmRst, gpsRst, mdmPwrOn;
     // start with modem disabled 
     gpio_init_out_ex(&mdmEn,     MDMEN,     0);
@@ -40,12 +39,10 @@ void c027_init(void)
     wait_ms(50); // when USB cable is inserted the interface chip issues 
 }
 
-void c027_mdm_powerOn(int usb)
-{
+void c027_mdm_powerOn(int usb) {
     // turn on the mode by enabling power with power on pin low and correct USB detect level
     gpio_write(&mdmUsbDet, usb ? 1 : 0);  // USBDET: 0=disabled, 1=enabled
-    if (!gpio_read(&mdmEn)) // enable modem
-    {
+    if (!gpio_read(&mdmEn)) { // enable modem
         gpio_write(&mdmEn, 1);        // LDOEN:  1=on
         wait_ms(1);                   // wait until supply switched off
         // now we can safely enable the level shifters
@@ -55,10 +52,8 @@ void c027_mdm_powerOn(int usb)
     }
 }
 
-void c027_mdm_powerOff(void) 
-{
-    if (gpio_read(&gpsEn))
-    {
+void c027_mdm_powerOff(void) {
+    if (gpio_read(&gpsEn)) {
         // diable all level shifters
         gpio_write(&mdmILvlOe, 0);  // ILVLEN: 0=disabled (i2c)
         gpio_write(&mdmLvlOe, 1);   // LVLEN:  1=disabled (uart/gpio)
@@ -68,10 +63,8 @@ void c027_mdm_powerOff(void)
     }
 }        
 
-void c027_gps_powerOn(void)
-{
-    if (!gpio_read(&gpsEn))
-    {
+void c027_gps_powerOn(void) {
+    if (!gpio_read(&gpsEn)) {
         // switch on power supply
         gpio_write(&gpsEn, 1);          // LDOEN: 1=on
         wait_ms(1);                     // wait until supply switched off
@@ -80,10 +73,8 @@ void c027_gps_powerOn(void)
     }
 }
 
-void c027_gps_powerOff(void)
-{
-    if (gpio_read(&gpsEn))
-    {
+void c027_gps_powerOff(void) {
+    if (gpio_read(&gpsEn)) {
         gpio_write(&mdmILvlOe, 0);  // ILVLEN: 0=disabled (i2c)
         gpio_write(&gpsEn, 0);      // LDOEN: 0=off
     }

@@ -16,7 +16,6 @@
 #include "C027_api.h"
 
 // called before main
-void mbed_sdk_init()
-{
+void mbed_sdk_init() {
 	c027_init();
 }
