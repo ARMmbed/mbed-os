@@ -57,6 +57,13 @@ int main() {
 #elif defined(TARGET_nRF51822)
 //SDFileSystem sd(p20, p22, p25, p24, "sd");
 SDFileSystem sd(p12, p13, p15, p14, "sd");
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
+SDFileSystem sd(D11, D12, D13, D10, "sd");
 #else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
