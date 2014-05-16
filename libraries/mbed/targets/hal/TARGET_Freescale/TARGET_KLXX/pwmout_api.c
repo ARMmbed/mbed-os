@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pwmout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
@@ -26,9 +26,8 @@ static float pwm_clock;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (PWMName)NC)
-        error("PwmOut pin mapping failed");
-    
+    assert(pwm != (PWMName)NC);
+
     uint32_t clkdiv = 0;
     float clkval;
     if (mcgpllfll_frequency()) {
@@ -37,11 +36,11 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     } else {
         SIM->SOPT2 |= SIM_SOPT2_TPMSRC(2); // Clock source: ExtOsc
         clkval = extosc_frequency() / 1000000.0f;
-    } 
+    }
     
     while (clkval > 1) {
         clkdiv++;
-        clkval /= 2.0;  
+        clkval /= 2.0;
         if (clkdiv == 7)
             break;
     }

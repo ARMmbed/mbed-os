@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "serial_api.h"
 
 // math.h required for floating point operations for baud rate calculation
@@ -22,7 +23,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
@@ -61,9 +61,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
+    assert((int)uart != NC);
 
     obj->uart = (UARTLP_Type *)uart;
     // enable clk
@@ -290,7 +288,7 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->C2 |= UARTLP_C2_SBK_MASK; 
+    obj->uart->C2 |= UARTLP_C2_SBK_MASK;
 }
 
 void serial_break_clear(serial_t *obj) {

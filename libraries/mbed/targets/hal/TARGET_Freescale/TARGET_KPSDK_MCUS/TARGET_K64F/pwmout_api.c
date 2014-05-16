@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pwmout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "fsl_ftm_hal.h"
 #include "fsl_mcg_hal.h"
 #include "fsl_clock_manager.h"
@@ -73,9 +73,8 @@ static float pwm_clock_mhz;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (PWMName)NC) {
-        error("PwmOut pin mapping failed");
-    }
+    assert(pwm != (PWMName)NC);
+
     obj->pwm_name = pwm;
 
     uint32_t pwm_base_clock;

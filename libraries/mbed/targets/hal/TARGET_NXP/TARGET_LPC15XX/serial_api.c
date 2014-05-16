@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 // math.h required for floating point operations for baud rate calculation
+#include <assert.h>
 #include <math.h>
 #include <string.h>
 
@@ -91,7 +92,7 @@ static void switch_pin(const SWM_Map *swm, PinName pn)
         for (int n = 0; n < sizeof(LPC_SWM->PINASSIGN)/sizeof(*LPC_SWM->PINASSIGN); n ++) {
             regVal = LPC_SWM->PINASSIGN[n];
             for (int j = 0; j <= 24; j += 8) {
-                if (((regVal >> j) & 0xFF) == pn) 
+                if (((regVal >> j) & 0xFF) == pn)
                     regVal |= (0xFF << j);
             }
             LPC_SWM->PINASSIGN[n] = regVal;
@@ -195,16 +196,11 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    // 0: 1 stop bits, 1: 2 stop bits
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
+    assert((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
+    assert((data_bits > 6) || (data_bits < 10)); // 0: 7 data bits ... 2: 9 data bits
+    assert(parity < (ParityEven + 1));
+
     stop_bits -= 1;
-    
-    // 0: 7 data bits ... 2: 9 data bits
-    if (data_bits < 7 || data_bits > 9) {
-        error("Invalid number of bits (%d) in serial format, should be 7..9", data_bits);
-    }
     data_bits -= 7;
     
     int paritysel;
@@ -213,8 +209,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityEven: paritysel = 2; break;
         case ParityOdd : paritysel = 3; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
     
     obj->uart->CFG = (data_bits << 2)

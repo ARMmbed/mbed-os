@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "analogin_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "PeripheralNames.h"
 #include "fsl_adc_hal.h"
 #include "fsl_clock_manager.h"
@@ -49,9 +49,8 @@ static const PinMap PinMap_ADC[] = {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (ADCName)NC) {
-        error("ADC pin mapping failed");
-    }
+    assert(obj->adc != (ADCName)NC);
+
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
 
     clock_manager_set_gate(kClockModuleADC, instance, true);

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
-
-
 
 static const PinMap PinMap_I2C_SDA[] = {
     {p22, I2C_0, 1},
@@ -52,7 +50,7 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency) {
                                (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos));
 
     obj->i2c->PSELSCL               = scl;
-    obj->i2c->PSELSDA               = sda;        
+    obj->i2c->PSELSDA               = sda;
     // set default frequency at 100k
     i2c_frequency(obj, frequency);
     i2c_interface_enable(obj);
@@ -64,30 +62,28 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c     = (I2CName)pinmap_merge(i2c_sda,i2c_scl);
     obj->i2c        = (NRF_TWI_Type            *)i2c;
     
-    if ((int)obj->i2c == NC) {
-        error("I2C pin mapping failed");
-    }
+    assert((int)obj->i2c != NC);
 
     obj->scl=scl;
     obj->sda=sda;
     obj->i2c->EVENTS_ERROR = 0;
-    obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos; 
-    obj->i2c->POWER        = 0; 
+    obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
+    obj->i2c->POWER        = 0;
     
     for(int i=0;i<100;i++){
     }
     
-    obj->i2c->POWER        = 1; 
+    obj->i2c->POWER        = 1;
     twi_master_init(obj,sda,scl,100000);
 }
 void i2c_reset(i2c_t *obj) {
     obj->i2c->EVENTS_ERROR = 0;
-    obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos; 
-    obj->i2c->POWER        = 0; 
+    obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
+    obj->i2c->POWER        = 0;
     for(int i=0;i<100;i++){
     }
     
-    obj->i2c->POWER        = 1; 
+    obj->i2c->POWER        = 1;
     twi_master_init(obj,obj->sda,obj->scl,obj->freq);
 }
 
@@ -107,7 +103,7 @@ int i2c_stop(i2c_t *obj) {
         timeOut--;
         if(timeOut<0)
             return 1;
-    }    
+    }
     addrSet = 0;
     i2c_reset(obj);
     return 0;
@@ -122,7 +118,7 @@ int i2c_do_write(i2c_t *obj, int value) {
         if(timeOut<0)
             return 1;
     }
-    obj->i2c->EVENTS_TXDSENT = 0;    
+    obj->i2c->EVENTS_TXDSENT = 0;
     return 0;
 }
 
@@ -166,17 +162,17 @@ void i2c_frequency(i2c_t *obj, int hz) {
 }
 
 int checkError(i2c_t *obj){
-    if (obj->i2c->EVENTS_ERROR == 1){        
-        if (obj->i2c->ERRORSRC & TWI_ERRORSRC_ANACK_Msk){            
+    if (obj->i2c->EVENTS_ERROR == 1){
+        if (obj->i2c->ERRORSRC & TWI_ERRORSRC_ANACK_Msk){
             obj->i2c->EVENTS_ERROR  = 0;
-            obj->i2c->TASKS_STOP    = 1;            
+            obj->i2c->TASKS_STOP    = 1;
             return I2C_ERROR_BUS_BUSY;
         }
         
         obj->i2c->EVENTS_ERROR  = 0;
         obj->i2c->TASKS_STOP    = 1;
-        return I2C_ERROR_NO_SLAVE; 
-    }    
+        return I2C_ERROR_NO_SLAVE;
+    }
     return 0;
 }
 
@@ -190,7 +186,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     // Read in all except last byte
     for (count = 0; count < (length - 1); count++) {
         status = i2c_do_read(obj,&data[count], 0);
-        if (status) {            
+        if (status) {
             errorResult = checkError(obj);
             i2c_reset(obj);
             if(errorResult<0){
@@ -211,7 +207,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         while(!obj->i2c->EVENTS_STOPPED){
         }
         obj->i2c->EVENTS_STOPPED = 0;
-    }    
+    }
     return length;
 }
 
@@ -219,7 +215,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int status, errorResult;
     obj->i2c->ADDRESS       = (address>>1);
     obj->i2c->SHORTS        = 0;
-    obj->i2c->TASKS_STARTTX = 1;   
+    obj->i2c->TASKS_STARTTX = 1;
  
     for (int i=0; i<length; i++) {
         status = i2c_do_write(obj, data[i]);
@@ -264,7 +260,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
             obj->i2c->TASKS_STARTRX   = 1;
         }
         else{
-            obj->i2c->TASKS_STARTTX   = 1;    
+            obj->i2c->TASKS_STARTTX   = 1;
         }
     }
     else{

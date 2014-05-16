@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "spi_api.h"
 
 #include <math.h>
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
@@ -56,9 +56,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert((int)obj->spi != NC);
 
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK;
     SIM->SCGC6 |= SIM_SCGC6_SPI0_MASK;

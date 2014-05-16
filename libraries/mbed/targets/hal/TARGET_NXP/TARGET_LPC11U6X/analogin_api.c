@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+#include <assert.h>
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -50,9 +50,8 @@ static const PinMap PinMap_ADC[] = {
 void analogin_init(analogin_t *obj, PinName pin) {
     volatile uint32_t tmp;
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (uint32_t)NC) {
-        error("ADC pin mapping failed");
-    }
+    assert(obj->adc != (ADCName)NC);
+
     pinmap_pinout(pin, PinMap_ADC);
 
     // ADC Powered

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "spi_api.h"
-
 #include <math.h>
+#include <assert.h>
 
+#include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
@@ -93,9 +93,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
 
     obj->instance = pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->instance == NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert((int)obj->instance != NC);
 
     // enable power and clocking
     clock_manager_set_gate(kClockModuleSPI, obj->instance, true);

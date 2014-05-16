@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -43,8 +44,8 @@ static const PinMap PinMap_PWM[] = {
     {p19,  PWM_1, 1},
     {p20,  PWM_1, 1},
     {p21,  PWM_1, 1},
-    {p22,  PWM_1, 1},    
-    {p23,  PWM_1, 1},    
+    {p22,  PWM_1, 1},
+    {p23,  PWM_1, 1},
     {p24,  PWM_1, 1},
     {p25,  PWM_1, 1},
     {p28,  PWM_1, 1},
@@ -54,7 +55,7 @@ static const PinMap PinMap_PWM[] = {
 };
 
 static NRF_TIMER_Type *Timers[1] = {
-    NRF_TIMER2    
+    NRF_TIMER2
 };
 
 uint8_t PWM_taken[NO_PWMS]     = {0,0};
@@ -67,34 +68,34 @@ uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0};
  */
  #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 void TIMER2_IRQHandler(void)
 {
     static uint16_t CCVal1 = 2501;
     static uint16_t CCVal2 = 2501;
     
-    if ((NRF_TIMER2->EVENTS_COMPARE[1] != 0) && 
+    if ((NRF_TIMER2->EVENTS_COMPARE[1] != 0) &&
        ((NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0)){
        
-        NRF_TIMER2->CC[0]             = CCVal1;            
+        NRF_TIMER2->CC[0]             = CCVal1;
         NRF_TIMER2->EVENTS_COMPARE[1] = 0;
         NRF_TIMER2->CC[1]             = (NRF_TIMER2->CC[1] + PERIOD[0]);
 
-        CCVal1 = NRF_TIMER2->CC[1] + PULSE_WIDTH[0];        
+        CCVal1 = NRF_TIMER2->CC[1] + PULSE_WIDTH[0];
     }
-    if ((NRF_TIMER2->EVENTS_COMPARE[3] != 0) && 
+    if ((NRF_TIMER2->EVENTS_COMPARE[3] != 0) &&
        ((NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE3_Msk) != 0)){
        
         NRF_TIMER2->CC[2]             = CCVal2;
         NRF_TIMER2->EVENTS_COMPARE[3] = 0;
         NRF_TIMER2->CC[3]             = (NRF_TIMER2->CC[3] + PERIOD[1]);
     
-        CCVal2 = NRF_TIMER2->CC[3] + PULSE_WIDTH[1];        
-    }    
+        CCVal2 = NRF_TIMER2->CC[3] + PULSE_WIDTH[1];
+    }
 }
 #ifdef __cplusplus
 }
-#endif 
+#endif
 /** @brief Function for initializing the Timer peripherals.
  */
 void timer_init(uint8_t pwmChoice)
@@ -102,10 +103,10 @@ void timer_init(uint8_t pwmChoice)
     NRF_TIMER_Type *timer = Timers[pwmChoice/2];
     if(!(pwmChoice%2)){
         timer->POWER     = 0;
-        timer->POWER     = 1;    
-        timer->MODE      = TIMER_MODE_MODE_Timer;    
+        timer->POWER     = 1;
+        timer->MODE      = TIMER_MODE_MODE_Timer;
         timer->BITMODE   = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;
-        timer->PRESCALER = 7;//8us ticks    
+        timer->PRESCALER = 7;//8us ticks
     }
     
     if(pwmChoice%2){
@@ -148,11 +149,11 @@ void gpiote_init(PinName pin,uint8_t channel_number)
      /* Three NOPs are required to make sure configuration is written before setting tasks or getting events */
     __NOP();
     __NOP();
-    __NOP(); 
+    __NOP();
     /* Launch the task to take the GPIOTE channel output to the desired level */
     NRF_GPIOTE->TASKS_OUT[channel_number] = 1;
     
-    /* Finally configure the channel as the caller expects. If OUTINIT works, the channel is configured properly. 
+    /* Finally configure the channel as the caller expects. If OUTINIT works, the channel is configured properly.
        If it does not, the channel output inheritance sets the proper level. */
     NRF_GPIOTE->CONFIG[channel_number] = (GPIOTE_CONFIG_MODE_Task << GPIOTE_CONFIG_MODE_Pos)     |
                                          ((uint32_t)pin    << GPIOTE_CONFIG_PSEL_Pos)     |
@@ -162,7 +163,7 @@ void gpiote_init(PinName pin,uint8_t channel_number)
     /* Three NOPs are required to make sure configuration is written before setting tasks or getting events */
     __NOP();
     __NOP();
-    __NOP(); 
+    __NOP();
 }
 /** @brief Function for initializing the Programmable Peripheral Interconnect peripheral.
  */
@@ -175,8 +176,8 @@ static void ppi_init(uint8_t pwm)
     // Configure PPI channel 0 to toggle ADVERTISING_LED_PIN_NO on every TIMER1 COMPARE[0] match
     NRF_PPI->CH[channel_number].TEP     = (uint32_t)&NRF_GPIOTE->TASKS_OUT[pwm];
     NRF_PPI->CH[channel_number+1].TEP   = (uint32_t)&NRF_GPIOTE->TASKS_OUT[pwm];
-    NRF_PPI->CH[channel_number].EEP     = (uint32_t)&timer->EVENTS_COMPARE[channel_number-(4*(channel_number/4))];    
-    NRF_PPI->CH[channel_number+1].EEP   = (uint32_t)&timer->EVENTS_COMPARE[channel_number+1-(4*(channel_number/4))];    
+    NRF_PPI->CH[channel_number].EEP     = (uint32_t)&timer->EVENTS_COMPARE[channel_number-(4*(channel_number/4))];
+    NRF_PPI->CH[channel_number+1].EEP   = (uint32_t)&timer->EVENTS_COMPARE[channel_number+1-(4*(channel_number/4))];
     
     // Enable PPI channels.
     NRF_PPI->CHEN |= (1 << channel_number)
@@ -213,10 +214,9 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     uint8_t pwmOutSuccess = 0;
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    
-    if (pwm == (PWMName)NC){
-        error("PwmOut pin mapping failed");
-    }
+
+    assert(pwm != (PWMName)NC);
+
         
     if(PWM_taken[(uint8_t)pwm]){
         for(uint8_t i = 1; !pwmOutSuccess && (i<NO_PWMS) ;i++){
@@ -265,14 +265,14 @@ void pwmout_write(pwmout_t* obj, float value) {
         value = 0.0;
     } else if (value > 1.0f) {
         value = 1.0;
-    }        
+    }
     
     oldPulseWidth           = ACTUAL_PULSE[obj->pwm];
     ACTUAL_PULSE[obj->pwm]  = PULSE_WIDTH[obj->pwm]  = value* PERIOD[obj->pwm];
     
     if(PULSE_WIDTH[obj->pwm] == 0){
         PULSE_WIDTH[obj->pwm] = 1;
-        setModulation(obj,0,0);    
+        setModulation(obj,0,0);
     }
     else if(PULSE_WIDTH[obj->pwm] == PERIOD[obj->pwm]){
         PULSE_WIDTH[obj->pwm] = PERIOD[obj->pwm]-1;
@@ -280,7 +280,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
     else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD[obj->pwm]) ){
         setModulation(obj,1,oldPulseWidth == PERIOD[obj->pwm]);
-    }    
+    }
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -308,7 +308,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     }
     else{
         PERIOD[obj->pwm] =periodInTicks;
-    }    
+    }
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -327,7 +327,7 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     
     if(PULSE_WIDTH[obj->pwm] == 0){
         PULSE_WIDTH[obj->pwm] = 1;
-        setModulation(obj,0,0);    
+        setModulation(obj,0,0);
     }
     else if(PULSE_WIDTH[obj->pwm] == PERIOD[obj->pwm]){
         PULSE_WIDTH[obj->pwm] = PERIOD[obj->pwm]-1;
@@ -335,5 +335,5 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     }
     else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD[obj->pwm]) ){
         setModulation(obj,1,oldPulseWidth == PERIOD[obj->pwm]);
-    }    
+    }
 }

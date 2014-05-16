@@ -72,9 +72,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
+    assert((int)uart != NC);
     
     obj->uart = (LPC_UART_TypeDef *)uart;
     // enable power
@@ -209,16 +207,11 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    // 0: 1 stop bits, 1: 2 stop bits
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
+    assert((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
+    assert((data_bits > 4) || (data_bits < 9)); // 0: 5 data bits ... 3: 8 data bits
+    assert(parity < (ParityForced0 + 1));
+
     stop_bits -= 1;
-    
-    // 0: 5 data bits ... 3: 8 data bits
-    if (data_bits < 5 || data_bits > 8) {
-        error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
-    }
     data_bits -= 5;
 
     int parity_enable, parity_select;
@@ -229,8 +222,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityForced1: parity_enable = 1; parity_select = 2; break;
         case ParityForced0: parity_enable = 1; parity_select = 3; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
     
     obj->uart->LCR = data_bits            << 0

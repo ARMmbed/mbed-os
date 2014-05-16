@@ -15,10 +15,10 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
+#include <assert.h>
 #include "analogout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_DAC[] = {
     {P_DAC0 , DAC_0, 0x0},
@@ -27,9 +27,7 @@ static const PinMap PinMap_DAC[] = {
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed");
-    }
+    assert(obj->dac != (DACName)NC);
 
     // Configure the pin as GPIO input
     pin_function(pin, (SCU_PINIO_PULLNONE | 0x0));

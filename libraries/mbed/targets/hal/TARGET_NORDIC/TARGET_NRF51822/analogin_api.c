@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define ANALOGIN_MEDIAN_FILTER      1
 #define ADC_10BIT_RANGE             0x3FF
@@ -37,9 +37,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     const PinMap *map = PinMap_ADC;
     
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC); //(NRF_ADC_Type *)
-    if (obj->adc == (ADCName)NC) {
-        error("ADC pin mapping failed");
-    }
+    assert(obj->adc != (ADCName)NC);
         
     while (map->pin != NC) {
         if (map->pin == pin){
@@ -49,12 +47,12 @@ void analogin_init(analogin_t *obj, PinName pin) {
         map++;
     }
     
-    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; 
+    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled;
     NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
                       (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling<< ADC_CONFIG_INPSEL_Pos) |
                       (ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling << ADC_CONFIG_REFSEL_Pos) |
                       (analogInputPin << ADC_CONFIG_PSEL_Pos) |
-                      (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);    
+                      (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {

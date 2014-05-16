@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define TCR_CNT_EN       0x00000001
 #define TCR_RESET        0x00000002
@@ -64,9 +64,8 @@ static LPC_TMR_TypeDef *Timers[3] = {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (uint32_t)NC)
-        error("PwmOut pin mapping failed");
-    
+    assert(pwm != (uint32_t)NC);
+
     obj->pwm = pwm;
     
     // Timer registers

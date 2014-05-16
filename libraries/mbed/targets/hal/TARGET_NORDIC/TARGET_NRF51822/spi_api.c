@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 //#include <math.h>
+#include <assert.h>
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -22,7 +23,7 @@
 static const PinMap PinMap_SPI_SCLK[] = {
     {SPI_PSELSCK0 , SPI_0, 0x01},
     {SPI_PSELSCK1, SPI_1, 0x02},
-    {SPIS_PSELSCK, SPIS, 0x03},   
+    {SPIS_PSELSCK, SPIS, 0x03},
     {NC   , NC   , 0}
 };
 
@@ -59,20 +60,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     SPIName spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
-    //SPIName 
+    //SPIName
     if(ssel==NC){
         obj->spi = (NRF_SPI_Type*)spi;
         obj->spis = (NRF_SPIS_Type*)NC;
     }
     else{
         obj->spi = (NRF_SPI_Type*)NC;
-        obj->spis = (NRF_SPIS_Type*)spi;        
+        obj->spis = (NRF_SPIS_Type*)spi;
     }
-    
-    if ((int)obj->spi == NC && (int)obj->spis == NC) {
-        error("SPI pinout mapping failed");
-    }    
-      // pin out the spi pins    
+    assert((int)obj->spi != NC && (int)obj->spis != NC);
+
+      // pin out the spi pins
     if (ssel != NC) {//slave
         obj->spis->POWER=0;
         obj->spis->POWER=1;
@@ -108,7 +107,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spis->MAXRX=SPIS_MESSAGE_SIZE;
         obj->spis->MAXTX=SPIS_MESSAGE_SIZE;
         obj->spis->TXDPTR = (uint32_t)&m_tx_buf[0];
-        obj->spis->RXDPTR = (uint32_t)&m_rx_buf[0];  
+        obj->spis->RXDPTR = (uint32_t)&m_rx_buf[0];
         obj->spis->SHORTS = (SPIS_SHORTS_END_ACQUIRE_Enabled<<SPIS_SHORTS_END_ACQUIRE_Pos);
 
         spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
@@ -117,7 +116,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spi->POWER=0;
         obj->spi->POWER=1;
         
-        //NRF_GPIO->DIR |= (1<<mosi);    
+        //NRF_GPIO->DIR |= (1<<mosi);
         NRF_GPIO->PIN_CNF[mosi] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                     | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                     | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
@@ -141,10 +140,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
         obj->spi->PSELMISO = miso;
         
-        obj->spi->EVENTS_READY = 0U;  
+        obj->spi->EVENTS_READY = 0U;
 
         spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-        spi_frequency(obj, 1000000);      
+        spi_frequency(obj, 1000000);
     }
             
 }
@@ -197,10 +196,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
     //default to msb first
     if(slave){
-        obj->spis->CONFIG = (config_mode | (SPI_CONFIG_ORDER_MsbFirst << SPI_CONFIG_ORDER_Pos) );    
+        obj->spis->CONFIG = (config_mode | (SPI_CONFIG_ORDER_MsbFirst << SPI_CONFIG_ORDER_Pos) );
     }
     else{
-        obj->spi->CONFIG  = (config_mode | (SPI_CONFIG_ORDER_MsbFirst << SPI_CONFIG_ORDER_Pos) );    
+        obj->spi->CONFIG  = (config_mode | (SPI_CONFIG_ORDER_MsbFirst << SPI_CONFIG_ORDER_Pos) );
     }
     
     spi_enable(obj,slave);
@@ -212,7 +211,7 @@ void spi_frequency(spi_t *obj, int hz) {
     spi_disable(obj,0);
     
     if(hz<250000) { //125Kbps
-        obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K125; 
+        obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K125;
     }
     else if(hz<500000){//250Kbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K250;
@@ -230,7 +229,7 @@ void spi_frequency(spi_t *obj, int hz) {
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M4;
     }
     else{//8Mbps
-        obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M8; 
+        obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M8;
     }
     
     spi_enable(obj,0);
@@ -260,7 +259,7 @@ int spi_master_write(spi_t *obj, int value) {
     return spi_read(obj);
 }
 
-//static inline int spis_writeable(spi_t *obj) {    
+//static inline int spis_writeable(spi_t *obj) {
 //    return (obj->spis->EVENTS_ACQUIRED==1);
 //}
 
@@ -268,12 +267,12 @@ int spi_slave_receive(spi_t *obj) {
     return obj->spis->EVENTS_END;
 };
 
-int spi_slave_read(spi_t *obj) {    
+int spi_slave_read(spi_t *obj) {
     return m_rx_buf[0];
 }
 
-void spi_slave_write(spi_t *obj, int value) {    
-    m_tx_buf[0]= value & 0xFF;         
+void spi_slave_write(spi_t *obj, int value) {
+    m_tx_buf[0]= value & 0xFF;
     obj->spis->TASKS_RELEASE=1;
     obj->spis->EVENTS_ACQUIRED=0;
     obj->spis->EVENTS_END=0;
