@@ -19,7 +19,7 @@
 #include "pinmap.h"
 #include "error.h"
 
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
@@ -55,6 +55,10 @@ void analogin_init(analogin_t *obj, PinName pin) {
     }
     pinmap_pinout(pin, PinMap_ADC);
 
+    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + (pin & 0x1FF));
+    // set pin to ADC mode
+    *reg &= ~(1 << 7); // set ADMODE = 0 (analog mode)
+
     // ADC Powered
     tmp = (LPC_SYSCON->PDRUNCFG & PDRUN_VALID_BITS);
     tmp &= ~((1 << 4) & PDRUN_VALID_BITS);
@@ -62,14 +66,14 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
     // Enable clock for ADC
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 13);
-    
+
     // Start ADC self-calibration
-    LPC_ADC->CTRL = (1UL << 30) || (100);
+    LPC_ADC->CTRL = (1UL << 30);
     do {
         tmp =  LPC_ADC->CTRL;
     } while ((tmp & (1UL << 30)) != 0);
 
-    LPC_ADC->CTRL = 100;
+    LPC_ADC->CTRL = 100; // 500kHz sampling
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
@@ -79,7 +83,7 @@ static inline uint32_t adc_read(analogin_t *obj) {
     LPC_ADC->SEQA_CTRL |= (1UL << obj->adc);
 
     // start conversion, sequence enable with async mode
-    LPC_ADC->SEQA_CTRL |= ((1UL << 26) | (1UL << 31) | (1UL << 29) /*| (1UL << 19)*/);
+    LPC_ADC->SEQA_CTRL |= ((1UL << 26) | (1UL << 31) | (1UL << 19));
     
     // Repeatedly get the sample data until DONE bit
     volatile uint32_t data;
