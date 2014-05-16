@@ -53,7 +53,7 @@ void c027_mdm_powerOn(int usb) {
 }
 
 void c027_mdm_powerOff(void) {
-    if (gpio_read(&gpsEn)) {
+    if (gpio_read(&mdmEn)) {
         // diable all level shifters
         gpio_write(&mdmILvlOe, 0);  // ILVLEN: 0=disabled (i2c)
         gpio_write(&mdmLvlOe, 1);   // LVLEN:  1=disabled (uart/gpio)
