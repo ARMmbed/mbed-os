@@ -55,6 +55,16 @@ typedef enum {
     I2C_1 = (int)LPC_I2C1_BASE
 } I2CName;
 
+typedef enum {
+    SCT0_0 = 0,
+    SCT0_1,
+    SCT0_2,
+    SCT0_3,
+    SCT1_0,
+    SCT1_1,
+    SCT1_2,
+    SCT1_3,
+} PWMName;
 
 #ifdef __cplusplus
 }
