@@ -28,6 +28,9 @@ DigitalOut out(LED1);
     defined(TARGET_NUCLEO_L053R8)
 DigitalOut out(LED1);
 
+#elif defined(TARGET_LPC11U68)
+DigitalOut out(LED2);
+
 #else
 DigitalOut out(p5);
 #endif

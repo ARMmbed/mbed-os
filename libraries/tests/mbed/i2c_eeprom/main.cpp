@@ -44,6 +44,9 @@ I2C i2c(I2C_SDA, I2C_SCL);
 #elif defined(TARGET_K64F)
 I2C i2c(PTE25, PTE24);
 
+#elif defined(TARGET_LPC11U68)
+I2C i2c(SDA, SCL);
+
 #else
 I2C i2c(p28, p27);
 #endif
