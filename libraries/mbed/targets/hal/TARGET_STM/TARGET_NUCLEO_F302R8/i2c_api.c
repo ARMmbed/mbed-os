@@ -76,6 +76,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+        RCC_I2CCLKConfig(RCC_I2C1CLK_SYSCLK);
     }
     if (obj->i2c == I2C_2) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
@@ -113,24 +114,25 @@ void i2c_frequency(i2c_t *obj, int hz) {
        * Fast Mode (up to 400 kHz)
        * Fast Mode Plus (up to 1 MHz)
        Below values obtained with:
-       - I2C clock source = 8 MHz (HSI clock per default)
+       - I2C clock source = 64 MHz (System Clock w/ HSI) or 72 (System Clock w/ HSE)
        - Analog filter delay = ON
        - Digital filter coefficient = 0
        - Rise time = 100 ns
        - Fall time = 10ns
     */
+    if(SystemCoreClock == 64000000) {
     switch (hz) {
         case 100000:
-            tim = 0x00201D2B; // Standard mode
+                tim = 0x60302730; // Standard mode
             break;
         case 200000:
-            tim = 0x0010021E; // Fast Mode
+                tim = 0x00C07AB3; // Fast Mode
             break;
         case 400000:
-            tim = 0x0010020A; // Fast Mode
+                tim = 0x00C0216C; // Fast Mode
             break;
         case 1000000:
-            tim = 0x00100001; // Fast Mode Plus
+                tim = 0x00900B22; // Fast Mode Plus
             // Enable the Fast Mode Plus capability
             if (obj->i2c == I2C_1) {
                 SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
@@ -142,6 +144,36 @@ void i2c_frequency(i2c_t *obj, int hz) {
         default:
             error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
             break;
+    }
+    }
+    else if(SystemCoreClock == 72000000) {
+        switch (hz) {
+            case 100000:
+                tim = 0x10C08DCF; // Standard mode
+                break;
+            case 200000:
+                tim = 0xA010031A; // Fast Mode
+                break;
+            case 400000:
+                tim = 0x00E0257A; // Fast Mode
+                break;
+            case 1000000:
+                tim = 0x00A00D26; // Fast Mode Plus
+                // Enable the Fast Mode Plus capability
+                if (obj->i2c == I2C_1) {
+                    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
+                }
+                if (obj->i2c == I2C_2) {
+                    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
+                }
+                break;
+            default:
+                error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
+                break;
+        }
+    }
+    else {
+        error("System clock setting is not supported.");
     }
 
     // I2C configuration
@@ -184,15 +216,17 @@ inline int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
+
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int count;
+    int timeout;
     int value;
 
     if (length == 0) return 0;
 
     // Configure slave address, nbytes, reload, end mode and start or stop generation
-    I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
+    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Read);
 
     // Read all bytes
     for (count = 0; count < length; count++) {
@@ -200,48 +234,40 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         data[count] = (char)value;
     }
 
+    timeout = FLAG_TIMEOUT;
+    while(!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
+        timeout--;
+        if (timeout == 0) return 0;
+    }
+        
+    if(stop) i2c_stop(obj);
+
     return length;
 }
 
+
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    //int timeout;
+    int timeout;
     int count;
 
     if (length == 0) return 0;
 
-    // [TODO] The stop is always sent even with I2C_SoftEnd_Mode. To be corrected.
-
-    // Configure slave address, nbytes, reload, end mode and start or stop generation
-    //if (stop) {
-    I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
-    //}
-    //else {
-    //    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
-    //}
+    // Configure slave address, nbytes, reload, end mode and start generation
+    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
 
     // Write all bytes
     for (count = 0; count < length; count++) {
-        if (i2c_byte_write(obj, data[count]) != 1) {
-            i2c_stop(obj);
-            return 0;
-        }
+        i2c_byte_write(obj, data[count]);
     }
 
-    /*
-    if (stop) {
-        // Wait until STOPF flag is set
-        timeout = LONG_TIMEOUT;
-        while (I2C_GetFlagStatus(i2c, I2C_ISR_STOPF) == RESET) {
+    timeout = FLAG_TIMEOUT;
+    while(!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
             timeout--;
-            if (timeout == 0) {
-                return 0;
+        if (timeout == 0) return 0;
             }
-        }
-        // Clear STOPF flag
-        I2C_ClearFlag(i2c, I2C_ICR_STOPCF);
-    }
-    */
+        
+    if(stop) i2c_stop(obj);
 
     return count;
 }
@@ -304,6 +330,9 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint16_t tmpreg;
 
+    // reset own address enable
+    i2c->OAR1 &=~ I2C_OAR1_OA1EN;
+  
     // Get the old register value
     tmpreg = i2c->OAR1;
     // Reset address bits
@@ -311,7 +340,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     // Set new address
     tmpreg |= (uint16_t)((uint16_t)address & (uint16_t)0x00FE); // 7-bits
     // Store the new register value
-    i2c->OAR1 = tmpreg;
+    i2c->OAR1 = tmpreg | I2C_OAR1_OA1EN;
 }
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
@@ -325,8 +354,21 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
 int i2c_slave_receive(i2c_t *obj) {
-    // TO BE DONE
-    return (0);
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+    int event = NoData;
+  
+    if(I2C_GetFlagStatus(i2c, I2C_ISR_BUSY) == SET) {
+        if(I2C_GetFlagStatus(i2c, I2C_ISR_ADDR) == SET) {
+        // Check direction
+            if (I2C_GetFlagStatus(i2c, I2C_ISR_DIR) == SET) {
+            event = ReadAddressed;
+        }
+        else event = WriteAddressed;
+        // Clear adress match flag to generate an acknowledge
+        i2c->ICR |= I2C_ICR_ADDRCF;
+        }
+    }
+    return event;
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
