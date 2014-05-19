@@ -131,7 +131,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     } else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     }
 
     init_spi(obj);
@@ -171,7 +171,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
     if (slave == 0) {
         obj->mode = SPI_Mode_Master;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     } else {
         obj->mode = SPI_Mode_Slave;
         obj->nss = SPI_NSS_Hard;
