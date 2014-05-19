@@ -112,6 +112,16 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
   </tr>
+    <tr>
+    <td>Freescale K64F</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
   <tr>
     <td>ST Nucleo F030R8</td>
     <td></td>
@@ -124,6 +134,16 @@ Exporter Toolchain/Platform Support
   </tr>
   <tr>
     <td>ST Nucleo F103RB</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+    <tr>
+    <td>ST Nucleo F302R8</td>
     <td></td>
     <td></td>
     <td></td>
