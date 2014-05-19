@@ -348,7 +348,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <VariousControls>
-              <MiscControls>--gnu</MiscControls>
+              <MiscControls>{% for flag in flags %}{{flag}} {% endfor %} --pch --pch_dir=build</MiscControls>
               <Define>{% for s in symbols %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>

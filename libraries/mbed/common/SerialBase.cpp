@@ -81,7 +81,7 @@ void SerialBase::send_break() {
   serial_break_clear(&_serial);
 }
 
-#ifdef DEVICE_SERIAL_FC
+#if DEVICE_SERIAL_FC
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
     FlowControl flow_type = (FlowControl)type;
     switch(type) {

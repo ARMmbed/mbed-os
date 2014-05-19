@@ -28,6 +28,7 @@ class CodeRed(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
+        'UBLOX_C027',
     ]
     
     def generate(self):

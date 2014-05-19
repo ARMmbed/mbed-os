@@ -28,33 +28,33 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
+
+#if DEVICE_SLEEP
+
 #include "cmsis.h"
 
-// This function is in the system_stm32l1xx.c file
-extern void SetSysClock(void);
-
 // MCU SLEEP mode
-void sleep(void)
-{
+void sleep(void) {
     // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);    
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
     // Request to enter SLEEP mode with regulator ON
     PWR_EnterSleepMode(PWR_Regulator_ON, PWR_SLEEPEntry_WFI);
 }
 
 // MCU STOP mode (Regulator in LP mode, LSI, HSI and HSE OFF)
-void deepsleep(void)
-{    
+void deepsleep(void) {
     // Enable PWR clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-    
+
     // Enable Ultra low power mode
     PWR_UltraLowPowerCmd(ENABLE);
 
     // Enter Stop Mode
-    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);  
-  
+    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
 }
+
+#endif

@@ -128,16 +128,17 @@ int i2c_do_write(i2c_t *obj, int value) {
 
 int i2c_do_read(i2c_t *obj, char * data, int last) {
     int timeOut = 100000;
+
+    if (last){
+        obj->i2c->TASKS_STOP = 1;
+    }
     while(!obj->i2c->EVENTS_RXDREADY){
         timeOut--;
         if(timeOut<0)
             return 1;
     }
     obj->i2c->EVENTS_RXDREADY       = 0;
-
-    if (last){
-        obj->i2c->TASKS_STOP = 1;
-    }
+    
     *data = obj->i2c->RXD;
     
     for(int i=0;i<320;i++){

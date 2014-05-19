@@ -33,7 +33,7 @@
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-uint32_t gpio_set(PinName pin) {  
+uint32_t gpio_set(PinName pin) {
     if (pin == NC) return 0;
 
     pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
@@ -45,11 +45,11 @@ void gpio_init(gpio_t *obj, PinName pin) {
     if (pin == NC) return;
 
     uint32_t port_index = STM_PORT(pin);
-  
+
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-    
+
     // Fill GPIO object structure for future use
     obj->pin     = pin;
     obj->mask    = gpio_set(pin);
@@ -65,8 +65,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_Out_PP, 0));
-    }
-    else { // PIN_INPUT
+    } else { // PIN_INPUT
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
     }
 }

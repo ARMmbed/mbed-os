@@ -29,6 +29,8 @@
 #include <cstdio>
 #include <cstring>
 
+using std::sscanf;
+
 #define DEFAULT_TIMEOUT 10000
 
 CDMASMSInterface::CDMASMSInterface(ATCommandsInterface* pIf) : m_pIf(pIf), m_msg(NULL), m_maxMsgLength(0), m_msisdn(NULL)

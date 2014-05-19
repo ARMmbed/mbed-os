@@ -42,7 +42,12 @@ I2C i2c(P0_10, P0_11);
 #elif defined(TARGET_LPC1549)
 I2C i2c(P0_23, P0_22);
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
 I2C i2c(I2C_SDA, I2C_SCL);
 
 #elif defined(TARGET_K64F)
@@ -106,8 +111,8 @@ int main()
     }
 
     printf("[%s]\r\n", read_errors ? "FAIL" : "OK");
-    printf("I2C: Read errors: %d ... [%s]\r\n", read_errors, read_errors ? "FAIL" : "OK");
-    printf("EEPROM: Pattern match errors: %d ... [%s]\r\n", pattern_errors, pattern_errors ? "FAIL" : "OK");
+    printf("I2C: Read errors: %d/%d ... [%s]\r\n", read_errors, ntests, read_errors ? "FAIL" : "OK");
+    printf("EEPROM: Pattern match errors: %d/%d ... [%s]\r\n", pattern_errors, ntests, pattern_errors ? "FAIL" : "OK");
 
     result = write_errors == 0 && read_errors == 0;
     notify_completion(result);

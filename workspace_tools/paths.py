@@ -15,9 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import join
+from os import getenv
 
 # Conventions about the directory structure
 from settings import ROOT, BUILD_DIR
+
+# Allow overriding some of the build parameters using environment variables
+BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 
 # Embedded Libraries Sources
 LIB_DIR = join(ROOT, "libraries")

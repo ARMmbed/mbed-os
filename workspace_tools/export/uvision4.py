@@ -34,14 +34,16 @@ class Uvision4(Exporter):
         'LPC11C24',
         'LPC4088',
         'LPC812',
-        'NUCLEO_F103RB',
-        'NUCLEO_L152RE',
         'NUCLEO_F030R8',
-        'NUCLEO_F401RE',
+        'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F401RE',
+        'NUCLEO_L053R8',
+        'NUCLEO_L152RE',
         'UBLOX_C027',
         'LPC1549',
         'LPC11U35_501',
+        'NRF51822',
     ]
 
     USING_MICROLIB = [
@@ -49,26 +51,36 @@ class Uvision4(Exporter):
         'LPC1114',
         'LPC11C24',
         'LPC812',
-        'NUCLEO_F103RB',
-        'NUCLEO_L152RE',
         'NUCLEO_F030R8',
-        'NUCLEO_F401RE',
+        'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F401RE',
+        'NUCLEO_L053R8',
+        'NUCLEO_L152RE',
         'LPC1549',
         'LPC11U35_501',
+        'KL05Z',
     ]
-    
+
     FILE_TYPES = {
         'c_sources':'1',
         'cpp_sources':'8',
         's_sources':'2'
     }
+
+    FLAGS = [
+        "--gnu",
+    ]
+
     # By convention uVision projects do not show header files in the editor:
     # 'headers':'5',
     
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
     
+    def get_flags(self):
+        return self.FLAGS
+
     def generate(self):
         source_files = {
             'mbed': [],
@@ -91,10 +103,11 @@ class Uvision4(Exporter):
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files.items(),
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.toolchain.get_symbols(),
+            'hex_files' : self.resources.hex_files,
+            'flags' : self.get_flags(),
         }
         target = self.target.lower()
-        
         # Project file
         self.gen_file('uvision4_%s.uvproj.tmpl' % target, ctx, '%s.uvproj' % self.program_name)
         self.gen_file('uvision4_%s.uvopt.tmpl' % target, ctx, '%s.uvopt' % self.program_name)

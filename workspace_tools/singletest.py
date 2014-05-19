@@ -76,7 +76,7 @@ import re
 from prettytable import PrettyTable
 from serial import Serial
 
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, basename
 from shutil import copy
 from subprocess import call
 from time import sleep, time
@@ -100,7 +100,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 # Imports related to mbed build pi
-from workspace_tools.utils import delete_dir_files
+from workspace_tools.utils import delete_dir_files, copy_file
 from workspace_tools.settings import MUTs
 
 
@@ -227,11 +227,14 @@ class SingleTestRunner(object):
             return (test_result, target_name, toolchain_name,
                     test_id, test_description, round(elapsed_time, 2), duration)
 
-        if not target_by_mcu.is_disk_virtual:
-            delete_dir_files(disk)
+        #if not target_by_mcu.is_disk_virtual:
+        #    delete_dir_files(disk)
 
         # Program MUT with proper image file
-        copy(image_path, disk)
+        cmd = ["cp", image_path.encode('ascii','ignore'), disk.encode('ascii','ignore') +  basename(image_path).encode('ascii','ignore')]
+        # print cmd
+        call(cmd)
+        # copy(image_path, disk)
 
         # Copy Extra Files
         if not target_by_mcu.is_disk_virtual and test.extra_files:
@@ -427,12 +430,12 @@ def get_result_summary_table():
         pt.align['percent [%]'] = "r"
 
         percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
-        str_progress = progress_bar(percent_progress, 75)        
+        str_progress = progress_bar(percent_progress, 75)
         pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
         print "Automation coverage:"
         print pt
         print
-        
+
         # Test automation coverage table print
         test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
         pt = PrettyTable(test_id_cols)
@@ -509,6 +512,10 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Test only peripheral declared for MUT and skip common tests')
 
+    parser.add_option('-n', '--test-by-names',
+                      dest='test_by_names',
+                      help='Runs only test enumerated it this switch')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -561,6 +568,9 @@ if __name__ == '__main__':
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
             for test_id, test in TEST_MAP.iteritems():
+                if opts.test_by_names and test_id not in opts.test_by_names.split(','):
+                    continue
+
                 if test_ids and test_id not in test_ids:
                     continue
 

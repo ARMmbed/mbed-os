@@ -42,13 +42,13 @@ static const SWM_Map SWM_UART_RX[] = {
 static const SWM_Map SWM_UART_RTS[] = {
     {0, 16},
     {1, 24},
-    {3, 0},
+    {3, 0}, // not available
 };
  
 static const SWM_Map SWM_UART_CTS[] = {
     {0, 24},
     {2, 0},
-    {3, 8}
+    {3, 8} // not available
 };
 
 // bit flags for used UARTs
@@ -82,9 +82,29 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
+static void switch_pin(const SWM_Map *swm, PinName pn)
+{
+    uint32_t regVal;
+    if (pn != NC)
+    {
+        // check if we have any function mapped to this pin already and remove it
+        for (int n = 0; n < sizeof(LPC_SWM->PINASSIGN)/sizeof(*LPC_SWM->PINASSIGN); n ++) {
+            regVal = LPC_SWM->PINASSIGN[n];
+            for (int j = 0; j <= 24; j += 8) {
+                if (((regVal >> j) & 0xFF) == pn) 
+                    regVal |= (0xFF << j);
+            }
+            LPC_SWM->PINASSIGN[n] = regVal;
+        }
+    }
+    // now map it
+    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal |  (pn  << swm->offset);
+}
+
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     int is_stdio_uart = 0;
-    
+  
     int uart_n = get_available_uart();
     if (uart_n == -1) {
         error("No available UART");
@@ -93,16 +113,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (LPC_USART0_Type *)(LPC_USART0_BASE + (0x4000 * uart_n));
     uart_used |= (1 << uart_n);
     
-    const SWM_Map *swm;
-    uint32_t regVal;
-    
-    swm = &SWM_UART_TX[uart_n];
-    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-    LPC_SWM->PINASSIGN[swm->n] = regVal |  (tx   << swm->offset);
-    
-    swm = &SWM_UART_RX[uart_n];
-    regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-    LPC_SWM->PINASSIGN[swm->n] = regVal |  (rx   << swm->offset);
+    switch_pin(&SWM_UART_TX[uart_n], tx);
+    switch_pin(&SWM_UART_RX[uart_n], rx);
     
     /* uart clock divided by 6 */
     LPC_SYSCON->UARTCLKDIV =6;
@@ -296,33 +308,11 @@ void serial_break_clear(serial_t *obj) {
 }
 
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
-    const SWM_Map *swm_rts, *swm_cts;
-    uint32_t regVal_rts, regVal_cts;
-    
-    swm_rts = &SWM_UART_RTS[obj->index];
-    swm_cts = &SWM_UART_CTS[obj->index];    
-    regVal_rts = LPC_SWM->PINASSIGN[swm_rts->n] & ~(0xFF << swm_rts->offset);
-    regVal_cts = LPC_SWM->PINASSIGN[swm_cts->n] & ~(0xFF << swm_cts->offset);
-    
-    if (FlowControlNone == type) {
-        LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);
-        LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (0xFF << swm_cts->offset);
-        obj->uart->CFG &= ~CTSEN;
-        return;
-    }
-    if ((FlowControlRTS == type || FlowControlRTSCTS == type) && (rxflow != NC)) {
-        LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (rxflow << swm_rts->offset);
-        if (FlowControlRTS == type) {
-            LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (0xFF << swm_cts->offset);
-            obj->uart->CFG &= ~CTSEN;           
-        }
-    }
-    if ((FlowControlCTS == type || FlowControlRTSCTS == type) && (txflow != NC)) {
-        LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (txflow << swm_cts->offset);
-        obj->uart->CFG |= CTSEN;
-        if (FlowControlCTS == type) {
-            LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);        
-        }
-    }    
+    if ((FlowControlNone == type || FlowControlRTS == type)) txflow = NC;
+    if ((FlowControlNone == type || FlowControlCTS == type)) rxflow = NC;
+    switch_pin(&SWM_UART_RTS[obj->index], rxflow);
+    switch_pin(&SWM_UART_CTS[obj->index], txflow);
+    if (txflow == NC) obj->uart->CFG &= ~CTSEN;
+    else              obj->uart->CFG |=  CTSEN;
 }
 

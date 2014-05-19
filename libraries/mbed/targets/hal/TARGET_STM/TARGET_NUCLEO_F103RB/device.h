@@ -37,7 +37,7 @@
 #define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0
+#define DEVICE_ANALOGOUT        0 // Not present on this device
 
 #define DEVICE_SERIAL           1
 
@@ -63,7 +63,7 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
-//#define DEVICE_ERROR_RED      0
+#define DEVICE_ERROR_RED        0
 
 #include "objects.h"
 
