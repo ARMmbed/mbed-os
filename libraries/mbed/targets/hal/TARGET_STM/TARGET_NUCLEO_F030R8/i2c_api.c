@@ -178,12 +178,13 @@ inline int i2c_stop(i2c_t *obj) {
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int count;
+    int timeout;
     int value;
   
     if (length == 0) return 0;
 
     // Configure slave address, nbytes, reload, end mode and start or stop generation
-    I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Read);
+    I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Read);
     
     // Read all bytes
     for (count = 0; count < length; count++) {
@@ -191,33 +192,40 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         data[count] = (char)value;
     }
     
+    timeout = FLAG_TIMEOUT;
+    while(!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
+        timeout--;
+        if (timeout == 0) return 0;
+    }
+        
+    if(stop) i2c_stop(obj);
+
     return length;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    //int timeout;
+    int timeout;
     int count;
     
     if (length == 0) return 0;
 
-    // Configure slave address, nbytes, reload, end mode and start or stop generation
-    if (stop) {
-        I2C_TransferHandling(i2c, address, length, I2C_AutoEnd_Mode, I2C_Generate_Start_Write);
-  
-    }
-    else {
+    // Configure slave address, nbytes, reload, end mode and start generation
         I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
-    }
     
     // Write all bytes
     for (count = 0; count < length; count++) {
-        if (i2c_byte_write(obj, data[count]) != 1) {
-            if(!stop) i2c_stop(obj);
-            return 0;
+        i2c_byte_write(obj, data[count]);
         }
+    
+    timeout = FLAG_TIMEOUT;
+    while(!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
+        timeout--;
+        if (timeout == 0) return 0;
     }
 
+    if(stop) i2c_stop(obj);
+        
     return count;
 }
 
