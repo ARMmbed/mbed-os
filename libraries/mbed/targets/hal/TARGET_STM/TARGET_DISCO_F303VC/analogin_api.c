@@ -25,6 +25,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
 #include "analogin_api.h"
 #include "wait_api.h"
 
@@ -32,7 +33,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_ADC[] = {
     {PA_0,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN1
@@ -63,10 +63,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
   
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
- 
-    if (obj->adc == (ADCName)NC) {
-      error("ADC pin mapping failed");
-    }
+    assert(obj->adc != (ADCName)NC);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);
@@ -168,7 +165,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
           break;
       case PA_7:
           channel = ADC_Channel_15;
-          break;      
+          break;
       default:
           return 0;
   }

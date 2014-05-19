@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "serial_api.h"
 
 #if DEVICE_SERIAL
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
@@ -44,7 +44,7 @@ static const PinMap PinMap_UART_TX[] = {
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},    
+    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
     {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
     {PA_15, UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
     {PB_7,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_0)},
@@ -77,24 +77,21 @@ static void init_usart(serial_t *obj) {
     USART_Cmd(usart, ENABLE);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {  
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
   
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-
-    if (obj->uart == (UARTName)NC) {
-        error("Serial pinout mapping failed");
-    }
+    assert(obj->uart != (UARTName)NC);
 
     // Enable USART clock
     if (obj->uart == UART_1) {
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); 
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
     }
     if (obj->uart == UART_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE); 
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     }
             
     // Configure the UART pins
@@ -107,7 +104,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->baudrate = 9600;
     obj->databits = USART_WordLength_8b;
     obj->stopbits = USART_StopBits_1;
-    obj->parity = USART_Parity_No;    
+    obj->parity = USART_Parity_No;
 
     init_usart(obj);
 
@@ -146,7 +143,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
           obj->parity = USART_Parity_Odd;
       break;
       case ParityEven:
-      case ParityForced1:        
+      case ParityForced1:
           obj->parity = USART_Parity_Even;
       break;
       default: // ParityNone
@@ -212,7 +209,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         }
         else { // TxIrq
             USART_ITConfig(usart, USART_IT_TC, ENABLE);
-        }        
+        }
         
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -229,12 +226,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         else { // TxIrq
             USART_ITConfig(usart, USART_IT_TXE, DISABLE);
             // Check if RxIrq is disabled too
-            if ((usart->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;          
+            if ((usart->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
         
         if (all_disabled) NVIC_DisableIRQ(irq_n);
         
-    }    
+    }
 }
 
 /******************************************************************************

@@ -25,6 +25,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
 #include "analogin_api.h"
 
 #if DEVICE_ANALOGIN
@@ -63,10 +64,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
   
     // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
- 
-    if (obj->adc == (ADCName)NC) {
-      error("ADC pin mapping failed");
-    }
+    assert(obj->adc != (ADCName)NC);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);
@@ -86,7 +84,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
                
         // Configure ADC
         ADC_InitStructure.ADC_Resolution           = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE; 
+        ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE;
         ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
         ADC_InitStructure.ADC_ExternalTrigConv     = ADC_ExternalTrigConv_T1_TRGO;
         ADC_InitStructure.ADC_DataAlign            = ADC_DataAlign_Right;

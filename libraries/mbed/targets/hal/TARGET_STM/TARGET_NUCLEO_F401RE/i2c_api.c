@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -66,10 +66,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C error: pinout mapping failed.");
-    }
+    assert(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -99,6 +96,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
+    assert((hz != 0) && (hz <= 400000));
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     if ((hz != 0) && (hz <= 400000)) {
@@ -111,13 +109,11 @@ void i2c_frequency(i2c_t *obj, int hz) {
         I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
         I2cHandle.Init.OwnAddress1     = 0;
         I2cHandle.Init.OwnAddress2     = 0;
-        HAL_I2C_Init(&I2cHandle);    
+        HAL_I2C_Init(&I2cHandle);
         if(obj->slave) {
             /* Enable Address Acknowledge */
             I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
-        }      
-    } else {
-        error("I2C error: frequency setting failed (max 400kHz).");
+        }
     }
 }
 
@@ -344,12 +340,12 @@ int i2c_slave_receive(i2c_t *obj) {
     if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == 1) {
         if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == 1) {
             if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TRA) == 1)
-                retValue = ReadAddressed;   
+                retValue = ReadAddressed;
             else
-                retValue = WriteAddressed;   
+                retValue = WriteAddressed;
             
             __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_ADDR);
-        }        
+        }
     }
     
     return(retValue);
@@ -372,7 +368,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
             if (Timeout == 0) {
                 return 0;
             }
-        }      
+        }
 
         /* Read data from DR */
         (*data++) = I2cHandle.Instance->DR;
@@ -394,7 +390,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
         if (Timeout == 0) {
             return 0;
         }
-    }   
+    }
     
     /* Clear STOP flag */
     __HAL_I2C_CLEAR_STOPFLAG(&I2cHandle);
@@ -427,7 +423,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
             if (Timeout == 0) {
                 return 0;
             }
-        }          
+        }
 
         
       /* Write data to DR */
@@ -451,7 +447,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
         if (Timeout == 0) {
             return 0;
         }
-    } 
+    }
 
     
     /* Clear AF flag */

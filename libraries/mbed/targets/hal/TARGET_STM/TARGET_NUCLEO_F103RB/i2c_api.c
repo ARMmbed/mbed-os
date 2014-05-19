@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -61,10 +61,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C pin mapping failed");
-    }
+    assert(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -245,7 +242,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     I2C_SendData(i2c, (uint8_t)data);
 
     // Wait until the byte is transmitted
-    timeout = FLAG_TIMEOUT;  
+    timeout = FLAG_TIMEOUT;
     while ((I2C_GetFlagStatus(i2c, I2C_FLAG_TXE) == RESET) &&
             (I2C_GetFlagStatus(i2c, I2C_FLAG_BTF) == RESET)) {
         timeout--;
@@ -317,7 +314,7 @@ int i2c_slave_receive(i2c_t *obj) {
                 break;
         }
 
-        // clear ADDR 
+        // clear ADDR
         if((retValue == WriteAddressed) || (retValue == ReadAddressed)){
             // read SR to clear ADDR flag
             i2c->SR1;
@@ -327,12 +324,12 @@ int i2c_slave_receive(i2c_t *obj) {
         if(I2C_GetFlagStatus(i2c, I2C_FLAG_STOPF) == SET) {
             // read SR1 and write CR1 to clear STOP flag
             i2c->SR1;
-            I2C_Cmd(i2c,  ENABLE);    
+            I2C_Cmd(i2c,  ENABLE);
         }
         // clear AF
         if(I2C_GetFlagStatus(i2c, I2C_FLAG_AF) == SET) {
             I2C_ClearFlag(i2c, I2C_FLAG_AF);
-        }        
+        }
     }
     return(retValue);
 }

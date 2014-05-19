@@ -397,10 +397,12 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 #endif
 
 #include "mbed_interface.h"
-
+//  mbed abort invokes only mbed die. The abort function is called from failing assert for example.
+namespace std {
 extern "C" void abort(void) {
     mbed_die();
     while(1);
+}
 }
 
 // ****************************************************************************

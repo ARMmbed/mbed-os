@@ -43,7 +43,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (I2C_Type*)pinmap_merge(i2c_sda, i2c_scl);
-    assert(obj->i2c != (PinName)NC);
+    assert((int)obj->i2c != NC);
 
     // enable power
     switch ((int)obj->i2c) {

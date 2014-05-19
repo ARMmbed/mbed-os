@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "pwmout_api.h"
 
 #include "cmsis.h"
@@ -87,11 +88,8 @@ static TIM_HandleTypeDef TimHandle;
 void pwmout_init(pwmout_t* obj, PinName pin) {  
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-  
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM error: pinout mapping failed.");
-    }
-    
+    assert(obj->pwm != (PWMName)NC);
+
     // Enable TIM clock
     if (obj->pwm == PWM_1) __TIM1_CLK_ENABLE();
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();

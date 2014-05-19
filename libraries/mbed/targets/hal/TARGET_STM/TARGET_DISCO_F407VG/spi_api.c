@@ -34,7 +34,6 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
@@ -112,10 +111,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
   
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
-  
-    if (obj->spi == (SPIName)NC) {
-        error("SPI error: pinout mapping failed.");
-    }
+    assert(obj->spi != (SPIName)NC);
     
     // Enable SPI clock
     if (obj->spi == SPI_1) {
@@ -157,7 +153,7 @@ void spi_free(spi_t *obj) {
     HAL_SPI_DeInit(&SpiHandle);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {  
+void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
     if (bits == 8) {
         obj->bits = SPI_DATASIZE_8BIT;
@@ -177,11 +173,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
         break;
         case 2:
           obj->cpol = SPI_POLARITY_HIGH;
-          obj->cpha = SPI_PHASE_1EDGE;          
+          obj->cpha = SPI_PHASE_1EDGE;
         break;
         default:
           obj->cpol = SPI_POLARITY_HIGH;
-          obj->cpha = SPI_PHASE_2EDGE;          
+          obj->cpha = SPI_PHASE_2EDGE;
         break;
     }
     
@@ -191,7 +187,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
     else {
         obj->mode = SPI_MODE_SLAVE;
-        obj->nss = SPI_NSS_HARD_INPUT;      
+        obj->nss = SPI_NSS_HARD_INPUT;
     }
     
     init_spi(obj);
@@ -231,7 +227,7 @@ static inline int ssp_readable(spi_t *obj) {
     SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
     // Check if data is received
     status = ((__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_RXNE) != RESET) ? 1 : 0);
-    return status;  
+    return status;
 }
 
 static inline int ssp_writeable(spi_t *obj) {

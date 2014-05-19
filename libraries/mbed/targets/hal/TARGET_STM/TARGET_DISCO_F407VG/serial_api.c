@@ -30,7 +30,6 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include <string.h>
 #include "stm32f4xx_hal.h"
 
@@ -73,20 +72,17 @@ static void init_uart(serial_t *obj) {
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
     UartHandle.Init.Mode       = UART_MODE_TX_RX;
   
-    HAL_UART_Init(&UartHandle);    
+    HAL_UART_Init(&UartHandle);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {  
+void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
   
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-
-    if (obj->uart == (UARTName)NC) {
-        error("Serial error: pinout mapping failed.");
-    }
+    assert(obj->uart != (UARTName)NC);
 
     // Enable USART clock
     if (obj->uart == UART_1) {
@@ -109,7 +105,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->baudrate = 9600;
     obj->databits = UART_WORDLENGTH_8B;
     obj->stopbits = UART_STOPBITS_1;
-    obj->parity   = UART_PARITY_NONE;    
+    obj->parity   = UART_PARITY_NONE;
 
     init_uart(obj);
 
@@ -149,7 +145,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
           obj->parity = UART_PARITY_ODD;
       break;
       case ParityEven:
-      case ParityForced1:        
+      case ParityForced1:
           obj->parity = UART_PARITY_EVEN;
       break;
       default: // ParityNone
@@ -225,7 +221,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         }
         else { // TxIrq
             __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TC);
-        }        
+        }
         
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -242,12 +238,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         else { // TxIrq
             __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
             // Check if RxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;          
+            if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
         
         if (all_disabled) NVIC_DisableIRQ(irq_n);
         
-    }    
+    }
 }
 
 /******************************************************************************

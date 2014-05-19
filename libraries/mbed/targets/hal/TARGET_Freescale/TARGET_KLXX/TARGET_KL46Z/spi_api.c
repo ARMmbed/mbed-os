@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "spi_api.h"
 
 #include <math.h>
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTA15, SPI_0, 2},
@@ -90,9 +90,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert((int)obj->spi != NC);
 
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -125,13 +123,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if ((bits != 8) && (bits != 16)) {
-        error("Only 8/16 bits SPI supported");
-    }
-
-    if ((mode < 0) || (mode > 3)) {
-        error("SPI mode unsupported");
-    }
+    assert((bits == 8) || (bits == 16));
+    assert((mode > -1) && (mode < 4));
 
     uint8_t polarity = (mode & 0x2) ? 1 : 0;
     uint8_t phase = (mode & 0x1) ? 1 : 0;

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <assert.h>
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -20,7 +21,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PA_5,  SPI_1, STM_PIN_DATA(2, 5)},
@@ -57,7 +57,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {PA_4,  SPI_3, STM_PIN_DATA(2, 6)},
     {PA_15, SPI_1, STM_PIN_DATA(2, 5)},
     {PA_15, SPI_3, STM_PIN_DATA(2, 6)},
-    {PB_9,  SPI_2, STM_PIN_DATA(2, 5)}, 
+    {PB_9,  SPI_2, STM_PIN_DATA(2, 5)},
     {PB_12, SPI_2, STM_PIN_DATA(2, 5)},
     {NC,    NC,    0}
 };
@@ -75,9 +75,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     obj->spi = (SPI_TypeDef*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert((int)obj->spi != NC)
 
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -123,12 +121,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
+    assert((bits == 8 || bits == 16) || (mode >= 0 && mode <= 3));
     ssp_disable(obj);
-    
-    if (!(bits == 8 || bits == 16) || !(mode >= 0 && mode <= 3)) {
-        error("SPI format error");
-    }
-    
 
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;

@@ -148,17 +148,16 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    
+    assert((stop_bits == 1) || (stop_bits == 2));
+    assert(parity < (ParityEven + 1));
+    assert(data_bits == 8); // TODO: Support other number of data bits (also in the write method!)
+
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
     
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
     
-    // TODO: Support other number of data bits (also in the write method!)
-    if ((data_bits < 8) || (data_bits > 8)) {
-        error("Invalid number of bits (%d) in serial format, should be 8", data_bits);
-    }
 
     uint8_t parity_enable, parity_select;
     switch (parity) {
@@ -166,14 +165,9 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
         case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
 
-    // 1 stop bits = 0, 2 stop bits = 1
-    if ((stop_bits != 1) && (stop_bits != 2)) {
-        error("Invalid stop bits specified");
-    }
     stop_bits -= 1;
 
     // data bits, parity and parity mode

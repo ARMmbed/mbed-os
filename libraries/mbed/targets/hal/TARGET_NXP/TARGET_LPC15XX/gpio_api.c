@@ -43,7 +43,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(pin != (PinName)NC);
+    assert(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir &= ~obj->mask;

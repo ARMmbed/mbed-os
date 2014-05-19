@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -34,7 +35,6 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
@@ -67,11 +67,11 @@ static void init_spi(spi_t *obj) {
     SPI_Cmd(spi, DISABLE);
 
     SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
+    SPI_InitStructure.SPI_NSS = obj->nss;
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
     SPI_InitStructure.SPI_DataSize = obj->bits;
     SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
+    SPI_InitStructure.SPI_CPHA = obj->cpha;
     SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStructure.SPI_CRCPolynomial = 7;
@@ -91,14 +91,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
   
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
-  
-    if (obj->spi == (SPIName)NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert(obj->spi != (SPIName)NC);
     
     // Enable SPI clock
     if (obj->spi == SPI_1) {
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); 
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     }
     
     // Configure the SPI pins
@@ -130,7 +127,7 @@ void spi_free(spi_t *obj) {
     SPI_I2S_DeInit(spi);
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {  
+void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
     if (bits == 8) {
         obj->bits = SPI_DataSize_8b;
@@ -150,11 +147,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
         break;
         case 2:
           obj->cpol = SPI_CPOL_High;
-          obj->cpha = SPI_CPHA_1Edge;          
+          obj->cpha = SPI_CPHA_1Edge;
         break;
         default:
           obj->cpol = SPI_CPOL_High;
-          obj->cpha = SPI_CPHA_2Edge;          
+          obj->cpha = SPI_CPHA_2Edge;
         break;
     }
     
@@ -164,7 +161,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
     else {
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Hard;      
+        obj->nss = SPI_NSS_Hard;
     }
     
     init_spi(obj);
@@ -196,7 +193,7 @@ static inline int ssp_readable(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     // Check if data is received
     status = ((SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_RXNE) != RESET) ? 1 : 0);
-    return status;  
+    return status;
 }
 
 static inline int ssp_writeable(spi_t *obj) {
@@ -208,13 +205,13 @@ static inline int ssp_writeable(spi_t *obj) {
 }
 
 static inline void ssp_write(spi_t *obj, int value) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
     SPI_I2S_SendData(spi, (uint16_t)value);
 }
 
 static inline int ssp_read(spi_t *obj) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);   
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
     return (int)SPI_I2S_ReceiveData(spi);
 }
@@ -241,8 +238,8 @@ int spi_slave_read(spi_t *obj) {
 }
 
 void spi_slave_write(spi_t *obj, int value) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
-    while (!ssp_writeable(obj));  
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
+    while (!ssp_writeable(obj));
     SPI_I2S_SendData(spi, (uint16_t)value);
 }
 

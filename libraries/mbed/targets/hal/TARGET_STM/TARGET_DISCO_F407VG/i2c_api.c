@@ -27,18 +27,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "stm32f4xx_hal.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will 
-   not remain stuck if the I2C communication is corrupted. */   
+   not based on accurate values, they just guarantee that the application will
+   not remain stuck if the I2C communication is corrupted. */
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
@@ -65,19 +65,16 @@ static const PinMap PinMap_I2C_SCL[] = {
 
 I2C_HandleTypeDef I2cHandle;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {  
+void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C error: pinout mapping failed.");
-    }
+    assert(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         __I2C1_CLK_ENABLE();
     }
     if (obj->i2c == I2C_2) {
@@ -97,14 +94,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     i2c_reset(obj);
     
     // I2C configuration
-    i2c_frequency(obj, 100000); // 100 kHz per default    
+    i2c_frequency(obj, 100000); // 100 kHz per default
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
+    assert((hz != 0) && (hz <= 400000));
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
   
     if ((hz != 0) && (hz <= 400000)) {
-        // I2C configuration      
+        // I2C configuration
         I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
         I2cHandle.Init.ClockSpeed      = hz;
         I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
@@ -113,10 +111,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
         I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
         I2cHandle.Init.OwnAddress1     = 0;
         I2cHandle.Init.OwnAddress2     = 0;
-        HAL_I2C_Init(&I2cHandle);    
-    }
-    else {
-        error("I2C error: frequency setting failed (max 400kHz).");
+        HAL_I2C_Init(&I2cHandle);
     }
 }
 
@@ -152,7 +147,7 @@ inline int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {  
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     if (length == 0) return 0;
   
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
@@ -208,7 +203,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     i2c->DR = (uint8_t)data;
 
     // Wait until the byte is transmitted
-    timeout = FLAG_TIMEOUT;  
+    timeout = FLAG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TXE) == RESET) &&
            (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == RESET)) {
         if ((timeout--) == 0) {
@@ -220,7 +215,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 
 void i2c_reset(i2c_t *obj) {
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         __I2C1_FORCE_RESET();
         __I2C1_RELEASE_RESET();
     }

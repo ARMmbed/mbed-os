@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include <assert.h>
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -34,7 +35,6 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PA_11, SPI_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_DOWN, GPIO_AF_5)},
@@ -102,9 +102,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
 
-    if (obj->spi == (SPIName)NC) {
-        error("SPI pinout mapping failed");
-    }
+    assert(obj->spi != (SPIName)NC);
 
     // Enable SPI clock
     if (obj->spi == SPI_2) {

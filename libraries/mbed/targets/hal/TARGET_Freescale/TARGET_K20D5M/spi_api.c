@@ -91,13 +91,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if ((bits != 8) && (bits != 16)) {
-        error("Only 8/16 bits SPI supported");
-    }
-
-    if ((mode < 0) || (mode > 3)) {
-        error("SPI mode unsupported");
-    }
+    assert((bits == 8) || (bits == 16));
+    assert((mode > -1) && (mode < 4));
 
     uint32_t polarity = (mode & 0x2) ? 1 : 0;
     uint32_t phase = (mode & 0x1) ? 1 : 0;
