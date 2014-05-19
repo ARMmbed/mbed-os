@@ -120,33 +120,33 @@ void i2c_frequency(i2c_t *obj, int hz) {
        - Rise time = 100 ns
        - Fall time = 10ns
     */
-    if(SystemCoreClock == 64000000) {
-    switch (hz) {
-        case 100000:
+    if (SystemCoreClock == 64000000) {
+        switch (hz) {
+            case 100000:
                 tim = 0x60302730; // Standard mode
             break;
-        case 200000:
+            case 200000:
                 tim = 0x00C07AB3; // Fast Mode
             break;
-        case 400000:
+            case 400000:
                 tim = 0x00C0216C; // Fast Mode
             break;
-        case 1000000:
+            case 1000000:
                 tim = 0x00900B22; // Fast Mode Plus
-            // Enable the Fast Mode Plus capability
-            if (obj->i2c == I2C_1) {
-                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
-            }
-            if (obj->i2c == I2C_2) {
-                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
-            }
+                // Enable the Fast Mode Plus capability
+                if (obj->i2c == I2C_1) {
+                    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
+                }
+                if (obj->i2c == I2C_2) {
+                    SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
+                }
             break;
-        default:
-            error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
+            default:
+                error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
             break;
+        }
     }
-    }
-    else if(SystemCoreClock == 72000000) {
+    else if (SystemCoreClock == 72000000) {
         switch (hz) {
             case 100000:
                 tim = 0x10C08DCF; // Standard mode
@@ -263,9 +263,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 
     timeout = FLAG_TIMEOUT;
     while(!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
-            timeout--;
+        timeout--;
         if (timeout == 0) return 0;
-            }
+    }
         
     if(stop) i2c_stop(obj);
 
@@ -361,9 +361,9 @@ int i2c_slave_receive(i2c_t *obj) {
         if(I2C_GetFlagStatus(i2c, I2C_ISR_ADDR) == SET) {
         // Check direction
             if (I2C_GetFlagStatus(i2c, I2C_ISR_DIR) == SET) {
-            event = ReadAddressed;
-        }
-        else event = WriteAddressed;
+                event = ReadAddressed;
+            }
+            else event = WriteAddressed;
         // Clear adress match flag to generate an acknowledge
         i2c->ICR |= I2C_ICR_ADDRCF;
         }
