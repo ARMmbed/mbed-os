@@ -69,7 +69,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     
     obj->spi = (LPC_SSP0_Type*)pinmap_merge(spi_data, spi_cntl);
-    assert((int)obj->spi == NC);
+    assert((int)obj->spi != NC);
     
     // enable power and clocking
     switch ((int)obj->spi) {

@@ -127,7 +127,7 @@ void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     spi_disable(obj);
-    assert((bits >= 1 && bits <= 16) || (mode >= 0 && mode <= 3));
+    assert((bits >= 1 && bits <= 16) && (mode >= 0 && mode <= 3));
     
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;
