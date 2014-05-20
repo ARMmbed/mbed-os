@@ -42,6 +42,9 @@ I2C i2c(P0_10, P0_11);
 #elif defined(TARGET_LPC1549)
 I2C i2c(P0_23, P0_22);
 
+#elif defined(TARGET_LPC11U68)
+I2C i2c(SDA, SCL);
+
 #elif defined(TARGET_NUCLEO_F103RB) || \
     defined(TARGET_NUCLEO_L152RE) || \
     defined(TARGET_NUCLEO_F302R8) || \
