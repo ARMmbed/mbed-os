@@ -171,7 +171,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 
     if (slave == 0) {
         obj->mode = SPI_Mode_Master;
-        obj->nss = SPI_NSS_Hard;
+        obj->nss = SPI_NSS_Soft;
     } else {
         obj->mode = SPI_Mode_Slave;
         obj->nss = SPI_NSS_Hard;
