@@ -328,7 +328,7 @@ class NUCLEO_F103RB(Target):
         
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
