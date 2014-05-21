@@ -121,10 +121,10 @@ typedef enum {
     LED_BLUE  = P2_18,
     
     // mbed original LED naming
-    LED1 = LED_BLUE,
+    LED1 = LED_RED,
     LED2 = LED_GREEN,
-    LED3 = LED_RED,
-    LED4 = LED_RED,
+    LED3 = LED_BLUE,
+    LED4 = LED_BLUE,
     
     // Serial to USB pins
     USBTX = P0_19,
