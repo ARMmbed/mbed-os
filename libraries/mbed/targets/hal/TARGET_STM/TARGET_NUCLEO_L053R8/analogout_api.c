@@ -75,10 +75,11 @@ void analogout_init(dac_t *obj, PinName pin) {
 }
 
 void analogout_free(dac_t *obj) {
-    // Disable DAC
+    // Reset DAC and disable clock
     __DAC_FORCE_RESET();
     __DAC_RELEASE_RESET();
     __DAC_CLK_DISABLE();
+
     // Configure GPIO
     pin_function(obj->channel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
