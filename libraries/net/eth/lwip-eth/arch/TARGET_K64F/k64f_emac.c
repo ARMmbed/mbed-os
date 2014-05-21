@@ -110,7 +110,6 @@ static enet_phy_config_t g_enetPhyCfg[HW_ENET_INSTANCE_COUNT] =
 
 // K64F-specific macros
 #define RX_PBUF_AUTO_INDEX    (-1)
-#define TX_DESC_UPDATED_MASK  (0x0080)
 
 /********************************************************************************
  * Buffer management
