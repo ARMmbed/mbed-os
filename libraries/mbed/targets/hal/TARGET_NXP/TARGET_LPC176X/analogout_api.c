@@ -26,7 +26,7 @@ static const PinMap PinMap_DAC[] = {
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    assert(obj->dac == (DACName)NC);
+    assert(obj->dac != (DACName)NC);
     
     // power is on by default, set DAC clk divider is /4
     LPC_SC->PCLKSEL0 &= ~(0x3 << 22);
