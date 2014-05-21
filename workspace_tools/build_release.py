@@ -44,13 +44,14 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('KL46Z',        ('ARM', 'GCC_ARM')),
     ('K64F',         ('ARM',)),
 
-    ('NUCLEO_F030R8', ('ARM', 'uARM')),    
+    ('NUCLEO_F030R8', ('ARM', 'uARM')),
+    ('NUCLEO_F072RB', ('ARM', 'uARM')),
     ('NUCLEO_F103RB', ('ARM', 'uARM')),
     ('NUCLEO_F302R8', ('ARM', 'uARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM')),
     ('NUCLEO_L053R8', ('ARM', 'uARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM')),
-    
+
     ('NRF51822', ('ARM', )),
 
     ('LPC11U68', ('uARM',)),
