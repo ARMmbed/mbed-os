@@ -25,6 +25,9 @@ SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
 #elif defined(TARGET_LPC2368)
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 
+#elif defined(TARGET_LPC11U68)
+SDFileSystem sd(D11, D12, D13, D10, "sd");
+
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
