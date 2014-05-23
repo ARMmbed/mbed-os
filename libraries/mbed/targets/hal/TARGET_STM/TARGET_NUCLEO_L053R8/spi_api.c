@@ -263,8 +263,7 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    //return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0); // should be coded like this
-    return (ssp_readable(obj)) ? (1) : (0); // more stable like this
+    return (ssp_readable(obj)) ? (1) : (0);
 };
 
 int spi_slave_read(spi_t *obj) {
