@@ -129,6 +129,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_PHASE_1EDGE;
     obj->br_presc = SPI_BAUDRATEPRESCALER_256;
 
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // SW NSS Master mode
         obj->mode = SPI_MODE_MASTER;
         obj->nss = SPI_NSS_SOFT;
