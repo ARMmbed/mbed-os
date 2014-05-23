@@ -45,7 +45,7 @@
 #define DEVICE_I2CSLAVE         1
 
 #define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         0 // Not supported yet
+#define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
 

@@ -72,6 +72,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
+        __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
         __I2C1_CLK_ENABLE();
     }
     if (obj->i2c == I2C_2) {
