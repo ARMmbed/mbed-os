@@ -170,7 +170,7 @@ static inline void spi_enable(spi_t *obj, int slave) {
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    uint32_t config_mode;
+    uint32_t config_mode = 0;
     spi_disable(obj,slave);
     
     if (bits != 8) {
