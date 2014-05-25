@@ -26,7 +26,7 @@ PinName parse_pins(const char *str) {
     static const PinName pin_names[] = {dp1, dp2, dp4, dp5, dp6, dp9, dp10, dp11
                                 , dp13, dp14, dp15, dp16, dp17, dp18, dp23
                                 , dp24, dp25, dp26, dp27, dp28};
-#elif defined(TARGET_LPC4088)                                
+#elif defined(TARGET_LPC4088)
     static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
                                 , p15, p16, p17, p18, p19, p20, NC, NC, p23
                                 , p24, p25, p26, p27, p28, p29, p30, p31, p32
@@ -43,19 +43,19 @@ PinName parse_pins(const char *str) {
         }
         return port_pin((PortName)port, pin);
 
-#elif defined(TARGET_KL25Z) || defined(TARGET_K64F)
-        if (str[0] == 'P' && str[1] == 'T') {   // PTx_n
-            uint32_t port = str[2] - 'A';
-            uint32_t pin  = str[3] - '0'; // PTxn
-            uint32_t pin2 = str[4] - '0'; // PTxnn
+#elif defined(TARGET_KL25Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_K64F)
+    if (str[0] == 'P' && str[1] == 'T') {   // PTxn
+        uint32_t port = str[2] - 'A';
+        uint32_t pin  = str[3] - '0';       // PTxn
+        uint32_t pin2 = str[4] - '0';       // PTxnn
 
-            if (pin2 <= 9) {
-                pin = pin * 10 + pin2;
-            }
-            return port_pin((PortName)port, pin);
+        if (pin2 <= 9) {
+            pin = pin * 10 + pin2;
+        }
+        return port_pin((PortName)port, pin);
 #endif
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     } else if (str[0] == 'p') {       // pn
         uint32_t pin  = str[1] - '0'; // pn
         uint32_t pin2 = str[2] - '0'; // pnn
@@ -66,7 +66,7 @@ PinName parse_pins(const char *str) {
             return NC;
         }
         return pin_names[pin - 5];
-#elif defined(TARGET_LPC4088)        
+#elif defined(TARGET_LPC4088)
     } else if (str[0] == 'p') {       // pn
         uint32_t pin  = str[1] - '0'; // pn
         uint32_t pin2 = str[2] - '0'; // pnn

@@ -34,7 +34,11 @@ int main() {
 
     // Function
     RPCFunction rpc_foo(&foo, "foo");
+#if defined(TOOLCHAIN_ARM_MICRO)
+    RPC_TEST("/foo/run 1", "3.299999952316284");
+#else
     RPC_TEST("/foo/run 1", "3.2999999523162842");
+#endif
 
     // Class
     RPC::add_rpc_class<RpcDigitalOut>();
