@@ -121,7 +121,8 @@ public:
 
 protected:
     SerialBase(PinName tx, PinName rx);
-    virtual ~SerialBase();
+    virtual ~SerialBase() {
+    }
 
     int _base_getc();
     int _base_putc(int c);
