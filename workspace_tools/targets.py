@@ -572,6 +572,8 @@ class LPC11U68(Target):
         self.extra_labels = ['NXP', 'LPC11U6X']
         
         self.supported_toolchains = ["uARM"]
+        
+        self.supported_form_factors = ["ARDUINO"]
 
 
 class DISCO_F100RB(Target):
@@ -614,6 +616,7 @@ class DISCO_F407VG(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407','STM32F407VG']
         
         self.supported_toolchains = ["GCC_ARM"]
+
 
 class DISCO_F303VC(Target):
     ONLINE_TOOLCHAIN = "uARM"
