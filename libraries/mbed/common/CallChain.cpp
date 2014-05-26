@@ -3,13 +3,13 @@
 
 namespace mbed {
 
-CallChain::CallChain(int size) : _size(size), _elements(0) {
+CallChain::CallChain(int size) : _chain(), _size(size), _elements(0) {
     _chain = new pFunctionPointer_t[size]();
 }
 
 CallChain::~CallChain() {
     clear();
-    delete _chain;    
+    delete _chain;
 }
 
 pFunctionPointer_t CallChain::add(void (*function)(void)) {

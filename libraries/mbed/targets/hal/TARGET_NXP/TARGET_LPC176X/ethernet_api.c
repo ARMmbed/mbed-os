@@ -52,27 +52,27 @@ const int ethernet_MTU_SIZE  = 0x300;
 
 #define ETHERNET_ADDR_SIZE 6
 
-PACKED struct RX_DESC_TypeDef {                        /* RX Descriptor struct              */
+struct RX_DESC_TypeDef {                        /* RX Descriptor struct              */
    unsigned int Packet;
    unsigned int Ctrl;
-};
+} PACKED;
 typedef struct RX_DESC_TypeDef RX_DESC_TypeDef;
 
-PACKED struct RX_STAT_TypeDef {                        /* RX Status struct                  */
+struct RX_STAT_TypeDef {                        /* RX Status struct                  */
    unsigned int Info;
    unsigned int HashCRC;
-};
+} PACKED;
 typedef struct RX_STAT_TypeDef RX_STAT_TypeDef;
 
-PACKED struct TX_DESC_TypeDef {                        /* TX Descriptor struct              */
+struct TX_DESC_TypeDef {                        /* TX Descriptor struct              */
    unsigned int Packet;
    unsigned int Ctrl;
-};
+} PACKED;
 typedef struct TX_DESC_TypeDef TX_DESC_TypeDef;
 
-PACKED struct TX_STAT_TypeDef {                        /* TX Status struct                  */
+struct TX_STAT_TypeDef {                        /* TX Status struct                  */
    unsigned int Info;
-};
+} PACKED;
 typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 
 /* MAC Configuration Register 1 */
@@ -436,9 +436,9 @@ int ethernet_init() {
   int regv, tout;
   char mac[ETHERNET_ADDR_SIZE];
   unsigned int clock = clockselect();
-  
+
   LPC_SC->PCONP |= 0x40000000;                       /* Power Up the EMAC controller. */
-  
+
   LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
   LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
 
@@ -531,9 +531,9 @@ int ethernet_init() {
 void ethernet_free() {
     LPC_EMAC->IntEnable &= ~(INT_RX_DONE | INT_TX_DONE);
     LPC_EMAC->IntClear   =  0xFFFF;
-    
+
     LPC_SC->PCONP   &= ~0x40000000;       /* Power down the EMAC controller. */
-    
+
     LPC_PINCON->PINSEL2 &= ~0x50150105;   /* Disable P1 ethernet pins. */
     LPC_PINCON->PINSEL3  = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000000;
 }

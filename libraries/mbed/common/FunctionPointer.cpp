@@ -17,7 +17,9 @@
 
 namespace mbed {
 
-FunctionPointer::FunctionPointer(void (*function)(void)) {
+FunctionPointer::FunctionPointer(void (*function)(void)): _function(),
+                                                          _object(),
+                                                          _membercaller() {
     attach(function);
 }
 

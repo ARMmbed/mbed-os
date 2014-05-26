@@ -51,13 +51,13 @@ public:
      *   An integer with each bit corresponding to the value read from the associated DigitalIn pin
      */
     int read();
-    
+
     /** Set the input pin mode
      *
      *  @param mode PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
-	
+
 #ifdef MBED_OPERATORS
     /** A shorthand for read()
      */
@@ -66,6 +66,11 @@ public:
 
 protected:
     DigitalIn* _pin[16];
+
+    /* disallow copy constructor and assignment operators */
+private:
+    BusIn(const BusIn&);
+    BusIn & operator = (const BusIn&);
 };
 
 } // namespace mbed

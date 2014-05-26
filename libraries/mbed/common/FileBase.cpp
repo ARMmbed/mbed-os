@@ -19,10 +19,9 @@ namespace mbed {
 
 FileBase *FileBase::_head = NULL;
 
-FileBase::FileBase(const char *name, PathType t) {
-    _name = name;
-    _path_type = t;
-
+FileBase::FileBase(const char *name, PathType t) : _next(NULL),
+                                                   _name(name),
+                                                   _path_type(t) {
     if (name != NULL) {
         // put this object at head of the list
         _next = _head;

@@ -21,7 +21,7 @@
 
 namespace mbed {
 
-CAN::CAN(PinName rd, PinName td) {
+CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
     can_init(&_can, rd, td);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }

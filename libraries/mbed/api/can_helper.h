@@ -41,6 +41,9 @@ struct CAN_Message {
     unsigned char  len;                // Length of data field in bytes
     CANFormat      format;             // 0 - STANDARD, 1- EXTENDED IDENTIFIER
     CANType        type;               // 0 - DATA FRAME, 1 - REMOTE FRAME
+
+    virtual ~CAN_Message() {
+    }
 };
 typedef struct CAN_Message CAN_Message;
 

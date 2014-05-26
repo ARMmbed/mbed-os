@@ -49,6 +49,11 @@ protected:
     virtual int _getc() = 0;
 
     std::FILE *_file;
+
+    /* disallow copy constructor and assignment operators */
+private:
+    Stream(const Stream&);
+    Stream & operator = (const Stream&);
 };
 
 } // namespace mbed

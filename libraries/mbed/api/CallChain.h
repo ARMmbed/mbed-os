@@ -56,7 +56,7 @@ namespace mbed {
  * }
  * @endcode
  */
-  
+
 typedef FunctionPointer* pFunctionPointer_t;
 
 class CallChain {
@@ -64,7 +64,7 @@ public:
     /** Create an empty chain
      *
      *  @param size (optional) Initial size of the chain
-     */  
+     */
     CallChain(int size = 4);
     virtual ~CallChain();
 
@@ -98,7 +98,7 @@ public:
      *  The function object created for 'function'
      */
     pFunctionPointer_t add_front(void (*function)(void));
-    
+
     /** Add a function at the beginning of the chain
      *
      *  @param tptr pointer to the object to call the member function on
@@ -150,7 +150,7 @@ public:
     /** Call all the functions in the chain in sequence
      */
     void call();
- 
+
 #ifdef MBED_OPERATORS
     void operator ()(void) {
         call();
@@ -168,6 +168,11 @@ private:
     pFunctionPointer_t* _chain;
     int _size;
     int _elements;
+
+    /* disallow copy constructor and assignment operators */
+private:
+    CallChain(const CallChain&);
+    CallChain & operator = (const CallChain&);
 };
 
 } // namespace mbed
