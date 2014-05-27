@@ -72,11 +72,11 @@ static void init_spi(spi_t *obj) {
     SPI_Cmd(spi, DISABLE);
 
     SPI_InitStructure.SPI_Mode = obj->mode;
-    SPI_InitStructure.SPI_NSS = obj->nss;    
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    
+    SPI_InitStructure.SPI_NSS = obj->nss;
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
     SPI_InitStructure.SPI_DataSize = obj->bits;
     SPI_InitStructure.SPI_CPOL = obj->cpol;
-    SPI_InitStructure.SPI_CPHA = obj->cpha;    
+    SPI_InitStructure.SPI_CPHA = obj->cpha;
     SPI_InitStructure.SPI_BaudRatePrescaler = obj->br_presc;
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStructure.SPI_CRCPolynomial = 7;
@@ -93,40 +93,44 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
     SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
     SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-  
+
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-  
+
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
-  
+
     if (obj->spi == (SPIName)NC) {
         error("SPI pinout mapping failed");
     }
-    
+
     // Enable SPI clock
     if (obj->spi == SPI_1) {
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); 
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     }
     if (obj->spi == SPI_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE); 
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
     }
-    
+
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    
+
     // Save new values
     obj->bits = SPI_DataSize_8b;
     obj->cpol = SPI_CPOL_Low;
     obj->cpha = SPI_CPHA_1Edge;
     obj->br_presc = SPI_BaudRatePrescaler_8; // 1 MHz
-    
+
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
         obj->nss = SPI_NSS_Soft;
-    }
-    else { // Slave
+    } else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
         obj->nss = SPI_NSS_Hard;
@@ -136,47 +140,61 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 
 void spi_free(spi_t *obj) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    SPI_I2S_DeInit(spi);
+    // Reset SPI and disable clock
+    if (obj->spi == SPI_1) {
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
+    }
+
+    if (obj->spi == SPI_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_miso, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_mosi, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_sclk, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_ssel, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {  
+void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
     if (bits == 8) {
         obj->bits = SPI_DataSize_8b;
-    }
-    else {
+    } else {
         obj->bits = SPI_DataSize_16b;
     }
-    
+
     switch (mode) {
         case 0:
-          obj->cpol = SPI_CPOL_Low;
-          obj->cpha = SPI_CPHA_1Edge;
-        break;
+            obj->cpol = SPI_CPOL_Low;
+            obj->cpha = SPI_CPHA_1Edge;
+            break;
         case 1:
-          obj->cpol = SPI_CPOL_Low;
-          obj->cpha = SPI_CPHA_2Edge;
-        break;
+            obj->cpol = SPI_CPOL_Low;
+            obj->cpha = SPI_CPHA_2Edge;
+            break;
         case 2:
-          obj->cpol = SPI_CPOL_High;
-          obj->cpha = SPI_CPHA_1Edge;          
-        break;
+            obj->cpol = SPI_CPOL_High;
+            obj->cpha = SPI_CPHA_1Edge;
+            break;
         default:
-          obj->cpol = SPI_CPOL_High;
-          obj->cpha = SPI_CPHA_2Edge;          
-        break;
+            obj->cpol = SPI_CPOL_High;
+            obj->cpha = SPI_CPHA_2Edge;
+            break;
     }
-    
+
     if (slave == 0) {
         obj->mode = SPI_Mode_Master;
         obj->nss = SPI_NSS_Soft;
-    }
-    else {
+    } else {
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Hard;      
+        obj->nss = SPI_NSS_Hard;
     }
-    
+
     init_spi(obj);
 }
 
@@ -184,26 +202,19 @@ void spi_frequency(spi_t *obj, int hz) {
     // Note: The frequencies are obtained with SPI clock = 48 MHz (APB1 & APB2 clocks)
     if (hz < 300000) {
         obj->br_presc = SPI_BaudRatePrescaler_256; // 188 kHz
-    }
-    else if ((hz >= 300000) && (hz < 700000)) {
+    } else if ((hz >= 300000) && (hz < 700000)) {
         obj->br_presc = SPI_BaudRatePrescaler_128; // 375 kHz
-    }
-    else if ((hz >= 700000) && (hz < 1000000)) {
+    } else if ((hz >= 700000) && (hz < 1000000)) {
         obj->br_presc = SPI_BaudRatePrescaler_64; // 750 kHz
-    }
-    else if ((hz >= 1000000) && (hz < 3000000)) {
+    } else if ((hz >= 1000000) && (hz < 3000000)) {
         obj->br_presc = SPI_BaudRatePrescaler_32; // 1.5 MHz
-    }
-    else if ((hz >= 3000000) && (hz < 6000000)) {
+    } else if ((hz >= 3000000) && (hz < 6000000)) {
         obj->br_presc = SPI_BaudRatePrescaler_16; // 3 MHz
-    }
-    else if ((hz >= 6000000) && (hz < 12000000)) {
+    } else if ((hz >= 6000000) && (hz < 12000000)) {
         obj->br_presc = SPI_BaudRatePrescaler_8; // 6 MHz
-    }
-    else if ((hz >= 12000000) && (hz < 24000000)) {
+    } else if ((hz >= 12000000) && (hz < 24000000)) {
         obj->br_presc = SPI_BaudRatePrescaler_4; // 12 MHz
-    }
-    else { // >= 24000000
+    } else { // >= 24000000
         obj->br_presc = SPI_BaudRatePrescaler_2; // 24 MHz
     }
     init_spi(obj);
@@ -214,7 +225,7 @@ static inline int ssp_readable(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     // Check if data is received
     status = ((SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_RXNE) != RESET) ? 1 : 0);
-    return status;  
+    return status;
 }
 
 static inline int ssp_writeable(spi_t *obj) {
@@ -226,23 +237,21 @@ static inline int ssp_writeable(spi_t *obj) {
 }
 
 static inline void ssp_write(spi_t *obj, int value) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
     if (obj->bits == SPI_DataSize_8b) {
         SPI_SendData8(spi, (uint8_t)value);
-    }
-    else { // 16-bit
+    } else { // 16-bit
         SPI_I2S_SendData16(spi, (uint16_t)value);
     }
 }
 
 static inline int ssp_read(spi_t *obj) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);   
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
     if (obj->bits == SPI_DataSize_8b) {
         return (int)SPI_ReceiveData8(spi);
-    }
-    else { // 16-bit
+    } else { // 16-bit
         return (int)SPI_I2S_ReceiveData16(spi);
     }
 }
@@ -267,19 +276,17 @@ int spi_slave_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     if (obj->bits == SPI_DataSize_8b) {
         return (int)SPI_ReceiveData8(spi);
-    }
-    else { // 16-bit
+    } else { // 16-bit
         return (int)SPI_I2S_ReceiveData16(spi);
     }
 }
 
 void spi_slave_write(spi_t *obj, int value) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);  
-    while (!ssp_writeable(obj));  
+    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
+    while (!ssp_writeable(obj));
     if (obj->bits == SPI_DataSize_8b) {
         SPI_SendData8(spi, (uint8_t)value);
-    }
-    else { // 16-bit
+    } else { // 16-bit
         SPI_I2S_SendData16(spi, (uint16_t)value);
     }
 }

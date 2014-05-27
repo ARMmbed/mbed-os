@@ -57,15 +57,15 @@ static const PinMap PinMap_ADC[] = {
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin) {
-  
+
     ADC_TypeDef     *adc;
     ADC_InitTypeDef ADC_InitStructure;
-  
+
     // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
- 
+
     if (obj->adc == (ADCName)NC) {
-      error("ADC pin mapping failed");
+        error("ADC pin mapping failed");
     }
 
     // Configure GPIO
@@ -80,13 +80,13 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
         // Get ADC registers structure address
         adc = (ADC_TypeDef *)(obj->adc);
-      
+
         // Enable ADC clock
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-               
+
         // Configure ADC
         ADC_InitStructure.ADC_Resolution           = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE; 
+        ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE;
         ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
         ADC_InitStructure.ADC_ExternalTrigConv     = ADC_ExternalTrigConv_T1_TRGO;
         ADC_InitStructure.ADC_DataAlign            = ADC_DataAlign_Right;
@@ -102,81 +102,81 @@ void analogin_init(analogin_t *obj, PinName pin) {
 }
 
 static inline uint16_t adc_read(analogin_t *obj) {
-  // Get ADC registers structure address
-  ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
-  
-  adc->CHSELR = 0; // Clear all channels first
-  
-  // Configure ADC channel
-  switch (obj->pin) {
-      case PA_0:
-          ADC_ChannelConfig(adc, ADC_Channel_0, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_1:
-          ADC_ChannelConfig(adc, ADC_Channel_1, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_2:
-          ADC_ChannelConfig(adc, ADC_Channel_2, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_3:
-          ADC_ChannelConfig(adc, ADC_Channel_3, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_4:
-          ADC_ChannelConfig(adc, ADC_Channel_4, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_5:
-          ADC_ChannelConfig(adc, ADC_Channel_5, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_6:
-          ADC_ChannelConfig(adc, ADC_Channel_6, ADC_SampleTime_7_5Cycles);
-          break;
-      case PA_7:
-          ADC_ChannelConfig(adc, ADC_Channel_7, ADC_SampleTime_7_5Cycles);
-          break;
-      case PB_0:
-          ADC_ChannelConfig(adc, ADC_Channel_8, ADC_SampleTime_7_5Cycles);
-          break;
-      case PB_1:
-          ADC_ChannelConfig(adc, ADC_Channel_9, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_0:
-          ADC_ChannelConfig(adc, ADC_Channel_10, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_1:
-          ADC_ChannelConfig(adc, ADC_Channel_11, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_2:
-          ADC_ChannelConfig(adc, ADC_Channel_12, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_3:
-          ADC_ChannelConfig(adc, ADC_Channel_13, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_4:
-          ADC_ChannelConfig(adc, ADC_Channel_14, ADC_SampleTime_7_5Cycles);
-          break;
-      case PC_5:
-          ADC_ChannelConfig(adc, ADC_Channel_15, ADC_SampleTime_7_5Cycles);
-          break;
-      default:
-          return 0;
-  }
+    // Get ADC registers structure address
+    ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
 
-  while(!ADC_GetFlagStatus(adc, ADC_FLAG_ADRDY)); // Wait ADC ready
+    adc->CHSELR = 0; // Clear all channels first
 
-  ADC_StartOfConversion(adc); // Start conversion
-  
-  while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
-  
-  return(ADC_GetConversionValue(adc)); // Get conversion value
+    // Configure ADC channel
+    switch (obj->pin) {
+        case PA_0:
+            ADC_ChannelConfig(adc, ADC_Channel_0, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_1:
+            ADC_ChannelConfig(adc, ADC_Channel_1, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_2:
+            ADC_ChannelConfig(adc, ADC_Channel_2, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_3:
+            ADC_ChannelConfig(adc, ADC_Channel_3, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_4:
+            ADC_ChannelConfig(adc, ADC_Channel_4, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_5:
+            ADC_ChannelConfig(adc, ADC_Channel_5, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_6:
+            ADC_ChannelConfig(adc, ADC_Channel_6, ADC_SampleTime_7_5Cycles);
+            break;
+        case PA_7:
+            ADC_ChannelConfig(adc, ADC_Channel_7, ADC_SampleTime_7_5Cycles);
+            break;
+        case PB_0:
+            ADC_ChannelConfig(adc, ADC_Channel_8, ADC_SampleTime_7_5Cycles);
+            break;
+        case PB_1:
+            ADC_ChannelConfig(adc, ADC_Channel_9, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_0:
+            ADC_ChannelConfig(adc, ADC_Channel_10, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_1:
+            ADC_ChannelConfig(adc, ADC_Channel_11, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_2:
+            ADC_ChannelConfig(adc, ADC_Channel_12, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_3:
+            ADC_ChannelConfig(adc, ADC_Channel_13, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_4:
+            ADC_ChannelConfig(adc, ADC_Channel_14, ADC_SampleTime_7_5Cycles);
+            break;
+        case PC_5:
+            ADC_ChannelConfig(adc, ADC_Channel_15, ADC_SampleTime_7_5Cycles);
+            break;
+        default:
+            return 0;
+    }
+
+    while (!ADC_GetFlagStatus(adc, ADC_FLAG_ADRDY)); // Wait ADC ready
+
+    ADC_StartOfConversion(adc); // Start conversion
+
+    while (ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
+
+    return (ADC_GetConversionValue(adc)); // Get conversion value
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
-  return(adc_read(obj));
+    return (adc_read(obj));
 }
 
 float analogin_read(analogin_t *obj) {
-  uint16_t value = adc_read(obj);
-  return (float)value * (1.0f / (float)0xFFF); // 12 bits range
+    uint16_t value = adc_read(obj);
+    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif
