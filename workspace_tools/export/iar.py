@@ -23,6 +23,7 @@ class IAREmbeddedWorkbench(Exporter):
     
     TARGETS = [
         'LPC1768',
+        'UBLOX_C027',
     ]
     
     def generate(self):
