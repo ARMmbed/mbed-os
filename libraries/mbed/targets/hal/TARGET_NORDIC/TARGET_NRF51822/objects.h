@@ -57,6 +57,7 @@ struct i2c_s {
 
 struct analogin_s {
     ADCName adc;
+    uint8_t adc_pin;
 };
 
 struct gpio_irq_s {
