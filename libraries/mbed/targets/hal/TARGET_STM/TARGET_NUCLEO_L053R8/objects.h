@@ -61,7 +61,7 @@ struct analogin_s {
 
 struct dac_s {
     DACName dac;
-    PinName channel;
+    PinName pin;
 };
 
 struct serial_s {
