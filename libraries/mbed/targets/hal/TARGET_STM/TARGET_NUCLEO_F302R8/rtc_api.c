@@ -49,7 +49,7 @@ void rtc_init(void) {
     // Reset back up registers
     RCC_BackupResetCmd(ENABLE);
     RCC_BackupResetCmd(DISABLE);
-  
+
     // Enable LSE clock
     RCC_LSEConfig(RCC_LSE_ON);
 
@@ -58,40 +58,48 @@ void rtc_init(void) {
         LSEStatus = RCC_GetFlagStatus(RCC_FLAG_LSERDY);
         wait_ms(1);
         StartUpCounter++;
-    } while((LSEStatus == 0) && (StartUpCounter <= LSE_STARTUP_TIMEOUT));
+    } while ((LSEStatus == 0) && (StartUpCounter <= LSE_STARTUP_TIMEOUT));
 
     if (StartUpCounter > LSE_STARTUP_TIMEOUT) {
         // The LSE has not started, use LSI instead.
-        // The RTC Clock may vary due to LSI frequency dispersion.  
-        RCC_LSEConfig(RCC_LSE_OFF);   
+        // The RTC Clock may vary due to LSI frequency dispersion.
+        RCC_LSEConfig(RCC_LSE_OFF);
         RCC_LSICmd(ENABLE); // Enable LSI
         while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
         RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select the RTC Clock Source
-        rtc_freq = 40000; // [TODO] To be measured precisely using a timer input capture  
-    }  
-    else {
+        rtc_freq = 40000; // [TODO] To be measured precisely using a timer input capture
+    } else {
         // The LSE has correctly started
         RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select the RTC Clock Source
         rtc_freq = LSE_VALUE;
     }
-  
-    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
-      
+
+    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock
+
     RTC_WaitForSynchro(); // Wait for RTC registers synchronization
 
     RTC_InitTypeDef RTC_InitStructure;
     RTC_InitStructure.RTC_AsynchPrediv = 127;
-    RTC_InitStructure.RTC_SynchPrediv	 = (rtc_freq / 128) - 1;
+    RTC_InitStructure.RTC_SynchPrediv    = (rtc_freq / 128) - 1;
     RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
     RTC_Init(&RTC_InitStructure);
-    
+
     PWR_BackupAccessCmd(DISABLE); // Disable access to Backup domain
-      
+
     rtc_inited = 1;
 }
 
 void rtc_free(void) {
-    RCC_DeInit(); // Resets the RCC clock configuration to the default reset state
+    // Reset RTC
+    PWR_BackupAccessCmd(ENABLE); // Enable access to Backup Domain
+    RTC_DeInit();
+    RCC_BackupResetCmd(ENABLE);
+    RCC_BackupResetCmd(DISABLE);
+    // Disable RTC, LSE and LSI clocks
+    RCC_RTCCLKCmd(DISABLE);
+    RCC_LSEConfig(RCC_LSE_OFF);
+    RCC_LSICmd(DISABLE);
+
     rtc_inited = 0;
 }
 
