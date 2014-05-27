@@ -87,7 +87,12 @@ void rtc_init(void) {
 }
 
 void rtc_free(void) {
-    RCC_DeInit(); // Resets the RCC clock configuration to the default reset state
+    // Disable RTC, LSE and LSI clocks
+    PWR_BackupAccessCmd(ENABLE); // Allow access to Backup Domain
+    RCC_RTCCLKCmd(DISABLE);
+    RCC_LSEConfig(RCC_LSE_OFF);
+    RCC_LSICmd(DISABLE);
+
     rtc_inited = 0;
 }
 

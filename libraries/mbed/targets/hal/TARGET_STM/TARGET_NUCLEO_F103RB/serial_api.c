@@ -95,12 +95,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Enable USART clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+        obj->index = 0;
     }
     if (obj->uart == UART_2) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+        obj->index = 1;
     }
     if (obj->uart == UART_3) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+        obj->index = 2;
     }
 
     // Configure the UART pins
@@ -117,11 +120,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->pin_rx = rx;
 
     init_usart(obj);
-
-    // The index is used by irq
-    if (obj->uart == UART_1) obj->index = 0;
-    if (obj->uart == UART_2) obj->index = 1;
-    if (obj->uart == UART_3) obj->index = 2;
 
     // For stdio management
     if (obj->uart == STDIO_UART) {
