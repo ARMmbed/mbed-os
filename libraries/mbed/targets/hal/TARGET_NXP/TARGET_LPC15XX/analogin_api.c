@@ -95,7 +95,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
-    volatile uint32_t channels;
+    uint32_t channels;
 
     __IO LPC_ADC0_Type *adc_reg = (obj->adc < ADC1_0) ? (__IO LPC_ADC0_Type*)(LPC_ADC0) : (__IO LPC_ADC0_Type*)(LPC_ADC1);
 
