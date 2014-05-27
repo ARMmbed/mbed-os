@@ -48,6 +48,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
         }
         map++;
     }
+    obj->adc_pin = (uint8_t)analogInputPin;
     
     NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; 
     NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
@@ -58,6 +59,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
+    NRF_ADC->CONFIG &= ~ADC_CONFIG_PSEL_Msk;
+    NRF_ADC->CONFIG |= obj->adc_pin << ADC_CONFIG_PSEL_Pos;
     NRF_ADC->TASKS_START = 1;
     while ( ( (NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy)
     {
