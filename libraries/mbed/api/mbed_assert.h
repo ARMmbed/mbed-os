@@ -26,7 +26,7 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
 #else
 #define MBED_ASSERT(expr)                                \
 do {                                                     \
-    if (!expr) {                                         \
+    if (!(expr)) {                                         \
         mbed_assert_internal(#expr, __FILE__, __LINE__); \
     }                                                    \
 } while (0)

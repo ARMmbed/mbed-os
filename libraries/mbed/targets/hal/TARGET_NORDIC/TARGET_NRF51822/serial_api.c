@@ -16,7 +16,7 @@
 // math.h required for floating point operations for baud rate calculation
 //#include <math.h>
 #include <string.h>
-#include "assert.h"
+#include "mbed_assert.h"
 
 #include "serial_api.h"
 #include "cmsis.h"

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "assert.h"
+#include "mbed_assert.h"
 #include "pinmap.h"
 
 void pin_function(PinName pin, int function) {

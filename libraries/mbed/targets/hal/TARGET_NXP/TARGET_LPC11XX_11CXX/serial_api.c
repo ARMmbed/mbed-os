@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // math.h required for floating point operations for baud rate calculation
-#include "assert.h"
+#include "mbed_assert.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

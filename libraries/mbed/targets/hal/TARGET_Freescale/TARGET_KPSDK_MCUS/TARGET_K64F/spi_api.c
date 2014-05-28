@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <math.h>
-#include "assert.h"
+#include "mbed_assert.h"
 
 #include "spi_api.h"
 #include "cmsis.h"

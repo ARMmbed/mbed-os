@@ -15,7 +15,7 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
-#include "assert.h"
+#include "mbed_assert.h"
 #include <math.h>
 
 #include "spi_api.h"

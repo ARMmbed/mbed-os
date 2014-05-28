@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "assert.h"
+#include "mbed_assert.h"
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
