@@ -45,6 +45,7 @@ class Uvision4(Exporter):
         'LPC1549',
         'LPC11U35_501',
         'NRF51822',
+        'ARCH_PRO',
     ]
 
     USING_MICROLIB = [

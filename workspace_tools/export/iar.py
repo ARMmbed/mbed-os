@@ -24,6 +24,7 @@ class IAREmbeddedWorkbench(Exporter):
     TARGETS = [
         'LPC1768',
         'UBLOX_C027',
+        'ARCH_PRO',
     ]
     
     def generate(self):
