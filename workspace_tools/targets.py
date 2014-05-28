@@ -631,6 +631,13 @@ class DISCO_F303VC(Target):
         
         self.supported_toolchains = ["GCC_ARM"]
         
+class XADOW_M0(LPC11U35_501):
+    def __init__(self):
+        LPC11U35_501.__init__(self)
+
+class ARCH_BLE(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
 
 # Get a single instance for each target
 TARGETS = [
@@ -668,7 +675,9 @@ TARGETS = [
     DISCO_F051R8(),
     DISCO_F100RB(),
     DISCO_F303VC(),
-    DISCO_F407VG()
+    DISCO_F407VG(),
+    XADOW_M0(),
+    ARCH_BLE()
 ]
 
 # Map each target name to its unique instance
