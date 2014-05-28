@@ -92,6 +92,10 @@ public:
     */
     virtual int write(int value);
 
+public:
+    virtual ~SPI() {
+    }
+
 protected:
     spi_t _spi;
 

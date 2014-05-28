@@ -178,7 +178,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
     int count;
-  
+
     i2c_start(obj);
 
     // Send slave address for write
@@ -296,10 +296,9 @@ int i2c_slave_receive(i2c_t *obj) {
     uint32_t event;
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
 
-    event = I2C_GetLastEvent( i2c );
-    if(event != 0)
-    {
-        switch(event){
+    event = I2C_GetLastEvent(i2c);
+    if (event != 0) {
+        switch (event) {
             case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
                 retValue = WriteAddressed;
                 break;
@@ -315,23 +314,23 @@ int i2c_slave_receive(i2c_t *obj) {
         }
 
         // clear ADDR
-        if((retValue == WriteAddressed) || (retValue == ReadAddressed)){
+        if ((retValue == WriteAddressed) || (retValue == ReadAddressed)) {
             // read SR to clear ADDR flag
             i2c->SR1;
             i2c->SR2;
         }
         // clear stopf
-        if(I2C_GetFlagStatus(i2c, I2C_FLAG_STOPF) == SET) {
+        if (I2C_GetFlagStatus(i2c, I2C_FLAG_STOPF) == SET) {
             // read SR1 and write CR1 to clear STOP flag
             i2c->SR1;
             I2C_Cmd(i2c,  ENABLE);
         }
         // clear AF
-        if(I2C_GetFlagStatus(i2c, I2C_FLAG_AF) == SET) {
+        if (I2C_GetFlagStatus(i2c, I2C_FLAG_AF) == SET) {
             I2C_ClearFlag(i2c, I2C_FLAG_AF);
         }
     }
-    return(retValue);
+    return (retValue);
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {

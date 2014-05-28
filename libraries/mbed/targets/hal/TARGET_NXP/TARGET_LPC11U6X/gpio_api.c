@@ -31,6 +31,12 @@ uint32_t gpio_set(PinName pin) {
     if (!gpio_enabled)
          gpio_enable();
     
+    int f = ((pin == P0_0)  ||
+             (pin == P0_10) ||
+             (pin == P0_15)) ? (1) : (0);
+    
+    pin_function(pin, f);
+    
     return (1UL << ((int)pin >> PIN_SHIFT & 0x1F));
 }
 

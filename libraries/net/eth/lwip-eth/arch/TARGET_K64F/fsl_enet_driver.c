@@ -264,6 +264,13 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
     {
         return kStatus_ENET_InvalidInput;
     }
+		
+		/* Initialize values that will not be initialized later on */
+    rxFifo.rxEmpty = 0;
+    rxFifo.rxFull = 0;
+    txFifo.isStoreForwardEnabled = 0;
+    txFifo.txFifoWrite = 0;
+    txFifo.txEmpty = 0;
 
     /* Configure tx/rx accelerator*/
     if (enetIfPtr->macCfgPtr->isRxAccelEnabled)
@@ -290,6 +297,16 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
           txFifo.isStoreForwardEnabled = 1;
     }
 
+
+    /* Set TFWR value if STRFWD is not being used  */		
+    if (txFifo.isStoreForwardEnabled == 1)
+          txFifo.txFifoWrite = 0;
+    else
+          /* TFWR value is a trade-off between transmit latency and risk of transmit FIFO underrun due to contention for the system bus
+		      TFWR = 15 means transmission will begin once 960 bytes has been written to the Tx FIFO (for frames larger than 960 bytes)
+          See Section 45.4.18 - Transmit FIFO Watermark Register of the K64F Reference Manual for details		*/
+          txFifo.txFifoWrite = 15;
+		
     /* Configure tx/rx FIFO with default value*/
     rxFifo.rxAlmostEmpty = 4;
     rxFifo.rxAlmostFull = 4;

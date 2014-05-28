@@ -68,6 +68,11 @@ protected:
     FileBase   *_next;
     const char *_name;
     PathType    _path_type;
+
+    /* disallow copy constructor and assignment operators */
+private:
+    FileBase(const FileBase&);
+    FileBase & operator = (const FileBase&);
 };
 
 } // namespace mbed

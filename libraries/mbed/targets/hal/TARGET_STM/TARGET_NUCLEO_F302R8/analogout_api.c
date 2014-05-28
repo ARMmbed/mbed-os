@@ -54,7 +54,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     pinmap_pinout(pin, PinMap_DAC);
 
     // Save the channel for future use
-    obj->channel = pin;
+    obj->pin = pin;
 
     // Enable DAC clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
@@ -73,7 +73,7 @@ void analogout_free(dac_t *obj) {
     DAC_DeInit(dac);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, DISABLE);
     // Configure GPIO
-    pin_function(obj->channel, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
 static inline void dac_write(dac_t *obj, uint16_t value) {

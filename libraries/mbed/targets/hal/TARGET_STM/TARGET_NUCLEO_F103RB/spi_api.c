@@ -116,6 +116,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_CPHA_1Edge;
     obj->br_presc = SPI_BaudRatePrescaler_256;
 
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
         obj->nss = SPI_NSS_Soft;
@@ -129,8 +134,24 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 
 void spi_free(spi_t *obj) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    SPI_I2S_DeInit(spi);
+    // Reset SPI and disable clock
+    if (obj->spi == SPI_1) {
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
+    }
+
+    if (obj->spi == SPI_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_miso, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin_mosi, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin_sclk, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin_ssel, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {

@@ -430,12 +430,12 @@ def get_result_summary_table():
         pt.align['percent [%]'] = "r"
 
         percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
-        str_progress = progress_bar(percent_progress, 75)        
+        str_progress = progress_bar(percent_progress, 75)
         pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
         print "Automation coverage:"
         print pt
         print
-        
+
         # Test automation coverage table print
         test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
         pt = PrettyTable(test_id_cols)
@@ -512,6 +512,10 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Test only peripheral declared for MUT and skip common tests')
 
+    parser.add_option('-n', '--test-by-names',
+                      dest='test_by_names',
+                      help='Runs only test enumerated it this switch')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -564,6 +568,9 @@ if __name__ == '__main__':
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
             for test_id, test in TEST_MAP.iteritems():
+                if opts.test_by_names and test_id not in opts.test_by_names.split(','):
+                    continue
+
                 if test_ids and test_id not in test_ids:
                     continue
 

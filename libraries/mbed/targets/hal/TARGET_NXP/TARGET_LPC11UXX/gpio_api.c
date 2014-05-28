@@ -19,8 +19,14 @@
 
 uint32_t gpio_set(PinName pin) {
     assert(pin != (PinName)NC);
-    int f = ((pin == P0_11) || (pin == P0_12) ||
-             (pin == P0_13) || (pin == P0_14)) ? (1) : (0);
+    int f = ((pin == P0_0)  ||
+             (pin == P0_10) ||
+             (pin == P0_11) ||
+             (pin == P0_12) ||
+             (pin == P0_13) ||
+             (pin == P0_14) ||
+             (pin == P0_15)) ? (1) : (0);
+    
     pin_function(pin, f);
     
     return (1 << ((int)pin & 0x1F));

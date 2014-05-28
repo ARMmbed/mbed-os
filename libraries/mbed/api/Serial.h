@@ -59,7 +59,7 @@ public:
 
 protected:
     virtual int _getc();
-    virtual int _putc(int c);    
+    virtual int _putc(int c);
 };
 
 } // namespace mbed

@@ -20,7 +20,7 @@
 
 namespace mbed {
 
-TimerEvent::TimerEvent() {
+TimerEvent::TimerEvent() : event() {
     us_ticker_set_handler((&TimerEvent::irq));
 }
 

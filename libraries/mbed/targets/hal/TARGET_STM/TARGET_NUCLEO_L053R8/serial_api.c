@@ -65,7 +65,6 @@ static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
 static uart_irq_handler irq_handler;
 
 UART_HandleTypeDef UartHandle;
-USART_HandleTypeDef UsartHandle;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -73,25 +72,29 @@ serial_t stdio_uart;
 static void init_uart(serial_t *obj) {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
-    UartHandle.Init.BaudRate   = obj->baudrate;
+    // [TODO] Workaround to be removed after HAL driver is corrected
+    if (obj->uart == LPUART_1) {
+        UartHandle.Init.BaudRate = obj->baudrate >> 1;
+    } else {
+        UartHandle.Init.BaudRate = obj->baudrate;
+    }
     UartHandle.Init.WordLength = obj->databits;
     UartHandle.Init.StopBits   = obj->stopbits;
     UartHandle.Init.Parity     = obj->parity;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-    if (obj->rx_pin == NC) {
-        UartHandle.Init.Mode     = UART_MODE_TX;
-    } else if (obj->tx_pin == NC) {
-        UartHandle.Init.Mode     = UART_MODE_RX;
+
+    if (obj->pin_rx == NC) {
+        UartHandle.Init.Mode = UART_MODE_TX;
+    } else if (obj->pin_tx == NC) {
+        UartHandle.Init.Mode = UART_MODE_RX;
     } else {
-        UartHandle.Init.Mode     = UART_MODE_TX_RX;
+        UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
     HAL_UART_Init(&UartHandle);
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
-    //RCC_OscInitTypeDef RCC_OscInitStruct;
-
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -114,20 +117,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (obj->uart == LPUART_1) {
         __LPUART1_CLK_ENABLE();
         obj->index = 2;
-        /* DEBUG
-        // Enable Power clock
-        __PWR_CLK_ENABLE();
-        // Enable access to Backup domain
-        HAL_PWR_EnableBkUpAccess();
-        // Reset Backup domain
-        __HAL_RCC_BACKUPRESET_FORCE();
-        __HAL_RCC_BACKUPRESET_RELEASE();
-        // Enable LSE Oscillator
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-        RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-        }*/
     }
 
     // Configure the UART pins
@@ -141,8 +130,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->databits = UART_WORDLENGTH_8B;
     obj->stopbits = UART_STOPBITS_1;
     obj->parity   = UART_PARITY_NONE;
-    obj->tx_pin   = tx;
-    obj->rx_pin   = rx;
+    obj->pin_tx   = tx;
+    obj->pin_rx   = rx;
 
     init_uart(obj);
 
@@ -151,10 +140,32 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-
 }
 
 void serial_free(serial_t *obj) {
+    // Reset UART and disable clock
+    if (obj->uart == UART_1) {
+        __USART1_FORCE_RESET();
+        __USART1_RELEASE_RESET();
+        __USART1_CLK_DISABLE();
+    }
+
+    if (obj->uart == UART_2) {
+        __USART2_FORCE_RESET();
+        __USART2_RELEASE_RESET();
+        __USART2_CLK_DISABLE();
+    }
+
+    if (obj->uart == LPUART_1) {
+        __LPUART1_FORCE_RESET();
+        __LPUART1_RELEASE_RESET();
+        __LPUART1_CLK_DISABLE();
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
     serial_irq_ids[obj->index] = 0;
 }
 
@@ -214,9 +225,11 @@ static void uart_irq(UARTName name, int id) {
 static void uart1_irq(void) {
     uart_irq(UART_1, 0);
 }
+
 static void uart2_irq(void) {
     uart_irq(UART_2, 1);
 }
+
 static void lpuart1_irq(void) {
     uart_irq(LPUART_1, 2);
 }

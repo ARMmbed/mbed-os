@@ -62,11 +62,11 @@ static const PinMap PinMap_PWM[] = {
     {NC,    NC,    0}
 };
 
-void pwmout_init(pwmout_t* obj, PinName pin) {  
+void pwmout_init(pwmout_t* obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     assert(obj->pwm != (PWMName)NC);
-    
+
     // Enable TIM clock
     if (obj->pwm == TIM_3)  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     if (obj->pwm == TIM_14) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
@@ -76,32 +76,31 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
-    //pin_mode(pin, PullUp);
-    
+
     obj->pin = pin;
     obj->period = 0;
     obj->pulse = 0;
-    
+
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
 
 void pwmout_free(pwmout_t* obj) {
-    TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
-    TIM_DeInit(tim);
+    // Configure GPIOs
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
     TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
     TIM_OCInitTypeDef TIM_OCInitStructure;
-  
+
     if (value < 0.0) {
         value = 0.0;
     } else if (value > 1.0) {
         value = 1.0;
     }
-    
+
     obj->pulse = (uint32_t)((float)obj->period * value);
-    
+
     // Configure channels
     TIM_OCInitStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_Pulse        = obj->pulse;
@@ -138,7 +137,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
             TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
             TIM_OC2Init(tim, &TIM_OCInitStructure);
-            break;          
+            break;
         // Channels 3
         case PB_0:
         case PC_8:
@@ -146,7 +145,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
             TIM_OC3Init(tim, &TIM_OCInitStructure);
             break;
-        // Channels 4        
+        // Channels 4
 //      case PB_1:
         case PC_9:
             TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
@@ -154,11 +153,11 @@ void pwmout_write(pwmout_t* obj, float value) {
             TIM_OC4Init(tim, &TIM_OCInitStructure);
             break;
         default:
-            return;        
-      }
-    
-      TIM_CtrlPWMOutputs(tim, ENABLE);
-        
+            return;
+    }
+
+    TIM_CtrlPWMOutputs(tim, ENABLE);
+
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -182,10 +181,10 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     float dc = pwmout_read(obj);
 
-    TIM_Cmd(tim, DISABLE);  
-    
+    TIM_Cmd(tim, DISABLE);
+
     obj->period = us;
-  
+
     TIM_TimeBaseStructure.TIM_Period = obj->period - 1;
     TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
@@ -194,7 +193,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
     // Set duty cycle again
     pwmout_write(obj, dc);
-  
+
     TIM_ARRPreloadConfig(tim, ENABLE);
 
     TIM_Cmd(tim, ENABLE);

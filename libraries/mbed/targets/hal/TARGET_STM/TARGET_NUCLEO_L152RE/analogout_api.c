@@ -51,8 +51,8 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    // Save the channel for the write and read functions
-    obj->channel = pin;
+    // Save the pin for future use
+    obj->pin = pin;
 
     // Enable DAC clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
@@ -63,11 +63,11 @@ void analogout_init(dac_t *obj, PinName pin) {
     DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
     DAC_InitStructure.DAC_OutputBuffer                 = DAC_OutputBuffer_Disable;
 
-    if (obj->channel == PA_4) {
+    if (obj->pin == PA_4) {
         DAC_Init(DAC_Channel_1, &DAC_InitStructure);
         DAC_Cmd(DAC_Channel_1, ENABLE);
     }
-    if (obj->channel == PA_5) {
+    if (obj->pin == PA_5) {
         DAC_Init(DAC_Channel_2, &DAC_InitStructure);
         DAC_Cmd(DAC_Channel_2, ENABLE);
     }
@@ -76,22 +76,24 @@ void analogout_init(dac_t *obj, PinName pin) {
 }
 
 void analogout_free(dac_t *obj) {
+    // Configure GPIOs
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
 static inline void dac_write(dac_t *obj, uint16_t value) {
-    if (obj->channel == PA_4) {
+    if (obj->pin == PA_4) {
         DAC_SetChannel1Data(DAC_Align_12b_R, value);
     }
-    if (obj->channel == PA_5) {
+    if (obj->pin == PA_5) {
         DAC_SetChannel2Data(DAC_Align_12b_R, value);
     }
 }
 
 static inline int dac_read(dac_t *obj) {
-    if (obj->channel == PA_4) {
+    if (obj->pin == PA_4) {
         return (int)DAC_GetDataOutputValue(DAC_Channel_1);
     }
-    if (obj->channel == PA_5) {
+    if (obj->pin == PA_5) {
         return (int)DAC_GetDataOutputValue(DAC_Channel_2);
     }
     return 0;

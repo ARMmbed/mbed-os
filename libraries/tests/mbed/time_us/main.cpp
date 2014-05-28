@@ -19,8 +19,12 @@ DigitalOut out(D10);
     defined(TARGET_NUCLEO_L152RE) || \
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
-    defined(TARGET_NUCLEO_F401RE)
-DigitalOut out(LED1);
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
+DigitalOut out(LED2);
+
+#elif defined(TARGET_LPC11U68)
+DigitalOut out(LED2);
 
 #else
 DigitalOut out(p5);

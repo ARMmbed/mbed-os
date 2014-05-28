@@ -61,7 +61,7 @@ struct analogin_s {
 
 struct dac_s {
     DACName dac;
-    PinName channel;
+    PinName pin;
 };
 
 struct serial_s {
@@ -71,8 +71,8 @@ struct serial_s {
     uint32_t databits;
     uint32_t stopbits;
     uint32_t parity;
-    PinName  tx_pin;
-    PinName  rx_pin;
+    PinName  pin_tx;
+    PinName  pin_rx;
 };
 
 struct spi_s {
@@ -83,6 +83,10 @@ struct spi_s {
     uint32_t mode;
     uint32_t nss;
     uint32_t br_presc;
+    PinName  pin_miso;
+    PinName  pin_mosi;
+    PinName  pin_sclk;
+    PinName  pin_ssel;
 };
 
 struct i2c_s {

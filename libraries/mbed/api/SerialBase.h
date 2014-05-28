@@ -106,11 +106,11 @@ public:
     /** Generate a break condition on the serial line
      */
     void send_break();
-    
+
 #if DEVICE_SERIAL_FC
     /** Set the flow control type on the serial port
      *
-     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)     
+     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)
      *  @param flow1 the first flow control pin (RTS for RTS or RTSCTS, CTS for CTS)
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
@@ -121,7 +121,9 @@ public:
 
 protected:
     SerialBase(PinName tx, PinName rx);
- 
+    virtual ~SerialBase() {
+    }
+
     int _base_getc();
     int _base_putc(int c);
 

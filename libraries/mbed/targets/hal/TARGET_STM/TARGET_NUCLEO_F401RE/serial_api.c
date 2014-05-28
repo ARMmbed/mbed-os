@@ -90,12 +90,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Enable USART clock
     if (obj->uart == UART_1) {
         __USART1_CLK_ENABLE();
+        obj->index = 0;
     }
     if (obj->uart == UART_2) {
         __USART2_CLK_ENABLE();
+        obj->index = 1;
     }
     if (obj->uart == UART_6) {
         __USART6_CLK_ENABLE();
+        obj->index = 2;
     }
 
     // Configure the UART pins
@@ -110,12 +113,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->stopbits = UART_STOPBITS_1;
     obj->parity   = UART_PARITY_NONE;
 
-    init_uart(obj);
+    obj->pin_tx = tx;
+    obj->pin_rx = rx;
 
-    // The index is used by irq
-    if (obj->uart == UART_1) obj->index = 0;
-    if (obj->uart == UART_2) obj->index = 1;
-    if (obj->uart == UART_6) obj->index = 2;
+    init_uart(obj);
 
     // For stdio management
     if (obj->uart == STDIO_UART) {
@@ -126,6 +127,27 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
+    // Reset UART and disable clock
+    if (obj->uart == UART_1) {
+        __USART1_FORCE_RESET();
+        __USART1_RELEASE_RESET();
+        __USART1_CLK_DISABLE();
+    }
+    if (obj->uart == UART_2) {
+        __USART2_FORCE_RESET();
+        __USART2_RELEASE_RESET();
+        __USART2_CLK_DISABLE();
+    }
+    if (obj->uart == UART_6) {
+        __USART6_FORCE_RESET();
+        __USART6_RELEASE_RESET();
+        __USART6_CLK_DISABLE();
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
     serial_irq_ids[obj->index] = 0;
 }
 

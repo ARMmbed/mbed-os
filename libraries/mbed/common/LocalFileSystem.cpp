@@ -107,9 +107,7 @@ FILEHANDLE local_file_open(const char* name, int flags) {
     return fh;
 }
 
-LocalFileHandle::LocalFileHandle(FILEHANDLE fh) {
-    _fh = fh;
-    pos = 0;
+LocalFileHandle::LocalFileHandle(FILEHANDLE fh) : _fh(fh), pos(0) {
 }
 
 int LocalFileHandle::close() {
@@ -163,8 +161,7 @@ public:
     struct dirent cur_entry;
     XFINFO info;
 
-    LocalDirHandle() {
-        info.fileID = 0;
+    LocalDirHandle() : cur_entry(), info() {
     }
 
     virtual int closedir() {

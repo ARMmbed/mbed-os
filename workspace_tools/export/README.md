@@ -112,6 +112,16 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
   </tr>
+    <tr>
+    <td>Freescale K64F</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
   <tr>
     <td>ST Nucleo F030R8</td>
     <td></td>
@@ -132,6 +142,16 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
   </tr>
+    <tr>
+    <td>ST Nucleo F302R8</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
   <tr>
     <td>ST Nucleo F401RE</td>
     <td></td>
@@ -144,6 +164,16 @@ Exporter Toolchain/Platform Support
   </tr>
   <tr>
     <td>ST Nucleo L152RE</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+    <tr>
+    <td>Nordic NRF51822</td>
     <td></td>
     <td></td>
     <td></td>

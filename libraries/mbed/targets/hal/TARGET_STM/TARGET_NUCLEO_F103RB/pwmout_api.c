@@ -95,8 +95,8 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 }
 
 void pwmout_free(pwmout_t* obj) {
-    TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
-    TIM_DeInit(tim);
+    // Configure GPIO
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
 }
 
 void pwmout_write(pwmout_t* obj, float value) {

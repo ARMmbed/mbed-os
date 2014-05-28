@@ -77,7 +77,7 @@ int i2c_stop(i2c_t *obj) {
     // when there is no waiting time after a STOP.
     // This wait is also included on the samples
     // code provided with the freedom board
-    for (n = 0; n < 100; n++) __NOP();
+    for (n = 0; n < 200; n++) __NOP();
     return 0;
 }
 

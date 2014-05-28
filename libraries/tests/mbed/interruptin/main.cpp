@@ -29,9 +29,14 @@ void in_handler() {
 #define PIN_IN      (p11)
 #define PIN_OUT     (p12)
 
-#elif defined(TARGET_NUCLEO_F103RB) || defined(TARGET_NUCLEO_L152RE) || defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_F030R8)
-#define PIN_IN      (PB_8)
-#define PIN_OUT     (PC_6)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
+#define PIN_IN      PB_8
+#define PIN_OUT     PC_6
 
 #elif defined(TARGET_FF_ARDUINO)
 #define PIN_OUT    D0

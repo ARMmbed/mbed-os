@@ -47,11 +47,11 @@ void gpio_init(gpio_t *obj, PinName pin) {
         return;
 
     uint32_t port_index = STM_PORT(pin);
-  
+
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-    
+
     // Fill GPIO object structure for future use
     obj->mask    = gpio_set(pin);
     obj->reg_in  = &gpio->IDR;
@@ -67,8 +67,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
     assert(obj->pin != (PinName)NC);
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
-    }
-    else { // PIN_INPUT
+    } else { // PIN_INPUT
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
     }
 }

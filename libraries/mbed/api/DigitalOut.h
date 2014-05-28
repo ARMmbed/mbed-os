@@ -45,7 +45,7 @@ public:
      *
      *  @param pin DigitalOut pin to connect to
      */
-    DigitalOut(PinName pin) {
+    DigitalOut(PinName pin) : gpio() {
         gpio_init_out(&gpio, pin);
     }
 
@@ -54,7 +54,7 @@ public:
      *  @param pin DigitalOut pin to connect to
      *  @param value the initial pin value
      */
-    DigitalOut(PinName pin, int value){
+    DigitalOut(PinName pin, int value) : gpio() {
         gpio_init_out_ex(&gpio, pin, value);
     }
 

@@ -190,7 +190,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         switch (irq) {
             case RxIrq: uart_hal_disable_rx_data_register_full_interrupt(obj->index); break;
-            case TxIrq: uart_hal_enable_tx_data_register_empty_interrupt(obj->index); break;
+            case TxIrq: uart_hal_disable_tx_data_register_empty_interrupt(obj->index); break;
         }
         switch (other_irq) {
             case RxIrq: all_disabled = uart_hal_is_receive_data_full_interrupt_enabled(obj->index) == 0; break;

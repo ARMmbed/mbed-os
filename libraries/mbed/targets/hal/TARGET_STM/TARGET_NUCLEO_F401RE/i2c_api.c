@@ -90,7 +90,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     // I2C configuration
     i2c_frequency(obj, 100000); // 100 kHz per default
-    
+
     // I2C master by default
     obj->slave = 0;
 }
@@ -99,22 +99,21 @@ void i2c_frequency(i2c_t *obj, int hz) {
     assert((hz != 0) && (hz <= 400000));
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
-    if ((hz != 0) && (hz <= 400000)) {
-        // I2C configuration
-        I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-        I2cHandle.Init.ClockSpeed      = hz;
-        I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-        I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_2;
-        I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-        I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
-        I2cHandle.Init.OwnAddress1     = 0;
-        I2cHandle.Init.OwnAddress2     = 0;
-        HAL_I2C_Init(&I2cHandle);
-        if(obj->slave) {
-            /* Enable Address Acknowledge */
-            I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
-        }
+    // I2C configuration
+    I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    I2cHandle.Init.ClockSpeed      = hz;
+    I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
+    I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_2;
+    I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
+    I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    I2cHandle.Init.OwnAddress1     = 0;
+    I2cHandle.Init.OwnAddress2     = 0;
+    HAL_I2C_Init(&I2cHandle);
+    if (obj->slave) {
+        /* Enable Address Acknowledge */
+        I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
     }
+
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -168,10 +167,10 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
             return 0;
         }
     }
-    
-   i2c->DR = __HAL_I2C_7BIT_ADD_READ(address);
-   
-  
+
+    i2c->DR = __HAL_I2C_7BIT_ADD_READ(address);
+
+
     // Wait address is acknowledged
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == RESET) {
@@ -218,9 +217,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
             return 0;
         }
     }
-    
+
     i2c->DR = __HAL_I2C_7BIT_ADD_WRITE(address);
-   
+
 
     // Wait address is acknowledged
     timeout = FLAG_TIMEOUT;
@@ -231,7 +230,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         }
     }
     __HAL_I2C_CLEAR_ADDRFLAG(&I2cHandle);
-    
+
     for (count = 0; count < length; count++) {
         if (i2c_byte_write(obj, data[count]) != 1) {
             i2c_stop(obj);
@@ -279,7 +278,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     // Wait until the byte is transmitted
     timeout = FLAG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TXE) == RESET) &&
-           (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == RESET)) {
+            (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == RESET)) {
         if ((timeout--) == 0) {
             return 0;
         }
@@ -321,7 +320,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
-    if(enable_slave) {
+    if (enable_slave) {
         obj->slave = 1;
         /* Enable Address Acknowledge */
         I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
@@ -336,19 +335,19 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 
 int i2c_slave_receive(i2c_t *obj) {
     int retValue = NoData;
-    
-    if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == 1) {
-        if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == 1) {
-            if(__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TRA) == 1)
+
+    if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == 1) {
+        if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == 1) {
+            if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TRA) == 1)
                 retValue = ReadAddressed;
             else
                 retValue = WriteAddressed;
-            
+
             __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_ADDR);
         }
     }
-    
-    return(retValue);
+
+    return (retValue);
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
@@ -358,8 +357,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
-    while(length > 0)
-    {
+    while (length > 0) {
         /* Wait until RXNE flag is set */
         // Wait until the byte is received
         Timeout = FLAG_TIMEOUT;
@@ -375,7 +373,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
         length--;
         size++;
 
-        if((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == SET) && (length != 0)){
+        if ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == SET) && (length != 0)) {
             /* Read data from DR */
             (*data++) = I2cHandle.Instance->DR;
             length--;
@@ -391,7 +389,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
             return 0;
         }
     }
-    
+
     /* Clear STOP flag */
     __HAL_I2C_CLEAR_STOPFLAG(&I2cHandle);
 
@@ -414,8 +412,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
- while(length > 0)
-    {
+    while (length > 0) {
         /* Wait until TXE flag is set */
         Timeout = FLAG_TIMEOUT;
         while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TXE) == RESET) {
@@ -425,21 +422,20 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
             }
         }
 
-        
-      /* Write data to DR */
-      I2cHandle.Instance->DR = (*data++);
-      length--;
-      size++;
 
-      if((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == SET) && (length != 0))
-      {
         /* Write data to DR */
         I2cHandle.Instance->DR = (*data++);
         length--;
         size++;
-      }
+
+        if ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BTF) == SET) && (length != 0)) {
+            /* Write data to DR */
+            I2cHandle.Instance->DR = (*data++);
+            length--;
+            size++;
+        }
     }
-    
+
     /* Wait until AF flag is set */
     Timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_AF) == RESET) {
@@ -449,7 +445,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
         }
     }
 
-    
+
     /* Clear AF flag */
     __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_AF);
 

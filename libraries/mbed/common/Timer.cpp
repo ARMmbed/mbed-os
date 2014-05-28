@@ -18,7 +18,7 @@
 
 namespace mbed {
 
-Timer::Timer() {
+Timer::Timer() : _running(), _start(), _time() {
     reset();
 }
 

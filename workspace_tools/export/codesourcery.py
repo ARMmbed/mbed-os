@@ -24,6 +24,7 @@ class CodeSourcery(Exporter):
     
     TARGETS = [
         'LPC1768',
+        'UBLOX_C027',
     ]
     
     DOT_IN_RELATIVE_PATH = True
