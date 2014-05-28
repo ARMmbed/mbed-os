@@ -1,5 +1,5 @@
-#ifndef ASSERT_H
-#define ASSERT_H
+#ifndef MBED_ASSERT_H
+#define MBED_ASSERT_H
 
 #ifdef __cplusplus
 extern "C" {
