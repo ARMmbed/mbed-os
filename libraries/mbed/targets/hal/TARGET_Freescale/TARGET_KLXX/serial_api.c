@@ -149,7 +149,7 @@ void serial_baud(serial_t *obj, int baudrate) {
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     assert((stop_bits == 1) || (stop_bits == 2));
-    assert(parity < (ParityEven + 1));
+    assert((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
     assert(data_bits == 8); // TODO: Support other number of data bits (also in the write method!)
 
     // save C2 state

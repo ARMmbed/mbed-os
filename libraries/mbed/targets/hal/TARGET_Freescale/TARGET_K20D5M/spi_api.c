@@ -92,7 +92,7 @@ void spi_free(spi_t *obj) {
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     assert((bits == 8) || (bits == 16));
-    assert((mode > -1) && (mode < 4));
+    assert((mode >= 0) && (mode <= 3));
 
     uint32_t polarity = (mode & 0x2) ? 1 : 0;
     uint32_t phase = (mode & 0x1) ? 1 : 0;

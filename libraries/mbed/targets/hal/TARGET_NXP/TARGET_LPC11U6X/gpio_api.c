@@ -17,10 +17,20 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+static int  gpio_enabled = 0;
+
+static void gpio_enable(void) {
+    gpio_enabled = 1;
+    
     /* Enable AHB clock to the GPIO and IOCON domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= ((1 << 16) | (1 << 6));
+}
+
+uint32_t gpio_set(PinName pin) {
+    assert(pin != (PinName)NC);
+    if (!gpio_enabled)
+         gpio_enable();
+    
     return (1UL << ((int)pin >> PIN_SHIFT & 0x1F));
 }
 

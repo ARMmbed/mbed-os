@@ -117,7 +117,7 @@ void serial_baud(serial_t *obj, int baudrate) {
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     assert((stop_bits == 1) || (stop_bits == 2));
-    assert((parity == ParityEven) || (parity == ParityOdd) || (parity == ParityEven));
+    assert((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
     assert((data_bits == 8) || (data_bits == 9));
     assert((data_bits == 2) && (obj->index != 0));
 
