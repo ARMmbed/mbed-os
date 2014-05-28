@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <assert.h>
+#include "assert.h"
 #include "i2c_api.h"
 
 #if DEVICE_I2C
@@ -57,7 +57,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    assert(obj->i2c != (I2CName)NC);
+    MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -81,7 +81,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
-    assert((hz == 100000) || (hz == 200000) || (hz == 400000)); //"Only 100kHz, 200kHz and 400kHz I2C frequencies are supported."
+    MBED_ASSERT((hz == 100000) || (hz == 200000) || (hz == 400000)); //"Only 100kHz, 200kHz and 400kHz I2C frequencies are supported."
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
     uint32_t tim = 0;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -88,7 +88,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (LPC_I2C_Type *)pinmap_merge(i2c_sda, i2c_scl);
-    assert((int)obj->i2c != NC);
+    MBED_ASSERT((int)obj->i2c != NC);
     
     // enable power
     i2c_power_enable(obj);

@@ -16,7 +16,7 @@
 // math.h required for floating point operations for baud rate calculation
 //#include <math.h>
 #include <string.h>
-#include <assert.h>
+#include "assert.h"
 
 #include "serial_api.h"
 #include "cmsis.h"
@@ -66,7 +66,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
     
-    assert((int)uart != NC);
+    MBED_ASSERT((int)uart != NC);
     
     obj->uart = (NRF_UART_Type *)uart;
     

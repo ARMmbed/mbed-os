@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "pinmap.h"
 #include "error.h"
 
@@ -21,7 +21,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     
     uint32_t pin_number = (uint32_t)pin;
     

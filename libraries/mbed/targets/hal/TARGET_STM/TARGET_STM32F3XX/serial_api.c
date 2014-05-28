@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <assert.h>
+#include "assert.h"
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -92,7 +92,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // Get the peripheral name from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    assert(obj->uart != (UARTName)NC);
+    MBED_ASSERT(obj->uart != (UARTName)NC);
 
     // Enable USART clock
     if (obj->uart == UART_1) {

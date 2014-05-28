@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <math.h>
-#include <assert.h>
+#include "assert.h"
 
 #include "spi_api.h"
 #include "cmsis.h"
@@ -93,7 +93,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
 
     obj->instance = pinmap_merge(spi_data, spi_cntl);
-    assert((int)obj->instance != NC);
+    MBED_ASSERT((int)obj->instance != NC);
 
     // enable power and clocking
     clock_manager_set_gate(kClockModuleSPI, obj->instance, true);

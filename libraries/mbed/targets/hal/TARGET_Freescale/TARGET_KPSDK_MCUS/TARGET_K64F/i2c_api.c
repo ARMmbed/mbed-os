@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "i2c_api.h"
 
 #include "cmsis.h"
@@ -50,7 +50,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
-    assert((int)obj->instance != NC);
+    MBED_ASSERT((int)obj->instance != NC);
 
     clock_manager_set_gate(kClockModuleI2C, obj->instance, true);
     clock_manager_set_gate(kClockModulePORT, sda >> GPIO_PORT_SHIFT, true);

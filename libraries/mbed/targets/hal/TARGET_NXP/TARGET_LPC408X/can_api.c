@@ -243,7 +243,7 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     obj->dev = (LPC_CAN_TypeDef *)pinmap_merge(can_rd, can_td);
-    assert((int)obj->dev != NC);
+    MBED_ASSERT((int)obj->dev != NC);
 
     switch ((int)obj->dev) {
         case CAN_1: LPC_SC->PCONP |= 1 << 13; break;

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "pinmap.h"
 #include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_port_hal.h"
 
 void pin_function(PinName pin, int function) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     clock_manager_set_gate(kClockModulePORT, pin >> GPIO_PORT_SHIFT, true);
     port_hal_mux_control(pin >> GPIO_PORT_SHIFT, pin & 0xFF, (port_mux_t)function);
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t instance = pin >> GPIO_PORT_SHIFT;
     uint32_t pinName = pin & 0xFF;
 

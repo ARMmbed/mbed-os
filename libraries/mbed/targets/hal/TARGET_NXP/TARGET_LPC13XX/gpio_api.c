@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 
 uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     int f = ((pin == P0_11) || (pin == P0_12) ||
              (pin == P0_13) || (pin == P0_14)) ? (1) : (0);
     pin_function(pin, f);
@@ -46,7 +46,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir &= ~obj->mask;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "analogin_api.h"
 
 #include "cmsis.h"
@@ -49,7 +49,7 @@ static const PinMap PinMap_ADC[] = {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    assert(obj->adc != (ADCName)NC);
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
 

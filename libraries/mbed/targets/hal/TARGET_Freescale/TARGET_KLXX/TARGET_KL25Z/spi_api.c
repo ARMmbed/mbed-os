@@ -32,7 +32,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
-    assert((int)obj->spi != NC);
+    MBED_ASSERT((int)obj->spi != NC);
 
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -64,8 +64,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    assert(bits == 8);
-    assert((mode >= 0) && (mode <= 3));
+    MBED_ASSERT(bits == 8);
+    MBED_ASSERT((mode >= 0) && (mode <= 3));
 
     uint8_t polarity = (mode & 0x2) ? 1 : 0;
     uint8_t phase = (mode & 0x1) ? 1 : 0;

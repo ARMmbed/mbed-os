@@ -82,7 +82,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
   
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    assert(obj->uart != (UARTName)NC);
+    MBED_ASSERT(obj->uart != (UARTName)NC);
 
     // Enable USART clock
     if (obj->uart == UART_1) {

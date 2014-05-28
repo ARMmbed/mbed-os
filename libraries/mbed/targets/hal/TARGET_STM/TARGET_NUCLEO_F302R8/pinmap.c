@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <assert.h>
+#include "assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
 #include "error.h"
@@ -68,7 +68,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
 void pin_function(PinName pin, int data) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
     uint32_t otype = STM_PIN_OTYPE(data);
@@ -111,7 +111,7 @@ void pin_function(PinName pin, int data) {
  * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
 

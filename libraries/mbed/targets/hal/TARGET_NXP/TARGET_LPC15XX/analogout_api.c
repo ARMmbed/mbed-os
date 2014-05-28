@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "analogout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 
 void analogout_init(dac_t *obj, PinName pin) {
-    assert(pin == P0_12);
+    MBED_ASSERT(pin == P0_12);
     
     LPC_SYSCON->SYSAHBCLKCTRL0 |= (1 << 29);
     LPC_SYSCON->PDRUNCFG &= ~(1 << 12);

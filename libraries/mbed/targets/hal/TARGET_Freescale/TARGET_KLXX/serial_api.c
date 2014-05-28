@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "serial_api.h"
 
 // math.h required for floating point operations for baud rate calculation
@@ -61,7 +61,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    assert((int)uart != NC);
+    MBED_ASSERT((int)uart != NC);
 
     obj->uart = (UARTLP_Type *)uart;
     // enable clk
@@ -148,9 +148,9 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    assert((stop_bits == 1) || (stop_bits == 2));
-    assert((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
-    assert(data_bits == 8); // TODO: Support other number of data bits (also in the write method!)
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
+    MBED_ASSERT(data_bits == 8); // TODO: Support other number of data bits (also in the write method!)
 
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "analogout_api.h"
 
 #include "cmsis.h"
@@ -24,7 +24,7 @@
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    assert(obj->dac != (DACName)NC);
+    MBED_ASSERT(obj->dac != (DACName)NC);
 
     SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;
 

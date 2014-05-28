@@ -16,7 +16,7 @@
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
-#include <assert.h>
+#include "assert.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +33,7 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
 
     if (value)
         *obj->reg_set = obj->mask;
@@ -42,7 +42,7 @@ static inline void gpio_write(gpio_t *obj, int value) {
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }
 

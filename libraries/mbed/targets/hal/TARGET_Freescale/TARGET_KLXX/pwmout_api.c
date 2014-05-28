@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "pwmout_api.h"
 
 #include "cmsis.h"
@@ -26,7 +26,7 @@ static float pwm_clock;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    assert(pwm != (PWMName)NC);
+    MBED_ASSERT(pwm != (PWMName)NC);
 
     uint32_t clkdiv = 0;
     float clkval;

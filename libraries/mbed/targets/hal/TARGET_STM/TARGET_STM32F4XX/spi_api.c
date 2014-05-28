@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -75,7 +75,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     obj->spi = (SPI_TypeDef*)pinmap_merge(spi_data, spi_cntl);
-    assert((int)obj->spi != NC)
+    MBED_ASSERT((int)obj->spi != NC)
 
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -121,7 +121,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    assert(((bits == 8) || (bits == 16)) && ((mode >= 0) && (mode <= 3)));
+    MBED_ASSERT(((bits == 8) || (bits == 16)) && ((mode >= 0) && (mode <= 3)));
     ssp_disable(obj);
 
     int polarity = (mode & 0x2) ? 1 : 0;

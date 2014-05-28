@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -215,7 +215,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     uint8_t pwmOutSuccess = 0;
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
 
-    assert(pwm != (PWMName)NC);
+    MBED_ASSERT(pwm != (PWMName)NC);
 
         
     if(PWM_taken[(uint8_t)pwm]){

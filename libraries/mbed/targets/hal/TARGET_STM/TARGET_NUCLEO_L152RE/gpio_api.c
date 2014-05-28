@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "error.h"
@@ -35,7 +35,7 @@
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
 uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
     pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
     return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
@@ -63,7 +63,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
     } else { // PIN_INPUT

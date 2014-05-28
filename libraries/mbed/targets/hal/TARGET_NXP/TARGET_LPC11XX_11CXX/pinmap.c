@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "pinmap.h"
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t offset = (uint32_t)pin & 0xff;
     __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + offset);
 
@@ -27,7 +27,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t offset = (uint32_t)pin & 0xff;
     uint32_t drain = ((uint32_t)mode & (uint32_t)OpenDrain) >> 2;
     

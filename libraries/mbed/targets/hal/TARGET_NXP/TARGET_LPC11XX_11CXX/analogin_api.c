@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -44,7 +44,7 @@ static inline int div_round_up(int x, int y) {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    assert(obj->adc != (uint32_t)NC);
+    MBED_ASSERT(obj->adc != (uint32_t)NC);
     
     // Power up ADC
     LPC_SYSCON->PDRUNCFG &= ~ (1 << 4);

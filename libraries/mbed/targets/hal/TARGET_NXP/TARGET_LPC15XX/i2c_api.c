@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -41,7 +41,7 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    assert((sda == P0_23) || (scl == P0_22));
+    MBED_ASSERT((sda == P0_23) || (scl == P0_22));
     
     // Enables clock for I2C0
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 13);

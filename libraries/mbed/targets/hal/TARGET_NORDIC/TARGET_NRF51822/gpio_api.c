@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 
@@ -35,7 +35,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             NRF_GPIO->PIN_CNF[obj->pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)

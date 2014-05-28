@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "reserved_pins.h"
@@ -21,7 +21,7 @@
 static const PinName reserved_pins[] = TARGET_RESERVED_PINS;
 
 uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     // PIO default value of following ports are not same as others
     unsigned i;
     int f = 0;
@@ -53,7 +53,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     int pin_number = ((obj->pin & 0x0F00) >> 8);
     switch (direction) {
         case PIN_INPUT :

@@ -15,12 +15,12 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 
 uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     int f = 0;
     unsigned int port = (unsigned int)MBED_GPIO_PORT(pin);
 
@@ -51,7 +51,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir &= ~obj->mask;

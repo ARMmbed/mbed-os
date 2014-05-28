@@ -15,7 +15,7 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
-#include <assert.h>
+#include "assert.h"
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -41,7 +41,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint8_t num, chan;
 
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    assert(obj->adc != (ADCName)NC);
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     // Configure the pin as GPIO input
     if (pin < SFP_AIO0) {

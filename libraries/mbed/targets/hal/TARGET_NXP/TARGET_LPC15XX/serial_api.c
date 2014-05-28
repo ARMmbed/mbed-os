@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // math.h required for floating point operations for baud rate calculation
-#include <assert.h>
+#include "assert.h"
 #include <math.h>
 #include <string.h>
 
@@ -196,9 +196,9 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    assert((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
-    assert((data_bits > 6) && (data_bits < 10)); // 0: 7 data bits ... 2: 9 data bits
-    assert((parity == ParityNone) || (parity == ParityEven) || (parity == ParityOdd));
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
+    MBED_ASSERT((data_bits > 6) && (data_bits < 10)); // 0: 7 data bits ... 2: 9 data bits
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityEven) || (parity == ParityOdd));
 
     stop_bits -= 1;
     data_bits -= 7;

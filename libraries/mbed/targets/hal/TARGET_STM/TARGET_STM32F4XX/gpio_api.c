@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 
 uint32_t gpio_set(PinName pin) {
-    assert(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t port_index = (uint32_t) pin >> 4;
 
     // Enable GPIO peripheral clock
@@ -49,7 +49,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    assert(obj->pin != (PinName)NC);
+    MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :
             pin_function(obj->pin, STM_PIN_DATA(0, 0));

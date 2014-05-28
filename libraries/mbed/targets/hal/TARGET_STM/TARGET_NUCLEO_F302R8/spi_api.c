@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <assert.h>
+#include "assert.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -101,7 +101,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
-    assert(obj->spi != (SPIName)NC);
+    MBED_ASSERT(obj->spi != (SPIName)NC);
 
     // Enable SPI clock
     if (obj->spi == SPI_2) {

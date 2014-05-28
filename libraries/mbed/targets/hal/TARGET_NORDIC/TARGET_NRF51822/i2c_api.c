@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <assert.h>
+#include "assert.h"
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -62,7 +62,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c     = (I2CName)pinmap_merge(i2c_sda,i2c_scl);
     obj->i2c        = (NRF_TWI_Type            *)i2c;
     
-    assert((int)obj->i2c != NC);
+    MBED_ASSERT((int)obj->i2c != NC);
 
     obj->scl=scl;
     obj->sda=sda;
