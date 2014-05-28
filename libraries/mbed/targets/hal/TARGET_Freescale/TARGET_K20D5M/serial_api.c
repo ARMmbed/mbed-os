@@ -119,7 +119,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     assert((stop_bits == 1) || (stop_bits == 2));
     assert((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
     assert((data_bits == 8) || (data_bits == 9));
-    assert((data_bits == 2) && (obj->index != 0));
 
     // save C2 state
     uint32_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
@@ -143,8 +142,9 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     uint32_t m10 = 0;
 
-    // 9 data bits + parity
+    // 9 data bits + parity - only uart0 support
     if (data_bits == 2) {
+        assert(obj->index == 0);
         data_bits = 0;
         m10 = 1;
     }

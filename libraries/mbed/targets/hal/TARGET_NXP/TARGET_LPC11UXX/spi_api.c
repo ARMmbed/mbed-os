@@ -153,8 +153,7 @@ void spi_frequency(spi_t *obj, int hz) {
             
             // divider
             obj->spi->CR0 &= ~(0xFFFF << 8);
-            obj->spi->CR0 |= (divider - 1) << 8
-            ;
+            obj->spi->CR0 |= (divider - 1) << 8;
             ssp_enable(obj);
             return;
         }
