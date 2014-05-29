@@ -23,7 +23,7 @@
 
 #include "USBHost.h"
 
-/** 
+/**
  * A class to communicate a USB mouse
  */
 class USBHostMouse : public IUSBEnumerator {
@@ -58,7 +58,7 @@ public:
             onUpdate = ptr;
         }
     }
-    
+
     /**
      * Attach a callback called when the button state changes
      *
@@ -69,7 +69,7 @@ public:
             onButtonUpdate = ptr;
         }
     }
-    
+
     /**
      * Attach a callback called when the X axis value changes
      *
@@ -80,7 +80,7 @@ public:
             onXUpdate = ptr;
         }
     }
-    
+
     /**
      * Attach a callback called when the Y axis value changes
      *
@@ -91,7 +91,7 @@ public:
             onYUpdate = ptr;
         }
     }
-    
+
     /**
      * Attach a callback called when the Z axis value changes (scrolling)
      *
@@ -114,7 +114,7 @@ private:
     USBDeviceConnected * dev;
     USBEndpoint * int_in;
     uint8_t report[4];
-    
+
     bool dev_connected;
     bool mouse_device_found;
     int mouse_intf;

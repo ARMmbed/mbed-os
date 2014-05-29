@@ -58,7 +58,7 @@ void WANDongleSerialPort::reset()
   buf_in_read_pos = 0;
   lock_rx = false;
   cb_rx_pending = false;
-  
+
   tx_mtx.unlock();
   rx_mtx.unlock();
 }
@@ -73,7 +73,7 @@ int WANDongleSerialPort::readPacket()
     rx_mtx.unlock();
     return -1;
   }
-  
+
   if( bulk_in == NULL )
   {
     USB_WARN("Port is disconnected");
@@ -105,7 +105,7 @@ int WANDongleSerialPort::writePacket()
     tx_mtx.unlock();
     return -1;
   }
-  
+
   if( bulk_out == NULL )
   {
     USB_WARN("Port is disconnected");

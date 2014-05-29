@@ -13,122 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(TARGET_KL46Z)
 
 #include "mbed.h"
 #include "USBHALHost.h"
 #include "dbg.h"
 
-// bits of the USB/OTG clock control register
-#define HOST_CLK_EN     (1<<0)
-#define DEV_CLK_EN      (1<<1)
-#define PORTSEL_CLK_EN  (1<<3)
-#define AHB_CLK_EN      (1<<4)
+#define BD_OWN_MASK        (1 << 7)
+#define BD_DATA01_MASK     (1 << 6)
+#define BD_KEEP_MASK       (1 << 5)
+#define BD_NINC_MASK       (1 << 4)
+#define BD_DTS_MASK        (1 << 3)
+#define BD_STALL_MASK      (1 << 2)
 
-// bits of the USB/OTG clock status register
-#define HOST_CLK_ON     (1<<0)
-#define DEV_CLK_ON      (1<<1)
-#define PORTSEL_CLK_ON  (1<<3)
-#define AHB_CLK_ON      (1<<4)
+#define TX    1
+#define RX    0
 
-// we need host clock, OTG/portsel clock and AHB clock
-#define CLOCK_MASK (HOST_CLK_EN | PORTSEL_CLK_EN | AHB_CLK_EN)
+#define EP0_BDT_IDX(dir, odd) (((2 * dir) + (1 * odd)))
 
-#define HCCA_SIZE sizeof(HCCA)
-#define ED_SIZE sizeof(HCED)
-#define TD_SIZE sizeof(HCTD)
+#define SETUP_TOKEN    0x0D
+#define IN_TOKEN       0x09
+#define OUT_TOKEN      0x01
 
-#define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE) + (MAX_TD*TD_SIZE))
+/* buffer descriptor table */
+__attribute__((__aligned__(512))) BDT bdt[64];
 
-static volatile uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"),aligned(256)));  //256 bytes aligned!
+// for each endpt: 8 bytes
+struct BDT {
+    uint8_t   info;       // BD[0:7]
+    uint8_t   dummy;      // RSVD: BD[8:15]
+    uint16_t  byte_count; // BD[16:32]
+    uint32_t  address;    // Addr
+};
 
 USBHALHost * USBHALHost::instHost;
 
 USBHALHost::USBHALHost() {
     instHost = this;
-    memInit();
-    memset((void*)usb_hcca, 0, HCCA_SIZE);
-    for (int i = 0; i < MAX_ENDPOINT; i++) {
-        edBufAlloc[i] = false;
-    }
-    for (int i = 0; i < MAX_TD; i++) {
-        tdBufAlloc[i] = false;
-    }
 }
 
 void USBHALHost::init() {
-    NVIC_DisableIRQ(USB_IRQn);
 
-    //Cut power
-    LPC_SC->PCONP &= ~(1UL<<31);
-    wait_ms(100);
-
-    // turn on power for USB
-    LPC_SC->PCONP       |= (1UL<<31);
-
-    // Enable USB host clock, port selection and AHB clock
-    LPC_USB->USBClkCtrl |= CLOCK_MASK;
-
-    // Wait for clocks to become available
-    while ((LPC_USB->USBClkSt & CLOCK_MASK) != CLOCK_MASK);
-
-    // it seems the bits[0:1] mean the following
-    // 0: U1=device, U2=host
-    // 1: U1=host, U2=host
-    // 2: reserved
-    // 3: U1=host, U2=device
-    // NB: this register is only available if OTG clock (aka "port select") is enabled!!
-    // since we don't care about port 2, set just bit 0 to 1 (U1=host)
-    LPC_USB->OTGStCtrl |= 1;
-
-    // now that we've configured the ports, we can turn off the portsel clock
-    LPC_USB->USBClkCtrl &= ~PORTSEL_CLK_EN;
-
-    // configure USB D+/D- pins
-    // P0[29] = USB_D+, 01
-    // P0[30] = USB_D-, 01
-    LPC_PINCON->PINSEL1 &= ~((3<<26) | (3<<28));
-    LPC_PINCON->PINSEL1 |=  ((1<<26) | (1<<28));
-
-    LPC_USB->HcControl       = 0; // HARDWARE RESET
-    LPC_USB->HcControlHeadED = 0; // Initialize Control list head to Zero
-    LPC_USB->HcBulkHeadED    = 0; // Initialize Bulk list head to Zero
-
-    // Wait 100 ms before apply reset
-    wait_ms(100);
-
-    // software reset
-    LPC_USB->HcCommandStatus = OR_CMD_STATUS_HCR;
-
-    // Write Fm Interval and Largest Data Packet Counter
-    LPC_USB->HcFmInterval    = DEFAULT_FMINTERVAL;
-    LPC_USB->HcPeriodicStart = FI * 90 / 100;
-
-    // Put HC in operational state
-    LPC_USB->HcControl  = (LPC_USB->HcControl & (~OR_CONTROL_HCFS)) | OR_CONTROL_HC_OPER;
-    // Set Global Power
-    LPC_USB->HcRhStatus = OR_RH_STATUS_LPSC;
-
-    LPC_USB->HcHCCA = (uint32_t)(usb_hcca);
-
-    // Clear Interrrupt Status
-    LPC_USB->HcInterruptStatus |= LPC_USB->HcInterruptStatus;
-
-    LPC_USB->HcInterruptEnable  = OR_INTR_ENABLE_MIE | OR_INTR_ENABLE_WDH | OR_INTR_ENABLE_RHSC;
-
-    // Enable the USB Interrupt
-    NVIC_SetVector(USB_IRQn, (uint32_t)(_usbisr));
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_CSC;
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRSC;
-
-    NVIC_EnableIRQ(USB_IRQn);
-
-    // Check for any connected devices
-    if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CCS) {
-        //Device connected
-        wait_ms(150);
-        USB_DBG("Device connected (%08x)\n\r", LPC_USB->HcRhPortStatus1);
-        deviceConnected(0, 1, LPC_USB->HcRhPortStatus1 & OR_RH_PORT_LSDA);
-    }
 }
 
 uint32_t USBHALHost::controlHeadED() {
@@ -320,3 +245,5 @@ void USBHALHost::UsbIrqhandler() {
         }
     }
 }
+
+#endif

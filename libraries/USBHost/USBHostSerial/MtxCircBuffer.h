@@ -24,7 +24,7 @@
 template<typename T, int size>
 class MtxCircBuffer {
 public:
-    
+
     MtxCircBuffer() {
         write = 0;
         read = 0;
@@ -43,7 +43,7 @@ public:
         mtx.unlock();
         return r;
     }
-    
+
     void flush() {
         write = 0;
         read = 0;

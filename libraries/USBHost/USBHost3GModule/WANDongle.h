@@ -58,47 +58,47 @@ public:
     * @return true if a serial device is connected
     */
     bool connected();
-    
+
     /*
      * Try to connect device
      *
      * * @return true if connection was successful
      */
     bool tryConnect();
-    
+
     /*
      * Disconnect device
      *
      * * @return true if disconnection was successful
      */
     bool disconnect();
-       
+
     int getDongleType();
-    
+
     IUSBHostSerial& getSerial(int index);
     int getSerialCount();
     bool addInitializer(WANDongleInitializer* pInitializer);
 
     //From IUSBEnumerator
-    
+
     virtual void setVidPid(uint16_t vid, uint16_t pid);
-    
+
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
-    
+
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
-    
+
 protected:
     USBHost * host;
     USBDeviceConnected * dev;
     bool dev_connected;
-    
+
     WANDongleInitializer* m_pInitializer;
 
     void init();
-    
+
     WANDongleSerialPort m_serial[WANDONGLE_MAX_SERIAL_PORTS];
     int m_serialCount;
- 
+
     int m_totalInitializers;
     WANDongleInitializer* m_Initializers[WANDONGLE_MAX_INITIALIZERS];
 };

@@ -28,7 +28,7 @@ class USBHost;
 class USBDeviceConnected;
 class USBEndpoint;
 
-/** 
+/**
  * A class to use a USB Hub
  */
 class USBHostHub : public IUSBEnumerator {
@@ -52,7 +52,7 @@ public:
      * @return true if connection was successful
      */
     bool connect(USBDeviceConnected * dev);
-    
+
     /**
     * Automatically called by USBHost when a device
     * has been enumerated by usb_thread
@@ -60,7 +60,7 @@ public:
     * @param dev device connected
     */
     void deviceConnected(USBDeviceConnected * dev);
-    
+
     /**
     * Automatically called by USBHost when a device
     * has been disconnected from this hub
@@ -68,21 +68,21 @@ public:
     * @param dev device disconnected
     */
     void deviceDisconnected(USBDeviceConnected * dev);
-    
+
     /**
     * Rest a specific port
     *
     * @param port port number
     */
     void portReset(uint8_t port);
-    
+
     /*
     * Called by USBHost to set the instance of USBHost
     *
     * @param host host instance
     */
     void setHost(USBHost * host);
-    
+
     /**
     * Called by USBhost when a hub has been disconnected
     */
@@ -114,7 +114,7 @@ private:
     uint32_t getPortStatus(uint8_t port);
 
     USBDeviceConnected * device_children[MAX_HUB_PORT];
-    
+
     void init();
     void disconnect();
 
