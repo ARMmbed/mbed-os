@@ -13,19 +13,19 @@ namespace mbed {
  * @code
  * #include "InterruptManager.h"
  * #include "mbed.h"
- * 
+ *
  * Ticker flipper;
  * DigitalOut led1(LED1);
  * DigitalOut led2(LED2);
- * 
+ *
  * void flip(void) {
  *     led1 = !led1;
  * }
- * 
+ *
  * void handler(void) {
  *     led2 = !led1;
  * }
- * 
+ *
  * int main() {
  *     led1 = led2 = 0;
  *     flipper.attach(&flip, 1.0);
@@ -42,7 +42,7 @@ public:
     /** Destroy the current instance of the interrupt manager
      */
     static void destroy();
-    
+
     /** Add a handler for an interrupt at the end of the handler list
      *
      *  @param function the handler to add

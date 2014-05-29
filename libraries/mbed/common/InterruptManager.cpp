@@ -58,7 +58,7 @@ pFunctionPointer_t InterruptManager::add_common(void (*function)(void), IRQn_Typ
 
 bool InterruptManager::remove_handler(pFunctionPointer_t handler, IRQn_Type irq) {
     int irq_pos = get_irq_index(irq);
-    
+
     if (NULL == _chains[irq_pos])
         return false;
     if (!_chains[irq_pos]->remove(handler))

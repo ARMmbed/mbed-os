@@ -22,7 +22,7 @@ void pinmap_pinout(PinName pin, const PinMap *map) {
     while (map->pin != NC) {
         if (map->pin == pin) {
             pin_function(pin, map->function);
-            
+
             pin_mode(pin, PullNone);
             return;
         }

@@ -126,7 +126,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     // This is the workaround that the microlib author suggested us
     static int n = 0;
     if (!std::strcmp(name, ":tt")) return n++;
-    
+
     #else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
      */
@@ -141,7 +141,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         return 2;
     }
     #endif
-    
+
     // find the first empty slot in filehandles
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
@@ -466,7 +466,7 @@ extern "C" caddr_t _sbrk(int incr) {
         errno = ENOMEM;
         return (caddr_t)-1;
     }
-    
+
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
