@@ -33,7 +33,7 @@
  * #include "SDFileSystem.h"
  *
  * SDFileSystem sd(p5, p6, p7, p12, "sd"); // mosi, miso, sclk, cs
- *  
+ *
  * int main() {
  *     FILE *fp = fopen("/sd/myfile.txt", "w");
  *     fprintf(fp, "Hello World!\n");
@@ -68,7 +68,7 @@ protected:
     int initialise_card();
     int initialise_card_v1();
     int initialise_card_v2();
-    
+
     int _read(uint8_t * buffer, uint32_t length);
     int _write(const uint8_t *buffer, uint32_t length);
     uint64_t _sd_sectors();
