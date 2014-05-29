@@ -8,13 +8,13 @@ def sections(h):
         if last_address is None:
             start, last_address = a, a
             continue
-        
+
         if a > last_address + 1:
             yield (start, last_address)
             start = a
-        
+
         last_address = a
-    
+
     if start:
         yield (start, last_address)
 

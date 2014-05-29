@@ -33,10 +33,10 @@ from workspace_tools.build_api import build_mbed_libs, build_lib
 
 if __name__ == '__main__':
     start = time()
-    
+
     # Parse Options
     parser = get_default_options_parser()
-    
+
     # Extra libraries
     parser.add_option("-r", "--rtos", action="store_true", dest="rtos",
                       default=False, help="Compile the rtos")
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parser.add_option("-D", "", action="append", dest="macros",
                       help="Add a macro definition")
     (options, args) = parser.parse_args()
-    
+
     # Get target list
     if options.mcu:
         if options.mcu not in TARGET_NAMES:
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         targets = [options.mcu]
     else:
         targets = TARGET_NAMES
-    
+
     # Get toolchains list
     if options.tool:
         if options.tool not in TOOLCHAINS:
@@ -73,10 +73,10 @@ if __name__ == '__main__':
         toolchains = [options.tool]
     else:
         toolchains = TOOLCHAINS
-    
+
     # Get libraries list
     libraries = []
-    
+
     # Additional Libraries
     if options.rtos:
         libraries.extend(["rtx", "rtos"])
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         libraries.extend(["cmsis_dsp", "dsp"])
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
-    
+
     # Build
     failures = []
     successes = []
@@ -112,17 +112,17 @@ if __name__ == '__main__':
                     import sys, traceback
                     traceback.print_exc(file=sys.stdout)
                     sys.exit(1)
-                
+
                 failures.append(id)
                 print e
-    
+
     # Write summary of the builds
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
-    
+
     if successes:
         print "\n\nBuild successes:"
         print "\n".join(["  * %s" % s for s in successes])
-    
+
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
