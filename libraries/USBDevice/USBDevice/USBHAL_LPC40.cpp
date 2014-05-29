@@ -280,7 +280,7 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
         SIEselectEndpoint(endpoint);
         SIEclearBuffer();
     }
-    
+
     return size;
 }
 
@@ -328,7 +328,7 @@ static void endpointWritecore(uint8_t endpoint, uint8_t *buffer, uint32_t size) 
 USBHAL::USBHAL(void) {
     // Disable IRQ
     NVIC_DisableIRQ(USB_IRQn);
-    
+
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -367,7 +367,7 @@ USBHAL::USBHAL(void) {
     // Enable USB clocks
     LPC_USB->USBClkCtrl |= DEV_CLK_EN | AHB_CLK_EN | PORT_CLK_EN;
     while ((LPC_USB->USBClkSt & (DEV_CLK_EN | AHB_CLK_EN | PORT_CLK_EN)) != (DEV_CLK_ON | AHB_CLK_ON | PORT_CLK_EN));
-    
+
     // Select port USB2
     LPC_USB->StCtrl |= 3;
 
@@ -375,13 +375,13 @@ USBHAL::USBHAL(void) {
     // Configure pin P0.31 to be USB2
     LPC_IOCON->P0_31 &= ~0x07;
     LPC_IOCON->P0_31 |= 0x01;
-    
+
     // Disconnect USB device
     SIEdisconnect();
 
     // Configure pin P0.14 to be Connect
     LPC_IOCON->P0_14 &= ~0x07;
-    LPC_IOCON->P0_14 |= 0x03;    
+    LPC_IOCON->P0_14 |= 0x03;
 
     // Connect must be low for at least 2.5uS
     wait(0.3);
@@ -471,7 +471,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
         if (!(epComplete & EP(endpoint)))
             return EP_PENDING;
     }
-    
+
     *bytesRead = endpointReadcore(endpoint, buffer);
     epComplete &= ~EP(endpoint);
     return EP_COMPLETED;
@@ -611,7 +611,7 @@ void USBHAL::usbisr(void) {
             LPC_USB->DevIntClr = EP_SLOW;
             EP0in();
         }
-        
+
         for (uint8_t num = 2; num < 16*2; num++) {
             if (LPC_USB->EpIntSt & EP(num)) {
                 selectEndpointClearInterrupt(num);

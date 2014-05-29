@@ -279,7 +279,7 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
         SIEselectEndpoint(endpoint);
         SIEclearBuffer();
     }
-    
+
     return size;
 }
 
@@ -327,7 +327,7 @@ static void endpointWritecore(uint8_t endpoint, uint8_t *buffer, uint32_t size) 
 USBHAL::USBHAL(void) {
     // Disable IRQ
     NVIC_DisableIRQ(USB_IRQn);
-    
+
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -466,7 +466,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
         if (!(epComplete & EP(endpoint)))
             return EP_PENDING;
     }
-    
+
     *bytesRead = endpointReadcore(endpoint, buffer);
     epComplete &= ~EP(endpoint);
     return EP_COMPLETED;
@@ -606,7 +606,7 @@ void USBHAL::usbisr(void) {
             LPC_USB->USBDevIntClr = EP_SLOW;
             EP0in();
         }
-        
+
         for (uint8_t num = 2; num < 16*2; num++) {
             if (LPC_USB->USBEpIntSt & EP(num)) {
                 selectEndpointClearInterrupt(num);

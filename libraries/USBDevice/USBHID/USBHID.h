@@ -70,8 +70,8 @@ public:
     * @returns true if successful
     */
     bool send(HID_REPORT *report);
-    
-    
+
+
     /**
     * Send a Report. warning: non blocking
     *
@@ -79,7 +79,7 @@ public:
     * @returns true if successful
     */
     bool sendNB(HID_REPORT *report);
-    
+
     /**
     * Read a report: blocking
     *
@@ -87,7 +87,7 @@ public:
     * @returns true if successful
     */
     bool read(HID_REPORT * report);
-    
+
     /**
     * Read a report: non blocking
     *
@@ -98,7 +98,7 @@ public:
 
 protected:
     uint16_t reportLength;
-    
+
     /*
     * Get the Report descriptor
     *
@@ -119,14 +119,14 @@ protected:
     * @returns pointer to the string product descriptor
     */
     virtual uint8_t * stringIproductDesc();
-    
+
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
     virtual uint8_t * stringIinterfaceDesc();
-    
+
     /*
     * Get configuration descriptor
     *

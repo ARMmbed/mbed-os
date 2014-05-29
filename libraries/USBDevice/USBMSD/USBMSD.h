@@ -79,7 +79,7 @@ public:
     * Disconnect the USB MSD device.
     */
     void disconnect();
-    
+
     /**
     * Destructor
     */
