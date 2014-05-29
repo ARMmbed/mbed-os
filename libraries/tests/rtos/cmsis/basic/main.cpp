@@ -14,7 +14,7 @@ osThreadDef(led2_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 int main() {
     osThreadCreate(osThread(led2_thread), NULL);
-    
+
     while (true) {
         led1 = !led1;
         osDelay(500);

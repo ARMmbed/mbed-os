@@ -4,9 +4,9 @@
 #include "httptest.h"
 
 int httptest(CellularModem& modem, const char* apn, const char* username, const char* password)
-{    
+{
     printf("Connecting...\n");
-    
+
     HTTPClient http;
     char str[512];
 
@@ -18,7 +18,7 @@ int httptest(CellularModem& modem, const char* apn, const char* username, const 
       printf("Could not connect\n");
       return false;
     }
-    
+
     //GET data
     printf("Trying to fetch page...\n");
     ret = http.get("http://mbed.org/media/uploads/donatien/hello.txt", str, 128);
@@ -33,7 +33,7 @@ int httptest(CellularModem& modem, const char* apn, const char* username, const 
       modem.disconnect();
       return false;
     }
-    
+
     //POST data
     HTTPMap map;
     HTTPText text(str, 512);
@@ -52,7 +52,7 @@ int httptest(CellularModem& modem, const char* apn, const char* username, const 
       modem.disconnect();
       return false;
     }
-    
+
     modem.disconnect();
     return true;
 }

@@ -30,7 +30,7 @@
  * Datasheet:
  *
  * http://www.analog.com/static/imported-files/data_sheets/ADXL345.pdf
- */  
+ */
 
 #ifndef ADXL345_H
 #define ADXL345_H
@@ -254,7 +254,7 @@ public:
      *         seconds.
      */
     int getTimeInactivity(void);
-    
+
     /**
      * Set the time required for inactivity to be declared.
      *
@@ -265,7 +265,7 @@ public:
      *                   threshold inactivity.
      */
     void setTimeInactivity(int timeInactivity);
-    
+
     /**
      * Get the activity/inactivity control settings.
      *
@@ -284,7 +284,7 @@ public:
      * @return The contents of the ACT_INACT_CTL register.
      */
     int getActivityInactivityControl(void);
-    
+
     /**
      * Set the activity/inactivity control settings.
      *
@@ -303,7 +303,7 @@ public:
      * @param settings The control byte to write to the ACT_INACT_CTL register.
      */
     void setActivityInactivityControl(int settings);
-    
+
     /**
      * Get the threshold for free fall detection.
      *
@@ -311,17 +311,17 @@ public:
      *         with scale factor 62.5mg/LSB.
      */
     int getFreefallThreshold(void);
-    
+
     /**
      * Set the threshold for free fall detection.
      *
      * @return The threshold value for free-fall detection, as an 8-bit number,
-     *         with scale factor 62.5mg/LSB. A value of 0 may result in 
+     *         with scale factor 62.5mg/LSB. A value of 0 may result in
      *         undesirable behavior if the free-fall interrupt is enabled.
      *         Values between 300 mg and 600 mg (0x05 to 0x09) are recommended.
      */
     void setFreefallThreshold(int threshold);
-    
+
     /**
      * Get the time required to generate a free fall interrupt.
      *
@@ -330,18 +330,18 @@ public:
      *         milliseconds.
      */
     int getFreefallTime(void);
-    
+
     /**
      * Set the time required to generate a free fall interrupt.
      *
      * @return The minimum time that the value of all axes must be less than
      *         the freefall threshold to generate a free-fall interrupt, in
      *         milliseconds. A value of 0 may result in undesirable behavior
-     *         if the free-fall interrupt is enabled. Values between 100 ms 
+     *         if the free-fall interrupt is enabled. Values between 100 ms
      *         and 350 ms (0x14 to 0x46) are recommended.
      */
     void setFreefallTime(int freefallTime_ms);
-    
+
     /**
      * Get the axis tap settings.
      *
@@ -355,9 +355,9 @@ public:
      * See datasheet for more details.
      *
      * @return The contents of the TAP_AXES register.
-     */ 
+     */
     int getTapAxisControl(void);
-    
+
     /**
      * Set the axis tap settings.
      *
@@ -373,14 +373,14 @@ public:
      * @param The control byte to write to the TAP_AXES register.
      */
     void setTapAxisControl(int settings);
-    
+
     /**
      * Get the source of a tap.
      *
      * @return The contents of the ACT_TAP_STATUS register.
      */
     int getTapSource(void);
-    
+
     /**
      * Set the power mode.
      *
@@ -388,14 +388,14 @@ public:
      *             1 -> Reduced power operation.
      */
     void setPowerMode(char mode);
-    
+
     /**
      * Set the data rate.
      *
      * @param rate The rate code (see #defines or datasheet).
      */
     void setDataRate(int rate);
-    
+
     /**
      * Get the power control settings.
      *
@@ -404,7 +404,7 @@ public:
      * @return The contents of the POWER_CTL register.
      */
     int getPowerControl(void);
-    
+
     /**
      * Set the power control settings.
      *
@@ -413,56 +413,56 @@ public:
      * @param The control byte to write to the POWER_CTL register.
      */
     void setPowerControl(int settings);
-    
+
     /**
      * Get the interrupt enable settings.
      *
      * @return The contents of the INT_ENABLE register.
      */
     int getInterruptEnableControl(void);
-    
+
     /**
      * Set the interrupt enable settings.
      *
      * @param settings The control byte to write to the INT_ENABLE register.
      */
     void setInterruptEnableControl(int settings);
-    
+
     /**
      * Get the interrupt mapping settings.
      *
      * @return The contents of the INT_MAP register.
      */
     int getInterruptMappingControl(void);
-    
+
     /**
      * Set the interrupt mapping settings.
      *
      * @param settings The control byte to write to the INT_MAP register.
      */
     void setInterruptMappingControl(int settings);
-    
+
     /**
      * Get the interrupt source.
      *
      * @return The contents of the INT_SOURCE register.
      */
     int getInterruptSource(void);
-    
+
     /**
      * Get the data format settings.
      *
      * @return The contents of the DATA_FORMAT register.
      */
     int getDataFormatControl(void);
-    
+
     /**
      * Set the data format settings.
      *
      * @param settings The control byte to write to the DATA_FORMAT register.
      */
     void setDataFormatControl(int settings);
-    
+
     /**
      * Get the output of all three axes.
      *
@@ -470,28 +470,28 @@ public:
      *        x-axis, y-axis and z-axis [in that order].
      */
     void getOutput(int* readings);
-    
+
     /**
      * Get the FIFO control settings.
      *
      * @return The contents of the FIFO_CTL register.
      */
     int getFifoControl(void);
-    
+
     /**
      * Set the FIFO control settings.
      *
      * @param The control byte to write to the FIFO_CTL register.
      */
     void setFifoControl(int settings);
-    
+
     /**
      * Get FIFO status.
      *
      * @return The contents of the FIFO_STATUS register.
      */
     int getFifoStatus(void);
-    
+
 private:
 
     SPI        spi_;

@@ -22,13 +22,13 @@ I2CSlave slave(p28, p27);
          switch (i) {
              case I2CSlave::ReadAddressed:
                  slave.write(buf, SIZE);
-				 for(int i = 0; i < SIZE; i++){		
+				 for(int i = 0; i < SIZE; i++){
 				}
                  break;
              case I2CSlave::WriteAddressed:
                  slave.read(buf, SIZE);
                  for(int i = 0; i < SIZE; i++){
-					buf[i]++;					
+					buf[i]++;
 				}
                  break;
          }

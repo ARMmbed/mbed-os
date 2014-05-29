@@ -7,11 +7,11 @@ int main() {
     EthernetInterface eth;
     eth.init(); //Use DHCP
     eth.connect();
-    
+
     UDPSocket socket;
     socket.bind(BROADCAST_PORT);
     socket.set_broadcasting();
-    
+
     Endpoint broadcaster;
     char buffer[256];
     while (true) {
