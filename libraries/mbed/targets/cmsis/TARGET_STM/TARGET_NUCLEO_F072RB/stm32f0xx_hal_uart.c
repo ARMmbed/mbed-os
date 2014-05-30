@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_uart.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -1316,9 +1316,6 @@ HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart)
     
     if(--huart->RxXferCount == 0)
     {
-      while(HAL_IS_BIT_SET(huart->Instance->ISR, UART_FLAG_RXNE))
-      {
-      }
       __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
       
       /* Check if a transmit Process is ongoing or not */

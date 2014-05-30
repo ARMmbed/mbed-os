@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_usart.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   USART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -1450,8 +1450,6 @@ static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart)
     
     if(--husart->RxXferCount == 0)
     { 
-      while(HAL_IS_BIT_SET(husart->Instance->ISR, USART_FLAG_RXNE));
-
       __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);      
 
       /* Disable the USART Parity Error Interrupt */
