@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_i2s.h
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -186,13 +186,13 @@ typedef struct
 /** @defgroup I2S_Standard 
   * @{
   */
-#define I2S_STANDARD_PHILLIPS            ((uint32_t)0x00000000)
+#define I2S_STANDARD_PHILIPS             ((uint32_t)0x00000000)
 #define I2S_STANDARD_MSB                 ((uint32_t)0x00000010)
 #define I2S_STANDARD_LSB                 ((uint32_t)0x00000020)
 #define I2S_STANDARD_PCM_SHORT           ((uint32_t)0x00000030)
 #define I2S_STANDARD_PCM_LONG            ((uint32_t)0x000000B0)
 
-#define IS_I2S_STANDARD(STANDARD) (((STANDARD) == I2S_STANDARD_PHILLIPS)  || \
+#define IS_I2S_STANDARD(STANDARD) (((STANDARD) == I2S_STANDARD_PHILIPS)  || \
                                    ((STANDARD) == I2S_STANDARD_MSB) || \
                                    ((STANDARD) == I2S_STANDARD_LSB) || \
                                    ((STANDARD) == I2S_STANDARD_PCM_SHORT) || \

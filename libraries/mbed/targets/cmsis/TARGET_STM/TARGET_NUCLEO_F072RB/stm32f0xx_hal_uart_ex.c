@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_uart_ex.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following extended

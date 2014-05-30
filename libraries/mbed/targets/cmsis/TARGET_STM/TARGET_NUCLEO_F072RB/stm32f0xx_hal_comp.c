@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_comp.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   COMP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -19,7 +19,7 @@
 ================================================================================
            
   [..]       
-      The STM32F0xx device family integrates 2 analog comparators COMP1 and COMP2:
+      The STM32F0xx device family integrates up to 2 analog comparators COMP1 and COMP2:
       (#) The non inverting input and inverting input can be set to GPIO pins
           as shown in table1. COMP Inputs below.
   
@@ -93,7 +93,6 @@
       To use the comparator, perform the following steps:
   
       (#) Fill in the HAL_COMP_MspInit() to
-      (++) Enable the SYSCFG APB clock to get write access to comparator register using __SYSCFG_CLK_ENABLE()
       (++) Configure the comparator input in analog mode using HAL_GPIO_Init()
       (++) Configure the comparator output in alternate function mode using HAL_GPIO_Init() to map the comparator 
            output to the GPIO pin
@@ -107,8 +106,11 @@
       (++) Select the output redirection
       (++) Select the hysteresis level
       (++) Select the power mode
+      (++) Select the event/interrupt mode
   
-      (#) Enable the comparator using HAL_COMP_Start() function
+      (#) Enable the comparator using HAL_COMP_Start() function or HAL_COMP_Start_IT() function for interrupt mode
+    
+      (#) Read the comparator output level with HAL_COMP_GetOutputLevel()
     
   @endverbatim
   ******************************************************************************
@@ -227,7 +229,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     {
       /* Init SYSCFG and the low level hardware to access comparators */
       __SYSCFG_CLK_ENABLE();
-      
+
       HAL_COMP_MspInit(hcomp);
     }
   
