@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_dma.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -219,6 +219,9 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     return HAL_ERROR;
   }
   
+  /* Check the parameters */
+  assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
+
   /* Check the DMA peripheral state */
   if(hdma->State == HAL_DMA_STATE_BUSY)
   {
@@ -384,20 +387,20 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_TIMEOUT;
 
-      /* Process Unlocked */
-      __HAL_UNLOCK(hdma);
-
       /* Change the DMA state */
       hdma->State = HAL_DMA_STATE_TIMEOUT;
+
+      /* Process Unlocked */
+      __HAL_UNLOCK(hdma);
 
       return HAL_TIMEOUT;
     }
   }
-  /* Process Unlocked */
-  __HAL_UNLOCK(hdma);
-  
   /* Change the DMA state*/
   hdma->State = HAL_DMA_STATE_READY; 
+  
+  /* Process Unlocked */
+  __HAL_UNLOCK(hdma);
   
   return HAL_OK; 
 }
@@ -453,11 +456,11 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
         /* Update error code */
         hdma->ErrorCode |= HAL_DMA_ERROR_TIMEOUT;
 
-        /* Process Unlocked */
-        __HAL_UNLOCK(hdma);
-
         /* Change the DMA state */
         hdma->State = HAL_DMA_STATE_TIMEOUT;
+
+        /* Process Unlocked */
+        __HAL_UNLOCK(hdma);
 
         return HAL_TIMEOUT;
       }

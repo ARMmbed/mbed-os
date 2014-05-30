@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_i2c_ex.h
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
   * @attention

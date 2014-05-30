@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_gpio_ex.h
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   Header file of GPIO HAL Extension module.
   ******************************************************************************
   * @attention
@@ -512,8 +512,8 @@
 
 #endif /* STM32F072xB || STM32F078xx */
 
-#if defined (STM32F042x6)
-/*--------------------------- STM32F042x6 ---------------------------*/
+#if defined (STM32F042x6) || defined (STM32F048xx)
+/*--------------------------- STM32F042x6/STM32F048xx ---------------------------*/
 /** 
   * @brief   AF 0 selection  on PA, PB, PF
   */ 

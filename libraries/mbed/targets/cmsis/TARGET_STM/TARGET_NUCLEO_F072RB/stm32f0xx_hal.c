@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *

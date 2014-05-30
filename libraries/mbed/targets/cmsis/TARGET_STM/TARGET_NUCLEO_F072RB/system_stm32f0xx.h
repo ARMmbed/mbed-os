@@ -3,7 +3,7 @@
   * @file    system_stm32f0xx.h
   * @author  MCD Application Team
   * @version V2.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   CMSIS Cortex-M0 Device System Source File for STM32F0xx devices.  
   ******************************************************************************
   * @attention

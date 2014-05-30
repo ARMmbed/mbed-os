@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_smartcard.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -1049,9 +1049,6 @@ static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsmartcar
     
     if(--hsmartcard->RxXferCount == 0)
     {
-      while(HAL_IS_BIT_SET(hsmartcard->Instance->ISR, SMARTCARD_FLAG_RXNE))
-      {
-      }
       __HAL_SMARTCARD_DISABLE_IT(hsmartcard, SMARTCARD_IT_RXNE);
       
       /* Check if a transmit Process is ongoing or not */

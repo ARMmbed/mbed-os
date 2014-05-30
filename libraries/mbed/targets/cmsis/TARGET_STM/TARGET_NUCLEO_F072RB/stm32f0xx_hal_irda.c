@@ -3,7 +3,7 @@
   * @file    stm32f0xx_hal_irda.c
   * @author  MCD Application Team
   * @version V1.0.0
-  * @date    20-May-2014
+  * @date    28-May-2014
   * @brief   IRDA HAL module driver.
   * 
   *          This file provides firmware functions to manage the following 
@@ -1000,9 +1000,6 @@ static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda)
     
     if(--hirda->RxXferCount == 0)
     {
-      while(HAL_IS_BIT_SET(hirda->Instance->ISR, IRDA_FLAG_RXNE))
-      {
-      }
       __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_RXNE);
 
       if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 

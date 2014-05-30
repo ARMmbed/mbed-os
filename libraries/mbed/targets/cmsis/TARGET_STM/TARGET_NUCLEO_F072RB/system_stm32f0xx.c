@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f0xx.c
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V2.0.0
+  * @date    28-May-2014
   * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
   *
   * 1. This file provides two functions and one global variable to be called from
@@ -272,17 +272,30 @@ void SystemCoreClockUpdate (void)
       pllmull = RCC->CFGR & RCC_CFGR_PLLMUL;
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
       pllmull = ( pllmull >> 18) + 2;
+      predivfactor = (RCC->CFGR2 & RCC_CFGR2_PREDIV) + 1;
 
-      if (pllsource == RCC_CFGR_PLLSRC_HSI_DIV2)
+      if (pllsource == RCC_CFGR_PLLSRC_HSE_PREDIV)
       {
-        /* HSI oscillator clock divided by 2 selected as PLL clock entry */
-        SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
+        /* HSE used as PLL clock source : SystemCoreClock = HSE/PREDIV * PLLMUL */
+        SystemCoreClock = (HSE_VALUE/predivfactor) * pllmull;
       }
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+      else if (pllsource == RCC_CFGR_PLLSRC_HSI48_PREDIV)
+      {
+        /* HSI48 used as PLL clock source : SystemCoreClock = HSI48/PREDIV * PLLMUL */
+        SystemCoreClock = (HSI48_VALUE/predivfactor) * pllmull;
+      }
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
       else
       {
-        predivfactor = (RCC->CFGR2 & RCC_CFGR2_PREDIV) + 1;
-        /* HSE oscillator clock selected as PREDIV1 clock entry */
-        SystemCoreClock = (HSE_VALUE / predivfactor) * pllmull;
+#if defined(STM32F042x6) || defined(STM32F048xx) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
+        /* HSI used as PLL clock source : SystemCoreClock = HSI/PREDIV * PLLMUL */
+        SystemCoreClock = (HSI_VALUE/predivfactor) * pllmull;
+#else
+        /* HSI used as PLL clock source : SystemCoreClock = HSI/2 * PLLMUL */
+        SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
+#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx */
       }
       break;
     default: /* HSI used as system clock */
@@ -367,9 +380,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   
   // Output clock on MCO pin(PA8) for debugging purpose
   //if (bypass == 0)
-  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV2); // 4 MHz
+  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV2); // 4 MHz with xtal
   //else
-  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV4); // 2 MHz
+  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV4); // 2 MHz with ST-Link MCO
   
   return 1; // OK
 }
