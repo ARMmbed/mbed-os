@@ -360,6 +360,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
         "automated": True,
+        "mcu": ["LPC1768"]
     },
     {
         "id": "MBED_16", "description": "RTC",
