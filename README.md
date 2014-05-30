@@ -22,6 +22,8 @@ Documentation
 
 Supported Microcontrollers and Boards
 -------------------------------------
+View all on the [mbed Platforms](https://mbed.org/platforms/) page.
+
 NXP:
 * [mbed LPC1768](http://mbed.org/platforms/mbed-LPC1768/) (Cortex-M3)
 * [u-blox C027 LPC1768](http://mbed.org/platforms/u-blox-C027/) (Cortex-M3)
@@ -36,19 +38,24 @@ NXP:
 * [LPC1114](http://mbed.org/platforms/LPC1114FN28/) (Cortex-M0)
 * LPC11C24 (Cortex-M0)
 * [LPC1549](https://mbed.org/platforms/LPCXpresso1549/) (Cortex-M3)
+* [LPC800-MAX](https://mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
+* [DipCortex-M0](https://mbed.org/platforms/DipCortex-M0/) (Cortex-M0)
+* [DipCortex-M3](https://mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
+* [BlueBoard-LPC11U24](https://mbed.org/platforms/BlueBoard-LPC11U24/) (Cortex-M0)
 
 Freescale:
 * FRDM-K20D50M (Cortex-M4)
 * [FRDM-KL05Z](https://mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
 * [FRDM-KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
 * [FRDM-KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
-* FRDM-K64F (Cortex-M4)
+* [FRDM-K64F](https://mbed.org/platforms/FRDM-K64F/) (Cortex-M4)
 
 STMicroelectronics:
 * [Nucleo-F103RB](https://mbed.org/platforms/ST-Nucleo-F103RB/) (Cortex-M3)
 * [Nucleo-L152RE](https://mbed.org/platforms/ST-Nucleo-L152RE/) (Cortex-M3)
 * [Nucleo-F030R8](https://mbed.org/platforms/ST-Nucleo-F030R8/) (Cortex-M0)
 * [Nucleo-F401RE](https://mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4)
+* [Nucleo-F302R8](https://mbed.org/platforms/ST-Nucleo-F302R8/) (Cortex-M4)
 * STM32F4XX (Cortex-M4F)
 * STM32F3XX (Cortex-M4F)
 * STM32F0-Discovery (Cortex-M0)
