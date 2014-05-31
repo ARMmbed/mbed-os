@@ -112,7 +112,7 @@ if __name__ == '__main__':
             ('iar', 'LPC1768'),
 
             
-            (None, None)
+            (None, None),
             ('gcc_arm', 'NRF51822'),
         ]:
         print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
