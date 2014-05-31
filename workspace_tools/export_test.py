@@ -105,6 +105,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F051R8'),
             ('gcc_arm', 'DISCO_F407VG'),
             ('gcc_arm', 'DISCO_F303VC'),
+            ('gcc_arm', 'NRF51822'),
 
             
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
@@ -113,7 +114,6 @@ if __name__ == '__main__':
 
             
             (None, None),
-            ('gcc_arm', 'NRF51822'),
         ]:
         print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
         test_export(toolchain, target)
