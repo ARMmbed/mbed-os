@@ -39,6 +39,7 @@ class GccArm(Exporter):
         'DISCO_F407VG',
         'DISCO_F303VC',
         'UBLOX_C027',
+        'NRF51822',
     ]
     
     DOT_IN_RELATIVE_PATH = True
