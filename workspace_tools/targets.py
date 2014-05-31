@@ -521,9 +521,14 @@ class NRF51822(Target):
         
         self.is_disk_virtual = True
     
+    def program_cycle_s(self):
+        return 6 if self.is_disk_virtual else 1.5
+
     def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
             hook.hook_add_binary("post", self.binary_hook)
+        if toolchain_name in ['GCC_ARM']:
+            self.OUTPUT_EXT = '.bin'
     
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
