@@ -517,7 +517,7 @@ class NRF51822(Target):
         
         self.extra_labels = ["NORDIC"]
         
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         
         self.is_disk_virtual = True
     
