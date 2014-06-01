@@ -527,11 +527,10 @@ class NRF51822(Target):
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
             hook.hook_add_binary("post", self.binary_hook)
-        if toolchain_name in ['GCC_ARM']:
-            self.OUTPUT_EXT = '.bin'
-    
+
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
+        print "RUNNING HOOK........."
         for hexf in resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
