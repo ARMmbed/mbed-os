@@ -525,7 +525,7 @@ class NRF51822(Target):
         return 6 if self.is_disk_virtual else 1.5
 
     def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.binary_hook)
 
     @staticmethod

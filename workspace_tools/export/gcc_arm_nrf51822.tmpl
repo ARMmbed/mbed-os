@@ -30,10 +30,10 @@ else
   CC_FLAGS += -DNDEBUG -Os
 endif
 
-all: $(PROJECT).bin
+all: $(PROJECT).hex
 
 clean:
-	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS)
+	rm -f $(PROJECT).hex $(PROJECT).elf $(OBJECTS)
 
 .s.o:
 	$(AS) $(CPU) -o $@ $<
@@ -48,5 +48,5 @@ clean:
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS)
 	$(LD) $(LD_FLAGS) -T$(LINKER_SCRIPT) $(LIBRARY_PATHS) -o $@ $^ $(LIBRARIES) $(LD_SYS_LIBS) $(LIBRARIES) $(LD_SYS_LIBS)
 
-$(PROJECT).bin: $(PROJECT).elf
-	$(OBJCOPY) -O binary $< $@
+$(PROJECT).hex: $(PROJECT).elf
+	$(OBJCOPY) -O ihex $< $@
