@@ -33,7 +33,7 @@ class ARM(mbedToolchain):
     def __init__(self, target, options=None, notify=None, macros=None):
         mbedToolchain.__init__(self, target, options, notify, macros)
         
-        if   target.core == "Cortex-M0+":
+        if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
@@ -102,7 +102,9 @@ class ARM(mbedToolchain):
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
-                    match.group('message')
+                    match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
             match = self.goanna_parse_line(line)
             if match is not None:

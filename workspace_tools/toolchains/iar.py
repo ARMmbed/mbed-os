@@ -72,6 +72,8 @@ class IAR(mbedToolchain):
                     match.group('file'),
                     match.group('line'),
                     match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
             match = self.goanna_parse_line(line)
             if match is not None:
