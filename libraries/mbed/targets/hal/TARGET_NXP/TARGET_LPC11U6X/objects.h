@@ -41,6 +41,7 @@ struct pwmout_s {
 #if DEVICE_SERIAL
 struct serial_s {
     LPC_USART0_Type *uart;
+    LPC_USART4_Type *mini_uart;
     unsigned char index;
 };
 #endif
