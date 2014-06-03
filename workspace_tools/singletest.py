@@ -88,12 +88,14 @@ from Queue import Queue, Empty
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 # Imports related to mbed build pi
-from workspace_tools.build_api import build_project, build_mbed_libs
+from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
+from workspace_tools.libraries import LIBRARIES
+
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -595,6 +597,18 @@ if __name__ == '__main__':
                     }
 
                     build_project_options = ["analyze"] if opts.goanna_for_tests else None
+
+                    # Detect which lib should be added to test
+                    # Some libs have to compiled like RTOS or ETH
+                    libraries = []
+                    for lib in LIBRARIES:
+                        if lib['build_dir'] in test.dependencies:
+                            libraries.append(lib['id'])
+                    # Build libs for test
+                    for lib_id in libraries:
+                        build_lib(lib_id, T, toolchain, options=build_project_options,
+                                  verbose=opts.verbose, clean=clean)
+
                     path = build_project(test.source_dir, join(build_dir, test_id),
                                          T, toolchain, test.dependencies, options=build_project_options,
                                          clean=clean, verbose=opts.verbose)
