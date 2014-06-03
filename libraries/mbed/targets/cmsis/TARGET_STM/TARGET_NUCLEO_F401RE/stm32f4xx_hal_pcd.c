@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -597,7 +597,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 }
 /**
   * @brief  Setup stage callback
-  * @param  hpcd: ppp handle
+  * @param  hpcd: PCD handle
   * @retval None
   */
  __weak void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
@@ -694,7 +694,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 
 /**
   * @brief  Disconnection event callbacks
-  * @param  hpcd: ppp handle
+  * @param  hpcd: PCD handle
   * @retval None
   */
  __weak void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
@@ -726,8 +726,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 /**
   * @brief  Send an amount of data in blocking mode 
   * @param  hpcd: PCD handle
-  * @param  pData: pointer to data buffer
-  * @param  Size: amount of data to be sent
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd)
@@ -741,8 +739,6 @@ HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd)
 /**
   * @brief  Send an amount of data in blocking mode 
   * @param  hpcd: PCD handle
-  * @param  pData: pointer to data buffer
-  * @param  Size: amount of data to be sent
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd)
@@ -1025,7 +1021,7 @@ HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 /**
   * @brief  Update FIFO configuration
   * @param  hpcd: PCD handle
-  * @retval status
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint16_t size)
 {
@@ -1069,7 +1065,7 @@ HAL_StatusTypeDef HAL_PCD_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint1
 /**
   * @brief  Update FIFO configuration
   * @param  hpcd: PCD handle
-  * @retval status
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size)
 {
@@ -1083,7 +1079,7 @@ HAL_StatusTypeDef HAL_PCD_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size)
 /**
   * @brief  HAL_PCD_ActiveRemoteWakeup : active remote wakeup signalling
   * @param  hpcd: PCD handle
-  * @retval status
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
 {
@@ -1100,7 +1096,7 @@ HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
 /**
   * @brief  HAL_PCD_DeActiveRemoteWakeup : de-active remote wakeup signalling
   * @param  hpcd: PCD handle
-  * @retval status
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
 {
@@ -1122,7 +1118,7 @@ HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
                       ##### Peripheral State functions #####
  ===============================================================================  
     [..]
-    This subsection permit to get in run-time the status of the peripheral 
+    This subsection permits to get in run-time the status of the peripheral 
     and the data flow.
 
 @endverbatim
@@ -1131,7 +1127,7 @@ HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
 
 /**
   * @brief  Return the PCD state
-  * @param  hpcd : PCD handle
+  * @param  hpcd: PCD handle
   * @retval HAL state
   */
 PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd)
@@ -1146,7 +1142,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd)
   * @brief  DCD_WriteEmptyTxFifo
   *         check FIFO for the next packet to be loaded
   * @param  hpcd: PCD handle
-  * @retval status
+  * @retval HAL status
   */
 static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t epnum)
 {

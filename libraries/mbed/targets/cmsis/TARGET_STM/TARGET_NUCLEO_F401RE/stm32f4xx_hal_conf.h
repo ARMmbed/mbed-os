@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   HAL configuration template file. 
   *          This file should be copied to the application folder and renamed
   *          to stm32f4xx_hal_conf.h.
@@ -76,7 +76,7 @@
 #define HAL_LTDC_MODULE_ENABLED 
 #define HAL_PWR_MODULE_ENABLED   
 #define HAL_RCC_MODULE_ENABLED 
-#define HAL_RNG_MODULE_ENABLED   
+//#define HAL_RNG_MODULE_ENABLED   
 #define HAL_RTC_MODULE_ENABLED
 #define HAL_SAI_MODULE_ENABLED   
 #define HAL_SD_MODULE_ENABLED  
@@ -99,7 +99,7 @@
   *        (when HSE is used as system clock source, directly or through the PLL).  
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External crystal in Hz */
+  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
@@ -140,9 +140,9 @@
   * @brief This is the HAL system configuration section
   */     
 #define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)3)    /*!< tick interrupt priority */            
-#define  USE_RTOS                     0     
-#define  PREFETCH_ENABLE              1              
+#define  TICK_INT_PRIORITY            ((uint32_t)0x0F) /*!< tick interrupt priority */
+#define  USE_RTOS                     0
+#define  PREFETCH_ENABLE              1
 #define  INSTRUCTION_CACHE_ENABLE     1
 #define  DATA_CACHE_ENABLE            1
 

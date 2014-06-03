@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -300,19 +300,32 @@ typedef struct
 
 #define UART_IT_LBD                         ((uint32_t)0x20000040)
 #define UART_IT_CTS                         ((uint32_t)0x30000400)
-                                
+
 #define UART_IT_ERR                         ((uint32_t)0x30000001)
 
 /**
   * @}
   */
-                                
+
 /**
   * @}
   */
   
 /* Exported macro ------------------------------------------------------------*/
-  
+
+/** @brief Reset UART handle state
+  * @param  __HANDLE__: specifies the UART Handle.
+  *         This parameter can be UARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_UART_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_UART_STATE_RESET)
+
+/** @brief  Flushs the UART DR register 
+  * @param  __HANDLE__: specifies the UART Handle.
+  */
+#define __HAL_UART_FLUSH_DRREGISTER(__HANDLE__) ((__HANDLE__)->Instance->DR)
+
 /** @brief  Checks whether the specified UART flag is set or not.
   * @param  __HANDLE__: specifies the UART Handle.
   *         This parameter can be UARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 

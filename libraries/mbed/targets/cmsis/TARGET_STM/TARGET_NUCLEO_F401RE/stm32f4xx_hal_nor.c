@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   NOR HAL module driver.
   *          This file provides a generic firmware to drive NOR memories mounted 
   *          as external device.
@@ -126,7 +126,8 @@
     
 /**
   * @brief  Perform the NOR memory Initialization sequence
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  Timing: pointer to NOR control timing structure 
   * @param  ExtTiming: pointer to NOR extended mode timing structure    
   * @retval HAL status
@@ -165,7 +166,8 @@ HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDe
 
 /**
   * @brief  Perform NOR memory De-Initialization sequence
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor)  
@@ -187,7 +189,8 @@ HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  NOR MSP Init
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval None
   */
 __weak void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor)
@@ -199,7 +202,8 @@ __weak void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  NOR MSP DeInit
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval None
   */
 __weak void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor)
@@ -211,7 +215,8 @@ __weak void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  NOR BSP Wait fro Ready/Busy signal
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  Timeout: Maximum timeout value
   * @retval None
   */
@@ -242,7 +247,8 @@ __weak void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout)
   
 /**
   * @brief  Read NOR flash IDs
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  pNOR_ID : pointer to NOR ID structure
   * @retval HAL status
   */
@@ -282,7 +288,8 @@ HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_I
 
 /**
   * @brief  Returns the NOR memory to Read mode.
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
@@ -309,7 +316,8 @@ HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Read data from NOR memory 
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  pAddress: pointer to Device address
   * @param  pData : pointer to read data  
   * @retval HAL status
@@ -347,7 +355,8 @@ HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint
 
 /**
   * @brief  Program data to NOR memory 
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  pAddress: Device address
   * @param  pData : pointer to the data to write   
   * @retval HAL status
@@ -385,7 +394,8 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
 
 /**
   * @brief  Reads a block of data from the FMC NOR memory.
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  uwAddress: NOR memory internal address to read from.
   * @param  pData: pointer to the buffer that receives the data read from the 
   *         NOR memory.
@@ -431,7 +441,8 @@ HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress
 /**
   * @brief  Writes a half-word buffer to the FMC NOR memory. This function 
   *         must be used only with S29GL128P NOR memory. 
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  uwAddress: NOR memory internal address from which the data 
   * @param  pData: pointer to source data buffer. 
   * @param  uwBufferSize: number of Half words to write. The maximum allowed 
@@ -493,7 +504,8 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
 
 /**
   * @brief  Erase the specified block of the NOR memory 
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  BlockAddress : Block to erase address 
   * @param  Address: Device address
   * @retval HAL status
@@ -532,7 +544,8 @@ HAL_StatusTypeDef HAL_NOR_Erase_Block(NOR_HandleTypeDef *hnor, uint32_t BlockAdd
 
 /**
   * @brief  Erase the entire NOR chip.
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  Address : Device address  
   * @retval HAL status
   */
@@ -569,7 +582,8 @@ HAL_StatusTypeDef HAL_NOR_Erase_Chip(NOR_HandleTypeDef *hnor, uint32_t Address)
 
 /**
   * @brief  Read NOR flash CFI IDs
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @param  pNOR_CFI : pointer to NOR CFI IDs structure  
   * @retval HAL status
   */
@@ -626,7 +640,8 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
     
 /**
   * @brief  Enables dynamically NOR write operation.
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor)
@@ -648,7 +663,8 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Disables dynamically NOR write operation.
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor)
@@ -683,7 +699,7 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor)
                       ##### NOR State functions #####
   ==============================================================================  
   [..]
-    This subsection permit to get in run-time the status of the NOR controller 
+    This subsection permits to get in run-time the status of the NOR controller 
     and the data flow.
 
 @endverbatim
@@ -692,7 +708,8 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor)
   
 /**
   * @brief  return the NOR controller state
-  * @param  hnor: pointer to NOR handle
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.
   * @retval NOR controller state
   */
 HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor)
@@ -702,7 +719,8 @@ HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Returns the NOR operation status.
-  * @param  hnor: pointer to NOR handle   
+  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
+  *                the configuration information for NOR module.   
   * @param  Address: Device address
   * @param  Timeout: NOR progamming Timeout
   * @retval NOR_Status: The returned value can be: NOR_SUCCESS, NOR_ERROR

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -345,6 +345,13 @@ typedef struct __SPI_HandleTypeDef
   */
 
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset SPI handle state
+  * @param  __HANDLE__: specifies the SPI handle.
+  *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
+  * @retval None
+  */
+#define __HAL_SPI_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_SPI_STATE_RESET)
 
 /** @brief  Enable or disable the specified SPI interrupts.
   * @param  __HANDLE__: specifies the SPI handle.
