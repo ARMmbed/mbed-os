@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 #if defined (__ICCARM__)
 time_t __time32(time_t *timer)
 #else
@@ -60,4 +60,4 @@ clock_t clock() {
 
 #ifdef __cplusplus
 }
-#endif 
+#endif

@@ -29,7 +29,7 @@
 
 #define DEFAULT_CONFIGURATION (1)
 
-/** 
+/**
 * USBMIDI example
 *
 * @code
@@ -38,8 +38,8 @@
 *
 * USBMIDI midi;
 *
-* int main() {            
-*    while (1) {    
+* int main() {
+*    while (1) {
 *        for(int i=48; i<83; i++) {     // send some messages!
 *            midi.write(MIDIMessage::NoteOn(i));
 *            wait(0.25);
@@ -61,12 +61,12 @@ public:
     * @param product_release Your preoduct_release
     */
     USBMIDI(uint16_t vendor_id = 0x0700, uint16_t product_id = 0x0101, uint16_t product_release = 0x0001);
-    
+
     /**
      * Send a MIDIMessage
      *
      * @param m The MIDIMessage to send
-     */    
+     */
     void write(MIDIMessage m);
 
     /**
@@ -75,8 +75,8 @@ public:
      * @param fptr function pointer
      */
     void attach(void (*fptr)(MIDIMessage));
-    
-    
+
+
 protected:
     virtual bool EP2_OUT_callback();
     virtual bool USBCallback_setConfiguration(uint8_t configuration);
@@ -86,14 +86,14 @@ protected:
     * @returns pointer to the string product descriptor
     */
     virtual uint8_t * stringIproductDesc();
-    
+
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
     virtual uint8_t * stringIinterfaceDesc();
-    
+
     /*
     * Get configuration descriptor
     *

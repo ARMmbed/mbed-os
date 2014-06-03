@@ -61,13 +61,13 @@ def benchmarks():
     # CSV Data
     csv_data = csv.writer(open(BENCHMARK_DATA_PATH, 'wb'))
     csv_data.writerow(['Toolchain', "Target", "Benchmark", "code", "data", "bss", "flash"])
-    
+
     # Build
     for toolchain in ['ARM', 'uARM', 'GCC_CR', 'GCC_CS', 'GCC_ARM']:
         for mcu in ["LPC1768", "LPC11U24"]:
             # Build Libraries
             build_mbed_libs(mcu, toolchain)
-            
+
             # Build benchmarks
             build_dir = join(BUILD_DIR, "benchmarks", mcu, toolchain)
             for test_id, title in BENCHMARKS:
@@ -90,23 +90,23 @@ def compare(t1, t2, target):
         benchmarks()
     else:
         print "Loading: %s" % BENCHMARK_DATA_PATH
-    
+
     data = csv.reader(open(BENCHMARK_DATA_PATH, 'rb'))
-    
+
     benchmarks_data = defaultdict(dict)
     for (toolchain, mcu, name, code, data, bss, flash) in data:
         if target == mcu:
             for t in [t1, t2]:
                 if toolchain == t:
                     benchmarks_data[name][t] = map(int, (code, data, bss, flash))
-    
+
     print "%s vs %s for %s" % (t1, t2, target)
     for name, data in benchmarks_data.iteritems():
         try:
             # Check Size
             code_a, data_a, bss_a, flash_a = data[t1]
             code_u, data_u, bss_u, flash_u = data[t2]
-            
+
             print "\n=== %s ===" % name
             print_diff("code", code_a , code_u)
             print_diff("data", data_a , data_u)

@@ -6,7 +6,7 @@ DigitalOut latchpin(p10);
 int main() {
     spi.format(8, 0);
     spi.frequency(16 * 1000 * 1000);
-    
+
     latchpin = 0;
     while (1) {
         latchpin = 1;

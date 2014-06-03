@@ -18,7 +18,7 @@ void send_thread (void const *argument) {
     while (true) {
         i++; // fake data update
         message_t *message = (message_t*)osPoolAlloc(mpool);
-        message->voltage = (i * 0.1) * 33; 
+        message->voltage = (i * 0.1) * 33;
         message->current = (i * 0.1) * 11;
         message->counter = i;
         osMessagePut(queue, (uint32_t)message, osWaitForever);
@@ -31,9 +31,9 @@ osThreadDef(send_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 int main (void) {
     mpool = osPoolCreate(osPool(mpool));
     queue = osMessageCreate(osMessageQ(queue), NULL);
-    
+
     osThreadCreate(osThread(send_thread), NULL);
-    
+
     while (true) {
         osEvent evt = osMessageGet(queue, osWaitForever);
         if (evt.status == osEventMessage) {
@@ -41,7 +41,7 @@ int main (void) {
             printf("\nVoltage: %.2f V\n\r"   , message->voltage);
             printf("Current: %.2f A\n\r"     , message->current);
             printf("Number of cycles: %u\n\r", message->counter);
-            
+
             osPoolFree(mpool, message);
         }
     }

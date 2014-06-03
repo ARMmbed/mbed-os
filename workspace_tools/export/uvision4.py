@@ -20,7 +20,7 @@ from os.path import basename
 
 class Uvision4(Exporter):
     NAME = 'uVision4'
-    
+
     TARGETS = [
         'LPC1768',
         'LPC11U24',
@@ -76,10 +76,10 @@ class Uvision4(Exporter):
 
     # By convention uVision projects do not show header files in the editor:
     # 'headers':'5',
-    
+
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
-    
+
     def get_flags(self):
         return self.FLAGS
 

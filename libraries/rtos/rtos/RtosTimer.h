@@ -32,7 +32,7 @@ namespace rtos {
  periodic timers are possible. A timer can be started, restarted, or stopped.
 
  Timers are handled in the thread osTimerThread.
- Callback functions run under control of this thread and may use CMSIS-RTOS API calls. 
+ Callback functions run under control of this thread and may use CMSIS-RTOS API calls.
 */
 class RtosTimer {
 public:
@@ -44,18 +44,18 @@ public:
     RtosTimer(void (*task)(void const *argument),
           os_timer_type type=osTimerPeriodic,
           void *argument=NULL);
-    
+
     /** Stop the timer.
-      @return  status code that indicates the execution status of the function. 
+      @return  status code that indicates the execution status of the function.
     */
     osStatus stop(void);
-    
+
     /** start a timer.
       @param   millisec  time delay value of the timer.
-      @return  status code that indicates the execution status of the function. 
+      @return  status code that indicates the execution status of the function.
     */
     osStatus start(uint32_t millisec);
-    
+
     ~RtosTimer();
 
 private:

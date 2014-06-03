@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 SRF08::SRF08(PinName sda, PinName scl, int addr) : m_i2c(sda, scl), m_addr(addr) {
     char cmd[2];
-    
+
 // Set up SRF08 max range and receiver sensitivity over I2C bus
     cmd[0] = 0x02;                          // Range register
     cmd[1] = 0x1C;                          // Set max range about 100cm

@@ -136,9 +136,9 @@ public:
     inline bool                 isSetup() { return setup; }
     inline USBEndpoint *        nextEndpoint() { return (USBEndpoint*)nextEp; };
     inline uint8_t              getIntfNb() { return intf_nb; };
-    
+
     USBDeviceConnected * dev;
-    
+
     Queue<uint8_t, 1> ep_queue;
 
 private:
@@ -163,7 +163,7 @@ private:
     volatile HCTD * td_list[2];
     volatile HCTD * td_current;
     volatile HCTD * td_next;
-    
+
     uint8_t intf_nb;
 
 };

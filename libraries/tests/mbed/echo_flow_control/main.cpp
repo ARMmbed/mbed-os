@@ -24,9 +24,9 @@ int main() {
     char buf[256];
 
     pc.set_flow_control(Serial::RTSCTS, FLOW_CONTROL_RTS, FLOW_CONTROL_CTS);
-#ifdef RTS_CHECK_PIN    
+#ifdef RTS_CHECK_PIN
     in.fall(checker);
-#endif    
+#endif
     while (1) {
         pc.gets(buf, 256);
         pc.printf("%s", buf);

@@ -68,20 +68,20 @@ public:
     * @returns true if there is no error, false otherwise
     */
     virtual int _putc(int c);
-    
+
     /**
     * Read a character: blocking
     *
     * @returns character read
     */
     virtual int _getc();
-    
+
     /**
     * Check the number of bytes available.
     *
     * @returns the number of bytes available
     */
-    uint8_t available(); 
+    uint8_t available();
 
     /** Determine if there is a character available to read
      *
@@ -90,7 +90,7 @@ public:
      *    0 otherwise
      */
     int readable() { return available() ? 1 : 0; }
-    
+
     /** Determine if there is space available to write a character
      *
      *  @returns
@@ -98,9 +98,9 @@ public:
      *    0 otherwise
      */
     int writeable() { return 1; } // always return 1, for write operation is blocking
-    
+
     /**
-    * Write a block of data. 
+    * Write a block of data.
     *
     * For more efficiency, a block of size 64 (maximum size of a bulk endpoint) has to be written.
     *
@@ -112,7 +112,7 @@ public:
     bool writeBlock(uint8_t * buf, uint16_t size);
 
     /**
-     *  Attach a member function to call when a packet is received. 
+     *  Attach a member function to call when a packet is received.
      *
      *  @param tptr pointer to the object to call the member function on
      *  @param mptr pointer to the member function to be called

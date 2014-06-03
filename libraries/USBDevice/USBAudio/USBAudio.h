@@ -50,7 +50,7 @@
 *
 * int main() {
 *    int16_t buf[AUDIO_LENGTH_PACKET/2];
-*    
+*
 *    while (1) {
 *        // read an audio packet
 *        audio.read((uint8_t *)buf);
@@ -88,7 +88,7 @@ public:
     * @returns volume
     */
     float getVolume();
-    
+
     /**
     * Read an audio packet. During a frame, only a single reading (you can't write and read an audio packet during the same frame)can be done using this method. Warning: Blocking
     *
@@ -97,7 +97,7 @@ public:
     * @returns true if successfull
     */
     bool read(uint8_t * buf);
-    
+
     /**
     * Try to read an audio packet. During a frame, only a single reading (you can't write and read an audio packet during the same frame)can be done using this method. Warning: Non Blocking
     *
@@ -106,7 +106,7 @@ public:
     * @returns true if successfull
     */
     bool readNB(uint8_t * buf);
-    
+
     /**
     * Write an audio packet. During a frame, only a single writing (you can't write and read an audio packet during the same frame)can be done using this method.
     *
@@ -114,7 +114,7 @@ public:
     * @returns true if successful
     */
     bool write(uint8_t * buf);
-    
+
     /**
     * Write and read an audio packet at the same time (on the same frame)
     *
@@ -123,7 +123,7 @@ public:
     * @returns true if successful
     */
     bool readWrite(uint8_t * buf_read, uint8_t * buf_write);
-    
+
 
     /** attach a handler to update the volume
      *
@@ -212,12 +212,12 @@ protected:
     * Callback called on each Start of Frame event
     */
     virtual void SOF(int frameNumber);
-    
+
     /*
     * Callback called when a packet is received
     */
     virtual bool EP3_OUT_callback();
-    
+
     /*
     * Callback called when a packet has been sent
     */
@@ -227,13 +227,13 @@ private:
 
     // stream available ?
     volatile bool available;
-    
+
     // interrupt OUT has been received
     volatile bool interruptOUT;
-    
+
     // interrupt IN has been received
     volatile bool interruptIN;
-    
+
     // audio packet has been written
     volatile bool writeIN;
 
@@ -248,7 +248,7 @@ private:
     // mono, stereo,...
     uint8_t channel_nb_in;
     uint8_t channel_nb_out;
-    
+
     // channel config: master, left, right
     uint8_t channel_config_in;
     uint8_t channel_config_out;
@@ -270,16 +270,16 @@ private:
 
     // Buffer containing one audio packet (to be read)
     volatile uint8_t * buf_stream_in;
-    
+
     // Buffer containing one audio packet (to be written)
     volatile uint8_t * buf_stream_out;
-    
+
     // callback to update volume
     FunctionPointer updateVol;
-    
+
     // boolean showing that the SOF handler has been called. Useful for readNB.
     volatile bool SOF_handler;
-    
+
     volatile float volume;
 
 };

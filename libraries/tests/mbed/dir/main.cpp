@@ -14,7 +14,7 @@ void notify_completion(bool success) {
     } else {
         printf("{failure}\n");
     }
-    
+
     printf("{end}\n");
     led_blink(success ? LED1 : LED4);
 }
@@ -28,7 +28,7 @@ FILE* test_open(char* path, const char* mode) {
         printf("Error opening file\n");
         notify_completion(false);
     }
-    
+
     return f;
 }
 
@@ -50,12 +50,12 @@ void test_close(FILE* f) {
 
 int main() {
     LocalFileSystem local("local");
-    
+
     FILE *f;
     char* str = TEST_STRING;
     char* buffer = (char*) malloc(sizeof(unsigned char)*strlen(TEST_STRING));
     int str_len = strlen(TEST_STRING);
-    
+
     printf("Write files\n");
     char filename[32];
     for (int i=0; i<10; i++) {
@@ -65,7 +65,7 @@ int main() {
         test_write(f, str);
         test_close(f);
     }
-    
+
     printf("List files:\n");
     DIR *d = opendir("/local");
     struct dirent *p;
@@ -73,6 +73,6 @@ int main() {
         printf("%s\n", p->d_name);
     }
     closedir(d);
-    
+
     notify_completion(true);
 }

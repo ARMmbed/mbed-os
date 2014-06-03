@@ -24,9 +24,9 @@ from shutil import copyfile
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
     text = l if shell else ' '.join(l)
     if verbose: print text
-    
+
     rc = call(l, shell=shell, cwd=cwd)
-    
+
     if check and rc != 0:
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
@@ -34,7 +34,7 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 def run_cmd(command, wd=None, redirect=False):
     p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
     stdout, stderr = p.communicate()
-    
+
     return stdout, stderr, p.returncode
 
 
@@ -57,7 +57,7 @@ def copy_file(src, dst):
 def delete_dir_files(dir):
     if not exists(dir):
         return
-    
+
     for f in listdir(dir):
         file = join(dir, f)
         if not isdir(file):

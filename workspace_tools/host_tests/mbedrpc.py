@@ -66,7 +66,7 @@ p30 = pin("p30")
 class mbed:
     def __init__(self):
             print("This will work as a demo but no transport mechanism has been selected")
-    
+
     def rpc(self, name, method, args):
             print("Superclass method not overridden")
 
@@ -84,18 +84,18 @@ class SerialRPC(mbed):
                 print "Reset mbed"
             self.ser.sendBreak()
             time.sleep(2)
-    
+
     def rpc(self, name, method, args):
         request = "/" + name + "/" + method + " " + " ".join(args)
         if self.debug:
             print "[RPC::TX] %s" % request
         self.ser.write(request + "\n")
-        
+
         while True:
             response = self.ser.readline().strip()
             if self.debug:
                 print "[RPC::RX] %s" % response
-            
+
             # Ignore comments
             if not response.startswith('#'): break
         return response
@@ -104,7 +104,7 @@ class SerialRPC(mbed):
 class HTTPRPC(mbed):
     def __init__(self, ip):
         self.host = "http://" + ip
-    
+
     def rpc(self, name, method, args):
         response = urllib2.urlopen(self.host + "/rpc/" + name + "/" + method + "," + ",".join(args))
         return response.read().strip()
@@ -119,13 +119,13 @@ class DigitalOut():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("DigitalOut", "new", [mpin.name])
-     
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def write(self, value):
         r = self.mbed.rpc(self.name, "write", [str(value)])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return int(r)
@@ -138,14 +138,14 @@ class AnalogIn():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("AnalogIn", "new", [mpin.name])
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return float(r)
-    
+
     def read_u16(self):
         r = self.mbed.rpc(self.name, "read_u16", [])
         return int(r)
@@ -158,16 +158,16 @@ class AnalogOut():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("AnalogOut", "new", [mpin.name])
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def write(self, value):
         r = self.mbed.rpc(self.name, "write", [str(value)])
-    
+
     def write_u16(self, value):
         r = self.mbed.rpc(self.name, "write_u16", [str(value)])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return float(r)
@@ -180,10 +180,10 @@ class DigitalIn():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("DigitalIn", "new", [mpin.name])
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return int(r)
@@ -196,29 +196,29 @@ class PwmOut():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("PwmOut", "new", [mpin.name])
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def write(self, value):
         r = self.mbed.rpc(self.name, "write", [str(value)])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return float(r)
-    
+
     def period(self, value):
         r = self.mbed.rpc(self.name, "period", [str(value)])
-        
+
     def period_ms(self, value):
         r = self.mbed.rpc(self.name, "period_ms", [str(value)])
-    
+
     def period_us(self, value):
         r = self.mbed.rpc(self.name, "period_us", [str(value)])
-        
+
     def puslewidth(self, value):
         r = self.mbed.rpc(self.name, "pulsewidth", [str(value)])
-    
+
     def puslewidth_ms(self, value):
         r = self.mbed.rpc(self.name, "pulsewidth_ms", [str(value)])
 
@@ -233,16 +233,16 @@ class Serial():
             self.name = mpin
         elif isinstance(mpin, pin):
             self.name = self.mbed.rpc("Serial", "new", [tx.name, rx.name])
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def putc(self, value):
         r = self.mbed.rpc(self.name, "putc", [str(value)])
-    
+
     def puts(self, value):
         r = self.mbed.rpc(self.name, "puts", [ "\"" + str(value) + "\""])
-    
+
     def getc(self):
         r = self.mbed.rpc(self.name, "getc", [])
         return int(r)
@@ -253,14 +253,14 @@ class RPCFunction():
         self.mbed = this_mbed
         if isinstance(name, str):
             self.name = name
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return int(r)
-    
+
     def run(self, input):
         r = self.mbed.rpc(self.name, "run", [input])
         return r
@@ -271,13 +271,13 @@ class RPCVariable():
         self.mbed = this_mbed
         if isinstance(name, str):
             self.name = name
-    
+
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
-    
+
     def write(self, value):
         self.mbed.rpc(self.name, "write", [str(value)])
-    
+
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
         return r

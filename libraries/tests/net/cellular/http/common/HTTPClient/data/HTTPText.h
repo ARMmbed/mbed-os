@@ -42,7 +42,7 @@ public:
 protected:
   //IHTTPDataIn
   virtual void readReset();
-  
+
   virtual int read(char* buf, size_t len, size_t* pReadLen);
 
   virtual int getDataType(char* type, size_t maxTypeLen); //Internet media type for Content-Type header
@@ -53,7 +53,7 @@ protected:
 
   //IHTTPDataOut
   virtual void writeReset();
-  
+
   virtual int write(const char* buf, size_t len);
 
   virtual void setDataType(const char* type); //Internet media type from Content-Type header

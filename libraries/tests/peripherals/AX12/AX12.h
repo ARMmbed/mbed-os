@@ -54,9 +54,9 @@
  * @code
  * #include "mbed.h"
  * #include "AX12.h"
- * 
+ *
  * int main() {
- * 
+ *
  *   AX12 myax12 (p9, p10, 1);
  *
  *   while (1) {
@@ -75,8 +75,8 @@ public:
     /** Create an AX12 servo object connected to the specified serial port, with the specified ID
      *
      * @param pin tx pin
-     * @param pin rx pin 
-     * @param int ID, the Bus ID of the servo 1-255 
+     * @param pin rx pin
+     * @param int ID, the Bus ID of the servo 1-255
      */
     AX12(PinName tx, PinName rx, int ID, int baud=1000000);
 
@@ -106,7 +106,7 @@ public:
      *
      * @param degrees 0-300
      * @param flags, defaults to 0
-     *    flags[0] = blocking, return when goal position reached 
+     *    flags[0] = blocking, return when goal position reached
      *    flags[1] = register, activate with a broadcast trigger
      *
      */
@@ -127,7 +127,7 @@ public:
      * @param degrees, 0-300
      */
     int SetCWLimit(int degrees);
-    
+
     /** Set the counter-clockwise limit of the servo
      *
      * @param degrees, 0-300
@@ -165,7 +165,7 @@ public:
 
     /** Read the temperature of the servo
      *
-     * @returns float temperature 
+     * @returns float temperature
      */
     float GetTemp(void);
 

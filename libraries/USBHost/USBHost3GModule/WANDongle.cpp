@@ -45,12 +45,12 @@ bool WANDongle::tryConnect()
   USB_DBG("Trying to connect device");
 
   if (dev_connected) {
-      USB_DBG("Device is already connected!");    
+      USB_DBG("Device is already connected!");
       return true;
   }
-  
+
   m_pInitializer = NULL;
-  
+
   //Protect from concurrent access from USB thread
   USBHost::Lock lock(host);
 
@@ -59,16 +59,16 @@ bool WANDongle::tryConnect()
       if ((dev = host->getDevice(i)) != NULL)
       {
           m_pInitializer = NULL; //Will be set in setVidPid callback
-      
+
           USB_DBG("Enumerate");
           int ret = host->enumerate(dev, this);
           if(ret)
           {
             return false;
           }
-          
+
           USB_DBG("Device has VID:%04x PID:%04x", dev->getVid(), dev->getPid());
-                   
+
           if(m_pInitializer) //If an initializer has been found
           {
             USB_DBG("m_pInitializer=%p", m_pInitializer);
@@ -90,18 +90,18 @@ bool WANDongle::tryConnect()
                 USB_DBG("Ep %p", m_pInitializer->getEp(dev, j, true));
                 m_serial[j].connect( dev, m_pInitializer->getEp(dev, j, false), m_pInitializer->getEp(dev, j, true) );
               }
-              
+
               USB_DBG("Device connected");
-              
+
               dev_connected = true;
-              
-              
+
+
               return true;
             }
             else if ((dev->getVid() == m_pInitializer->getMSDVid()) && (dev->getPid() == m_pInitializer->getMSDPid()))
             {
               USB_DBG("Vodafone K3370 dongle detected in MSD mode");
-              //Try to switch   
+              //Try to switch
               if( m_pInitializer->switchMode(dev) )
               {
                 USB_DBG("Switched OK");

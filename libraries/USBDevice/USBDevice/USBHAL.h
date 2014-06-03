@@ -58,7 +58,7 @@ public:
     bool realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t options);
     bool getEndpointStallState(unsigned char endpoint);
     uint32_t endpointReadcore(uint8_t endpoint, uint8_t *buffer);
-    
+
 protected:
     virtual void busReset(void){};
     virtual void EP0setupCallback(void){};
@@ -67,7 +67,7 @@ protected:
     virtual void connectStateChanged(unsigned int connected){};
     virtual void suspendStateChanged(unsigned int suspended){};
     virtual void SOF(int frameNumber){};
-            
+
     virtual bool EP1_OUT_callback(){return false;};
     virtual bool EP1_IN_callback(){return false;};
     virtual bool EP2_OUT_callback(){return false;};
@@ -102,7 +102,7 @@ protected:
     virtual bool EP15_IN_callback(){return false;};
 #endif
 #endif
-    
+
 private:
     void usbisr(void);
     static void _usbisr(void);
@@ -116,6 +116,6 @@ private:
         bool (USBHAL::*epCallback[32 - 2])(void);
 #endif
 
-        
+
 };
 #endif

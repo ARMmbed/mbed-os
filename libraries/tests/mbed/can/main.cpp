@@ -10,14 +10,14 @@ CAN can2(p34, p33);
 CAN can2(p30, p29);
 #endif
 char counter = 0;
- 
-void printmsg(char *title, CANMessage *msg) {    
+
+void printmsg(char *title, CANMessage *msg) {
     printf("%s [%03X]", title, msg->id);
     for(char i = 0; i < msg->len; i++) {
         printf(" %02X", msg->data[i]);
     }
     printf("\n");
-} 
+}
 
 void send() {
     printf("send()\n");
@@ -25,7 +25,7 @@ void send() {
     if(can1.write(msg)) {
         printmsg("Tx message:", &msg);
         counter++;
-    } 
+    }
     led1 = !led1;
 }
 

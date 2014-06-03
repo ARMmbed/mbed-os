@@ -14,7 +14,7 @@ using namespace mbed;
 
 DSTATUS disk_initialize (
     BYTE drv                /* Physical drive nmuber (0..) */
-) 
+)
 {
     debug_if(FFS_DBG, "disk_initialize on drv [%d]\n", drv);
     return (DSTATUS)FATFileSystem::_ffs[drv]->disk_initialize();
@@ -22,7 +22,7 @@ DSTATUS disk_initialize (
 
 DSTATUS disk_status (
     BYTE drv        /* Physical drive nmuber (0..) */
-) 
+)
 {
     debug_if(FFS_DBG, "disk_status on drv [%d]\n", drv);
     return (DSTATUS)FATFileSystem::_ffs[drv]->disk_status();

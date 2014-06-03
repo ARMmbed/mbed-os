@@ -1,12 +1,12 @@
 #include "CellularModem.h"
 #include "smstest.h"
 
-void smstest(CellularModem& modem) 
+void smstest(CellularModem& modem)
 {
     modem.power(true);
     Thread::wait(1000);
 
-#ifdef DESTINATION_NUMBER    
+#ifdef DESTINATION_NUMBER
     modem.sendSM(DESINATION_NUMBER, "Hello from mbed:)");
 #endif
 
@@ -32,7 +32,7 @@ void smstest(CellularModem& modem)
             Thread::wait(3000);
             continue;
           }
-    
+
           printf("%s : %s\n", num, msg);
         }
         Thread::wait(3000);

@@ -36,13 +36,13 @@ typedef struct OS_TCB {
   U16    priv_stack;              /* Private stack size in bytes             */
   U32    tsk_stack;               /* Current task Stack pointer (R13)        */
   U32    *stack;                  /* Pointer to Task Stack memory block      */
-  
+
   /* Library dependant part                                                   */
 #if defined (__CC_ARM) && !defined (__MICROLIB)
  /* A memory space for arm standard library. */
   U32 std_libspace[96/4];
 #endif
-  
+
   /* Task entry point used for uVision debugger                              */
   FUNCP  ptask;                   /* Task entry address                      */
 } *P_TCB;

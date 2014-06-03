@@ -21,15 +21,15 @@
 #if 0
 //Enable debug
 #include <cstdio>
-#define DBG(x, ...) std::printf("[HTTPClient : DBG]"x"\r\n", ##__VA_ARGS__); 
-#define WARN(x, ...) std::printf("[HTTPClient : WARN]"x"\r\n", ##__VA_ARGS__); 
-#define ERR(x, ...) std::printf("[HTTPClient : ERR]"x"\r\n", ##__VA_ARGS__); 
+#define DBG(x, ...) std::printf("[HTTPClient : DBG]"x"\r\n", ##__VA_ARGS__);
+#define WARN(x, ...) std::printf("[HTTPClient : WARN]"x"\r\n", ##__VA_ARGS__);
+#define ERR(x, ...) std::printf("[HTTPClient : ERR]"x"\r\n", ##__VA_ARGS__);
 
 #else
 //Disable debug
-#define DBG(x, ...) 
+#define DBG(x, ...)
 #define WARN(x, ...)
-#define ERR(x, ...) 
+#define ERR(x, ...)
 
 #endif
 
@@ -114,10 +114,10 @@ int HTTPClient::getHTTPResponseCode()
   } while(0)
 
 HTTPResult HTTPClient::connect(const char* url, HTTP_METH method, IHTTPDataOut* pDataOut, IHTTPDataIn* pDataIn, int timeout) //Execute request
-{ 
+{
   m_httpResponseCode = 0; //Invalidate code
   m_timeout = timeout;
-  
+
   pDataIn->writeReset();
   if( pDataOut )
   {
@@ -194,14 +194,14 @@ HTTPResult HTTPClient::connect(const char* url, HTTP_METH method, IHTTPDataOut* 
       CHECK_CONN_ERR(ret);
     }
   }
-  
+
   //Close headers
   DBG("Headers sent");
   ret = send("\r\n");
   CHECK_CONN_ERR(ret);
 
   size_t trfLen;
-  
+
   //Send data (if available)
   if( pDataOut != NULL )
   {
@@ -249,7 +249,7 @@ HTTPResult HTTPClient::connect(const char* url, HTTP_METH method, IHTTPDataOut* 
     }
 
   }
-  
+
   //Receive response
   DBG("Receiving response");
   ret = recv(buf, CHUNK_SIZE - 1, CHUNK_SIZE - 1, &trfLen); //Read n bytes
@@ -276,7 +276,7 @@ HTTPResult HTTPClient::connect(const char* url, HTTP_METH method, IHTTPDataOut* 
 
   if( (m_httpResponseCode < 200) || (m_httpResponseCode >= 300) )
   {
-    //Did not return a 2xx code; TODO fetch headers/(&data?) anyway and implement a mean of writing/reading headers 
+    //Did not return a 2xx code; TODO fetch headers/(&data?) anyway and implement a mean of writing/reading headers
     WARN("Response code %d", m_httpResponseCode);
     PRTCL_ERR();
   }
@@ -484,13 +484,13 @@ HTTPResult HTTPClient::recv(char* buf, size_t minLen, size_t maxLen, size_t* pRe
 {
   DBG("Trying to read between %d and %d bytes", minLen, maxLen);
   size_t readLen = 0;
-      
+
   if(!m_sock.is_connected())
   {
     WARN("Connection was closed by server");
-    return HTTP_CLOSED; //Connection was closed by server 
+    return HTTP_CLOSED; //Connection was closed by server
   }
-    
+
   int ret;
   while(readLen < maxLen)
   {
@@ -506,7 +506,7 @@ HTTPResult HTTPClient::recv(char* buf, size_t minLen, size_t maxLen, size_t* pRe
       m_sock.set_blocking(false, 0);
       ret = m_sock.receive(buf + readLen, maxLen - readLen);
     }
-    
+
     if( ret > 0)
     {
       readLen += ret;
@@ -525,10 +525,10 @@ HTTPResult HTTPClient::recv(char* buf, size_t minLen, size_t maxLen, size_t* pRe
       }
       else
       {
-        break;      
+        break;
       }
     }
-    
+
     if(!m_sock.is_connected())
     {
       break;
@@ -547,13 +547,13 @@ HTTPResult HTTPClient::send(char* buf, size_t len) //0 on success, err code on f
   }
   DBG("Trying to write %d bytes", len);
   size_t writtenLen = 0;
-    
+
   if(!m_sock.is_connected())
   {
     WARN("Connection was closed by server");
-    return HTTP_CLOSED; //Connection was closed by server 
+    return HTTP_CLOSED; //Connection was closed by server
   }
-  
+
   m_sock.set_blocking(false, m_timeout);
   int ret = m_sock.send_all(buf, len);
   if(ret > 0)
@@ -570,7 +570,7 @@ HTTPResult HTTPClient::send(char* buf, size_t len) //0 on success, err code on f
     ERR("Connection error (send returned %d)", ret);
     return HTTP_CONN;
   }
-  
+
   DBG("Written %d bytes", writtenLen);
   return HTTP_OK;
 }

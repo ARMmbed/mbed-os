@@ -31,7 +31,7 @@ def patch(bin_path):
     with open(bin_path, 'r+b') as bin:
         # Read entries 0 through 6 (Little Endian 32bits words)
         vector = [unpack('<I', bin.read(4))[0] for _ in range(7)]
-        
+
         # location 7 (offset 0x1C in the vector table) should contain the 2's
         # complement of the check-sum of table entries 0 through 6
         bin.seek(0x1C)

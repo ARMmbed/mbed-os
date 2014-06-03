@@ -18,7 +18,7 @@
 
 #if USBHOST_KEYBOARD
 
-static uint8_t keymap[4][0x39] = { 
+static uint8_t keymap[4][0x39] = {
     { 0, 0, 0, 0, 'a', 'b' /*0x05*/,
       'c', 'd', 'e', 'f', 'g' /*0x0a*/,
       'h', 'i', 'j', 'k', 'l'/*0x0f*/,
@@ -100,30 +100,30 @@ bool USBHostKeyboard::connected() {
 
 
 bool USBHostKeyboard::connect() {
-    
+
     if (dev_connected) {
         return true;
     }
-    
+
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
             if (host->enumerate(dev, this))
                 break;
-            
+
             if (keyboard_device_found) {
                 int_in = dev->getEndpoint(keyboard_intf, INTERRUPT_ENDPOINT, IN);
-                
+
                 if (!int_in)
                     break;
-                
+
                 USB_INFO("New Keyboard device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, keyboard_intf);
                 dev->setName("Keyboard", keyboard_intf);
                 host->registerDriver(dev, keyboard_intf, this, &USBHostKeyboard::init);
-                
+
                 int_in->attach(this, &USBHostKeyboard::rxHandler);
                 host->interruptRead(dev, int_in, report, int_in->getSize(), false);
-                
+
                 dev_connected = true;
                 return true;
             }

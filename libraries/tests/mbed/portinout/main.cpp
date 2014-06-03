@@ -81,24 +81,24 @@ PortInOut port2(PORT_2, MASK_2);
 
 int main() {
     bool check = true;
-    
+
     port1.output();
     port2.input();
-    
+
     port1 = MASK_1; wait(0.1);
     if (port2 != MASK_2) check = false;
-    
+
     port1 = 0; wait(0.1);
     if (port2 != 0) check = false;
-    
+
     port1.input();
     port2.output();
-    
+
     port2 = MASK_2; wait(0.1);
     if (port1 != MASK_1) check = false;
-    
+
     port2 = 0; wait(0.1);
     if (port1 != 0) check = false;
-    
+
     notify_completion(check);
 }

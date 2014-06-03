@@ -9,7 +9,7 @@
  * Everything else (locate, printf, putc, cls) will come for free
  *
  * The model is the display will wrap at the right and bottom, so you can
- * keep writing and will always get valid characters. The location is 
+ * keep writing and will always get valid characters. The location is
  * maintained internally to the class to make this easy
  */
 
@@ -26,7 +26,7 @@ public:
     virtual void character(int column, int row, int c) = 0;
     virtual int rows() = 0;
     virtual int columns() = 0;
-    
+
     // functions that come for free, but can be overwritten
     virtual void cls();
     virtual void locate(int column, int row);
@@ -34,7 +34,7 @@ public:
     virtual void background(int colour);
     // putc (from Stream)
     // printf (from Stream)
-    
+
 protected:
 
     virtual int _putc(int value);

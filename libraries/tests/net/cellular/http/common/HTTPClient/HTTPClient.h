@@ -60,7 +60,7 @@ public:
   ///Instantiate the HTTP client
   HTTPClient();
   ~HTTPClient();
-  
+
 #if 0 //TODO add header handlers
   /**
   Provides a basic authentification feature (Base64 encoded username and password)
@@ -70,7 +70,7 @@ public:
   */
   void basicAuth(const char* user, const char* password); //Basic Authentification
 #endif
-  
+
   //High Level setup functions
   /** Execute a GET request on the URL
   Blocks until completion
@@ -80,7 +80,7 @@ public:
   @return 0 on success, HTTP error (<0) on failure
   */
   HTTPResult get(const char* url, IHTTPDataIn* pDataIn, int timeout = HTTP_CLIENT_DEFAULT_TIMEOUT); //Blocking
-  
+
   /** Execute a GET request on the URL
   Blocks until completion
   This is a helper to directly get a piece of text from a HTTP result
@@ -101,7 +101,7 @@ public:
   @return 0 on success, HTTP error (<0) on failure
   */
   HTTPResult post(const char* url, const IHTTPDataOut& dataOut, IHTTPDataIn* pDataIn, int timeout = HTTP_CLIENT_DEFAULT_TIMEOUT); //Blocking
-  
+
   /** Execute a PUT request on the URL
   Blocks until completion
   @param url : url on which to execute the request
@@ -111,7 +111,7 @@ public:
   @return 0 on success, HTTP error (<0) on failure
   */
   HTTPResult put(const char* url, const IHTTPDataOut& dataOut, IHTTPDataIn* pDataIn, int timeout = HTTP_CLIENT_DEFAULT_TIMEOUT); //Blocking
-  
+
   /** Execute a DELETE request on the URL
   Blocks until completion
   @param url : url on which to execute the request
@@ -120,12 +120,12 @@ public:
   @return 0 on success, HTTP error (<0) on failure
   */
   HTTPResult del(const char* url, IHTTPDataIn* pDataIn, int timeout = HTTP_CLIENT_DEFAULT_TIMEOUT); //Blocking
-  
+
   /** Get last request's HTTP response code
   @return The HTTP response code of the last request
   */
   int getHTTPResponseCode();
-  
+
 private:
   enum HTTP_METH
   {
@@ -143,7 +143,7 @@ private:
 
   //Parameters
   TCPSocketConnection m_sock;
-  
+
   int m_timeout;
 
   const char* m_basicAuthUser;

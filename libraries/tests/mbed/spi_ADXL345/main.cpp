@@ -24,32 +24,32 @@ void check_X_Y(int v) {
 
 int main() {
     int readings[3] = {0, 0, 0};
-    
+
     printf("Starting ADXL345 test...\n");
     printf("Device ID is: 0x%02x\n", accelerometer.getDevId());
-    
+
     //Go into standby mode to configure the device.
     accelerometer.setPowerControl(0x00);
-    
+
     //Full resolution, +/-16g, 4mg/LSB.
     accelerometer.setDataFormatControl(0x0B);
-    
+
     //3.2kHz data rate.
     accelerometer.setDataRate(ADXL345_3200HZ);
-    
+
     //Measurement mode.
     accelerometer.setPowerControl(0x08);
-    
+
     for (int i=0; i<3; i++) {
         wait(0.1);
-        
+
         //13-bit, sign extended values.
         accelerometer.getOutput(readings);
-        
+
         // X and Y
         check_X_Y(readings[0]);
         check_X_Y(readings[1]);
-        
+
         // Z
         int16_t z = (int16_t)readings[2];
         if ((z < MIN_Z) || (z > MAX_Z)) {
@@ -57,6 +57,6 @@ int main() {
             notify_completion(false);
         }
     }
-    
+
     notify_completion(true);
 }

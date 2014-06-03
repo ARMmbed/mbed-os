@@ -23,7 +23,7 @@ class EchoTest(Test):
         self.mbed.init_serial()
         self.mbed.extra_serial.rtscts = True
         self.mbed.reset()
-    
+
     def test(self):
         self.mbed.flush()
         self.notify("Starting the ECHO test")
@@ -33,14 +33,14 @@ class EchoTest(Test):
             self.mbed.extra_serial.write(TEST + "\n")
             l = self.mbed.extra_serial.readline().strip()
             if not l: continue
-            
+
             if l != TEST:
                 check = False
                 self.notify('"%s" != "%s"' % (l, TEST))
             else:
                 if (i % 10) == 0:
                     self.notify('.')
-        
+
         return check
 
 

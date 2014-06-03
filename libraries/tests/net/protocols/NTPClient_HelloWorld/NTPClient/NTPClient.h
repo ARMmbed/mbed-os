@@ -93,7 +93,7 @@ private:
     uint32_t txTm_s;
     uint32_t txTm_f;
   } __attribute__ ((packed));
-  
+
   UDPSocket m_sock;
 
 };

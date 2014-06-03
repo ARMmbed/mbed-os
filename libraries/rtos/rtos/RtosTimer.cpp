@@ -31,7 +31,7 @@ namespace rtos {
 RtosTimer::RtosTimer(void (*periodic_task)(void const *argument), os_timer_type type, void *argument) {
 #ifdef CMSIS_OS_RTX
     _timer.ptimer = periodic_task;
-    
+
     memset(_timer_data, 0, sizeof(_timer_data));
     _timer.timer = _timer_data;
 #endif

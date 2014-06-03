@@ -7,7 +7,7 @@ int main() {
     while (true) {
         float value = 8.0 * in.read();
         printf("analog in: %f\n\r", value);
-        
+
         int led_mask = 0;
         if (value > 0.5) led_mask |= 1 << 0;
         if (value > 1.5) led_mask |= 1 << 1;
@@ -18,7 +18,7 @@ int main() {
         if (value > 6.5) led_mask |= 1 << 6;
         if (value > 7.5) led_mask |= 1 << 7;
         leds = led_mask;
-        
+
         wait(1);
     }
 }

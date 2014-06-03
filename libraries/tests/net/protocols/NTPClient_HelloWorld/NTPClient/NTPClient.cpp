@@ -22,15 +22,15 @@
 //Enable debug
 #define __DEBUG__
 #include <cstdio>
-#define DBG(x, ...) std::printf("[NTPClient : DBG]"x"\r\n", ##__VA_ARGS__); 
-#define WARN(x, ...) std::printf("[NTPClient : WARN]"x"\r\n", ##__VA_ARGS__); 
-#define ERR(x, ...) std::printf("[NTPClient : ERR]"x"\r\n", ##__VA_ARGS__); 
+#define DBG(x, ...) std::printf("[NTPClient : DBG]"x"\r\n", ##__VA_ARGS__);
+#define WARN(x, ...) std::printf("[NTPClient : WARN]"x"\r\n", ##__VA_ARGS__);
+#define ERR(x, ...) std::printf("[NTPClient : ERR]"x"\r\n", ##__VA_ARGS__);
 
 #else
 //Disable debug
-#define DBG(x, ...) 
+#define DBG(x, ...)
 #define WARN(x, ...)
-#define ERR(x, ...) 
+#define ERR(x, ...)
 
 #endif
 
@@ -61,7 +61,7 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
   //Create & bind socket
   DBG("Binding socket");
   m_sock.bind(0); //Bind to a random port
-  
+
   m_sock.set_blocking(false, timeout); //Set not blocking
 
   struct NTPPacket pkt;
@@ -88,13 +88,13 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
   pkt.refTm_f = pkt.origTm_f = pkt.rxTm_f = pkt.txTm_f = 0;
 
   Endpoint outEndpoint;
-  
+
   if( outEndpoint.set_address(host, port) < 0)
   {
     m_sock.close();
     return NTP_DNS;
   }
-  
+
   //Set timeout, non-blocking and wait using select
   int ret = m_sock.sendTo( outEndpoint, (char*)&pkt, sizeof(NTPPacket) );
   if (ret < 0 )

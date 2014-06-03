@@ -26,19 +26,19 @@ const unsigned char cube_image_ref[] = {
 
 int cube_image_ref_sz = sizeof(cube_image_ref);
 
-/* 
+/*
  * The SPIFI_ROM_PTR (0x1FFF1FF8) points to an area where the pointers to
  * different drivers in ROM are stored.
  */
 typedef struct {
-   /*const*/ unsigned p_usbd;     // USBROMD 
+   /*const*/ unsigned p_usbd;     // USBROMD
    /*const*/ unsigned p_clib;
    /*const*/ unsigned p_cand;
    /*const*/ unsigned p_pwrd;     // PWRROMD
    /*const*/ unsigned p_promd;    // DIVROMD
    /*const*/ SPIFI_RTNS *pSPIFID; // SPIFIROMD
    /*const*/ unsigned p_dev3;
-   /*const*/ unsigned p_dev4; 
+   /*const*/ unsigned p_dev4;
 } ROM;
 
 #define ROM_DRIVERS_PTR ((ROM *)(*((unsigned int *)SPIFI_ROM_PTR)))
@@ -52,7 +52,7 @@ static void initialize_spifi(void)
     // Failed to allocate memory for ROM data
 	notify_completion(false);
   }
-  
+
   // Turn on SPIFI block as it is disabled on reset
   LPC_SC->PCONP |= 0x00010000;
 
@@ -63,7 +63,7 @@ static void initialize_spifi(void)
   LPC_IOCON->P0_16 = 5; /* SPIFI_IO3 @ P0.16 */
   LPC_IOCON->P0_17 = 5; /* SPIFI_IO1 @ P0.17 */
   LPC_IOCON->P0_18 = 5; /* SPIFI_IO0 @ P0.18 */
-  
+
   uint32_t spifi_clk_div = (*((volatile uint32_t*)0x400FC1B4)) & 0x1f;
   uint32_t spifi_clk_mhz = (SystemCoreClock / spifi_clk_div) / 1000000;
 
@@ -80,17 +80,17 @@ static void initialize_spifi(void)
 int main() {
 
 	initialize_spifi();
-	
+
 	// Make sure that cube_image is placed in SPIFI
 	if (!IS_ADDR_IN_SPIFI(cube_image)) {
 		notify_completion(false);
 	}
-	
+
 	// Make sure that cube_image_ref is in IFLASH
 	if (IS_ADDR_IN_SPIFI(cube_image_ref)) {
 		notify_completion(false);
 	}
-	
+
 	// Compare content
     if (cube_image_sz != cube_image_ref_sz) {
 		notify_completion(false);
@@ -102,6 +102,6 @@ int main() {
         }
       }
     }
-	
+
 	notify_completion(true);
 }

@@ -46,19 +46,19 @@ commit_msg = ''
 # Code that does have a mirror in the mbed SDK
 # Tuple data: (repo_name, list_of_code_dirs, [team])
 # team is optional - if not specified, the code is published under mbed_official
-OFFICIAL_CODE = ( 
+OFFICIAL_CODE = (
     ("mbed-src" , "mbed"),
     ("mbed-rtos", "rtos"),
     ("mbed-dsp" , "dsp"),
     ("mbed-rpc" , "rpc"),
-    
+
     ("lwip"    , "net/lwip/lwip"),
     ("lwip-sys", "net/lwip/lwip-sys"),
     ("Socket"  , "net/lwip/Socket"),
-    
+
     ("lwip-eth"         , "net/eth/lwip-eth"),
     ("EthernetInterface", "net/eth/EthernetInterface"),
-    
+
     ("USBDevice", "USBDevice"),
     ("USBHost"  , "USBHost"),
 
@@ -75,7 +75,7 @@ OFFICIAL_CODE = (
 CODE_WITH_DEPENDENCIES = (
     # Libraries
     "EthernetInterface",
-    
+
     # RTOS Examples
     "rtos_basic",
     "rtos_isr",
@@ -85,7 +85,7 @@ CODE_WITH_DEPENDENCIES = (
     "rtos_semaphore",
     "rtos_signals",
     "rtos_timer",
-    
+
     # Net Examples
     "TCPEchoClient",
     "TCPEchoServer",
@@ -95,7 +95,7 @@ CODE_WITH_DEPENDENCIES = (
     "UDPEchoServer",
     "BroadcastReceive",
     "BroadcastSend",
-    
+
     # mbed sources
     "mbed-src-program",
 )
@@ -123,7 +123,7 @@ class MbedRepository:
     def run_and_print(command, cwd):
         stdout, _, _ = run_cmd(command, wd=cwd, redirect=True)
         print(stdout)
-    
+
     def __init__(self, name, team = None):
         self.name = name
         self.path = join(MBED_ORG_PATH, name)
@@ -135,14 +135,14 @@ class MbedRepository:
             # Checkout code
             if not exists(MBED_ORG_PATH):
                 makedirs(MBED_ORG_PATH)
-            
+
             self.run_and_print(['hg', 'clone', self.url % name], cwd=MBED_ORG_PATH)
-        
+
         else:
             # Update
             self.run_and_print(['hg', 'pull'], cwd=self.path)
             self.run_and_print(['hg', 'update'], cwd=self.path)
-    
+
     def publish(self):
         # The maintainer has to evaluate the changes first and explicitly accept them
         self.run_and_print(['hg', 'addremove'], cwd=self.path)
@@ -205,7 +205,7 @@ def get_line_endings(f):
     return 'cr'
 
 # Copy file to destination, but preserve destination line endings if possible
-# This prevents very annoying issues with huge diffs that appear because of 
+# This prevents very annoying issues with huge diffs that appear because of
 # differences in line endings
 def copy_with_line_endings(sdk_file, repo_file):
     if not isfile(repo_file):
@@ -237,11 +237,11 @@ def visit_files(path, visit):
             if ignore_path(full, IGNORE_DIRS):
                 print "Skipping '%s'" % full
                 dirs.remove(d)
-        
+
         for file in files:
             if ignore_path(file, IGNORE_FILES):
                 continue
-            
+
             visit(join(root, file))
 
 
@@ -250,15 +250,15 @@ def update_repo(repo_name, sdk_paths, team_name):
     # copy files from mbed SDK to mbed_official repository
     def visit_mbed_sdk(sdk_file):
         repo_file = join(repo.path, relpath(sdk_file, sdk_path))
-        
+
         repo_dir = dirname(repo_file)
         if not exists(repo_dir):
             makedirs(repo_dir)
-        
+
         copy_with_line_endings(sdk_file, repo_file)
     for sdk_path in sdk_paths:
         visit_files(sdk_path, visit_mbed_sdk)
-    
+
     # remove repository files that do not exist in the mbed SDK
     def visit_repo(repo_file):
         for sdk_path in sdk_paths:
@@ -269,7 +269,7 @@ def update_repo(repo_name, sdk_paths, team_name):
             remove(repo_file)
             print "remove: %s" % repo_file
     visit_files(repo.path, visit_repo)
-    
+
     if repo.publish():
         changed.append(repo_name)
 
@@ -294,7 +294,7 @@ def update_dependencies(repositories):
     for repo_name in repositories:
         print '\n=== Updating "%s" ===' % repo_name
         repo = MbedRepository(repo_name)
-        
+
         # point to the latest libraries
         def visit_repo(repo_file):
             with open(repo_file, "r") as f:
@@ -302,7 +302,7 @@ def update_dependencies(repositories):
             with open(repo_file, "w") as f:
                 f.write(url[:(url.rindex('/')+1)])
         visit_files(repo.path, visit_repo, None, MBED_REPO_EXT)
-        
+
         if repo.publish():
             changed.append(repo_name)
 
@@ -317,13 +317,13 @@ def do_sync(options):
     quiet = options.quiet
     commit_msg = options.msg
     chnaged = []
-    
+
     if options.code:
         update_code(OFFICIAL_CODE)
-    
+
     if options.dependencies:
         update_dependencies(CODE_WITH_DEPENDENCIES)
-    
+
     if options.mbed:
         update_mbed()
 
@@ -337,19 +337,19 @@ def do_sync(options):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    
+
     parser.add_option("-c", "--code",
                   action="store_true",  default=False,
                   help="Update the mbed_official code")
-    
+
     parser.add_option("-d", "--dependencies",
                   action="store_true",  default=False,
                   help="Update the mbed_official code dependencies")
-    
+
     parser.add_option("-m", "--mbed",
                   action="store_true",  default=False,
                   help="Release a build of the mbed library")
-    
+
     parser.add_option("-n", "--nopush",
                   action="store_true", default=False,
                   help="Commit the changes locally only, don't push them")
@@ -361,12 +361,12 @@ if __name__ == '__main__':
     parser.add_option("-r", "--repository",
                   action="store", type="string", default='', dest='repo',
                   help="Synchronize only the given repository")
-                 
+
     parser.add_option("-q", "--quiet",
                   action="store_true", default=False,
                   help="Don't ask for confirmation before commiting or pushing")
-    
+
     (options, args) = parser.parse_args()
-    
+
     do_sync(options)
 

@@ -22,13 +22,13 @@ static ticker_event_t *head = NULL;
 
 void us_ticker_set_handler(ticker_event_handler handler) {
     us_ticker_init();
-    
+
     event_handler = handler;
 }
 
 void us_ticker_irq_handler(void) {
     us_ticker_clear_interrupt();
-    
+
     /* Go through all the pending TimerEvents */
     while (1) {
         if (head == NULL) {
@@ -36,7 +36,7 @@ void us_ticker_irq_handler(void) {
             us_ticker_disable_interrupt();
             return;
         }
-        
+
         if ((int)(head->timestamp - us_ticker_read()) <= 0) {
             // This event was in the past:
             //      point to the following one and execute its handler
@@ -57,11 +57,11 @@ void us_ticker_irq_handler(void) {
 void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id) {
     /* disable interrupts for the duration of the function */
     __disable_irq();
-    
+
     // initialise our data
     obj->timestamp = timestamp;
     obj->id = id;
-    
+
     /* Go through the list until we either reach the end, or find
        an element this should come before (which is possibly the
        head). */
@@ -84,13 +84,13 @@ void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_
     }
     /* if we're at the end p will be NULL, which is correct */
     obj->next = p;
-    
+
     __enable_irq();
 }
 
 void us_ticker_remove_event(ticker_event_t *obj) {
     __disable_irq();
-    
+
     // remove this object from the list
     if (head == obj) {
         // first in the list, so just drop me
@@ -109,6 +109,6 @@ void us_ticker_remove_event(ticker_event_t *obj) {
             p = p->next;
         }
     }
-    
+
     __enable_irq();
 }

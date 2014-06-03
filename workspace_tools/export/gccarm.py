@@ -21,7 +21,7 @@ from os.path import splitext, basename
 class GccArm(Exporter):
     NAME = 'GccArm'
     TOOLCHAIN = 'GCC_ARM'
-    
+
     TARGETS = [
         'LPC1768',
         'KL05Z',
@@ -40,13 +40,13 @@ class GccArm(Exporter):
         'DISCO_F303VC',
         'UBLOX_C027',
     ]
-    
+
     DOT_IN_RELATIVE_PATH = True
-    
+
     def generate(self):
         # "make" wants Unix paths
         self.resources.win_to_unix()
-        
+
         to_be_compiled = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
             r = getattr(self.resources, r_type)
@@ -54,12 +54,12 @@ class GccArm(Exporter):
                 for source in r:
                     base, ext = splitext(source)
                     to_be_compiled.append(base + '.o')
-        
+
         libraries = []
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
-        
+
         ctx = {
             'name': self.program_name,
             'to_be_compiled': to_be_compiled,

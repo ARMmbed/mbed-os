@@ -16,8 +16,8 @@
   *
   *        http://www.st.com/software_license_agreement_liberty_v2
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
@@ -70,7 +70,7 @@ typedef struct // 800h
 }
 USB_OTG_DREGS;
 
-typedef struct 
+typedef struct
 {
   __IO uint32_t DIEPCTL; /* dev IN Endpoint Control Reg 900h + (ep_num * 20h) + 00h*/
   uint32_t Reserved04;             /* Reserved                       900h + (ep_num * 20h) + 04h*/
@@ -83,7 +83,7 @@ typedef struct
 }
 USB_OTG_INEPREGS;
 
-typedef struct 
+typedef struct
 {
   __IO uint32_t DOEPCTL;       /* dev OUT Endpoint Control Reg  B00h + (ep_num * 20h) + 00h*/
   uint32_t Reserved04;         /* Reserved                      B00h + (ep_num * 20h) + 04h*/
@@ -117,7 +117,7 @@ typedef struct
 }
 USB_OTG_HC_REGS;
 
-typedef struct 
+typedef struct
 {
     USB_OTG_GREGS         GREGS;
     uint32_t RESERVED0[188];

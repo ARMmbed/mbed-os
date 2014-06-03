@@ -32,7 +32,7 @@
 
 
 /*string offset*/
-#define STRING_OFFSET_LANGID            (0) 
+#define STRING_OFFSET_LANGID            (0)
 #define STRING_OFFSET_IMANUFACTURER     (1)
 #define STRING_OFFSET_IPRODUCT          (2)
 #define STRING_OFFSET_ISERIAL           (3)

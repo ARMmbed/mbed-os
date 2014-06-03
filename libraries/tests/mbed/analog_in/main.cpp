@@ -6,12 +6,12 @@
  * Connect 'control' to pin 21 of an mbed LPC1768
  * Connect 'analogInput' to pin 18 of an mbed LPC1768
  * Connect 'TX/RX' to pins 27 and 28 of an mbed LPC1768
- * 
- * Upload: 
+ *
+ * Upload:
 */
 #include "test_env.h"
 
-#define ERROR_TOLERANCE 0.05 
+#define ERROR_TOLERANCE 0.05
 
 #if defined(TARGET_LPC1114)
 
