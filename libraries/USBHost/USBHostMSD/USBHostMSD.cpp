@@ -65,19 +65,19 @@ bool USBHostMSD::connect()
 
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
-            
+
             USB_DBG("Trying to connect MSD device\r\n");
-            
+
             if(host->enumerate(dev, this))
                 break;
 
             if (msd_device_found) {
                 bulk_in = dev->getEndpoint(msd_intf, BULK_ENDPOINT, IN);
                 bulk_out = dev->getEndpoint(msd_intf, BULK_ENDPOINT, OUT);
-                
+
                 if (!bulk_in || !bulk_out)
                     continue;
-                
+
                 USB_INFO("New MSD device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, msd_intf);
                 dev->setName("MSD", msd_intf);
                 host->registerDriver(dev, msd_intf, this, &USBHostMSD::init);
@@ -219,7 +219,7 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
     if (data) {
         USB_DBG("data stage");
         if (flags == HOST_TO_DEVICE) {
-            
+
             res = host->bulkWrite(dev, bulk_out, data, transfer_len);
             if (checkResult(res, bulk_out))
                 return -1;
@@ -242,7 +242,7 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
     if (csw.Signature != CSW_SIGNATURE) {
         return -1;
     }
-    
+
     USB_DBG("recv csw: status: %d", csw.Status);
 
     // ModeSense?
@@ -250,27 +250,27 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
         USB_DBG("request mode sense");
         return SCSIRequestSense();
     }
-    
+
     // perform reset recovery
     if ((csw.Status == 2) && (cmd[0] != 0x03)) {
-        
+
         // send Bulk-Only Mass Storage Reset request
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
                                     BO_MASS_STORAGE_RESET,
                                     0, msd_intf, NULL, 0);
-        
+
         // unstall both endpoints
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
                                     CLEAR_FEATURE,
                                     0, bulk_in->getAddress(), NULL, 0);
-        
+
         res = host->controlWrite(   dev,
                                     USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
                                     CLEAR_FEATURE,
                                     0, bulk_out->getAddress(), NULL, 0);
-        
+
     }
 
     return csw.Status;
@@ -304,20 +304,20 @@ int USBHostMSD::getMaxLun() {
 int USBHostMSD::disk_initialize() {
     USB_DBG("FILESYSTEM: init");
     U16 i, timeout = 10;
-    
+
     getMaxLun();
-    
+
     for (i = 0; i < timeout; i++) {
         Thread::wait(100);
         if (!testUnitReady())
             break;
     }
-    
+
     if (i == timeout) {
         disk_init = false;
         return -1;
     }
-    
+
     inquiry(0, 0);
     disk_init = 1;
     return readCapacity();

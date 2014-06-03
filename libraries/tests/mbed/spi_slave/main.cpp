@@ -15,7 +15,7 @@ int main() {
     uint8_t resp = 0;
 
     device.reply(resp);                    // Prime SPI with first reply
-    
+
     while(1) {
         if(device.receive()) {
             resp = device.read();           // Read byte from master and add 1

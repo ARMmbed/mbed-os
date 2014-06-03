@@ -23,12 +23,12 @@
 
 #include "USBHost.h"
 
-/** 
+/**
  * A class to communicate a USB keyboard
  */
 class USBHostKeyboard : public IUSBEnumerator {
 public:
-    
+
     /**
     * Constructor
     */
@@ -83,7 +83,7 @@ private:
     uint8_t report[9];
     int keyboard_intf;
     bool keyboard_device_found;
-    
+
     bool dev_connected;
 
     void rxHandler();
@@ -92,7 +92,7 @@ private:
     void (*onKeyCode)(uint8_t key, uint8_t modifier);
 
     int report_id;
-    
+
     void init();
 
 };

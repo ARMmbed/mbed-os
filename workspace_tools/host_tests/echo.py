@@ -22,7 +22,7 @@ class EchoTest(Test):
         Test.__init__(self)
         self.mbed.init_serial(115200)
         self.mbed.reset()
-    
+
     def test(self):
         self.mbed.flush()
         self.notify("Starting the ECHO test")
@@ -32,14 +32,14 @@ class EchoTest(Test):
             self.mbed.serial.write(TEST + "\n")
             l = self.mbed.serial.readline().strip()
             if not l: continue
-            
+
             if l != TEST:
                 check = False
                 self.notify('"%s" != "%s"' % (l, TEST))
             else:
                 if (i % 10) == 0:
                     self.notify('.')
-        
+
         return check
 
 

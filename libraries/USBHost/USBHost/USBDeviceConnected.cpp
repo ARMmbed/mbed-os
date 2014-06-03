@@ -50,10 +50,10 @@ void USBDeviceConnected::init() {
 INTERFACE * USBDeviceConnected::getInterface(uint8_t index) {
     if (index >= MAX_INTF)
         return NULL;
-    
+
     if (intf[index].in_use)
         return &intf[index];
-    
+
     return NULL;
 }
 

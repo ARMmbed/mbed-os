@@ -87,7 +87,7 @@ int main() {
         printf("[Test high] expected (0x%x) received (0x%x)\n", MASK_2, value);
         notify_completion(false);
     }
-    
+
     port_out = 0;
     wait(0.1);
     value = port_in.read();
@@ -95,6 +95,6 @@ int main() {
         printf("[Test low] expected (0x%x) received (0x%x)\n", 0, value);
         notify_completion(false);
     }
-    
+
     notify_completion(true);
 }

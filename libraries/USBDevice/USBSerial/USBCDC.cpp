@@ -73,15 +73,15 @@ void USBCDC::USBCallback_requestCompleted(uint8_t *buf, uint32_t length) {
     if (length != 7) {
         return;
     }
-    
+
     CONTROL_TRANSFER * transfer = getTransferPtr();
- 
+
     /* Process class-specific requests */
     if (transfer->setup.bmRequestType.Type == CLASS_TYPE) {
         if (transfer->setup.bRequest == CDC_SET_LINE_CODING) {
             if (memcmp(cdc_line_coding, buf, 7)) {
-                memcpy(cdc_line_coding, buf, 7); 
- 
+                memcpy(cdc_line_coding, buf, 7);
+
                 int baud = buf[0] + (buf[1] << 8)
                          + (buf[2] << 16) + (buf[3] << 24);
                 int stop = buf[4];
@@ -186,7 +186,7 @@ uint8_t * USBCDC::configurationDesc() {
         0,                      // iConfiguration
         0x80,                   // bmAttributes
         50,                     // bMaxPower
-        
+
         // IAD to associate the two CDC interfaces
         0x08,                   // bLength
         0x0b,                   // bDescriptorType

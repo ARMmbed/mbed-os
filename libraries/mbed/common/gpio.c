@@ -17,13 +17,13 @@
 
 static inline void _gpio_init_in(gpio_t* gpio, PinName pin, PinMode mode)
 {
-    gpio_init(gpio, pin);    
-    if (pin != NC) {    
+    gpio_init(gpio, pin);
+    if (pin != NC) {
         gpio_dir(gpio, PIN_INPUT);
         gpio_mode(gpio, mode);
     }
 }
-    
+
 static inline void _gpio_init_out(gpio_t* gpio, PinName pin, PinMode mode, int value)
 {
     gpio_init(gpio, pin);

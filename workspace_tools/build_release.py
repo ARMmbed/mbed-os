@@ -38,7 +38,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('LPC1549',      ('uARM',)),
-    
+
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM')),
     ('KL25Z',        ('ARM', 'GCC_ARM')),
     ('KL46Z',        ('ARM', 'GCC_ARM')),
@@ -81,14 +81,14 @@ if __name__ == '__main__':
             except Exception, e:
                 failures.append(id)
                 print e
-    
+
     # Write summary of the builds
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
-    
+
     if successes:
         print "\n\nBuild successes:"
         print "\n".join(["  * %s" % s for s in successes])
-    
+
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])

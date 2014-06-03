@@ -41,30 +41,30 @@ public:
     #ifdef CMSIS_OS_RTX
         memset(_pool_m, 0, sizeof(_pool_m));
         _pool_def.pool = _pool_m;
-        
+
         _pool_def.pool_sz = pool_sz;
         _pool_def.item_sz =  sizeof(T);
     #endif
         _pool_id = osPoolCreate(&_pool_def);
     }
-    
+
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* alloc(void) {
         return (T*)osPoolAlloc(_pool_id);
     }
-    
+
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
-      @return  address of the allocated memory block or NULL in case of no memory available. 
+      @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* calloc(void) {
         return (T*)osPoolCAlloc(_pool_id);
     }
-    
+
     /** Return an allocated memory block back to a specific memory pool.
       @param   address of the allocated memory block that is returned to the memory pool.
-      @return  status code that indicates the execution status of the function. 
+      @return  status code that indicates the execution status of the function.
     */
     osStatus free(T *block) {
         return osPoolFree(_pool_id, (void*)block);

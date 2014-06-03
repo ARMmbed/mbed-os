@@ -88,7 +88,7 @@ WEAK void mbed_mac_address(char *mac) {
 #if DEVICE_SEMIHOST
     char uid[DEVICE_ID_LENGTH + 1];
     int i;
-    
+
     // if we have a UID, extract the MAC
     if (mbed_interface_uid(uid) == 0) {
         char *p = uid;

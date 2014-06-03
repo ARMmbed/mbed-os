@@ -28,7 +28,7 @@ InterruptIn button9(p15);
 DigitalOut led(LED1);
 DigitalOut flash(LED2);
 
-#else 
+#else
 InterruptIn button(p30);
 InterruptIn button1(p29);
 InterruptIn button2(p28);
@@ -42,11 +42,11 @@ InterruptIn button9(p21);
 DigitalOut led(LED1);
 DigitalOut flash(LED4);
 #endif
- 
+
 void flip() {
     led = !led;
 }
- 
+
 int main() {
     flash = 0;
     led = 0;

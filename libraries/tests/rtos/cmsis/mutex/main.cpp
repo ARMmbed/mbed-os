@@ -25,9 +25,9 @@ osThreadDef(t3, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 int main() {
     stdio_mutex = osMutexCreate(osMutex(stdio_mutex));
-    
+
     osThreadCreate(osThread(t2), NULL);
     osThreadCreate(osThread(t3), NULL);
-    
+
     test_thread((void *)"Th 1");
 }

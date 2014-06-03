@@ -19,10 +19,10 @@ void queue_thread(void const *argument) {
 
 int main (void) {
     Thread thread(queue_thread);
-    
+
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);
-    
+
     while (true) {
         osEvent evt = queue.get();
         if (evt.status != osEventMessage) {

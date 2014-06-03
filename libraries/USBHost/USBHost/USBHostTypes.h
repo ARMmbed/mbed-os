@@ -67,28 +67,28 @@ enum ENDPOINT_TYPE {
 #define HUB_CLASS       0x09
 #define SERIAL_CLASS    0x0A
 
-// ------------------ HcControl Register ---------------------  
+// ------------------ HcControl Register ---------------------
 #define  OR_CONTROL_PLE                 0x00000004
 #define  OR_CONTROL_CLE                 0x00000010
 #define  OR_CONTROL_BLE                 0x00000020
 #define  OR_CONTROL_HCFS                0x000000C0
 #define  OR_CONTROL_HC_OPER             0x00000080
-// ----------------- HcCommandStatus Register ----------------- 
+// ----------------- HcCommandStatus Register -----------------
 #define  OR_CMD_STATUS_HCR              0x00000001
 #define  OR_CMD_STATUS_CLF              0x00000002
 #define  OR_CMD_STATUS_BLF              0x00000004
-// --------------- HcInterruptStatus Register ----------------- 
+// --------------- HcInterruptStatus Register -----------------
 #define  OR_INTR_STATUS_WDH             0x00000002
 #define  OR_INTR_STATUS_RHSC            0x00000040
 #define  OR_INTR_STATUS_UE              0x00000010
-// --------------- HcInterruptEnable Register ----------------- 
+// --------------- HcInterruptEnable Register -----------------
 #define  OR_INTR_ENABLE_WDH             0x00000002
 #define  OR_INTR_ENABLE_RHSC            0x00000040
 #define  OR_INTR_ENABLE_MIE             0x80000000
-// ---------------- HcRhDescriptorA Register ------------------ 
+// ---------------- HcRhDescriptorA Register ------------------
 #define  OR_RH_STATUS_LPSC              0x00010000
 #define  OR_RH_STATUS_DRWE              0x00008000
-// -------------- HcRhPortStatus[1:NDP] Register -------------- 
+// -------------- HcRhPortStatus[1:NDP] Register --------------
 #define  OR_RH_PORT_CCS                 0x00000001
 #define  OR_RH_PORT_PRS                 0x00000010
 #define  OR_RH_PORT_CSC                 0x00010000
@@ -100,14 +100,14 @@ enum ENDPOINT_TYPE {
 
 #define  ED_SKIP            (uint32_t) (0x00001000)        // Skip this ep in queue
 
-#define  TD_ROUNDING        (uint32_t) (0x00040000)        // Buffer Rounding                             
-#define  TD_SETUP           (uint32_t)(0)                  // Direction of Setup Packet                   
-#define  TD_IN              (uint32_t)(0x00100000)         // Direction In                                
-#define  TD_OUT             (uint32_t)(0x00080000)         // Direction Out                               
-#define  TD_DELAY_INT(x)    (uint32_t)((x) << 21)          // Delay Interrupt                             
-#define  TD_TOGGLE_0        (uint32_t)(0x02000000)         // Toggle 0                                    
-#define  TD_TOGGLE_1        (uint32_t)(0x03000000)         // Toggle 1                                    
-#define  TD_CC              (uint32_t)(0xF0000000)         // Completion Code                             
+#define  TD_ROUNDING        (uint32_t) (0x00040000)        // Buffer Rounding
+#define  TD_SETUP           (uint32_t)(0)                  // Direction of Setup Packet
+#define  TD_IN              (uint32_t)(0x00100000)         // Direction In
+#define  TD_OUT             (uint32_t)(0x00080000)         // Direction Out
+#define  TD_DELAY_INT(x)    (uint32_t)((x) << 21)          // Delay Interrupt
+#define  TD_TOGGLE_0        (uint32_t)(0x02000000)         // Toggle 0
+#define  TD_TOGGLE_1        (uint32_t)(0x03000000)         // Toggle 1
+#define  TD_CC              (uint32_t)(0xF0000000)         // Completion Code
 
 #define  DEVICE_DESCRIPTOR                     (1)
 #define  CONFIGURATION_DESCRIPTOR              (2)
@@ -115,7 +115,7 @@ enum ENDPOINT_TYPE {
 #define  ENDPOINT_DESCRIPTOR                   (5)
 #define  HID_DESCRIPTOR                        (33)
 
-//  ----------- Control RequestType Fields  ----------- 
+//  ----------- Control RequestType Fields  -----------
 #define  USB_DEVICE_TO_HOST         0x80
 #define  USB_HOST_TO_DEVICE         0x00
 #define  USB_REQUEST_TYPE_CLASS     0x20
@@ -124,14 +124,14 @@ enum ENDPOINT_TYPE {
 #define  USB_RECIPIENT_INTERFACE    0x01
 #define  USB_RECIPIENT_ENDPOINT     0x02
 
-// -------------- USB Standard Requests  -------------- 
+// -------------- USB Standard Requests  --------------
 #define  SET_ADDRESS                0x05
 #define  GET_DESCRIPTOR             0x06
 #define  SET_CONFIGURATION          0x09
 #define  SET_INTERFACE              0x0b
 #define  CLEAR_FEATURE              0x01
 
-// -------------- USB Descriptor Length  -------------- 
+// -------------- USB Descriptor Length  --------------
 #define DEVICE_DESCRIPTOR_LENGTH            0x12
 #define CONFIGURATION_DESCRIPTOR_LENGTH     0x09
 
@@ -145,7 +145,7 @@ typedef struct HCTD {
     uint32_t dummy[3];              // padding
 } PACKED HCTD;
 
-// ----------- HostController EndPoint Descriptor ------------- 
+// ----------- HostController EndPoint Descriptor -------------
 typedef struct hcEd {
     __IO  uint32_t  control;        // Endpoint descriptor control
     __IO  HCTD *  tailTD;           // Physical address of tail in Transfer descriptor list
@@ -154,73 +154,73 @@ typedef struct hcEd {
 } PACKED HCED;
 
 
-// ----------- Host Controller Communication Area ------------  
+// ----------- Host Controller Communication Area ------------
 typedef struct hcca {
     __IO  uint32_t  IntTable[32];   // Interrupt Table
     __IO  uint32_t  FrameNumber;    // Frame Number
     __IO  uint32_t  DoneHead;       // Done Head
-    volatile  uint8_t   Reserved[116];  // Reserved for future use                                  
-    volatile  uint8_t   Unknown[4];     // Unused                                                   
+    volatile  uint8_t   Reserved[116];  // Reserved for future use
+    volatile  uint8_t   Unknown[4];     // Unused
 } PACKED HCCA;
 
 typedef struct {
-    uint8_t bLength;            
-    uint8_t bDescriptorType;    
-    uint16_t bcdUSB;            
-    uint8_t bDeviceClass;       
-    uint8_t bDeviceSubClass;    
-    uint8_t bDeviceProtocol;    
-    uint8_t bMaxPacketSize;     
-    uint16_t idVendor;          
-    uint16_t idProduct;         
-    uint16_t bcdDevice;         
-    uint8_t iManufacturer;      
-    uint8_t iProduct;           
-    uint8_t iSerialNumber;      
-    uint8_t bNumConfigurations; 
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint16_t bcdUSB;
+    uint8_t bDeviceClass;
+    uint8_t bDeviceSubClass;
+    uint8_t bDeviceProtocol;
+    uint8_t bMaxPacketSize;
+    uint16_t idVendor;
+    uint16_t idProduct;
+    uint16_t bcdDevice;
+    uint8_t iManufacturer;
+    uint8_t iProduct;
+    uint8_t iSerialNumber;
+    uint8_t bNumConfigurations;
 } PACKED DeviceDescriptor;
 
 typedef struct {
-    uint8_t bLength;               
-    uint8_t bDescriptorType;       
-    uint16_t wTotalLength;         
-    uint8_t bNumInterfaces;        
-    uint8_t bConfigurationValue;   
-    uint8_t iConfiguration;        
-    uint8_t bmAttributes;          
-    uint8_t bMaxPower;             
-} PACKED ConfigurationDescriptor; 
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint16_t wTotalLength;
+    uint8_t bNumInterfaces;
+    uint8_t bConfigurationValue;
+    uint8_t iConfiguration;
+    uint8_t bmAttributes;
+    uint8_t bMaxPower;
+} PACKED ConfigurationDescriptor;
 
 typedef struct {
-    uint8_t bLength;                 
-    uint8_t bDescriptorType;   
-    uint8_t bInterfaceNumber;  
-    uint8_t bAlternateSetting; 
-    uint8_t bNumEndpoints;     
-    uint8_t bInterfaceClass;   
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bInterfaceNumber;
+    uint8_t bAlternateSetting;
+    uint8_t bNumEndpoints;
+    uint8_t bInterfaceClass;
     uint8_t bInterfaceSubClass;
     uint8_t bInterfaceProtocol;
-    uint8_t iInterface;        
-} InterfaceDescriptor; 
+    uint8_t iInterface;
+} InterfaceDescriptor;
 
 typedef struct {
-    uint8_t bLength;          
-    uint8_t bDescriptorType;  
-    uint8_t bEndpointAddress; 
-    uint8_t bmAttributes;     
-    uint16_t wMaxPacketSize;  
-    uint8_t bInterval;        
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bEndpointAddress;
+    uint8_t bmAttributes;
+    uint16_t wMaxPacketSize;
+    uint8_t bInterval;
 } EndpointDescriptor;
 
 typedef struct {
-    uint8_t bDescLength;      
-    uint8_t bDescriptorType;  
-    uint8_t bNbrPorts;        
+    uint8_t bDescLength;
+    uint8_t bDescriptorType;
+    uint8_t bNbrPorts;
     uint16_t wHubCharacteristics;
-    uint8_t bPwrOn2PwrGood;   
-    uint8_t bHubContrCurrent; 
-    uint8_t DeviceRemovable;  
-    uint8_t PortPweCtrlMak;   
-} HubDescriptor;              
+    uint8_t bPwrOn2PwrGood;
+    uint8_t bHubContrCurrent;
+    uint8_t DeviceRemovable;
+    uint8_t PortPweCtrlMak;
+} HubDescriptor;
 
 #endif

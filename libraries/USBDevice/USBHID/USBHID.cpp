@@ -121,7 +121,7 @@ bool USBHID::USBCallback_request() {
                                 success = true;
                             }
                             break;
-                     
+
                     default:
                         break;
                 }

@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -126,7 +126,7 @@ __asm void SVC_Handler (void) {
 
 #ifdef  IFX_XMC4XXX
         EXPORT  SVC_Handler_Veneer
-SVC_Handler_Veneer        
+SVC_Handler_Veneer
 #endif
 
         MRS     R0,PSP                  ; Read PSP
@@ -136,7 +136,7 @@ SVC_Handler_Veneer
 
         LDM     R0,{R0-R3,R12}          ; Read R0-R3,R12 from stack
         PUSH    {R4,LR}                 ; Save EXC_RETURN
-        BLX     R12                     ; Call SVC Function 
+        BLX     R12                     ; Call SVC Function
         POP     {R4,LR}                 ; Restore EXC_RETURN
 
         MRS     R12,PSP                 ; Read PSP
@@ -216,7 +216,7 @@ __asm void PendSV_Handler (void) {
 
 #ifdef  IFX_XMC4XXX
         EXPORT  PendSV_Handler_Veneer
-PendSV_Handler_Veneer        
+PendSV_Handler_Veneer
 #endif
 
         PUSH    {R4,LR}                 ; Save EXC_RETURN
@@ -278,7 +278,7 @@ __asm void SysTick_Handler (void) {
 
 #ifdef  IFX_XMC4XXX
         EXPORT  SysTick_Handler_Veneer
-SysTick_Handler_Veneer        
+SysTick_Handler_Veneer
 #endif
 
         PUSH    {R4,LR}                 ; Save EXC_RETURN

@@ -57,7 +57,7 @@ USBHALHost::USBHALHost() {
 
 void USBHALHost::init() {
     NVIC_DisableIRQ(USB_IRQn);
-    
+
     //Cut power
     LPC_SC->PCONP &= ~(1UL<<31);
     wait_ms(100);
@@ -98,7 +98,7 @@ void USBHALHost::init() {
 
     // software reset
     LPC_USB->HcCommandStatus = OR_CMD_STATUS_HCR;
-    
+
     // Write Fm Interval and Largest Data Packet Counter
     LPC_USB->HcFmInterval    = DEFAULT_FMINTERVAL;
     LPC_USB->HcPeriodicStart = FI * 90 / 100;
@@ -109,7 +109,7 @@ void USBHALHost::init() {
     LPC_USB->HcRhStatus = OR_RH_STATUS_LPSC;
 
     LPC_USB->HcHCCA = (uint32_t)(usb_hcca);
-    
+
     // Clear Interrrupt Status
     LPC_USB->HcInterruptStatus |= LPC_USB->HcInterruptStatus;
 
@@ -249,9 +249,9 @@ void USBHALHost::freeTD(volatile uint8_t * td) {
 void USBHALHost::resetRootHub() {
     // Initiate port reset
     LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRS;
-    
+
     while (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_PRS);
-    
+
     // ...and clear port reset signal
     LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRSC;
 }
@@ -266,11 +266,11 @@ void USBHALHost::_usbisr(void) {
 void USBHALHost::UsbIrqhandler() {
     if( LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable ) //Is there something to actually process?
     {
-        
+
         uint32_t int_status = LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable;
 
         // Root hub status change interrupt
-        if (int_status & OR_INTR_STATUS_RHSC) { 
+        if (int_status & OR_INTR_STATUS_RHSC) {
             if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CSC) {
                 if (LPC_USB->HcRhStatus & OR_RH_STATUS_DRWE) {
                     // When DRWE is on, Connect Status Change
@@ -278,27 +278,27 @@ void USBHALHost::UsbIrqhandler() {
                 } else {
 
                     //Root device connected
-                    if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CCS) { 
-                        
+                    if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CCS) {
+
                         // wait 150ms to avoid bounce
                         wait_ms(150);
-                        
+
                         //Hub 0 (root hub), Port 1 (count starts at 1), Low or High speed
-                        deviceConnected(0, 1, LPC_USB->HcRhPortStatus1 & OR_RH_PORT_LSDA); 
-                    } 
-                    
+                        deviceConnected(0, 1, LPC_USB->HcRhPortStatus1 & OR_RH_PORT_LSDA);
+                    }
+
                     //Root device disconnected
-                    else { 
-                        
+                    else {
+
                         if (!(int_status & OR_INTR_STATUS_WDH)) {
                             usb_hcca->DoneHead = 0;
                         }
-                        
+
                         // wait 200ms to avoid bounce
                         wait_ms(200);
-                        
+
                         deviceDisconnected(0, 1, NULL, usb_hcca->DoneHead & 0xFFFFFFFE);
-                        
+
                         if (int_status & OR_INTR_STATUS_WDH) {
                             usb_hcca->DoneHead = 0;
                             LPC_USB->HcInterruptStatus = OR_INTR_STATUS_WDH;

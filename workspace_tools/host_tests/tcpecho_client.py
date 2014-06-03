@@ -30,17 +30,17 @@ UPDATE_STEP = (N_PACKETS/10)
 
 class TCP_EchoClient:
     def __init__(self, host):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((host, ECHO_PORT))
         self.packet = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(LEN_PACKET))
-    
+
     def __packet(self):
         # Comment out the checks when measuring the throughput
         # self.packet = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(LEN_PACKET))
         self.s.send(self.packet)
         data = self.s.recv(LEN_PACKET)
         # assert self.packet == data, "packet error:\n%s\n%s\n" % (self.packet, data)
-    
+
     def test(self):
         start = time()
         for i in range(N_PACKETS):
@@ -48,9 +48,9 @@ class TCP_EchoClient:
             self.__packet()
         t = time() - start
         print 'Throughput: (%.2f)Mbits/s' % ((TOT_BITS / t)/MEGA)
-    
+
     def __del__(self):
-        self.s.close() 
+        self.s.close()
 
 while True:
     e = TCP_EchoClient(SERVER_ADDRESS)

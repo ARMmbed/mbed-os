@@ -12,11 +12,11 @@ public:
 
     TextLCD(PinName rs, PinName rw, PinName e, PinName d0, PinName d1, PinName d2, PinName d3, const char *name = NULL);
     virtual void character(int column, int row, int c);
-    virtual int rows(); 
-    virtual int columns();  
+    virtual int rows();
+    virtual int columns();
 
     // locate, cls, putc, printf come from derived class
-    
+
 protected:
 
     void writeByte(int value);

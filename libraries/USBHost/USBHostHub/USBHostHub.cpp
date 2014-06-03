@@ -64,7 +64,7 @@ void USBHostHub::init() {
     hub_device_found = false;
     nb_port = 0;
     hub_characteristics = 0;
-    
+
     for (int i = 0; i < MAX_HUB_PORT; i++) {
         device_children[i] = NULL;
     }
@@ -80,52 +80,52 @@ bool USBHostHub::connected()
 }
 
 bool USBHostHub::connect(USBDeviceConnected * dev)
-{   
+{
     if (dev_connected) {
         return true;
     }
-    
+
     if(host->enumerate(dev, this)) {
         init();
         return false;
     }
-    
+
     if (hub_device_found) {
         this->dev = dev;
-    
+
         int_in = dev->getEndpoint(hub_intf, INTERRUPT_ENDPOINT, IN);
-        
+
         if (!int_in) {
             init();
             return false;
         }
-        
+
         USB_INFO("New HUB: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, hub_intf);
         dev->setName("Hub", hub_intf);
         host->registerDriver(dev, hub_intf, this, &USBHostHub::disconnect);
-        
+
         int_in->attach(this, &USBHostHub::rxHandler);
-        
+
         // get HUB descriptor
-        host->controlRead(  dev, 
+        host->controlRead(  dev,
                             USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
                             GET_DESCRIPTOR,
                             0x29 << 8, 0, buf, sizeof(HubDescriptor));
         nb_port = buf[2];
         hub_characteristics = buf[3];
-        
+
         USB_DBG("Hub has %d port", nb_port);
-        
+
         for (uint8_t j = 1; j <= nb_port; j++) {
             setPortFeature(PORT_POWER_FEATURE, j);
         }
         wait_ms(buf[5]*2);
-        
+
         host->interruptRead(dev, int_in, buf, 1, false);
         dev_connected = true;
         return true;
     }
-    
+
     return false;
 }
 
@@ -184,7 +184,7 @@ void USBHostHub::rxHandler() {
             for (int port = 1; port <= nb_port; port++) {
                 status = getPortStatus(port);
                 USB_DBG("[hub handler hub: %d] status port %d [hub: %p]: 0x%X", dev->getHub(), port, dev, status);
-                
+
                 // if connection status has changed
                 if (status & C_PORT_CONNECTION) {
                     if (status & PORT_CONNECTION) {
@@ -194,18 +194,18 @@ void USBHostHub::rxHandler() {
                         USB_DBG("[hub handler hub: %d - port: %d] device disconnected", dev->getHub(), port);
                         host->deviceDisconnected(dev->getHub() + 1, port, this, 0);
                     }
-                    
+
                     clearPortFeature(C_PORT_CONNECTION_FEATURE, port);
                 }
-                
+
                 if (status & C_PORT_RESET) {
                     clearPortFeature(C_PORT_RESET_FEATURE, port);
                 }
-                
+
                 if (status & C_PORT_ENABLE) {
                     clearPortFeature(C_PORT_ENABLE_FEATURE, port);
                 }
-                
+
                 if ((status & PORT_OVER_CURRENT)) {
                     USB_ERR("OVER CURRENT DETECTED\r\n");
                     clearPortFeature(PORT_OVER_CURRENT, port);

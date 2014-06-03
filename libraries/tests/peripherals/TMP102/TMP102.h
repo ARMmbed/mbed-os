@@ -14,23 +14,23 @@ public:
   /*!
   Connect module at I2C address addr using I2C port pins sda and scl.
   TMP102
-  \param addr <table><tr><th>A0 pin connection</th><th>Address</th></tr><tr><td>GND</td><td>0x90</td></tr><tr><td>V+</td><td>0x92</td></tr><tr><td>SDA</td><td>0x94</td></tr><tr><td>SCL</td><td>0x96</td></tr></table>  
+  \param addr <table><tr><th>A0 pin connection</th><th>Address</th></tr><tr><td>GND</td><td>0x90</td></tr><tr><td>V+</td><td>0x92</td></tr><tr><td>SDA</td><td>0x94</td></tr><tr><td>SCL</td><td>0x96</td></tr></table>
   */
   TMP102(PinName sda, PinName scl, int addr);
-  
+
   /*!
   Destroys instance.
-  */ 
+  */
   ~TMP102();
-  
+
   //!Reads the current temperature.
   /*!
   Reads the temperature register of the TMP102 and converts it to a useable value.
   */
   float read();
-  
+
   I2C m_i2c;
-  
+
 private:
   int m_addr;
 

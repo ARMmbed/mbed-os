@@ -3,9 +3,9 @@
    written by CAM  start                                     4/16/10
                    first testing                             5/12/10
                    OK with first SST & Winbond devices       6/8/10
-				   OK with Gigadevice, Numonyx, Atmel, 
+				   OK with Gigadevice, Numonyx, Atmel,
 				                              some Macronyx  7/13/10
-				   consensus with BK, performance optimized  8/24/10              
+				   consensus with BK, performance optimized  8/24/10
    this file is largely platform-independent */
 
 #ifndef SPIFI_ROM_API_H
@@ -14,7 +14,7 @@
 
 #define SPIFI_MEM_BASE 0x28000000
 /* allocated size of the SPIFI memory area on this device */
-#define MEM_AREA_SIZE  0x00001000 
+#define MEM_AREA_SIZE  0x00001000
 #define SPIFI_ROM_PTR  0x1FFF1FF8
 
 /* define the symbol TESTING in the environment	if test output desired */
@@ -61,7 +61,7 @@ typedef struct {
 } SPIFIopers;
 
 
-/* bits in options operands (MODE3, RCVCLK, and FULLCLK 
+/* bits in options operands (MODE3, RCVCLK, and FULLCLK
 	have the same relationship as in the Control register) */
 #define S_MODE3 1
 #define S_MODE0 0
@@ -87,7 +87,7 @@ typedef struct {
 
 /* interface to ROM API */
 typedef struct {
-  int (*spifi_init)      (SPIFIobj *obj, unsigned csHigh, unsigned options, 
+  int (*spifi_init)      (SPIFIobj *obj, unsigned csHigh, unsigned options,
                           unsigned mhz);
   int (*spifi_program)   (SPIFIobj *obj, char *source, SPIFIopers *opers);
   int (*spifi_erase)     (SPIFIobj *obj, SPIFIopers *opers);
@@ -97,19 +97,19 @@ typedef struct {
 
   /* mid level functions */
   int (*checkAd)         (SPIFIobj *obj, SPIFIopers *opers);
-  int (*setProt)         (SPIFIobj *obj, SPIFIopers *opers, char *change, 
+  int (*setProt)         (SPIFIobj *obj, SPIFIopers *opers, char *change,
                           char *saveProt);
-  int (*check_block)     (SPIFIobj *obj, char *source, SPIFIopers *opers, 
+  int (*check_block)     (SPIFIobj *obj, char *source, SPIFIopers *opers,
                           unsigned check_program);
   int (*send_erase_cmd)  (SPIFIobj *obj, unsigned char op, unsigned addr);
   unsigned (*ck_erase)   (SPIFIobj *obj, unsigned *addr, unsigned length);
-  int (*prog_block)      (SPIFIobj *obj, char *source, SPIFIopers *opers, 
+  int (*prog_block)      (SPIFIobj *obj, char *source, SPIFIopers *opers,
                           unsigned *left_in_page);
   unsigned (*ck_prog)    (SPIFIobj *obj, char *source, char *dest, unsigned length);
 
   /* low level functions */
   void(*setSize)         (SPIFIobj *obj, int value);
-  int (*setDev)          (SPIFIobj *obj, unsigned opts, unsigned mem_cmd, 
+  int (*setDev)          (SPIFIobj *obj, unsigned opts, unsigned mem_cmd,
                           unsigned prog_cmd);
   unsigned (*cmd)        (uint8_t op, uint8_t addrLen, uint8_t intLen, unsigned short len);
   unsigned (*readAd)     (SPIFIobj *obj, unsigned cmd, unsigned addr);

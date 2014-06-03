@@ -27,26 +27,26 @@ class USBDevice: public USBHAL
 {
 public:
     USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
-    
+
     /*
     * Check if the device is configured
     *
     * @returns true if configured, false otherwise
     */
     bool configured(void);
-    
+
     /*
     * Connect a device
-    * 
+    *
     * @param blocking: block if not configured
     */
     void connect(bool blocking = true);
-    
+
     /*
     * Disconnect a device
     */
     void disconnect(void);
-    
+
     /*
     * Add an endpoint
     *
@@ -65,7 +65,7 @@ public:
     * @return true if successful
     */
     bool readStart(uint8_t endpoint, uint32_t maxSize);
-    
+
     /*
     * Read a certain endpoint. Before calling this function, USBUSBDevice_readStart
     * must be called.
@@ -79,20 +79,20 @@ public:
     * @returns true if successful
     */
     bool readEP(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize);
-    
+
     /*
     * Read a certain endpoint.
     *
     * Warning: non blocking
     *
     * @param endpoint endpoint which will be read
-    * @param buffer buffer will be filled with the data received (if data are available) 
+    * @param buffer buffer will be filled with the data received (if data are available)
     * @param size the number of bytes read will be stored in *size
     * @param maxSize the maximum length that can be read
     * @returns true if successful
     */
     bool readEP_NB(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize);
-    
+
     /*
     * Write a certain endpoint.
     *
@@ -104,8 +104,8 @@ public:
     * @param maxSize the maximum length that can be written on this endpoint
     */
     bool write(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize);
-    
-    
+
+
     /*
     * Write a certain endpoint.
     *
@@ -118,14 +118,14 @@ public:
     */
     bool writeNB(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize);
 
-    
+
     /*
     * Called by USBDevice layer on bus reset. Warning: Called in ISR context
     *
     * May be used to reset state
     */
     virtual void USBCallback_busReset(void) {};
-    
+
     /*
     * Called by USBDevice on Endpoint0 request. Warning: Called in ISR context
     * This is used to handle extensions to standard requests
@@ -133,8 +133,8 @@ public:
     *
     * @returns true if class handles this request
     */
-    virtual bool USBCallback_request() { return false; };   
-    
+    virtual bool USBCallback_request() { return false; };
+
     /*
     * Called by USBDevice on Endpoint0 request completion
     * if the 'notify' flag has been set to true. Warning: Called in ISR context
@@ -146,7 +146,7 @@ public:
     * @param length length of this buffer
     */
     virtual void USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {};
-    
+
     /*
     * Called by USBDevice layer. Set configuration of the device.
     * For instance, you can add all endpoints that you need on this function.
@@ -154,7 +154,7 @@ public:
     * @param configuration Number of the configuration
     */
     virtual bool USBCallback_setConfiguration(uint8_t configuration) { return false; };
-    
+
     /*
      * Called by USBDevice layer. Set interface/alternate of the device.
      *
@@ -170,63 +170,63 @@ public:
     * @returns pointer to the device descriptor
     */
     virtual uint8_t * deviceDesc();
-    
+
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
     virtual uint8_t * configurationDesc(){return NULL;};
-    
+
     /*
     * Get string lang id descriptor
     *
     * @return pointer to the string lang id descriptor
     */
     virtual uint8_t * stringLangidDesc();
-    
+
     /*
     * Get string manufacturer descriptor
     *
     * @returns pointer to the string manufacturer descriptor
     */
     virtual uint8_t * stringImanufacturerDesc();
-    
+
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
     virtual uint8_t * stringIproductDesc();
-    
+
     /*
     * Get string serial descriptor
     *
     * @returns pointer to the string serial descriptor
     */
     virtual uint8_t * stringIserialDesc();
-    
+
     /*
     * Get string configuration descriptor
     *
     * @returns pointer to the string configuration descriptor
     */
     virtual uint8_t * stringIConfigurationDesc();
-    
+
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
     virtual uint8_t * stringIinterfaceDesc();
-    
+
     /*
     * Get the length of the report descriptor
     *
     * @returns length of the report descriptor
     */
     virtual uint16_t reportDescLength() { return 0; };
-    
+
 
 
 protected:
@@ -238,7 +238,7 @@ protected:
     virtual void suspendStateChanged(unsigned int suspended);
     uint8_t * findDescriptor(uint8_t descriptorType);
     CONTROL_TRANSFER * getTransferPtr(void);
-    
+
     uint16_t VENDOR_ID;
     uint16_t PRODUCT_ID;
     uint16_t PRODUCT_RELEASE;
@@ -262,7 +262,7 @@ private:
 
     CONTROL_TRANSFER transfer;
     USB_DEVICE device;
-    
+
     uint16_t currentInterface;
     uint8_t currentAlternate;
 };

@@ -29,7 +29,7 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
     memcpy((HCTD**)td_list, td_list_, sizeof(HCTD*)*2); //TODO: Maybe should add a param for td_list size... at least a define
     memset(td_list_[0], 0, sizeof(HCTD));
     memset(td_list_[1], 0, sizeof(HCTD));
-    
+
     td_list[0]->ep = this;
     td_list[1]->ep = this;
 
@@ -52,7 +52,7 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
 
     td_current = td_list[0];
     td_next = td_list[1];
-    
+
     intf_nb = 0;
 
     state = USB_TYPE_IDLE;

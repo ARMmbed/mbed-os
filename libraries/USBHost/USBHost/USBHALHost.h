@@ -33,61 +33,61 @@ protected:
     * init variables and memory where will be stored HCCA, ED and TD
     */
     USBHALHost();
-    
+
     /**
-    * Initialize host controller. Enable USB interrupts. This part is not in the constructor because, 
+    * Initialize host controller. Enable USB interrupts. This part is not in the constructor because,
     * this function calls a virtual method if a device is already connected
     */
     void init();
-    
+
     /**
     * reset the root hub
     */
     void resetRootHub();
-    
+
     /**
     * return the value contained in the control HEAD ED register
     *
     * @returns address of the control Head ED
     */
     uint32_t controlHeadED();
-    
+
     /**
     * return the value contained in the bulk HEAD ED register
     *
     * @returns address of the bulk head ED
     */
     uint32_t bulkHeadED();
-    
+
     /**
     * return the value of the head interrupt ED contained in the HCCA
     *
     * @returns address of the head interrupt ED contained in the HCCA
     */
     uint32_t interruptHeadED();
-    
+
     /**
     * Update the head ED for control transfers
     */
     void updateControlHeadED(uint32_t addr);
-    
+
     /**
     * Update the head ED for bulk transfers
     */
     void updateBulkHeadED(uint32_t addr);
-    
+
     /**
     * Update the head ED for interrupt transfers
     */
     void updateInterruptHeadED(uint32_t addr);
-    
+
     /**
     * Enable List for the specified endpoint type
     *
     * @param type enable the list of ENDPOINT_TYPE type
     */
     void enableList(ENDPOINT_TYPE type);
-    
+
     /**
     * Disable List for the specified endpoint type
     *
@@ -104,7 +104,7 @@ protected:
     * @param hub_parent reference to the hub where the device is connected (NULL if the hub parent is the root hub)
     */
     virtual void deviceConnected(int hub, int port, bool lowSpeed, USBHostHub * hub_parent = NULL) = 0;
-    
+
     /**
     * Virtual method called when a device has been disconnected
     *
@@ -114,35 +114,35 @@ protected:
     * @param addr list of the TDs which have been completed to dequeue freed TDs
     */
     virtual void deviceDisconnected(int hub, int port, USBHostHub * hub_parent, volatile uint32_t addr) = 0;
-    
+
     /**
     * Virtual method called when a transfer has been completed
     *
     * @param addr list of the TDs which have been completed
     */
     virtual void transferCompleted(volatile uint32_t addr) = 0;
-    
+
     /**
     * Find a memory section for a new ED
     *
     * @returns the address of the new ED
     */
     volatile uint8_t * getED();
-    
+
     /**
     * Find a memory section for a new TD
     *
     * @returns the address of the new TD
     */
     volatile uint8_t * getTD();
-    
+
     /**
     * Release a previous memory section reserved for an ED
     *
     * @param ed address of the ED
     */
     void freeED(volatile uint8_t * ed);
-    
+
     /**
     * Release a previous memory section reserved for an TD
     *
@@ -161,7 +161,7 @@ private:
     uint8_t volatile  * usb_tdBuf;      //4 bytes aligned
 
     static USBHALHost * instHost;
-    
+
     bool volatile  edBufAlloc[MAX_ENDPOINT];
     bool volatile tdBufAlloc[MAX_TD];
 };

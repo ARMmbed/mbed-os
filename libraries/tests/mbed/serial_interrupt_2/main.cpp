@@ -22,17 +22,17 @@ int main() {
     // Use a deliberatly slow baud to fill up the TX buffer
     uart.baud(1200);
     uart.attach(&rxCallback, Serial::RxIrq);
-    
+
     printf("Starting test loop:\n");
     wait(1);
-    
+
     int c = 'A';
     for (int loop = 0; loop < 512; loop++) {
         uart.printf("%c", c);
         c++;
         if (c > 'Z') c = 'A';
     }
-    
+
     while (true) {
         led2 = !led2;
         wait(1);

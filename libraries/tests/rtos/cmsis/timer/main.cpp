@@ -19,11 +19,11 @@ int main(void) {
     osTimerId timer_1 = osTimerCreate(osTimer(blink_1), osTimerPeriodic, (void *)1);
     osTimerId timer_2 = osTimerCreate(osTimer(blink_2), osTimerPeriodic, (void *)2);
     osTimerId timer_3 = osTimerCreate(osTimer(blink_3), osTimerPeriodic, (void *)3);
-    
+
     osTimerStart(timer_0, 2000);
     osTimerStart(timer_1, 1000);
     osTimerStart(timer_2,  500);
     osTimerStart(timer_3,  250);
-    
+
     osDelay(osWaitForever);
 }

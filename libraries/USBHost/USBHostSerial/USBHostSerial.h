@@ -25,7 +25,7 @@
 #include "Stream.h"
 #include "MtxCircBuffer.h"
 
-/** 
+/**
  * A class to communicate a USB virtual serial port
  */
 class USBHostSerialPort : public Stream {
@@ -39,7 +39,7 @@ public:
         RxIrq,
         TxIrq
     };
-    
+
     enum Parity {
         None = 0,
         Odd,
@@ -48,7 +48,7 @@ public:
         Space
     };
 
-    void connect(USBHost* _host, USBDeviceConnected * _dev, 
+    void connect(USBHost* _host, USBDeviceConnected * _dev,
         uint8_t _serial_intf, USBEndpoint* _bulk_in, USBEndpoint* _bulk_out);
 
     /**
@@ -56,7 +56,7 @@ public:
     *
     * @returns the number of bytes available
     */
-    uint8_t available(); 
+    uint8_t available();
 
     /**
      *  Attach a member function to call when a packet is received.
@@ -90,13 +90,13 @@ public:
             }
         }
     }
-    
+
     /** Set the baud rate of the serial port
      *
      *  @param baudrate The baudrate of the serial port (default = 9600).
      */
     void baud(int baudrate = 9600);
-    
+
     /** Set the transmission format used by the Serial port
      *
      *  @param bits The number of bits in a word (default = 8)
@@ -110,7 +110,7 @@ public:
 protected:
     virtual int _getc();
     virtual int _putc(int c);
-    
+
 private:
     USBHost * host;
     USBDeviceConnected * dev;
@@ -132,7 +132,7 @@ private:
         uint8_t parity;
         uint8_t data_bits;
     } PACKED LINE_CODING;
-    
+
     LINE_CODING line_coding;
 
     void rxHandler();
@@ -145,18 +145,18 @@ private:
 
 #if (USBHOST_SERIAL <= 1)
 
-class USBHostSerial : public IUSBEnumerator, public USBHostSerialPort 
+class USBHostSerial : public IUSBEnumerator, public USBHostSerialPort
 {
-public: 
+public:
     USBHostSerial();
-    
+
     /**
      * Try to connect a serial device
      *
      * @return true if connection was successful
      */
     bool connect();
-    
+
     void disconnect();
 
     /**
@@ -165,7 +165,7 @@ public:
     * @returns true if a serial device is connected
     */
     bool connected();
-  
+
 protected:
     USBHost* host;
     USBDeviceConnected* dev;
@@ -176,7 +176,7 @@ protected:
     virtual void setVidPid(uint16_t vid, uint16_t pid);
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
-    
+
 private:
     bool dev_connected;
 };
@@ -184,13 +184,13 @@ private:
 #else // (USBHOST_SERIAL > 1)
 
 class USBHostMultiSerial : public IUSBEnumerator {
-public: 
+public:
     USBHostMultiSerial();
     virtual ~USBHostMultiSerial();
-    
-    USBHostSerialPort* getPort(int port) 
-    { 
-        return port < USBHOST_SERIAL ? ports[port] : NULL; 
+
+    USBHostSerialPort* getPort(int port)
+    {
+        return port < USBHOST_SERIAL ? ports[port] : NULL;
     }
 
     /**
@@ -199,7 +199,7 @@ public:
      * @return true if connection was successful
      */
     bool connect();
-    
+
     void disconnect();
 
     /**
@@ -208,7 +208,7 @@ public:
     * @returns true if a serial device is connected
     */
     bool connected();
-  
+
 protected:
     USBHost* host;
     USBDeviceConnected* dev;
@@ -220,7 +220,7 @@ protected:
     virtual void setVidPid(uint16_t vid, uint16_t pid);
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
-    
+
 private:
     bool dev_connected;
 };

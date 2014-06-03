@@ -2,14 +2,14 @@
  * Copyright (c) 2007-2009 sford
  * Released under the MIT License: http://mbed.org/license/mit
  */
- 
+
 #include "TextDisplay.h"
 
 TextDisplay::TextDisplay(const char *name) : Stream(name) {
     _row = 0;
     _column = 0;
 }
-    
+
 int TextDisplay::_putc(int value) {
     if(value == '\n') {
         _column = 0;
@@ -47,7 +47,7 @@ void TextDisplay::locate(int column, int row) {
 int TextDisplay::_getc() {
     return -1;
 }
-        
+
 void TextDisplay::foreground(int colour) {
     _foreground = colour;
 }

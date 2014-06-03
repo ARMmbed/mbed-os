@@ -30,7 +30,7 @@ namespace mbed {
  * // Send a byte to a SPI half-duplex slave, and record the response
  *
  * #include "mbed.h"
- * 
+ *
  * SPIHalfDuplex device(p5, p6, p7) // mosi, miso, sclk
  *
  * int main() {
@@ -42,7 +42,7 @@ namespace mbed {
 class SPIHalfDuplex : public SPI {
 
 public:
-    
+
     /** Create a SPI half-duplex master connected to the specified pins
      *
      * Pin Options:
@@ -65,7 +65,7 @@ public:
      *    Response from the SPI slave
      */
     virtual int write(int value);
-    
+
     /** Set the number of databits expected from the slave, from 4-16
      *
      *  @param sbits Number of expected bits in the slave response

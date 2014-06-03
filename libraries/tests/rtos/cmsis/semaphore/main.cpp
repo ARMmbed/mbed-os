@@ -21,9 +21,9 @@ osThreadDef(t3, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 int main (void) {
     two_slots = osSemaphoreCreate(osSemaphore(two_slots), 2);
-    
+
     osThreadCreate(osThread(t2), NULL);
     osThreadCreate(osThread(t3), NULL);
-    
+
     test_thread((void *)"Th 1");
 }

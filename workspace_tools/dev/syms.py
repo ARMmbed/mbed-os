@@ -28,7 +28,7 @@ OBJ_EXT = ['.o', '.a', '.ar']
 
 def find_sym_in_lib(sym, obj_path):
     contain_symbol = False
-    
+
     out = Popen(["nm", "-C", obj_path], stdout=PIPE, stderr=PIPE).communicate()[0]
     for line in out.splitlines():
             tokens = line.split()
@@ -41,24 +41,24 @@ def find_sym_in_lib(sym, obj_path):
                 sym_name = tokens[2]
             else:
                 continue
-            
+
             if sym_type == "U":
                 # This object is using this symbol, not defining it
                 continue
-            
+
             if sym_name == sym:
                 contain_symbol = True
-    
+
     return contain_symbol
 
 
 def find_sym_in_path(sym, dir_path):
     for root, _, files in walk(dir_path):
         for file in files:
-            
+
             _, ext = splitext(file)
             if ext not in OBJ_EXT: continue
-            
+
             path = join(root, file)
             if find_sym_in_lib(sym, path):
                 print path
@@ -71,5 +71,5 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--path',  required=True,
                         help='The path where to search')
     args = parser.parse_args()
-    
+
     find_sym_in_path(args.sym, args.path)

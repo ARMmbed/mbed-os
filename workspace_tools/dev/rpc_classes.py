@@ -153,38 +153,38 @@ for c in RPC_CLASSES:
         "cons_proto": get_args_proto(c_args, ["const char *name=NULL"]),
         "cons_call": get_args_call(c_args)
     }
-    
+
     c_name = "Rpc" +  c['name']
-    
+
     methods = []
     rpc_methods = []
     for r, m, a in c['methods']:
         ret_proto = r if r else "void"
         args_proto = "void"
-        
+
         ret_defin = "return " if r else ""
         args_defin = ""
-        
+
         if a:
             args_proto = get_args_proto(a)
             args_defin = get_args_call(a)
-        
+
         proto = "%s %s(%s)"   % (ret_proto, m, args_proto)
         defin = "{%so.%s(%s);}" % (ret_defin, m, args_defin)
         methods.append("%s %s" % (proto, defin))
-        
+
         rpc_method_type = [r] if r else []
         rpc_method_type.append(c_name)
         rpc_method_type.extend(a)
         rpc_methods.append('{"%s", rpc_method_caller<%s, &%s::%s>}' % (m, ', '.join(rpc_method_type), c_name, m))
-    
+
     data['methods'] = "\n    ".join(methods)
     data['rpc_methods'] = ",\n            ".join(rpc_methods)
-    
+
     class_decl = class_template.render(data)
     if 'required' in c:
         class_decl = "#if DEVICE_%s\n%s\n#endif" % (c['required'], class_decl)
-    
+
     classes.append(class_decl)
 
 write_rpc_classes('\n\n'.join(classes))

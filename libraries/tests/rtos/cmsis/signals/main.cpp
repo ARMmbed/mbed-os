@@ -15,7 +15,7 @@ osThreadDef(led_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 int main (void) {
     osThreadId tid = osThreadCreate(osThread(led_thread), NULL);
-    
+
     while (true) {
         osDelay(1000);
         osSignalSet(tid, 0x1);

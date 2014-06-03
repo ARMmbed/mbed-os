@@ -134,7 +134,7 @@ void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size) {
 
 USBHAL::USBHAL(void) {
     NVIC_DisableIRQ(USB_IRQ);
-    
+
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -149,7 +149,7 @@ USBHAL::USBHAL(void) {
     // USB_VBUS input with pull-down
     LPC_IOCON->PIO0_3 = 0x00000009;
     #endif
-    
+
     // nUSB_CONNECT output
     LPC_IOCON->PIO0_6 = 0x00000001;
 
@@ -287,13 +287,13 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
             bf = 0;
         }
     }
-    
+
     // if isochronous endpoint, T = 1
     if(endpointState[endpoint].options & ISOCHRONOUS)
     {
         flags |= CMDSTS_T;
     }
-        
+
     //Active the endpoint for reading
     ep[PHY_TO_LOG(endpoint)].out[bf] = CMDSTS_A | CMDSTS_NBYTES(maximumSize) \
                                        | CMDSTS_ADDRESS_OFFSET((uint32_t)ct->out) | flags;
@@ -408,7 +408,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
 
 EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
     uint32_t bf;
-    
+
     // Validate parameters
     if (endpoint > LAST_PHYSICAL_ENDPOINT) {
         return EP_INVALID;
@@ -680,7 +680,7 @@ void USBHAL::usbisr(void) {
         // EP0IN ACK event (IN data sent)
         EP0in();
     }
-    
+
     for (uint8_t num = 2; num < 5*2; num++) {
         if (LPC_USB->INTSTAT & EP(num)) {
             LPC_USB->INTSTAT = EP(num);

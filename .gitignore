@@ -60,3 +60,6 @@ debug.log
 
 # Ignore OS X Desktop Services Store files
 .DS_Store
+
+# Orig diff files
+*.orig
