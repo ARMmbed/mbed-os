@@ -173,7 +173,7 @@ class K64F(Target):
 
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
 
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         
         self.supported_form_factors = ["ARDUINO"]
 

@@ -1,4 +1,4 @@
-/* KL25Z startup ARM GCC
+/* KL46Z startup ARM GCC
  * Purpose: startup file for Cortex-M0 devices. Should use with
  *   GCC for ARM Embedded Processors
  * Version: V1.2
@@ -134,8 +134,8 @@ __isr_vector:
     .section .text.Reset_Handler
     .thumb
     .thumb_func
-    .align 2
-    .globl    Reset_Handler
+    .align  2
+    .globl   Reset_Handler
     .type    Reset_Handler, %function
 Reset_Handler:
 /*     Loop to copy data from read only memory to RAM. The ranges
@@ -149,21 +149,21 @@ Reset_Handler:
     ldr    r2, =__data_start__
     ldr    r3, =__data_end__
 
-    subs    r3, r2
+    subs   r3, r2
     ble    .Lflash_to_ram_loop_end
 
     movs    r4, 0
 .Lflash_to_ram_loop:
     ldr    r0, [r1,r4]
     str    r0, [r2,r4]
-    adds    r4, 4
+    adds   r4, 4
     cmp    r4, r3
     blt    .Lflash_to_ram_loop
 .Lflash_to_ram_loop_end:
 
-    ldr    r0, =SystemInit
-    blx    r0
-    ldr    r0, =_start
+    ldr   r0, =SystemInit
+    blx   r0
+    ldr   r0, =_start
     bx    r0
     .pool
     .size Reset_Handler, . - Reset_Handler
