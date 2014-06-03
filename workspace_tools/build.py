@@ -26,6 +26,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from workspace_tools.toolchains import TOOLCHAINS
+from workspace_tools.toolchains import print_notify_verbose
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
@@ -54,6 +55,8 @@ if __name__ == '__main__':
                       default=False, help="Compile the u-blox library")
     parser.add_option("-D", "", action="append", dest="macros",
                       help="Add a macro definition")
+    parser.add_option("-x", "--extra-verbose-notifications", action="store_true", dest="extra_verbose_notify",
+                      default=False, help="Makes compiler more verbose, CI friendly.")
     (options, args) = parser.parse_args()
 
     # Get target list
@@ -103,12 +106,14 @@ if __name__ == '__main__':
             id = "%s::%s" % (toolchain, target)
             try:
                 mcu = TARGET_MAP[target]
+                notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                 build_mbed_libs(mcu, toolchain, options=options.options,
-                                verbose=options.verbose, clean=options.clean,
+                                notify=notify, verbose=options.verbose, clean=options.clean,
                                 macros=options.macros)
                 for lib_id in libraries:
+                    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                     build_lib(lib_id, mcu, toolchain, options=options.options,
-                              verbose=options.verbose, clean=options.clean,
+                              notify=notify, verbose=options.verbose, clean=options.clean,
                               macros=options.macros)
                 successes.append(id)
             except Exception, e:

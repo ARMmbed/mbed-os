@@ -114,7 +114,9 @@ class GCC(mbedToolchain):
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
-                    match.group('message')
+                    match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
                 continue
            
