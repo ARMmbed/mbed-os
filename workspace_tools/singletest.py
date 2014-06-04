@@ -233,7 +233,7 @@ class SingleTestRunner(object):
         #    delete_dir_files(disk)
 
         # Program MUT with proper image file
-        if not disk.endswith('/') or not disk.endswith('\\'):
+        if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
         cmd = ["cp", image_path.encode('ascii','ignore'), disk.encode('ascii','ignore') +  basename(image_path).encode('ascii','ignore')]
