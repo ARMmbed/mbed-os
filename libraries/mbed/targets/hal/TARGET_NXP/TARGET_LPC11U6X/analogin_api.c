@@ -73,7 +73,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
         tmp =  LPC_ADC->CTRL;
     } while ((tmp & (1UL << 30)) != 0);
 
-    LPC_ADC->CTRL = 100; // 500kHz sampling
+    LPC_ADC->CTRL = 1; // Sampling clock: SystemClock divided by 1
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
