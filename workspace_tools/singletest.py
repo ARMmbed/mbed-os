@@ -89,15 +89,16 @@ from Queue import Queue, Empty
 
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
 # Imports related to mbed build pi
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
+from workspace_tools.build_api import mcu_toolchain_matrix
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
 from workspace_tools.libraries import LIBRARIES
-
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -523,6 +524,12 @@ if __name__ == '__main__':
                       dest='test_by_names',
                       help='Runs only test enumerated it this switch')
 
+    parser.add_option("-S", "--supported-toolchains",
+                      action="store_true",
+                      dest="supported_toolchains",
+                      default=False,
+                      help="Displays supported matrix of MCUs and toolchains")
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -538,6 +545,12 @@ if __name__ == '__main__':
     if opts.test_automation_report:
         get_result_summary_table()
         exit(0)
+
+    # Only prints matrix of supported toolchains
+    if opts.supported_toolchains:
+        mcu_toolchain_matrix()
+        exit(0)
+
 
     # Open file with test specification
     # test_spec_filename tells script which targets and their toolchain(s)

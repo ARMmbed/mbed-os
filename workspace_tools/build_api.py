@@ -22,6 +22,7 @@ from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
+from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 
 
 def build_project(src_path, build_path, target, toolchain_name,
@@ -199,3 +200,38 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
     for o in separate_objects:
         toolchain.copy_files(o, BUILD_TOOLCHAIN)
+
+
+def get_unique_supported_toolchains():
+    """ Get list of all unique toolchains supported by targets """
+    unique_supported_toolchains = []
+    for target in TARGET_NAMES:
+        for toolchain in TARGET_MAP[target].supported_toolchains:
+            if toolchain not in unique_supported_toolchains:
+                unique_supported_toolchains.append(toolchain)
+    return unique_supported_toolchains
+
+
+def mcu_toolchain_matrix():
+    """  Shows target map using prettytable """
+    unique_supported_toolchains = get_unique_supported_toolchains()
+    from prettytable import PrettyTable # Only use it in this function so building works without extra modules
+
+    # All tests status table print
+    columns = ["Platform"] + unique_supported_toolchains
+    pt = PrettyTable(["Platform"] + unique_supported_toolchains)
+    # Align table
+    for col in columns:
+        pt.align[col] = "c"
+    pt.align["Platform"] = "l"
+
+    for target in sorted(TARGET_NAMES):
+        row = [target]  # First column is platform name
+        for unique_toolchain in unique_supported_toolchains:
+            text = "-"
+            if unique_toolchain in TARGET_MAP[target].supported_toolchains:
+                text = "Supported"
+            row.append(text);
+        pt.add_row(row)
+    print pt
+

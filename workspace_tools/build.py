@@ -30,6 +30,7 @@ from workspace_tools.toolchains import print_notify_verbose
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
+from workspace_tools.build_api import mcu_toolchain_matrix
 
 
 if __name__ == '__main__':
@@ -55,9 +56,16 @@ if __name__ == '__main__':
                       default=False, help="Compile the u-blox library")
     parser.add_option("-D", "", action="append", dest="macros",
                       help="Add a macro definition")
+    parser.add_option("-S", "--supported-toolchains", action="store_true", dest="supported_toolchains",
+                      default=False, help="Displays supported matrix of MCUs and toolchains")
     parser.add_option("-x", "--extra-verbose-notifications", action="store_true", dest="extra_verbose_notify",
                       default=False, help="Makes compiler more verbose, CI friendly.")
     (options, args) = parser.parse_args()
+
+    # Only prints matrix of supported toolchains
+    if options.supported_toolchains:
+        mcu_toolchain_matrix()
+        exit(0)
 
     # Get target list
     if options.mcu:
