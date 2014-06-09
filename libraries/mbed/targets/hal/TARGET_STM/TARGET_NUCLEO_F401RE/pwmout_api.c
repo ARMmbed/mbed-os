@@ -238,6 +238,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
     __HAL_TIM_DISABLE(&TimHandle);
 
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
+
     TimHandle.Init.Period        = us - 1;
     TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
     TimHandle.Init.ClockDivision = 0;
