@@ -138,7 +138,7 @@ struct lpc_enetdata {
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
 #  elif defined(TOOLCHAIN_GCC_CR)
-#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32"), aligned))
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
