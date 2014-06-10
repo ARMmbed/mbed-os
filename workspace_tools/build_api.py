@@ -18,7 +18,7 @@ from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
 
-from workspace_tools.utils import mkdir
+from workspace_tools.utils import mkdir, run_cmd
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
@@ -237,3 +237,96 @@ def mcu_toolchain_matrix():
         pt.add_row(row)
     print pt
     print "Total permutations: %d"% (perm_counter)
+
+
+def static_analysis_scan(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None):
+    # Toolchain
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain.VERBOSE = verbose
+    toolchain.build_all = clean
+
+    # Source and Build Paths
+    BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
+    BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
+    mkdir(BUILD_TOOLCHAIN)
+
+    TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
+    mkdir(TMP_PATH)
+
+    # CMSIS
+    toolchain.info("\n>>>> SCANNING %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+    resources = toolchain.scan_resources(cmsis_src)
+
+    toolchain.copy_files(resources.headers, BUILD_TARGET)
+    toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+
+    includes = ["-I%s " % i for i in resources.inc_dirs]
+    includes.append(" -I%s "% str(BUILD_TARGET))
+    c_sources = " ".join(resources.c_sources)
+    cpp_sources = " ".join(resources.cpp_sources)
+    macros = ['-D%s ' % s for s in toolchain.get_symbols() + toolchain.macros]
+
+    CPPCHECK_MSG_FORMAT = ["--template=\"[{severity}] {file}@{line}: {id}:{message}\"", "--xml"]
+
+    check_cmd = 'cppcheck --enable=style '
+    check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
+    check_cmd += " ".join(includes)
+    check_cmd += " ".join(macros)
+    check_cmd += c_sources
+    check_cmd += " " + cpp_sources
+    # print check_cmd
+
+    #['cppcheck', includes, c_sources, cpp_sources]
+    stdout, stderr, rc = run_cmd(check_cmd)
+
+    print stdout
+    print stderr
+
+    # MBED
+    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+
+    # Common Headers
+    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+
+    # Target specific sources
+    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
+    hal_implementation = toolchain.scan_resources(HAL_SRC)
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    incdirs = toolchain.scan_resources(BUILD_TARGET)
+
+    target_includes = ["-I%s " % i for i in incdirs.inc_dirs]
+    target_includes.append(" -I%s "% str(BUILD_TARGET))
+    target_includes.append(" -I%s "% str(HAL_SRC))
+    target_c_sources = " ".join(incdirs.c_sources)
+    target_cpp_sources = " ".join(incdirs.cpp_sources)
+    target_macros = ['-D%s ' % s for s in toolchain.get_symbols() + toolchain.macros]
+
+
+    # Common Sources
+    mbed_resources = toolchain.scan_resources(MBED_COMMON)
+
+    mbed_includes = ["-I%s " % i for i in mbed_resources.inc_dirs]
+    mbed_includes.append(" -I%s "% str(BUILD_TARGET))
+    mbed_includes.append(" -I%s "% str(MBED_COMMON))
+    mbed_includes.append(" -I%s "% str(MBED_API))
+    mbed_includes.append(" -I%s "% str(MBED_HAL))
+    mbed_c_sources = " ".join(mbed_resources.c_sources)
+    mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
+
+    check_cmd = 'cppcheck --enable=all ' + " ".join(CPPCHECK_MSG_FORMAT) + " "
+    check_cmd += " ".join(target_includes)
+    check_cmd += " ".join(mbed_includes)
+    check_cmd += " ".join(target_macros)
+    check_cmd += " " + target_c_sources
+    check_cmd += " " + target_cpp_sources
+    check_cmd += " " + mbed_c_sources
+    check_cmd += " " + mbed_cpp_sources
+    # print check_cmd
+
+    #['cppcheck', includes, c_sources, cpp_sources]
+    stdout, stderr, rc = run_cmd(check_cmd)
+
+    print stdout
+    print stderr
