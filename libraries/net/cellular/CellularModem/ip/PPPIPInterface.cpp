@@ -27,6 +27,7 @@
 
 #include <cstdio>
 using std::sscanf;
+using std::sprintf;
 
 #include "PPPIPInterface.h"
 

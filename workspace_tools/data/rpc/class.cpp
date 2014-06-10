@@ -1,9 +1,9 @@
 class Rpc{{name}} : public RPC {
 public:
     Rpc{{name}}({{cons_proto}}) : RPC(name), o({{cons_call}}) {}
-    
+
     {{methods}}
-    
+
     virtual const struct rpc_method *get_rpc_methods() {
         static const rpc_method rpc_methods[] = {
             {{rpc_methods}},

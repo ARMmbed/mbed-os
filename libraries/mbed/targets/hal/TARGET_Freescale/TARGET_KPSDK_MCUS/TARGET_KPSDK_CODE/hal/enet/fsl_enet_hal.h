@@ -345,7 +345,7 @@ typedef struct ENETBdStruct
     uint16_t  reserved3;
     uint16_t  reserved4;
 } enet_bd_struct_t;
-
+#define TX_DESC_UPDATED_MASK  (0x8000)
 #else
 /*! @brief Defines the buffer descriptors structure for the Big-Endian system.*/
 typedef struct ENETBdStruct
@@ -366,6 +366,7 @@ typedef struct ENETBdStruct
     uint16_t  reserved3;
     uint16_t  reserved4;
 } enet_bd_struct_t;
+#define TX_DESC_UPDATED_MASK  (0x0080)
 #endif
 
 /*! @brief Defines the configuration structure for the 1588 PTP timer.*/

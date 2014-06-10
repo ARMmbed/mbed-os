@@ -69,7 +69,7 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%d]\n", name, _name, _fsid);
     char n[64];
     sprintf(n, "%d:/%s", _fsid, name);
-    
+
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
     if (flags & O_RDWR) {
@@ -86,10 +86,10 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
             openmode |= FA_OPEN_ALWAYS;
         }
     }
-    
+
     FIL fh;
     FRESULT res = f_open(&fh, n, openmode);
-    if (res) { 
+    if (res) {
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
         return NULL;
     }
@@ -98,10 +98,10 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
     }
     return new FATFileHandle(fh);
 }
-    
+
 int FATFileSystem::remove(const char *filename) {
     FRESULT res = f_unlink(filename);
-    if (res) { 
+    if (res) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
         return -1;
     }

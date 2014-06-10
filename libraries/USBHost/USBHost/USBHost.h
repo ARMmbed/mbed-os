@@ -35,7 +35,7 @@ public:
     * Static method to create or retrieve the single USBHost instance
     */
     static USBHost * getHostInst();
-    
+
     /**
     * Control read: setup stage, data stage and status stage
     *
@@ -186,19 +186,19 @@ public:
             dev->onDisconnect(intf, fn);
         }
     }
-    
+
     /**
      * Instantiate to protect USB thread from accessing shared objects (USBConnectedDevices and Interfaces)
      */
     class Lock
     {
     public:
-      Lock(USBHost* pHost);  
-      ~Lock();  
+      Lock(USBHost* pHost);
+      ~Lock();
     private:
       USBHost* m_pHost;
     };
-    
+
     friend class USBHostHub;
 
 protected:
@@ -257,7 +257,7 @@ private:
     bool  deviceAttachedDriver[MAX_DEVICE_CONNECTED][MAX_INTF];
     bool  deviceReset[MAX_DEVICE_CONNECTED];
     bool  deviceInited[MAX_DEVICE_CONNECTED];
-    
+
 #if MAX_HUB_NB
     USBHostHub hubs[MAX_HUB_NB];
     bool hub_in_use[MAX_HUB_NB];
@@ -265,7 +265,7 @@ private:
 
     // to store a setup packet
     uint8_t  setupPacket[8];
-    
+
     typedef struct {
         uint8_t event_id;
         void * td_addr;
@@ -275,17 +275,17 @@ private:
         uint8_t td_state;
         void * hub_parent;
     } message_t;
-    
+
     Thread usbThread;
     void usb_process();
     static void usb_process_static(void const * arg);
     Mail<message_t, 10> mail_usb_event;
     Mutex usb_mutex;
     Mutex td_mutex;
-    
+
     // buffer for conf descriptor
     uint8_t data[415];
-    
+
     /**
     * Add a transfer on the TD linked list associated to an ED
     *
@@ -296,7 +296,7 @@ private:
     * @return status of the transfer
     */
     USB_TYPE addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len) ;
-    
+
     /**
     * Link the USBEndpoint to the linked list and attach an USBEndpoint this USBEndpoint to a device
     *
@@ -318,7 +318,7 @@ private:
     * @returns pointer on the USBEndpoint created
     */
     USBEndpoint * newEndpoint(ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint32_t size, uint8_t addr) ;
-    
+
     /**
     * Request the device descriptor
     *
@@ -338,7 +338,7 @@ private:
     * @param len_conf_descr pointer to store the length of the packet transferred
     */
     USB_TYPE getConfigurationDescriptor(USBDeviceConnected * dev, uint8_t * buf, uint16_t max_len_buf, uint16_t * len_conf_descr = NULL);
-    
+
     /**
     * Set the address of a specific device
     *
@@ -354,7 +354,7 @@ private:
     * @param conf configuration number to activate (usually 1)
     */
     USB_TYPE setConfiguration(USBDeviceConnected * dev, uint8_t conf);
-    
+
     /**
     * Free a specific device
     *
@@ -378,7 +378,7 @@ private:
                                 bool blocking,
                                 ENDPOINT_TYPE type,
                                 bool write) ;
-                                
+
     void fillControlBuf(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, int len) ;
     void parseConfDescr(USBDeviceConnected * dev, uint8_t * conf_descr, uint32_t len, IUSBEnumerator* pEnumerator) ;
     int findDevice(USBDeviceConnected * dev) ;

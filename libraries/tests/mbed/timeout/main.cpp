@@ -20,6 +20,17 @@ DigitalOut out(LED2);
 #elif defined(TARGET_K64F)
 DigitalOut out(LED1);
 
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
+DigitalOut out(LED1);
+
+#elif defined(TARGET_LPC11U68)
+DigitalOut out(LED2);
+
 #else
 DigitalOut out(p5);
 #endif
@@ -34,10 +45,12 @@ void print_char(char c = '*')
     fflush(stdout);
 }
 
-void toggleOff (void);
+void toggleOff(void);
 
-void toggleOn (void) {
+void toggleOn(void)
+{
     static int toggle_counter = 0;
+
     out = 1;
     led = 1;
     if (toggle_counter == MS_INTERVALS) {
@@ -48,13 +61,15 @@ void toggleOn (void) {
     timer.attach_us(toggleOff, 500);
 }
 
-void toggleOff(void) {
+void toggleOff(void)
+{
     out = 0;
     led = 0;
     timer.attach_us(toggleOn, 500);
 }
 
-int main() {
+int main()
+{
     toggleOn();
-    while(1);
+    while (1) ;
 }

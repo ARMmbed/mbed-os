@@ -20,9 +20,8 @@
 
 namespace mbed {
 
-SerialBase::SerialBase(PinName tx, PinName rx) {
+SerialBase::SerialBase(PinName tx, PinName rx) : _serial(), _baud(9600) {
     serial_init(&_serial, tx, rx);
-    _baud = 9600;
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 
@@ -71,7 +70,7 @@ void SerialBase::send_break() {
   // Wait for 1.5 frames before clearing the break condition
   // This will have different effects on our platforms, but should
   // ensure that we keep the break active for at least one frame.
-  // We consider a full frame (1 start bit + 8 data bits bits + 
+  // We consider a full frame (1 start bit + 8 data bits bits +
   // 1 parity bit + 2 stop bits = 12 bits) for computation.
   // One bit time (in us) = 1000000/_baud
   // Twelve bits: 12000000/baud delay
@@ -81,23 +80,23 @@ void SerialBase::send_break() {
   serial_break_clear(&_serial);
 }
 
-#ifdef DEVICE_SERIAL_FC
+#if DEVICE_SERIAL_FC
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
     FlowControl flow_type = (FlowControl)type;
     switch(type) {
         case RTS:
             serial_set_flow_control(&_serial, flow_type, flow1, NC);
             break;
-            
+
         case CTS:
             serial_set_flow_control(&_serial, flow_type, NC, flow1);
             break;
-            
+
         case RTSCTS:
         case Disabled:
             serial_set_flow_control(&_serial, flow_type, flow1, flow2);
             break;
-            
+
         default:
             break;
     }

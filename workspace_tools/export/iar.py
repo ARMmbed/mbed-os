@@ -20,11 +20,12 @@ from exporters import Exporter
 class IAREmbeddedWorkbench(Exporter):
     NAME = 'IAR'
     TOOLCHAIN = 'IAR'
-    
+
     TARGETS = [
         'LPC1768',
+        'UBLOX_C027',
     ]
-    
+
     def generate(self):
         ctx = {
             'name': self.program_name,

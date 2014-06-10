@@ -35,9 +35,9 @@ def setup_test_user_prj():
     if exists(USER_PRJ):
         print 'Test user project already generated...'
         return
-    
+
     setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(LIB_DIR, "rtos")])
-    
+
     # FAKE BUILD URL
     open(join(USER_SRC, "mbed.bld"), 'w').write("http://mbed.org/users/mbed_official/code/mbed/builds/976df7c37ad5\n")
 
@@ -54,9 +54,9 @@ def test_export(toolchain, target, expected_error=None):
         base_dir = join(EXPORT_TMP, toolchain, target)
     temp_dir = join(base_dir, "temp")
     mkdir(temp_dir)
-    
+
     zip_path, report = export(USER_PRJ, USR_PRJ_NAME, toolchain, target, base_dir, temp_dir, False, fake_build_url_resolver)
-    
+
     if report['success']:
         move(zip_path, join(EXPORT_DIR, "export_%s_%s.zip" % (toolchain, target)))
         print "[OK]"
@@ -74,18 +74,25 @@ def test_export(toolchain, target, expected_error=None):
 
 if __name__ == '__main__':
     setup_test_user_prj()
-    
+
     for toolchain, target in [
             ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'), ('uvision', 'LPC4088'),
-            ('uvision', 'NUCLEO_F103RB'), ('uvision', 'NUCLEO_L152RE'), ('uvision', 'NUCLEO_F401RE'), ('uvision', 'NUCLEO_F030R8'), ('uvision', 'NUCLEO_F302R8'),
-            
+
+            ('uvision', 'NUCLEO_F030R8'),
+            ('uvision', 'NUCLEO_F072RB'),
+            ('uvision', 'NUCLEO_F103RB'),
+            ('uvision', 'NUCLEO_F302R8'),
+            ('uvision', 'NUCLEO_F401RE'),
+            ('uvision', 'NUCLEO_L053R8'),
+            ('uvision', 'NUCLEO_L152RE'),
+
             ('lpcxpresso', 'LPC1768'), ('lpcxpresso', 'LPC4088'),('lpcxpresso', 'LPC1114'),
             ('lpcxpresso', 'LPC11U35_401'),
             ('lpcxpresso', 'LPC11U35_501'),
             # Linux path: /home/emimon01/bin/gcc-cs/bin/
             # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"
             ('codesourcery', 'LPC1768'),
-            
+
             # Linux path: /home/emimon01/bin/gcc-arm/bin/
             # Windows path: C:/arm-none-eabi-gcc-4_7/bin/
             ('gcc_arm', 'LPC1768'),
@@ -99,16 +106,16 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F407VG'),
             ('gcc_arm', 'DISCO_F303VC'),
 
-            
+
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
-            
+
             ('iar', 'LPC1768'),
 
-            
+
             (None, None)
         ]:
         print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
         test_export(toolchain, target)
-    
+
     print "\n=== Test error messages ==="
     test_export('lpcxpresso', 'LPC11U24', expected_error='lpcxpresso')

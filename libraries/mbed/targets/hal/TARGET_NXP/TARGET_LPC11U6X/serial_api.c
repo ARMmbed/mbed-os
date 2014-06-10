@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 // math.h required for floating point operations for baud rate calculation
 #include <math.h>
 #include <string.h>
@@ -24,18 +25,31 @@
 #include "error.h"
 
 #if DEVICE_SERIAL
-#warning "[TODO] support from UART_1 to UART_4"
+
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
 
-#define UART_NUM    5
+#define UART_NUM      5
+
+// CFG
+#define UART_EN       (0x01<<0)
+
+// CTL
+#define TXBRKEN       (0x01<<1)
+
+// STAT
+#define RXRDY         (0x01<<0)
+#define TXRDY         (0x01<<2)
+#define DELTACTS      (0x01<<5)
+#define RXBRK         (0x01<<10)
+#define DELTARXBRK    (0x01<<11)
 
 static const PinMap PinMap_UART_TX[] = {
     {P0_19, UART_0, 1},
     {P1_18, UART_0, 2},
     {P1_27, UART_0, 2},
-    {P1_18, UART_1, 2},
+    {P1_8 , UART_1, 2},
     {P1_0 , UART_2, 3},
     {P1_23, UART_2, 3},
     {P2_4 , UART_3, 1},
@@ -72,27 +86,55 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         error("Serial pinout mapping failed");
     }
     
-    obj->uart = (LPC_USART0_Type *)uart;
-    LPC_SYSCON->SYSAHBCLKCTRL |= ((1<<12) | (1<<20) | (1<<21) | (1<<22));
-    
-    // [TODO] Consider more elegant approach
-    // disconnect USBTX/RX mapping mux, for case when switching ports
-#ifdef USBTX
-    pin_function(USBTX, 0);
-    pin_function(USBRX, 0);
-#endif
+    switch (uart) {
+        case UART_0:
+            obj->index = 0;
+            LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 12);
+            break;
+        case UART_1:
+            obj->index = 1;
+            LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 20);
+            LPC_SYSCON->PRESETCTRL |= (1 << 5);
+            break;
+        case UART_2:
+            obj->index = 2;
+            LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 21);
+            LPC_SYSCON->PRESETCTRL |= (1 << 6);
+            break;
+        case UART_3:
+            obj->index = 3;
+            LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 22);
+            LPC_SYSCON->PRESETCTRL |= (1 << 7);
+            break;
+        case UART_4:
+            obj->index = 4;
+            LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 22);
+            LPC_SYSCON->PRESETCTRL |= (1 << 8);
+            break;
+    }
 
-    // enable fifos and default rx trigger level
-    obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
-                   | 0 << 1  // Rx Fifo Clear
-                   | 0 << 2  // Tx Fifo Clear
-                   | 0 << 6; // Rx irq trigger level - 0 = 1 char, 1 = 4 chars, 2 = 8 chars, 3 = 14 chars
+    if (obj->index == 0)
+        obj->uart = (LPC_USART0_Type *)uart;
+    else
+        obj->mini_uart = (LPC_USART4_Type *)uart;
     
-    // disable irqs
-    obj->uart->IER = 0 << 0  // Rx Data available irq enable
-                   | 0 << 1  // Tx Fifo empty irq enable
-                   | 0 << 2; // Rx Line Status irq enable
-    
+    if (obj->index == 0) {
+        // enable fifos and default rx trigger level
+        obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                       | 0 << 1  // Rx Fifo Clear
+                       | 0 << 2  // Tx Fifo Clear
+                       | 0 << 6; // Rx irq trigger level - 0 = 1 char, 1 = 4 chars, 2 = 8 chars, 3 = 14 chars
+        // disable irqs
+        obj->uart->IER = 0 << 0  // Rx Data available irq enable
+                       | 0 << 1  // Tx Fifo empty irq enable
+                       | 0 << 2; // Rx Line Status irq enable
+    }
+    else {
+        // Clear all status bits
+        obj->mini_uart->STAT = (DELTACTS | DELTARXBRK);
+        // Enable UART
+        obj->mini_uart->CFG |= UART_EN;
+    }
     // set default baud rate and format
     serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
@@ -105,17 +147,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pin_mode(tx, PullUp);
     pin_mode(rx, PullUp);
     
-    switch (uart) {
-        case UART_0: obj->index = 0; break;
-        case UART_1: obj->index = 1; break;
-        case UART_2: obj->index = 2; break;
-        case UART_3: obj->index = 3; break;
-        case UART_4: obj->index = 4; break;
-    }
-    
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     
-    if (is_stdio_uart) {
+    if (is_stdio_uart && (obj->index == 0)) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
@@ -128,81 +162,93 @@ void serial_free(serial_t *obj) {
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
-    LPC_SYSCON->USART0CLKDIV = 0x1;
-#warning "[TODO] This should be fixed to handle system core clock correctly."
-    uint32_t PCLK = 12000000; //SystemCoreClock;
-    // First we check to see if the basic divide with no DivAddVal/MulVal
-    // ratio gives us an integer result. If it does, we set DivAddVal = 0,
-    // MulVal = 1. Otherwise, we search the valid ratio value range to find
-    // the closest match. This could be more elegant, using search methods
-    // and/or lookup tables, but the brute force method is not that much
-    // slower, and is more maintainable.
-    uint16_t DL = PCLK / (16 * baudrate);
-    
-    uint8_t DivAddVal = 0;
-    uint8_t MulVal = 1;
-    int hit = 0;
-    uint16_t dlv;
-    uint8_t mv, dav;
-    if ((PCLK % (16 * baudrate)) != 0) {     // Checking for zero remainder
-        int err_best = baudrate, b;
-        for (mv = 1; mv < 16 && !hit; mv++)
-        {
-            for (dav = 0; dav < mv; dav++)
+    LPC_SYSCON->USART0CLKDIV = 1;
+    LPC_SYSCON->FRGCLKDIV = 1;
+
+    if (obj->index == 0) {
+        uint32_t PCLK = SystemCoreClock;
+        // First we check to see if the basic divide with no DivAddVal/MulVal
+        // ratio gives us an integer result. If it does, we set DivAddVal = 0,
+        // MulVal = 1. Otherwise, we search the valid ratio value range to find
+        // the closest match. This could be more elegant, using search methods
+        // and/or lookup tables, but the brute force method is not that much
+        // slower, and is more maintainable.
+        uint16_t DL = PCLK / (16 * baudrate);
+        
+        uint8_t DivAddVal = 0;
+        uint8_t MulVal = 1;
+        int hit = 0;
+        uint16_t dlv;
+        uint8_t mv, dav;
+        if ((PCLK % (16 * baudrate)) != 0) {     // Checking for zero remainder
+            int err_best = baudrate, b;
+            for (mv = 1; mv < 16 && !hit; mv++)
             {
-                // baudrate = PCLK / (16 * dlv * (1 + (DivAdd / Mul))
-                // solving for dlv, we get dlv = mul * PCLK / (16 * baudrate * (divadd + mul))
-                // mul has 4 bits, PCLK has 27 so we have 1 bit headroom which can be used for rounding
-                // for many values of mul and PCLK we have 2 or more bits of headroom which can be used to improve precision
-                // note: X / 32 doesn't round correctly. Instead, we use ((X / 16) + 1) / 2 for correct rounding
-
-                if ((mv * PCLK * 2) & 0x80000000) // 1 bit headroom
-                    dlv = ((((2 * mv * PCLK) / (baudrate * (dav + mv))) / 16) + 1) / 2;
-                else // 2 bits headroom, use more precision
-                    dlv = ((((4 * mv * PCLK) / (baudrate * (dav + mv))) / 32) + 1) / 2;
-
-                // datasheet says if DLL==DLM==0, then 1 is used instead since divide by zero is ungood
-                if (dlv == 0)
-                    dlv = 1;
-
-                // datasheet says if dav > 0 then DL must be >= 2
-                if ((dav > 0) && (dlv < 2))
-                    dlv = 2;
-
-                // integer rearrangement of the baudrate equation (with rounding)
-                b = ((PCLK * mv / (dlv * (dav + mv) * 8)) + 1) / 2;
-
-                // check to see how we went
-                b = abs(b - baudrate);
-                if (b < err_best)
+                for (dav = 0; dav < mv; dav++)
                 {
-                    err_best  = b;
+                    // baudrate = PCLK / (16 * dlv * (1 + (DivAdd / Mul))
+                    // solving for dlv, we get dlv = mul * PCLK / (16 * baudrate * (divadd + mul))
+                    // mul has 4 bits, PCLK has 27 so we have 1 bit headroom which can be used for rounding
+                    // for many values of mul and PCLK we have 2 or more bits of headroom which can be used to improve precision
+                    // note: X / 32 doesn't round correctly. Instead, we use ((X / 16) + 1) / 2 for correct rounding
 
-                    DL        = dlv;
-                    MulVal    = mv;
-                    DivAddVal = dav;
+                    if ((mv * PCLK * 2) & 0x80000000) // 1 bit headroom
+                        dlv = ((((2 * mv * PCLK) / (baudrate * (dav + mv))) / 16) + 1) / 2;
+                    else // 2 bits headroom, use more precision
+                        dlv = ((((4 * mv * PCLK) / (baudrate * (dav + mv))) / 32) + 1) / 2;
 
-                    if (b == baudrate)
+                    // datasheet says if DLL==DLM==0, then 1 is used instead since divide by zero is ungood
+                    if (dlv == 0)
+                        dlv = 1;
+
+                    // datasheet says if dav > 0 then DL must be >= 2
+                    if ((dav > 0) && (dlv < 2))
+                        dlv = 2;
+
+                    // integer rearrangement of the baudrate equation (with rounding)
+                    b = ((PCLK * mv / (dlv * (dav + mv) * 8)) + 1) / 2;
+
+                    // check to see how we went
+                    b = abs(b - baudrate);
+                    if (b < err_best)
                     {
-                        hit = 1;
-                        break;
+                        err_best  = b;
+
+                        DL        = dlv;
+                        MulVal    = mv;
+                        DivAddVal = dav;
+
+                        if (b == baudrate)
+                        {
+                            hit = 1;
+                            break;
+                        }
                     }
                 }
             }
         }
+        
+        // set LCR[DLAB] to enable writing to divider registers
+        obj->uart->LCR |= (1 << 7);
+        
+        // set divider values
+        obj->uart->DLM = (DL >> 8) & 0xFF;
+        obj->uart->DLL = (DL >> 0) & 0xFF;
+        obj->uart->FDR = (uint32_t) DivAddVal << 0
+                       | (uint32_t) MulVal    << 4;
+        
+        // clear LCR[DLAB]
+        obj->uart->LCR &= ~(1 << 7);
     }
-    
-    // set LCR[DLAB] to enable writing to divider registers
-    obj->uart->LCR |= (1 << 7);
-    
-    // set divider values
-    obj->uart->DLM = (DL >> 8) & 0xFF;
-    obj->uart->DLL = (DL >> 0) & 0xFF;
-    obj->uart->FDR = (uint32_t) DivAddVal << 0
-                   | (uint32_t) MulVal    << 4;
-    
-    // clear LCR[DLAB]
-    obj->uart->LCR &= ~(1 << 7);
+    else {
+        uint32_t UARTSysClk = SystemCoreClock / LPC_SYSCON->FRGCLKDIV;
+        obj->mini_uart->BRG = UARTSysClk / 16 / baudrate - 1;
+        
+        LPC_SYSCON->UARTFRGDIV = 0xFF;
+        LPC_SYSCON->UARTFRGMULT = ( ((UARTSysClk / 16) * (LPC_SYSCON->UARTFRGDIV + 1)) /
+                                    (baudrate * (obj->mini_uart->BRG + 1))
+                                  ) - (LPC_SYSCON->UARTFRGDIV + 1);
+    }
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
@@ -212,35 +258,57 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
     stop_bits -= 1;
     
-    // 0: 5 data bits ... 3: 8 data bits
-    if (data_bits < 5 || data_bits > 8) {
-        error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
-    }
-    data_bits -= 5;
-
-    int parity_enable, parity_select;
-    switch (parity) {
-        case ParityNone: parity_enable = 0; parity_select = 0; break;
-        case ParityOdd : parity_enable = 1; parity_select = 0; break;
-        case ParityEven: parity_enable = 1; parity_select = 1; break;
-        case ParityForced1: parity_enable = 1; parity_select = 2; break;
-        case ParityForced0: parity_enable = 1; parity_select = 3; break;
-        default:
-            error("Invalid serial parity setting");
-            return;
-    }
+    if (obj->index == 0) {
+        // 0: 5 data bits ... 3: 8 data bits
+        if (data_bits < 5 || data_bits > 8) {
+            error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
+        }
+        data_bits -= 5;
     
-    obj->uart->LCR = data_bits            << 0
-                   | stop_bits            << 2
-                   | parity_enable        << 3
-                   | parity_select        << 4;
+        int parity_enable, parity_select;
+        switch (parity) {
+            case ParityNone: parity_enable = 0; parity_select = 0; break;
+            case ParityOdd : parity_enable = 1; parity_select = 0; break;
+            case ParityEven: parity_enable = 1; parity_select = 1; break;
+            case ParityForced1: parity_enable = 1; parity_select = 2; break;
+            case ParityForced0: parity_enable = 1; parity_select = 3; break;
+            default:
+                error("Invalid serial parity setting");
+                return;
+        }
+        
+        obj->uart->LCR = data_bits       << 0
+                       | stop_bits       << 2
+                       | parity_enable   << 3
+                       | parity_select   << 4;
+    }
+    else {
+        // 0: 7 data bits ... 2: 9 data bits
+        if (data_bits < 7 || data_bits > 9) {
+            error("Invalid number of bits (%d) in serial format, should be 7..9", data_bits);
+        }
+        data_bits -= 7;
+        
+        int paritysel;
+        switch (parity) {
+            case ParityNone: paritysel = 0; break;
+            case ParityEven: paritysel = 2; break;
+            case ParityOdd : paritysel = 3; break;
+            default:
+                error("Invalid serial parity setting");
+                return;
+        }
+        obj->mini_uart->CFG = (data_bits << 2)
+                            | (paritysel << 4)
+                            | (stop_bits << 6)
+                            | UART_EN;
+    }
 }
 
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
 static inline void uart_irq(uint32_t iir, uint32_t index) {
-    // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
     switch (iir) {
         case 1: irq_type = TxIrq; break;
@@ -259,22 +327,22 @@ void uart0_irq()
 
 void uart1_irq()
 {
-    //uart_irq((LPC_USART4->IIR >> 1) & 0x7, 1);
+    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);
 }
 
 void uart2_irq()
 {
-    //uart_irq((LPC_USART4->IIR >> 1) & 0x7, 2);
+    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 2);
 }
 
 void uart3_irq()
 {
-    //uart_irq((LPC_USART4->IIR >> 1) & 0x7, 3);
+    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 3);
 }
 
 void uart4_irq()
 {
-    //uart_irq((LPC_USART4->IIR >> 1) & 0x7, 4);
+    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 4);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
@@ -294,16 +362,27 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
     
     if (enable) {
-        obj->uart->IER |= (1 << irq);
+        if (obj->index == 0) {
+            obj->uart->IER |= (1 << irq);
+        }
+        else {
+            obj->mini_uart->INTENSET = (1 << ((irq == RxIrq) ? 0 : 2));
+        }
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
     } else { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
 
-        obj->uart->IER &= ~(1 << irq);
-        all_disabled = (obj->uart->IER & (1 << other_irq)) == 0;
-        
+        if (obj->index == 0) {
+            obj->uart->IER &= ~(1 << irq);
+            all_disabled = (obj->uart->IER & (1 << other_irq)) == 0;
+        }
+        else {
+            obj->mini_uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
+            all_disabled = (obj->mini_uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
+         }
+
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
     }
@@ -314,26 +393,51 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
-    return obj->uart->RBR;
+    if (obj->index == 0) {
+        return obj->uart->RBR;
+    }
+    else {
+        return obj->mini_uart->RXDAT;
+    }
 }
 
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
-    obj->uart->THR = c;
+    if (obj->index == 0) {
+        obj->uart->THR = c;
+    }
+    else {
+        obj->mini_uart->TXDAT = c;
+    }
 }
 
 int serial_readable(serial_t *obj) {
-    return obj->uart->LSR & 0x01;
+    if (obj->index == 0) {
+        return obj->uart->LSR & 0x01;
+    }
+    else {
+        return obj->mini_uart->STAT & RXRDY;
+    }
 }
 
 int serial_writable(serial_t *obj) {
-    return obj->uart->LSR & 0x20;
+    if (obj->index == 0) {
+        return obj->uart->LSR & 0x20;
+    }
+    else {
+        return obj->mini_uart->STAT & TXRDY;
+    }
 }
 
 void serial_clear(serial_t *obj) {
-    obj->uart->FCR = 1 << 1  // rx FIFO reset
-                   | 1 << 2  // tx FIFO reset
-                   | 0 << 6; // interrupt depth
+    if (obj->index == 0) {
+        obj->uart->FCR = 1 << 1  // rx FIFO reset
+                       | 1 << 2  // tx FIFO reset
+                       | 0 << 6; // interrupt depth
+    }
+    else {
+        obj->mini_uart->STAT = 0;
+    }
 }
 
 void serial_pinout_tx(PinName tx) {
@@ -341,11 +445,21 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->LCR |= (1 << 6);
+    if (obj->index == 0) {
+        obj->uart->LCR |= (1 << 6);
+    }
+    else {
+        obj->mini_uart->CTL |= TXBRKEN;
+    }
 }
 
 void serial_break_clear(serial_t *obj) {
-    obj->uart->LCR &= ~(1 << 6);
+    if (obj->index == 0) {
+        obj->uart->LCR &= ~(1 << 6);
+    }
+    else {
+        obj->mini_uart->CTL &= ~TXBRKEN;
+    }
 }
 
 

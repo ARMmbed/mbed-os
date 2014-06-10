@@ -41,29 +41,29 @@ public:
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL);
-    
+
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
     */
     osStatus terminate();
-    
+
     /** Set priority of an active thread
       @param   priority  new priority value for the thread function.
       @return  status code that indicates the execution status of the function.
     */
     osStatus set_priority(osPriority priority);
-    
+
     /** Get priority of an active thread
       @return  current priority value of the thread function.
     */
     osPriority get_priority();
-    
+
     /** Set the specified Signal Flags of an active thread.
       @param   signals  specifies the signal flags of the thread that should be set.
       @return  previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
     */
     int32_t signal_set(int32_t signals);
-    
+
     /** State of the Thread */
     enum State {
         Inactive,           /**< Not created or terminated */
@@ -77,35 +77,35 @@ public:
         WaitingMailbox,     /**< Waiting for a mailbox event to occur */
         WaitingMutex,       /**< Waiting for a mutex event to occur */
     };
-    
+
     /** State of this Thread
       @return  the State of this Thread
     */
     State get_state();
-    
-    /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread. 
+
+    /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread.
       @param   signals   wait until all specified signal flags set or 0 for any single signal flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code.
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
-    
+
     /** Wait for a specified time period in millisec:
       @param   millisec  time delay value
-      @return  status code that indicates the execution status of the function. 
+      @return  status code that indicates the execution status of the function.
     */
     static osStatus wait(uint32_t millisec);
-    
+
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
     */
     static osStatus yield();
-    
+
     /** Get the thread id of the current running thread.
       @return  thread ID for reference by other functions or NULL in case of error.
     */
     static osThreadId gettid();
-    
+
     virtual ~Thread();
 
 private:

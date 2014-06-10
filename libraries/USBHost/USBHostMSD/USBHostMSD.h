@@ -24,7 +24,7 @@
 #include "USBHost.h"
 #include "FATFileSystem.h"
 
-/** 
+/**
  * A class to communicate a USB flash disk
  */
 class USBHostMSD : public IUSBEnumerator, public FATFileSystem {
@@ -109,7 +109,7 @@ private:
     int msd_intf;
     bool msd_device_found;
     bool disk_init;
-    
+
     void init();
 
 };

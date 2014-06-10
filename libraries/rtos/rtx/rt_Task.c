@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -232,7 +232,7 @@ OS_RESULT rt_tsk_delete (OS_TID task_id) {
     os_tsk.run->tsk_stack = rt_get_PSP ();
     rt_stk_check ();
     os_active_TCB[os_tsk.run->task_id-1] = NULL;
-    
+
     os_tsk.run->stack = NULL;
     DBG_TASK_NOTIFY(os_tsk.run, __FALSE);
     os_tsk.run = NULL;
@@ -249,7 +249,7 @@ OS_RESULT rt_tsk_delete (OS_TID task_id) {
     rt_rmv_list (task_context);
     rt_rmv_dly (task_context);
     os_active_TCB[task_id-1] = NULL;
-    
+
     task_context->stack = NULL;
     DBG_TASK_NOTIFY(task_context, __FALSE);
   }
@@ -273,7 +273,7 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
   for (i = 0; i < os_maxtaskrun; i++) {
     os_active_TCB[i] = NULL;
   }
-  
+
   /* Set up TCB of idle demon */
   os_idle_TCB.task_id = 255;
   os_idle_TCB.priv_stack = idle_task_stack_size;

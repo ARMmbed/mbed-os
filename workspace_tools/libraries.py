@@ -32,7 +32,7 @@ LIBRARIES = [
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
     },
-    
+
     # USB Device libraries
     {
         "id": "usb",
@@ -40,7 +40,7 @@ LIBRARIES = [
         "build_dir": USB_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
     },
-    
+
     # USB Host libraries
     {
         "id": "usb_host",
@@ -48,7 +48,7 @@ LIBRARIES = [
         "build_dir": USB_HOST_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_ABSTRACTION],
     },
-    
+
     # DSP libraries
     {
         "id": "cmsis_dsp",
@@ -62,7 +62,7 @@ LIBRARIES = [
         "build_dir": DSP_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, DSP_CMSIS],
     },
-    
+
     # Network libraries
     {
         "id": "eth",
@@ -70,7 +70,7 @@ LIBRARIES = [
         "build_dir": ETH_LIBRARY,
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES]
     },
-    
+
     {
         "id": "ublox",
         "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, LWIP_SOURCES],
@@ -92,7 +92,7 @@ class Library:
     def __init__(self, lib_id):
         self.__dict__.update(Library.DEFAULTS)
         self.__dict__.update(LIBRARY_MAP[lib_id])
-    
+
     def is_supported(self, target, toolchain):
         if not hasattr(self, 'supported'):
             return True

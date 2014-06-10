@@ -53,7 +53,7 @@ enum FUNCTION_KEY {
     KEY_F10,        /* F10 key */
     KEY_F11,        /* F11 key */
     KEY_F12,        /* F12 key */
-    
+
     KEY_PRINT_SCREEN,   /* Print Screen key */
     KEY_SCROLL_LOCK,    /* Scroll lock */
     KEY_CAPS_LOCK,      /* caps lock */
@@ -62,7 +62,7 @@ enum FUNCTION_KEY {
     KEY_HOME,           /* Home key */
     KEY_PAGE_UP,        /* Page Up key */
     KEY_PAGE_DOWN,      /* Page Down key */
-    
+
     RIGHT_ARROW,        /* Right arrow */
     LEFT_ARROW,         /* Left arrow */
     DOWN_ARROW,         /* Down arrow */

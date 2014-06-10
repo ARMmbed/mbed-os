@@ -11,14 +11,14 @@
     fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
     fscanf(stdin, "%d", &Value);
     fprintf(stdout, "Test 3: fprintf(stdout, ...) test\r\n");
-    
+
     fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
-    
+
     printf("Test 5: fscanf(stdin, ...) test\r\n");
     printf("    Type number and press Enter: \n");
     fscanf(stdin, "%d", &Value);
     printf("\n    Your value was: %d\r\n", Value);
-    
+
     printf("Test complete\r\n");
 
 */

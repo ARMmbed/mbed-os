@@ -87,7 +87,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         LPC_CAN->IF1_CMDREQ = BFN_PREP(handle, CANIFn_CMDREQ_MN);
         
         // Wait until transfer to message ram complete - TODO: maybe not block??
-        while( LPC_CAN->IF1_CMDREQ & CANIFn_CMDREQ_BUSY );    
+        while( LPC_CAN->IF1_CMDREQ & CANIFn_CMDREQ_BUSY );
     }
     
     return handle;
@@ -100,7 +100,7 @@ static inline void can_irq() {
 // Register CAN object's irq handler
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
     irq_handler = handler;
-    can_irq_id = id;    
+    can_irq_id = id;
 }
 
 // Unregister CAN object's irq handler
@@ -264,18 +264,20 @@ int can_frequency(can_t *obj, int f) {
     btr = btr & 0xFFFF;
     
     if (btr > 0) {
+        uint32_t cntl_init = LPC_CAN->CNTL | CANCNTL_INIT;
         // Set the bit clock
-        LPC_CAN->CNTL |= CANCNTL_CCE;
+        LPC_CAN->CNTL |= CANCNTL_CCE | CANCNTL_INIT;
         LPC_CAN->CLKDIV = clkdiv;
         LPC_CAN->BT = btr;
         LPC_CAN->BRPE = 0x0000;
-        LPC_CAN->CNTL &= ~CANCNTL_CCE;
+        LPC_CAN->CNTL &= ~(CANCNTL_CCE | CANCNTL_INIT);
+        LPC_CAN->CNTL |= cntl_init;
         return 1;
     }
     return 0;
 }
 
-int can_write(can_t *obj, CAN_Message msg, int cc) {    
+int can_write(can_t *obj, CAN_Message msg, int cc) {
     uint16_t msgnum = 0;
     
     // Make sure controller is enabled
@@ -352,13 +354,13 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
         // Wait until transfer to message ram complete
         while( LPC_CAN->IF2_CMDREQ & CANIFn_CMDREQ_BUSY );
                     
-        if (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_XTD) {  
-            msg->format = CANExtended;    
+        if (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_XTD) {
+            msg->format = CANExtended;
             msg->id = (LPC_CAN->IF2_ARB1 & CANIFn_ARB2_ID_MASK) << 16;
             msg->id |= (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_ID_MASK);
         }
         else {
-            msg->format = CANStandard;  
+            msg->format = CANStandard;
             msg->id = (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_ID_MASK) >> 2;
         }
 

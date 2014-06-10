@@ -1,6 +1,15 @@
 #include "test_env.h"
 
-#if defined(TARGET_LPC11U24)
+#if defined(TARGET_K64F)
+#define P1_1    (1 << 16)
+#define P1_2    (1 << 17)
+#define PORT_1  PortC
+
+#define P2_1    (1 << 2)
+#define P2_2    (1 << 3)
+#define PORT_2  PortC
+
+#elif defined(TARGET_LPC11U24)
 #define P1_1    (1 <<  9) // p0.9
 #define P1_2    (1 <<  8) // p0.8
 #define PORT_1  Port0
@@ -72,24 +81,24 @@ PortInOut port2(PORT_2, MASK_2);
 
 int main() {
     bool check = true;
-    
+
     port1.output();
     port2.input();
-    
+
     port1 = MASK_1; wait(0.1);
     if (port2 != MASK_2) check = false;
-    
+
     port1 = 0; wait(0.1);
     if (port2 != 0) check = false;
-    
+
     port1.input();
     port2.output();
-    
+
     port2 = MASK_2; wait(0.1);
     if (port1 != MASK_1) check = false;
-    
+
     port2 = 0; wait(0.1);
     if (port1 != 0) check = false;
-    
+
     notify_completion(check);
 }

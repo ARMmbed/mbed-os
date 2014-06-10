@@ -20,6 +20,8 @@
 #include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_i2c_hal.h"
+#include "fsl_port_hal.h"
+#include "fsl_sim_hal.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PTE25, I2C_0, 5},
@@ -44,8 +46,6 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC   , NC   , 0}
 };
 
-static uint8_t first_read;
-
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -55,17 +55,19 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     }
 
     clock_manager_set_gate(kClockModuleI2C, obj->instance, true);
+    clock_manager_set_gate(kClockModulePORT, sda >> GPIO_PORT_SHIFT, true);
+    clock_manager_set_gate(kClockModulePORT, scl >> GPIO_PORT_SHIFT, true);
     i2c_hal_enable(obj->instance);
     i2c_frequency(obj, 100000);
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-    first_read = 1;
+    port_hal_configure_open_drain(sda >> GPIO_PORT_SHIFT, sda & 0xFF, true);
+    port_hal_configure_open_drain(scl >> GPIO_PORT_SHIFT, scl & 0xFF, true);
 }
 
 int i2c_start(i2c_t *obj) {
     i2c_hal_send_start(obj->instance);
-    first_read = 1;
     return 0;
 }
 
@@ -77,13 +79,12 @@ int i2c_stop(i2c_t *obj) {
     // when there is no waiting time after a STOP.
     // This wait is also included on the samples
     // code provided with the freedom board
-    for (n = 0; n < 100; n++) __NOP();
-    first_read = 1;
+    for (n = 0; n < 200; n++) __NOP();
     return 0;
 }
 
 static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
-    uint32_t i, timeout = 1000;
+    uint32_t i, timeout = 100000;
 
     for (i = 0; i < timeout; i++) {
         if (HW_I2C_S_RD(obj->instance) & mask)
@@ -229,26 +230,15 @@ int i2c_byte_read(i2c_t *obj, int last) {
     // set rx mode
     i2c_hal_set_direction(obj->instance, kI2CReceive);
 
-    if(first_read) {
-        // first dummy read
-        i2c_do_read(obj, &data, 0);
-        first_read = 0;
-    }
-
-    if (last) {
-        // set tx mode
-        i2c_hal_set_direction(obj->instance, kI2CTransmit);
-        return i2c_hal_read(obj->instance);
-    }
-
+    // Setup read
     i2c_do_read(obj, &data, last);
 
-    return data;
+    // set tx mode
+    i2c_hal_set_direction(obj->instance, kI2CTransmit);
+    return i2c_hal_read(obj->instance);
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
-    first_read = 1;
-
     // set tx mode
     i2c_hal_set_direction(obj->instance, kI2CTransmit);
 

@@ -28,7 +28,7 @@
 #include "Stream.h"
 #include "USBHID.h"
 
-/** 
+/**
  * USBMouseKeyboard example
  * @code
  *
@@ -70,7 +70,7 @@
 class USBMouseKeyboard: public USBHID, public Stream
 {
     public:
-    
+
         /**
         *   Constructor
         *
@@ -81,7 +81,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @param product_release Your preoduct_release (default: 0x0001)
         *
         */
-        USBMouseKeyboard(MOUSE_TYPE mouse_type = REL_MOUSE, uint16_t vendor_id = 0x0021, uint16_t product_id = 0x0011, uint16_t product_release = 0x0001): 
+        USBMouseKeyboard(MOUSE_TYPE mouse_type = REL_MOUSE, uint16_t vendor_id = 0x0021, uint16_t product_id = 0x0011, uint16_t product_release = 0x0001):
             USBHID(0, 0, vendor_id, product_id, product_release, false)
             {
                 lock_status = 0;
@@ -89,7 +89,7 @@ class USBMouseKeyboard: public USBHID, public Stream
                 this->mouse_type = mouse_type;
                 connect();
             };
-            
+
         /**
         * Write a state of the mouse
         *
@@ -100,8 +100,8 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool update(int16_t x, int16_t y, uint8_t buttons, int8_t z);
-        
-        
+
+
         /**
         * Move the cursor to (x, y)
         *
@@ -110,7 +110,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool move(int16_t x, int16_t y);
-        
+
         /**
         * Press one or several buttons
         *
@@ -118,7 +118,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool press(uint8_t button);
-        
+
         /**
         * Release one or several buttons
         *
@@ -126,22 +126,22 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool release(uint8_t button);
-        
+
         /**
         * Double click (MOUSE_LEFT)
         *
         * @returns true if there is no error, false otherwise
         */
         bool doubleClick();
-        
+
         /**
         * Click
         *
         * @param button state of the buttons ( ex: clic(MOUSE_LEFT))
         * @returns true if there is no error, false otherwise
         */
-        bool click(uint8_t button); 
-        
+        bool click(uint8_t button);
+
         /**
         * Scrolling
         *
@@ -151,7 +151,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         bool scroll(int8_t z);
 
         /**
-        * To send a character defined by a modifier(CTRL, SHIFT, ALT) and the key 
+        * To send a character defined by a modifier(CTRL, SHIFT, ALT) and the key
         *
         * @code
         * //To send CTRL + s (save)
@@ -163,7 +163,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool keyCode(uint8_t key, uint8_t modifier = 0);
-        
+
         /**
         * Send a character
         *
@@ -171,7 +171,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         virtual int _putc(int c);
-        
+
         /**
         * Control media keys
         *
@@ -179,7 +179,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns true if there is no error, false otherwise
         */
         bool mediaControl(MEDIA_KEY key);
-        
+
         /**
         * Read status of lock keys. Useful to switch-on/off leds according to key pressed. Only the first three bits of the result is important:
         *   - First bit: NUM_LOCK
@@ -189,30 +189,30 @@ class USBMouseKeyboard: public USBHID, public Stream
         * @returns status of lock keys
         */
         uint8_t lockStatus();
-        
+
         /*
         * To define the report descriptor. Warning: this method has to store the length of the report descriptor in reportLength.
         *
         * @returns pointer to the report descriptor
         */
         virtual uint8_t * reportDesc();
-        
+
         /*
         * Called when a data is received on the OUT endpoint. Useful to switch on LED of LOCK keys
         *
         * @returns if handle by subclass, return true
         */
         virtual bool EP1_OUT_callback();
-        
-        
+
+
     private:
         bool mouseWrite(int8_t x, int8_t y, uint8_t buttons, int8_t z);
         MOUSE_TYPE mouse_type;
         uint8_t button;
         bool mouseSend(int8_t x, int8_t y, uint8_t buttons, int8_t z);
-        
+
         uint8_t lock_status;
-        
+
         //dummy otherwise it doesn't compile (we must define all methods of an abstract class)
         virtual int _getc() { return -1;}
 };

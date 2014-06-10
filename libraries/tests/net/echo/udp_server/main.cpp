@@ -11,10 +11,10 @@ int main (void) {
     eth.init(); //Use DHCP
     eth.connect();
     printf("Server IP Address is %s:%d\n", eth.getIPAddress(), ECHO_SERVER_PORT);
-    
+
     UDPSocket server;
     server.bind(ECHO_SERVER_PORT);
-    
+
     Endpoint client;
     char buffer[BUFFER_SIZE] = {0};
     while (true) {

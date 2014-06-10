@@ -19,7 +19,7 @@
 
 namespace mbed {
 
-I2CSlave::I2CSlave(PinName sda, PinName scl) {
+I2CSlave::I2CSlave(PinName sda, PinName scl) : _i2c() {
     i2c_init(&_i2c, sda, scl);
     i2c_frequency(&_i2c, 100000);
     i2c_slave_mode(&_i2c, 1);

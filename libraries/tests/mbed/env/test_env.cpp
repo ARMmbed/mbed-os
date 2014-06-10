@@ -17,7 +17,7 @@ void notify_completion(bool success) {
     } else {
         printf("{{failure}}" NL );
     }
-    
+
     printf("{{end}}" NL);
 #ifdef LED4
     led_blink(success ? LED1 : LED4);

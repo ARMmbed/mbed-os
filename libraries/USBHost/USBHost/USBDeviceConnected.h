@@ -33,7 +33,7 @@ typedef struct {
     USBEndpoint * ep[MAX_ENDPOINT_PER_INTERFACE];
     FunctionPointer detach;
     char name[10];
-} INTERFACE; 
+} INTERFACE;
 
 /**
 * USBDeviceConnected class
@@ -157,7 +157,7 @@ public:
     inline USBHostHub * getHubParent() { return hub_parent; };
     inline uint8_t      getNbIntf() { return nb_interf; };
     inline const char * getName(uint8_t intf_nb) { return intf[intf_nb].name; };
-    
+
     // in case this device is a hub
     USBHostHub * hub;
 

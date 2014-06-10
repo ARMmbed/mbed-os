@@ -21,12 +21,12 @@ from os.path import splitext, basename
 class CoIDE(Exporter):
     NAME = 'CoIDE'
     TOOLCHAIN = 'GCC_ARM'
-    
+
     TARGETS = [
         'KL25Z',
         'KL05Z',
     ]
-    
+
     # seems like CoIDE currently supports only one type
     FILE_TYPES = {
         'c_sources':'1',

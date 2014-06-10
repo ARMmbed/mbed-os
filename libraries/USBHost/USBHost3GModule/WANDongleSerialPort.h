@@ -42,11 +42,11 @@ public:
     *
     */
     WANDongleSerialPort();
-    
+
     void init( USBHost* pHost );
-    
+
     void connect( USBDeviceConnected* pDev, USBEndpoint* pInEp, USBEndpoint* pOutEp );
-    
+
     void disconnect( );
 
     /*
@@ -89,13 +89,13 @@ public:
      *  @param pListener instance of the listener deriving from the IUSBHostSerialListener
      */
     virtual void attach(IUSBHostSerialListener* pListener);
-    
+
     /**
      * Enable or disable readable/writeable callbacks
      */
     virtual void setupIrq(bool en, IrqType irq = RxIrq);
 
-    
+
 protected:
     USBEndpoint * bulk_in;
     USBEndpoint * bulk_out;
@@ -117,11 +117,11 @@ protected:
     volatile bool cb_rx_en;
     volatile bool cb_rx_pending;
     Mutex rx_mtx;
-    
+
     IUSBHostSerialListener* listener;
-    
+
     void reset();
-    
+
     void rxHandler();
     void txHandler();
 

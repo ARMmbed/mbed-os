@@ -191,7 +191,7 @@ static inline int spi_read(spi_t *obj) {
     return obj->spi->RXDAT;
 }
 
-static inline int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj) {
     // checking RXOV(Receiver Overrun interrupt flag)
     return obj->spi->STAT & (1 << 2);
     }

@@ -16,11 +16,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347)
+#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68)
 
 #if defined(TARGET_LPC1347)
 #define USB_IRQ USB_IRQ_IRQn
-#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)
+#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68)
 #define USB_IRQ USB_IRQn
 #endif
 
@@ -134,7 +134,7 @@ void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size) {
 
 USBHAL::USBHAL(void) {
     NVIC_DisableIRQ(USB_IRQ);
-    
+
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -145,11 +145,11 @@ USBHAL::USBHAL(void) {
     epCallback[6] = &USBHAL::EP4_OUT_callback;
     epCallback[7] = &USBHAL::EP4_IN_callback;
 
-    #if defined(TARGET_LPC11U35_401)
+    #if defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
     // USB_VBUS input with pull-down
     LPC_IOCON->PIO0_3 = 0x00000009;
     #endif
-    
+
     // nUSB_CONNECT output
     LPC_IOCON->PIO0_6 = 0x00000001;
 
@@ -287,13 +287,13 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
             bf = 0;
         }
     }
-    
+
     // if isochronous endpoint, T = 1
     if(endpointState[endpoint].options & ISOCHRONOUS)
     {
         flags |= CMDSTS_T;
     }
-        
+
     //Active the endpoint for reading
     ep[PHY_TO_LOG(endpoint)].out[bf] = CMDSTS_A | CMDSTS_NBYTES(maximumSize) \
                                        | CMDSTS_ADDRESS_OFFSET((uint32_t)ct->out) | flags;
@@ -408,7 +408,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
 
 EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
     uint32_t bf;
-    
+
     // Validate parameters
     if (endpoint > LAST_PHYSICAL_ENDPOINT) {
         return EP_INVALID;
@@ -680,7 +680,7 @@ void USBHAL::usbisr(void) {
         // EP0IN ACK event (IN data sent)
         EP0in();
     }
-    
+
     for (uint8_t num = 2; num < 5*2; num++) {
         if (LPC_USB->INTSTAT & EP(num)) {
             LPC_USB->INTSTAT = EP(num);

@@ -12,7 +12,7 @@ void flip() {
 
 int main() {
     wkp.rise(&flip);
-    
+
     while (true) {
         // sleep();
         deepsleep();

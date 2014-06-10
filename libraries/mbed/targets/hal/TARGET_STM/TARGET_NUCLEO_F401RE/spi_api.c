@@ -138,6 +138,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_PHASE_1EDGE;
     obj->br_presc = SPI_BAUDRATEPRESCALER_256;
 
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // SW NSS Master mode
         obj->mode = SPI_MODE_MASTER;
         obj->nss = SPI_NSS_SOFT;
@@ -151,8 +156,30 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 
 void spi_free(spi_t *obj) {
-    SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
-    HAL_SPI_DeInit(&SpiHandle);
+    // Reset SPI and disable clock
+    if (obj->spi == SPI_1) {
+        __SPI1_FORCE_RESET();
+        __SPI1_RELEASE_RESET();
+        __SPI1_CLK_DISABLE();
+    }
+
+    if (obj->spi == SPI_2) {
+        __SPI2_FORCE_RESET();
+        __SPI2_RELEASE_RESET();
+        __SPI2_CLK_DISABLE();
+    }
+
+    if (obj->spi == SPI_3) {
+        __SPI3_FORCE_RESET();
+        __SPI3_RELEASE_RESET();
+        __SPI3_CLK_DISABLE();
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->pin_sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->pin_ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
@@ -256,7 +283,7 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (!ssp_busy(obj)) ? (1) : (0);
+    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
 };
 
 int spi_slave_read(spi_t *obj) {

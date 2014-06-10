@@ -11,11 +11,22 @@ SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 #elif defined(TARGET_nRF51822)
 SDFileSystem sd(p12, p13, p15, p14, "sd");
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+    defined(TARGET_NUCLEO_L152RE) || \
+    defined(TARGET_NUCLEO_F302R8) || \
+    defined(TARGET_NUCLEO_F030R8) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_L053R8)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
 #elif defined(TARGET_DISCO_F051R8)
 SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
+
+#elif defined(TARGET_LPC2368)
+SDFileSystem sd(p11, p12, p13, p14, "sd");
+
+#elif defined(TARGET_LPC11U68)
+SDFileSystem sd(D11, D12, D13, D10, "sd");
 
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");

@@ -16,23 +16,23 @@ class OldLibrariesException(Exception): pass
 class Exporter():
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
-    
+
     def __init__(self, target, inputDir, program_name, build_url_resolver):
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
         self.toolchain = TOOLCHAIN_CLASSES[self.get_toolchain()](TARGET_MAP[target])
         self.build_url_resolver = build_url_resolver
-    
+
     def get_toolchain(self):
         return self.TOOLCHAIN
-    
+
     def __scan_and_copy(self, src_path, trg_path):
         resources = self.toolchain.scan_resources(src_path)
-        
+
         for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources',
             'objects', 'libraries', 'linker_script',
-            'lib_builds', 'lib_refs', 'repo_files']:
+            'lib_builds', 'lib_refs', 'repo_files', 'hex_files']:
             r = getattr(resources, r_type)
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
@@ -40,7 +40,7 @@ class Exporter():
 
     def __scan_all(self, path):
         resources = []
-        
+
         for root, dirs, files in walk(path):
             for d in copy(dirs):
                 if d == '.' or d == '..':
@@ -49,9 +49,9 @@ class Exporter():
             for file in files:
                 file_path = join(root, file)
                 resources.append(file_path)
-        
+
         return resources
-    
+
     def scan_and_copy_resources(self, prj_path, trg_path):
         # Copy only the file for the required target and toolchain
         lib_builds = []
@@ -63,7 +63,7 @@ class Exporter():
             for repo_dir in resources.repo_dirs:
                 repo_files = self.__scan_all(repo_dir)
                 self.toolchain.copy_files(repo_files, trg_path, rel_path=join(prj_path, src))
-        
+
         # The libraries builds
         for bld in lib_builds:
             build_url = open(bld).read().strip()
@@ -90,7 +90,7 @@ class Exporter():
         template_text = open(template_path).read()
         template = Template(template_text)
         target_text = template.render(data)
-        
+
         target_path = join(self.inputDir, target_file)
         logging.debug("Generating: %s" % target_path)
         open(target_path, "w").write(target_text)
@@ -99,7 +99,7 @@ class Exporter():
 def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, program_name=None, clean=True):
     uid = str(uuid.uuid4())
     zipfilename = '%s.zip'%uid
-    
+
     logging.debug("Zipping up %s to %s" % (tempdirectory,  join(destination, zipfilename)))
     # make zip
     def zipdir(basedir, archivename):
@@ -112,10 +112,10 @@ def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, pro
                     absfn = join(root, fn)
                     zfn = fakeroot + '/' +  absfn[len(basedir)+len(os.sep):]
                     z.write(absfn, zfn)
-    
+
     zipdir(tempdirectory, join(destination, zipfilename))
-    
+
     if clean:
         shutil.rmtree(tempdirectory)
-    
+
     return join(destination, zipfilename)

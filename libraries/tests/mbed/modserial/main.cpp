@@ -48,35 +48,35 @@ void rxCallback(MODSERIAL_IRQ_INFO *q) {
 
 int main() {
     int c = 'A';
-    
+
     // Ensure the baud rate for the PC "USB" serial is much
     // higher than "uart" baud rate below. (default: 9600)
     // pc.baud(9600);
-    
+
     // Use a deliberatly slow baud to fill up the TX buffer
     uart.baud(1200);
-    
+
     uart.attach(&txCallback, MODSERIAL::ModTxIrq);
     uart.attach(&rxCallback, MODSERIAL::ModRxIrq);
     uart.attach(&txEmpty,    MODSERIAL::ModTxEmpty);
-    
+
     // Loop sending characters. We send 512
     // which is twice the default TX/RX buffer size.
-    
+
     led1 = 1; // Show start of sending with LED1.
-    
+
     for (int loop = 0; loop < 512; loop++) {
-        uart.printf("%c", c);        
+        uart.printf("%c", c);
         c++;
         if (c > 'Z') c = 'A';
     }
-    
+
     led1 = 0; // Show the end of sending by switching off LED1.
-    
+
     // End program. Flash LED4. Notice how LED 2 and 3 continue
-    // to flash for a short period while the interrupt system 
+    // to flash for a short period while the interrupt system
     // continues to send the characters left in the TX buffer.
-    
+
     while(1) {
         led4 = !led4;
         wait(0.25);
@@ -97,7 +97,7 @@ int main() {
  *
  * Of interest is that last "R" character after the system has said "Done."
  * This comes from the fact that the TxEmpty callback is made when the TX buffer
- * becomes empty. MODSERIAL makes use of the fact that the Uarts built into the 
+ * becomes empty. MODSERIAL makes use of the fact that the Uarts built into the
  * LPC17xx device use a 16 byte FIFO on both RX and TX channels. This means that
  * when the TxEmpty callback is made, the TX buffer is empty, but that just means
  * the "last few characters" were written to the TX FIFO. So although the TX
@@ -110,6 +110,6 @@ int main() {
  * In a similar way, when characters are received into the RX FIFO, the entire
  * FIFO contents is moved to the RX buffer, assuming there is room left in the
  * RX buffer. If there is not, any remaining characters are left in the RX FIFO
- * and will be moved to the RX buffer on the next interrupt or when the running 
+ * and will be moved to the RX buffer on the next interrupt or when the running
  * program removes a character(s) from the RX buffer with the getc() method.
  */

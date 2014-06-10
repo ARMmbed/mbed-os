@@ -31,7 +31,7 @@ class TCP_EchoHandler(BaseRequestHandler):
         while True:
             data = self.request.recv(1024)
             if not data: break
-            
+
             bytes += len(data)
             for n in map(ord, data):
                 if n != index:
@@ -39,7 +39,7 @@ class TCP_EchoHandler(BaseRequestHandler):
                 index += 1
                 if index > MAX_INDEX:
                     index = 0
-            
+
             self.request.sendall(data)
         t = time() - start
         b = float(bytes * 8) * 2

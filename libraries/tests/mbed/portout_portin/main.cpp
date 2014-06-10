@@ -1,6 +1,6 @@
 #include "test_env.h"
 
-#if defined(TARGET_K64F)
+#if defined(TARGET_K64F) || defined(TARGET_KL05Z)
 #define P1_1    (1 << 16)
 #define P1_2    (1 << 17)
 #define PORT_1  PortC
@@ -87,7 +87,7 @@ int main() {
         printf("[Test high] expected (0x%x) received (0x%x)\n", MASK_2, value);
         notify_completion(false);
     }
-    
+
     port_out = 0;
     wait(0.1);
     value = port_in.read();
@@ -95,6 +95,6 @@ int main() {
         printf("[Test low] expected (0x%x) received (0x%x)\n", 0, value);
         notify_completion(false);
     }
-    
+
     notify_completion(true);
 }

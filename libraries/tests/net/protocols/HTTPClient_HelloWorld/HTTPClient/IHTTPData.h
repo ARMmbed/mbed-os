@@ -36,17 +36,17 @@ protected:
    * @param pReadLen Pointer to the variable on which the actual copied data length will be stored
    */
   virtual int read(char* buf, size_t len, size_t* pReadLen) = 0;
-  
+
   /** Get MIME type
    * @param type Internet media type from Content-Type header
    */
   virtual int getDataType(char* type, size_t maxTypeLen) = 0; //Internet media type for Content-Type header
-  
+
   /** Determine whether the HTTP client should chunk the data
    *  Used for Transfer-Encoding header
    */
   virtual bool getIsChunked() = 0;
-  
+
   /** If the data is not chunked, get its size
    *  Used for Content-Length header
    */
@@ -75,7 +75,7 @@ protected:
    *  Recovered from Transfer-Encoding header
    */
   virtual void setIsChunked(bool chunked) = 0;
-  
+
   /** If the data is not chunked, set its size
    * From Content-Length header
    */

@@ -40,29 +40,29 @@ protected:
     WANDongleInitializer(USBHost* pHost) { m_pHost = pHost; }
     USBHost* m_pHost;
     uint8_t m_serialIntfMap[WANDONGLE_MAX_SERIAL_PORTS];
-    
+
 public:
     virtual ~WANDongleInitializer() {}
     virtual uint16_t getMSDVid() = 0;
     virtual uint16_t getMSDPid() = 0;
-    
+
     virtual uint16_t getSerialVid() = 0;
     virtual uint16_t getSerialPid() = 0;
-    
+
     virtual bool switchMode(USBDeviceConnected* pDev) = 0;
-    
+
     virtual USBEndpoint* getEp(USBDeviceConnected* pDev, int serialPortNumber, bool tx) {
         return pDev->getEndpoint(m_serialIntfMap[serialPortNumber], BULK_ENDPOINT, tx ? OUT : IN, 0);
     }
-    
+
     virtual int getSerialPortCount() = 0;
-    
+
     virtual void setVidPid(uint16_t vid, uint16_t pid) = 0;
-    
+
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) = 0; //Must return true if the interface should be parsed
-    
+
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) = 0; //Must return true if the endpoint will be used
-    
+
     virtual int getType() = 0;
 
     virtual uint8_t getSerialIntf(int index) { return m_serialIntfMap[index]; }

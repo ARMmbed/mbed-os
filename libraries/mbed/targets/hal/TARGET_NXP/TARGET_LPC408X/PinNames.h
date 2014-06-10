@@ -83,6 +83,32 @@ typedef enum {
     USBTX = P0_2,
     USBRX = P0_3,
 
+    // QSB baseboard Arduino shield pins
+	D0  = p10,
+	D1  = p9,
+	D2  = p31,
+	D3  = p32,
+	D4  = p33,
+	D5  = p37,
+	D6  = p38,
+	D7  = p34,
+	D8  = p8,
+	D9  = p39,
+	D10 = p14,
+	D11 = p11,
+	D12 = p12,
+	D13 = p13,
+	D14 = p19,
+	D15 = p20,
+	
+	A0  = p15,
+	A1  = p16,
+	A2  = p17,
+	A3  = p18,
+	A4  = p19,
+	A5  = p20,
+	
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

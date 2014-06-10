@@ -26,14 +26,13 @@ class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
     LINKER_EXT = '.icf'
     STD_LIB_NAME = "%s.a"
-    
+
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
-    
+
     def __init__(self, target, options=None, notify=None, macros=None):
         mbedToolchain.__init__(self, target, options, notify, macros)
-        
+
         c_flags = [
-            "-Oh",
             "--cpu=%s" % target.core, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
             "-e", # Enable IAR language extension
@@ -47,7 +46,10 @@ class IAR(mbedToolchain):
 
         if "debug-info" in self.options:
             c_flags.append("-r")
-        
+            c_flags.append("-On")
+        else:
+            c_flags.append("-Oh")
+
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
         self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
@@ -60,7 +62,7 @@ class IAR(mbedToolchain):
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
-    
+
     def parse_output(self, output):
         for line in output.splitlines():
             match = IAR.DIAGNOSTIC_PATTERN.match(line)
@@ -70,6 +72,8 @@ class IAR(mbedToolchain):
                     match.group('file'),
                     match.group('line'),
                     match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
             match = self.goanna_parse_line(line)
             if match is not None:
@@ -79,28 +83,28 @@ class IAR(mbedToolchain):
                     match.group('line'),
                     match.group('message')
                 )
-    
+
     def get_dep_opt(self, dep_path):
         return ["--dependencies", dep_path]
-    
+
     def cc_extra(self, base):
         return ["-l", base + '.s']
-    
+
     def parse_dependencies(self, dep_path):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
-    
+
     def assemble(self, source, object, includes):
         self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
-    
+
     def archive(self, objects, lib_path):
         if exists(lib_path):
             remove(lib_path)
         self.default_cmd([self.ar, lib_path] + objects)
-    
+
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         args = [self.ld, "-o", output, "--config", mem_map]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
-    
+
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))

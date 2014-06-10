@@ -144,11 +144,11 @@ void enet_hal_config_tx_fifo(uint32_t instance, enet_config_tx_fifo_t *threshold
 {
     assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(thresholdCfg);
-    assert(thresholdCfg->txFifoWrite <= BM_ENET_TFWR_TFWR);
 
     BW_ENET_TFWR_STRFWD(instance, thresholdCfg->isStoreForwardEnabled);   /* Set store and forward mode*/
     if(!thresholdCfg->isStoreForwardEnabled)
     {
+        assert(thresholdCfg->txFifoWrite <= BM_ENET_TFWR_TFWR);
         BW_ENET_TFWR_TFWR(instance, thresholdCfg->txFifoWrite);  /* Set transmit FIFO write bytes*/
     }
     BW_ENET_TSEM_TX_SECTION_EMPTY(instance,thresholdCfg->txEmpty);       /* Set transmit FIFO empty threshold*/

@@ -38,13 +38,13 @@ int FATFileHandle::close() {
 ssize_t FATFileHandle::write(const void* buffer, size_t length) {
     UINT n;
     FRESULT res = f_write(&_fh, buffer, length, &n);
-    if (res) { 
+    if (res) {
         debug_if(FFS_DBG, "f_write() failed: %d", res);
         return -1;
     }
     return n;
 }
-        
+
 ssize_t FATFileHandle::read(void* buffer, size_t length) {
     debug_if(FFS_DBG, "read(%d)\n", length);
     UINT n;

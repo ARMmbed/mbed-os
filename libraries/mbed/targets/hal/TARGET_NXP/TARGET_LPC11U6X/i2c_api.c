@@ -44,10 +44,9 @@ static const PinMap PinMap_I2C_SCL[] = {
 #define I2C_SCLL(x, val)    (x->i2c->SCLL = val)
 #define I2C_SCLH(x, val)    (x->i2c->SCLH = val)
 
-#warning [TODO] just copied from LPC11UXX code, need to check
 static const uint32_t I2C_addr_offset[2][4] = {
-    {0x0C, 0x20, 0x24, 0x28},
-    {0x30, 0x34, 0x38, 0x3C}
+    {0x0C, 0x20, 0x24, 0x28}, // slave address offset
+    {0x30, 0x34, 0x38, 0x3C}  // slave address mask offset
 };
 
 static inline void i2c_conclr(i2c_t *obj, int start, int stop, int interrupt, int acknowledge) {
@@ -183,8 +182,7 @@ static inline int i2c_do_read(i2c_t *obj, int last) {
 
 void i2c_frequency(i2c_t *obj, int hz) {
     // No peripheral clock divider on the M0
-#warning "[TODO] This should be fixed to handle system core clock correctly."
-    uint32_t PCLK = 12000000; //SystemCoreClock;
+    uint32_t PCLK = SystemCoreClock;
     
     uint32_t pulse = PCLK / (hz * 2);
     

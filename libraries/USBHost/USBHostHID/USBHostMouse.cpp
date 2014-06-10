@@ -35,7 +35,7 @@ void USBHostMouse::init() {
     dev_connected = false;
     mouse_device_found = false;
     mouse_intf = -1;
-    
+
     buttons = 0;
     x = 0;
     y = 0;
@@ -51,26 +51,26 @@ bool USBHostMouse::connect() {
     if (dev_connected) {
         return true;
     }
-    
+
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
             if(host->enumerate(dev, this))
                 break;
-            
+
             if (mouse_device_found) {
-                
+
                 int_in = dev->getEndpoint(mouse_intf, INTERRUPT_ENDPOINT, IN);
                 if (!int_in)
                     break;
-                
+
                 USB_INFO("New Mouse device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, mouse_intf);
                 dev->setName("Mouse", mouse_intf);
                 host->registerDriver(dev, mouse_intf, this, &USBHostMouse::init);
-                
+
                 int_in->attach(this, &USBHostMouse::rxHandler);
                 host->interruptRead(dev, int_in, report, int_in->getSize(), false);
-                
+
                 dev_connected = true;
                 return true;
             }
@@ -82,33 +82,33 @@ bool USBHostMouse::connect() {
 
 void USBHostMouse::rxHandler() {
     int len_listen = int_in->getSize();
-    
+
     if (onUpdate) {
         (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
     }
-    
+
     if (onButtonUpdate && (buttons != (report[0] & 0x07))) {
         (*onButtonUpdate)(report[0] & 0x07);
     }
-    
+
     if (onXUpdate && (x != report[1])) {
         (*onXUpdate)(report[1]);
     }
-    
+
     if (onYUpdate && (y != report[2])) {
         (*onYUpdate)(report[2]);
     }
-    
+
     if (onZUpdate && (z != report[3])) {
         (*onZUpdate)(report[3]);
     }
-        
+
     // update mouse state
     buttons = report[0] & 0x07;
     x = report[1];
     y = report[2];
     z = report[3];
-    
+
     if (dev)
         host->interruptRead(dev, int_in, report, len_listen, false);
 }

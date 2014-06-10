@@ -12,7 +12,7 @@ namespace mbed {
 
 SerialHalfDuplex::SerialHalfDuplex(PinName tx, PinName rx)
     : Serial(tx, rx) {
-    
+
     gpio_init(&gpio, tx, PIN_INPUT);
     gpio_mode(&gpio, PullNone); // no pull
 }
@@ -27,19 +27,19 @@ SerialHalfDuplex::SerialHalfDuplex(PinName tx, PinName rx)
 // 6. Re-enable interrupts
 int SerialHalfDuplex::_putc(int c) {
     int retc;
-    
+
     // TODO: We should not disable all interrupts
     __disable_irq();
-    
+
     serial_pinout_tx(gpio.pin);
-    
+
     Serial::_putc(c);
     retc = Serial::getc();       // reading also clears any interrupt
-    
+
     pin_function(gpio.pin, 0);
-    
+
     __enable_irq();
-    
+
     return retc;
 }
 

@@ -132,21 +132,48 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_CPHA_1Edge;
     obj->br_presc = SPI_BaudRatePrescaler_256;
 
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
         obj->nss = SPI_NSS_Soft;
     } else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     }
 
     init_spi(obj);
 }
 
 void spi_free(spi_t *obj) {
-    SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
-    SPI_I2S_DeInit(spi);
+    // Reset SPI and disable clock
+    if (obj->spi == SPI_1) {
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
+    }
+
+    if (obj->spi == SPI_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+    }
+
+    if (obj->spi == SPI_3) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, DISABLE);
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_miso, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_mosi, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_sclk, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_ssel, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
@@ -270,7 +297,8 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    //return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0); // initial code
+    return (ssp_readable(obj)) ? (1) : (0); // works better like this
 };
 
 int spi_slave_read(spi_t *obj) {

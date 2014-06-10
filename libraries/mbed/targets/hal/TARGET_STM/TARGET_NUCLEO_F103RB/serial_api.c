@@ -95,12 +95,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Enable USART clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+        obj->index = 0;
     }
     if (obj->uart == UART_2) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+        obj->index = 1;
     }
     if (obj->uart == UART_3) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+        obj->index = 2;
     }
 
     // Configure the UART pins
@@ -113,12 +116,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->stopbits = USART_StopBits_1;
     obj->parity = USART_Parity_No;
 
-    init_usart(obj);
+    obj->pin_tx = tx;
+    obj->pin_rx = rx;
 
-    // The index is used by irq
-    if (obj->uart == UART_1) obj->index = 0;
-    if (obj->uart == UART_2) obj->index = 1;
-    if (obj->uart == UART_3) obj->index = 2;
+    init_usart(obj);
 
     // For stdio management
     if (obj->uart == STDIO_UART) {
@@ -128,6 +129,27 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
+    // Reset UART and disable clock
+    if (obj->uart == UART_1) {
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, DISABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+    }
+    if (obj->uart == UART_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, DISABLE);
+    }
+    if (obj->uart == UART_3) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART3, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART3, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, DISABLE);
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_tx, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin_rx, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+
     serial_irq_ids[obj->index] = 0;
 }
 

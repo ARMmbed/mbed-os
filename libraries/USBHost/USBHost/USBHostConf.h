@@ -56,7 +56,7 @@
 /*
 * Enable USB3Gmodule
 */
-#define USBHOST_3GMODULE            1 
+#define USBHOST_3GMODULE            1
 
 /*
 * Maximum number of interfaces of a usb device

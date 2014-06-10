@@ -13,7 +13,7 @@ CT32B0/MR0  p25 (P1_24)
 CT32B0/MR1  p26 (P1_25) and USBTX (P0_19)
 CT32B0/MR2  p10 (P1_26)
  */
- 
+
 float value = 0.75;
 
 int main() {
@@ -59,7 +59,7 @@ int main() {
     printf("Initialize PWM on pin 25 with duty cycle: %.2f\n", pwm_p25.read());
 
 #elif defined(TARGET_DISCO_F100RB)
-    PwmOut pwm_1(PB_3); 
+    PwmOut pwm_1(PB_3);
     PwmOut pwm_2(PB_4);
 
     pwm_1.write(0.75);
@@ -68,7 +68,7 @@ int main() {
     printf("Initialize PWM on pin PB_3 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin PB_4 with duty cycle: %.2f\n", pwm_2.read());
 #elif defined(TARGET_DISCO_F051R8)
-    PwmOut pwm_1(PA_7); 
+    PwmOut pwm_1(PA_7);
     PwmOut pwm_2(PC_7);
 
     pwm_1.write(0.75);
@@ -77,7 +77,7 @@ int main() {
     printf("Initialize PWM on pin PA_7 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin PC_7 with duty cycle: %.2f\n", pwm_2.read());
 #elif defined(TARGET_DISCO_F303VC)
-    PwmOut pwm_1(PA_8); 
+    PwmOut pwm_1(PA_8);
     PwmOut pwm_2(PA_9);
 
     pwm_1.write(0.75);

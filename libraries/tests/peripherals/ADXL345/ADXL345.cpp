@@ -1,6 +1,6 @@
 /**
  * @author Aaron Berk
- * 
+ *
  * @section LICENSE
  *
  * Copyright (c) 2010 ARM Limited
@@ -30,22 +30,22 @@
  * Datasheet:
  *
  * http://www.analog.com/static/imported-files/data_sheets/ADXL345.pdf
- */  
- 
+ */
+
 /**
  * Includes
  */
 #include "ADXL345.h"
 
-ADXL345::ADXL345(PinName mosi, 
-                 PinName miso, 
-                 PinName sck, 
+ADXL345::ADXL345(PinName mosi,
+                 PinName miso,
+                 PinName sck,
                  PinName cs) : spi_(mosi, miso, sck), nCS_(cs) {
 
     //2MHz, allowing us to use the fastest data rates.
     spi_.frequency(2000000);
     spi_.format(8,3);
-    
+
     nCS_ = 1;
 
     wait_us(500);
@@ -316,9 +316,9 @@ void ADXL345::setDataRate(int rate) {
 void ADXL345::getOutput(int* readings){
 
     char buffer[6];
-    
+
     multiByteRead(ADXL345_DATAX0_REG, buffer, 6);
-    
+
     readings[0] = (int)buffer[1] << 8 | (int)buffer[0];
     readings[1] = (int)buffer[3] << 8 | (int)buffer[2];
     readings[2] = (int)buffer[5] << 8 | (int)buffer[4];

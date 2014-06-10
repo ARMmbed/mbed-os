@@ -69,6 +69,11 @@ public:
 
 protected:
     DigitalOut* _pin[16];
+
+   /* disallow copy constructor and assignment operators */
+private:
+    BusOut(const BusOut&);
+    BusOut & operator = (const BusOut&);
 };
 
 } // namespace mbed

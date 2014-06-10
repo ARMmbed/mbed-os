@@ -8,7 +8,7 @@
 // ********************************************************
 // This tests data transfer between two I2C interfaces on
 // the same chip, one configured as master, the other as
-// slave. Works on the LPC1768 mbed. 
+// slave. Works on the LPC1768 mbed.
 //
 // Wiring:
 //   p28 <-> p9
@@ -35,7 +35,7 @@ int main()
     {
         notify_completion(false);
         return 1;
-    }    
+    }
     slave.read(&received, 1);
     if(sent != received)
     {

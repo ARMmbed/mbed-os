@@ -83,10 +83,10 @@ private:
         (o->*m)();
     }
 
-    void (*_function)(void);                // static function pointer - 0 if none attached
-    void *_object;                            // object this pointer - 0 if none attached
-    char _member[16];                        // raw member function pointer storage - converted back by registered _membercaller
-    void (*_membercaller)(void*, char*);    // registered membercaller function to convert back and call _member on _object
+    void (*_function)(void);             // static function pointer - 0 if none attached
+    void *_object;                       // object this pointer - 0 if none attached
+    char _member[16];                    // raw member function pointer storage - converted back by registered _membercaller
+    void (*_membercaller)(void*, char*); // registered membercaller function to convert back and call _member on _object
 };
 
 } // namespace mbed

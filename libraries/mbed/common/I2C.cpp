@@ -21,10 +21,9 @@ namespace mbed {
 
 I2C *I2C::_owner = NULL;
 
-I2C::I2C(PinName sda, PinName scl) {
+I2C::I2C(PinName sda, PinName scl) : _i2c(), _hz(100000) {
     // The init function also set the frequency to 100000
     i2c_init(&_i2c, sda, scl);
-    _hz = 100000;
 
     // Used to avoid unnecessary frequency updates
     _owner = this;

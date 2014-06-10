@@ -24,43 +24,46 @@ from workspace_tools.settings import GOANNA_PATH
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
-    
+
     STD_LIB_NAME = "lib%s.a"
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
-    
+
     def __init__(self, target, options=None, notify=None, macros=None, tool_path=""):
         mbedToolchain.__init__(self, target, options, notify, macros)
-        
+
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0"
         elif target.core == "Cortex-M4F":
             cpu = "cortex-m4"
         else:
             cpu = target.core.lower()
-        
+
         self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex"):
             self.cpu.append("-mthumb")
-        
+
         if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
-        
+
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
-        common_flags = ["-c", "-O2", "-Wall", "-Wextra",
+        common_flags = ["-c", "-Wall", "-Wextra",
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
             "-MMD", "-fno-delete-null-pointer-checks",
             ] + self.cpu
-        
+
         if "save-asm" in self.options:
             common_flags.append("-save-temps")
 
         if "debug-info" in self.options:
             common_flags.append("-g")
+            common_flags.append("-O0")
+        else:
+            common_flags.append("-O2")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -71,16 +74,16 @@ class GCC(mbedToolchain):
         else:
             self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
             self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
-        
+
         self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
-        
+
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
-    
+
     def assemble(self, source, object, includes):
         self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
-    
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines()[1:]:
@@ -99,7 +102,7 @@ class GCC(mbedToolchain):
                 else:
                     dependencies = dependencies + [f.replace('\a', ' ') for f in file.split(" ")]
         return dependencies
-    
+
     def parse_output(self, output):
         # The warning/error notification is multiline
         WHERE, WHAT = 0, 1
@@ -111,53 +114,55 @@ class GCC(mbedToolchain):
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
-                    match.group('message')
+                    match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
                 continue
-           
+
             # Each line should start with the file information: "filepath: ..."
             # i should point past the file path                          ^
             # avoid the first column in Windows (C:\)
             i = line.find(':', 2)
             if i == -1: continue
-            
+
             if state == WHERE:
                 file = line[:i]
                 message = line[i+1:].strip() + ' '
                 state = WHAT
-            
+
             elif state == WHAT:
                 match = GCC.DIAGNOSTIC_PATTERN.match(line[i+1:])
                 if match is None:
                     state = WHERE
                     continue
-                
+
                 self.cc_info(
                     match.group('severity'),
                     file, match.group('line'),
                     message + match.group('message')
                 )
-    
+
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, "rcs", lib_path] + objects)
-    
+
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         libs = []
         for l in libraries:
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
-        
+
         # NOTE: There is a circular dependency between the mbed library and the clib
         # We could define a set of week symbols to satisfy the clib dependencies in "sys.o",
         # but if an application uses only clib symbols and not mbed symbols, then the final
-        # image is not correctly retargeted 
+        # image is not correctly retargeted
         if self.CIRCULAR_DEPENDENCIES:
             libs.extend(libs)
-        
+
         self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
             objects + ["-L%s" % L for L in lib_dirs] + libs))
-    
+
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
 
@@ -165,25 +170,25 @@ class GCC(mbedToolchain):
 class GCC_ARM(GCC):
     def __init__(self, target, options=None, notify=None, macros=None):
         GCC.__init__(self, target, options, notify, macros, GCC_ARM_PATH)
-        
+
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
-        
+
         self.sys_libs.append("nosys")
 
 
 class GCC_CR(GCC):
     def __init__(self, target, options=None, notify=None, macros=None):
         GCC.__init__(self, target, options, notify, macros, GCC_CR_PATH)
-        
+
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
         ]
         self.cc += additional_compiler_flags
         self.cppc += additional_compiler_flags
-        
+
         self.ld += ["-nostdlib"]
 
 
@@ -196,7 +201,7 @@ class GCC_CW(GCC):
     ARCH_LIB = {
         "Cortex-M0+": "armv6-m",
     }
-    
+
     def __init__(self, target, options=None, notify=None, macros=None):
         GCC.__init__(self, target, options, notify, macros, CW_GCC_PATH)
 
@@ -204,7 +209,7 @@ class GCC_CW(GCC):
 class GCC_CW_EWL(GCC_CW):
     def __init__(self, target, options=None, notify=None, macros=None):
         GCC_CW.__init__(self, target, options, notify, macros)
-        
+
         # Compiler
         common = [
             '-mfloat-abi=soft',
@@ -217,7 +222,7 @@ class GCC_CW_EWL(GCC_CW):
             '-nostdinc++', '-I%s' % join(CW_EWL_PATH, "EWL_C++", "include"),
             '-include', join(CW_EWL_PATH, "EWL_C++", "include", 'lib_ewl_c++.prefix')
         ]
-        
+
         # Linker
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False

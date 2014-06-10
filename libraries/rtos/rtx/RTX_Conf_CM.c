@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -53,7 +53,7 @@
 	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68)
 #    define OS_TASKCNT         14
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) \
-	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
+	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
 #    define OS_TASKCNT         6
 #  else
 #    error "no target defined"
@@ -66,7 +66,7 @@
 	 || defined(TARGET_KL46Z)   || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68)
 #      define OS_SCHEDULERSTKSIZE    256
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) \
-	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
+	 || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8)
 #      define OS_SCHEDULERSTKSIZE    128
 #  else
 #    error "no target defined"
@@ -93,8 +93,8 @@
  #define OS_STKCHECK    1
 #endif
 
-// <o>Processor mode for thread execution 
-//   <0=> Unprivileged mode 
+// <o>Processor mode for thread execution
+//   <0=> Unprivileged mode
 //   <1=> Privileged mode
 // <i> Default: Privileged mode
 #ifndef OS_RUNPRIV
@@ -115,7 +115,7 @@
 #  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549)
 #    define OS_CLOCK       72000000
 
-#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) || defined(TARGET_KL46Z) || defined(TARGET_STM32F051R8) || defined(TARGET_LPC11U68)
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_STM32F051R8) || defined(TARGET_LPC11U68)
 #    define OS_CLOCK       48000000
 
 #  elif defined(TARGET_LPC812)
@@ -211,7 +211,7 @@
 
 // Standard library system mutexes
 // ===============================
-//  Define max. number system mutexes that are used to protect 
+//  Define max. number system mutexes that are used to protect
 //  the arm standard runtime library. For microlib they are not used.
 #ifndef OS_MUTEXCNT
  #define OS_MUTEXCNT    12
@@ -230,7 +230,7 @@
 void os_idle_demon (void) {
   /* The idle demon is a system thread, running when no other thread is      */
   /* ready to run.                                                           */
-  
+
   /* Sleep: ideally, we should put the chip to sleep.
      Unfortunately, this usually requires disconnecting the interface chip (debugger).
      This can be done, but it would break the local file system.
