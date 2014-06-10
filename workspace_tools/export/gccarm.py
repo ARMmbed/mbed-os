@@ -27,6 +27,7 @@ class GccArm(Exporter):
         'KL05Z',
         'KL25Z',
         'KL46Z',
+        'K64F',
         'K20D5M',
         'LPC4088',
         'LPC11U24',
