@@ -27,6 +27,7 @@
 
 extern IRQn_Type enet_irq_ids[HW_ENET_INSTANCE_COUNT][FSL_FEATURE_ENET_INTERRUPT_COUNT];
 extern uint8_t enetIntMap[kEnetIntNum];
+extern void *enetIfHandle;
 
 /********************************************************************************
  * Internal data
@@ -855,6 +856,22 @@ void eth_arch_disable_interrupts(void) {
   interrupt_disable(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]);  
 }
 
+void ENET_Transmit_IRQHandler(void)
+{
+     enet_mac_tx_isr(enetIfHandle);
+}
+
+void ENET_Receive_IRQHandler(void)
+{
+     enet_mac_rx_isr(enetIfHandle);
+}
+
+#if FSL_FEATURE_ENET_SUPPORT_PTP
+void ENET_1588_Timer_IRQHandler(void)
+{
+     enet_mac_ts_isr(enetIfHandle);
+}
+#endif
 /**
  * @}
  */
