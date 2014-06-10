@@ -21,6 +21,10 @@
 #include <stdio.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 WEAK void error(const char* format, ...);
 WEAK void error(const char* format, ...) {
 #if DEVICE_STDIO_MESSAGES
@@ -31,3 +35,7 @@ WEAK void error(const char* format, ...) {
 #endif
     exit(1);
 }
+
+#ifdef __cplusplus
+}
+#endif
