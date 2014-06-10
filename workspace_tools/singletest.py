@@ -551,7 +551,6 @@ if __name__ == '__main__':
         mcu_toolchain_matrix()
         exit(0)
 
-
     # Open file with test specification
     # test_spec_filename tells script which targets and their toolchain(s)
     # should be covered by the test scenario
