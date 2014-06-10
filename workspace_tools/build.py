@@ -31,7 +31,8 @@ from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 from workspace_tools.build_api import mcu_toolchain_matrix
-
+from workspace_tools.build_api import static_analysis_scan
+from workspace_tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 
 if __name__ == '__main__':
     start = time()
@@ -50,14 +51,16 @@ if __name__ == '__main__':
                       default=False, help="Compile the USB Device library")
     parser.add_option("-d", "--dsp", action="store_true", dest="dsp",
                       default=False, help="Compile the DSP library")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
-                      default=False, help="Verbose diagnostic output")
     parser.add_option("-b", "--ublox", action="store_true", dest="ublox",
                       default=False, help="Compile the u-blox library")
     parser.add_option("-D", "", action="append", dest="macros",
                       help="Add a macro definition")
     parser.add_option("-S", "--supported-toolchains", action="store_true", dest="supported_toolchains",
                       default=False, help="Displays supported matrix of MCUs and toolchains")
+    parser.add_option("", "--cppcheck", action="store_true", dest="cppcheck_validation",
+                      default=False, help="Forces 'cppcheck' static code analysis")
+    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+                      default=False, help="Verbose diagnostic output")
     parser.add_option("-x", "--extra-verbose-notifications", action="store_true", dest="extra_verbose_notify",
                       default=False, help="Makes compiler more verbose, CI friendly.")
     (options, args) = parser.parse_args()
@@ -106,41 +109,64 @@ if __name__ == '__main__':
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
 
-    # Build
+    # Build results
     failures = []
     successes = []
-    for toolchain in toolchains:
-        for target in targets:
-            id = "%s::%s" % (toolchain, target)
-            try:
-                mcu = TARGET_MAP[target]
-                notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
-                build_mbed_libs(mcu, toolchain, options=options.options,
-                                notify=notify, verbose=options.verbose, clean=options.clean,
-                                macros=options.macros)
-                for lib_id in libraries:
-                    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
-                    build_lib(lib_id, mcu, toolchain, options=options.options,
-                              notify=notify, verbose=options.verbose, clean=options.clean,
-                              macros=options.macros)
-                successes.append(id)
-            except Exception, e:
-                if options.verbose:
-                    import sys, traceback
-                    traceback.print_exc(file=sys.stdout)
-                    sys.exit(1)
 
-                failures.append(id)
-                print e
+    # CPPCHECK code validation
+    if options.cppcheck_validation:
+        for toolchain in toolchains:
+            for target in targets:
+                try:
+                    mcu = TARGET_MAP[target]
+                    # CMSIS and MBED libs analysis
+                    static_analysis_scan(mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, verbose=options.verbose)
+                    for lib_id in libraries:
+                        # Static check for library
+                        pass
+                except Exception, e:
+                    if options.verbose:
+                        import traceback
+                        traceback.print_exc(file=sys.stdout)
+                        sys.exit(1)
+                    print e
+    else: 
+        # Build
+        for toolchain in toolchains:
+            for target in targets:
+                tt_id = "%s::%s" % (toolchain, target)
+                try:
+                    mcu = TARGET_MAP[target]
+                    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
+                    build_mbed_libs(mcu, toolchain, options=options.options,
+                                    notify=notify, verbose=options.verbose, clean=options.clean,
+                                    macros=options.macros)
+
+                    for lib_id in libraries:
+                        notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
+                        build_lib(lib_id, mcu, toolchain, options=options.options,
+                                  notify=notify, verbose=options.verbose, clean=options.clean,
+                                  macros=options.macros)
+                    successes.append(tt_id)
+                except Exception, e:
+                    if options.verbose:
+                        import traceback
+                        traceback.print_exc(file=sys.stdout)
+                        sys.exit(1)
+                    failures.append(tt_id)
+                    print e
 
     # Write summary of the builds
-    print "\n\nCompleted in: (%.2f)s" % (time() - start)
+    print "Completed in: (%.2f)s" % (time() - start)
+    print
 
     if successes:
-        print "\n\nBuild successes:"
+        print "Build successes:"
+        print
         print "\n".join(["  * %s" % s for s in successes])
 
     if failures:
-        print "\n\nBuild failures:"
+        print "Build failures:"
+        print
         print "\n".join(["  * %s" % f for f in failures])
         sys.exit(1)
