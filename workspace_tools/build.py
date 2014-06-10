@@ -31,7 +31,7 @@ from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 from workspace_tools.build_api import mcu_toolchain_matrix
-from workspace_tools.build_api import static_analysis_scan
+from workspace_tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from workspace_tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 
 if __name__ == '__main__':
@@ -109,6 +109,8 @@ if __name__ == '__main__':
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
 
+    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
+
     # Build results
     failures = []
     successes = []
@@ -123,6 +125,10 @@ if __name__ == '__main__':
                     static_analysis_scan(mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, verbose=options.verbose)
                     for lib_id in libraries:
                         # Static check for library
+                        static_analysis_scan_lib(lib_id, mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
+                                  options=options.options,
+                                  notify=notify, verbose=options.verbose, clean=options.clean,
+                                  macros=options.macros)
                         pass
                 except Exception, e:
                     if options.verbose:
@@ -130,14 +136,13 @@ if __name__ == '__main__':
                         traceback.print_exc(file=sys.stdout)
                         sys.exit(1)
                     print e
-    else: 
+    else:
         # Build
         for toolchain in toolchains:
             for target in targets:
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                     build_mbed_libs(mcu, toolchain, options=options.options,
                                     notify=notify, verbose=options.verbose, clean=options.clean,
                                     macros=options.macros)
