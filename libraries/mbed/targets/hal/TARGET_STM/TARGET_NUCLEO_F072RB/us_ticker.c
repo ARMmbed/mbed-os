@@ -41,11 +41,11 @@ void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
-    // Update the SystemCoreClock variable
-    SystemCoreClockUpdate();
-
     // Enable timer clock
     TIM_MST_RCC;
+
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
 
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;

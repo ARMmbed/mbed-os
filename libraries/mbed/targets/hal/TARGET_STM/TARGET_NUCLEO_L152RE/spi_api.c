@@ -215,6 +215,9 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
 }
 
 void spi_frequency(spi_t *obj, int hz) {
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
     // Values depend of PCLK1 and PCLK2: 32 MHz if HSI is used, 24 MHz if HSE is used
     if (SystemCoreClock == 32000000) { // HSI
         if (hz < 250000) {

@@ -45,6 +45,9 @@ void us_ticker_init(void) {
     // Enable timer clock
     TIM_MST_RCC;
 
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
     // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period        = 0xFFFFFFFF;

@@ -108,6 +108,9 @@ void i2c_frequency(i2c_t *obj, int hz) {
     SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, DISABLE);
     SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, DISABLE);
 
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
     /*
        Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
        * Standard mode (up to 100 kHz)
