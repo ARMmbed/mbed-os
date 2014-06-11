@@ -522,7 +522,7 @@ class NRF51822(Target):
         self.is_disk_virtual = True
     
     def program_cycle_s(self):
-        return 6 if self.is_disk_virtual else 1.5
+        return 6 
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
@@ -530,7 +530,6 @@ class NRF51822(Target):
 
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        print "RUNNING HOOK........."
         for hexf in resources.hex_files:
             if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
                 break
