@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   HASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the HASH peripheral:
@@ -148,7 +148,8 @@ static void HASH_WriteData(uint8_t *pInBuffer, uint32_t Size);
 /**
   * @brief  Initializes the HASH according to the specified parameters in the
             HASH_HandleTypeDef and creates the associated handle.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASH_Init(HASH_HandleTypeDef *hhash)
@@ -192,7 +193,8 @@ HAL_StatusTypeDef HAL_HASH_Init(HASH_HandleTypeDef *hhash)
 /**
   * @brief  DeInitializes the HASH peripheral.
   * @note   This API must be called before starting a new processing. 
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASH_DeInit(HASH_HandleTypeDef *hhash)
@@ -229,7 +231,8 @@ HAL_StatusTypeDef HAL_HASH_DeInit(HASH_HandleTypeDef *hhash)
 
 /**
   * @brief  Initializes the HASH MSP.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
 __weak void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash)
@@ -241,7 +244,8 @@ __weak void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash)
 
 /**
   * @brief  DeInitializes HASH MSP.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
 __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
@@ -253,7 +257,8 @@ __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
 
 /**
   * @brief  Input data transfer complete callback.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
  __weak void HAL_HASH_InCpltCallback(HASH_HandleTypeDef *hhash)
@@ -265,7 +270,8 @@ __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
 
 /**
   * @brief  Data transfer Error callback.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
  __weak void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash)
@@ -278,7 +284,8 @@ __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
 /**
   * @brief  Digest computation complete callback. It is used only with interrupt.
   * @note   This callback is not relevant with DMA.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
  __weak void HAL_HASH_DgstCpltCallback(HASH_HandleTypeDef *hhash)
@@ -311,9 +318,9 @@ __weak void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash)
 /**
   * @brief  Initializes the HASH peripheral in MD5 mode then processes pInBuffer.
             The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the Output buffer (hashed buffer).  
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is multiple of 64 bytes, appending the input buffer is possible.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware
@@ -388,7 +395,8 @@ HAL_StatusTypeDef HAL_HASH_MD5_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuff
 
 /**
   * @brief  Initializes the HASH peripheral in MD5 mode then writes the pInBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is multiple of 64 bytes, appending the input buffer is possible.
@@ -434,9 +442,9 @@ HAL_StatusTypeDef HAL_HASH_MD5_Accumulate(HASH_HandleTypeDef *hhash, uint8_t *pI
 /**
   * @brief  Initializes the HASH peripheral in SHA1 mode then processes pInBuffer.
             The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the Output buffer (hashed buffer).   
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
+  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).  
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
@@ -510,7 +518,8 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuf
 /**
   * @brief  Initializes the HASH peripheral in SHA1 mode then processes pInBuffer.
             The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -575,8 +584,8 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Accumulate(HASH_HandleTypeDef *hhash, uint8_t *p
 /**
   * @brief  Initializes the HASH peripheral in MD5 mode then processes pInBuffer.
   *         The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pOutBuffer: Pointer to the Output buffer (hashed buffer).   
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -727,9 +736,9 @@ HAL_StatusTypeDef HAL_HASH_MD5_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pInB
 /**
   * @brief  Initializes the HASH peripheral in SHA1 mode then processes pInBuffer.
   *         The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the Output buffer (hashed buffer).   
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
+  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed). 
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
@@ -880,7 +889,8 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pIn
 
 /**
   * @brief This function handles HASH interrupt request.
-  * @param hhash: hash handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
 void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash)
@@ -923,11 +933,11 @@ void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash)
 /**
   * @brief  Initializes the HASH peripheral in MD5 mode then enables DMA to
             control data transfer. Use HAL_HASH_MD5_Finish() to get the digest.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
-  * @param  pOutBuffer: Pointer to the computed digest. Its size must be 16 bytes.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASH_MD5_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
@@ -974,7 +984,8 @@ HAL_StatusTypeDef HAL_HASH_MD5_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pIn
 
 /**
   * @brief  Returns the computed digest in MD5 mode
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 16 bytes.
   * @param  Timeout: Timeout value  
   * @retval HAL status
@@ -1026,11 +1037,11 @@ HAL_StatusTypeDef HAL_HASH_MD5_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBu
 /**
   * @brief  Initializes the HASH peripheral in SHA1 mode then enables DMA to
             control data transfer. Use HAL_HASH_SHA1_Finish() to get the digest.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
-  * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASH_SHA1_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
@@ -1078,7 +1089,8 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pI
 
 /**
   * @brief  Returns the computed digest in SHA1 mode.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.  
   * @param  Timeout: Timeout value    
   * @retval HAL status
@@ -1150,7 +1162,8 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutB
 /**
   * @brief  Initializes the HASH peripheral in HMAC MD5 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1294,7 +1307,8 @@ HAL_StatusTypeDef HAL_HMAC_MD5_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuff
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA1 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param   Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1460,7 +1474,8 @@ HAL_StatusTypeDef HAL_HMAC_SHA1_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuf
 /**
   * @brief  Initializes the HASH peripheral in HMAC MD5 mode
   *         then enables DMA to control data transfer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1526,7 +1541,8 @@ HAL_StatusTypeDef HAL_HMAC_MD5_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pIn
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA1 mode
   *         then enables DMA to control data transfer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1609,7 +1625,8 @@ HAL_StatusTypeDef HAL_HMAC_SHA1_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pI
 
 /**
   * @brief return the HASH state
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval HAL state
   */
 HAL_HASH_STATETypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash)

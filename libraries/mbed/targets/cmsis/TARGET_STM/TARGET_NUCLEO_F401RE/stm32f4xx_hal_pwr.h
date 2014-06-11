@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -60,7 +60,7 @@
   */
 typedef struct
 {
-  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level
+  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level.
                             This parameter can be a value of @ref PWR_PVD_detection_level */
 
   uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.

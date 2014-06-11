@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   IWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Independent Watchdog (IWDG) peripheral:
@@ -142,7 +142,8 @@
 /**
   * @brief  Initializes the IWDG according to the specified
   *         parameters in the IWDG_InitTypeDef and creates the associated handle.
-  * @param  hiwdg: IWDG handle
+  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
+  *                the configuration information for the specified IWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
@@ -206,7 +207,8 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 
 /**
   * @brief  Initializes the IWDG MSP.
-  * @param  hiwdg: IWDG handle
+  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
+  *                the configuration information for the specified IWDG module.
   * @retval None
   */
 __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
@@ -237,7 +239,8 @@ __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
 
 /**
   * @brief  Starts the IWDG.
-  * @param  hiwdg: IWDG handle
+  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
+  *                the configuration information for the specified IWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
@@ -266,7 +269,8 @@ HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
 
 /**
   * @brief  Refreshes the IWDG.
-  * @param  hiwdg: IWDG handle
+  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
+  *                the configuration information for the specified IWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg)
@@ -314,7 +318,8 @@ HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg)
 
 /**
   * @brief  Returns the IWDG state.
-  * @param  hiwdg: IWDG handle
+  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
+  *                the configuration information for the specified IWDG module.
   * @retval HAL state
   */
 HAL_IWDG_StateTypeDef HAL_IWDG_GetState(IWDG_HandleTypeDef *hiwdg)

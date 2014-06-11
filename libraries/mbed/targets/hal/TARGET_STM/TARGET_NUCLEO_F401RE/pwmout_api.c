@@ -44,7 +44,7 @@ static const PinMap PinMap_PWM[] = {
     {PA_2,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH3
 //  {PA_2,  PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)}, // TIM5_CH3
 //  {PA_2,  PWM_9, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM9)}, // TIM9_CH1
-    {PA_3,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH3
+    {PA_3,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH4
 //  {PA_3,  PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)}, // TIM5_CH4
 //  {PA_3,  PWM_9, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM9)}, // TIM9_CH2
     {PA_5,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH1
@@ -142,30 +142,28 @@ void pwmout_write(pwmout_t* obj, float value) {
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
     switch (obj->pin) {
+
         // Channels 1
         case PA_0:
-//      case PA_2:
         case PA_5:
         case PA_6:
         case PA_8:
         case PA_15:
         case PB_4:
         case PB_6:
-//      case PB_8:
-//      case PB_9:
         case PC_6:
             channel = TIM_CHANNEL_1;
             break;
+
         // Channels 1N
         case PA_7:
         case PB_13:
             channel = TIM_CHANNEL_1;
             complementary_channel = 1;
             break;
+
         // Channels 2
         case PA_1:
-//      case PA_3:
-//      case PA_7:
         case PA_9:
         case PB_3:
         case PB_5:
@@ -173,36 +171,38 @@ void pwmout_write(pwmout_t* obj, float value) {
         case PC_7:
             channel = TIM_CHANNEL_2;
             break;
+
         // Channels 2N
         case PB_0:
         case PB_14:
             channel = TIM_CHANNEL_2;
             complementary_channel = 1;
             break;
+
         // Channels 3
         case PA_2:
-        case PA_3:
         case PA_10:
-//      case PB_0:
         case PB_8:
         case PB_10:
         case PC_8:
             channel = TIM_CHANNEL_3;
             break;
+
         // Channels 3N
         case PB_1:
         case PB_15:
             channel = TIM_CHANNEL_3;
             complementary_channel = 1;
             break;
+
         // Channels 4
-//      case PA_3:
+        case PA_3:
         case PA_11:
-//      case PB_1:
         case PB_9:
         case PC_9:
             channel = TIM_CHANNEL_4;
             break;
+
         default:
             return;
     }
@@ -237,6 +237,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
 
     __HAL_TIM_DISABLE(&TimHandle);
+
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
 
     TimHandle.Init.Period        = us - 1;
     TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
