@@ -73,7 +73,7 @@ GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.1.4/bin"
 
 # cppcheck path (command) and output message format
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
-CPPCHECK_MSG_FORMAT = ["--template=\"[{severity}] {file}@{line}: {id}:{message}\""]
+CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
 
 BUILD_OPTIONS = []
 

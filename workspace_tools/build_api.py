@@ -270,28 +270,28 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
 
     # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
-    includes = ["-I%s " % i for i in resources.inc_dirs]
-    includes.append(" -I%s "% str(BUILD_TARGET))
+    includes = ["-I%s" % i for i in resources.inc_dirs]
+    includes.append(" -I%s"% str(BUILD_TARGET))
     c_sources = " ".join(resources.c_sources)
     cpp_sources = " ".join(resources.cpp_sources)
-    macros = ['-D%s ' % s for s in toolchain.get_symbols() + toolchain.macros]
+    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
 
-    check_cmd = " ".join(CPPCHECK_CMD) + " "
-    check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
-    check_cmd += " ".join(includes)
-    check_cmd += " ".join(macros)
-    # moved to --file-list file
-    # check_cmd += c_sources
-    # check_cmd += " " + cpp_sources
+    includes = map(str.strip, includes)
+    macros = map(str.strip, macros)
 
-    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += includes
+    check_cmd += macros
+
+    # We need to pass some params via file to avoid "command line too long in some OSs"
     tmp_file = tempfile.NamedTemporaryFile(delete=False)
     tmp_file.writelines(line + '\n' for line in c_sources.split())
     tmp_file.writelines(line + '\n' for line in cpp_sources.split())
     tmp_file.close()
-    check_cmd += " --file-list=%s"% tmp_file.name
+    check_cmd += ["--file-list=%s"% tmp_file.name]
 
-    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
+    _stdout, _stderr, _rc = run_cmd(check_cmd)
     if verbose:
         print _stdout
     print _stderr
@@ -313,35 +313,34 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
     incdirs = toolchain.scan_resources(BUILD_TARGET)
 
-    target_includes = ["-I%s " % i for i in incdirs.inc_dirs]
-    target_includes.append(" -I%s "% str(BUILD_TARGET))
-    target_includes.append(" -I%s "% str(HAL_SRC))
+    target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
+    target_includes.append("-I%s "% str(BUILD_TARGET))
+    target_includes.append("-I%s "% str(HAL_SRC))
     target_c_sources = " ".join(incdirs.c_sources)
     target_cpp_sources = " ".join(incdirs.cpp_sources)
-    target_macros = ['-D%s ' % s for s in toolchain.get_symbols() + toolchain.macros]
+    target_macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
 
     # Common Sources
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
 
     # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
-    mbed_includes = ["-I%s " % i for i in mbed_resources.inc_dirs]
-    mbed_includes.append(" -I%s "% str(BUILD_TARGET))
-    mbed_includes.append(" -I%s "% str(MBED_COMMON))
-    mbed_includes.append(" -I%s "% str(MBED_API))
-    mbed_includes.append(" -I%s "% str(MBED_HAL))
+    mbed_includes = ["-I%s" % i for i in mbed_resources.inc_dirs]
+    mbed_includes.append("-I%s "% str(BUILD_TARGET))
+    mbed_includes.append("-I%s "% str(MBED_COMMON))
+    mbed_includes.append("-I%s "% str(MBED_API))
+    mbed_includes.append("-I%s "% str(MBED_HAL))
     mbed_c_sources = " ".join(mbed_resources.c_sources)
     mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
 
-    check_cmd = " ".join(CPPCHECK_CMD) + " "
-    check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
-    check_cmd += " ".join(target_includes)
-    check_cmd += " ".join(mbed_includes)
-    check_cmd += " ".join(target_macros)
-    # moved to --file-list file
-    # check_cmd += " " + target_c_sources
-    # check_cmd += " " + target_cpp_sources
-    # check_cmd += " " + mbed_c_sources
-    # check_cmd += " " + mbed_cpp_sources
+    target_includes = map(str.strip, target_includes)
+    mbed_includes = map(str.strip, mbed_includes)
+    target_macros = map(str.strip, target_macros)
+
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += target_includes
+    check_cmd += mbed_includes
+    check_cmd += target_macros
 
     # We need to pass some parames via file to avoid "command line too long in some OSs"
     tmp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -350,9 +349,9 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.writelines(line + '\n' for line in mbed_c_sources.split())
     tmp_file.writelines(line + '\n' for line in mbed_cpp_sources.split())
     tmp_file.close()
-    check_cmd += " --file-list=%s"% tmp_file.name
+    check_cmd += ["--file-list=%s"% tmp_file.name]
 
-    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd)
     if verbose:
         print _stdout
     print _stderr
@@ -405,36 +404,36 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     mkdir(tmp_path)
 
     # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
-    includes = ["-I%s " % i for i in dependencies_include_dir + src_paths]
+    includes = ["-I%s" % i for i in dependencies_include_dir + src_paths]
     c_sources = " "
     cpp_sources = " "
-    macros = ['-D%s ' % s for s in toolchain.get_symbols() + toolchain.macros]
+    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
 
     # Copy Headers
     for resource in resources:
         toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-        includes += ["-I%s " % i for i in resource.inc_dirs]
+        includes += ["-I%s" % i for i in resource.inc_dirs]
         c_sources += " ".join(resource.c_sources) + " "
         cpp_sources += " ".join(resource.cpp_sources) + " "
 
     dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
-    check_cmd = " ".join(CPPCHECK_CMD) + " "
-    check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
-    check_cmd += " ".join(includes)
-    check_cmd += " ".join(macros)
-    # moved to --file-list file
-    # check_cmd += " " + c_sources
-    # check_cmd += " " + cpp_sources
+    includes = map(str.strip, includes)
+    macros = map(str.strip, macros)
+
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += includes
+    check_cmd += macros
 
     # We need to pass some parames via file to avoid "command line too long in some OSs"
     tmp_file = tempfile.NamedTemporaryFile(delete=False)
     tmp_file.writelines(line + '\n' for line in c_sources.split())
     tmp_file.writelines(line + '\n' for line in cpp_sources.split())
     tmp_file.close()
-    check_cmd += " --file-list=%s"% tmp_file.name
+    check_cmd += ["--file-list=%s"% tmp_file.name]
 
-    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd)
     if verbose:
         print _stdout
     print _stderr
