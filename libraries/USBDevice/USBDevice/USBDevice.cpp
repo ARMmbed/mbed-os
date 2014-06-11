@@ -718,6 +718,11 @@ void USBDevice::disconnect(void)
 {
     /* Disconnect device */
     USBHAL::disconnect();
+    
+    /* Set initial device state */
+    device.state = POWERED;
+    device.configuration = 0;
+    device.suspended = false;
 }
 
 CONTROL_TRANSFER * USBDevice::getTransferPtr(void)
