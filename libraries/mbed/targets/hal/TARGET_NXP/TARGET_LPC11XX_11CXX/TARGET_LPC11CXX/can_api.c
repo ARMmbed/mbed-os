@@ -69,12 +69,12 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             LPC_CAN->IF1_ARB1 = BFN_PREP(id, CANIFn_ARB1_ID);
             LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | CANIFn_ARB2_XTD | BFN_PREP(id >> 16, CANIFn_ARB2_ID);
             LPC_CAN->IF1_MSK1 = BFN_PREP(mask, CANIFn_MSK1_MSK);
-            LPC_CAN->IF1_MSK2 = CANIFn_MSK2_MXTD | CANIFn_MSK2_MDIR | BFN_PREP(mask >> 16, CANIFn_MSK2_MSK);
+            LPC_CAN->IF1_MSK2 = CANIFn_MSK2_MXTD /* | CANIFn_MSK2_MDIR */ | BFN_PREP(mask >> 16, CANIFn_MSK2_MSK);
         }
         else {
             // Mark message valid, Direction = TX, Set Identifier and mask everything
             LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | BFN_PREP(id << 2, CANIFn_ARB2_ID);
-            LPC_CAN->IF1_MSK2 = CANIFn_MSK2_MDIR | BFN_PREP(mask << 2, CANIFn_MSK2_MSK);
+            LPC_CAN->IF1_MSK2 = /* CANIFn_MSK2_MDIR | */ BFN_PREP(mask << 2, CANIFn_MSK2_MSK);
         }
         
         // Use mask, single message object and set DLC
@@ -286,16 +286,22 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     // Make sure the interface is available
     while( LPC_CAN->IF1_CMDREQ & CANIFn_CMDREQ_BUSY );
 
+    // Set the direction bit based on the message type
+    uint32_t direction = 0;
+    if (msg.type == CANData) {
+        direction = CANIFn_ARB2_DIR;
+    }
+
     if(msg.format == CANExtended)    {
-        // Mark message valid, Direction = TX, Extended Frame, Set Identifier and mask everything
+        // Mark message valid, Extended Frame, Set Identifier and mask everything
         LPC_CAN->IF1_ARB1 = BFN_PREP(msg.id, CANIFn_ARB1_ID);
-        LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | CANIFn_ARB2_XTD | CANIFn_ARB2_DIR | BFN_PREP(msg.id >> 16, CANIFn_ARB2_ID);
+        LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | CANIFn_ARB2_XTD | direction | BFN_PREP(msg.id >> 16, CANIFn_ARB2_ID);
         LPC_CAN->IF1_MSK1 = BFN_PREP(ID_EXT_MASK, CANIFn_MSK1_MSK);
         LPC_CAN->IF1_MSK2 = CANIFn_MSK2_MXTD | CANIFn_MSK2_MDIR | BFN_PREP(ID_EXT_MASK >> 16, CANIFn_MSK2_MSK);
     }
     else {
-        // Mark message valid, Direction = TX, Set Identifier and mask everything
-        LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | CANIFn_ARB2_DIR | BFN_PREP(msg.id << 2, CANIFn_ARB2_ID);
+        // Mark message valid, Set Identifier and mask everything
+        LPC_CAN->IF1_ARB2 = CANIFn_ARB2_MSGVAL | direction | BFN_PREP(msg.id << 2, CANIFn_ARB2_ID);
         LPC_CAN->IF1_MSK2 = CANIFn_MSK2_MDIR | BFN_PREP(ID_STD_MASK << 2, CANIFn_MSK2_MSK);
     }
     
@@ -364,8 +370,13 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
             msg->id = (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_ID_MASK) >> 2;
         }
 
-        // TODO: Remote frame support
-        msg->type       = CANData;
+        if (LPC_CAN->IF2_ARB2 & CANIFn_ARB2_DIR) {
+            msg->type   = CANRemote;
+        }
+        else {
+            msg->type   = CANData;
+        }
+
         msg->len        = BFN_GET(LPC_CAN->IF2_MCTRL, CANIFn_MCTRL_DLC); // TODO: If > 8, len = 8
         msg->data[0]    = BFN_GET(LPC_CAN->IF2_DA1, CANIFn_DA1_DATA0);
         msg->data[1]    = BFN_GET(LPC_CAN->IF2_DA1, CANIFn_DA1_DATA1);
