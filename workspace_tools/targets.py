@@ -639,6 +639,20 @@ class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
 
+class ARCH_PRO(Target):
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M3"
+
+        self.extra_labels = ['NXP', 'LPC176X']
+
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+
+        self.macros = ['TARGET_LPC1768']
+
+        self.supported_form_factors = ["ARDUINO"]
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -677,7 +691,8 @@ TARGETS = [
     DISCO_F303VC(),
     DISCO_F407VG(),
     XADOW_M0(),
-    ARCH_BLE()
+    ARCH_BLE(),
+    ARCH_PRO(),
 ]
 
 # Map each target name to its unique instance
