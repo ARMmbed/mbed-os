@@ -15,11 +15,12 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
+#include "mbed_assert.h"
 #include "pinmap.h"
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (uint32_t)NC) return;
+    MBED_ASSERT(pin != (PinName)NC);
 
     __IO uint32_t *reg = (__IO uint32_t*) MBED_SCU_REG(pin);
 
@@ -28,9 +29,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
-
-    if (mode == OpenDrain) error("OpenDrain not supported on LPC43XX");
+    MBED_ASSERT((pin != (PinName)NC) && (mode == OpenDrain));
 
     __IO uint32_t *reg = (__IO uint32_t*) MBED_SCU_REG(pin);
     uint32_t tmp = *reg;

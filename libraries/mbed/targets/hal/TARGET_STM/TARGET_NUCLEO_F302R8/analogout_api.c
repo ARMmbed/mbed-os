@@ -25,13 +25,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "mbed_assert.h"
 #include "analogout_api.h"
 
 #if DEVICE_ANALOGOUT
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define DAC_RANGE (0xFFF) // 12 bits
 
@@ -46,10 +46,7 @@ void analogout_init(dac_t *obj, PinName pin) {
 
     // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-
-    if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed");
-    }
+    MBED_ASSERT(obj->dac != (DACName)NC);
 
     dac = (DAC_TypeDef *)(obj->dac);
 

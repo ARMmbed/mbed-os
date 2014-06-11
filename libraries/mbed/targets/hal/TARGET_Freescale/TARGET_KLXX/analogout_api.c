@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "analogout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "PeripheralPins.h"
 
 #define RANGE_12BIT     0xFFF
 
-
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed");
-    }
+    MBED_ASSERT(obj->dac != (DACName)NC);
 
     SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;
 

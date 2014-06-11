@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "analogin_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
@@ -27,9 +27,7 @@
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (ADCName)NC) {
-        error("ADC pin mapping failed");
-    }
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;
 

@@ -16,11 +16,12 @@
 // math.h required for floating point operations for baud rate calculation
 //#include <math.h>
 #include <string.h>
+#include "mbed_assert.h"
 
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
@@ -65,14 +66,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
     
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");       
-    }
+    MBED_ASSERT((int)uart != NC);
     
     obj->uart = (NRF_UART_Type *)uart;
     
-    //pin configurations -- 
-    //outputs    
+    //pin configurations --
+    //outputs
     NRF_GPIO->DIR |= (1<<tx);//TX_PIN_NUMBER);
     NRF_GPIO->DIR |= (1<<RTS_PIN_NUMBER);
 
@@ -118,9 +117,9 @@ void serial_baud(serial_t *obj, int baudrate) {
     if(baudrate<=1200){
         obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1200;
         return;
-    }    
+    }
     
-    for(int i=1;i<16;i++){    
+    for(int i=1;i<16;i++){
         if(baudrate<acceptedSpeeds[i][0]){
             obj->uart->BAUDRATE = acceptedSpeeds[i-1][1];
             return;
@@ -133,7 +132,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     // 0: 1 stop bits, 1: 2 stop bits
    // int parity_enable, parity_select;
     switch (parity) {
-        case ParityNone: 
+        case ParityNone:
             obj->uart->CONFIG  = 0;
         break;
         default:
@@ -149,11 +148,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 static inline void uart_irq(uint32_t iir, uint32_t index) {
     SerialIrq irq_type;
     switch (iir) {
-        case 1: 
-            irq_type = TxIrq; 
+        case 1:
+            irq_type = TxIrq;
         break;
-        case 2: 
-            irq_type = RxIrq; 
+        case 2:
+            irq_type = RxIrq;
         break;
         
         default: return;
@@ -165,7 +164,7 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
 }
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 void UART0_IRQHandler()
 {
     uint32_t irtype =0;
@@ -180,7 +179,7 @@ void UART0_IRQHandler()
 }
 #ifdef __cplusplus
 }
-#endif 
+#endif
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;

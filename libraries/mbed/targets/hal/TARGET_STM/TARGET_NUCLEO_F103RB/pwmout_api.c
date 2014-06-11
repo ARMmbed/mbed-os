@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 
 #if DEVICE_PWMOUT
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 // TIM4 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
@@ -76,10 +76,7 @@ static const PinMap PinMap_PWM[] = {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM pinout mapping failed");
-    }
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
 
     // Enable TIM clock
     if (obj->pwm == PWM_1) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 // math.h required for floating point operations for baud rate calculation
+#include "mbed_assert.h"
 #include <math.h>
 #include <string.h>
 
@@ -180,15 +181,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     // 0: 1 stop bits, 1: 2 stop bits
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
+    MBED_ASSERT((data_bits > 6) && (data_bits < 10)); // 0: 7 data bits ... 2: 9 data bits
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityEven) || (parity == ParityOdd));
     stop_bits -= 1;
-    
-    // 0: 7 data bits ... 2: 9 data bits
-    if (data_bits < 7 || data_bits > 9) {
-        error("Invalid number of bits (%d) in serial format, should be 7..9", data_bits);
-    }
     data_bits -= 7;
     
     int paritysel;
@@ -197,8 +193,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityEven: paritysel = 2; break;
         case ParityOdd : paritysel = 3; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
     
     obj->uart->CFG = (data_bits << 2)
@@ -296,7 +291,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     uint32_t regVal_rts, regVal_cts;
     
     swm_rts = &SWM_UART_RTS[obj->index];
-    swm_cts = &SWM_UART_CTS[obj->index];    
+    swm_cts = &SWM_UART_CTS[obj->index];
     regVal_rts = LPC_SWM->PINASSIGN[swm_rts->n] & ~(0xFF << swm_rts->offset);
     regVal_cts = LPC_SWM->PINASSIGN[swm_cts->n] & ~(0xFF << swm_cts->offset);
     
@@ -310,15 +305,15 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (rxflow << swm_rts->offset);
         if (FlowControlRTS == type) {
             LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (0xFF << swm_cts->offset);
-            obj->uart->CFG &= ~CTSEN;           
+            obj->uart->CFG &= ~CTSEN;
         }
     }
     if ((FlowControlCTS == type || FlowControlRTSCTS == type) && (txflow != NC)) {
         LPC_SWM->PINASSIGN[swm_cts->n] = regVal_cts | (txflow << swm_cts->offset);
         obj->uart->CFG |= CTSEN;
         if (FlowControlCTS == type) {
-            LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);        
+            LPC_SWM->PINASSIGN[swm_rts->n] = regVal_rts | (0xFF << swm_rts->offset);
         }
-    }    
+    }
 }
 

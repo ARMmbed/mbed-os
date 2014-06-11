@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include <math.h>
 
 #include "spi_api.h"
@@ -64,9 +65,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     obj->spi = (LPC_SSP_TypeDef*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    MBED_ASSERT((int)obj->spi != NC);
     
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -98,9 +97,7 @@ void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     ssp_disable(obj);
-    if (!(bits >= 4 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
-        error("SPI format error");
-    }
+    MBED_ASSERT(((bits >= 4) && (bits <= 16)) && (mode >= 0 && mode <= 3));
     
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;

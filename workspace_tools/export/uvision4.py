@@ -106,7 +106,7 @@ class Uvision4(Exporter):
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files.items(),
-            'symbols': self.toolchain.get_symbols(),
+            'symbols': self.toolchain.get_symbols() + ['__ASSERT_MSG'],
             'hex_files' : self.resources.hex_files,
             'flags' : self.get_flags(),
         }
