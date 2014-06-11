@@ -14,6 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+import tempfile
 from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
@@ -277,17 +279,25 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
     check_cmd += " ".join(includes)
     check_cmd += " ".join(macros)
-    check_cmd += c_sources
-    check_cmd += " " + cpp_sources
-    # print check_cmd
+    # moved to --file-list file
+    # check_cmd += c_sources
+    # check_cmd += " " + cpp_sources
 
-    #['cppcheck', includes, c_sources, cpp_sources]
+    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in c_sources.split())
+    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
+    tmp_file.close()
+    check_cmd += " --file-list=%s"% tmp_file.name
+
     stdout, stderr, rc = run_cmd(check_cmd)
 
     if verbose:
         print stdout
     print stderr
 
+    # =========================================================================
+    
     # MBED
     toolchain.info(">>> STATIC ANALYSIS FOR %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
@@ -327,13 +337,21 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     check_cmd += " ".join(target_includes)
     check_cmd += " ".join(mbed_includes)
     check_cmd += " ".join(target_macros)
-    check_cmd += " " + target_c_sources
-    check_cmd += " " + target_cpp_sources
-    check_cmd += " " + mbed_c_sources
-    check_cmd += " " + mbed_cpp_sources
-    # print check_cmd
+    # moved to --file-list file
+    # check_cmd += " " + target_c_sources
+    # check_cmd += " " + target_cpp_sources
+    # check_cmd += " " + mbed_c_sources
+    # check_cmd += " " + mbed_cpp_sources
 
-    #['cppcheck', includes, c_sources, cpp_sources]
+    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in target_c_sources.split())
+    tmp_file.writelines(line + '\n' for line in target_cpp_sources.split())
+    tmp_file.writelines(line + '\n' for line in mbed_c_sources.split())
+    tmp_file.writelines(line + '\n' for line in mbed_cpp_sources.split())
+    tmp_file.close()
+    check_cmd += " --file-list=%s"% tmp_file.name
+
     stdout, stderr, rc = run_cmd(check_cmd)
 
     if verbose:
@@ -406,10 +424,17 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     check_cmd += " ".join(CPPCHECK_MSG_FORMAT) + " "
     check_cmd += " ".join(includes)
     check_cmd += " ".join(macros)
-    check_cmd += " " + c_sources
-    check_cmd += " " + cpp_sources
+    # moved to --file-list file
+    # check_cmd += " " + c_sources
+    # check_cmd += " " + cpp_sources
 
-    #['cppcheck', includes, c_sources, cpp_sources]
+    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in c_sources.split())
+    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
+    tmp_file.close()
+    check_cmd += " --file-list=%s"% tmp_file.name
+
     stdout, stderr, rc = run_cmd(check_cmd)
 
     if verbose:
