@@ -36,6 +36,13 @@ def run_cmd(command, wd=None, redirect=False):
     return _stdout, _stderr, p.returncode
 
 
+def run_cmd_ext(command):
+    import subprocess
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _stdout, _stderr = p.communicate()
+    return _stdout, _stderr, p.returncode
+
+
 def mkdir(path):
     if not exists(path):
         makedirs(path)

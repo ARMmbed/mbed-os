@@ -16,11 +16,12 @@ limitations under the License.
 """
 
 import tempfile
+import os
 from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
 
-from workspace_tools.utils import mkdir, run_cmd
+from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
@@ -290,7 +291,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    _stdout, _stderr, _rc = run_cmd(check_cmd)
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
     if verbose:
         print _stdout
     print _stderr
@@ -351,7 +352,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    _stdout, _stderr, _rc = run_cmd(check_cmd)
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
     if verbose:
         print _stdout
     print _stderr
@@ -433,7 +434,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    _stdout, _stderr, _rc = run_cmd(check_cmd)
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd.split() if os.name == 'posix' else check_cmd)
     if verbose:
         print _stdout
     print _stderr
