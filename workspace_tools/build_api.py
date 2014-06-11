@@ -212,9 +212,10 @@ def get_unique_supported_toolchains():
     return unique_supported_toolchains
 
 
-def mcu_toolchain_matrix():
+def mcu_toolchain_matrix(verbose_html=False):
     """  Shows target map using prettytable """
     unique_supported_toolchains = get_unique_supported_toolchains()
+
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
 
     # All tests status table print
@@ -235,8 +236,11 @@ def mcu_toolchain_matrix():
                 perm_counter += 1
             row.append(text);
         pt.add_row(row)
-    print pt
-    print "Total permutations: %d"% (perm_counter)
+
+    result = pt.get_html_string() if verbose_html else pt.get_string()
+    result += "\n"
+    result += "Total permutations: %d"% (perm_counter)
+    return result
 
 
 def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None):

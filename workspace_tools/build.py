@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
-        mcu_toolchain_matrix()
+        print mcu_toolchain_matrix()
         exit(0)
 
     # Get target list
