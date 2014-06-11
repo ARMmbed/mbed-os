@@ -32,8 +32,8 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 
 def run_cmd(command, wd=None, redirect=False):
     p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
-    stdout, stderr = p.communicate()
-    return stdout, stderr, p.returncode
+    _stdout, _stderr = p.communicate()
+    return _stdout, _stderr, p.returncode
 
 
 def mkdir(path):

@@ -290,11 +290,10 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd.split())
-
+    _stdout, _stderr, _rc = run_cmd(check_cmd)
     if verbose:
-        print stdout
-    print stderr
+        print _stdout
+    print _stderr
 
     # =========================================================================
 
@@ -352,11 +351,10 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd.split())
-
+    _stdout, _stderr, _rc = run_cmd(check_cmd)
     if verbose:
-        print stdout
-    print stderr
+        print _stdout
+    print _stderr
 
 
 def static_analysis_scan_lib(lib_id, target, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None):
@@ -435,8 +433,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd.split())
-
+    _stdout, _stderr, _rc = run_cmd(check_cmd)
     if verbose:
-        print stdout
-    print stderr
+        print _stdout
+    print _stderr
