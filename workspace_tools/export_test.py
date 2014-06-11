@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
             ('lpcxpresso', 'LPC1768'), ('lpcxpresso', 'LPC4088'),('lpcxpresso', 'LPC1114'),
             ('lpcxpresso', 'LPC11U35_401'),
-            ('lpcxpresso', 'LPC11U35_501'),
+            ('lpcxpresso', 'LPC11U35_501'),('lpcxpresso', 'LPC1549'),
             # Linux path: /home/emimon01/bin/gcc-cs/bin/
             # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"
             ('codesourcery', 'LPC1768'),
