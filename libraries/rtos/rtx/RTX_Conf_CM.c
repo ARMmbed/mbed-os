@@ -131,7 +131,7 @@
 #    define OS_CLOCK       168000000
 
 #  elif defined(TARGET_NRF51822)
-#    define OS_CLOCK       160000000
+#    define OS_CLOCK       16000000
 
 #  else
 #    error "no target defined"
