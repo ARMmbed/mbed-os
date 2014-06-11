@@ -290,14 +290,14 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd)
+    stdout, stderr, rc = run_cmd(check_cmd.split())
 
     if verbose:
         print stdout
     print stderr
 
     # =========================================================================
-    
+
     # MBED
     toolchain.info(">>> STATIC ANALYSIS FOR %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
@@ -352,7 +352,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd)
+    stdout, stderr, rc = run_cmd(check_cmd.split())
 
     if verbose:
         print stdout
@@ -435,7 +435,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     tmp_file.close()
     check_cmd += " --file-list=%s"% tmp_file.name
 
-    stdout, stderr, rc = run_cmd(check_cmd)
+    stdout, stderr, rc = run_cmd(check_cmd.split())
 
     if verbose:
         print stdout
