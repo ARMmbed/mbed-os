@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "i2c_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_i2c_hal.h"
 #include "fsl_port_hal.h"
@@ -50,9 +50,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
-    if ((int)obj->instance == NC) {
-        error("I2C pin mapping failed");
-    }
+    MBED_ASSERT((int)obj->instance != NC);
 
     clock_manager_set_gate(kClockModuleI2C, obj->instance, true);
     clock_manager_set_gate(kClockModulePORT, sda >> GPIO_PORT_SHIFT, true);

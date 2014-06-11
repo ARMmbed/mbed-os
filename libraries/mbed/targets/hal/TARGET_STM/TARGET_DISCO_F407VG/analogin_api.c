@@ -32,7 +32,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_ADC[] = {
@@ -59,13 +58,10 @@ ADC_HandleTypeDef AdcHandle;
 
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin) {  
+void analogin_init(analogin_t *obj, PinName pin) {
     // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-
-    if (obj->adc == (ADCName)NC) {
-        error("ADC error: pinout mapping failed.");
-    }
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);
@@ -93,8 +89,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
         AdcHandle.Init.NbrOfConversion       = 1;
         AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.EOCSelection          = DISABLE;      
-        HAL_ADC_Init(&AdcHandle);   
+        AdcHandle.Init.EOCSelection          = DISABLE;
+        HAL_ADC_Init(&AdcHandle);
     }
 }
 
@@ -120,7 +116,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
           break;
       case PA_3:
           sConfig.Channel = ADC_CHANNEL_3;
-          break;          
+          break;
       case PA_4:
           sConfig.Channel = ADC_CHANNEL_4;
           break;
@@ -132,13 +128,13 @@ static inline uint16_t adc_read(analogin_t *obj) {
           break;
       case PA_7:
           sConfig.Channel = ADC_CHANNEL_7;
-          break;          
+          break;
       case PB_0:
           sConfig.Channel = ADC_CHANNEL_8;
           break;
       case PB_1:
           sConfig.Channel = ADC_CHANNEL_9;
-          break;          
+          break;
       case PC_0:
           sConfig.Channel = ADC_CHANNEL_10;
           break;
@@ -156,7 +152,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
           break;
       case PC_5:
           sConfig.Channel = ADC_CHANNEL_15;
-          break;          
+          break;
       default:
           return 0;
   }
@@ -168,7 +164,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
   HAL_ADC_PollForConversion(&AdcHandle, 10); // Wait end of conversion
   
   if (HAL_ADC_GetState(&AdcHandle) == HAL_ADC_STATE_EOC_REG)
-  {  
+  {
       return(HAL_ADC_GetValue(&AdcHandle)); // Get conversion value
   }
   else

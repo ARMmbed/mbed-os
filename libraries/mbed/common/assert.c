@@ -13,40 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
-
 #include "mbed_assert.h"
+#include "device.h"
 
-#ifdef __cplusplus
-extern "C" {
+#if DEVICE_STDIO_MESSAGES
+#include <stdio.h>
 #endif
 
-typedef struct {
-    PinName  pin;
-    uint32_t mask;
+#include <stdlib.h>
+#include "mbed_interface.h"
 
-    __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-    __I  uint32_t *reg_in;
-} gpio_t;
-
-static inline void gpio_write(gpio_t *obj, int value) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value)
-        *obj->reg_set = obj->mask;
-    else
-        *obj->reg_clr = obj->mask;
-}
-
-static inline int gpio_read(gpio_t *obj) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
-
-#ifdef __cplusplus
-}
+void mbed_assert_internal(const char *expr, const char *file, int line)
+{
+#if DEVICE_STDIO_MESSAGES
+    fprintf(stderr, "mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
 #endif
-
-#endif
+    mbed_die();
+}

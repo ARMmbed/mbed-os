@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define TCR_CNT_EN       0x00000001
 #define TCR_RESET        0x00000002
@@ -69,9 +69,8 @@ static LPC_CTxxBx_Type *Timers[4] = {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (PWMName)NC)
-        error("PwmOut pin mapping failed");
-    
+    MBED_ASSERT(pwm != (PWMName)NC);
+
     obj->pwm = pwm;
     
     // Timer registers
@@ -143,7 +142,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
     // for 16bit timer, set prescaler to avoid overflow
     if (timer == LPC_CT16B0 || timer == LPC_CT16B1) {
-        uint16_t high_period_ticks = period_ticks >> 16; 
+        uint16_t high_period_ticks = period_ticks >> 16;
         timer->PR = high_period_ticks;
         period_ticks /= (high_period_ticks + 1);
     }

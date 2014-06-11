@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -38,9 +38,8 @@ static int get_available_sct(void) {
 }
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
-	if (pin == (uint32_t)NC)
-		error("PwmOut pin mapping failed");
-	
+    MBED_ASSERT(pin != (uint32_t)NC);
+
     int sct_n = get_available_sct();
     if (sct_n == -1) {
         error("No available SCT");

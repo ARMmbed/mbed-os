@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define TCR_CNT_EN       0x00000001
 #define TCR_RESET        0x00000002
@@ -57,9 +57,8 @@ static unsigned int pwm_clock_mhz;
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (PWMName)NC)
-        error("PwmOut pin mapping failed");
-    
+    MBED_ASSERT(pwm != (PWMName)NC);
+
     obj->pwm = pwm;
     obj->MR = PWM_MATCH[pwm];
     

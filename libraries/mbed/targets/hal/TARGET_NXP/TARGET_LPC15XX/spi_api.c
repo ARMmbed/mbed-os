@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include <math.h>
 
 #include "spi_api.h"
@@ -126,10 +127,7 @@ void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     spi_disable(obj);
-    
-    if (!(bits >= 1 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
-        error("SPI format error");
-    }
+    MBED_ASSERT((bits >= 1 && bits <= 16) && (mode >= 0 && mode <= 3));
     
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;

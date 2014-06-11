@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+#include "mbed_assert.h"
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static uint8_t repeated_start = 0;
 
@@ -42,9 +41,7 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    if ((sda != P0_23) | (scl != P0_22)) {
-        error("I2C pin mapping failed");
-    }
+    MBED_ASSERT((sda == P0_23) || (scl == P0_22));
     
     // Enables clock for I2C0
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 13);

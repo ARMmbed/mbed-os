@@ -27,17 +27,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
-   not based on accurate values, they just guarantee that the application will 
-   not remain stuck if the I2C communication is corrupted. */   
+   not based on accurate values, they just guarantee that the application will
+   not remain stuck if the I2C communication is corrupted. */
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
@@ -51,19 +51,16 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,    NC,    0}
 };
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {  
+void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C pin mapping failed");
-    }
+    MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     }
     if (obj->i2c == I2C_2) {
@@ -80,7 +77,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     i2c_reset(obj);
     
     // I2C configuration
-    i2c_frequency(obj, 100000); // 100 kHz per default    
+    i2c_frequency(obj, 100000); // 100 kHz per default
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
@@ -110,7 +107,7 @@ inline int i2c_start(i2c_t *obj) {
     I2C_ClearFlag(i2c, I2C_FLAG_AF); // Clear Acknowledge failure flag
   
     // Generate the START condition
-    I2C_GenerateSTART(i2c, ENABLE);  
+    I2C_GenerateSTART(i2c, ENABLE);
   
     // Wait the START condition has been correctly sent
     timeout = FLAG_TIMEOUT;
@@ -155,7 +152,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     i2c_start(obj);
 
     // Send slave address for read
-    I2C_Send7bitAddress(i2c, address, I2C_Direction_Receiver);  
+    I2C_Send7bitAddress(i2c, address, I2C_Direction_Receiver);
 
     // Wait address is acknowledged
     timeout = FLAG_TIMEOUT;
@@ -264,7 +261,7 @@ int i2c_byte_write(i2c_t *obj, int data) {
     I2C_SendData(i2c, (uint8_t)data);
 
     // Wait until the byte is transmitted
-    timeout = FLAG_TIMEOUT;  
+    timeout = FLAG_TIMEOUT;
     //while (I2C_CheckEvent(i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED) == ERROR) {
     while ((I2C_GetFlagStatus(i2c, I2C_FLAG_TXE) == RESET) &&
            (I2C_GetFlagStatus(i2c, I2C_FLAG_BTF) == RESET)) {
@@ -278,13 +275,13 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 
 void i2c_reset(i2c_t *obj) {
-    if (obj->i2c == I2C_1) {    
+    if (obj->i2c == I2C_1) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
     }
     if (obj->i2c == I2C_2) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
-        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);      
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
     }
 }
 

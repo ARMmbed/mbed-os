@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
 #include "error.h"
@@ -82,8 +83,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
 void pin_function(PinName pin, int data) {
-    if (pin == NC) return;
-
+    MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
     uint32_t pupd  = STM_PIN_PUPD(data);
@@ -119,8 +119,7 @@ void pin_function(PinName pin, int data) {
  * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == NC) return;
-
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
 
@@ -130,7 +129,8 @@ void pin_mode(PinName pin, PinMode mode) {
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;
-    if (pupd > 2) pupd = 0; // Open-drain = No pull-up/No pull-down
+    if (pupd > 2)
+        pupd = 0; // Open-drain = No pull-up/No pull-down
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPD0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
 

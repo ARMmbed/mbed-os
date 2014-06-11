@@ -27,11 +27,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 // TIM2 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
@@ -85,13 +85,10 @@ static const PinMap PinMap_PWM[] = {
     {NC,    NC,     0}
 };
 
-void pwmout_init(pwmout_t* obj, PinName pin) {  
+void pwmout_init(pwmout_t* obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-  
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM pinout mapping failed");
-    }
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
     
     // Enable TIM clock
     if (obj->pwm == PWM_1) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
@@ -126,7 +123,7 @@ void pwmout_write(pwmout_t* obj, float value) {
    
     obj->pulse = (uint32_t)((float)obj->period * value);
 
-    // Configure channels    
+    // Configure channels
     TIM_OCInitStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_Pulse        = obj->pulse;
     TIM_OCInitStructure.TIM_OCPolarity   = TIM_OCPolarity_High;
@@ -215,7 +212,7 @@ void pwmout_write(pwmout_t* obj, float value) {
             break;
         default:
             return;
-    }   
+    }
 }
 
 float pwmout_read(pwmout_t* obj) {
@@ -239,7 +236,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     float dc = pwmout_read(obj);
 
-    TIM_Cmd(tim, DISABLE);  
+    TIM_Cmd(tim, DISABLE);
     
     obj->period = us;
   

@@ -15,6 +15,7 @@
  */
 
 // math.h required for floating point operations for baud rate calculation
+#include "mbed_assert.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,7 +23,6 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #if DEVICE_SERIAL
 
@@ -82,9 +82,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
+    MBED_ASSERT((int)uart != NC);
     
     switch (uart) {
         case UART_0:
@@ -252,17 +250,14 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    // 0: 1 stop bits, 1: 2 stop bits
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
+
     stop_bits -= 1;
-    
+
     if (obj->index == 0) {
-        // 0: 5 data bits ... 3: 8 data bits
-        if (data_bits < 5 || data_bits > 8) {
-            error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
-        }
+        MBED_ASSERT((data_bits > 4) && (data_bits < 9)); // 0: 5 data bits ... 3: 8 data bits
+        MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven) ||
+                    (parity == ParityForced1) || (parity == ParityForced0));
         data_bits -= 5;
     
         int parity_enable, parity_select;
@@ -273,7 +268,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             case ParityForced1: parity_enable = 1; parity_select = 2; break;
             case ParityForced0: parity_enable = 1; parity_select = 3; break;
             default:
-                error("Invalid serial parity setting");
                 return;
         }
         
@@ -284,18 +278,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
     else {
         // 0: 7 data bits ... 2: 9 data bits
-        if (data_bits < 7 || data_bits > 9) {
-            error("Invalid number of bits (%d) in serial format, should be 7..9", data_bits);
-        }
+        MBED_ASSERT((data_bits > 6) && (data_bits < 10));
+        MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
         data_bits -= 7;
-        
+
         int paritysel;
         switch (parity) {
             case ParityNone: paritysel = 0; break;
             case ParityEven: paritysel = 2; break;
             case ParityOdd : paritysel = 3; break;
             default:
-                error("Invalid serial parity setting");
                 return;
         }
         obj->mini_uart->CFG = (data_bits << 2)

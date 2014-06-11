@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "spi_api.h"
 
 #include <math.h>
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
@@ -56,9 +56,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    MBED_ASSERT((int)obj->spi != NC);
 
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK;
     SIM->SCGC6 |= SIM_SCGC6_SPI0_MASK;
@@ -90,13 +88,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if ((bits < 4) || (bits > 16))
-        error("SPI: Only frames between 4 and 16-bit supported");
-    
-
-    if ((mode < 0) || (mode > 3)) {
-        error("SPI mode unsupported");
-    }
+    MBED_ASSERT((bits > 4) || (bits < 16));
+    MBED_ASSERT((mode >= 0) && (mode <= 3));
 
     uint32_t polarity = (mode & 0x2) ? 1 : 0;
     uint32_t phase = (mode & 0x1) ? 1 : 0;

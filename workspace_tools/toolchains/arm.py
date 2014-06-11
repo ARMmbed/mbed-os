@@ -144,6 +144,8 @@ class ARM(mbedToolchain):
 class ARM_STD(ARM):
     def __init__(self, target, options=None, notify=None, macros=None):
         ARM.__init__(self, target, options, notify, macros)
+        self.cc   += ["-D__ASSERT_MSG"]
+        self.cppc += ["-D__ASSERT_MSG"]
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
@@ -155,8 +157,8 @@ class ARM_MICRO(ARM):
 
         # Compiler
         self.asm  += ["-D__MICROLIB"]
-        self.cc   += ["--library_type=microlib", "-D__MICROLIB"]
-        self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
+        self.cc   += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
+        self.cppc += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
 
         # Linker
         self.ld.append("--library_type=microlib")

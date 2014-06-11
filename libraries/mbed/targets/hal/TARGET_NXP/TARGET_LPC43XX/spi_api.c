@@ -15,6 +15,7 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
+#include "mbed_assert.h"
 #include <math.h>
 
 #include "spi_api.h"
@@ -59,9 +60,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (LPC_SSP_T*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    MBED_ASSERT((int)obj->spi != NC);
 
     // set default format and frequency
     if (ssel == NC) {
@@ -86,11 +85,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
+    MBED_ASSERT(((bits >= 4) && (bits <= 16)) || ((mode >= 0) && (mode <= 3)));
     ssp_disable(obj);
-    
-    if (!(bits >= 4 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
-        error("SPI format error");
-    }
     
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;

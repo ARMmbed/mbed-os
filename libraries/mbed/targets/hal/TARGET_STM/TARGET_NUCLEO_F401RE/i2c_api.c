@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -66,10 +66,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C error: pinout mapping failed.");
-    }
+    MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -99,26 +96,24 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
+    MBED_ASSERT((hz != 0) && (hz <= 400000));
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
-    if ((hz != 0) && (hz <= 400000)) {
-        // I2C configuration
-        I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-        I2cHandle.Init.ClockSpeed      = hz;
-        I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-        I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_2;
-        I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-        I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
-        I2cHandle.Init.OwnAddress1     = 0;
-        I2cHandle.Init.OwnAddress2     = 0;
-        HAL_I2C_Init(&I2cHandle);
-        if (obj->slave) {
-            /* Enable Address Acknowledge */
-            I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
-        }
-    } else {
-        error("I2C error: frequency setting failed (max 400kHz).");
+    // I2C configuration
+    I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    I2cHandle.Init.ClockSpeed      = hz;
+    I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
+    I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE_2;
+    I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
+    I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    I2cHandle.Init.OwnAddress1     = 0;
+    I2cHandle.Init.OwnAddress2     = 0;
+    HAL_I2C_Init(&I2cHandle);
+    if (obj->slave) {
+        /* Enable Address Acknowledge */
+        I2cHandle.Instance->CR1 |= I2C_CR1_ACK;
     }
+
 }
 
 inline int i2c_start(i2c_t *obj) {

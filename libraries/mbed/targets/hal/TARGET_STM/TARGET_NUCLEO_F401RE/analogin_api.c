@@ -25,6 +25,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "mbed_assert.h"
 #include "analogin_api.h"
 
 #if DEVICE_ANALOGIN
@@ -32,7 +33,6 @@
 #include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
@@ -61,10 +61,7 @@ int adc_inited = 0;
 void analogin_init(analogin_t *obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-
-    if (obj->adc == (ADCName)NC) {
-        error("ADC error: pinout mapping failed.");
-    }
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_ADC);

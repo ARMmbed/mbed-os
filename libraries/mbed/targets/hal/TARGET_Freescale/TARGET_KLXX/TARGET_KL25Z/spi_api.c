@@ -19,7 +19,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
@@ -33,9 +32,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
     obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
-    }
+    MBED_ASSERT((int)obj->spi != NC);
 
     // enable power and clocking
     switch ((int)obj->spi) {
@@ -67,13 +64,8 @@ void spi_free(spi_t *obj) {
     // [TODO]
 }
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
-    if (bits != 8) {
-        error("Only 8bits SPI supported");
-    }
-
-    if ((mode < 0) || (mode > 3)) {
-        error("SPI mode unsupported");
-    }
+    MBED_ASSERT(bits == 8);
+    MBED_ASSERT((mode >= 0) && (mode <= 3));
 
     uint8_t polarity = (mode & 0x2) ? 1 : 0;
     uint8_t phase = (mode & 0x1) ? 1 : 0;
