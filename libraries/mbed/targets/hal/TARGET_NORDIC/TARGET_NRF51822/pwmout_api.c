@@ -18,8 +18,9 @@
 #include "pinmap.h"
 #include "error.h"
 
-#define NO_PWMS        2
-
+#define NO_PWMS         3
+#define TIMER_PRECISION 8
+#define TIMER_PRESCALER 7 //8us ticks   
 static const PinMap PinMap_PWM[] = {
     {p0,  PWM_1, 1},
     {p1,  PWM_1, 1},
@@ -57,10 +58,10 @@ static NRF_TIMER_Type *Timers[1] = {
     NRF_TIMER2    
 };
 
-uint8_t PWM_taken[NO_PWMS]     = {0,0};
-uint16_t PERIOD[NO_PWMS]       = {2500,2500};//20ms
-uint16_t PULSE_WIDTH[NO_PWMS]  = {1,1};//set to 1 instead of 0
-uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0};
+uint16_t PERIOD                = 20000/TIMER_PRECISION;//20ms
+uint8_t PWM_taken[NO_PWMS]     = {0,0,0};
+uint16_t PULSE_WIDTH[NO_PWMS]  = {1,1,1};//set to 1 instead of 0
+uint16_t ACTUAL_PULSE[NO_PWMS] = {0,0,0};
 
 
 /** @brief Function for handling timer 2 peripheral interrupts.
@@ -70,27 +71,21 @@ extern "C" {
 #endif 
 void TIMER2_IRQHandler(void)
 {
-    static uint16_t CCVal1 = 2501;
-    static uint16_t CCVal2 = 2501;
+    NRF_TIMER2->EVENTS_COMPARE[3] = 0;
+    NRF_TIMER2->CC[3]   =  PERIOD;
     
-    if ((NRF_TIMER2->EVENTS_COMPARE[1] != 0) && 
-       ((NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0)){
-       
-        NRF_TIMER2->CC[0]             = CCVal1;            
-        NRF_TIMER2->EVENTS_COMPARE[1] = 0;
-        NRF_TIMER2->CC[1]             = (NRF_TIMER2->CC[1] + PERIOD[0]);
-
-        CCVal1 = NRF_TIMER2->CC[1] + PULSE_WIDTH[0];        
+    if(PWM_taken[0]){
+        NRF_TIMER2->CC[0]  = PULSE_WIDTH[0];
     }
-    if ((NRF_TIMER2->EVENTS_COMPARE[3] != 0) && 
-       ((NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE3_Msk) != 0)){
-       
-        NRF_TIMER2->CC[2]             = CCVal2;
-        NRF_TIMER2->EVENTS_COMPARE[3] = 0;
-        NRF_TIMER2->CC[3]             = (NRF_TIMER2->CC[3] + PERIOD[1]);
+    if(PWM_taken[1]){
+        NRF_TIMER2->CC[1]  = PULSE_WIDTH[1];
+    }
+    if(PWM_taken[2]){
+        NRF_TIMER2->CC[2]  = PULSE_WIDTH[2];
+    }
     
-        CCVal2 = NRF_TIMER2->CC[3] + PULSE_WIDTH[1];        
-    }    
+    NRF_TIMER2->TASKS_START = 1;
+
 }
 #ifdef __cplusplus
 }
@@ -99,29 +94,20 @@ void TIMER2_IRQHandler(void)
  */
 void timer_init(uint8_t pwmChoice)
 {
-    NRF_TIMER_Type *timer = Timers[pwmChoice/2];
-    if(!(pwmChoice%2)){
+    NRF_TIMER_Type *timer = Timers[0];
+    timer->TASKS_STOP = 0;
+    
+    if(pwmChoice == 0){
         timer->POWER     = 0;
         timer->POWER     = 1;    
         timer->MODE      = TIMER_MODE_MODE_Timer;    
         timer->BITMODE   = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;
-        timer->PRESCALER = 7;//8us ticks    
+        timer->PRESCALER = TIMER_PRESCALER; 
+        timer->CC[3]     = PERIOD;
     }
     
-    if(pwmChoice%2){
-        timer->CC[2] = PERIOD[pwmChoice] + PULSE_WIDTH[pwmChoice];
-        timer->CC[3] = PERIOD[pwmChoice];
-        
-        // Interrupt setup.
-        timer->INTENSET = (TIMER_INTENSET_COMPARE3_Enabled << TIMER_INTENSET_COMPARE3_Pos);
-    }
-    else{
-        timer->CC[0] = PERIOD[pwmChoice] + PULSE_WIDTH[pwmChoice];
-        timer->CC[1] = PERIOD[pwmChoice];
-        
-        // Interrupt setup.
-        timer->INTENSET |= (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);
-    }
+    timer->CC[pwmChoice] = PULSE_WIDTH[pwmChoice];
+    
     //high priority application interrupt
     NVIC_SetPriority(TIMER2_IRQn, 1);
     NVIC_EnableIRQ(TIMER2_IRQn);
@@ -157,7 +143,7 @@ void gpiote_init(PinName pin,uint8_t channel_number)
     NRF_GPIOTE->CONFIG[channel_number] = (GPIOTE_CONFIG_MODE_Task << GPIOTE_CONFIG_MODE_Pos)     |
                                          ((uint32_t)pin    << GPIOTE_CONFIG_PSEL_Pos)     |
                                          ((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle      << GPIOTE_CONFIG_POLARITY_Pos) |
-                                         ((uint32_t)GPIOTE_CONFIG_OUTINIT_Low << GPIOTE_CONFIG_OUTINIT_Pos);
+                                        ((uint32_t)GPIOTE_CONFIG_OUTINIT_Low << GPIOTE_CONFIG_OUTINIT_Pos);// ((uint32_t)GPIOTE_CONFIG_OUTINIT_High << GPIOTE_CONFIG_OUTINIT_Pos);//
 
     /* Three NOPs are required to make sure configuration is written before setting tasks or getting events */
     __NOP();
@@ -168,15 +154,15 @@ void gpiote_init(PinName pin,uint8_t channel_number)
  */
 static void ppi_init(uint8_t pwm)
 {
-//using ppi channels 0-3 (0-7 are available)
+//using ppi channels 0-7 (only 0-7 are available)
     uint8_t channel_number = 2*pwm;
-    NRF_TIMER_Type *timer = Timers[pwm/2];
+    NRF_TIMER_Type *timer = Timers[0];
     
     // Configure PPI channel 0 to toggle ADVERTISING_LED_PIN_NO on every TIMER1 COMPARE[0] match
     NRF_PPI->CH[channel_number].TEP     = (uint32_t)&NRF_GPIOTE->TASKS_OUT[pwm];
     NRF_PPI->CH[channel_number+1].TEP   = (uint32_t)&NRF_GPIOTE->TASKS_OUT[pwm];
-    NRF_PPI->CH[channel_number].EEP     = (uint32_t)&timer->EVENTS_COMPARE[channel_number-(4*(channel_number/4))];    
-    NRF_PPI->CH[channel_number+1].EEP   = (uint32_t)&timer->EVENTS_COMPARE[channel_number+1-(4*(channel_number/4))];    
+    NRF_PPI->CH[channel_number].EEP     = (uint32_t)&timer->EVENTS_COMPARE[pwm];    
+    NRF_PPI->CH[channel_number+1].EEP   = (uint32_t)&timer->EVENTS_COMPARE[3];    
     
     // Enable PPI channels.
     NRF_PPI->CHEN |= (1 << channel_number)
@@ -261,6 +247,9 @@ void pwmout_free(pwmout_t* obj) {
 void pwmout_write(pwmout_t* obj, float value) {
     uint16_t oldPulseWidth;
     
+    NRF_TIMER2->EVENTS_COMPARE[3] = 0;
+    NRF_TIMER2->TASKS_STOP = 1;
+    
     if (value < 0.0f) {
         value = 0.0;
     } else if (value > 1.0f) {
@@ -268,23 +257,27 @@ void pwmout_write(pwmout_t* obj, float value) {
     }        
     
     oldPulseWidth           = ACTUAL_PULSE[obj->pwm];
-    ACTUAL_PULSE[obj->pwm]  = PULSE_WIDTH[obj->pwm]  = value* PERIOD[obj->pwm];
+    ACTUAL_PULSE[obj->pwm]  = PULSE_WIDTH[obj->pwm]  = value* PERIOD;
     
     if(PULSE_WIDTH[obj->pwm] == 0){
         PULSE_WIDTH[obj->pwm] = 1;
         setModulation(obj,0,0);    
     }
-    else if(PULSE_WIDTH[obj->pwm] == PERIOD[obj->pwm]){
-        PULSE_WIDTH[obj->pwm] = PERIOD[obj->pwm]-1;
+    else if(PULSE_WIDTH[obj->pwm] == PERIOD){
+        PULSE_WIDTH[obj->pwm] = PERIOD-1;
         setModulation(obj,0,1);
     }
-    else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD[obj->pwm]) ){
-        setModulation(obj,1,oldPulseWidth == PERIOD[obj->pwm]);
+    else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD) ){
+        setModulation(obj,1,oldPulseWidth == PERIOD);
     }    
+        
+    NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE3_Msk;
+    NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE3_CLEAR_Msk | TIMER_SHORTS_COMPARE3_STOP_Msk; 
+    NRF_TIMER2->TASKS_START = 1;
 }
 
 float pwmout_read(pwmout_t* obj) {
-    return ((float)PULSE_WIDTH[obj->pwm]/(float)PERIOD[obj->pwm]);
+    return ((float)PULSE_WIDTH[obj->pwm]/(float)PERIOD);
 }
 
 void pwmout_period(pwmout_t* obj, float seconds) {
@@ -297,18 +290,24 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
-    uint32_t periodInTicks = us/8;
+    uint32_t periodInTicks = us/TIMER_PRECISION;
+    
+    NRF_TIMER2->EVENTS_COMPARE[3] = 0;
+    NRF_TIMER2->TASKS_STOP = 1;
     
     if(periodInTicks>((1<<16) -1))
     {
-        PERIOD[obj->pwm] = (1<<16 )-1;//262ms
+        PERIOD = (1<<16 )-1;//262ms
     }
     else if(periodInTicks<5){
-        PERIOD[obj->pwm] = 5;
+        PERIOD = 5;
     }
     else{
-        PERIOD[obj->pwm] =periodInTicks;
-    }    
+        PERIOD =periodInTicks;
+    }
+    NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE3_Msk;
+    NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE3_CLEAR_Msk | TIMER_SHORTS_COMPARE3_STOP_Msk; 
+    NRF_TIMER2->TASKS_START = 1;    
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -320,8 +319,11 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    uint32_t pulseInTicks  = us/8;
+    uint32_t pulseInTicks  = us/TIMER_PRECISION; 
     uint16_t oldPulseWidth = ACTUAL_PULSE[obj->pwm];
+    
+    NRF_TIMER2->EVENTS_COMPARE[3] = 0;
+    NRF_TIMER2->TASKS_STOP = 1;
     
     ACTUAL_PULSE[obj->pwm] = PULSE_WIDTH[obj->pwm]  = pulseInTicks;
     
@@ -329,11 +331,14 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
         PULSE_WIDTH[obj->pwm] = 1;
         setModulation(obj,0,0);    
     }
-    else if(PULSE_WIDTH[obj->pwm] == PERIOD[obj->pwm]){
-        PULSE_WIDTH[obj->pwm] = PERIOD[obj->pwm]-1;
+    else if(PULSE_WIDTH[obj->pwm] == PERIOD){
+        PULSE_WIDTH[obj->pwm] = PERIOD-1;
         setModulation(obj,0,1);
     }
-    else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD[obj->pwm]) ){
-        setModulation(obj,1,oldPulseWidth == PERIOD[obj->pwm]);
-    }    
+    else if( (oldPulseWidth == 0) || (oldPulseWidth == PERIOD) ){
+        setModulation(obj,1,oldPulseWidth == PERIOD);
+    } 
+    NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE3_Msk;
+    NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE3_CLEAR_Msk | TIMER_SHORTS_COMPARE3_STOP_Msk; 
+    NRF_TIMER2->TASKS_START = 1;      
 }
