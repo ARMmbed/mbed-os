@@ -270,11 +270,11 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
 
     # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
-    includes = ["-I%s" % i for i in resources.inc_dirs]
-    includes.append(" -I%s"% str(BUILD_TARGET))
+    includes = ["-I%s"% i for i in resources.inc_dirs]
+    includes.append("-I%s"% str(BUILD_TARGET))
     c_sources = " ".join(resources.c_sources)
     cpp_sources = " ".join(resources.cpp_sources)
-    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
+    macros = ["-D%s"% s for s in toolchain.get_symbols() + toolchain.macros]
 
     includes = map(str.strip, includes)
     macros = map(str.strip, macros)
@@ -314,21 +314,21 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     incdirs = toolchain.scan_resources(BUILD_TARGET)
 
     target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
-    target_includes.append("-I%s "% str(BUILD_TARGET))
-    target_includes.append("-I%s "% str(HAL_SRC))
+    target_includes.append("-I%s"% str(BUILD_TARGET))
+    target_includes.append("-I%s"% str(HAL_SRC))
     target_c_sources = " ".join(incdirs.c_sources)
     target_cpp_sources = " ".join(incdirs.cpp_sources)
-    target_macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
+    target_macros = ["-D%s"% s for s in toolchain.get_symbols() + toolchain.macros]
 
     # Common Sources
     mbed_resources = toolchain.scan_resources(MBED_COMMON)
 
     # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
     mbed_includes = ["-I%s" % i for i in mbed_resources.inc_dirs]
-    mbed_includes.append("-I%s "% str(BUILD_TARGET))
-    mbed_includes.append("-I%s "% str(MBED_COMMON))
-    mbed_includes.append("-I%s "% str(MBED_API))
-    mbed_includes.append("-I%s "% str(MBED_HAL))
+    mbed_includes.append("-I%s"% str(BUILD_TARGET))
+    mbed_includes.append("-I%s"% str(MBED_COMMON))
+    mbed_includes.append("-I%s"% str(MBED_API))
+    mbed_includes.append("-I%s"% str(MBED_HAL))
     mbed_c_sources = " ".join(mbed_resources.c_sources)
     mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
 
