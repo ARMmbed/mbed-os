@@ -16,8 +16,8 @@
 #include "gpio_api.h"
 #include "wait_api.h"
 #include "toolchain.h"
+#include "mbed_interface.h"
 
-WEAK void mbed_die(void);
 WEAK void mbed_die(void) {
 #ifndef NRF51_H
 	__disable_irq();	// dont allow interrupts to disturb the flash pattern
