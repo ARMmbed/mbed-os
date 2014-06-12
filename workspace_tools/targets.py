@@ -516,10 +516,13 @@ class NRF51822(Target):
         self.core = "Cortex-M0"
 
         self.extra_labels = ["NORDIC"]
-
-        self.supported_toolchains = ["ARM"]
-
+ 
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+ 
         self.is_disk_virtual = True
+ 
+    def program_cycle_s(self):
+        return 6 
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
