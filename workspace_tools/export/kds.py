@@ -42,3 +42,4 @@ class KDS(Exporter):
         }
         self.gen_file('kds_%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('kds_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
+        self.gen_file('kds_launch.tmpl', ctx, '%s.launch' % self.program_name)
