@@ -135,8 +135,8 @@ class SingleTestRunner(object):
     """ Object wrapper for single test run which may involve multiple MUTs."""
 
     re_detect_testcase_result = None
-    TEST_RESULT_OK    = "OK"
-    TEST_RESULT_FAIL  = "FAIL"
+    TEST_RESULT_OK = "OK"
+    TEST_RESULT_FAIL = "FAIL"
     TEST_RESULT_ERROR = "ERROR"
     TEST_RESULT_UNDEF = "UNDEF"
 
@@ -239,7 +239,7 @@ class SingleTestRunner(object):
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
-        cmd = ["cp", image_path.encode('ascii','ignore'), disk.encode('ascii','ignore') +  basename(image_path).encode('ascii','ignore')]
+        cmd = ["cp", image_path.encode('ascii', 'ignore'), disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
         # print cmd
         call(cmd)
         # copy(image_path, disk)
@@ -390,80 +390,80 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
 
 
 def get_result_summary_table():
-        # get all unique test ID prefixes
-        unique_test_id = []
-        for test in TESTS:
-            split = test['id'].split('_')[:-1]
-            test_id_prefix = '_'.join(split)
-            if test_id_prefix not in unique_test_id:
-                unique_test_id.append(test_id_prefix)
-        unique_test_id.sort()
-        counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
-        counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
+    # get all unique test ID prefixes
+    unique_test_id = []
+    for test in TESTS:
+        split = test['id'].split('_')[:-1]
+        test_id_prefix = '_'.join(split)
+        if test_id_prefix not in unique_test_id:
+            unique_test_id.append(test_id_prefix)
+    unique_test_id.sort()
+    counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
+    counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
-        test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration']
+    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration']
 
-        # All tests status table print
-        pt = PrettyTable(test_properties)
+    # All tests status table print
+    pt = PrettyTable(test_properties)
+    for col in test_properties:
+        pt.align[col] = "l"
+    pt.align['duration'] = "r"
+
+    counter_all = 0
+    counter_automated = 0
+
+    pt.padding_width = 1 # One space between column edges and contents (default)
+    for test in TESTS:
+        row = []
+        split = test['id'].split('_')[:-1]
+        test_id_prefix = '_'.join(split)
+
         for col in test_properties:
-            pt.align[col] = "l"
-        pt.align['duration'] = "r"
+            row.append(test[col] if col in test else "")
+        if 'automated' in test and test['automated'] == True:
+            counter_dict_test_id_types[test_id_prefix] += 1
+            counter_automated += 1
+        pt.add_row(row)
+        # Update counters
+        counter_all += 1
+        counter_dict_test_id_types_all[test_id_prefix] += 1
+    print pt
+    print
 
-        counter_all = 0
-        counter_automated = 0
+    # Automation result summary
+    test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
+    pt = PrettyTable(test_id_cols)
+    pt.align['automated'] = "r"
+    pt.align['all'] = "r"
+    pt.align['percent [%]'] = "r"
 
-        pt.padding_width = 1 # One space between column edges and contents (default)
-        for test in TESTS:
-            row = []
-            split = test['id'].split('_')[:-1]
-            test_id_prefix = '_'.join(split)
+    percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
+    str_progress = progress_bar(percent_progress, 75)
+    pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
+    print "Automation coverage:"
+    print pt
+    print
 
-            for col in test_properties:
-                row.append(test[col] if col in test else "")
-            if 'automated' in test and test['automated'] == True:
-                counter_dict_test_id_types[test_id_prefix] += 1
-                counter_automated += 1
-            pt.add_row(row)
-            # Update counters
-            counter_all += 1
-            counter_dict_test_id_types_all[test_id_prefix] += 1
-        print pt
-        print
-
-        # Automation result summary
-        test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
-        pt = PrettyTable(test_id_cols)
-        pt.align['automated'] = "r"
-        pt.align['all'] = "r"
-        pt.align['percent [%]'] = "r"
-
-        percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
+    # Test automation coverage table print
+    test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
+    pt = PrettyTable(test_id_cols)
+    pt.align['id'] = "l"
+    pt.align['automated'] = "r"
+    pt.align['all'] = "r"
+    pt.align['percent [%]'] = "r"
+    for unique_id in unique_test_id:
+        # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
+        percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 1)
         str_progress = progress_bar(percent_progress, 75)
-        pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
-        print "Automation coverage:"
-        print pt
-        print
-
-        # Test automation coverage table print
-        test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
-        pt = PrettyTable(test_id_cols)
-        pt.align['id'] = "l"
-        pt.align['automated'] = "r"
-        pt.align['all'] = "r"
-        pt.align['percent [%]'] = "r"
-        for unique_id in unique_test_id:
-            # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
-            percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 1)
-            str_progress = progress_bar(percent_progress, 75)
-            row = [unique_id,
-                   counter_dict_test_id_types[unique_id],
-                   counter_dict_test_id_types_all[unique_id],
-                   percent_progress,
-                   "[" + str_progress + "]"]
-            pt.add_row(row)
-        print "Test automation coverage:"
-        print pt
-        print
+        row = [unique_id,
+               counter_dict_test_id_types[unique_id],
+               counter_dict_test_id_types_all[unique_id],
+               percent_progress,
+               "[" + str_progress + "]"]
+        pt.add_row(row)
+    print "Test automation coverage:"
+    print pt
+    print
 
 
 def progress_bar(percent_progress, saturation=0):
@@ -475,6 +475,100 @@ def progress_bar(percent_progress, saturation=0):
         saturation = saturation / 2
         str_progress = str_progress[:saturation] + c + str_progress[saturation:]
     return str_progress
+
+
+def get_unique_value_from_summary(test_summary, index):
+    """ Gets list of unique target names """
+    result = []
+    for test in test_summary:
+        target_name = test[index]
+        if target_name not in result:
+            result.append(target_name)
+    return sorted(result)
+
+
+def get_unique_value_from_summary_ext(test_summary, index_key, index_val):
+    """ Gets list of unique target names and return dictionary """
+    result = {}
+    for test in test_summary:
+        key = test[index_key]
+        val = test[index_val]
+        if key not in result:
+            result[key] = val
+    return result
+
+
+def generate_test_summary_by_target(test_summary):
+    """ Prints well-formed summary with results (SQL table like)
+        table shows text x toolchain test result matrix """
+    RESULT_INDEX = 0
+    TARGET_INDEX = 1
+    TOOLCHAIN_INDEX = 2
+    TEST_INDEX = 3
+    DESC_INDEX = 4
+
+    unique_targets = get_unique_value_from_summary(test_summary, TARGET_INDEX)
+    unique_tests = get_unique_value_from_summary(test_summary, TEST_INDEX)
+    unique_test_desc = get_unique_value_from_summary_ext(test_summary, TEST_INDEX, DESC_INDEX)
+    unique_toolchains = get_unique_value_from_summary(test_summary, TOOLCHAIN_INDEX)
+
+    result = ""
+    result_dict = {}    # test : { toolchain : result }
+    for target in unique_targets:
+        result = "Test summary:\n"
+        for test in test_summary:
+            if test[TEST_INDEX] not in result_dict:
+                result_dict[test[TEST_INDEX]] = { }
+            result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
+            pass
+
+        pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
+        pt = PrettyTable(pt_cols)
+        for col in pt_cols:
+            pt.align[col] = "l"
+        pt.padding_width = 1 # One space between column edges and contents (default)
+
+        for test in unique_tests:
+            test_results = result_dict[test]
+            row = [target, test, unique_test_desc[test]]
+            for toolchain in unique_toolchains:
+                row.append(test_results[toolchain])
+            pt.add_row(row)
+    result += pt.get_string()
+    result += "\n"
+    return result
+
+
+def generate_test_summary(test_summary):
+    """ Prints well-formed summary with results (SQL table like)
+        table shows target x test results matrix across """
+    result = "Test summary:\n"
+    # Pretty table package is used to print results
+    pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
+                      "Elapsed Time (sec)", "Timeout (sec)"])
+    pt.align["Result"] = "l" # Left align
+    pt.align["Target"] = "l" # Left align
+    pt.align["Toolchain"] = "l" # Left align
+    pt.align["Test ID"] = "l" # Left align
+    pt.align["Test Description"] = "l" # Left align
+    pt.padding_width = 1 # One space between column edges and contents (default)
+
+    result_dict = { single_test.TEST_RESULT_OK : 0,
+                    single_test.TEST_RESULT_FAIL : 0,
+                    single_test.TEST_RESULT_ERROR : 0,
+                    single_test.TEST_RESULT_UNDEF : 0 }
+
+    for test in test_summary:
+        if test[0] in result_dict:
+            result_dict[test[0]] += 1
+        pt.add_row(test)
+    result += pt.get_string()
+    result += "\n"
+
+    # Print result count
+    result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+    result += "\n"
+    return result
 
 
 if __name__ == '__main__':
@@ -508,6 +602,14 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Suppresses display of wellformatted table with test results')
 
+
+    parser.add_option('-t', '--test-summary',
+                      dest='test_x_toolchain_summary',
+                      default=False,
+                      action="store_true",
+                      help='Dsiplays wellformatted tablew ith test x toolchain test result per target')
+
+
     parser.add_option('-r', '--test-automation-report',
                       dest='test_automation_report',
                       default=False,
@@ -524,7 +626,7 @@ if __name__ == '__main__':
                       dest='test_only_common',
                       default=False,
                       action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests')
+                      help='Test only board internals. Skip perpherials tests and perform common tests.')
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
@@ -651,30 +753,13 @@ if __name__ == '__main__':
 
     # Human readable summary
     if not opts.suppress_summary:
-        result_dict = { single_test.TEST_RESULT_OK    : 0,
-                        single_test.TEST_RESULT_FAIL  : 0,
-                        single_test.TEST_RESULT_ERROR : 0,
-                        single_test.TEST_RESULT_UNDEF : 0 }
 
-        print
-        print "Test summary:"
-        # Pretty table package is used to print results
-        pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                          "Elapsed Time (sec)", "Timeout (sec)"])
-        pt.align["Result"] = "l" # Left align
-        pt.align["Target"] = "l" # Left align
-        pt.align["Toolchain"] = "l" # Left align
-        pt.align["Test ID"] = "l" # Left align
-        pt.align["Test Description"] = "l" # Left align
-        pt.padding_width = 1 # One space between column edges and contents (default)
+        # prints well-formed summary with results (SQL table like)
+        print generate_test_summary(test_summary)
 
-        for test in test_summary:
-            if test[0] in result_dict:
-                result_dict[test[0]] += 1
-            pt.add_row(test)
-        print pt
+    if opts.test_x_toolchain_summary:
+        # prints well-formed summary with results (SQL table like)
+        # table shows text x toolchain test result matrix
+        print generate_test_summary_by_target(test_summary)
 
-        # Print result count
-        print "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
-        #print result_dict
     print "Completed in %d sec" % (time() - start)
