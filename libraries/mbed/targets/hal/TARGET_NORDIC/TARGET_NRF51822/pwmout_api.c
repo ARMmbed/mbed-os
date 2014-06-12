@@ -19,8 +19,8 @@
 #include "error.h"
 
 #define NO_PWMS         3
-#define TIMER_PRECISION 8
-#define TIMER_PRESCALER 7 //8us ticks   
+#define TIMER_PRECISION 4 //4us ticks   
+#define TIMER_PRESCALER 6 //4us ticks  =   16Mhz/(2**6)
 static const PinMap PinMap_PWM[] = {
     {p0,  PWM_1, 1},
     {p1,  PWM_1, 1},
@@ -297,7 +297,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     
     if(periodInTicks>((1<<16) -1))
     {
-        PERIOD = (1<<16 )-1;//262ms
+        PERIOD = (1<<16 )-1;//131ms
     }
     else if(periodInTicks<5){
         PERIOD = 5;
