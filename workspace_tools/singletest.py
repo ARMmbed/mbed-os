@@ -514,11 +514,17 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Prints information about all tests and exits')
 
-    parser.add_option('-P', '--only-peripheral',
+    parser.add_option('-P', '--only-peripherals',
                       dest='test_only_peripheral',
                       default=False,
                       action="store_true",
                       help='Test only peripheral declared for MUT and skip common tests')
+
+    parser.add_option('-C', '--only-commons',
+                      dest='test_only_common',
+                      default=False,
+                      action="store_true",
+                      help='Test only board internals. Skip perpherials tests and perform common tests')
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
@@ -596,6 +602,11 @@ if __name__ == '__main__':
                 if opts.test_only_peripheral and not test.peripherals:
                     if opts.verbose:
                         print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
+                    continue
+
+                if opts.test_only_common and test.peripherals:
+                    if opts.verbose:
+                        print "TargetTest::%s::PeripheralTestSkipped()" % (target)
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
