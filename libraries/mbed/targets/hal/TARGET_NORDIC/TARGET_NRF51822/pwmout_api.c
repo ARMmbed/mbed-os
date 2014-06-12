@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
@@ -44,8 +45,8 @@ static const PinMap PinMap_PWM[] = {
     {p19,  PWM_1, 1},
     {p20,  PWM_1, 1},
     {p21,  PWM_1, 1},
-    {p22,  PWM_1, 1},    
-    {p23,  PWM_1, 1},    
+    {p22,  PWM_1, 1},
+    {p23,  PWM_1, 1},
     {p24,  PWM_1, 1},
     {p25,  PWM_1, 1},
     {p28,  PWM_1, 1},
@@ -55,7 +56,7 @@ static const PinMap PinMap_PWM[] = {
 };
 
 static NRF_TIMER_Type *Timers[1] = {
-    NRF_TIMER2    
+    NRF_TIMER2
 };
 
 uint16_t PERIOD                = 20000/TIMER_PRECISION;//20ms
@@ -200,9 +201,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     uint8_t pwmOutSuccess = 0;
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     
-    if (pwm == (PWMName)NC){
-        error("PwmOut pin mapping failed");
-    }
+    MBED_ASSERT(pwm != (PWMName)NC);
         
     if(PWM_taken[(uint8_t)pwm]){
         for(uint8_t i = 1; !pwmOutSuccess && (i<NO_PWMS) ;i++){

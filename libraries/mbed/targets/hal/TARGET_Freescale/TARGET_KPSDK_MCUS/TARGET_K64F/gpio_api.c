@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "fsl_port_hal.h"
@@ -20,6 +21,7 @@
 #include "fsl_sim_hal.h"
 
 uint32_t gpio_set(PinName pin) {
+    MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_num = pin & 0xFF;
 
     pin_function(pin, (int)kPortMuxAsGpio);
@@ -27,11 +29,10 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if (pin == NC) {
-        return;
-    }
-
     obj->pinName = pin;
+    if (pin == (PinName)NC)
+        return;
+
     uint32_t port = pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = pin & 0xFF;
     clock_hal_set_gate(kSimClockModulePORT, port, true);
@@ -43,6 +44,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinName & 0xFF;
 

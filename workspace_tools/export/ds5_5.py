@@ -26,6 +26,7 @@ class DS5_5(Exporter):
         'LPC11U24',
         'LPC812',
         'UBLOX_C027',
+        'ARCH_PRO',
     ]
 
     USING_MICROLIB = [

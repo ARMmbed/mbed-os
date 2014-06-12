@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "pinmap.h"
 #include "error.h"
 
@@ -20,7 +21,7 @@
  * Set the pin into input, output, alternate function or analog mode
  */
 void pin_function(PinName pin, int data) {
-    if (pin == (uint32_t)NC) return;
+    MBED_ASSERT(pin != (PinName)NC);
     
     int mode = STM_PIN_MODE(data);
     int func = STM_PIN_FUNC(data);
@@ -53,7 +54,7 @@ void pin_function(PinName pin, int data) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t pin_number = (uint32_t)pin;
     int port_index = pin_number >> 4;

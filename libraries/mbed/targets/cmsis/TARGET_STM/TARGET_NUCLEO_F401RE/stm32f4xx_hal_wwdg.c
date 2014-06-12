@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -144,7 +144,8 @@
 /**
   * @brief  Initializes the WWDG according to the specified
   *         parameters in the WWDG_InitTypeDef and creates the associated handle.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
@@ -206,7 +207,8 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  DeInitializes the WWDG peripheral. 
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
@@ -238,7 +240,8 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Initializes the WWDG MSP.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval None
   */
 __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
@@ -250,7 +253,8 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  DeInitializes the WWDG MSP.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval None
   */
 __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
@@ -283,7 +287,8 @@ __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Starts the WWDG.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
@@ -309,7 +314,8 @@ HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Starts the WWDG with interrupt enabled.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
@@ -332,7 +338,8 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Refreshes the WWDG.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
@@ -368,7 +375,8 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   *         generated and the corresponding Interrupt Service Routine (ISR) can 
   *         be used to trigger specific actions (such as communications or data 
   *         logging), before resetting the device. 
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval None
   */
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
@@ -392,7 +400,8 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Early Wakeup WWDG callback.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval None
   */
 __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
@@ -423,7 +432,8 @@ __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 
 /**
   * @brief  Returns the WWDG state.
-  * @param  hwwdg: WWDG handle
+  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  *              the configuration information for the specified WWDG module.
   * @retval HAL state
   */
 HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg)

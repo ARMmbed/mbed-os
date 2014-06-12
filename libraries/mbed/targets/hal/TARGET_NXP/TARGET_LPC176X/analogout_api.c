@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "analogout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_DAC[] = {
     {P0_26, DAC_0, 2},
@@ -26,9 +26,7 @@ static const PinMap PinMap_DAC[] = {
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed");
-    }
+    MBED_ASSERT(obj->dac != (DACName)NC);
     
     // power is on by default, set DAC clk divider is /4
     LPC_SC->PCLKSEL0 &= ~(0x3 << 22);

@@ -38,7 +38,6 @@ int mbed_interface_reset(void) {
     }
 }
 
-WEAK int mbed_interface_uid(char *uid);
 WEAK int mbed_interface_uid(char *uid) {
     if (mbed_interface_connected()) {
         return semihost_uid(uid); // Returns 0 if successful, -1 on failure
@@ -77,13 +76,11 @@ void mbed_reset(void) {
     mbed_interface_reset();
 }
 
-WEAK int mbed_uid(char *uid);
 WEAK int mbed_uid(char *uid) {
     return mbed_interface_uid(uid);
 }
 #endif
 
-WEAK void mbed_mac_address(char *mac);
 WEAK void mbed_mac_address(char *mac) {
 #if DEVICE_SEMIHOST
     char uid[DEVICE_ID_LENGTH + 1];

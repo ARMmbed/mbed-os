@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
@@ -233,21 +233,32 @@ typedef struct
 #define IRDA_IT_TC                          ((uint32_t)0x10000040)
 #define IRDA_IT_RXNE                        ((uint32_t)0x10000020)
 #define IRDA_IT_IDLE                        ((uint32_t)0x10000010)
-                         
+
 #define IRDA_IT_LBD                         ((uint32_t)0x20000040)
 
-#define IRDA_IT_CTS                         ((uint32_t)0x30000400)                                
+#define IRDA_IT_CTS                         ((uint32_t)0x30000400)
 #define IRDA_IT_ERR                         ((uint32_t)0x30000001)
 
 /**
   * @}
   */
-                                
+
 /**
   * @}
   */
   
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset IRDA handle state
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_IRDA_STATE_RESET)
+
+/** @brief  Flushs the IRDA DR register 
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  */
+#define __HAL_IRDA_FLUSH_DRREGISTER(__HANDLE__) ((__HANDLE__)->Instance->DR)
 
 /** @brief  Checks whether the specified IRDA flag is set or not.
   * @param  __HANDLE__: specifies the USART Handle.

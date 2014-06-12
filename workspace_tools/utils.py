@@ -23,19 +23,24 @@ from shutil import copyfile
 
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
     text = l if shell else ' '.join(l)
-    if verbose: print text
-
+    if verbose:
+        print text
     rc = call(l, shell=shell, cwd=cwd)
-
     if check and rc != 0:
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
 
 def run_cmd(command, wd=None, redirect=False):
     p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
-    stdout, stderr = p.communicate()
+    _stdout, _stderr = p.communicate()
+    return _stdout, _stderr, p.returncode
 
-    return stdout, stderr, p.returncode
+
+def run_cmd_ext(command):
+    import subprocess
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _stdout, _stderr = p.communicate()
+    return _stdout, _stderr, p.returncode
 
 
 def mkdir(path):

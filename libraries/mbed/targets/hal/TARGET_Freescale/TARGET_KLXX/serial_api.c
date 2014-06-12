@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "serial_api.h"
 
 // math.h required for floating point operations for baud rate calculation
@@ -22,7 +23,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
@@ -61,9 +61,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
+    MBED_ASSERT((int)uart != NC);
 
     obj->uart = (UARTLP_Type *)uart;
     // enable clk
@@ -150,17 +148,16 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
+    MBED_ASSERT(data_bits == 8); // TODO: Support other number of data bits (also in the write method!)
+
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
     
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
     
-    // TODO: Support other number of data bits (also in the write method!)
-    if ((data_bits < 8) || (data_bits > 8)) {
-        error("Invalid number of bits (%d) in serial format, should be 8", data_bits);
-    }
 
     uint8_t parity_enable, parity_select;
     switch (parity) {
@@ -168,14 +165,9 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
         case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
 
-    // 1 stop bits = 0, 2 stop bits = 1
-    if ((stop_bits != 1) && (stop_bits != 2)) {
-        error("Invalid stop bits specified");
-    }
     stop_bits -= 1;
 
     // data bits, parity and parity mode
@@ -290,7 +282,7 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    obj->uart->C2 |= UARTLP_C2_SBK_MASK; 
+    obj->uart->C2 |= UARTLP_C2_SBK_MASK;
 }
 
 void serial_break_clear(serial_t *obj) {

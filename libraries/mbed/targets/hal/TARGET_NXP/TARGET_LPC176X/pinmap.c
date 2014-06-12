@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "pinmap.h"
 #include "error.h"
 
 void pin_function(PinName pin, int function) {
-    if (pin == (PinName)NC) return;
-    
+    MBED_ASSERT(pin != (PinName)NC);
+
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 4;
     int offset = (pin_number & 0xF) << 1;
@@ -28,7 +29,7 @@ void pin_function(PinName pin, int function) {
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (PinName)NC) { return; }
+    MBED_ASSERT(pin != (PinName)NC);
     
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 5;

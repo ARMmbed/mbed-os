@@ -17,11 +17,11 @@
 #include <stdarg.h>
 #include "device.h"
 #include "toolchain.h"
+#include "error.h"
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
 
-WEAK void error(const char* format, ...);
 WEAK void error(const char* format, ...) {
 #if DEVICE_STDIO_MESSAGES
     va_list arg;

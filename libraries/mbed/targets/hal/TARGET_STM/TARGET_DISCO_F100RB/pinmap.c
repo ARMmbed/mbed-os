@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "device.h"
 #include "pinmap.h"
 #include "error.h"
@@ -75,8 +76,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
 void pin_function(PinName pin, int data) {
-    if (pin == NC) return;
-
+    MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
@@ -111,17 +111,16 @@ void pin_function(PinName pin, int data) {
     }
     if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
         GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
-    }    
+    }
 }
 
 /**
  * Configure pin pull-up/pull-down
  */
 void pin_mode(PinName pin, PinMode mode) {
+    MBED_ASSERT(pin != (PinName)NC);
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    if (pin == NC) return;
-
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
 
@@ -131,32 +130,31 @@ void pin_mode(PinName pin, PinMode mode) {
   
     // Configure open-drain and pull-up/down
     switch (mode) {
-      case PullNone:       
-        return;
-      case PullUp:
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-      break;
-      case PullDown:
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-      break;
-      case OpenDrain:
-        if (pin_index < 8) {
-            if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
-                gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
+        case PullNone:
+            return;
+        case PullUp:
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+            break;
+        case PullDown:
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+            break;
+        case OpenDrain:
+            if (pin_index < 8) {
+                if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
+                    gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
+                }
+            } else {
+                if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) > 0) { // MODE bits = Output mode
+                    gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
+                }
             }
-        }
-        else {
-            if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) > 0) { // MODE bits = Output mode          
-                gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
-            }
-        }
-        return;
-      default:
-      break;
+            return;
+        default:
+            break;
     }
     
     // Configure GPIO
     GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(gpio, &GPIO_InitStructure);    
+    GPIO_Init(gpio, &GPIO_InitStructure);
 }

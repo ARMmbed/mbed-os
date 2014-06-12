@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   NAND HAL module driver.
   *          This file provides a generic firmware to drive NAND memories mounted 
   *          as external device.
@@ -125,7 +125,8 @@
     
 /**
   * @brief  Perform NAND memory Initialization sequence
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  ComSpace_Timing: pointer to Common space timing structure
   * @param  AttSpace_Timing: pointer to Attribute space timing structure
   * @retval HAL status
@@ -164,7 +165,8 @@ HAL_StatusTypeDef  HAL_NAND_Init(NAND_HandleTypeDef *hnand, FMC_NAND_PCC_TimingT
 
 /**
   * @brief  Perform NAND memory De-Initialization sequence
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NAND_DeInit(NAND_HandleTypeDef *hnand)  
@@ -186,7 +188,8 @@ HAL_StatusTypeDef HAL_NAND_DeInit(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  NAND MSP Init
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval None
   */
 __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
@@ -198,7 +201,8 @@ __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  NAND MSP DeInit
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval None
   */
 __weak void HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand)
@@ -211,7 +215,8 @@ __weak void HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  This function handles NAND device interrupt request.
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL status
 */
 void HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand)
@@ -260,7 +265,8 @@ void HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  NAND interrupt feature callback
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval None
   */
 __weak void HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand)
@@ -291,7 +297,8 @@ __weak void HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  Read the NAND memory electronic signature
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pNAND_ID: NAND ID structure
   * @retval HAL status
   */
@@ -346,7 +353,8 @@ HAL_StatusTypeDef HAL_NAND_Read_ID(NAND_HandleTypeDef *hnand, NAND_IDTypeDef *pN
 
 /**
   * @brief  NAND memory reset
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NAND_Reset(NAND_HandleTypeDef *hnand)
@@ -392,7 +400,8 @@ HAL_StatusTypeDef HAL_NAND_Reset(NAND_HandleTypeDef *hnand)
   
 /**
   * @brief  Read Page(s) from NAND memory block 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pAddress : pointer to NAND address structure
   * @param  pBuffer : pointer to destination read buffer
   * @param  NumPageToRead : number of pages to read from block 
@@ -479,7 +488,8 @@ HAL_StatusTypeDef HAL_NAND_Read_Page(NAND_HandleTypeDef *hnand, NAND_AddressType
 
 /**
   * @brief  Write Page(s) to NAND memory block 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pAddress : pointer to NAND address structure
   * @param  pBuffer : pointer to source buffer to write  
   * @param  NumPageToWrite  : number of pages to write to block 
@@ -580,7 +590,8 @@ HAL_StatusTypeDef HAL_NAND_Write_Page(NAND_HandleTypeDef *hnand, NAND_AddressTyp
 
 /**
   * @brief  Read Spare area(s) from NAND memory 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pAddress : pointer to NAND address structure
   * @param  pBuffer: pointer to source buffer to write  
   * @param  NumSpareAreaToRead: Number of spare area to read  
@@ -666,7 +677,8 @@ HAL_StatusTypeDef HAL_NAND_Read_SpareArea(NAND_HandleTypeDef *hnand, NAND_Addres
 
 /**
   * @brief  Write Spare area(s) to NAND memory 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pAddress : pointer to NAND address structure
   * @param  pBuffer : pointer to source buffer to write  
   * @param  NumSpareAreaTowrite  : number of spare areas to write to block
@@ -767,7 +779,8 @@ HAL_StatusTypeDef HAL_NAND_Write_SpareArea(NAND_HandleTypeDef *hnand, NAND_Addre
 
 /**
   * @brief  NAND memory Block erase 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  pAddress : pointer to NAND address structure
   * @retval HAL status
   */
@@ -824,7 +837,8 @@ HAL_StatusTypeDef HAL_NAND_Erase_Block(NAND_HandleTypeDef *hnand, NAND_AddressTy
 
 /**
   * @brief  NAND memory read status 
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval NAND status
   */
 uint32_t HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand)
@@ -864,7 +878,8 @@ uint32_t HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  Increment the NAND memory address
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param pAddress: pointer to NAND adress structure
   * @retval The new status of the increment address operation. It can be:
   *           - NAND_VALID_ADDRESS: When the new address is valid address
@@ -921,7 +936,8 @@ uint32_t HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pA
     
 /**
   * @brief  Enables dynamically NAND ECC feature.
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL status
   */    
 HAL_StatusTypeDef  HAL_NAND_ECC_Enable(NAND_HandleTypeDef *hnand)
@@ -947,7 +963,8 @@ HAL_StatusTypeDef  HAL_NAND_ECC_Enable(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  Disables dynamically FMC_NAND ECC feature.
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL status
   */  
 HAL_StatusTypeDef  HAL_NAND_ECC_Disable(NAND_HandleTypeDef *hnand)  
@@ -972,7 +989,8 @@ HAL_StatusTypeDef  HAL_NAND_ECC_Disable(NAND_HandleTypeDef *hnand)
 
 /**
   * @brief  Disables dynamically NAND ECC feature.
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @param  ECCval: pointer to ECC value 
   * @param  Timeout: maximum timeout to wait    
   * @retval HAL status
@@ -1012,7 +1030,7 @@ HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, 
                          ##### NAND State functions #####
   ==============================================================================  
   [..]
-    This subsection permit to get in run-time the status of the NAND controller 
+    This subsection permits to get in run-time the status of the NAND controller 
     and the data flow.
 
 @endverbatim
@@ -1021,7 +1039,8 @@ HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, 
   
 /**
   * @brief  return the NAND state
-  * @param  hnand: pointer to NAND handle
+  * @param  hnand: pointer to a NAND_HandleTypeDef structure that contains
+  *                the configuration information for NAND module.
   * @retval HAL state
   */
 HAL_NAND_StateTypeDef HAL_NAND_GetState(NAND_HandleTypeDef *hnand)

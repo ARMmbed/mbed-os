@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "error.h"
@@ -34,7 +35,7 @@
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
 uint32_t gpio_set(PinName pin) {
-    if (pin == NC) return 0;
+    MBED_ASSERT(pin != (PinName)NC);
 
     pin_function(pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
 
@@ -42,7 +43,9 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    if (pin == NC) return;
+    obj->pin = pin;
+    if (pin == (PinName)NC)
+        return;
 
     uint32_t port_index = STM_PORT(pin);
 
@@ -51,7 +54,6 @@ void gpio_init(gpio_t *obj, PinName pin) {
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Fill GPIO object structure for future use
-    obj->pin     = pin;
     obj->mask    = gpio_set(pin);
     obj->reg_in  = &gpio->IDR;
     obj->reg_set = &gpio->BSRR;
@@ -63,6 +65,7 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
+    MBED_ASSERT(obj->pin != (PinName)NC);
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF));
     } else { // PIN_INPUT

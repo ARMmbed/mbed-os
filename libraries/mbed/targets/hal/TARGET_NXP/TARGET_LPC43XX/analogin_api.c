@@ -15,10 +15,10 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
+#include "mbed_assert.h"
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
@@ -41,10 +41,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint8_t num, chan;
 
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    if (obj->adc == (uint32_t)NC) {
-        error("ADC pin mapping failed");
-    }
-
+    MBED_ASSERT(obj->adc != (ADCName)NC);
 
     // Configure the pin as GPIO input
     if (pin < SFP_AIO0) {

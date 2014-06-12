@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "serial_api.h"
 
 // math.h required for floating point operations for baud rate calculation
@@ -22,7 +23,6 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const PinMap PinMap_UART_TX[] = {
     {PTB17, UART_0, 3},
@@ -47,8 +47,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC)
-        error("Serial pinout mapping failed");
+    MBED_ASSERT((int)uart != NC);
 
     obj->uart = (UART_Type *)uart;
     // enable clk
@@ -117,6 +116,9 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
+    MBED_ASSERT((data_bits == 8) || (data_bits == 9));
 
     // save C2 state
     uint32_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
@@ -125,9 +127,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
 
     // 8 data bits = 0 ... 9 data bits = 1
-    if ((data_bits < 8) || (data_bits > 9))
-        error("Invalid number of bits (%d) in serial format, should be 8..9", data_bits);
-
     data_bits -= 8;
 
     uint32_t parity_enable, parity_select;
@@ -136,22 +135,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
         case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
 
-    // 1 stop bits = 0, 2 stop bits = 1
-    if ((stop_bits != 1) && (stop_bits != 2))
-        error("Invalid stop bits specified");
     stop_bits -= 1;
 
     uint32_t m10 = 0;
 
-    // 9 data bits + parity
+    // 9 data bits + parity - only uart0 support
     if (data_bits == 2) {
-        // only uart0 supports 10 bit communication
-        if (obj->index != 0)
-            error("Invalid number of bits (9) to be used with parity");
+        MBED_ASSERT(obj->index == 0);
         data_bits = 0;
         m10 = 1;
     }

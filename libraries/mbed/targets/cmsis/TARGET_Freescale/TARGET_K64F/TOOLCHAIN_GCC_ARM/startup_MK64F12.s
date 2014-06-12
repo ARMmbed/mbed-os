@@ -49,7 +49,7 @@
 #ifdef __STACK_SIZE
     .equ    Stack_Size, __STACK_SIZE
 #else
-    .equ    Stack_Size, 0x400
+    .equ    Stack_Size, 0xC00
 #endif
     .globl    __StackTop
     .globl    __StackLimit
@@ -64,7 +64,7 @@ __StackTop:
 #ifdef __HEAP_SIZE
     .equ    Heap_Size, __HEAP_SIZE
 #else
-    .equ    Heap_Size, 0x80
+    .equ    Heap_Size, 0x400
 #endif
     .globl    __HeapBase
     .globl    __HeapLimit
@@ -198,6 +198,18 @@ Reset_Handler:
  *      __etext: End of code section, i.e., begin of data sections to copy from.
  *      __data_start__/__data_end__: RAM address range that data should be
  *      copied to. Both must be aligned to 4 bytes boundary.  */
+
+disable_watchdog:
+    /* unlock */
+    ldr r1, =0x4005200e
+    ldr r0, =0xc520
+    strh r0, [r1]
+    ldr r0, =0xd928
+    strh r0, [r1]
+    /* disable */
+    ldr r1, =0x40052000
+    ldr r0, =0x01d2
+    strh r0, [r1]
 
     ldr    r1, =__etext
     ldr    r2, =__data_start__

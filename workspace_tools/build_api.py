@@ -14,11 +14,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+import tempfile
+import os
 from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
 
-from workspace_tools.utils import mkdir
+from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.libraries import Library
@@ -212,9 +215,10 @@ def get_unique_supported_toolchains():
     return unique_supported_toolchains
 
 
-def mcu_toolchain_matrix():
+def mcu_toolchain_matrix(verbose_html=False):
     """  Shows target map using prettytable """
     unique_supported_toolchains = get_unique_supported_toolchains()
+
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
 
     # All tests status table print
@@ -235,5 +239,201 @@ def mcu_toolchain_matrix():
                 perm_counter += 1
             row.append(text);
         pt.add_row(row)
-    print pt
-    print "Total permutations: %d"% (perm_counter)
+
+    result = pt.get_html_string() if verbose_html else pt.get_string()
+    result += "\n"
+    result += "Total permutations: %d"% (perm_counter)
+    return result
+
+
+def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None):
+    # Toolchain
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain.VERBOSE = verbose
+    toolchain.build_all = clean
+
+    # Source and Build Paths
+    BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
+    BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
+    mkdir(BUILD_TOOLCHAIN)
+
+    TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
+    mkdir(TMP_PATH)
+
+    # CMSIS
+    toolchain.info(">>>> STATIC ANALYSIS FOR %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+    resources = toolchain.scan_resources(cmsis_src)
+
+    # Copy files before analysis
+    toolchain.copy_files(resources.headers, BUILD_TARGET)
+    toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+
+    # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
+    includes = ["-I%s" % i for i in resources.inc_dirs]
+    includes.append(" -I%s"% str(BUILD_TARGET))
+    c_sources = " ".join(resources.c_sources)
+    cpp_sources = " ".join(resources.cpp_sources)
+    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
+
+    includes = map(str.strip, includes)
+    macros = map(str.strip, macros)
+
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += includes
+    check_cmd += macros
+
+    # We need to pass some params via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in c_sources.split())
+    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
+    tmp_file.close()
+    check_cmd += ["--file-list=%s"% tmp_file.name]
+
+    _stdout, _stderr, _rc = run_cmd(check_cmd)
+    if verbose:
+        print _stdout
+    print _stderr
+
+    # =========================================================================
+
+    # MBED
+    toolchain.info(">>> STATIC ANALYSIS FOR %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+
+    # Common Headers
+    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+
+    # Target specific sources
+    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
+    hal_implementation = toolchain.scan_resources(HAL_SRC)
+
+    # Copy files before analysis
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    incdirs = toolchain.scan_resources(BUILD_TARGET)
+
+    target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
+    target_includes.append("-I%s "% str(BUILD_TARGET))
+    target_includes.append("-I%s "% str(HAL_SRC))
+    target_c_sources = " ".join(incdirs.c_sources)
+    target_cpp_sources = " ".join(incdirs.cpp_sources)
+    target_macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
+
+    # Common Sources
+    mbed_resources = toolchain.scan_resources(MBED_COMMON)
+
+    # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
+    mbed_includes = ["-I%s" % i for i in mbed_resources.inc_dirs]
+    mbed_includes.append("-I%s "% str(BUILD_TARGET))
+    mbed_includes.append("-I%s "% str(MBED_COMMON))
+    mbed_includes.append("-I%s "% str(MBED_API))
+    mbed_includes.append("-I%s "% str(MBED_HAL))
+    mbed_c_sources = " ".join(mbed_resources.c_sources)
+    mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
+
+    target_includes = map(str.strip, target_includes)
+    mbed_includes = map(str.strip, mbed_includes)
+    target_macros = map(str.strip, target_macros)
+
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += target_includes
+    check_cmd += mbed_includes
+    check_cmd += target_macros
+
+    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in target_c_sources.split())
+    tmp_file.writelines(line + '\n' for line in target_cpp_sources.split())
+    tmp_file.writelines(line + '\n' for line in mbed_c_sources.split())
+    tmp_file.writelines(line + '\n' for line in mbed_cpp_sources.split())
+    tmp_file.close()
+    check_cmd += ["--file-list=%s"% tmp_file.name]
+
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd)
+    if verbose:
+        print _stdout
+    print _stderr
+
+
+def static_analysis_scan_lib(lib_id, target, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None):
+    lib = Library(lib_id)
+    if lib.is_supported(target, toolchain):
+        static_analysis_scan_library(lib.source_dir, lib.build_dir, target, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
+                      lib.dependencies, options,
+                      verbose=verbose, clean=clean, macros=macros, notify=notify)
+    else:
+        print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+
+
+def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
+         dependencies_paths=None, options=None, name=None, clean=False,
+         notify=None, verbose=False, macros=None):
+    if type(src_paths) != ListType: src_paths = [src_paths]
+
+    for src_path in src_paths:
+        if not exists(src_path):
+            raise Exception("The library source folder does not exist: %s", src_path)
+
+
+    # Toolchain instance
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain.VERBOSE = verbose
+
+    # The first path will give the name to the library
+    name = basename(src_paths[0])
+    toolchain.info(">>> STATIC ANALYSIS FOR LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+
+    # Scan Resources
+    resources = []
+    for src_path in src_paths:
+        resources.append(toolchain.scan_resources(src_path))
+
+    # Dependencies Include Paths
+    dependencies_include_dir = []
+    if dependencies_paths is not None:
+        for path in dependencies_paths:
+            lib_resources = toolchain.scan_resources(path)
+            dependencies_include_dir.extend(lib_resources.inc_dirs)
+
+    # Create the desired build directory structure
+    bin_path = join(build_path, toolchain.obj_path)
+    mkdir(bin_path)
+    tmp_path = join(build_path, '.temp', toolchain.obj_path)
+    mkdir(tmp_path)
+
+    # Gather include paths, c, cpp sources and macros to transfer to cppcheck command line
+    includes = ["-I%s" % i for i in dependencies_include_dir + src_paths]
+    c_sources = " "
+    cpp_sources = " "
+    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
+
+    # Copy Headers
+    for resource in resources:
+        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+        includes += ["-I%s" % i for i in resource.inc_dirs]
+        c_sources += " ".join(resource.c_sources) + " "
+        cpp_sources += " ".join(resource.cpp_sources) + " "
+
+    dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+
+    includes = map(str.strip, includes)
+    macros = map(str.strip, macros)
+
+    check_cmd = CPPCHECK_CMD
+    check_cmd += CPPCHECK_MSG_FORMAT
+    check_cmd += includes
+    check_cmd += macros
+
+    # We need to pass some parames via file to avoid "command line too long in some OSs"
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    tmp_file.writelines(line + '\n' for line in c_sources.split())
+    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
+    tmp_file.close()
+    check_cmd += ["--file-list=%s"% tmp_file.name]
+
+    _stdout, _stderr, _rc = run_cmd_ext(check_cmd)
+    if verbose:
+        print _stdout
+    print _stderr

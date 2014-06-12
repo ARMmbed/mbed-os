@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -61,10 +61,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C pin mapping failed");
-    }
+    MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -89,6 +86,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
+    MBED_ASSERT((hz == 100000) || (hz == 200000) || (hz == 400000) || (hz == 1000000));
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
     uint32_t tim = 0;
@@ -111,28 +109,27 @@ void i2c_frequency(i2c_t *obj, int hz) {
        - Fall time = 10ns
     */
     switch (hz) {
-        case 100000:
-            tim = 0x10805E89; // Standard mode
-            break;
-        case 200000:
-            tim = 0x00905E82; // Fast Mode
-            break;
-        case 400000:
-            tim = 0x00901850; // Fast Mode
-            break;
-        case 1000000:
-            tim = 0x00700818; // Fast Mode Plus
-            // Enable the Fast Mode Plus capability
-            if (obj->i2c == I2C_1) {
-                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
-            }
-            if (obj->i2c == I2C_2) {
-                SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
-            }
-            break;
-        default:
-            error("Only 100kHz, 200kHz, 400kHz and 1MHz I2C frequencies are supported.");
-            break;
+      case 100000:
+          tim = 0x10805E89; // Standard mode
+          break;
+      case 200000:
+          tim = 0x00905E82; // Fast Mode
+          break;
+      case 400000:
+          tim = 0x00901850; // Fast Mode
+          break;
+      case 1000000:
+          tim = 0x00700818; // Fast Mode Plus
+          // Enable the Fast Mode Plus capability
+          if (obj->i2c == I2C_1) {
+              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C1, ENABLE);
+          }
+          if (obj->i2c == I2C_2) {
+              SYSCFG_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus_I2C2, ENABLE);
+          }
+          break;
+      default:
+          break;
     }
 
     // I2C configuration

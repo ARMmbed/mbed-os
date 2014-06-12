@@ -16,7 +16,6 @@
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 static const SWM_Map SWM_I2C_SDA[] = {
     {7, 24},
@@ -50,7 +49,7 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 }
 
 static inline void i2c_power_enable(i2c_t *obj) {
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);	
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);
     LPC_SYSCON->PRESETCTRL &= ~(0x1<<6);
     LPC_SYSCON->PRESETCTRL |= (0x1<<6);
 }
