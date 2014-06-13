@@ -77,7 +77,6 @@ __mbed_dcc_irq:
 Reset_Handler:   
         .extern __libc_init_array
         .extern  SystemInit
-        .extern  __wrap_main
         LDR     R0, =SystemInit
         MOV     LR, PC       
         BX      R0
@@ -86,7 +85,7 @@ Reset_Handler:
         MOV     LR, PC       
         BX      R0
 
-        LDR     R0, =__wrap_main
+        LDR     R0, =main
         BX      R0
 
 __mbed_reset:
