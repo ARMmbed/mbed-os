@@ -49,6 +49,11 @@
 							<builder buildPath="${workspace_loc:/{{name}}}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.616978236" name="Gnu Make Builder.Debug" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.774448198" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.874144438" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1457752231" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
+                                  {% for s in symbols %}
+                                    <listOptionValue builtIn="false" value="{{s}}"/>
+                                  {% endfor %}
+								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1240528565" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
                                     {% for path in include_paths %}
                                         <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
@@ -91,9 +96,12 @@
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.1999194416" name="Cross ARM C++ Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker">
 					<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.344980185" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.727573047" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">                                    {% for path in include_paths %}
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.727573047" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
+								{% if libraries %}
+									{% for path in include_paths %}
                                         <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
                                     {% endfor %}
+                                {% endif %}
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.828171482" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/{{linker_script}}}"/>
@@ -108,6 +116,7 @@
                                         <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
                                     {% endfor %}
                                 </option>
+                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other.30848869" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other" value="-nanolibc" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input.1081415325" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
