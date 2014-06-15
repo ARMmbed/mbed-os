@@ -55,7 +55,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('NRF51822', ('ARM', )),
 
-    ('LPC11U68', ('uARM',)),
+    ('LPC11U68', ('uARM','GCC_ARM','GCC_CR')),
 )
 
 
@@ -93,3 +93,4 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
+
