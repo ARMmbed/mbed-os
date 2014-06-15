@@ -8,7 +8,7 @@
  * By LPCXpresso v7.2.0 [Build 153] [2014-05-19]  on Sat Jun 14 15:26:54 JST 2014
  */
 GROUP(libgcc.a libc.a libstdc++.a libm.a libcr_newlib_nohost.a crti.o crtn.o crtbegin.o crtend.o)
-/*GROUP(libgcc.a libc_s.a libstdc++_s.a libm.a libcr_newlib_nohost.a crti.o crtn.o crtbegin.o crtend.o)*/
+
 MEMORY
 {
   /* Define each memory region */
