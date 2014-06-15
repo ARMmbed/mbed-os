@@ -7,13 +7,13 @@
  * Created from LibIncTemplate.ld (LPCXpresso v7.2 (0 [Build 153] [2014-05-19] ))
  * By LPCXpresso v7.2.0 [Build 153] [2014-05-19]  on Sat Jun 14 15:26:54 JST 2014
  */
-
-GROUP(libgcc.a libc_s.a libstdc++_s.a libm.a libcr_newlib_nohost.a crti.o crtn.o crtbegin.o crtend.o)
+GROUP(libgcc.a libc.a libstdc++.a libm.a libcr_newlib_nohost.a crti.o crtn.o crtbegin.o crtend.o)
+/*GROUP(libgcc.a libc_s.a libstdc++_s.a libm.a libcr_newlib_nohost.a crti.o crtn.o crtbegin.o crtend.o)*/
 MEMORY
 {
   /* Define each memory region */
   MFlash256 (rx) : ORIGIN = 0x0, LENGTH = 0x40000 /* 256K bytes */
-  Ram0_32 (rwx) : ORIGIN = 0x10000000, LENGTH = 0x8000 /* 32K bytes */
+  Ram0_32 (rwx) : ORIGIN = 0x10000000+0x100, LENGTH = 0x8000-0x100 /* 32K bytes */
   Ram1_2 (rwx) : ORIGIN = 0x20000000, LENGTH = 0x800 /* 2K bytes */
   Ram2USB_2 (rwx) : ORIGIN = 0x20004000, LENGTH = 0x800 /* 2K bytes */
 
@@ -21,7 +21,7 @@ MEMORY
 }
   /* Define a symbol for the top of each memory region */
   __top_MFlash256 = 0x0 + 0x40000;
-  __top_Ram0_32 = 0x10000000 + 0x8000;
+  __top_Ram0_32 = 0x10000000+0x100 + 0x8000-0x100;
   __top_Ram1_2 = 0x20000000 + 0x800;
   __top_Ram2USB_2 = 0x20004000 + 0x800;
 
@@ -34,8 +34,9 @@ SECTIONS
     .text : ALIGN(4)
     {
         FILL(0xff)
-        __vectors_start__ = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))
+		*(.text.ResetISR)
+        *(.text.SystemInit)
         
         /* Global Section Table */
         . = ALIGN(4) ;
