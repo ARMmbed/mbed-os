@@ -5,6 +5,16 @@ extern "C" {
 #define ALIAS(f)      __attribute__ ((weak, alias (#f)))
 #define AFTER_VECTORS __attribute__ ((section(".after_vectors")))void ResetISR(void);
 
+// Patch the AEABI integer divide functions to use MCU's romdivide library
+#ifdef __USE_ROMDIVIDE
+// Location in memory that holds the address of the ROM Driver table
+#define PTR_ROM_DRIVER_TABLE ((unsigned int *)(0x1FFF1FF8))
+// Variables to store addresses of idiv and udiv functions within MCU ROM
+unsigned int *pDivRom_idiv;
+unsigned int *pDivRom_uidiv;
+#endif
+
+
 extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table;
@@ -146,6 +156,17 @@ AFTER_VECTORS void ResetISR(void) {
         SectionLen = *SectionTableAddr++;
         bss_init(ExeAddr, SectionLen);
     }
+
+    // Patch the AEABI integer divide functions to use MCU's romdivide library
+#ifdef __USE_ROMDIVIDE
+    // Get address of Integer division routines function table in ROM
+    unsigned int *div_ptr = (unsigned int *)((unsigned int *)*(PTR_ROM_DRIVER_TABLE))[4];
+    // Get addresses of integer divide routines in ROM
+    // These address are then used by the code in aeabi_romdiv_patch.s
+    pDivRom_idiv = (unsigned int *)div_ptr[0];
+    pDivRom_uidiv = (unsigned int *)div_ptr[1];
+#endif
+
     
     SystemInit();
     if (software_init_hook) 
