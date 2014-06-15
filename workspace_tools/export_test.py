@@ -99,6 +99,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC1114'),
             ('gcc_arm', 'LPC11U35_401'),
             ('gcc_arm', 'LPC11U35_501'),
+            ('gcc_arm', 'LPC2368'),
 
             ('gcc_arm', 'STM32F407'),
             ('gcc_arm', 'DISCO_F100RB'),
