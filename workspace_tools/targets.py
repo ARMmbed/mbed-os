@@ -540,6 +540,19 @@ class ARM_MPS2(Target):
         self.default_toolchain = "ARM"
 
 
+class EFM32GG_STK3700(Target):
+#    ONLINE_TOOLCHAIN = "uARM"
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M3"
+
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+
+        self.macros = ['EFM32GG990F1024']
+
+        self.supported_toolchains = ["GCC_ARM"]
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -586,6 +599,7 @@ TARGETS = [
     LPCCAPPUCCINO(),
     HRM1017(),
     ARM_MPS2(),
+    EFM32GG_STK3700()
 ]
 
 # Map each target name to its unique instance
