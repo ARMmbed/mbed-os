@@ -245,6 +245,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
     obj->period = us;
 
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = obj->period - 1;
     TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick

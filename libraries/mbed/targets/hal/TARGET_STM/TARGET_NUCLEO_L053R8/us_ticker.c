@@ -82,6 +82,9 @@ void us_ticker_init(void) {
     // Enable timer clock
     TIM_MST_RCC;
 
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period        = 0xFFFF;
