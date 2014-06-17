@@ -30,7 +30,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM')),
     ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
-    ('ARCH_PRO',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
+    ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM',)),
     ('LPC812',       ('uARM',)),
     ('LPC1347',      ('ARM',)),
@@ -38,7 +38,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1114',      ('uARM','GCC_ARM')),
     ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('LPC1549',      ('uARM',)),
+    ('LPC1549',      ('uARM','GCC_CR')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM')),
     ('KL25Z',        ('ARM', 'GCC_ARM')),
@@ -55,7 +55,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('NRF51822', ('ARM', )),
 
-    ('LPC11U68', ('uARM',)),
+    ('LPC11U68', ('uARM','GCC_ARM','GCC_CR')),
 )
 
 
@@ -93,3 +93,4 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
+
