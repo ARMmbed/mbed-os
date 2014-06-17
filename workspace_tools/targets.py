@@ -559,7 +559,7 @@ class LPC1549(Target):
 
         self.extra_labels = ['NXP', 'LPC15XX']
 
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM","GCC_CR"]
 
         self.supported_form_factors = ["ARDUINO"]
 
@@ -574,7 +574,7 @@ class LPC11U68(Target):
 
         self.extra_labels = ['NXP', 'LPC11U6X']
 
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM","GCC_CR","GCC_ARM"]
 
         self.supported_form_factors = ["ARDUINO"]
 
