@@ -67,12 +67,12 @@ static const PinMap PinMap_SPI_SCLK[] = {
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI1)},
-//  {PA_4,  SPI_3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF6_SPI3)},
-    {PA_15, SPI_1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI1)},
-//  {PA_15, SPI_3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF6_SPI3)},
-    {PB_9,  SPI_2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI2)},
-    {PB_12, SPI_2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF5_SPI2)},
+    {PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI1)},
+//  {PA_4,  SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF6_SPI3)},
+    {PA_15, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI1)},
+//  {PA_15, SPI_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF6_SPI3)},
+    {PB_9,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)},
+    {PB_12, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)},
     {NC,    NC,    0}
 };
 
@@ -181,10 +181,10 @@ void spi_free(spi_t *obj) {
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
-    if (bits == 8) {
-        obj->bits = SPI_DATASIZE_8BIT;
-    } else {
+    if (bits == 16) {
         obj->bits = SPI_DATASIZE_16BIT;
+    } else {
+        obj->bits = SPI_DATASIZE_8BIT;
     }
 
     switch (mode) {
@@ -280,7 +280,7 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    return ((ssp_readable(obj) && !ssp_busy(obj)) ? 1 : 0);
 };
 
 int spi_slave_read(spi_t *obj) {
