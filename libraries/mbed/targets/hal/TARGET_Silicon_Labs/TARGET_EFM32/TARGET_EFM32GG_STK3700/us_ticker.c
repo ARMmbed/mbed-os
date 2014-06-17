@@ -17,50 +17,54 @@
 #include "us_ticker_api.h"
 #include "cmsis.h"
 
-#define US_TICKER_TIMER TIM2
-#define US_TICKER_TIMER_IRQn SysTick_IRQn
-
 int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
-  NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
-  SysTick->LOAD  = 0xFFFFFFFF;                                  /* set reload register */
-  //NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority for Systick Interrupt */
-  SysTick->VAL   = 0;                                          /* Load the SysTick Counter Value */
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
-                   SysTick_CTRL_TICKINT_Msk   |
-                   SysTick_CTRL_ENABLE_Msk;                    /* Enable SysTick IRQ and SysTick Timer */
+    /* Enable clock for TIMERs */
+    CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_TIMER0;
+    CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_TIMER1;
 
-    NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
-//    NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
+    /* Clear TIMER counter values */
+    TIMER0->CNT = 0;
+    TIMER1->CNT = 0;
 
-#if 0
-    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-    
-    uint32_t PCLK = SystemCoreClock / 4;
-    
-    uint32_t prescale = PCLK / 1000000; // default to 1MHz (1 us ticks)
-    US_TICKER_TIMER->PSC = prescale - 1;
-    US_TICKER_TIMER->CR1 |= TIM_CR1_CEN;
-    // Trigger an update - this needs to happen after the counter is enabled.
-    US_TICKER_TIMER->EGR |= TIM_EGR_UG;
+    /* Set TIMER0 prescaler */
+//    TIMER0->CTRL = (TIMER0->CTRL & ~_TIMER_CTRL_PRESC_MASK) |  TIMER_CTRL_PRESC_DIV2;
 
-    NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(US_TICKE R_TIMER_IRQn);
-#endif
-    
+    /* Enable overflow interrupt */
+//    TIMER0->IEN |= TIMER_IF_OF;
+//    TIMER1->IEN |= TIMER_IF_OF;
+
+    /* Set TIMER0 to tick with HFPERCLK (14 MHz) */
+    TIMER0->CTRL |= TIMER_CTRL_CLKSEL_PRESCHFPERCLK;
+    /* Set TIMER1 to tick when TIMER0 overflows */
+    TIMER1->CTRL |= TIMER_CTRL_CLKSEL_TIMEROUF;
+
+    /* Enable TIMER0 interrupt vector in NVIC */
+//    NVIC_SetVector(TIMER0_IRQn, (uint32_t)us_ticker_irq_handler);
+//    NVIC_EnableIRQ(TIMER1_IRQn);
+
+    /* Set top value */
+    TIMER0->TOP = 0xFFFF;
+    TIMER1->TOP = 0xFFFF;
+
+    /* Start TIMERs */
+    TIMER0->CMD = TIMER_CMD_START;
+    TIMER1->CMD = TIMER_CMD_START;
 }
 
 uint32_t us_ticker_read() {
     if (!us_ticker_inited)
         us_ticker_init();
     
-    return((~SysTick->VAL)/14);
-//    return US_TICKER_TIMER->CNT;
+    uint32_t cnt = (((uint32_t)TIMER1->CNT << 16) | TIMER0->CNT);
+
+    return (uint32_t)(cnt / 14);
 }
+
 
 void us_ticker_set_interrupt(unsigned int timestamp) {
     // set match value
@@ -70,12 +74,12 @@ void us_ticker_set_interrupt(unsigned int timestamp) {
 }
 
 void us_ticker_disable_interrupt(void) {
-//    US_TICKER_TIMER->DIER &= ~TIM_DIER_CC1IE;
-//      NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
-
+    /* Disable overflow interrupt */
+    TIMER0->IEN &= ~TIMER_IF_OF;
 }
 
 void us_ticker_clear_interrupt(void) {
-//    US_TICKER_TIMER->SR &= ~TIM_SR_CC1IF;
+    /* Clear overflow interrupt */
+    TIMER0->IFC = TIMER_IF_OF;
 }
 
