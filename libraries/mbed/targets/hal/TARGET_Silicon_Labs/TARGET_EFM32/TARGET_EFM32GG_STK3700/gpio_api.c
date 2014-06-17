@@ -23,24 +23,22 @@ uint32_t gpio_set(PinName pin) {
 void gpio_init(gpio_t *obj, PinName pin) {
         if(pin == NC) return;
 
-        //Enable GPIO clock
-        gpio_clock_enable();
+        //Enable GPIO clock TODO: Use static var to ensure only one call?
+        CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_GPIO;
+
 
         obj->pin = pin;
-        obj->mask = 1 << (pin & 0xF);
+        obj->mask = gpio_set(pin);
         obj->port = pin >> 4;
-        obj->mode = PullDefault;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-        pin_mode(obj->pin, obj->mode);
+		obj->mode = mode;
+        pin_mode(obj->pin, mode);
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
         obj->dir = direction;
 }
 
-void gpio_clock_enable(){
-        CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_GPIO;
-}
 

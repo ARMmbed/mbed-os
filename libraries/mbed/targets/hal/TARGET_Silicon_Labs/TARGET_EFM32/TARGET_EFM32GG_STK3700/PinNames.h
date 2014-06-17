@@ -45,7 +45,7 @@ typedef enum {
 } PinName;
 
 typedef enum {
-    PullNone = 0,
+    Disabled = 0,
     Input = 1,
     InputPull = 2,
     InputPullFilter = 3,
@@ -61,8 +61,12 @@ typedef enum {
     WiredAndDriveFilter = 0xD,
     WiredAndDrivePullUp = 0xE,
     WiredAndDrivePullUpFilter = 0xF,
+
+
+    PullNone = PushPull,
+    PullDown = Input,
     PullUp = InputPull,
-    PullDefault = PushPull
+    PullDefault = InputPull
 } PinMode;
 
 #ifdef __cplusplus
