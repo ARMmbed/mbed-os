@@ -16,4 +16,19 @@
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
 
+#include "em_dac.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {
+    DAC_0 = 0
+} DACName;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

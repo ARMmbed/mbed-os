@@ -23,7 +23,7 @@
 #define DEVICE_INTERRUPTIN      0
 
 #define DEVICE_ANALOGIN         0
-#define DEVICE_ANALOGOUT        0
+#define DEVICE_ANALOGOUT        1
 
 #define DEVICE_SERIAL           0
 

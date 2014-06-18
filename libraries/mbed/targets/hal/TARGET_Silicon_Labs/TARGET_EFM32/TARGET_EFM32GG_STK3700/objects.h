@@ -17,10 +17,16 @@
 #define MBED_OBJECTS_H
 
 #include "PinNames.h"
+#include "PeripheralNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct dac_s {
+    DACName dac;
+};
+
 
 #include "gpio_object.h"
 
