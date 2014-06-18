@@ -37,12 +37,22 @@ void pin_mode(PinName pin, PinMode mode) {
   if (pin_index < 8)
   {
     GPIO->P[port_index].MODEL = (GPIO->P[port_index].MODEL & ~(0xF << offset)) 
-                              | (mode << offset);
+                              | ((((uint32_t)mode) & 0xF) << offset);
   }
   else
   {
     GPIO->P[port_index].MODEH = (GPIO->P[port_index].MODEH & ~(0xF << offset)) 
-                              | (mode << offset);
+                              | ((((uint32_t)mode) & 0xF) << offset);
   }
+
+  if(mode & 0x20)
+  {
+	  if(mode & 0x10){
+		  GPIO->P[port_index].DOUTSET = 1 << pin_index;
+	  }else{
+		  GPIO->P[port_index].DOUTCLR = 1 << pin_index;
+	  }
+  }
+
 }
 

@@ -44,29 +44,44 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
+
+//0x3X represents setting the DOUT register
+//0x2X represents clearing the DOUT register  (see efm32 modes in ref. manual)
 typedef enum {
-    Disabled = 0,
-    Input = 1,
-    InputPull = 2,
-    InputPullFilter = 3,
-    PushPull = 4,
-    PushPullDrive = 5,
-    WiredOr = 6,
+    Disabled 		= 0,
+    Input 			= 0x21,
+    InputFilter 	= 0x31,
+    InputPullDown 	= 0x22,
+    InputPullUp 	= 0x32,
+    InputPullFilterDown = 0x23,
+    InputPullFilterUp 	= 0x33,
+    PushPull 		= 4,
+    PushPullDrive 	= 5,
+    WiredOr 		= 6,
     WiredOrPullDown = 7,
-    WiredAnd = 8,
-    WiredAndFilter = 9,
-    WiredAndPullUp = 0xA,
+    WiredAnd 		= 8,
+    WiredAndFilter 	= 9,
+    WiredAndPullUp 	= 0xA,
     WiredAndPullUpFilter = 0xB,
-    WiredAndDrive = 0xC,
-    WiredAndDriveFilter = 0xD,
-    WiredAndDrivePullUp = 0xE,
+    WiredAndDrive 		= 0xC,
+    WiredAndDriveFilter	= 0xD,
+    WiredAndDrivePullUp	= 0xE,
     WiredAndDrivePullUpFilter = 0xF,
 
-
+    /* Required modes for digital input:
+     * PullUp, PullDown, PullNone, OpenDrain
+     *
+	 * mBed default digital input mode:
+	 * PullDefault
+     *
+     * mBed default digital output mode:
+     * PullNone
+     */
+    PullUp = InputPullUp,
+    PullDown = InputPullDown,
+    OpenDrain = WiredAnd,
     PullNone = PushPull,
-    PullDown = Input,
-    PullUp = InputPull,
-    PullDefault = InputPull
+    PullDefault = PullUp
 } PinMode;
 
 #ifdef __cplusplus

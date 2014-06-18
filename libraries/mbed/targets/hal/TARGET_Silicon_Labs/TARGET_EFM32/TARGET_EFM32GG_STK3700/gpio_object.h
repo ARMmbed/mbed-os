@@ -37,7 +37,7 @@ static inline void gpio_write(gpio_t *obj, int value) {
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    return ((GPIO->P[obj->port].DIN & obj->mask) ? 1 : 0);
+	return ((GPIO->P[obj->port].DIN & obj->mask) ? 1 : 0);
 }
 
 #ifdef __cplusplus
