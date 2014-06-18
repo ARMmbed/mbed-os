@@ -54,7 +54,7 @@ static inline void dac_write(dac_t *obj, int value) {
 }
 
 static inline int dac_read(dac_t *obj) {
-    return 0;
+    return DAC0->CH0DATA;
 }
 
 void analogout_write(dac_t *obj, float value) {
@@ -66,10 +66,10 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
 }
 
 float analogout_read(dac_t *obj) {
-    return 0;
+    return dac_read(obj)/4095.0;
 }
 
 uint16_t analogout_read_u16(dac_t *obj) {
-    return 0;
+    return analogout_read(obj)*0xFFFF;
 }
 
