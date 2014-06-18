@@ -128,7 +128,6 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0f) {
         value = 1.0;
     }
-    uint32_t t_off = pwm->MATCHREL0 - (uint32_t)((float)(pwm->MATCHREL0) * value);
     uint32_t t_on = (uint32_t)((float)(pwm->MATCHREL0) * value);
     pwm->MATCHREL1 = t_on;
 }

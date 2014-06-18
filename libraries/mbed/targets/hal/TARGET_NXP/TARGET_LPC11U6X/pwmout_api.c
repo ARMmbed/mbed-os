@@ -57,7 +57,7 @@ static int get_available_sct(void) {
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the SPI to use
     PWMName pwm_mapped = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm_mapped == (uint32_t)NC) {
+    if (pwm_mapped == (PWMName)NC) {
         error("PwmOut pin mapping failed");
     }
     int sct_n = get_available_sct();
@@ -146,7 +146,6 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0f) {
         value = 1.0;
     }
-    uint32_t t_off = obj->pwm->MATCHREL0 - (uint32_t)((float)(obj->pwm->MATCHREL0) * value);
     uint32_t t_on = (uint32_t)((float)(obj->pwm->MATCHREL0) * value);
     obj->pwm->MATCHREL1 = t_on;
 }
