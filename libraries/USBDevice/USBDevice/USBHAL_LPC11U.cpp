@@ -16,9 +16,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68)
+#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68) || defined(TARGET_LPC1549)
 
-#if defined(TARGET_LPC1347)
+#if defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
 #define USB_IRQ USB_IRQ_IRQn
 #elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68)
 #define USB_IRQ USB_IRQn
@@ -27,6 +27,9 @@
 #include "USBHAL.h"
 
 USBHAL * USBHAL::instance;
+#if defined(TARGET_LPC1549)
+static uint8_t usbmem[2048] __attribute__((aligned(2048)));
+#endif
 
 // Valid physical endpoint numbers are 0 to (NUMBER_OF_PHYSICAL_ENDPOINTS-1)
 #define LAST_PHYSICAL_ENDPOINT (NUMBER_OF_PHYSICAL_ENDPOINTS-1)
@@ -42,12 +45,21 @@ USBHAL * USBHAL::instance;
 #define OUT_EP(endpoint)    ((endpoint) & 1U ? false : true)
 
 // USB RAM
+#if defined(TARGET_LPC1549)
+#define USB_RAM_START ((uint32_t)usbmem)
+#define USB_RAM_SIZE  sizeof(usbmem)
+#else
 #define USB_RAM_START (0x20004000)
 #define USB_RAM_SIZE  (0x00000800)
+#endif
 
 // SYSAHBCLKCTRL
+#if defined(TARGET_LPC1549)
+#define CLK_USB     (1UL<<23)
+#else
 #define CLK_USB     (1UL<<14)
 #define CLK_USBRAM  (1UL<<27)
+#endif
 
 // USB Information register
 #define FRAME_NR(a)     ((a) & 0x7ff)   // Frame number
@@ -145,6 +157,37 @@ USBHAL::USBHAL(void) {
     epCallback[6] = &USBHAL::EP4_OUT_callback;
     epCallback[7] = &USBHAL::EP4_IN_callback;
 
+#if defined(TARGET_LPC1549)
+    /* Set USB PLL input to system oscillator */
+    LPC_SYSCON->USBPLLCLKSEL = 0x01;
+
+    /* Setup USB PLL  (FCLKIN = 12MHz) * 4 = 48MHz
+       MSEL = 3 (this is pre-decremented), PSEL = 1 (for P = 2)
+       FCLKOUT = FCLKIN * (MSEL + 1) = 12MHz * 4 = 48MHz
+       FCCO = FCLKOUT * 2 * P = 48MHz * 2 * 2 = 192MHz (within FCCO range) */
+    LPC_SYSCON->USBPLLCTRL = (0x3 | (1UL << 6));
+
+    /* Powerup USB PLL */  
+    LPC_SYSCON->PDRUNCFG &= ~(CLK_USB);
+
+    /* Wait for PLL to lock */
+    while(!(LPC_SYSCON->USBPLLSTAT & 0x01));
+
+    /* enable USB main clock */
+    LPC_SYSCON->USBCLKSEL = 0x02;
+    LPC_SYSCON->USBCLKDIV = 1;
+
+    /* Enable AHB clock to the USB block. */
+    LPC_SYSCON->SYSAHBCLKCTRL1 |= CLK_USB;
+
+    /* power UP USB Phy */
+    LPC_SYSCON->PDRUNCFG &= ~(1UL << 9);
+
+    /* Reset USB block */
+    LPC_SYSCON->PRESETCTRL1 |= (CLK_USB);
+    LPC_SYSCON->PRESETCTRL1 &= ~(CLK_USB);
+
+#else
     #if defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
     // USB_VBUS input with pull-down
     LPC_IOCON->PIO0_3 = 0x00000009;
@@ -158,7 +201,7 @@ USBHAL::USBHAL(void) {
 
     // Ensure device disconnected (DCON not set)
     LPC_USB->DEVCMDSTAT = 0;
-
+#endif
     // to ensure that the USB host sees the device as
     // disconnected if the target CPU is reset.
     wait(0.3);

@@ -474,7 +474,7 @@ static void power_up_config(uint32_t val)
  */
 void SystemInit (void) {
 #if (CLOCK_SETUP)
-  volatile uint32_t i, tmp;
+  volatile uint32_t i;
 #endif
   LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
   LPC_SYSCON->SYSPLLCTRL    = SYSPLLCTRL_Val;
