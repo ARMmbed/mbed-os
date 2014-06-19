@@ -42,6 +42,7 @@ Wiring:
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
+      * LPC1549: (D2 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
       * NUCLEO_F103RB: (PC_6 <-> PB_8)
