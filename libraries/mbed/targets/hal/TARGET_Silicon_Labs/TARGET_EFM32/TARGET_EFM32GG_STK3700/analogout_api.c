@@ -13,48 +13,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
 #include "em_dac.h"
 #include "em_cmu.h"
 #include "analogout_api.h"
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 
 
 void analogout_init(dac_t *obj, PinName pin) {
+    static bool initialized = false;
 
-    /* Use default settings */
-    DAC_Init_TypeDef        init        = DAC_INIT_DEFAULT;
-    DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    obj->dac = (DACName) pinmap_peripheral(pin, PinMap_DAC);
+    MBED_ASSERT(obj->dac != (DACName)NC);
+
+
+    int channel = 0;
+    //There are two channels, 0 and 1, mapped to PB11 and PB12, respectively.
+    switch(obj->dac){
+        case DAC0_CH0:
+            channel = 0;
+            break;
+        case DAC0_CH1:
+            channel = 1;
+            break;
+    }
+
 
     /* Enable the DAC clock */
     CMU_ClockEnable(cmuClock_DAC0, true);
 
-    /* Calculate the DAC clock prescaler value that will result in a DAC clock
-     * close to 500kHz. Second parameter is zero, if the HFPERCLK value is 0, the
-     * function will check what the current value actually is. */
-    init.prescale = DAC_PrescaleCalc(500000, 0);
+    if(!initialized){
+        // Initialize the DAC. Will disable both DAC channels, so should only be done once  
 
-    /* Set reference voltage to VDD */
-    init.reference = dacRefVDD;
+        /* Use default settings */
+        DAC_Init_TypeDef        init        = DAC_INIT_DEFAULT;
 
-    /* Initialize the DAC and DAC channel. */
-    //TODO: Change from DAC0
-    DAC_Init(DAC0, &init);
-    DAC_InitChannel(DAC0, &initChannel, 0);
+        /* Calculate the DAC clock prescaler value that will result in a DAC clock
+         * close to 500kHz. Second parameter is zero, if the HFPERCLK value is 0, the
+         * function will check what the current value actually is. */
+        init.prescale = DAC_PrescaleCalc(500000, 0);
 
+        /* Set reference voltage to VDD */
+        init.reference = dacRefVDD;
 
-    DAC_Enable(DAC0, 0, true);
+        DAC_Init(DAC0, &init);
+        initialized = true;
+    }
+
+    //Use default channel settings
+    DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    DAC_InitChannel(DAC0, &initChannel, channel);
+
+    DAC_Enable(DAC0, channel, true);
 }
 
-void analogout_free(dac_t *obj) {}
+void analogout_free(dac_t *obj) {/*TODO Should something be done? Diable clocks etc? PS: Make sure it's the last object*/}
 
 static inline void dac_write(dac_t *obj, int value) {
-    DAC0->CH0DATA = value;
+    switch(obj->dac){
+        case DAC0_CH0:
+            DAC0->CH0DATA = value;
+            break;
+        case DAC0_CH1:
+            DAC0->CH1DATA = value;
+            break;
+    }
 }
 
 static inline int dac_read(dac_t *obj) {
-    return DAC0->CH0DATA;
+    switch(obj->dac){
+        case DAC0_CH0:
+            return DAC0->CH0DATA;
+            break;
+        case DAC0_CH1:
+            return DAC0->CH1DATA;
+            break;
+        default:
+            return -1;//TODO: Exception?
+    }
 }
 
 void analogout_write(dac_t *obj, float value) {

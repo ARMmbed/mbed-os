@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+ 
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
 
-#include "em_dac.h"
+#include "pinmap.h"
+#include "PeripheralNames.h"
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum {
-    DAC0_CH0,
-    DAC0_CH1,
-} DACName;
-
-#ifdef __cplusplus
-}
-#endif
+/************DAC***************/
+extern const PinMap PinMap_DAC[];
 
 #endif
