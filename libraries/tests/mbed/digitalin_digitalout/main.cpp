@@ -4,6 +4,12 @@
 DigitalOut out(dp1);
 DigitalIn   in(dp2);
 
+#elif defined(TARGET_LPC1549)
+// TARGET_FF_ARDUINO cannot be used, because D0 is used as USBRX (USB serial
+// port pin), D1 is used as USBTX
+DigitalOut out(D7);
+DigitalIn  in(D2);
+
 #elif defined(TARGET_NUCLEO_F103RB)
 DigitalOut out(PC_6);
 DigitalIn   in(PB_8);

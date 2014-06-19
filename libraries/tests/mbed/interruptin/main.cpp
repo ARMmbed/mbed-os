@@ -25,6 +25,12 @@ void in_handler() {
 #define PIN_OUT     dp1
 #define PIN_IN      dp2
 
+#elif defined(TARGET_LPC1549)
+// TARGET_FF_ARDUINO cannot be used, because D0 is used as USBRX (USB serial
+// port pin), D1 is used as USBTX
+#define PIN_OUT     D2
+#define PIN_IN      D7
+
 #elif defined(TARGET_LPC4088)
 #define PIN_IN      (p11)
 #define PIN_OUT     (p12)
