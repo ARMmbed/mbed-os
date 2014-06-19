@@ -55,6 +55,7 @@ Wiring:
 
   * analog_loop (AnalogIn, AnalogOut):
       * Arduino headers: (A0 <-> A5)
+      * LPC1549: (A0 <-> D12)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
@@ -127,7 +128,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
