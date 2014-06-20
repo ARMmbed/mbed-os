@@ -76,7 +76,12 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
-            ('uvision', 'LPC1768'), ('uvision', 'LPC11U24'), ('uvision', 'KL25Z'), ('uvision', 'LPC1347'), ('uvision', 'LPC1114'), ('uvision', 'LPC4088'),
+            ('uvision', 'LPC1768'),
+            ('uvision', 'LPC11U24'),
+            ('uvision', 'KL25Z'),
+            ('uvision', 'LPC1347'),
+            ('uvision', 'LPC1114'),
+            ('uvision', 'LPC4088'),
 
             ('uvision', 'NUCLEO_F030R8'),
             ('uvision', 'NUCLEO_F072RB'),
@@ -87,11 +92,14 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_L053R8'),
             ('uvision', 'NUCLEO_L152RE'),
 
-            ('lpcxpresso', 'LPC1768'), ('lpcxpresso', 'LPC4088'),('lpcxpresso', 'LPC1114'),
+            ('lpcxpresso', 'LPC1768'),
+            ('lpcxpresso', 'LPC4088'),
+            ('lpcxpresso', 'LPC1114'),
             ('lpcxpresso', 'LPC11U35_401'),
             ('lpcxpresso', 'LPC11U35_501'),
-			('lpcxpresso', 'LPC1549'),
-			('lpcxpresso', 'LPC11U68'),
+            ('lpcxpresso', 'LPCCAPPUCCINO'),
+            ('lpcxpresso', 'LPC1549'),
+            ('lpcxpresso', 'LPC11U68'),
             # Linux path: /home/emimon01/bin/gcc-cs/bin/
             # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"
             ('codesourcery', 'LPC1768'),
@@ -103,6 +111,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC1114'),
             ('gcc_arm', 'LPC11U35_401'),
             ('gcc_arm', 'LPC11U35_501'),
+            ('gcc_arm', 'LPCCAPPUCCINO'),
             ('gcc_arm', 'LPC2368'),
 
             ('gcc_arm', 'STM32F407'),
