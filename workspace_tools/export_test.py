@@ -83,6 +83,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F103RB'),
             ('uvision', 'NUCLEO_F302R8'),
             ('uvision', 'NUCLEO_F401RE'),
+            ('uvision', 'NUCLEO_F411RE'),
             ('uvision', 'NUCLEO_L053R8'),
             ('uvision', 'NUCLEO_L152RE'),
 
