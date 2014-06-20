@@ -42,7 +42,7 @@ NXP:
 * [DipCortex-M0](https://mbed.org/platforms/DipCortex-M0/) (Cortex-M0)
 * [DipCortex-M3](https://mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
 * [BlueBoard-LPC11U24](https://mbed.org/platforms/BlueBoard-LPC11U24/) (Cortex-M0)
-* [LPCCAPPUCCINO] (Cortex-M0)
+* LPCCAPPUCCINO (Cortex-M0)
 
 Freescale:
 * FRDM-K20D50M (Cortex-M4)
