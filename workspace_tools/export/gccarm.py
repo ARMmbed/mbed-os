@@ -24,6 +24,7 @@ class GccArm(Exporter):
 
     TARGETS = [
         'LPC1768',
+        'LPC1549',
         'KL05Z',
         'KL25Z',
         'KL46Z',
