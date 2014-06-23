@@ -607,7 +607,7 @@ if __name__ == '__main__':
                       dest='test_x_toolchain_summary',
                       default=False,
                       action="store_true",
-                      help='Dsiplays wellformatted tablew ith test x toolchain test result per target')
+                      help='Displays wellformatted table with test x toolchain test result per target')
 
 
     parser.add_option('-r', '--test-automation-report',
@@ -642,7 +642,7 @@ if __name__ == '__main__':
                       dest='verbose',
                       default=False,
                       action="store_true",
-                      help='Verbose mode (pronts some extra information)')
+                      help='Verbose mode (prints some extra information)')
 
     parser.description = """This script allows you to run mbed defined test cases for particular MCU(s) and corresponding toolchain(s)."""
     parser.epilog = """Example: singletest.py -i test_spec.json -M muts_all.json"""
