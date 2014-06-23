@@ -20,6 +20,7 @@ from serial import Serial
 from time import sleep
 from sys import stdout
 
+
 class Mbed:
     """
     Base class for a host driven test
@@ -64,8 +65,30 @@ class Mbed:
             self.extra_serial.setBaudrate(extra_baud)
         self.flush()
 
+    def safe_sendBreak(self, serial):
+        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
+        Traceback (most recent call last):
+          File "make.py", line 189, in <module>
+            serial.sendBreak()
+          File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
+            termios.tcsendbreak(self.fd, int(duration/0.25))
+        error: (32, 'Broken pipe')
+        """
+        result = True
+        try:
+            serial.sendBreak()
+        except:
+            # In linux a termios.error is raised in sendBreak and in setBreak.
+            # The following setBreak() is needed to release the reset signal on the target mcu.
+            try:
+                serial.setBreak(False)
+            except:
+                result = False
+                pass
+        return result
+
     def reset(self):
-        self.serial.sendBreak()
+        self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
         # Give time to wait for the image loading
         sleep(2)
 
