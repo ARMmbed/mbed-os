@@ -15,8 +15,7 @@
  */
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
-
-#include "em_dac.h"
+#include "em_adc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +25,17 @@ typedef enum {
     DAC0_CH0,
     DAC0_CH1,
 } DACName;
+
+typedef enum {
+    ADC0_PD0 = _ADC_SINGLECTRL_INPUTSEL_CH0,
+    ADC0_PD1 = _ADC_SINGLECTRL_INPUTSEL_CH1,
+    ADC0_PD2 = _ADC_SINGLECTRL_INPUTSEL_CH2,
+    ADC0_PD3 = _ADC_SINGLECTRL_INPUTSEL_CH3,
+    ADC0_PD4 = _ADC_SINGLECTRL_INPUTSEL_CH4,
+    ADC0_PD5 = _ADC_SINGLECTRL_INPUTSEL_CH5,
+    ADC0_PD6 = _ADC_SINGLECTRL_INPUTSEL_CH6,
+    ADC0_PD7 = _ADC_SINGLECTRL_INPUTSEL_CH7
+} ADCName;
 
 #ifdef __cplusplus
 }

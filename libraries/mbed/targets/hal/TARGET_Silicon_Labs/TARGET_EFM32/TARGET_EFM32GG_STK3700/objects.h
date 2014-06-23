@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+struct analogin_s {
+    ADCName adc_input;
+};
+
 struct dac_s {
     DACName dac;
 };

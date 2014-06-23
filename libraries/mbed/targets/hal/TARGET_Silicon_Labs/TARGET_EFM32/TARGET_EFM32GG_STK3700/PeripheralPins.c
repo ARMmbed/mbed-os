@@ -16,9 +16,23 @@
 
 #include "PeripheralPins.h"
 
+/************ADC***************/
+const PinMap PinMap_ADC[] = {
+    {PD_0, ADC0_PD0, 0},
+    {PD_1, ADC0_PD1, 0},
+    {PD_2, ADC0_PD2, 0},
+    {PD_3, ADC0_PD3, 0},
+    {PD_4, ADC0_PD4, 0},
+    {PD_5, ADC0_PD5, 0},
+    {PD_6, ADC0_PD6, 0},
+    {PD_7, ADC0_PD7, 0},
+    {NC  , NC   , 0}
+};
+
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
     {PB_11, DAC0_CH0, 0},
     {PB_12, DAC0_CH1, 0},
     {NC  , NC   , 0}
 };
+
