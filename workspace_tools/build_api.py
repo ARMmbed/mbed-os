@@ -140,10 +140,11 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
 
 # We do have unique legacy conventions about how we build and package the mbed library
 def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None):
+    """ Function returns True is library was built and false if building was skipped """
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
         print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
-        return
+        return False
 
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
@@ -203,7 +204,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
     for o in separate_objects:
         toolchain.copy_files(o, BUILD_TOOLCHAIN)
-
+    return True
 
 def get_unique_supported_toolchains():
     """ Get list of all unique toolchains supported by targets """
@@ -437,3 +438,11 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     if verbose:
         print _stdout
     print _stderr
+
+
+def print_build_results(result_list, build_name):
+    result = ""
+    if result_list:
+        result += build_name + "\n"
+        result += "\n".join(["  * %s" % f for f in result_list])
+    return result
