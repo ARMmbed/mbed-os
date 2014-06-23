@@ -15,30 +15,46 @@
  */
 #include "gpio_api.h"
 #include "pinmap.h"
+#include "em_cmu.h"
+#include "mbed_assert.h"
 
+/*
+ * @return the GPIO port mask for this pin
+ * Pin and port index encoded in one uint32.
+ * First four bits represent the pin number
+ * The remaining bits represent the pin mode
+ */
 uint32_t gpio_set(PinName pin) {
-        return 1 << ((uint32_t) pin & 0xF);
+    return 1 << ((uint32_t) pin & 0xF);
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-        if(pin == NC) return;
+    MBED_ASSERT(pin != NC);
 
-        //Enable GPIO clock TODO: Use static var to ensure only one call?
-        CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_GPIO;
+    //Enable GPIO clock
+    CMU_ClockEnable(cmuClock_GPIO, true);
 
-
-        obj->pin = pin;
-        obj->mask = gpio_set(pin);
-        obj->port = pin >> 4;
+    obj->pin = pin;
+    obj->mask = gpio_set(pin);
+    obj->port = pin >> 4;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-		obj->mode = mode;
-        pin_mode(obj->pin, mode);
+    obj->mode = mode; // Update object
+    pin_mode(obj->pin, mode); // Update register
 }
 
+// Used by DigitalInOut to set correct mode when direction is set
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-        obj->dir = direction;
+    obj->dir = direction;
+    switch (direction) {
+    case PIN_INPUT :
+        gpio_mode(obj, PullDefault);
+        break;
+    case PIN_OUTPUT :
+        gpio_mode(obj, PullNone);
+        break;
+    }
 }
 
 

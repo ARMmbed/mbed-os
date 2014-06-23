@@ -15,44 +15,26 @@
  */
 #include "pinmap.h"
 #include "error.h"
+#include "em_gpio.h"
+#include "mbed_assert.h"
 
-/**
- * Set the pin into input, output, alternate function or analog mode
- */
-void pin_function(PinName pin, int data) {
-     pin_mode(pin, (PinMode) data);
+void pin_function(PinName pin, int function) {
+
 }
 
 void pin_mode(PinName pin, PinMode mode) {
-    if (pin == (uint32_t)NC) { return; }
+    MBED_ASSERT(pin != NC);
 
+    /* Pin and port index encoded in one uint32.
+     * First four bits represent the pin number
+     * The remaining bits represent the pin mode */
     uint32_t pin_number = (uint32_t)pin;
-    int port_index = pin_number >> 4;
     int pin_index = (pin_number & 0xF);
-    int offset = pin_index * 4;
+    int port_index = pin_number >> 4;
 
-    if(pin_index >= 8)
-       offset = (pin_index - 8) * 4;
 
-  if (pin_index < 8)
-  {
-    GPIO->P[port_index].MODEL = (GPIO->P[port_index].MODEL & ~(0xF << offset)) 
-                              | ((((uint32_t)mode) & 0xF) << offset);
-  }
-  else
-  {
-    GPIO->P[port_index].MODEH = (GPIO->P[port_index].MODEH & ~(0xF << offset)) 
-                              | ((((uint32_t)mode) & 0xF) << offset);
-  }
-
-  if(mode & 0x20)
-  {
-	  if(mode & 0x10){
-		  GPIO->P[port_index].DOUTSET = 1 << pin_index;
-	  }else{
-		  GPIO->P[port_index].DOUTCLR = 1 << pin_index;
-	  }
-  }
-
+    /* Value of DOUT encoded in mode at position 0x10 */
+    unsigned int dout = mode & 0x10;
+    GPIO_PinModeSet(port_index, pin_index, mode & 0xF, dout);
 }
 

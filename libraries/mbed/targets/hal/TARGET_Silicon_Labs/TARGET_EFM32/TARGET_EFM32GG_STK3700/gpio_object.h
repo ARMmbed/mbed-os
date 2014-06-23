@@ -16,6 +16,8 @@
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
+#include "em_gpio.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,21 +25,21 @@ extern "C" {
 typedef struct {
     PinName  pin;
     uint32_t mask;
-    uint32_t port;
-    uint32_t mode;
+    GPIO_Port_TypeDef port;
+    PinMode mode;
     uint32_t dir;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-
-  if (value)
-    GPIO->P[obj->port].DOUTSET = obj->mask;
-  else
-    GPIO->P[obj->port].DOUTCLR = obj->mask;
+    if (value)
+        GPIO_PinOutSet(obj->port, obj->pin & 0xF);
+    else
+        GPIO_PinOutClear(obj->port, obj->pin & 0xF);
 }
 
 static inline int gpio_read(gpio_t *obj) {
-	return ((GPIO->P[obj->port].DIN & obj->mask) ? 1 : 0);
+    // Read values from single GPIO pin
+    return GPIO_PinInGet(obj->port, obj->pin & 0xF);
 }
 
 #ifdef __cplusplus
