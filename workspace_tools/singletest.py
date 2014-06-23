@@ -253,7 +253,6 @@ class SingleTestRunner(object):
 
         # Host test execution
         start_host_exec_time = time()
-        #test_result = self.run_simple_test(target_name, port, duration, verbose=opts.verbose)
         test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
         elapsed_time = time() - start_host_exec_time
         print print_test_result(test_result, target_name, toolchain_name,
@@ -307,24 +306,6 @@ def flush_serial(serial):
     """ Flushing serial in/out. """
     serial.flushInput()
     serial.flushOutput()
-
-
-def reset(mcu_name, serial, verbose=False, sleep_before_reset=0, sleep_after_reset=0):
-    """
-    Functions resets target using various methods (e.g. serial break)
-    depending on target type.
-    """
-    if sleep_before_reset > 0:
-        sleep(sleep_before_reset)
-    if verbose:
-        verbose_msg = "Reset::cmd(sendBreak)"
-
-    serial.sendBreak()
-
-    if sleep_before_reset > 0:
-        sleep(sleep_after_reset)
-    if verbose:
-        print verbose_msg
 
 
 def is_peripherals_available(target_mcu_name, peripherals=None):
