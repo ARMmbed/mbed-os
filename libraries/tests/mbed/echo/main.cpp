@@ -5,6 +5,9 @@
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
+    defined(TARGET_NUCLEO_F072RB) || \
+    defined(TARGET_NUCLEO_F334R8) || \
     defined(TARGET_NUCLEO_L053R8)
 #define TXPIN     STDIO_UART_TX
 #define RXPIN     STDIO_UART_RX

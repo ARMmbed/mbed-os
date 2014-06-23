@@ -16,6 +16,9 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
+    defined(TARGET_NUCLEO_F072RB) || \
+    defined(TARGET_NUCLEO_F334R8) || \
     defined(TARGET_NUCLEO_L053R8)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
