@@ -18,7 +18,6 @@
 
 #include "em_dac.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

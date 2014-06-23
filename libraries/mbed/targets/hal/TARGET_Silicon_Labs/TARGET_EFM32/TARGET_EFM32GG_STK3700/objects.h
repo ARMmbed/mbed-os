@@ -27,7 +27,6 @@ struct dac_s {
     DACName dac;
 };
 
-
 #include "gpio_object.h"
 
 #ifdef __cplusplus
