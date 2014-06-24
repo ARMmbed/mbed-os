@@ -31,15 +31,19 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    if (value)
-        GPIO_PinOutSet(obj->port, obj->pin & 0xF);
-    else
+    if (value){
+        GPIO_PinOutSet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+    }else{
         GPIO_PinOutClear(obj->port, obj->pin & 0xF);
+    }
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    // Read values from single GPIO pin
-    return GPIO_PinInGet(obj->port, obj->pin & 0xF);
+    if(obj->dir == PIN_INPUT){
+        return GPIO_PinInGet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+    }else{
+        return GPIO_PinOutGet(obj->port, obj->pin & 0xF);
+    }
 }
 
 #ifdef __cplusplus

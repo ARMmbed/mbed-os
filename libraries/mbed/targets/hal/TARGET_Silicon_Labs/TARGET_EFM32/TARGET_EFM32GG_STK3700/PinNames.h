@@ -24,8 +24,8 @@ extern "C" {
 #endif
 
 typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
+    PIN_INPUT = 0,
+    PIN_OUTPUT = 1
 } PinDirection;
 
 typedef enum {
