@@ -365,6 +365,22 @@ class NUCLEO_F302R8(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
+class NUCLEO_F334R8(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M4F"
+
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
+
+        self.supported_toolchains = ["ARM", "uARM"]
+
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+
+
 class NUCLEO_F401RE(Target):
     ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
@@ -693,6 +709,7 @@ TARGETS = [
     NUCLEO_F072RB(),
     NUCLEO_F103RB(),
     NUCLEO_F302R8(),
+    NUCLEO_F334R8(),
     NUCLEO_F401RE(),
     NUCLEO_F411RE(),
     NUCLEO_L053R8(),
