@@ -186,7 +186,15 @@ if __name__ == '__main__':
             serial.flushInput()
             serial.flushOutput()
 
-            serial.sendBreak()
+            try:
+                serial.sendBreak()
+            except:
+                # In linux a termios.error is raised in sendBreak and in setBreak.
+                # The following setBreak() is needed to release the reset signal on the target mcu.
+                try:
+                    serial.setBreak(False)
+                except:
+                    pass
 
             while True:
                 c = serial.read(512)
