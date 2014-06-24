@@ -109,11 +109,15 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0f) {
         value = 1.0;
     }
-    
+
     timer_mr tid = pwm_timer_map[obj->pwm];
     LPC_TMR_TypeDef *timer = Timers[tid.timer];
     uint32_t t_off = timer->MR3 - (uint32_t)((float)(timer->MR3) * value);
-    
+    // to avoid spike pulse when duty is 0%
+    if (value == 0) {
+        t_off++;
+    }
+
     timer->TCR = TCR_RESET;
     timer->MR[tid.mr] = t_off;
     timer->TCR = TCR_CNT_EN;
@@ -124,6 +128,9 @@ float pwmout_read(pwmout_t* obj) {
     LPC_TMR_TypeDef *timer = Timers[tid.timer];
     
     float v = (float)(timer->MR3 - timer->MR[tid.mr]) / (float)(timer->MR3);
+    if (timer->MR[tid.mr] > timer->MR3) {
+        v = 0.0f;
+    }
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
