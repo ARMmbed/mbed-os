@@ -303,7 +303,6 @@ class STM32F407(Target):
 
 class NUCLEO_F030R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -319,7 +318,6 @@ class NUCLEO_F030R8(Target):
 
 class NUCLEO_F072RB(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -335,7 +333,6 @@ class NUCLEO_F072RB(Target):
 
 class NUCLEO_F103RB(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -351,7 +348,6 @@ class NUCLEO_F103RB(Target):
 
 class NUCLEO_F302R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -367,7 +363,6 @@ class NUCLEO_F302R8(Target):
 
 class NUCLEO_F334R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -383,7 +378,6 @@ class NUCLEO_F334R8(Target):
 
 class NUCLEO_F401RE(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -399,7 +393,6 @@ class NUCLEO_F401RE(Target):
 
 class NUCLEO_F411RE(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -415,7 +408,6 @@ class NUCLEO_F411RE(Target):
 
 class NUCLEO_L053R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -431,7 +423,6 @@ class NUCLEO_L053R8(Target):
 
 class NUCLEO_L152RE(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -447,7 +438,6 @@ class NUCLEO_L152RE(Target):
 
 class STM32F3XX(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -613,7 +603,6 @@ class LPC11U68(Target):
 
 class DISCO_F100RB(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -627,7 +616,6 @@ class DISCO_F100RB(Target):
 
 class DISCO_F051R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -641,7 +629,6 @@ class DISCO_F051R8(Target):
 
 class DISCO_F407VG(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
@@ -655,7 +642,6 @@ class DISCO_F407VG(Target):
 
 class DISCO_F303VC(Target):
     ONLINE_TOOLCHAIN = "uARM"
-    OUTPUT_NAMING = "8.3"
 
     def __init__(self):
         Target.__init__(self)
