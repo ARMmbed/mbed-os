@@ -67,14 +67,12 @@ static void tim_oc_irq_handler(void) {
     if (oc_rem_part > 0) {
         set_compare(oc_rem_part); // Finish the remaining time left
         oc_rem_part = 0;
-    }
-    else {
+    } else {
         if (oc_int_part > 0) {
             set_compare(0xFFFF);
             oc_rem_part = cval; // To finish the counter loop the next time
             oc_int_part--;
-        }
-        else {
+        } else {
             us_ticker_irq_handler();
         }
     }
@@ -139,8 +137,7 @@ void us_ticker_set_interrupt(unsigned int timestamp) {
 
     if (delta <= 0) { // This event was in the past
         us_ticker_irq_handler();
-    }
-    else {
+    } else {
         oc_int_part = (uint32_t)(delta >> 16);
         oc_rem_part = (uint16_t)(delta & 0xFFFF);
         if (oc_rem_part <= (0xFFFF - cval)) {

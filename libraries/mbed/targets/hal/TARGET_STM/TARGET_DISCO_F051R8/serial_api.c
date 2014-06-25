@@ -29,19 +29,25 @@
  */
 #include "mbed_assert.h"
 #include "serial_api.h"
+
+#if DEVICE_SERIAL
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
     {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PB_6,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_0)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
     {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PA_15, UART_2, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_1)},
+    {PB_7,  UART_1, STM_PIN_DATA(GPIO_Mode_AF, GPIO_OType_PP, GPIO_PuPd_UP, GPIO_AF_0)},
     {NC,    NC,     0}
 };
 
@@ -83,9 +89,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Enable USART clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+        obj->index = 0;
     }
     if (obj->uart == UART_2) {
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+        obj->index = 1;
     }
             
     // Configure the UART pins
@@ -100,11 +108,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->stopbits = USART_StopBits_1;
     obj->parity = USART_Parity_No;
 
-    init_usart(obj);
+    obj->pin_tx = tx;
+    obj->pin_rx = rx;
 
-    // The index is used by irq
-    if (obj->uart == UART_1) obj->index = 0;
-    if (obj->uart == UART_2) obj->index = 1;
+    init_usart(obj);
     
     // For stdio management
     if (obj->uart == STDIO_UART) {
@@ -115,6 +122,22 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
+    // Reset UART and disable clock
+    if (obj->uart == UART_1) {
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, DISABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+    }
+    if (obj->uart == UART_2) {
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, DISABLE);
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, DISABLE);
+    }
+
+    // Configure GPIOs
+    pin_function(obj->pin_tx, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+    pin_function(obj->pin_rx, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+
     serial_irq_ids[obj->index] = 0;
 }
 
@@ -126,8 +149,7 @@ void serial_baud(serial_t *obj, int baudrate) {
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
     if (data_bits == 8) {
         obj->databits = USART_WordLength_8b;
-    }
-    else {
+    } else {
         obj->databits = USART_WordLength_9b;
     }
 
@@ -147,8 +169,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     
     if (stop_bits == 2) {
         obj->stopbits = USART_StopBits_2;
-    }
-    else {
+    } else {
         obj->stopbits = USART_StopBits_1;
     }
 
@@ -173,8 +194,12 @@ static void uart_irq(USART_TypeDef* usart, int id) {
     }
 }
 
-static void uart1_irq(void) {uart_irq((USART_TypeDef*)UART_1, 0);}
-static void uart2_irq(void) {uart_irq((USART_TypeDef*)UART_2, 1);}
+static void uart1_irq(void) {
+    uart_irq((USART_TypeDef*)UART_1, 0);
+}
+static void uart2_irq(void) {
+    uart_irq((USART_TypeDef*)UART_2, 1);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -200,8 +225,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
       
         if (irq == RxIrq) {
             USART_ITConfig(usart, USART_IT_RXNE, ENABLE);
-        }
-        else { // TxIrq
+        } else { // TxIrq
             USART_ITConfig(usart, USART_IT_TC, ENABLE);
         }
         
@@ -216,8 +240,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
             USART_ITConfig(usart, USART_IT_RXNE, DISABLE);
             // Check if TxIrq is disabled too
             if ((usart->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
-        }
-        else { // TxIrq
+        } else { // TxIrq
             USART_ITConfig(usart, USART_IT_TXE, DISABLE);
             // Check if RxIrq is disabled too
             if ((usart->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
@@ -275,3 +298,5 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
 }
+
+#endif
