@@ -31,6 +31,12 @@ struct dac_s {
     DACName dac;
 };
 
+struct pwmout_s {
+    //The period of the pulse in clock cycles
+    uint32_t period_cycles;
+    //The width of the pulse in clock cycles
+    uint32_t width_cycles;
+};
 #include "gpio_object.h"
 
 #ifdef __cplusplus

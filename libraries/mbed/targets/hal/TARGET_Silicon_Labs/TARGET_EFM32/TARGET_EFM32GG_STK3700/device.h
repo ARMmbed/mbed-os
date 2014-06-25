@@ -39,7 +39,7 @@
 
 #define DEVICE_ETHERNET         0
 
-#define DEVICE_PWMOUT           0
+#define DEVICE_PWMOUT           1
 
 #define DEVICE_SLEEP            1
 
