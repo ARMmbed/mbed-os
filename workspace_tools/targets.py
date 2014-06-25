@@ -669,9 +669,17 @@ class XADOW_M0(LPC11U35_501):
     def __init__(self):
         LPC11U35_501.__init__(self)
 
+        self.extra_labels.append('LPC11U35_501')
+
+        self.macros = ['TARGET_LPC11U35_501']
+
 class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
+
+        self.extra_labels.append('NRF51822')
+
+        self.macros = ['TARGET_NRF51822']
 
 class ARCH_PRO(Target):
     def __init__(self):
