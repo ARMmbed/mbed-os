@@ -28,11 +28,12 @@
  *******************************************************************************
  */
 #include "port_api.h"
+
+#if DEVICE_PORTIN || DEVICE_PORTOUT
+
 #include "pinmap.h"
 #include "gpio_api.h"
 #include "error.h"
-
-#if DEVICE_PORTIN || DEVICE_PORTOUT
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 

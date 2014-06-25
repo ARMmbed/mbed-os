@@ -141,7 +141,7 @@
   * @{
   */
 
-uint32_t SystemCoreClock = 72000000; /* Default with HSI. Will be updated if HSE is used */
+uint32_t SystemCoreClock = 64000000; /* Default with HSI. Will be updated if HSE is used */
 
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
@@ -152,8 +152,6 @@ __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9}
 /** @addtogroup STM32F30x_System_Private_FunctionPrototypes
   * @{
   */
-
-void SetSysClock(void);
 
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
@@ -208,9 +206,6 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
 
-  /* Configure the System clock source, PLL Multiplier and Divider factors, 
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
@@ -218,6 +213,9 @@ void SystemInit(void)
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
+  /* Configure the System clock source, PLL Multiplier and Divider factors,
+     AHB/APBx prescalers and Flash settings */
+  SetSysClock();
 }
 
 /**
@@ -344,7 +342,7 @@ void SetSysClock(void)
   GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;  
   GPIO_Init(GPIOA, &GPIO_InitStructure);
   // Select the clock to output
-  RCC_MCOConfig(RCC_MCOSource_SYSCLK);
+  RCC_MCOConfig(RCC_MCOSource_SYSCLK, RCC_MCOPrescaler_1);
   */
 }
 

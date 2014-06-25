@@ -122,13 +122,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->cpha = SPI_CPHA_1Edge;
     obj->br_presc = SPI_BaudRatePrescaler_256;
     
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     if (ssel == NC) { // Master
         obj->mode = SPI_Mode_Master;
         obj->nss = SPI_NSS_Soft;
     } else { // Slave
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         obj->mode = SPI_Mode_Slave;
-        obj->nss = SPI_NSS_Soft;
+        obj->nss = SPI_NSS_Hard;
     }
 
     init_spi(obj);
@@ -141,10 +146,10 @@ void spi_free(spi_t *obj) {
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
-    if (bits == 8) {
-        obj->bits = SPI_DataSize_8b;
-    } else {
+    if (bits == 16) {
         obj->bits = SPI_DataSize_16b;
+    } else {
+        obj->bits = SPI_DataSize_8b;
     }
     
     switch (mode) {
@@ -248,7 +253,7 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    return ((ssp_readable(obj) && !ssp_busy(obj)) ? 1 : 0);
 };
 
 int spi_slave_read(spi_t *obj) {

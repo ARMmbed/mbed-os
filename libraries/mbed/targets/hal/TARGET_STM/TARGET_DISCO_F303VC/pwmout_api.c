@@ -27,11 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "mbed_assert.h"
 #include "pwmout_api.h"
+
+#if DEVICE_PWMOUT
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "error.h"
 
 // TIM2 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
@@ -272,3 +274,5 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);
 }
+
+#endif
