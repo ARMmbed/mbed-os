@@ -36,8 +36,16 @@
 static TIM_HandleTypeDef TimMasterHandle;
 
 void sleep(void) {
+    TimMasterHandle.Instance = TIM5;
+
+    // Disable HAL tick interrupt
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
 void deepsleep(void) {
