@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of ADC HAL extension module.
   ******************************************************************************
   * @attention
@@ -139,9 +139,9 @@ typedef struct
   */ 
 typedef struct 
 {
-  uint32_t Channel;        /*!< The ADC channel to configure 
+  uint32_t Channel;        /*!< The ADC channel to configure. 
                                 This parameter can be a value of @ref ADC_channels */
-  uint32_t Rank;           /*!< The rank in the regular group sequencer 
+  uint32_t Rank;           /*!< The rank in the regular group sequencer. 
                                 This parameter must be a number between Min_Data = 1 and Max_Data = 16 */
   uint32_t SamplingTime;   /*!< The sample time value to be set for the selected channel.
                                 This parameter can be a value of @ref ADC_sampling_times */
@@ -154,14 +154,14 @@ typedef struct
 typedef struct
 {
   uint32_t WatchdogMode;      /*!< Configures the ADC analog watchdog mode.
-                                   This parameter can be a value of @ref ADC_analog_watchdog_selection. */
+                                   This parameter can be a value of @ref ADC_analog_watchdog_selection */
   uint32_t HighThreshold;     /*!< Configures the ADC analog watchdog High threshold value.
                                    This parameter must be a 12-bit value. */     
   uint32_t LowThreshold;      /*!< Configures the ADC analog watchdog High threshold value.
                                    This parameter must be a 12-bit value. */
   uint32_t Channel;           /*!< Configures ADC channel for the analog watchdog. 
                                    This parameter has an effect only if watchdog mode is configured on single channel 
-                                   This parameter can be a value of @ref ADC_channels. */      
+                                   This parameter can be a value of @ref ADC_channels */      
   uint32_t ITMode;            /*!< Specifies whether the analog watchdog is configured
                                    is interrupt mode or in polling mode.
                                    This parameter can be set to ENABLE or DISABLE */
@@ -198,46 +198,6 @@ typedef struct
                                               ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV4) || \
                                               ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV6) || \
                                               ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV8))
-/**
-  * @}
-  */ 
-
-/** @defgroup ADC_delay_between_2_sampling_phases 
-  * @{
-  */ 
-#define ADC_TWOSAMPLINGDELAY_5CYCLES    ((uint32_t)0x00000000)
-#define ADC_TWOSAMPLINGDELAY_6CYCLES    ((uint32_t)ADC_CCR_DELAY_0)
-#define ADC_TWOSAMPLINGDELAY_7CYCLES    ((uint32_t)ADC_CCR_DELAY_1)
-#define ADC_TWOSAMPLINGDELAY_8CYCLES    ((uint32_t)(ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_9CYCLES    ((uint32_t)ADC_CCR_DELAY_2)
-#define ADC_TWOSAMPLINGDELAY_10CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_11CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_12CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_13CYCLES   ((uint32_t)ADC_CCR_DELAY_3)
-#define ADC_TWOSAMPLINGDELAY_14CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_15CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_16CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_17CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2))
-#define ADC_TWOSAMPLINGDELAY_18CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_19CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_20CYCLES   ((uint32_t)ADC_CCR_DELAY)
-
-#define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_8CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_9CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_10CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_11CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_12CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_13CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_14CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_15CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_16CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_17CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_18CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_19CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_20CYCLES))
 /**
   * @}
   */ 
@@ -538,6 +498,13 @@ typedef struct
   */ 
 
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset ADC handle state
+  * @param  __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
+
 /**
   * @brief  Enable the ADC peripheral.
   * @param  __HANDLE__: ADC handle

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
@@ -74,13 +74,13 @@ typedef enum
   */ 
 typedef struct
 {
-  uint32_t Prescaler;  /*!< Specifies the prescaler value of the WWDG.  
+  uint32_t Prescaler;  /*!< Specifies the prescaler.  
                             This parameter can be a value of @ref WWDG_Prescaler */
   
   uint32_t Window;     /*!< Specifies the WWDG window value to be compared to the downcounter.
                             This parameter must be a number lower than Max_Data = 0x80 */ 
   
-  uint32_t Counter;    /*!< Specifies the WWDG free-running downcounter  value.
+  uint32_t Counter;    /*!< Specifies the WWDG free-running downcounter value.
                             This parameter must be a number between Min_Data = 0x40 and Max_Data = 0x7F */                                    
 
 }WWDG_InitTypeDef;
@@ -101,10 +101,6 @@ typedef struct
 }WWDG_HandleTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup WWDG_Exported_Constants
-  * @{
-  */
 
 /** @defgroup WWDG_BitAddress_AliasRegion
   * @{
@@ -140,7 +136,7 @@ typedef struct
 /**
   * @}
   */
-        
+
 /** @defgroup WWDG_Prescaler 
   * @{
   */ 
@@ -152,7 +148,7 @@ typedef struct
 #define IS_WWDG_PRESCALER(PRESCALER) (((PRESCALER) == WWDG_PRESCALER_1) || \
                                       ((PRESCALER) == WWDG_PRESCALER_2) || \
                                       ((PRESCALER) == WWDG_PRESCALER_4) || \
-                                      ((PRESCALER) == WWDG_PRESCALER_8))                                     
+                                      ((PRESCALER) == WWDG_PRESCALER_8))
 
 /**
   * @}
@@ -176,11 +172,13 @@ typedef struct
   * @}
   */ 
 
-/**
-  * @}
-  */
-
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset WWDG handle state
+  * @param  __HANDLE__: WWDG handle
+  * @retval None
+  */
+#define __HAL_WWDG_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_WWDG_STATE_RESET)
 
 /**
   * @brief  Enables the WWDG peripheral.
@@ -216,7 +214,6 @@ typedef struct
   */
 #define __HAL_WWDG_ENABLE_IT(__INTERRUPT__) (*(__IO uint32_t *) CFR_BASE |= (__INTERRUPT__))
 
-    
 /* Exported functions --------------------------------------------------------*/
 
 /* Initialization/de-initialization functions  **********************************/

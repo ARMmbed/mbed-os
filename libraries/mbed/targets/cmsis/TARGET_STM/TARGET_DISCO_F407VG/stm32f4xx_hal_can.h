@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -152,7 +152,7 @@ typedef struct
   uint32_t FilterActivation;      /*!< Enable or disable the filter.
                                        This parameter can be set to ENABLE or DISABLE. */
                                        
-  uint32_t BankNumber;            /*!< Select the start slave bank filter
+  uint32_t BankNumber;            /*!< Select the start slave bank filter.
                                        This parameter must be a number between Min_Data = 0 and Max_Data = 28 */ 
   
 }CAN_FilterConfTypeDef;
@@ -578,6 +578,12 @@ typedef struct
   */
 
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset CAN handle state
+  * @param  __HANDLE__: specifies the CAN Handle.
+  * @retval None
+  */
+#define __HAL_CAN_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_CAN_STATE_RESET)
 
 /**
   * @brief  Enable the specified CAN interrupts.
