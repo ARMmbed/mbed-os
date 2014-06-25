@@ -27,7 +27,7 @@ void pin_mode(PinName pin, PinMode mode) {
 
     /* Pin and port index encoded in one uint32.
      * First four bits represent the pin number
-     * The remaining bits represent the pin mode */
+     * The remaining bits represent the port number */
     uint32_t pin_number = (uint32_t)pin;
     int pin_index = (pin_number & 0xF);
     int port_index = pin_number >> 4;
