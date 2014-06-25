@@ -76,7 +76,7 @@
   */
 
 #if !defined (STM32F030) && !defined (STM32F031) && !defined (STM32F051) && !defined (STM32F072) && !defined (STM32F042)
-#define STM32F030   
+  /* #define STM32F030 */   
   /* #define STM32F031 */   
    #define STM32F051
   /* #define STM32F072 */
