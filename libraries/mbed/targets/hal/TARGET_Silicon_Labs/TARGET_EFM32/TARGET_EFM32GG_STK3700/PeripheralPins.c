@@ -36,3 +36,10 @@ const PinMap PinMap_DAC[] = {
     {NC  , NC   , 0}
 };
 
+/************PWM***************/
+const PinMap PinMap_PWM[] = {
+    {PA_12, PWM_CH0, 0},
+    {PA_13, PWM_CH1, 0},
+    {PA_14, PWM_CH2, 0},
+    {NC  , NC   , 0}
+};

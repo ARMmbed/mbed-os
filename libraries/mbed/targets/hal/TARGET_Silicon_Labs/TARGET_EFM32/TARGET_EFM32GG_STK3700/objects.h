@@ -36,6 +36,8 @@ struct pwmout_s {
     uint32_t period_cycles;
     //The width of the pulse in clock cycles
     uint32_t width_cycles;
+    //Channel on TIMER2
+    uint32_t channel;
 };
 #include "gpio_object.h"
 

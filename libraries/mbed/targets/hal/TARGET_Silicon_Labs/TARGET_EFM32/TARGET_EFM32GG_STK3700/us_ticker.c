@@ -25,14 +25,14 @@
  */
 
 /* Using TIMER2 for lower timer */
-#define US_TIMER_L	TIMER2
-#define US_TIMER_L_IRQn	TIMER2_IRQn
-#define US_TIMER_L_CLOCK cmuClock_TIMER2
+#define US_TIMER_L	TIMER0
+#define US_TIMER_L_IRQn	TIMER0_IRQn
+#define US_TIMER_L_CLOCK cmuClock_TIMER0
 
 /* Using TIMER3 for upper timer */
-#define US_TIMER_H	TIMER3
-#define US_TIMER_H_IRQn	TIMER3_IRQn
-#define US_TIMER_H_CLOCK cmuClock_TIMER3
+#define US_TIMER_H	TIMER1
+#define US_TIMER_H_IRQn	TIMER1_IRQn
+#define US_TIMER_H_CLOCK cmuClock_TIMER1
 
 static int us_ticker_inited = 0;	// Is ticker initialized yet
 static int lowerOnly = 0;			// Status bit for last interrupt on lower timer

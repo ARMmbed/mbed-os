@@ -37,6 +37,11 @@ typedef enum {
     ADC0_PD7 = _ADC_SINGLECTRL_INPUTSEL_CH7
 } ADCName;
 
+typedef enum {
+    PWM_CH0 = 0,
+    PWM_CH1 = 1,
+    PWM_CH2 = 2,
+} PWMName;
 #ifdef __cplusplus
 }
 #endif
