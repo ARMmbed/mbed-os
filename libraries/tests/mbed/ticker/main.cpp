@@ -34,8 +34,8 @@ void flip_2() {
 int main() {
     led1 = 0;
     led2 = 0;
-    flipper_1.attach(&flip_1, 0.5); // the address of the function to be attached (flip) and the interval (1 second)
-    flipper_2.attach(&flip_2, 0.5); // the address of the function to be attached (flip) and the interval (2 seconds)
+    flipper_1.attach(&flip_1, 1.0); // the address of the function to be attached (flip) and the interval (1 second)
+    flipper_2.attach(&flip_2, 2.0); // the address of the function to be attached (flip) and the interval (2 seconds)
 
     while (true) {
         wait(1.0);
