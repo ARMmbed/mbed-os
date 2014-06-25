@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f4xx.h
   * @author  MCD Application Team
-  * @version V2.0.0
-  * @date    18-February-2014
+  * @version V2.1.0RC2
+  * @date    14-May-2014
   * @brief   CMSIS Cortex-M4 Device System Source File for STM32F4xx devices.       
   ******************************************************************************  
   * @attention
@@ -102,6 +102,8 @@ extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Cloc
   
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
+extern void SetSysClock(void);
+
 /**
   * @}
   */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sd.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   SD card HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Secure Digital (SD) peripheral:
@@ -1388,7 +1388,8 @@ __weak void HAL_SD_XferErrorCallback(SD_HandleTypeDef *hsd)
 
 /**
   * @brief  SD Transfer complete Rx callback in non blocking mode.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 __weak void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma)
@@ -1400,7 +1401,8 @@ __weak void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD DMA transfer complete Rx error callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 __weak void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma)
@@ -1412,7 +1414,8 @@ __weak void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD Transfer complete Tx callback in non blocking mode.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 __weak void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma)
@@ -1424,7 +1427,8 @@ __weak void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD DMA transfer complete error Tx callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 __weak void HAL_SD_DMA_TxErrorCallback(DMA_HandleTypeDef *hdma)
@@ -2167,7 +2171,8 @@ HAL_SD_ErrorTypedef HAL_SD_GetCardStatus(SD_HandleTypeDef *hsd, HAL_SD_CardStatu
 
 /**
   * @brief  SD DMA transfer complete Rx callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 static void SD_DMA_RxCplt(DMA_HandleTypeDef *hdma)
@@ -2188,7 +2193,8 @@ static void SD_DMA_RxCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD DMA transfer Error Rx callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 static void SD_DMA_RxError(DMA_HandleTypeDef *hdma)
@@ -2201,7 +2207,8 @@ static void SD_DMA_RxError(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD DMA transfer complete Tx callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 static void SD_DMA_TxCplt(DMA_HandleTypeDef *hdma)
@@ -2222,7 +2229,8 @@ static void SD_DMA_TxCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  SD DMA transfer Error Tx callback.
-  * @param  hdma: DMA handle 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 static void SD_DMA_TxError(DMA_HandleTypeDef *hdma)

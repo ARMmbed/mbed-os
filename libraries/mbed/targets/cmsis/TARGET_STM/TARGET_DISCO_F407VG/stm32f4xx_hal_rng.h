@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention
@@ -120,6 +120,12 @@ typedef struct
   */ 
   
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset RNG handle state
+  * @param  __HANDLE__: RNG Handle
+  * @retval None
+  */
+#define __HAL_RNG_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_RNG_STATE_RESET)
 
 /**
   * @brief  Enables the RNG peripheral.

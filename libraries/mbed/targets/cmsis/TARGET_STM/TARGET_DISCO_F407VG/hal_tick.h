@@ -1,11 +1,9 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_dma_ex.h
+  * @file    hal_tick.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
-  * @brief   Header file of DMA HAL extension module.
-  ******************************************************************************
+  * @brief   Initialization of HAL tick
+  ******************************************************************************  
   * @attention
   *
   * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
@@ -32,61 +30,31 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************
-  */
-
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_HAL_DMA_EX_H
-#define __STM32F4xx_HAL_DMA_EX_H
+  ******************************************************************************  
+  */ 
+#ifndef __HAL_TICK_H
+#define __HAL_TICK_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal_def.h"
+#include "stm32f4xx.h"
+#include "cmsis_nvic.h"
+   
+#define TIM_MST      TIM5
+#define TIM_MST_IRQ  TIM5_IRQn
+#define TIM_MST_RCC  __TIM5_CLK_ENABLE()
 
-/** @addtogroup STM32F4xx_HAL_Driver
-  * @{
-  */
+#define TIM_MST_RESET_ON   __TIM5_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __TIM5_RELEASE_RESET()
 
-/** @addtogroup DMAEx
-  * @{
-  */ 
-
-/* Exported types ------------------------------------------------------------*/
-
-/** 
-  * @brief  HAL DMA Memory definition  
-  */ 
-typedef enum
-{
-  MEMORY0      = 0x00,    /*!< Memory 0     */
-  MEMORY1      = 0x01,    /*!< Memory 1     */
-
-}HAL_DMA_MemoryTypeDef;
-
-/* Exported constants --------------------------------------------------------*/ 
-/* Exported macro ------------------------------------------------------------*/
-
-/* Exported functions --------------------------------------------------------*/
-/* IO operation functions *******************************************************/
-HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t SecondMemAddress, uint32_t DataLength);
-HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t SecondMemAddress, uint32_t DataLength);
-HAL_StatusTypeDef HAL_DMAEx_ChangeMemory(DMA_HandleTypeDef *hdma, uint32_t Address, HAL_DMA_MemoryTypeDef memory);
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32F4xx_HAL_DMA_H */
+#endif // __HAL_TICK_H
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

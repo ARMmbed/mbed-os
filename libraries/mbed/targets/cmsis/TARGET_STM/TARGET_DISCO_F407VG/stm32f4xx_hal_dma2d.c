@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   DMA2D HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DMA2D peripheral:
@@ -71,15 +71,15 @@
      *** DMA2D HAL driver macros list ***
      ============================================= 
      [..]
-       Below the list of most used macros in DMA2D HAL driver.
+       Below the list of most used macros in DMA2D HAL driver :
        
       (+) __HAL_DMA2D_ENABLE: Enable the DMA2D peripheral.
       (+) __HAL_DMA2D_DISABLE: Disable the DMA2D peripheral.
       (+) __HAL_DMA2D_GET_FLAG: Get the DMA2D pending flags.
-      (+) __HAL_DMA2D_CLEAR_FLAG: Clears the DMA2D pending flags.
-      (+) __HAL_DMA2D_ENABLE_IT: Enables the specified DMA2D interrupts.
-      (+) __HAL_DMA2D_DISABLE_IT: Disables the specified DMA2D interrupts.
-      (+) __HAL_DMA2D_GET_IT_SOURCE: Checks whether the specified DMA2D interrupt has occurred or not.
+      (+) __HAL_DMA2D_CLEAR_FLAG: Clear the DMA2D pending flags.
+      (+) __HAL_DMA2D_ENABLE_IT: Enable the specified DMA2D interrupts.
+      (+) __HAL_DMA2D_DISABLE_IT: Disable the specified DMA2D interrupts.
+      (+) __HAL_DMA2D_GET_IT_SOURCE: Check whether the specified DMA2D interrupt has occurred or not.
      
      [..] 
       (@) You can refer to the DMA2D HAL driver header file for more useful macros
@@ -320,8 +320,8 @@ __weak void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d)
       (+) Abort DMA2D transfer.
       (+) Suspend DMA2D transfer.
       (+) Continue DMA2D transfer. 
-      (+) polling for transfer complete.
-      (+) handles DMA2D interrupt request.
+      (+) Poll for transfer complete.
+      (+) handle DMA2D interrupt request.
         
 @endverbatim
   * @{
@@ -827,8 +827,9 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
 /**
   * @brief  Configure the DMA2D Layer according to the specified
   *         parameters in the DMA2D_InitTypeDef and create the associated handle.
-  * @param  hdma2d:   DMA2D handle
-  * @param  LayerIdx: DMA2D Layer index
+  * @param  hdma2d: pointer to a DMA2D_HandleTypeDef structure that contains
+  *                 the configuration information for the DMA2D.
+  * @param  LayerIdx: DMA2D Layer index.
   *                   This parameter can be one of the following values:
   *                   0(background) / 1(foreground)
   * @retval HAL status
@@ -931,7 +932,7 @@ HAL_StatusTypeDef HAL_DMA2D_ConfigLayer(DMA2D_HandleTypeDef *hdma2d, uint32_t La
   *                   the configuration information for the DMA2D.
   * @param  CLUTCfg:  pointer to a DMA2D_CLUTCfgTypeDef structure that contains
   *                   the configuration information for the color look up table.
-  * @param  LayerIdx: DMA2D Layer index
+  * @param  LayerIdx: DMA2D Layer index.
   *                   This parameter can be one of the following values:
   *                   0(background) / 1(foreground)
   * @retval HAL status
@@ -1013,7 +1014,7 @@ HAL_StatusTypeDef HAL_DMA2D_ConfigCLUT(DMA2D_HandleTypeDef *hdma2d, DMA2D_CLUTCf
   * @brief  Enable the DMA2D CLUT Transfer.
   * @param  hdma2d:   pointer to a DMA2D_HandleTypeDef structure that contains
   *                   the configuration information for the DMA2D.
-  * @param  LayerIdx: DMA2D Layer index
+  * @param  LayerIdx: DMA2D Layer index.
   *                   This parameter can be one of the following values:
   *                   0(background) / 1(foreground)
   * @retval HAL status
@@ -1041,7 +1042,7 @@ HAL_StatusTypeDef HAL_DMA2D_EnableCLUT(DMA2D_HandleTypeDef *hdma2d, uint32_t Lay
   * @brief  Disable the DMA2D CLUT Transfer.
   * @param  hdma2d:   pointer to a DMA2D_HandleTypeDef structure that contains
   *                   the configuration information for the DMA2D.
-  * @param  LayerIdx: DMA2D Layer index
+  * @param  LayerIdx: DMA2D Layer index.
   *                   This parameter can be one of the following values:
   *                   0(background) / 1(foreground)
   * @retval HAL status
@@ -1070,7 +1071,7 @@ HAL_StatusTypeDef HAL_DMA2D_DisableCLUT(DMA2D_HandleTypeDef *hdma2d, uint32_t La
   * @param  hdma2d: pointer to a DMA2D_HandleTypeDef structure that contains
   *                 the configuration information for the DMA2D.
   * @param  Line:   Line Watermark configuration.
-  * @retval None
+  * @retval HAL status
   */
 
 HAL_StatusTypeDef HAL_DMA2D_ProgramLineEvent(DMA2D_HandleTypeDef *hdma2d, uint32_t Line)
@@ -1108,7 +1109,7 @@ HAL_StatusTypeDef HAL_DMA2D_ProgramLineEvent(DMA2D_HandleTypeDef *hdma2d, uint32
                   ##### Peripheral State and Errors functions #####
  ===============================================================================  
     [..]
-    This subsection provides functions allowing to
+    This subsection provides functions allowing to :
       (+) Check the DMA2D state
       (+) Get error code  
 

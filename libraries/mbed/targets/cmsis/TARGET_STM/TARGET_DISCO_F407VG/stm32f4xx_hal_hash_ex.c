@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   HASH HAL Extension module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of HASH peripheral:
@@ -143,9 +143,9 @@ static void HASHEx_DMAError(DMA_HandleTypeDef *hdma);
 /**
   * @brief  Initializes the HASH peripheral in SHA224 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the output buffer (hashed buffer).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 28 bytes.
@@ -219,9 +219,9 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
 /**
   * @brief  Initializes the HASH peripheral in SHA256 mode then processes pInBuffer.
             The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the output buffer (hashed buffer).  
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
+  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed). 
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 32 bytes.
@@ -296,7 +296,8 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
 /**
   * @brief  Initializes the HASH peripheral in SHA224 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -341,7 +342,8 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Accumulate(HASH_HandleTypeDef *hhash, uint8_
 /**
   * @brief  Initializes the HASH peripheral in SHA256 mode then processes pInBuffer.
             The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -406,9 +408,9 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Accumulate(HASH_HandleTypeDef *hhash, uint8_
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA224 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the output buffer (hashed buffer).  
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
+  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed). 
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
@@ -549,9 +551,9 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA256 mode
   *         then processes pInBuffer. The digest is available in pOutBuffer
-  * @param  hhash: HASH handle
-  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
-  * @param  pOutBuffer: Pointer to the output buffer (hashed buffer).  
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
+  * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed). 
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
@@ -715,7 +717,8 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
 /**
   * @brief  Initializes the HASH peripheral in SHA224 mode then processes pInBuffer.
   *         The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -858,7 +861,8 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
 /**
   * @brief  Initializes the HASH peripheral in SHA256 mode then processes pInBuffer.
   *         The digest is available in pOutBuffer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1000,7 +1004,8 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
 
 /**
   * @brief This function handles HASH interrupt request.
-  * @param hhash: hash handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @retval None
   */
 void HAL_HASHEx_IRQHandler(HASH_HandleTypeDef *hhash)
@@ -1045,11 +1050,11 @@ void HAL_HASHEx_IRQHandler(HASH_HandleTypeDef *hhash)
 /**
   * @brief  Initializes the HASH peripheral in SHA224 mode then enables DMA to
             control data transfer. Use HAL_HASH_SHA224_Finish() to get the digest.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
-  * @param  pOutBuffer: Pointer to the computed digest. Its size must be 28 bytes.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
@@ -1096,8 +1101,10 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
 
 /**
   * @brief  Returns the computed digest in SHA224
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 28 bytes.
+  * @param  Timeout: Timeout value    
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
@@ -1147,11 +1154,11 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
 /**
   * @brief  Initializes the HASH peripheral in SHA256 mode then enables DMA to
             control data transfer. Use HAL_HASH_SHA256_Finish() to get the digest.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
-  * @param  pOutBuffer: Pointer to the computed digest. Its size must be 20 bytes.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
@@ -1198,8 +1205,10 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
 
 /**
   * @brief  Returns the computed digest in SHA256.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pOutBuffer: Pointer to the computed digest. Its size must be 32 bytes.
+  * @param  Timeout: Timeout value    
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
@@ -1269,7 +1278,8 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA224 mode
   *         then enables DMA to control data transfer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
@@ -1335,7 +1345,8 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
 /**
   * @brief  Initializes the HASH peripheral in HMAC SHA256 mode
   *         then enables DMA to control data transfer.
-  * @param  hhash: HASH handle
+  * @param  hhash: pointer to a HASH_HandleTypeDef structure that contains
+  *         the configuration information for HASH module
   * @param  pInBuffer: Pointer to the input buffer (buffer to be hashed).
   * @param  Size: Length of the input buffer in bytes.
   *          If the Size is not multiple of 64 bytes, the padding is managed by hardware.
