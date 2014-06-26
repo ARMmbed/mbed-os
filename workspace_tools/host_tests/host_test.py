@@ -130,6 +130,8 @@ TODO:
 2. show message for serial error.
 3. stop test if serial not connected (so no exceptions and just clean test failures).
 4. move print_result, success failure to base class.
+5. handle fail.txt file message from disk drive
+6. handle disk not found exception
 """
 
 class Simple(DefaultTest):
