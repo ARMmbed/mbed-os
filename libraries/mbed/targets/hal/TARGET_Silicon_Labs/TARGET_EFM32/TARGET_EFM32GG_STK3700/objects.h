@@ -45,6 +45,24 @@ struct gpio_irq_s {
     PinName pin;
 };
 
+struct serial_s {
+    USART_TypeDef * uart;
+    int index;
+    uint32_t clock;
+    PinName rx_pin;
+    PinName tx_pin;
+    IRQn_Type rx_irq;
+    IRQn_Type tx_irq;
+    uint32_t rx_vector;
+    uint32_t tx_vector;
+    USART_Enable_TypeDef enable;
+    uint32_t baudrate;
+    USART_OVS_TypeDef oversampling;
+    USART_Databits_TypeDef databits;
+    USART_Parity_TypeDef parity;
+    USART_Stopbits_TypeDef stopbits;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

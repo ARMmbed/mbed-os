@@ -28,4 +28,9 @@ extern const PinMap PinMap_DAC[];
 
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
+
+/************UART**************/
+extern const PinMap PinMap_UART_TX[];
+extern const PinMap PinMap_UART_RX[];
+
 #endif

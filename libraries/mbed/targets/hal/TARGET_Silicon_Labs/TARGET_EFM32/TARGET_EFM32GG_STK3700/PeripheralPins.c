@@ -43,3 +43,58 @@ const PinMap PinMap_PWM[] = {
     {PA_14, PWM_CH2, 0},
     {NC  , NC   , 0}
 };
+
+/************UART**************/
+const PinMap PinMap_UART_TX[] = {
+        /* UART0 */
+        {PF_6, UART_0, 0},
+        {PE_0, UART_0, 1},
+        {PA_3, UART_0, 2},
+        /* UART1 */
+        {PF_10, UART_1, 1},
+        {PB_9, UART_1, 2},
+        {PE_2, UART_1, 3},
+        /* USART0 */
+        {PE_10, USART_0, 0},
+        {PE_7, USART_0, 1},
+        {PC_11, USART_0, 2},
+        {PE_13, USART_0, 3},
+        {PB_7, USART_0, 4},
+        {PC_0, USART_0, 5},
+        /* USART1 */
+        {PC_0, USART_1, 0},
+        {PD_0, USART_1, 1},
+        {PD_7, USART_1, 2},
+        /* USART2 */
+        {PC_2, USART_2, 0},
+        {PB_3, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , 0}
+};
+
+const PinMap PinMap_UART_RX[] = {
+        /* UART0 */
+        {PF_7, UART_0, 0},
+        {PE_1, UART_0, 1},
+        {PA_4, UART_0, 2},
+        /* UART1 */
+        {PF_11, UART_1, 1},
+        {PB_10, UART_1, 2},
+        {PE_3, UART_1, 3},
+        /* USART0 */
+        {PE_11, USART_0, 0},
+        {PE_6, USART_0, 1},
+        {PC_10, USART_0, 2},
+        {PE_12, USART_0, 3},
+        {PB_8, USART_0, 4},
+        {PC_1, USART_0, 5},
+        /* USART1 */
+        {PC_1, USART_1, 0},
+        {PD_1, USART_1, 1},
+        {PD_6, USART_1, 2},
+        /* USART2 */
+        {PC_3, USART_2, 0},
+        {PB_4, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , 0}
+};

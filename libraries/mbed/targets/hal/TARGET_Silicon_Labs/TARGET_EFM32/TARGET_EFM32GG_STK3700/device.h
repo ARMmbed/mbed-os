@@ -25,7 +25,7 @@
 #define DEVICE_ANALOGIN         1
 #define DEVICE_ANALOGOUT        1
 
-#define DEVICE_SERIAL           0
+#define DEVICE_SERIAL           1
 
 #define DEVICE_I2C              0
 #define DEVICE_I2CSLAVE         0
@@ -42,6 +42,9 @@
 #define DEVICE_PWMOUT           1
 
 #define DEVICE_SLEEP            1
+
+
+#define DEVICE_STDIO_MESSAGES   1
 
 #include "objects.h"
 

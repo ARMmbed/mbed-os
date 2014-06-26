@@ -50,6 +50,12 @@ typedef enum {
     PB0 = PB_9,
     PB1 = PB_10,
 
+    // Serial
+    SERIAL_TX   = PD_0,
+    SERIAL_RX   = PD_1,
+    USBTX       = PD_0,
+    USBRX       = PD_1,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

@@ -15,7 +15,9 @@
  */
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
+
 #include "em_adc.h"
+#include "em_usart.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +44,19 @@ typedef enum {
     PWM_CH1 = 1,
     PWM_CH2 = 2,
 } PWMName;
+
+typedef enum {
+    UART_0 = UART0_BASE,
+    UART_1 = UART1_BASE,
+    USART_0 = USART0_BASE,
+    USART_1 = USART1_BASE,
+    USART_2 = USART2_BASE
+} UARTName;
+
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
+#define STDIO_UART        USART1
+
 #ifdef __cplusplus
 }
 #endif
