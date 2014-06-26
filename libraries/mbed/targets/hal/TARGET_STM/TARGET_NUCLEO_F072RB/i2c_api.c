@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "i2c_api.h"
 
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -65,10 +65,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
 
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-
-    if (obj->i2c == (I2CName)NC) {
-        error("I2C error: pinout mapping failed.");
-    }
+    MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C clock
     if (obj->i2c == I2C_1) {
@@ -93,6 +90,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
+    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
+
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
     // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
@@ -107,7 +106,6 @@ void i2c_frequency(i2c_t *obj, int hz) {
             I2cHandle.Init.Timing = 0x00700818; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
             break;
         default:
-            error("Only 100kHz, 400kHz and 1MHz I2C frequencies are supported.");
             break;
     }
 
