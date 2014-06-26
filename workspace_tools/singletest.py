@@ -193,6 +193,15 @@ class SingleTestRunner(object):
                 break
         return result
 
+    def file_copy_method_selector(self, image_path, disk, copy_method):
+        """ Copy file depending on method you want to use """
+        if copy_method == "cp" or  copy_method == "copy" or copy_method == "xcopy":
+            cmd = [copy_method, image_path.encode('ascii', 'ignore'), disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
+            call(cmd, shell=True)
+        else:
+            # Default python method
+            copy(image_path, disk)
+
     def handle(self, test_spec, target_name, toolchain_name):
         """
         Function determines MUT's mbed disk/port and copies binary to
@@ -239,10 +248,8 @@ class SingleTestRunner(object):
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
-        cmd = ["cp", image_path.encode('ascii', 'ignore'), disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
-        # print cmd
-        call(cmd)
-        # copy(image_path, disk)
+        # Choose one method of copy files to mbed virtual drive
+        self.file_copy_method_selector(image_path, disk, opts.copy_method)
 
         # Copy Extra Files
         if not target_by_mcu.is_disk_virtual and test.extra_files:
@@ -583,13 +590,11 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Suppresses display of wellformatted table with test results')
 
-
     parser.add_option('-t', '--test-summary',
                       dest='test_x_toolchain_summary',
                       default=False,
                       action="store_true",
                       help='Displays wellformatted table with test x toolchain test result per target')
-
 
     parser.add_option('-r', '--test-automation-report',
                       dest='test_automation_report',
@@ -608,6 +613,10 @@ if __name__ == '__main__':
                       default=False,
                       action="store_true",
                       help='Test only board internals. Skip perpherials tests and perform common tests.')
+
+    parser.add_option('-c', '--copy-method',
+                      dest='copy_method',
+                      help="You can choose which copy method you want to use put bin in mbed. You can choose from 'cp', 'copy', 'xcopy'. Default is python shutils.copy method.")
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
