@@ -24,6 +24,7 @@
 #include "em_timer.h"
 
 static int clockfreq;
+static int prescaler_div;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->channel = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
@@ -77,30 +78,16 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     TIMER2->ROUTE |= TIMER_ROUTE_LOCATION_LOC1;
 
     /* Select timer parameters */
-    TIMER_Init_TypeDef timerInit =
-    {
-        .enable     = true,
-        .debugRun   = false,
-        .prescale   = timerPrescale64,
-        .clkSel     = timerClkSelHFPerClk,
-        .fallAction = timerInputActionNone,
-        .riseAction = timerInputActionNone,
-        .mode       = timerModeUp,
-        .dmaClrAct  = false,
-        .quadModeX4 = false,
-        .oneShot    = false,
-        .sync       = false,
-    };
+    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
 
-    clockfreq = (CMU_ClockFreqGet(cmuClock_HFPER)/64);
+    /*HFPER is the default clock we will use. It has a frequency just north of 14MHz*/
+    clockfreq = CMU_ClockFreqGet(cmuClock_HFPER);
 
     /* Configure timer */
     TIMER_Init(TIMER2, &timerInit);
 
     /* Set default 2ms frequency and 0ms pulse width */
-    pwmout_period(obj,0.002);
-
-
+    pwmout_period(obj,0.02);
 }
 
 void pwmout_free(pwmout_t* obj) {}
@@ -122,7 +109,33 @@ float pwmout_read(pwmout_t* obj) {
 
 // Set the PWM period, keeping the absolute pulse width the same.
 void pwmout_period(pwmout_t* obj, float seconds) {
-    obj->period_cycles = clockfreq*seconds;
+    // Find the lowest prescaler divider possible.
+    // This gives us max resolution for a given period
+    
+    //The value of the top register if prescaler is set to 0
+    int cycles = clockfreq * seconds; 
+    prescaler_div = 0;
+
+    //The top register is only 16 bits, so we keep dividing till we are below 0xFFFF
+    while(cycles > 0xFFFF){
+        cycles /= 2;
+        prescaler_div++;
+
+        //Max prescaler_div supported is 10
+        if(prescaler_div > 10){
+            prescaler_div = 10;
+            cycles = 0xFFFF; //Set it to max possible value;
+            break; 
+        }
+    }
+
+
+
+    obj->period_cycles = cycles;
+
+    //Set prescaler
+    TIMER2->CTRL |= prescaler_div << _TIMER_CTRL_PRESC_SHIFT;
+    TIMER2->CTRL &= ~(~prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
 
     /* Set Top Value, which controls the PWM period */
     TIMER_TopSet(TIMER2, obj->period_cycles);
