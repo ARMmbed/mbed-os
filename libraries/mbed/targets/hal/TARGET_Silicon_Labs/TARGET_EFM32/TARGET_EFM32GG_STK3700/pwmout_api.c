@@ -23,6 +23,11 @@
 #include "em_gpio.h"
 #include "em_timer.h"
 
+#define PWM_TIMER TIMER2
+#define PWM_TIMER_CLOCK cmuClock_TIMER2
+#define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1
+
+
 static int clockfreq;
 static int prescaler_div;
 
@@ -33,49 +38,35 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     /* Enable clock for GPIO module */
     CMU_ClockEnable(cmuClock_GPIO, true);
 
-    /* Enable clock for TIMER2 module */
-    CMU_ClockEnable(cmuClock_TIMER2, true);
+    /* Enable clock for PWM_TIMER module */
+    CMU_ClockEnable(PWM_TIMER_CLOCK, true);
 
-    switch(obj->channel){
-        case PWM_CH0:
-            /* Set TIMER2 CC0 location 1 pin (PA12) as output */
-            GPIO_PinModeSet(gpioPortA, 12, gpioModePushPull, 0);
-            break;
-        case PWM_CH1:
-            /* Set TIMER2 CC1 location 1 pin (PA13) as output */
-            GPIO_PinModeSet(gpioPortA, 13, gpioModePushPull, 0);
-            break;
-        case PWM_CH2:
-            /* Set TIMER2 CC2 location 1 pin (PA14) as output */
-            GPIO_PinModeSet(gpioPortA, 14, gpioModePushPull, 0);
-            break;
+    pin_mode(pin, PushPull);
 
-    }
-
-    /* Start with default CC channel parameters */
+    /* Start with default CC (Compare/Capture) channel parameters */
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
 
     /* Set mode to PWM */
     timerCCInit.mode = timerCCModePWM;
 
     /* Configure CC channel */
-    TIMER_InitCC(TIMER2, obj->channel, &timerCCInit);
+    TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
 
     /* Enable correct channel */
     switch(obj->channel){
         case PWM_CH0:
-            TIMER2->ROUTE |= TIMER_ROUTE_CC0PEN;
+            PWM_TIMER->ROUTE |= TIMER_ROUTE_CC0PEN;
             break;
         case PWM_CH1:
-            TIMER2->ROUTE |= TIMER_ROUTE_CC1PEN;
+            PWM_TIMER->ROUTE |= TIMER_ROUTE_CC1PEN;
             break;
         case PWM_CH2:
-            TIMER2->ROUTE |= TIMER_ROUTE_CC2PEN;
+            PWM_TIMER->ROUTE |= TIMER_ROUTE_CC2PEN;
             break;
 
     }
     /* Route correct channel to location 1 */
-    TIMER2->ROUTE |= TIMER_ROUTE_LOCATION_LOC1;
+    PWM_TIMER->ROUTE |= PWM_ROUTE;
 
     /* Select timer parameters */
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
@@ -84,7 +75,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     clockfreq = CMU_ClockFreqGet(cmuClock_HFPER);
 
     /* Configure timer */
-    TIMER_Init(TIMER2, &timerInit);
+    TIMER_Init(PWM_TIMER, &timerInit);
 
     /* Set default 2ms frequency and 0ms pulse width */
     pwmout_period(obj,0.02);
@@ -134,11 +125,11 @@ void pwmout_period(pwmout_t* obj, float seconds) {
     obj->period_cycles = cycles;
 
     //Set prescaler
-    TIMER2->CTRL |= prescaler_div << _TIMER_CTRL_PRESC_SHIFT;
-    TIMER2->CTRL &= ~(~prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
+    PWM_TIMER->CTRL |= prescaler_div << _TIMER_CTRL_PRESC_SHIFT;
+    PWM_TIMER->CTRL &= ~(~prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
 
     /* Set Top Value, which controls the PWM period */
-    TIMER_TopSet(TIMER2, obj->period_cycles);
+    TIMER_TopSet(PWM_TIMER, obj->period_cycles);
 }
 
 void pwmout_period_ms(pwmout_t* obj, int ms) {
@@ -151,7 +142,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
     obj->width_cycles = clockfreq * seconds;
-    TIMER_CompareBufSet(TIMER2, obj->channel, obj->width_cycles);
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
