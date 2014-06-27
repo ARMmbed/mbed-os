@@ -74,7 +74,15 @@ static void init_usart(serial_t *obj) {
     USART_InitStructure.USART_StopBits            = obj->stopbits;
     USART_InitStructure.USART_Parity              = obj->parity;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
+
+    if (obj->pin_rx == NC) {
+        USART_InitStructure.USART_Mode = USART_Mode_Tx;
+    } else if (obj->pin_tx == NC) {
+        USART_InitStructure.USART_Mode = USART_Mode_Rx;
+    } else {
+        USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
+    }
+
     USART_Init(usart, &USART_InitStructure);
 
     USART_Cmd(usart, ENABLE);
@@ -156,10 +164,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    if (data_bits == 8) {
-        obj->databits = USART_WordLength_8b;
-    } else {
+    if (data_bits == 9) {
         obj->databits = USART_WordLength_9b;
+    } else {
+        obj->databits = USART_WordLength_8b;
     }
 
     switch (parity) {
