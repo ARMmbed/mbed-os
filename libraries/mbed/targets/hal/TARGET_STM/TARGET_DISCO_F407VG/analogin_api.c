@@ -25,14 +25,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "mbed_assert.h"
 #include "analogin_api.h"
-#include "wait_api.h"
 
 #if DEVICE_ANALOGIN
 
+#include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "stm32f4xx_hal.h"
 
 static const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN0
@@ -41,8 +41,8 @@ static const PinMap PinMap_ADC[] = {
     {PA_3, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN3
     {PA_4, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
     {PA_5, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN5
-    {PA_5, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6
-    {PA_6, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7
+    {PA_6, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6
+    {PA_7, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7
     {PB_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
     {PB_1, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN9
     {PC_0, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
@@ -59,7 +59,7 @@ ADC_HandleTypeDef AdcHandle;
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin) {
-    // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
@@ -161,20 +161,16 @@ static inline uint16_t adc_read(analogin_t *obj) {
     
   HAL_ADC_Start(&AdcHandle); // Start conversion
   
-  HAL_ADC_PollForConversion(&AdcHandle, 10); // Wait end of conversion
-  
-  if (HAL_ADC_GetState(&AdcHandle) == HAL_ADC_STATE_EOC_REG)
-  {
-      return(HAL_ADC_GetValue(&AdcHandle)); // Get conversion value
-  }
-  else
-  {
+    // Wait end of conversion and get value
+    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&AdcHandle));
+    } else {
       return 0;
   }
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
-  return(adc_read(obj));
+    return (adc_read(obj));
 }
 
 float analogin_read(analogin_t *obj) {

@@ -28,24 +28,30 @@
  *******************************************************************************
  */
 #include "sleep_api.h"
-#include "cmsis.h"
-#include "stm32f4xx_hal.h"
 
-// This function is in the system_stm32f4xx.c file
-extern void SystemClock_Config(void);
+#if DEVICE_SLEEP
+
+#include "cmsis.h"
 
 static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void)
-{
+void sleep(void) {
+    TimMasterHandle.Instance = TIM5;
+    // Disable HAL tick interrupt
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
-void deepsleep(void)
-{
+void deepsleep(void) {
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     // After wake-up from STOP reconfigure the PLL
-    SystemClock_Config();
+    SetSysClock();
 }
+
+#endif

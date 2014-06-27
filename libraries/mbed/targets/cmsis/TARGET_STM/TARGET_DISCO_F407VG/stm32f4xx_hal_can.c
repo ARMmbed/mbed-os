@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:
   *           + Initialization and de-initialization functions 
@@ -771,10 +771,9 @@ HAL_StatusTypeDef HAL_CAN_Transmit_IT(CAN_HandleTypeDef* hcan)
   * @brief  Receives a correct CAN frame.
   * @param  hcan: pointer to a CAN_HandleTypeDef structure that contains
   *         the configuration information for the specified CAN.  
-  * @param  FIFONumber: FIFO Number value                 
-  * @param  Timeout: Specify Timeout value        
+  * @param  FIFONumber: FIFO Number value
+  * @param  Timeout: Specify Timeout value 
   * @retval HAL status
-  * @retval None
   */
 HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef* hcan, uint8_t FIFONumber, uint32_t Timeout)
 {
@@ -881,7 +880,6 @@ HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef* hcan, uint8_t FIFONumber, u
   *         the configuration information for the specified CAN.  
   * @param  FIFONumber: Specify the FIFO number    
   * @retval HAL status
-  * @retval None
   */
 HAL_StatusTypeDef HAL_CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONumber)
 {
@@ -1229,7 +1227,7 @@ __weak void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
             ##### Peripheral State and Error functions #####
   ==============================================================================
     [..]
-    This subsection provides functions allowing to
+    This subsection provides functions allowing to :
       (+) Check the CAN state.
       (+) Check CAN Errors detected during interrupt process
          

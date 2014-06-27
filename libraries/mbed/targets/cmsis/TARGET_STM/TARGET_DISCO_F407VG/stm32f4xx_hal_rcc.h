@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -67,16 +67,16 @@ typedef struct
   uint32_t PLLSource;  /*!< RCC_PLLSource: PLL entry clock source.
                             This parameter must be a value of @ref RCC_PLL_Clock_Source               */           
 
-  uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock
+  uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock.
                             This parameter must be a number between Min_Data = 0 and Max_Data = 63    */        
 
-  uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock
+  uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
                             This parameter must be a number between Min_Data = 192 and Max_Data = 432 */
 
-  uint32_t PLLP;       /*!< PLLP: Division factor for main system clock (SYSCLK)
-                            This parameter must be a value of @ref RCC_PLLP_Clock_Divider.            */
+  uint32_t PLLP;       /*!< PLLP: Division factor for main system clock (SYSCLK).
+                            This parameter must be a value of @ref RCC_PLLP_Clock_Divider             */
 
-  uint32_t PLLQ;       /*!< PLLQ: Division factor for OTG FS, SDIO and RNG clocks
+  uint32_t PLLQ;       /*!< PLLQ: Division factor for OTG FS, SDIO and RNG clocks.
                             This parameter must be a number between Min_Data = 0 and Max_Data = 63    */
 
 }RCC_PLLInitTypeDef;
@@ -190,7 +190,7 @@ typedef struct
 
 
 #define DBP_TIMEOUT_VALUE          ((uint32_t)100)
-#define LSE_TIMEOUT_VALUE          ((uint32_t)5000)
+#define LSE_TIMEOUT_VALUE          ((uint32_t)500)
 /**
   * @}
   */
@@ -1042,11 +1042,6 @@ typedef struct
   */
 #define __HAL_RCC_GET_PLL_OSCSOURCE() ((uint32_t)(RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC))
 
-/** @defgroup RCC_Flags_Interrupts_Management
-  * @brief macros to manage the specified RCC Flags and interrupts.
-  * @{
-  */
-
 /** @brief  Enable RCC interrupt (Perform Byte access to RCC_CIR[14:8] bits to enable
   *         the selected interrupts).
   * @param  __INTERRUPT__: specifies the RCC interrupt sources to be enabled.
@@ -1126,9 +1121,6 @@ typedef struct
   */
 #define RCC_FLAG_MASK  ((uint8_t)0x1F)
 #define __HAL_RCC_GET_FLAG(__FLAG__) (((((((__FLAG__) >> 5) == 1)? RCC->CR :((((__FLAG__) >> 5) == 2) ? RCC->BDCR :((((__FLAG__) >> 5) == 3)? RCC->CSR :RCC->CIR))) & ((uint32_t)1 << ((__FLAG__) & RCC_FLAG_MASK)))!= 0)? 1 : 0)
-/**
-  * @}
-  */
 
 #define __RCC_PLLSRC() ((RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC) >> POSITION_VAL(RCC_PLLCFGR_PLLSRC))
 

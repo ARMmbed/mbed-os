@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
@@ -73,7 +73,7 @@ typedef struct
   uint32_t Speed;     /*!< Specifies the speed for the selected pins.
                            This parameter can be a value of @ref GPIO_speed_define */
 
-  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins 
+  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins. 
                             This parameter can be a value of @ref GPIO_Alternat_function_selection */
 }GPIO_InitTypeDef;
 
@@ -177,7 +177,6 @@ typedef enum
 /**
   * @}
   */
-                                                         
 /** @defgroup GPIO_speed_define
   * @brief GPIO Output Maximum frequency
   * @{
@@ -216,7 +215,7 @@ typedef enum
 /**
   * @brief  Checks whether the specified EXTI line flag is set or not.
   * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
-  *         This parameter can be EXTI_Linex where x can be(0..15)
+  *         This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval The new state of __EXTI_LINE__ (SET or RESET).
   */
 #define __HAL_GPIO_EXTI_GET_FLAG(__EXTI_LINE__) (EXTI->PR & (__EXTI_LINE__))
@@ -224,7 +223,7 @@ typedef enum
 /**
   * @brief  Clears the EXTI's line pending flags.
   * @param  __EXTI_LINE__: specifies the EXTI lines flags to clear.
-  *         This parameter can be any combination of EXTI_Linex where x can be (0..15)
+  *         This parameter can be any combination of GPIO_PIN_x where x can be (0..15)
   * @retval None
   */
 #define __HAL_GPIO_EXTI_CLEAR_FLAG(__EXTI_LINE__) (EXTI->PR = (__EXTI_LINE__))
@@ -232,7 +231,7 @@ typedef enum
 /**
   * @brief  Checks whether the specified EXTI line is asserted or not.
   * @param  __EXTI_LINE__: specifies the EXTI line to check.
-  *          This parameter can be EXTI_Linex where x can be(0..15)
+  *          This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval The new state of __EXTI_LINE__ (SET or RESET).
   */
 #define __HAL_GPIO_EXTI_GET_IT(__EXTI_LINE__) (EXTI->PR & (__EXTI_LINE__))
@@ -240,7 +239,7 @@ typedef enum
 /**
   * @brief  Clears the EXTI's line pending bits.
   * @param  __EXTI_LINE__: specifies the EXTI lines to clear.
-  *          This parameter can be any combination of EXTI_Linex where x can be (0..15)
+  *          This parameter can be any combination of GPIO_PIN_x where x can be (0..15)
   * @retval None
   */
 #define __HAL_GPIO_EXTI_CLEAR_IT(__EXTI_LINE__) (EXTI->PR = (__EXTI_LINE__))
@@ -255,10 +254,11 @@ void  HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
 
 /* IO operation functions *******************************************************/
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-void          HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
-void          HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-void          HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
-void   HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 /**
   * @}
