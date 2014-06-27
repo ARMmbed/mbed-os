@@ -18,6 +18,7 @@
 
 #include "em_adc.h"
 #include "em_usart.h"
+#include "em_i2c.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +31,11 @@ typedef enum {
 typedef enum {
     ADC_0 = ADC0_BASE
 } ADCName;
+
+typedef enum {
+    I2C_0 = I2C0_BASE,
+    I2C_1 = I2C1_BASE
+} I2CName;
 
 typedef enum {
     PWM_CH0 = 0,

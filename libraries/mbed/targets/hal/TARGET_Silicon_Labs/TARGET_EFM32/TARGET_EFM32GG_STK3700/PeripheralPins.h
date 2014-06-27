@@ -26,6 +26,12 @@ extern const PinMap PinMap_ADC[];
 /************DAC***************/
 extern const PinMap PinMap_DAC[];
 
+/************I2C SCL***********/
+extern const PinMap PinMap_I2C_SCL[];
+
+/************I2C SDA***********/
+extern const PinMap PinMap_I2C_SDA[];
+
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
 
@@ -40,3 +46,4 @@ extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
 
 #endif
+

@@ -19,6 +19,7 @@
 #include "PinNames.h"
 #include "PeripheralNames.h"
 #include "PortNames.h"
+#include "em_i2c.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,13 @@ struct analogin_s {
 struct dac_s {
     DAC_TypeDef *dac;
     uint32_t channel;
+};
+#endif
+
+#if DEVICE_I2C
+struct i2c_s {
+    I2C_TypeDef *i2c;
+    int loc;
 };
 #endif
 

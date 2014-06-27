@@ -37,6 +37,46 @@ const PinMap PinMap_DAC[] = {
     {NC  , NC   , NC}
 };
 
+/************I2C SCL***********/
+const PinMap PinMap_I2C_SCL[] = {
+    /* I2C0 */
+    {PA_1,  I2C_0, 0},
+    {PD_7,  I2C_0, 1},
+    {PC_7,  I2C_0, 2},
+    {PD_15, I2C_0, 3},
+    {PC_1,  I2C_0, 4},
+    {PF_1,  I2C_0, 5},
+    {PE_13, I2C_0, 6},
+
+    /* I2C1 */ 
+    {PC_5,  I2C_1, 0},
+    {PB_12,  I2C_1, 1},
+    {PE_1,  I2C_1, 2},
+
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+/************I2C SDA***********/
+const PinMap PinMap_I2C_SDA[] = {
+    /* I2C0 */
+    {PA_0,  I2C_0, 0},
+    {PD_6,  I2C_0, 1},
+    {PC_6,  I2C_0, 2},
+    {PD_14, I2C_0, 3},
+    {PC_0,  I2C_0, 4},
+    {PF_0,  I2C_0, 5},
+    {PE_12, I2C_0, 6},
+
+    /* I2C1 */ 
+    {PC_4,  I2C_1, 0},
+    {PB_11,  I2C_1, 1},
+    {PE_0,  I2C_1, 2},
+
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
     {PA_12, PWM_CH0, 0},
