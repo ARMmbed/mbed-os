@@ -32,6 +32,7 @@ class CodeRed(Exporter):
         'ARCH_PRO',
         'LPC1549',
         'LPC11U68',
+        'LPCCAPPUCCINO',
     ]
 
     def generate(self):

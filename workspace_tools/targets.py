@@ -511,6 +511,19 @@ class LPC11U35_501(Target):
         self.supported_toolchains = ["ARM", "uARM","GCC_ARM","GCC_CR"]
 
 
+class LPC11U37_501(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0"
+
+        self.extra_labels = ['NXP', 'LPC11UXX']
+
+        self.supported_toolchains = ["GCC_ARM","GCC_CR"]
+
+
 class UBLOX_C027(Target):
     def __init__(self):
         Target.__init__(self)
@@ -682,6 +695,11 @@ class ARCH_PRO(Target):
 
         self.supported_form_factors = ["ARDUINO"]
 
+class LPCCAPPUCCINO(LPC11U37_501):
+    def __init__(self):
+        LPC11U37_501.__init__(self)
+
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -724,6 +742,7 @@ TARGETS = [
     XADOW_M0(),
     ARCH_BLE(),
     ARCH_PRO(),
+    LPCCAPPUCCINO(),
 ]
 
 # Map each target name to its unique instance
