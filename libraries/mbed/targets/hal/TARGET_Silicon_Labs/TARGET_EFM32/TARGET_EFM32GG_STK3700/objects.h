@@ -18,6 +18,7 @@
 
 #include "PinNames.h"
 #include "PeripheralNames.h"
+#include "PortNames.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +30,12 @@ struct analogin_s {
 
 struct dac_s {
     DACName dac;
+};
+
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection dir;
 };
 
 struct pwmout_s {

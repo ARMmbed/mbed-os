@@ -16,22 +16,32 @@
 #include "pinmap.h"
 #include "error.h"
 #include "em_gpio.h"
+#include "em_cmu.h"
 #include "mbed_assert.h"
 
-void pin_function(PinName pin, int function) {
+static int gpio_clock_inited = 0;
+
+void pin_function(PinName pin, int function)
+{
 
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != NC);
+
+    /* Enable GPIO clock if not already done */
+    if (!gpio_clock_inited) {
+        CMU_ClockEnable(cmuClock_GPIO, true);
+        gpio_clock_inited = 1;
+    }
 
     /* Pin and port index encoded in one uint32.
      * First four bits represent the pin number
      * The remaining bits represent the port number */
-    uint32_t pin_number = (uint32_t)pin;
+    uint32_t pin_number = (uint32_t) pin;
     int pin_index = (pin_number & 0xF);
     int port_index = pin_number >> 4;
-
 
     /* Value of DOUT encoded in mode at position 0x10 */
     unsigned int dout = mode & 0x10;
