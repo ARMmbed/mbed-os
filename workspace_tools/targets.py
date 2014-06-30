@@ -699,6 +699,13 @@ class LPCCAPPUCCINO(LPC11U37_501):
     def __init__(self):
         LPC11U37_501.__init__(self)
 
+class HRM1017(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+
+        self.extra_labels = ['NORDIC', 'NRF51822']
+
+        self.macros = ['TARGET_NRF51822']
 
 # Get a single instance for each target
 TARGETS = [
@@ -743,6 +750,7 @@ TARGETS = [
     ARCH_BLE(),
     ARCH_PRO(),
     LPCCAPPUCCINO(),
+    HRM1017(),
 ]
 
 # Map each target name to its unique instance
