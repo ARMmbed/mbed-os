@@ -1502,7 +1502,11 @@ typedef struct {                                    /*!< C_CAN0 Structure       
   __IO uint32_t  CANIF2_ARB1;                       /*!< Message interface 1 arbitration 1                                     */
   __IO uint32_t  CANIF2_ARB2;                       /*!< Message interface 1 arbitration 2                                     */
   __IO uint32_t  CANIF2_MCTRL;                      /*!< Message interface 1 message control                                   */
-  __I  uint32_t  RESERVED2[25];
+  __IO uint32_t  CANIF2_DA1;                        /*!< Message interface 2 data A1                                           */
+  __IO uint32_t  CANIF2_DA2;                        /*!< Message interface 2 data A2                                           */
+  __IO uint32_t  CANIF2_DB1;                        /*!< Message interface 2 data B1                                           */
+  __IO uint32_t  CANIF2_DB2;                        /*!< Message interface 2 data B2                                           */
+  __I  uint32_t  RESERVED2[21];
   __I  uint32_t  CANTXREQ1;                         /*!< Transmission request 1                                                */
   __I  uint32_t  CANTXREQ2;                         /*!< Transmission request 2                                                */
   __I  uint32_t  RESERVED3[6];

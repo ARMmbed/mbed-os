@@ -56,6 +56,10 @@ struct spi_s {
     unsigned char spi_n;
 };
 
+struct can_s {
+    int index;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
