@@ -550,7 +550,7 @@ class NRF51822(Target):
 
         self.core = "Cortex-M0"
 
-        self.extra_labels = ["NORDIC"]
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT"]
  
         self.supported_toolchains = ["ARM", "GCC_ARM"]
  
@@ -677,7 +677,7 @@ class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
 
-        self.extra_labels.append('NRF51822')
+        self.extra_labels = ['NORDIC', 'NRF51822']
 
         self.macros = ['TARGET_NRF51822']
 
