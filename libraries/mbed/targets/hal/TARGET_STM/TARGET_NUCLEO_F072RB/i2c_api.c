@@ -159,8 +159,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count;
     int value;
 
-    if (length == 0) return 0;
-
     /* update CR2 register */
     i2c->CR2 = (i2c->CR2 & (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN | I2C_CR2_START | I2C_CR2_STOP)))
                | (uint32_t)(((uint32_t)address & I2C_CR2_SADD) | (((uint32_t)length << 16) & I2C_CR2_NBYTES) | (uint32_t)I2C_SOFTEND_MODE | (uint32_t)I2C_GENERATE_START_READ);
@@ -176,7 +174,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TC) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
     __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_TC);
@@ -189,7 +187,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_STOPF) == RESET) {
             timeout--;
             if (timeout == 0) {
-                return 0;
+                return -1;
             }
         }
         /* Clear STOP Flag */
@@ -204,8 +202,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
     int timeout;
     int count;
-
-    if (length == 0) return 0;
 
     /* update CR2 register */
     i2c->CR2 = (i2c->CR2 & (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN | I2C_CR2_START | I2C_CR2_STOP)))
@@ -222,7 +218,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TC) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
     __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_TC);
@@ -235,7 +231,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_STOPF) == RESET) {
             timeout--;
             if (timeout == 0) {
-                return 0;
+                return -1;
             }
         }
         /* Clear STOP Flag */
@@ -253,7 +249,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_RXNE) == RESET) {
         if ((timeout--) == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -355,8 +351,6 @@ int i2c_slave_receive(i2c_t *obj) {
 int i2c_slave_read(i2c_t *obj, char *data, int length) {
     char size = 0;
 
-    if (length == 0) return 0;
-
     while (size < length) data[size++] = (char)i2c_byte_read(obj, 0);
 
     return size;
@@ -365,8 +359,6 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     char size = 0;
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
-
-    if (length == 0) return 0;
 
     do {
         i2c_byte_write(obj, data[size]);
