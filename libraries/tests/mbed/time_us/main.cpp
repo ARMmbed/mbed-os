@@ -30,7 +30,7 @@ DigitalOut out(LED2);
 DigitalOut out(LED2);
 
 #else
-DigitalOut out(p5);
+DigitalOut out(LED1);
 #endif
 
 DigitalOut led(LED1);

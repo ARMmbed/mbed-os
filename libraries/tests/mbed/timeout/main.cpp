@@ -35,7 +35,7 @@ DigitalOut out(LED1);
 DigitalOut out(LED2);
 
 #else
-DigitalOut out(p5);
+DigitalOut out(LED1);
 #endif
 
 Timeout timer;

@@ -32,7 +32,7 @@ DigitalOut out(PA_3);
 DigitalOut out(LED2);
 
 #else
-DigitalOut out(p5);
+DigitalOut out(LED1);
 #endif
 
 Ticker tick;
