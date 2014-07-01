@@ -23,6 +23,16 @@ Exporter Toolchain/Platform Support
     <td>&#10003;</td>
   </tr>
   <tr>
+    <td>NXP LPC1549</td>
+    <td>&#10003;</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>&#10003;</td>
+    <td></td>
+    <td>&#10003;</td>
+  </tr>
+  <tr>
     <td>NXP LPC11U24</td>
     <td></td>
     <td></td>
