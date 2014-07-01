@@ -162,8 +162,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     int count;
     int value;
 
-    if (length == 0) return 0;
-
     i2c_start(obj);
 
     // Wait until SB flag is set
@@ -171,7 +169,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_SB) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -183,7 +181,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
     __HAL_I2C_CLEAR_ADDRFLAG(&I2cHandle);
@@ -214,7 +212,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     int timeout;
     int count;
 
-    if (length == 0) return 0;
     i2c_start(obj);
 
     // Wait until SB flag is set
@@ -222,7 +219,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_SB) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -234,7 +231,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
     __HAL_I2C_CLEAR_ADDRFLAG(&I2cHandle);
@@ -242,7 +239,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     for (count = 0; count < length; count++) {
         if (i2c_byte_write(obj, data[count]) != 1) {
             i2c_stop(obj);
-            return 0;
+            return -1;
         }
     }
 
@@ -271,7 +268,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_RXNE) == RESET) {
         if ((timeout--) == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -368,7 +365,6 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
     uint32_t Timeout;
     int size = 0;
-    if (length == 0) return 0;
 
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
@@ -379,7 +375,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
         while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_RXNE) == RESET) {
             Timeout--;
             if (Timeout == 0) {
-                return 0;
+                return -1;
             }
         }
 
@@ -401,7 +397,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_STOPF) == RESET) {
         Timeout--;
         if (Timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -413,7 +409,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == SET) {
         Timeout--;
         if (Timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -424,7 +420,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 {
     uint32_t Timeout;
     int size = 0;
-    if (length == 0) return 0;
 
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
 
@@ -434,7 +429,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
         while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TXE) == RESET) {
             Timeout--;
             if (Timeout == 0) {
-                return 0;
+                return -1;
             }
         }
 
@@ -457,7 +452,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_AF) == RESET) {
         Timeout--;
         if (Timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -471,7 +466,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
     while (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == SET) {
         Timeout--;
         if (Timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
