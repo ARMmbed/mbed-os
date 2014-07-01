@@ -809,6 +809,21 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
+
+    # Unit testing with cpputest library
+    {
+        "id": "UT_1", "description": "Basic",
+        "source_dir": join(TEST_DIR, "utest", "basic"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": True,
+    },
+    {
+        "id": "UT_2", "description": "Semihost file system",
+        "source_dir": join(TEST_DIR, "utest", "file"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": True,
+        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
+    },
 ]
 
 # Group tests with the same goals into categories
