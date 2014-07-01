@@ -139,8 +139,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count;
     int value;
 
-    if (length == 0) return 0;
-
     i2c_start(obj);
 
     // Send slave address for read
@@ -151,7 +149,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     while (I2C_CheckEvent(i2c, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED) == ERROR) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -189,7 +187,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     while (I2C_CheckEvent(i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED) == ERROR) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
@@ -226,7 +224,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     while (I2C_GetFlagStatus(i2c, I2C_FLAG_RXNE) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 
