@@ -1,10 +1,14 @@
 #include "test_env.h"
+#include "semihost_api.h"
 
 #define MAC_VENDOR_ARM_0    0x00
 #define MAC_VENDOR_ARM_1    0x02
 #define MAC_VENDOR_ARM_2    0xF7
 
 int main() {
+
+    printf("Semihost connected: %s\n", (semihost_connected()) ? ("Yes") : ("No"));
+
     char uid[DEVICE_ID_LENGTH + 1] = {0};
     bool result = true;
 

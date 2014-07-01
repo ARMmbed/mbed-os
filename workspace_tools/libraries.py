@@ -16,6 +16,7 @@ limitations under the License.
 """
 from workspace_tools.paths import *
 from workspace_tools.data.support import *
+from workspace_tools.tests import TEST_MBED_LIB
 
 
 LIBRARIES = [
@@ -78,6 +79,15 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
 
+    {
+        "id": "cpputest",
+        "source_dir": [CPPUTEST_SRC, CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR],
+        "build_dir": CPPUTEST_LIBRARY,
+        "dependencies": [MBED_LIBRARIES],
+        'inc_dirs': [CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC, TEST_MBED_LIB],
+        'inc_dirs_ext': [CPPUTEST_INC],
+        'macros': ["CPPUTEST_USE_MEM_LEAK_DETECTION=0", "CPPUTEST_USE_STD_CPP_LIB=0", "CPPUTEST=1"],
+    },
 ]
 
 
@@ -88,6 +98,9 @@ class Library:
     DEFAULTS = {
         "supported": DEFAULT_SUPPORT,
         'dependencies': None,
+        'inc_dirs': None,       # Include dirs required by library build
+        'inc_dirs_ext': None,   # Include dirs required by others to use with this library
+        'macros': None,         # Additional macros you want to define when building library
     }
     def __init__(self, lib_id):
         self.__dict__.update(Library.DEFAULTS)

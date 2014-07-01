@@ -75,6 +75,7 @@ import json
 import optparse
 import pprint
 import re
+from types import ListType
 from prettytable import PrettyTable
 from serial import Serial
 
@@ -98,7 +99,7 @@ from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
-from workspace_tools.libraries import LIBRARIES
+from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -628,6 +629,18 @@ if __name__ == '__main__':
                       default=False,
                       help="Displays supported matrix of MCUs and toolchains")
 
+    parser.add_option("-O", "--only-build",
+                      action="store_true",
+                      dest="only_build_tests",
+                      default=False,
+                      help="Only build tests, skips actual test procedures (flashing etc.)")
+
+    parser.add_option("", "--cpputest",
+                      action="store_true",
+                      dest="use_cpputest_library",
+                      default=False,
+                      help="Use cpputest library to run UT on target devices")
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -726,11 +739,29 @@ if __name__ == '__main__':
                         build_lib(lib_id, T, toolchain, options=build_project_options,
                                   verbose=opts.verbose, clean=clean)
 
+                    # TODO: move this 2 below loops to separate function
+                    INC_DIRS = []
+                    for lib_id in libraries:
+                        if LIBRARY_MAP[lib_id]['inc_dirs_ext']:
+                            INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
+
+                    MACROS = []
+                    for lib_id in libraries:
+                        if LIBRARY_MAP[lib_id]['macros']:
+                            MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+
                     path = build_project(test.source_dir, join(build_dir, test_id),
                                          T, toolchain, test.dependencies, options=build_project_options,
-                                         clean=clean, verbose=opts.verbose)
+                                         clean=clean, verbose=opts.verbose,
+                                         macros=MACROS,
+                                         inc_dirs=INC_DIRS)
 
                     test_result_cache = join(dirname(path), "test_result.json")
+
+                    if opts.only_build_tests:
+                        # We are skipping testing phase, and suppress summary
+                        opts.suppress_summary = True
+                        continue
 
                     # For an automated test the duration act as a timeout after
                     # which the test gets interrupted
@@ -743,7 +774,6 @@ if __name__ == '__main__':
 
     # Human readable summary
     if not opts.suppress_summary:
-
         # prints well-formed summary with results (SQL table like)
         print generate_test_summary(test_summary)
 
