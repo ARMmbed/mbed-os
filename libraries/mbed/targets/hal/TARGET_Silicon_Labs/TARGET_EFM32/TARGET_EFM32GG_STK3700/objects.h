@@ -70,6 +70,24 @@ struct serial_s {
     USART_Stopbits_TypeDef stopbits;
 };
 
+struct spi_s {
+    USART_TypeDef * spi;
+    int index;
+    int location;
+    uint32_t clock;
+    uint8_t bits;
+    PinName mosi;
+    PinName miso;
+    PinName clk;
+    PinName cs;
+    USART_Enable_TypeDef enable;
+    uint32_t baudrate;
+    USART_Databits_TypeDef databits;
+    bool master;
+    bool msbf;
+    USART_ClockMode_TypeDef clockMode;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

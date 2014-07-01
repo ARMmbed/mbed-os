@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PINMAP_FUNCTION_H
-#define MBED_PINMAP_FUNCTION_H
 
+#include "pinmap_function.h"
 #include "PinNames.h"
 #include "error.h"
-#include "pinmap.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Get the value of the function field for a pin in a pinmap
@@ -30,7 +24,16 @@ extern "C" {
  * @param map A pinmap for a given peripheral
  * @return Content of function field in pinmap for the given pin
  */
-uint32_t pinmap_get_function_field(PinName pin, const PinMap* map);
+uint32_t pinmap_get_function_field(PinName pin, const PinMap* map)
+{
+    while (map->pin != NC) {
+        if (map->pin == pin) {
+            return map->function;
+        }
+        map++;
+    }
+    return (uint32_t) NC;
+}
 
 /**
  * Get the location a given peripheral is routed to from pin
@@ -39,10 +42,15 @@ uint32_t pinmap_get_function_field(PinName pin, const PinMap* map);
  * @param map Pinmap for the given peripheral
  * @return uint32 describing location (0, 1, 2, ...)
  */
-uint32_t pin_location(PinName pin, const PinMap* map);
+uint32_t pin_location(PinName pin, const PinMap* map)
+{
+    if (pin == (PinName) NC) {
+        return (uint32_t) NC;
+    }
 
-#ifdef __cplusplus
+    uint32_t location = pinmap_get_function_field(pin, map);
+    if ((uint32_t) NC == location) { // no mapping available
+        error("location not found for pin");
+    }
+    return location;
 }
-#endif
-
-#endif

@@ -49,7 +49,6 @@ const PinMap PinMap_UART_TX[] = {
         /* UART0 */
         {PF_6, UART_0, 0},
         {PE_0, UART_0, 1},
-        {PA_3, UART_0, 2},
         /* UART1 */
         {PF_10, UART_1, 1},
         {PB_9, UART_1, 2},
@@ -60,7 +59,6 @@ const PinMap PinMap_UART_TX[] = {
         {PC_11, USART_0, 2},
         {PE_13, USART_0, 3},
         {PB_7, USART_0, 4},
-        {PC_0, USART_0, 5},
         /* USART1 */
         {PC_0, USART_1, 0},
         {PD_0, USART_1, 1},
@@ -76,7 +74,6 @@ const PinMap PinMap_UART_RX[] = {
         /* UART0 */
         {PF_7, UART_0, 0},
         {PE_1, UART_0, 1},
-        {PA_4, UART_0, 2},
         /* UART1 */
         {PF_11, UART_1, 1},
         {PB_10, UART_1, 2},
@@ -87,7 +84,6 @@ const PinMap PinMap_UART_RX[] = {
         {PC_10, USART_0, 2},
         {PE_12, USART_0, 3},
         {PB_8, USART_0, 4},
-        {PC_1, USART_0, 5},
         /* USART1 */
         {PC_1, USART_1, 0},
         {PD_1, USART_1, 1},
@@ -97,4 +93,69 @@ const PinMap PinMap_UART_RX[] = {
         {PB_4, USART_2, 1},
         /* Not connected */
         {NC  , NC   , 0}
+};
+
+/*************SPI**************/
+const PinMap PinMap_SPI_MOSI[] = {
+        /* USART0 */
+        {PE_10, USART_0, 0},
+        {PE_7, USART_0, 1},
+        {PC_11, USART_0, 2},
+        {PC_0, USART_0, 5},
+        /* USART1 */
+        {PD_0, USART_1, 1},
+        {PD_7, USART_1, 2},
+        /* USART2 */
+        {PC_2, USART_2, 0},
+        {PB_3, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , 0}
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+        /* USART0 */
+        {PE_11, USART_0, 0},
+        {PE_6, USART_0, 1},
+        {PC_10, USART_0, 2},
+        {PC_1, USART_0, 5},
+        /* USART1 */
+        {PD_1, USART_1, 1},
+        {PD_6, USART_1, 2},
+        /* USART2 */
+        {PC_3, USART_2, 0},
+        {PB_4, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , 0}
+};
+
+const PinMap PinMap_SPI_CLK[] = {
+        /* USART0 */
+        {PE_12, USART_0, 0},
+        {PE_5, USART_0, 1},
+        {PC_9, USART_0, 2},
+        {PB_13, USART_0, 5},
+        /* USART1 */
+        {PD_2, USART_1, 1},
+        {PF_0, USART_1, 2},
+        /* USART2 */
+        {PC_4, USART_2, 0},
+        {PB_5, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , 0}
+};
+
+const PinMap PinMap_SPI_CS[] = {
+        /* USART0 */
+        {PE_13, USART_0, 0},
+        {PE_4, USART_0, 1},
+        {PC_8, USART_0, 2},
+        {PB_14, USART_0, 5},
+        /* USART1 */
+        {PD_3, USART_1, 1},
+        {PF_1, USART_1, 2},
+        /* USART2 */
+        {PC_5, USART_2, 0},
+        {PB_6, USART_2, 1},
+        /* Not connected */
+        {NC  , NC   , NC}
 };
