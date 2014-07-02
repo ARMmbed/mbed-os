@@ -196,6 +196,23 @@ class SingleTestRunner(object):
 
     def file_copy_method_selector(self, image_path, disk, copy_method):
         """ Copy file depending on method you want to use """
+        # TODO: Add exception handling for copy procedures (disk can be full). See below.
+        """
+        Traceback (most recent call last):
+          File "mbed\workspace_tools\singletest.py", line 738, in <module>
+            single_test_result = single_test.handle(test_spec, target, toolchain)
+          File "mbed\workspace_tools\singletest.py", line 252, in handle
+            self.file_copy_method_selector(image_path, disk, opts.copy_method)
+          File "mbed\workspace_tools\singletest.py", line 203, in file_copy_method_selector
+            copy(image_path, disk)
+          File "C:\Python27\lib\shutil.py", line 119, in copy
+            copyfile(src, dst)
+          File "C:\Python27\lib\shutil.py", line 84, in copyfile
+            copyfileobj(fsrc, fdst)
+          File "C:\Python27\lib\shutil.py", line 52, in copyfileobj
+            fdst.write(buf)
+        IOError: [Errno 28] No space left on device
+        """
         if copy_method == "cp" or  copy_method == "copy" or copy_method == "xcopy":
             cmd = [copy_method, image_path.encode('ascii', 'ignore'), disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
             call(cmd, shell=True)
