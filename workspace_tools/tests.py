@@ -815,13 +815,13 @@ TESTS = [
         "id": "UT_1", "description": "Basic",
         "source_dir": join(TEST_DIR, "utest", "basic"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
-        "automated": True,
+        "automated": False,
     },
     {
         "id": "UT_2", "description": "Semihost file system",
         "source_dir": join(TEST_DIR, "utest", "file"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
-        "automated": True,
+        "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
 ]
