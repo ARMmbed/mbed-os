@@ -51,15 +51,15 @@ void set_compare(uint16_t count) {
 static void tim_irq_handler(void) {
     uint16_t cval = TIM_MST->CNT;
 
-    if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_UPDATE) == SET) {
-        __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_UPDATE);
-        __HAL_TIM_SetCounter(&TimMasterHandle, 0); // Reset counter !!!
+    // Clear Update interrupt flag
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE);
         SlaveCounter++;
     }
 
-    // Clear interrupt flag
-    if (__HAL_TIM_GET_ITSTATUS(&TimMasterHandle, TIM_IT_CC1) == SET) {
-        __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+    // Clear CC1 interrupt flag
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
         if (oc_rem_part > 0) {
             set_compare(oc_rem_part); // Finish the remaining time left
             oc_rem_part = 0;
@@ -147,5 +147,5 @@ void us_ticker_disable_interrupt(void) {
 }
 
 void us_ticker_clear_interrupt(void) {
-    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+    __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
 }
