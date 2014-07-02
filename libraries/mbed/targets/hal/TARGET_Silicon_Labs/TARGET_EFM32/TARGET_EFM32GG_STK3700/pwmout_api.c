@@ -95,7 +95,7 @@ void pwmout_write(pwmout_t* obj, float value) {
 }
 
 float pwmout_read(pwmout_t* obj) {
-    return obj->width_cycles / obj->period_cycles;
+    return obj->width_cycles / (float) obj->period_cycles;
 }
 
 // Set the PWM period, keeping the absolute pulse width the same.
