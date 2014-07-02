@@ -407,7 +407,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
     counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
-    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'mcu'] if cols is None else cols
+    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration'] if cols is None else cols
 
     # All tests status table print
     pt = PrettyTable(test_properties)

@@ -847,14 +847,14 @@ GROUPS.update(TEST_GROUPS)
 
 class Test:
     DEFAULTS = {
-        'mcu': None,
+        #'mcu': None,
         'description': None,
         'dependencies': None,
         'duration': 10,
         'host_test': 'host_test',
         'automated': False,
         'peripherals': None,
-        'supported': None,
+        #'supported': None,
         'source_dir': None,
         'extra_files': None
     }
@@ -871,7 +871,7 @@ class Test:
         return (target in self.supported) and (toolchain in self.supported[target])
 
     def get_description(self):
-        if hasattr(self, 'description'):
+        if self.description:
             return self.description
         else:
             return self.id
