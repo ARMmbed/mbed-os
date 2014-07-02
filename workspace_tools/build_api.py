@@ -253,15 +253,21 @@ def mcu_toolchain_matrix(verbose_html=False):
     perm_counter = 0
     for target in sorted(TARGET_NAMES):
         row = [target]  # First column is platform name
+        default_online_compiler = TARGET_MAP[target].ONLINE_TOOLCHAIN
         for unique_toolchain in unique_supported_toolchains:
             text = "-"
-            if unique_toolchain in TARGET_MAP[target].supported_toolchains:
+            if default_online_compiler == unique_toolchain:
+                text = "Default"
+            elif unique_toolchain in TARGET_MAP[target].supported_toolchains:
                 text = "Supported"
                 perm_counter += 1
             row.append(text)
         pt.add_row(row)
 
     result = pt.get_html_string() if verbose_html else pt.get_string()
+    result += "\n"
+    result += "*Default - default on-line compiler\n"
+    result += "*Supported - supported off-line compiler\n"
     result += "\n"
     result += "Total permutations: %d"% (perm_counter)
     return result
