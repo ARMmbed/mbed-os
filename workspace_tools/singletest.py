@@ -395,7 +395,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
     return result
 
 
-def get_result_summary_table():
+def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
     # get all unique test ID prefixes
     unique_test_id = []
     for test in TESTS:
@@ -407,7 +407,7 @@ def get_result_summary_table():
     counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
     counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
-    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration']
+    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'mcu'] if cols is None else cols
 
     # All tests status table print
     pt = PrettyTable(test_properties)
@@ -417,16 +417,23 @@ def get_result_summary_table():
 
     counter_all = 0
     counter_automated = 0
-
     pt.padding_width = 1 # One space between column edges and contents (default)
-    for test in TESTS:
+
+    for test_id in TEST_MAP:
         row = []
-        split = test['id'].split('_')[:-1]
+        test = TEST_MAP[test_id]
+        split = test_id.split('_')[:-1]
         test_id_prefix = '_'.join(split)
 
         for col in test_properties:
-            row.append(test[col] if col in test else "")
-        if 'automated' in test and test['automated'] == True:
+            col_value = test[col]
+            if type(test[col]) == ListType:
+                col_value = join_delim.join(test[col])
+            elif test[col] == None:
+                col_value = "-"
+
+            row.append(col_value)
+        if test['automated'] == True:
             counter_dict_test_id_types[test_id_prefix] += 1
             counter_automated += 1
         pt.add_row(row)
@@ -436,40 +443,41 @@ def get_result_summary_table():
     print pt
     print
 
-    # Automation result summary
-    test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
-    pt = PrettyTable(test_id_cols)
-    pt.align['automated'] = "r"
-    pt.align['all'] = "r"
-    pt.align['percent [%]'] = "r"
+    if result_summary:
+        # Automation result summary
+        test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
+        pt = PrettyTable(test_id_cols)
+        pt.align['automated'] = "r"
+        pt.align['all'] = "r"
+        pt.align['percent [%]'] = "r"
 
-    percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
-    str_progress = progress_bar(percent_progress, 75)
-    pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
-    print "Automation coverage:"
-    print pt
-    print
-
-    # Test automation coverage table print
-    test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
-    pt = PrettyTable(test_id_cols)
-    pt.align['id'] = "l"
-    pt.align['automated'] = "r"
-    pt.align['all'] = "r"
-    pt.align['percent [%]'] = "r"
-    for unique_id in unique_test_id:
-        # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
-        percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 1)
+        percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
         str_progress = progress_bar(percent_progress, 75)
-        row = [unique_id,
-               counter_dict_test_id_types[unique_id],
-               counter_dict_test_id_types_all[unique_id],
-               percent_progress,
-               "[" + str_progress + "]"]
-        pt.add_row(row)
-    print "Test automation coverage:"
-    print pt
-    print
+        pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
+        print "Automation coverage:"
+        print pt
+        print
+
+        # Test automation coverage table print
+        test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
+        pt = PrettyTable(test_id_cols)
+        pt.align['id'] = "l"
+        pt.align['automated'] = "r"
+        pt.align['all'] = "r"
+        pt.align['percent [%]'] = "r"
+        for unique_id in unique_test_id:
+            # print "\t\t%s: %d / %d" % (unique_id, counter_dict_test_id_types[unique_id], counter_dict_test_id_types_all[unique_id])
+            percent_progress = round(100.0 * counter_dict_test_id_types[unique_id] / float(counter_dict_test_id_types_all[unique_id]), 1)
+            str_progress = progress_bar(percent_progress, 75)
+            row = [unique_id,
+                   counter_dict_test_id_types[unique_id],
+                   counter_dict_test_id_types_all[unique_id],
+                   percent_progress,
+                   "[" + str_progress + "]"]
+            pt.add_row(row)
+        print "Test automation coverage:"
+        print pt
+        print
 
 
 def progress_bar(percent_progress, saturation=0):
@@ -620,6 +628,12 @@ if __name__ == '__main__':
                       action="store_true",
                       help='Prints information about all tests and exits')
 
+    parser.add_option('-R', '--test-case-report',
+                      dest='test_case_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all test cases and exits')
+
     parser.add_option('-P', '--only-peripherals',
                       dest='test_only_peripheral',
                       default=False,
@@ -671,7 +685,13 @@ if __name__ == '__main__':
 
     # Print summary / information about automation test status
     if opts.test_automation_report:
-        get_result_summary_table()
+        get_avail_tests_summary_table()
+        exit(0)
+
+    # Print summary / information about automation test status
+    if opts.test_case_report:
+        test_case_report_cols = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'source_dir']
+        get_avail_tests_summary_table(cols=test_case_report_cols, result_summary=False, join_delim='\n')
         exit(0)
 
     # Only prints matrix of supported toolchains
