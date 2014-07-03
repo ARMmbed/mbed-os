@@ -73,7 +73,7 @@ if __name__ == '__main__':
     successes = []
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
         if options.official_only:
-            toolchains = (getattr(TARGET_MAP[target_name], 'ONLINE_TOOLCHAIN', 'ARM'),)
+            toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:
             toolchains = toolchain_list
         for toolchain in toolchains:

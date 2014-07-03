@@ -253,10 +253,10 @@ def mcu_toolchain_matrix(verbose_html=False):
     perm_counter = 0
     for target in sorted(TARGET_NAMES):
         row = [target]  # First column is platform name
-        default_online_compiler = TARGET_MAP[target].ONLINE_TOOLCHAIN
+        default_toolchain = TARGET_MAP[target].default_toolchain
         for unique_toolchain in unique_supported_toolchains:
             text = "-"
-            if default_online_compiler == unique_toolchain:
+            if default_toolchain == unique_toolchain:
                 text = "Default"
             elif unique_toolchain in TARGET_MAP[target].supported_toolchains:
                 text = "Supported"
