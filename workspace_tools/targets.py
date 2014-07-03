@@ -46,7 +46,7 @@ class Target:
         self.macros = []
 
         # Default online compiler:
-        self.ONLINE_TOOLCHAIN = "ARM"
+        self.default_toolchain = "ARM"
 
         self.name = self.__class__.__name__
 
@@ -82,7 +82,7 @@ class LPC11U24(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class LPC11U24_301(Target):
@@ -99,7 +99,7 @@ class KL05Z(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
@@ -150,7 +150,7 @@ class LPC812(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC81X']
         self.supported_toolchains = ["uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
@@ -161,7 +161,7 @@ class LPC810(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC81X']
         self.supported_toolchains = ["uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.is_disk_virtual = True
 
 
@@ -244,7 +244,7 @@ class NUCLEO_F030R8(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -254,7 +254,7 @@ class NUCLEO_F072RB(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F072RB']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -264,7 +264,7 @@ class NUCLEO_F103RB(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -274,7 +274,7 @@ class NUCLEO_F302R8(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -284,7 +284,7 @@ class NUCLEO_F334R8(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -294,7 +294,7 @@ class NUCLEO_F401RE(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -304,7 +304,7 @@ class NUCLEO_F411RE(Target):
         self.core = "Cortex-M4"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -314,7 +314,7 @@ class NUCLEO_L053R8(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['STM', 'STM32L0', 'STM32L053R8']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -324,7 +324,7 @@ class NUCLEO_L152RE(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
         self.supported_toolchains = ["ARM", "uARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
@@ -334,7 +334,7 @@ class STM32F3XX(Target):
         self.core = "Cortex-M4"
         self.extra_labels = ['STM', 'STM32F3XX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class LPC1347(Target):
@@ -351,7 +351,7 @@ class LPC1114(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class LPC11C24(Target):
@@ -368,7 +368,7 @@ class LPC11U35_401(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class LPC11U35_501(Target):
@@ -377,7 +377,7 @@ class LPC11U35_501(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class LPC11U37_501(Target):
@@ -386,7 +386,7 @@ class LPC11U37_501(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["GCC_ARM", "GCC_CR"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class UBLOX_C027(Target):
@@ -455,7 +455,7 @@ class LPC11U68(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC11U6X']
         self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
 
@@ -465,7 +465,7 @@ class DISCO_F100RB(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32F1', 'STM32F100RB']
         self.supported_toolchains = ["GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class DISCO_F051R8(Target):
@@ -474,7 +474,7 @@ class DISCO_F051R8(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F051', 'STM32F051R8']
         self.supported_toolchains = ["GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class DISCO_F407VG(Target):
@@ -483,7 +483,7 @@ class DISCO_F407VG(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class DISCO_F303VC(Target):
@@ -492,7 +492,7 @@ class DISCO_F303VC(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F303', 'STM32F303VC']
         self.supported_toolchains = ["GCC_ARM"]
-        self.ONLINE_TOOLCHAIN = "uARM"
+        self.default_toolchain = "uARM"
 
 
 class XADOW_M0(LPC11U35_501):
@@ -500,6 +500,7 @@ class XADOW_M0(LPC11U35_501):
         LPC11U35_501.__init__(self)
         self.extra_labels.append('LPC11U35_501')
         self.macros = ['TARGET_LPC11U35_501']
+
 
 class ARCH_BLE(NRF51822):
     def __init__(self):
@@ -528,6 +529,16 @@ class HRM1017(NRF51822):
         NRF51822.__init__(self)
         self.extra_labels = ['NORDIC', 'NRF51822']
         self.macros = ['TARGET_NRF51822']
+
+
+class ARM_MPS2(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.macros = ['CMSDK_CM4']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.default_toolchain = "ARM"
+
 
 
 # Get a single instance for each target
@@ -574,6 +585,7 @@ TARGETS = [
     ARCH_PRO(),
     LPCCAPPUCCINO(),
     HRM1017(),
+    ARM_MPS2(),
 ]
 
 # Map each target name to its unique instance
