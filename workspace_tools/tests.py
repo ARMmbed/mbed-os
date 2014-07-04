@@ -246,7 +246,13 @@ TESTS = [
         "automated": True,
         "duration": 15,
     },
-
+    {
+        "id": "MBED_BLINKY", "description": "Blinky",
+        "source_dir": join(TEST_DIR, "mbed", "blinky"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": False,
+    },
+    
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
