@@ -132,6 +132,8 @@ TODO:
 4. move print_result, success failure to base class.
 5. handle fail.txt file message from disk drive
 6. handle disk not found exception
+7. add loops for tests.
+8. unify firmware filename to 'firmware.???' and add programming cycle: delete/sync/copy/sync/reset
 """
 
 class Simple(DefaultTest):
