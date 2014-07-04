@@ -200,6 +200,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
         "automated": True,
+        "duration": 15,
     },
     {
         "id": "MBED_A20", "description": "I2C master/slave test",
@@ -243,6 +244,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
         "automated": True,
+        "duration": 15,
     },
 
     # Size benchmarks
