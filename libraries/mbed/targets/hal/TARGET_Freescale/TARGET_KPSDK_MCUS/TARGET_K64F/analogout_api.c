@@ -17,7 +17,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define RANGE_12BIT     0xFFF
 

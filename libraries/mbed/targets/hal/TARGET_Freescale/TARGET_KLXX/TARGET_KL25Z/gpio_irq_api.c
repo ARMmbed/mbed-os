@@ -18,7 +18,7 @@
 
 #include "gpio_irq_api.h"
 #include "gpio_api.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define CHANNEL_NUM    64
 
