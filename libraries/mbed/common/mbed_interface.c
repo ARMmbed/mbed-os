@@ -19,7 +19,7 @@
 #include "gpio_api.h"
 #include "wait_api.h"
 #include "semihost_api.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "toolchain.h"
 
 #if DEVICE_SEMIHOST

@@ -31,7 +31,7 @@
 #include "cmsis.h"
 #include "gpio_irq_api.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define EDGE_NONE (0)
 #define EDGE_RISE (1)

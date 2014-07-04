@@ -15,7 +15,7 @@
  */
 #include "mbed_assert.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 /**
  * Set the pin into input, output, alternate function or analog mode

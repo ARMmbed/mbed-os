@@ -31,7 +31,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "stm32f4xx_hal.h"
 
 #define RANGE_12BIT (0xFFF)

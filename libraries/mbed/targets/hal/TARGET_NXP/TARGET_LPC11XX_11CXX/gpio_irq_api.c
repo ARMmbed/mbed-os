@@ -16,7 +16,7 @@
 #include <stddef.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "gpio_api.h"
 
 // The chip is capable of 42 GPIO interrupts.

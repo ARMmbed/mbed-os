@@ -20,7 +20,7 @@
 #include "gpio_api.h"
 #include "fsl_gpio_hal.h"
 #include "fsl_port_hal.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define CHANNEL_NUM    160
 
