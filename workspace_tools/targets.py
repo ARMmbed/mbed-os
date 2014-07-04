@@ -498,7 +498,6 @@ class DISCO_F303VC(Target):
 class XADOW_M0(LPC11U35_501):
     def __init__(self):
         LPC11U35_501.__init__(self)
-        self.extra_labels.append('LPC11U35_501')
         self.macros = ['TARGET_LPC11U35_501']
 
 
