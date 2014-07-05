@@ -22,7 +22,7 @@
 #include "Mutex.h"
 
 #include <string.h>
-#include "error.h"
+#include "mbed_error.h"
 
 namespace rtos {
 
