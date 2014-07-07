@@ -137,6 +137,9 @@
 
 /** @} */
 
+/** @addtogroup BLE_GATT_STRUCTURES Structures
+ * @{ */
+
 /**@brief GATT Characteristic Properties. */
 typedef struct
 {
@@ -159,6 +162,8 @@ typedef struct
 } ble_gatt_char_ext_props_t;
 
 #endif // BLE_GATT_H__
+
+/** @} */
 
 /**
   @}

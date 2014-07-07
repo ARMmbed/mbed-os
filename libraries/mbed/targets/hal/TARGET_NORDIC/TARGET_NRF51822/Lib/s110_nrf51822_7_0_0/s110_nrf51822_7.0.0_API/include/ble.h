@@ -26,19 +26,30 @@
 #include "ble_gattc.h"
 #include "ble_gatts.h"
 
+/** @addtogroup BLE_COMMON_ENUMERATIONS Enumerations
+ * @{ */
+
 /**
  * @brief Common API SVC numbers.
  */
 enum BLE_COMMON_SVCS
 {
-  SD_BLE_EVT_GET  = BLE_SVC_BASE,       /**< Get an event from the pending events queue. */
+  SD_BLE_ENABLE = BLE_SVC_BASE,         /**< Enable and initialize the BLE stack */
+  SD_BLE_EVT_GET,                       /**< Get an event from the pending events queue. */
   SD_BLE_TX_BUFFER_COUNT_GET,           /**< Get the total number of available application transmission buffers from the stack. */
   SD_BLE_UUID_VS_ADD,                   /**< Add a Vendor Specific UUID. */
   SD_BLE_UUID_DECODE,                   /**< Decode UUID bytes. */
   SD_BLE_UUID_ENCODE,                   /**< Encode UUID bytes. */
-  SD_BLE_VERSION_GET,                   /**< Get the local version information (company id, LMP Version, LMP Subversion). */
+  SD_BLE_VERSION_GET,                   /**< Get the local version information (company id, Link Layer Version, Link Layer Subversion). */
   SD_BLE_USER_MEM_REPLY,                /**< User Memory Reply. */
+  SD_BLE_OPT_SET,                       /**< Set a BLE option. */
+  SD_BLE_OPT_GET,                       /**< Get a BLE option. */
 };
+
+/** @} */
+
+/** @addtogroup BLE_COMMON_DEFINES Defines
+ * @{ */
 
 /** @brief  Required pointer alignment for BLE Events.
 */
@@ -53,6 +64,11 @@ enum BLE_COMMON_SVCS
 /** @brief  Maximum number of Vendor Specific UUIDs.
 */
 #define BLE_UUID_VS_MAX_COUNT     10
+
+/** @} */
+
+/** @addtogroup BLE_COMMON_STRUCTURES Structures
+ * @{ */
 
 /**
  * @brief BLE Module Independent Event IDs.
@@ -132,11 +148,40 @@ typedef struct
  */
 typedef struct
 {
-  uint8_t   version_number;             /**< LMP Version number for BT 4.0 spec is 6 (https://www.bluetooth.org/technical/assignednumbers/link_layer.htm). */
+  uint8_t   version_number;             /**< Link Layer Version number for BT 4.1 spec is 7 (https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer). */
   uint16_t  company_id;                 /**< Company ID, Nordic Semiconductor's company ID is 89 (0x0059) (https://www.bluetooth.org/apps/content/Default.aspx?doc_id=49708). */
-  uint16_t  subversion_number;          /**< LMP Sub Version number corresponds to the SoftDevice Config ID. */
+  uint16_t  subversion_number;          /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
 } ble_version_t;
 
+/**@brief Common BLE Option type, wrapping the module specific options. */
+typedef union
+{
+  ble_gap_opt_t     gap;            /**< GAP option, opt_id in BLE_GAP_OPT_* series. */
+} ble_opt_t;
+
+/**
+ * @brief BLE GATTS init options
+ */
+typedef struct
+{
+  ble_gatts_enable_params_t  gatts_enable_params; /**< GATTS init options @ref ble_gatts_enable_params_t. */  
+} ble_enable_params_t;
+
+/** @} */
+
+/** @addtogroup BLE_COMMON_FUNCTIONS Functions
+ * @{ */
+
+/**@brief Enable the bluetooth stack
+ *
+ * @param[in] p_ble_enable_params Pointer to ble_enable_params_t
+ *
+ * @details This call initializes the bluetooth stack, no other BLE related call can be called before this one has been executed.
+ *
+ * @return @ref NRF_SUCCESS BLE stack has been initialized successfully
+ * @return @ref NRF_ERROR_INVALID_ADDR Invalid or not sufficiently aligned pointer supplied.
+ */
+SVCALL(SD_BLE_ENABLE, uint32_t, sd_ble_enable(ble_enable_params_t * p_ble_enable_params));
 
 /**@brief Get an event from the pending events queue.
  *
@@ -293,6 +338,44 @@ SVCALL(SD_BLE_VERSION_GET, uint32_t, sd_ble_version_get(ble_version_t * p_versio
  * @return @ref NRF_ERROR_INVALID_STATE   No execute write request pending.
  */
 SVCALL(SD_BLE_USER_MEM_REPLY, uint32_t, sd_ble_user_mem_reply(uint16_t conn_handle, ble_user_mem_block_t *p_block));
+
+
+/**@brief Set a BLE option.
+ *
+ * @details This call allows the application to set the value of an option.
+ *
+ * @param[in] opt_id Option ID.
+ * @param[in] p_opt Pointer to a ble_opt_t structure containing the option value.
+ *
+ * @retval ::NRF_SUCCESS  Option set successfully.
+ * @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
+ * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid Connection Handle.
+ * @retval ::NRF_ERROR_INVALID_PARAM Invalid parameter(s) supplied, check parameter limits and constraints.
+ * @retval ::NRF_ERROR_INVALID_STATE Unable to set the parameter at this time.
+ * @retval ::NRF_ERROR_BUSY The stack is busy or the previous procedure has not completed.
+ */
+SVCALL(SD_BLE_OPT_SET, uint32_t, sd_ble_opt_set(uint32_t opt_id, ble_opt_t const *p_opt));
+
+
+/**@brief Get a BLE option.
+ *
+ * @details This call allows the application to retrieve the value of an option.
+ *
+ * @param[in] opt_id Option ID.
+ * @param[out] p_opt Pointer to a ble_opt_t structure to be filled in.
+ *
+ * @retval ::NRF_SUCCESS  Option retrieved successfully.
+ * @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
+ * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid Connection Handle.
+ * @retval ::NRF_ERROR_INVALID_PARAM Invalid parameter(s) supplied, check parameter limits and constraints.
+ * @retval ::NRF_ERROR_INVALID_STATE Unable to retrieve the parameter at this time.
+ * @retval ::NRF_ERROR_BUSY The stack is busy or the previous procedure has not completed.
+ * @retval ::NRF_ERROR_NOT_SUPPORTED This option is not supported.
+ *
+ */
+SVCALL(SD_BLE_OPT_GET, uint32_t, sd_ble_opt_get(uint32_t opt_id, ble_opt_t *p_opt));
+
+/** @} */
 
 #endif /* BLE_H__ */
 

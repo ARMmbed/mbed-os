@@ -64,6 +64,23 @@
 #define BLE_L2CAP_EVT_BASE     0x70
 #define BLE_L2CAP_EVT_LAST     0x8F       /* Total: 32.  */
 
+#define BLE_OPT_INVALID        0x00       /**< Invalid BLE Option. */
+
+#define BLE_OPT_BASE           0x01       /**< Common BLE Option base. */
+#define BLE_OPT_LAST           0x1F       /**< Total: 31. */
+
+#define BLE_GAP_OPT_BASE       0x20       /**< GAP BLE Option base. */
+#define BLE_GAP_OPT_LAST       0x3F       /**< Total: 32. */
+
+#define BLE_GATTC_OPT_BASE     0x40       /**< GATTC BLE Option base. */
+#define BLE_GATTC_OPT_LAST     0x5F       /**< Total: 32. */
+
+#define BLE_GATTS_OPT_BASE     0x60       /**< GATTS BLE Option base. */
+#define BLE_GATTS_OPT_LAST     0x7F       /**< Total: 32. */
+
+#define BLE_L2CAP_OPT_BASE     0x80       /**< L2CAP BLE Option base. */
+#define BLE_L2CAP_OPT_LAST     0x9F       /**< Total: 32.  */
+
 #endif /* BLE_RANGES_H__ */
 
 /**

@@ -19,6 +19,9 @@
 #include "ble_err.h"
 #include "nrf_svc.h"
 
+/**@addtogroup BLE_L2CAP_ENUMERATIONS Enumerations
+ * @{ */
+
 /**@brief L2CAP API SVC numbers. */
 enum BLE_L2CAP_SVCS 
 {
@@ -26,6 +29,8 @@ enum BLE_L2CAP_SVCS
   SD_BLE_L2CAP_CID_UNREGISTER,                     /**< Unregister a CID. */
   SD_BLE_L2CAP_TX                                  /**< Transmit a packet. */
 };
+
+/** @} */
 
 /**@addtogroup BLE_L2CAP_DEFINES Defines
  * @{ */
@@ -48,6 +53,9 @@ enum BLE_L2CAP_SVCS
 #define BLE_L2CAP_CID_DYN_MAX       (8) 
 
 /** @} */
+
+/**@addtogroup BLE_L2CAP_STRUCTURES Structures
+ * @{ */
 
 /**@brief Packet header format for L2CAP transmission. */
 typedef struct
@@ -127,6 +135,7 @@ SVCALL(SD_BLE_L2CAP_CID_UNREGISTER, uint32_t, sd_ble_l2cap_cid_unregister(uint16
  */
 SVCALL(SD_BLE_L2CAP_TX, uint32_t, sd_ble_l2cap_tx(uint16_t conn_handle, ble_l2cap_header_t const * const p_header, uint8_t const * const p_data));
 
+/** @} */
 
 #endif // BLE_L2CAP_H__
 
