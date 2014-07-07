@@ -19,6 +19,8 @@
 #include "ble_ranges.h"
 #include "nrf_svc.h"
 
+/** @addtogroup BLE_GATTC_ENUMERATIONS Enumerations
+ * @{ */
 
 /**@brief GATTC API SVC numbers. */
 enum BLE_GATTC_SVCS
@@ -34,6 +36,8 @@ enum BLE_GATTC_SVCS
   SD_BLE_GATTC_HV_CONFIRM                                      /**< Handle Value Confirmation. */
 };
 
+/** @} */
+
 /** @addtogroup BLE_GATTC_DEFINES Defines
  * @{ */
 
@@ -46,6 +50,9 @@ enum BLE_GATTC_SVCS
 #define BLE_GATTC_HANDLE_END                0xFFFF
 
 /** @} */
+
+/** @addtogroup BLE_GATTC_STRUCTURES Structures
+ * @{ */
 
 /**@brief Operation Handle Range. */
 typedef struct
@@ -93,9 +100,9 @@ typedef struct
 /**@brief Write Parameters. */
 typedef struct
 {
-  uint8_t    write_op;                 /**< Write Operation to be performed, see BLE_GATT_WRITE_OPS. */
+  uint8_t    write_op;                 /**< Write Operation to be performed, see @ref BLE_GATT_WRITE_OPS. */
   uint16_t   handle;                   /**< Handle to the attribute to be written. */
-  uint16_t   offset;                   /**< Offset in bytes. */
+  uint16_t   offset;                   /**< Offset in bytes. @note For WRITE_CMD and WRITE_REQ, offset must be 0. */
   uint16_t   len;                      /**< Length of data in bytes. */
   uint8_t*   p_value;                  /**< Pointer to the value data. */
   uint8_t    flags;                    /**< Flags, see @ref BLE_GATT_EXEC_WRITE_FLAGS. */
@@ -225,7 +232,10 @@ typedef struct
     ble_gattc_evt_timeout_t                     timeout;                    /**< Timeout Event Parameters. */
   } params;                                                                 /**< Event Parameters. @note Only valid if @ref gatt_status == BLE_GATT_STATUS_SUCCESS. */
 } ble_gattc_evt_t;
+/** @} */
 
+/** @addtogroup BLE_GATTC_FUNCTIONS Functions
+ * @{ */
 
 /**@brief Initiate or continue a GATT Primary Service Discovery procedure.
  *
@@ -386,6 +396,7 @@ SVCALL(SD_BLE_GATTC_WRITE, uint32_t, sd_ble_gattc_write(uint16_t conn_handle, bl
  */
 SVCALL(SD_BLE_GATTC_HV_CONFIRM, uint32_t, sd_ble_gattc_hv_confirm(uint16_t conn_handle, uint16_t handle));
 
+/** @} */
 
 #endif /* BLE_GATTC_H__ */
 

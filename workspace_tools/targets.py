@@ -400,9 +400,9 @@ class UBLOX_C027(Target):
 
 
 class NRF51822(Target):
-    EXPECTED_SOFTDEVICE = 's110_nrf51822_6.0.0_softdevice.hex'
+    EXPECTED_SOFTDEVICE = 's110_nrf51822_7.0.0_softdevice.hex'
     OUTPUT_EXT = '.hex'
-    APPCODE_OFFSET = 0x14000
+    APPCODE_OFFSET = 0x16000
 
     def __init__(self):
         Target.__init__(self)
