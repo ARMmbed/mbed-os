@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_ANALOGIN
+
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
@@ -22,7 +25,6 @@
 
 #include "em_adc.h"
 #include "em_cmu.h"
-
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc_input = (ADCName) pinmap_peripheral(pin, PinMap_ADC);
@@ -75,3 +77,4 @@ float analogin_read(analogin_t *obj) {
     return analogin_read_u16(obj)/(float)0xFFFF;
 }
 
+#endif

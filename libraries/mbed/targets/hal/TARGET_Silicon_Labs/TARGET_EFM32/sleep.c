@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SLEEP
+
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "em_emu.h"
@@ -44,3 +47,5 @@ void deepsleep(void)
 {
     EMU_EnterEM2(true);
 }
+
+#endif

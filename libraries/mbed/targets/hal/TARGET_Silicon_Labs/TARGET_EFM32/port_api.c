@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_PORTOUT
+
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
@@ -80,3 +83,5 @@ int port_read(port_t *obj)
         return (int) (GPIO_PortOutGet(obj->port) & obj->mask);
     }
 }
+
+#endif

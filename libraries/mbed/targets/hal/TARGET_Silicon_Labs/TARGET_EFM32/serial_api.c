@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL
+
 #include "mbed_assert.h"
 #include "serial_api.h"
 #include <string.h>
@@ -21,14 +23,13 @@
 #include "pinmap.h"
 #include "pinmap_function.h"
 #include "PeripheralPins.h"
+#include "device_peripherals.h"
 
 #include "em_usart.h"
 #include "em_cmu.h"
 
-#define NUM_UARTS (5)
-
 /* Store IRQ id for each UART */
-static uint32_t serial_irq_ids[NUM_UARTS] = { 0 };
+static uint32_t serial_irq_ids[SERIAL_NUM_UARTS] = { 0 };
 /* Interrupt handler from mbed common */
 static uart_irq_handler irq_handler;
 
@@ -359,3 +360,5 @@ void serial_pinout_tx(PinName tx)
     /* 0x10 sets DOUT high. Prevents false start. */
     pin_mode(tx, PushPull | 0x10);
 }
+
+#endif

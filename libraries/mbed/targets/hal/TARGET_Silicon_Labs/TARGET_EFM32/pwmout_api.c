@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_PWMOUT
+
 #include "mbed_assert.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "device_peripherals.h"
 
 #include "em_cmu.h"
 #include "em_gpio.h"
 #include "em_timer.h"
-
-#define PWM_TIMER TIMER2
-#define PWM_TIMER_CLOCK cmuClock_TIMER2
-#define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1
-
 
 static int clockfreq;
 static int prescaler_div;
@@ -152,3 +151,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     pwmout_pulsewidth_ms(obj, us / 1000.0f);
 }
+
+#endif

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_ANALOGOUT
+
 #include "mbed_assert.h"
 #include "em_dac.h"
 #include "em_cmu.h"
@@ -113,3 +116,4 @@ uint16_t analogout_read_u16(dac_t *obj) {
     return dac_read(obj) << 4;
 }
 
+#endif

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_INTERRUPTIN
+
 #include "gpio_irq_api.h"
 #include "mbed_assert.h"
 #include "pinmap.h"
@@ -117,3 +120,5 @@ void gpio_irq_disable(gpio_irq_t *obj)
 {
     GPIO_IntDisable(1 << obj->pin); // pin mask for pins to disable
 }
+
+#endif

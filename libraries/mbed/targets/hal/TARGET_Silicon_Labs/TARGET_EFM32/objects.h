@@ -24,20 +24,27 @@
 extern "C" {
 #endif
 
+#if DEVICE_ANALOGIN
 struct analogin_s {
     ADCName adc_input;
 };
+#endif
 
+#if DEVICE_ANALOGOUT
 struct dac_s {
     DACName dac;
 };
+#endif
 
+#if DEVICE_PORTOUT
 struct port_s {
     PortName port;
     uint32_t mask;
     PinDirection dir;
 };
+#endif
 
+#if DEVICE_PWMOUT
 struct pwmout_s {
     //The period of the pulse in clock cycles
     uint32_t period_cycles;
@@ -46,14 +53,18 @@ struct pwmout_s {
     //Channel on TIMER
     uint32_t channel;
 };
+#endif
 
+#if DEVICE_INTERRUPTIN
 struct gpio_irq_s {
     uint32_t port;
     PinName pin;
     uint32_t risingEdge;
     uint32_t fallingEdge;
 };
+#endif
 
+#if DEVICE_SERIAL
 struct serial_s {
     USART_TypeDef *uart;
     int index;
@@ -71,6 +82,7 @@ struct serial_s {
     USART_Parity_TypeDef parity;
     USART_Stopbits_TypeDef stopbits;
 };
+#endif
 
 struct spi_s {
     USART_TypeDef *spi;

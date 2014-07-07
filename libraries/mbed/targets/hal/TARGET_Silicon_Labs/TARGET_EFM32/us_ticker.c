@@ -18,21 +18,12 @@
 #include "cmsis.h"
 #include "em_cmu.h"
 #include "em_timer.h"
+#include "device_peripherals.h"
 
 /**
  * Timer functions for microsecond ticker.
  * mbed expects a 32-bit timer. Since the EFM32 only has 16-bit timers, we chain two of them.
  */
-
-/* Using TIMER0 for lower timer */
-#define US_TIMER_L	TIMER0
-#define US_TIMER_L_IRQn	TIMER0_IRQn
-#define US_TIMER_L_CLOCK cmuClock_TIMER0
-
-/* Using TIMER1 for upper timer */
-#define US_TIMER_H	TIMER1
-#define US_TIMER_H_IRQn	TIMER1_IRQn
-#define US_TIMER_H_CLOCK cmuClock_TIMER1
 
 static int us_ticker_inited = 0;	// Is ticker initialized yet
 static int lowerOnly = 0;			// Status bit for last interrupt on lower timer
