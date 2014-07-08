@@ -666,12 +666,6 @@ if __name__ == '__main__':
                       default=False,
                       help="Only build tests, skips actual test procedures (flashing etc.)")
 
-    parser.add_option("", "--cpputest",
-                      action="store_true",
-                      dest="use_cpputest_library",
-                      default=False,
-                      help="Use cpputest library to run UT on target devices")
-
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -754,7 +748,8 @@ if __name__ == '__main__':
                 if test.automated and test.is_supported(target, toolchain):
                     if not is_peripherals_available(target, test.peripherals):
                         if opts.verbose:
-                            print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test.peripherals))
+                            test_peripherals = test.peripherals if test.peripherals else []
+                            print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
                         continue
 
                     test_result = {
@@ -779,12 +774,12 @@ if __name__ == '__main__':
                     # TODO: move this 2 below loops to separate function
                     INC_DIRS = []
                     for lib_id in libraries:
-                        if LIBRARY_MAP[lib_id]['inc_dirs_ext']:
+                        if 'inc_dirs_ext' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['inc_dirs_ext']:
                             INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
 
                     MACROS = []
                     for lib_id in libraries:
-                        if LIBRARY_MAP[lib_id]['macros']:
+                        if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                             MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
 
                     path = build_project(test.source_dir, join(build_dir, test_id),
