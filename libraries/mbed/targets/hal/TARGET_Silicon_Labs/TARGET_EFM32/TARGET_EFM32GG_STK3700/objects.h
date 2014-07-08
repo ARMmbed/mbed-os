@@ -50,6 +50,8 @@ struct pwmout_s {
 struct gpio_irq_s {
     uint32_t port;
     PinName pin;
+    uint32_t risingEdge;
+    uint32_t fallingEdge;
 };
 
 struct serial_s {

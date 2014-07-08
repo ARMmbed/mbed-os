@@ -24,26 +24,33 @@
 
 #define NUM_GPIO_CHANNELS (16)
 
-static uint32_t channel_ids[NUM_GPIO_CHANNELS] = {0}; // Relates pin number with interrupt action id
+static uint32_t channel_ids[NUM_GPIO_CHANNELS] = { 0 }; // Relates pin number with interrupt action id
+static uint32_t channel_ports[NUM_GPIO_CHANNELS] = { 0 };
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(uint8_t pin) {
+static void handle_interrupt_in(uint8_t pin)
+{
     // Return if pin not linked with an interrupt function
-    if(channel_ids[pin] == 0){
+    if (channel_ids[pin] == 0) {
         return;
     }
 
+    uint32_t isRise = GPIO_PinInGet(channel_ports[pin], pin);
+
     // Get trigger event
     gpio_irq_event event = IRQ_NONE;
-    if(GPIO->EXTIRISE & (1 << pin)){ // bit shift generate pin mask
-        event = IRQ_RISE;
-    }else if(GPIO->EXTIFALL & (1 << pin)){
+    if ((GPIO ->EXTIFALL & (1 << pin)) && !isRise) {
         event = IRQ_FALL;
+    } else if ((GPIO ->EXTIRISE & (1 << pin)) && isRise) {
+        event = IRQ_RISE;
     }
+    GPIO_IntClear(pin);
     irq_handler(channel_ids[pin], event);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
+        uint32_t id)
+{
     MBED_ASSERT(pin != NC);
 
     /* Pin and port index encoded in one uint32.
@@ -51,6 +58,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
      * The remaining bits represent the port number */
     obj->pin = pin & 0xF;
     obj->port = pin >> 4;
+    obj->risingEdge = 0;
+    obj->fallingEdge = 0;
 
     /* Enable GPIO clock */
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -60,6 +69,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     /* Relate pin to interrupt action id */
     channel_ids[obj->pin] = id;
+    /* Relate the pin number to a port */
+    channel_ports[obj->pin] = obj->port;
     /* Save pointer to handler */
     irq_handler = handler;
 
@@ -69,37 +80,40 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     // Destructor
     channel_ids[obj->pin] = 0;
     gpio_irq_disable(obj); // Disable interrupt channel
     pin_mode(obj->pin | (obj->port << 4), Disabled); // Disable input pin
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    bool risingEdge = false;
-    bool fallingEdge = false;
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
 
-    switch(event){
-        case(IRQ_RISE):
-            risingEdge = true;
+    switch (event) {
+        case (IRQ_RISE):
+            obj->risingEdge = 1;
             break;
-        case(IRQ_FALL):
-            fallingEdge = true;
+        case (IRQ_FALL):
+            obj->fallingEdge = 1;
             break;
-        case(IRQ_NONE):
+        case (IRQ_NONE):
             break;
     }
 
-    /* Set config and clear interrupts */
-    GPIO_IntConfig(obj->port, obj->pin, risingEdge, fallingEdge, enable);
-    GPIO_IntClear(obj->pin);
+    /* Disable, set config and enable */
+    gpio_irq_disable(obj);
+    GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge,
+            enable);
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     GPIO_IntEnable(1 << obj->pin); // pin mask for pins to enable
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     GPIO_IntDisable(1 << obj->pin); // pin mask for pins to disable
 }
