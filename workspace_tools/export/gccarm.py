@@ -44,6 +44,7 @@ class GccArm(Exporter):
         'NRF51822',
         'LPC2368',
         'LPCCAPPUCCINO',
+        'ARCH_BLE',
     ]
 
     DOT_IN_RELATIVE_PATH = True
