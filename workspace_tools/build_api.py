@@ -258,6 +258,7 @@ def mcu_toolchain_matrix(verbose_html=False):
             text = "-"
             if default_toolchain == unique_toolchain:
                 text = "Default"
+                perm_counter += 1
             elif unique_toolchain in TARGET_MAP[target].supported_toolchains:
                 text = "Supported"
                 perm_counter += 1
