@@ -18,7 +18,7 @@
 
 #include "gpio_irq_api.h"
 #include "gpio_api.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define CHANNEL_NUM    64   // 31 pins on 2 ports
 

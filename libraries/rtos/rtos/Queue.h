@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "cmsis_os.h"
-#include "mbed_error.h"
+#include "error.h"
 
 namespace rtos {
 

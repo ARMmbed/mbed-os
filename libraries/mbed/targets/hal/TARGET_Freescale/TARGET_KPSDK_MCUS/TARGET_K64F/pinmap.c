@@ -15,7 +15,7 @@
  */
 #include "mbed_assert.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_port_hal.h"
 

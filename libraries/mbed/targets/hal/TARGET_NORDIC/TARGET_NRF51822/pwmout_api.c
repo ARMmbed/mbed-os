@@ -17,7 +17,7 @@
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define NO_PWMS         3
 #define TIMER_PRECISION 4 //4us ticks   

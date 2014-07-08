@@ -16,7 +16,7 @@
 #include <stddef.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define CHANNEL_NUM    8
 #define LPC_GPIO_X LPC_GPIO_PIN_INT

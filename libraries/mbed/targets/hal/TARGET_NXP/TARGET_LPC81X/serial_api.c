@@ -21,7 +21,7 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 /******************************************************************************
  * INITIALIZATION
