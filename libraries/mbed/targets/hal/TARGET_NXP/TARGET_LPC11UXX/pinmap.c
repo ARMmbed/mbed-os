@@ -15,7 +15,7 @@
  */
 #include "mbed_assert.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define LPC_IOCON0_BASE (LPC_IOCON_BASE)
 #define LPC_IOCON1_BASE (LPC_IOCON_BASE + 0x60)

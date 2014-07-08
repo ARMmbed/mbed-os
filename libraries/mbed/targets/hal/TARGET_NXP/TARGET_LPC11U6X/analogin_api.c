@@ -17,7 +17,7 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #if DEVICE_ANALOGIN
 

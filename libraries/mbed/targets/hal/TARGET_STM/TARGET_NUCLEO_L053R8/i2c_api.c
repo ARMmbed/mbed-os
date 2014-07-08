@@ -34,7 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will

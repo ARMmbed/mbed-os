@@ -18,7 +18,7 @@
 #include <string.h>
 
 /* mbed includes */
-#include "error.h"
+#include "mbed_error.h"
 #include "mbed_interface.h"
 #include "us_ticker_api.h"
 
@@ -440,7 +440,7 @@ sys_thread_t sys_thread_new(const char *pcName,
 
 #endif
 
-#ifdef LWIP_DEBUG 
+#ifdef LWIP_DEBUG
 
 /** \brief  Displays an error message on assertion
 

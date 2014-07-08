@@ -30,7 +30,7 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
-#include "error.h"
+#include "mbed_error.h"
 
 // Alternate-function mapping
 #define AF_NUM (10)

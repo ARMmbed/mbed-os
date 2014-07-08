@@ -32,7 +32,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #define DAC_RANGE (0xFFF) // 12 bits
 
