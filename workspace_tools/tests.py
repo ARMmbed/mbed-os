@@ -827,7 +827,7 @@ TESTS = [
     },
     {
         "id": "UT_2", "description": "Semihost file system",
-        "source_dir": join(TEST_DIR, "utest", "file"),
+        "source_dir": join(TEST_DIR, "utest", "semihost_fs"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
