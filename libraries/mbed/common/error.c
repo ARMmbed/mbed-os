@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include "device.h"
 #include "toolchain.h"
-#include "mbed_error.h"
+#include "error.h"
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif

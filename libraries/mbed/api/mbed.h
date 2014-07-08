@@ -25,7 +25,7 @@
 #include <time.h>
 
 // mbed Debug libraries
-#include "mbed_error.h"
+#include "error.h"
 #include "mbed_interface.h"
 
 // mbed Peripheral components

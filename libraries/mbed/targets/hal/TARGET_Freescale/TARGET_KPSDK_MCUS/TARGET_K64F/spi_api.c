@@ -19,7 +19,7 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_dspi_hal.h"
 

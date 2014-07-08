@@ -30,7 +30,7 @@
 #include "mbed_assert.h"
 #include "device.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 // Alternate-function mapping
 static const uint32_t AF_mapping[] = {

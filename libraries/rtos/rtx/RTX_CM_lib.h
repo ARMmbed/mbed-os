@@ -31,7 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-#include "mbed_error.h"
+#include "error.h"
 
 #if   defined (__CC_ARM)
 #pragma O3

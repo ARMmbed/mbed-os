@@ -22,6 +22,7 @@
 #include "Semaphore.h"
 
 #include <string.h>
+#include "error.h"
 
 namespace rtos {
 
