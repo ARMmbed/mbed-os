@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "device.h"
 #if DEVICE_INTERRUPTIN
 
 #include "gpio_irq_api.h"

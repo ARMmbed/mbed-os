@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "device.h"
 #if DEVICE_SERIAL
 
 #include "mbed_assert.h"
@@ -27,6 +28,8 @@
 
 #include "em_usart.h"
 #include "em_cmu.h"
+
+#define SERIAL_NUM_UARTS (5)
 
 /* Store IRQ id for each UART */
 static uint32_t serial_irq_ids[SERIAL_NUM_UARTS] = { 0 };
@@ -102,6 +105,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Select interrupt and enable clock */
     switch (uart) {
+        #ifdef UART0
         case UART_0:
             obj->index = 0;
             obj->clock = cmuClock_UART0;
@@ -110,6 +114,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             obj->rx_vector = (uint32_t) &uart0_rx_irq;
             obj->tx_vector = (uint32_t) &uart0_tx_irq;
             break;
+        #endif
+        #ifdef UART1
         case UART_1:
             obj->index = 1;
             obj->clock = cmuClock_UART1;
@@ -118,6 +124,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             obj->rx_vector = (uint32_t) &uart1_rx_irq;
             obj->tx_vector = (uint32_t) &uart1_tx_irq;
             break;
+        #endif
+        #ifdef USART0
         case USART_0:
             obj->index = 2;
             obj->clock = cmuClock_USART0;
@@ -126,6 +134,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             obj->rx_vector = (uint32_t) &usart0_rx_irq;
             obj->tx_vector = (uint32_t) &usart0_tx_irq;
             break;
+        #endif
+        #ifdef USART1
         case USART_1:
             obj->index = 3;
             obj->clock = cmuClock_USART1;
@@ -134,6 +144,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             obj->rx_vector = (uint32_t) &usart1_rx_irq;
             obj->tx_vector = (uint32_t) &usart1_tx_irq;
             break;
+        #endif
+        #ifdef USART2
         case USART_2:
             obj->index = 4;
             obj->clock = cmuClock_USART2;
@@ -142,6 +154,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             obj->rx_vector = (uint32_t) &usart2_rx_irq;
             obj->tx_vector = (uint32_t) &usart2_tx_irq;
             break;
+        #endif
     }
     CMU_ClockEnable(obj->clock, true);
 

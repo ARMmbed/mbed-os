@@ -9,9 +9,6 @@
 #define US_TIMER_H_CLOCK cmuClock_TIMER1
 
 
-#define SERIAL_NUM_UARTS (5)
-
-
 #define PWM_TIMER TIMER0
 #define PWM_TIMER_CLOCK cmuClock_TIMER0
 #define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1

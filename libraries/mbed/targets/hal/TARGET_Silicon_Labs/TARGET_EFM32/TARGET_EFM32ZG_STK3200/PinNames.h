@@ -51,10 +51,10 @@ typedef enum {
     PB1 = PC_9,
 
     // Serial
-    SERIAL_TX   = PD_0,
-    SERIAL_RX   = PD_1,
-    USBTX       = PD_0,
-    USBRX       = PD_1,
+    SERIAL_TX   = PD_7,
+    SERIAL_RX   = PD_6,
+    USBTX       = PD_7,
+    USBRX       = PD_6,
 
     // Not connected
     NC = (int)0xFFFFFFFF

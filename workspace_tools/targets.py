@@ -554,6 +554,19 @@ class EFM32GG_STK3700(Target):
         self.supported_toolchains = ["GCC_ARM"]
 
 
+class EFM32ZG_STK3200(Target):
+#    ONLINE_TOOLCHAIN = "uARM"
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M0+"
+
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+
+        self.macros = ['EFM32ZG222F32']
+
+        self.supported_toolchains = ["GCC_ARM"]
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -599,7 +612,8 @@ TARGETS = [
     LPCCAPPUCCINO(),
     HRM1017(),
     ARM_MPS2(),
-    EFM32GG_STK3700()
+    EFM32GG_STK3700(),
+    EFM32ZG_STK3200()
 ]
 
 # Map each target name to its unique instance

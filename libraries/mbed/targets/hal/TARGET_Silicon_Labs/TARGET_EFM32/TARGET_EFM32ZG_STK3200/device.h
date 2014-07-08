@@ -20,12 +20,12 @@
 #define DEVICE_PORTOUT          0
 #define DEVICE_PORTINOUT        0
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         0
 #define DEVICE_ANALOGOUT        0
 
-#define DEVICE_SERIAL           0
+#define DEVICE_SERIAL           1
 
 #define DEVICE_I2C              0
 #define DEVICE_I2CSLAVE         0
@@ -41,10 +41,10 @@
 
 #define DEVICE_PWMOUT           0
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
 
-#define DEVICE_STDIO_MESSAGES   0
+#define DEVICE_STDIO_MESSAGES   1
 
 #include "objects.h"
 

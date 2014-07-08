@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "device.h"
 #if DEVICE_ANALOGOUT
 
 #include "mbed_assert.h"
