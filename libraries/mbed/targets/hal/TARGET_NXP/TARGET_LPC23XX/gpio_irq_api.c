@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "gpio_irq_api.h"
-#include "mbed_error.h"
+#include "error.h"
 #include <stddef.h>
 #include "cmsis.h"
 

@@ -17,7 +17,7 @@
  */
 #include <stddef.h>
 #include "gpio_irq_api.h"
-#include "mbed_error.h"
+#include "error.h"
 #include "cmsis.h"
 
 /* The LPC43xx implements GPIO pin and group interrupts. Any pin in the

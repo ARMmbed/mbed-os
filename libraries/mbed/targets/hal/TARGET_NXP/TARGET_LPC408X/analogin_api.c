@@ -17,7 +17,7 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define ANALOGIN_MEDIAN_FILTER      1
 

@@ -20,7 +20,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PB_7,  I2C_1, STM_PIN_DATA(2, 4)},

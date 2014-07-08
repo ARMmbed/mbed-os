@@ -32,7 +32,7 @@
 
 #include "gpio_irq_api.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define EDGE_NONE (0)
 #define EDGE_RISE (1)

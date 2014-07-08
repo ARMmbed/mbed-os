@@ -19,7 +19,7 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 #include "toolchain.h"
-#include "mbed_error.h"
+#include "error.h"
 
 #define NEW_LOGIC       0
 #define NEW_ETH_BUFFER  0

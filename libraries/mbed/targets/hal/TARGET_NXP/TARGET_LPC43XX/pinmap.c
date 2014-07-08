@@ -17,7 +17,7 @@
  */
 #include "mbed_assert.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 void pin_function(PinName pin, int function) {
     MBED_ASSERT(pin != (PinName)NC);

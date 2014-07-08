@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "error.h"
 
 void pinmap_pinout(PinName pin, const PinMap *map) {
     if (pin == NC)

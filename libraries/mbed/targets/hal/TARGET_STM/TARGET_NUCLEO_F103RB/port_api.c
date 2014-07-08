@@ -33,7 +33,7 @@
 
 #include "pinmap.h"
 #include "gpio_api.h"
-#include "mbed_error.h"
+#include "error.h"
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 

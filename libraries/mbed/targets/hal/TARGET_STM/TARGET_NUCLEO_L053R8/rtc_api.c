@@ -31,7 +31,7 @@
 
 #if DEVICE_RTC
 
-#include "mbed_error.h"
+#include "error.h"
 
 static int rtc_inited = 0;
 

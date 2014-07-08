@@ -30,7 +30,7 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
-#include "mbed_error.h"
+#include "error.h"
 
 // GPIO mode look-up table
 static const uint32_t gpio_mode[12] = {

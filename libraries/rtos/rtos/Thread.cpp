@@ -21,7 +21,7 @@
  */
 #include "Thread.h"
 
-#include "mbed_error.h"
+#include "error.h"
 
 namespace rtos {
 
