@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library - cmsis_nvic for KL05Z
+/* mbed Microcontroller Library - cmsis_nvic for EFM32
  * Copyright (c) 2011 ARM Limited. All rights reserved.
  *
  * CMSIS-style functionality to support dynamic vectors
