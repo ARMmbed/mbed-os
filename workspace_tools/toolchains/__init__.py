@@ -590,7 +590,7 @@ class mbedToolchain:
         if len(deps) == 0 or self.need_update(object, deps):
             
             # Compile
-            command = cc + ['--depend=' + dep_path] + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+            command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
             
             if hasattr(self, "get_dep_opt"):
                 command.extend(self.get_dep_opt(dep_path))
