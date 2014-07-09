@@ -15,18 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import random
 import re
-from host_test import Test, DefaultTest
-from time import time, strftime, gmtime
+from host_test import DefaultTest
+from time import strftime, gmtime
 from sys import stdout
 
 class RTCTest(DefaultTest):
-    pattern_rtc_value = "^\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]\\n"
-    re_detect_rtc_value = re.compile(pattern_rtc_value)
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    PATTERN_RTC_VALUE = "^\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]\\n"
+    re_detect_rtc_value = re.compile(PATTERN_RTC_VALUE)
 
     def run(self):
         test_result = True
