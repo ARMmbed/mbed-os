@@ -163,7 +163,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     """ Function returns True is library was built and false if building was skipped """
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
-        print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
+        print '%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
         return False
 
     # Toolchain

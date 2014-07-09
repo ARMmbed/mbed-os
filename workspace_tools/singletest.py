@@ -332,13 +332,74 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 result = json.load(data_file)
             except ValueError as json_error_msg:
                 result = None
-                print "Error: %s" % (json_error_msg)
+                print "Error in '%s' file: %s" % (json_spec_filename, json_error_msg)
     except IOError as fileopen_error_msg:
         print "Error: %s" % (fileopen_error_msg)
     if verbose and result:
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(result)
     return result
+
+
+def print_muts_configuration_from_json(json_data, join_delim=", "):
+    """ Prints MUTs configuration passed to test script for verboseness. """
+    muts_info_cols = []
+    # We need to check all unique properties for each defined MUT
+    for k in json_data:
+        mut_info = json_data[k]
+        for property in mut_info:
+            if property not in muts_info_cols:
+                muts_info_cols.append(property)
+
+    # Prepare pretty table object to display all MUTs
+    pt_cols = ["index"] + muts_info_cols
+    pt = PrettyTable(pt_cols)
+    for col in pt_cols:
+        pt.align[col] = "l"
+
+    # Add rows to pretty print object
+    for k in json_data:
+        row = [k]
+        mut_info = json_data[k]
+        for col in muts_info_cols:
+            cell_val = mut_info[col] if col in mut_info else None
+            if type(cell_val) == ListType:
+                cell_val = join_delim.join(cell_val)
+            row.append(cell_val)
+        pt.add_row(row)
+    return pt.get_string()
+
+
+def print_test_configuration_from_json(json_data, join_delim=", "):
+    """ Prints test specification configuration passed to test script for verboseness. """
+    toolchains_info_cols = []
+    # We need to check all toolchains for each device
+    for k in json_data:
+        # k should be 'targets'
+        targets = json_data[k]
+        for target in targets:
+            toolchains = targets[target]
+            for toolchain in toolchains:
+                if toolchain not in toolchains_info_cols:
+                    toolchains_info_cols.append(toolchain)
+
+    # Prepare pretty table object to display test specification
+    pt_cols = ["mcu"] + sorted(toolchains_info_cols)
+    pt = PrettyTable(pt_cols)
+    for col in pt_cols:
+        pt.align[col] = "l"
+
+    for k in json_data:
+        # k should be 'targets'
+        targets = json_data[k]
+        for target in targets:
+            row = [target]
+            toolchains = targets[target]
+            for toolchain in toolchains_info_cols:
+                cell_val = 'Yes' if toolchain in toolchains else '-'
+                row.append(cell_val)
+            pt.add_row(row)
+    return pt.get_string()
 
 
 def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
@@ -612,6 +673,12 @@ if __name__ == '__main__':
                       default=False,
                       help="Only build tests, skips actual test procedures (flashing etc.)")
 
+    parser.add_option('', '--config',
+                      dest='verbose_test_configuration_only',
+                      default=False,
+                      action="store_true",
+                      help='Displays full test specification and MUTs configration and exits')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -642,17 +709,33 @@ if __name__ == '__main__':
     # Open file with test specification
     # test_spec_filename tells script which targets and their toolchain(s)
     # should be covered by the test scenario
-    test_spec = get_json_data_from_file(opts.test_spec_filename, opts.verbose) if opts.test_spec_filename else None
+    test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
     if test_spec is None:
         parser.print_help()
         exit(-1)
 
     # Get extra MUTs if applicable
     if opts.muts_spec_filename:
-        MUTs = get_json_data_from_file(opts.muts_spec_filename, opts.verbose)
+        MUTs = get_json_data_from_file(opts.muts_spec_filename)
+
     if MUTs is None:
         parser.print_help()
         exit(-1)
+
+    # Only prints read MUTs configuration
+    if MUTs and opts.verbose_test_configuration_only:
+        print "MUTs configuration in %s:"% opts.muts_spec_filename
+        print print_muts_configuration_from_json(MUTs)
+        print
+        print "Test specification in %s:"% opts.test_spec_filename
+        print print_test_configuration_from_json(test_spec)
+        exit(0)
+
+    # Verbose test specification and MUTs configuration
+    if MUTs and opts.verbose:
+        print print_muts_configuration_from_json(MUTs)
+    if test_spec and opts.verbose:
+        print print_test_configuration_from_json(test_spec)
 
     # Magic happens here... ;)
     start = time()
@@ -671,7 +754,11 @@ if __name__ == '__main__':
             # Let's build our test
             T = TARGET_MAP[target]
             build_mbed_libs_options = ["analyze"] if opts.goanna_for_mbed_sdk else None
-            build_mbed_libs(T, toolchain, options=build_mbed_libs_options)
+            build_mbed_libs_result = build_mbed_libs(T, toolchain, options=build_mbed_libs_options)
+            if not build_mbed_libs_result:
+                print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
+                continue
+
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
             for test_id, test in TEST_MAP.iteritems():
