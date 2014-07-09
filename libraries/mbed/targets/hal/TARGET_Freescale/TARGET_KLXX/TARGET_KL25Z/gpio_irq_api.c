@@ -30,40 +30,45 @@ static gpio_irq_handler irq_handler;
 #define IRQ_FALLING_EDGE    PORT_PCR_IRQC(10)
 #define IRQ_EITHER_EDGE     PORT_PCR_IRQC(11)
 
+const uint32_t search_bits[] = {0x0000FFFF, 0x000000FF, 0x0000000F, 0x00000003, 0x00000001};
+
 static void handle_interrupt_in(PORT_Type *port, int ch_base) {
-    uint32_t mask = 0, i;
+    uint32_t isfr;
+    uint8_t location;
 
-    for (i = 0; i < 32; i++) {
-        uint32_t pmask = (1 << i);
-        if (port->ISFR & pmask) {
-            mask |= pmask;
-            uint32_t id = channel_ids[ch_base + i];
-            if (id == 0) {
-                continue;
-            }
-
-            FGPIO_Type *gpio;
-            gpio_irq_event event = IRQ_NONE;
-            switch (port->PCR[i] & PORT_PCR_IRQC_MASK) {
-                case IRQ_RAISING_EDGE:
-                    event = IRQ_RISE;
-                    break;
-
-                case IRQ_FALLING_EDGE:
-                    event = IRQ_FALL;
-                    break;
-
-                case IRQ_EITHER_EDGE:
-                    gpio = (port == PORTA) ? (FPTA) : (FPTD);
-                    event = (gpio->PDIR & pmask) ? (IRQ_RISE) : (IRQ_FALL);
-                    break;
-            }
-            if (event != IRQ_NONE) {
-                irq_handler(id, event);
-            }
+    while((isfr = port->ISFR) != 0) {
+        location = 0;
+        for (int i = 0; i < 5; i++) {
+            if (!(isfr & (search_bits[i] << location)))
+                location += 1 << (4 - i);
         }
+        
+        uint32_t id = channel_ids[ch_base + location];
+        if (id == 0) {
+            continue;
+        }
+
+        FGPIO_Type *gpio;
+        gpio_irq_event event = IRQ_NONE;
+        switch (port->PCR[location] & PORT_PCR_IRQC_MASK) {
+            case IRQ_RAISING_EDGE:
+                event = IRQ_RISE;
+                break;
+
+            case IRQ_FALLING_EDGE:
+                event = IRQ_FALL;
+                break;
+
+            case IRQ_EITHER_EDGE:
+                gpio = (port == PORTA) ? (FPTA) : (FPTD);
+                event = (gpio->PDIR & (1 << location)) ? (IRQ_RISE) : (IRQ_FALL);
+                break;
+        }
+        if (event != IRQ_NONE) {
+            irq_handler(id, event);
+        }
+        port->ISFR = 1 << location;
     }
-    port->ISFR = mask;
 }
 
 void gpio_irqA(void) {handle_interrupt_in(PORTA, 0);}
