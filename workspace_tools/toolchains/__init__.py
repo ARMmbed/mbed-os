@@ -234,10 +234,6 @@ class mbedToolchain:
         self.timestamp = time()
         
         self.CHROOT = None
-        
-        self.mp_queue = None
-        self.mp_pool = None
-        self.mp_map = None
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -502,9 +498,8 @@ class mbedToolchain:
             return objects
 
     def compile_queue(self, queue, objects):
-        if self.mp_queue is None:
-            manager = Manager()
-            self.mp_queue = manager.Queue()
+        manager = Manager()
+        q = manager.Queue()
         
         groups = []
         groups_count = int(cpu_count())
@@ -512,13 +507,12 @@ class mbedToolchain:
             groups.append([])
         
         for i in range(len(queue)):
-            queue[i]['queue'] = self.mp_queue
+            queue[i]['queue'] = q
             g = i % groups_count
             groups[g].append(queue[i])
         
-        if self.mp_pool is None:
-            self.mp_pool = Pool(processes=groups_count)
-            self.mp_map = self.mp_pool.map_async(compile_worker, groups)
+        p = Pool(processes=groups_count)
+        m = p.map_async(compile_worker, groups)
         
         done = False
         itr = 0
@@ -531,10 +525,10 @@ class mbedToolchain:
             results = []
 
             try:
-                while not self.mp_queue.empty():
-                    results.append(self.mp_queue.get())
+                while not q.empty():
+                    results.append(q.get())
             except EOFError:
-                self.mp_pool.terminate()
+                p.terminate()
                 raise ToolException("Failed to spawn child process")
             
             if len(results):
@@ -550,20 +544,20 @@ class mbedToolchain:
                             result['command']
                         ])
                     except ToolException, err:
-                        self.mp_pool.terminate()
+                        p.terminate()
                         raise ToolException(err)
             
             if done:
                 break
 
-            if self.mp_map.ready(): 
+            if m.ready(): 
                 done = True
                 #let it run one more time to gather any results left in the queue
                 continue #skip the sleep
     
             sleep(0.1)
 
-        self.mp_pool.terminate()
+        p.terminate()
         
         return objects
                         
