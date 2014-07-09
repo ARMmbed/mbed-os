@@ -32,7 +32,7 @@ from time import sleep
 import workspace_tools.hooks as hooks
 import re
 
-CPU_COUNT_MIN = 100 #sets the default to 100 cpus effectively disabling multiprocessing
+CPU_COUNT_MIN = 1 #sets the default to 100 cpus effectively disabling multiprocessing
 
 def print_notify(event):
     # Default command line notification
@@ -234,6 +234,10 @@ class mbedToolchain:
         self.timestamp = time()
         
         self.CHROOT = None
+        
+        self.mp_queue = None
+        self.mp_pool = None
+        self.mp_map = None
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -289,31 +293,26 @@ class mbedToolchain:
             return True
 
         target_mod_time = stat(target).st_mtime
+
         for d in dependencies:
+
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
-            if not d:
+            if not d or not exists(d):
                 return True
-            
-            if self.stat_cache.has_key(d):
-                if self.stat_cache[d] >= target_mod_time:
-                    return True
-            else:
-                if not exists(d): return True
-                
-                self.stat_cache[d] = stat(d).st_mtime
-                if self.stat_cache[d] >= target_mod_time: return True
+
+            if stat(d).st_mtime >= target_mod_time:
+                return True
 
         return False
-
-    def need_update_new(self, target, dependencies):
         
+    def need_update_new(self, target, dependencies):
         if self.build_all:
             return True
-        
+
         if not exists(target):
             return True
-        
+
         target_mod_time = stat(target).st_mtime
         for d in dependencies:
             # Some objects are not provided with full path and here we do not have
@@ -329,7 +328,7 @@ class mbedToolchain:
                 
                 self.stat_cache[d] = stat(d).st_mtime
                 if self.stat_cache[d] >= target_mod_time: return True
-        
+
         return False
         
     def scan_resources(self, path):
@@ -463,17 +462,12 @@ class mbedToolchain:
             inc_paths.extend(inc_dirs)
         
         objects=[]
-        
-        queue = None
-        cpus = cpu_count()
-        # Use queues/multiprocessing if cpu count is higher than setting
-        if cpus > CPU_COUNT_MIN and len(files_to_compile) > cpus:
-            queue=[]
+        queue=[]
+        prev_dir=None
         
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
         files_to_compile.sort()
-        prev_dir=None
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
@@ -484,32 +478,33 @@ class mbedToolchain:
                 prev_dir = work_dir
                 mkdir(work_dir)
             
-            if queue is not None:
-                # Queue mode (multiprocessing)
-                command = self._compile_command(source, object, inc_paths)
-                if command is not None:
-                    queue.append({
-                        'source': source,
-                        'object': object,
-                        'command': command,
-                        'work_dir': work_dir,
-                        'chroot': self.CHROOT
-                    })
-                else:
-                    objects.append(object)
+            # Queue mode (multiprocessing)
+            command = self._compile_command(source, object, inc_paths)
+            if command is not None:
+                queue.append({
+                    'source': source,
+                    'object': object,
+                    'command': command,
+                    'work_dir': work_dir,
+                    'chroot': self.CHROOT
+                })
             else:
-                # Legacy mode (single core)
-                self.compile(source, object, inc_paths)
                 objects.append(object)
-        
-        if queue is not None:
+
+        # Use queues/multiprocessing if cpu count is higher than setting
+        cpus = cpu_count()
+        if cpus > CPU_COUNT_MIN and len(queue) > cpus:
             return self.compile_queue(queue, objects)
         else:
+            for item in queue:
+                self.compile(item['source'], item['object'], inc_paths)
+                objects.append(item['object'])
             return objects
 
     def compile_queue(self, queue, objects):
-        manager = Manager()
-        q = manager.Queue()
+        if self.mp_queue is None:
+            manager = Manager()
+            self.mp_queue = manager.Queue()
         
         groups = []
         groups_count = int(cpu_count())
@@ -517,12 +512,13 @@ class mbedToolchain:
             groups.append([])
         
         for i in range(len(queue)):
-            queue[i]['queue'] = q
+            queue[i]['queue'] = self.mp_queue
             g = i % groups_count
             groups[g].append(queue[i])
         
-        p = Pool(processes=groups_count)
-        r = p.map_async(compile_worker, groups)
+        if self.mp_pool is None:
+            self.mp_pool = Pool(processes=groups_count)
+            self.mp_map = self.mp_pool.map_async(compile_worker, groups)
         
         done = False
         itr = 0
@@ -535,10 +531,10 @@ class mbedToolchain:
             results = []
 
             try:
-                while not q.empty():
-                    results.append(q.get())
+                while not self.mp_queue.empty():
+                    results.append(self.mp_queue.get())
             except EOFError:
-                p.terminate()
+                self.mp_pool.terminate()
                 raise ToolException("Failed to spawn child process")
             
             if len(results):
@@ -554,52 +550,23 @@ class mbedToolchain:
                             result['command']
                         ])
                     except ToolException, err:
-                        p.terminate()
+                        self.mp_pool.terminate()
                         raise ToolException(err)
             
             if done:
                 break
 
-            if r.ready(): 
-                done =True
+            if self.mp_map.ready(): 
+                done = True
                 #let it run one more time to gather any results left in the queue
                 continue #skip the sleep
     
             sleep(0.1)
 
-        p.terminate()
+        self.mp_pool.terminate()
         
         return objects
-        
-    def compile(self, cc, source, object, includes):
-        # Check dependencies
-        base, _ = splitext(object)
-        dep_path = base + '.d'
-
-        self.compiled += 1
-        if (not exists(dep_path) or
-            self.need_update(object, self.parse_dependencies(dep_path))):
-
-            self.progress("compile", source, build_update=True)
-
-            # Compile
-            command = cc + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
-            if hasattr(self, "get_dep_opt"):
-                command.extend(self.get_dep_opt(dep_path))
-
-            if hasattr(self, "cc_extra"):
-                command.extend(self.cc_extra(base))
-
-            self.debug(command)
-            _, stderr, rc = run_cmd(self.hook.get_cmdline_compiler(command), dirname(object))
-
-            # Parse output for Warnings and Errors
-            self.parse_output(stderr)
-
-            # Check return code
-            if rc != 0:
-                raise ToolException(stderr)
-                
+                        
     def _compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
@@ -650,7 +617,7 @@ class mbedToolchain:
         # Check return code
         if rc != 0:
             raise ToolException(stderr)
-        
+
     def compile(self, source, object, includes):
         self.compiled += 1
         self.progress("compile", source, build_update=True)
