@@ -83,7 +83,6 @@ class Mbed:
                 serial.setBreak(False)
             except:
                 result = False
-                pass
         return result
 
     def reset(self):
@@ -97,6 +96,7 @@ class Mbed:
         if self.extra_serial:
             self.extra_serial.flushInput()
             self.extra_serial.flushOutput()
+
 
 class Test:
     def __init__(self):
