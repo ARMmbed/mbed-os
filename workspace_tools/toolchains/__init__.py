@@ -32,7 +32,8 @@ from time import sleep
 import workspace_tools.hooks as hooks
 import re
 
-CPU_COUNT_MIN = 1 #sets the default to 100 cpus effectively disabling multiprocessing
+#Disables multiprocessing if set to higher number than the host machine CPUs
+CPU_COUNT_MIN = 1 
 
 def print_notify(event):
     # Default command line notification
