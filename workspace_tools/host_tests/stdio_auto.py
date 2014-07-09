@@ -17,17 +17,13 @@ limitations under the License.
 
 import random
 import re
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from time import time
 from sys import stdout
 
 class StdioTest(DefaultTest):
-
-    pattern_int_value = "^Your value was: (-?\d+)"
-    re_detect_int_value = re.compile(pattern_int_value)
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    PATTERN_INT_VALUE = "^Your value was: (-?\d+)"
+    re_detect_int_value = re.compile(PATTERN_INT_VALUE)
 
     def run(self):
         test_result = True
