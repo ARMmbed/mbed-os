@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#if DEVICE_SPI
+#include "device.h"
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
@@ -30,16 +32,23 @@ void usart_init(spi_t *obj)
     init.baudrate = obj->baudrate;
     init.databits = obj->databits;
     init.master = obj->master;
-    init.msbf = obj->msbf;
     init.clockMode = obj->clockMode;
 
     USART_InitSync(obj->spi, &init);
 
     /* Enabling pins and setting location */
-    obj->spi->ROUTE = USART_ROUTE_TXPEN | USART_ROUTE_RXPEN | USART_ROUTE_CLKPEN | (obj->location << _USART_ROUTE_LOCATION_SHIFT);
-    if(!obj->master) {
-        obj->spi->ROUTE |= USART_ROUTE_CSPEN;
+    uint32_t route = USART_ROUTE_CLKPEN | (obj->location << _USART_ROUTE_LOCATION_SHIFT);
+
+    if (obj->mosi != NC) {
+        route |= USART_ROUTE_TXPEN;
     }
+    if (obj->miso != NC) {
+        route |= USART_ROUTE_RXPEN;
+    }
+    if (!obj->master) {
+        route |= USART_ROUTE_CSPEN;
+    }
+    obj->spi->ROUTE = route;
 }
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
@@ -79,26 +88,41 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
     CMU_ClockEnable(cmuClock_GPIO, true);
 
     switch ((int) obj->spi) {
+        #ifdef USART0
         case SPI_0:
             obj->clock = cmuClock_USART0;
             break;
+        #endif
+        #ifdef USART1
         case SPI_1:
             obj->clock = cmuClock_USART1;
             break;
+        #endif
+        #ifdef USART2
         case SPI_2:
             obj->clock = cmuClock_USART2;
             break;
+        #endif
     }
     CMU_ClockEnable(obj->clock, true);
 
     if (obj->master) { /* Master mode */
-        pin_mode(mosi, PushPull);
-        pin_mode(miso, Input);
+        /* Either mosi or miso can be NC */
+        if (mosi != NC) {
+            pin_mode(mosi, PushPull);
+        }
+        if (miso != NC) {
+            pin_mode(miso, Input);
+        }
         pin_mode(clk, PushPull);
         /* Don't set cs pin, since we toggle it manually */
     } else { /* Slave mode */
-        pin_mode(mosi, Input);
-        pin_mode(miso, PushPull);
+        if (mosi != NC) {
+            pin_mode(mosi, Input);
+        }
+        if (miso != NC) {
+            pin_mode(miso, PushPull);
+        }
         pin_mode(clk, Input);
         pin_mode(cs, Input);
     }
@@ -107,7 +131,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
     obj->baudrate = 1000000; /* 1 MHz */
     obj->bits = 8;
     obj->databits = usartDatabits8;
-    obj->msbf = false;
     obj->clockMode = usartClockMode0;
 
     usart_init(obj);
@@ -115,19 +138,33 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
 
 void spi_free(spi_t *obj)
 {
+    /* Reset USART and disable clock */
+    USART_Reset(obj->spi);
+    CMU_ClockEnable(obj->clock, false);
 
+    /* Disable GPIO pins */
+    if (obj->mosi != NC) {
+        pin_mode(obj->mosi, Disabled);
+    }
+    if (obj->miso != NC) {
+        pin_mode(obj->miso, Disabled);
+    }
+    if (obj->cs != NC) {
+        pin_mode(obj->cs, Disabled);
+    }
+    pin_mode(obj->clk, Disabled);
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    /* Databits: values between 4 and 16 are valid */
+    /* Bits: values between 4 and 16 are valid */
     MBED_ASSERT(bits >= 4 && bits <= 16);
     obj->bits = bits;
     /* 0x01 = usartDatabits4, etc, up to 0x0D = usartDatabits16 */
     obj->databits = (USART_Databits_TypeDef) (bits - 3);
 
     MBED_ASSERT(mode >= 0 && mode <= 3);
-    switch(mode) {
+    switch (mode) {
         case 0:
             obj->clockMode = usartClockMode0;
             break;
@@ -142,7 +179,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             break;
     }
 
-    if(slave) {
+    if (slave) {
         obj->master = false;
     } else {
         obj->master = true;
@@ -161,26 +198,21 @@ void spi_frequency(spi_t *obj, int hz)
 
 static inline void spi_write(spi_t *obj, int value)
 {
-    if(obj->bits <= 8) {
-        USART_Tx(obj->spi, (uint8_t)value);
+    if (obj->bits <= 8) {
+        USART_Tx(obj->spi, (uint8_t) value);
+    } else if (obj->bits == 9) {
+        USART_TxExt(obj->spi, (uint16_t) value & 0x1FF);
     } else {
-        USART_TxDouble(obj->spi, (uint16_t)value);
+        USART_TxDouble(obj->spi, (uint16_t) value);
     }
 }
 
 static inline int spi_read(spi_t *obj)
 {
-    if(obj->bits <= 8) {
-        return (int) USART_Rx(obj->spi);
-    } else {
-        return (int) USART_RxDouble(obj->spi);
-    }
-}
-
-static inline int spi_read_fast(spi_t *obj)
-{
-    if(obj->bits <= 8) {
+    if (obj->bits <= 8) {
         return (int) obj->spi->RXDATA;
+    } else if (obj->bits == 9) {
+        return (int) obj->spi->RXDATAX & 0x1FF;
     } else {
         return (int) obj->spi->RXDOUBLE;
     }
@@ -191,16 +223,16 @@ int spi_master_write(spi_t *obj, int value)
     /* Transmit data */
     spi_write(obj, value);
 
-    /*Waiting for transmission of last byte */
-    while (!(obj->spi->STATUS & USART_STATUS_TXC)) ;
+    /* Wait for transmission of last byte */
+    while (!(obj->spi->STATUS & USART_STATUS_TXC));
 
     /* Return received data */
-    return spi_read_fast(obj);
+    return spi_read(obj);
 }
 
 int spi_slave_receive(spi_t *obj)
 {
-    if(obj->bits <= 8) {
+    if (obj->bits <= 9) {
         return (obj->spi->STATUS & USART_STATUS_RXDATAV) ? 1 : 0;
     } else {
         return (obj->spi->STATUS & USART_STATUS_RXFULL) ? 1 : 0;
@@ -217,9 +249,4 @@ void spi_slave_write(spi_t *obj, int value)
     spi_write(obj, value);
 }
 
-//int spi_busy(spi_t *obj)
-//{
-//
-//}
-
-//#endif
+#endif

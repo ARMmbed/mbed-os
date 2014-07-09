@@ -53,7 +53,7 @@ struct gpio_irq_s {
 };
 
 struct serial_s {
-    USART_TypeDef * uart;
+    USART_TypeDef *uart;
     int index;
     uint32_t clock;
     PinName rx_pin;
@@ -71,7 +71,7 @@ struct serial_s {
 };
 
 struct spi_s {
-    USART_TypeDef * spi;
+    USART_TypeDef *spi;
     int index;
     int location;
     uint32_t clock;
@@ -84,7 +84,6 @@ struct spi_s {
     uint32_t baudrate;
     USART_Databits_TypeDef databits;
     bool master;
-    bool msbf;
     USART_ClockMode_TypeDef clockMode;
 };
 
