@@ -15,14 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from sys import stdout
 
 class HelloTest(DefaultTest):
     HELLO_WORLD = "Hello World\n"
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
 
     def run(self):
         c = self.mbed.serial.read(len(self.HELLO_WORLD))
