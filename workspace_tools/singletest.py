@@ -77,7 +77,6 @@ import pprint
 import re
 from types import ListType
 from prettytable import PrettyTable
-from serial import Serial
 
 from os.path import join, abspath, dirname, exists, basename
 from shutil import copy
@@ -106,7 +105,6 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 # Imports related to mbed build pi
-from workspace_tools.utils import delete_dir_files, copy_file
 from workspace_tools.settings import MUTs
 
 
@@ -150,49 +148,6 @@ class SingleTestRunner(object):
     def __init__(self):
         pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.re_detect_testcase_result = re.compile(pattern)
-
-    def run_simple_test(self, target_name, port,
-                        duration, verbose=False):
-        """
-        Functions resets target and grabs by timeouted pooling test log
-        via serial port.
-        Function assumes target is already flashed with proper 'test' binary.
-        """
-        output = ""
-        # Prepare serial for receiving data from target
-        baud = 9600
-        serial = Serial(port, timeout=1)
-        serial.setBaudrate(baud)
-        flush_serial(serial)
-        # Resetting target and pooling
-        reset(target_name, serial, verbose=verbose)
-        start_serial_timeour = time()
-        try:
-            while (time() - start_serial_timeour) < duration:
-                test_output = serial.read(512)
-                output += test_output
-                flush_serial(serial)
-                if '{end}' in output:
-                    break
-        except KeyboardInterrupt, _:
-            print "CTRL+C break"
-        flush_serial(serial)
-        serial.close()
-
-        # Handle verbose mode
-        if verbose:
-            print "Test::Output::Start"
-            print output
-            print "Test::Output::Finish"
-
-        # Parse test 'output' data
-        result = self.TEST_RESULT_UNDEF
-        for line in output.splitlines():
-            search_result = self.re_detect_testcase_result.search(line)
-            if search_result and len(search_result.groups()):
-                result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
-                break
-        return result
 
     def file_copy_method_selector(self, image_path, disk, copy_method):
         """ Copy file depending on method you want to use """
@@ -259,9 +214,6 @@ class SingleTestRunner(object):
             return (test_result, target_name, toolchain_name,
                     test_id, test_description, round(elapsed_time, 2), duration)
 
-        #if not target_by_mcu.is_disk_virtual:
-        #    delete_dir_files(disk)
-
         # Program MUT with proper image file
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
@@ -325,12 +277,6 @@ class SingleTestRunner(object):
                 result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
                 break
         return result
-
-
-def flush_serial(serial):
-    """ Flushing serial in/out. """
-    serial.flushInput()
-    serial.flushOutput()
 
 
 def is_peripherals_available(target_mcu_name, peripherals=None):
