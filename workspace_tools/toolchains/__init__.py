@@ -233,6 +233,7 @@ class mbedToolchain:
 
         self.build_all = False
         self.timestamp = time()
+        self.jobs = 1
         
         self.CHROOT = None
 
@@ -489,8 +490,8 @@ class mbedToolchain:
                 objects.append(object)
 
         # Use queues/multiprocessing if cpu count is higher than setting
-        cpus = cpu_count()
-        if cpus > CPU_COUNT_MIN and len(queue) > cpus:
+        jobs = self.jobs if self.jobs else cpu_count()
+        if jobs > CPU_COUNT_MIN and len(queue) > jobs:
             return self.compile_queue(queue, objects)
         else:
             for item in queue:
@@ -503,7 +504,7 @@ class mbedToolchain:
         q = manager.Queue()
         
         groups = []
-        groups_count = int(cpu_count())
+        groups_count = int(self.jobs if self.jobs else cpu_count())
         for i in range(groups_count):
             groups.append([])
         
