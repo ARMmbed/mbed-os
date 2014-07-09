@@ -17,7 +17,7 @@ limitations under the License.
 
 import socket
 import re
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from time import time
 from sys import stdout
 
@@ -26,11 +26,8 @@ class TCPEchoServerTest(DefaultTest):
     ECHO_PORT = 0
     s = None # Socket
 
-    pattern_server_ip = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
-    re_detect_server_ip = re.compile(pattern_server_ip)
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    PATTERN_SERVER_IP = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
+    re_detect_server_ip = re.compile(PATTERN_SERVER_IP)
 
     def run(self):
         ip_msg_timeout = self.mbed.options.timeout
