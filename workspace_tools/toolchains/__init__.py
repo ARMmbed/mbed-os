@@ -26,8 +26,13 @@ from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split
 from workspace_tools.patch import patch
 from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 
+from multiprocessing import Pool, Manager, cpu_count
+from time import sleep
+
 import workspace_tools.hooks as hooks
 import re
+
+CPU_COUNT_MIN = 100 #sets the default to 100 cpus effectively disabling multiprocessing
 
 def print_notify(event):
     # Default command line notification
@@ -60,6 +65,19 @@ def print_notify_verbose(event):
     elif event['type'] == 'progress':
         print_notify(event) # standard handle
 
+def compile_worker(jobs):
+    for job in jobs:
+        _, stderr, rc = run_cmd(job['command'], job['work_dir'])
+        
+        job['queue'].put({
+            'code': rc,
+            'output': stderr,
+            'command': job['command'],
+            'source': job['source'],
+            'object': job['object']
+        })
+    
+    return True
 
 class Resources:
     def __init__(self, base_path=None):
@@ -199,6 +217,7 @@ class mbedToolchain:
             self.options = []
         else:
             self.options = options
+
         self.macros = macros or []
         self.options.extend(BUILD_OPTIONS)
         if self.options:
@@ -209,9 +228,12 @@ class mbedToolchain:
         self.symbols = None
         self.labels = None
         self.has_config = False
+        self.stat_cache = {}
 
         self.build_all = False
         self.timestamp = time()
+        
+        self.CHROOT = None
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -267,19 +289,49 @@ class mbedToolchain:
             return True
 
         target_mod_time = stat(target).st_mtime
-
         for d in dependencies:
-
             # Some objects are not provided with full path and here we do not have
             # information about the library paths. Safe option: assume an update
-            if not d or not exists(d):
+            if not d:
                 return True
-
-            if stat(d).st_mtime >= target_mod_time:
-                return True
+            
+            if self.stat_cache.has_key(d):
+                if self.stat_cache[d] >= target_mod_time:
+                    return True
+            else:
+                if not exists(d): return True
+                
+                self.stat_cache[d] = stat(d).st_mtime
+                if self.stat_cache[d] >= target_mod_time: return True
 
         return False
 
+    def need_update_new(self, target, dependencies):
+        
+        if self.build_all:
+            return True
+        
+        if not exists(target):
+            return True
+        
+        target_mod_time = stat(target).st_mtime
+        for d in dependencies:
+            # Some objects are not provided with full path and here we do not have
+            # information about the library paths. Safe option: assume an update
+            if not d:
+                return True
+            
+            if self.stat_cache.has_key(d):
+                if self.stat_cache[d] >= target_mod_time:
+                    return True
+            else:
+                if not exists(d): return True
+                
+                self.stat_cache[d] = stat(d).st_mtime
+                if self.stat_cache[d] >= target_mod_time: return True
+        
+        return False
+        
     def scan_resources(self, path):
         labels = self.get_labels()
         resources = Resources(path)
@@ -395,39 +447,130 @@ class mbedToolchain:
         obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
-
+        
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
-        self.to_be_compiled = len(resources.s_sources) + len(resources.c_sources) + len(resources.cpp_sources)
+        files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
+        self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
-
-        objects = []
+        
+        #for i in self.build_params:
+        #    self.debug(i)
+        #    self.debug("%s" % self.build_params[i])
+        
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
-
+        
+        objects=[]
+        
+        queue = None
+        cpus = cpu_count()
+        # Use queues/multiprocessing if cpu count is higher than setting
+        if cpus > CPU_COUNT_MIN and len(files_to_compile) > cpus:
+            queue=[]
+        
+        # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
-        for source in resources.s_sources:
-            self.compiled += 1
+        files_to_compile.sort()
+        prev_dir=None
+        for source in files_to_compile:
+            _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-            if self.need_update(object, [source]):
-                self.progress("assemble", source, build_update=True)
-                self.assemble(source, object, inc_paths)
-            objects.append(object)
+            
+            # Avoid multiple mkdir() calls on same work directory
+            work_dir = dirname(object)
+            if work_dir is not prev_dir:
+                prev_dir = work_dir
+                mkdir(work_dir)
+            
+            if queue is not None:
+                # Queue mode (multiprocessing)
+                command = self._compile_command(source, object, inc_paths)
+                if command is not None:
+                    queue.append({
+                        'source': source,
+                        'object': object,
+                        'command': command,
+                        'work_dir': work_dir,
+                        'chroot': self.CHROOT
+                    })
+                else:
+                    objects.append(object)
+            else:
+                # Legacy mode (single core)
+                self.compile(source, object, inc_paths)
+                objects.append(object)
+        
+        if queue is not None:
+            return self.compile_queue(queue, objects)
+        else:
+            return objects
 
-        # The dependency checking for C/C++ is delegated to the specific compiler
-        for source in resources.c_sources:
-            object = self.relative_object_path(build_path, base_path, source)
-            self.compile_c(source, object, inc_paths)
-            objects.append(object)
+    def compile_queue(self, queue, objects):
+        manager = Manager()
+        q = manager.Queue()
+        
+        groups = []
+        groups_count = int(cpu_count())
+        for i in range(groups_count):
+            groups.append([])
+        
+        for i in range(len(queue)):
+            queue[i]['queue'] = q
+            g = i % groups_count
+            groups[g].append(queue[i])
+        
+        p = Pool(processes=groups_count)
+        r = p.map_async(compile_worker, groups)
+        
+        done = False
+        itr = 0
 
-        for source in resources.cpp_sources:
-            object = self.relative_object_path(build_path, base_path, source)
-            self.compile_cpp(source, object, inc_paths)
-            objects.append(object)
+        while True:
+            if itr > 3000:
+                raise ToolException("Compile did not finish in less than 5 minutes")
+            itr = itr + 1
 
+            results = []
+
+            try:
+                while not q.empty():
+                    results.append(q.get())
+            except EOFError:
+                p.terminate()
+                raise ToolException("Failed to spawn child process")
+            
+            if len(results):
+                for result in results:
+                    objects.append(result['object'])
+                    self.compiled += 1
+                    self.progress("compile", result['source'], build_update=True)
+                    
+                    try:
+                        self._compile_output([
+                            result['code'],
+                            result['output'],
+                            result['command']
+                        ])
+                    except ToolException, err:
+                        p.terminate()
+                        raise ToolException(err)
+            
+            if done:
+                break
+
+            if r.ready(): 
+                done =True
+                #let it run one more time to gather any results left in the queue
+                continue #skip the sleep
+    
+            sleep(0.1)
+
+        p.terminate()
+        
         return objects
-
+        
     def compile(self, cc, source, object, includes):
         # Check dependencies
         base, _ = splitext(object)
@@ -456,12 +599,73 @@ class mbedToolchain:
             # Check return code
             if rc != 0:
                 raise ToolException(stderr)
-
+                
+    def _compile_command(self, source, object, includes):
+        # Check dependencies
+        _, ext = splitext(source)
+        ext = ext.lower()
+        base, _ = splitext(object)
+        dep_path = base + '.d'
+        asm_mode = False
+        
+        if ext == '.c':
+            cc = self.cc
+        elif ext == '.cpp':
+            cc = self.cppc
+        elif ext == '.s':
+            cc = self.cc
+            asm_mode = True
+        else:
+            return False
+        
+        deps = []
+        if asm_mode:
+            deps = [source]
+        elif exists(dep_path):
+            deps = self.parse_dependencies(dep_path)
+        
+        if len(deps) == 0 or self.need_update(object, deps):
+            
+            # Compile
+            command = cc + ['--depend=' + dep_path] + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+            
+            if hasattr(self, "get_dep_opt"):
+                command.extend(self.get_dep_opt(dep_path))
+            
+            if hasattr(self, "cc_extra"):
+                command.extend(self.cc_extra(base))
+            
+            return command
+        
+        return None
+        
+    def _compile_output(self, output=[]):
+        rc = output[0]
+        stderr = output[1]
+        command = output[2]
+        
+        # Parse output for Warnings and Errors
+        self.parse_output(stderr)
+        
+        # Check return code
+        if rc != 0:
+            raise ToolException(stderr)
+        
+    def compile(self, source, object, includes):
+        self.compiled += 1
+        self.progress("compile", source, build_update=True)
+        
+        command = self._compile_command(source, object, includes)
+        if command is None: return True
+        
+        _, stderr, rc = run_cmd(command, dirname(object))
+        self._compile_output([rc, stderr, command])
+        
     def compile_c(self, source, object, includes):
-        self.compile(self.cc, source, object, includes)
+        self.compile(source, object, includes)
 
     def compile_cpp(self, source, object, includes):
-        self.compile(self.cppc, source, object, includes)
+        self.compile(source, object, includes)
 
     def build_library(self, objects, dir, name):
         lib = self.STD_LIB_NAME % name
