@@ -136,24 +136,29 @@ class ProcessObserver(Thread):
 class SingleTestRunner(object):
     """ Object wrapper for single test run which may involve multiple MUTs."""
 
-    re_detect_testcase_result = None
+    RE_DETECT_TESTCASE_RESULT = None
     TEST_RESULT_OK = "OK"
     TEST_RESULT_FAIL = "FAIL"
     TEST_RESULT_ERROR = "ERROR"
     TEST_RESULT_UNDEF = "UNDEF"
     TEST_RESULT_IOERR_COPY = "IOERR_COPY"
     TEST_RESULT_IOERR_DISK = "IOERR_DISK"
+    TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
 
     # mbed test suite -> SingleTestRunner
     TEST_RESULT_MAPPING = {"success" : TEST_RESULT_OK,
                            "failure" : TEST_RESULT_FAIL,
-                           "error"   : TEST_RESULT_ERROR,
-                           "end"     : TEST_RESULT_UNDEF}
+                           "error" : TEST_RESULT_ERROR,
+                           "ioerr_copy" : TEST_RESULT_IOERR_COPY,
+                           "ioerr_disk" : TEST_RESULT_IOERR_DISK,
+                           "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
+                           "timeout" : TEST_RESULT_TIMEOUT,
+                           "end" : TEST_RESULT_UNDEF}
 
     def __init__(self):
         pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
-        self.re_detect_testcase_result = re.compile(pattern)
+        self.RE_DETECT_TESTCASE_RESULT = re.compile(pattern)
 
     def file_copy_method_selector(self, image_path, disk, copy_method):
         """ Copy file depending on method you want to use """
@@ -313,7 +318,7 @@ class SingleTestRunner(object):
         # Parse test 'output' data
         result = self.TEST_RESULT_UNDEF
         for line in "".join(output).splitlines():
-            search_result = self.re_detect_testcase_result.search(line)
+            search_result = self.RE_DETECT_TESTCASE_RESULT.search(line)
             if search_result and len(search_result.groups()):
                 result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
                 break
