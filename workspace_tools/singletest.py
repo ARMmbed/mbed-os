@@ -177,6 +177,17 @@ class SingleTestRunner(object):
             # Default python method
             copy(image_path, disk)
 
+    def delete_file(file_path):
+        """ Remove file from the system """
+        result = True
+        resutl_msg = ""
+        try:
+            os.remove(file_path)
+        except Exception, e:
+            resutl_msg = e
+            result = False
+        return result, resutl_msg
+
     def handle(self, test_spec, target_name, toolchain_name):
         """
         Function determines MUT's mbed disk/port and copies binary to
