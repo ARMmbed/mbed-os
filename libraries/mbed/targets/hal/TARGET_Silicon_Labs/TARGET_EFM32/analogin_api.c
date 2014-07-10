@@ -27,23 +27,24 @@
 #include "em_adc.h"
 #include "em_cmu.h"
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     obj->adc_input = (ADCName) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc_input != (ADCName)NC);
-    
+    MBED_ASSERT(obj->adc_input != (ADCName )NC);
+
     /* Enable required clocks */
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_ADC0, true);
 
     /* Init with default settings */
-    ADC_Init_TypeDef       init       = ADC_INIT_DEFAULT;
+    ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
     ADC_Init(ADC0, &init);
 
     ADC_InitSingle_TypeDef singleInit = ADC_INITSINGLE_DEFAULT;
 
     /* Init for single conversion use, measure input channel with Vdd reference. */
-    singleInit.reference  = adcRefVDD;
-    singleInit.input      = (ADC_SingleInput_TypeDef) obj->adc_input;
+    singleInit.reference = adcRefVDD;
+    singleInit.input = (ADC_SingleInput_TypeDef) obj->adc_input;
     singleInit.resolution = adcRes12Bit;
 
     singleInit.acqTime = adcAcqTime32;
@@ -51,19 +52,21 @@ void analogin_init(analogin_t *obj, PinName pin) {
     ADC_InitSingle(ADC0, &singleInit);
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint16_t sample = 0;
     //Make sure a single conversion is not in progress
     ADC0->CMD = ADC_CMD_SINGLESTOP;
 
     // Make sure we are checking the correct channel 
-    ADC0->SINGLECTRL |= (obj->adc_input << _ADC_SINGLECTRL_INPUTSEL_SHIFT);
-    ADC0->SINGLECTRL &= ~(~obj->adc_input << _ADC_SINGLECTRL_INPUTSEL_SHIFT);
+    ADC0->SINGLECTRL = (ADC0->SINGLECTRL & ~_ADC_SINGLECTRL_INPUTSEL_MASK)
+            | (obj->adc_input << _ADC_SINGLECTRL_INPUTSEL_SHIFT);
 
     ADC_Start(ADC0, adcStartSingle);
 
     /* Wait while conversion is active */
-    while (ADC0->STATUS & ADC_STATUS_SINGLEACT) ;
+    while (ADC0->STATUS & ADC_STATUS_SINGLEACT)
+        ;
 
     /* Get ADC result */
     sample = ADC_DataSingleGet(ADC0);
@@ -73,9 +76,10 @@ uint16_t analogin_read_u16(analogin_t *obj) {
     return sample << 4;
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     /* Convert from a uint16 to a float between 0 and 1 by division by 0xFFFF */
-    return analogin_read_u16(obj)/(float)0xFFFF;
+    return analogin_read_u16(obj) / (float) 0xFFFF;
 }
 
 #endif
