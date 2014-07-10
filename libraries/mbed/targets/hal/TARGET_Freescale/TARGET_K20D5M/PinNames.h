@@ -197,10 +197,10 @@ typedef enum {
     LED_BLUE  = PTA2,
 
     // mbed original LED naming
-    LED1 = LED_BLUE,
+    LED1 = LED_RED,
     LED2 = LED_GREEN,
-    LED3 = LED_RED,
-    LED4 = LED_RED,
+    LED3 = LED_BLUE,
+    LED4 = LED_BLUE,
 
     // USB Pins
     USBTX = PTB17,
@@ -230,6 +230,12 @@ typedef enum {
     A3 = PTD5,
     A4 = PTB1,
     A5 = PTB0,
+
+    I2C_SCL = D15,
+    I2C_SDA = D14,
+
+    TSI_ELEC0 = PTB16,
+    TSI_ELEC1 = PTB17,
 
     // Not connected
     NC = (int)0xFFFFFFFF
