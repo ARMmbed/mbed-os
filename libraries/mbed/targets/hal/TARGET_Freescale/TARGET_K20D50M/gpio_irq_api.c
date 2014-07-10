@@ -29,21 +29,13 @@ static gpio_irq_handler irq_handler;
 #define IRQ_FALLING_EDGE    PORT_PCR_IRQC(10)
 #define IRQ_EITHER_EDGE     PORT_PCR_IRQC(11)
 
-static const uint32_t search_bits[] = {0x0000FFFF, 0x000000FF, 0x0000000F, 0x00000003, 0x00000001};
-
-
 static void handle_interrupt_in(PORT_Type *port, int ch_base) {
     uint32_t isfr;
-    uint32_t location;
+    uint32_t pin;
 
-    while((isfr = port->ISFR) != 0) {
-        location = 0;
-        for (int i = 0; i < 5; i++) {
-            if (!(isfr & (search_bits[i] << location)))
-                location += 1 << (4 - i);
-        }
-        
-        uint32_t id = channel_ids[ch_base + location];
+    while ((isfr = port->ISFR) != 0) {
+        pin = 31 - __CLZ(isfr);
+        uint32_t id = channel_ids[ch_base + pin];
         if (id == 0) {
             continue;
         }
@@ -51,24 +43,23 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
         GPIO_Type *gpio = PTA;
         gpio_irq_event event = IRQ_NONE;
         uint32_t port_num = (port - PORTA) >> 12;
-        switch (port->PCR[location] & PORT_PCR_IRQC_MASK) {
+
+        switch (port->PCR[pin] & PORT_PCR_IRQC_MASK) {
             case IRQ_RAISING_EDGE:
                 event = IRQ_RISE;
                 break;
-
             case IRQ_FALLING_EDGE:
                 event = IRQ_FALL;
                 break;
-
             case IRQ_EITHER_EDGE:
                 gpio += (port_num * 0x40);
-                event = (gpio->PDIR & (1 << location)) ? (IRQ_RISE) : (IRQ_FALL);
+                event = (gpio->PDIR & (1 << pin)) ? (IRQ_RISE) : (IRQ_FALL);
                 break;
         }
         if (event != IRQ_NONE) {
             irq_handler(id, event);
         }
-        port->ISFR = 1 << location;
+        port->ISFR = 1 << pin;
     }
 }
 
