@@ -17,16 +17,17 @@
 #include "PeripheralPins.h"
 
 /************ADC***************/
+/* The third "function" value is used to select the correct ADC channel */
 const PinMap PinMap_ADC[] = {
-    {PD_0, ADC0_PD0, 0},
-    {PD_1, ADC0_PD1, 0},
-    {PD_2, ADC0_PD2, 0},
-    {PD_3, ADC0_PD3, 0},
-    {PD_4, ADC0_PD4, 0},
-    {PD_5, ADC0_PD5, 0},
-    {PD_6, ADC0_PD6, 0},
-    {PD_7, ADC0_PD7, 0},
-    {NC  , NC   , 0}
+    {PD_0, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH0},
+    {PD_1, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH1},
+    {PD_2, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH2},
+    {PD_3, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH3},
+    {PD_4, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH4},
+    {PD_5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
+    {PD_6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
+    {PD_7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
+    {NC  , NC   , NC}
 };
 
 /************DAC***************/

@@ -26,7 +26,8 @@ extern "C" {
 
 #if DEVICE_ANALOGIN
 struct analogin_s {
-    ADCName adc_input;
+    ADC_TypeDef *adc;
+    uint32_t channel;
 };
 #endif
 
