@@ -93,6 +93,8 @@ sys.path.insert(0, ROOT)
 # Imports related to mbed build pi
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import mcu_toolchain_matrix
+from workspace_tools.build_api import get_unique_supported_toolchains
+from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.targets import TARGET_MAP
@@ -389,17 +391,46 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
     for col in pt_cols:
         pt.align[col] = "l"
 
+    # { target : [conflicted toolchains] }
+    toolchain_conflicts = {}
     for k in json_data:
         # k should be 'targets'
         targets = json_data[k]
         for target in targets:
-            row = [target]
+            target_supported_toolchains = get_target_supported_toolchains(target)
+            if not target_supported_toolchains:
+                target_supported_toolchains = []
+            target_name = target if target in TARGET_MAP else "%s*"% target
+            row = [target_name]
             toolchains = targets[target]
             for toolchain in toolchains_info_cols:
+                # Check for conflicts
+                conflict = False
+                if toolchain in toolchains:
+                    if toolchain not in target_supported_toolchains:
+                        conflict = True
+                        if target not in toolchain_conflicts:
+                            toolchain_conflicts[target] = []
+                        toolchain_conflicts[target].append(toolchain)
+                # Add marker inside table about target usage / conflict
                 cell_val = 'Yes' if toolchain in toolchains else '-'
+                if conflict:
+                    cell_val += '*'
                 row.append(cell_val)
             pt.add_row(row)
-    return pt.get_string()
+
+    # generate result string
+    result = pt.get_string()    # Test specification table
+    if toolchain_conflicts:     # Print conflicts if the exist
+        result += "\n"
+        result += "Toolchain conflicts:\n"
+        for target in toolchain_conflicts:
+            if target not in TARGET_MAP:
+                result += "\t* Target %s unknown\n"% (target)
+            conflict_target_list = ", ".join(toolchain_conflicts[target])
+            sufix = 's' if len(toolchain_conflicts[target]) > 1 else ''
+            result += "\t* Target %s does not support %s toolchain%s\n"% (target, conflict_target_list, sufix)
+    return result
 
 
 def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
