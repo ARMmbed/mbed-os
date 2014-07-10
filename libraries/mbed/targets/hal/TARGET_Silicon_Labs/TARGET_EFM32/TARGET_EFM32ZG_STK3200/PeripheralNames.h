@@ -41,11 +41,7 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    UART_0 = NC,
-    UART_1 = NC,
-    USART_0 = NC,
-    USART_1 = USART1_BASE,
-    USART_2 = NC
+    USART_1 = USART1_BASE
 } UARTName;
 
 #define STDIO_UART_TX     USBTX
@@ -53,9 +49,7 @@ typedef enum {
 #define STDIO_UART        USART1
 
 typedef enum {
-    SPI_0 = NC,
-    SPI_1 = USART1_BASE,
-    SPI_2 = NC
+    SPI_1 = USART1_BASE
 } SPIName;
 
 #ifdef __cplusplus

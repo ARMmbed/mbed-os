@@ -41,18 +41,27 @@ int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 static void uart_irq(UARTName, int, SerialIrq);
-/* ISRs for RX events */
+/* ISRs for RX and TX events */
+#ifdef UART0
 static void uart0_rx_irq() { uart_irq(UART_0, 0, RxIrq); }
-static void uart1_rx_irq() { uart_irq(UART_1, 1, RxIrq); }
-static void usart0_rx_irq() { uart_irq(USART_0, 2, RxIrq); }
-static void usart1_rx_irq() { uart_irq(USART_1, 3, RxIrq); }
-static void usart2_rx_irq() { uart_irq(USART_2, 4, RxIrq); }
-/* ISRs for TX events */
 static void uart0_tx_irq() { uart_irq(UART_0, 0, TxIrq); }
+#endif
+#ifdef UART1
+static void uart1_rx_irq() { uart_irq(UART_1, 1, RxIrq); }
 static void uart1_tx_irq() { uart_irq(UART_1, 1, TxIrq); }
+#endif
+#ifdef USART0
+static void usart0_rx_irq() { uart_irq(USART_0, 2, RxIrq); }
 static void usart0_tx_irq() { uart_irq(USART_0, 2, TxIrq); }
+#endif
+#ifdef USART1
+static void usart1_rx_irq() { uart_irq(USART_1, 3, RxIrq); }
 static void usart1_tx_irq() { uart_irq(USART_1, 3, TxIrq); }
+#endif
+#ifdef USART2
+static void usart2_rx_irq() { uart_irq(USART_2, 4, RxIrq); }
 static void usart2_tx_irq() { uart_irq(USART_2, 4, TxIrq); }
+#endif
 
 /**
  * Initialize the UART using default settings, overridden by settings from serial object

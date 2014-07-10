@@ -47,64 +47,64 @@ const PinMap PinMap_PWM[] = {
 /*************SPI**************/
 const PinMap PinMap_SPI_MOSI[] = {
         /* USART0 */
-        {PE_10, USART_0, 0},
-        {PE_7, USART_0, 1},
-        {PC_11, USART_0, 2},
-        {PC_0, USART_0, 5},
+        {PE_10, SPI_0, 0},
+        {PE_7, SPI_0, 1},
+        {PC_11, SPI_0, 2},
+        {PC_0, SPI_0, 5},
         /* USART1 */
-        {PD_0, USART_1, 1},
-        {PD_7, USART_1, 2},
+        {PD_0, SPI_1, 1},
+        {PD_7, SPI_1, 2},
         /* USART2 */
-        {PC_2, USART_2, 0},
-        {PB_3, USART_2, 1},
+        {PC_2, SPI_2, 0},
+        {PB_3, SPI_2, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
         /* USART0 */
-        {PE_11, USART_0, 0},
-        {PE_6, USART_0, 1},
-        {PC_10, USART_0, 2},
-        {PC_1, USART_0, 5},
+        {PE_11, SPI_0, 0},
+        {PE_6, SPI_0, 1},
+        {PC_10, SPI_0, 2},
+        {PC_1, SPI_0, 5},
         /* USART1 */
-        {PD_1, USART_1, 1},
-        {PD_6, USART_1, 2},
+        {PD_1, SPI_1, 1},
+        {PD_6, SPI_1, 2},
         /* USART2 */
-        {PC_3, USART_2, 0},
-        {PB_4, USART_2, 1},
+        {PC_3, SPI_2, 0},
+        {PB_4, SPI_2, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
         /* USART0 */
-        {PE_12, USART_0, 0},
-        {PE_5, USART_0, 1},
-        {PC_9, USART_0, 2},
-        {PB_13, USART_0, 5},
+        {PE_12, SPI_0, 0},
+        {PE_5, SPI_0, 1},
+        {PC_9, SPI_0, 2},
+        {PB_13, SPI_0, 5},
         /* USART1 */
-        {PD_2, USART_1, 1},
-        {PF_0, USART_1, 2},
+        {PD_2, SPI_1, 1},
+        {PF_0, SPI_1, 2},
         /* USART2 */
-        {PC_4, USART_2, 0},
-        {PB_5, USART_2, 1},
+        {PC_4, SPI_2, 0},
+        {PB_5, SPI_2, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
         /* USART0 */
-        {PE_13, USART_0, 0},
-        {PE_4, USART_0, 1},
-        {PC_8, USART_0, 2},
-        {PB_14, USART_0, 5},
+        {PE_13, SPI_0, 0},
+        {PE_4, SPI_0, 1},
+        {PC_8, SPI_0, 2},
+        {PB_14, SPI_0, 5},
         /* USART1 */
-        {PD_3, USART_1, 1},
-        {PF_1, USART_1, 2},
+        {PD_3, SPI_1, 1},
+        {PF_1, SPI_1, 2},
         /* USART2 */
-        {PC_5, USART_2, 0},
-        {PB_6, USART_2, 1},
+        {PC_5, SPI_2, 0},
+        {PB_6, SPI_2, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };
@@ -132,7 +132,7 @@ const PinMap PinMap_UART_TX[] = {
         {PC_2, USART_2, 0},
         {PB_3, USART_2, 1},
         /* Not connected */
-        {NC  , NC   , 0}
+        {NC  , NC   , NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -157,5 +157,5 @@ const PinMap PinMap_UART_RX[] = {
         {PC_3, USART_2, 0},
         {PB_4, USART_2, 1},
         /* Not connected */
-        {NC  , NC   , 0}
+        {NC  , NC   , NC}
 };
