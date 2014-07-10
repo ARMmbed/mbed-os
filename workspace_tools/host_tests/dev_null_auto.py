@@ -20,7 +20,11 @@ from sys import stdout
 
 class DevNullTest(DefaultTest):
     def run(self):
-        c = self.mbed.serial.read(512)
+        c = self.mbed.serial_read(512)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        # Data from serial received correctly
         print "Received %d bytes" % len(c)
         if "{failure}" not in c:
             self.print_result('success')

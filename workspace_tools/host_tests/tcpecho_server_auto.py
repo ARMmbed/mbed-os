@@ -34,7 +34,10 @@ class TCPEchoServerTest(DefaultTest):
         serial_ip_msg = ""
         start_serial_pool = time();
         while (time() - start_serial_pool) < ip_msg_timeout:
-            c = self.mbed.serial.read(512)
+            c = self.mbed.serial_read(512)
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             stdout.write(c)
             stdout.flush()
             serial_ip_msg += c
@@ -77,7 +80,10 @@ class TCPEchoServerTest(DefaultTest):
         # Receiving
         try:
             while True:
-                c = self.mbed.serial.read(512)
+                c = self.mbed.serial_read(512)
+                if c is None:
+                    self.print_result("ioerr_serial")
+                    break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:

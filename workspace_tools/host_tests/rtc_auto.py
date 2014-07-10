@@ -28,7 +28,10 @@ class RTCTest(DefaultTest):
         test_result = True
         c = self.mbed.serial.timeout = None
         for i in range(0, 5):
-            c = self.mbed.serial.read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
+            c = self.mbed.serial_read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             stdout.flush()
             m = self.re_detect_rtc_value.search(c)
             if m and len(m.groups()):

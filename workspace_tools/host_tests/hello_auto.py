@@ -22,7 +22,10 @@ class HelloTest(DefaultTest):
     HELLO_WORLD = "Hello World\n"
 
     def run(self):
-        c = self.mbed.serial.read(len(self.HELLO_WORLD))
+        c = self.mbed.serial_read(len(self.HELLO_WORLD))
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
         stdout.write(c)
         if c == self.HELLO_WORLD: # Hello World received
             self.print_result('success')
