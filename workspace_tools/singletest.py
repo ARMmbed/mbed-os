@@ -214,11 +214,9 @@ class SingleTestRunner(object):
             result = False
         return result, resutl_msg
 
-    def handle(self, test_spec, target_name, toolchain_name):
-        """
-        Function determines MUT's mbed disk/port and copies binary to
-        target. Test is being invoked afterwards.
-        """
+    def handle(self, test_spec, target_name, toolchain_name, test_loops=1):
+        """ Function determines MUT's mbed disk/port and copies binary to
+            target. Test is being invoked afterwards. """
         data = json.loads(test_spec)
         # Get test information, image and test timeout
         test_id = data['test_id']
@@ -257,29 +255,33 @@ class SingleTestRunner(object):
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
-        # Choose one method of copy files to mbed virtual drive
-        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, opts.copy_method)
+        # Tests can be looped so test results must be stored for the same test
+        test_all_result = []
+        for test_index in range(test_loops):
+            # Choose one method of copy files to mbed virtual drive
+            _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, opts.copy_method)
 
-        # Host test execution
-        start_host_exec_time = time()
-
-        if not _copy_res:   # Serial port copy error
-            test_result = "IOERR_COPY"
-            print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
-        else:
-            # Copy Extra Files
-            if not target_by_mcu.is_disk_virtual and test.extra_files:
-                for f in test.extra_files:
-                    copy(f, disk)
-
-            sleep(target_by_mcu.program_cycle_s())
             # Host test execution
             start_host_exec_time = time()
-            test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
 
-        elapsed_time = time() - start_host_exec_time
-        print print_test_result(test_result, target_name, toolchain_name,
-                                test_id, test_description, elapsed_time, duration)
+            if not _copy_res:   # Serial port copy error
+                test_result = "IOERR_COPY"
+                print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
+            else:
+                # Copy Extra Files
+                if not target_by_mcu.is_disk_virtual and test.extra_files:
+                    for f in test.extra_files:
+                        copy(f, disk)
+
+                sleep(target_by_mcu.program_cycle_s())
+                # Host test execution
+                start_host_exec_time = time()
+                test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
+                test_all_result.append(test_result)
+
+            elapsed_time = time() - start_host_exec_time
+            print print_test_result(test_result, target_name, toolchain_name,
+                                    test_id, test_description, elapsed_time, duration)
         return (test_result, target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2), duration)
 
@@ -758,6 +760,14 @@ if __name__ == '__main__':
                       default=False,
                       action="store_true",
                       help='Displays full test specification and MUTs configration and exits')
+
+    parser.add_option('', '--loops',
+                      dest='test_loops_list',
+                      help='Set no. of loops per test. Format: TEST_1=1,TEST_2=2,TEST_3=3')
+
+    parser.add_option('', '--global-loops',
+                      dest='test_global_loops_value',
+                      help='Set global number of test loops per test. Default value is set 1')
 
     parser.add_option('-v', '--verbose',
                       dest='verbose',
