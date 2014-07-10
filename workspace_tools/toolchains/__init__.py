@@ -505,18 +505,18 @@ class mbedToolchain:
 
     def compile_queue(self, queue, objects):
         jobs_count = int(self.jobs if self.jobs else cpu_count())
-        if self.mp_pool is None or self.mp_pool._state == 2: # TERMINATE
-            self.mp_pool = Pool(processes=jobs_count)
+        p = Pool(processes=jobs_count)
         
         results = []
         for i in range(len(queue)):
-            results.append(self.mp_pool.apply_async(compile_worker, [queue[i]]))
+            results.append(p.apply_async(compile_worker, [queue[i]]))
 
         itr = 0
         while True:
             itr += 1
             if itr > 6000:
-                self.mp_pool.terminate()
+                p.terminate()
+                p.join()
                 raise ToolException("Compile did not finish in 5 minutes")
             
             pending = 0
@@ -536,7 +536,8 @@ class mbedToolchain:
                         ])
                         objects.append(result['object'])
                     except ToolException, err:
-                        self.mp_pool.terminate()
+                        p.terminate()
+                        p.join()
                         raise ToolException(err)
                 else:
                     pending += 1
@@ -550,6 +551,8 @@ class mbedToolchain:
             sleep(0.01)
 
         results = None
+        p.terminate()
+        p.join()        
         
         return objects
                         
@@ -566,7 +569,7 @@ class mbedToolchain:
         elif ext == '.cpp':
             cc = self.cppc
         elif ext == '.s':
-            cc = self.cc
+            cc = self.asm
             asm_mode = True
         else:
             return False
