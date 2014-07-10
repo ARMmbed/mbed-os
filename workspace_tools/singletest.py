@@ -137,6 +137,8 @@ class SingleTestRunner(object):
     """ Object wrapper for single test run which may involve multiple MUTs."""
 
     RE_DETECT_TESTCASE_RESULT = None
+
+    # Return codes for test script
     TEST_RESULT_OK = "OK"
     TEST_RESULT_FAIL = "FAIL"
     TEST_RESULT_ERROR = "ERROR"
@@ -145,6 +147,10 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_DISK = "IOERR_DISK"
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
+
+    GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
+    TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
+    TEST_LOOPS_DICT = {}    # TEST_LOOPS_LIST in dict format: { test_id : test_loop_count}
 
     # mbed test suite -> SingleTestRunner
     TEST_RESULT_MAPPING = {"success" : TEST_RESULT_OK,
@@ -156,9 +162,42 @@ class SingleTestRunner(object):
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "end" : TEST_RESULT_UNDEF}
 
-    def __init__(self):
+    def __init__(self, _global_loops_count=1, _test_loops_list=""):
         pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(pattern)
+        try:
+            _global_loops_count = int(_global_loops_count)
+        except:
+            _global_loops_count = 1
+        if _global_loops_count < 1:
+            _global_loops_count = 1
+        self.GLOBAL_LOOPS_COUNT = _global_loops_count
+        self.TEST_LOOPS_LIST = _test_loops_list if _test_loops_list else []
+        self.TEST_LOOPS_DICT = self.test_loop_list_to_dict(_test_loops_list)
+
+    def test_loop_list_to_dict(self, test_loops_str):
+        """ Transforms test_id=X,test_id=X,test_id=X into dictionary {test_id : test_id_loops_count} """
+        result = {}
+        if test_loops_str:
+            test_loops = test_loops_str.split(',')
+            for test_loop in test_loops:
+                test_loop_count = test_loop.split('=')
+                if len(test_loop_count) == 2:
+                    _test_id, _test_loops = test_loop_count
+                    try:
+                        _test_loops = int(_test_loops)
+                    except:
+                        continue
+                    result[_test_id] = _test_loops
+        return result
+
+    def get_test_loop_count(self, test_id):
+        """ This function returns no. of loops per test (deducted by test_id_.
+            If test is not in list of redefined loop counts it will use default value. """
+        result = self.GLOBAL_LOOPS_COUNT
+        if test_id in self.TEST_LOOPS_DICT:
+            result = self.TEST_LOOPS_DICT[test_id]
+        return result
 
     def file_copy_method_selector(self, image_path, disk, copy_method):
         """ Copy file depending on method you want to use """
@@ -829,7 +868,7 @@ if __name__ == '__main__':
 
     # Magic happens here... ;)
     start = time()
-    single_test = SingleTestRunner()
+    single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value, _test_loops_list=opts.test_loops_list)
 
     clean = test_spec.get('clean', False)
     test_ids = test_spec.get('test_ids', [])
@@ -926,7 +965,8 @@ if __name__ == '__main__':
                     # For an automated test the duration act as a timeout after
                     # which the test gets interrupted
                     test_spec = shape_test_request(target, path, test_id, test.duration)
-                    single_test_result = single_test.handle(test_spec, target, toolchain)
+                    test_loops = single_test.get_test_loop_count(test_id)
+                    single_test_result = single_test.handle(test_spec, target, toolchain, test_loops=test_loops)
                     test_summary.append(single_test_result)
                     # print test_spec, target, toolchain
 
