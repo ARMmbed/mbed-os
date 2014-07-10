@@ -321,8 +321,24 @@ class SingleTestRunner(object):
             elapsed_time = time() - start_host_exec_time
             print print_test_result(test_result, target_name, toolchain_name,
                                     test_id, test_description, elapsed_time, duration)
-        return (test_result, target_name, toolchain_name,
-                test_id, test_description, round(elapsed_time, 2), duration)
+        return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
+                test_id, test_description, round(elapsed_time, 2),
+                duration, self.shape_test_loop_ok_result_count(test_all_result))
+
+    def shape_test_loop_ok_result_count(self, test_all_result):
+        """ Reformats list of results to simple string """
+        test_loop_count = len(test_all_result)
+        test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
+        return "%d/%d"% (test_loop_ok_result, test_loop_count)
+
+    def shape_global_test_loop_result(self, test_all_result):
+        """ Reformats list of results to simple string """
+        test_loop_count = len(test_all_result)
+        test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
+        result = self.TEST_RESULT_FAIL
+        if all(test_all_result[0] == res for res in test_all_result):
+            result = test_all_result[0]
+        return result
 
     def run_host_test(self, name, disk, port, duration, verbose=False, extra_serial=""):
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
@@ -657,7 +673,6 @@ def generate_test_summary_by_target(test_summary):
             if test[TEST_INDEX] not in result_dict:
                 result_dict[test[TEST_INDEX]] = { }
             result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
-            pass
 
         pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
         pt = PrettyTable(pt_cols)
@@ -682,7 +697,7 @@ def generate_test_summary(test_summary):
     result = "Test summary:\n"
     # Pretty table package is used to print results
     pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                      "Elapsed Time (sec)", "Timeout (sec)"])
+                      "Elapsed Time (sec)", "Timeout (sec)", "Loops"])
     pt.align["Result"] = "l" # Left align
     pt.align["Target"] = "l" # Left align
     pt.align["Toolchain"] = "l" # Left align
