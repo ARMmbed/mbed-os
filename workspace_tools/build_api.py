@@ -44,7 +44,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     if name is None:
         name = basename(src_paths[0])
-    toolchain.info("\n>>> BUILD PROJECT: %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Building project %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_paths[0])
@@ -107,7 +107,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     # The first path will give the name to the library
     name = basename(src_paths[0])
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan Resources
     resources = []
@@ -180,7 +180,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     mkdir(TMP_PATH)
 
     # CMSIS
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
     cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
 
@@ -191,7 +191,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
 
     # mbed
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
     # Common Headers
     toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
@@ -293,7 +293,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     mkdir(TMP_PATH)
 
     # CMSIS
-    toolchain.info(">>>> STATIC ANALYSIS FOR %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    toolchain.info("Static analysis for %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
     cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
 
@@ -331,7 +331,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     # =========================================================================
 
     # MBED
-    toolchain.info(">>> STATIC ANALYSIS FOR %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+    toolchain.info("Static analysis for %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
     # Common Headers
     toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
@@ -417,7 +417,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 
     # The first path will give the name to the library
     name = basename(src_paths[0])
-    toolchain.info(">>> STATIC ANALYSIS FOR LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Static analysis for library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan Resources
     resources = []
