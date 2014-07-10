@@ -31,9 +31,10 @@
 static int clockfreq;
 static int prescaler_div;
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t* obj, PinName pin)
+{
     obj->channel = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
-    MBED_ASSERT(obj->channel != (PWMName)NC);
+    MBED_ASSERT(obj->channel != (PWMName )NC);
 
     /* Enable clock for GPIO module */
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -53,7 +54,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
 
     /* Enable correct channel */
-    switch(obj->channel){
+    switch (obj->channel) {
         case PWM_CH0:
             PWM_TIMER->ROUTE |= TIMER_ROUTE_CC0PEN;
             break;
@@ -65,28 +66,30 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
             break;
 
     }
-    /* Route correct channel to location 1 */
-    PWM_TIMER->ROUTE |= PWM_ROUTE;
+    /* Route correct channel to location 1 */PWM_TIMER->ROUTE |= PWM_ROUTE;
 
     /* Select timer parameters */
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
 
-    /*HFPER is the default clock we will use. It has a frequency just north of 14MHz*/
+    /*cvHFPER is the default clock we will use. It has a frequency of 14MHz*/
     clockfreq = CMU_ClockFreqGet(cmuClock_HFPER);
 
     /* Configure timer */
     TIMER_Init(PWM_TIMER, &timerInit);
 
-    /* Set default 2ms frequency and 0ms pulse width */
-    pwmout_period(obj,0.02);
+    /* Set default 20ms frequency and 0ms pulse width */
+    pwmout_period(obj, 0.02);
 }
 
-void pwmout_free(pwmout_t* obj) {}
+void pwmout_free(pwmout_t* obj)
+{
+}
 
-void pwmout_write(pwmout_t* obj, float value) {
-    if(value < 0.0f){
+void pwmout_write(pwmout_t* obj, float value)
+{
+    if (value < 0.0f) {
         value = 0;
-    }else if (value > 1.0f){
+    } else if (value > 1.0f) {
         value = 1;
     }
 
@@ -94,62 +97,67 @@ void pwmout_write(pwmout_t* obj, float value) {
     pwmout_pulsewidth(obj, value * pulse_period_in_s);
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t* obj)
+{
     return obj->width_cycles / (float) obj->period_cycles;
 }
 
 // Set the PWM period, keeping the absolute pulse width the same.
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t* obj, float seconds)
+{
     // Find the lowest prescaler divider possible.
     // This gives us max resolution for a given period
-    
+
     //The value of the top register if prescaler is set to 0
-    int cycles = clockfreq * seconds; 
+    int cycles = clockfreq * seconds;
     prescaler_div = 0;
 
     //The top register is only 16 bits, so we keep dividing till we are below 0xFFFF
-    while(cycles > 0xFFFF){
+    while (cycles > 0xFFFF) {
         cycles /= 2;
         prescaler_div++;
 
         //Max prescaler_div supported is 10
-        if(prescaler_div > 10){
+        if (prescaler_div > 10) {
             prescaler_div = 10;
             cycles = 0xFFFF; //Set it to max possible value;
-            break; 
+            break;
         }
     }
-
-
 
     obj->period_cycles = cycles;
 
     //Set prescaler
-    PWM_TIMER->CTRL |= prescaler_div << _TIMER_CTRL_PRESC_SHIFT;
-    PWM_TIMER->CTRL &= ~(~prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
+    PWM_TIMER->CTRL = (PWM_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK)
+            | (prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
 
     /* Set Top Value, which controls the PWM period */
     TIMER_TopSet(PWM_TIMER, obj->period_cycles);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t* obj, int ms)
+{
     pwmout_period(obj, ms / 1000.0f);
 }
 
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t* obj, int us)
+{
     pwmout_period_ms(obj, us / 1000.0f);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+{
     obj->width_cycles = clockfreq * seconds;
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+{
     pwmout_pulsewidth(obj, ms / 1000.0f);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+{
     pwmout_pulsewidth_ms(obj, us / 1000.0f);
 }
 
