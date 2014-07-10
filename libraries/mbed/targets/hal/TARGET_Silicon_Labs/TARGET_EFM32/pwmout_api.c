@@ -66,12 +66,13 @@ void pwmout_init(pwmout_t* obj, PinName pin)
             break;
 
     }
-    /* Route correct channel to location 1 */PWM_TIMER->ROUTE |= PWM_ROUTE;
+    /* Route correct channel to location 1 */
+    PWM_TIMER->ROUTE |= PWM_ROUTE;
 
     /* Select timer parameters */
     TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
 
-    /*cvHFPER is the default clock we will use. It has a frequency of 14MHz*/
+    /*HFPER is the default clock we will use. It has a frequency of 14MHz*/
     clockfreq = CMU_ClockFreqGet(cmuClock_HFPER);
 
     /* Configure timer */

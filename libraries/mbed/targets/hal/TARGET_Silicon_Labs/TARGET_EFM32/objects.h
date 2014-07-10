@@ -84,6 +84,7 @@ struct serial_s {
 };
 #endif
 
+#if DEVICE_SPI
 struct spi_s {
     USART_TypeDef *spi;
     int index;
@@ -100,6 +101,7 @@ struct spi_s {
     bool master;
     USART_ClockMode_TypeDef clockMode;
 };
+#endif
 
 #include "gpio_object.h"
 

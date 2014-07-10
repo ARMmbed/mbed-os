@@ -24,7 +24,6 @@
 #include "pinmap.h"
 #include "pinmap_function.h"
 #include "PeripheralPins.h"
-#include "device_peripherals.h"
 
 #include "em_usart.h"
 #include "em_cmu.h"
