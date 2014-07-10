@@ -522,19 +522,19 @@ class mbedToolchain:
             pending = 0
             for r in results:
                 if r._ready is True:
-                    result = r.get()
-                    results.remove(r)
-                    
-                    objects.append(result['object'])
-                    self.compiled += 1
-                    self.progress("compile", result['source'], build_update=True)
-                    
                     try:
+                        result = r.get()
+                        results.remove(r)
+                    
+                        self.compiled += 1
+                        self.progress("compile", result['source'], build_update=True)                    
+                        self.debug(result['command'])
                         self._compile_output([
                             result['code'],
                             result['output'],
                             result['command']
                         ])
+                        objects.append(result['object'])
                     except ToolException, err:
                         self.mp_pool.terminate()
                         raise ToolException(err)
