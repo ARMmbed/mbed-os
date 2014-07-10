@@ -52,6 +52,12 @@ typedef enum {
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        USART1
 
+typedef enum {
+    SPI_0 = NC,
+    SPI_1 = USART1_BASE,
+    SPI_2 = NC
+} SPIName;
+
 #ifdef __cplusplus
 }
 #endif

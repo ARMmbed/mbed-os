@@ -33,6 +33,39 @@ const PinMap PinMap_PWM[] = {
     {NC  , NC   , NC}
 };
 
+/*************SPI**************/
+const PinMap PinMap_SPI_MOSI[] = {
+        /* USART1 */
+        {PC_0, SPI_1, 0},
+        {PD_7, SPI_1, 3},
+        /* Not connected */
+        {NC  , NC   , NC}
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+        /* USART1 */
+        {PC_1, SPI_1, 0},
+        {PD_6, SPI_1, 3},
+        /* Not connected */
+        {NC  , NC   , NC}
+};
+
+const PinMap PinMap_SPI_CLK[] = {
+        /* USART1 */
+        {PB_7, SPI_1, 0},
+        {PC_15, SPI_1, 3},
+        /* Not connected */
+        {NC  , NC   , NC}
+};
+
+const PinMap PinMap_SPI_CS[] = {
+        /* USART1 */
+        {PB_8, SPI_1, 0},
+        {PC_14, SPI_1, 3},
+        /* Not connected */
+        {NC  , NC   , NC}
+};
+
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
         /* USART1 */

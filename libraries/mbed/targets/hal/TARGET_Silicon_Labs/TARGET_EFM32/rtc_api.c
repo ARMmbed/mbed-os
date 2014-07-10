@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "device.h"
+#if DEVICE_RTC
+
 #include "rtc_api.h"
 #include "em_cmu.h"
 #include "em_rtc.h"
@@ -73,3 +77,5 @@ void rtc_write(time_t t) {
     time_base = t;
     RTC_CounterReset();
 }
+
+#endif
