@@ -75,6 +75,7 @@ import json
 import optparse
 import pprint
 import re
+import os
 from types import ListType
 from prettytable import PrettyTable
 
@@ -140,6 +141,9 @@ class SingleTestRunner(object):
     TEST_RESULT_FAIL = "FAIL"
     TEST_RESULT_ERROR = "ERROR"
     TEST_RESULT_UNDEF = "UNDEF"
+    TEST_RESULT_IOERR_COPY = "IOERR_COPY"
+    TEST_RESULT_IOERR_DISK = "IOERR_DISK"
+    TEST_RESULT_TIMEOUT = "TIMEOUT"
 
     # mbed test suite -> SingleTestRunner
     TEST_RESULT_MAPPING = {"success" : TEST_RESULT_OK,
@@ -170,12 +174,29 @@ class SingleTestRunner(object):
             fdst.write(buf)
         IOError: [Errno 28] No space left on device
         """
+        result = True
+        resutl_msg = ""
         if copy_method == "cp" or  copy_method == "copy" or copy_method == "xcopy":
-            cmd = [copy_method, image_path.encode('ascii', 'ignore'), disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
-            call(cmd, shell=True)
+            cmd = [copy_method,
+                   image_path.encode('ascii', 'ignore'),
+                   disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
         else:
+            copy_method = "shutils.copy()"
             # Default python method
-            copy(image_path, disk)
+            try:
+                copy(image_path, disk)
+            except Exception, e:
+                resutl_msg = e
+                result = False
+        return result, resutl_msg, copy_method
 
     def delete_file(file_path):
         """ Remove file from the system """
@@ -232,18 +253,25 @@ class SingleTestRunner(object):
             disk += '/'
 
         # Choose one method of copy files to mbed virtual drive
-        self.file_copy_method_selector(image_path, disk, opts.copy_method)
-
-        # Copy Extra Files
-        if not target_by_mcu.is_disk_virtual and test.extra_files:
-            for f in test.extra_files:
-                copy(f, disk)
-
-        sleep(target_by_mcu.program_cycle_s())
+        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, opts.copy_method)
 
         # Host test execution
         start_host_exec_time = time()
-        test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
+
+        if not _copy_res:   # Serial port copy error
+            test_result = "IOERR_COPY"
+            print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
+        else:
+            # Copy Extra Files
+            if not target_by_mcu.is_disk_virtual and test.extra_files:
+                for f in test.extra_files:
+                    copy(f, disk)
+
+            sleep(target_by_mcu.program_cycle_s())
+            # Host test execution
+            start_host_exec_time = time()
+            test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
+
         elapsed_time = time() - start_host_exec_time
         print print_test_result(test_result, target_name, toolchain_name,
                                 test_id, test_description, elapsed_time, duration)
@@ -616,10 +644,15 @@ def generate_test_summary(test_summary):
     pt.align["Test Description"] = "l" # Left align
     pt.padding_width = 1 # One space between column edges and contents (default)
 
-    result_dict = { single_test.TEST_RESULT_OK : 0,
-                    single_test.TEST_RESULT_FAIL : 0,
-                    single_test.TEST_RESULT_ERROR : 0,
-                    single_test.TEST_RESULT_UNDEF : 0 }
+    result_dict = {single_test.TEST_RESULT_OK : 0,
+                   single_test.TEST_RESULT_FAIL : 0,
+                   single_test.TEST_RESULT_ERROR : 0,
+                   single_test.TEST_RESULT_UNDEF : 0,
+                   single_test.TEST_RESULT_UNDEF : 0,
+                   single_test.TEST_RESULT_UNDEF : 0,
+                   single_test.TEST_RESULT_IOERR_COPY : 0,
+                   single_test.TEST_RESULT_IOERR_DISK : 0,
+                   single_test.TEST_RESULT_TIMEOUT : 0 }
 
     for test in test_summary:
         if test[0] in result_dict:
@@ -794,6 +827,10 @@ if __name__ == '__main__':
         for toolchain in toolchains:
             # print '=== %s::%s ===' % (target, toolchain)
             # Let's build our test
+            if target not in TARGET_MAP:
+                print 'Skipped tests for %s target. Target platform not found' % (target)
+                continue
+
             T = TARGET_MAP[target]
             build_mbed_libs_options = ["analyze"] if opts.goanna_for_mbed_sdk else None
             build_mbed_libs_result = build_mbed_libs(T, toolchain, options=build_mbed_libs_options)
@@ -827,6 +864,7 @@ if __name__ == '__main__':
                             print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
                         continue
 
+                    # This is basic structure storing test results
                     test_result = {
                         'target': target,
                         'toolchain': toolchain,
