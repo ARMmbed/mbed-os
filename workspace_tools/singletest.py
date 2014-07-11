@@ -333,8 +333,6 @@ class SingleTestRunner(object):
 
     def shape_global_test_loop_result(self, test_all_result):
         """ Reformats list of results to simple string """
-        test_loop_count = len(test_all_result)
-        test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
         result = self.TEST_RESULT_FAIL
         if all(test_all_result[0] == res for res in test_all_result):
             result = test_all_result[0]
