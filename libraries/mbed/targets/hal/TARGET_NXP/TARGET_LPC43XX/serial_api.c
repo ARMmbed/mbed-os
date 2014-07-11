@@ -24,33 +24,86 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
+#include "gpio_api.h"
 
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
+#define UART_NUM    4
+
 static const PinMap PinMap_UART_TX[] = {
-    {UART0_TX, UART_0, (SCU_PINIO_PULLDOWN | 2)},
-    {UART1_TX, UART_1, (SCU_PINIO_PULLDOWN | 4)},
-    {UART2_TX, UART_2, (SCU_PINIO_PULLDOWN | 2)},
-    {UART3_TX, UART_3, (SCU_PINIO_PULLDOWN | 2)},
-    {NC        , NC    , 0}
+    {P1_13, UART_1, (SCU_MODE_PULLDOWN | 1)},
+    {P1_15, UART_2, (SCU_MODE_PULLDOWN | 1)},
+    {P2_0,  UART_0, (SCU_MODE_PULLDOWN | 1)},
+    {P2_3,  UART_3, (SCU_MODE_PULLDOWN | 2)},
+    {P2_10, UART_2, (SCU_MODE_PULLDOWN | 2)},
+    {P3_4,  UART_1, (SCU_MODE_PULLDOWN | 4)},
+    {P4_1,  UART_3, (SCU_MODE_PULLDOWN | 6)},
+    {P5_6,  UART_1, (SCU_MODE_PULLDOWN | 4)},
+    {P6_4,  UART_0, (SCU_MODE_PULLDOWN | 2)},
+    {P7_1,  UART_2, (SCU_MODE_PULLDOWN | 6)},
+    {P9_3,  UART_3, (SCU_MODE_PULLDOWN | 7)},
+    {P9_5,  UART_0, (SCU_MODE_PULLDOWN | 7)},
+    {PA_1,  UART_2, (SCU_MODE_PULLDOWN | 3)},
+    {PC_13, UART_1, (SCU_MODE_PULLDOWN | 2)},
+    {PE_11, UART_1, (SCU_MODE_PULLDOWN | 2)},
+    {PF_2,  UART_3, (SCU_MODE_PULLDOWN | 1)},
+    {PF_10, UART_0, (SCU_MODE_PULLDOWN | 1)},
+    {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {UART0_RX, UART_0, (SCU_PINIO_PULLDOWN | 2)},
-    {UART1_RX, UART_1, (SCU_PINIO_PULLDOWN | 1)},
-    {UART2_RX, UART_2, (SCU_PINIO_PULLDOWN | 2)},
-    {UART3_RX, UART_3, (SCU_PINIO_PULLDOWN | 2)},
-    {NC        , NC    , 0}
+    {P1_14, UART_1, (SCU_PINIO_PULLNONE | 1)},
+    {P1_16, UART_2, (SCU_PINIO_PULLNONE | 1)},
+    {P2_1,  UART_0, (SCU_PINIO_PULLNONE | 1)},
+    {P2_4,  UART_3, (SCU_PINIO_PULLNONE | 2)},
+    {P2_11, UART_2, (SCU_PINIO_PULLNONE | 2)},
+    {P3_5,  UART_1, (SCU_PINIO_PULLNONE | 4)},
+    {P4_2,  UART_3, (SCU_PINIO_PULLNONE | 6)},
+    {P5_7,  UART_1, (SCU_PINIO_PULLNONE | 4)},
+    {P6_5,  UART_0, (SCU_PINIO_PULLNONE | 2)},
+    {P7_2,  UART_2, (SCU_PINIO_PULLNONE | 6)},
+    {P9_4,  UART_3, (SCU_PINIO_PULLNONE | 7)},
+    {P9_6,  UART_0, (SCU_PINIO_PULLNONE | 7)},
+    {PA_2,  UART_2, (SCU_PINIO_PULLNONE | 3)},
+    {PC_14, UART_1, (SCU_PINIO_PULLNONE | 2)},
+    {PE_12, UART_1, (SCU_PINIO_PULLNONE | 2)},
+    {PF_3,  UART_3, (SCU_PINIO_PULLNONE | 1)},
+    {PF_11, UART_0, (SCU_PINIO_PULLNONE | 1)},
+    {NC,    NC,     0}
 };
 
-#define UART_NUM    4
+#if (DEVICE_SERIAL_FC)
+// RTS/CTS PinMap for flow control
+static const PinMap PinMap_UART_RTS[] = {
+    {P1_9,  UART_1, (SCU_PINIO_FAST | 1)},
+    {P5_2,  UART_1, (SCU_PINIO_FAST | 4)},
+    {PC_3,  UART_1, (SCU_PINIO_FAST | 2)},
+    {PE_5,  UART_1, (SCU_PINIO_FAST | 2)},
+    {NC,    NC,     0}
+};
 
-static uint32_t serial_irq_ids[UART_NUM] = {0};
+static const PinMap PinMap_UART_CTS[] = {
+    {P1_11, UART_1, (SCU_PINIO_FAST | 1)},
+    {P5_4,  UART_1, (SCU_PINIO_FAST | 4),
+    {PC_2,  UART_1, (SCU_PINIO_FAST | 2)},
+    {PE_7,  UART_1, (SCU_PINIO_FAST | 2)},
+    {NC,    NC,     0}
+};
+#endif
+
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
+
+struct serial_global_data_s {
+    uint32_t serial_irq_id;
+    gpio_t sw_rts, sw_cts;
+    uint8_t count, rx_irq_set_flow, rx_irq_set_api;
+};
+
+static struct serial_global_data_s uart_data[UART_NUM];
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     int is_stdio_uart = 0;
@@ -77,7 +130,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
                    | 0 << 2; // Rx Line Status irq enable
     
     // set default baud rate and format
-    serial_baud  (obj, 9600);
+    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);   
+    serial_baud  (obj, is_stdio_uart ? 115200 : 9600);
     serial_format(obj, 8, ParityNone, 1);
     
     // pinout the chosen uart
@@ -92,15 +146,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         case UART_0: obj->index = 0; break;
         case UART_1: obj->index = 1; break;
         case UART_2: obj->index = 2; break;
-#if (UART_NUM > 3)
         case UART_3: obj->index = 3; break;
-#endif
-#if (UART_NUM > 4)
-        case UART_4: obj->index = 4; break;
-#endif
     }
-    
-    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
+    uart_data[obj->index].sw_rts.pin = NC;
+    uart_data[obj->index].sw_cts.pin = NC;
+    serial_set_flow_control(obj, FlowControlNone, NC, NC);
     
     if (is_stdio_uart) {
         stdio_uart_inited = 1;
@@ -109,14 +159,14 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
-    serial_irq_ids[obj->index] = 0;
+    uart_data[obj->index].serial_irq_id = 0;
 }
 
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
     uint32_t PCLK = SystemCoreClock;
-
+    
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
     // MulVal = 1. Otherwise, we search the valid ratio value range to find
@@ -192,12 +242,16 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
-    MBED_ASSERT((data_bits > 4) && (data_bits < 9)); // 0: 5 data bits ... 3: 8 data bits
-    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven) ||
-           (parity == ParityForced1) || (parity == ParityForced0));
-
+    // 0: 1 stop bits, 1: 2 stop bits
+    if (stop_bits != 1 && stop_bits != 2) {
+        error("Invalid stop bits specified");
+    }
     stop_bits -= 1;
+    
+    // 0: 5 data bits ... 3: 8 data bits
+    if (data_bits < 5 || data_bits > 8) {
+        error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
+    }
     data_bits -= 5;
 
     int parity_enable, parity_select;
@@ -208,7 +262,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityForced1: parity_enable = 1; parity_select = 2; break;
         case ParityForced0: parity_enable = 1; parity_select = 3; break;
         default:
-            break;
+            error("Invalid serial parity setting");
+            return;
     }
     
     obj->uart->LCR = data_bits            << 0
@@ -220,7 +275,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t iir, uint32_t index) {
+static inline void uart_irq(uint32_t iir, uint32_t index, LPC_USART_T *puart) {
     // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
     SerialIrq irq_type;
     switch (iir) {
@@ -228,27 +283,33 @@ static inline void uart_irq(uint32_t iir, uint32_t index) {
         case 2: irq_type = RxIrq; break;
         default: return;
     }
-    
-    if (serial_irq_ids[index] != 0)
-        irq_handler(serial_irq_ids[index], irq_type);
+    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) {
+        gpio_write(&uart_data[index].sw_rts, 1);
+        // Disable interrupt if it wasn't enabled by other part of the application
+        if (!uart_data[index].rx_irq_set_api)
+            puart->IER &= ~(1 << RxIrq);
+    }
+    if (uart_data[index].serial_irq_id != 0)
+        if ((irq_type != RxIrq) || (uart_data[index].rx_irq_set_api))
+            irq_handler(uart_data[index].serial_irq_id, irq_type);
 }
 
-void uart0_irq() {uart_irq((LPC_USART0->IIR >> 1) & 0x7, 0);}
-void uart1_irq() {uart_irq((LPC_UART1->IIR >> 1) & 0x7, 1);}
-void uart2_irq() {uart_irq((LPC_USART2->IIR >> 1) & 0x7, 2);}
-void uart3_irq() {uart_irq((LPC_USART3->IIR >> 1) & 0x7, 3);}
+void uart0_irq() {uart_irq((LPC_USART0->IIR >> 1) & 0x7, 0, (LPC_USART_T*)LPC_USART0);}
+void uart1_irq() {uart_irq((LPC_UART1->IIR  >> 1) & 0x7, 1, (LPC_USART_T*)LPC_UART1);}
+void uart2_irq() {uart_irq((LPC_USART2->IIR >> 1) & 0x7, 2, (LPC_USART_T*)LPC_USART2);}
+void uart3_irq() {uart_irq((LPC_USART3->IIR >> 1) & 0x7, 3, (LPC_USART_T*)LPC_USART3);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
-    serial_irq_ids[obj->index] = id;
+    uart_data[obj->index].serial_irq_id = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
         case UART_0: irq_n=USART0_IRQn; vector = (uint32_t)&uart0_irq; break;
-        case UART_1: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
+        case UART_1: irq_n=UART1_IRQn;  vector = (uint32_t)&uart1_irq; break;
         case UART_2: irq_n=USART2_IRQn; vector = (uint32_t)&uart2_irq; break;
         case UART_3: irq_n=USART3_IRQn; vector = (uint32_t)&uart3_irq; break;
     }
@@ -257,7 +318,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         obj->uart->IER |= 1 << irq;
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-    } else { // disable
+    } else if ((TxIrq == irq) || (uart_data[obj->index].rx_irq_set_api + uart_data[obj->index].rx_irq_set_flow == 0)) { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
         obj->uart->IER &= ~(1 << irq);
@@ -267,17 +328,36 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
 }
 
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+    if (RxIrq == irq)
+        uart_data[obj->index].rx_irq_set_api = enable;
+    serial_irq_set_internal(obj, irq, enable);
+}
+
+#if (DEVICE_SERIAL_FC)
+static void serial_flow_irq_set(serial_t *obj, uint32_t enable) {
+    uart_data[obj->index].rx_irq_set_flow = enable;
+    serial_irq_set_internal(obj, RxIrq, enable);
+}
+#endif
+
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
 int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
-    return obj->uart->RBR;
+    int data = obj->uart->RBR;
+    if (NC != uart_data[obj->index].sw_rts.pin) {
+        gpio_write(&uart_data[obj->index].sw_rts, 0);
+        obj->uart->IER |= 1 << RxIrq;
+    }
+    return data;
 }
 
 void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->uart->THR = c;
+    uart_data[obj->index].count++;
 }
 
 int serial_readable(serial_t *obj) {
@@ -285,11 +365,21 @@ int serial_readable(serial_t *obj) {
 }
 
 int serial_writable(serial_t *obj) {
-    return obj->uart->LSR & 0x20;
+    int isWritable = 1;
+    if (NC != uart_data[obj->index].sw_cts.pin)
+        isWritable = (gpio_read(&uart_data[obj->index].sw_cts) == 0) && (obj->uart->LSR & 0x40);  //If flow control: writable if CTS low + UART done
+    else {
+        if (obj->uart->LSR & 0x20)
+            uart_data[obj->index].count = 0;
+        else if (uart_data[obj->index].count >= 16)
+            isWritable = 0;
+    }
+    return isWritable;
 }
 
 void serial_clear(serial_t *obj) {
-    obj->uart->FCR = 1 << 1  // rx FIFO reset
+    obj->uart->FCR = 1 << 0  // FIFO Enable - 0 = Disables, 1 = Enabled
+                   | 1 << 1  // rx FIFO reset
                    | 1 << 2  // tx FIFO reset
                    | 0 << 6; // interrupt depth
 }
@@ -306,3 +396,7 @@ void serial_break_clear(serial_t *obj) {
     obj->uart->LCR &= ~(1 << 6);
 }
 
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+#if (DEVICE_SERIAL_FC)
+#endif
+}
