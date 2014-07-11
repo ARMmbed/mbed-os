@@ -155,17 +155,6 @@ class DefaultTest(Test):
         serial_init_res = self.mbed.init_serial()
         self.mbed.reset()
 
-"""
-TODO:
-1. handle serial exception (no serial).
-2. show message for serial error.
-3. stop test if serial not connected (so no exceptions and just clean test failures).
-4. move print_result, success failure to base class.
-5. handle fail.txt file message from disk drive
-6. handle disk not found exception
-7. add loops for tests.
-8. unify firmware filename to 'firmware.???' and add programming cycle: delete/sync/copy/sync/reset
-"""
 
 class Simple(DefaultTest):
     def run(self):
