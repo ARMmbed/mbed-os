@@ -528,7 +528,7 @@ class mbedToolchain:
                     
                         self.compiled += 1
                         self.progress("compile", result['source'], build_update=True)                    
-                        self.debug(result['command'])
+                        self.debug("Command: %s" % ' '.join(result['command']))
                         self._compile_output([
                             result['code'],
                             result['output'],
@@ -581,11 +581,9 @@ class mbedToolchain:
             deps = self.parse_dependencies(dep_path)
         
         if len(deps) == 0 or self.need_update(object, deps):
-            
-            # Compile
             command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
             
-            if hasattr(self, "get_dep_opt"):
+            if asm_mode is False and hasattr(self, "get_dep_opt"):
                 command.extend(self.get_dep_opt(dep_path))
             
             if hasattr(self, "cc_extra"):
@@ -602,6 +600,8 @@ class mbedToolchain:
         
         # Parse output for Warnings and Errors
         self.parse_output(stderr)
+        self.debug("Return: %s" % rc)
+        self.debug("Output: %s" % stderr)
         
         # Check return code
         if rc != 0:
@@ -614,6 +614,7 @@ class mbedToolchain:
         command = self._compile_command(source, object, includes)
         if command is None: return True
         
+        self.debug("Command: %s" % ' '.join(command))
         _, stderr, rc = run_cmd(command, dirname(object))
         self._compile_output([rc, stderr, command])
         
@@ -654,7 +655,7 @@ class mbedToolchain:
             self.binary(r, elf, bin)
 
             if self.target.name.startswith('LPC'):
-                self.debug("LPC Patch %s" % filename)
+                self.debug("LPC Patch: %s" % filename)
                 patch(bin)
 
         self.var("compile_succeded", True)
@@ -666,9 +667,11 @@ class mbedToolchain:
         return bin
 
     def default_cmd(self, command):
-        self.debug(command)
+        self.debug("Command: %s" % ' '.join(command))
         stdout, stderr, rc = run_cmd(command)
-        self.debug(stdout)
+        self.debug("Return: %s" % rc)
+        self.debug("Output: %s" % ' '.join(stdout))
+        
         if rc != 0:
             for line in stderr.splitlines():
                 self.tool_error(line)
@@ -682,6 +685,7 @@ class mbedToolchain:
         if self.VERBOSE:
             if type(message) is ListType:
                 message = ' '.join(message)
+            message = "[DEBUG] " + message
             self.notify({'type': 'debug', 'message': message})
 
     def cc_info(self, severity, file, line, message, target_name=None, toolchain_name=None):

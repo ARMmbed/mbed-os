@@ -114,7 +114,10 @@ class ARM(mbedToolchain):
                     match.group('line'),
                     match.group('message')
                 )
-
+                
+    def get_dep_opt(self, dep_path):
+        return ["--depend", dep_path]
+        
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
 
