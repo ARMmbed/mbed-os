@@ -59,6 +59,11 @@
 #define USBHOST_3GMODULE            1
 
 /*
+* Enable USB MIDI
+*/
+#define USBHOST_MIDI                1 
+
+/*
 * Maximum number of interfaces of a usb device
 */
 #define MAX_INTF                    4
