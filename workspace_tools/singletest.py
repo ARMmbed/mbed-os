@@ -70,6 +70,20 @@ File format example: muts_all.json
 
 """
 
+# Check if 'prettytable' module is installed
+try:
+    from prettytable import PrettyTable
+except ImportError, e:
+    print "Error: Can't import 'prettytable' module: %s"% e
+    exit(-1)
+
+# Check if 'serial' module is installed
+try:
+    from serial import Serial
+except ImportError, e:
+    print "Error: Can't import 'serial' module: %s"% e
+    exit(-1)
+
 import sys
 import json
 import optparse
@@ -77,7 +91,6 @@ import pprint
 import re
 import os
 from types import ListType
-from prettytable import PrettyTable
 
 from os.path import join, abspath, dirname, exists, basename
 from shutil import copy

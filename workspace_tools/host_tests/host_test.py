@@ -15,8 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+# Check if 'serial' module is installed
+try:
+    from serial import Serial
+except ImportError, e:
+    print "Error: Can't import 'serial' module: %s"% e
+    exit(-1)
+
 from optparse import OptionParser
-from serial import Serial
 from time import sleep
 from sys import stdout
 
