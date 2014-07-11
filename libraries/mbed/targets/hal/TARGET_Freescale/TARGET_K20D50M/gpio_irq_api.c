@@ -30,45 +30,63 @@ static gpio_irq_handler irq_handler;
 #define IRQ_EITHER_EDGE     PORT_PCR_IRQC(11)
 
 static void handle_interrupt_in(PORT_Type *port, int ch_base) {
-    uint32_t mask = 0, i;
+    uint32_t isfr;
+    uint32_t pin;
 
-    for (i = 0; i < 32; i++) {
-        uint32_t pmask = (1 << i);
-        if (port->ISFR & pmask) {
-            mask |= pmask;
-            uint32_t id = channel_ids[ch_base + i];
-            if (id == 0)
-                continue;
-
-            GPIO_Type *gpio = PTA;
-            gpio_irq_event event = IRQ_NONE;
-            uint32_t port_num = (port - PORTA) >> 12;
-            switch (port->PCR[i] & PORT_PCR_IRQC_MASK) {
-                case IRQ_RAISING_EDGE:
-                    event = IRQ_RISE;
-                    break;
-
-                case IRQ_FALLING_EDGE:
-                    event = IRQ_FALL;
-                    break;
-
-                case IRQ_EITHER_EDGE:
-                    gpio += (port_num * 0x40);
-                    event = (gpio->PDIR & pmask) ? (IRQ_RISE) : (IRQ_FALL);
-                    break;
-            }
-            if (event != IRQ_NONE)
-                irq_handler(id, event);
+    while ((isfr = port->ISFR) != 0) {
+        pin = 31 - __CLZ(isfr);
+        uint32_t id = channel_ids[ch_base + pin];
+        if (id == 0) {
+            continue;
         }
+
+        GPIO_Type *gpio = PTA;
+        gpio_irq_event event = IRQ_NONE;
+        uint32_t port_num = (port - PORTA) >> 12;
+
+        switch (port->PCR[pin] & PORT_PCR_IRQC_MASK) {
+            case IRQ_RAISING_EDGE:
+                event = IRQ_RISE;
+                break;
+            case IRQ_FALLING_EDGE:
+                event = IRQ_FALL;
+                break;
+            case IRQ_EITHER_EDGE:
+                gpio += (port_num * 0x40);
+                event = (gpio->PDIR & (1 << pin)) ? (IRQ_RISE) : (IRQ_FALL);
+                break;
+        }
+        if (event != IRQ_NONE) {
+            irq_handler(id, event);
+        }
+        port->ISFR = 1 << pin;
     }
-    port->ISFR = mask;
 }
 
-void gpio_irqA(void) {handle_interrupt_in(PORTA, 0);}
-void gpio_irqB(void) {handle_interrupt_in(PORTB, 32);}
-void gpio_irqC(void) {handle_interrupt_in(PORTC, 64);}
-void gpio_irqD(void) {handle_interrupt_in(PORTD, 96);}
-void gpio_irqE(void) {handle_interrupt_in(PORTE, 128);}
+void gpio_irqA(void) {
+    handle_interrupt_in(PORTA, 0);
+}
+
+void gpio_irqB(void)
+{
+    handle_interrupt_in(PORTB, 32);
+}
+
+void gpio_irqC(void)
+{
+    handle_interrupt_in(PORTC, 64);
+}
+
+void gpio_irqD(void)
+{
+    handle_interrupt_in(PORTD, 96);
+}
+
+void gpio_irqE(void)
+{
+    handle_interrupt_in(PORTE, 128);
+}
+
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
     if (pin == NC)

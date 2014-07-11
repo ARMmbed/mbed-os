@@ -124,7 +124,7 @@ class KL46Z(Target):
         self.is_disk_virtual = True
 
 
-class K20D5M(Target):
+class K20D50M(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -550,7 +550,7 @@ TARGETS = [
     KL05Z(),
     KL25Z(),
     KL46Z(),
-    K20D5M(),
+    K20D50M(),
     K64F(),
     LPC812(),
     LPC810(),

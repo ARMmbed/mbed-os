@@ -26,12 +26,20 @@
 
 static const PinMap PinMap_UART_TX[] = {
     {PTB17, UART_0, 3},
-    {NC  ,  NC    , 0}
+    {PTC4 , UART_1, 3},
+    {PTD3 , UART_2, 3},
+    {PTD7 , UART_0, 3},
+    {PTE0 , UART_1, 3},
+    {NC   , NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
     {PTB16, UART_0, 3},
-    {NC  ,  NC    , 0}
+    {PTC3 , UART_1, 3},
+    {PTD2 , UART_2, 3},
+    {PTD6 , UART_0, 3},
+    {PTE1 , UART_1, 3},
+    {NC   , NC    , 0}
 };
 
 #define UART_NUM    3
@@ -52,18 +60,33 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UART_Type *)uart;
     // enable clk
     switch (uart) {
-        case UART_0: SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
-                     SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK; SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; break;
-        case UART_1: SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK; SIM->SCGC4 |= SIM_SCGC4_UART1_MASK; break;
-        case UART_2: SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK; SIM->SCGC4 |= SIM_SCGC4_UART2_MASK; break;
+        case UART_0:
+            SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
+            SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
+            SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
+            break;
+        case UART_1:
+            SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
+            SIM->SCGC4 |= SIM_SCGC4_UART1_MASK;
+            break;
+        case UART_2:
+            SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
+            SIM->SCGC4 |= SIM_SCGC4_UART2_MASK;
+            break;
     }
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
 
     switch (uart) {
-        case UART_0: obj->index = 0; break;
-        case UART_1: obj->index = 1; break;
-        case UART_2: obj->index = 2; break;
+        case UART_0:
+            obj->index = 0;
+            break;
+        case UART_1:
+            obj->index = 1;
+            break;
+        case UART_2:
+            obj->index = 2;
+            break;
     }
 
     // set default baud rate and format
@@ -131,9 +154,20 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     uint32_t parity_enable, parity_select;
     switch (parity) {
-        case ParityNone: parity_enable = 0; parity_select = 0; break;
-        case ParityOdd : parity_enable = 1; parity_select = 1; data_bits++; break;
-        case ParityEven: parity_enable = 1; parity_select = 0; data_bits++; break;
+        case ParityNone:
+            parity_enable = 0;
+            parity_select = 0;
+            break;
+        case ParityOdd :
+            parity_enable = 1;
+            parity_select = 1;
+            data_bits++;
+            break;
+        case ParityEven:
+            parity_enable = 1;
+            parity_select = 0;
+            data_bits++;
+            break;
         default:
             break;
     }

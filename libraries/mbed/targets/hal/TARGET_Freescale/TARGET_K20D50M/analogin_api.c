@@ -20,6 +20,8 @@
 #include "pinmap.h"
 #include "clk_freqs.h"
 
+#define MAX_FADC        6000000
+
 static const PinMap PinMap_ADC[] = {
     {PTC2, ADC0_SE4b, 0},
     {PTD1, ADC0_SE5b, 0},
@@ -33,8 +35,6 @@ static const PinMap PinMap_ADC[] = {
     {PTC1, ADC0_SE15, 0},
     {NC,   NC,        0}
 };
-
-#define MAX_FADC        6000000
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
