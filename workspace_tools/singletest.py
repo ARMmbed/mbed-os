@@ -200,24 +200,8 @@ class SingleTestRunner(object):
         return result
 
     def file_copy_method_selector(self, image_path, disk, copy_method):
-        """ Copy file depending on method you want to use """
-        # TODO: Add exception handling for copy procedures (disk can be full). See below.
-        """
-        Traceback (most recent call last):
-          File "mbed\workspace_tools\singletest.py", line 738, in <module>
-            single_test_result = single_test.handle(test_spec, target, toolchain)
-          File "mbed\workspace_tools\singletest.py", line 252, in handle
-            self.file_copy_method_selector(image_path, disk, opts.copy_method)
-          File "mbed\workspace_tools\singletest.py", line 203, in file_copy_method_selector
-            copy(image_path, disk)
-          File "C:\Python27\lib\shutil.py", line 119, in copy
-            copyfile(src, dst)
-          File "C:\Python27\lib\shutil.py", line 84, in copyfile
-            copyfileobj(fsrc, fdst)
-          File "C:\Python27\lib\shutil.py", line 52, in copyfileobj
-            fdst.write(buf)
-        IOError: [Errno 28] No space left on device
-        """
+        """ Copy file depending on method you want to use. Handles exception
+            and return code from shell copy commands. """
         result = True
         resutl_msg = ""
         if copy_method == "cp" or  copy_method == "copy" or copy_method == "xcopy":
@@ -339,6 +323,9 @@ class SingleTestRunner(object):
         return result
 
     def run_host_test(self, name, disk, port, duration, verbose=False, extra_serial=""):
+        """ Function creates new process with host test configured with particular test case.
+            Function also is pooling for serial port activity from process to catch all data
+            printed by test runner and host test during test execution."""
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
@@ -533,6 +520,9 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
 
 def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
+    """ Generates table summary with all test cases and additional test cases
+        information using pretty print functionality. Allows test suite user to
+        see test cases. """
     # get all unique test ID prefixes
     unique_test_id = []
     for test in TESTS:
@@ -577,8 +567,8 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
         # Update counters
         counter_all += 1
         counter_dict_test_id_types_all[test_id_prefix] += 1
-    print pt
-    print
+    result = pt.get_string()
+    result += "\n\n"
 
     if result_summary:
         # Automation result summary
@@ -591,9 +581,9 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
         percent_progress = round(100.0 * counter_automated / float(counter_all), 1)
         str_progress = progress_bar(percent_progress, 75)
         pt.add_row([counter_automated, counter_all, percent_progress, str_progress])
-        print "Automation coverage:"
-        print pt
-        print
+        result += "Automation coverage:\n"
+        result += pt.get_string()
+        result += "\n\n"
 
         # Test automation coverage table print
         test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
@@ -612,10 +602,10 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
                    percent_progress,
                    "[" + str_progress + "]"]
             pt.add_row(row)
-        print "Test automation coverage:"
-        print pt
-        print
-
+        result += "Test automation coverage:\n"
+        result += pt.get_string()
+        result += "\n\n"
+    return result
 
 def progress_bar(percent_progress, saturation=0):
     """ This function creates progress bar with optional simple saturation mark"""
@@ -834,13 +824,13 @@ if __name__ == '__main__':
 
     # Print summary / information about automation test status
     if opts.test_automation_report:
-        get_avail_tests_summary_table()
+        print get_avail_tests_summary_table()
         exit(0)
 
     # Print summary / information about automation test status
     if opts.test_case_report:
         test_case_report_cols = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'source_dir']
-        get_avail_tests_summary_table(cols=test_case_report_cols, result_summary=False, join_delim='\n')
+        print get_avail_tests_summary_table(cols=test_case_report_cols, result_summary=False, join_delim='\n')
         exit(0)
 
     # Only prints matrix of supported toolchains
