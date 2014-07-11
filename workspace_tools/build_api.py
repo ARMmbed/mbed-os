@@ -45,7 +45,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     if name is None:
         name = basename(src_paths[0])
-    toolchain.info("\n>>> BUILD PROJECT: %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Building project %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_paths[0])
@@ -109,7 +109,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     # The first path will give the name to the library
     name = basename(src_paths[0])
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan Resources
     resources = []
@@ -165,7 +165,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     """ Function returns True is library was built and false if building was skipped """
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
-        print '\n%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
+        print '%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
         return False
 
     # Toolchain
@@ -183,7 +183,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     mkdir(TMP_PATH)
 
     # CMSIS
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
     cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
 
@@ -194,7 +194,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
 
     # mbed
-    toolchain.info("\n>>> BUILD LIBRARY %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+    toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
     # Common Headers
     toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
@@ -242,7 +242,6 @@ def get_unique_supported_toolchains():
 def mcu_toolchain_matrix(verbose_html=False):
     """  Shows target map using prettytable """
     unique_supported_toolchains = get_unique_supported_toolchains()
-
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
 
     # All tests status table print
@@ -277,6 +276,11 @@ def mcu_toolchain_matrix(verbose_html=False):
     return result
 
 
+def get_target_supported_toolchains(target):
+    """ Returns target supported toolchains list """
+    return TARGET_MAP[target].supported_toolchains if target in TARGET_MAP else None
+
+
 def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
@@ -293,7 +297,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     mkdir(TMP_PATH)
 
     # CMSIS
-    toolchain.info(">>>> STATIC ANALYSIS FOR %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
+    toolchain.info("Static analysis for %s (%s, %s)" % ('CMSIS', target.name, toolchain_name))
     cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
     resources = toolchain.scan_resources(cmsis_src)
 
@@ -331,7 +335,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     # =========================================================================
 
     # MBED
-    toolchain.info(">>> STATIC ANALYSIS FOR %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+    toolchain.info("Static analysis for %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
     # Common Headers
     toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
@@ -418,7 +422,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 
     # The first path will give the name to the library
     name = basename(src_paths[0])
-    toolchain.info(">>> STATIC ANALYSIS FOR LIBRARY %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+    toolchain.info("Static analysis for library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
     # Scan Resources
     resources = []

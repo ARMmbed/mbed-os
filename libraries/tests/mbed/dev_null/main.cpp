@@ -1,19 +1,24 @@
 #include "mbed.h"
 #include "test_env.h"
 
-class DevNull : public Stream {
-
+class DevNull : public Stream
+{
 public:
     DevNull(const char *name = NULL) : Stream(name) {}
 
 protected:
-    virtual int _getc()      {return 0;}
-    virtual int _putc(int c) {return c;}
+    virtual int _getc() {
+        return 0;
+    }
+    virtual int _putc(int c) {
+        return c;
+    }
 };
 
 DevNull null("null");
 
-int main() {
+int main()
+{
     printf("MBED: re-routing stdout to /null\n");
     freopen("/null", "w", stdout);
     printf("MBED: printf redirected to /null\n");   // This shouldn't appear

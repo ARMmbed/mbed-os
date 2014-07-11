@@ -57,12 +57,33 @@ class Mbed:
         print 'Mbed: "%s" "%s"' % (self.port, self.disk)
 
     def init_serial(self, baud=9600, extra_baud=9600):
-        self.serial = Serial(self.port, timeout = 1)
-        self.serial.setBaudrate(baud)
-        if self.extra_port:
-            self.extra_serial = Serial(self.extra_port, timeout = 1)
-            self.extra_serial.setBaudrate(extra_baud)
-        self.flush()
+        result = True
+        try:
+            self.serial = Serial(self.port, timeout=1)
+        except Exception as e:
+            result = False
+        # Port can be opened
+        if result:
+            self.serial.setBaudrate(baud)
+            if self.extra_port:
+                self.extra_serial = Serial(self.extra_port, timeout = 1)
+                self.extra_serial.setBaudrate(extra_baud)
+            self.flush()
+        return result
+
+    def serial_read(self, count=1):
+        """ Wraps self.mbed.serial object read method """
+        result = None
+        if self.serial:
+            result = self.serial.read(count)
+        return result
+
+    def serial_write(self, write_buffer):
+        """ Wraps self.mbed.serial object write method """
+        result = -1
+        if self.serial:
+            result = self.serial.write(write_buffer)
+        return result
 
     def safe_sendBreak(self, serial):
         """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
@@ -83,7 +104,6 @@ class Mbed:
                 serial.setBreak(False)
             except:
                 result = False
-                pass
         return result
 
     def reset(self):
@@ -98,6 +118,7 @@ class Mbed:
             self.extra_serial.flushInput()
             self.extra_serial.flushOutput()
 
+
 class Test:
     def __init__(self):
         self.mbed = Mbed()
@@ -110,18 +131,28 @@ class Test:
             print str(e)
             self.print_result("error")
 
+    def setup(self):
+        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened """
+        result = True
+        if not self.mbed.serial:
+            result = False
+            self.print_result("ioerr_serial")
+        return result
+
     def notify(self, message):
+        """ On screen notification function """
         print message
         stdout.flush()
 
     def print_result(self, result):
+        """ Test result unified printing function """
         self.notify("\n{%s}\n{end}" % result)
 
 
 class DefaultTest(Test):
     def __init__(self):
         Test.__init__(self)
-        self.mbed.init_serial()
+        serial_init_res = self.mbed.init_serial()
         self.mbed.reset()
 
 """
@@ -140,7 +171,10 @@ class Simple(DefaultTest):
     def run(self):
         try:
             while True:
-                c = self.mbed.serial.read(512)
+                c = self.mbed.serial_read(512)
+                if c is None:
+                    self.print_result("ioerr_serial")
+                    break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
