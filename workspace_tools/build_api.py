@@ -269,6 +269,7 @@ def mcu_toolchain_matrix(verbose_html=False):
     result += "*Default - default on-line compiler\n"
     result += "*Supported - supported off-line compiler\n"
     result += "\n"
+    result += "Total platforms: %d\n"% (len(TARGET_NAMES))
     result += "Total permutations: %d"% (perm_counter)
     return result
 
