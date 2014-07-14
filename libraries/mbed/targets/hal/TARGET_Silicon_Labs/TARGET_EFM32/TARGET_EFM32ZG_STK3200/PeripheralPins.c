@@ -18,11 +18,11 @@
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {PD_4, ADC0_PD4, 0},
-    {PD_5, ADC0_PD5, 0},
-    {PD_6, ADC0_PD6, 0},
-    {PD_7, ADC0_PD7, 0},
-    {NC  , NC   , 0}
+    {PD_4, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH4},
+    {PD_5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
+    {PD_6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
+    {PD_7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
+    {NC  , NC   , NC}
 };
 
 /************PWM***************/

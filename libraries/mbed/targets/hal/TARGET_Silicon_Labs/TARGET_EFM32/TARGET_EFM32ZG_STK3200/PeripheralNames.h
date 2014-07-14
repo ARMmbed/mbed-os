@@ -24,14 +24,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    ADC0_PD0 = NC,
-    ADC0_PD1 = NC,
-    ADC0_PD2 = NC,
-    ADC0_PD3 = NC,
-    ADC0_PD4 = _ADC_SINGLECTRL_INPUTSEL_CH4,
-    ADC0_PD5 = _ADC_SINGLECTRL_INPUTSEL_CH5,
-    ADC0_PD6 = _ADC_SINGLECTRL_INPUTSEL_CH6,
-    ADC0_PD7 = _ADC_SINGLECTRL_INPUTSEL_CH7
+    ADC_0 = ADC0_BASE 
 } ADCName;
 
 typedef enum {
