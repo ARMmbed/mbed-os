@@ -42,9 +42,15 @@ def build_project(src_path, build_path, target, toolchain_name,
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
 
+    PROJECT_BASENAME = basename(src_paths[0])
+
     if name is None:
-        name = basename(src_paths[0])
-    toolchain.info("Building project %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+        # We will use default project name based on project folder name
+        name = PROJECT_BASENAME
+        toolchain.info("Building project %s (%s, %s)" % (PROJECT_BASENAME.upper(), target.name, toolchain_name))
+    else:
+        # User used custom global project name to have the same name for the
+        toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
 
     # Scan src_path and libraries_paths for resources
     resources = toolchain.scan_resources(src_paths[0])

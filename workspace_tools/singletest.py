@@ -823,6 +823,10 @@ if __name__ == '__main__':
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
+    parser.add_option('', '--firmware-name',
+                      dest='firmware_global_name',
+                      help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -964,9 +968,13 @@ if __name__ == '__main__':
                         if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                             MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
 
+                    project_name = opts.firmware_global_name if opts.firmware_global_name else None
                     path = build_project(test.source_dir, join(build_dir, test_id),
-                                         T, toolchain, test.dependencies, options=build_project_options,
-                                         clean=clean, verbose=opts.verbose,
+                                         T, toolchain, test.dependencies,
+                                         options=build_project_options,
+                                         clean=clean,
+                                         verbose=opts.verbose,
+                                         name=project_name,
                                          macros=MACROS,
                                          inc_dirs=INC_DIRS)
 
