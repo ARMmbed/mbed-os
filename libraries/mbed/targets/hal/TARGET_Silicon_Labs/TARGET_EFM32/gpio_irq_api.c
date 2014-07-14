@@ -43,17 +43,16 @@ static void handle_interrupt_in(uint8_t pin)
 
     // Get trigger event
     gpio_irq_event event = IRQ_NONE;
-    if ((GPIO ->EXTIFALL & (1 << pin)) && !isRise) {
+    if ((GPIO->EXTIFALL & (1 << pin)) && !isRise) {
         event = IRQ_FALL;
-    } else if ((GPIO ->EXTIRISE & (1 << pin)) && isRise) {
+    } else if ((GPIO->EXTIRISE & (1 << pin)) && isRise) {
         event = IRQ_RISE;
     }
     GPIO_IntClear(pin);
     irq_handler(channel_ids[pin], event);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
-        uint32_t id)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
     MBED_ASSERT(pin != NC);
 
@@ -108,8 +107,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
     /* Disable, set config and enable */
     gpio_irq_disable(obj);
-    GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge,
-            enable);
+    GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge, enable);
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)

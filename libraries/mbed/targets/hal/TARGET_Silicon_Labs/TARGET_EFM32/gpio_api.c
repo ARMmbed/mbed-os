@@ -24,11 +24,13 @@
  * First four bits represent the pin number
  * The remaining bits represent the pin mode
  */
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     return 1 << ((uint32_t) pin & 0xF);
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     MBED_ASSERT(pin != NC);
 
     //Enable GPIO clock
@@ -39,22 +41,23 @@ void gpio_init(gpio_t *obj, PinName pin) {
     obj->port = pin >> 4;
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
 }
 
 // Used by DigitalInOut to set correct mode when direction is set
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     obj->dir = direction;
     switch (direction) {
-    case PIN_INPUT :
-        gpio_mode(obj, PullDefault);
-        break;
-    case PIN_OUTPUT :
-        gpio_mode(obj, PullNone);
-        break;
+        case PIN_INPUT:
+            gpio_mode(obj, PullDefault);
+            break;
+        case PIN_OUTPUT:
+            gpio_mode(obj, PullNone);
+            break;
     }
 }
-
 

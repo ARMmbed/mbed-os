@@ -19,5 +19,5 @@
  * Otherwise, let the application override this if necessary */
 void mbed_sdk_init()
 {
-	CHIP_Init();
+    CHIP_Init();
 }

@@ -41,16 +41,16 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c);
 static void setup_oscillators(I2C_TypeDef *i2c)
 {
     /* Enabling clock to the I2C, GPIO, LE */
-    #ifdef I2C0
+#ifdef I2C0
     if (i2c == I2C0 ) {
         CMU_ClockEnable(cmuClock_I2C0, true);
     }
-    #endif
-    #ifdef I2C1
+#endif
+#ifdef I2C1
     if (i2c == I2C1 ) {
         CMU_ClockEnable(cmuClock_I2C1, true);
     }
-    #endif
+#endif
 
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockEnable(cmuClock_HFPER, true);
@@ -127,7 +127,7 @@ int i2c_stop(i2c_t *obj)
 
     /* Wait for the stop to be sent */
     int timeout = I2C_TIMEOUT;
-    while (!(obj->i2c->IF & I2C_IF_MSTOP)&& !timeout--){}
+    while (!(obj->i2c->IF & I2C_IF_MSTOP) && !timeout--);
 
     return 0;
 }
@@ -187,8 +187,7 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     int timeout = I2C_TIMEOUT;
     /* Wait for data */
-    while (!(obj->i2c->IF & I2C_IF_RXDATAV)&& timeout--){
-    }
+    while (!(obj->i2c->IF & I2C_IF_RXDATAV) && timeout--);
 
     if (timeout <= 0) {
         return 0; //TODO Is this the correct way to handle this?

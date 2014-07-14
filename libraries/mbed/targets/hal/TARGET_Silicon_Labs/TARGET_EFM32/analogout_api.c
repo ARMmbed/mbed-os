@@ -34,21 +34,21 @@ void analogout_init(dac_t *obj, PinName pin) {
     MBED_ASSERT((int) obj->dac != NC);
     
     obj->channel = pin_location(pin, PinMap_DAC);
-    MBED_ASSERT((int)obj->channel != NC);
+    MBED_ASSERT((int) obj->channel != NC);
     
-    //There are two channels, 0 and 1, mapped to PB11 and PB12, respectively.
-    switch((int) obj->dac){
+    /* There are two channels, 0 and 1, mapped to PB11 and PB12, respectively. */
+    switch ((int) obj->dac) {
         case DAC_0:
             CMU_ClockEnable(cmuClock_DAC0, true);
             break;
     }
     /* Enable the DAC clock */
 
-    if(!initialized){
-        // Initialize the DAC. Will disable both DAC channels, so should only be done once  
+    if (!initialized) {
+        /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
 
         /* Use default settings */
-        DAC_Init_TypeDef        init        = DAC_INIT_DEFAULT;
+        DAC_Init_TypeDef init = DAC_INIT_DEFAULT;
 
         /* Calculate the DAC clock prescaler value that will result in a DAC clock
          * close to 500kHz. Second parameter is zero. This uses the current HFPERCLK
@@ -62,7 +62,7 @@ void analogout_init(dac_t *obj, PinName pin) {
         initialized = true;
     }
 
-    //Use default channel settings
+    /* Use default channel settings */
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
 
@@ -72,7 +72,7 @@ void analogout_init(dac_t *obj, PinName pin) {
 void analogout_free(dac_t *obj) {}
 
 static inline void dac_write(dac_t *obj, int value) {
-    switch(obj->channel){
+    switch (obj->channel) {
         case 0:
             obj->dac->CH0DATA = value;
             break;
@@ -83,7 +83,7 @@ static inline void dac_write(dac_t *obj, int value) {
 }
 
 static inline int dac_read(dac_t *obj) {
-    switch(obj->channel){
+    switch (obj->channel) {
         case 0:
             return obj->dac->CH0DATA;
             break;
@@ -99,7 +99,7 @@ static inline int dac_read(dac_t *obj) {
 
 void analogout_write(dac_t *obj, float value) {
     /* We multiply the float value with 0xFFF because the DAC has 12-bit resolution. 
-       Ie. accepts values between 0 and 0xFFF (4096). */
+     * Ie. accepts values between 0 and 0xFFF (4096). */
     dac_write(obj, value*0xFFF);
 }
 
@@ -109,14 +109,13 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
 }
 
 float analogout_read(dac_t *obj) {
-    /* dac_read returns a number between 0 and 0xFFF. 
-       Division gives us a float between 0 and 1 */
+    /* dac_read returns a number between 0 and 0xFFF. Division gives us a float between 0 and 1 */
     return dac_read(obj)/(float)0xFFF;
 }
 
 uint16_t analogout_read_u16(dac_t *obj) {
     /* dac_read returns a number with 12 significant digits, 
-       so we shift in 0s from right to make it a 16 bit number */
+     * so we shift in 0s from right to make it a 16 bit number */
     return dac_read(obj) << 4;
 }
 

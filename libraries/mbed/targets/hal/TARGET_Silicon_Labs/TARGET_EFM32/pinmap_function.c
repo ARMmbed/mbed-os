@@ -24,7 +24,7 @@
  * @param map A pinmap for a given peripheral
  * @return Content of function field in pinmap for the given pin
  */
-uint32_t pinmap_get_function_field(PinName pin, const PinMap* map)
+uint32_t pinmap_get_function_field(PinName pin, const PinMap *map)
 {
     while (map->pin != NC) {
         if (map->pin == pin) {
@@ -42,7 +42,7 @@ uint32_t pinmap_get_function_field(PinName pin, const PinMap* map)
  * @param map Pinmap for the given peripheral
  * @return uint32 describing location (0, 1, 2, ...)
  */
-uint32_t pin_location(PinName pin, const PinMap* map)
+uint32_t pin_location(PinName pin, const PinMap *map)
 {
     if (pin == (PinName) NC) {
         return (uint32_t) NC;

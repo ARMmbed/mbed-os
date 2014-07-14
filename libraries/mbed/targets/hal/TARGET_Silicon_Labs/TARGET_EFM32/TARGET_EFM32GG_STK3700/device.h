@@ -43,7 +43,6 @@
 
 #define DEVICE_SLEEP            1
 
-
 #define DEVICE_STDIO_MESSAGES   1
 
 #include "objects.h"

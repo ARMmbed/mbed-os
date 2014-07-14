@@ -24,18 +24,20 @@
 static int rtc_inited = 0;
 time_t time_base = 0;
 
-void RTC_IRQHandler(void) {
+void RTC_IRQHandler(void)
+{
     RTC_IntClear(RTC_IFC_OF);
     /* RTC has overflowed (24 bits). Use time_base as software counter for upper 8 bits. */
     time_base += 1 << 24;
 }
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     /* Start LFRCO and wait until it is stable */
     CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
 
     /* Route the LFRCO clock to the RTC */
-    CMU_ClockSelectSet(cmuClock_LFA,cmuSelect_LFRCO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
     CMU_ClockEnable(cmuClock_RTC, true);
 
     /* Enable clock to the interface of the low energy modules */
@@ -58,22 +60,26 @@ void rtc_init(void) {
     rtc_inited = 1;
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     NVIC_DisableIRQ(RTC_IRQn);
     RTC_Reset();
     CMU_ClockEnable(cmuClock_RTC, false);
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
-time_t rtc_read(void) {
-    return (time_t)(RTC_CounterGet() + time_base);
+time_t rtc_read(void)
+{
+    return (time_t) (RTC_CounterGet() + time_base);
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     time_base = t;
     RTC_CounterReset();
 }

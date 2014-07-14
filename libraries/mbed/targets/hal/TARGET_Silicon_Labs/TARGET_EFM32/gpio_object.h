@@ -23,25 +23,27 @@ extern "C" {
 #endif
 
 typedef struct {
-    PinName  pin;
+    PinName pin;
     uint32_t mask;
     GPIO_Port_TypeDef port;
     PinMode mode;
     uint32_t dir;
 } gpio_t;
 
-static inline void gpio_write(gpio_t *obj, int value) {
-    if (value){
+static inline void gpio_write(gpio_t *obj, int value)
+{
+    if (value) {
         GPIO_PinOutSet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
-    }else{
+    } else {
         GPIO_PinOutClear(obj->port, obj->pin & 0xF);
     }
 }
 
-static inline int gpio_read(gpio_t *obj) {
-    if(obj->dir == PIN_INPUT){
+static inline int gpio_read(gpio_t *obj)
+{
+    if (obj->dir == PIN_INPUT) {
         return GPIO_PinInGet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
-    }else{
+    } else {
         return GPIO_PinOutGet(obj->port, obj->pin & 0xF);
     }
 }

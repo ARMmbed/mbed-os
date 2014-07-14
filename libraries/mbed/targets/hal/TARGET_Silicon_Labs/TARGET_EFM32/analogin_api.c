@@ -27,18 +27,17 @@
 #include "em_adc.h"
 #include "em_cmu.h"
 
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT((int) obj->adc != NC);
 
-    obj->channel = pin_location(pin, PinMap_ADC); 
+    obj->channel = pin_location(pin, PinMap_ADC);
     MBED_ASSERT((int) obj->channel != NC);
 
     /* Enable required clocks */
     CMU_ClockEnable(cmuClock_HFPER, true);
-    switch((int) obj->adc){
+    switch ((int) obj->adc) {
         case ADC_0:
             CMU_ClockEnable(cmuClock_ADC0, true);
             break;
@@ -62,6 +61,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
 {
     ADC_TypeDef *adc = obj->adc;
     uint16_t sample = 0;
+
     //Make sure a single conversion is not in progress
     adc->CMD = ADC_CMD_SINGLESTOP;
 
@@ -71,8 +71,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     ADC_Start(adc, adcStartSingle);
 
     /* Wait while conversion is active */
-    while (adc->STATUS & ADC_STATUS_SINGLEACT)
-        ;
+    while (adc->STATUS & ADC_STATUS_SINGLEACT);
 
     /* Get ADC result */
     sample = ADC_DataSingleGet(adc);

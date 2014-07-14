@@ -27,7 +27,7 @@
 
 PinName port_pin(PortName port, int pin_n)
 {
-    return (PinName)(pin_n | port << 4); // Encode pin and port number in one uint32
+    return (PinName) (pin_n | port << 4); // Encode pin and port number in one uint32
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)

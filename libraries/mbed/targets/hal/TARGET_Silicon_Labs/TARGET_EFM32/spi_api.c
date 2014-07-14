@@ -20,6 +20,7 @@
 #include "PeripheralPins.h"
 #include "pinmap.h"
 #include "pinmap_function.h"
+#include "error.h"
 
 #include "spi_api.h"
 #include "em_usart.h"
@@ -88,22 +89,22 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
     CMU_ClockEnable(cmuClock_GPIO, true);
 
     switch ((int) obj->spi) {
-        #ifdef USART0
+#ifdef USART0
         case SPI_0:
             obj->clock = cmuClock_USART0;
             break;
-        #endif
-        #ifdef USART1
+#endif
+#ifdef USART1
         case SPI_1:
             obj->clock = cmuClock_USART1;
             break;
-        #endif
-        #ifdef USART2
+#endif
+#ifdef USART2
         case SPI_2:
             obj->clock = cmuClock_USART2;
             break;
-        #endif
-    }
+#endif
+    }   
     CMU_ClockEnable(obj->clock, true);
 
     if (obj->master) { /* Master mode */

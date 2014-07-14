@@ -47,4 +47,3 @@ void pin_mode(PinName pin, PinMode mode)
     unsigned int dout = mode & 0x10;
     GPIO_PinModeSet(port_index, pin_index, mode & 0xF, dout);
 }
-

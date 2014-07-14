@@ -57,39 +57,39 @@ typedef enum {
     USBRX       = PD_1,
 
     // Not connected
-    NC = (int)0xFFFFFFFF
+    NC = (int) 0xFFFFFFFF
 } PinName;
 
 
 //0x10 represents setting the DOUT register (see efm32 modes in ref. manual)
 typedef enum {
     // EFM32 pin modes
-    Disabled        = gpioModeDisabled,
-    DisabledPullUp  = gpioModeDisabled | 0x10,
-    Input 			= gpioModeInput,
-    InputFilter 	= gpioModeInput | 0x10,
-    InputPullDown 	= gpioModeInputPull,
-    InputPullUp     = gpioModeInputPull | 0x10,
+    Disabled            = gpioModeDisabled,
+    DisabledPullUp      = gpioModeDisabled | 0x10,
+    Input               = gpioModeInput,
+    InputFilter         = gpioModeInput | 0x10,
+    InputPullDown       = gpioModeInputPull,
+    InputPullUp         = gpioModeInputPull | 0x10,
     InputPullFilterDown = gpioModeInputPullFilter,
-    InputPullFilterUp 	= gpioModeInputPullFilter | 0x10,
-    PushPull 		= gpioModePushPull,
-    PushPullDrive 	= gpioModePushPullDrive,
-    WiredOr 		= gpioModeWiredOr,
-    WiredOrPullDown = gpioModeWiredOrPullDown,
-    WiredAnd 		= gpioModeWiredAnd,
-    WiredAndFilter 	= gpioModeWiredAndFilter,
-    WiredAndPullUp 	= gpioModeWiredAndPullUp,
+    InputPullFilterUp   = gpioModeInputPullFilter | 0x10,
+    PushPull            = gpioModePushPull,
+    PushPullDrive       = gpioModePushPullDrive,
+    WiredOr             = gpioModeWiredOr,
+    WiredOrPullDown     = gpioModeWiredOrPullDown,
+    WiredAnd            = gpioModeWiredAnd,
+    WiredAndFilter      = gpioModeWiredAndFilter,
+    WiredAndPullUp      = gpioModeWiredAndPullUp,
     WiredAndPullUpFilter = gpioModeWiredAndPullUpFilter,
-    WiredAndDrive 		= gpioModeWiredAndDrive,
-    WiredAndDriveFilter	= gpioModeWiredAndDriveFilter,
-    WiredAndDrivePullUp	= gpioModeWiredAndDrivePullUp,
+    WiredAndDrive       = gpioModeWiredAndDrive,
+    WiredAndDriveFilter = gpioModeWiredAndDriveFilter,
+    WiredAndDrivePullUp = gpioModeWiredAndDrivePullUp,
     WiredAndDrivePullUpFilter = gpioModeWiredAndDrivePullUpFilter,
 
     /* mBed modes:
      * PullUp, PullDown, PullNone, OpenDrain
      *
-	 * mBed default digital input mode:
-	 * PullDefault
+     * mBed default digital input mode:
+     * PullDefault
      *
      * mBed default digital output mode:
      * PullNone
