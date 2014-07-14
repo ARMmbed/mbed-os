@@ -371,7 +371,7 @@ class SingleTestRunner(object):
             print "Test::Output::Finish"
 
         # Parse test 'output' data
-        result = self.TEST_RESULT_UNDEF
+        result = self.TEST_RESULT_TIMEOUT
         for line in "".join(output).splitlines():
             search_result = self.RE_DETECT_TESTCASE_RESULT.search(line)
             if search_result and len(search_result.groups()):
@@ -710,10 +710,9 @@ def generate_test_summary(test_summary):
                    single_test.TEST_RESULT_FAIL : 0,
                    single_test.TEST_RESULT_ERROR : 0,
                    single_test.TEST_RESULT_UNDEF : 0,
-                   single_test.TEST_RESULT_UNDEF : 0,
-                   single_test.TEST_RESULT_UNDEF : 0,
                    single_test.TEST_RESULT_IOERR_COPY : 0,
                    single_test.TEST_RESULT_IOERR_DISK : 0,
+                   single_test.TEST_RESULT_IOERR_SERIAL : 0,
                    single_test.TEST_RESULT_TIMEOUT : 0 }
 
     for test in test_summary:
