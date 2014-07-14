@@ -28,6 +28,10 @@ typedef enum {
 } ADCName;
 
 typedef enum {
+    I2C_0 = I2C0_BASE
+} I2CName;
+
+typedef enum {
     PWM_CH0 = 0,
     PWM_CH1 = 1,
     PWM_CH2 = 2,

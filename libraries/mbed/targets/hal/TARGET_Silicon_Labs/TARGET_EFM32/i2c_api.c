@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "device.h"
+#if DEVICE_I2C
+
 #include "mbed_assert.h"
 #include "i2c_api.h"
 #include "PeripheralPins.h"
@@ -50,10 +54,6 @@ static void setup_oscillators(I2C_TypeDef *i2c)
 
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockEnable(cmuClock_HFPER, true);
-
-    // Enabling USART0 (see errata) //TODO: Wait, wat?
-    CMU_ClockEnable(cmuClock_USART0, true);
-
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
@@ -244,6 +244,8 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
     }
     return 0; //Timeout
 }
+
+#endif
 
 #if DEVICE_I2CSLAVE
 void i2c_slave_mode(i2c_t *obj, int enable_slave)

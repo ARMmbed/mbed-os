@@ -23,6 +23,12 @@
 /************ADC***************/
 extern const PinMap PinMap_ADC[];
 
+/************I2C SCL***********/
+extern const PinMap PinMap_I2C_SCL[];
+
+/************I2C SDA***********/
+extern const PinMap PinMap_I2C_SDA[];
+
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
 
