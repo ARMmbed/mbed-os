@@ -20,8 +20,8 @@
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
-#include "cmsis.h"
 #include "pinmap.h"
+#include "pinmap_function.h"
 #include "PeripheralPins.h"
 
 #include "em_adc.h"

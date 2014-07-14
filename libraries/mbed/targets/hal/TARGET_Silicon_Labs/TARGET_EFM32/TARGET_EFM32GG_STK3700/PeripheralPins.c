@@ -32,9 +32,9 @@ const PinMap PinMap_ADC[] = {
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
-    {PB_11, DAC0_CH0, 0},
-    {PB_12, DAC0_CH1, 0},
-    {NC  , NC   , 0}
+    {PB_11, DAC_0, 0},
+    {PB_12, DAC_0, 1},
+    {NC  , NC   , NC}
 };
 
 /************PWM***************/

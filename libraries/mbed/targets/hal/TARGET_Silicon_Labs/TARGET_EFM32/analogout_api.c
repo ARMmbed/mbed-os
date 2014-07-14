@@ -17,33 +17,32 @@
 #include "device.h"
 #if DEVICE_ANALOGOUT
 
+#include "error.h"
 #include "mbed_assert.h"
+#include "analogout_api.h"
+#include "pinmap.h"
+#include "pinmap_function.h"
+#include "PeripheralPins.h"
+
 #include "em_dac.h"
 #include "em_cmu.h"
-#include "analogout_api.h"
-#include "cmsis.h"
-#include "pinmap.h"
-#include "PeripheralPins.h"
 
 void analogout_init(dac_t *obj, PinName pin) {
     static bool initialized = false;
 
-    obj->dac = (DACName) pinmap_peripheral(pin, PinMap_DAC);
-    MBED_ASSERT(obj->dac != (DACName)NC);
-
-    int channel = 0;
+    obj->dac = (DAC_TypeDef *) pinmap_peripheral(pin, PinMap_DAC);
+    MBED_ASSERT((int) obj->dac != NC);
+    
+    obj->channel = pin_location(pin, PinMap_DAC);
+    MBED_ASSERT((int)obj->channel != NC);
+    
     //There are two channels, 0 and 1, mapped to PB11 and PB12, respectively.
-    switch(obj->dac){
-        case DAC0_CH0:
-            channel = 0;
-            break;
-        case DAC0_CH1:
-            channel = 1;
+    switch((int) obj->dac){
+        case DAC_0:
+            CMU_ClockEnable(cmuClock_DAC0, true);
             break;
     }
-
     /* Enable the DAC clock */
-    CMU_ClockEnable(cmuClock_DAC0, true);
 
     if(!initialized){
         // Initialize the DAC. Will disable both DAC channels, so should only be done once  
@@ -59,37 +58,41 @@ void analogout_init(dac_t *obj, PinName pin) {
         /* Set reference voltage to VDD */
         init.reference = dacRefVDD;
 
-        DAC_Init(DAC0, &init);
+        DAC_Init(obj->dac, &init);
         initialized = true;
     }
 
     //Use default channel settings
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
-    DAC_InitChannel(DAC0, &initChannel, channel);
+    DAC_InitChannel(obj->dac, &initChannel, obj->channel);
 
-    DAC_Enable(DAC0, channel, true);
+    DAC_Enable(obj->dac, obj->channel, true);
 }
 
 void analogout_free(dac_t *obj) {}
 
 static inline void dac_write(dac_t *obj, int value) {
-    switch(obj->dac){
-        case DAC0_CH0:
-            DAC0->CH0DATA = value;
+    switch(obj->channel){
+        case 0:
+            obj->dac->CH0DATA = value;
             break;
-        case DAC0_CH1:
-            DAC0->CH1DATA = value;
+        case 1:
+            obj->dac->CH1DATA = value;
             break;
     }
 }
 
 static inline int dac_read(dac_t *obj) {
-    switch(obj->dac){
-        case DAC0_CH0:
-            return DAC0->CH0DATA;
+    switch(obj->channel){
+        case 0:
+            return obj->dac->CH0DATA;
             break;
-        case DAC0_CH1:
-            return DAC0->CH1DATA;
+        case 1:
+            return obj->dac->CH1DATA;
+            break;
+        default:
+            error("AnalogOut pin error. Invalid channel");
+            return -1;
             break;
     }
 }

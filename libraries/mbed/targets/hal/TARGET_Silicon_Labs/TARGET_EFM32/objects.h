@@ -33,7 +33,8 @@ struct analogin_s {
 
 #if DEVICE_ANALOGOUT
 struct dac_s {
-    DACName dac;
+    DAC_TypeDef *dac;
+    uint32_t channel;
 };
 #endif
 
