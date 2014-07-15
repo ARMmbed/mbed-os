@@ -22,81 +22,78 @@
 
 /**
  * Timer functions for microsecond ticker.
- * mbed expects a 32-bit timer. Since the EFM32 only has 16-bit timers, we chain two of them.
+ * mbed expects a 32-bit timer. Since the EFM32 only has 16-bit timers,
+ * the upper 16 bits are implemented in software.
  */
 
 static int us_ticker_inited = 0;	// Is ticker initialized yet
-static int lowerOnly = 0;			// Status bit for last interrupt on lower timer
-static int extraLower = 0;			// Status bit for interrupts on lower timer
-static uint32_t tsL = 0;			// Lower 16 bits of timestamp
-static uint32_t tsH = 0;			// Upper 16 bits of timestamp
 
-void us_ticker_irq_handler_internal(void) {
-    if(lowerOnly) {
-        lowerOnly = 0;
-        /* Clear interrupt */
-        TIMER_IntClear(US_TIMER_L, TIMER_IF_CC0);
-        /* Call mbed common IRQ handler */
-        us_ticker_irq_handler();
-    } else {
-        if(extraLower) { /* First time. Fallthrough and use pre-set lower timer */
-            extraLower = 0;
-        } else { /* Second time. Change lower timer. */
-            lowerOnly = 1;
-            TIMER_CompareSet(US_TIMER_L, 0, tsL);
+static volatile uint16_t ticker_cnt = 0;
+static uint16_t ticker_int_rem = 0;
+static uint16_t ticker_int_cnt = 0;
+static uint32_t freq = 0;
+
+void us_ticker_irq_handler_internal(void)
+{
+    if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_CC0) {
+        if (ticker_int_rem > 0) {
+            TIMER_CompareSet(US_TICKER_TIMER, 0, ticker_int_rem);
+            ticker_int_rem = 0;
+            TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_CC0);
+        } else if (ticker_int_cnt > 0) {
+            ticker_int_cnt--;
+            TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_CC0);
+        } else {
+            us_ticker_irq_handler();
         }
-        /* Clear interrupt */
-        TIMER_IntClear(US_TIMER_L, TIMER_IF_CC0);
-        TIMER_IntClear(US_TIMER_H, TIMER_IF_CC0);
-        /* Enable lower timer Compare Channel interrupt */
-        TIMER_IntEnable(US_TIMER_L, TIMER_IF_CC0);
+    }
+
+    if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
+        ticker_cnt++;
+        TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_OF);
     }
 }
 
-void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     /* Enable clock for TIMERs */
-    CMU_ClockEnable(US_TIMER_H_CLOCK, true);
-    CMU_ClockEnable(US_TIMER_L_CLOCK, true);
+    CMU_ClockEnable(US_TICKER_TIMER_CLOCK, true);
 
-    /* Clear TIMER counter values */
-    TIMER_CounterSet(US_TIMER_L, 0);
-    TIMER_CounterSet(US_TIMER_H, 0);
+    /* Clear TIMER counter value */
+    TIMER_CounterSet(US_TICKER_TIMER, 0);
 
-    /* Set lower timer prescaler */
-    US_TIMER_L->CTRL = (US_TIMER_L->CTRL & ~_TIMER_CTRL_PRESC_MASK) |  TIMER_CTRL_PRESC_DIV2;
+    /* Set prescaler */
+    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | TIMER_CTRL_PRESC_DIV16;
 
-    /* Set lower timer to tick with HFPERCLK (14 MHz) */
-    US_TIMER_L->CTRL |= TIMER_CTRL_CLKSEL_PRESCHFPERCLK;
-    /* Set upper timer to tick when lower timer overflows */
-    US_TIMER_H->CTRL |= TIMER_CTRL_CLKSEL_TIMEROUF;
+    /* Store frequency of clock in MHz for scaling ticks to microseconds */
+    freq = CMU_ClockFreqGet(US_TICKER_TIMER_CLOCK) / 1000000;
 
     /* Select Compare Channel parameters */
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
     timerCCInit.mode = timerCCModeCompare;
 
     /* Configure Compare Channel 0 */
-    TIMER_InitCC(US_TIMER_L, 0, &timerCCInit);
-    TIMER_InitCC(US_TIMER_H, 0, &timerCCInit);
+    TIMER_InitCC(US_TICKER_TIMER, 0, &timerCCInit);
 
     /* Enable interrupt vector in NVIC */
-    NVIC_SetVector(US_TIMER_L_IRQn, (uint32_t)us_ticker_irq_handler_internal);
-    NVIC_SetVector(US_TIMER_H_IRQn, (uint32_t)us_ticker_irq_handler_internal);
-    NVIC_EnableIRQ(US_TIMER_L_IRQn);
-    NVIC_EnableIRQ(US_TIMER_H_IRQn);
+    TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_OF);
+    NVIC_SetVector(US_TICKER_TIMER_IRQ, (uint32_t) us_ticker_irq_handler_internal);
+    NVIC_EnableIRQ(US_TICKER_TIMER_IRQ);
 
     /* Set top value */
-    TIMER_TopSet(US_TIMER_L, 0xffff);
-    TIMER_TopSet(US_TIMER_H, 0xffff);
+    TIMER_TopSet(US_TICKER_TIMER, 0xFFFF);
 
-    /* Start TIMERs */
-    TIMER_Enable(US_TIMER_L, true);
-    TIMER_Enable(US_TIMER_H, true);
+    /* Start TIMER */
+    TIMER_Enable(US_TICKER_TIMER, true);
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     uint32_t countH_old, countH, countL;
 
     if (!us_ticker_inited) {
@@ -105,60 +102,69 @@ uint32_t us_ticker_read() {
 
     /* Avoid jumping in time by reading high bits twice */
     do {
-        countH_old = US_TIMER_H->CNT;
-        countL = US_TIMER_L->CNT;
-        countH = US_TIMER_H->CNT;
-    } while(countH_old != countH);
-
-    /* Divide by 7 to get 1 µs ticks on the 14 MHz clock with divider 2 */
-    return ((countH << 16) | countL) / 7;
-}
-
-
-void us_ticker_set_interrupt(unsigned int timestamp) {
-    /* Multiply by 7 to get clock ticks (14 MHz with divisor 2) */
-    timestamp = timestamp * 7;
-
-    /* Split timestamp between timers */
-    tsL = 0xFFFF & timestamp;
-    tsH = timestamp >> 16;
-
-    if(tsH > 0) {
-        /* In order to prevent short interrupt times on the lower/fast timer, we make sure it runs for more than 0x8000 ticks
-         * Case 1) tsL is large => run as-is
-         * Case 2) tsL is small => subtract 1 from tsH, run tsL+0x8000 and then lower timer again to tsL.
-         */
-        if(tsL > 0x8000) {
-            /* Set Compare register for upper timer */
-            TIMER_CompareSet(US_TIMER_H, 0, tsH);
-            /* Enable interrupt for upper timer */
-            TIMER_IntEnable(US_TIMER_H, TIMER_IF_CC0);
-        } else {
-            /* Set Compare registers */
-            TIMER_CompareSet(US_TIMER_L, 0, tsL + 0x8000);
-            TIMER_CompareSet(US_TIMER_H, 0, tsH - 1);
-            extraLower = 1;
-            /* Enable interrupt for upper timer */
-            TIMER_IntEnable(US_TIMER_H, TIMER_IF_CC0);
+        countH_old = ticker_cnt;
+        /* If the counter overflowed while in the IRQ handler for the CC0 interrupt,
+         * it hasn't had time to update ticker_cnt yet. Take this into account here. */
+        if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
+            countH_old += 1;
         }
-    } else {
-        lowerOnly = 1;
-        /* Set Compare register 0 for lower timer */
-        TIMER_CompareSet(US_TIMER_L, 0, tsL);
-        /* Enable interrupt for lower timer */
-        TIMER_IntEnable(US_TIMER_L, TIMER_IF_CC0);
+        countL = US_TICKER_TIMER->CNT;
+        countH = ticker_cnt;
+        /* If the counter overflowed while in the IRQ handler for the CC0 interrupt,
+         * it hasn't had time to update ticker_cnt yet. Take this into account here. */
+        if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
+            countH += 1;
+        }
+    } while (countH_old != countH);
+
+    /* Divide by freq/16 to get 1 us MHz clock with divider 16 */
+    return ((countH << 16) | countL) / freq * 16;
+}
+
+void us_ticker_set_interrupt(unsigned int timestamp)
+{
+    TIMER_IntDisable(US_TICKER_TIMER, TIMER_IEN_CC0);
+
+    int delta = (int) (timestamp - us_ticker_read());
+
+    if (delta <= 0) {
+        us_ticker_irq_handler();
+        return;
     }
+
+    /* Multiply by freq/16 to get clock ticks (freq MHz with prescaler 16) */
+    delta = (delta / 16) * freq;
+    timestamp = (timestamp / 16) * freq;
+
+    /* Split delta between timers */
+    ticker_int_cnt = delta >> 16;
+    ticker_int_rem = timestamp & 0xFFFF;
+
+    /* Set compare channel 0 to (current position + lower 16 bits of delta).
+     * If lower 16 bits is a small number, we a do one compare of (current + lower 16 + 0x8000)
+     * and then one of (current + lower 16). Else, we simply use (current + lower 16).
+     *
+     * When time from lower 16 bits have elapsed, run complete cycles with ticker_int_rem as
+     * reference ticker_int_cnt times. */
+    if ((delta & 0xFFFF) < 0x8000 && ticker_int_cnt > 0) {
+        TIMER_CompareSet(US_TICKER_TIMER, 0, ticker_int_rem + 0x8000);
+        ticker_int_cnt--;
+    } else {
+        TIMER_CompareSet(US_TICKER_TIMER, 0, ticker_int_rem);
+        ticker_int_rem = 0;
+    }
+    TIMER_IntClear(US_TICKER_TIMER, TIMER_IFC_CC0);
+    TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_CC0);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     /* Disable compare channel interrupts */
-    TIMER_IntDisable(US_TIMER_L, TIMER_IF_CC0);
-    TIMER_IntDisable(US_TIMER_H, TIMER_IF_CC0);
+    TIMER_IntDisable(US_TICKER_TIMER, TIMER_IEN_CC0);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     /* Clear compare channel interrupts */
-    TIMER_IntClear(US_TIMER_L, TIMER_IF_CC0);
-    TIMER_IntClear(US_TIMER_H, TIMER_IF_CC0);
+    TIMER_IntClear(US_TICKER_TIMER, TIMER_IFC_CC0);
 }
-
