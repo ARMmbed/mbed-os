@@ -827,6 +827,12 @@ if __name__ == '__main__':
                       dest='firmware_global_name',
                       help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
 
+    parser.add_option('', '--verbose-skipped',
+                      dest='verbose_skipped_tests',
+                      default=False,
+                      action="store_true",
+                      help='Prints some extra information about skipped tests')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -921,18 +927,18 @@ if __name__ == '__main__':
                     continue
 
                 if opts.test_only_peripheral and not test.peripherals:
-                    if opts.verbose:
+                    if opts.verbose_skipped_tests:
                         print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
                     continue
 
                 if opts.test_only_common and test.peripherals:
-                    if opts.verbose:
+                    if opts.verbose_skipped_tests:
                         print "TargetTest::%s::PeripheralTestSkipped()" % (target)
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
                     if not is_peripherals_available(target, test.peripherals):
-                        if opts.verbose:
+                        if opts.verbose_skipped_tests:
                             test_peripherals = test.peripherals if test.peripherals else []
                             print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
                         continue
