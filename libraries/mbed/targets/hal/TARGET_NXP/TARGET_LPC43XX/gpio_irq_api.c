@@ -28,13 +28,13 @@
  * A future implementation may provide group interrupt support.
  */
 #if !defined(CORE_M0)
-#define CHANNEL_NUM    8
+#define CHANNEL_MAX    8
 #else
-#define CHANNEL_NUM    1
+#define CHANNEL_MAX    1
 #endif
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
-static uint32_t channel = 0;
+static uint32_t channel_ids[CHANNEL_MAX] = {0};
+static uint8_t channel = 0;
 static gpio_irq_handler irq_handler;
 
 static void handle_interrupt_in(void) {
@@ -43,19 +43,21 @@ static void handle_interrupt_in(void) {
     uint32_t pmask;
     int i;
 
-    for (i = 0; i < CHANNEL_NUM; i++) {
+    for (i = 0; i < CHANNEL_MAX; i++) {
         pmask = (1 << i);
         if (rise & pmask) {
             /* Rising edge interrupts */
-            if (channel_ids[i] != 0)
+            if (channel_ids[i] != 0) {
                 irq_handler(channel_ids[i], IRQ_RISE);
+            }
             /* Clear rising edge detected */
             LPC_GPIO_PIN_INT->RISE = pmask;
         }
         if (fall & pmask) {
             /* Falling edge interrupts */
-            if (channel_ids[i] != 0)
+            if (channel_ids[i] != 0) {
                 irq_handler(channel_ids[i], IRQ_FALL);
+            }
             /* Clear falling edge detected */
             LPC_GPIO_PIN_INT->FALL = pmask;
         }
@@ -100,7 +102,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     // Increment channel number
     channel++;
-    channel %= CHANNEL_NUM;
+    channel %= CHANNEL_MAX;
 
     return 0;
 }

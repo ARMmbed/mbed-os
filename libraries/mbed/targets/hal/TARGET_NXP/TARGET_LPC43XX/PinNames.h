@@ -435,7 +435,7 @@ typedef enum {
     SFP_CLK1  = MBED_PIN(0x18, 1, 0, 0),
     SFP_CLK2  = MBED_PIN(0x18, 2, 0, 0),
     SFP_CLK3  = MBED_PIN(0x18, 3, 0, 0),
-	
+
     // Group 0x19 : USB1, I2C0, ADC0, ADC1
     SFP_USB1  = MBED_PIN(0x19, 0, 0, 0),
     SFP_I2C0  = MBED_PIN(0x19, 1, 0, 0),
@@ -448,107 +448,245 @@ typedef enum {
     SFP_INS0  = MBED_PIN(0x1C, 0, 0, 0), // Interrupt select for pin interrupts 0 to 3
     SFP_INS1  = MBED_PIN(0x1C, 1, 0, 0), // Interrupt select for pin interrupts 4 to 7
 
-#define MBED_ADC_NUM(MBED_PIN)   ((MBED_PIN >> 5) & 0x0000000F)
-#define MBED_ADC_CHAN(MBED_PIN)  (MBED_PIN & 0x0000001F)
+    // Dedicated pin (no GPIO)
+    P_DED = MBED_PIN(0, 0, NO_GPIO, 0),
 
-    // Use pseudo-pin ID also for ADCs, although with special handling
-    SFP_ADC0_0 = MBED_PIN(0x19, 2, 0, 0), // ADC0_0
-    SFP_ADC0_1 = MBED_PIN(0x19, 2, 0, 1), // ADC0_1
-    SFP_ADC0_2 = MBED_PIN(0x19, 2, 0, 2), // ADC0_2
-    SFP_ADC0_3 = MBED_PIN(0x19, 2, 0, 3), // ADC0_3
-    SFP_ADC0_4 = MBED_PIN(0x19, 2, 0, 4), // ADC0_4
-    SFP_ADC0_5 = MBED_PIN(0x19, 2, 0, 5), // ADC0_5
-    SFP_ADC0_6 = MBED_PIN(0x19, 2, 0, 6), // ADC0_6
+    // Not connected
+    NC = (int)0xFFFFFFFF,
 
-    SFP_ADC1_0 = MBED_PIN(0x19, 3, 1, 0), // ADC1_0
-    SFP_ADC1_1 = MBED_PIN(0x19, 3, 1, 1), // ADC1_1
-    SFP_ADC1_2 = MBED_PIN(0x19, 3, 1, 2), // ADC1_2
-    SFP_ADC1_3 = MBED_PIN(0x19, 3, 1, 3), // ADC1_3
-    SFP_ADC1_4 = MBED_PIN(0x19, 3, 1, 4), // ADC1_4
-    SFP_ADC1_5 = MBED_PIN(0x19, 3, 1, 5), // ADC1_5
-    SFP_ADC1_6 = MBED_PIN(0x19, 3, 1, 6), // ADC1_6
-    SFP_ADC1_7 = MBED_PIN(0x19, 3, 1, 7), // ADC1_7
+    // ---------- Micromint Bambino 200/200E/210/210E (LQFP144) ----------
+    // Base headers - J8, J9, J10 on Bambino 210/210E
+    //                n/p = not populated, n/a = not available
+    //              210E    210     200E    200
+    //              ----    ----    ----    ----
+    p15 = P7_4,  // J8-1    J8-1    S4-3    S4-3
+    p16 = P7_5,  // J8-2    J8-2    S4-4    S4-4
+    p17 = P4_1,  // J8-3    J8-3    S3-4    S3-4
+    p18 = P7_7,  // J8-4    J8-4    S4-5    S4-5
+    p19 = P4_3,  // J8-5*   J8-5*   S3-4    S3-3
+    p20 = P4_4,  // J8-6*   J8-6*   S1-5    S1-5
+    p20b = PF_8, // J8-6**  J8-6**  S3-5    S3-5
+                 // (*)  if p20 is configured as DAC, ADC is not available for p19
+                 // (**) requires JP2 mod
 
-    // ---------- Micromint Bambino 200 ----------
-    // LQFP144
-    // NOTE: Pins marked (*) only available on 200E
-    p5  = P1_2,   // SPI0 mosi
-    p6  = P1_1,   // SPI0 miso
-    p7  = P3_0,   // SPI0 sck
-    p8  = P4_5,
-    p9  = P6_4,   // Serial0 tx, I2C0 sda
-    p10 = P6_5,   // Serial0 rx, I2C0 scl
-    p11 = P1_4,   // SPI1 mosi (*)
-    p12 = P1_3,   // SPI1 miso (*)
-    p13 = PF_4,   // Serial1 tx, SPI1 sck (*)
-    p14 = P1_14,  // Serial1 rx
-    p15 = P4_3,   // ADC0
-    p16 = P4_1,   // ADC1
-    p17 = P7_4,   // ADC2
-    p18 = SFP_ADC0_0, // ADC3, DAC0
-    p19 = P7_5,   // ADC4
-    p20 = P7_7,   // ADC5
-    p21 = P4_0,   // PWM0
-    p22 = P5_5,   // PWM1
-    p23 = P5_7,   // PWM2
-    p24 = P4_8,   // PWM3
-    p25 = P4_9,   // PWM4
-    p26 = P4_10,  // PWM5
-    p27 = P2_4,   // I2C1 scl, Serial2 rx
-    p28 = P2_3,   // I2C1 sda, Serial2 tx
-    p29 = P3_2,   // CAN0 td
-    p30 = P3_1,   // CAN0 rx
+    p21 = P6_5,  // J9-1    J9-1    S2-5    S2-5
+    p22 = P6_4,  // J9-2    J9-2    S2=4    S2-4
+    p23 = P1_7,  // J9-3    J9-3    S2-3    S2-3
+    p24 = P4_0,  // J9-4    J9-4    S3-7    S3-7
+    p25 = P6_9,  // J9-5    J9-5    S8-7    n/p
+    p26 = P5_5,  // J9-6    J9-6    S3-8    S3-8
+    p27 = P5_7,  // J9-7    J9-7    S3-9    S3-9
+    p28 = P7_6,  // J9-8    J9-8    S4-6    S4-6
+
+    p29 = P6_12, // J10-1   J10-1   S10-3   n/p
+    p30 = P5_0,  // J10-2   J10-2   S1-4    S1-4
+    p31 = P4_6,  // J10-3   J10-3   S2-6    S2-6
+    p32 = P4_8,  // J10-4   J10-4   S2-7    S2-7
+    p33 = P4_9,  // J10-5   J10-5   S2-8    S2-8
+    p34 = P4_10, // J10-6   J10-6   S2-9    S2-9
+    p37 = P2_3,  // J10-9   J10-9   S4-8    S4-8
+    p38 = P2_4,  // J10-10  J10-10  S4-9    S4-9
+
+    // Extended headers - J11, J12, J13, J14 on Bambino 210E
+    //              210E    210     200E    200
+    //              ----    ----    ----    ----
+    p47 = P6_3,  // J11-1   n/p     S7-5    n/p
+    p48 = P6_6,  // J11-2   n/p     S6-7    n/p
+    p49 = P6_7,  // J11-3   n/p     S6-8    n/p
+    p50 = P6_8,  // J11-4   n/p     S6-9    n/p
+    p53 = P2_2,  // J11-7   n/p     S7-7    n/p
+    p54 = P2_1,  // J11-8   n/p     S7-3    n/p
+
+    p55 = PF_10, // J12-1   n/p     n/a     n/a
+    p56 = PF_7,  // J12-2   n/p     n/a     n/a
+    p57 = P2_6,  // J12-3   n/p     S8-6    n/p
+    p58 = P2_8,  // J12-4   n/p     S8-3    n/p
+    p59 = P6_10, // J12-5   n/p     S7-8    n/p
+    p60 = P2_9,  // J12-6   n/p     S9-3    n/p
+
+    p61 = P7_3,  // J13-1   n/p     S7-9    n/p
+    p62 = P3_2,  // J13-2   n/p     S9-4    n/p
+    p63 = P7_2,  // J13-3   n/p     S4-7    S4-7
+    p64 = P3_1,  // J13-4   n/p     S9-5    n/p
+    p65 = P7_1,  // J13-5   n/p     S9-8    n/p
+    p66 = P7_0,  // J13-6   n/p     S9-9    n/p
+    p67 = P4_2,  // J13-7   n/p     S4-6    S4-6
+    p68 = P4_5,  // J13-8   n/p     S1-3    S1-3
+
+    p69 = P2_13, // J14-1   n/p     S9-7    n/p
+    p70 = P2_12, // J14-2   n/p     S9-6    n/p
+    p71 = P9_6,  // J14-3   n/p     S6-6    n/p
+    p72 = P9_5,  // J14-4   n/p     S7-4    n/p
+    p73 = P5_3,  // J14-5   n/p     S6-5    n/p
+    p74 = P1_8,  // J14-6   n/p     S6-4    n/p
+    p75 = P1_5,  // J14-7   n/p     S10-6   n/p
+    p76 = P1_4,  // J14-8   n/p     S10-7   n/p
+    p77 = P1_3,  // J14-9   n/p     S10-8   n/p
+    p78 = PF_4,  // J14-10  n/p     S10-9   n/p
+
+    // J16 - PMOD-SSP header (not populated, field installable)
+    p80 = P1_0,  // J16-1   J16-1   S1-6    S1-6
+    p81 = P1_2,  // J16-2   J16-2   S1-7    S1-7
+    p82 = P1_1,  // J16-3   J16-3   S1-8    S1-8
+    p83 = P3_0,  // J16-4   J16-4   S1-9    S1-9
+
+    // Arduino pins - J8, J9, J10
+    //              210E    210     200E    200
+    //              ----    ----    ----    ----
+    D0  = p21,  // J9-1     J9-1    S2-5    S2-5
+    D1  = p22,  // J9-2     J9-2    S2-4    S2-4
+    D2  = p23,  // J9-3     J9-3    S2-3    S2-3
+    D3  = p24,  // J9-4     J9-4    S3-7    S3-7
+    D4  = p25,  // J9-5     J9-5    S8-7    n/p
+    D5  = p26,  // J9-6     J9-6    S3-8    S3-8
+    D6  = p27,  // J9-7     J9-7    S3-9    S3-9
+    D7  = p28,  // J9-8     J9-8    S4-6    S4-6
+
+    D8  = p29,  // J10-1    J10-1   S10-1   n/p
+    D9  = p30,  // J10-2    J10-2   S1-4    S1-4
+    D10 = p31,  // J10-3    J10-3   S2-6    S2-6
+    D11 = p32,  // J10-4    J10-4   S2-7    S2-7
+    D12 = p33,  // J10-5    J10-5   S2-8    S2-8
+    D13 = p34,  // J10-6    J10-6   S2-9    S2-9
+    D16 = p37,  // J10-9    J10-9   S4-8    S4-8
+    D17 = p38,  // J10-10   J10-10  S4-9    S4-9
+
+    A0  = p15,  // J8-1     J8-1    S4-3    S4-3
+    A1  = p16,  // J8-2     J8-2    S4-4    S4-4
+    A2  = p17,  // J8-3     J8-3    S3-4    S3-4
+    A3  = p18,  // J8-4     J8-4    S3-4    S3-4
+    A4  = p19,  // J8-5*    J8-5*   S3-3    S3-3
+    A5  = p20,  // J8-6*    J8-6*   S1-5    S1-5
+    A5b = p20b, // J8-6**   J8-6**  S3-5    S3-5
+                // (*)  if A5 is configured as DAC, ADC is not available for A4
+                // (**) requires JP2 mod
+
+    // Extended Arduino pins - J11, J12, J13, J14
+    //             210E     210     200E    200
+    //             ----     ----    ----    ----
+    D20 = p61,  // J13-1    n/p     S7-9    n/p
+    D21 = p62,  // J13-2    n/p     S9-4    n/p
+    D22 = p63,  // J13-3    n/p     S4-7    S4-7
+    D23 = p64,  // J13-4    n/p     S9-5    n/p
+    D24 = p65,  // J13-5    n/p     S9-8    n/p
+    D25 = p66,  // J13-6    n/p     S9-9    n/p
+    D26 = p67,  // J13-7    n/p     S3-7    S3-7
+    D27 = p68,  // J13-8    n/p     S1-3    S1-3
+
+    D30 = p69,  // J14-1    n/p     S9-7    n/p
+    D31 = p70,  // J14-2    n/p     S9-6    n/p
+    D32 = p71,  // J14-3    n/p     S6-6    n/p
+    D33 = p72,  // J14-4    n/p     S7-4    n/p
+    D34 = p73,  // J14-5    n/p     S6-5    n/p
+    D35 = p74,  // J14-6    n/p     S6-4    n/p
+    D36 = p75,  // J14-7    n/p     S10-6   n/p
+    D37 = p76,  // J14-8    n/p     S10-7   n/p
+    D38 = p77,  // J14-9    n/p     S10-8   n/p
+    D39 = p78,  // J14-10   n/p     S10-9   n/p
+
+    D40 = p47,  // J11-1    n/p     S7-5    n/p
+    D41 = p48,  // J11-2    n/p     S6-7    n/p
+    D42 = p49,  // J11-3    n/p     S6-8    n/p
+    D43 = p50,  // J11-4    n/p     S6-9    n/p
+    D46 = p53,  // J11-7    n/p     S7-7    n/p
+    D47 = p54,  // J11-8    n/p     S7-3    n/p
+
+    D52 = p57,  // J12-3    n/p     S8-6    n/p
+    D53 = p58,  // J12-4    n/p     S8-3    n/p
+    D54 = p59,  // J12-5    n/p     S7-8    n/p
+    D55 = p60,  // J12-6    n/p     S9-3    n/p
+
+    A6  = p55,  // J12-1    n/p     n/a     n/a
+    A7  = p56,  // J12-2    n/p     n/a     n/a
 
     // User interfaces: LEDs, buttons
-    LED_YELLOW = P6_11,
-    LED_GREEN = P2_5,
-    LED_RED = LED_YELLOW,
-    LED_BLUE = LED_GREEN,
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    LED1 = P6_11,     // 210/210E/200e/200
+    LED2 = P2_5,      // 210/210E/200e/200
+    LED3 = P6_1,      // 210/210E only   S6-3    n/p
+    LED4 = P6_2,      // 210/210E only   S7-6    n/p
 
-    LED1 = LED_YELLOW,
-    LED2 = LED_GREEN,
-    LED3 = LED_GREEN,
-    LED4 = LED_GREEN,
+    LED_YELLOW = LED1,
+    LED_GREEN = LED2,
+    LED_RED = LED3,
+    LED_BLUE = LED4,
 
     BTN1 = P2_7,
 
-    // Serial pins
-    UART0_TX = P6_4,
-    UART0_RX = P6_5,
-    UART1_TX = P5_6,
-    UART1_RX = P1_14,
-    UART2_TX = P2_10,
-    UART2_RX = P2_11,
-    UART3_TX = P2_3,
-    UART3_RX = P2_4,
+    // Serial pins - UART, SPI, I2C
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    UART0_TX = P6_4,  // J9-2    J9-2    S2-4    S2-4
+    UART0_RX = P6_5,  // J9-1    J9-1    S2-5    S2-5
+    UART1_TX = P5_6,  // XBEE    n/p     S5-4/XBEE S5-4
+    UART1_RX = P1_14, // XBEE    n/p     S5-5/XBEE S5-5
+    UART2_TX = P2_10, // MBEDHDK MBEDHDK S10-4   n/p
+    UART2_RX = P2_11, // MBEDHDK MBEDHDK S10-5   n/p
+    UART3_TX = P2_3,  // J10-9   n/p     S4-8    S4-8
+    UART3_RX = P2_4,  // J10-10  n/p     S4-9    S4-9
+
+    COM1_TX = UART0_TX,
+    COM1_RX = UART0_RX,
+    COM2_TX = UART1_TX,
+    COM2_RX = UART1_RX,
+    COM3_TX = UART2_TX,
+    COM3_RX = UART2_RX,
+    COM4_TX = UART3_TX,
+    COM4_RX = UART3_RX,
+
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    SPI0_SCK  = P3_0, // J16-4   n/p     S1-9    S1-9
+    SPI0_MISO = P1_1, // J16-3   n/p     S1-8    S1-8
+    SPI0_MOSI = P1_2, // J16-2   n/p     S1-7    S1-7
+    SPI0_SSEL = P1_0, // J16-1   n/p     S1-6    S1-6
+    SPI1_SCK  = PF_4, // J14-10  n/p     S10-9   n/p
+    SPI1_MISO = P1_3, // J14-9   n/p     S10-8   n/p
+    SPI1_MOSI = P1_4, // J14-8   n/p     S10-7   n/p
+    SPI1_SSEL = P1_5, // J14-7   n/p     S10-6   n/p
+
+    I2C0_SDA = P_DED, // J15-3   J15-3   S8-8    n/p
+    I2C0_SCL = P_DED, // J15-1   J15-1   S8-9    n/p
+    I2C1_SDA = P2_3,  // J10-9   J10-9   S4-8    S4-8
+    I2C1_SCL = P2_4,  // J10-10  J10-10  S4-9    S4-9
 
     // Analog pins
-    P_ADC0_0 = P4_3,
-    P_ADC0_1 = P4_1,
-    P_ADC1_0 = SFP_ADC0_0,
-    P_ADC0_4 = P7_4,
-    P_ADC0_3 = P7_5,
-    P_ADC1_6 = P7_7,
-
-    P_ADC0 = P_ADC0_0,
-    P_ADC1 = P_ADC0_1,
-    P_ADC2 = P_ADC1_0,
-    P_ADC3 = P_ADC0_4,
-    P_ADC4 = P_ADC0_3,
-    P_ADC5 = P_ADC1_6,
-
-    P_DAC0 = P4_4,
+    ADC0 = P7_4,      // J8-1     J8-1    S4-3    S4-3
+    ADC1 = P7_5,      // J8-2     J8-2    S4-4    S4-4
+    ADC2 = P4_1,      // J8-3     J8-3    S3-4    S3-4
+    ADC3 = P7_7,      // J8-4     J8-4    S3-4    S3-4
+    ADC4 = P4_3,      // J8-5*    J8-5*   S3-3    S3-3
+    ADC5 = PF_8,      // J8-6**   J8-6**  S1-5    S1-5
+    ADC6 = PF_10,     // J12-1    n/p     n/a     n/a
+    ADC7 = PF_7,      // J12-2    n/p     n/a     n/a
+    DAC0 = P4_4,      // J8-6*    J8-6*   S3-5    S3-5
+                      // (*)  if DAC0 is configured, ADC4 is not available
+                      // (**) ADC5 requires JP2 mod
 
     // USB pins
-    //P_USB0_TX = SFP_USB1,
-    //P_USB0_RX = SFP_USB1,
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    USBTX = UART2_TX, // MBEDHDK MBEDHDK S10-4   n/p
+    USBRX = UART2_RX, // MBEDHDK MBEDHDK S10-5   n/p
 
-    USBTX = UART0_TX,
-    USBRX = UART0_RX,
-    // ---------- End of Micromint Bambino 200 ----------
+    // PWM pins
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    PWM1 = P1_7,      // J9-3    J9-3    S2-3    S2-3
+    PWM2 = P7_6,      // J9-8    J9-8    S4-6    S4-6
+    PWM3 = P6_12,     // J10-1   J10-1   S10-3   n/p
+    PWM4 = P4_6,      // J10-3   J10-3   S2-6    S2-6
+    PWM5 = P7_5,      // J8-2    J8-2    S4-4    S4-4
+    PWM6 = P4_1,      // J8-3    J8-3    S3-4    S3-4
+    PWM7 = P7_7,      // J8-4    J8-4    S4-5    S4-5
+    PWM8 = P2_8,      // J12-4   n/p     S8-3    n/p
+    PWM9 = P2_9,      // J12-6   n/p     S9-3    n/p
+    PWM10 = P7_1,     // J13-5   n/p     S9-8    n/p
+    PWM11 = P7_0,     // J13-6   n/p     S9-9    n/p
+    PWM12 = P1_5,     // J14-7   n/p     S10-6   n/p
 
-    // Not connected
-    NC = (int)0xFFFFFFFF
+    // ---------- End of Micromint Bambino ----------
 } PinName;
 
 typedef enum {

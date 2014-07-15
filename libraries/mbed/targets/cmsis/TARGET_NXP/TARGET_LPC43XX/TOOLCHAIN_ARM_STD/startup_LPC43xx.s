@@ -29,7 +29,8 @@
 ; * this code.
 ; */
 
-__initial_sp    EQU     0x10020000  ; Top of first RAM segment for LPC43XX
+; __initial_sp    EQU     0x10020000  ; Top of first RAM segment for LPC43XX (IRAM1)
+__initial_sp    EQU     0x10092000  ; Top of first RAM segment for LPC43XX (IRAM2)
 
                 PRESERVE8
                 THUMB
@@ -121,19 +122,21 @@ __Vectors       DCD     __initial_sp              	; 0 Top of Stack
 
                 AREA    |.text|, CODE, READONLY
 
+
 ; Reset Handler
 
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
+                IMPORT  SystemInit
                 IMPORT  __main
-				IMPORT  SystemInit
-				LDR		R0, =SystemInit
-				BLX		R0
+                LDR     R0, =SystemInit
+                BLX     R0
                 LDR     R0, =__main
                 BX      R0
                 ENDP
 
-; Dummy Exception Handlers (infinite loops which can be modified)
+
+; Dummy Exception Handlers (infinite loops which can be modified)                
 
 NMI_Handler     PROC
                 EXPORT  NMI_Handler               [WEAK]

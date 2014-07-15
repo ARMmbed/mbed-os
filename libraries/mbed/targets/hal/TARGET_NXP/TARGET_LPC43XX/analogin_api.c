@@ -19,6 +19,8 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "error.h"
+#include "gpio_api.h"
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
@@ -26,68 +28,74 @@ static inline int div_round_up(int x, int y) {
   return (x + (y - 1)) / y;
 }
 
-// ToDo: Add support for ADC1
 static const PinMap PinMap_ADC[] = {
-    {P_ADC0, ADC0_0, 0x08},
-    {P_ADC1, ADC0_1, 0x07},
-    {P_ADC2, ADC0_2, 0x01},
-    {P_ADC3, ADC0_3, 0x08},
-    {P_ADC4, ADC0_4, 0x08},
-    {P_ADC5, ADC0_5, 0x08},
-    {NC   , NC    , 0   }
+    {P4_3,  ADC0_0, 0},
+    {P4_1,  ADC0_1, 0},
+    {PF_8,  ADC0_2, 0},
+    {P7_5,  ADC0_3, 0},
+    {P7_4,  ADC0_4, 0},
+    {PF_10, ADC0_5, 0},
+    {PB_6,  ADC0_6, 0},
+    {PC_3,  ADC1_0, 0},
+    {PC_0,  ADC1_1, 0},
+    {PF_9,  ADC1_2, 0},
+    {PF_6,  ADC1_3, 0},
+    {PF_5,  ADC1_4, 0},
+    {PF_11, ADC1_5, 0},
+    {P7_7,  ADC1_6, 0},
+    {PF_7,  ADC1_7, 0},
+    {NC,    NC,     0   }
 };
 
 void analogin_init(analogin_t *obj, PinName pin) {
-    uint8_t num, chan;
+    ADCName name;
 
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (ADCName)NC);
+    name = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(obj->adc != (LPC_ADC_T *)NC);
 
-    // Configure the pin as GPIO input
-    if (pin < SFP_AIO0) {
-        pin_function(pin, (SCU_PINIO_PULLNONE | 0x0));
-        pin_mode(pin, PullNone);
-        num = (uint8_t)(obj->adc) / 8; // Heuristic?
-        chan = (uint8_t)(obj->adc) % 7;
-    } else {
-        num = MBED_ADC_NUM(pin);
-        chan = MBED_ADC_CHAN(pin);
-    }
+    // Set ADC register, number and channel
+    obj->num = (name >> ADC0_7) ? 1 : 0;
+    obj->ch = name % (ADC0_7 + 1);
+    obj->adc = (LPC_ADC_T *) (obj->num > 0) ? LPC_ADC1 : LPC_ADC0;
 
+    // Reset pin function to GPIO
+    gpio_set(pin);
+    // Select ADC on analog function select register in SCU
+    LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
+    
     // Calculate minimum clock divider
     //  clkdiv = divider - 1
-		uint32_t PCLK = SystemCoreClock;
+    uint32_t PCLK = SystemCoreClock;
     uint32_t adcRate = 400000;
     uint32_t clkdiv = div_round_up(PCLK, adcRate) - 1;
     
     // Set the generic software-controlled ADC settings
-    LPC_ADC0->CR = (0 << 0)      // SEL: 0 = no channels selected
+    obj->adc->CR = (0 << 0)      // SEL: 0 = no channels selected
                   | (clkdiv << 8) // CLKDIV:
                   | (0 << 16)     // BURST: 0 = software control
                   | (1 << 21)     // PDN: 1 = operational
                   | (0 << 24)     // START: 0 = no start
                   | (0 << 27);    // EDGE: not applicable
-
-    // Select ADC on analog function select register in SCU
-    LPC_SCU->ENAIO[num] |= 1UL << chan;
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
+    uint32_t temp;
+    uint8_t channel = obj->ch;
+    LPC_ADC_T *pADC = obj->adc;
+
     // Select the appropriate channel and start conversion
-    LPC_ADC0->CR &= ~0xFF;
-    LPC_ADC0->CR |= 1 << (int)obj->adc;
-    LPC_ADC0->CR |= 1 << 24;
+    pADC->CR |= ADC_CR_CH_SEL(channel);
+    temp = pADC->CR & ~ADC_CR_START_MASK;
+    pADC->CR = temp | (ADC_CR_START_MODE_SEL(ADC_START_NOW));
 
-    // Repeatedly get the sample data until DONE bit
-    unsigned int data;
-    do {
-        data = LPC_ADC0->GDR;
-    } while ((data & ((unsigned int)1 << 31)) == 0);
+    // Wait for DONE bit and read data
+    while (!(pADC->STAT & ADC_CR_CH_SEL(channel)));
+    temp = pADC->DR[channel];
 
-    // Stop conversion
-    LPC_ADC0->CR &= ~(1 << 24);
-
-    return (data >> 6) & ADC_RANGE; // 10 bit
+    // Deselect channel and return result
+    pADC->CR &= ~ADC_CR_START_MASK;
+    pADC->CR &= ~ADC_CR_CH_SEL(channel);
+    return ADC_DR_RESULT(temp);
 }
 
 static inline void order(uint32_t *a, uint32_t *b) {
