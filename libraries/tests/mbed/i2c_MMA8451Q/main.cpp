@@ -5,6 +5,11 @@
 #ifdef TARGET_KL05Z
 #define SDA     PTB4
 #define SCL     PTB3
+
+#elif TARGET_K20D50M
+#define SDA     PTB1
+#define SCL     PTB0
+
 #else
 #define SDA     PTE25
 #define SCL     PTE24
