@@ -41,7 +41,7 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    MBED_ASSERT((sda == P0_23) || (scl == P0_22));
+    MBED_ASSERT((sda == P0_23) && (scl == P0_22));
     
     // Enables clock for I2C0
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << 13);
