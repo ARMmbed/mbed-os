@@ -141,8 +141,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         i2c_stop(obj);
         return 0; //NACK or error when writing adress. Return 0 as 0 bytes were read
     }
-
-    for (int i = 0; i < length; i++) {
+    int i;
+    for (i = 0; i < length; i++) {
         bool last = (i == length - 1);
         data[i] = i2c_byte_read(obj, last);
     }
@@ -162,8 +162,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         i2c_stop(obj);
         return 0; //NACK or error when writing adress. Return 0 as 0 bytes were written
     }
-
-    for (int i = 0; i < length; i++) {
+    int i;
+    for (i = 0; i < length; i++) {
         if (!i2c_byte_write(obj, data[i])) {
             i2c_stop(obj);
             return i;
