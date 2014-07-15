@@ -219,8 +219,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int timeout;
     int value;
 
-    if (length == 0) return 0;
-
     // Configure slave address, nbytes, reload, end mode and start or stop generation
     I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Read);
 
@@ -233,7 +231,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     timeout = FLAG_TIMEOUT;
     while (!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
         timeout--;
-        if (timeout == 0) return 0;
+        if (timeout == 0) return -1;
     }
 
     if (stop) i2c_stop(obj);
@@ -247,8 +245,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int timeout;
     int count;
 
-    if (length == 0) return 0;
-
     // Configure slave address, nbytes, reload, end mode and start generation
     I2C_TransferHandling(i2c, address, length, I2C_SoftEnd_Mode, I2C_Generate_Start_Write);
 
@@ -260,7 +256,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     timeout = FLAG_TIMEOUT;
     while (!I2C_GetFlagStatus(i2c, I2C_FLAG_TC)) {
         timeout--;
-        if (timeout == 0) return 0;
+        if (timeout == 0) return -1;
     }
 
     if (stop) i2c_stop(obj);
@@ -278,7 +274,7 @@ int i2c_byte_read(i2c_t *obj, int last) {
     while (I2C_GetFlagStatus(i2c, I2C_ISR_RXNE) == RESET) {
         timeout--;
         if (timeout == 0) {
-            return 0;
+            return -1;
         }
     }
 

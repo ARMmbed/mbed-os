@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of FLASH HAL Extension module.
   ******************************************************************************
   * @attention
@@ -61,19 +61,19 @@
   */
 typedef struct
 {
-  uint32_t TypeErase;   /*!< TypeErase: Mass erase or sector Erase.
+  uint32_t TypeErase;   /*!< Mass erase or sector Erase.
                              This parameter can be a value of @ref FLASHEx_Type_Erase */
 
-  uint32_t Banks;       /*!< Banks: Select banks to erase when Mass erase is enabled
+  uint32_t Banks;       /*!< Select banks to erase when Mass erase is enabled.
                              This parameter must be a value of @ref FLASHEx_Banks */        
 
-  uint32_t Sector;      /*!< Sector: Initial FLASH sector to erase when Mass erase is disabled
+  uint32_t Sector;      /*!< Initial FLASH sector to erase when Mass erase is disabled
                              This parameter must be a value of @ref FLASHEx_Sectors */        
   
-  uint32_t NbSectors;   /*!< NbSectors: Number of sectors to be erased.
+  uint32_t NbSectors;   /*!< Number of sectors to be erased.
                              This parameter must be a value between 1 and (max number of sectors - value of Initial sector)*/           
                                                           
-  uint32_t VoltageRange;/*!< VoltageRange: The device voltage range which defines the erase parallelism
+  uint32_t VoltageRange;/*!< The device voltage range which defines the erase parallelism
                              This parameter must be a value of @ref FLASHEx_Voltage_Range */        
   
 } FLASH_EraseInitTypeDef;
@@ -83,26 +83,25 @@ typedef struct
   */
 typedef struct
 {
-  uint32_t OptionType;   /*!< OptionType: Option byte to be configured.
+  uint32_t OptionType;   /*!< Option byte to be configured.
                               This parameter can be a value of @ref FLASHEx_Option_Type */
 
-  uint32_t WRPState;     /*!< WRPState: Write protection activation or deactivation.
+  uint32_t WRPState;     /*!< Write protection activation or deactivation.
                               This parameter can be a value of @ref FLASHEx_WRP_State */
 
-  uint32_t WRPSector;         /*!< WRPSector: specifies the sector(s) to be write protected
+  uint32_t WRPSector;         /*!< Specifies the sector(s) to be write protected.
                               The value of this parameter depend on device used within the same series */
 
-  uint32_t Banks;        /*!< Banks: Select banks for WRP activation/deactivation of all sectors
+  uint32_t Banks;        /*!< Select banks for WRP activation/deactivation of all sectors.
                               This parameter must be a value of @ref FLASHEx_Banks */        
 
-  uint32_t RDPLevel;     /*!< RDPLevel: Set the read protection level..
+  uint32_t RDPLevel;     /*!< Set the read protection level.
                               This parameter can be a value of @ref FLASHEx_Option_Bytes_Read_Protection */
 
-  uint32_t BORLevel;     /*!< BORLevel: Set the BOR Level.
+  uint32_t BORLevel;     /*!< Set the BOR Level.
                               This parameter can be a value of @ref FLASHEx_BOR_Reset_Level */
 
-  uint8_t  USERConfig;   /*!< USERConfig: Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
-                              This parameter can be a combination of @ref FLASHEx_Option_Bytes_IWatchdog, @ref FLASHEx_Option_Bytes_nRST_STOP and @ref FLASHEx_Option_Bytes_nRST_STDBY*/
+  uint8_t  USERConfig;   /*!< Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY. */
 
 } FLASH_OBProgramInitTypeDef;
 
@@ -112,27 +111,27 @@ typedef struct
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F401xC) || defined(STM32F401xE)
 typedef struct
 {
-  uint32_t OptionType;     /*!< OptionType: Option byte to be configured for extension .
+  uint32_t OptionType;     /*!< Option byte to be configured for extension.
                                 This parameter can be a value of @ref FLASHEx_Advanced_Option_Type */
 
-  uint32_t PCROPState;     /*!< PCROPState: PCROP activation or deactivation.
+  uint32_t PCROPState;     /*!< PCROP activation or deactivation.
                                 This parameter can be a value of @ref FLASHEx_PCROP_State */
 
 #if defined (STM32F401xC) || defined (STM32F401xE)
-  uint16_t Sectors;        /*!< Sectors: specifies the sector(s) set for PCROP
+  uint16_t Sectors;        /*!< specifies the sector(s) set for PCROP.
                                 This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection */
 #endif /* STM32F401xC || STM32F401xE */
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
-  uint32_t Banks;          /*!< Banks: Select banks for PCROP activation/deactivation of all sectors
+  uint32_t Banks;          /*!< Select banks for PCROP activation/deactivation of all sectors.
                                 This parameter must be a value of @ref FLASHEx_Banks */
                                 
-  uint16_t SectorsBank1;   /*!< SectorsBank1: specifies the sector(s) set for PCROP for Bank1
+  uint16_t SectorsBank1;   /*!< Specifies the sector(s) set for PCROP for Bank1.
                                 This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection */
 
-  uint16_t SectorsBank2;   /*!< SectorsBank2: specifies the sector(s) set for PCROP for Bank2
+  uint16_t SectorsBank2;   /*!< Specifies the sector(s) set for PCROP for Bank2.
                                 This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection */
   
-  uint8_t BootConfig;      /*!< BootConfig: specifies Option bytes for boot config
+  uint8_t BootConfig;      /*!< Specifies Option bytes for boot config.
                                 This parameter can be a value of @ref FLASHEx_Dual_Boot */
   
 #endif /*STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */

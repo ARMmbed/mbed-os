@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -91,13 +91,13 @@ typedef struct
                                            data bit (MSB) has to be output on the SCLK pin in synchronous mode.
                                            This parameter can be a value of @ref SMARTCARD_Last_Bit */
 
-  uint32_t  Prescaler;                 /*!< Specifies the SmartCard Prescaler 
+  uint32_t  Prescaler;                 /*!< Specifies the SmartCard Prescaler. 
                                            This parameter must be a number between Min_Data = 0 and Max_Data = 255 */
 
-  uint32_t  GuardTime;                 /*!< Specifies the SmartCard Guard Time 
+  uint32_t  GuardTime;                 /*!< Specifies the SmartCard Guard Time. 
                                             This parameter must be a number between Min_Data = 0 and Max_Data = 255 */
 
-  uint32_t NACKState;                 /*!< Specifies the SmartCard NACK Transmission state
+  uint32_t NACKState;                 /*!< Specifies the SmartCard NACK Transmission state.
                                            This parameter can be a value of @ref SmartCard_NACK_State */
 }SMARTCARD_InitTypeDef;
 
@@ -106,13 +106,14 @@ typedef struct
   */
 typedef enum
 {
-  HAL_SMARTCARD_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized */
-  HAL_SMARTCARD_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_SMARTCARD_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */
-  HAL_SMARTCARD_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing */
-  HAL_SMARTCARD_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing */
-  HAL_SMARTCARD_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_SMARTCARD_STATE_ERROR             = 0x04     /*!< Error */
+  HAL_SMARTCARD_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized                  */
+  HAL_SMARTCARD_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use           */
+  HAL_SMARTCARD_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing                     */
+  HAL_SMARTCARD_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing               */
+  HAL_SMARTCARD_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing                  */
+  HAL_SMARTCARD_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission and Reception process is ongoing */ 
+  HAL_SMARTCARD_STATE_TIMEOUT           = 0x03,    /*!< Timeout state                                      */
+  HAL_SMARTCARD_STATE_ERROR             = 0x04     /*!< Error                                              */
 }HAL_SMARTCARD_StateTypeDef;
 
 /** 
@@ -312,6 +313,12 @@ typedef struct
   */
   
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset SMARTCARD handle state
+  * @param  __HANDLE__: specifies the SMARTCARD Handle.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_SMARTCARD_STATE_RESET)
 
 /** @brief  Flushs the Smartcard DR register 
   * @param  __HANDLE__: specifies the SMARTCARD Handle.

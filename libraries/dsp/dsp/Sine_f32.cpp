@@ -34,7 +34,7 @@ Sine_f32::Sine_f32(uint32_t frequency, uint32_t sample_rate, float32_t amplitude
 }
 
 void Sine_f32::process(float32_t *sgn_in, float32_t *sgn_out) {
-    for (int i=0; i<_block_size; i++) {
+    for (uint32_t i=0; i<_block_size; i++) {
         *sgn_out = *sgn_in + (_amplitude * arm_sin_f32(_x));
         sgn_in++; sgn_out++;
         _x += _dx;
@@ -42,7 +42,7 @@ void Sine_f32::process(float32_t *sgn_in, float32_t *sgn_out) {
 }
 
 void Sine_f32::generate(float32_t *sgn) {
-    for (int i=0; i<_block_size; i++) {
+    for (uint32_t i=0; i<_block_size; i++) {
         *sgn = (_amplitude * arm_sin_f32(_x));
         sgn++;
         _x += _dx;

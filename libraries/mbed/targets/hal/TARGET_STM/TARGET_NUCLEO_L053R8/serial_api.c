@@ -175,10 +175,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    if (data_bits == 8) {
-        obj->databits = UART_WORDLENGTH_8B;
-    } else {
+    if (data_bits == 9) {
         obj->databits = UART_WORDLENGTH_9B;
+    } else {
+        obj->databits = UART_WORDLENGTH_8B;
     }
 
     switch (parity) {
@@ -303,7 +303,7 @@ int serial_getc(serial_t *obj) {
 void serial_putc(serial_t *obj, int c) {
     USART_TypeDef *uart = (USART_TypeDef *)(obj->uart);
     while (!serial_writable(obj));
-    uart->TDR = (uint32_t)(c & 0xFF);
+    uart->TDR = (uint16_t)(c & 0xFF);
 }
 
 int serial_readable(serial_t *obj) {

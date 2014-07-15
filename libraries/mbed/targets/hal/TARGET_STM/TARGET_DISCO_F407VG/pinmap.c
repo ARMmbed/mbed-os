@@ -28,10 +28,9 @@
  *******************************************************************************
  */
 #include "mbed_assert.h"
-#include "device.h"
 #include "pinmap.h"
+#include "PortNames.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 // GPIO mode look-up table
 static const uint32_t gpio_mode[12] = {

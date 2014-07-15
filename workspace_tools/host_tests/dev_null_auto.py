@@ -15,17 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from sys import stdout
 
 class DevNullTest(DefaultTest):
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
-
     def run(self):
-        test_result = True
-        c = self.mbed.serial.read(512)
+        c = self.mbed.serial_read(512)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        # Data from serial received correctly
         print "Received %d bytes" % len(c)
         if "{failure}" not in c:
             self.print_result('success')

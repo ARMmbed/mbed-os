@@ -41,13 +41,13 @@ elif armcc == "standalone":
     ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
     ARM_BIN = join(ARM_PATH, "bin")
     ARM_INC = join(ARM_PATH, "include")
-    ARM_LIB    = join(ARM_PATH, "lib")
+    ARM_LIB = join(ARM_PATH, "lib")
 
 elif armcc == "ds-5":
     ARM_PATH = "C:/Program Files (x86)/DS-5"
     ARM_BIN = join(ARM_PATH, "bin")
     ARM_INC = join(ARM_PATH, "include")
-    ARM_LIB    = join(ARM_PATH, "lib")
+    ARM_LIB = join(ARM_PATH, "lib")
 
 ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")

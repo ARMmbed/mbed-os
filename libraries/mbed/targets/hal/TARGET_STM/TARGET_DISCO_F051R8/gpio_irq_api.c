@@ -53,8 +53,7 @@ static void handle_interrupt_in(uint32_t irq_index) {
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
      
     // Clear interrupt flag
-    if (EXTI_GetITStatus(pin) != RESET)
-    {
+    if (EXTI_GetITStatus(pin) != RESET) {
         EXTI_ClearITPendingBit(pin);
     }
     
@@ -63,16 +62,21 @@ static void handle_interrupt_in(uint32_t irq_index) {
     // Check which edge has generated the irq
     if ((gpio->IDR & pin) == 0) {
         irq_handler(channel_ids[irq_index], IRQ_FALL);
-    }
-    else  {
+    } else  {
         irq_handler(channel_ids[irq_index], IRQ_RISE);
     }
 }
 
 // The irq_index is passed to the function
-static void gpio_irq0(void) {handle_interrupt_in(0);}
-static void gpio_irq1(void) {handle_interrupt_in(1);}
-static void gpio_irq2(void) {handle_interrupt_in(2);}
+static void gpio_irq0(void) {
+    handle_interrupt_in(0);
+}
+static void gpio_irq1(void) {
+    handle_interrupt_in(1);
+}
+static void gpio_irq2(void) {
+    handle_interrupt_in(2);
+}
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
@@ -87,24 +91,20 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_index  = STM_PIN(pin);
 
     // Select irq number and interrupt routine
-    switch (pin) {
-        case PC_13: // User button
-            irq_n = EXTI4_15_IRQn;
+    if ((pin_index == 0) || (pin_index == 1)) {
+        irq_n = EXTI0_1_IRQn;
             vector = (uint32_t)&gpio_irq0;
             irq_index = 0;
-            break;
-        case PA_0:
-            irq_n = EXTI0_1_IRQn;
+    } else if ((pin_index == 2) || (pin_index == 3)) {
+        irq_n = EXTI2_3_IRQn;
             vector = (uint32_t)&gpio_irq1;
             irq_index = 1;
-            break;
-        case PB_3:
-            irq_n = EXTI2_3_IRQn;
+    } else if ((pin_index > 3) && (pin_index < 16)) {
+        irq_n = EXTI4_15_IRQn;
             vector = (uint32_t)&gpio_irq2;
             irq_index = 2;
-            break;
-        default:
-            error("This pin is not supported");
+    } else {
+        error("InterruptIn error: pin not supported.\n");
             return -1;
     }
 
@@ -171,8 +171,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
             EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
             obj->event = EDGE_BOTH;
-        }
-        else { // NONE or RISE
+        } else { // NONE or RISE
             EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
             obj->event = EDGE_RISE;
         }
@@ -182,8 +181,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
             EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
             obj->event = EDGE_BOTH;
-        }
-        else { // NONE or FALL
+        } else { // NONE or FALL
             EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
             obj->event = EDGE_FALL;
         }
@@ -191,8 +189,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     
     if (enable) {
         EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    }
-    else {
+    } else {
         EXTI_InitStructure.EXTI_LineCmd = DISABLE;
     }
     

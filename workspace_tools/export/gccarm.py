@@ -28,7 +28,7 @@ class GccArm(Exporter):
         'KL25Z',
         'KL46Z',
         'K64F',
-        'K20D5M',
+        'K20D50M',
         'LPC4088',
         'LPC11U24',
         'LPC1114',
@@ -41,6 +41,10 @@ class GccArm(Exporter):
         'DISCO_F303VC',
         'UBLOX_C027',
         'ARCH_PRO',
+        'NRF51822',
+        'LPC2368',
+        'LPCCAPPUCCINO',
+        'ARCH_BLE',
     ]
 
     DOT_IN_RELATIVE_PATH = True

@@ -22,7 +22,8 @@
 ******************************************************************************/
 
 // Test configuration block
-namespace {
+namespace
+{
 const int ntests = 1000;
 const int i2c_freq_hz = 400000;
 const int i2c_delay_us = 0;
@@ -35,6 +36,9 @@ I2C i2c(PTC9, PTC8);
 
 #elif defined(TARGET_KL46Z)
 I2C i2c(PTC9, PTC8);
+
+#elif defined(TARGET_K20D50M)
+I2C i2c(PTB3, PTB2);
 
 #elif defined(TARGET_LPC812)
 I2C i2c(P0_10, P0_11);
@@ -50,6 +54,9 @@ I2C i2c(SDA, SCL);
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
+    defined(TARGET_NUCLEO_F072RB) || \
+    defined(TARGET_NUCLEO_F334R8) || \
     defined(TARGET_NUCLEO_L053R8)
 I2C i2c(I2C_SDA, I2C_SCL);
 
@@ -65,7 +72,6 @@ I2C i2c(p28, p27);
 int main()
 {
     const int EEPROM_MEM_ADDR = 0xA0;
-    int i2c_stat = 0;
     bool result = true;
 
     i2c.frequency(i2c_freq_hz);
@@ -79,14 +85,16 @@ int main()
         data[0] = ((0xFF00 & addr) >> 8) & 0x00FF;
         data[1] = (addr & 0x00FF);
 
-        if ((i2c_stat = i2c.write(EEPROM_MEM_ADDR, data, sizeof(data))) != 0)
+        if (i2c.write(EEPROM_MEM_ADDR, data, sizeof(data)) != 0) {
             write_errors++;
+        }
 
         while (i2c.write(EEPROM_MEM_ADDR, NULL, 0)) ; // wait to complete
 
         // us delay if specified
-        if (i2c_delay_us != 0)
+        if (i2c_delay_us != 0) {
             wait_us(i2c_delay_us);
+        }
     }
 
     printf("[%s]\r\n", write_errors ? "FAIL" : "OK");
@@ -102,15 +110,17 @@ int main()
         data[1] = (addr & 0x00FF);
 
         // Set address for read
-        if ((i2c_stat = i2c.write(EEPROM_MEM_ADDR, data, 2, true)) != 0) {
+        if (i2c.write(EEPROM_MEM_ADDR, data, 2, true) != 0) {
         }
 
-        if ((i2c_stat = i2c.read(EEPROM_MEM_ADDR, data, 8)) != 0)
+        if (i2c.read(EEPROM_MEM_ADDR, data, 8) != 0) {
             read_errors++;
+        }
 
         static char pattern[] = { PATTERN_MASK };
-        if (memcmp(pattern, data, sizeof(data)))
+        if (memcmp(pattern, data, sizeof(data))) {
             pattern_errors++;
+        }
     }
 
     printf("[%s]\r\n", read_errors ? "FAIL" : "OK");

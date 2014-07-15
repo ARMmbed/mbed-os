@@ -17,7 +17,7 @@ limitations under the License.
 
 from socket import socket, AF_INET, SOCK_DGRAM
 import re
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from time import time
 from sys import stdout
 
@@ -26,18 +26,18 @@ class UDPEchoServerTest(DefaultTest):
     ECHO_PORT = 0
     s = None # Socket
 
-    pattern_server_ip = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
-    re_detect_server_ip = re.compile(pattern_server_ip)
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    PATTERN_SERVER_IP = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
+    re_detect_server_ip = re.compile(PATTERN_SERVER_IP)
 
     def run(self):
         ip_msg_timeout = self.mbed.options.timeout
         serial_ip_msg = ""
         start_serial_pool = time();
         while (time() - start_serial_pool) < ip_msg_timeout:
-            c = self.mbed.serial.read(512)
+            c = self.mbed.serial_read(512)
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             stdout.write(c)
             stdout.flush()
             serial_ip_msg += c
@@ -79,7 +79,10 @@ class UDPEchoServerTest(DefaultTest):
         # Receiving
         try:
             while True:
-                c = self.mbed.serial.read(512)
+                c = self.mbed.serial_read(512)
+                if c is None:
+                    self.print_result("ioerr_serial")
+                    break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:

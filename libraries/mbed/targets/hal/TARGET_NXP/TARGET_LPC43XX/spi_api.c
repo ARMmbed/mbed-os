@@ -24,27 +24,48 @@
 #include "error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {P3_0 , SPI_0, (SCU_PINIO_FAST | 2)},
-    {PF_4 , SPI_1, (SCU_PINIO_FAST | 2)},
-    {NC   , NC   , 0}
+    {P1_19, SPI_1, (SCU_PINIO_FAST | 1)},
+    {P3_0,  SPI_0, (SCU_PINIO_FAST | 4)},
+    {P3_3,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {PF_0,  SPI_0, (SCU_PINIO_FAST | 0)},
+    {PF_4,  SPI_1, (SCU_PINIO_FAST | 0)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {P1_2 , SPI_0, (SCU_PINIO_FAST | 2)},
-    {P1_4 , SPI_1, (SCU_PINIO_FAST | 2)},
-    {NC   , NC   , 0}
+    {P0_1,  SPI_1, (SCU_PINIO_FAST | 1)},
+    {P1_2,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P1_4,  SPI_1, (SCU_PINIO_FAST | 5)},
+    {P3_7,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P3_8,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {P9_2,  SPI_0, (SCU_PINIO_FAST | 7)},
+    {PF_3,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {PF_7,  SPI_1, (SCU_PINIO_FAST | 2)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {P1_1 , SPI_0, (SCU_PINIO_FAST | 2)},
-    {P1_3 , SPI_1, (SCU_PINIO_FAST | 2)},
-    {NC   , NC   , 0}
+    {P0_0,  SPI_1, (SCU_PINIO_FAST | 1)},
+    {P1_1,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P1_3,  SPI_1, (SCU_PINIO_FAST | 5)},
+    {P3_6,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P3_7,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {P9_1,  SPI_0, (SCU_PINIO_FAST | 7)},
+    {PF_2,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {PF_6,  SPI_1, (SCU_PINIO_FAST | 2)},
+    {NC,    NC,    0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {P1_0 , SPI_0, (SCU_PINIO_FAST | 2)},
-    {P1_5 , SPI_1, (SCU_PINIO_FAST | 2)},
-    {NC   , NC   , 0}
+    {P1_0,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P1_5,  SPI_1, (SCU_PINIO_FAST | 5)},
+    {P1_20, SPI_1, (SCU_PINIO_FAST | 2)},
+    {P3_6,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {P3_8,  SPI_0, (SCU_PINIO_FAST | 5)},
+    {P9_0,  SPI_0, (SCU_PINIO_FAST | 7)},
+    {PF_1,  SPI_0, (SCU_PINIO_FAST | 2)},
+    {PF_5,  SPI_1, (SCU_PINIO_FAST | 2)},
+    {NC,    NC,    0}
 };
 
 static inline int ssp_disable(spi_t *obj);

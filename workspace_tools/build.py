@@ -21,9 +21,11 @@ import sys
 from time import time
 from os.path import join, abspath, dirname
 
+
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
 
 from workspace_tools.toolchains import TOOLCHAINS
 from workspace_tools.toolchains import print_notify_verbose
@@ -32,7 +34,9 @@ from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 from workspace_tools.build_api import mcu_toolchain_matrix
 from workspace_tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
+from workspace_tools.build_api import print_build_results
 from workspace_tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
+
 
 if __name__ == '__main__':
     start = time()
@@ -114,6 +118,7 @@ if __name__ == '__main__':
     # Build results
     failures = []
     successes = []
+    skipped = []
 
     # CPPCHECK code validation
     if options.cppcheck_validation:
@@ -143,16 +148,19 @@ if __name__ == '__main__':
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    build_mbed_libs(mcu, toolchain, options=options.options,
-                                    notify=notify, verbose=options.verbose, clean=options.clean,
-                                    macros=options.macros)
+                    lib_build_res = build_mbed_libs(mcu, toolchain, options=options.options,
+                                                    notify=notify, verbose=options.verbose, clean=options.clean,
+                                                    macros=options.macros)
 
                     for lib_id in libraries:
                         notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain, options=options.options,
                                   notify=notify, verbose=options.verbose, clean=options.clean,
                                   macros=options.macros)
-                    successes.append(tt_id)
+                    if lib_build_res:
+                        successes.append(tt_id)
+                    else:
+                        skipped.append(tt_id)
                 except Exception, e:
                     if options.verbose:
                         import traceback
@@ -165,13 +173,9 @@ if __name__ == '__main__':
     print "Completed in: (%.2f)s" % (time() - start)
     print
 
-    if successes:
-        print "Build successes:"
-        print
-        print "\n".join(["  * %s" % s for s in successes])
+    print print_build_results(successes, "Build successes:")
+    print print_build_results(skipped, "Build skipped:")
+    print print_build_results(failures, "Build failures:")
 
     if failures:
-        print "Build failures:"
-        print
-        print "\n".join(["  * %s" % f for f in failures])
         sys.exit(1)

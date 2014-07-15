@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from SocketServer import BaseRequestHandler, UDPServer
-from host_test import Test, DefaultTest
+from host_test import Test
 import socket
 from sys import stdout
 

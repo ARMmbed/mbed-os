@@ -15,10 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+# Check if 'serial' module is installed
+try:
+    from serial import Serial
+except ImportError, e:
+    print "Error: Can't import 'serial' module: %s"% e
+    exit(-1)
+
 from optparse import OptionParser
-from serial import Serial
 from time import sleep
 from sys import stdout
+
 
 class Mbed:
     """
@@ -53,19 +60,60 @@ class Mbed:
         self.extra_serial = None
         self.serial = None
         self.timeout = 10 if self.options.timeout is None else self.options.timeout
-
         print 'Mbed: "%s" "%s"' % (self.port, self.disk)
 
     def init_serial(self, baud=9600, extra_baud=9600):
-        self.serial = Serial(self.port, timeout = 1)
-        self.serial.setBaudrate(baud)
-        if self.extra_port:
-            self.extra_serial = Serial(self.extra_port, timeout = 1)
-            self.extra_serial.setBaudrate(extra_baud)
-        self.flush()
+        result = True
+        try:
+            self.serial = Serial(self.port, timeout=1)
+        except Exception as e:
+            result = False
+        # Port can be opened
+        if result:
+            self.serial.setBaudrate(baud)
+            if self.extra_port:
+                self.extra_serial = Serial(self.extra_port, timeout = 1)
+                self.extra_serial.setBaudrate(extra_baud)
+            self.flush()
+        return result
+
+    def serial_read(self, count=1):
+        """ Wraps self.mbed.serial object read method """
+        result = None
+        if self.serial:
+            result = self.serial.read(count)
+        return result
+
+    def serial_write(self, write_buffer):
+        """ Wraps self.mbed.serial object write method """
+        result = -1
+        if self.serial:
+            result = self.serial.write(write_buffer)
+        return result
+
+    def safe_sendBreak(self, serial):
+        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
+        Traceback (most recent call last):
+          File "make.py", line 189, in <module>
+            serial.sendBreak()
+          File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
+            termios.tcsendbreak(self.fd, int(duration/0.25))
+        error: (32, 'Broken pipe')
+        """
+        result = True
+        try:
+            serial.sendBreak()
+        except:
+            # In linux a termios.error is raised in sendBreak and in setBreak.
+            # The following setBreak() is needed to release the reset signal on the target mcu.
+            try:
+                serial.setBreak(False)
+            except:
+                result = False
+        return result
 
     def reset(self):
-        self.serial.sendBreak()
+        self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
         # Give time to wait for the image loading
         sleep(2)
 
@@ -75,6 +123,7 @@ class Mbed:
         if self.extra_serial:
             self.extra_serial.flushInput()
             self.extra_serial.flushOutput()
+
 
 class Test:
     def __init__(self):
@@ -88,18 +137,28 @@ class Test:
             print str(e)
             self.print_result("error")
 
+    def setup(self):
+        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened """
+        result = True
+        if not self.mbed.serial:
+            result = False
+            self.print_result("ioerr_serial")
+        return result
+
     def notify(self, message):
+        """ On screen notification function """
         print message
         stdout.flush()
 
     def print_result(self, result):
+        """ Test result unified printing function """
         self.notify("\n{%s}\n{end}" % result)
 
 
 class DefaultTest(Test):
     def __init__(self):
         Test.__init__(self)
-        self.mbed.init_serial()
+        serial_init_res = self.mbed.init_serial()
         self.mbed.reset()
 
 
@@ -107,12 +166,14 @@ class Simple(DefaultTest):
     def run(self):
         try:
             while True:
-                c = self.mbed.serial.read(512)
+                c = self.mbed.serial_read(512)
+                if c is None:
+                    self.print_result("ioerr_serial")
+                    break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
             print "\n[CTRL+c] exit"
-
 
 if __name__ == '__main__':
     Simple().run()

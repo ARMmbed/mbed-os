@@ -6,7 +6,7 @@
 
 #define NL     "\n"
 
-void led_blink(void);
+void led_blink(PinName led, float delay);
 
 void notify_completion(bool success);
 

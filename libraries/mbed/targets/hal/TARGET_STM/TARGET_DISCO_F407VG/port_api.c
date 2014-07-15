@@ -31,7 +31,6 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 
@@ -67,8 +66,7 @@ void port_dir(port_t *obj, PinDirection dir) {
         if (obj->mask & (1 << i)) { // If the pin is used
             if (dir == PIN_OUTPUT) {
                 pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-            }
-            else { // PIN_INPUT
+            } else { // PIN_INPUT
                 pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
             }
         }
@@ -91,8 +89,7 @@ void port_write(port_t *obj, int value) {
 int port_read(port_t *obj) {
     if (obj->direction == PIN_OUTPUT) {
         return (*obj->reg_out & obj->mask);
-    }
-    else { // PIN_INPUT
+    } else { // PIN_INPUT
         return (*obj->reg_in & obj->mask);
     }
 }

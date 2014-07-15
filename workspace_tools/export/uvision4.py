@@ -28,7 +28,7 @@ class Uvision4(Exporter):
         'KL25Z',
         'KL46Z',
         'K64F',
-        'K20D5M',
+        'K20D50M',
         'LPC1347',
         'LPC1114',
         'LPC11C24',
@@ -38,7 +38,9 @@ class Uvision4(Exporter):
         'NUCLEO_F072RB',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F334R8',
         'NUCLEO_F401RE',
+        'NUCLEO_F411RE',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
         'UBLOX_C027',
@@ -46,6 +48,7 @@ class Uvision4(Exporter):
         'LPC11U35_501',
         'NRF51822',
         'ARCH_PRO',
+        'ARCH_BLE',
     ]
 
     USING_MICROLIB = [
@@ -57,7 +60,9 @@ class Uvision4(Exporter):
         'NUCLEO_F072RB',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F334R8',
         'NUCLEO_F401RE',
+        'NUCLEO_F411RE',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
         'LPC1549',

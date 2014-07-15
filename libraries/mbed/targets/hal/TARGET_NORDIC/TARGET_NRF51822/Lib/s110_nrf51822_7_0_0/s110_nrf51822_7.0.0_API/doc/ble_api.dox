@@ -1,0 +1,1334 @@
+/**
+ * @addtogroup BLE_COMMON 
+ * @{
+ * @defgroup BLE_COMMON_MSC Message Sequence Charts
+ * @{
+ * @defgroup BLE_COMMON_IRQ_EVT_MSC Interrupt-driven Event Retrieval
+ * @msc
+ * hscale = "1.5";
+ * APP,SD;
+ * |||;
+ * APP=>SD [label = "sd_softdevice_enable(clock, assertion_handler);"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_nvic_EnableIRQ(SD_EVENT_IRQn)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * APP rbox SD [label="Application runs and uses SD API"];
+ * |||;
+ * SD rbox SD [label="Event Available for the App"];
+ * |||;
+ * APP<-SD [label = "SD_EVENT_IRQn", textcolor="#800080", linecolor="#800080"];
+ * APP=>APP [label = "SD_EVENT_IRQHandler()"];
+ * APP=>SD [label = "sd_ble_evt_get(buffer);"];
+ * APP<<SD [label = "{NRF_SUCCESS, event}"];
+ * |||;
+ * @endmsc
+ *
+ * @defgroup BLE_COMMON_THREAD_EVT_MSC Thread Mode Event Retrieval
+ * @msc
+ * hscale = "1.5";
+ * APP,SD;
+ * |||;
+ * APP=>SD [label = "sd_softdevice_enable(clock, assertion_handler);"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * APP=>SD [label = "sd_app_evt_wait(void);"];
+ * APP rbox APP [label="App Thread Mode blocked, CPU in low power mode"];
+ * |||;
+ * ...;
+ * |||;
+ * SD rbox SD [label="Event Available for the App"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_evt_get(buffer);"];
+ * APP<<SD [label = "{NRF_SUCCESS, event}"];
+ * APP=>SD [label = "sd_app_evt_wait(void);"];
+ * APP rbox APP [label="App Thread Mode blocked, CPU in low power mode"];
+ * |||;
+ * ...;
+ * |||;
+ * SD rbox SD [label="Event Available for the App"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_evt_get(buffer);"];
+ * APP<<SD [label = "{NRF_SUCCESS, event}"];
+ * APP=>SD [label = "sd_app_evt_wait(void);"];
+ * APP rbox APP [label="App Thread Mode blocked, CPU in low power mode"];
+ * |||;
+ * ...;
+ * |||;
+ * @endmsc
+ *
+ * @defgroup BLE_COMMON_APP_BUFF_MSC App Buffer Management
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP=>SD [label = "sd_ble_tx_buffer_count_get();"];
+ * APP<<SD [label = "{NRF_SUCCESS, N}"];
+ * APP rbox APP [label="available = N"];
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_write(handle, value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP rbox APP [label="available--"];
+ * SD:>PEER [label = "ATT Write Command", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_TX_COMPLETE {1}"];
+ * APP rbox APP [label="available += 1"];
+ * |||;
+ * ...;
+ * |||;
+ * APP=>SD [label = "sd_ble_gatts_hvx(NOTIFICATION, app_value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP rbox APP [label="available--"];
+ * SD:>PEER [label = "ATT Handle Value Notification", textcolor="#000080", linecolor="#000080"];
+ * APP=>SD [label = "sd_ble_gatts_hvx(NOTIFICATION, app_value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP rbox APP [label="available--"];
+ * SD:>PEER [label = "ATT Handle Value Notification", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_TX_COMPLETE {2}"];
+ * APP rbox APP [label="available += 2"];
+ * |||;
+ * ...;
+ * |||;
+ * APP rbox PEER [label="Terminate Connection"];
+ * |||;
+ * APP rbox APP [label="available = N"];
+ * |||;
+ * @endmsc
+ * @}
+ * @}
+ */
+
+/**
+ * @addtogroup BLE_GAP 
+ * @{
+ * @defgroup BLE_GAP_MSC Message Sequence Charts
+ * @{
+ * @defgroup BLE_GAP_ADV_MSC GAP Advertisement
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,SCANNERS;
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_address_set(addr)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_gap_adv_data_set(adv, sr)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_gap_adv_start(params)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * SD->SCANNERS [label = "ADV packet", textcolor="#000080", linecolor="#000080"];
+ * SD->SCANNERS [label = "ADV packet", textcolor="#000080", linecolor="#000080"];
+ * SD->SCANNERS [label = "ADV packet", textcolor="#000080", linecolor="#000080"];
+ * ...;
+ * SD->SCANNERS [label = "ADV packet", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #1 App Stops Advertisement "];
+ * APP=>SD [label = "sd_ble_gap_adv_stop()"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * --- [label = " Variant #2 Advertisement Timeout "];
+ * APP<<=SD [label = "BLE_GAP_EVT_TIMEOUT"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_CONN_MSC GAP Connection Establishment and Termination
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Start Advertising"];
+ * |||;
+ * SD<:>CENTRAL [label = "Connection Establishment", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONNECTED"];
+ * |||;
+ * --- [label = " Variant #1 Local Disconnection "];
+ * APP=>SD [label = "sd_ble_gap_disconnect(reason)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "Connection Termination", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_DISCONNECTED {reason}"];
+ * |||;
+ * --- [label = " Variant #2 Remote Disconnection "];
+ * SD<:CENTRAL [label = "Connection Termination", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_DISCONNECTED {reason}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_CPU_MSC GAP Connection Parameter Update
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established with conn. params. CP#1"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_conn_param_update(CP#2)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "L2CAP CPU Request", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #1 Central Accepts "];
+ * |||;
+ * SD<:CENTRAL [label = "L2CAP CPU Response: Accepted", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * SD<:CENTRAL [label = "Connection Update", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_PARAM_UPDATE {CP#2}"];
+ * |||;
+ * --- [label = " Variant #2 Central Rejects "];
+ * |||;
+ * SD<:CENTRAL [label = "L2CAP CPU Response: Rejected", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_PARAM_UPDATE {CP#1}"];
+ * --- [label = " Variant #3 Central Ignores "];
+ * |||;
+ * ...;
+ * |||;
+ * SD box SD [label="Timeout"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_PARAM_UPDATE {CP#1}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_RSSI_MSC GAP RSSI
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_rssi_start()"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * SD<-PEER [label = "RSSI Sample", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_RSSI_CHANGED {RSSI#1}"];
+ * |||;
+ * SD<-PEER [label = "RSSI Sample", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_RSSI_CHANGED {RSSI#2}"];
+ * |||;
+ * SD<-PEER [label = "RSSI Sample", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_RSSI_CHANGED {RSSI#3}"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_rssi_stop()"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_JW_MSC GAP Pairing: Just Works
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: no_bond, no_mitm, no_io_caps}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: no_bond, no_mitm, no_io_caps)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 2", textbgcolor="#7f7fff"];
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {SUCCESS}"];
+ * APP rbox CENTRAL [label = "Encrypted with STK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {ENC_NO_MITM}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_BONDING_JW_MSC GAP Bonding: Just Works
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: bond, no_mitm, no_io_caps}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: bond, no_mitm, no_io_caps)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 2", textbgcolor="#7f7fff"];
+ * |||;
+ * APP rbox CENTRAL [label = "Encrypted with STK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {ENC_NO_MITM}"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 3", textbgcolor="#7f7fff"];
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {SUCCESS, periph_keys}"];
+ * APP rbox APP [label = "Store Peripheral Keys"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_BONDING_PK_PERIPH_MSC GAP Bonding: Passkey Entry, Peripheral displays
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: bond, mitm, keyboard}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: bond, mitm, display)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_PASSKEY_DISPLAY {passkey}"];
+ * APP rbox APP [label="Passkey displayed to the user"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 2", textbgcolor="#7f7fff"];
+ * |||;
+ * APP rbox CENTRAL [label = "Encrypted with STK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {ENC_MITM}"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 3", textbgcolor="#7f7fff"];
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {SUCCESS, periph_keys}"];
+ * APP rbox APP [label = "Store Peripheral Keys"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_BONDING_PK_CENTRAL_OOB_MSC GAP Bonding: Passkey Entry (Central display) or OOB MSC
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: bond, mitm, display}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: bond, mitm, keyboard)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_KEY_REQUEST {type}"];
+ * APP rbox APP [label="User enters Passkey or data received Out Of Band"];
+ * APP=>SD [label = "sd_ble_gap_auth_key_reply(passkey or OOB)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 2", textbgcolor="#7f7fff"];
+ * |||;
+ * APP rbox CENTRAL [label = "Encrypted with STK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {ENC_MITM}"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 3", textbgcolor="#7f7fff"];
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {SUCCESS, periph_keys}"];
+ * APP rbox APP [label = "Store Peripheral Keys"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_BONDING_STATIC_PK_PERIPHERAL GAP Bonding: Passkey Entry (Peripheral uses static passkey) MSC
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP=>SD [label = "sd_ble_opt_set(opt_id = BLE_GAP_OPT_PASSKEY, p_opt->p_passkey=passkey)"];
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: bond, mitm, keyboard}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: bond, mitm, io_caps = display)"];
+ *
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_PASSKEY_DISPLAY {passkey}"];
+ * APP rbox APP [label="Passkey displayed to the user"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 2", textbgcolor="#7f7fff"];
+ * |||;
+ * APP rbox CENTRAL [label = "Encrypted with STK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {ENC_MITM}"];
+ * |||;
+ * SD abox CENTRAL [label="SMP Pairing Phase 3", textbgcolor="#7f7fff"];
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {SUCCESS, periph_keys}"];
+ * APP rbox APP [label = "Store Peripheral Keys"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_SEC_MSC GAP Security Establishment using stored keys
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "LL Encryption Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_INFO_REQUEST {addr, div}"];
+ * |||;
+ * --- [label = " Variant #1 App Replies with Keys "];
+ * |||;
+ * APP rbox APP [label = "Load Peripheral Keys"];
+ * APP=>SD [label = "sd_ble_gap_sec_info_reply(div, LTK)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "LL Encryption Response", textcolor="#000080", linecolor="#000080"];
+ * APP rbox CENTRAL [label = "Encrypted with LTK"];
+ * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE"];
+ * |||;
+ * --- [label = " Variant #2 App Replies without Keys "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_sec_info_reply(NULL)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "LL Reject Ind: Pin or Key Missing", textcolor="#000080", linecolor="#000080"];
+ * APP rbox CENTRAL [label = "Link Not Encrypted"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PERIPH_SEC_MSC GAP Peripheral Initiated Security Establishment
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_authenticate(params)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Security Request", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #1 Central initiates Security Establishment "];
+ * |||;
+ * APP rbox CENTRAL [label="Encryption or Pairing/Bonding initiated by Central"];
+ * |||;
+ * --- [label = " Variant #2 Central ignores "];
+ * |||;
+ * ...;
+ * |||;
+ * APP<<=SD [label = "BLE_GAP_EVT_TIMEOUT"];
+ * |||;
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_KS_OUT_OF_RANGE_MSC GAP Failed Pairing: Keysize out of supported range
+ * This occurs if the min key size offered by the peer is above 16, or max key size below 7.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: Invalid params, error_src: local}"];
+ * SD:>CENTRAL [label = "SMP Pairing failed", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_KS_TOO_SMALL_MSC GAP Failed Pairing: Keysize too small
+ * This occurs if the max key size offered by the peer is below the min key size specified by
+ * the app.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * SD<:CENTRAL [label = "SMP Pairing Confirm", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: Enc key size, error_src: local}"];
+ * SD:>CENTRAL [label = "SMP Pairing failed", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_APP_ERROR_MSC GAP Failed Pairing: Pairing aborted by the application
+ * When the application detects that the pairing should not be performed, for example an
+ * insufficient IO combination, it can use sd_ble_gap_sec_params_reply() to send
+ * SMP Pairing failed to the peer.
+ *
+ * When the stack handles the response from the application it will also validate 
+ * the passkey (SMP_STC_PASSKEY_ENTRY_FAILED). If any error is detected it will be
+ * reported when sd_ble_gap_sec_params_reply() is called. 
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST"];
+ * SD abox APP [label="Stack looks for errors", textbgcolor="#7f7fff"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(<code from application>)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing failed", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: <code from application>, error_src: local}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_CONFIRM_FAIL_MSC GAP Failed Pairing: Confirm failed
+ * This occurs if the random value doesn't match, usually because the user entered a wrong pin
+ * or out of band data was missing.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST {central_params: mitm, display}"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS, periph_params: mitm, keyboard)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * SD<:CENTRAL [label = "SMP Pairing Confirm", textcolor="#000080", linecolor="#000080"];
+ * SD:>CENTRAL [label = "SMP Pairing Confirm", textcolor="#000080", linecolor="#000080"];
+ * SD<:CENTRAL [label = "SMP Pairing Random", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: Confirm value, error_src: local}"];
+ * SD:>CENTRAL [label = "SMP Pairing failed", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_REMOTE_PAIRING_FAIL_MSC GAP Failed Pairing: Pairing failed from master
+ * SMP Pairing Failed may be sent from the master at various times. The application should
+ * prepare for this and gracefully handle the event.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * SD<:CENTRAL [label = "SMP Pairing Failed", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: <remote_reason>, error_src: remote}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_PAIRING_TIMEOUT_MSC GAP Failed Pairing: Timeout
+ * This occurs if the central device doesn't continue the pairing sequence within 30 seconds.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * SD<:CENTRAL [label = "SMP Pairing Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GAP_EVT_SEC_PARAMS_REQUEST"];
+ * APP=>SD [label = "sd_ble_gap_sec_params_reply(SUCCESS)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "SMP Pairing Response", textcolor="#000080", linecolor="#000080"];
+ * ---  [ label = "Wait 30 sec" ];
+ * APP<<=SD [label = "BLE_GAP_EVT_AUTH_STATUS {auth_status: Timeout, error_src: local}"];
+
+ * @endmsc
+ *
+ * @defgroup BLE_GAP_SECURITY_TIMEOUT_MSC GAP Authenticate request: Timeout
+ * This occurs if the central device doesn't continue the pairing sequence after
+ * the security procedure timeout.
+ * @msc
+ * hscale = "2";
+ * APP,SD,CENTRAL;
+ * |||;
+ * APP rbox CENTRAL [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gap_authenticate(..., ble_gap_sec_params_t*)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>CENTRAL [label = "Security Request", textcolor="#000080", linecolor="#000080"];
+  ---  [ label = "After req_timeout (in ble_gap_sec_params_t)" ];
+ * APP<<=SD [label = "BLE_GAP_EVT_TIMEOUT {error_src: BLE_GAP_TIMEOUT_SRC_SECURITY_REQUEST}"];
+ * @endmsc
+ *
+ * @}
+ * @}
+ */
+
+/**
+ * @addtogroup BLE_GATTC 
+ * @{
+ * @defgroup BLE_GATTC_MSC Message Sequence Charts
+ * @{
+ * @defgroup BLE_GATTC_PRIM_SRVC_DISC_MSC GATTC Primary Service Discovery
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * --- [label = " Variant #1 Discover All Services "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle, NULL)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Group Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Group Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {SUCCESS, services}"];
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle + N, NULL)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Group Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Group Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {SUCCESS, services}"];
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle + N + M, NULL)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Group Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * |||;
+ * --- [label = " Variant #2 Discover a Specific Service "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle, uuid)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find By Type Value Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Find By Type Value Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {SUCCESS, services}"];
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle + N, uuid)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find By Type Value Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Find By Type Value Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {SUCCESS, services}"];
+ * APP=>SD [label = "sd_ble_gattc_primary_services_discover(handle + N + M, uuid)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find By Type Value Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_REL_DISC_MSC GATTC Relationship Discovery
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_relationships_discover(handle_range)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_REL_DISC_RSP {SUCCESS, includes}"];
+ * APP=>SD [label = "sd_ble_gattc_relationships_discover(handle_range + N)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_REL_DISC_RSP {SUCCESS, includes}"];
+ * APP=>SD [label = "sd_ble_gattc_relationships_discover(handle_range + N + M)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_REL_DISC_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_CHAR_DISC_MSC GATTC Characteristic Discovery
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_characteristics_discover(handle_range)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_DISC_RSP {SUCCESS, chars}"];
+ * APP=>SD [label = "sd_ble_gattc_characteristics_discover(handle_range + N)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_DISC_RSP {SUCCESS, chars}"];
+ * APP=>SD [label = "sd_ble_gattc_characteristics_discover(handle_range + N + M)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_DISC_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_DESC_DISC_MSC GATTC Descriptor Discovery
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_descriptors_discover(handle_range)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find Information Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Find Information Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_DESC_DISC_RSP {SUCCESS, descs}"];
+ * APP=>SD [label = "sd_ble_gattc_descriptors_discover(handle_range + N)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find Information Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Find Information Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_DESC_DISC_RSP {SUCCESS, descs}"];
+ * APP=>SD [label = "sd_ble_gattc_descriptors_discover(handle_range + N + M)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Find Information Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_DESC_DISC_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_READ_UUID_MSC GATTC Read Characteristic Value by UUID
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_char_value_by_uuid_read(uuid, handle_range)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP {SUCCESS, char_values}"];
+ * APP=>SD [label = "sd_ble_gattc_char_value_by_uuid_read(uuid, handle_range + N)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read By Type Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP {SUCCESS, char_values}"];
+ * APP=>SD [label = "sd_ble_gattc_char_value_by_uuid_read(uuid, handle_range + N + M)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read By Type Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Attribute Not Found", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP {ATTRIBUTE_NOT_FOUND}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_VALUE_READ_MSC GATTC Characteristic or Descriptor Value Read
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * --- [label = " Variant #1 offset == 0 "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_read(handle, 0)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_READ_RSP {SUCCESS, value}"];
+ * |||;
+ * --- [label = " Variant #2 offset != 0 "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_read(handle, offset)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Blob Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read Blob Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_READ_RSP {SUCCESS, value}"];
+ * APP=>SD [label = "sd_ble_gattc_read(handle, offset + N)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Blob Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read Blob Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_READ_RSP {SUCCESS, value}"];
+ * APP=>SD [label = "sd_ble_gattc_read(handle, offset + N + M + 1)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Blob Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Invalid Offset", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_READ_RSP {INVALID_OFFSET}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_READ_MULT_MSC GATTC Read Multiple Characteristic Values
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * --- [label = " Variant #1 Successful request "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_char_values_read(handles)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Multiple Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Read Multiple Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_VALS_READ_RSP {SUCCESS, char_values}"];
+ * |||;
+ * --- [label = " Variant #2 Failing request (invalid handle) "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_char_values_read(handles)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Multiple Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Error Response: Invalid Handle", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_CHAR_VALS_READ_RSP {INVALID_HANDLE, error_handle=<invalid handle>}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_VALUE_WRITE_MSC GATTC Characteristic or Descriptor Value Write
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * --- [label = " Variant #1 write_op == BLE_GATT_OP_WRITE_CMD "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_write(handle, value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Write Command", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_TX_COMPLETE"];
+ * |||;
+ * --- [label = " Variant #2 write_op == BLE_GATT_OP_WRITE_REQ "];
+ * |||;
+ * APP=>SD [label = "sd_ble_gattc_write(handle, value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Write Request", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_WRITE_RSP {SUCCESS}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_HVI_MSC GATTC Handle Value Indication
+ * <b> GATTC Handle Value Indication MSC </b>
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD<:PEER [label = "ATT Handle Value Indication", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_HVX {INDICATION, data}"];
+ * APP=>SD [label = "sd_ble_gattc_hv_confirm(handle)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Handle Value Confirmation", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_HVN_MSC GATTC Handle Value Notification
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD<:PEER [label = "ATT Handle Value Notification", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_HVX {NOTIFICATION, data}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTC_TIMEOUT_MSC GATTC Timeout
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox PEER [label="Any GATTC API used"];
+ * SD:>PEER [label = "ATT Packet", textcolor="#000080", linecolor="#000080"];
+ * APP note PEER [label = "No Response from Peer"];
+ * |||;
+ * ...;
+ * |||;
+ * SD box SD [label="Timeout"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_TIMEOUT {source}"];
+ * APP rbox PEER [label="No additional ATT Traffic Allowed", textbgcolour="#ff7f7f"];
+ * APP=>SD [label = "Any API call"];
+ * APP<<SD [label = "NRF_ERROR_BUSY"];
+ * @endmsc
+ * @}
+ * @}
+ */
+
+/**
+ * @addtogroup BLE_GATTS 
+ * @{
+ * @defgroup BLE_GATTS_MSC Message Sequence Charts
+ * @{
+ * @defgroup BLE_GATTS_ATT_TABLE_POP_MSC GATTS ATT Table Population
+ * @msc
+ * hscale = "1.5";
+ * APP,SD;
+ * |||;
+ * APP=>SD [label = "sd_ble_gatts_service_add(uuid#1)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_srvc#1}"];
+ * APP=>SD [label = "sd_ble_gatts_characteristic_add(handle_srvc#1, char_md, value)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_char#1, ...}"];
+ * APP=>SD [label = "sd_ble_gatts_descriptor_add(handle_char#1, value)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_desc#1}"];
+ * APP=>SD [label = "sd_ble_gatts_descriptor_add(handle_char#1, value)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_desc#2}"];
+ * APP=>SD [label = "sd_ble_gatts_characteristic_add(handle_srvc#1, char_md, value)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_char#2, ...}"];
+ * APP=>SD [label = "sd_ble_gatts_descriptor_add(handle_char#2, value)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_desc#3}"];
+ * APP=>SD [label = "sd_ble_gatts_service_add(uuid#2)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_srvc#2}"];
+ * APP=>SD [label = "sd_ble_gatts_include_add(handle_srvc#2, handle_srvc#1)"];
+ * APP<<SD [label = "{NRF_SUCCESS, handle_inc#1}"];
+ * |||;
+ * ...;
+ * |||;
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_READ_REQ_NO_AUTH_MSC Read Request without Authorization
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD<:PEER [label = "ATT Read Request", textcolor="#000080", linecolor="#000080"];
+ * SD:>PEER [label = "ATT Read Response", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_WRITE_REQ_NO_AUTH_MSC GATTS Write Request without Authorization
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD<:PEER [label = "ATT Write Request", textcolor="#000080", linecolor="#000080"];
+ * SD:>PEER [label = "ATT Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_WRITE {WRITE_REQ, data}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_WRITE_CMD_NO_AUTH_MSC GATTS Write Command with or without Authorization
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD<:PEER [label = "ATT Write Command", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_WRITE {WRITE_CMD, data}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_READ_REQ_AUTH_MSC GATTS Read Request with Authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * SD<:PEER [label = "ATT Read Request", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {READ, current_value}"];
+ * --- [label = " Variant #1 App Authorizes "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(SUCCESS, app_value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD rbox SD [label="Value in ATT Table: app_value"];
+ * SD:>PEER [label = "ATT Read Response {app_value}", textcolor="#000080", linecolor="#000080"];
+ * --- [label = " Variant #2 App Disallows "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(READ_NOT_PERMITTED)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Error Response", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_WRITE_REQ_AUTH_MSC GATTS Write Request with Authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * SD<:PEER [label = "ATT Write Request {peer_data}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, peer_value}"];
+ * --- [label = " Variant #1 App Authorizes "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(SUCCESS)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD rbox SD [label="Value in ATT Table: peer_data"];
+ * SD:>PEER [label = "ATT Write Response", textcolor="#000080", linecolor="#000080"];
+ * --- [label = " Variant #2 App Disallows "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE_NOT_PERMITTED)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Error Response", textcolor="#000080", linecolor="#000080"];
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_QUEUED_WRITE_BUF_NOAUTH_MSC GATTS Queued Writes: Stack handled, no attributes require authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_REQUEST {BLE_USER_MEM_TYPE_GATTS_QUEUED_WRITES}"];
+ * APP=>SD [label = "sd_ble_user_mem_reply {user_mem_block}"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #1 Attribute Values validation passed "];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: peer_value_2"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_WRITE {EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="App parses the memory it provided"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * --- [label = " Variant #2 Attribute Values validation failed "];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Error Response {Invalid Value Length / Offset}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * --- [label = " Variant #3 Peer cancels operation "];
+ * SD<:PEER [label = "ATT Execute Write Request {CANCEL}", textcolor="#000080", linecolor="#000080"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_QUEUED_WRITE_BUF_AUTH_MSC GATTS Queued Writes: Stack handled, one or more attributes require authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_REQUEST {BLE_USER_MEM_TYPE_GATTS_QUEUED_WRITES}"];
+ * APP=>SD [label = "sd_ble_user_mem_reply {user_mem_block}"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_2, offset_2, peer_value_2}"];
+ * |||;
+ * --- [label = " Variant #1 App Authorizes both Prepare Write and Execute Write"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="App parses the memory it provided"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: peer_value_2"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * --- [label = " Variant #2 App Disallows Prepare Write and Authorizes Execute Write "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, INSUF_AUTHORIZATION)"];
+ * SD:>PEER [label = "ATT Error Response {Insufficient Authorization}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="App parses the memory it provided"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * --- [label = " Variant #3 App Authorizes Prepare Write and Disallows Execute Write "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="App parses the memory it provided"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, APP_ERROR_CODE)"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Error Response {APP_ERROR_CODE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_QUEUED_WRITE_NOBUF_NOAUTH_MSC GATTS Queued Writes: App handled, no attributes require authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_REQUEST {BLE_USER_MEM_TYPE_GATTS_QUEUED_WRITES}"];
+ * APP=>SD [label = "sd_ble_user_mem_reply {NULL}"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_1, offset_1, peer_value_1}"];
+ * APP rbox APP [label="App queues {handle_1, offset_1, peer_value_1}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_2, offset_2, peer_value_2}"];
+ * APP rbox APP [label="App queues {handle_2, offset_2, peer_value_2}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * |||;
+ * --- [label = " Variant #1 Attribute values in stack memory (VLOC_STACK), attribute values validation passed "];
+ * APP=>SD [label = "sd_ble_gatts_value_set {handle_1, offset_1, peer_value_1}"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_gatts_value_set {handle_2, offset_2, peer_value_2}"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: peer_value_2"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #2 Attribute values in user memory (VLOC_USER), attribute values validation passed "];
+ * APP rbox APP [label="Application traverses its queue and executes the write operations (memcpy)"];
+ * APP rbox APP [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: peer_value_2"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #3 Attribute values validation failed "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, INVALID_OFFSET)"];
+ * APP rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Error Response {Invalid Offset}", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_QUEUED_WRITE_NOBUF_AUTH_MSC GATTS Queued Writes: App handled, one or more attributes require authorization
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox APP [label="Values in ATT Table (in user memory):\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_REQUEST {BLE_USER_MEM_TYPE_GATTS_QUEUED_WRITES}"];
+ * APP=>SD [label = "sd_ble_user_mem_reply {NULL}"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_1, offset_1, peer_value_1}"];
+ * APP rbox APP [label="App queues {handle_1, offset_1, peer_value_1}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_2, offset_2, peer_value_2}"];
+ * |||;
+ * --- [label = " Variant #1 App Authorizes both Prepare Write and Execute Write"];
+ * APP rbox APP [label="App queues {handle_2, offset_2, peer_value_2}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="Application traverses its queue and executes the write operations (memcpy)"];
+ * APP rbox APP [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: peer_value_2"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #2 App Disallows Prepare Write and Authorizes Execute Write "];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, INSUF_AUTHORIZATION)"];
+ * SD:>PEER [label = "ATT Error Response {Insufficient Authorization}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="Application traverses its queue and executes the write operations (memcpy)"];
+ * APP rbox APP [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: current_value_2"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * |||;
+ * --- [label = " Variant #3 App Authorizes Prepare Write and Disallows Execute Write "];
+ * APP rbox APP [label="App queues {handle_2, offset_2, peer_value_2}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, APP_ERROR_CODE)"];
+ * APP rbox APP [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Error Response {APP_ERROR_CODE}", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_QUEUED_WRITE_QUEUE_FULL_MSC GATTS Queued Writes: Prepare Queue Full
+ * @msc
+ * hscale = "2";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: current_value_1\nhandle_2: current_value_2"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_REQUEST {BLE_USER_MEM_TYPE_GATTS_QUEUED_WRITES}"];
+ * |||;
+ * --- [label = " Variant #1 Stack handled "];
+ * APP=>SD [label = "sd_ble_user_mem_reply {user_mem_block}"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * SD:>PEER [label = "ATT Error Response {Prepare Queue Full}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: current_value_2"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_WRITE {EXEC_WRITE_REQ_NOW}"];
+ * APP rbox APP [label="App parses the memory it provided"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_USER_MEM_RELEASE {user_mem_block}"];
+ * |||;
+ * --- [label = " Variant #2 App handled "];
+ * APP=>SD [label = "sd_ble_user_mem_reply {NULL}"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_1, offset_1, peer_value_1}"];
+ * APP rbox APP [label="App queues {handle_1, offset_1, peer_value_1}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD:>PEER [label = "ATT Prepare Write Response {handle_1, offset_1, peer_value_1}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Prepare Write Request {handle_2, offset_2, peer_value_2}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, PREP_WRITE_REQ, handle_2, offset_2, peer_value_2}"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, PREPARE_QUEUE_FULL)"];
+ * SD:>PEER [label = "ATT Error Response {Prepare Queue Full}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Execute Write Request {WRITE}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST {WRITE, EXEC_WRITE_REQ_NOW}"];
+ * APP=>SD [label = "sd_ble_gatts_value_set {handle_1, offset_1, peer_value_1}"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * APP=>SD [label = "sd_ble_gatts_rw_authorize_reply(WRITE, SUCCESS)"];
+ * SD rbox SD [label="Values in ATT Table:\nhandle_1: peer_value_1\nhandle_2: current_value_2"];
+ * SD:>PEER [label = "ATT Execute Write Response", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_HVI_MSC GATTS Handle Value Indication
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox PEER [label="Indications Enabled in CCCD"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * APP=>SD [label = "sd_ble_gatts_hvx(INDICATION, app_value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD rbox SD [label="Value in ATT Table: app_value"];
+ * SD:>PEER [label = "ATT Handle Value Indication {app_value}", textcolor="#000080", linecolor="#000080"];
+ * --- [label = " Variant #1 Peer Confirms "];
+ * SD<:PEER [label = "ATT Handle Value Confirmation", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_HVC"];
+ * --- [label = " Variant #2 Peer Ignores "];
+ * |||;
+ * ...;
+ * |||;
+ * SD box SD [label="Timeout"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_TIMEOUT"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_HVN_MSC GATTS Handle Value Notification
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox PEER [label="Notifications Enabled in CCCD"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * APP=>SD [label = "sd_ble_gatts_hvx(NOTIFICATION, app_value)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD rbox SD [label="Value in ATT Table: app_value"];
+ * SD:>PEER [label = "ATT Handle Value Notification {app_value}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_TX_COMPLETE"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_HVX_DISABLED_MSC GATTS Handle Value Indication or Notification disabled
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox PEER [label="Indications and Notifications Disabled in CCCD"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * APP=>SD [label = "sd_ble_gatts_hvx(INDICATION or NOTIFICATION, app_value)"];
+ * APP<<SD [label = "NRF_ERROR_INVALID_STATE"];
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_HVX_SYS_ATTRS_MISSING_MSC GATTS Handle Value Indication or Notification with System Attributes Missing
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP rbox PEER [label="System Attributes Uninitialized"];
+ * |||;
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * APP=>SD [label = "sd_ble_gatts_hvx(INDICATION or NOTIFICATION, app_value)"];
+ * APP<<SD [label = "BLE_ERROR_GATTS_SYS_ATTR_MISSING"];
+ * SD rbox SD [label="Value in ATT Table: current_value"];
+ * APP=>SD [label = "sd_ble_gatts_sys_attr_set()"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * ...;
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_SC_MSC GATTS Service Changed
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox SD [label="Entries added to the ATT Table between handles N and M"];
+ * |||;
+ * APP rbox PEER [label="Connection Established with a Bonded Peer"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gatts_service_changed(N, M)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Handle Value Indication {N, M}", textcolor="#000080", linecolor="#000080"];
+ * SD<:PEER [label = "ATT Handle Value Confirmation", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_SC_CONFIRM"];
+ * |||;
+ * SD rbox PEER [label="Service Discovery"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_SYS_ATTRS_UNK_PEER_MSC GATTS System Attributes Handling: Unknown Peer
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established with an Unknown Peer"];
+ * |||;
+ * SD<:PEER [label = "ATT Read Request {sys_attr_handle}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_SYS_ATTR_MISSING"];
+ * APP=>SD [label = "sd_ble_gatts_sys_attr_set(NULL)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Response {sys_attr_value}", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ *
+ * @defgroup BLE_GATTS_SYS_ATTRS_BONDED_PEER_MSC GATTS System Attributes Handling: Bonded Peer
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP rbox PEER [label="Connection Established with a Bonded Peer"];
+ * |||;
+ * APP rbox PEER [label="ATT Traffic"];
+ * |||;
+ * APP rbox PEER [label="Connection Terminated"];
+ * APP<<=SD [label = "BLE_GAP_EVT_DISCONNECTED {reason}"];
+ * |||;
+ * APP=>SD [label = "sd_ble_gatts_sys_attr_get()"];
+ * APP<<SD [label = "{NRF_SUCCESS, sys_attr_data}"];
+ * APP rbox APP [label="Store System Attributes"];
+ * |||;
+ * APP rbox SD [label="Shut down IC"];
+ * |||;
+ * APP rbox SD [label="Power up IC"];
+ * |||;
+ * APP rbox PEER [label="Connection Established with the Bonded Peer"];
+ * SD<:PEER [label = "ATT Read Request {sys_attr_handle}", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_GATTS_EVT_SYS_ATTR_MISSING"];
+ * APP rbox APP [label="Load System Attributes"];
+ * APP=>SD [label = "sd_ble_gatts_sys_attr_set(sys_attr_data)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "ATT Read Response {sys_attr_value}", textcolor="#000080", linecolor="#000080"];
+ * @endmsc
+ * @}
+ *
+ * @addtogroup BLE_GATTS_QUEUED_WRITES_USER_MEM User memory layout for Queued Writes
+ * @{ 
+ *  The following table shows the memory layout used by the SoftDevice to queue a Queued Write operation (Prepare Write ATT packet) in user memory:
+ *
+ *  <table style="border:1px solid black;border-collapse:collapse;">
+ *  <caption>Queued Write</caption>
+ *  <tr>
+ *  <th style="border:1px solid black;padding:5px;">Parameter</th>
+ *  <th style="border:1px solid black;padding:5px;">Size (octets)</th>
+ *  <th style="border:1px solid black;padding:5px;">Description</th>
+ *  </tr>
+ *  <tr>
+ *  <td style="border:1px solid black;padding:5px;">Handle</td>
+ *  <td style="border:1px solid black;padding:5px;">2</td>
+ *  <td style="border:1px solid black;padding:5px;">Attribute Handle</td>
+ *  </tr>
+ *  <tr>
+ *  <td style="border:1px solid black;padding:5px;">Offset</td>
+ *  <td style="border:1px solid black;padding:5px;">2</td>
+ *  <td style="border:1px solid black;padding:5px;">Value Offset</td>
+ *  </tr>
+ *  <tr>
+ *  <td style="border:1px solid black;padding:5px;">Length</td>
+ *  <td style="border:1px solid black;padding:5px;">2</td>
+ *  <td style="border:1px solid black;padding:5px;">Value Length</td>
+ *  </tr>
+ *  <tr>
+ *  <td style="border:1px solid black;padding:5px;">Value</td>
+ *  <td style="border:1px solid black;padding:5px;">Length</td>
+ *  <td style="border:1px solid black;padding:5px;">Attribute Value</td>
+ *  </tr>
+ *  </table>
+ *
+ *  The application can parse the array of Queued Write instances at any time, but it is recommended to do so whenever an Execute Write ATT packet 
+ *  has been received over the air. See the GATT Server Queued Writes MSCs for more details.
+ *  The array will be terminated by an Queued Write instance with its handle set to @ref BLE_GATT_HANDLE_INVALID.
+ * @}
+ * @}
+ */
+
+/**
+ * @addtogroup BLE_L2CAP 
+ * @{
+ * @defgroup BLE_L2CAP_MSC Message Sequence Charts
+ * @{
+ * @defgroup BLE_L2CAP_API_MSC L2CAP API
+ * @msc
+ * hscale = "1.5";
+ * APP,SD,PEER;
+ * |||;
+ * APP=>SD [label = "sd_ble_l2cap_cid_register(cid)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * |||;
+ * APP rbox PEER [label="Connection Established"];
+ * |||;
+ * APP=>SD [label = "sd_ble_l2cap_tx(data)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "L2CAP packet", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_EVT_TX_COMPLETE"];
+ * SD<:PEER [label = "L2CAP packet", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_L2CAP_EVT_RX"];
+ * SD<:PEER [label = "L2CAP packet", textcolor="#000080", linecolor="#000080"];
+ * APP<<=SD [label = "BLE_L2CAP_EVT_RX"];
+ * |||;
+ * APP=>SD [label = "sd_ble_l2cap_tx(data)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * SD:>PEER [label = "L2CAP packet", textcolor="#000080", linecolor="#000080"];
+ * SD=>>APP [label = "BLE_EVT_TX_COMPLETE"];
+ * |||;
+ * APP rbox PEER [label="Terminate Connection"];
+ * |||;
+ * APP=>SD [label = "sd_ble_l2cap_cid_unregister(cid)"];
+ * APP<<SD [label = "NRF_SUCCESS"];
+ * @endmsc
+ * @}
+ * @}
+ */

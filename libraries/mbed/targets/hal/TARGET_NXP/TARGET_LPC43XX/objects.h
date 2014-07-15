@@ -20,6 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,9 +41,8 @@ struct port_s {
 };
 
 struct pwmout_s {
-    __IO uint32_t *MR;
-    LPC_MCPWM_T *pwm;
-    uint32_t channel;
+    PWMName pwm;
+    uint8_t mr;
 };
 
 struct serial_s {
@@ -51,7 +51,9 @@ struct serial_s {
 };
 
 struct analogin_s {
-    ADCName adc;
+    LPC_ADC_T *adc;
+    uint8_t num;
+    uint8_t ch;
 };
 
 struct dac_s {
@@ -69,8 +71,6 @@ struct i2c_s {
 struct spi_s {
     LPC_SSP_T *spi;
 };
-
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

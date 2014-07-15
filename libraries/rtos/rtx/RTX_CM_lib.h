@@ -205,7 +205,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC11U24)
 #define INITIAL_SP            (0x10002000UL)
 
-#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
+#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)
 #define INITIAL_SP            (0x10002000UL)
 
 #elif defined(TARGET_LPC1114)
@@ -241,11 +241,20 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F407) || defined(TARGET_F407VG)
 #define INITIAL_SP            (0x20020000UL)
 
+#elif defined(TARGET_STM32F401RE)
+#define INITIAL_SP            (0x20018000UL)
+
 #elif defined(TARGET_LPC1549)
 #define INITIAL_SP            (0x02009000UL)
 
 #elif defined(TARGET_LPC11U68)
 #define INITIAL_SP            (0x10004000UL)
+
+#elif defined(TARGET_NRF51822)
+#define INITIAL_SP            (0x20004000UL)
+
+#elif defined(TARGET_STM32F411RE)
+#define INITIAL_SP            (0x20020000UL)
 
 #else
 #error "no target defined"
@@ -419,4 +428,5 @@ __noreturn __stackless void __cmain(void) {
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
+
 

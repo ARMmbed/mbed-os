@@ -22,6 +22,9 @@ DigitalOut out(PTA1);
     defined(TARGET_NUCLEO_F302R8) || \
     defined(TARGET_NUCLEO_F030R8) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
+    defined(TARGET_NUCLEO_F072RB) || \
+    defined(TARGET_NUCLEO_F334R8) || \
     defined(TARGET_NUCLEO_L053R8)
 DigitalOut out(PA_3);
 
@@ -29,7 +32,7 @@ DigitalOut out(PA_3);
 DigitalOut out(LED2);
 
 #else
-DigitalOut out(p5);
+DigitalOut out(LED1);
 #endif
 
 Ticker tick;

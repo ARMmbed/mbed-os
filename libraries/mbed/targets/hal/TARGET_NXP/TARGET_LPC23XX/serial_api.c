@@ -225,7 +225,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     stop_bits -= 1;
     data_bits -= 5;
 
-    int parity_enable, parity_select;
+    int parity_enable = 0, parity_select = 0;
     switch (parity) {
         case ParityNone: parity_enable = 0; parity_select = 0; break;
         case ParityOdd : parity_enable = 1; parity_select = 0; break;

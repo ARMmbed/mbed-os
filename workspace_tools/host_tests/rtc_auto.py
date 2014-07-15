@@ -15,24 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import random
 import re
-from host_test import Test, DefaultTest
-from time import time, strftime, gmtime
+from host_test import DefaultTest
+from time import strftime, gmtime
 from sys import stdout
 
 class RTCTest(DefaultTest):
-    pattern_rtc_value = "^\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]\\n"
-    re_detect_rtc_value = re.compile(pattern_rtc_value)
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    PATTERN_RTC_VALUE = "^\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]\\n"
+    re_detect_rtc_value = re.compile(PATTERN_RTC_VALUE)
 
     def run(self):
         test_result = True
         c = self.mbed.serial.timeout = None
         for i in range(0, 5):
-            c = self.mbed.serial.read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
+            c = self.mbed.serial_read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             stdout.flush()
             m = self.re_detect_rtc_value.search(c)
             if m and len(m.groups()):

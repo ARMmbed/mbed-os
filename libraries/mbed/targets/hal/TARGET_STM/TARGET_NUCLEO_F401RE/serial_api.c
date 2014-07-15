@@ -73,7 +73,14 @@ static void init_uart(serial_t *obj) {
     UartHandle.Init.StopBits   = obj->stopbits;
     UartHandle.Init.Parity     = obj->parity;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-    UartHandle.Init.Mode       = UART_MODE_TX_RX;
+
+    if (obj->pin_rx == NC) {
+        UartHandle.Init.Mode = UART_MODE_TX;
+    } else if (obj->pin_tx == NC) {
+        UartHandle.Init.Mode = UART_MODE_RX;
+    } else {
+        UartHandle.Init.Mode = UART_MODE_TX_RX;
+    }
 
     HAL_UART_Init(&UartHandle);
 }
@@ -157,10 +164,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    if (data_bits == 8) {
-        obj->databits = UART_WORDLENGTH_8B;
-    } else {
+    if (data_bits == 9) {
         obj->databits = UART_WORDLENGTH_9B;
+    } else {
+        obj->databits = UART_WORDLENGTH_8B;
     }
 
     switch (parity) {

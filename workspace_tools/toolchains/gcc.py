@@ -70,10 +70,10 @@ class GCC(mbedToolchain):
         self.asm = [main_cc, "-x", "assembler-with-cpp"] + common_flags
         if not "analyze" in self.options:
             self.cc  = [main_cc, "-std=gnu99"] + common_flags
-            self.cppc =[main_cppc, "-std=gnu++98"] + common_flags
+            self.cppc =[main_cppc, "-std=gnu++98", "-fno-rtti"] + common_flags
         else:
             self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "-fno-rtti", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
 
         self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
@@ -173,7 +173,7 @@ class GCC_ARM(GCC):
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
 
         self.sys_libs.append("nosys")

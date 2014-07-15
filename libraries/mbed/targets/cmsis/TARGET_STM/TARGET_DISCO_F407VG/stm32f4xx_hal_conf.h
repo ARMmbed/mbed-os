@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   HAL configuration template file. 
   *          This file should be copied to the application folder and renamed
   *          to stm32f4xx_hal_conf.h.
@@ -76,7 +76,7 @@
 #define HAL_LTDC_MODULE_ENABLED 
 #define HAL_PWR_MODULE_ENABLED   
 #define HAL_RCC_MODULE_ENABLED 
-#define HAL_RNG_MODULE_ENABLED   
+//#define HAL_RNG_MODULE_ENABLED   
 #define HAL_RTC_MODULE_ENABLED
 #define HAL_SAI_MODULE_ENABLED   
 #define HAL_SD_MODULE_ENABLED  
@@ -99,11 +99,11 @@
   *        (when HSE is used as system clock source, directly or through the PLL).  
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External crystal in Hz */
+  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    ((uint32_t)100)   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -116,12 +116,20 @@
 #endif /* HSI_VALUE */
 
 /**
+  * @brief External Low Speed oscillator (LSE) value.
+  *        This value is used by the UART, RTC HAL module to compute the system frequency
+  */
+#if !defined  (LSE_VALUE)
+  #define LSE_VALUE    ((uint32_t)32768) /*!< Value of the External oscillator in Hz*/
+#endif /* LSE_VALUE */
+
+/**
   * @brief External clock source for I2S peripheral
   *        This value is used by the I2S HAL module to compute the I2S clock source 
   *        frequency, this source is inserted directly through I2S_CKIN pad. 
   */
 #if !defined  (EXTERNAL_CLOCK_VALUE)
-  #define EXTERNAL_CLOCK_VALUE    ((uint32_t)12288000) /*!< Value of the Internal oscillator in Hz*/
+  #define EXTERNAL_CLOCK_VALUE    ((uint32_t)12288000) /*!< Value of the external oscillator in Hz*/
 #endif /* EXTERNAL_CLOCK_VALUE */
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
@@ -131,9 +139,10 @@
 /**
   * @brief This is the HAL system configuration section
   */     
-#define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */           
-#define  USE_RTOS                     0     
-#define  PREFETCH_ENABLE              1              
+#define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */
+#define  TICK_INT_PRIORITY            ((uint32_t)0x0F) /*!< tick interrupt priority */
+#define  USE_RTOS                     0
+#define  PREFETCH_ENABLE              1
 #define  INSTRUCTION_CACHE_ENABLE     1
 #define  DATA_CACHE_ENABLE            1
 

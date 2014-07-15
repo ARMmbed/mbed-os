@@ -28,7 +28,8 @@
  *******************************************************************************
  */
 #include "rtc_api.h"
-#include "stm32f4xx_hal.h"
+
+#if DEVICE_RTC
 #include "error.h"
 
 static int rtc_inited = 0;
@@ -36,6 +37,9 @@ static int rtc_inited = 0;
 static RTC_HandleTypeDef RtcHandle;
 
 void rtc_init(void) {
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    uint32_t rtc_freq = 0;
+
     if (rtc_inited) return;
     rtc_inited = 1;
 
@@ -44,36 +48,44 @@ void rtc_init(void) {
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
-    // Allow access to RTC
+    // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE(); 
     __HAL_RCC_BACKUPRESET_RELEASE();
   
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; /* Mandatory, otherwise the PLL is reconfigured! */
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; /* External 32.768 kHz clock on OSC_IN/OSC_OUT */
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
+        // Connect LSE to RTC
+        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+        rtc_freq = LSE_VALUE;
+    } else {
     // Enable LSI clock
-    RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-    RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("RTC error: LSI clock initialization failed."); 
     }
-    
     // Connect LSI to RTC
     __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
+        rtc_freq = 32000;
+    }
     
-    // Enable RTC clock
+    // Enable RTC
     __HAL_RCC_RTC_ENABLE();
-    
-    // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-    uint32_t lsi_freq = 32000;
     
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
     RtcHandle.Init.AsynchPrediv   = 127;
-    RtcHandle.Init.SynchPrediv    = (lsi_freq / 128) - 1;
+    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
@@ -86,18 +98,22 @@ void rtc_free(void) {
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
-    // Allow access to RTC
+    // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE(); 
     __HAL_RCC_BACKUPRESET_RELEASE();
 
-    // Disable LSI clock
+    // Disable access to Backup domain
+    HAL_PWR_DisableBkUpAccess();
+
+    // Disable LSI and LSE clocks
     RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
+    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
     
     rtc_inited = 0;
@@ -176,3 +192,5 @@ void rtc_write(time_t t) {
     HAL_RTC_SetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
     HAL_RTC_SetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
 }
+
+#endif

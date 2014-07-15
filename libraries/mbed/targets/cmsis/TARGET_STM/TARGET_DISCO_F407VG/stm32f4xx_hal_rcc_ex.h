@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -61,16 +61,16 @@
   */
 typedef struct
 {
-  uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock
-                            This parameter must be a number between Min_Data = 192 and Max_Data = 432
+  uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
+                            This parameter must be a number between Min_Data = 192 and Max_Data = 432.
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 7 
+  uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock.
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 7. 
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
   uint32_t PLLI2SQ;    /*!< Specifies the division factor for SAI1 clock.
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 15 
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 15. 
                             This parameter will be used only when PLLI2S is selected as Clock Source SAI */
 }RCC_PLLI2SInitTypeDef;
 
@@ -80,15 +80,15 @@ typedef struct
 typedef struct
 {
   uint32_t PLLSAIN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
-                            This parameter must be a number between Min_Data = 192 and Max_Data = 432
+                            This parameter must be a number between Min_Data = 192 and Max_Data = 432.
                             This parameter will be used only when PLLSAI is selected as Clock Source SAI or LTDC */ 
                                  
   uint32_t PLLSAIQ;    /*!< Specifies the division factor for SAI1 clock.
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 15
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 15.
                             This parameter will be used only when PLLSAI is selected as Clock Source SAI or LTDC */
                               
   uint32_t PLLSAIR;    /*!< specifies the division factor for LTDC clock
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 7
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 7.
                             This parameter will be used only when PLLSAI is selected as Clock Source LTDC */
 
 }RCC_PLLSAIInitTypeDef;
@@ -100,13 +100,13 @@ typedef struct
   uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
                                       This parameter can be a value of @ref RCCEx_Periph_Clock_Selection */
 
-  RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters 
+  RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters. 
                                       This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  RCC_PLLSAIInitTypeDef PLLSAI;  /*!< PLL SAI structure parameters 
+  RCC_PLLSAIInitTypeDef PLLSAI;  /*!< PLL SAI structure parameters. 
                                       This parameter will be used only when PLLI2S is selected as Clock Source SAI or LTDC */
 
-  uint32_t PLLI2SDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock
+  uint32_t PLLI2SDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock.
                                       This parameter must be a number between Min_Data = 1 and Max_Data = 32
                                       This parameter will be used only when PLLI2S is selected as Clock Source SAI */
 
@@ -117,10 +117,10 @@ typedef struct
   uint32_t PLLSAIDivR;           /*!< Specifies the PLLSAI division factor for LTDC clock.
                                       This parameter must be one value of @ref RCCEx_PLLSAI_DIVR */
 
-  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection 
+  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection. 
                                       This parameter can be a value of @ref RCC_RTC_Clock_Source */
 
-  uint8_t TIMPresSelection;      /*!< Specifies TIM Clock Prescalers Selection 
+  uint8_t TIMPresSelection;      /*!< Specifies TIM Clock Prescalers Selection. 
                                       This parameter can be a value of @ref RCCEx_TIM_PRescaler_Selection */
 
 }RCC_PeriphCLKInitTypeDef;
@@ -132,12 +132,12 @@ typedef struct
   */
 typedef struct
 {
-  uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock
+  uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
                             This parameter must be a number between Min_Data = 192 and Max_Data = 432
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 7 
+  uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock.
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 7. 
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
 }RCC_PLLI2SInitTypeDef;
@@ -151,10 +151,10 @@ typedef struct
   uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
                                       This parameter can be a value of @ref RCCEx_Periph_Clock_Selection */
 
-  RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters
+  RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters.
                                       This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection
+  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock Prescalers Selection.
                                       This parameter can be a value of @ref RCC_RTC_Clock_Source */
 
 }RCC_PeriphCLKInitTypeDef;

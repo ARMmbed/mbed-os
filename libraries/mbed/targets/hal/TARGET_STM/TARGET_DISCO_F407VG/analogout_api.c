@@ -103,7 +103,7 @@ void analogout_free(dac_t *obj)
 
 static inline void dac_write(dac_t *obj, uint16_t value)
 {
-    HAL_StatusTypeDef status;
+    HAL_StatusTypeDef status = HAL_ERROR;
 
     if (obj->channel == PA_4) {
         status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
@@ -123,6 +123,7 @@ static inline int dac_read(dac_t *obj)
     } else if (obj->channel == PA_5) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
+	return 0;	/* Just silented warning */
 }
 
 void analogout_write(dac_t *obj, float value)

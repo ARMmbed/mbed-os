@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
@@ -84,6 +84,12 @@ typedef struct
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset CRC handle state
+  * @param  __HANDLE__: CRC handle
+  * @retval None
+  */
+#define __HAL_CRC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_CRC_STATE_RESET)
 
 /**
   * @brief  Resets CRC Data Register.

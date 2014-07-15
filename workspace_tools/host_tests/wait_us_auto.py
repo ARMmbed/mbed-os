@@ -15,28 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from time import time
 from sys import stdout
 
 class WaitusTest(DefaultTest):
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
-
     def run(self):
         test_result = True
         # First character to start test (to know after reset when test starts)
         self.mbed.serial.timeout = None
-        c = self.mbed.serial.read(1)
-        if c == '$':    # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
+        c = self.mbed.serial_read(1)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
             #Read additional 39 bytes of TargetID
-            self.mbed.serial.read(39)
-            c = self.mbed.serial.read(1) # Re-read first 'tick'
-
+            if not self.mbed.serial_read(39):
+                self.print_result("ioerr_serial")
+                return
+            c = self.mbed.serial_read(1) # Re-read first 'tick'
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
         print "Test started"
         start_serial_pool = start = time();
         for i in range(0, 10):
-            c = self.mbed.serial.read(1)
+            c = self.mbed.serial_read(1)
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
                 deviation = abs(delta - 1)

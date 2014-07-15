@@ -3,10 +3,17 @@
 Ticker ticker;
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
+
+#if defined(TARGET_LPC1549)
+// LPC1549 support only single CAN channel
+CAN can1(D2, D3);
+#else
 CAN can1(p9, p10);
+#endif
+
 #if defined(TARGET_LPC4088)
 CAN can2(p34, p33);
-#else
+#elif defined (TARGET_LPC1768)
 CAN can2(p30, p29);
 #endif
 char counter = 0;
@@ -34,11 +41,13 @@ int main() {
     ticker.attach(&send, 1);
     CANMessage msg;
     while(1) {
+#if !defined(TARGET_LPC1549)
         printf("loop()\n");
         if(can2.read(msg)) {
             printmsg("Rx message:", &msg);
             led2 = !led2;
         }
+#endif
         wait(0.2);
     }
 }

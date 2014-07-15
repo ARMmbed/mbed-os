@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   DMA HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -47,7 +47,7 @@
           (+) At the end of data transfer HAL_DMA_IRQHandler() function is executed and user can 
               add his own function by customization of function pointer XferCpltCallback and 
               XferErrorCallback (i.e a member of DMA handle structure). 
-                
+    [..]                
      (#) Use HAL_DMA_GetState() function to return the DMA state and HAL_DMA_GetError() in case of error 
          detection.
          

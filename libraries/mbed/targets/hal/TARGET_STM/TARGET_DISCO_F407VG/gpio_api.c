@@ -31,7 +31,6 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "error.h"
-#include "stm32f4xx_hal.h"
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
@@ -67,8 +66,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-    }
-    else { // PIN_INPUT
+    } else { // PIN_INPUT
         pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     }
 }

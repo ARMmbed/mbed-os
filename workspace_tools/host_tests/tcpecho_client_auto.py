@@ -17,7 +17,7 @@ limitations under the License.
 
 from SocketServer import BaseRequestHandler, TCPServer
 import socket
-from host_test import Test, DefaultTest
+from host_test import Test
 from sys import stdout
 
 SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0RC2
+  * @date    14-May-2014
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
@@ -33,7 +33,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_NAND_H
@@ -62,70 +62,67 @@
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
-/* Exported typedef ----------------------------------------------------------*/ 
+/* Exported typedef ----------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 
 /** 
-  * @brief  HAL NAND State structures definition  
-  */ 
+  * @brief  HAL NAND State structures definition
+  */
 typedef enum
 {
   HAL_NAND_STATE_RESET     = 0x00,  /*!< NAND not yet initialized or disabled */
   HAL_NAND_STATE_READY     = 0x01,  /*!< NAND initialized and ready for use   */
   HAL_NAND_STATE_BUSY      = 0x02,  /*!< NAND internal process is ongoing     */
   HAL_NAND_STATE_ERROR     = 0x03   /*!< NAND error state                     */
-
 }HAL_NAND_StateTypeDef;
    
 /** 
-  * @brief  NAND Memory electronic signature Structure definition  
+  * @brief  NAND Memory electronic signature Structure definition
   */
 typedef struct
 {
-  /*<! NAND memory electronic signature maker and device IDs */ 
-  
+  /*<! NAND memory electronic signature maker and device IDs */
+
   uint8_t Maker_Id; 
-  
+
   uint8_t Device_Id;
-  
+
   uint8_t Third_Id;
-  
+
   uint8_t Fourth_Id;
-  
 }NAND_IDTypeDef;
 
 /** 
-  * @brief  NAND Memory address Structure definition  
+  * @brief  NAND Memory address Structure definition
   */
 typedef struct 
 {
-  uint16_t Page;   /*!< NAND memory Page address  */  
-  
-  uint16_t Zone;   /*!< NAND memory Zone address  */ 
-  
+  uint16_t Page;   /*!< NAND memory Page address  */
+
+  uint16_t Zone;   /*!< NAND memory Zone address  */
+
   uint16_t Block;  /*!< NAND memory Block address */
- 
+
 }NAND_AddressTypedef;
 
 /** 
-  * @brief  NAND Memory info Structure definition  
+  * @brief  NAND Memory info Structure definition
   */ 
 typedef struct
 {
   uint32_t PageSize;       /*!< NAND memory page (without spare area) size measured in K. bytes */
-  
-  uint32_t SpareAreaSize;  /*!< NAND memory spare area size measured in K. bytes                */  
-  
-  uint32_t BlockSize;      /*!< NAND memory block size number of pages                          */  
-  
+
+  uint32_t SpareAreaSize;  /*!< NAND memory spare area size measured in K. bytes                */
+
+  uint32_t BlockSize;      /*!< NAND memory block size number of pages                          */
+
   uint32_t BlockNbr;       /*!< NAND memory number of blocks                                    */
-  
+
   uint32_t ZoneSize;       /*!< NAND memory zone size measured in number of blocks              */
-   
 }NAND_InfoTypeDef;
 
 /** 
-  * @brief  NAND handle Structure definition  
+  * @brief  NAND handle Structure definition
   */   
 typedef struct
 {
@@ -133,12 +130,11 @@ typedef struct
   
   FMC_NAND_InitTypeDef         Init;       /*!< NAND device control configuration parameters */
 
-  HAL_LockTypeDef              Lock;       /*!< NAND locking object                          */ 
+  HAL_LockTypeDef              Lock;       /*!< NAND locking object                          */
 
   __IO HAL_NAND_StateTypeDef   State;      /*!< NAND device access state                     */
-  
+
   NAND_InfoTypeDef             Info;       /*!< NAND characteristic information structure    */
-  
 }NAND_HandleTypeDef;
 
 
@@ -170,9 +166,16 @@ typedef struct
   */
   
 /* Exported macro ------------------------------------------------------------*/
+
+/** @brief Reset NAND handle state
+  * @param  __HANDLE__: specifies the NAND handle.
+  * @retval None
+  */
+#define __HAL_NAND_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NAND_STATE_RESET)
+
 /**
   * @brief  NAND memory address computation.
-  * @param  __ADDRESS__: NAND memory address. 
+  * @param  __ADDRESS__: NAND memory address.
   * @param  __HANDLE__ : NAND handle.
   * @retval NAND Raw address value
   */
@@ -180,7 +183,7 @@ typedef struct
 
 /**
   * @brief  NAND memory address cycling.
-  * @param  __ADDRESS__: NAND memory address.    
+  * @param  __ADDRESS__: NAND memory address.
   * @retval NAND address cycling value.
   */
 #define ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__)& 0xFF)               /* 1st addressing cycle */
@@ -190,7 +193,7 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 
-/* Initialization/de-initialization functions  **********************************/
+/* Initialization/de-initialization functions  ********************************/
 HAL_StatusTypeDef  HAL_NAND_Init(NAND_HandleTypeDef *hnand, FMC_NAND_PCC_TimingTypeDef *ComSpace_Timing, FMC_NAND_PCC_TimingTypeDef *AttSpace_Timing);
 HAL_StatusTypeDef  HAL_NAND_DeInit(NAND_HandleTypeDef *hnand);
 void        HAL_NAND_MspInit(NAND_HandleTypeDef *hnand);
@@ -198,7 +201,7 @@ void        HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand);
 void               HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand);
 void        HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
 
-/* IO operation functions  *****************************************************/
+/* IO operation functions  ****************************************************/
 HAL_StatusTypeDef  HAL_NAND_Read_ID(NAND_HandleTypeDef *hnand, NAND_IDTypeDef *pNAND_ID);
 HAL_StatusTypeDef  HAL_NAND_Reset(NAND_HandleTypeDef *hnand);
 HAL_StatusTypeDef  HAL_NAND_Read_Page(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress, uint8_t *pBuffer, uint32_t NumPageToRead);
@@ -209,12 +212,12 @@ HAL_StatusTypeDef  HAL_NAND_Erase_Block(NAND_HandleTypeDef *hnand, NAND_AddressT
 uint32_t           HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 uint32_t           HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress);
 
-/* NAND Control functions  ******************************************************/
+/* NAND Control functions  ****************************************************/
 HAL_StatusTypeDef  HAL_NAND_ECC_Enable(NAND_HandleTypeDef *hnand);
 HAL_StatusTypeDef  HAL_NAND_ECC_Disable(NAND_HandleTypeDef *hnand);
 HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, uint32_t Timeout);
 
-/* NAND State functions *********************************************************/
+/* NAND State functions *******************************************************/
 HAL_NAND_StateTypeDef HAL_NAND_GetState(NAND_HandleTypeDef *hnand);
 uint32_t HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 

@@ -175,10 +175,10 @@ void spi_free(spi_t *obj) {
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // Save new values
-    if (bits == 8) {
-        obj->bits = SPI_DataSize_8b;
-    } else {
+    if (bits == 16) {
         obj->bits = SPI_DataSize_16b;
+    } else {
+        obj->bits = SPI_DataSize_8b;
     }
 
     switch (mode) {
@@ -294,8 +294,7 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    //return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0); // initial code
-    return (ssp_readable(obj)) ? (1) : (0); // works better like this
+    return (ssp_readable(obj) ? 1 : 0);
 };
 
 int spi_slave_read(spi_t *obj) {

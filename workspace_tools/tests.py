@@ -42,6 +42,7 @@ Wiring:
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
+      * LPC1549: (D2 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
       * NUCLEO_F103RB: (PC_6 <-> PB_8)
@@ -54,6 +55,7 @@ Wiring:
 
   * analog_loop (AnalogIn, AnalogOut):
       * Arduino headers: (A0 <-> A5)
+      * LPC1549: (A0 <-> D12)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
@@ -126,7 +128,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -198,6 +200,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
         "automated": True,
+        "duration": 15,
     },
     {
         "id": "MBED_A20", "description": "I2C master/slave test",
@@ -241,8 +244,15 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
         "automated": True,
+        "duration": 15,
     },
-
+    {
+        "id": "MBED_BLINKY", "description": "Blinky",
+        "source_dir": join(TEST_DIR, "mbed", "blinky"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": False,
+    },
+    
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -359,7 +369,7 @@ TESTS = [
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
-        "automated": True,
+        "automated": False,
         "mcu": ["LPC1768"]
     },
     {
@@ -448,13 +458,13 @@ TESTS = [
         "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088"]
+        "mcu": ["LPC1768", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088"]
+        "mcu": ["LPC1768", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",
@@ -521,7 +531,7 @@ TESTS = [
         "duration": 15,
         "automated": True,
         "host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -529,7 +539,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -537,28 +547,28 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -567,14 +577,14 @@ TESTS = [
         "duration": 15,
         "automated": True,
         "host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
@@ -789,7 +799,7 @@ TESTS = [
         "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z"],
+        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
         "automated": True,
         "duration": 15,
         },
@@ -806,6 +816,21 @@ TESTS = [
         "id": "EXAMPLE_2", "description": "FS + RTOS",
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+    },
+
+    # Unit testing with cpputest library
+    {
+        "id": "UT_1", "description": "Basic",
+        "source_dir": join(TEST_DIR, "utest", "basic"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_2", "description": "Semihost file system",
+        "source_dir": join(TEST_DIR, "utest", "semihost_fs"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
 ]
 
@@ -830,11 +855,15 @@ GROUPS.update(TEST_GROUPS)
 
 class Test:
     DEFAULTS = {
+        #'mcu': None,
+        'description': None,
         'dependencies': None,
         'duration': 10,
         'host_test': 'host_test',
         'automated': False,
         'peripherals': None,
+        #'supported': None,
+        'source_dir': None,
         'extra_files': None
     }
     def __init__(self, n):
@@ -850,7 +879,7 @@ class Test:
         return (target in self.supported) and (toolchain in self.supported[target])
 
     def get_description(self):
-        if hasattr(self, 'description'):
+        if self.description:
             return self.description
         else:
             return self.id
@@ -861,5 +890,19 @@ class Test:
     def __str__(self):
         return "[%3d] %s: %s" % (self.n, self.id, self.get_description())
 
+    def __getitem__(self, key):
+        if key == "id": return self.id
+        elif key == "mcu": return self.mcu
+        elif key == "dependencies": return self.dependencies
+        elif key == "description": return self.description
+        elif key == "duration": return self.duration
+        elif key == "host_test": return self.host_test
+        elif key == "automated": return self.automated
+        elif key == "peripherals": return self.peripherals
+        elif key == "supported": return self.supported
+        elif key == "source_dir": return self.source_dir
+        elif key == "extra_files": return self.extra_files
+        else:
+            return None
 
 TEST_MAP = dict([(test['id'], Test(i)) for i, test in enumerate(TESTS)])
