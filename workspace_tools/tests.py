@@ -252,7 +252,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": False,
     },
-    
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
