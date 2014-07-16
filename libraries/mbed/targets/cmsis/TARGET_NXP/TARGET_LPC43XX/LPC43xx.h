@@ -310,7 +310,7 @@ typedef enum {
 #error Please #define CORE_M0, CORE_M3 or CORE_M4
 #endif
 
-#include "system_LPC43XX.h"
+#include "system_LPC43xx.h"
 
 /* ---------------------------------------------------------------------------
  * State Configurable Timer register block structure
