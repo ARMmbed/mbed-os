@@ -58,31 +58,32 @@ static const PinMap PinMap_UART_RX[] = {
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
 
-static uart_irq_handler irq_handler;
+static uart_irq_handler irq_handler[UART_NUM] = {(uart_irq_handler)0, (uart_irq_handler)0, (uart_irq_handler)0};
 
-UART_HandleTypeDef UartHandle;
+static UART_HandleTypeDef UartHandle[UART_NUM];
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 static void init_uart(serial_t *obj) {
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
+	int idx = obj->index;
+    UartHandle[idx].Instance = (USART_TypeDef *)(obj->uart);
 
-    UartHandle.Init.BaudRate   = obj->baudrate;
-    UartHandle.Init.WordLength = obj->databits;
-    UartHandle.Init.StopBits   = obj->stopbits;
-    UartHandle.Init.Parity     = obj->parity;
-    UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    UartHandle[idx].Init.BaudRate   = obj->baudrate;
+    UartHandle[idx].Init.WordLength = obj->databits;
+    UartHandle[idx].Init.StopBits   = obj->stopbits;
+    UartHandle[idx].Init.Parity     = obj->parity;
+    UartHandle[idx].Init.HwFlowCtl  = UART_HWCONTROL_NONE;
 
     if (obj->pin_rx == NC) {
-        UartHandle.Init.Mode = UART_MODE_TX;
+        UartHandle[idx].Init.Mode = UART_MODE_TX;
     } else if (obj->pin_tx == NC) {
-        UartHandle.Init.Mode = UART_MODE_RX;
+        UartHandle[idx].Init.Mode = UART_MODE_RX;
     } else {
-        UartHandle.Init.Mode = UART_MODE_TX_RX;
+        UartHandle[idx].Init.Mode = UART_MODE_TX_RX;
     }
 
-    HAL_UART_Init(&UartHandle);
+    HAL_UART_Init(&UartHandle[idx]);
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
@@ -198,15 +199,15 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  ******************************************************************************/
 
 static void uart_irq(UARTName name, int id) {
-    UartHandle.Instance = (USART_TypeDef *)name;
+    UartHandle[id].Instance = (USART_TypeDef *)name;
     if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) {
-            irq_handler(serial_irq_ids[id], TxIrq);
-            __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_TC);
+        if (__HAL_UART_GET_FLAG(&UartHandle[id], UART_FLAG_TC) != RESET) {
+            irq_handler[id](serial_irq_ids[id], TxIrq);
+            __HAL_UART_CLEAR_FLAG(&UartHandle[id], UART_FLAG_TC);
         }
-        if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET) {
-            irq_handler(serial_irq_ids[id], RxIrq);
-            __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_RXNE);
+        if (__HAL_UART_GET_FLAG(&UartHandle[id], UART_FLAG_RXNE) != RESET) {
+            irq_handler[id](serial_irq_ids[id], RxIrq);
+            __HAL_UART_CLEAR_FLAG(&UartHandle[id], UART_FLAG_RXNE);
         }
     }
 }
@@ -222,15 +223,16 @@ static void uart6_irq(void) {
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
-    irq_handler = handler;
+    irq_handler[id] = handler;
     serial_irq_ids[obj->index] = id;
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
+    int id = obj->index;
 
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
+    UartHandle[id].Instance = (USART_TypeDef *)(obj->uart);
 
     if (obj->uart == UART_1) {
         irq_n = USART1_IRQn;
@@ -250,9 +252,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     if (enable) {
 
         if (irq == RxIrq) {
-            __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_RXNE);
+            __HAL_UART_ENABLE_IT(&UartHandle[id], UART_IT_RXNE);
         } else { // TxIrq
-            __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TC);
+            __HAL_UART_ENABLE_IT(&UartHandle[id], UART_IT_TC);
         }
 
         NVIC_SetVector(irq_n, vector);
@@ -263,13 +265,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         int all_disabled = 0;
 
         if (irq == RxIrq) {
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_RXNE);
+            __HAL_UART_DISABLE_IT(&UartHandle[id], UART_IT_RXNE);
             // Check if TxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
+            if ((UartHandle[id].Instance->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
         } else { // TxIrq
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
+            __HAL_UART_DISABLE_IT(&UartHandle[id], UART_IT_TXE);
             // Check if RxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
+            if ((UartHandle[id].Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
 
         if (all_disabled) NVIC_DisableIRQ(irq_n);
@@ -295,24 +297,27 @@ void serial_putc(serial_t *obj, int c) {
 
 int serial_readable(serial_t *obj) {
     int status;
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
+    int id = obj->index;
+    UartHandle[id].Instance = (USART_TypeDef *)(obj->uart);
     // Check if data is received
-    status = ((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET) ? 1 : 0);
+    status = ((__HAL_UART_GET_FLAG(&UartHandle[id], UART_FLAG_RXNE) != RESET) ? 1 : 0);
     return status;
 }
 
 int serial_writable(serial_t *obj) {
     int status;
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
+    int id = obj->index;
+    UartHandle[id].Instance = (USART_TypeDef *)(obj->uart);
     // Check if data is transmitted
-    status = ((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) != RESET) ? 1 : 0);
+    status = ((__HAL_UART_GET_FLAG(&UartHandle[id], UART_FLAG_TXE) != RESET) ? 1 : 0);
     return status;
 }
 
 void serial_clear(serial_t *obj) {
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_TXE);
-    __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_RXNE);
+	int id = obj->index;
+    UartHandle[id].Instance = (USART_TypeDef *)(obj->uart);
+    __HAL_UART_CLEAR_FLAG(&UartHandle[id], UART_FLAG_TXE);
+    __HAL_UART_CLEAR_FLAG(&UartHandle[id], UART_FLAG_RXNE);
 }
 
 void serial_pinout_tx(PinName tx) {
@@ -320,8 +325,9 @@ void serial_pinout_tx(PinName tx) {
 }
 
 void serial_break_set(serial_t *obj) {
-    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    HAL_LIN_SendBreak(&UartHandle);
+	int id = obj->index;
+    UartHandle[id].Instance = (USART_TypeDef *)(obj->uart);
+    HAL_LIN_SendBreak(&UartHandle[id]);
 }
 
 void serial_break_clear(serial_t *obj) {
