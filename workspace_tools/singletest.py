@@ -300,8 +300,9 @@ class SingleTestRunner(object):
             # Host test execution
             start_host_exec_time = time()
 
+            single_test_result = self.TEST_RESULT_UNDEF # singe test run result
             if not _copy_res:   # Serial port copy error
-                test_result = "IOERR_COPY"
+                single_test_result = "IOERR_COPY"
                 print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
             else:
                 # Copy Extra Files
@@ -312,11 +313,13 @@ class SingleTestRunner(object):
                 sleep(target_by_mcu.program_cycle_s())
                 # Host test execution
                 start_host_exec_time = time()
-                test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
-                test_all_result.append(test_result)
+                single_test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
+
+            # Store test result
+            test_all_result.append(single_test_result)
 
             elapsed_time = time() - start_host_exec_time
-            print print_test_result(test_result, target_name, toolchain_name,
+            print print_test_result(single_test_result, target_name, toolchain_name,
                                     test_id, test_description, elapsed_time, duration)
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
