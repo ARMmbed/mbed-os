@@ -431,14 +431,19 @@ class NRF51822(Target):
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         for hexf in resources.hex_files:
+            found = False
             for softdeviceAndOffsetEntry in NRF51822.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
                 if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                    found = True
                     break
+            if found:
+                break
         else:
             t_self.debug("Hex file not found. Aborting.")
             return
 
         # Merge user code with softdevice
+        t_self.debug("Patching Hex file %s" % softdeviceAndOffsetEntry['name'])
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset=softdeviceAndOffsetEntry['offset'])
