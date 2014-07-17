@@ -400,9 +400,19 @@ class UBLOX_C027(Target):
 
 
 class NRF51822(Target):
-    EXPECTED_SOFTDEVICE = 's110_nrf51822_7.0.0_softdevice.hex'
+    # the following is a list of possible Nordic softdevices in decreasing order
+    # of preference.
+    EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+        {
+            'name' : 's110_nrf51822_7.0.0_softdevice.hex',
+            'offset' : 0x16000
+        },
+        {
+            'name' : 's110_nrf51822_6.0.0_softdevice.hex',
+            'offset' : 0x14000
+        }
+    ]
     OUTPUT_EXT = '.hex'
-    APPCODE_OFFSET = 0x16000
 
     def __init__(self):
         Target.__init__(self)
@@ -421,8 +431,9 @@ class NRF51822(Target):
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         for hexf in resources.hex_files:
-            if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
-                break
+            for softdeviceAndOffsetEntry in NRF51822.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+                if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                    break
         else:
             t_self.debug("Hex file not found. Aborting.")
             return
@@ -430,7 +441,7 @@ class NRF51822(Target):
         # Merge user code with softdevice
         from intelhex import IntelHex
         binh = IntelHex()
-        binh.loadbin(binf, offset=NRF51822.APPCODE_OFFSET)
+        binh.loadbin(binf, offset=softdeviceAndOffsetEntry['offset'])
 
         sdh = IntelHex(hexf)
         sdh.merge(binh)
