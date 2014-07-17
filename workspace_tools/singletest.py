@@ -91,6 +91,7 @@ import pprint
 import re
 import os
 from types import ListType
+import random
 
 from os.path import join, abspath, dirname, exists, basename
 from shutil import copy
@@ -830,6 +831,12 @@ if __name__ == '__main__':
                       dest='firmware_global_name',
                       help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
 
+    parser.add_option('-u', '--shuffle-tests',
+                      dest='shuffle_test_order',
+                      default=False,
+                      action="store_true",
+                      help='Shuffles test execution order')
+
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
                       default=False,
@@ -922,7 +929,13 @@ if __name__ == '__main__':
 
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
-            for test_id, test in TEST_MAP.iteritems():
+            # Enumerate through all tests
+            test_map_keys = TEST_MAP.keys()
+            if opts.shuffle_test_order:
+                random.shuffle(test_map_keys)
+
+            for test_id in test_map_keys:
+                test = TEST_MAP[test_id]
                 if opts.test_by_names and test_id not in opts.test_by_names.split(','):
                     continue
 
