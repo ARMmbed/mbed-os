@@ -551,7 +551,7 @@ class EFM32GG_STK3700(Target):
 
         self.macros = ['EFM32GG990F1024']
 
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
 
 
 class EFM32ZG_STK3200(Target):
@@ -565,7 +565,7 @@ class EFM32ZG_STK3200(Target):
 
         self.macros = ['EFM32ZG222F32']
 
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
 
 # Get a single instance for each target
 TARGETS = [
