@@ -314,7 +314,9 @@ class SingleTestRunner(object):
                 sleep(target_by_mcu.program_cycle_s())
                 # Host test execution
                 start_host_exec_time = time()
-                single_test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
+
+                host_test_verbose = opts.verbose_test_result_only or opts.verbose
+                single_test_result = self.run_host_test(test.host_test, disk, port, duration, host_test_verbose)
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -842,6 +844,12 @@ if __name__ == '__main__':
                       default=False,
                       action="store_true",
                       help='Prints some extra information about skipped tests')
+
+    parser.add_option('-V', '--verbose-test-result',
+                      dest='verbose_test_result_only',
+                      default=False,
+                      action="store_true",
+                      help='Prints test serial output')
 
     parser.add_option('-v', '--verbose',
                       dest='verbose',
