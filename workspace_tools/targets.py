@@ -570,6 +570,15 @@ class EFM32GG_STK3700(Target):
         self.supported_toolchains = ["GCC_ARM", "ARM"]
 
 
+class EFM32LG_STK3600(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32LG990F256']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+
+
 class EFM32ZG_STK3200(Target):
     def __init__(self):
         Target.__init__(self)
@@ -633,8 +642,9 @@ TARGETS = [
     HRM1017(),
     ARM_MPS2(),
     EFM32GG_STK3700(),
+    EFM32LG_STK3600(),
     EFM32ZG_STK3200(),
-    RBLAB_NRF51822(),
+    RBLAB_NRF51822()
 ]
 
 # Map each target name to its unique instance
