@@ -818,6 +818,15 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
 
+    # CPPUTEST Library provides Unit testing Framework
+    #
+    # To write TESTs and TEST_GROUPs please add CPPUTEST_LIBRARY to 'dependencies'
+    #
+    # This will also include:
+    # 1. test runner - main function with call to CommandLineTestRunner::RunAllTests(ac, av)
+    # 2. Serial console object to print test result on serial port console
+    #
+
     # Unit testing with cpputest library
     {
         "id": "UT_1", "description": "Basic",
