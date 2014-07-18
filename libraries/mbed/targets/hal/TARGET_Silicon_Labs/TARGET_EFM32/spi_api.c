@@ -104,6 +104,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
             obj->clock = cmuClock_USART2;
             break;
 #endif
+        default:
+            error("Unexpected SPIName in spi_api.c. No USART clock enabled");
+            break;
     }   
     CMU_ClockEnable(obj->clock, true);
 
