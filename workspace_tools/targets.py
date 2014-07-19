@@ -535,6 +535,11 @@ class ARCH_PRO(Target):
         self.supported_form_factors = ["ARDUINO"]
 
 
+class ARCH_GPRS(LPC11U37_501):
+    def __init__(self):
+        LPC11U37_501.__init__(self)
+
+
 class LPCCAPPUCCINO(LPC11U37_501):
     def __init__(self):
         LPC11U37_501.__init__(self)
@@ -555,10 +560,13 @@ class ARM_MPS2(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
 
-class ARCH_GPRS(LPC11U37_501):
-    def __init__(self):
-        LPC11U37_501.__init__(self)
 
+class RBLAB_NRF51822(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'NRF51822']
+        self.macros = ['TARGET_NRF51822']
+        
 
 # Get a single instance for each target
 TARGETS = [
@@ -602,10 +610,11 @@ TARGETS = [
     XADOW_M0(),
     ARCH_BLE(),
     ARCH_PRO(),
+    ARCH_GPRS(),
     LPCCAPPUCCINO(),
     HRM1017(),
     ARM_MPS2(),
-    ARCH_GPRS(),
+    RBLAB_NRF51822(),
 ]
 
 # Map each target name to its unique instance
