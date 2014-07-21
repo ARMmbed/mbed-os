@@ -561,6 +561,15 @@ class ARM_MPS2(Target):
         self.default_toolchain = "ARM"
 
 
+class EFM32_G8XX_STK(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32G890F128']
+        self.supported_toolchains = ["GCC_ARM"]
+
+
 class EFM32GG_STK3700(Target):
     def __init__(self):
         Target.__init__(self)
@@ -650,6 +659,7 @@ TARGETS = [
     LPCCAPPUCCINO(),
     HRM1017(),
     ARM_MPS2(),
+    EFM32_G8XX_STK(),
     EFM32GG_STK3700(),
     EFM32LG_STK3600(),
     EFM32TG_STK3300(),
