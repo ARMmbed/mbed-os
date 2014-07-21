@@ -8,22 +8,22 @@ import sys
 # "libs" can contain "dsp", "rtos", "eth", "usb_host", "usb", "ublox"
 
 build_list = (
-    { "target": "LPC1768",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox"] },
-    { "target": "LPC2368", "toolchains": "GCC_ARM" },
-    { "target": "LPC11U24", "toolchains": "GCC_ARM" },
-    { "target": "LPC11U24_301", "toolchains": "GCC_ARM" },
+    { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox"] },
+    { "target": "LPC2368",       "toolchains": "GCC_ARM" },
+    { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"]},
+    { "target": "LPC11U24_301",  "toolchains": "GCC_ARM" },
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM"},
 
-    { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM"},
-    { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"]},
+    { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     { "target": "LPC11U35_501",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "LPC11U68",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "LPC11U68",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
 
-    { "target": "KL05Z",    "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "KL25Z",    "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "KL46Z",    "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "KL05Z",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "KL25Z",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
+    { "target": "KL46Z",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "K20D50M",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "K64F",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "LPC4088",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
