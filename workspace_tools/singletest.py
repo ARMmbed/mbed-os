@@ -91,6 +91,7 @@ import pprint
 import re
 import os
 from types import ListType
+import random
 
 from os.path import join, abspath, dirname, exists, basename
 from shutil import copy
@@ -160,6 +161,7 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_DISK = "IOERR_DISK"
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
+    TEST_RESULT_NO_IMAGE = "NO_IMAGE"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -173,6 +175,7 @@ class SingleTestRunner(object):
                            "ioerr_disk" : TEST_RESULT_IOERR_DISK,
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
+                           "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF}
 
     def __init__(self, _global_loops_count=1, _test_loops_list=""):
@@ -269,8 +272,8 @@ class SingleTestRunner(object):
                 break
 
         if mut is None:
-            print "Error: No mbed available: mut[%s]" % data['mcu']
-            return
+            print "Error: No Mbed available: MUT[%s]" % data['mcu']
+            return None
 
         disk = mut['disk']
         port = mut['port']
@@ -283,9 +286,10 @@ class SingleTestRunner(object):
         if not exists(image_path):
             print "Error: Image file does not exist: %s" % image_path
             elapsed_time = 0
-            test_result = "{error}"
+            test_result = self.TEST_RESULT_NO_IMAGE
             return (test_result, target_name, toolchain_name,
-                    test_id, test_description, round(elapsed_time, 2), duration)
+                    test_id, test_description, round(elapsed_time, 2),
+                    duration, self.shape_test_loop_ok_result_count([]))
 
         # Program MUT with proper image file
         if not disk.endswith('/') and not disk.endswith('\\'):
@@ -300,8 +304,9 @@ class SingleTestRunner(object):
             # Host test execution
             start_host_exec_time = time()
 
+            single_test_result = self.TEST_RESULT_UNDEF # singe test run result
             if not _copy_res:   # Serial port copy error
-                test_result = "IOERR_COPY"
+                single_test_result = "IOERR_COPY"
                 print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
             else:
                 # Copy Extra Files
@@ -312,11 +317,15 @@ class SingleTestRunner(object):
                 sleep(target_by_mcu.program_cycle_s())
                 # Host test execution
                 start_host_exec_time = time()
-                test_result = self.run_host_test(test.host_test, disk, port, duration, opts.verbose)
-                test_all_result.append(test_result)
+
+                host_test_verbose = opts.verbose_test_result_only or opts.verbose
+                single_test_result = self.run_host_test(test.host_test, disk, port, duration, host_test_verbose)
+
+            # Store test result
+            test_all_result.append(single_test_result)
 
             elapsed_time = time() - start_host_exec_time
-            print print_test_result(test_result, target_name, toolchain_name,
+            print print_test_result(single_test_result, target_name, toolchain_name,
                                     test_id, test_description, elapsed_time, duration)
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
@@ -371,7 +380,7 @@ class SingleTestRunner(object):
             print "Test::Output::Finish"
 
         # Parse test 'output' data
-        result = self.TEST_RESULT_UNDEF
+        result = self.TEST_RESULT_TIMEOUT
         for line in "".join(output).splitlines():
             search_result = self.RE_DETECT_TESTCASE_RESULT.search(line)
             if search_result and len(search_result.groups()):
@@ -710,10 +719,10 @@ def generate_test_summary(test_summary):
                    single_test.TEST_RESULT_FAIL : 0,
                    single_test.TEST_RESULT_ERROR : 0,
                    single_test.TEST_RESULT_UNDEF : 0,
-                   single_test.TEST_RESULT_UNDEF : 0,
-                   single_test.TEST_RESULT_UNDEF : 0,
                    single_test.TEST_RESULT_IOERR_COPY : 0,
                    single_test.TEST_RESULT_IOERR_DISK : 0,
+                   single_test.TEST_RESULT_IOERR_SERIAL : 0,
+                   single_test.TEST_RESULT_NO_IMAGE : 0,
                    single_test.TEST_RESULT_TIMEOUT : 0 }
 
     for test in test_summary:
@@ -824,6 +833,28 @@ if __name__ == '__main__':
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
+    parser.add_option('', '--firmware-name',
+                      dest='firmware_global_name',
+                      help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
+
+    parser.add_option('-u', '--shuffle-tests',
+                      dest='shuffle_test_order',
+                      default=False,
+                      action="store_true",
+                      help='Shuffles test execution order')
+
+    parser.add_option('', '--verbose-skipped',
+                      dest='verbose_skipped_tests',
+                      default=False,
+                      action="store_true",
+                      help='Prints some extra information about skipped tests')
+
+    parser.add_option('-V', '--verbose-test-result',
+                      dest='verbose_test_result_only',
+                      default=False,
+                      action="store_true",
+                      help='Prints test serial output')
+
     parser.add_option('-v', '--verbose',
                       dest='verbose',
                       default=False,
@@ -910,7 +941,13 @@ if __name__ == '__main__':
 
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
-            for test_id, test in TEST_MAP.iteritems():
+            # Enumerate through all tests
+            test_map_keys = TEST_MAP.keys()
+            if opts.shuffle_test_order:
+                random.shuffle(test_map_keys)
+
+            for test_id in test_map_keys:
+                test = TEST_MAP[test_id]
                 if opts.test_by_names and test_id not in opts.test_by_names.split(','):
                     continue
 
@@ -918,18 +955,18 @@ if __name__ == '__main__':
                     continue
 
                 if opts.test_only_peripheral and not test.peripherals:
-                    if opts.verbose:
+                    if opts.verbose_skipped_tests:
                         print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
                     continue
 
                 if opts.test_only_common and test.peripherals:
-                    if opts.verbose:
+                    if opts.verbose_skipped_tests:
                         print "TargetTest::%s::PeripheralTestSkipped()" % (target)
                     continue
 
                 if test.automated and test.is_supported(target, toolchain):
                     if not is_peripherals_available(target, test.peripherals):
-                        if opts.verbose:
+                        if opts.verbose_skipped_tests:
                             test_peripherals = test.peripherals if test.peripherals else []
                             print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
                         continue
@@ -965,9 +1002,13 @@ if __name__ == '__main__':
                         if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                             MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
 
+                    project_name = opts.firmware_global_name if opts.firmware_global_name else None
                     path = build_project(test.source_dir, join(build_dir, test_id),
-                                         T, toolchain, test.dependencies, options=build_project_options,
-                                         clean=clean, verbose=opts.verbose,
+                                         T, toolchain, test.dependencies,
+                                         options=build_project_options,
+                                         clean=clean,
+                                         verbose=opts.verbose,
+                                         name=project_name,
                                          macros=MACROS,
                                          inc_dirs=INC_DIRS)
 
@@ -983,7 +1024,8 @@ if __name__ == '__main__':
                     test_spec = shape_test_request(target, path, test_id, test.duration)
                     test_loops = single_test.get_test_loop_count(test_id)
                     single_test_result = single_test.handle(test_spec, target, toolchain, test_loops=test_loops)
-                    test_summary.append(single_test_result)
+                    if single_test_result is not None:
+                        test_summary.append(single_test_result)
                     # print test_spec, target, toolchain
 
     elapsed_time = time() - start

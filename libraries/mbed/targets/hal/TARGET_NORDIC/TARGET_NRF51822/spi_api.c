@@ -69,7 +69,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spi = (NRF_SPI_Type*)NC;
         obj->spis = (NRF_SPIS_Type*)spi;
     }
-    MBED_ASSERT((int)obj->spi != NC && (int)obj->spis != NC);
+    MBED_ASSERT((int)obj->spi != NC || (int)obj->spis != NC);
 
       // pin out the spi pins
     if (ssel != NC) {//slave

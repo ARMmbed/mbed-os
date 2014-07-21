@@ -27,6 +27,9 @@ I2C i2c(PTC9, PTC8);
 #elif defined(TARGET_KL46Z)
 I2C i2c(PTC9, PTC8);
 
+#elif defined(TARGET_K20D50M)
+I2C i2c(PTB3, PTB2);
+
 #elif defined(TARGET_LPC812)
 I2C i2c(P0_10, P0_11);
 

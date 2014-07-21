@@ -252,7 +252,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": False,
     },
-    
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -799,7 +799,7 @@ TESTS = [
         "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z"],
+        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
         "automated": True,
         "duration": 15,
         },
@@ -817,6 +817,15 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "fs"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
     },
+
+    # CPPUTEST Library provides Unit testing Framework
+    #
+    # To write TESTs and TEST_GROUPs please add CPPUTEST_LIBRARY to 'dependencies'
+    #
+    # This will also include:
+    # 1. test runner - main function with call to CommandLineTestRunner::RunAllTests(ac, av)
+    # 2. Serial console object to print test result on serial port console
+    #
 
     # Unit testing with cpputest library
     {
