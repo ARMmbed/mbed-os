@@ -43,6 +43,8 @@ typedef enum {
 
     //Our board says USER LED but mbed expects LED1.
     LED1 = PD_7,
+    //mbed test suite expects LED2. We simply map it to LED1.
+    LED2 = LED1,
     USER_LED = LED1,
 
     //Push Buttons
