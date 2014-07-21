@@ -36,32 +36,30 @@
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : port_hal_global_pin_control_low
+ * Function Name : PORT_HAL_SetLowGlobalPinCtrl
  * Description   : Configure low half of pin control register for the same settings, 
  *                 this function operates pin 0 -15 of one specific port.
  *
  *END**************************************************************************/
-void port_hal_global_pin_control_low(uint32_t instance, uint16_t lowPinSelect, uint16_t config)
+void PORT_HAL_SetLowGlobalPinCtrl(uint32_t baseAddr, uint16_t lowPinSelect, uint16_t config)
 {
-    assert(instance < HW_PORT_INSTANCE_COUNT);
     uint32_t combine = lowPinSelect;
     combine = (combine << 16) + config;
-    HW_PORT_GPCLR_WR(instance, combine);
+    HW_PORT_GPCLR_WR(baseAddr, combine);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : port_hal_global_pin_control_high
+ * Function Name : PORT_HAL_SetHighGlobalPinCtrl
  * Description   : Configure high half of pin control register for the same
  *                 settings, this function operates pin 16 -31 of one specific port.
  *
  *END**************************************************************************/
-void port_hal_global_pin_control_high(uint32_t instance, uint16_t highPinSelect, uint16_t config)
+void PORT_HAL_SetHighGlobalPinCtrl(uint32_t baseAddr, uint16_t highPinSelect, uint16_t config)
 {
-    assert(instance < HW_PORT_INSTANCE_COUNT);
     uint32_t combine = highPinSelect;
     combine = (combine << 16) + config;
-    HW_PORT_GPCHR_WR(instance, combine);
+    HW_PORT_GPCHR_WR(baseAddr, combine);
 }
 
 /*******************************************************************************

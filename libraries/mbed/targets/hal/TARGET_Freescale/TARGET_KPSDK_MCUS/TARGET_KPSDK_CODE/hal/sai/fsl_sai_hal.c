@@ -30,112 +30,179 @@
  
 #include "fsl_sai_hal.h"
 
-
 /******************************************************************************
 *Code
 ******************************************************************************/
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_init
- * Description   : Initialize the sai register, just set the register vaule to zero.
+ * Function Name : SAI_HAL_TxInit
+ * Description   : Initialize the sai Tx register, just set the register vaule to zero.
  *This function just clear the register value of sai.
  *END**************************************************************************/
-void sai_hal_init(uint8_t instance)
+void SAI_HAL_TxInit(uint32_t saiBaseAddr)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);  
-    /* Reset the internal logic of sai.*/
-    BW_I2S_TCSR_SR(instance,1);
-    BW_I2S_RCSR_SR(instance,1);
-    /*Clear all the registers.*/
-    HW_I2S_TCSR_WR(instance, 0);
-    HW_I2S_TCR1_WR(instance, 0);
-    HW_I2S_TCR2_WR(instance, 0);
-    HW_I2S_TCR3_WR(instance, 0);
-    HW_I2S_TCR4_WR(instance, 0);
-    HW_I2S_TCR5_WR(instance, 0);
-    HW_I2S_TMR_WR(instance,0);
-    HW_I2S_RCSR_WR(instance, 0);
-    HW_I2S_RCR1_WR(instance, 0);
-    HW_I2S_RCR2_WR(instance, 0);
-    HW_I2S_RCR3_WR(instance, 0);
-    HW_I2S_RCR4_WR(instance, 0);
-    HW_I2S_RCR5_WR(instance, 0);
-    HW_I2S_RMR_WR(instance,0);
-    HW_I2S_MDR_WR(instance,0);
-    HW_I2S_MCR_WR(instance,0);
+    /* Software reset and FIFO reset */
+    BW_I2S_TCSR_SR(saiBaseAddr, 1);
+    BW_I2S_TCSR_FR(saiBaseAddr, 1);
+    /* Clear all registers */
+    HW_I2S_TCSR_WR(saiBaseAddr, 0);
+    HW_I2S_TCR1_WR(saiBaseAddr, 0);
+    HW_I2S_TCR2_WR(saiBaseAddr, 0);
+    HW_I2S_TCR3_WR(saiBaseAddr, 0);
+    HW_I2S_TCR4_WR(saiBaseAddr, 0);
+    HW_I2S_TCR5_WR(saiBaseAddr, 0);
+    HW_I2S_TMR_WR(saiBaseAddr,0);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_tx_bus
+ * Function Name : SAI_HAL_RxInit
+ * Description   : Initialize the sai Rx register, just set the register vaule to zero.
+ *This function just clear the register value of sai.
+ *END**************************************************************************/
+void SAI_HAL_RxInit(uint32_t saiBaseAddr)
+{
+    /* Software reset and FIFO reset */
+    BW_I2S_RCSR_SR(saiBaseAddr, 1);
+    BW_I2S_RCSR_FR(saiBaseAddr, 1);
+    /* Clear all registers */
+    HW_I2S_RCSR_WR(saiBaseAddr, 0);
+    HW_I2S_RCR1_WR(saiBaseAddr, 0);
+    HW_I2S_RCR2_WR(saiBaseAddr, 0);
+    HW_I2S_RCR3_WR(saiBaseAddr, 0);
+    HW_I2S_RCR4_WR(saiBaseAddr, 0);
+    HW_I2S_RCR5_WR(saiBaseAddr, 0);
+    HW_I2S_RMR_WR(saiBaseAddr,0);
+}
+
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : SAI_HAL_TxSetProtocol
  * Description   : According to the protocol type to set the registers for tx.
  *The protocol can be I2S left, I2S right, I2S and so on.
  *END**************************************************************************/
-void sai_hal_set_tx_bus(uint8_t instance, sai_bus_t bus_mode)
+void SAI_HAL_TxSetProtocol(uint32_t saiBaseAddr,sai_protocol_t protocol)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT); 
-
-    switch (bus_mode)
+    switch (protocol)
     {
         case kSaiBusI2SLeft:
-            BW_I2S_TCR2_BCP(instance,1U);/* Bit clock polarity */
-            BW_I2S_TCR4_MF(instance,1U);/* MSB transmitted fisrt */
-            BW_I2S_TCR4_FSE(instance,1U);/*Frame sync one bit early */
-            BW_I2S_TCR4_FSP(instance,1U);/* Frame sync polarity, left channel is high */
+            BW_I2S_TCR2_BCP(saiBaseAddr,1);/* Bit clock polarity */
+            BW_I2S_TCR4_MF(saiBaseAddr,1);/* MSB transmitted fisrt */
+            BW_I2S_TCR4_FSE(saiBaseAddr,0);/*Frame sync not early */
+            BW_I2S_TCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left channel is high */
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
             break;
 
         case kSaiBusI2SRight:
-            BW_I2S_TCR2_BCP(instance,1U);/* Bit clock polarity */
-            BW_I2S_TCR4_MF(instance,1U);/* MSB transmitted fisrt */
-            BW_I2S_TCR4_FSE(instance,1U);/*Frame sync one bit early */
-            BW_I2S_TCR4_FSP(instance,1U);/* Frame sync polarity, left chennel is high */
+            BW_I2S_TCR2_BCP(saiBaseAddr,1);/* Bit clock polarity */
+            BW_I2S_TCR4_MF(saiBaseAddr,1);/* MSB transmitted firsrt */
+            BW_I2S_TCR4_FSE(saiBaseAddr,0);/*Frame sync not early */
+            BW_I2S_TCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
             break;
 
         case kSaiBusI2SType:
-            BW_I2S_TCR2_BCP(instance,1U);/*Bit clock polarity */
-            BW_I2S_TCR4_MF(instance,1U);/*MSB transmitted fisrt */
-            BW_I2S_TCR4_FSE(instance,1U);/* Frame sync one bit early */
-            BW_I2S_TCR4_FSP(instance,0U);/* Frame sync polarity, left channel is low */
+            BW_I2S_TCR2_BCP(saiBaseAddr,1);/*Bit clock polarity */
+            BW_I2S_TCR4_MF(saiBaseAddr,1);/*MSB transmitted firsrt */
+            BW_I2S_TCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_TCR4_FSP(saiBaseAddr,1);/* Frame sync polarity, left channel is low */
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
             break;
 
+        case kSaiBusPCMA:
+            BW_I2S_TCR2_BCP(saiBaseAddr,0); /* Bit clock active low */
+            BW_I2S_TCR4_MF(saiBaseAddr, 1); /* MSB transmitted first */
+            BW_I2S_TCR4_SYWD(saiBaseAddr, 0); /* Only one bit clock in a frame sync */
+            BW_I2S_TCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_TCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */                
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
+            break;
+            
+        case kSaiBusPCMB:
+            BW_I2S_TCR2_BCP(saiBaseAddr,0); /* Bit clock active high */
+            BW_I2S_TCR4_MF(saiBaseAddr, 1); /* MSB transmitted first */
+            BW_I2S_TCR4_FSE(saiBaseAddr,0);/* Frame sync not early */
+            BW_I2S_TCR4_SYWD(saiBaseAddr, 0); /* Only one bit clock in a frame sync */
+            BW_I2S_TCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */                
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */                
+            break;
+            
+        case kSaiBusAC97:
+            BW_I2S_TCR2_BCP(saiBaseAddr,1); /* Bit clock active high */
+            BW_I2S_TCR4_MF(saiBaseAddr,1); /* MSB transmitted first */
+            BW_I2S_TCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_TCR4_FRSZ(saiBaseAddr,12); /* There are 13 words in a frame in AC'97 */
+            BW_I2S_TCR4_SYWD(saiBaseAddr,15); /* Length of frame sync, 16 bit transmitted in first word */
+            BW_I2S_TCR5_W0W(saiBaseAddr,15); /* The first word have 16 bits */
+            BW_I2S_TCR5_WNW(saiBaseAddr,19); /* Other word is 20 bits */
+            break;
+            
         default:
             break;
-    }
-
-}
+        }
+}  
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_rx_bus
+ * Function Name : SAI_HAL_RxSetProtocol
  * Description   : According to the protocol type to set the registers for rx.
  *The protocol can be I2S left, I2S right, I2S and so on.
  *END**************************************************************************/
-void sai_hal_set_rx_bus(uint8_t instance, sai_bus_t bus_mode)
+void SAI_HAL_RxSetProtocol(uint32_t saiBaseAddr,sai_protocol_t protocol)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    
-    switch (bus_mode)
+    switch (protocol)
     {
         case kSaiBusI2SLeft:
-            BW_I2S_RCR2_BCP(instance,1);/*Bit clock polarity */
-            BW_I2S_RCR4_MF(instance,1);/* MSB transmitted fisrt */
-            BW_I2S_RCR4_FSE(instance,1);/* Frame sync one bit early */
-            BW_I2S_RCR4_FSP(instance,1);/* Frame sync polarity, left chennel is high */
+            BW_I2S_RCR2_BCP(saiBaseAddr,1);/* Bit clock polarity */
+            BW_I2S_RCR4_MF(saiBaseAddr,1);/* MSB transmitted fisrt */
+            BW_I2S_RCR4_FSE(saiBaseAddr,0);/*Frame sync one bit early */
+            BW_I2S_RCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left channel is high */
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
             break;
 
         case kSaiBusI2SRight:
-            BW_I2S_RCR2_BCP(instance,1);/* Bit clock polarity */
-            BW_I2S_RCR4_MF(instance,1);/* MSB transmitted fisrt */
-            BW_I2S_RCR4_FSE(instance,1);/* Frame sync one bit early */
-            BW_I2S_RCR4_FSP(instance,1);/* Frame sync polarity, left chennel is high */
+            BW_I2S_RCR2_BCP(saiBaseAddr,1);/* Bit clock polarity */
+            BW_I2S_RCR4_MF(saiBaseAddr,1);/* MSB transmitted fisrt */
+            BW_I2S_RCR4_FSE(saiBaseAddr,0);/*Frame sync one bit early */
+            BW_I2S_RCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
             break;
 
         case kSaiBusI2SType:
-            BW_I2S_RCR2_BCP(instance,1);/* Bit clock polarity */
-            BW_I2S_RCR4_MF(instance,1);/* MSB transmitted fisrt */
-            BW_I2S_RCR4_FSE(instance,1);/* Frame sync one bit early */
-            BW_I2S_RCR4_FSP(instance,0);/* Frame sync polarity, left channel is low */
+            BW_I2S_RCR2_BCP(saiBaseAddr,1);/*Bit clock polarity */
+            BW_I2S_RCR4_MF(saiBaseAddr,1);/*MSB transmitted fisrt */
+            BW_I2S_RCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_RCR4_FSP(saiBaseAddr,1);/* Frame sync polarity, left channel is low */
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
+            break;
+
+        case kSaiBusPCMA:
+            BW_I2S_RCR2_BCP(saiBaseAddr,0); /* Bit clock active high */
+            BW_I2S_RCR4_MF(saiBaseAddr, 1); /* MSB transmitted first */
+            BW_I2S_RCR4_SYWD(saiBaseAddr, 0); /* Only one bit clock in a frame sync */
+            BW_I2S_RCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_RCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */                
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */
+            break;
+            
+        case kSaiBusPCMB:
+            BW_I2S_RCR2_BCP(saiBaseAddr,0); /* Bit clock active high */
+            BW_I2S_RCR4_MF(saiBaseAddr, 1); /* MSB transmitted first */
+            BW_I2S_RCR4_FSE(saiBaseAddr,0);/* Frame sync not early */
+            BW_I2S_RCR4_SYWD(saiBaseAddr, 0); /* Only one bit clock in a frame sync */
+            BW_I2S_RCR4_FSP(saiBaseAddr,0);/* Frame sync polarity, left chennel is high */                
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,1);/* I2S uses 2 word in a frame */                
+            break;
+            
+        case kSaiBusAC97:
+            BW_I2S_RCR2_BCP(saiBaseAddr,1); /* Bit clock active high */
+            BW_I2S_RCR4_MF(saiBaseAddr,1); /* MSB transmitted first */
+            BW_I2S_RCR4_FSE(saiBaseAddr,1);/* Frame sync one bit early */
+            BW_I2S_RCR4_FRSZ(saiBaseAddr,12); /* There are 13 words in a frame in AC'97 */
+            BW_I2S_RCR4_SYWD(saiBaseAddr,15); /* Length of frame sync, 16 bit transmitted in first word */
+            BW_I2S_RCR5_W0W(saiBaseAddr,15); /* The first word have 16 bits */
+            BW_I2S_RCR5_WNW(saiBaseAddr,19); /* Other word is 20 bits */
             break;
 
         default:
@@ -145,14 +212,12 @@ void sai_hal_set_rx_bus(uint8_t instance, sai_bus_t bus_mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_mclk_divider
+ * Function Name : SAI_HAL_SetMclkDiv
  * Description   : Set the divider from the clock source to get the master clock.
  *The function would compute the divider number and set the number to the registers.
  *END**************************************************************************/
-void sai_hal_set_mclk_divider(uint8_t instance, uint32_t mclk, uint32_t src_clk)
+void SAI_HAL_SetMclkDiv(uint32_t saiBaseAddr, uint32_t mclk, uint32_t src_clk)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    
     uint32_t freq = src_clk;
     uint16_t fract, divide;
     uint32_t remaind = 0;
@@ -196,81 +261,82 @@ void sai_hal_set_mclk_divider(uint8_t instance, uint32_t mclk, uint32_t src_clk)
             current_remainder = remaind;
         }
     }
-    HW_I2S_MDR_WR(instance,((uint32_t)(current_fract-1) << (uint32_t)I2S_MDR_FRACT_SHIFT| (uint32_t)(current_divide-1)));
+    BW_I2S_MDR_DIVIDE(saiBaseAddr, current_divide -1);
+    /* Waiting for the divider updated */
+    while(BR_I2S_MCR_DUF(saiBaseAddr))
+    {}
+    BW_I2S_MDR_FRACT(saiBaseAddr, current_fract - 1);
+    /* Waiting for the divider updated */
+    while(BR_I2S_MCR_DUF(saiBaseAddr))
+    {}
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_tx_master_slave
+ * Function Name : SAI_HAL_TxSetMasterSlave
  * Description   : Set the tx master or slave mode.
  *The slave or master mode only would affect the clock direction relevant registers.
  *END**************************************************************************/
-void sai_hal_set_tx_master_slave(uint8_t instance, sai_master_slave_t master_slave_mode)
+void SAI_HAL_TxSetMasterSlave(uint32_t saiBaseAddr, sai_master_slave_t master_slave_mode)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    
     if (master_slave_mode == kSaiMaster)
     {
-        BW_I2S_TCR2_BCD(instance,1);/* Bit clock generated internal */
-        BW_I2S_TCR4_FSD(instance,1);/* Frame sync generated internal */
-        BW_I2S_MCR_MOE(instance,1);/* Master clock generated internal */
-        BW_I2S_TCR4_FSP(instance,1);/*Frame sync polarity */
+        BW_I2S_TCR2_BCD(saiBaseAddr,1);/* Bit clock generated internal */
+        BW_I2S_TCR4_FSD(saiBaseAddr,1);/* Frame sync generated internal */
+        BW_I2S_MCR_MOE(saiBaseAddr,1);/* Master clock generated internal */
     }
     else
     {
-        BW_I2S_TCR2_BCD(instance,0);/* Bit clock generated external */
-        BW_I2S_TCR4_FSD(instance,0);/* Frame sync generated external */
-        BW_I2S_MCR_MOE(instance,0);/* Master clock generated external */
+        BW_I2S_TCR2_BCD(saiBaseAddr,0);/* Bit clock generated external */
+        BW_I2S_TCR4_FSD(saiBaseAddr,0);/* Frame sync generated external */
+        BW_I2S_MCR_MOE(saiBaseAddr,0);/* Master clock generated external */
     }
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_rx_master_slave
+ * Function Name : SAI_HAL_RxSetMasterSlave
  * Description   : Set the rx master or slave mode.
  *The slave or master mode only would affect the clock direction relevant registers.
  *END**************************************************************************/
-void sai_hal_set_rx_master_slave(uint8_t instance, sai_master_slave_t master_slave_mode)
+void SAI_HAL_RxSetMasterSlave(uint32_t saiBaseAddr, sai_master_slave_t master_slave_mode)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    
     if (master_slave_mode == kSaiMaster)
     {
-        BW_I2S_RCR2_BCD(instance,1);
-        BW_I2S_RCR4_FSD(instance,1);
-        BW_I2S_MCR_MOE(instance,1);
+        BW_I2S_RCR2_BCD(saiBaseAddr,1);/* Bit clock generated internal */
+        BW_I2S_RCR4_FSD(saiBaseAddr,1);/* Frame sync generated internal */
+        BW_I2S_MCR_MOE(saiBaseAddr,1);/* Master clock generated internal */
     }
     else
     {
-        BW_I2S_RCR2_BCD(instance,0);
-        BW_I2S_RCR4_FSD(instance,0);
-        BW_I2S_MCR_MOE(instance,0);
+        BW_I2S_RCR2_BCD(saiBaseAddr,0);/* Bit clock generated external */
+        BW_I2S_RCR4_FSD(saiBaseAddr,0);/* Frame sync generated external */
+        BW_I2S_MCR_MOE(saiBaseAddr,0);/* Master clock generated external */
     }
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_tx_sync_mode
+ * Function Name : SAI_HAL_TxSetSyncMode
  * Description   : Set the tx sync mode.
  *Theer are four kinds of sync mode, async, sync, sync with other sai tx, sync with other sai rx.
  *END**************************************************************************/
-void sai_hal_set_tx_sync_mode(uint8_t instance, sai_sync_mode_t sync_mode)
+void SAI_HAL_TxSetSyncMode(uint32_t saiBaseAddr, sai_sync_mode_t sync_mode)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
     switch (sync_mode)
     {
         case kSaiModeAsync:
-            BW_I2S_TCR2_SYNC(instance,0);
+            BW_I2S_TCR2_SYNC(saiBaseAddr,0);
             break;
         case kSaiModeSync:
-            BW_I2S_TCR2_SYNC(instance,1);
-            BW_I2S_RCR2_SYNC(instance,0);/* Receiver must be async mode */
+            BW_I2S_TCR2_SYNC(saiBaseAddr,1);
+            BW_I2S_RCR2_SYNC(saiBaseAddr,0);/* Receiver must be async mode */
             break;
         case kSaiModeSyncWithOtherTx:
-            BW_I2S_TCR2_SYNC(instance,2);
+            BW_I2S_TCR2_SYNC(saiBaseAddr,2);
             break;
         case kSaiModeSyncWithOtherRx:
-            BW_I2S_TCR2_SYNC(instance,3);
+            BW_I2S_TCR2_SYNC(saiBaseAddr,3);
             break;
         default:
             break;
@@ -279,121 +345,56 @@ void sai_hal_set_tx_sync_mode(uint8_t instance, sai_sync_mode_t sync_mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_rx_sync_mode
+ * Function Name : SAI_HAL_RxSetSyncMode
  * Description   : Set the rx sync mode.
- *Theer are four kinds of sync mode, async, sync, sync with other sai rx, sync with other sai tx.
+ *Theer are four kinds of sync mode, async, sync, sync with other sai tx, sync with other sai rx.
  *END**************************************************************************/
-void sai_hal_set_rx_sync_mode(uint8_t instance, sai_sync_mode_t sync_mode)
+void SAI_HAL_RxSetSyncMode(uint32_t saiBaseAddr,sai_sync_mode_t sync_mode)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
     switch (sync_mode)
     {
         case kSaiModeAsync:
-            BW_I2S_RCR2_SYNC(instance,0);
+            BW_I2S_RCR2_SYNC(saiBaseAddr,0);
             break;
         case kSaiModeSync:
-            BW_I2S_RCR2_SYNC(instance,1);
-            BW_I2S_TCR2_SYNC(instance,0);/* TX should be async mode */
+            BW_I2S_RCR2_SYNC(saiBaseAddr,1);
+            BW_I2S_TCR2_SYNC(saiBaseAddr,0);/* Receiver must be async mode */
             break;
         case kSaiModeSyncWithOtherTx:
-            BW_I2S_RCR2_SYNC(instance,3);
+            BW_I2S_RCR2_SYNC(saiBaseAddr,3);
             break;
         case kSaiModeSyncWithOtherRx:
-            BW_I2S_RCR2_SYNC(instance,2);
+            BW_I2S_RCR2_SYNC(saiBaseAddr,2);
             break;
         default:
             break;
-    }
+    }    
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_get_fifo_read_pointer
- * Description   : Get the fifo read pointer.
- *
- *END**************************************************************************/
-uint8_t sai_hal_get_fifo_read_pointer(uint8_t instance, sai_io_mode_t io_mode, uint8_t fifo_channel)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
-    {
-        case kSaiIOModeTransmit:
-            return (uint8_t)BR_I2S_TFRn_RFP(instance,fifo_channel);
-        case kSaiIOModeReceive:
-            return (uint8_t)BR_I2S_RFRn_RFP(instance,fifo_channel);
-        default:
-            break;
-    }
-    return 0;
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_get_fifo_write_pointer
- * Description   : Get the fifo write pointer.
- *
- *END**************************************************************************/
-uint8_t sai_hal_get_fifo_write_pointer(uint8_t instance, sai_io_mode_t io_mode, uint8_t fifo_channel)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
-    {
-        case kSaiIOModeTransmit:
-            return (uint8_t)BR_I2S_TFRn_WFP(instance,fifo_channel);
-        case kSaiIOModeReceive:
-            return (uint8_t)BR_I2S_RFRn_WFP(instance,fifo_channel);
-        default:
-            break;
-    }
-    return 0;
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_get_fifo_address
- * Description   : Get the fifo access address.
- *The return value point to TDR/RDR register which is the interface of FIFO.
- *END**************************************************************************/
-uint32_t* sai_hal_get_fifo_address(uint8_t instance, sai_io_mode_t io_mode, uint8_t fifo_channel)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
-    {
-        case kSaiIOModeTransmit:
-            return (uint32_t *)HW_I2S_TDRn_ADDR(instance, fifo_channel);
-        case kSaiIOModeReceive:
-            return (uint32_t *)HW_I2S_RDRn_ADDR(instance,fifo_channel);
-        default:
-            break;
-    }
-    return NULL; 
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_enable_tx_interrupt
+ * Function Name : SAI_HAL_TxSetIntCmd
  * Description   : Enable the interrupt request source for tx.
  *The source can be word start, sync error, FIFO empty, FIFO error and FIFO request.
  *END**************************************************************************/
-void sai_hal_enable_tx_interrupt(uint8_t instance, sai_interrupt_request_t source)
+void SAI_HAL_TxSetIntCmd(uint32_t saiBaseAddr, sai_interrupt_request_t source, bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
     switch (source)
     {
         case kSaiIntrequestWordStart:
-            BW_I2S_TCSR_WSIE(instance,1);
+            BW_I2S_TCSR_WSIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestSyncError:
-            BW_I2S_TCSR_SEIE(instance,1);
+            BW_I2S_TCSR_SEIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFOWarning:
-            BW_I2S_TCSR_FWIE(instance,1);
+            BW_I2S_TCSR_FWIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFOError:
-            BW_I2S_TCSR_FEIE(instance,1);
+            BW_I2S_TCSR_FEIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFORequest:
-            BW_I2S_TCSR_FRIE(instance,1);
+            BW_I2S_TCSR_FRIE(saiBaseAddr, enable);
             break;
         default:
             break;
@@ -402,29 +403,28 @@ void sai_hal_enable_tx_interrupt(uint8_t instance, sai_interrupt_request_t sourc
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_enable_rx_interrupt
+ * Function Name : SAI_HAL_RxSetIntCmd
  * Description   : Enable the interrupt request source for rx.
  *The source can be word start, sync error, FIFO empty, FIFO error and FIFO request.
  *END**************************************************************************/
-void sai_hal_enable_rx_interrupt(uint8_t instance, sai_interrupt_request_t source)
+void SAI_HAL_RxSetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source,bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (source)
+    switch(source)
     {
         case kSaiIntrequestWordStart:
-            BW_I2S_RCSR_WSIE(instance,1);
+            BW_I2S_RCSR_WSIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestSyncError:
-            BW_I2S_RCSR_SEIE(instance,1);
+            BW_I2S_RCSR_SEIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFOWarning:
-            BW_I2S_RCSR_FWIE(instance,1);
+            BW_I2S_RCSR_FWIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFOError:
-            BW_I2S_RCSR_FEIE(instance,1);
+            BW_I2S_RCSR_FEIE(saiBaseAddr, enable);
             break;
         case kSaiIntrequestFIFORequest:
-            BW_I2S_RCSR_FRIE(instance,1);
+            BW_I2S_RCSR_FRIE(saiBaseAddr, enable);
             break;
         default:
             break;
@@ -433,82 +433,83 @@ void sai_hal_enable_rx_interrupt(uint8_t instance, sai_interrupt_request_t sourc
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_disable_tx_interrupt
- * Description   : Disable the interrupt request source for tx.
+ * Function Name : SAI_HAL_TxGetIntCmd
+ * Description   : Gets state of tx interrupt source.
  *The source can be word start, sync error, FIFO empty, FIFO error and FIFO request.
  *END**************************************************************************/
-void sai_hal_disable_tx_interrupt(uint8_t instance, sai_interrupt_request_t source)
+bool SAI_HAL_TxGetIntCmd(uint32_t saiBaseAddr, sai_interrupt_request_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
+    bool ret = false;
     switch (source)
     {
         case kSaiIntrequestWordStart:
-            BW_I2S_TCSR_WSIE(instance,0);
+            ret = BR_I2S_TCSR_WSIE(saiBaseAddr);
             break;
         case kSaiIntrequestSyncError:
-            BW_I2S_TCSR_SEIE(instance,0);
+            ret = BR_I2S_TCSR_SEIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFOWarning:
-            BW_I2S_TCSR_FWIE(instance,0);
+            ret = BR_I2S_TCSR_FWIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFOError:
-            BW_I2S_TCSR_FEIE(instance,0);
+            ret = BR_I2S_TCSR_FEIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFORequest:
-            BW_I2S_TCSR_FRIE(instance,0);
+            ret = BR_I2S_TCSR_FRIE(saiBaseAddr);
             break;
         default:
             break;
     }
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_disable_rx_interrupt
- * Description   : Disable the interrupt request source for tx.
+ * Function Name : SAI_HAL_RxGetIntCmd
+ * Description   : Gets state of rx interrupt source.
  *The source can be word start, sync error, FIFO empty, FIFO error and FIFO request.
  *END**************************************************************************/
-void sai_hal_disable_rx_interrupt(uint8_t instance, sai_interrupt_request_t source)
+bool SAI_HAL_RxGetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (source)
+    bool ret = false;
+    switch(source)
     {
         case kSaiIntrequestWordStart:
-            BW_I2S_RCSR_WSIE(instance,0);
+            ret = BR_I2S_RCSR_WSIE(saiBaseAddr);
             break;
         case kSaiIntrequestSyncError:
-            BW_I2S_RCSR_SEIE(instance,0);
+            ret = BR_I2S_RCSR_SEIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFOWarning:
-            BW_I2S_RCSR_FWIE(instance,0);
+            ret = BR_I2S_RCSR_FWIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFOError:
-            BW_I2S_RCSR_FEIE(instance,0);
+            ret = BR_I2S_RCSR_FEIE(saiBaseAddr);
             break;
         case kSaiIntrequestFIFORequest:
-            BW_I2S_RCSR_FRIE(instance,0);
+            ret= BR_I2S_RCSR_FRIE(saiBaseAddr);
             break;
         default:
             break;
     }
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_enable_tx_dma
+ * Function Name : SAI_HAL_TxSetDmaCmd
  * Description   : Enable the dma request source for tx.
  *The source can be FIFO empty or FIFO request.
  *END**************************************************************************/
-void sai_hal_enable_tx_dma(uint8_t instance, sai_dma_request_t request)
+void SAI_HAL_TxSetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source, bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (request)
+    switch (source)
     {
         case kSaiDmaReqFIFOWarning:
-            BW_I2S_TCSR_FWDE(instance,1);
+            BW_I2S_TCSR_FWDE(saiBaseAddr, enable);
             break;
         case kSaiDmaReqFIFORequest:
-            BW_I2S_TCSR_FRDE(instance,1);
+            BW_I2S_TCSR_FRDE(saiBaseAddr, enable);
             break;
         default:
             break;
@@ -517,20 +518,19 @@ void sai_hal_enable_tx_dma(uint8_t instance, sai_dma_request_t request)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_enable_rx_dma
+ * Function Name : SAI_HAL_RxSetDmaCmd
  * Description   : Enable the dma request source for rx.
  *The source can be FIFO empty or FIFO request.
  *END**************************************************************************/
-void sai_hal_enable_rx_dma(uint8_t instance, sai_dma_request_t request)
+void SAI_HAL_RxSetDmaCmd(uint32_t saiBaseAddr,sai_dma_request_t source,bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (request)
+    switch (source)
     {
         case kSaiDmaReqFIFOWarning:
-            BW_I2S_RCSR_FWDE(instance,1);
+            BW_I2S_RCSR_FWDE(saiBaseAddr,enable);
             break;
         case kSaiDmaReqFIFORequest:
-            BW_I2S_RCSR_FRDE(instance,1);
+            BW_I2S_RCSR_FRDE(saiBaseAddr,enable);
             break;
         default:
             break;
@@ -539,70 +539,71 @@ void sai_hal_enable_rx_dma(uint8_t instance, sai_dma_request_t request)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_disable_tx_dma
- * Description   : Disable the dma request source for tx.
+ * Function Name : SAI_HAL_TxGetDmaCmd
+ * Description   : Gets state of tx dma request source.
  *The source can be FIFO empty or FIFO request.
  *END**************************************************************************/
-void sai_hal_disable_tx_dma(uint8_t instance, sai_dma_request_t request)
+bool SAI_HAL_TxGetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (request)
+    bool ret = false;
+    switch (source)
     {
         case kSaiDmaReqFIFOWarning:
-            BW_I2S_TCSR_FWDE(instance,0);
+            ret = BR_I2S_TCSR_FWDE(saiBaseAddr);
             break;
         case kSaiDmaReqFIFORequest:
-            BW_I2S_TCSR_FRDE(instance,0);
+            ret = BR_I2S_TCSR_FRDE(saiBaseAddr);
             break;
         default:
             break;
     }
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_disable_rx_dma
- * Description   : Disable the dma request source for rx.
+ * Function Name : SAI_HAL_RxGetDmaCmd
+ * Description   : Gets state of rx dma request source.
  *The source can be FIFO empty or FIFO request.
  *END**************************************************************************/
-void sai_hal_disable_rx_dma(uint8_t instance, sai_dma_request_t request)
+bool SAI_HAL_RxGetDmaCmd(uint32_t saiBaseAddr,sai_dma_request_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (request)
+    bool ret = false;
+    switch (source)
     {
         case kSaiDmaReqFIFOWarning:
-            BW_I2S_RCSR_FWDE(instance,0);
+            ret = BR_I2S_RCSR_FWDE(saiBaseAddr);
             break;
         case kSaiDmaReqFIFORequest:
-            BW_I2S_RCSR_FRDE(instance,0);
+            ret = BR_I2S_RCSR_FRDE(saiBaseAddr);
             break;
         default:
             break;
     }
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_clear_tx_state_flag
+ * Function Name : SAI_HAL_TxClearStateFlag
  * Description   : Clear the state flag of tx registers.
  *The state flag incudes word start flag, sync error flag and fifo error flag.
  *END**************************************************************************/
-void sai_hal_clear_tx_state_flag(uint8_t instance, sai_state_flag_t flag)
+void SAI_HAL_TxClearStateFlag(uint32_t saiBaseAddr, sai_state_flag_t flag)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
     switch (flag)
     {
         case kSaiStateFlagWordStart:
-            BW_I2S_TCSR_WSF(instance,1);/* Write logic 1 to clear this bit */
+            BW_I2S_TCSR_WSF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagSyncError:
-            BW_I2S_TCSR_SEF(instance,1);/* Write logic 1 to clear this bit */
+            BW_I2S_TCSR_SEF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagFIFOError:
-            BW_I2S_TCSR_FEF(instance,1);/* Write logic 1 to clear this bit */
+            BW_I2S_TCSR_FEF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagSoftReset:
-            BW_I2S_TCSR_SR(instance, 0);
+            BW_I2S_TCSR_SR(saiBaseAddr, 0);
             break;
         default:
             break;
@@ -611,26 +612,25 @@ void sai_hal_clear_tx_state_flag(uint8_t instance, sai_state_flag_t flag)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_clear_rx_state_flag
+ * Function Name : SAI_HAL_RxClearStateFlag
  * Description   : Clear the state flag of rx registers.
  *The state flag incudes word start flag, sync error flag and fifo error flag.
  *END**************************************************************************/
-void sai_hal_clear_rx_state_flag(uint8_t instance, sai_state_flag_t flag)
+void SAI_HAL_RxClearStateFlag(uint32_t saiBaseAddr,sai_state_flag_t flag)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
     switch (flag)
     {
         case kSaiStateFlagWordStart:
-            BW_I2S_RCSR_WSF(instance,1);/* Write logic 1 to clear this bit */
+            BW_I2S_RCSR_WSF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagSyncError:
-            BW_I2S_RCSR_SEF(instance,1);
+            BW_I2S_RCSR_SEF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagFIFOError:
-            BW_I2S_RCSR_FEF(instance,1);
+            BW_I2S_RCSR_FEF(saiBaseAddr,1);/* Write logic 1 to clear this bit */
             break;
         case kSaiStateFlagSoftReset:
-            BW_I2S_RCSR_SR(instance, 0);
+            BW_I2S_RCSR_SR(saiBaseAddr, 0);
             break;
         default:
             break;
@@ -639,23 +639,19 @@ void sai_hal_clear_rx_state_flag(uint8_t instance, sai_state_flag_t flag)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_reset_tx
+ * Function Name : SAI_HAL_TxSetReset
  * Description   : Reset tx according to reset mode.
  *The reset mode can be software reset and FIFO reset. 
  *END**************************************************************************/
-void sai_hal_reset_tx(uint8_t instance, sai_reset_type_t mode)
+void SAI_HAL_TxSetReset(uint32_t saiBaseAddr, sai_reset_type_t type)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    uint32_t val = 0;
-    switch (mode)
+    switch (type)
     {
         case kSaiResetTypeSoftware:
-            BW_I2S_TCSR_SR(instance,1);
+            BW_I2S_TCSR_SR(saiBaseAddr,1);
             break;
         case kSaiResetTypeFIFO:
-            val = HW_I2S_TCSR_RD(instance);
-            val |= I2S_TCSR_FR_MASK;
-            HW_I2S_TCSR_WR(instance,val);
+            BW_I2S_TCSR_FR(saiBaseAddr, 1);
             break;
         default:
             break;
@@ -664,23 +660,19 @@ void sai_hal_reset_tx(uint8_t instance, sai_reset_type_t mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_reset_rx
+ * Function Name : SAI_HAL_RxSetReset
  * Description   : Reset rx according to reset mode.
  *The reset mode can be software reset and FIFO reset. 
  *END**************************************************************************/
-void sai_hal_reset_rx(uint8_t instance, sai_reset_type_t mode)
+void SAI_HAL_RxSetReset(uint32_t saiBaseAddr,sai_reset_type_t type)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    uint32_t val = 0;
-    switch (mode)
+    switch (type)
     {
         case kSaiResetTypeSoftware:
-            BW_I2S_RCSR_SR(instance,1);
+            BW_I2S_RCSR_SR(saiBaseAddr,1);
             break;
         case kSaiResetTypeFIFO:
-            val = HW_I2S_TCSR_RD(instance);
-            val |= I2S_TCSR_FR_MASK;
-            HW_I2S_TCSR_WR(instance,val);
+            BW_I2S_RCSR_FR(saiBaseAddr, 1);
             break;
         default:
             break;
@@ -689,20 +681,19 @@ void sai_hal_reset_rx(uint8_t instance, sai_reset_type_t mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_tx_mode
+ * Function Name : SAI_HAL_TxSetRunModeCmd
  * Description   : Set the work mode for tx.
  *The work mode have stop mode, debug mode and normal mode. 
  *END**************************************************************************/
-void sai_hal_set_tx_mode(uint8_t instance, sai_mode_t mode)
+void SAI_HAL_TxSetRunModeCmd(uint32_t saiBaseAddr, sai_run_mode_t run_mode, bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (mode)
+    switch (run_mode)
     {
         case kSaiRunModeStop:
-            BW_I2S_TCSR_STOPE(instance,1);/* Stop mode */
+            BW_I2S_TCSR_STOPE(saiBaseAddr, enable);/* Stop mode */
             break;
         case kSaiRunModeDebug:
-            BW_I2S_TCSR_DBGE(instance,1);/* Debug mode */
+            BW_I2S_TCSR_DBGE(saiBaseAddr, enable);/* Debug mode */
             break;
         default:
             break;
@@ -711,20 +702,19 @@ void sai_hal_set_tx_mode(uint8_t instance, sai_mode_t mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_rx_mode
+ * Function Name : SAI_HAL_RxSetRunModeCmd
  * Description   : Set the work mode for rx.
  *The work mode have stop mode, debug mode and normal mode. 
  *END**************************************************************************/
-void sai_hal_set_rx_mode(uint8_t instance, sai_mode_t mode)
+void SAI_HAL_RxSetRunModeCmd(uint32_t saiBaseAddr,sai_run_mode_t run_mode,bool enable)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (mode)
+    switch (run_mode)
     {
         case kSaiRunModeStop:
-            BW_I2S_RCSR_STOPE(instance,1);
+            BW_I2S_RCSR_STOPE(saiBaseAddr, enable);/* Stop mode */
             break;
         case kSaiRunModeDebug:
-            BW_I2S_RCSR_DBGE(instance,1);
+            BW_I2S_RCSR_DBGE(saiBaseAddr, enable);/* Debug mode */
             break;
         default:
             break;
@@ -733,160 +723,113 @@ void sai_hal_set_rx_mode(uint8_t instance, sai_mode_t mode)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_set_tx_bclk_swap
- * Description   : Swap the tx bit clock.
- *If the user want to swap the bit clock, just set bool variable to true. 
+ * Function Name : SAI_HAL_TxGetFlagState
+ * Description   : Get the state flag value of tx.
+ *The state flag includes fifo error, fifo warning, fifo request, software reset,
+ * sync error and word start.
  *END**************************************************************************/
-void sai_hal_set_tx_bclk_swap(uint8_t instance, bool ifswap)
+bool SAI_HAL_TxGetStateFlag(uint32_t saiBaseAddr,sai_state_flag_t flag)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    if (ifswap)/* Swap the bit clock */
+    bool ret = false;
+    switch(flag)
     {
-        BW_I2S_TCR2_BCS(instance,1);
-    }
-    else
-    {
-        BW_I2S_TCR2_BCS(instance,0);
-    }
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_set_rx_bclk_swap
- * Description   : Swap the rx bit clock.
- *If the user want to swap the bit clock, just set bool variable to true. 
- *END**************************************************************************/
-void sai_hal_set_rx_bclk_swap(uint8_t instance, bool ifswap)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    if (ifswap)/* Swap the bit clock */
-    {
-        BW_I2S_RCR2_BCS(instance,1);
-    }
-    else
-    {
-        BW_I2S_RCR2_BCS(instance,0);
-    }
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_mclk_divider_is_update
- * Description   :Get the state if the master clock divider is updating.
- *
- *END**************************************************************************/
-bool sai_hal_mclk_divider_is_update(uint8_t instance)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    return BR_I2S_MCR_DUF(instance);
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_word_start_is_detected
- * Description   : The function would tell the user if the word start bit is set.
- * The bit is set by hardware. 
- *END**************************************************************************/
-bool sai_hal_word_start_is_detected(uint8_t instance, sai_io_mode_t io_mode)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
-    {
-        case kSaiIOModeTransmit:
-            return BR_I2S_TCSR_WSF(instance);
-        case kSaiIOModeReceive:
-            return BR_I2S_RCSR_WSF(instance);
+        case kSaiStateFlagFIFOError:
+            ret = BR_I2S_TCSR_FEF(saiBaseAddr);
+            break;
+        case kSaiStateFlagFIFORequest:
+            ret = BR_I2S_TCSR_FRF(saiBaseAddr);
+            break;
+        case kSaiStateFlagFIFOWarning:
+            ret = BR_I2S_TCSR_FWF(saiBaseAddr);
+            break;
+        case kSaiStateFlagSoftReset:
+            ret = BR_I2S_TCSR_SR(saiBaseAddr);
+            break;
+        case kSaiStateFlagSyncError:
+            ret = BR_I2S_TCSR_SEF(saiBaseAddr);
+            break;
+        case kSaiStateFlagWordStart:
+            ret = BR_I2S_TCSR_WSF(saiBaseAddr);
+            break;
         default:
             break;
     }
-    return false;
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_sync_error_is_detected
- * Description   : The function would tell the user if the sync error bit is set. 
- * The bit is set by hardware.
+ * Function Name : SAI_HAL_RxGetFlagState
+ * Description   : Get the state flag value of rx.
+ *The state flag includes fifo error, fifo warning, fifo request, software reset,
+ * sync error and word start.
  *END**************************************************************************/
-bool sai_hal_sync_error_is_detected(uint8_t instance, sai_io_mode_t io_mode)
+bool SAI_HAL_RxGetStateFlag(uint32_t saiBaseAddr,sai_state_flag_t flag)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
+    bool ret = false;
+    switch(flag)
     {
-        case kSaiIOModeTransmit:
-            return BR_I2S_TCSR_SEF(instance);
-        case kSaiIOModeReceive:
-            return BR_I2S_RCSR_SEF(instance);
+        case kSaiStateFlagFIFOError:
+            ret = BR_I2S_RCSR_FEF(saiBaseAddr);
+            break;
+        case kSaiStateFlagFIFORequest:
+            ret = BR_I2S_RCSR_FRF(saiBaseAddr);
+            break;
+        case kSaiStateFlagFIFOWarning:
+            ret = BR_I2S_RCSR_FWF(saiBaseAddr);
+            break;
+        case kSaiStateFlagSoftReset:
+            ret = BR_I2S_RCSR_SR(saiBaseAddr);
+            break;
+        case kSaiStateFlagSyncError:
+            ret = BR_I2S_RCSR_SEF(saiBaseAddr);
+            break;
+        case kSaiStateFlagWordStart:
+            ret = BR_I2S_RCSR_WSF(saiBaseAddr);
+            break;
         default:
             break;
     }
-    return false;
+    return ret;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_fifo_warning_is_detected
- * Description   : The function would tell the user if the fifo warning bit is set. 
- * The bit is set by hardware.
+ * Function Name : SAI_HAL_ReceiveDataBlocking
+ * Description   : Receive data in blocking way.
+ *The sending would wait until there is vaild data in FIFO for reading.
  *END**************************************************************************/
-bool sai_hal_fifo_warning_is_detected(uint8_t instance, sai_io_mode_t io_mode)
+uint32_t SAI_HAL_ReceiveDataBlocking(uint32_t saiBaseAddr,uint32_t rx_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
+    assert(rx_channel < FSL_FEATURE_SAI_CHANNEL_COUNT);
+    /* Wait while fifo is empty */
+    uint8_t w_ptr = BR_I2S_RFRn_WFP(saiBaseAddr,rx_channel);
+    uint8_t r_ptr = BR_I2S_RFRn_RFP(saiBaseAddr,rx_channel);
+    while(w_ptr == r_ptr)
     {
-        case kSaiIOModeTransmit:
-            return BR_I2S_TCSR_FWF(instance);
-        case kSaiIOModeReceive:
-            return BR_I2S_RCSR_FWF(instance);
-        default:
-            break;
+        w_ptr = BR_I2S_RFRn_WFP(saiBaseAddr,rx_channel);
+        r_ptr = BR_I2S_RFRn_RFP(saiBaseAddr,rx_channel);
     }
-    return false;
+    return BR_I2S_RDRn_RDR(saiBaseAddr,rx_channel);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sai_hal_fifo_error_is_detected
- * Description   : The function would tell the user if the fifo error bit is set. 
- * The bit is set by hardware.
+ * Function Name : SAI_HAL_SendDataBlocking
+ * Description   : Send data in blocking way.
+ *The sending would wait until there is space for writing.
  *END**************************************************************************/
-bool sai_hal_fifo_error_is_detected(uint8_t instance, sai_io_mode_t io_mode)
+void SAI_HAL_SendDataBlocking(uint32_t saiBaseAddr,uint32_t tx_channel,uint32_t data)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
+    assert(tx_channel < FSL_FEATURE_SAI_CHANNEL_COUNT);
+    /* Wait while fifo is full */
+    uint8_t w_ptr = BR_I2S_TFRn_WFP(saiBaseAddr,tx_channel);
+    uint8_t r_ptr = BR_I2S_TFRn_RFP(saiBaseAddr,tx_channel);
+    while((w_ptr ^ r_ptr) == 0x8)
     {
-        case kSaiIOModeTransmit:
-            return BR_I2S_TCSR_FEF(instance);
-        case kSaiIOModeReceive:
-            return BR_I2S_RCSR_FEF(instance);
-        default:
-            break;
+        w_ptr = BR_I2S_TFRn_WFP(saiBaseAddr,tx_channel);
+        r_ptr = BR_I2S_TFRn_RFP(saiBaseAddr,tx_channel);
     }
-    return false;
+    BW_I2S_TDRn_TDR(saiBaseAddr, tx_channel, data);
 }
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : sai_hal_fifo_request_is_detected
- * Description   : The function would tell the user if the fifo request bit is set. 
- * The bit is set by hardware.
- *END**************************************************************************/
-bool sai_hal_fifo_request_is_detected(uint8_t instance, sai_io_mode_t io_mode)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    switch (io_mode)
-    {
-        case kSaiIOModeTransmit:
-            return BR_I2S_TCSR_FRF(instance);
-        case kSaiIOModeReceive:
-            return BR_I2S_RCSR_FRF(instance);
-        default:
-            break;
-    }
-    return false;
-}
-
-/******************************************************************************
-*EOF
-******************************************************************************/
 

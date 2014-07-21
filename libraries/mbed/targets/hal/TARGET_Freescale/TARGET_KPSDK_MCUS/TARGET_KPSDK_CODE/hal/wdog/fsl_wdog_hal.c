@@ -38,198 +38,35 @@
  * Variables
  *******************************************************************************/
 
-/*! 
- * @brief Watchdog internal config buffer to handle control and
- *  configure register's write-once-only character.
- *  Reset value of WDOG_STCTRLH is 0x1D3 
- */
-static volatile uint32_t s_wdogSTCTRLH = 0x1D3;
-
 /*******************************************************************************
  * Code
- *******************************************************************************/
-
-/*FUNCTION****************************************************************
+ ******************************************************************************/
+ 
+/*FUNCTION**********************************************************************
  *
- * Function Name : wdog_hal_enable 
- * Description   : Enable watchdog module. Should be called after all 
- * necessary configure have been set.
- * This function is used to enable the WDOG and must be called after all 
- * necessary configure have been set.
+ * Function Name : WDOG_HAL_Init
+ * Description   : Initialize WDOG peripheral to reset state.
  *
- *END*********************************************************************/
-void wdog_hal_enable(void)
+ *END**************************************************************************/
+void WDOG_HAL_Init(uint32_t baseAddr)
 {
-    s_wdogSTCTRLH |= BM_WDOG_STCTRLH_WDOGEN;
-    HW_WDOG_STCTRLH_WR(s_wdogSTCTRLH);
-}
+    wdog_common_config wdogCommonConfig;
+    wdogCommonConfig.commonConfig.workInWaitModeEnable = (uint8_t)true;
+    wdogCommonConfig.commonConfig.workInDebugModeEnable = (uint8_t)false;
+    wdogCommonConfig.commonConfig.workInStopModeEnable = (uint8_t)true;
+    wdogCommonConfig.commonConfig.clockSource = (uint8_t)kWdogClockSourceBusClock;
+    wdogCommonConfig.commonConfig.interruptEnable = (uint8_t)false;
+    wdogCommonConfig.commonConfig.windowModeEnable = (uint8_t)false;
+    wdogCommonConfig.commonConfig.updateRegisterEnable = (uint8_t)true; 
+    wdogCommonConfig.commonConfig.wdogEnable = (uint8_t)(true);
 
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_disable 
- * Description   : Disable watchdog module.
- * This function is used to disable the WDOG.
- *
- *END*********************************************************************/
-void wdog_hal_disable(void)
-{
-    s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_WDOGEN;
-    HW_WDOG_STCTRLH_WR(s_wdogSTCTRLH);
-}
+    WDOG_HAL_Unlock(baseAddr);
+    WDOG_HAL_SetTimeoutValue(baseAddr, 0x004C4B4CU);
+    WDOG_HAL_SetWindowValue(baseAddr, 0);
+    WDOG_HAL_SetClockPrescalerValueMode(baseAddr, kWdogClockPrescalerValueDevide5);
+    WDOG_HAL_ClearIntFlag(baseAddr);
+    WDOG_HAL_SetCommonConfig(baseAddr, wdogCommonConfig);
 
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_interrupt 
- * Description   : Enable and disable watchdog interrupt.
- * This function is used to configure the WDOG interrupt.
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_interrupt(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_IRQRSTEN;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_IRQRSTEN;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_set_clock_source 
- * Description   : set watchdog clock Source
- * This function is used to set the WDOG clock source, there are two clock sources can be used,
- * one is LPO clock and the other is bus clock.
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_set_clock_source(wdog_clock_source_t clockSource)
-{
-    if (kWdogDedicatedClock == clockSource)
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_CLKSRC;
-    }
-    else
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_CLKSRC;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_window_mode 
- * Description   : Enable and disable watchdog window mode
- * This function is used to configure the WDOG window mode.
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_window_mode(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_WINEN;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_WINEN;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_register_update 
- * Description   : Enable and disable watchdog write-once-only register update
- * This function is used to configure the WDOG register update feature, if disable means that
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_register_update(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_ALLOWUPDATE;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_ALLOWUPDATE;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_enabled_in_cpu_debug_mode 
- * Description   : Set whether watchdog is working while cpu is in debug mode
- * This function is used to configure whether the WDOG is enabled in CPU debug mode. 
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_enabled_in_cpu_debug_mode(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_DBGEN;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_DBGEN;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_enabled_in_cpu_stop_mode 
- * Description   : Set whether watchdog is working while cpu is in stop mode
- * This function is used to configure whether the WDOG is enabled in CPU stop mode. 
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_enabled_in_cpu_stop_mode(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_STOPEN;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_STOPEN;
-    }
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name : wdog_hal_configure_enabled_in_cpu_wait_mode 
- * Description   : Set whether watchdog is working while cpu is in wait mode
- * This function is used to configure whether the WDOG is enabled in CPU wait mode. 
- * Configure is saved in internal configure buffer and write back to 
- * register in wdog_hal_enable function, so this function must be 
- * called before wdog_hal_enable is called.
- *
- *END*********************************************************************/
-void wdog_hal_configure_enabled_in_cpu_wait_mode(bool isEnabled)
-{
-    if (isEnabled)
-    {
-        s_wdogSTCTRLH |= BM_WDOG_STCTRLH_WAITEN;
-    }
-    else
-    {
-        s_wdogSTCTRLH &= ~BM_WDOG_STCTRLH_WAITEN;
-    }
 }
 
 /*******************************************************************************

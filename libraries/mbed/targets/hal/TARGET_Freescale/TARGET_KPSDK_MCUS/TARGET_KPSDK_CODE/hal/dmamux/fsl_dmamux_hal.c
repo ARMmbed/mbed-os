@@ -39,15 +39,14 @@
  * Description   : Initialize the dmamux module to the reset state.
  *
  *END**************************************************************************/
-void dmamux_hal_init(uint8_t module)
+void DMAMUX_HAL_Init(uint32_t baseAddr)
 {
-    assert(module < HW_DMAMUX_INSTANCE_COUNT);
     int i;
 
     for (i = 0; i < FSL_FEATURE_DMAMUX_MODULE_CHANNEL; i++)
     {
-        BW_DMAMUX_CHCFGn_ENBL(module, i, 0U);
-        BW_DMAMUX_CHCFGn_SOURCE(module, i, 0U);
+        BW_DMAMUX_CHCFGn_ENBL(baseAddr, i, 0U);
+        BW_DMAMUX_CHCFGn_SOURCE(baseAddr, i, 0U);
     }
 }
 

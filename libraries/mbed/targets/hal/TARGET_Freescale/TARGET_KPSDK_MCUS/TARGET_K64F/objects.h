@@ -50,6 +50,7 @@ struct analogin_s {
 
 struct i2c_s {
     uint32_t instance;
+    uint32_t address;
 };
 
 struct spi_s {

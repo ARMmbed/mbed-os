@@ -35,43 +35,40 @@
  ******************************************************************************/
 /*FUNCTION**********************************************************************
  *
- * Function Name : gpio_hal_set_pin_direction
+ * Function Name : GPIO_HAL_SetPinDir
  * Description   : Set individual gpio pin to general input or output.
  *
  *END**************************************************************************/
-void gpio_hal_set_pin_direction(uint32_t instance, uint32_t pin,
-                                gpio_pin_direction_t direction)
+void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin, gpio_pin_direction_t direction)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
 
-    if (kGpioDigitalOutput == direction)
+    if (direction == kGpioDigitalOutput)
     {
-        HW_GPIO_PDDR_WR(instance, ((uint32_t)1 << pin) | HW_GPIO_PDDR_RD(instance));  
+        HW_GPIO_PDDR_SET(baseAddr, 1U << pin);
     }
     else
     {
-        HW_GPIO_PDDR_WR(instance, (~((uint32_t)1 << pin)) & HW_GPIO_PDDR_RD(instance));
+        HW_GPIO_PDDR_CLR(baseAddr, 1U << pin);
     }
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : gpio_hal_write_pin_output
+ * Function Name : GPIO_HAL_WritePinOutput
  * Description   : Set output level of individual gpio pin to logic 1 or 0.
  *
  *END**************************************************************************/
-void gpio_hal_write_pin_output(uint32_t instance, uint32_t pin, uint32_t output)
+void GPIO_HAL_WritePinOutput(uint32_t baseAddr, uint32_t pin, uint32_t output)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
     if (output != 0U)
     {
-        gpio_hal_set_pin_output(instance, pin); /* Set pin output to high level.*/
+        HW_GPIO_PSOR_WR(baseAddr, 1U << pin); /* Set pin output to high level.*/
     }
     else
     {
-        gpio_hal_clear_pin_output(instance, pin); /* Set pin output to low level.*/
+        HW_GPIO_PCOR_WR(baseAddr, 1U << pin); /* Set pin output to low level.*/
     }
 }
 
