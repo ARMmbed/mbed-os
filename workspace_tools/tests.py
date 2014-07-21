@@ -128,7 +128,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088", "LPC1549"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "EFM32LG_STK3600", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
