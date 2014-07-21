@@ -10,6 +10,10 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
+#elif defined(TARGET_EFM32LG_STK3600)
+DigitalInOut d1(PB_12);
+DigitalInOut d2(PD_5);
+
 #elif defined(TARGET_NUCLEO_F103RB)
 DigitalInOut d1(PC_6);
 DigitalInOut d2(PB_8);
