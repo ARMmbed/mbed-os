@@ -161,6 +161,7 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_DISK = "IOERR_DISK"
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
+    TEST_RESULT_NO_IMAGE = "NO_IMAGE"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -174,6 +175,7 @@ class SingleTestRunner(object):
                            "ioerr_disk" : TEST_RESULT_IOERR_DISK,
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
+                           "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF}
 
     def __init__(self, _global_loops_count=1, _test_loops_list=""):
@@ -270,8 +272,8 @@ class SingleTestRunner(object):
                 break
 
         if mut is None:
-            print "Error: No mbed available: mut[%s]" % data['mcu']
-            return
+            print "Error: No Mbed available: MUT[%s]" % data['mcu']
+            return None
 
         disk = mut['disk']
         port = mut['port']
@@ -284,9 +286,10 @@ class SingleTestRunner(object):
         if not exists(image_path):
             print "Error: Image file does not exist: %s" % image_path
             elapsed_time = 0
-            test_result = "{error}"
+            test_result = self.TEST_RESULT_NO_IMAGE
             return (test_result, target_name, toolchain_name,
-                    test_id, test_description, round(elapsed_time, 2), duration)
+                    test_id, test_description, round(elapsed_time, 2),
+                    duration, self.shape_test_loop_ok_result_count([]))
 
         # Program MUT with proper image file
         if not disk.endswith('/') and not disk.endswith('\\'):
@@ -719,6 +722,7 @@ def generate_test_summary(test_summary):
                    single_test.TEST_RESULT_IOERR_COPY : 0,
                    single_test.TEST_RESULT_IOERR_DISK : 0,
                    single_test.TEST_RESULT_IOERR_SERIAL : 0,
+                   single_test.TEST_RESULT_NO_IMAGE : 0,
                    single_test.TEST_RESULT_TIMEOUT : 0 }
 
     for test in test_summary:
@@ -1020,7 +1024,8 @@ if __name__ == '__main__':
                     test_spec = shape_test_request(target, path, test_id, test.duration)
                     test_loops = single_test.get_test_loop_count(test_id)
                     single_test_result = single_test.handle(test_spec, target, toolchain, test_loops=test_loops)
-                    test_summary.append(single_test_result)
+                    if single_test_result is not None:
+                        test_summary.append(single_test_result)
                     # print test_spec, target, toolchain
 
     elapsed_time = time() - start
