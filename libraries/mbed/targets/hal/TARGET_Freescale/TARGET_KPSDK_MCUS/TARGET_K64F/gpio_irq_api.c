@@ -81,7 +81,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->pin = pin & 0x7F;
 
     uint32_t ch_base = 0;
-    uint32_t vector = gpio_irqA;
+    uint32_t vector = (uint32_t)gpio_irqA;
     IRQn_Type irq_n = PORTA_IRQn;
     switch (obj->port) {
         case PortA:
