@@ -11,6 +11,10 @@ void led_blink(PinName led, float delay) {
     while(1);
 }
 
+void notify_start() {
+    printf("{{start}}" NL);
+}
+
 void notify_completion(bool success) {
     if (success) {
         printf("{{success}}" NL);

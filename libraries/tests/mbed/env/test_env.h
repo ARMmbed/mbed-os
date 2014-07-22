@@ -8,6 +8,8 @@
 
 void led_blink(PinName led, float delay);
 
+void notify_start();
+
 void notify_completion(bool success);
 
 #endif
