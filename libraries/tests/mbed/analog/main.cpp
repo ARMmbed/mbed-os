@@ -17,8 +17,8 @@ AnalogIn in(PTB0);
 AnalogOut out(PTE30);
 
 #elif defined(TARGET_EFM32LG_STK3600)
-AnalogIn in(PD_5);
-AnalogOut out(PB_12);
+AnalogIn in(PD5);
+AnalogOut out(PB12);
 
 #elif defined(TARGET_LPC1549)
 AnalogIn in(A0);

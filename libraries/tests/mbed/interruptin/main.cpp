@@ -18,8 +18,8 @@ void in_handler() {
 #define PIN_IN      PTB1
 
 #elif defined(TARGET_EFM32LG_STK3600)
-#define PIN_OUT     PB_12
-#define PIN_IN      PD_5
+#define PIN_OUT     PB12
+#define PIN_IN      PD5
 
 #elif defined(TARGET_LPC812)
 #define PIN_OUT     D10
