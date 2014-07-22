@@ -69,20 +69,6 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {NC   , NC   , 0}
 };
 
-static void spi_set_delays(uint32_t instance) {
-    dspi_delay_settings_config_t delay_config;
-    delay_config.pcsToSck = 1;            /*!< PCS to SCK delay (CSSCK): initialize the scalar
-                                          *   value to '1' to provide the master with a little
-                                          *   more data-in read setup time.
-                                          */
-    delay_config.pcsToSckPre = 0;         /*!< PCS to SCK delay prescalar (PCSSCK) */
-    delay_config.afterSckPre = 0;         /*!< After SCK delay prescalar (PASC)*/
-    delay_config.afterSck = 0;            /*!< After SCK delay scalar (ASC)*/
-    delay_config.afterTransferPre = 0;    /*!< Delay after transfer prescalar (PDT)*/
-    delay_config.afterTransfer = 0;
-    dspi_hal_configure_delays(instance, kDspiCtar0, &delay_config);
-}
-
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -95,21 +81,21 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->instance = pinmap_merge(spi_data, spi_cntl);
     MBED_ASSERT((int)obj->instance != NC);
 
-    // enable power and clocking
-    clock_manager_set_gate(kClockModuleSPI, obj->instance, true);
-
-    dspi_hal_disable(obj->instance);
+    CLOCK_SYS_EnableSpiClock(obj->instance);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    DSPI_HAL_Init(spi_address[obj->instance]);
+    DSPI_HAL_Disable(spi_address[obj->instance]);
     // set default format and frequency
     if (ssel == NC) {
         spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
     } else {
         spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
     }
-    spi_set_delays(obj->instance);
+    DSPI_HAL_SetDelay(spi_address[obj->instance], kDspiCtar0, 0, 0, kDspiPcsToSck);
     spi_frequency(obj, 1000000);
 
-    dspi_hal_enable(obj->instance);
-    dspi_hal_start_transfer(obj->instance);
+    DSPI_HAL_Enable(spi_address[obj->instance]);
+    DSPI_HAL_StartTransfer(spi_address[obj->instance]);
 
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -129,45 +115,51 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     config.clkPolarity = (mode & 0x2) ? kDspiClockPolarity_ActiveLow : kDspiClockPolarity_ActiveHigh;
     config.clkPhase = (mode & 0x1) ? kDspiClockPhase_SecondEdge : kDspiClockPhase_FirstEdge;
     config.direction = kDspiMsbFirst;
-    dspi_status_t result = dspi_hal_configure_data_format(obj->instance, kDspiCtar0, &config);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    dspi_status_t result = DSPI_HAL_SetDataFormat(spi_address[obj->instance], kDspiCtar0, &config);
     if (result != kStatus_DSPI_Success) {
         error("Failed to configure SPI data format");
     }
 
     if (slave) {
-        dspi_hal_set_master_slave(obj->instance, kDspiSlave);
+        DSPI_HAL_SetMasterSlaveMode(spi_address[obj->instance], kDspiSlave);
     } else {
-        dspi_hal_set_master_slave(obj->instance, kDspiMaster);
+        DSPI_HAL_SetMasterSlaveMode(spi_address[obj->instance], kDspiMaster);
     }
 }
 
 void spi_frequency(spi_t *obj, int hz) {
     uint32_t busClock;
-    clock_manager_get_frequency(kBusClock, &busClock);
-    dspi_hal_set_baud(obj->instance, kDspiCtar0, (uint32_t)hz, busClock);
+    CLOCK_SYS_GetFreq(kBusClock, &busClock);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    DSPI_HAL_SetBaudRate(spi_address[obj->instance], kDspiCtar0, (uint32_t)hz, busClock);
 }
 
 static inline int spi_writeable(spi_t * obj) {
-    return dspi_hal_get_status_flag(obj->instance, kDspiTxFifoFillRequest);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    return DSPI_HAL_GetStatusFlag(spi_address[obj->instance], kDspiTxFifoFillRequest);
 }
 
 static inline int spi_readable(spi_t * obj) {
-    return dspi_hal_get_status_flag(obj->instance, kDspiRxFifoDrainRequest);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    return DSPI_HAL_GetStatusFlag(spi_address[obj->instance], kDspiRxFifoDrainRequest);
 }
 
 int spi_master_write(spi_t *obj, int value) {
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+
     // wait tx buffer empty
     while(!spi_writeable(obj));
     dspi_command_config_t command = {0};
     command.isEndOfQueue = true;
     command.isChipSelectContinuous = 0;
-    dspi_hal_write_data_master_mode(obj->instance, &command, (uint16_t)value);
-    dspi_hal_clear_status_flag(obj->instance, kDspiTxFifoFillRequest);
+    DSPI_HAL_WriteDataMastermode(spi_address[obj->instance], &command, (uint16_t)value);
+    DSPI_HAL_ClearStatusFlag(spi_address[obj->instance], kDspiTxFifoFillRequest);
 
     // wait rx buffer full
     while (!spi_readable(obj));
-    dspi_hal_clear_status_flag(obj->instance, kDspiRxFifoDrainRequest);
-    return dspi_hal_read_data(obj->instance) & 0xff;
+    DSPI_HAL_ClearStatusFlag(spi_address[obj->instance], kDspiRxFifoDrainRequest);
+    return DSPI_HAL_ReadData(spi_address[obj->instance]) & 0xff;
 }
 
 int spi_slave_receive(spi_t *obj) {
@@ -175,10 +167,12 @@ int spi_slave_receive(spi_t *obj) {
 }
 
 int spi_slave_read(spi_t *obj) {
-    return dspi_hal_read_data(obj->instance);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    return DSPI_HAL_ReadData(spi_address[obj->instance]);
 }
 
 void spi_slave_write(spi_t *obj, int value) {
     while (!spi_writeable(obj));
-    dspi_hal_write_data_slave_mode(obj->instance, (uint32_t)value);
+    uint32_t spi_address[] = SPI_BASE_ADDRS;
+    DSPI_HAL_WriteDataSlavemode(spi_address[obj->instance], (uint32_t)value);
 }

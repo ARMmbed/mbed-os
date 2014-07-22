@@ -21,6 +21,7 @@
 #include "PeripheralNames.h"
 #include "fsl_adc_hal.h"
 #include "fsl_clock_manager.h"
+#include "fsl_device_registers.h"
 
 #define MAX_FADC 6000000
 
@@ -52,7 +53,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
-    uint32_t adc_addr = ADC_BASE_ADDRS[instance];
+    uint32_t adc_addrs[] = ADC_BASE_ADDRS;
 
     CLOCK_SYS_EnableAdcClock(instance);
 
@@ -67,27 +68,27 @@ void analogin_init(analogin_t *obj, PinName pin) {
         clkdiv = 0x7; //Set max div
     }
     /* adc is enabled/triggered when reading. */
-    ADC_HAL_Init(adc_addr);
-    ADC_HAL_SetClkSrcMode(adc_addr, (adc_clock_source_mode_t)(clkdiv >> 2));
-    ADC_HAL_SetClkDividerMode(adc_addr, (adc_clock_divider_mode_t)(clkdiv & 0x3));
-    ADC_HAL_SetRefVoltSrcMode(adc_addr, kAdcRefVoltSrcOfVref);
-    ADC_HAL_SetResolutionMode(adc_addr, kAdcResolutionBitOfSingleEndAs16);
-    ADC_HAL_SetContinuousConvCmd(adc_addr, false);
-    ADC_HAL_SetHwTriggerCmd(adc_addr, false); /* sw trigger */
-    ADC_HAL_SetHwAverageCmd(adc_addr, true);
-    ADC_HAL_SetHwAverageMode(adc_addr, kAdcHwAverageCountOf4);
-    ADC_HAL_SetChnMuxMode(adc_addr, kAdcChnMuxOfB); /* only B channels are avail */
+    ADC_HAL_Init(adc_addrs[instance]);
+    ADC_HAL_SetClkSrcMode(adc_addrs[instance], (adc_clk_src_mode_t)(clkdiv >> 2));
+    ADC_HAL_SetClkDividerMode(adc_addrs[instance], (adc_clk_divider_mode_t)(clkdiv & 0x3));
+    ADC_HAL_SetRefVoltSrcMode(adc_addrs[instance], kAdcRefVoltSrcOfVref);
+    ADC_HAL_SetResolutionMode(adc_addrs[instance], kAdcResolutionBitOfSingleEndAs16);
+    ADC_HAL_SetContinuousConvCmd(adc_addrs[instance], false);
+    ADC_HAL_SetHwTriggerCmd(adc_addrs[instance], false); /* sw trigger */
+    ADC_HAL_SetHwAverageCmd(adc_addrs[instance], true);
+    ADC_HAL_SetHwAverageMode(adc_addrs[instance], kAdcHwAverageCountOf4);
+    ADC_HAL_SetChnMuxMode(adc_addrs[instance], kAdcChnMuxOfB); /* only B channels are avail */
 
     pinmap_pinout(pin, PinMap_ADC);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj) {
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
-    uint32_t adc_addr = ADC_BASE_ADDRS[instance];
+    uint32_t adc_addrs[] = ADC_BASE_ADDRS;
     /* sw trigger (SC1A) */
-    ADC_HAL_ConfigChn(adc_addr, 0, false, false, obj->adc & 0xF);
-    while (!ADC_HAL_GetChnConvCompletedCmd(instance, 0));
-    return ADC_DRV_GetConvValueRAW(adc_addr, 0);
+    ADC_HAL_ConfigChn(adc_addrs[instance], 0, false, false, obj->adc & 0xF);
+    while (!ADC_HAL_GetChnConvCompletedCmd(adc_addrs[instance], 0));
+    return ADC_HAL_GetChnConvValueRAW(adc_addrs[instance], 0);
 }
 
 float analogin_read(analogin_t *obj) {

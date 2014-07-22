@@ -19,7 +19,6 @@
 #include "fsl_pit_hal.h"
 #include "fsl_sim_hal.h"
 #include "fsl_clock_manager.h"
-#include "fsl_clock_configs.h"
 
 static void pit_init(void);
 static void lptmr_init(void);
@@ -42,7 +41,7 @@ uint32_t us_ticker_read() {
         us_ticker_init();
     }
 
-    return ~(pit_hal_read_timer_count(1));
+    return ~(PIT_HAL_ReadTimerCount(PIT_BASE, 1));
 }
 /******************************************************************************
  * Timer for us timing.
@@ -50,15 +49,15 @@ uint32_t us_ticker_read() {
 static void pit_init(void) {
     uint32_t busClock;
 
-    clock_hal_set_gate(kSimClockModulePIT, 0, true);
-    pit_hal_enable();
-    clock_manager_get_frequency(kBusClock, &busClock);
-    pit_hal_set_timer_period_count(0, busClock / 1000000 - 1);
-    pit_hal_set_timer_period_count(1, 0xFFFFFFFF);
-    pit_hal_configure_timer_chain(1, true);
+    CLOCK_SYS_EnablePitClock(0);
+    PIT_HAL_Enable(PIT_BASE);
+    CLOCK_SYS_GetFreq(kBusClock, &busClock);
+    PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 0, busClock / 1000000 - 1);
+    PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 1, 0xFFFFFFFF);
+    PIT_HAL_SetTimerChainCmd(PIT_BASE, 1, true);
 
-    pit_hal_timer_start(0);
-    pit_hal_timer_start(1);
+    PIT_HAL_StartTimer(PIT_BASE, 0);
+    PIT_HAL_StartTimer(PIT_BASE, 1);
 }
 
 /******************************************************************************
@@ -71,7 +70,7 @@ static void pit_init(void) {
 static void lptmr_isr(void);
 
 static void lptmr_init(void) {
-    clock_hal_set_gate(kSimClockModuleLPTIMER, 0, true);
+    CLOCK_SYS_EnableLptimerClock(0);
 
     /* Set interrupt handler */
     NVIC_SetVector(LPTimer_IRQn, (uint32_t)lptmr_isr);
@@ -97,7 +96,7 @@ static void lptmr_init(void) {
 }
 
 void us_ticker_disable_interrupt(void) {
-    BW_LPTMR_CSR_TIE(0);
+    BW_LPTMR_CSR_TIE(LPTMR0_BASE, 0);
 }
 
 void us_ticker_clear_interrupt(void) {
@@ -108,15 +107,15 @@ static uint32_t us_ticker_int_counter = 0;
 static uint16_t us_ticker_int_remainder = 0;
 
 static void lptmr_set(unsigned short count) {
-    HW_LPTMR_CSR_WR(0);
-    BW_LPTMR_CMR_COMPARE(count);
-    BW_LPTMR_CSR_TIE(1);
-    BW_LPTMR_CSR_TEN(1);
+    HW_LPTMR_CSR_WR(LPTMR0_BASE, 0);
+    BW_LPTMR_CMR_COMPARE(LPTMR0_BASE, count);
+    BW_LPTMR_CSR_TIE(LPTMR0_BASE, 1);
+    BW_LPTMR_CSR_TEN(LPTMR0_BASE, 1);
 }
 
 static void lptmr_isr(void) {
     // write 1 to TCF to clear the LPT timer compare flag
-    BW_LPTMR_CSR_TCF(1);
+    BW_LPTMR_CSR_TCF(LPTMR0_BASE, 1);
 
     if (us_ticker_int_counter > 0) {
         lptmr_set(0xFFFF);

@@ -23,20 +23,18 @@ const PinMap PinMap_RTC[] = {
 };
 
 void rtc_init(void) {
-    uint32_t address = RTC_BASE_ADDRS[0];
-
     if (PinMap_RTC[0].pin == NC) {
-        RTC_HAL_SetOscillatorCmd(address, true);
+        RTC_HAL_SetOscillatorCmd(RTC_BASE, true);
     }
-    SIM_HAL_EnableRtcClock(address, 0U);
-    RTC_HAL_SetSecsReg(address, 1);
-    RTC_HAL_Init(address);
+    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    RTC_HAL_SetSecsReg(RTC_BASE, 1);
+    RTC_HAL_Init(RTC_BASE);
 
     // select RTC clock source
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
     SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
 
-    RTC_HAL_EnableCounter(true);
+    RTC_HAL_EnableCounter(RTC_BASE, true);
 }
 
 void rtc_free(void) {
@@ -48,19 +46,19 @@ void rtc_free(void) {
  * 0 = Disabled, 1 = Enabled
  */
 int rtc_isenabled(void) {
-    SIM_HAL_EnableRtcClock(RTC_BASE_ADDRS[0], 0U);
-    return (int)RTC_HAL_IsCounterEnabled();
+    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    return (int)RTC_HAL_IsCounterEnabled(RTC_BASE);
 }
 
 time_t rtc_read(void) {
-    return BR_RTC_TSR_TSR;
+    return (time_t)RTC_HAL_GetSecsReg(RTC_BASE);
 }
 
 void rtc_write(time_t t) {
     if (t == 0) {
         t = 1;
     }
-    RTC_HAL_EnableCounter(RTC_BASE_ADDRS[0], false);
-    BW_RTC_TSR_TSR(t);
-    RTC_HAL_EnableCounter(RTC_BASE_ADDRS[0], true);
+    RTC_HAL_EnableCounter(RTC_BASE, false);
+    RTC_HAL_SetSecsReg(RTC_BASE, t);
+    RTC_HAL_EnableCounter(RTC_BASE, true);
 }

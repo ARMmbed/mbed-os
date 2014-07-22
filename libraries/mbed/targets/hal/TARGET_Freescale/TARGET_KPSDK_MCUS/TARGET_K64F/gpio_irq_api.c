@@ -34,10 +34,10 @@ static gpio_irq_handler irq_handler;
 
 static void handle_interrupt_in(PortName port, int ch_base) {
     uint32_t i;
-    uint32_t port_addr = PORT_BASE_ADDRS[port];
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
 
     for (i = 0; i < 32; i++) {
-        if (PORT_HAL_IsPinIntPending(port_addr, i)) {
+        if (PORT_HAL_IsPinIntPending(port_addrs[port], i)) {
             uint32_t id = channel_ids[ch_base + i];
             if (id == 0) {
                 continue;
@@ -54,7 +54,7 @@ static void handle_interrupt_in(PortName port, int ch_base) {
                     break;
 
                 case IRQ_EITHER_EDGE:
-                    event = (GPIO_HAL_ReadPinInput(port_addr, i)) ? (IRQ_RISE) : (IRQ_FALL);
+                    event = (GPIO_HAL_ReadPinInput(port_addrs[port], i)) ? (IRQ_RISE) : (IRQ_FALL);
                     break;
             }
             if (event != IRQ_NONE) {
@@ -62,7 +62,7 @@ static void handle_interrupt_in(PortName port, int ch_base) {
             }
         }
     }
-    PORT_HAL_ClearPortIntFlag(port_addr);
+    PORT_HAL_ClearPortIntFlag(port_addrs[port]);
 }
 
 void gpio_irqA(void) {handle_interrupt_in(PortA, 0);}
@@ -80,8 +80,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->port = pin >> GPIO_PORT_SHIFT;
     obj->pin = pin & 0x7F;
 
-    uint32_t ch_base, vector;
-    IRQn_Type irq_n;
+    uint32_t ch_base = 0;
+    uint32_t vector = gpio_irqA;
+    IRQn_Type irq_n = PORTA_IRQn;
     switch (obj->port) {
         case PortA:
             ch_base = 0;
@@ -161,9 +162,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
             }
             break;
     }
-    uint32_t port_addr = PORT_BASE_ADDRS[obj->port];
-    PORT_HAL_SetPinIntMode(port_addr, obj->pin, irq_settings);
-    PORT_HAL_ClearPinIntFlag(port_addr, obj->pin);
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+    PORT_HAL_SetPinIntMode(port_addrs[obj->port], obj->pin, irq_settings);
+    PORT_HAL_ClearPinIntFlag(port_addrs[obj->port], obj->pin);
 }
 
 void gpio_irq_enable(gpio_irq_t *obj) {

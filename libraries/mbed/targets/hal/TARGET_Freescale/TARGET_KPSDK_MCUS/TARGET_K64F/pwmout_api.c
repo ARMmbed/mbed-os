@@ -92,21 +92,21 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pwm_clock_mhz = clkval;
     uint32_t channel = pwm & 0xF;
     uint32_t instance = pwm >> TPM_SHIFT;
-    uint32_t address = FTM_BASE_ADDRS[instance];
+    uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
     CLOCK_SYS_EnableFtmClock(instance);
 
-    FTM_HAL_SetTofFreq(address, 3);
-    FTM_HAL_SetClockSource(address, kClock_source_FTM_SystemClk);
-    FTM_HAL_SetClockPs(address, (ftm_clock_ps_t)clkdiv);
-    FTM_HAL_SetCounter(address, 0);
+    FTM_HAL_SetTofFreq(ftm_addrs[instance], 3);
+    FTM_HAL_SetClockSource(ftm_addrs[instance], kClock_source_FTM_SystemClk);
+    FTM_HAL_SetClockPs(ftm_addrs[instance], (ftm_clock_ps_t)clkdiv);
+    FTM_HAL_SetCounter(ftm_addrs[instance], 0);
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
     pwmout_write    (obj, 0);
     ftm_pwm_param_t config = {
         .mode = kFtmEdgeAlignedPWM,
-        .edge_mode = {.ftm_pwm_edge_mode = kFtmHighTrue}
+        .edgeMode = kFtmHighTrue
     };
-    FTM_HAL_EnablePwmMode(address, &config, channel);
+    FTM_HAL_EnablePwmMode(ftm_addrs[instance], &config, channel);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
@@ -122,19 +122,20 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0f) {
         value = 1.0f;
     }
-    uint32_t address = FTM_BASE_ADDRS[instance];
-    uint16_t mod = FTM_HAL_GetMod(address);
+    uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
+    uint16_t mod = FTM_HAL_GetMod(ftm_addrs[instance]);
     uint32_t new_count = (uint32_t)((float)(mod) * value);
     // Stop FTM clock to ensure instant update of MOD register
-    FTM_HAL_SetClockSource(address, kClock_source_FTM_None);
-    FTM_HAL_SetChnCountVal(address, obj->pwm_name & 0xF, new_count);
-    FTM_HAL_SetCounter(address, 0);
-    FTM_HAL_SetClockSource(address, kClock_source_FTM_SystemClk);
+    FTM_HAL_SetClockSource(ftm_addrs[instance], kClock_source_FTM_None);
+    FTM_HAL_SetChnCountVal(ftm_addrs[instance], obj->pwm_name & 0xF, new_count);
+    FTM_HAL_SetCounter(ftm_addrs[instance], 0);
+    FTM_HAL_SetClockSource(ftm_addrs[instance], kClock_source_FTM_SystemClk);
 }
 
 float pwmout_read(pwmout_t* obj) {
-    uint16_t count = FTM_HAL_GetChnCountVal(FTM_BASE_ADDRS[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF, 0);
-    uint16_t mod = FTM_HAL_GetMod(FTM_BASE_ADDRS[obj->pwm_name >> TPM_SHIFT]);
+    uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
+    uint16_t count = FTM_HAL_GetChnCountVal(ftm_addrs[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF, 0);
+    uint16_t mod = FTM_HAL_GetMod(ftm_addrs[obj->pwm_name >> TPM_SHIFT]);
     if (mod == 0)
         return 0.0;
     float v = (float)(count) / (float)(mod);
@@ -152,13 +153,13 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     uint32_t instance = obj->pwm_name >> TPM_SHIFT;
-    uint32_t address = FTM_BASE_ADDRS[instance];
+    uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
     float dc = pwmout_read(obj);
     // Stop FTM clock to ensure instant update of MOD register
-    FTM_HAL_SetClockSource(address, kClock_source_FTM_None);
-    FTM_HAL_SetMod(address, (uint32_t)(pwm_clock_mhz * (float)us) - 1);
+    FTM_HAL_SetClockSource(ftm_addrs[instance], kClock_source_FTM_None);
+    FTM_HAL_SetMod(ftm_addrs[instance], (uint32_t)(pwm_clock_mhz * (float)us) - 1);
     pwmout_write(obj, dc);
-    FTM_HAL_SetClockSource(address, kClock_source_FTM_SystemClk);
+    FTM_HAL_SetClockSource(ftm_addrs[instance], kClock_source_FTM_SystemClk);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -170,6 +171,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+    uint32_t ftm_addrs[] = FTM_BASE_ADDRS;
     uint32_t value = (uint32_t)(pwm_clock_mhz * (float)us);
-    FTM_HAL_SetChnCountVal(FTM_BASE_ADDRS[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF, value);
+    FTM_HAL_SetChnCountVal(ftm_addrs[obj->pwm_name >> TPM_SHIFT], obj->pwm_name & 0xF, value);
 }

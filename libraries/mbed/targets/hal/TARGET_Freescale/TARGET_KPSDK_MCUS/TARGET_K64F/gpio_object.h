@@ -18,6 +18,7 @@
 
 #include "mbed_assert.h"
 #include "fsl_gpio_hal.h"
+// #include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,16 +32,18 @@ static inline void gpio_write(gpio_t *obj, int value) {
     MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
 
-    gpio_hal_write_pin_output(port, pin, value);
+    GPIO_HAL_WritePinOutput(port_addrs[port], pin, value);
 }
 
 static inline int gpio_read(gpio_t *obj) {
     MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
 
-    return (int)gpio_hal_read_pin_input(port, pin);
+    return (int)GPIO_HAL_ReadPinInput(port_addrs[port], pin);
 }
 
 #ifdef __cplusplus
