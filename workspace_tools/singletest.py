@@ -675,10 +675,9 @@ def generate_test_summary_by_target(test_summary):
     unique_test_desc = get_unique_value_from_summary_ext(test_summary, TEST_INDEX, DESC_INDEX)
     unique_toolchains = get_unique_value_from_summary(test_summary, TOOLCHAIN_INDEX)
 
-    result = ""
+    result = "Test summary:\n"
     result_dict = {}    # test : { toolchain : result }
     for target in unique_targets:
-        result = "Test summary:\n"
         for test in test_summary:
             if test[TEST_INDEX] not in result_dict:
                 result_dict[test[TEST_INDEX]] = { }
@@ -696,8 +695,8 @@ def generate_test_summary_by_target(test_summary):
             for toolchain in unique_toolchains:
                 row.append(test_results[toolchain])
             pt.add_row(row)
-    result += pt.get_string()
-    result += "\n"
+        result += pt.get_string()
+        result += "\n\n"
     return result
 
 
