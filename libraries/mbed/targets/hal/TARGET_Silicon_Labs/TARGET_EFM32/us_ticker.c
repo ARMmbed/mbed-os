@@ -26,11 +26,16 @@
  * the upper 16 bits are implemented in software.
  */
 
+/* Precision problem may occur if prescaler is not 2 */
+/* And if us_ticker_read is off by a few us, it can cause a ticker to loop one
+ * extra turn around the clock. So be careful about changing this */
+#define US_TICKER_PRESC (2)
+
 static int us_ticker_inited = 0;	// Is ticker initialized yet
 
 static volatile uint16_t ticker_cnt = 0;
-static uint16_t ticker_int_rem = 0;
-static uint16_t ticker_int_cnt = 0;
+static volatile uint16_t ticker_int_rem = 0;
+static volatile uint16_t ticker_int_cnt = 0;
 static uint32_t freq = 0;
 
 void us_ticker_irq_handler_internal(void)
@@ -68,7 +73,7 @@ void us_ticker_init(void)
     TIMER_CounterSet(US_TICKER_TIMER, 0);
 
     /* Set prescaler */
-    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | TIMER_CTRL_PRESC_DIV16;
+    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | TIMER_CTRL_PRESC_DIV2;
 
     /* Store frequency of clock in MHz for scaling ticks to microseconds */
     freq = CMU_ClockFreqGet(US_TICKER_TIMER_CLOCK) / 1000000;
@@ -94,7 +99,7 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    uint32_t countH_old, countH, countL;
+    uint32_t volatile countH_old, countH, countL;
 
     if (!us_ticker_inited) {
         us_ticker_init();
@@ -117,8 +122,10 @@ uint32_t us_ticker_read()
         }
     } while (countH_old != countH);
 
-    /* Divide by freq/16 to get 1 us MHz clock with divider 16 */
-    return ((countH << 16) | countL) / freq * 16;
+    /* Divide by freq/US_TICKER_PRESC to get 1 us MHz clock with divider US_TICKER_PRESC */
+    countH = ((countH << 16) / freq) * US_TICKER_PRESC;
+    countL = (countL * US_TICKER_PRESC) / freq;
+    return countH + countL;
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp)
@@ -126,15 +133,15 @@ void us_ticker_set_interrupt(unsigned int timestamp)
     TIMER_IntDisable(US_TICKER_TIMER, TIMER_IEN_CC0);
 
     int delta = (int) (timestamp - us_ticker_read());
-
     if (delta <= 0) {
         us_ticker_irq_handler();
         return;
     }
 
-    /* Multiply by freq/16 to get clock ticks (freq MHz with prescaler 16) */
-    delta = (delta / 16) * freq;
-    timestamp = (timestamp / 16) * freq;
+    /* Multiply by freq/US_TICKER_PRESC to get clock ticks (freq MHz with prescaler US_TICKER_PRESC) */
+    delta = (delta / US_TICKER_PRESC) * freq;
+    /* TODO: Extremely magical explanation */
+    timestamp = (((timestamp & 0xFFFFFF) * freq) / US_TICKER_PRESC);
 
     /* Split delta between timers */
     ticker_int_cnt = delta >> 16;
