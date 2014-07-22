@@ -568,6 +568,16 @@ class RBLAB_NRF51822(NRF51822):
         self.macros = ['TARGET_NRF51822']
         
 
+class GHI_MBUINO(LPC11U24):
+    def __init__(self):
+        LPC11U24.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.macros = ['TARGET_LPC11U24']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -615,6 +625,7 @@ TARGETS = [
     HRM1017(),
     ARM_MPS2(),
     RBLAB_NRF51822(),
+    GHI_MBUINO(),
 ]
 
 # Map each target name to its unique instance
