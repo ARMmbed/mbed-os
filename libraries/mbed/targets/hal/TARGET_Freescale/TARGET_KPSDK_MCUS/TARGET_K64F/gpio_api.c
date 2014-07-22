@@ -48,15 +48,15 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
-    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+    uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
     uint32_t pin_num = obj->pinName & 0xFF;
 
     switch (direction) {
         case PIN_INPUT:
-            GPIO_HAL_SetPinDir(port_addrs[port], pin_num, kGpioDigitalInput);
+            GPIO_HAL_SetPinDir(gpio_addrs[port], pin_num, kGpioDigitalInput);
             break;
         case PIN_OUTPUT:
-            GPIO_HAL_SetPinDir(port_addrs[port], pin_num, kGpioDigitalOutput);
+            GPIO_HAL_SetPinDir(gpio_addrs[port], pin_num, kGpioDigitalOutput);
             break;
     }
 }

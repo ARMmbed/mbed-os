@@ -44,6 +44,7 @@ static void handle_interrupt_in(PortName port, int ch_base) {
             }
 
             gpio_irq_event event = IRQ_NONE;
+            uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
             switch (BR_PORT_PCRn_IRQC(port, i)) {
                 case IRQ_RAISING_EDGE:
                     event = IRQ_RISE;
@@ -54,7 +55,7 @@ static void handle_interrupt_in(PortName port, int ch_base) {
                     break;
 
                 case IRQ_EITHER_EDGE:
-                    event = (GPIO_HAL_ReadPinInput(port_addrs[port], i)) ? (IRQ_RISE) : (IRQ_FALL);
+                    event = (GPIO_HAL_ReadPinInput(gpio_addrs[port], i)) ? (IRQ_RISE) : (IRQ_FALL);
                     break;
             }
             if (event != IRQ_NONE) {

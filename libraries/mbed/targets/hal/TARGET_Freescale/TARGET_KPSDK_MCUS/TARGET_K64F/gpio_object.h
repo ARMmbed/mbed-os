@@ -32,18 +32,18 @@ static inline void gpio_write(gpio_t *obj, int value) {
     MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
-    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+    uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
 
-    GPIO_HAL_WritePinOutput(port_addrs[port], pin, value);
+    GPIO_HAL_WritePinOutput(gpio_addrs[port], pin, value);
 }
 
 static inline int gpio_read(gpio_t *obj) {
     MBED_ASSERT(obj->pinName != (PinName)NC);
     uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
     uint32_t pin = obj->pinName & 0xFF;
-    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+    uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
 
-    return (int)GPIO_HAL_ReadPinInput(port_addrs[port], pin);
+    return (int)GPIO_HAL_ReadPinInput(gpio_addrs[port], pin);
 }
 
 #ifdef __cplusplus

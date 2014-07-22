@@ -33,30 +33,12 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#define ENET_INSTANCE      0U
 
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
-#if defined (K64F12_SERIES) || defined (K70F12_SERIES) || defined (K63F12_SERIES)
-void ENET_Transmit_IRQHandler(void)
-{
-     ENET_DRV_TxIRQHandler(ENET_INSTANCE);
-}
-
-void ENET_Receive_IRQHandler(void)
-{
-     ENET_DRV_RxIRQHandler(ENET_INSTANCE);
-}
-
-#if FSL_FEATURE_ENET_SUPPORT_PTP
-void ENET_1588_Timer_IRQHandler(void)
-{
-     ENET_DRV_TsIRQHandler(ENET_INSTANCE);
-}
-#endif
-#endif
+/* The code was moved to k64f mac file (eth) */
 
 /*******************************************************************************
  * EOF
