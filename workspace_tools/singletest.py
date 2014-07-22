@@ -306,7 +306,7 @@ class SingleTestRunner(object):
 
             single_test_result = self.TEST_RESULT_UNDEF # singe test run result
             if not _copy_res:   # Serial port copy error
-                single_test_result = "IOERR_COPY"
+                single_test_result = self.TEST_RESULT_IOERR_COPY
                 print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
             else:
                 # Copy Extra Files
