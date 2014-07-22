@@ -16,8 +16,6 @@
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
-//GAMBIT FILE
-
 #include "cmsis.h"
 
 #ifdef __cplusplus

@@ -18,8 +18,6 @@
 
 #include "cmsis.h"
 
-//FRDM FILE
-
 #ifdef __cplusplus
 extern "C" {
 #endif
