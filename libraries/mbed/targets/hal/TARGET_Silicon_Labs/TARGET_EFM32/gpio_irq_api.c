@@ -96,10 +96,10 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
     switch (event) {
         case (IRQ_RISE):
-            obj->risingEdge = 1;
+            obj->risingEdge = enable;
             break;
         case (IRQ_FALL):
-            obj->fallingEdge = 1;
+            obj->fallingEdge = enable;
             break;
         case (IRQ_NONE):
             break;
@@ -107,7 +107,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
     /* Disable, set config and enable */
     gpio_irq_disable(obj);
-    GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge, enable);
+    GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
