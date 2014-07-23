@@ -78,12 +78,12 @@ void pwmout_write(pwmout_t* obj, float value) {
         value = 1.0;
     }
 
-    *obj->CnV = (uint32_t)((float)(*obj->MOD) * value);
+    *obj->CnV = (uint32_t)((float)(*obj->MOD + 1) * value);
     *obj->CNT = 0;
 }
 
 float pwmout_read(pwmout_t* obj) {
-    float v = (float)(*obj->CnV) / (float)(*obj->MOD);
+    float v = (float)(*obj->CnV) / (float)(*obj->MOD + 1);
     return (v > 1.0) ? (1.0) : (v);
 }
 
@@ -98,7 +98,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
-    *obj->MOD = (uint32_t)(pwm_clock * (float)us);
+    *obj->MOD = (uint32_t)(pwm_clock * (float)us) - 1;
     pwmout_write(obj, dc);
 }
 
