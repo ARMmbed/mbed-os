@@ -10,8 +10,16 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
-#elif defined(TARGET_EFM32LG_STK3600)
+#elif defined(TARGET_EFM32LG_STK3600) \
+    ||defined(TARGET_EFM32GG_STK3700) \
+    ||defined(TARGET_EFM32TG_STK3300) \
+    ||defined(TARGET_EFM32_G8XX_STK) \
+    ||defined(TARGET_EFM32WG_STK3800)
 DigitalInOut d1(PB12);
+DigitalInOut d2(PD5);
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+DigitalInOut d1(PA1);
 DigitalInOut d2(PD5);
 
 #elif defined(TARGET_NUCLEO_F103RB)
