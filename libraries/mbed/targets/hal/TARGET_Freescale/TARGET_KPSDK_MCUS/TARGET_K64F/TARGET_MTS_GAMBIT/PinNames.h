@@ -191,51 +191,19 @@ typedef enum {
     PTE30 = (4 << GPIO_PORT_SHIFT | 30),
     PTE31 = (4 << GPIO_PORT_SHIFT | 31),
 
-    LED_RED   = PTB22,
-    LED_GREEN = PTE26,
-    LED_BLUE  = PTB21,
-
     // mbed original LED naming
-    LED1 = LED_RED,
-    LED2 = LED_GREEN,
-    LED3 = LED_BLUE,
-    LED4 = LED_RED,
+    //LED1 = LED_RED,
+    //LED2 = LED_GREEN,
+    //LED3 = LED_BLUE,
+    //LED4 = LED_RED,
 
     //Push buttons
-    SW2 = PTC6,
-    SW3 = PTA4,
+    //SW2 = PTC6,
+    //SW3 = PTA4,
 
     // USB Pins
     USBTX = PTB17,
     USBRX = PTB16,
-
-    // Arduino Headers
-    D0 = PTC16,
-    D1 = PTC17,
-    D2 = PTB9,
-    D3 = PTA1,
-    D4 = PTB23,
-    D5 = PTA2,
-    D6 = PTC2,
-    D7 = PTC3,
-    D8 = PTA0,
-    D9 = PTC4,
-    D10 = PTD0,
-    D11 = PTD2,
-    D12 = PTD3,
-    D13 = PTD1,
-    D14 = PTE25,
-    D15 = PTE24,
-    
-    I2C_SCL = D15,
-    I2C_SDA = D14,
-
-    A0 = PTB2,
-    A1 = PTB3,
-    A2 = PTB10,
-    A3 = PTB11,
-    A4 = PTC10,
-    A5 = PTC11,
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 

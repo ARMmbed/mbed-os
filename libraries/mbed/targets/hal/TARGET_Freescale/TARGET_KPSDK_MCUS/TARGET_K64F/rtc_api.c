@@ -17,10 +17,7 @@
 #include "pinmap.h"
 #include "fsl_rtc_hal.h"
 #include "fsl_clock_manager.h"
-
-const PinMap PinMap_RTC[] = {
-    {NC, OSC32KCLK, 0},
-};
+#include "PeripheralPins.h"
 
 void rtc_init(void) {
     rtc_hal_init_config_t hal_config = {0};

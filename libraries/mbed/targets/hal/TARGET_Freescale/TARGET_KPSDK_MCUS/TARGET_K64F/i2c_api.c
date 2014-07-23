@@ -22,29 +22,7 @@
 #include "fsl_i2c_hal.h"
 #include "fsl_port_hal.h"
 #include "fsl_sim_hal.h"
-
-static const PinMap PinMap_I2C_SDA[] = {
-    {PTE25, I2C_0, 5},
-    {PTB1 , I2C_0, 2},
-    {PTB3 , I2C_0, 2},
-    {PTC11, I2C_1, 2},
-    {PTA13, I2C_2, 5},
-    {PTD3 , I2C_0, 7},
-    {PTE0 , I2C_1, 6},
-    {NC   , NC   , 0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {PTE24, I2C_0, 5},
-    {PTB0 , I2C_0, 2},
-    {PTB2 , I2C_0, 2},
-    {PTC10, I2C_1, 2},
-    {PTA12, I2C_2, 5},
-    {PTA14, I2C_2, 5},
-    {PTD2 , I2C_0, 7},
-    {PTE1 , I2C_1, 6},
-    {NC   , NC   , 0}
-};
+#include "PeripheralPins.h"
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
