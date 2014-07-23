@@ -18,9 +18,13 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
-#include "PeripheralPins.h"
 
 #define RANGE_12BIT     0xFFF
+
+const PinMap PinMap_DAC[] = {
+    {DAC0_OUT, DAC_0, 0},
+    {NC      , NC   , 0}
+};
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
