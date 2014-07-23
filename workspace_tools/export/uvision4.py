@@ -24,6 +24,7 @@ class Uvision4(Exporter):
     TARGETS = [
         'LPC1768',
         'LPC11U24',
+        'EFM32_G8XX_STK',
         'EFM32GG_STK3700',
         'EFM32LG_STK3600',
         'EFM32TG_STK3300',
