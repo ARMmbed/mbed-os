@@ -597,6 +597,15 @@ class EFM32TG_STK3300(Target):
         self.supported_toolchains = ["GCC_ARM"]
 
 
+class EFM32WG_STK3800(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32WG990F256']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+
+
 class EFM32ZG_STK3200(Target):
     def __init__(self):
         Target.__init__(self)
@@ -663,6 +672,7 @@ TARGETS = [
     EFM32GG_STK3700(),
     EFM32LG_STK3600(),
     EFM32TG_STK3300(),
+    EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
     RBLAB_NRF51822()
 ]
