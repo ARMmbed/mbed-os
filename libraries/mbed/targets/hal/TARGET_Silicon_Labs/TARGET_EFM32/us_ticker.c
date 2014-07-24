@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "cmsis.h"
+#include "mbed_assert.h"
 #include "em_cmu.h"
 #include "em_timer.h"
 #include "device_peripherals.h"
@@ -26,17 +27,12 @@
  * the upper 16 bits are implemented in software.
  */
 
-/* Precision problem may occur if prescaler is not 2 */
-/* And if us_ticker_read is off by a few us, it can cause a ticker to loop one
- * extra turn around the clock. So be careful about changing this */
-#define US_TICKER_PRESC (2)
-
 static int us_ticker_inited = 0;	// Is ticker initialized yet
 
 static volatile uint16_t ticker_cnt = 0;
 static volatile uint16_t ticker_int_rem = 0;
 static volatile uint16_t ticker_int_cnt = 0;
-static uint32_t freq = 0;
+static uint32_t ticker_freq_mhz = 0;
 
 void us_ticker_irq_handler_internal(void)
 {
@@ -72,11 +68,25 @@ void us_ticker_init(void)
     /* Clear TIMER counter value */
     TIMER_CounterSet(US_TICKER_TIMER, 0);
 
-    /* Set prescaler */
-    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | TIMER_CTRL_PRESC_DIV2;
+    /* Get frequency of clock in MHz for scaling ticks to microseconds */
+    ticker_freq_mhz = CMU_ClockFreqGet(US_TICKER_TIMER_CLOCK) / 1000000;
+    MBED_ASSERT(ticker_freq_mhz > 0);
 
-    /* Store frequency of clock in MHz for scaling ticks to microseconds */
-    freq = CMU_ClockFreqGet(US_TICKER_TIMER_CLOCK) / 1000000;
+    /*
+     * Calculate maximum prescaler that gives at least 1 MHz frequency, while keeping clock as an integer multiple of 1 MHz.
+     * Example: 14 MHz => prescaler = 1 (i.e. DIV2), ticker_freq_mhz = 7;
+     * 			24 MHz => prescaler = 3 (i.e. DIV8), ticker_freq_mhz = 3;
+     * 			48 MHz => prescaler = 4 (i.e. DIV16), ticker_freq_mhz = 3;
+     * Limit prescaling to maximum prescaler value, which is 10 (DIV1024).
+     */
+    uint32_t prescaler = 0;
+    while((ticker_freq_mhz & 1) == 0 && prescaler <= 10) {
+    	ticker_freq_mhz = ticker_freq_mhz >> 1;
+    	prescaler++;
+    }
+
+    /* Set prescaler */
+    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (prescaler << _TIMER_CTRL_PRESC_SHIFT);
 
     /* Select Compare Channel parameters */
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
@@ -122,10 +132,8 @@ uint32_t us_ticker_read()
         }
     } while (countH_old != countH);
 
-    /* Divide by freq/US_TICKER_PRESC to get 1 us MHz clock with divider US_TICKER_PRESC */
-    countH = ((countH << 16) / freq) * US_TICKER_PRESC;
-    countL = (countL * US_TICKER_PRESC) / freq;
-    return countH + countL;
+    /* Divide by ticker_freq_mhz to get 1 MHz clock */
+    return ((countH << 16) | countL) / ticker_freq_mhz;
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp)
@@ -138,10 +146,9 @@ void us_ticker_set_interrupt(unsigned int timestamp)
         return;
     }
 
-    /* Multiply by freq/US_TICKER_PRESC to get clock ticks (freq MHz with prescaler US_TICKER_PRESC) */
-    delta = (delta / US_TICKER_PRESC) * freq;
-    /* TODO: Extremely magical explanation */
-    timestamp = (((timestamp & 0xFFFFFF) * freq) / US_TICKER_PRESC);
+    /* Multiply by ticker_freq_mhz to get clock ticks */
+    delta = delta * ticker_freq_mhz;
+    timestamp = timestamp * ticker_freq_mhz;
 
     /* Split delta between timers */
     ticker_int_cnt = delta >> 16;
