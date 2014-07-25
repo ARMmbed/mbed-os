@@ -43,13 +43,69 @@ static const SWM_Map SWM_SPI_MISO[] = {
 
 // bit flags for used SPIs
 static unsigned char spi_used = 0;
-static int get_available_spi(void)
+static int get_available_spi(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    int i;
-    for (i=0; i<2; i++) {
-        if ((spi_used & (1 << i)) == 0)
-            return i;
+    if (spi_used == 0) {
+        return 0; // The first user
     }
+
+    const SWM_Map *swm;
+    uint32_t regVal;
+
+    // Investigate if same pins as the used SPI0/1 - to be able to reuse it
+    for (int spi_n = 0; spi_n < 2; spi_n++) {
+        if (spi_used & (1<<spi_n)) {
+            if (sclk != NC) {
+                swm = &SWM_SPI_SCLK[spi_n];
+                regVal = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+                if (regVal != (sclk << swm->offset)) {
+                    // Existing pin is not the same as the one we want
+                    continue;
+                }
+            }
+
+            if (mosi != NC) {
+                swm = &SWM_SPI_MOSI[spi_n];
+                regVal = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+                if (regVal != (mosi << swm->offset)) {
+                    // Existing pin is not the same as the one we want
+                    continue;
+                }
+            }
+
+            if (miso != NC) {
+                swm = &SWM_SPI_MISO[spi_n];
+                regVal = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+                if (regVal != (miso << swm->offset)) {
+                    // Existing pin is not the same as the one we want
+                    continue;
+                }
+            }
+
+            if (ssel != NC) {
+                swm = &SWM_SPI_SSEL[spi_n];
+                regVal = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+                if (regVal != (ssel << swm->offset)) {
+                    // Existing pin is not the same as the one we want
+                    continue;
+                }
+            }
+
+            // The pins for the currently used SPIx are the same as the
+            // ones we want so we will reuse it
+            return spi_n;
+        }
+    }
+
+    // None of the existing SPIx pin setups match the pins we want
+    // so the last hope is to select one unused SPIx
+    if ((spi_used & 1) == 0) {
+        return 0;
+    } else if ((spi_used & 2) == 0) {
+        return 1;
+    }
+
+    // No matching setup and no free SPIx
     return -1;
 }
 
@@ -58,7 +114,7 @@ static inline void spi_enable(spi_t *obj);
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    int spi_n = get_available_spi();
+    int spi_n = get_available_spi(mosi, miso, sclk, ssel);
     if (spi_n == -1) {
         error("No available SPI");
     }
@@ -138,10 +194,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     obj->spi->CFG = tmp;
 
     // select frame length
-    tmp = obj->spi->TXDATCTL;
+    tmp = obj->spi->TXCTL;
     tmp &= ~(0xf << 24);
     tmp |= (LEN << 24);
-    obj->spi->TXDATCTL = tmp;
+    obj->spi->TXCTL = tmp;
 
     spi_enable(obj);
 }
@@ -181,14 +237,14 @@ static inline void spi_write(spi_t *obj, int value)
 {
     while (!spi_writeable(obj));
     // end of transfer
-    obj->spi->TXDATCTL |= (1 << 20);
-    obj->spi->TXDAT = value;
+    obj->spi->TXCTL |= (1 << 20);
+    obj->spi->TXDAT = (value & 0xffff);
 }
 
 static inline int spi_read(spi_t *obj)
 {
     while (!spi_readable(obj));
-    return obj->spi->RXDAT;
+    return obj->spi->RXDAT & 0xffff; // Only the lower 16 bits contain data
 }
 
 int spi_busy(spi_t *obj)
@@ -210,7 +266,7 @@ int spi_slave_receive(spi_t *obj)
 
 int spi_slave_read(spi_t *obj)
 {
-    return obj->spi->RXDAT;
+    return obj->spi->RXDAT & 0xffff; // Only the lower 16 bits contain data
 }
 
 void spi_slave_write(spi_t *obj, int value)

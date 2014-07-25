@@ -137,11 +137,12 @@ class K64F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'FRDM']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
 
 
 class LPC812(Target):
@@ -624,6 +625,25 @@ class RBLAB_NRF51822(NRF51822):
         self.macros = ['TARGET_NRF51822']
 
 
+class GHI_MBUINO(LPC11U24):
+    def __init__(self):
+        LPC11U24.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.macros = ['TARGET_LPC11U24']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        
+class MTS_GAMBIT(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ['TARGET_K64F', "CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -676,7 +696,9 @@ TARGETS = [
     EFM32TG_STK3300(),
     EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
-    RBLAB_NRF51822()
+    RBLAB_NRF51822(),
+    GHI_MBUINO(),
+    MTS_GAMBIT(),
 ]
 
 # Map each target name to its unique instance
