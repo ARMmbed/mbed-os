@@ -567,7 +567,7 @@ class EFM32_G8XX_STK(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
         self.macros = ['EFM32G890F128']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
 
 
 class EFM32GG_STK3700(Target):
