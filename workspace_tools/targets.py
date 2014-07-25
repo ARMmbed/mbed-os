@@ -604,7 +604,7 @@ class EFM32WG_STK3800(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
         self.macros = ['EFM32WG990F256']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
 
 
 class EFM32ZG_STK3200(Target):
