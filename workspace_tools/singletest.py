@@ -105,9 +105,6 @@ from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-# Imports related to mbed build pi
-from workspace_tools.settings import MUTs
-
 
 class ProcessObserver(Thread):
     def __init__(self, proc):
@@ -236,7 +233,6 @@ class SingleTestRunner(object):
     def execute(self):
         clean = self.test_spec.get('clean', False)
         test_ids = self.test_spec.get('test_ids', [])
-        groups = self.test_spec.get('test_groups', [])
 
         # Here we store test results
         test_summary = []
@@ -297,13 +293,6 @@ class SingleTestRunner(object):
                                 print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
                             continue
 
-                        # This is basic structure storing test results
-                        test_result = {
-                            'target': target,
-                            'toolchain': toolchain,
-                            'test_id': test_id,
-                        }
-
                         build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
                         clean_project_options = True if self.opts_goanna_for_tests or clean else None
 
@@ -346,10 +335,8 @@ class SingleTestRunner(object):
                                              macros=MACROS,
                                              inc_dirs=INC_DIRS)
 
-                        test_result_cache = join(dirname(path), "test_result.json")
-
                         if self.opts_only_build_tests:
-                            # We are skipping testing phase
+                            # With this option we are skipping testing phase
                             continue
 
                         # For an automated test the duration act as a timeout after
