@@ -33,7 +33,7 @@ unsigned int testenv_randseed()
 {
     unsigned int seed = 0;
 #ifdef MBED_BUILD_TIMESTAMP
-    long long_seed = MBED_BUILD_TIMESTAMP * 100.0f;
+    long long_seed = static_cast<long>(MBED_BUILD_TIMESTAMP);
     seed = long_seed & 0xFFFFFFFF;
 #endif /* MBED_BUILD_TIMESTAMP */
     return seed;
