@@ -161,7 +161,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
                       lib.dependencies, options,
                       verbose=verbose, clean=clean, macros=MACROS, notify=notify, inc_dirs=lib.inc_dirs)
     else:
-        print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
@@ -489,4 +489,5 @@ def print_build_results(result_list, build_name):
     if result_list:
         result += build_name + "\n"
         result += "\n".join(["  * %s" % f for f in result_list])
+        result += "\n"
     return result
