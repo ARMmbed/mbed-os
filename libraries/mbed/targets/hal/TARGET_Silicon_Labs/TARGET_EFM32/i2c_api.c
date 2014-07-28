@@ -247,26 +247,66 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 #endif
 
 #if DEVICE_I2CSLAVE
+
+#define NoData          0
+#define ReadAddressed   1
+#define WriteGeneral    2
+#define WriteAddressed  3
+
+
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
+    if(enable_slave){
+        obj->i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
+        obj->i2c->CTRL |= _I2C_CTRL_AUTOACK_MASK; //Slave implementation assumes auto acking
+    }else{
+        obj->i2c->CTRL &= ~_I2C_CTRL_SLAVE_MASK;
+        obj->i2c->CTRL &= ~_I2C_CTRL_AUTOACK_MASK; //Master implementation ACKs manually
+    }
 }
 
 int i2c_slave_receive(i2c_t *obj)
 {
-    return 0;
+
+    if(obj->i2c->IF & I2C_IF_ADDR){
+        obj->i2c->RXDATA; //Read the address;
+        obj->i2c->IFC = I2C_IF_ADDR; //Clear interrupt
+        if(obj->i2c->STATE & I2C_STATE_TRANSMITTER){
+            return ReadAddressed;
+        }else{
+            return WriteAddressed;
+        }
+    }
+    // How to detect this? return WriteGeneral
+
+    return NoData;
+
 }
 
 int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
-    return 0;
+    int count;
+    for (count = 0; count < length; count++) {
+        data[count] = i2c_byte_read(obj, 0);
+    }
+
+    return count;
+
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length)
 {
-    return 0;
+    int count;
+    for (count = 0; count < length; count++) {
+        i2c_byte_write(obj, data[count]);
+    }
+
+    return count;
 }
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 {
+    obj->i2c->SADDR = address;//_I2C_SADDR_ADDR_SHIFT;
+    obj->i2c->SADDRMASK = 0xFE;//mask;
 }
 #endif
