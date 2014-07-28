@@ -20,26 +20,10 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 -------------------------------------------------------------------------------
 
-Usage: singletest.py [options]
+Call:
+    singletest.py --help
 
-This script allows you to run mbed defined test cases for particular MCU(s)
-and corresponding toolchain(s).
-
-Options:
-  -h, --help            show this help message and exit
-  -i FILE, --tests=FILE
-                        Points to file with test specification
-  -M FILE, --MUTS=FILE  Points to file with MUTs specification (overwrites
-                        settings.py and private_settings.py)
-  -g, --goanna-for-tests
-                        Run Goanna static analyse tool for tests
-  -G, --goanna-for-sdk  Run Goanna static analyse tool for mbed SDK
-  -s, --suppress-summary
-                        Suppresses display of wellformatted table with test
-                        results
-  -v, --verbose         Verbose mode (pronts some extra information)
-
-Example: singletest.py -i test_spec.json -M muts_all.json
+to get help information.
 
 -------------------------------------------------------------------------------
 
@@ -167,6 +151,9 @@ class SingleTestRunner(object):
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
     TEST_LOOPS_DICT = {}    # TEST_LOOPS_LIST in dict format: { test_id : test_loop_count}
 
+    muts = {} # MUTs descriptor (from external file)
+    test_spec = {} # Test specification (from external file)
+
     # mbed test suite -> SingleTestRunner
     TEST_RESULT_MAPPING = {"success" : TEST_RESULT_OK,
                            "failure" : TEST_RESULT_FAIL,
@@ -178,9 +165,28 @@ class SingleTestRunner(object):
                            "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF}
 
-    def __init__(self, _global_loops_count=1, _test_loops_list=""):
-        pattern = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
-        self.RE_DETECT_TESTCASE_RESULT = re.compile(pattern)
+    def __init__(self,
+                 _global_loops_count=1,
+                 _test_loops_list="",
+                 _muts={},
+                 _test_spec={},
+                 _opts_goanna_for_mbed_sdk=None,
+                 _opts_goanna_for_tests=None,
+                 _opts_shuffle_test_order=False,
+                 _opts_shuffle_test_seed=None,
+                 _opts_test_by_names=None,
+                 _opts_test_only_peripheral=False,
+                 _opts_test_only_common=False,
+                 _opts_verbose_skipped_tests=False,
+                 _opts_verbose=False,
+                 _opts_firmware_global_name=None,
+                 _opts_only_build_tests=False,
+                 _opts_suppress_summary=False
+                 ):
+        """ Let's try hard to init this object """
+        PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
+        self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
+        # Settings related to test loops counters
         try:
             _global_loops_count = int(_global_loops_count)
         except:
@@ -190,6 +196,252 @@ class SingleTestRunner(object):
         self.GLOBAL_LOOPS_COUNT = _global_loops_count
         self.TEST_LOOPS_LIST = _test_loops_list if _test_loops_list else []
         self.TEST_LOOPS_DICT = self.test_loop_list_to_dict(_test_loops_list)
+
+        self.shuffle_random_seed = 0.0
+        self.SHUFFLE_SEED_ROUND = 10
+
+        # MUT list and test specification storage
+        self.muts = _muts
+        self.test_spec = _test_spec
+
+        # Settings passed e.g. from command line
+        self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
+        self.opts_goanna_for_tests = _opts_goanna_for_tests
+        self.opts_shuffle_test_order = _opts_shuffle_test_order
+        self.opts_shuffle_test_seed = _opts_shuffle_test_seed
+        self.opts_test_by_names = _opts_test_by_names
+        self.opts_test_only_peripheral = _opts_test_only_peripheral
+        self.opts_test_only_common = _opts_test_only_common
+        self.opts_verbose_skipped_tests = _opts_verbose_skipped_tests
+        self.opts_verbose = _opts_verbose
+        self.opts_firmware_global_name = _opts_firmware_global_name
+        self.opts_only_build_tests = _opts_only_build_tests
+        self.opts_suppress_summary = _opts_suppress_summary
+
+
+    def shuffle_random(self):
+        return self.shuffle_random_seed
+
+
+    def is_float(self, value):
+        """ return true if function parameter can be converted to float """
+        result = True
+        try:
+            float(value)
+        except ValueError:
+            result = False
+        return result
+
+
+    def execute(self):
+        clean = self.test_spec.get('clean', False)
+        test_ids = self.test_spec.get('test_ids', [])
+        groups = self.test_spec.get('test_groups', [])
+
+        # Here we store test results
+        test_summary = []
+        # Generate seed for shuffle if seed is not provided in
+        self.shuffle_random_seed = round(random.random(), self.SHUFFLE_SEED_ROUND)
+        if self.opts_shuffle_test_seed is not None and self.is_float(self.opts_shuffle_test_seed):
+            self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
+
+        for target, toolchains in self.test_spec['targets'].iteritems():
+            for toolchain in toolchains:
+                # print '=== %s::%s ===' % (target, toolchain)
+                # Let's build our test
+                if target not in TARGET_MAP:
+                    print 'Skipped tests for %s target. Target platform not found' % (target)
+                    continue
+
+                T = TARGET_MAP[target]
+                build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
+                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean else None
+
+                build_mbed_libs_result = build_mbed_libs(T,
+                                                         toolchain,
+                                                         options=build_mbed_libs_options,
+                                                         clean=clean_mbed_libs_options)
+                if not build_mbed_libs_result:
+                    print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
+                    continue
+
+                build_dir = join(BUILD_DIR, "test", target, toolchain)
+
+                # Enumerate through all tests
+                test_map_keys = TEST_MAP.keys()
+                if self.opts_shuffle_test_order:
+                    random.shuffle(test_map_keys, self.shuffle_random)
+                    continue
+
+                for test_id in test_map_keys:
+                    test = TEST_MAP[test_id]
+                    if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
+                        continue
+
+                    if test_ids and test_id not in test_ids:
+                        continue
+
+                    if self.opts_test_only_peripheral and not test.peripherals:
+                        if self.opts_verbose_skipped_tests:
+                            print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
+                        continue
+
+                    if self.opts_test_only_common and test.peripherals:
+                        if self.opts_verbose_skipped_tests:
+                            print "TargetTest::%s::PeripheralTestSkipped()" % (target)
+                        continue
+
+                    if test.automated and test.is_supported(target, toolchain):
+                        if not is_peripherals_available(target, test.peripherals):
+                            if self.opts_verbose_skipped_tests:
+                                test_peripherals = test.peripherals if test.peripherals else []
+                                print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
+                            continue
+
+                        # This is basic structure storing test results
+                        test_result = {
+                            'target': target,
+                            'toolchain': toolchain,
+                            'test_id': test_id,
+                        }
+
+                        build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
+                        clean_project_options = True if self.opts_goanna_for_tests or clean else None
+
+                        # Detect which lib should be added to test
+                        # Some libs have to compiled like RTOS or ETH
+                        libraries = []
+                        for lib in LIBRARIES:
+                            if lib['build_dir'] in test.dependencies:
+                                libraries.append(lib['id'])
+                        # Build libs for test
+                        for lib_id in libraries:
+                            build_lib(lib_id,
+                                      T,
+                                      toolchain,
+                                      options=build_project_options,
+                                      verbose=self.opts_verbose,
+                                      clean=clean_mbed_libs_options)
+
+                        # TODO: move this 2 below loops to separate function
+                        INC_DIRS = []
+                        for lib_id in libraries:
+                            if 'inc_dirs_ext' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['inc_dirs_ext']:
+                                INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
+
+                        MACROS = []
+                        for lib_id in libraries:
+                            if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
+                                MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+
+                        project_name = self.opts_firmware_global_name if opts.firmware_global_name else None
+                        path = build_project(test.source_dir,
+                                             join(build_dir, test_id),
+                                             T,
+                                             toolchain,
+                                             test.dependencies,
+                                             options=build_project_options,
+                                             clean=clean_project_options,
+                                             verbose=self.opts_verbose,
+                                             name=project_name,
+                                             macros=MACROS,
+                                             inc_dirs=INC_DIRS)
+
+                        test_result_cache = join(dirname(path), "test_result.json")
+
+                        if self.opts_only_build_tests:
+                            # We are skipping testing phase
+                            continue
+
+                        # For an automated test the duration act as a timeout after
+                        # which the test gets interrupted
+                        test_spec = shape_test_request(target, path, test_id, test.duration)
+                        test_loops = single_test.get_test_loop_count(test_id)
+                        single_test_result = single_test.handle(test_spec, target, toolchain, test_loops=test_loops)
+                        if single_test_result is not None:
+                            test_summary.append(single_test_result)
+        return test_summary, self.shuffle_random_seed
+
+
+    def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
+        """ Prints well-formed summary with results (SQL table like)
+            table shows text x toolchain test result matrix """
+        RESULT_INDEX = 0
+        TARGET_INDEX = 1
+        TOOLCHAIN_INDEX = 2
+        TEST_INDEX = 3
+        DESC_INDEX = 4
+
+        unique_targets = get_unique_value_from_summary(test_summary, TARGET_INDEX)
+        unique_tests = get_unique_value_from_summary(test_summary, TEST_INDEX)
+        unique_test_desc = get_unique_value_from_summary_ext(test_summary, TEST_INDEX, DESC_INDEX)
+        unique_toolchains = get_unique_value_from_summary(test_summary, TOOLCHAIN_INDEX)
+
+        result = "Test summary:\n"
+        result_dict = {}    # test : { toolchain : result }
+        for target in unique_targets:
+            for test in test_summary:
+                if test[TEST_INDEX] not in result_dict:
+                    result_dict[test[TEST_INDEX]] = { }
+                result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
+
+            pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
+            pt = PrettyTable(pt_cols)
+            for col in pt_cols:
+                pt.align[col] = "l"
+            pt.padding_width = 1 # One space between column edges and contents (default)
+
+            for test in unique_tests:
+                test_results = result_dict[test]
+                row = [target, test, unique_test_desc[test]]
+                for toolchain in unique_toolchains:
+                    row.append(test_results[toolchain])
+                pt.add_row(row)
+            result += pt.get_string()
+            shuffle_seed_text = "Shuffle Seed: %.*f"% (self.SHUFFLE_SEED_ROUND,
+                                                      shuffle_seed if shuffle_seed else self.shuffle_random_seed)
+            result += "\n%s\n"% shuffle_seed_text
+        return result
+
+
+    def generate_test_summary(self, test_summary, shuffle_seed=None):
+        """ Prints well-formed summary with results (SQL table like)
+            table shows target x test results matrix across """
+        result = "Test summary:\n"
+        # Pretty table package is used to print results
+        pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
+                          "Elapsed Time (sec)", "Timeout (sec)", "Loops"])
+        pt.align["Result"] = "l" # Left align
+        pt.align["Target"] = "l" # Left align
+        pt.align["Toolchain"] = "l" # Left align
+        pt.align["Test ID"] = "l" # Left align
+        pt.align["Test Description"] = "l" # Left align
+        pt.padding_width = 1 # One space between column edges and contents (default)
+
+        result_dict = {single_test.TEST_RESULT_OK : 0,
+                       single_test.TEST_RESULT_FAIL : 0,
+                       single_test.TEST_RESULT_ERROR : 0,
+                       single_test.TEST_RESULT_UNDEF : 0,
+                       single_test.TEST_RESULT_IOERR_COPY : 0,
+                       single_test.TEST_RESULT_IOERR_DISK : 0,
+                       single_test.TEST_RESULT_IOERR_SERIAL : 0,
+                       single_test.TEST_RESULT_NO_IMAGE : 0,
+                       single_test.TEST_RESULT_TIMEOUT : 0 }
+
+        for test in test_summary:
+            if test[0] in result_dict:
+                result_dict[test[0]] += 1
+            pt.add_row(test)
+        result += pt.get_string()
+        result += "\n"
+
+        # Print result count
+        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        shuffle_seed_text = "Shuffle Seed: %.*f\n"% (self.SHUFFLE_SEED_ROUND,
+                                                    shuffle_seed if shuffle_seed else self.shuffle_random_seed)
+        result += "\n%s"% shuffle_seed_text
+        return result
+
 
     def test_loop_list_to_dict(self, test_loops_str):
         """ Transforms test_id=X,test_id=X,test_id=X into dictionary {test_id : test_id_loops_count} """
@@ -661,82 +913,6 @@ def get_unique_value_from_summary_ext(test_summary, index_key, index_val):
     return result
 
 
-def generate_test_summary_by_target(test_summary):
-    """ Prints well-formed summary with results (SQL table like)
-        table shows text x toolchain test result matrix """
-    RESULT_INDEX = 0
-    TARGET_INDEX = 1
-    TOOLCHAIN_INDEX = 2
-    TEST_INDEX = 3
-    DESC_INDEX = 4
-
-    unique_targets = get_unique_value_from_summary(test_summary, TARGET_INDEX)
-    unique_tests = get_unique_value_from_summary(test_summary, TEST_INDEX)
-    unique_test_desc = get_unique_value_from_summary_ext(test_summary, TEST_INDEX, DESC_INDEX)
-    unique_toolchains = get_unique_value_from_summary(test_summary, TOOLCHAIN_INDEX)
-
-    result = "Test summary:\n"
-    result_dict = {}    # test : { toolchain : result }
-    for target in unique_targets:
-        for test in test_summary:
-            if test[TEST_INDEX] not in result_dict:
-                result_dict[test[TEST_INDEX]] = { }
-            result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
-
-        pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
-        pt = PrettyTable(pt_cols)
-        for col in pt_cols:
-            pt.align[col] = "l"
-        pt.padding_width = 1 # One space between column edges and contents (default)
-
-        for test in unique_tests:
-            test_results = result_dict[test]
-            row = [target, test, unique_test_desc[test]]
-            for toolchain in unique_toolchains:
-                row.append(test_results[toolchain])
-            pt.add_row(row)
-        result += pt.get_string()
-        result += "\n\n"
-    return result
-
-
-def generate_test_summary(test_summary):
-    """ Prints well-formed summary with results (SQL table like)
-        table shows target x test results matrix across """
-    result = "Test summary:\n"
-    # Pretty table package is used to print results
-    pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                      "Elapsed Time (sec)", "Timeout (sec)", "Loops"])
-    pt.align["Result"] = "l" # Left align
-    pt.align["Target"] = "l" # Left align
-    pt.align["Toolchain"] = "l" # Left align
-    pt.align["Test ID"] = "l" # Left align
-    pt.align["Test Description"] = "l" # Left align
-    pt.padding_width = 1 # One space between column edges and contents (default)
-
-    result_dict = {single_test.TEST_RESULT_OK : 0,
-                   single_test.TEST_RESULT_FAIL : 0,
-                   single_test.TEST_RESULT_ERROR : 0,
-                   single_test.TEST_RESULT_UNDEF : 0,
-                   single_test.TEST_RESULT_IOERR_COPY : 0,
-                   single_test.TEST_RESULT_IOERR_DISK : 0,
-                   single_test.TEST_RESULT_IOERR_SERIAL : 0,
-                   single_test.TEST_RESULT_NO_IMAGE : 0,
-                   single_test.TEST_RESULT_TIMEOUT : 0 }
-
-    for test in test_summary:
-        if test[0] in result_dict:
-            result_dict[test[0]] += 1
-        pt.add_row(test)
-    result += pt.get_string()
-    result += "\n"
-
-    # Print result count
-    result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
-    result += "\n"
-    return result
-
-
 if __name__ == '__main__':
     # Command line options
     parser = optparse.OptionParser()
@@ -754,13 +930,13 @@ if __name__ == '__main__':
                       dest='goanna_for_tests',
                       metavar=False,
                       action="store_true",
-                      help='Run Goanna static analyse tool for tests')
+                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
 
     parser.add_option('-G', '--goanna-for-sdk',
                       dest='goanna_for_mbed_sdk',
                       metavar=False,
                       action="store_true",
-                      help='Run Goanna static analyse tool for mbed SDK')
+                      help='Run Goanna static analyse tool for mbed SDK (Project will be rebuilded)')
 
     parser.add_option('-s', '--suppress-summary',
                       dest='suppress_summary',
@@ -836,11 +1012,16 @@ if __name__ == '__main__':
                       dest='firmware_global_name',
                       help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
 
-    parser.add_option('-u', '--shuffle-tests',
+    parser.add_option('-u', '--shuffle',
                       dest='shuffle_test_order',
                       default=False,
                       action="store_true",
                       help='Shuffles test execution order')
+
+    parser.add_option('', '--shuffle-seed',
+                      dest='shuffle_test_seed',
+                      default=None,
+                      help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
@@ -912,131 +1093,44 @@ if __name__ == '__main__':
     if test_spec and opts.verbose:
         print print_test_configuration_from_json(test_spec)
 
+    if opts.only_build_tests:
+        # We are skipping testing phase, and suppress summary
+        opts.suppress_summary = True
+
     # Magic happens here... ;)
     start = time()
-    single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value, _test_loops_list=opts.test_loops_list)
 
-    clean = test_spec.get('clean', False)
-    test_ids = test_spec.get('test_ids', [])
-    groups = test_spec.get('test_groups', [])
+    single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
+                                   _test_loops_list=opts.test_loops_list,
+                                   _muts=MUTs,
+                                   _test_spec=test_spec,
+                                   _opts_goanna_for_mbed_sdk = opts.goanna_for_mbed_sdk,
+                                   _opts_goanna_for_tests = opts.goanna_for_tests,
+                                   _opts_shuffle_test_order = opts.shuffle_test_order,
+                                   _opts_shuffle_test_seed = opts.shuffle_test_seed,
+                                   _opts_test_by_names = opts.test_by_names,
+                                   _opts_test_only_peripheral = opts.test_only_peripheral,
+                                   _opts_test_only_common = opts.test_only_common,
+                                   _opts_verbose_skipped_tests = opts.verbose_skipped_tests,
+                                   _opts_verbose = opts.verbose,
+                                   _opts_firmware_global_name = opts.firmware_global_name,
+                                   _opts_only_build_tests = opts.only_build_tests,
+                                   _opts_suppress_summary = opts.suppress_summary
+                                   )
 
-    # Here we store test results
-    test_summary = []
-
-    for target, toolchains in test_spec['targets'].iteritems():
-        for toolchain in toolchains:
-            # print '=== %s::%s ===' % (target, toolchain)
-            # Let's build our test
-            if target not in TARGET_MAP:
-                print 'Skipped tests for %s target. Target platform not found' % (target)
-                continue
-
-            T = TARGET_MAP[target]
-            build_mbed_libs_options = ["analyze"] if opts.goanna_for_mbed_sdk else None
-            build_mbed_libs_result = build_mbed_libs(T, toolchain, options=build_mbed_libs_options)
-            if not build_mbed_libs_result:
-                print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
-                continue
-
-            build_dir = join(BUILD_DIR, "test", target, toolchain)
-
-            # Enumerate through all tests
-            test_map_keys = TEST_MAP.keys()
-            if opts.shuffle_test_order:
-                random.shuffle(test_map_keys)
-
-            for test_id in test_map_keys:
-                test = TEST_MAP[test_id]
-                if opts.test_by_names and test_id not in opts.test_by_names.split(','):
-                    continue
-
-                if test_ids and test_id not in test_ids:
-                    continue
-
-                if opts.test_only_peripheral and not test.peripherals:
-                    if opts.verbose_skipped_tests:
-                        print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
-                    continue
-
-                if opts.test_only_common and test.peripherals:
-                    if opts.verbose_skipped_tests:
-                        print "TargetTest::%s::PeripheralTestSkipped()" % (target)
-                    continue
-
-                if test.automated and test.is_supported(target, toolchain):
-                    if not is_peripherals_available(target, test.peripherals):
-                        if opts.verbose_skipped_tests:
-                            test_peripherals = test.peripherals if test.peripherals else []
-                            print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
-                        continue
-
-                    # This is basic structure storing test results
-                    test_result = {
-                        'target': target,
-                        'toolchain': toolchain,
-                        'test_id': test_id,
-                    }
-
-                    build_project_options = ["analyze"] if opts.goanna_for_tests else None
-
-                    # Detect which lib should be added to test
-                    # Some libs have to compiled like RTOS or ETH
-                    libraries = []
-                    for lib in LIBRARIES:
-                        if lib['build_dir'] in test.dependencies:
-                            libraries.append(lib['id'])
-                    # Build libs for test
-                    for lib_id in libraries:
-                        build_lib(lib_id, T, toolchain, options=build_project_options,
-                                  verbose=opts.verbose, clean=clean)
-
-                    # TODO: move this 2 below loops to separate function
-                    INC_DIRS = []
-                    for lib_id in libraries:
-                        if 'inc_dirs_ext' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['inc_dirs_ext']:
-                            INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
-
-                    MACROS = []
-                    for lib_id in libraries:
-                        if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
-                            MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
-
-                    project_name = opts.firmware_global_name if opts.firmware_global_name else None
-                    path = build_project(test.source_dir, join(build_dir, test_id),
-                                         T, toolchain, test.dependencies,
-                                         options=build_project_options,
-                                         clean=clean,
-                                         verbose=opts.verbose,
-                                         name=project_name,
-                                         macros=MACROS,
-                                         inc_dirs=INC_DIRS)
-
-                    test_result_cache = join(dirname(path), "test_result.json")
-
-                    if opts.only_build_tests:
-                        # We are skipping testing phase, and suppress summary
-                        opts.suppress_summary = True
-                        continue
-
-                    # For an automated test the duration act as a timeout after
-                    # which the test gets interrupted
-                    test_spec = shape_test_request(target, path, test_id, test.duration)
-                    test_loops = single_test.get_test_loop_count(test_id)
-                    single_test_result = single_test.handle(test_spec, target, toolchain, test_loops=test_loops)
-                    if single_test_result is not None:
-                        test_summary.append(single_test_result)
-                    # print test_spec, target, toolchain
+    # Execute tests depending on options and filter applied
+    test_summary, shuffle_seed = single_test.execute()
 
     elapsed_time = time() - start
 
     # Human readable summary
     if not opts.suppress_summary:
         # prints well-formed summary with results (SQL table like)
-        print generate_test_summary(test_summary)
+        print single_test.generate_test_summary(test_summary, shuffle_seed)
 
     if opts.test_x_toolchain_summary:
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
-        print generate_test_summary_by_target(test_summary)
+        print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
 
     print "Completed in %d sec" % (time() - start)
