@@ -16,6 +16,8 @@
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
+#if DEVICE_ANALOGIN
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralNames.h"
@@ -70,3 +72,4 @@ float analogin_read(analogin_t *obj) {
     return (float)value * (1.0f / (float)0xFFFF);
 }
 
+#endif

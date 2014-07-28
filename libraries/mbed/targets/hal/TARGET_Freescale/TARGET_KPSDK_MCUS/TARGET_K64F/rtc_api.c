@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
+
+#if DEVICE_RTC
+
 #include "pinmap.h"
 #include "fsl_rtc_hal.h"
 #include "fsl_clock_manager.h"
@@ -63,3 +66,5 @@ void rtc_write(time_t t) {
     BW_RTC_TSR_TSR(t);
     rtc_hal_counter_enable(true);
 }
+
+#endif
