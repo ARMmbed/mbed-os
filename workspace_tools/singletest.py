@@ -271,7 +271,6 @@ class SingleTestRunner(object):
                 test_map_keys = TEST_MAP.keys()
                 if self.opts_shuffle_test_order:
                     random.shuffle(test_map_keys, self.shuffle_random)
-                    continue
 
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
