@@ -56,6 +56,7 @@ STMicroelectronics:
 * [Nucleo-L152RE](https://mbed.org/platforms/ST-Nucleo-L152RE/) (Cortex-M3)
 * [Nucleo-F030R8](https://mbed.org/platforms/ST-Nucleo-F030R8/) (Cortex-M0)
 * [Nucleo-F401RE](https://mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4)
+* [Nucleo-F411RE](https://mbed.org/platforms/ST-Nucleo-F411RE/) (Cortex-M4)
 * [Nucleo-F302R8](https://mbed.org/platforms/ST-Nucleo-F302R8/) (Cortex-M4)
 * STM32F4XX (Cortex-M4F)
 * STM32F3XX (Cortex-M4F)
