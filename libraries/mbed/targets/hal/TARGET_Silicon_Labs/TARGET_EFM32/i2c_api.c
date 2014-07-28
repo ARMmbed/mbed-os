@@ -31,7 +31,7 @@
 /* RXUF is only likely to occur with this SW if using a debugger peeking into */
 /* RXDATA register. Thus, we ignore those types of fault. */
 #define I2C_IF_ERRORS    (I2C_IF_BUSERR | I2C_IF_ARBLOST)
-#define I2C_TIMEOUT 300000
+#define I2C_TIMEOUT 100000
 
 /* Prototypes */
 static void setup_oscillators(I2C_TypeDef *i2c);
@@ -70,11 +70,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     setup_oscillators(obj->i2c);
 
-    pin_mode(sda, WiredAndPullUp);
-    pin_mode(scl, WiredAndPullUp);
-
     /* Enable pins at correct location */
     obj->i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (obj->loc << _I2C_ROUTE_LOCATION_SHIFT);
+
+    pin_mode(sda, WiredAndPullUp);
+    pin_mode(scl, WiredAndPullUp);
 
     /* Initializing the I2C */
     /* Using default settings */
@@ -192,7 +192,6 @@ int i2c_byte_read(i2c_t *obj, int last)
     if (timeout <= 0) {
         return 0; //TODO Is this the correct way to handle this?
     }
-
     char data = obj->i2c->RXDATA;
 
     if (last) {
@@ -289,6 +288,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     for (count = 0; count < length; count++) {
         data[count] = i2c_byte_read(obj, 0);
     }
+    
 
     return count;
 
