@@ -220,11 +220,11 @@ class SingleTestRunner(object):
         return self.shuffle_random_seed
 
 
-    def is_float(self, value):
+    def is_shuffle_seed_float(self):
         """ return true if function parameter can be converted to float """
         result = True
         try:
-            float(value)
+            float(self.shuffle_random_seed)
         except ValueError:
             result = False
         return result
@@ -238,7 +238,7 @@ class SingleTestRunner(object):
         test_summary = []
         # Generate seed for shuffle if seed is not provided in
         self.shuffle_random_seed = round(random.random(), self.SHUFFLE_SEED_ROUND)
-        if self.opts_shuffle_test_seed is not None and self.is_float(self.opts_shuffle_test_seed):
+        if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
             self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
 
         for target, toolchains in self.test_spec['targets'].iteritems():
@@ -368,7 +368,7 @@ class SingleTestRunner(object):
         for target in unique_targets:
             for test in test_summary:
                 if test[TEST_INDEX] not in result_dict:
-                    result_dict[test[TEST_INDEX]] = { }
+                    result_dict[test[TEST_INDEX]] = {}
                 result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
 
             pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
@@ -412,7 +412,8 @@ class SingleTestRunner(object):
                        single_test.TEST_RESULT_IOERR_DISK : 0,
                        single_test.TEST_RESULT_IOERR_SERIAL : 0,
                        single_test.TEST_RESULT_NO_IMAGE : 0,
-                       single_test.TEST_RESULT_TIMEOUT : 0 }
+                       single_test.TEST_RESULT_TIMEOUT : 0
+                       }
 
         for test in test_summary:
             if test[0] in result_dict:
@@ -480,7 +481,7 @@ class SingleTestRunner(object):
                 result = False
         return result, resutl_msg, copy_method
 
-    def delete_file(file_path):
+    def delete_file(self, file_path):
         """ Remove file from the system """
         result = True
         resutl_msg = ""
@@ -590,10 +591,10 @@ class SingleTestRunner(object):
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
-        start = time()
+        start_time = time()
         line = ''
         output = []
-        while (time() - start) < duration:
+        while (time() - start_time) < duration:
             try:
                 c = obs.queue.get(block=True, timeout=1)
             except Empty, _:
@@ -872,7 +873,7 @@ def progress_bar(percent_progress, saturation=0):
     step = int(percent_progress / 2)    # Scale by to (scale: 1 - 50)
     str_progress = '#' * step + '.' * int(50 - step)
     c = '!' if str_progress[38] == '.' else '|'
-    if (saturation > 0):
+    if saturation > 0:
         saturation = saturation / 2
         str_progress = str_progress[:saturation] + c + str_progress[saturation:]
     return str_progress
@@ -1090,18 +1091,18 @@ if __name__ == '__main__':
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
                                    _test_spec=test_spec,
-                                   _opts_goanna_for_mbed_sdk = opts.goanna_for_mbed_sdk,
-                                   _opts_goanna_for_tests = opts.goanna_for_tests,
-                                   _opts_shuffle_test_order = opts.shuffle_test_order,
-                                   _opts_shuffle_test_seed = opts.shuffle_test_seed,
-                                   _opts_test_by_names = opts.test_by_names,
-                                   _opts_test_only_peripheral = opts.test_only_peripheral,
-                                   _opts_test_only_common = opts.test_only_common,
-                                   _opts_verbose_skipped_tests = opts.verbose_skipped_tests,
-                                   _opts_verbose = opts.verbose,
-                                   _opts_firmware_global_name = opts.firmware_global_name,
-                                   _opts_only_build_tests = opts.only_build_tests,
-                                   _opts_suppress_summary = opts.suppress_summary
+                                   _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
+                                   _opts_goanna_for_tests=opts.goanna_for_tests,
+                                   _opts_shuffle_test_order=opts.shuffle_test_order,
+                                   _opts_shuffle_test_seed=opts.shuffle_test_seed,
+                                   _opts_test_by_names=opts.test_by_names,
+                                   _opts_test_only_peripheral=opts.test_only_peripheral,
+                                   _opts_test_only_common=opts.test_only_common,
+                                   _opts_verbose_skipped_tests=opts.verbose_skipped_tests,
+                                   _opts_verbose=opts.verbose,
+                                   _opts_firmware_global_name=opts.firmware_global_name,
+                                   _opts_only_build_tests=opts.only_build_tests,
+                                   _opts_suppress_summary=opts.suppress_summary
                                    )
 
     # Execute tests depending on options and filter applied
