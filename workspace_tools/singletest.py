@@ -1101,13 +1101,16 @@ if __name__ == '__main__':
     # should be covered by the test scenario
     test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
     if test_spec is None:
+        if not opts.test_spec_filename:
+            parser.print_help()
         exit(-1)
 
     # Get extra MUTs if applicable
-    if opts.muts_spec_filename:
-        MUTs = get_json_data_from_file(opts.muts_spec_filename)
+    MUTs = get_json_data_from_file(opts.muts_spec_filename) if opts.muts_spec_filename else None
 
     if MUTs is None:
+        if not opts.muts_spec_filename:
+            parser.print_help()
         exit(-1)
 
     # Only prints read MUTs configuration
