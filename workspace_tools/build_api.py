@@ -257,11 +257,13 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
     pt.align["Platform"] = "l"
 
     perm_counter = 0
+    target_counter = 0
     for target in sorted(TARGET_NAMES):
         if platform_filter is not None:
             # FIlter out platforms using regex
             if re.search(platform_filter, target) is None:
                 continue
+        target_counter += 1
 
         row = [target]  # First column is platform name
         default_toolchain = TARGET_MAP[target].default_toolchain
@@ -281,7 +283,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
     result += "*Default - default on-line compiler\n"
     result += "*Supported - supported off-line compiler\n"
     result += "\n"
-    result += "Total platforms: %d\n"% (len(TARGET_NAMES))
+    result += "Total platforms: %d\n"% (target_counter)
     result += "Total permutations: %d"% (perm_counter)
     return result
 

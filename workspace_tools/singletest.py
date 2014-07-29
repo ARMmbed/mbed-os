@@ -1129,9 +1129,7 @@ if __name__ == '__main__':
         # We are skipping testing phase, and suppress summary
         opts.suppress_summary = True
 
-    # Magic happens here... ;)
     start = time()
-
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
