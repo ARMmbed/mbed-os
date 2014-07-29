@@ -17,6 +17,9 @@
 #include "mbed_assert.h"
 
 #include "spi_api.h"
+
+#if DEVICE_SPI
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "error.h"
@@ -137,3 +140,5 @@ void spi_slave_write(spi_t *obj, int value) {
     while (!spi_writeable(obj));
     dspi_hal_write_data_slave_mode(obj->instance, (uint32_t)value);
 }
+
+#endif
