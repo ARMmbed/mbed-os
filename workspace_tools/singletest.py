@@ -672,6 +672,40 @@ def shape_test_request(mcu, image_path, test_id, duration=10):
     return json.dumps(test_spec)
 
 
+def show_json_file_format_error(json_spec_filename, line, column):
+    """ Prints JSON broken content """
+    with open(json_spec_filename) as data_file:
+        line_no = 1
+        for json_line in data_file:
+            if line_no + 5 >= line: # Print last few lines before error
+                print 'Line %d:\t'%line_no + json_line, # Prints line
+            if line_no == line:
+                print ' ' * len('Line %d:'%line_no) + '\t', '-' * (column-1) + '^'
+                break
+            line_no += 1
+
+
+def json_format_error_defect_pos(json_error_msg):
+    """ Gets first error line and column in JSON file format.
+    Parsed from exception thrown by json.loads() string """
+    result = None
+    line, column = 0, 0
+    # Line value search
+    line_search = re.search('line [0-9]+', json_error_msg)
+    if line_search is not None:
+        ls = line_search.group().split(' ')
+        if len(ls) == 2:
+            line = int(ls[1])
+    # Column position search
+    column_search = re.search('column [0-9]+', json_error_msg)
+    if column_search is not None:
+        cs = column_search.group().split(' ')
+        if len(cs) == 2:
+            column = int(cs[1])
+    result = [line, column]
+    return result
+
+
 def get_json_data_from_file(json_spec_filename, verbose=False):
     """ Loads from file JSON formatted string to data structure """
     result = None
@@ -681,7 +715,14 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 result = json.load(data_file)
             except ValueError as json_error_msg:
                 result = None
-                print "Error in '%s' file: %s" % (json_spec_filename, json_error_msg)
+                print "Error in '%s' file. %s" % (json_spec_filename, json_error_msg)
+                # We can print where error occurred inside JSON file if we can parse exception msg
+                json_format_defect_pos = json_format_error_defect_pos(str(json_error_msg))
+                if json_format_defect_pos is not None:
+                    line = json_format_defect_pos[0]
+                    column = json_format_defect_pos[1]
+                    show_json_file_format_error(json_spec_filename, line, column)
+
     except IOError as fileopen_error_msg:
         print "Error: %s" % (fileopen_error_msg)
     if verbose and result:
@@ -1054,7 +1095,6 @@ if __name__ == '__main__':
     # should be covered by the test scenario
     test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
     if test_spec is None:
-        parser.print_help()
         exit(-1)
 
     # Get extra MUTs if applicable
@@ -1062,7 +1102,6 @@ if __name__ == '__main__':
         MUTs = get_json_data_from_file(opts.muts_spec_filename)
 
     if MUTs is None:
-        parser.print_help()
         exit(-1)
 
     # Only prints read MUTs configuration
