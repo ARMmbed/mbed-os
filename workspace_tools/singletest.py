@@ -696,13 +696,13 @@ def json_format_error_defect_pos(json_error_msg):
         ls = line_search.group().split(' ')
         if len(ls) == 2:
             line = int(ls[1])
-    # Column position search
-    column_search = re.search('column [0-9]+', json_error_msg)
-    if column_search is not None:
-        cs = column_search.group().split(' ')
-        if len(cs) == 2:
-            column = int(cs[1])
-    result = [line, column]
+            # Column position search
+            column_search = re.search('column [0-9]+', json_error_msg)
+            if column_search is not None:
+                cs = column_search.group().split(' ')
+                if len(cs) == 2:
+                    column = int(cs[1])
+                    result = [line, column]
     return result
 
 
@@ -721,6 +721,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 if json_format_defect_pos is not None:
                     line = json_format_defect_pos[0]
                     column = json_format_defect_pos[1]
+                    print
                     show_json_file_format_error(json_spec_filename, line, column)
 
     except IOError as fileopen_error_msg:
