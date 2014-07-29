@@ -83,6 +83,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     I2C_Enable(obj->i2c, 1);
 
+    /* Enable General Call Address Mode. That is; we respond to the general address (0x0) */
+    obj->i2c->CTRL |= _I2C_CTRL_GCAMEN_MASK; 
+
     i2c_frequency(obj, 100000); //Set to 100kHz by default
 
     /* After a reset BUSY is usually set. We assume that we are the only master and call abort, 
@@ -268,8 +271,15 @@ int i2c_slave_receive(i2c_t *obj)
 {
 
     if(obj->i2c->IF & I2C_IF_ADDR){
-        obj->i2c->RXDATA; //Read the address;
         obj->i2c->IFC = I2C_IF_ADDR; //Clear interrupt
+        /*0x00 is the address for general write. 
+         The address the master wrote is in RXDATA now
+         and reading it also frees the buffer for the next 
+         write which can then be acked. */
+        if(obj->i2c->RXDATA == 0x00){
+            return WriteGeneral; //Read the address;
+        }
+
         if(obj->i2c->STATE & I2C_STATE_TRANSMITTER){
             return ReadAddressed;
         }else{
