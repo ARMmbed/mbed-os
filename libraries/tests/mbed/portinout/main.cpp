@@ -9,6 +9,20 @@
 #define P2_2    (1 << 3)
 #define PORT_2  PortC
 
+#elif defined(TARGET_EFM32LG_STK3600) \
+    ||defined(TARGET_EFM32GG_STK3700) \
+    ||defined(TARGET_EFM32TG_STK3300) \
+    ||defined(TARGET_EFM32_G8XX_STK) \
+    ||defined(TARGET_EFM32WG_STK3800)
+#define P1_1    (1 <<  5) // p0.9
+#define P1_2    (1 <<  4) // p0.8
+#define PORT_1  PortD
+
+#define P2_1    (1 << 12) // p1.24
+#define P2_2    (1 << 11) // p1.25
+#define PORT_2  PortB
+
+
 #elif defined(TARGET_LPC11U24)
 #define P1_1    (1 <<  9) // p0.9
 #define P1_2    (1 <<  8) // p0.8
