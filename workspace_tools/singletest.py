@@ -1052,6 +1052,11 @@ if __name__ == '__main__':
                       default=None,
                       help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
 
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
+
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
                       default=False,
@@ -1088,7 +1093,7 @@ if __name__ == '__main__':
 
     # Only prints matrix of supported toolchains
     if opts.supported_toolchains:
-        mcu_toolchain_matrix()
+        print mcu_toolchain_matrix(platform_filter=opts.general_filter_regex)
         exit(0)
 
     # Open file with test specification

@@ -74,7 +74,7 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the DSP library")
 
-    parser.add_option("-f", "--fat",
+    parser.add_option("-F", "--fat",
                       action="store_true",
                       dest="fat",
                       default=False,
@@ -103,6 +103,11 @@ if __name__ == '__main__':
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
 
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
+
     parser.add_option("-v", "--verbose",
                       action="store_true",
                       dest="verbose",
@@ -119,7 +124,7 @@ if __name__ == '__main__':
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
-        print mcu_toolchain_matrix()
+        print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
 
     # Get target list

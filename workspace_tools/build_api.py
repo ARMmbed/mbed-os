@@ -17,6 +17,7 @@ limitations under the License.
 """
 
 import tempfile
+import re
 from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
@@ -242,7 +243,7 @@ def get_unique_supported_toolchains():
     return unique_supported_toolchains
 
 
-def mcu_toolchain_matrix(verbose_html=False):
+def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
     """  Shows target map using prettytable """
     unique_supported_toolchains = get_unique_supported_toolchains()
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
@@ -257,6 +258,11 @@ def mcu_toolchain_matrix(verbose_html=False):
 
     perm_counter = 0
     for target in sorted(TARGET_NAMES):
+        if platform_filter is not None:
+            # FIlter out platforms using regex
+            if re.search(platform_filter, target) is None:
+                continue
+
         row = [target]  # First column is platform name
         default_toolchain = TARGET_MAP[target].default_toolchain
         for unique_toolchain in unique_supported_toolchains:
