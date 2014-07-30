@@ -130,3 +130,15 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
     FRESULT res = f_mkdir(name);
     return res == 0 ? 0 : -1;
 }
+
+int FATFileSystem::mount() {
+    FRESULT res = f_mount(_fsid, &_fs);
+    return res == 0 ? 0 : -1;
+}
+
+int FATFileSystem::unmount() {
+    if (disk_sync())
+        return -1;
+    FRESULT res = f_mount(_fsid, NULL);
+    return res == 0 ? 0 : -1;
+}
