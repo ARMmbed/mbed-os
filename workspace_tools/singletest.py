@@ -1000,7 +1000,7 @@ class SingleTestExecutor(threading.Thread):
         test_summary, shuffle_seed = single_test.execute()
 
         elapsed_time = time() - start
-        
+
         # Human readable summary
         if not single_test.opts_suppress_summary:
             # prints well-formed summary with results (SQL table like)
@@ -1267,6 +1267,6 @@ if __name__ == '__main__':
 
         rest_api_port = int(opts.rest_api_port_no) if opts.rest_api_port_no else 5555
         app.debug = False
-        app.run(port=rest_api_port)
+        app.run(port=rest_api_port) # Blocking Flask REST API web service
     else:
         st_exec_thread.join()
