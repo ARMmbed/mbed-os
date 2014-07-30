@@ -264,7 +264,7 @@ class SingleTestRunner(object):
                 success_code = -1
         return json.dumps(self.get_rest_result_template(result, 'request/' + request_type, success_code), indent=4)
 
-    def shuffle_random(self):
+    def shuffle_random_func(self):
         return self.shuffle_random_seed
 
     def is_shuffle_seed_float(self):
@@ -313,7 +313,7 @@ class SingleTestRunner(object):
                 # Enumerate through all tests
                 test_map_keys = TEST_MAP.keys()
                 if self.opts_shuffle_test_order:
-                    random.shuffle(test_map_keys, self.shuffle_random)
+                    random.shuffle(test_map_keys, self.shuffle_random_func)
 
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
@@ -432,8 +432,8 @@ class SingleTestRunner(object):
                 pt.add_row(row)
             result += pt.get_string()
             shuffle_seed_text = "Shuffle Seed: %.*f"% (self.SHUFFLE_SEED_ROUND,
-                                                      shuffle_seed if shuffle_seed else self.shuffle_random_seed)
-            result += "\n%s\n"% shuffle_seed_text
+                                                       shuffle_seed if shuffle_seed else self.shuffle_random_seed)
+            result += "\n%s"% (shuffle_seed_text if self.opts_shuffle_test_order else '')
         return result
 
 
@@ -473,7 +473,7 @@ class SingleTestRunner(object):
         result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
         shuffle_seed_text = "Shuffle Seed: %.*f\n"% (self.SHUFFLE_SEED_ROUND,
                                                     shuffle_seed if shuffle_seed else self.shuffle_random_seed)
-        result += "\n%s"% shuffle_seed_text
+        result += "\n%s"% (shuffle_seed_text if self.opts_shuffle_test_order else '')
         return result
 
 
@@ -994,11 +994,13 @@ class SingleTestExecutor(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        start = time()
+
         # Execute tests depending on options and filter applied
         test_summary, shuffle_seed = single_test.execute()
 
         elapsed_time = time() - start
-
+        
         # Human readable summary
         if not single_test.opts_suppress_summary:
             # prints well-formed summary with results (SQL table like)
@@ -1009,7 +1011,7 @@ class SingleTestExecutor(threading.Thread):
             # table shows text x toolchain test result matrix
             print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
 
-        print "Completed in %d sec" % (time() - start)
+        print "Completed in %d sec"% (elapsed_time)
 
 
 if __name__ == '__main__':
@@ -1212,7 +1214,6 @@ if __name__ == '__main__':
         # We are skipping testing phase, and suppress summary
         opts.suppress_summary = True
 
-    start = time()
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
@@ -1232,7 +1233,10 @@ if __name__ == '__main__':
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary
                                    )
 
-    st_exec_thread = SingleTestExecutor(single_test)
+    try:
+        st_exec_thread = SingleTestExecutor(single_test)
+    except KeyboardInterrupt, e:
+        print "\n[CTRL+c] exit"
     st_exec_thread.start()
 
     if opts.rest_api_enabled:
