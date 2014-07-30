@@ -108,6 +108,15 @@ from workspace_tools.utils import construct_enum
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+# Simple version control
+SINGLE_TEST_VERSION_MAJOR = 1
+SINGLE_TEST_VERSION_MINOR = 1
+
+
+def get_version():
+    """ Returns test script version """
+    return (SINGLE_TEST_VERSION_MAJOR, SINGLE_TEST_VERSION_MINOR)
+
 
 class ProcessObserver(Thread):
     def __init__(self, proc):
