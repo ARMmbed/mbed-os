@@ -15,6 +15,8 @@
  */
 #include "serial_api.h"
 
+#if DEVICE_SERIAL
+
 // math.h required for floating point operations for baud rate calculation
 #include <math.h>
 #include "mbed_assert.h"
@@ -213,3 +215,4 @@ void serial_break_clear(serial_t *obj) {
     uart_hal_queue_break_char_to_send(obj->index, false);
 }
 
+#endif

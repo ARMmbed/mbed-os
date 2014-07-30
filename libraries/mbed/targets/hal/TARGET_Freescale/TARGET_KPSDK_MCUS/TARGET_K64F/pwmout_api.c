@@ -16,6 +16,8 @@
 #include "mbed_assert.h"
 #include "pwmout_api.h"
 
+#if DEVICE_PWMOUT
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "fsl_ftm_hal.h"
@@ -124,3 +126,5 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     uint32_t value = (uint32_t)(pwm_clock_mhz * (float)us);
     ftm_hal_set_channel_count_value(obj->pwm_name >> TPM_SHIFT, obj->pwm_name & 0xF, value);
 }
+
+#endif
