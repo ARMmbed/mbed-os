@@ -205,7 +205,7 @@ TESTS = [
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "mcu": ["LPC1768"],
+        "automated": True,
         "peripherals": ["i2c_loop"]
     },
     {
