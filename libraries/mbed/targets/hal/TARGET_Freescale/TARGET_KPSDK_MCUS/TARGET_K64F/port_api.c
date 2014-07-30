@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "port_api.h"
+
+#if DEVICE_PORTIN || DEVICE_PORTOUT
+
 #include "pinmap.h"
 #include "gpio_api.h"
 
@@ -67,3 +70,5 @@ void port_write(port_t *obj, int value) {
 int port_read(port_t *obj) {
     return (int)(gpio_hal_read_port_input((uint32_t)obj->port) & obj->mask);
 }
+
+#endif

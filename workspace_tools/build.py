@@ -55,6 +55,8 @@ if __name__ == '__main__':
                       default=False, help="Compile the USB Device library")
     parser.add_option("-d", "--dsp", action="store_true", dest="dsp",
                       default=False, help="Compile the DSP library")
+    parser.add_option("-f", "--fat", action="store_true", dest="fat",
+                      default=False, help="Compile FS ad SD card file system library")
     parser.add_option("-b", "--ublox", action="store_true", dest="ublox",
                       default=False, help="Compile the u-blox library")
     parser.add_option("-D", "", action="append", dest="macros",
@@ -110,6 +112,8 @@ if __name__ == '__main__':
         libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["cmsis_dsp", "dsp"])
+    if options.fat:
+        libraries.extend(["fat"])
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
 
