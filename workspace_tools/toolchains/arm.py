@@ -44,7 +44,7 @@ class ARM(mbedToolchain):
         common = ["-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict"
+            "--brief_diagnostics", "--restrict", "--multibyte_chars"
         ]
 
         if "save-asm" in self.options:
