@@ -418,7 +418,7 @@ class NRF51822(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822"]
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
 
@@ -522,7 +522,7 @@ class XADOW_M0(LPC11U35_501):
 class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
+        self.extra_labels = ['NORDIC', 'NRF51822']
         self.macros = ['TARGET_NRF51822']
 
 
@@ -549,7 +549,7 @@ class LPCCAPPUCCINO(LPC11U37_501):
 class HRM1017(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
+        self.extra_labels = ['NORDIC', 'NRF51822']
         self.macros = ['TARGET_NRF51822']
 
 
@@ -565,7 +565,7 @@ class ARM_MPS2(Target):
 class RBLAB_NRF51822(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
+        self.extra_labels = ['NORDIC', 'NRF51822']
         self.macros = ['TARGET_NRF51822']
         
 
