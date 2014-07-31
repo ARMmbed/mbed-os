@@ -86,6 +86,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     /* Enable General Call Address Mode. That is; we respond to the general address (0x0) */
     obj->i2c->CTRL |= _I2C_CTRL_GCAMEN_MASK; 
 
+    /* We are assuming that there is only one master. So disable automatic arbitration */
+    obj->i2c->CTRL |= _I2C_CTRL_ARBDIS_MASK; 
+
     i2c_frequency(obj, 100000); //Set to 100kHz by default
 
     /* After a reset BUSY is usually set. We assume that we are the only master and call abort, 
@@ -190,7 +193,7 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     int timeout = I2C_TIMEOUT;
     /* Wait for data */
-    while (!(obj->i2c->IF & I2C_IF_RXDATAV) && timeout--);
+    while (!(obj->i2c->STATUS & I2C_STATUS_RXDATAV) && timeout--);
 
     if (timeout <= 0) {
         return 0; //TODO Is this the correct way to handle this?
