@@ -271,8 +271,7 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
 
   // Traverse all descriptors, looking for the ones modified by the uDMA
   i = k64f_enet->tx_consume_index;
-  while(i != k64f_enet->tx_produce_index) {
-    if (bdPtr[i].controlExtend2 & TX_DESC_UPDATED_MASK) { // descriptor updated by uDMA
+  while(i != k64f_enet->tx_produce_index && !(bdPtr[i].control & kEnetTxBdReady)) {
       if (k64f_enet->txb_aligned[i]) {
         free(k64f_enet->txb_aligned[i]);
         k64f_enet->txb_aligned[i] = NULL;
@@ -282,8 +281,7 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
       }
       osSemaphoreRelease(k64f_enet->xTXDCountSem.id);
       bdPtr[i].controlExtend2 &= ~TX_DESC_UPDATED_MASK;
-    }
-    i = (i + 1) % ENET_TX_RING_LEN;
+      i = (i + 1) % ENET_TX_RING_LEN;
   }
   k64f_enet->tx_consume_index = i;
 

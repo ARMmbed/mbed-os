@@ -22,10 +22,10 @@ except ImportError, e:
     print "Error: Can't import 'serial' module: %s"% e
     exit(-1)
 
+import os
 from optparse import OptionParser
 from time import sleep
 from sys import stdout
-
 
 class Mbed:
     """
@@ -34,20 +34,34 @@ class Mbed:
     def __init__(self):
         parser = OptionParser()
 
-        parser.add_option("-m", "--micro", dest="micro",
-                      help="The target microcontroller ", metavar="MICRO")
+        parser.add_option("-m", "--micro",
+                          dest="micro",
+                          help="The target microcontroller ",
+                          metavar="MICRO")
 
-        parser.add_option("-p", "--port", dest="port",
-                      help="The serial port of the target mbed (ie: COM3)", metavar="PORT")
+        parser.add_option("-p", "--port",
+                          dest="port",
+                          help="The serial port of the target mbed (ie: COM3)",
+                          metavar="PORT")
 
-        parser.add_option("-d", "--disk", dest="disk",
-                      help="The target disk path", metavar="DISK_PATH")
+        parser.add_option("-d", "--disk",
+                          dest="disk",
+                          help="The target disk path",
+                          metavar="DISK_PATH")
 
-        parser.add_option("-t", "--timeout", dest="timeout",
-                      help="Timeout", metavar="TIMEOUT")
+        parser.add_option("-t", "--timeout",
+                          dest="timeout",
+                          help="Timeout",
+                          metavar="TIMEOUT")
 
-        parser.add_option("-e", "--extra", dest="extra",
-                      help="Extra serial port (used by some tests)", metavar="EXTRA")
+        parser.add_option("-e", "--extra",
+                          dest="extra",
+                          help="Extra serial port (used by some tests)", 
+                          metavar="EXTRA")
+
+        parser.add_option("-r", "--reset",
+                          dest="forced_reset_type",
+                          help="Forces different type of reset")
 
         (self.options, _) = parser.parse_args()
 
@@ -112,9 +126,21 @@ class Mbed:
                 result = False
         return result
 
+    def touch_file(self, path, name):
+        with os.open(path, 'a'):
+            os.utime(path, None)
+
     def reset(self):
-        self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-        # Give time to wait for the image loading
+        """ reboot.txt   - startup from standby state, reboots when in run mode.
+            shutdown.txt - shutdown from run mode
+            reset.txt    - reset fpga during run mode """
+        if self.options.forced_reset_type:
+            path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
+            if self.options.forced_reset_type.endswith('.txt'):
+                self.touch_file(path)
+        else:
+            self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
+            # Give time to wait for the image loading
         sleep(2)
 
     def flush(self):
