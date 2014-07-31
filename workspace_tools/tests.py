@@ -249,6 +249,7 @@ TESTS = [
         "id": "MBED_A26", "description": "I2C slave addressing test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_slave_addressing"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
+        "automated": True,
         "peripherals": ["i2c_loop"]
     },
     {
