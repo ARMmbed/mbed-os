@@ -510,20 +510,47 @@ class SingleTestRunner(object):
             result = self.TEST_LOOPS_DICT[test_id]
         return result
 
+    def file_store_firefox(self, file_path, dest_disk):
+        try:
+            from selenium import webdriver
+        except ImportError, e:
+            print "Error: firefox copy method requires selenium library. %s"% e
+            exit(-1)
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference('browser.download.folderList', 2) # custom location
+        profile.set_preference('browser.download.manager.showWhenStarting', False)
+        profile.set_preference('browser.download.dir', dest_disk)
+        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+
+        # Launch browser with profile and get file
+        browser = webdriver.Firefox(profile)
+        browser.get(file_path)
+        browser.close()
+
     def file_copy_method_selector(self, image_path, disk, copy_method):
         """ Copy file depending on method you want to use. Handles exception
             and return code from shell copy commands. """
         result = True
         resutl_msg = ""
-        if copy_method == "cp" or  copy_method == "copy" or copy_method == "xcopy":
-            cmd = [copy_method,
-                   image_path.encode('ascii', 'ignore'),
-                   disk.encode('ascii', 'ignore') +  basename(image_path).encode('ascii', 'ignore')]
+        if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
+            source_path = image_path.encode('ascii', 'ignore')
+            destination_path = os.path.join(disk.encode('ascii', 'ignore'),  basename(image_path).encode('ascii', 'ignore'))
+
+            cmd = [copy_method, source_path, destination_path]
             try:
+                print cmd
                 ret = call(cmd, shell=True)
                 if ret:
                     resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
                     result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
+        if copy_method == 'firefox':
+            try:
+                source_path = image_path.encode('ascii', 'ignore')
+                destination_path = disk.encode('ascii', 'ignore')
+                self.file_store_firefox(source_path, destination_path)
             except Exception, e:
                 resutl_msg = e
                 result = False
