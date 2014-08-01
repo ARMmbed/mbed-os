@@ -17,6 +17,7 @@ limitations under the License.
 """
 
 import tempfile
+import re
 from os.path import join, exists, basename
 from shutil import rmtree
 from types import ListType
@@ -161,7 +162,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
                       lib.dependencies, options,
                       verbose=verbose, clean=clean, macros=MACROS, notify=notify, inc_dirs=lib.inc_dirs)
     else:
-        print '\n\nLibrary "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
@@ -242,7 +243,7 @@ def get_unique_supported_toolchains():
     return unique_supported_toolchains
 
 
-def mcu_toolchain_matrix(verbose_html=False):
+def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
     """  Shows target map using prettytable """
     unique_supported_toolchains = get_unique_supported_toolchains()
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
@@ -256,7 +257,14 @@ def mcu_toolchain_matrix(verbose_html=False):
     pt.align["Platform"] = "l"
 
     perm_counter = 0
+    target_counter = 0
     for target in sorted(TARGET_NAMES):
+        if platform_filter is not None:
+            # FIlter out platforms using regex
+            if re.search(platform_filter, target) is None:
+                continue
+        target_counter += 1
+
         row = [target]  # First column is platform name
         default_toolchain = TARGET_MAP[target].default_toolchain
         for unique_toolchain in unique_supported_toolchains:
@@ -275,7 +283,7 @@ def mcu_toolchain_matrix(verbose_html=False):
     result += "*Default - default on-line compiler\n"
     result += "*Supported - supported off-line compiler\n"
     result += "\n"
-    result += "Total platforms: %d\n"% (len(TARGET_NAMES))
+    result += "Total platforms: %d\n"% (target_counter)
     result += "Total permutations: %d"% (perm_counter)
     return result
 
@@ -489,4 +497,5 @@ def print_build_results(result_list, build_name):
     if result_list:
         result += build_name + "\n"
         result += "\n".join(["  * %s" % f for f in result_list])
+        result += "\n"
     return result

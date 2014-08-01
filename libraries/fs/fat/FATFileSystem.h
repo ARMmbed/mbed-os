@@ -44,6 +44,8 @@ public:
     virtual int format();
     virtual DirHandle *opendir(const char *name);
     virtual int mkdir(const char *name, mode_t mode);
+    virtual int mount();
+    virtual int unmount();
 
     virtual int disk_initialize() { return 0; }
     virtual int disk_status() { return 0; }
