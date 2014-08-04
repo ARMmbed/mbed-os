@@ -37,15 +37,15 @@ from threading import Thread
 from subprocess import Popen, PIPE, call
 
 # Imports related to mbed build api
-from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
-from workspace_tools.build_api import get_target_supported_toolchains
-from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
-from workspace_tools.targets import TARGET_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
 from workspace_tools.utils import construct_enum
+from workspace_tools.targets import TARGET_MAP
+from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
+from workspace_tools.build_api import get_target_supported_toolchains
+from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 
 
 class ProcessObserver(Thread):
@@ -486,7 +486,7 @@ class SingleTestRunner(object):
         resutl_msg = ""
         if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
             source_path = image_path.encode('ascii', 'ignore')
-            destination_path = os.path.join(disk.encode('ascii', 'ignore'),  basename(image_path).encode('ascii', 'ignore'))
+            destination_path = os.path.join(disk.encode('ascii', 'ignore'), basename(image_path).encode('ascii', 'ignore'))
 
             cmd = [copy_method, source_path, destination_path]
             try:
@@ -790,9 +790,9 @@ def print_muts_configuration_from_json(json_data, join_delim=", "):
     # We need to check all unique properties for each defined MUT
     for k in json_data:
         mut_info = json_data[k]
-        for property in mut_info:
-            if property not in muts_info_cols:
-                muts_info_cols.append(property)
+        for mut_property in mut_info:
+            if mut_property not in muts_info_cols:
+                muts_info_cols.append(mut_property)
 
     # Prepare pretty table object to display all MUTs
     pt_cols = ["index"] + muts_info_cols
@@ -868,7 +868,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
         for target in toolchain_conflicts:
             if target not in TARGET_MAP:
                 result += "\t* Target %s unknown\n"% (target)
-            conflict_target_list = ", ".join(toolchain_conflicts[target])
+            conflict_target_list = join_delim.join(toolchain_conflicts[target])
             sufix = 's' if len(toolchain_conflicts[target]) > 1 else ''
             result += "\t* Target %s does not support %s toolchain%s\n"% (target, conflict_target_list, sufix)
     return result

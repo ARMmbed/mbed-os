@@ -81,19 +81,19 @@ sys.path.insert(0, ROOT)
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
-from test_api import SingleTestRunner
-from test_api import get_json_data_from_file
-from test_api import print_muts_configuration_from_json
-from test_api import print_test_configuration_from_json
-from test_api import get_avail_tests_summary_table
-from test_api import get_default_test_options_parser
+from workspace_tools.test_api import SingleTestRunner
+from workspace_tools.test_api import get_json_data_from_file
+from workspace_tools.test_api import print_muts_configuration_from_json
+from workspace_tools.test_api import print_test_configuration_from_json
+from workspace_tools.test_api import get_avail_tests_summary_table
+from workspace_tools.test_api import get_default_test_options_parser
 
 
 def get_version():
     """ Returns test script version """
-    SINGLE_TEST_VERSION_MAJOR = 1
-    SINGLE_TEST_VERSION_MINOR = 1
-    return (SINGLE_TEST_VERSION_MAJOR, SINGLE_TEST_VERSION_MINOR)
+    single_test_version_major = 1
+    single_test_version_minor = 1
+    return (single_test_version_major, single_test_version_minor)
 
 
 if __name__ == '__main__':
