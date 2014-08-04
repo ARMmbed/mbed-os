@@ -19,16 +19,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
-//static const PinMap PinMap_I2C_SDA[] = {
-//    {P0_5, I2C_0, 1},
-//    {NC  , NC   , 0}
-//};
-//
-//static const PinMap PinMap_I2C_SCL[] = {
-//    {P0_4, I2C_0, 1},
-//    {NC  , NC,    0}
-//};
-
 #define I2C_CONSET(x)       (x->i2c->CONSET)
 #define I2C_CONCLR(x)       (x->i2c->CONCLR)
 #define I2C_STAT(x)         (x->i2c->STAT)
