@@ -70,6 +70,7 @@ except ImportError, e:
 
 import sys
 import optparse
+from time import time
 from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
@@ -81,11 +82,11 @@ from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
 from test_api import SingleTestRunner
-from test_api import SingleTestExecutor
 from test_api import get_json_data_from_file
 from test_api import print_muts_configuration_from_json
 from test_api import print_test_configuration_from_json
 from test_api import get_avail_tests_summary_table
+from test_api import get_default_test_options_parser
 
 
 def get_version():
@@ -97,146 +98,7 @@ def get_version():
 
 if __name__ == '__main__':
     # Command line options
-    parser = optparse.OptionParser()
-    parser.add_option('-i', '--tests',
-                      dest='test_spec_filename',
-                      metavar="FILE",
-                      help='Points to file with test specification')
-
-    parser.add_option('-M', '--MUTS',
-                      dest='muts_spec_filename',
-                      metavar="FILE",
-                      help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
-
-    parser.add_option('-g', '--goanna-for-tests',
-                      dest='goanna_for_tests',
-                      metavar=False,
-                      action="store_true",
-                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
-
-    parser.add_option('-G', '--goanna-for-sdk',
-                      dest='goanna_for_mbed_sdk',
-                      metavar=False,
-                      action="store_true",
-                      help='Run Goanna static analyse tool for mbed SDK (Project will be rebuilded)')
-
-    parser.add_option('-s', '--suppress-summary',
-                      dest='suppress_summary',
-                      default=False,
-                      action="store_true",
-                      help='Suppresses display of wellformatted table with test results')
-
-    parser.add_option('-t', '--test-summary',
-                      dest='test_x_toolchain_summary',
-                      default=False,
-                      action="store_true",
-                      help='Displays wellformatted table with test x toolchain test result per target')
-
-    parser.add_option('-r', '--test-automation-report',
-                      dest='test_automation_report',
-                      default=False,
-                      action="store_true",
-                      help='Prints information about all tests and exits')
-
-    parser.add_option('-R', '--test-case-report',
-                      dest='test_case_report',
-                      default=False,
-                      action="store_true",
-                      help='Prints information about all test cases and exits')
-
-    parser.add_option('-P', '--only-peripherals',
-                      dest='test_only_peripheral',
-                      default=False,
-                      action="store_true",
-                      help='Test only peripheral declared for MUT and skip common tests')
-
-    parser.add_option('-C', '--only-commons',
-                      dest='test_only_common',
-                      default=False,
-                      action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests.')
-
-    parser.add_option('-c', '--copy-method',
-                      dest='copy_method',
-                      help="You can choose which copy method you want to use put bin in mbed. You can choose from 'cp', 'copy', 'xcopy'. Default is python shutils.copy method.")
-
-    parser.add_option('-n', '--test-by-names',
-                      dest='test_by_names',
-                      help='Runs only test enumerated it this switch')
-
-    parser.add_option("-S", "--supported-toolchains",
-                      action="store_true",
-                      dest="supported_toolchains",
-                      default=False,
-                      help="Displays supported matrix of MCUs and toolchains")
-
-    parser.add_option("-O", "--only-build",
-                      action="store_true",
-                      dest="only_build_tests",
-                      default=False,
-                      help="Only build tests, skips actual test procedures (flashing etc.)")
-
-    parser.add_option('', '--config',
-                      dest='verbose_test_configuration_only',
-                      default=False,
-                      action="store_true",
-                      help='Displays full test specification and MUTs configration and exits')
-
-    parser.add_option('', '--loops',
-                      dest='test_loops_list',
-                      help='Set no. of loops per test. Format: TEST_1=1,TEST_2=2,TEST_3=3')
-
-    parser.add_option('', '--global-loops',
-                      dest='test_global_loops_value',
-                      help='Set global number of test loops per test. Default value is set 1')
-
-    parser.add_option('', '--firmware-name',
-                      dest='firmware_global_name',
-                      help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
-
-    parser.add_option('-u', '--shuffle',
-                      dest='shuffle_test_order',
-                      default=False,
-                      action="store_true",
-                      help='Shuffles test execution order')
-
-    parser.add_option('', '--shuffle-seed',
-                      dest='shuffle_test_seed',
-                      default=None,
-                      help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
-
-    parser.add_option('-f', '--filter',
-                      dest='general_filter_regex',
-                      default=None,
-                      help='For some commands you can use filter to filter out results')
-
-    parser.add_option('', '--rest-api',
-                      dest='rest_api_enabled',
-                      default=False,
-                      action="store_true",
-                      help='Enables REST API.')
-
-    parser.add_option('', '--rest-api-port',
-                      dest='rest_api_port_no',
-                      help='Sets port for REST API interface')
-
-    parser.add_option('', '--verbose-skipped',
-                      dest='verbose_skipped_tests',
-                      default=False,
-                      action="store_true",
-                      help='Prints some extra information about skipped tests')
-
-    parser.add_option('-V', '--verbose-test-result',
-                      dest='verbose_test_result_only',
-                      default=False,
-                      action="store_true",
-                      help='Prints test serial output')
-
-    parser.add_option('-v', '--verbose',
-                      dest='verbose',
-                      default=False,
-                      action="store_true",
-                      help='Verbose mode (prints some extra information)')
+    parser = get_default_test_options_parser()
 
     parser.description = """This script allows you to run mbed defined test cases for particular MCU(s) and corresponding toolchain(s)."""
     parser.epilog = """Example: singletest.py -i test_spec.json -M muts_all.json"""
@@ -316,40 +178,16 @@ if __name__ == '__main__':
                                    _opts_copy_method=opts.copy_method
                                    )
 
-    try:
-        st_exec_thread = SingleTestExecutor(single_test)
-    except KeyboardInterrupt, e:
-        print "\n[CTRL+c] exit"
-    st_exec_thread.start()
-
-    if opts.rest_api_enabled:
-        # Enable REST API
-        from flask import Flask
-        app = Flask(__name__)
-
-        @app.route('/')
-        def hello_world():
-            return 'Hello World!'
-
-        @app.route('/status')
-        def rest_api_status():
-            return single_test.rest_api_status() # TODO
-
-        @app.route('/config')
-        def rest_api_config():
-            return single_test.rest_api_config() # TODO
-
-        @app.route('/log')
-        def rest_api_log():
-            return single_test.rest_api_log() # TODO
-
-        @app.route('/request/<request_type>') # 'muts', 'test_spec', 'test_results'
-        def rest_api_request_handler(request_type):
-            result = single_test.rest_api_request_handler(request_type) # TODO
-            return result
-
-        rest_api_port = int(opts.rest_api_port_no) if opts.rest_api_port_no else 5555
-        app.debug = False
-        app.run(port=rest_api_port) # Blocking Flask REST API web service
-    else:
-        st_exec_thread.join()
+    start = time()
+    # Execute tests depending on options and filter applied
+    test_summary, shuffle_seed = single_test.execute()
+    elapsed_time = time() - start
+    # Human readable summary
+    if not single_test.opts_suppress_summary:
+        # prints well-formed summary with results (SQL table like)
+        print single_test.generate_test_summary(test_summary, shuffle_seed)
+    if single_test.opts_test_x_toolchain_summary:
+        # prints well-formed summary with results (SQL table like)
+        # table shows text x toolchain test result matrix
+        print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
+    print "Completed in %d sec"% (elapsed_time)

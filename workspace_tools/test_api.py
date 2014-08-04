@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2014 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 import os
@@ -22,28 +24,27 @@ import json
 import pprint
 import random
 import thread
+import optparse
 import threading
 from types import ListType
 from prettytable import PrettyTable
 
-from subprocess import Popen, PIPE
-from threading import Thread
-from Queue import Queue, Empty
 from time import sleep, time
-from os.path import join, exists, basename
+from Queue import Queue, Empty
 from shutil import copy
-from subprocess import call
+from os.path import join, exists, basename
+from threading import Thread
+from subprocess import Popen, PIPE, call
 
 # Imports related to mbed build api
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
-from workspace_tools.build_api import get_unique_supported_toolchains
 from workspace_tools.build_api import get_target_supported_toolchains
+from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
+from workspace_tools.targets import TARGET_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
-from workspace_tools.targets import TARGET_MAP
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
-from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.utils import construct_enum
 
 
@@ -971,3 +972,150 @@ def progress_bar(percent_progress, saturation=0):
         saturation = saturation / 2
         str_progress = str_progress[:saturation] + c + str_progress[saturation:]
     return str_progress
+
+
+def get_default_test_options_parser():
+    """ Get common test script options used by CLI, webservices etc. """
+    parser = optparse.OptionParser()
+    parser.add_option('-i', '--tests',
+                      dest='test_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with test specification')
+
+    parser.add_option('-M', '--MUTS',
+                      dest='muts_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
+
+    parser.add_option('-g', '--goanna-for-tests',
+                      dest='goanna_for_tests',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
+
+    parser.add_option('-G', '--goanna-for-sdk',
+                      dest='goanna_for_mbed_sdk',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for mbed SDK (Project will be rebuilded)')
+
+    parser.add_option('-s', '--suppress-summary',
+                      dest='suppress_summary',
+                      default=False,
+                      action="store_true",
+                      help='Suppresses display of wellformatted table with test results')
+
+    parser.add_option('-t', '--test-summary',
+                      dest='test_x_toolchain_summary',
+                      default=False,
+                      action="store_true",
+                      help='Displays wellformatted table with test x toolchain test result per target')
+
+    parser.add_option('-r', '--test-automation-report',
+                      dest='test_automation_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all tests and exits')
+
+    parser.add_option('-R', '--test-case-report',
+                      dest='test_case_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all test cases and exits')
+
+    parser.add_option('-P', '--only-peripherals',
+                      dest='test_only_peripheral',
+                      default=False,
+                      action="store_true",
+                      help='Test only peripheral declared for MUT and skip common tests')
+
+    parser.add_option('-C', '--only-commons',
+                      dest='test_only_common',
+                      default=False,
+                      action="store_true",
+                      help='Test only board internals. Skip perpherials tests and perform common tests.')
+
+    parser.add_option('-c', '--copy-method',
+                      dest='copy_method',
+                      help="You can choose which copy method you want to use put bin in mbed. You can choose from 'cp', 'copy', 'xcopy'. Default is python shutils.copy method.")
+
+    parser.add_option('-n', '--test-by-names',
+                      dest='test_by_names',
+                      help='Runs only test enumerated it this switch')
+
+    parser.add_option("-S", "--supported-toolchains",
+                      action="store_true",
+                      dest="supported_toolchains",
+                      default=False,
+                      help="Displays supported matrix of MCUs and toolchains")
+
+    parser.add_option("-O", "--only-build",
+                      action="store_true",
+                      dest="only_build_tests",
+                      default=False,
+                      help="Only build tests, skips actual test procedures (flashing etc.)")
+
+    parser.add_option('', '--config',
+                      dest='verbose_test_configuration_only',
+                      default=False,
+                      action="store_true",
+                      help='Displays full test specification and MUTs configration and exits')
+
+    parser.add_option('', '--loops',
+                      dest='test_loops_list',
+                      help='Set no. of loops per test. Format: TEST_1=1,TEST_2=2,TEST_3=3')
+
+    parser.add_option('', '--global-loops',
+                      dest='test_global_loops_value',
+                      help='Set global number of test loops per test. Default value is set 1')
+
+    parser.add_option('', '--firmware-name',
+                      dest='firmware_global_name',
+                      help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
+
+    parser.add_option('-u', '--shuffle',
+                      dest='shuffle_test_order',
+                      default=False,
+                      action="store_true",
+                      help='Shuffles test execution order')
+
+    parser.add_option('', '--shuffle-seed',
+                      dest='shuffle_test_seed',
+                      default=None,
+                      help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
+
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
+
+
+    # Things related to webservices offered by test suite scripts
+    #parser.add_option('', '--rest-api',
+    #                  dest='rest_api_enabled',
+    #                  default=False,
+    #                  action="store_true",
+    #                  help='Enables REST API.')
+
+    #parser.add_option('', '--rest-api-port',
+    #                  dest='rest_api_port_no',
+    #                  help='Sets port for REST API interface')
+
+    parser.add_option('', '--verbose-skipped',
+                      dest='verbose_skipped_tests',
+                      default=False,
+                      action="store_true",
+                      help='Prints some extra information about skipped tests')
+
+    parser.add_option('-V', '--verbose-test-result',
+                      dest='verbose_test_result_only',
+                      default=False,
+                      action="store_true",
+                      help='Prints test serial output')
+
+    parser.add_option('-v', '--verbose',
+                      dest='verbose',
+                      default=False,
+                      action="store_true",
+                      help='Verbose mode (prints some extra information)')
+    return parser
