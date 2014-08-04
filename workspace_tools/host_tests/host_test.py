@@ -56,7 +56,7 @@ class Mbed:
 
         parser.add_option("-e", "--extra",
                           dest="extra",
-                          help="Extra serial port (used by some tests)", 
+                          help="Extra serial port (used by some tests)",
                           metavar="EXTRA")
 
         parser.add_option("-r", "--reset",
@@ -95,14 +95,20 @@ class Mbed:
         """ Wraps self.mbed.serial object read method """
         result = None
         if self.serial:
-            result = self.serial.read(count)
+            try:
+                result = self.serial.read(count)
+            except:
+                result = None
         return result
 
     def serial_write(self, write_buffer):
         """ Wraps self.mbed.serial object write method """
         result = -1
         if self.serial:
-            result = self.serial.write(write_buffer)
+            try:
+                result = self.serial.write(write_buffer)
+            except:
+               result = -1
         return result
 
     def safe_sendBreak(self, serial):

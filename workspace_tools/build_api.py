@@ -235,6 +235,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         toolchain.copy_files(o, BUILD_TOOLCHAIN)
     return True
 
+
 def get_unique_supported_toolchains():
     """ Get list of all unique toolchains supported by targets """
     unique_supported_toolchains = []
