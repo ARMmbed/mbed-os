@@ -36,13 +36,12 @@ void analogout_init(dac_t *obj, PinName pin) {
     obj->channel = pin_location(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->channel != NC);
     
-    /* There are two channels, 0 and 1, mapped to PB11 and PB12, respectively. */
+    /* Enable the DAC clock */
     switch ((int) obj->dac) {
         case DAC_0:
             CMU_ClockEnable(cmuClock_DAC0, true);
             break;
     }
-    /* Enable the DAC clock */
 
     if (!initialized) {
         /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
