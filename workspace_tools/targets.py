@@ -124,7 +124,7 @@ class KL46Z(Target):
         self.is_disk_virtual = True
 
 
-class K20D5M(Target):
+class K20D50M(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -137,11 +137,12 @@ class K64F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'FRDM']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
 
 
 class LPC812(Target):
@@ -385,7 +386,7 @@ class LPC11U37_501(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
 
 
@@ -400,14 +401,24 @@ class UBLOX_C027(Target):
 
 
 class NRF51822(Target):
-    EXPECTED_SOFTDEVICE = 's110_nrf51822_7.0.0_softdevice.hex'
+    # the following is a list of possible Nordic softdevices in decreasing order
+    # of preference.
+    EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+        {
+            'name' : 's110_nrf51822_7.0.0_softdevice.hex',
+            'offset' : 0x16000
+        },
+        {
+            'name' : 's110_nrf51822_6.0.0_softdevice.hex',
+            'offset' : 0x14000
+        }
+    ]
     OUTPUT_EXT = '.hex'
-    APPCODE_OFFSET = 0x16000
 
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ["NORDIC", "NRF51822_MKIT"]
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
 
@@ -421,16 +432,22 @@ class NRF51822(Target):
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         for hexf in resources.hex_files:
-            if hexf.find(NRF51822.EXPECTED_SOFTDEVICE) != -1:
+            found = False
+            for softdeviceAndOffsetEntry in NRF51822.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+                if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                    found = True
+                    break
+            if found:
                 break
         else:
             t_self.debug("Hex file not found. Aborting.")
             return
 
         # Merge user code with softdevice
+        t_self.debug("Patching Hex file %s" % softdeviceAndOffsetEntry['name'])
         from intelhex import IntelHex
         binh = IntelHex()
-        binh.loadbin(binf, offset=NRF51822.APPCODE_OFFSET)
+        binh.loadbin(binf, offset=softdeviceAndOffsetEntry['offset'])
 
         sdh = IntelHex(hexf)
         sdh.merge(binh)
@@ -505,7 +522,7 @@ class XADOW_M0(LPC11U35_501):
 class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'NRF51822']
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
         self.macros = ['TARGET_NRF51822']
 
 
@@ -519,6 +536,11 @@ class ARCH_PRO(Target):
         self.supported_form_factors = ["ARDUINO"]
 
 
+class ARCH_GPRS(LPC11U37_501):
+    def __init__(self):
+        LPC11U37_501.__init__(self)
+
+
 class LPCCAPPUCCINO(LPC11U37_501):
     def __init__(self):
         LPC11U37_501.__init__(self)
@@ -527,7 +549,7 @@ class LPCCAPPUCCINO(LPC11U37_501):
 class HRM1017(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'NRF51822']
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
         self.macros = ['TARGET_NRF51822']
 
 
@@ -540,6 +562,31 @@ class ARM_MPS2(Target):
         self.default_toolchain = "ARM"
 
 
+class RBLAB_NRF51822(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
+        self.macros = ['TARGET_NRF51822']
+        
+
+class GHI_MBUINO(LPC11U24):
+    def __init__(self):
+        LPC11U24.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.macros = ['TARGET_LPC11U24']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        
+class MTS_GAMBIT(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ['TARGET_K64F', "CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
 
 # Get a single instance for each target
 TARGETS = [
@@ -550,7 +597,7 @@ TARGETS = [
     KL05Z(),
     KL25Z(),
     KL46Z(),
-    K20D5M(),
+    K20D50M(),
     K64F(),
     LPC812(),
     LPC810(),
@@ -583,9 +630,13 @@ TARGETS = [
     XADOW_M0(),
     ARCH_BLE(),
     ARCH_PRO(),
+    ARCH_GPRS(),
     LPCCAPPUCCINO(),
     HRM1017(),
     ARM_MPS2(),
+    RBLAB_NRF51822(),
+    GHI_MBUINO(),
+    MTS_GAMBIT(),
 ]
 
 # Map each target name to its unique instance

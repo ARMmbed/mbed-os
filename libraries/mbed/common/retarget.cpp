@@ -227,6 +227,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
     if (fh < 3) {
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
+        if (!stdio_uart_inited) init_serial();
         *buffer = serial_getc(&stdio_uart);
 #endif
         n = 1;

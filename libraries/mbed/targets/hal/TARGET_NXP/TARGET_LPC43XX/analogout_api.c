@@ -17,26 +17,30 @@
  */
 #include "mbed_assert.h"
 #include "analogout_api.h"
+
 #include "cmsis.h"
 #include "pinmap.h"
+#include "error.h"
+#include "gpio_api.h"
 
 static const PinMap PinMap_DAC[] = {
-    {P_DAC0 , DAC_0, 0x0},
-    {NC     , NC   , 0}
+    {P4_4, DAC_0, 0},
+    {NC,   NC,    0}
 };
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 
-    // Configure the pin as GPIO input
-    pin_function(pin, (SCU_PINIO_PULLNONE | 0x0));
-    pin_mode(pin, PullNone);
+    // Reset pin function to GPIO
+    gpio_set(pin);
     // Select DAC on analog function select register in SCU
-    LPC_SCU->ENAIO[2] |= 1; // Sets pin P4_4 as DAC
+    LPC_SCU->ENAIO[2] |= 1; // Sets pin as DAC
 
-    // Set Maximum update rate for DAC */
+    // Set bias=0 for maximum DAC update rate (1 MHz)
     LPC_DAC->CR &= ~DAC_BIAS_EN;
+    // Enable DAC and DMA
+    LPC_DAC->CTRL |= DAC_DMA_ENA;
 	
     analogout_write_u16(obj, 0);
 }
@@ -44,16 +48,13 @@ void analogout_init(dac_t *obj, PinName pin) {
 void analogout_free(dac_t *obj) {}
 
 static inline void dac_write(int value) {
-    uint32_t tmp;
     
     // Set the DAC output
-    tmp = LPC_DAC->CR & DAC_BIAS_EN;
-    tmp |= DAC_VALUE(value);
-    LPC_DAC->CR = tmp;
+    LPC_DAC->CR = DAC_SET(value);
 }
 
 static inline int dac_read() {
-    return (DAC_VALUE(LPC_DAC->CR));
+    return (DAC_GET(LPC_DAC->CR));
 }
 
 void analogout_write(dac_t *obj, float value) {

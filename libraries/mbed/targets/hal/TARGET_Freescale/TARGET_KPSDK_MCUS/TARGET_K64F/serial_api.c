@@ -15,6 +15,8 @@
  */
 #include "serial_api.h"
 
+#if DEVICE_SERIAL
+
 // math.h required for floating point operations for baud rate calculation
 #include <math.h>
 #include "mbed_assert.h"
@@ -26,40 +28,11 @@
 #include "fsl_uart_hal.h"
 #include "fsl_clock_manager.h"
 #include "fsl_uart_features.h"
+#include "PeripheralPins.h"
 
 /* TODO:
     putchar/getchar 9 and 10 bits support
 */
-
-static const PinMap PinMap_UART_TX[] = {
-    {PTB17, UART_0, 3},
-    {PTC17, UART_3, 3},
-    {PTD7 , UART_0, 3},
-    {PTD3 , UART_2, 3},
-    {PTC4 , UART_1, 3},
-    {PTC15, UART_4, 3},
-    {PTB11, UART_3, 3},
-    {PTA14, UART_0, 3},
-    {PTE24, UART_4, 3},
-    {PTE4 , UART_3, 3},
-    {PTE0,  UART_1, 3},
-    {NC  ,  NC    , 0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {PTB16, UART_0, 3},
-    {PTE1 , UART_1, 3},
-    {PTE5 , UART_3, 3},
-    {PTE25, UART_4, 3},
-    {PTA15, UART_0, 3},
-    {PTC16, UART_3, 3},
-    {PTB10, UART_3, 3},
-    {PTC3 , UART_1, 3},
-    {PTC14, UART_4, 3},
-    {PTD2 , UART_2, 3},
-    {PTC6 , UART_0, 3},
-    {NC  ,  NC    , 0}
-};
 
 #define UART_NUM    4
 
@@ -242,3 +215,4 @@ void serial_break_clear(serial_t *obj) {
     uart_hal_queue_break_char_to_send(obj->index, false);
 }
 
+#endif

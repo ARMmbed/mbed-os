@@ -64,6 +64,14 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES, DSP_CMSIS],
     },
 
+    # File system libraries
+    {
+        "id": "fat",
+        "source_dir": [FAT_FS, SD_FS],
+        "build_dir": FS_LIBRARY,
+        "dependencies": [MBED_LIBRARIES]
+    },
+
     # Network libraries
     {
         "id": "eth",
@@ -79,6 +87,7 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
 
+    # Unit Testing library
     {
         "id": "cpputest",
         "source_dir": [CPPUTEST_SRC, CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR],

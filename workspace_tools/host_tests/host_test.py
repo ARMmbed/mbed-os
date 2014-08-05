@@ -15,11 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+# Check if 'serial' module is installed
+try:
+    from serial import Serial
+except ImportError, e:
+    print "Error: Can't import 'serial' module: %s"% e
+    exit(-1)
+
+import os
 from optparse import OptionParser
-from serial import Serial
 from time import sleep
 from sys import stdout
-
 
 class Mbed:
     """
@@ -28,20 +34,34 @@ class Mbed:
     def __init__(self):
         parser = OptionParser()
 
-        parser.add_option("-m", "--micro", dest="micro",
-                      help="The target microcontroller ", metavar="MICRO")
+        parser.add_option("-m", "--micro",
+                          dest="micro",
+                          help="The target microcontroller ",
+                          metavar="MICRO")
 
-        parser.add_option("-p", "--port", dest="port",
-                      help="The serial port of the target mbed (ie: COM3)", metavar="PORT")
+        parser.add_option("-p", "--port",
+                          dest="port",
+                          help="The serial port of the target mbed (ie: COM3)",
+                          metavar="PORT")
 
-        parser.add_option("-d", "--disk", dest="disk",
-                      help="The target disk path", metavar="DISK_PATH")
+        parser.add_option("-d", "--disk",
+                          dest="disk",
+                          help="The target disk path",
+                          metavar="DISK_PATH")
 
-        parser.add_option("-t", "--timeout", dest="timeout",
-                      help="Timeout", metavar="TIMEOUT")
+        parser.add_option("-t", "--timeout",
+                          dest="timeout",
+                          help="Timeout",
+                          metavar="TIMEOUT")
 
-        parser.add_option("-e", "--extra", dest="extra",
-                      help="Extra serial port (used by some tests)", metavar="EXTRA")
+        parser.add_option("-e", "--extra",
+                          dest="extra",
+                          help="Extra serial port (used by some tests)",
+                          metavar="EXTRA")
+
+        parser.add_option("-r", "--reset",
+                          dest="forced_reset_type",
+                          help="Forces different type of reset")
 
         (self.options, _) = parser.parse_args()
 
@@ -75,14 +95,20 @@ class Mbed:
         """ Wraps self.mbed.serial object read method """
         result = None
         if self.serial:
-            result = self.serial.read(count)
+            try:
+                result = self.serial.read(count)
+            except:
+                result = None
         return result
 
     def serial_write(self, write_buffer):
         """ Wraps self.mbed.serial object write method """
         result = -1
         if self.serial:
-            result = self.serial.write(write_buffer)
+            try:
+                result = self.serial.write(write_buffer)
+            except:
+               result = -1
         return result
 
     def safe_sendBreak(self, serial):
@@ -106,9 +132,21 @@ class Mbed:
                 result = False
         return result
 
+    def touch_file(self, path, name):
+        with os.open(path, 'a'):
+            os.utime(path, None)
+
     def reset(self):
-        self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-        # Give time to wait for the image loading
+        """ reboot.txt   - startup from standby state, reboots when in run mode.
+            shutdown.txt - shutdown from run mode
+            reset.txt    - reset fpga during run mode """
+        if self.options.forced_reset_type:
+            path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
+            if self.options.forced_reset_type.endswith('.txt'):
+                self.touch_file(path)
+        else:
+            self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
+            # Give time to wait for the image loading
         sleep(2)
 
     def flush(self):
@@ -155,17 +193,6 @@ class DefaultTest(Test):
         serial_init_res = self.mbed.init_serial()
         self.mbed.reset()
 
-"""
-TODO:
-1. handle serial exception (no serial).
-2. show message for serial error.
-3. stop test if serial not connected (so no exceptions and just clean test failures).
-4. move print_result, success failure to base class.
-5. handle fail.txt file message from disk drive
-6. handle disk not found exception
-7. add loops for tests.
-8. unify firmware filename to 'firmware.???' and add programming cycle: delete/sync/copy/sync/reset
-"""
 
 class Simple(DefaultTest):
     def run(self):

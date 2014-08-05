@@ -95,3 +95,8 @@ def args_error(parser, message):
     print "\n\n%s\n\n" % message
     parser.print_help()
     sys.exit()
+
+
+def construct_enum(**enums):
+    """ Create your own pseudo-enums """
+    return type('Enum', (), enums)

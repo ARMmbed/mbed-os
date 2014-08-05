@@ -1,11 +1,11 @@
 mbed port to NXP LPC43xx
 ========================
-Updated: 06/24/13
+Updated: 07/11/14
 
-The NXP LPC43xx microcontrollers are the first to include multiple Cortex-M
-cores in a single microcontroller package. This port allows mbed developers
-to take advantage of the LPC43xx in their application using APIs that they
-are familiar with. Some of the key features of the LPC43xx include:
+The NXP LPC43xx microcontrollers includes multiple Cortex-M cores in a single
+microcontroller package. This port allows mbed developers to take advantage
+of the LPC43xx in their application using APIs that they are familiar with.
+Some of the key features of the LPC43xx include:
 
 * Dual core ARM Cortex-M4/M0 both capable of up to 204 MHz
 * Up to 264 KB SRAM, 1 MB internal flash
@@ -27,16 +27,13 @@ Compatibility
 * This port has been tested with the following boards:
     Board                    MCU        RAM/Flash
     Micromint Bambino 200    LPC4330    264K SRAM/4 MB SPIFI flash
+    Micromint Bambino 200E   LPC4330    264K SRAM/8 MB SPIFI flash
+    Micromint Bambino 210    LPC4330    264K SRAM/4 MB SPIFI flash
+    Micromint Bambino 210E   LPC4330    264K SRAM/8 MB SPIFI flash
 
-* Ethernet, USB and microSD filesystem drivers will be available when the
-  Bambino 200E is released.
-
-* This port uses offline toolchains. Development and testing has been done
-  mainly with the Keil MDK 4.70. Some testing has been done with IAR 6.5.
-  Eventually Keil, IAR and GCC CodeRed will be supported.
-
-* CMSIS-DAP debugging is not currently implemented. To debug use a JTAG.
-  The NXP DFU tool can be used for flash programming.
+* CMSIS-DAP debugging is implemented with the Micromint Bambino 210/210E.
+  To debug other LPC4330 targets, use a JTAG. The NXP DFU tool can be used
+  for flash programming.
 
 * This port should support NXP LPC43XX and LPC18XX variants with a single
   codebase. The core declaration specifies the binaries to be built:
@@ -52,9 +49,7 @@ Compatibility
   building binaries for different targets requires an external project or
   Makefile.
 
-* No testing has been done with LPC18xx hardware. At the very least supporting
-  the LPC18xx would require different compiler flags, additional CMSIS core_cm3
-  code as well as minor driver code changes.
+* No testing has been done with LPC18xx hardware.
 
 Notes
 -----
@@ -68,9 +63,19 @@ Notes
     MBED_SCU_REG(P6_11)  = 0x4008632C      MBED_GPIO_PORT(P6_11) = 3
     MBED_GPIO_REG(P6_11) = 0x400F4000      MBED_GPIO_PIN(P6_11)  = 7
 
+* Pin names use multiple aliases to support Arduino naming conventions as well
+  as others. For example, to use pin p21 on the Bambino 210 from mbed applications
+  the following aliases are equivalent: p21, D0, UART0_TX, COM1_TX, P6_4.
+  See the board pinout graphic and the PinNames.h for available aliases.
+
 * The LPC43xx implements GPIO pin and group interrupts. Any pin in the 8 32-bit
   GPIO ports can interrupt (LPC4350 supports up to 164). On group interrupts a
   pin can only interrupt on the rising or falling edge, not both as required
   by the mbed InterruptIn class. Also, group interrupts can't be cleared
   individually. This implementation uses pin interrupts (8 on M4/M3, 1 on M0).
   A future implementation may provide group interrupt support.
+
+* The LPC3xx PWM driver uses the State Configurable Timer (SCT). The default
+  build (PWM_MODE=0) uses the unified 32-bit times. Applications that use PWM
+  and require other SCT uses can use the dual 16-bit mode by changing PWM_MODE
+  when building the library.

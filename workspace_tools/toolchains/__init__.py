@@ -378,7 +378,7 @@ class mbedToolchain:
                 elif ext == '.cpp':
                     resources.cpp_sources.append(file_path)
 
-                elif ext == '.h':
+                elif ext == '.h' or ext == '.hpp':
                     if basename(file_path) == "mbed_config.h":
                         self.has_config = True
                     resources.headers.append(file_path)

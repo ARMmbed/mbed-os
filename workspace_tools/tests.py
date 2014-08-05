@@ -156,7 +156,7 @@ TESTS = [
     {
         "id": "MBED_A12", "description": "SD File System",
         "source_dir": join(TEST_DIR, "mbed", "sd"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
         "automated": True,
         "duration": 15,
         "peripherals": ["SD"]
@@ -252,7 +252,14 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": False,
     },
-    
+    {
+        "id": "MBED_BUS", "description": "Blinky BUS",
+        "source_dir": join(TEST_DIR, "mbed", "bus"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": False,
+        "duration": 15,
+    },
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -369,7 +376,7 @@ TESTS = [
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
-        "automated": True,
+        "automated": False,
         "mcu": ["LPC1768"]
     },
     {
@@ -393,7 +400,7 @@ TESTS = [
     {
         "id": "MBED_19", "description": "SD FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
-        "dependencies": [MBED_LIBRARIES, SD_FS, FAT_FS],
+        "dependencies": [MBED_LIBRARIES, FS_LIBRARY],
         "peripherals": ["SD"]
     },
     {
@@ -589,7 +596,7 @@ TESTS = [
     {
         "id": "RTOS_9", "description": "SD File write-read",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
         "automated": True,
         "peripherals": ["SD"],
         "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
@@ -799,7 +806,7 @@ TESTS = [
         "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z"],
+        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
         "automated": True,
         "duration": 15,
         },
@@ -815,8 +822,17 @@ TESTS = [
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
         "source_dir": join(TEST_DIR, "mbed", "fs"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, SD_FS, FAT_FS],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
     },
+
+    # CPPUTEST Library provides Unit testing Framework
+    #
+    # To write TESTs and TEST_GROUPs please add CPPUTEST_LIBRARY to 'dependencies'
+    #
+    # This will also include:
+    # 1. test runner - main function with call to CommandLineTestRunner::RunAllTests(ac, av)
+    # 2. Serial console object to print test result on serial port console
+    #
 
     # Unit testing with cpputest library
     {

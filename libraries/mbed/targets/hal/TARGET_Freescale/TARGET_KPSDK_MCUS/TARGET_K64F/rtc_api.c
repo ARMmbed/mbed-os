@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
+
+#if DEVICE_RTC
+
 #include "pinmap.h"
 #include "fsl_rtc_hal.h"
 #include "fsl_clock_manager.h"
-
-const PinMap PinMap_RTC[] = {
-    {NC, OSC32KCLK, 0},
-};
+#include "PeripheralPins.h"
 
 void rtc_init(void) {
     rtc_hal_init_config_t hal_config = {0};
@@ -66,3 +66,5 @@ void rtc_write(time_t t) {
     BW_RTC_TSR_TSR(t);
     rtc_hal_counter_enable(true);
 }
+
+#endif
