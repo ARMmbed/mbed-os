@@ -42,13 +42,15 @@ File format example: muts_all.json
 
 {
     "1" : {"mcu": "LPC1768",
-        "port":"COM4", "disk":"J:\\",
-        "peripherals": ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
+           "port":"COM4",
+           "disk":"J:\\",
+           "peripherals": ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
     },
 
     "2" : {"mcu": "KL25Z",
-        "port":"COM7", "disk":"G:\\",
-        "peripherals": ["digital_loop", "port_loop", "analog_loop"]
+           "port":"COM7",
+           "disk":"G:\\",
+           "peripherals": ["digital_loop", "port_loop", "analog_loop"]
     }
 }
 
@@ -69,8 +71,6 @@ except ImportError, e:
     exit(-1)
 
 import sys
-import optparse
-from time import time
 from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
@@ -82,6 +82,7 @@ from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
 from workspace_tools.test_api import SingleTestRunner
+from workspace_tools.test_api import singletest_in_cli_mode
 from workspace_tools.test_api import get_json_data_from_file
 from workspace_tools.test_api import print_muts_configuration_from_json
 from workspace_tools.test_api import print_test_configuration_from_json
@@ -178,16 +179,5 @@ if __name__ == '__main__':
                                    _opts_copy_method=opts.copy_method
                                    )
 
-    start = time()
-    # Execute tests depending on options and filter applied
-    test_summary, shuffle_seed = single_test.execute()
-    elapsed_time = time() - start
-    # Human readable summary
-    if not single_test.opts_suppress_summary:
-        # prints well-formed summary with results (SQL table like)
-        print single_test.generate_test_summary(test_summary, shuffle_seed)
-    if single_test.opts_test_x_toolchain_summary:
-        # prints well-formed summary with results (SQL table like)
-        # table shows text x toolchain test result matrix
-        print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
-    print "Completed in %d sec"% (elapsed_time)
+    # Runs test suite in CLI mode
+    singletest_in_cli_mode(single_test)

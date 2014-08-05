@@ -18,6 +18,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 import sys
+import json
 import optparse
 from flask import Flask
 from os.path import join, abspath, dirname
@@ -27,6 +28,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 # Imports related to mbed build api
+from workspace_tools.utils import construct_enum
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
@@ -38,7 +40,80 @@ from test_api import print_test_configuration_from_json
 from test_api import get_avail_tests_summary_table
 from test_api import get_default_test_options_parser
 
-"""
+
+class SingleTestRunnerWebService(SingleTestRunner):
+    def __init__(self):
+        super(SingleTestRunnerWebService, self).__init__()
+
+        # With this lock we should control access to certain resources inside this class
+        self.resource_lock = thread.allocate_lock()
+
+        self.RestRequest = construct_enum(REST_MUTS='muts',
+                                          REST_TEST_SPEC='test_spec',
+                                          REST_TEST_RESULTS='test_results')
+
+    def get_rest_result_template(self, result, command, success_code):
+        """ Returns common part of every web service request """
+        result = {"result": result,
+                  "command" : command,
+                  "success_code": success_code} # 0 - OK, >0 - Error number
+        return result
+
+    # REST API handlers for Flask framework
+    def rest_api_status(self):
+        """ Returns current test execution status. E.g. running / finished etc. """
+        with self.resource_lock:
+            pass
+
+    def rest_api_config(self):
+        """ Returns configuration passed to SingleTest executor """
+        with self.resource_lock:
+            pass
+
+    def rest_api_log(self):
+        """ Returns current test log """
+        with self.resource_lock:
+            pass
+
+    def rest_api_request_handler(self, request_type):
+        """ Returns various data structures. Both static and mutable during test """
+        result = {}
+        success_code = 0
+        with self.resource_lock:
+            if request_type == self.RestRequest.REST_MUTS:
+                result = self.muts # Returns MUTs
+            elif request_type == self.RestRequest.REST_TEST_SPEC:
+                result = self.test_spec # Returns Test Specification
+            elif request_type == self.RestRequest.REST_TEST_RESULTS:
+                pass # Returns test results
+            else:
+                success_code = -1
+        return json.dumps(self.get_rest_result_template(result, 'request/' + request_type, success_code), indent=4)
+
+
+def singletest_in_webservice_mode():
+    # TODO Implement this web service functionality
+    pass
+
+
+def get_default_test_webservice_options_parser():
+    """ Get test script web service options used by CLI, webservices etc. """
+    parser = get_default_test_options_parser()
+
+    # Things related to web services offered by test suite scripts
+    parser.add_option('', '--rest-api',
+                      dest='rest_api_enabled',
+                      default=False,
+                      action="store_true",
+                      help='Enables REST API.')
+
+    parser.add_option('', '--rest-api-port',
+                      dest='rest_api_port_no',
+                      help='Sets port for REST API interface')
+
+    return parser
+
+'''
 if __name__ == '__main__':
     # Command line options
     parser = get_default_test_options_parser()
@@ -129,7 +204,7 @@ if __name__ == '__main__':
 
     if opts.rest_api_enabled:
         # Enable REST API
-        
+
         app = Flask(__name__)
 
         @app.route('/')
@@ -159,4 +234,4 @@ if __name__ == '__main__':
     else:
         st_exec_thread.join()
 
-"""
+'''

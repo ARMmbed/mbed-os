@@ -23,7 +23,6 @@ import re
 import json
 import pprint
 import random
-import thread
 import optparse
 import threading
 from types import ListType
@@ -41,7 +40,6 @@ from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
-from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
@@ -71,7 +69,7 @@ class ProcessObserver(Thread):
 
 
 class SingleTestExecutor(threading.Thread):
-    """ Single test class separate thread usage """
+    """ Example: Single test class in separate thread usage """
     def __init__(self, single_test):
         self.single_test = single_test
         threading.Thread.__init__(self)
@@ -128,7 +126,7 @@ class SingleTestRunner(object):
 
     def __init__(self,
                  _global_loops_count=1,
-                 _test_loops_list="",
+                 _test_loops_list=None,
                  _muts={},
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
@@ -185,50 +183,6 @@ class SingleTestRunner(object):
         self.opts_test_x_toolchain_summary = _opts_test_x_toolchain_summary
         self.opts_copy_method = _opts_copy_method
 
-        # With this lock we should control access to certain resources inside this class
-        self.resource_lock = thread.allocate_lock()
-
-        self.RestRequest = construct_enum(REST_MUTS='muts',
-                                          REST_TEST_SPEC='test_spec',
-                                          REST_TEST_RESULTS='test_results')
-
-    def get_rest_result_template(self, result, command, success_code):
-        result = {"result": result,
-                  "command" : command,
-                  "success_code": success_code}
-        return result
-
-    # REST API handlers for Flask framework
-    def rest_api_status(self):
-        """ Returns current test execution status. E.g. running / finished etc. """
-        with self.resource_lock:
-            pass
-
-    def rest_api_config(self):
-        """ Returns configuration passed to SingleTest executor """
-        with self.resource_lock:
-            pass
-
-    def rest_api_log(self):
-        """ Returns current test log """
-        with self.resource_lock:
-            pass
-
-    def rest_api_request_handler(self, request_type):
-        """ Returns various data structures. Both static and mutable during test """
-        result = {}
-        success_code = 0
-        with self.resource_lock:
-            if request_type == self.RestRequest.REST_MUTS:
-                result = self.muts # Returns MUTs
-            elif request_type == self.RestRequest.REST_TEST_SPEC:
-                result = self.test_spec # Returns Test Specification
-            elif request_type == self.RestRequest.REST_TEST_RESULTS:
-                pass # Returns test results
-            else:
-                success_code = -1
-        return json.dumps(self.get_rest_result_template(result, 'request/' + request_type, success_code), indent=4)
-
     def shuffle_random_func(self):
         return self.shuffle_random_seed
 
@@ -274,7 +228,7 @@ class SingleTestRunner(object):
 
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
 
-                # Enumerate through all tests
+                # Enumerate through all tests and shuffle test order if requested
                 test_map_keys = TEST_MAP.keys()
                 if self.opts_shuffle_test_order:
                     random.shuffle(test_map_keys, self.shuffle_random_func)
@@ -974,6 +928,23 @@ def progress_bar(percent_progress, saturation=0):
     return str_progress
 
 
+def singletest_in_cli_mode(single_test):
+    """ Runs SingleTestRunner object in CLI (Command line interface) mode """
+    start = time()
+    # Execute tests depending on options and filter applied
+    test_summary, shuffle_seed = single_test.execute()
+    elapsed_time = time() - start
+    # Human readable summary
+    if not single_test.opts_suppress_summary:
+        # prints well-formed summary with results (SQL table like)
+        print single_test.generate_test_summary(test_summary, shuffle_seed)
+    if single_test.opts_test_x_toolchain_summary:
+        # prints well-formed summary with results (SQL table like)
+        # table shows text x toolchain test result matrix
+        print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
+    print "Completed in %d sec"% (elapsed_time)
+
+
 def get_default_test_options_parser():
     """ Get common test script options used by CLI, webservices etc. """
     parser = optparse.OptionParser()
@@ -1088,18 +1059,6 @@ def get_default_test_options_parser():
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
-
-
-    # Things related to webservices offered by test suite scripts
-    #parser.add_option('', '--rest-api',
-    #                  dest='rest_api_enabled',
-    #                  default=False,
-    #                  action="store_true",
-    #                  help='Enables REST API.')
-
-    #parser.add_option('', '--rest-api-port',
-    #                  dest='rest_api_port_no',
-    #                  help='Sets port for REST API interface')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
