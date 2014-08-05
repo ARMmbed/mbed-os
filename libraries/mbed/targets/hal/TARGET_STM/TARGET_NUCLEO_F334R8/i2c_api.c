@@ -69,6 +69,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     // Enable I2C clock
     __I2C1_CLK_ENABLE();
 
+    // Configure the I2C clock source
+    __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
+  
     // Configure I2C pins
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
@@ -102,22 +105,17 @@ void i2c_frequency(i2c_t *obj, int hz)
        - I2C clock source = 64 MHz (System Clock w/ HSI) or 72 (System Clock w/ HSE)
        - Analog filter delay = ON
        - Digital filter coefficient = 0
-       - Rise time = 100 ns
-       - Fall time = 10ns
     */
     if (SystemCoreClock == 64000000) {
         switch (hz) {
             case 100000:
-                tim = 0x60302730; // Standard mode
-                break;
-            case 200000:
-                tim = 0x00C07AB3; // Fast Mode
+                tim = 0x10B17DB4; // Standard mode with Rise time = 120ns, Fall time = 120ns
                 break;
             case 400000:
-                tim = 0x00C0216C; // Fast Mode
+                tim = 0x00E22163; // Fast Mode with Rise time = 120ns, Fall time = 120ns
                 break;
             case 1000000:
-                tim = 0x00900B22; // Fast Mode Plus
+                tim = 0x00A00D1E; // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
                 // Enable the Fast Mode Plus capability
                 __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C1);
                 break;
@@ -127,16 +125,13 @@ void i2c_frequency(i2c_t *obj, int hz)
     } else if (SystemCoreClock == 72000000) {
         switch (hz) {
             case 100000:
-                tim = 0x10C08DCF; // Standard mode
-                break;
-            case 200000:
-                tim = 0xA010031A; // Fast Mode
+                tim = 0x10D28DCB; // Standard mode with Rise time = 120ns, Fall time = 120ns
                 break;
             case 400000:
-                tim = 0x00E0257A; // Fast Mode
+                tim = 0x00F32571; // Fast Mode with Rise time = 120ns, Fall time = 120ns
                 break;
             case 1000000:
-                tim = 0x00A00D26; // Fast Mode Plus
+                tim = 0x00C00D24; // Fast Mode Plus with Rise time = 120ns, Fall time = 10ns
                 // Enable the Fast Mode Plus capability
                 __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C1);
                 break;
