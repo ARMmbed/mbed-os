@@ -23,7 +23,7 @@ static int gpio_clock_inited = 0;
 
 void pin_function(PinName pin, int function)
 {
-
+    //Intentionally left empty. We have repurposed the function field.
 }
 
 void pin_mode(PinName pin, PinMode mode)
