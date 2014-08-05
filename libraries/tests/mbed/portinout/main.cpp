@@ -14,12 +14,12 @@
     ||defined(TARGET_EFM32TG_STK3300) \
     ||defined(TARGET_EFM32_G8XX_STK) \
     ||defined(TARGET_EFM32WG_STK3800)
-#define P1_1    (1 <<  5) // p0.9
-#define P1_2    (1 <<  4) // p0.8
+#define P1_1    (1 <<  5) // PD5
+#define P1_2    (1 <<  4) // PD4
 #define PORT_1  PortD
 
-#define P2_1    (1 << 12) // p1.24
-#define P2_2    (1 << 11) // p1.25
+#define P2_1    (1 << 12) // PB12
+#define P2_2    (1 << 11) // PB11
 #define PORT_2  PortB
 
 
