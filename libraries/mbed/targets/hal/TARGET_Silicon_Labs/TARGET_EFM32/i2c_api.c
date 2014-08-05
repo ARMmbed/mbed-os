@@ -289,7 +289,6 @@ int i2c_slave_receive(i2c_t *obj)
             return WriteAddressed;
         }
     }
-    // How to detect this? return WriteGeneral
 
     return NoData;
 
@@ -319,7 +318,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 {
-    obj->i2c->SADDR = address;//_I2C_SADDR_ADDR_SHIFT;
+    obj->i2c->SADDR = address;
     obj->i2c->SADDRMASK = 0xFE;//mask;
 }
 #endif
