@@ -68,14 +68,20 @@ def print_notify_verbose(event):
         print_notify(event) # standard handle
 
 def compile_worker(job):
-    _, stderr, rc = run_cmd(job['command'], job['work_dir'])
+    results = []
+    for command in job['commands']:
+        _, stderr, rc = run_cmd(command, job['work_dir'])
+        results.append({
+            'code': rc,
+            'output': stderr,
+            'command': command
+        })
     
     return {
-        'code': rc,
-        'output': stderr,
-        'command': job['command'],
         'source': job['source'],
-        'object': job['object']
+        'object': job['object'],
+        'commands': job['commands'],
+        'results': results
     }
 
 class Resources:
@@ -481,12 +487,12 @@ class mbedToolchain:
                 mkdir(work_dir)
             
             # Queue mode (multiprocessing)
-            command = self._compile_command(source, object, inc_paths)
-            if command is not None:
+            commands = self._compile_command(source, object, inc_paths)
+            if commands is not None:
                 queue.append({
                     'source': source,
                     'object': object,
-                    'command': command,
+                    'commands': commands,
                     'work_dir': work_dir,
                     'chroot': self.CHROOT
                 })
@@ -498,10 +504,23 @@ class mbedToolchain:
         if jobs > CPU_COUNT_MIN and len(queue) > jobs:
             return self.compile_queue(queue, objects)
         else:
-            for item in queue:
-                self.compile(item['source'], item['object'], inc_paths)
-                objects.append(item['object'])
-            return objects
+            return self.compile_seq(queue, objects)
+
+    def compile_seq(self, queue, objects):
+        for item in queue:
+            result = compile_worker(item)
+            
+            self.compiled += 1
+            self.progress("compile", item['source'], build_update=True)
+            for res in result['results']:
+                self.debug("Command: %s" % ' '.join(res['command']))
+                self._compile_output([
+                    res['code'],
+                    res['output'],
+                    res['command']
+                ])
+            objects.append(result['object'])
+        return objects
 
     def compile_queue(self, queue, objects):
         jobs_count = int(self.jobs if self.jobs else cpu_count())
@@ -525,15 +544,16 @@ class mbedToolchain:
                     try:
                         result = r.get()
                         results.remove(r)
-                    
+
                         self.compiled += 1
-                        self.progress("compile", result['source'], build_update=True)                    
-                        self.debug("Command: %s" % ' '.join(result['command']))
-                        self._compile_output([
-                            result['code'],
-                            result['output'],
-                            result['command']
-                        ])
+                        self.progress("compile", result['source'], build_update=True)
+                        for res in result['results']:
+                            self.debug("Command: %s" % ' '.join(res['command']))
+                            self._compile_output([
+                                res['code'],
+                                res['output'],
+                                res['command']
+                            ])
                         objects.append(result['object'])
                     except ToolException, err:
                         p.terminate()
@@ -555,41 +575,24 @@ class mbedToolchain:
         p.join()        
         
         return objects
-                        
+
     def _compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
-        base, _ = splitext(object)
-        dep_path = base + '.d'
-        asm_mode = False
         
-        if ext == '.c':
-            cc = self.cc
-        elif ext == '.cpp':
-            cc = self.cppc
+        if ext == '.c' or  ext == '.cpp':
+            base, _ = splitext(object)
+            dep_path = base + '.d'
+            deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+            if len(deps) == 0 or self.need_update(object, deps):
+                return self._compile(source, object, includes)
         elif ext == '.s':
-            cc = self.asm
-            asm_mode = True
+            deps = [source]
+            if self.need_update(object, deps):
+                return self._assemble(source, object, includes)
         else:
             return False
-        
-        deps = []
-        if asm_mode:
-            deps = [source]
-        elif exists(dep_path):
-            deps = self.parse_dependencies(dep_path)
-        
-        if len(deps) == 0 or self.need_update(object, deps):
-            command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-            
-            if asm_mode is False and hasattr(self, "get_dep_opt"):
-                command.extend(self.get_dep_opt(dep_path))
-            
-            if hasattr(self, "cc_extra"):
-                command.extend(self.cc_extra(base))
-            
-            return command
         
         return None
         
@@ -607,16 +610,31 @@ class mbedToolchain:
         if rc != 0:
             raise ToolException(stderr)
 
+    def _compile(self, source, object, includes):
+        _, ext = splitext(source)
+        ext = ext.lower()
+        
+        cc = self.cppc if ext == ".cpp" else self.cc
+        command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
+        
+        if hasattr(self, "get_dep_opt"):
+            base, _ = splitext(object)
+            dep_path = base + '.d'
+            command.extend(self.get_dep_opt(dep_path))
+        
+        if hasattr(self, "cc_extra"):
+            command.extend(self.cc_extra(base))
+            
+        return [command]
+
     def compile(self, source, object, includes):
-        self.compiled += 1
         self.progress("compile", source, build_update=True)
         
-        command = self._compile_command(source, object, includes)
-        if command is None: return True
-        
-        self.debug("Command: %s" % ' '.join(command))
-        _, stderr, rc = run_cmd(command, dirname(object))
-        self._compile_output([rc, stderr, command])
+        commands = self._compile(source, object, includes)
+        for command in commands:
+            self.debug("Command: %s" % ' '.join(command))
+            _, stderr, rc = run_cmd(command, dirname(object))
+            self._compile_output([rc, stderr, command])
         
     def compile_c(self, source, object, includes):
         self.compile(source, object, includes)
