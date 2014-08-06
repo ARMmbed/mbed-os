@@ -168,7 +168,7 @@ if __name__ == '__main__':
                             test.dependencies, options.options,
                             linker_script=options.linker_script,
                             clean=options.clean, verbose=options.verbose,
-                            macros=options.macros)
+                            macros=options.macros, jobs=options.jobs)
         print 'Image: %s' % bin
 
         if options.disk:
