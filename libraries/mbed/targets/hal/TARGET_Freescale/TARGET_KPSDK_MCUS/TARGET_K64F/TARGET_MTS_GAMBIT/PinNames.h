@@ -191,21 +191,17 @@ typedef enum {
     PTE30 = (4 << GPIO_PORT_SHIFT | 30),
     PTE31 = (4 << GPIO_PORT_SHIFT | 31),
 
-    // #TODO all friendly names per platform
     // led color naming
-    LED_RED = PTA0,
-    LED_GREEN = PTA1,
-    LED_BLUE = PTA2,
-    // mbed original LED naming
-    LED1 = LED_RED,
-    LED2 = LED_GREEN,
-    LED3 = LED_BLUE,
-    LED4 = LED_RED,
+    LED_GREEN = PTC0,
 
-    //Push buttons
-    //SW2 = PTC6,
-    //SW3 = PTA4,
-    
+    // mbed original LED naming
+    LED1 = PTD15,
+    LED2 = PTD14,
+    LED3 = PTD13,
+    LED4 = PTD11,
+    LED5 = PTD12,
+    STATUS = LED_GREEN,
+
     // USB Pins
     USBTX = PTB17,
     USBRX = PTB16,
