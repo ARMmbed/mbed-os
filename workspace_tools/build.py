@@ -214,7 +214,7 @@ if __name__ == '__main__':
                         notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain, options=options.options,
                                   notify=notify, verbose=options.verbose, clean=options.clean,
-                                  macros=options.macros)
+                                  macros=options.macros, jobs=options.jobs)
                     if lib_build_res:
                         successes.append(tt_id)
                     else:
