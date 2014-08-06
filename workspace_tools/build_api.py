@@ -412,12 +412,12 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
 
 
 def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd, cppcheck_msg_format,
-                             options=None, verbose=False, clean=False, macros=None, notify=None):
+                             options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
         static_analysis_scan_library(lib.source_dir, lib.build_dir, target, toolchain, cppcheck_cmd, cppcheck_msg_format,
                       lib.dependencies, options,
-                      verbose=verbose, clean=clean, macros=macros, notify=notify)
+                      verbose=verbose, clean=clean, macros=macros, notify=notify, jobs=jobs)
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
