@@ -11,6 +11,8 @@ build_list = (
     { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox"] },
     { "target": "LPC2368",       "toolchains": "GCC_ARM" },
     { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"]},
+	{ "target": "GHI_MBUINO",      "toolchains": "GCC_ARM"},
+	
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM" },
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM"},
 

@@ -57,7 +57,9 @@ typedef enum {
     PWM_8,
     PWM_9,
     PWM_10,
-    PWM_11
+    PWM_11,
+    PWM_12,
+    PWM_13
 } PWMName;
 
 #define STDIO_UART_TX     USBTX
@@ -65,20 +67,22 @@ typedef enum {
 #define STDIO_UART        UART_0
 
 // Default peripherals
-#define MBED_SPI0         p5, p6, p7, p8
-#define MBED_SPI1         p11, p12, p13, p14
+#define MBED_SPI0         P0_9, P0_8, P0_6, P0_2        // MOSI, MISO, CLK, SEL
+#define MBED_SPI1         P0_21, P0_22, P1_15, P01_19   // MOSI, MISO, CLK, SEL
 
-#define MBED_UART0        p9, p10
+#define MBED_UART0        USBTX, USBRX
 #define MBED_UARTUSB      USBTX, USBRX
 
-#define MBED_I2C0         p28, p27
+#define MBED_I2C0         P0_5, P0_4
 
-#define MBED_ANALOGIN0    p15
-#define MBED_ANALOGIN1    p16
-#define MBED_ANALOGIN2    p17
-#define MBED_ANALOGIN3    p18
-#define MBED_ANALOGIN4    p19
-#define MBED_ANALOGIN5    p20
+#define MBED_ANALOGIN0    P0_11
+#define MBED_ANALOGIN1    P0_12
+#define MBED_ANALOGIN2    P0_13
+#define MBED_ANALOGIN3    P0_14
+#define MBED_ANALOGIN4    P0_15
+#define MBED_ANALOGIN5    P0_16
+#define MBED_ANALOGIN6    P0_22
+#define MBED_ANALOGIN7    P0_23
 
 #ifdef __cplusplus
 }
