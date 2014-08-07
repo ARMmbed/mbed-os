@@ -244,7 +244,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
         "automated": True,
-        "duration": 15,
+        "duration": 10,
     },
     {
         "id": "MBED_BLINKY", "description": "Blinky",

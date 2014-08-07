@@ -5,7 +5,6 @@ Copyright (c) 2011-2014 ARM Limited
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
@@ -143,7 +142,9 @@ class SingleTestRunner(object):
                  _opts_only_build_tests=False,
                  _opts_suppress_summary=False,
                  _opts_test_x_toolchain_summary=False,
-                 _opts_copy_method=None
+                 _opts_copy_method=None,
+                 _opts_mut_reset_type=None,
+                 _opts_jobs=None
                  ):
         """ Let's try hard to init this object """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
@@ -182,6 +183,8 @@ class SingleTestRunner(object):
         self.opts_suppress_summary = _opts_suppress_summary
         self.opts_test_x_toolchain_summary = _opts_test_x_toolchain_summary
         self.opts_copy_method = _opts_copy_method
+        self.opts_mut_reset_type = _opts_mut_reset_type
+        self.opts_jobs = _opts_jobs
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -221,7 +224,8 @@ class SingleTestRunner(object):
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
                                                          options=build_mbed_libs_options,
-                                                         clean=clean_mbed_libs_options)
+                                                         clean=clean_mbed_libs_options,
+                                                         jobs=self.opts_jobs)
                 if not build_mbed_libs_result:
                     print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
                     continue
@@ -274,7 +278,8 @@ class SingleTestRunner(object):
                                       toolchain,
                                       options=build_project_options,
                                       verbose=self.opts_verbose,
-                                      clean=clean_mbed_libs_options)
+                                      clean=clean_mbed_libs_options,
+                                      jobs=self.opts_jobs)
 
                         # TODO: move this 2 below loops to separate function
                         INC_DIRS = []
@@ -298,7 +303,8 @@ class SingleTestRunner(object):
                                              verbose=self.opts_verbose,
                                              name=project_name,
                                              macros=MACROS,
-                                             inc_dirs=INC_DIRS)
+                                             inc_dirs=INC_DIRS,
+                                             jobs=self.opts_jobs)
 
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
@@ -546,7 +552,8 @@ class SingleTestRunner(object):
                 start_host_exec_time = time()
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
-                single_test_result = self.run_host_test(test.host_test, disk, port, duration, host_test_verbose)
+                host_test_reset = self.opts_mut_reset_type
+                single_test_result = self.run_host_test(test.host_test, disk, port, duration, verbose=host_test_verbose, reset=host_test_reset)
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -585,12 +592,19 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, verbose=False, extra_serial=""):
+    def run_host_test(self, name, disk, port, duration, reset=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution."""
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
-        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
+        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
+
+        # Add extra parameters to host_test
+        if extra_serial is not None:
+            cmd += ["-e", extra_serial]
+        if reset is not None:
+            cmd += ["-r", reset]
+
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
         start_time = time()
@@ -958,6 +972,12 @@ def get_default_test_options_parser():
                       metavar="FILE",
                       help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
 
+    parser.add_option("-j", "--jobs",
+                      dest='jobs',
+                      metavar="NUMBER",
+                      type="int",
+                      help="Define number of compilation jobs. Default value is 1")
+
     parser.add_option('-g', '--goanna-for-tests',
                       dest='goanna_for_tests',
                       metavar=False,
@@ -1055,6 +1075,11 @@ def get_default_test_options_parser():
                       default=None,
                       help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
 
+    parser.add_option('', '--reset-type',
+                      dest='mut_reset_type',
+                      default=None,
+                      help='Extra reset method used to reset MUT by host test script')
+
     parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
                       default=None,
@@ -1077,4 +1102,10 @@ def get_default_test_options_parser():
                       default=False,
                       action="store_true",
                       help='Verbose mode (prints some extra information)')
+
+    parser.add_option('', '--version',
+                      dest='version',
+                      default=False,
+                      action="store_true",
+                      help='Prints script version and exits')
     return parser
