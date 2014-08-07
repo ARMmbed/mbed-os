@@ -233,7 +233,6 @@ class mbedToolchain:
         self.symbols = None
         self.labels = None
         self.has_config = False
-        self.stat_cache = {}
 
         self.build_all = False
         self.timestamp = time()
@@ -311,31 +310,6 @@ class mbedToolchain:
 
             if stat(d).st_mtime >= target_mod_time:
                 return True
-
-        return False
-        
-    def need_update_new(self, target, dependencies):
-        if self.build_all:
-            return True
-
-        if not exists(target):
-            return True
-
-        target_mod_time = stat(target).st_mtime
-        for d in dependencies:
-            # Some objects are not provided with full path and here we do not have
-            # information about the library paths. Safe option: assume an update
-            if not d:
-                return True
-            
-            if self.stat_cache.has_key(d):
-                if self.stat_cache[d] >= target_mod_time:
-                    return True
-            else:
-                if not exists(d): return True
-                
-                self.stat_cache[d] = stat(d).st_mtime
-                if self.stat_cache[d] >= target_mod_time: return True
 
         return False
         
@@ -487,7 +461,7 @@ class mbedToolchain:
                 mkdir(work_dir)
             
             # Queue mode (multiprocessing)
-            commands = self._compile_command(source, object, inc_paths)
+            commands = self.compile_command(source, object, inc_paths)
             if commands is not None:
                 queue.append({
                     'source': source,
@@ -514,7 +488,7 @@ class mbedToolchain:
             self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
                 self.debug("Command: %s" % ' '.join(res['command']))
-                self._compile_output([
+                self.compile_output([
                     res['code'],
                     res['output'],
                     res['command']
@@ -549,7 +523,7 @@ class mbedToolchain:
                         self.progress("compile", result['source'], build_update=True)
                         for res in result['results']:
                             self.debug("Command: %s" % ' '.join(res['command']))
-                            self._compile_output([
+                            self.compile_output([
                                 res['code'],
                                 res['output'],
                                 res['command']
@@ -576,7 +550,7 @@ class mbedToolchain:
         
         return objects
 
-    def _compile_command(self, source, object, includes):
+    def compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
@@ -586,17 +560,20 @@ class mbedToolchain:
             dep_path = base + '.d'
             deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
             if len(deps) == 0 or self.need_update(object, deps):
-                return self._compile(source, object, includes)
+                if ext == '.c':
+                    return self.compile_c(source, object, includes)
+                else:
+                    return self.compile_cpp(source, object, includes)
         elif ext == '.s':
             deps = [source]
             if self.need_update(object, deps):
-                return self._assemble(source, object, includes)
+                return self.assemble(source, object, includes)
         else:
             return False
         
         return None
         
-    def _compile_output(self, output=[]):
+    def compile_output(self, output=[]):
         rc = output[0]
         stderr = output[1]
         command = output[2]
@@ -610,11 +587,10 @@ class mbedToolchain:
         if rc != 0:
             raise ToolException(stderr)
 
-    def _compile(self, source, object, includes):
+    def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
         ext = ext.lower()
         
-        cc = self.cppc if ext == ".cpp" else self.cc
         command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
         
         if hasattr(self, "get_dep_opt"):
@@ -627,20 +603,11 @@ class mbedToolchain:
             
         return [command]
 
-    def compile(self, source, object, includes):
-        self.progress("compile", source, build_update=True)
-        
-        commands = self._compile(source, object, includes)
-        for command in commands:
-            self.debug("Command: %s" % ' '.join(command))
-            _, stderr, rc = run_cmd(command, dirname(object))
-            self._compile_output([rc, stderr, command])
-        
     def compile_c(self, source, object, includes):
-        self.compile(source, object, includes)
+        return self.compile(self.cc, source, object, includes)
 
     def compile_cpp(self, source, object, includes):
-        self.compile(source, object, includes)
+        return self.compile(self.cppc, source, object, includes)
 
     def build_library(self, objects, dir, name):
         lib = self.STD_LIB_NAME % name

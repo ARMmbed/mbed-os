@@ -80,18 +80,13 @@ class ARM(mbedToolchain):
             if option in tool:
                 tool.remove(option)
 
-    def _assemble(self, source, object, includes):
+    def assemble(self, source, object, includes):
         # Preprocess first, then assemble
         tempfile = object + '.E.s'
         return [
             self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source],
             self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile])
         ]
-
-    def assemble(self, source, object, includes):
-        commands = self._assemble(source, object, includes);
-        for command in commands:
-            self.default_cmd(command)            
 
     def parse_dependencies(self, dep_path):
         dependencies = []

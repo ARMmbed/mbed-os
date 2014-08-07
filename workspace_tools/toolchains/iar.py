@@ -94,13 +94,8 @@ class IAR(mbedToolchain):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
                 
-    def _assemble(self, source, object, includes):
-        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
-
     def assemble(self, source, object, includes):
-        commands = self._assemble(source, object, includes);
-        for command in commands:
-            self.default_cmd(command)
+        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 
     def archive(self, objects, lib_path):
         if exists(lib_path):
