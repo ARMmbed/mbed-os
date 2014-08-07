@@ -165,6 +165,7 @@ int spi_slave_receive(spi_t *obj) {
 }
 
 int spi_slave_read(spi_t *obj) {
+    obj->spi->SR |= SPI_SR_RFDF_MASK;
     return obj->spi->POPR;
 }
 
