@@ -27,28 +27,28 @@ import sys
 # "libs" can contain "dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"
 
 build_list = (
-    { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox"] },
-    { "target": "LPC2368",       "toolchains": "GCC_ARM" },
-    { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"]},
-    { "target": "GHI_MBUINO",    "toolchains": "GCC_ARM"},
+    { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"] },
+    { "target": "LPC2368",       "toolchains": "GCC_ARM", "libs": ["fat"]  },
+    { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "GHI_MBUINO",    "toolchains": "GCC_ARM", "libs": ["fat"]  },
 
-    { "target": "LPC11U24_301",  "toolchains": "GCC_ARM" },
-    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM"},
+    { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
+    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
 
-    { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"]},
-    { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
-    { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
-    { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
-    { "target": "LPC11U35_501",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "LPC11U68",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC11U35_501",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "LPC11U68",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
-    { "target": "KL05Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
-    { "target": "KL25Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "KL46Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "K20D50M",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "KL05Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "KL25Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "KL46Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "K20D50M",       "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 )
 
 ################################################################################
