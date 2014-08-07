@@ -143,7 +143,8 @@ class SingleTestRunner(object):
                  _opts_suppress_summary=False,
                  _opts_test_x_toolchain_summary=False,
                  _opts_copy_method=None,
-                 _opts_mut_reset_type=None
+                 _opts_mut_reset_type=None,
+                 _opts_jobs=None
                  ):
         """ Let's try hard to init this object """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
@@ -183,6 +184,7 @@ class SingleTestRunner(object):
         self.opts_test_x_toolchain_summary = _opts_test_x_toolchain_summary
         self.opts_copy_method = _opts_copy_method
         self.opts_mut_reset_type = _opts_mut_reset_type
+        self.opts_jobs = _opts_jobs
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -222,7 +224,8 @@ class SingleTestRunner(object):
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
                                                          options=build_mbed_libs_options,
-                                                         clean=clean_mbed_libs_options)
+                                                         clean=clean_mbed_libs_options,
+                                                         jobs=self.opts_jobs)
                 if not build_mbed_libs_result:
                     print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
                     continue
@@ -275,7 +278,8 @@ class SingleTestRunner(object):
                                       toolchain,
                                       options=build_project_options,
                                       verbose=self.opts_verbose,
-                                      clean=clean_mbed_libs_options)
+                                      clean=clean_mbed_libs_options,
+                                      jobs=self.opts_jobs)
 
                         # TODO: move this 2 below loops to separate function
                         INC_DIRS = []
@@ -299,7 +303,8 @@ class SingleTestRunner(object):
                                              verbose=self.opts_verbose,
                                              name=project_name,
                                              macros=MACROS,
-                                             inc_dirs=INC_DIRS)
+                                             inc_dirs=INC_DIRS,
+                                             jobs=self.opts_jobs)
 
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
@@ -965,6 +970,12 @@ def get_default_test_options_parser():
                       dest='muts_spec_filename',
                       metavar="FILE",
                       help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
+
+    parser.add_option("-j", "--jobs",
+                      dest='jobs',
+                      metavar="NUMBER",
+                      type="int",
+                      help="Define number of compilation jobs. Default value is 1")
 
     parser.add_option('-g', '--goanna-for-tests',
                       dest='goanna_for_tests',
