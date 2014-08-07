@@ -72,6 +72,8 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-o', '--official', dest="official_only", default=False, action="store_true",
                       help="Build using only the official toolchain for each target")
+    parser.add_option("-j", "--jobs", type="int", dest="jobs",
+                      default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
     options, args = parser.parse_args()
@@ -86,7 +88,7 @@ if __name__ == '__main__':
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
-                build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose)
+                build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
                 successes.append(id)
             except Exception, e:
                 failures.append(id)

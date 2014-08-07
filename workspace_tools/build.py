@@ -107,6 +107,9 @@ if __name__ == '__main__':
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
+                      
+    parser.add_option("-j", "--jobs", type="int", dest="jobs",
+                      default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
 
     parser.add_option("-v", "--verbose",
                       action="store_true",
@@ -182,12 +185,12 @@ if __name__ == '__main__':
                 try:
                     mcu = TARGET_MAP[target]
                     # CMSIS and MBED libs analysis
-                    static_analysis_scan(mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, verbose=options.verbose)
+                    static_analysis_scan(mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, verbose=options.verbose, jobs=options.jobs)
                     for lib_id in libraries:
                         # Static check for library
                         static_analysis_scan_lib(lib_id, mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
                                   options=options.options,
-                                  notify=notify, verbose=options.verbose, clean=options.clean,
+                                  notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                   macros=options.macros)
                         pass
                 except Exception, e:
@@ -204,7 +207,7 @@ if __name__ == '__main__':
                 try:
                     mcu = TARGET_MAP[target]
                     lib_build_res = build_mbed_libs(mcu, toolchain, options=options.options,
-                                                    notify=notify, verbose=options.verbose, clean=options.clean,
+                                                    notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                                     macros=options.macros)
 
                     for lib_id in libraries:

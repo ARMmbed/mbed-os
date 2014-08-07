@@ -31,11 +31,12 @@ from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None):
+        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1):
     """ This function builds project. Project can be for example one test / UT """
     # Toolchain instance
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
     toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
     toolchain.build_all = clean
     src_paths = [src_path] if type(src_path) != ListType else src_path
 
@@ -90,7 +91,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None, inc_dirs=None):
+         notify=None, verbose=False, macros=None, inc_dirs=None, jobs=1):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -110,6 +111,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Toolchain instance
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
     toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
     toolchain.build_all = clean
 
     # The first path will give the name to the library
@@ -166,7 +168,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
     """ Function returns True is library was built and false if building was skipped """
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
@@ -178,6 +180,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
     toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
     toolchain.build_all = clean
 
     # Source and Build Paths
@@ -296,10 +299,11 @@ def get_target_supported_toolchains(target):
     return TARGET_MAP[target].supported_toolchains if target in TARGET_MAP else None
 
 
-def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None):
+def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
     # Toolchain
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
     toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
     toolchain.build_all = clean
 
     # Source and Build Paths
@@ -420,7 +424,7 @@ def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd, cppcheck_m
 
 def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, cppcheck_cmd, cppcheck_msg_format,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None):
+         notify=None, verbose=False, macros=None, jobs=1):
     """ Function scans library (or just some set of sources/headers) for staticly detectable defects """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -432,6 +436,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
     # Toolchain instance
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
     toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
 
     # The first path will give the name to the library
     name = basename(src_paths[0])
