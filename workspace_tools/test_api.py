@@ -142,7 +142,8 @@ class SingleTestRunner(object):
                  _opts_only_build_tests=False,
                  _opts_suppress_summary=False,
                  _opts_test_x_toolchain_summary=False,
-                 _opts_copy_method=None
+                 _opts_copy_method=None,
+                 _opts_mut_reset_type=None
                  ):
         """ Let's try hard to init this object """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
@@ -181,6 +182,7 @@ class SingleTestRunner(object):
         self.opts_suppress_summary = _opts_suppress_summary
         self.opts_test_x_toolchain_summary = _opts_test_x_toolchain_summary
         self.opts_copy_method = _opts_copy_method
+        self.opts_mut_reset_type = _opts_mut_reset_type
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -584,12 +586,19 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, verbose=False, extra_serial=""):
+    def run_host_test(self, name, disk, port, duration, reset=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution."""
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
-        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
+        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
+
+        # Add extra parameters to host_test
+        if extra_serial is not None:
+            cmd += ["-e", extra_serial]
+        if reset is not None:
+            cmd += ["-r", reset]
+
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
         start_time = time()
@@ -1054,6 +1063,11 @@ def get_default_test_options_parser():
                       default=None,
                       help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
 
+    parser.add_option('', '--reset-type',
+                      dest='mut_reset_type',
+                      default=None,
+                      help='Extra reset method used to reset MUT by host test script')
+
     parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
                       default=None,
@@ -1076,4 +1090,10 @@ def get_default_test_options_parser():
                       default=False,
                       action="store_true",
                       help='Verbose mode (prints some extra information)')
+
+    parser.add_option('', '--version',
+                      dest='version',
+                      default=False,
+                      action="store_true",
+                      help='Prints script version and exits')
     return parser

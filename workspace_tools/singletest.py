@@ -106,6 +106,13 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
 
+    # Print scrip version
+    if opts.version:
+        print parser.description
+        print parser.epilog
+        print "Version %d.%d"% get_version()
+        exit(0)
+
     # Print summary / information about automation test status
     if opts.test_automation_report:
         print get_avail_tests_summary_table()
@@ -176,7 +183,8 @@ if __name__ == '__main__':
                                    _opts_only_build_tests=opts.only_build_tests,
                                    _opts_suppress_summary=opts.suppress_summary,
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary,
-                                   _opts_copy_method=opts.copy_method
+                                   _opts_copy_method=opts.copy_method,
+                                   _opts_mut_reset_type=opts.mut_reset_type
                                    )
 
     # Runs test suite in CLI mode
