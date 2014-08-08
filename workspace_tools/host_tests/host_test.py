@@ -133,17 +133,16 @@ class Mbed:
         return result
 
     def touch_file(self, path, name):
-        with os.open(path, 'a'):
+        with open(path, 'a'):
             os.utime(path, None)
 
     def reset(self):
         """ reboot.txt   - startup from standby state, reboots when in run mode.
             shutdown.txt - shutdown from run mode
             reset.txt    - reset fpga during run mode """
-        if self.options.forced_reset_type:
-            path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
-            if self.options.forced_reset_type.endswith('.txt'):
-                self.touch_file(path)
+        if self.options.forced_reset_type and self.options.forced_reset_type.endswith('.txt'):
+            reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
+            self.touch_file(reset_file_path)
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
             # Give time to wait for the image loading

@@ -510,6 +510,7 @@ class SingleTestRunner(object):
 
         disk = mut['disk']
         port = mut['port']
+        reset_type = mut.get('reset_type')
         target_by_mcu = TARGET_MAP[mut['mcu']]
 
         # Program
@@ -552,8 +553,10 @@ class SingleTestRunner(object):
                 start_host_exec_time = time()
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
-                host_test_reset = self.opts_mut_reset_type
-                single_test_result = self.run_host_test(test.host_test, disk, port, duration, verbose=host_test_verbose, reset=host_test_reset)
+                host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
+                single_test_result = self.run_host_test(test.host_test, disk, port, duration,
+                                                        verbose=host_test_verbose,
+                                                        reset=host_test_reset)
 
             # Store test result
             test_all_result.append(single_test_result)
