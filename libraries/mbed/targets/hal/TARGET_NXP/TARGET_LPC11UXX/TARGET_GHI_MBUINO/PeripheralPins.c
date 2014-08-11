@@ -30,18 +30,25 @@ const PinMap PinMap_ADC[] = {
     {NC   , NC    , 0   }
 };
 
+/************I2C***************/
+const PinMap PinMap_I2C_SDA[] = {
+    {P0_5, I2C_0, 1},
+    {NC  , NC   , 0}
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+    {P0_4, I2C_0, 1},
+    {NC  , NC,    0}
+};
+
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {P0_19, UART_0, 1},
-//    {P1_13, UART_0, 3},
-//    {P1_27, UART_0, 2},
     { NC  , NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {P0_18, UART_0, 1},
-//    {P1_14, UART_0, 3},
-//    {P1_26, UART_0, 2},
     {NC   , NC    , 0}
 };
 
@@ -49,30 +56,25 @@ const PinMap PinMap_UART_RX[] = {
 const PinMap PinMap_SPI_SCLK[] = {
     {P0_6 , SPI_0, 0x02},
     {P0_10, SPI_0, 0x02},
-//    {P1_29, SPI_0, 0x01},
     {P1_15, SPI_1, 0x03},
-//    {P1_20, SPI_1, 0x02},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
     {P0_9 , SPI_0, 0x01},
     {P0_21, SPI_1, 0x02},
-//    {P1_22, SPI_1, 0x02},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
     {P0_8 , SPI_0, 0x01},
     {P0_22, SPI_1, 0x03},
-//    {P1_21, SPI_1, 0x02},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     {P0_2 , SPI_0, 0x01},
     {P1_19, SPI_1, 0x02},
-//    {P1_23, SPI_1, 0x02},
     {NC   , NC   , 0}
 };
 
