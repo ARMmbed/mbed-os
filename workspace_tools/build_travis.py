@@ -49,6 +49,7 @@ build_list = (
     { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 )
 
 ################################################################################
