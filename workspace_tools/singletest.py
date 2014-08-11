@@ -185,8 +185,7 @@ if __name__ == '__main__':
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary,
                                    _opts_copy_method=opts.copy_method,
                                    _opts_mut_reset_type=opts.mut_reset_type,
-                                   _opts_jobs=opts.jobs
-                                   )
+                                   _opts_jobs=opts.jobs)
 
     # Runs test suite in CLI mode
     singletest_in_cli_mode(single_test)
