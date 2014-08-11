@@ -20,6 +20,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 import os
 import re
 import json
+import time
 import pprint
 import random
 import optparse
@@ -35,10 +36,11 @@ from threading import Thread
 from subprocess import Popen, PIPE, call
 
 # Imports related to mbed build api
+from workspace_tools.tests import TESTS
+from workspace_tools.tests import TEST_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
-from workspace_tools.tests import TEST_MAP
-from workspace_tools.tests import TESTS
+from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
@@ -960,6 +962,86 @@ def singletest_in_cli_mode(single_test):
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
     print "Completed in %d sec"% (elapsed_time)
+
+
+def mps2_check_board_image_file(disk, board_image_path, image0file_path, image_name='images.txt'):
+    """ This function will modify 'Versatile Express Images Configuration File' file
+        for Versatile Express V2M-MPS2 board.
+        Main goal of this function is to change number of images to 1, comment all
+        existing image entries and append at the end of file new entry with test.
+    """
+    MBED_SDK_TEST_STAMP = 'test suite entry'
+    image_path = os.path.join(disk, board_image_path, image_name)
+    new_file_lines = [] # New configuration file lines (entries)
+
+    # Check each line of the image configuration file
+    try:
+        with open(image_path, 'r') as file:
+            for line in file:
+                if re.search('^TOTALIMAGES', line):
+                    # Check number of total images, should be 1
+                    new_file_lines.append(re.sub('^TOTALIMAGES:[\t ]*[\d]+', 'TOTALIMAGES: 1', line))
+                    pass
+
+                elif re.search('; - %s[\n\r]*$'% MBED_SDK_TEST_STAMP, line):
+                    # Look for test suite entries and remove them
+                    pass    # Omit all test suite entries
+
+                elif re.search('^IMAGE[\d]+FILE', line):
+                    # Check all image entries and mark the ';'
+                    new_file_lines.append(';' + line)   # Comment non test suite lines
+                else:
+                    # Append line to new file
+                    new_file_lines.append(line)
+    except IOError as e:
+        return False
+
+    # Add new image entry with proper commented stamp
+    new_file_lines.append('IMAGE0FILE: %s    ; - %s\r\n'% (image0file_path, MBED_SDK_TEST_STAMP))
+
+    # Write all lines to file
+    try:
+        with open(image_path, 'w') as file:
+            for line in new_file_lines:
+                file.write(line),
+    except IOError as e:
+        return False
+
+    return True
+
+
+class TestLogger():
+    """ Super-class for logging and printing ongoing events for test suite pass """
+    def __init__(self):
+        self.Log = []
+
+        self.LogType = construct_enum(INFO='Info',
+                                      NOTIF='Notification',
+                                      WARN='Warning',
+                                      ERROR='Error')
+
+        self.LogToFileAttr = construct_enum(CREATE=1,    # Create or overwrite existing log file
+                                            APPEND=2)    # Append to existing log file
+
+    def log_line(self, LogType, log_line, log_time=None):
+        log_timestamp = time.time() if log_time is None else log_time
+        log_entry = {'log_type' : LogType,
+                     'log_timestamp' : log_timestamp,
+                     'log_line' : log_line,
+                     '_future' : None}
+        self.Log.append(log_entry)
+
+    def log_to_file(self, LogToFileAttr, file_name):
+        """ Class will log to file current log entries.
+            Note: you should be able to see log file like this:
+
+                tail -f log_file.txt
+        """
+        pass
+
+
+class CLITestLogger(TestLogger):
+    pass
 
 
 def get_default_test_options_parser():
