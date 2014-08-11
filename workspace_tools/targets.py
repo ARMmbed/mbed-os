@@ -461,7 +461,7 @@ class LPC1549(Target):
         Target.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC15XX']
-        self.supported_toolchains = ["uARM", "GCC_CR"]
+        self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
