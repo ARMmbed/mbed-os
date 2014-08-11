@@ -639,7 +639,7 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
-            if self.target.name.startswith('LPC'):
+            if self.target.add_crc == True:
                 self.debug("LPC Patch: %s" % filename)
                 patch(bin)
 

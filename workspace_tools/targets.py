@@ -47,6 +47,9 @@ class Target:
 
         # Default online compiler:
         self.default_toolchain = "ARM"
+        
+        # Add CRC into the NVIC table for NXP targets
+        self.add_crc = False
 
         self.name = self.__class__.__name__
 
@@ -66,6 +69,7 @@ class LPC2368(Target):
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC23XX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
+        self.add_crc = True
 
 
 class LPC1768(Target):
@@ -74,6 +78,7 @@ class LPC1768(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.add_crc = True
 
 
 class LPC11U24(Target):
@@ -83,6 +88,7 @@ class LPC11U24(Target):
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
 
 
 class LPC11U24_301(Target):
@@ -91,6 +97,7 @@ class LPC11U24_301(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.add_crc = True
 
 
 class KL05Z(Target):
@@ -154,6 +161,7 @@ class LPC812(Target):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
+        self.add_crc = True
 
 
 class LPC810(Target):
@@ -164,6 +172,7 @@ class LPC810(Target):
         self.supported_toolchains = ["uARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
+        self.add_crc = True
 
 
 class LPC4088(Target):
@@ -173,6 +182,7 @@ class LPC4088(Target):
         self.extra_labels = ['NXP', 'LPC408X']
         self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
         self.is_disk_virtual = True
+        self.add_crc = True
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
@@ -213,6 +223,7 @@ class LPC4330_M4(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
+        self.add_crc = True
 
 
 class LPC4330_M0(Target):
@@ -221,6 +232,7 @@ class LPC4330_M0(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+        self.add_crc = True
 
 
 class LPC1800(Target):
@@ -229,6 +241,7 @@ class LPC1800(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
+        self.add_crc = True
 
 
 class STM32F407(Target):
@@ -344,6 +357,7 @@ class LPC1347(Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC13XX']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.add_crc = True
 
 
 class LPC1114(Target):
@@ -353,6 +367,7 @@ class LPC1114(Target):
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
 
 
 class LPC11C24(Target):
@@ -361,6 +376,7 @@ class LPC11C24(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11CXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.add_crc = True
 
 
 class LPC11U35_401(Target):
@@ -370,6 +386,7 @@ class LPC11U35_401(Target):
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
 
 
 class LPC11U35_501(Target):
@@ -379,6 +396,7 @@ class LPC11U35_501(Target):
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
 
 
 class LPC11U37_501(Target):
@@ -388,6 +406,7 @@ class LPC11U37_501(Target):
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
 
 
 class UBLOX_C027(Target):
@@ -398,6 +417,7 @@ class UBLOX_C027(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
+        self.add_crc = True
 
 
 class NRF51822(Target):
@@ -464,6 +484,7 @@ class LPC1549(Target):
         self.supported_toolchains = ["uARM", "GCC_CR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.add_crc = True
 
 
 class LPC11U68(Target):
@@ -474,6 +495,7 @@ class LPC11U68(Target):
         self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.add_crc = True
 
 
 class DISCO_F100RB(Target):
@@ -517,6 +539,7 @@ class XADOW_M0(LPC11U35_501):
         LPC11U35_501.__init__(self)
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.macros = ['TARGET_LPC11U35_501']
+        self.add_crc = True
 
 
 class ARCH_BLE(NRF51822):
@@ -534,16 +557,19 @@ class ARCH_PRO(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
+        self.add_crc = True
 
 
 class ARCH_GPRS(LPC11U37_501):
     def __init__(self):
         LPC11U37_501.__init__(self)
+        self.add_crc = True
 
 
 class LPCCAPPUCCINO(LPC11U37_501):
     def __init__(self):
         LPC11U37_501.__init__(self)
+        self.add_crc = True
 
 
 class HRM1017(NRF51822):
@@ -577,6 +603,7 @@ class GHI_MBUINO(LPC11U24):
         self.macros = ['TARGET_LPC11U24']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
+        self.add_crc = True
         
 class MTS_GAMBIT(Target):
     def __init__(self):
