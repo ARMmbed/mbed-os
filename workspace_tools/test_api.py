@@ -348,14 +348,18 @@ class SingleTestRunner(object):
         unique_toolchains = get_unique_value_from_summary(test_summary, TOOLCHAIN_INDEX)
 
         result = "Test summary:\n"
-        result_dict = {} # test : { toolchain : result }
         for target in unique_targets:
+            result_dict = {} # test : { toolchain : result }
+            unique_target_toolchains = []
             for test in test_summary:
-                if test[TEST_INDEX] not in result_dict:
-                    result_dict[test[TEST_INDEX]] = {}
-                result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
+                if test[TARGET_INDEX] == target:
+                    if test[TOOLCHAIN_INDEX] not in unique_target_toolchains:
+                        unique_target_toolchains.append(test[TOOLCHAIN_INDEX])
+                    if test[TEST_INDEX] not in result_dict:
+                        result_dict[test[TEST_INDEX]] = {}
+                    result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
 
-            pt_cols = ["Target", "Test ID", "Test Description"] + unique_toolchains
+            pt_cols = ["Target", "Test ID", "Test Description"] + unique_target_toolchains
             pt = PrettyTable(pt_cols)
             for col in pt_cols:
                 pt.align[col] = "l"
@@ -365,7 +369,8 @@ class SingleTestRunner(object):
                 test_results = result_dict[test]
                 row = [target, test, unique_test_desc[test]]
                 for toolchain in unique_toolchains:
-                    row.append(test_results[toolchain])
+                    if toolchain in test_results:
+                        row.append(test_results[toolchain])
                 pt.add_row(row)
             result += pt.get_string()
             shuffle_seed_text = "Shuffle Seed: %.*f"% (self.SHUFFLE_SEED_ROUND,
