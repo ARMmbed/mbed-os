@@ -1103,9 +1103,10 @@ class TestLogger():
         self.Log = []
 
         self.LogType = construct_enum(INFO='Info',
-                                      NOTIF='Notification',
                                       WARN='Warning',
-                                      ERROR='Error')
+                                      NOTIF='Notification',
+                                      ERROR='Error',
+                                      EXCEPT='Exception')
 
         self.LogToFileAttr = construct_enum(CREATE=1,    # Create or overwrite existing log file
                                             APPEND=2)    # Append to existing log file
