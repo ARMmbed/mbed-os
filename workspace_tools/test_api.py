@@ -331,7 +331,8 @@ class SingleTestRunner(object):
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
         """ Prints well-formed summary with results (SQL table like)
-            table shows text x toolchain test result matrix """
+            table shows text x toolchain test result matrix
+        """
         RESULT_INDEX = 0
         TARGET_INDEX = 1
         TOOLCHAIN_INDEX = 2
@@ -448,7 +449,7 @@ class SingleTestRunner(object):
         browser.get(file_path)
         browser.close()
 
-    def image_copy_method_selector(self, target, image_path, disk, copy_method,
+    def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
                                   images_config=None, image_dest=None):
         """ Function copied image file and fiddles with image configuration files in needed.
             This function will select proper image configuration (modify image config file
@@ -458,15 +459,16 @@ class SingleTestRunner(object):
         _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
 
         if images_config is not None:
+            # For different targets additional configuration file has to be changed
+            # Here we select target and proper function to handle configuration change
             if target == 'ARM_MPS2':
                 images_cfg_path = images_config
                 image0file_path = os.path.join(disk, image_dest, basename(image_path))
-                mps2_set_board_image_file(disk, images_cfg_path, image0file_path):
+                mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
 
         return _copy_res, _err_msg, _copy_method
 
-    def file_copy_method_selector(self, image_path, disk, copy_method,
-                                  image_dest='', image_cfg_func=None, image_cfg_func_params=None):
+    def file_copy_method_selector(self, image_path, disk, copy_method, image_dest=''):
         """ Copy file depending on method you want to use. Handles exception
             and return code from shell copy commands.
         """
@@ -566,7 +568,10 @@ class SingleTestRunner(object):
         test_all_result = []
         for test_index in range(test_loops):
             # Choose one method of copy files to mbed virtual drive
-            _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
+            #_copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
+
+            _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, self.opts_copy_method,
+                                                                                images_config, image_dest)
 
             # Host test execution
             start_host_exec_time = time()
