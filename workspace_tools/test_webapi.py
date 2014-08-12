@@ -54,7 +54,7 @@ class SingleTestRunnerWebService(SingleTestRunner):
 
     def get_rest_result_template(self, result, command, success_code):
         """ Returns common part of every web service request """
-        result = {"result": result,
+        result = {"result" : result,
                   "command" : command,
                   "success_code": success_code} # 0 - OK, >0 - Error number
         return result

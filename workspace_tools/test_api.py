@@ -19,6 +19,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 import os
 import re
+import sys
 import json
 import time
 import pprint
@@ -88,7 +89,7 @@ class SingleTestExecutor(threading.Thread):
             # prints well-formed summary with results (SQL table like)
             # table shows text x toolchain test result matrix
             print self.single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
-        print "Completed in %d sec"% (elapsed_time)
+        print "Completed in %.2f sec"% (elapsed_time)
 
 
 class SingleTestRunner(object):
@@ -146,7 +147,8 @@ class SingleTestRunner(object):
                  _opts_test_x_toolchain_summary=False,
                  _opts_copy_method=None,
                  _opts_mut_reset_type=None,
-                 _opts_jobs=None
+                 _opts_jobs=None,
+                 _opts_extend_test_timeout=None
                  ):
         """ Let's try hard to init this object """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
@@ -186,7 +188,8 @@ class SingleTestRunner(object):
         self.opts_test_x_toolchain_summary = _opts_test_x_toolchain_summary
         self.opts_copy_method = _opts_copy_method
         self.opts_mut_reset_type = _opts_mut_reset_type
-        self.opts_jobs = _opts_jobs
+        self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
+        self.opts_extend_test_timeout = _opts_extend_test_timeout
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -312,9 +315,14 @@ class SingleTestRunner(object):
                             # With this option we are skipping testing phase
                             continue
 
+                        # Test duration can be increased by global value
+                        test_duration = test.duration
+                        if self.opts_extend_test_timeout is not None:
+                            test_duration += self.opts_extend_test_timeout
+
                         # For an automated test the duration act as a timeout after
                         # which the test gets interrupted
-                        test_spec = self.shape_test_request(target, path, test_id, test.duration)
+                        test_spec = self.shape_test_request(target, path, test_id, test_duration)
                         test_loops = self.get_test_loop_count(test_id)
                         single_test_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
                         if single_test_result is not None:
@@ -435,7 +443,6 @@ class SingleTestRunner(object):
         profile.set_preference('browser.download.manager.showWhenStarting', False)
         profile.set_preference('browser.download.dir', dest_disk)
         profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-
         # Launch browser with profile and get file
         browser = webdriver.Firefox(profile)
         browser.get(file_path)
@@ -449,7 +456,6 @@ class SingleTestRunner(object):
         if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
             source_path = image_path.encode('ascii', 'ignore')
             destination_path = os.path.join(disk.encode('ascii', 'ignore'), basename(image_path).encode('ascii', 'ignore'))
-
             cmd = [copy_method, source_path, destination_path]
             try:
                 ret = call(cmd, shell=True)
@@ -512,8 +518,12 @@ class SingleTestRunner(object):
 
         disk = mut['disk']
         port = mut['port']
-        reset_type = mut.get('reset_type')
         target_by_mcu = TARGET_MAP[mut['mcu']]
+        # Some extra stuff can be declared in MUTs structure
+        reset_type = mut.get('reset_type')
+        reset_tout = mut.get('reset_tout')
+        images_config = mut.get('images_config')
+        mobo_config = mut.get('mobo_config')
 
         # Program
         # When the build and test system were separate, this was relative to a
@@ -558,7 +568,8 @@ class SingleTestRunner(object):
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
                 single_test_result = self.run_host_test(test.host_test, disk, port, duration,
                                                         verbose=host_test_verbose,
-                                                        reset=host_test_reset)
+                                                        reset=host_test_reset,
+                                                        reset_tout=reset_tout)
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -597,7 +608,7 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, reset=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, disk, port, duration, reset=None, reset_tout=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution."""
@@ -609,6 +620,11 @@ class SingleTestRunner(object):
             cmd += ["-e", extra_serial]
         if reset is not None:
             cmd += ["-r", reset]
+        if reset_tout is not None:
+            cmd += ["-R", str(reset_tout)]
+
+        if verbose:
+            print "Host test cmd: " + " ".join(cmd)
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
@@ -617,7 +633,7 @@ class SingleTestRunner(object):
         output = []
         while (time() - start_time) < duration:
             try:
-                c = obs.queue.get(block=True, timeout=1)
+                c = obs.queue.get(block=True, timeout=0.5)
             except Empty, _:
                 c = None
 
@@ -625,7 +641,8 @@ class SingleTestRunner(object):
                 output.append(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
-                    if '{end}' in line: break
+                    if '{end}' in line:
+                        break
                     line = ''
                 else:
                     line += c
@@ -961,17 +978,17 @@ def singletest_in_cli_mode(single_test):
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
-    print "Completed in %d sec"% (elapsed_time)
+    print "Completed in %.2f sec"% (elapsed_time)
 
 
-def mps2_check_board_image_file(disk, board_image_path, image0file_path, image_name='images.txt'):
-    """ This function will modify 'Versatile Express Images Configuration File' file
-        for Versatile Express V2M-MPS2 board.
+def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name='images.txt'):
+    """ This function will alter image cfg file.
         Main goal of this function is to change number of images to 1, comment all
-        existing image entries and append at the end of file new entry with test.
+        existing image entries and append at the end of file new entry with test path.
+        @return True when all steps succeed.
     """
     MBED_SDK_TEST_STAMP = 'test suite entry'
-    image_path = os.path.join(disk, board_image_path, image_name)
+    image_path = os.path.join(disk, images_cfg_path, image_name)
     new_file_lines = [] # New configuration file lines (entries)
 
     # Check each line of the image configuration file
@@ -1008,6 +1025,18 @@ def mps2_check_board_image_file(disk, board_image_path, image0file_path, image_n
         return False
 
     return True
+
+
+def mps2_select_core(disk, mobo_config_name=""):
+    """ Function selects actual core """
+    # TODO: implement core selection
+    pass
+
+
+def mps2_switch_usb_auto_mounting_after_restart(disk, usb_config_name=""):
+    """ Function alters configuration to allow USB MSD to be mounted after restarts """
+    # TODO: implement USB MSD restart detection
+    pass
 
 
 class TestLogger():
@@ -1169,6 +1198,12 @@ def get_default_test_options_parser():
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
+
+    parser.add_option('', '--inc-timeout',
+                      dest='extend_test_timeout',
+                      metavar="NUMBER",
+                      type="int",
+                      help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
