@@ -21,6 +21,7 @@ from os.path import join, exists
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import IAR_PATH
 from workspace_tools.settings import GOANNA_PATH
+from workspace_tools.hooks import hook_tool
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -106,5 +107,6 @@ class IAR(mbedToolchain):
         args = [self.ld, "-o", output, "--config", mem_map]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
+    @hook_tool
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))

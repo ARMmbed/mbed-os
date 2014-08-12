@@ -639,10 +639,6 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
-            if self.target.name.startswith('LPC'):
-                self.debug("LPC Patch: %s" % filename)
-                patch(bin)
-
         self.var("compile_succeded", True)
         self.var("binary", filename)
 

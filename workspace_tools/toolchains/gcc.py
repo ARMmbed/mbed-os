@@ -20,6 +20,7 @@ from os.path import join, basename, splitext
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
 from workspace_tools.settings import GOANNA_PATH
+from workspace_tools.hooks import hook_tool
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
@@ -163,6 +164,7 @@ class GCC(mbedToolchain):
         self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
             objects + ["-L%s" % L for L in lib_dirs] + libs))
 
+    @hook_tool
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
 
