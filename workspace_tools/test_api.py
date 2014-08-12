@@ -149,8 +149,7 @@ class SingleTestRunner(object):
                  _opts_copy_method=None,
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
-                 _opts_extend_test_timeout=None
-                 ):
+                 _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
@@ -192,6 +191,8 @@ class SingleTestRunner(object):
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_extend_test_timeout = _opts_extend_test_timeout
+
+        self.logger = CLITestLogger()  # Default test logger
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -1099,8 +1100,14 @@ def mps2_switch_usb_auto_mounting_after_restart(disk, usb_config_name=""):
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
     """
-    def __init__(self):
-        self.Log = []
+    def __init__(self, store_log=True):
+        """ We can control if logger actually stores log in memory
+            or just handled all log entries immediately
+        """
+        self.log = []
+        self.log_to_file = False
+        self.log_file_name = None
+        self.store_log = store_log
 
         self.LogType = construct_enum(INFO='Info',
                                       WARN='Warning',
@@ -1111,24 +1118,46 @@ class TestLogger():
         self.LogToFileAttr = construct_enum(CREATE=1,    # Create or overwrite existing log file
                                             APPEND=2)    # Append to existing log file
 
-    def log_line(self, LogType, log_line, log_time=None):
-        log_timestamp = time.time() if log_time is None else log_time
+    def log_line(self, LogType, log_line):
+        """ Log one line of text
+        """
+        log_timestamp = time.time()
         log_entry = {'log_type' : LogType,
                      'log_timestamp' : log_timestamp,
                      'log_line' : log_line,
                      '_future' : None}
-        self.Log.append(log_entry)
-
-    def log_to_file(self, LogToFileAttr, file_name):
-        """ Class will log to file current log entries.
-            Note: you should be able to see log file like this:
-            tail -f log_file.txt
-        """
-        pass
+        # Store log in memory
+        if self.store_log:
+            self.log.append(log_entry)
+        return log_entry
 
 
 class CLITestLogger(TestLogger):
-    pass
+    """ Logger used with CLI (Command line interface) test suite. Logs on screen and to file if needed
+    """
+    def __init__(self, store_log=True, file_name=None):
+        TestLogger.__init__(self)
+        self.log_file_name = file_name
+        self.TIMESTAMP_FORMAT = '%y-%m-%d %H:%M:%S'
+
+    def log_print(self, log_entry, timestamp=True):
+        """ Prints on screen formatted log entry
+        """
+        ts = log_entry['log_timestamp']
+        timestamp_str = datetime.datetime.fromtimestamp(ts).strftime("[%s] "% self.TIMESTAMP_FORMAT) if timestamp else ''
+        log_line_str = "%(log_type)s: %(log_line)s"% (log_entry)
+        return timestamp_str + log_line_str
+
+    def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
+        log_entry = TestLogger.log_line(self, LogType, log_line)
+        log_line_str = self.log_print(log_entry, timestamp)
+        print log_line_str
+        if self.log_file_name is not None:
+            try:
+                with open(self.log_file_name, 'a') as file:
+                    file.write(log_line_str + line_delim)
+            except IOError:
+                pass
 
 
 def get_default_test_options_parser():
