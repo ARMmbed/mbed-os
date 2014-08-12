@@ -17,14 +17,16 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void sleep(void) {
+void sleep(void)
+{
     // ensure debug is disconnected if semihost is enabled....
-    NRF_POWER->TASKS_LOWPWR=1;
+    NRF_POWER->TASKS_LOWPWR = 1;
     // wait for interrupt
     __WFE();
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
     sleep();
- //   NRF_POWER->SYSTEMOFF=1;
+    //   NRF_POWER->SYSTEMOFF=1;
 }
