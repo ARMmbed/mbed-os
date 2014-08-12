@@ -29,7 +29,7 @@ static bool is_disabled_in_debug_needed(void);
 
 
 #if defined ( __CC_ARM )
-    uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;  
+    uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #elif defined ( __ICCARM__ )
     __root uint32_t SystemCoreClock = __SYSTEM_CLOCK;
 #elif defined   ( __GNUC__ )
@@ -43,35 +43,36 @@ void SystemCoreClockUpdate(void)
 }
 
 void SystemInit(void)
-{     
+{
     // Prepare the peripherals for use as indicated by the PAN 26 "System: Manual setup is required
     // to enable the use of peripherals" found at Product Anomaly document for your device found at
-    // https://www.nordicsemi.com/. The side effect of executing these instructions in the devices 
+    // https://www.nordicsemi.com/. The side effect of executing these instructions in the devices
     // that do not need it is that the new peripherals in the second generation devices (LPCOMP for
     // example) will not be available.
     if (is_manual_peripheral_setup_needed()){
         *(uint32_t volatile *)0x40000504 = 0xC007FFDF;
         *(uint32_t volatile *)0x40006C18 = 0x00008000;
     }
-    
+
     // Disable PROTENSET registers under debug, as indicated by PAN 59 "MPU: Reset value of DISABLEINDEBUG
-    // register is incorrect" found at Product Anomaly document four your device found at 
-    // https://www.nordicsemi.com/. There is no side effect of using these instruction if not needed. 
+    // register is incorrect" found at Product Anomaly document four your device found at
+    // https://www.nordicsemi.com/. There is no side effect of using these instruction if not needed.
     if (is_disabled_in_debug_needed()){
         NRF_MPU->DISABLEINDEBUG = MPU_DISABLEINDEBUG_DISABLEINDEBUG_Disabled << MPU_DISABLEINDEBUG_DISABLEINDEBUG_Pos;
     }
-	
-	// Start 16 MHz crystal oscillator.
-    NRF_CLOCK->EVENTS_HFCLKSTARTED  = 0;
-    NRF_CLOCK->TASKS_HFCLKSTART     = 1;
+
+    // Start the external 32khz crystal oscillator.
+    NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
+    NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
+    NRF_CLOCK->TASKS_LFCLKSTART     = 1;
 
     // Wait for the external oscillator to start up.
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
+    while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
         // Do nothing.
     }
 }
 
-static bool is_manual_peripheral_setup_needed(void) 
+static bool is_manual_peripheral_setup_needed(void)
 {
     if ((((*(uint32_t *)0xF0000FE0) & 0x000000FF) == 0x1) && (((*(uint32_t *)0xF0000FE4) & 0x0000000F) == 0x0))
     {
@@ -88,11 +89,11 @@ static bool is_manual_peripheral_setup_needed(void)
             return true;
         }
     }
-    
+
     return false;
 }
 
-static bool is_disabled_in_debug_needed(void) 
+static bool is_disabled_in_debug_needed(void)
 {
     if ((((*(uint32_t *)0xF0000FE0) & 0x000000FF) == 0x1) && (((*(uint32_t *)0xF0000FE4) & 0x0000000F) == 0x0))
     {
@@ -101,7 +102,7 @@ static bool is_disabled_in_debug_needed(void)
             return true;
         }
     }
-    
+
     return false;
 }
 
