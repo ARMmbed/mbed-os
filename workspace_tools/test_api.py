@@ -448,14 +448,33 @@ class SingleTestRunner(object):
         browser.get(file_path)
         browser.close()
 
-    def file_copy_method_selector(self, image_path, disk, copy_method):
+    def image_copy_method_selector(self, target, image_path, disk, copy_method,
+                                  images_config=None, image_dest=None):
+        """ Function copied image file and fiddles with image configuration files in needed.
+            This function will select proper image configuration (modify image config file
+            if needed) after image is copied.
+        """
+        image_dest = image_dest if image_dest is not None else ''
+        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
+
+        if images_config is not None:
+            if target == 'ARM_MPS2':
+                images_cfg_path = images_config
+                image0file_path = os.path.join(disk, image_dest, basename(image_path))
+                mps2_set_board_image_file(disk, images_cfg_path, image0file_path):
+
+        return _copy_res, _err_msg, _copy_method
+
+    def file_copy_method_selector(self, image_path, disk, copy_method,
+                                  image_dest='', image_cfg_func=None, image_cfg_func_params=None):
         """ Copy file depending on method you want to use. Handles exception
-            and return code from shell copy commands. """
+            and return code from shell copy commands.
+        """
         result = True
         resutl_msg = ""
         if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
             source_path = image_path.encode('ascii', 'ignore')
-            destination_path = os.path.join(disk.encode('ascii', 'ignore'), basename(image_path).encode('ascii', 'ignore'))
+            destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest, basename(image_path).encode('ascii', 'ignore'))
             cmd = [copy_method, source_path, destination_path]
             try:
                 ret = call(cmd, shell=True)
@@ -465,10 +484,10 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
-        if copy_method == 'firefox':
+        elif copy_method == 'firefox':
             try:
                 source_path = image_path.encode('ascii', 'ignore')
-                destination_path = disk.encode('ascii', 'ignore')
+                destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest)
                 self.file_store_firefox(source_path, destination_path)
             except Exception, e:
                 resutl_msg = e
@@ -481,6 +500,7 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
+
         return result, resutl_msg, copy_method
 
     def delete_file(self, file_path):
@@ -520,10 +540,11 @@ class SingleTestRunner(object):
         port = mut['port']
         target_by_mcu = TARGET_MAP[mut['mcu']]
         # Some extra stuff can be declared in MUTs structure
-        reset_type = mut.get('reset_type')
-        reset_tout = mut.get('reset_tout')
-        images_config = mut.get('images_config')
-        mobo_config = mut.get('mobo_config')
+        reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
+        reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
+        image_dest = mut.get('image_dest')  # Image file destination DISK + IMAGE_DEST + BINARY_NAME
+        images_config = mut.get('images_config')    # Available images selection via config file
+        mobo_config = mut.get('mobo_config')        # Available board configuration selection e.g. core selection etc.
 
         # Program
         # When the build and test system were separate, this was relative to a
@@ -545,7 +566,7 @@ class SingleTestRunner(object):
         test_all_result = []
         for test_index in range(test_loops):
             # Choose one method of copy files to mbed virtual drive
-            _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method)
+            _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
 
             # Host test execution
             start_host_exec_time = time()
