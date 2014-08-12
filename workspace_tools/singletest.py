@@ -91,7 +91,8 @@ from workspace_tools.test_api import get_default_test_options_parser
 
 
 def get_version():
-    """ Returns test script version """
+    """ Returns test script version
+    """
     single_test_version_major = 1
     single_test_version_minor = 1
     return (single_test_version_major, single_test_version_minor)

@@ -71,7 +71,8 @@ class ProcessObserver(Thread):
 
 
 class SingleTestExecutor(threading.Thread):
-    """ Example: Single test class in separate thread usage """
+    """ Example: Single test class in separate thread usage
+    """
     def __init__(self, single_test):
         self.single_test = single_test
         threading.Thread.__init__(self)
@@ -93,8 +94,8 @@ class SingleTestExecutor(threading.Thread):
 
 
 class SingleTestRunner(object):
-    """ Object wrapper for single test run which may involve multiple MUTs."""
-
+    """ Object wrapper for single test run which may involve multiple MUTs
+    """
     RE_DETECT_TESTCASE_RESULT = None
 
     # Return codes for test script
@@ -150,7 +151,8 @@ class SingleTestRunner(object):
                  _opts_jobs=None,
                  _opts_extend_test_timeout=None
                  ):
-        """ Let's try hard to init this object """
+        """ Let's try hard to init this object
+        """
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
         # Settings related to test loops counters
@@ -195,7 +197,8 @@ class SingleTestRunner(object):
         return self.shuffle_random_seed
 
     def is_shuffle_seed_float(self):
-        """ return true if function parameter can be converted to float """
+        """ return true if function parameter can be converted to float
+        """
         result = True
         try:
             float(self.shuffle_random_seed)
@@ -372,7 +375,8 @@ class SingleTestRunner(object):
 
     def generate_test_summary(self, test_summary, shuffle_seed=None):
         """ Prints well-formed summary with results (SQL table like)
-            table shows target x test results matrix across """
+            table shows target x test results matrix across
+        """
         result = "Test summary:\n"
         # Pretty table package is used to print results
         pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
@@ -410,7 +414,8 @@ class SingleTestRunner(object):
         return result
 
     def test_loop_list_to_dict(self, test_loops_str):
-        """ Transforms test_id=X,test_id=X,test_id=X into dictionary {test_id : test_id_loops_count} """
+        """ Transforms test_id=X,test_id=X,test_id=X into dictionary {test_id : test_id_loops_count}
+        """
         result = {}
         if test_loops_str:
             test_loops = test_loops_str.split(',')
@@ -427,7 +432,8 @@ class SingleTestRunner(object):
 
     def get_test_loop_count(self, test_id):
         """ This function returns no. of loops per test (deducted by test_id_.
-            If test is not in list of redefined loop counts it will use default value. """
+            If test is not in list of redefined loop counts it will use default value.
+        """
         result = self.GLOBAL_LOOPS_COUNT
         if test_id in self.TEST_LOOPS_DICT:
             result = self.TEST_LOOPS_DICT[test_id]
@@ -506,7 +512,8 @@ class SingleTestRunner(object):
         return result, resutl_msg, copy_method
 
     def delete_file(self, file_path):
-        """ Remove file from the system """
+        """ Remove file from the system
+        """
         result = True
         resutl_msg = ""
         try:
@@ -518,7 +525,8 @@ class SingleTestRunner(object):
 
     def handle(self, test_spec, target_name, toolchain_name, test_loops=1):
         """ Function determines MUT's mbed disk/port and copies binary to
-            target. Test is being invoked afterwards. """
+            target. Test is being invoked afterwards.
+        """
         data = json.loads(test_spec)
         # Get test information, image and test timeout
         test_id = data['test_id']
@@ -609,7 +617,8 @@ class SingleTestRunner(object):
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
-        """ Use specific convention to print test result and related data."""
+        """ Use specific convention to print test result and related data
+        """
         tokens = []
         tokens.append("TargetTest")
         tokens.append(target_name)
@@ -622,13 +631,15 @@ class SingleTestRunner(object):
         return result
 
     def shape_test_loop_ok_result_count(self, test_all_result):
-        """ Reformats list of results to simple string """
+        """ Reformats list of results to simple string
+        """
         test_loop_count = len(test_all_result)
         test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
         return "%d/%d"% (test_loop_ok_result, test_loop_count)
 
     def shape_global_test_loop_result(self, test_all_result):
-        """ Reformats list of results to simple string """
+        """ Reformats list of results to simple string
+        """
         result = self.TEST_RESULT_FAIL
         if all(test_all_result[0] == res for res in test_all_result):
             result = test_all_result[0]
@@ -637,7 +648,8 @@ class SingleTestRunner(object):
     def run_host_test(self, name, disk, port, duration, reset=None, reset_tout=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
-            printed by test runner and host test during test execution."""
+            printed by test runner and host test during test execution
+        """
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
 
@@ -692,7 +704,8 @@ class SingleTestRunner(object):
         return result
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
-        """ Checks if specified target should run specific peripheral test case."""
+        """ Checks if specified target should run specific peripheral test case
+        """
         if peripherals is not None:
             peripherals = set(peripherals)
         for id, mut in self.muts.iteritems():
@@ -709,7 +722,8 @@ class SingleTestRunner(object):
         return False
 
     def shape_test_request(self, mcu, image_path, test_id, duration=10):
-        """ Function prepares JOSN structure describing test specification."""
+        """ Function prepares JOSN structure describing test specification
+        """
         test_spec = {
             "mcu": mcu,
             "image": image_path,
@@ -720,7 +734,8 @@ class SingleTestRunner(object):
 
 
 def get_unique_value_from_summary(test_summary, index):
-    """ Gets list of unique target names """
+    """ Gets list of unique target names
+    """
     result = []
     for test in test_summary:
         target_name = test[index]
@@ -730,7 +745,8 @@ def get_unique_value_from_summary(test_summary, index):
 
 
 def get_unique_value_from_summary_ext(test_summary, index_key, index_val):
-    """ Gets list of unique target names and return dictionary """
+    """ Gets list of unique target names and return dictionary
+    """
     result = {}
     for test in test_summary:
         key = test[index_key]
@@ -741,7 +757,8 @@ def get_unique_value_from_summary_ext(test_summary, index_key, index_val):
 
 
 def show_json_file_format_error(json_spec_filename, line, column):
-    """ Prints JSON broken content """
+    """ Prints JSON broken content
+    """
     with open(json_spec_filename) as data_file:
         line_no = 1
         for json_line in data_file:
@@ -755,7 +772,8 @@ def show_json_file_format_error(json_spec_filename, line, column):
 
 def json_format_error_defect_pos(json_error_msg):
     """ Gets first error line and column in JSON file format.
-    Parsed from exception thrown by json.loads() string """
+        Parsed from exception thrown by json.loads() string
+    """
     result = None
     line, column = 0, 0
     # Line value search
@@ -775,7 +793,8 @@ def json_format_error_defect_pos(json_error_msg):
 
 
 def get_json_data_from_file(json_spec_filename, verbose=False):
-    """ Loads from file JSON formatted string to data structure """
+    """ Loads from file JSON formatted string to data structure
+    """
     result = None
     try:
         with open(json_spec_filename) as data_file:
@@ -801,7 +820,8 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
 
 
 def print_muts_configuration_from_json(json_data, join_delim=", "):
-    """ Prints MUTs configuration passed to test script for verboseness. """
+    """ Prints MUTs configuration passed to test script for verboseness
+    """
     muts_info_cols = []
     # We need to check all unique properties for each defined MUT
     for k in json_data:
@@ -830,7 +850,8 @@ def print_muts_configuration_from_json(json_data, join_delim=", "):
 
 
 def print_test_configuration_from_json(json_data, join_delim=", "):
-    """ Prints test specification configuration passed to test script for verboseness. """
+    """ Prints test specification configuration passed to test script for verboseness
+    """
     toolchains_info_cols = []
     # We need to check all toolchains for each device
     for k in json_data:
@@ -893,7 +914,8 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
     """ Generates table summary with all test cases and additional test cases
         information using pretty print functionality. Allows test suite user to
-        see test cases. """
+        see test cases
+    """
     # get all unique test ID prefixes
     unique_test_id = []
     for test in TESTS:
@@ -980,7 +1002,8 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
 
 
 def progress_bar(percent_progress, saturation=0):
-    """ This function creates progress bar with optional simple saturation mark"""
+    """ This function creates progress bar with optional simple saturation mark
+    """
     step = int(percent_progress / 2)    # Scale by to (scale: 1 - 50)
     str_progress = '#' * step + '.' * int(50 - step)
     c = '!' if str_progress[38] == '.' else '|'
@@ -991,7 +1014,8 @@ def progress_bar(percent_progress, saturation=0):
 
 
 def singletest_in_cli_mode(single_test):
-    """ Runs SingleTestRunner object in CLI (Command line interface) mode """
+    """ Runs SingleTestRunner object in CLI (Command line interface) mode
+    """
     start = time()
     # Execute tests depending on options and filter applied
     test_summary, shuffle_seed = single_test.execute()
@@ -1054,19 +1078,22 @@ def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name
 
 
 def mps2_select_core(disk, mobo_config_name=""):
-    """ Function selects actual core """
+    """ Function selects actual core
+    """
     # TODO: implement core selection
     pass
 
 
 def mps2_switch_usb_auto_mounting_after_restart(disk, usb_config_name=""):
-    """ Function alters configuration to allow USB MSD to be mounted after restarts """
+    """ Function alters configuration to allow USB MSD to be mounted after restarts
+    """
     # TODO: implement USB MSD restart detection
     pass
 
 
 class TestLogger():
-    """ Super-class for logging and printing ongoing events for test suite pass """
+    """ Super-class for logging and printing ongoing events for test suite pass
+    """
     def __init__(self):
         self.Log = []
 
@@ -1089,8 +1116,7 @@ class TestLogger():
     def log_to_file(self, LogToFileAttr, file_name):
         """ Class will log to file current log entries.
             Note: you should be able to see log file like this:
-
-                tail -f log_file.txt
+            tail -f log_file.txt
         """
         pass
 
@@ -1100,7 +1126,8 @@ class CLITestLogger(TestLogger):
 
 
 def get_default_test_options_parser():
-    """ Get common test script options used by CLI, webservices etc. """
+    """ Get common test script options used by CLI, webservices etc.
+    """
     parser = optparse.OptionParser()
     parser.add_option('-i', '--tests',
                       dest='test_spec_filename',

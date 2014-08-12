@@ -53,7 +53,8 @@ class SingleTestRunnerWebService(SingleTestRunner):
                                           REST_TEST_RESULTS='test_results')
 
     def get_rest_result_template(self, result, command, success_code):
-        """ Returns common part of every web service request """
+        """ Returns common part of every web service request
+        """
         result = {"result" : result,
                   "command" : command,
                   "success_code": success_code} # 0 - OK, >0 - Error number
@@ -61,22 +62,26 @@ class SingleTestRunnerWebService(SingleTestRunner):
 
     # REST API handlers for Flask framework
     def rest_api_status(self):
-        """ Returns current test execution status. E.g. running / finished etc. """
+        """ Returns current test execution status. E.g. running / finished etc.
+        """
         with self.resource_lock:
             pass
 
     def rest_api_config(self):
-        """ Returns configuration passed to SingleTest executor """
+        """ Returns configuration passed to SingleTest executor
+        """
         with self.resource_lock:
             pass
 
     def rest_api_log(self):
-        """ Returns current test log """
+        """ Returns current test log
+        """
         with self.resource_lock:
             pass
 
     def rest_api_request_handler(self, request_type):
-        """ Returns various data structures. Both static and mutable during test """
+        """ Returns various data structures. Both static and mutable during test
+        """
         result = {}
         success_code = 0
         with self.resource_lock:
@@ -97,7 +102,8 @@ def singletest_in_webservice_mode():
 
 
 def get_default_test_webservice_options_parser():
-    """ Get test script web service options used by CLI, webservices etc. """
+    """ Get test script web service options used by CLI, webservices etc.
+    """
     parser = get_default_test_options_parser()
 
     # Things related to web services offered by test suite scripts
