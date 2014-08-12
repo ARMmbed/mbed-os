@@ -17,37 +17,41 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     return (PinName)(pin_n);
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     obj->port = port;
-    obj->mask = mask;   
-    
+    obj->mask = mask;
+
     obj->reg_out = &NRF_GPIO->OUT;
     obj->reg_in  = &NRF_GPIO->IN;
     obj->reg_cnf = NRF_GPIO->PIN_CNF;
-    
+
     port_dir(obj, dir);
 }
 
-void port_mode(port_t *obj, PinMode mode) {
+void port_mode(port_t *obj, PinMode mode)
+{
     uint32_t i;
     // The mode is set per pin: reuse pinmap logic
-    for (i=0; i<31; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i<31; i++) {
+        if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }
     }
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     int i;
     switch (dir) {
-        case PIN_INPUT : 
-        for (i=0; i<31; i++) {
-            if (obj->mask & (1<<i)) {
+    case PIN_INPUT:
+        for (i = 0; i<31; i++) {
+            if (obj->mask & (1 << i)) {
                 obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                     | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                     | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
@@ -55,9 +59,9 @@ void port_dir(port_t *obj, PinDirection dir) {
             }
         }
         break;
-        case PIN_OUTPUT:
-        for (i=0; i<31; i++) {
-            if (obj->mask & (1<<i)) {
+    case PIN_OUTPUT:
+        for (i = 0; i<31; i++) {
+            if (obj->mask & (1 << i)) {
                 obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                     | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                     | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
@@ -69,10 +73,12 @@ void port_dir(port_t *obj, PinDirection dir) {
     }
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     *obj->reg_out = value;
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     return (*obj->reg_in);
 }

@@ -17,14 +17,16 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
-    
+
     uint32_t pin_number = (uint32_t)pin;
-    
+
     NRF_GPIO->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
     NRF_GPIO->PIN_CNF[pin_number] |= (mode << GPIO_PIN_CNF_PULL_Pos);
 }
