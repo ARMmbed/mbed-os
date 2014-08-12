@@ -25,6 +25,7 @@ import time
 import pprint
 import random
 import optparse
+import datetime
 import threading
 from types import ListType
 from prettytable import PrettyTable
@@ -131,6 +132,7 @@ class SingleTestRunner(object):
                  _global_loops_count=1,
                  _test_loops_list=None,
                  _muts={},
+                 _opts_log_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -173,6 +175,7 @@ class SingleTestRunner(object):
         self.test_spec = _test_spec
 
         # Settings passed e.g. from command line
+        self.opts_log_file_name = _opts_log_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -192,7 +195,7 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_extend_test_timeout = _opts_extend_test_timeout
 
-        self.logger = CLITestLogger()  # Default test logger
+        self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -223,7 +226,7 @@ class SingleTestRunner(object):
                 # print '=== %s::%s ===' % (target, toolchain)
                 # Let's build our test
                 if target not in TARGET_MAP:
-                    print 'Skipped tests for %s target. Target platform not found' % (target)
+                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found' % (target))
                     continue
 
                 T = TARGET_MAP[target]
@@ -236,7 +239,7 @@ class SingleTestRunner(object):
                                                          clean=clean_mbed_libs_options,
                                                          jobs=self.opts_jobs)
                 if not build_mbed_libs_result:
-                    print 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain)
+                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain))
                     continue
 
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
@@ -256,19 +259,19 @@ class SingleTestRunner(object):
 
                     if self.opts_test_only_peripheral and not test.peripherals:
                         if self.opts_verbose_skipped_tests:
-                            print "TargetTest::%s::NotPeripheralTestSkipped()" % (target)
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
                         continue
 
                     if self.opts_test_only_common and test.peripherals:
                         if self.opts_verbose_skipped_tests:
-                            print "TargetTest::%s::PeripheralTestSkipped()" % (target)
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
                         continue
 
                     if test.automated and test.is_supported(target, toolchain):
                         if not self.is_peripherals_available(target, test.peripherals):
                             if self.opts_verbose_skipped_tests:
                                 test_peripherals = test.peripherals if test.peripherals else []
-                                print "TargetTest::%s::TestSkipped(%s)" % (target, ",".join(test_peripherals))
+                                print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test_peripherals), target))
                             continue
 
                         build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
@@ -567,7 +570,7 @@ class SingleTestRunner(object):
         # base network folder base path: join(NETWORK_BASE_PATH, )
         image_path = image
         if not exists(image_path):
-            print "Error: Image file does not exist: %s" % image_path
+            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s' % image_path)
             elapsed_time = 0
             test_result = self.TEST_RESULT_NO_IMAGE
             return (test_result, target_name, toolchain_name,
@@ -593,7 +596,7 @@ class SingleTestRunner(object):
             single_test_result = self.TEST_RESULT_UNDEF # singe test run result
             if not _copy_res:   # Serial port copy error
                 single_test_result = self.TEST_RESULT_IOERR_COPY
-                print "Error: Copy method '%s'. %s"% (_copy_method, _err_msg)
+                print self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
             else:
                 # Copy Extra Files
                 if not target_by_mcu.is_disk_virtual and test.extra_files:
@@ -808,7 +811,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 result = json.load(data_file)
             except ValueError as json_error_msg:
                 result = None
-                print "Error in '%s' file. %s" % (json_spec_filename, json_error_msg)
+                print self.logger.log_line(self.logger.LogType.ERROR, 'JSON file %s parsing failed. Reason: %s' % (json_spec_filename, json_error_msg))
                 # We can print where error occurred inside JSON file if we can parse exception msg
                 json_format_defect_pos = json_format_error_defect_pos(str(json_error_msg))
                 if json_format_defect_pos is not None:
@@ -818,7 +821,8 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                     show_json_file_format_error(json_spec_filename, line, column)
 
     except IOError as fileopen_error_msg:
-        print "Error: %s" % (fileopen_error_msg)
+        print self.logger.log_line(self.logger.LogType.ERROR, 'JSON file %s not opened. Reason: %s'% (json_spec_filename, fileopen_error_msg))
+        print
     if verbose and result:
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(result)
@@ -1121,7 +1125,7 @@ class TestLogger():
     def log_line(self, LogType, log_line):
         """ Log one line of text
         """
-        log_timestamp = time.time()
+        log_timestamp = time()
         log_entry = {'log_type' : LogType,
                      'log_timestamp' : log_timestamp,
                      'log_line' : log_line,
@@ -1138,7 +1142,8 @@ class CLITestLogger(TestLogger):
     def __init__(self, store_log=True, file_name=None):
         TestLogger.__init__(self)
         self.log_file_name = file_name
-        self.TIMESTAMP_FORMAT = '%y-%m-%d %H:%M:%S'
+        #self.TIMESTAMP_FORMAT = '%y-%m-%d %H:%M:%S' # Full date and time
+        self.TIMESTAMP_FORMAT = '%H:%M:%S' # Time only
 
     def log_print(self, log_entry, timestamp=True):
         """ Prints on screen formatted log entry
@@ -1151,14 +1156,13 @@ class CLITestLogger(TestLogger):
     def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
         log_entry = TestLogger.log_line(self, LogType, log_line)
         log_line_str = self.log_print(log_entry, timestamp)
-        print log_line_str
         if self.log_file_name is not None:
             try:
                 with open(self.log_file_name, 'a') as file:
                     file.write(log_line_str + line_delim)
             except IOError:
                 pass
-
+        return log_line_str
 
 def get_default_test_options_parser():
     """ Get common test script options used by CLI, webservices etc.
@@ -1292,6 +1296,10 @@ def get_default_test_options_parser():
                       metavar="NUMBER",
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
+
+    parser.add_option('-l', '--log',
+                      dest='log_file_name',
+                      help='Log events to external file (note not all console entries may be visible in log file)')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
