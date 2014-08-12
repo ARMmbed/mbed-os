@@ -512,7 +512,7 @@ class DISCO_F407VG(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
 

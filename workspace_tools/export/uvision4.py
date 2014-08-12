@@ -50,6 +50,7 @@ class Uvision4(Exporter):
         'NRF51822',
         'ARCH_PRO',
         'ARCH_BLE',
+        'DISCO_F407VG',
     ]
 
     USING_MICROLIB = [
