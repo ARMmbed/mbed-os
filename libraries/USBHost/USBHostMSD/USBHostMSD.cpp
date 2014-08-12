@@ -323,24 +323,34 @@ int USBHostMSD::disk_initialize() {
     return readCapacity();
 }
 
-int USBHostMSD::disk_write(const uint8_t *buffer, uint64_t block_number) {
-    USB_DBG("FILESYSTEM: write block: %lld", block_number);
+int USBHostMSD::disk_write(const uint8_t* buffer, uint64_t block_number, uint8_t count) {
+    USB_DBG("FILESYSTEM: write block: %lld, count: %d", block_number, count);
     if (!disk_init) {
         disk_initialize();
     }
     if (!disk_init)
         return -1;
-    return dataTransfer((uint8_t *)buffer, block_number, 1, HOST_TO_DEVICE);
+    for (uint64_t b = block_number; b < block_number + count; b++) {
+        if (dataTransfer((uint8_t*)buffer, b, 1, HOST_TO_DEVICE))
+            return -1;
+        buffer += 512;
+    }
+    return 0;
 }
 
-int USBHostMSD::disk_read(uint8_t * buffer, uint64_t block_number) {
-    USB_DBG("FILESYSTEM: read block %lld", block_number);
+int USBHostMSD::disk_read(uint8_t* buffer, uint64_t block_number, uint8_t count) {
+    USB_DBG("FILESYSTEM: read block: %lld, count: %d", block_number, count);
     if (!disk_init) {
         disk_initialize();
     }
     if (!disk_init)
         return -1;
-    return dataTransfer((uint8_t *)buffer, block_number, 1, DEVICE_TO_HOST);
+    for (uint64_t b = block_number; b < block_number + count; b++) {
+        if (dataTransfer((uint8_t*)buffer, b, 1, DEVICE_TO_HOST))
+            return -1;
+        buffer += 512;
+    }
+    return 0;
 }
 
 uint64_t USBHostMSD::disk_sectors() {
