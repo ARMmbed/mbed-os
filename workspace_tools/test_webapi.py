@@ -74,8 +74,7 @@ class SingleTestRunnerWebService(SingleTestRunner):
             pass
 
     def rest_api_log(self):
-        """ Returns current test log
-        """
+        """ Returns current test log """
         with self.resource_lock:
             pass
 
