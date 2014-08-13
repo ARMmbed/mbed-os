@@ -323,7 +323,15 @@ extern "C" int remove(const char *path) {
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
-    return -1;
+    FilePath fpOld(oldname);
+    FilePath fpNew(newname);
+    FileSystemLike *fsOld = fpOld.fileSystem();
+    FileSystemLike *fsNew = fpNew.fileSystem();
+
+    /* rename only if both files are on the same FS */
+    if (fsOld != fsNew || fsOld == NULL) return -1;
+
+    return fsOld->rename(fpOld.fileName(), fpNew.fileName());
 }
 
 extern "C" char *tmpnam(char *s) {

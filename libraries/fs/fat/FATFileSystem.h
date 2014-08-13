@@ -41,6 +41,7 @@ public:
 
     virtual FileHandle *open(const char* name, int flags);
     virtual int remove(const char *filename);
+    virtual int rename(const char *oldname, const char *newname);
     virtual int format();
     virtual DirHandle *opendir(const char *name);
     virtual int mkdir(const char *name, mode_t mode);
