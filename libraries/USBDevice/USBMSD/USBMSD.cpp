@@ -232,7 +232,7 @@ void USBMSD::memoryWrite (uint8_t * buf, uint16_t size) {
     // if the array is filled, write it in memory
     if (!((addr + size)%BlockSize)) {
         if (!(disk_status() & WRITE_PROTECT)) {
-            disk_write(page, addr/BlockSize);
+            disk_write(page, addr/BlockSize, 1);
         }
     }
 
@@ -257,7 +257,7 @@ void USBMSD::memoryVerify (uint8_t * buf, uint16_t size) {
 
     // beginning of a new block -> load a whole block in RAM
     if (!(addr%BlockSize))
-        disk_read(page, addr/BlockSize);
+        disk_read(page, addr/BlockSize, 1);
 
     // info are in RAM -> no need to re-read memory
     for (n = 0; n < size; n++) {
@@ -505,7 +505,7 @@ void USBMSD::memoryRead (void) {
 
     // we read an entire block
     if (!(addr%BlockSize))
-        disk_read(page, addr/BlockSize);
+        disk_read(page, addr/BlockSize, 1);
 
     // write data which are in RAM
     writeNB(EPBULK_IN, &page[addr%BlockSize], n, MAX_PACKET_SIZE_EPBULK);
