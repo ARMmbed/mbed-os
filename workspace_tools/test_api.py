@@ -1268,7 +1268,7 @@ def get_default_test_options_parser():
 
     parser.add_option('', '--firmware-name',
                       dest='firmware_global_name',
-                      help='Set global name for all produced projects. E.g. you can call all test binaries firmware.bin')
+                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
 
     parser.add_option('-u', '--shuffle',
                       dest='shuffle_test_order',
