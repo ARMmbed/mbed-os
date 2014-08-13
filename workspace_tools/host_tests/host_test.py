@@ -86,6 +86,7 @@ class Mbed:
         print 'Mbed: "%s" "%s"' % (self.port, self.disk)
 
     def init_serial(self, baud=9600, extra_baud=9600):
+        """ Initialize serial port. Function will return error is port can't be opened or initialized """
         result = True
         try:
             self.serial = Serial(self.port, timeout=1)
@@ -98,6 +99,14 @@ class Mbed:
                 self.extra_serial = Serial(self.extra_port, timeout = 1)
                 self.extra_serial.setBaudrate(extra_baud)
             self.flush()
+        return result
+
+    def serial_timeout(self, timeout):
+        """ Wraps self.mbed.serial object timeout property """
+        result = None
+        if self.serial:
+            self.serial.timeout = timeout
+            result = True
         return result
 
     def serial_read(self, count=1):
