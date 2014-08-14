@@ -813,7 +813,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 result = json.load(data_file)
             except ValueError as json_error_msg:
                 result = None
-                print self.logger.log_line(self.logger.LogType.ERROR, 'JSON file %s parsing failed. Reason: %s' % (json_spec_filename, json_error_msg))
+                print 'JSON file %s parsing failed. Reason: %s' % (json_spec_filename, json_error_msg)
                 # We can print where error occurred inside JSON file if we can parse exception msg
                 json_format_defect_pos = json_format_error_defect_pos(str(json_error_msg))
                 if json_format_defect_pos is not None:
@@ -823,7 +823,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                     show_json_file_format_error(json_spec_filename, line, column)
 
     except IOError as fileopen_error_msg:
-        print self.logger.log_line(self.logger.LogType.ERROR, 'JSON file %s not opened. Reason: %s'% (json_spec_filename, fileopen_error_msg))
+        print 'JSON file %s not opened. Reason: %s'% (json_spec_filename, fileopen_error_msg)
         print
     if verbose and result:
         pp = pprint.PrettyPrinter(indent=4)
@@ -893,7 +893,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             target_name = target if target in TARGET_MAP else "%s*"% target
             row = [target_name]
             toolchains = targets[target]
-            for toolchain in toolchains_info_cols:
+            for toolchain in sorted(toolchains_info_cols):
                 # Check for conflicts
                 conflict = False
                 if toolchain in toolchains:
@@ -911,7 +911,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
     # generate result string
     result = pt.get_string()    # Test specification table
-    if toolchain_conflicts:     # Print conflicts if the exist
+    if toolchain_conflicts:     # Print conflicts if exist
         result += "\n"
         result += "Toolchain conflicts:\n"
         for target in toolchain_conflicts:
