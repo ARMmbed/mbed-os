@@ -370,12 +370,14 @@ class SingleTestRunner(object):
             pt.padding_width = 1 # One space between column edges and contents (default)
 
             for test in unique_tests:
-                test_results = result_dict[test]
-                row = [target, test, unique_test_desc[test]]
-                for toolchain in unique_toolchains:
-                    if toolchain in test_results:
-                        row.append(test_results[toolchain])
-                pt.add_row(row)
+                if test in result_dict:
+                    test_results = result_dict[test]
+                    if test in unique_test_desc:
+                        row = [target, test, unique_test_desc[test]]
+                        for toolchain in unique_toolchains:
+                            if toolchain in test_results:
+                                row.append(test_results[toolchain])
+                        pt.add_row(row)
             result += pt.get_string()
             shuffle_seed_text = "Shuffle Seed: %.*f"% (self.SHUFFLE_SEED_ROUND,
                                                        shuffle_seed if shuffle_seed else self.shuffle_random_seed)
