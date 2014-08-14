@@ -531,6 +531,7 @@ class XADOW_M0(LPCTarget):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.default_toolchain = "uARM"
 
 
 class ARCH_BLE(NRF51822):
