@@ -124,12 +124,12 @@ class Mbed:
     def serial_write(self, write_buffer):
         """ Wraps self.mbed.serial object write method
         """
-        result = -1
+        result = None
         if self.serial:
             try:
                 result = self.serial.write(write_buffer)
             except:
-               result = -1
+               result = None
         return result
 
     def safe_sendBreak(self, serial):

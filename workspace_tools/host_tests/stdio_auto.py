@@ -31,7 +31,7 @@ class StdioTest(DefaultTest):
         for i in range(1, 5):
             random_integer = random.randint(-10000, 10000)
             print "Generated number: " + str(random_integer)
-            self.mbed.serial.write(str(random_integer) + "\n")
+            self.mbed.serial_write(str(random_integer) + "\n")
             serial_stdio_msg = ""
 
             ip_msg_timeout = self.mbed.options.timeout

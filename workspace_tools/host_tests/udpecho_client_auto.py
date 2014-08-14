@@ -32,7 +32,7 @@ class UDPEchoClientTest(Test):
         self.mbed.reset()
         print "Sending server IP Address to target..."
         connection_str = ip_address + ":" + str(port_no) + "\n"
-        self.mbed.serial.write(connection_str)
+        self.mbed.serial_write(connection_str)
 
 
 class UDPEchoClient_Handler(BaseRequestHandler):
