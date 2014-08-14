@@ -21,7 +21,7 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 // SCU mode for SPI pins
 #define SCU_PINIO_SPI       SCU_PINIO_FAST

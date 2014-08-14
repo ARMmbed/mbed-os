@@ -22,7 +22,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "fsl_clock_manager.h"
 #include "fsl_dspi_hal.h"
 #include "PeripheralPins.h"

@@ -17,7 +17,7 @@
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 static LPC_SCT0_Type *SCTs[4] = {
     (LPC_SCT0_Type*)LPC_SCT0,

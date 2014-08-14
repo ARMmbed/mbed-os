@@ -17,7 +17,7 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 static const PinMap PinMap_ADC[] = {
     {P0_11, ADC0_0, 2},

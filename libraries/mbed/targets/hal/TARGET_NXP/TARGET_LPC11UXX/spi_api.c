@@ -18,7 +18,7 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
 static inline int ssp_disable(spi_t *obj);

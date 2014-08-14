@@ -30,7 +30,7 @@
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 

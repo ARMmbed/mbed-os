@@ -15,7 +15,7 @@
  */
 #include "mbed_assert.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 __IO uint32_t* IOCON_REGISTERS[18] = {
         &LPC_IOCON->PIO0_0 , &LPC_IOCON->PIO0_1 , &LPC_IOCON->PIO0_2 ,

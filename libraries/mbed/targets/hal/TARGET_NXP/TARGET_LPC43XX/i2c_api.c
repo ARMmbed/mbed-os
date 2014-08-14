@@ -18,7 +18,7 @@
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 // SCU mode for I2C SCL/SDA pins
 #define SCU_PINIO_I2C       SCU_PINIO_PULLNONE

@@ -17,7 +17,7 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
 #define ANALOGIN_MEDIAN_FILTER      1

@@ -20,7 +20,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "gpio_api.h"
 
 static const PinMap PinMap_DAC[] = {

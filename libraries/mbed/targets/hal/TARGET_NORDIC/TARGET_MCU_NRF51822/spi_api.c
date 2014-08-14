@@ -18,7 +18,7 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {SPI_PSELSCK0 , SPI_0, 0x01},
