@@ -65,7 +65,6 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
     ('GHI_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
-    ('DISCO_F407VG', ('ARM', 'GCC_ARM')),
 )
 
 
