@@ -893,7 +893,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             target_name = target if target in TARGET_MAP else "%s*"% target
             row = [target_name]
             toolchains = targets[target]
-            for toolchain in toolchains_info_cols:
+            for toolchain in sorted(toolchains_info_cols):
                 # Check for conflicts
                 conflict = False
                 if toolchain in toolchains:
@@ -911,7 +911,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
     # generate result string
     result = pt.get_string()    # Test specification table
-    if toolchain_conflicts:     # Print conflicts if the exist
+    if toolchain_conflicts:     # Print conflicts if exist
         result += "\n"
         result += "Toolchain conflicts:\n"
         for target in toolchain_conflicts:
