@@ -20,17 +20,20 @@
 #include "pinmap.h"
 #include "error.h"
 
+// SCU mode for I2C SCL/SDA pins
+#define SCU_PINIO_I2C       SCU_PINIO_PULLNONE
+
 static const PinMap PinMap_I2C_SDA[] = {
     {P_DED, I2C_0, 0},
-    {P2_3,  I2C_1, 1},
-    {PE_13, I2C_1, 2},
+    {P2_3,  I2C_1, (SCU_PINIO_I2C | 1)},
+    {PE_13, I2C_1, (SCU_PINIO_I2C | 2)},
     {NC,    NC,    0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
     {P_DED, I2C_0, 0},
-    {P2_4,  I2C_1, 1},
-    {PE_14, I2C_1, 2},
+    {P2_4,  I2C_1, (SCU_PINIO_I2C | 1)},
+    {PE_14, I2C_1, (SCU_PINIO_I2C | 2)},
     {NC,    NC,    0}
 };
 

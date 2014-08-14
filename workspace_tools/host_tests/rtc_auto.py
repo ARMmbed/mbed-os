@@ -26,7 +26,9 @@ class RTCTest(DefaultTest):
 
     def run(self):
         test_result = True
-        c = self.mbed.serial.timeout = None
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
         for i in range(0, 5):
             c = self.mbed.serial_read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
             if c is None:

@@ -91,7 +91,8 @@ from workspace_tools.test_api import get_default_test_options_parser
 
 
 def get_version():
-    """ Returns test script version """
+    """ Returns test script version
+    """
     single_test_version_major = 1
     single_test_version_minor = 1
     return (single_test_version_major, single_test_version_minor)
@@ -168,6 +169,7 @@ if __name__ == '__main__':
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
+                                   _opts_log_file_name=opts.log_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,
@@ -184,8 +186,9 @@ if __name__ == '__main__':
                                    _opts_suppress_summary=opts.suppress_summary,
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary,
                                    _opts_copy_method=opts.copy_method,
-                                   _opts_mut_reset_type=opts.mut_reset_type
-                                   )
+                                   _opts_mut_reset_type=opts.mut_reset_type,
+                                   _opts_jobs=opts.jobs,
+                                   _opts_extend_test_timeout=opts.extend_test_timeout)
 
     # Runs test suite in CLI mode
     singletest_in_cli_mode(single_test)

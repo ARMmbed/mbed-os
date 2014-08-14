@@ -29,7 +29,7 @@ class EchoTest(Test):
         TEST="longer serial test"
         check = True
         for i in range(1, 100):
-            self.mbed.serial.write(TEST + "\n")
+            self.mbed.serial_write(TEST + "\n")
             l = self.mbed.serial.readline().strip()
             if not l: continue
 

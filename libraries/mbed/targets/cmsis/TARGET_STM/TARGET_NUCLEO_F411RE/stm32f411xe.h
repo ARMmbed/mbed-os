@@ -9,7 +9,7 @@
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheralâ€™s registers hardware
   *
   ******************************************************************************
   * @attention
@@ -45,12 +45,12 @@
   * @{
   */
 
-/** @addtogroup stm32f401xe
+/** @addtogroup stm32f411xe
   * @{
   */
     
-#ifndef __STM32F401xE_H
-#define __STM32F401xE_H
+#ifndef __STM32F411xE_H
+#define __STM32F411xE_H
 
 #ifdef __cplusplus
  extern "C" {

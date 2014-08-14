@@ -21,6 +21,7 @@ from os.path import join, exists
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import IAR_PATH
 from workspace_tools.settings import GOANNA_PATH
+from workspace_tools.hooks import hook_tool
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -94,13 +95,8 @@ class IAR(mbedToolchain):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
                 
-    def _assemble(self, source, object, includes):
-        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
-
     def assemble(self, source, object, includes):
-        commands = self._assemble(source, object, includes);
-        for command in commands:
-            self.default_cmd(command)
+        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 
     def archive(self, objects, lib_path):
         if exists(lib_path):
@@ -111,5 +107,6 @@ class IAR(mbedToolchain):
         args = [self.ld, "-o", output, "--config", mem_map]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
+    @hook_tool
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))

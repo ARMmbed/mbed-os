@@ -49,6 +49,7 @@ build_list = (
     { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 )
 
 ################################################################################
@@ -59,7 +60,7 @@ def run_builds(dry_run):
         toolchain_list = build["toolchains"]
         if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
         for toolchain in toolchain_list:
-            cmdline = "python workspace_tools/build.py -m %s -t %s -c " % (build["target"], toolchain)
+            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c " % (build["target"], toolchain)
             libs = build.get("libs", [])
             if libs:
                 cmdline = cmdline + " ".join(["--" + l for l in libs])

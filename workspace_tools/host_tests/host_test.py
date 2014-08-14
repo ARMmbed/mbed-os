@@ -28,8 +28,7 @@ from time import sleep
 from sys import stdout
 
 class Mbed:
-    """
-    Base class for a host driven test
+    """ Base class for a host driven test
     """
     def __init__(self):
         parser = OptionParser()
@@ -63,7 +62,16 @@ class Mbed:
                           dest="forced_reset_type",
                           help="Forces different type of reset")
 
+        parser.add_option("-R", "--reset-timeout",
+                          dest="forced_reset_timeout",
+                          metavar="NUMBER",
+                          type="int",
+                          help="When forcing a reset using option -r you can set up after reset timeout in seconds")
+
         (self.options, _) = parser.parse_args()
+
+        self.DEFAULT_RESET_TOUT = 2
+        self.DEFAULT_TOUT = 10
 
         if self.options.port is None:
             raise Exception("The serial port of the target mbed have to be provided as command line arguments")
@@ -73,10 +81,12 @@ class Mbed:
         self.extra_port = self.options.extra
         self.extra_serial = None
         self.serial = None
-        self.timeout = 10 if self.options.timeout is None else self.options.timeout
-        print 'Mbed: "%s" "%s"' % (self.port, self.disk)
+        self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
+        print 'Host test instrumentation on port: "%s" with serial: "%s"' % (self.port, self.disk)
 
     def init_serial(self, baud=9600, extra_baud=9600):
+        """ Initialize serial port. Function will return error is port can't be opened or initialized
+        """
         result = True
         try:
             self.serial = Serial(self.port, timeout=1)
@@ -91,8 +101,18 @@ class Mbed:
             self.flush()
         return result
 
+    def serial_timeout(self, timeout):
+        """ Wraps self.mbed.serial object timeout property
+        """
+        result = None
+        if self.serial:
+            self.serial.timeout = timeout
+            result = True
+        return result
+
     def serial_read(self, count=1):
-        """ Wraps self.mbed.serial object read method """
+        """ Wraps self.mbed.serial object read method
+        """
         result = None
         if self.serial:
             try:
@@ -102,23 +122,24 @@ class Mbed:
         return result
 
     def serial_write(self, write_buffer):
-        """ Wraps self.mbed.serial object write method """
-        result = -1
+        """ Wraps self.mbed.serial object write method
+        """
+        result = None
         if self.serial:
             try:
                 result = self.serial.write(write_buffer)
             except:
-               result = -1
+               result = None
         return result
 
     def safe_sendBreak(self, serial):
         """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-        Traceback (most recent call last):
-          File "make.py", line 189, in <module>
-            serial.sendBreak()
-          File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-            termios.tcsendbreak(self.fd, int(duration/0.25))
-        error: (32, 'Broken pipe')
+            Traceback (most recent call last):
+              File "make.py", line 189, in <module>
+                serial.sendBreak()
+              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
+                termios.tcsendbreak(self.fd, int(duration/0.25))
+            error: (32, 'Broken pipe')
         """
         result = True
         try:
@@ -132,24 +153,38 @@ class Mbed:
                 result = False
         return result
 
-    def touch_file(self, path, name):
-        with os.open(path, 'a'):
+    def touch_file(self, path):
+        """ Touch file and set timestamp to items
+        """
+        with open(path, 'a'):
             os.utime(path, None)
 
+    def reset_timeout(self, timeout):
+        """ Timeout executed just after reset command is issued
+        """
+        for n in range(0, timeout):
+            sleep(1)
+
     def reset(self):
-        """ reboot.txt   - startup from standby state, reboots when in run mode.
+        """ Reset function. Supports 'standard' send break command via Mbed's CDC,
+            also handles other reset modes.
+            E.g. reset by touching file with specific file name:
+            reboot.txt   - startup from standby state, reboots when in run mode.
             shutdown.txt - shutdown from run mode
-            reset.txt    - reset fpga during run mode """
-        if self.options.forced_reset_type:
-            path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
-            if self.options.forced_reset_type.endswith('.txt'):
-                self.touch_file(path)
+            reset.txt    - reset FPGA during run mode
+        """
+        if self.options.forced_reset_type and self.options.forced_reset_type.endswith('.txt'):
+            reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
+            self.touch_file(reset_file_path)
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
             # Give time to wait for the image loading
-        sleep(2)
+        reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
+        self.reset_timeout(reset_tout_s)
 
     def flush(self):
+        """ Flush serial ports
+        """
         self.serial.flushInput()
         self.serial.flushOutput()
         if self.extra_serial:
@@ -158,10 +193,15 @@ class Mbed:
 
 
 class Test:
+    """ Baseclass for host test's test runner
+    """
     def __init__(self):
         self.mbed = Mbed()
 
     def run(self):
+        """ Test runner for host test. This function will start executing
+            test and forward test result via serial port to test suite
+        """
         try:
             result = self.test()
             self.print_result("success" if result else "failure")
@@ -170,7 +210,8 @@ class Test:
             self.print_result("error")
 
     def setup(self):
-        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened """
+        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
+        """
         result = True
         if not self.mbed.serial:
             result = False
@@ -178,16 +219,20 @@ class Test:
         return result
 
     def notify(self, message):
-        """ On screen notification function """
+        """ On screen notification function
+        """
         print message
         stdout.flush()
 
     def print_result(self, result):
-        """ Test result unified printing function """
+        """ Test result unified printing function
+        """
         self.notify("\n{%s}\n{end}" % result)
 
 
 class DefaultTest(Test):
+    """ Test class with serial port initialization
+    """
     def __init__(self):
         Test.__init__(self)
         serial_init_res = self.mbed.init_serial()
@@ -195,6 +240,10 @@ class DefaultTest(Test):
 
 
 class Simple(DefaultTest):
+    """ Simple, basic host test's test runner waiting for serial port
+        output from MUT, no supervision over test running in MUT is executed.
+        Just waiting for result
+    """
     def run(self):
         try:
             while True:
@@ -206,6 +255,7 @@ class Simple(DefaultTest):
                 stdout.flush()
         except KeyboardInterrupt, _:
             print "\n[CTRL+c] exit"
+
 
 if __name__ == '__main__':
     Simple().run()
