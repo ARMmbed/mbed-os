@@ -30,7 +30,7 @@ build_list = (
     { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"] },
     { "target": "LPC2368",       "toolchains": "GCC_ARM", "libs": ["fat"]  },
     { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "GHI_MBUINO",    "toolchains": "GCC_ARM", "libs": ["fat"]  },
+    { "target": "OC_MBUINO",    "toolchains": "GCC_ARM", "libs": ["fat"]  },
 
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
