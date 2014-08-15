@@ -16,16 +16,17 @@ DigitalOut led(LED1);
 
 volatile int change_counter = 0;
 volatile bool changing_counter = false;
+volatile bool mutex_defect = false;
 
 bool manipulate_protected_zone(const int thread_delay) {
     bool result = true;
 
     stdio_mutex.lock(); // LOCK
     if (changing_counter == true) {
-        print_char('e');    // if changing_counter is true access is not exclusively
+        // 'e' stands for error. If changing_counter is true access is not exclusively
+        print_char('e');
         result = false;
-        notify_completion(false);
-        exit(1);
+        mutex_defect = true;
     }
     changing_counter = true;
 
@@ -53,17 +54,19 @@ int main() {
     const int t3_delay = THREAD_DELAY * 3;
     Thread t2(test_thread, (void *)t2_delay);
     Thread t3(test_thread, (void *)t3_delay);
-    bool result = true;
 
     while (true) {
         // Thread 1 action
         Thread::wait(t1_delay);
         manipulate_protected_zone(t1_delay);
-        if (change_counter >= SIGNALS_TO_EMIT) {
+        if (change_counter >= SIGNALS_TO_EMIT or mutex_defect == true) {
+            t2.terminate();
+            t3.terminate();
             break;
         }
     }
 
-    notify_completion(result);
+    fflush(stdout);
+    notify_completion(!mutex_defect);
     return 0;
 }
