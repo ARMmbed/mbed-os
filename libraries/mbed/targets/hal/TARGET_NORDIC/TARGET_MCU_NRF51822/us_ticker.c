@@ -58,6 +58,8 @@ static void us_ticker_app_timer_callback(void *context)
 
 void us_ticker_set_interrupt(unsigned int timestamp)
 {
+    static unsigned cachedInterruptTimestamp;
+
     if (!us_ticker_inited) {
         us_ticker_init();
     }
@@ -67,7 +69,13 @@ void us_ticker_set_interrupt(unsigned int timestamp)
             /* placeholder to do something to recover from error */
             return;
         }
+    } else {
+        /* we want to avoid taking action on duplicate requests */
+        if (timestamp == cachedInterruptTimestamp) {
+            return;
+        }
     }
+    cachedInterruptTimestamp = timestamp;
 
     uint32_t currentCounter;
     app_timer_cnt_get(&currentCounter);
