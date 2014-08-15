@@ -17,113 +17,79 @@
 #include "us_ticker_api.h"
 #include "cmsis.h"
 #include "PeripheralNames.h"
+#include "app_timer.h"
 
-#define US_TICKER_TIMER      NRF_TIMER1
-#define US_TICKER_TIMER_IRQn TIMER1_IRQn
+static bool           us_ticker_inited     = false;
+static app_timer_id_t us_ticker_appTimerID = TIMER_NULL;
 
-int us_ticker_inited        = 0;
-volatile uint16_t overflow  = 0; //overflow value that forms the upper 16 bits of the counter
-volatile uint16_t timeStamp = 0;
+static const unsigned RTC_TO_US_CONVERSION_FACTOR = ((1000000 / APP_TIMER_CLOCK_FREQ) + 1);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void TIMER1_IRQHandler(void)
-{
-    if ((US_TICKER_TIMER->EVENTS_COMPARE[1] != 0) &&
-        ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0)) {
-        US_TICKER_TIMER->EVENTS_COMPARE[1] = 0;
-        overflow++;
-        US_TICKER_TIMER->CC[1] = 0xFFFF;
-        if (timeStamp>0) {
-            timeStamp--;
-            if (timeStamp==0) {
-                us_ticker_clear_interrupt();
-                us_ticker_disable_interrupt();
-                us_ticker_irq_handler();
-                return;
-            }
-        }
-    }
-    if ((US_TICKER_TIMER->EVENTS_COMPARE[0] != 0) &&
-        ((US_TICKER_TIMER->INTENSET & TIMER_INTENSET_COMPARE0_Msk) != 0)) {
-        us_ticker_clear_interrupt();
-        us_ticker_disable_interrupt();
-        if (timeStamp==0) {
-            us_ticker_irq_handler();
-        }
-    }
-}
-
-#ifdef __cplusplus
-}
-#endif
 void us_ticker_init(void)
 {
-    if (us_ticker_inited && US_TICKER_TIMER->POWER) {
+    if (us_ticker_inited) {
         return;
     }
 
-    us_ticker_inited = 1;
+    const bool useScheduler = false;
+    APP_TIMER_INIT(0 /* PRESCALAR */, 2 /* num timers */, 1 /* event queue max depth */, useScheduler);
 
-    US_TICKER_TIMER->POWER = 0;
-    US_TICKER_TIMER->POWER = 1;
-
-    US_TICKER_TIMER->MODE = TIMER_MODE_MODE_Timer;
-
-    US_TICKER_TIMER->PRESCALER   = 4;
-    US_TICKER_TIMER->BITMODE     = TIMER_BITMODE_BITMODE_16Bit;
-    US_TICKER_TIMER->TASKS_CLEAR = 1;
-    US_TICKER_TIMER->CC[1]       = 0xFFFF;
-    US_TICKER_TIMER->INTENSET    = TIMER_INTENSET_COMPARE1_Set << TIMER_INTENSET_COMPARE1_Pos;
-
-    NVIC_SetPriority(US_TICKER_TIMER_IRQn, 3);
-    NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
-
-    US_TICKER_TIMER->TASKS_START = 0x01;
+    us_ticker_inited = true;
 }
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited || (US_TICKER_TIMER->POWER==0)) {
+    if (!us_ticker_inited) {
         us_ticker_init();
     }
 
-    uint16_t bufferedOverFlow =         overflow;
-    US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
+    uint32_t value;
+    app_timer_cnt_get(&value); /* This returns the RTC counter (which is fed by the 32khz crystal clock source) */
+    return value * RTC_TO_US_CONVERSION_FACTOR; /* Return a pseudo microsecond counter value.
+                                                 * This is only as precise as the 32khz low-freq
+                                                 * clock source, but could be adequate.*/
+}
 
-    if (overflow!=bufferedOverFlow) {
-        bufferedOverFlow                  = overflow;
-        US_TICKER_TIMER->TASKS_CAPTURE[2] = 1;
-    }
-    return (((uint32_t)bufferedOverFlow << 16) | US_TICKER_TIMER->CC[2]);
+/* An adaptor to interface us_ticker_irq_handler with the app_timer callback.
+ * Needed because the irq_handler() doesn't take any parameter.*/
+static void us_ticker_app_timer_callback(void *context)
+{
+    us_ticker_irq_handler();
 }
 
 void us_ticker_set_interrupt(unsigned int timestamp)
 {
-    if (!us_ticker_inited || (US_TICKER_TIMER->POWER == 0)) {
+    if (!us_ticker_inited) {
         us_ticker_init();
     }
 
-    US_TICKER_TIMER->TASKS_CAPTURE[0] = 1;
-    uint16_t tsUpper16 = (uint16_t)((timestamp - us_ticker_read()) >> 16);
-    if (tsUpper16>0) {
-        if ((timeStamp ==0) || (timeStamp> tsUpper16)) {
-            timeStamp = tsUpper16;
+    if (us_ticker_appTimerID == TIMER_NULL) {
+        if (app_timer_create(&us_ticker_appTimerID, APP_TIMER_MODE_SINGLE_SHOT, us_ticker_app_timer_callback) != NRF_SUCCESS) {
+            /* placeholder to do something to recover from error */
+            return;
         }
-    } else {
-        US_TICKER_TIMER->INTENSET |= TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos;
-        US_TICKER_TIMER->CC[0]    += timestamp - us_ticker_read();
+    }
+
+    uint32_t currentCounter;
+    app_timer_cnt_get(&currentCounter);
+    uint32_t targetCounter = (timestamp / RTC_TO_US_CONVERSION_FACTOR) + 1; /* we add 1 to allow for safe round-up of the target. */
+    uint32_t ticksToCount = (targetCounter >= currentCounter) ?
+                             (targetCounter - currentCounter) : APP_TIMER_CLOCK_FREQ - (currentCounter - targetCounter);
+    if (ticksToCount > 0) {
+        uint32_t rc;
+        rc = app_timer_start(us_ticker_appTimerID, ticksToCount, NULL /*p_context*/);
+        if (rc != NRF_SUCCESS) {
+            /* placeholder to do something to recover from error */
+            return;
+        }
     }
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    US_TICKER_TIMER->INTENCLR = TIMER_INTENCLR_COMPARE0_Clear << TIMER_INTENCLR_COMPARE0_Pos;
+    app_timer_stop(us_ticker_appTimerID);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    US_TICKER_TIMER->EVENTS_COMPARE[0] = 0;
+    /* empty */
 }
