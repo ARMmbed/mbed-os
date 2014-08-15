@@ -45,6 +45,8 @@ void us_ticker_irq_handler(void) {
             if (event_handler != NULL) {
                 event_handler(p->id); // NOTE: the handler can set new events
             }
+            /* Note: We continue back to examining the head because calling the
+             * event handler may have altered the chain of pending events. */
         } else {
             // This event and the following ones in the list are in the future:
             //      set it as next interrupt and return
