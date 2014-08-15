@@ -22,7 +22,7 @@ from time import time
 from sys import stdout
 
 class StdioTest(DefaultTest):
-    PATTERN_INT_VALUE = "^Your value was: (-?\d+)"
+    PATTERN_INT_VALUE = "Your value was: (-?\d+)"
     re_detect_int_value = re.compile(PATTERN_INT_VALUE)
 
     def run(self):

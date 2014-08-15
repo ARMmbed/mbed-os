@@ -15,17 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import tempfile
 import re
-from os.path import join, exists, basename
-from shutil import rmtree
+import tempfile
+
 from types import ListType
+from shutil import rmtree
+from os.path import join, exists, basename
 
 from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
-from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
-from workspace_tools.libraries import Library
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
+from workspace_tools.libraries import Library
+from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 
 
 def build_project(src_path, build_path, target, toolchain_name,

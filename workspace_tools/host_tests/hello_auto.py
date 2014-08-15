@@ -22,12 +22,27 @@ class HelloTest(DefaultTest):
     HELLO_WORLD = "Hello World\n"
 
     def run(self):
-        c = self.mbed.serial_read(len(self.HELLO_WORLD))
+        c = self.mbed.serial_read(1)
+        if c is None:
+           self.print_result("ioerr_serial")
+           return
+        data_to_read = len(self.HELLO_WORLD)
+        read_buffer = ''
+        if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
+            #Read additional 39 bytes of TargetID
+            if self.mbed.serial_read(39) is None:
+                self.print_result("ioerr_serial")
+                return
+        else:
+            data_to_read -= 1
+            read_buffer += c
+        c = self.mbed.serial_read(data_to_read)
+        read_buffer += c
         if c is None:
             self.print_result("ioerr_serial")
             return
-        stdout.write(c)
-        if c == self.HELLO_WORLD: # Hello World received
+        stdout.write(read_buffer)
+        if read_buffer == self.HELLO_WORLD: # Hello World received
             self.print_result('success')
         else:
             self.print_result('failure')

@@ -32,7 +32,7 @@ class WaitusTest(DefaultTest):
             return
         if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
             #Read additional 39 bytes of TargetID
-            if not self.mbed.serial_read(39):
+            if self.mbed.serial_read(39) is None:
                 self.print_result("ioerr_serial")
                 return
             c = self.mbed.serial_read(1) # Re-read first 'tick'
