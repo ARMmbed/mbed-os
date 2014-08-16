@@ -50,6 +50,8 @@ typedef enum {
     LED5        = PD_14,
     LED6        = PD_15,
 
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

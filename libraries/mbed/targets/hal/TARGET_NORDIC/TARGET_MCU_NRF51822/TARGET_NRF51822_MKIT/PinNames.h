@@ -135,6 +135,9 @@ typedef enum {
 
     I2C_SDA1 = p13,
     I2C_SCL1 = p15,
+
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

@@ -239,6 +239,8 @@ typedef enum {
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

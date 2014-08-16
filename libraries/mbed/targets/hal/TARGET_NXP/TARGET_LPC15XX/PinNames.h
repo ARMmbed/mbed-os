@@ -75,6 +75,8 @@ typedef enum {
     SDA= P0_23, // same port as A4
     SCL= P0_22, // same port as A5
     
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

@@ -239,6 +239,8 @@ typedef enum {
     TSI_ELEC0 = PTB16,
     TSI_ELEC1 = PTB17,
 
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

@@ -109,6 +109,8 @@ typedef enum {
 	A5  = p20,
 	
 
+    // Do not care
+    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
