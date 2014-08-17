@@ -53,8 +53,6 @@ typedef enum {
     USBTX = P0_4,
     USBRX = P0_0,
     
-    // Do not care
-    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

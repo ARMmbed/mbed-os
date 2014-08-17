@@ -207,8 +207,6 @@ typedef enum {
   SPI_CS      = PA_15,
   PWM_OUT     = PB_1,
   
-  // Do not care
-  DONT_CARE = (int)0xFFFFFFFE,
   // Not connected
   NC = (int)0xFFFFFFFF
 } PinName;

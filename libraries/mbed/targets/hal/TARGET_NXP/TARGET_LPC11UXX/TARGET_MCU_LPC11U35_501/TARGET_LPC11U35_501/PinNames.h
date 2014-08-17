@@ -145,8 +145,6 @@ typedef enum {
     UART_TX = P0_19,
     UART_RX = P0_18,
 
-    // Do not care
-    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

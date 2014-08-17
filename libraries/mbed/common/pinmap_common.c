@@ -21,7 +21,7 @@ void pinmap_pinout(PinName pin, const PinMap *map) {
         return;
 
     while (map->pin != NC) {
-        if ((map->pin == DONT_CARE) || (map->pin == pin)) {
+        if (map->pin == pin) {
             pin_function(pin, map->function);
 
             pin_mode(pin, PullNone);
@@ -50,7 +50,7 @@ uint32_t pinmap_merge(uint32_t a, uint32_t b) {
 
 uint32_t pinmap_find_peripheral(PinName pin, const PinMap* map) {
     while (map->pin != NC) {
-        if ((map->pin == DONT_CARE) || (map->pin == pin))
+        if (map->pin == pin)
             return map->peripheral;
         map++;
     }

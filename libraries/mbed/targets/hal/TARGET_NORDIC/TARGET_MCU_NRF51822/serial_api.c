@@ -28,12 +28,12 @@
 #define UART_NUM    1
 
 static const PinMap PinMap_UART_TX[] = {
-    {DONT_CARE, UART_0, 1},
+    {TX_PIN_NUMBER, UART_0, 1},
     { NC  , NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {DONT_CARE, UART_0, 1},
+    {RX_PIN_NUMBER, UART_0, 1},
     {NC   , NC    , 0}
 };
 

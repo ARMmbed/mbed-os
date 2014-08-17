@@ -161,8 +161,6 @@ typedef enum {
 
     LED1  = PE_9,
 
-    // Do not care
-    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

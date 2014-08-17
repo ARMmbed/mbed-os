@@ -451,8 +451,6 @@ typedef enum {
     // Dedicated pin (no GPIO)
     P_DED = MBED_PIN(0, 0, NO_GPIO, 0),
 
-    // Do not care
-    DONT_CARE = (int)0xFFFFFFFE,
     // Not connected
     NC = (int)0xFFFFFFFF,
 

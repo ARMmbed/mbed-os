@@ -202,8 +202,7 @@ typedef enum {
 	dip28 = P0_7,
 	
 	
-    // Do not care
-    DONT_CARE = (int)0xFFFFFFFE,
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
