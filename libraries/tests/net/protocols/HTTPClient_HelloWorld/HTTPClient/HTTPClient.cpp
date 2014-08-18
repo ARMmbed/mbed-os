@@ -306,13 +306,11 @@ HTTPResult HTTPClient::connect(const char* url, HTTP_METH method, IHTTPDataOut* 
 
     buf[crlfPos] = '\0';
 
-    char key[32];
-    char value[32];
+    char key[64] = {0};
+    char value[32] = {0};
 
-    key[31] = '\0';
-    value[31] = '\0';
+    int n = sscanf(buf, "%63[^:]: %31[^\r\n]", key, value);
 
-    int n = sscanf(buf, "%31[^:]: %31[^\r\n]", key, value);
     if ( n == 2 )
     {
       DBG("Read header : %s: %s\n", key, value);
