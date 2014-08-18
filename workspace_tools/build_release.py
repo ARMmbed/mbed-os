@@ -64,7 +64,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
 
     ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
-    ('GHI_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
+    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
 )
 
 
