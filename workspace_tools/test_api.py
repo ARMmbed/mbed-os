@@ -1170,13 +1170,20 @@ class BaseDBAccess():
     """
     def __init__(self):
         self.db_object = None
+        # Test Suite DB scheme (table names)
         self.TABLE_BUILD_ID = 'mtest_build_id'
+        self.TABLE_BUILD_ID_STATUS = 'mtest_build_id_status'
         self.TABLE_TARGET = 'mtest_target'
         self.TABLE_TEST_ENTRY = 'mtest_test_entry'
         self.TABLE_TEST_ID = 'mtest_test_id'
         self.TABLE_TEST_RESULT = 'mtest_test_result'
         self.TABLE_TEST_TYPE = 'mtest_test_type'
         self.TABLE_TOOLCHAIN = 'mtest_toolchain'
+        # Build ID status PKs
+        self.BUILD_ID_STATUS_STARTED = 1 # Started
+        self.BUILD_ID_STATUS_IN_PROGRESS = 2 # In Progress
+        self.BUILD_ID_STATUS_COMPLETED = 3 #Completed
+        self.BUILD_ID_STATUS_FAILED = 4 # Failed
 
     def get_hostname(self):
         """ Useful when creating build_id in database
