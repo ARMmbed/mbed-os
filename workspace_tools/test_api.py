@@ -19,9 +19,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 import os
 import re
-import sys
 import json
-import time
 import pprint
 import random
 import optparse
@@ -478,7 +476,7 @@ class SingleTestRunner(object):
         if images_config is not None:
             # For different targets additional configuration file has to be changed
             # Here we select target and proper function to handle configuration change
-            if target == 'ARM_MPS2':
+            if target_name == 'ARM_MPS2':
                 images_cfg_path = images_config
                 image0file_path = os.path.join(disk, image_dest, basename(image_path))
                 mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
@@ -1165,6 +1163,87 @@ class CLITestLogger(TestLogger):
             except IOError:
                 pass
         return log_line_str
+
+
+class BaseDBAccess():
+    """ Class used to connect with test database and store test results
+    """
+    def __init__(self):
+        self.db_object = None
+        self.TABLE_BUILD_ID = 'mtest_build_id'
+        self.TABLE_TARGET = 'mtest_target'
+        self.TABLE_TEST_ENTRY = 'mtest_test_entry'
+        self.TABLE_TEST_ID = 'mtest_test_id'
+        self.TABLE_TEST_RESULT = 'mtest_test_result'
+        self.TABLE_TEST_TYPE = 'mtest_test_type'
+        self.TABLE_TOOLCHAIN = 'mtest_toolchain'
+
+    def parse_db_connection_string(self, str):
+        """ Parsing SQL DB connection string. String should contain:
+            - DB Name, user name, password, URL (DB host), name
+            Function should return tuple with parsed (host, user, passwd, db) or None if error
+            E.g. connection string: 'mysql://buildbot:buildbot@127.0.0.1/buildbot'
+        """
+        PATTERN = '^([\w]+)://([\w]+):([\w]*)@(.*)/([\w]+)'
+        result = re.match(PATTERN, str)
+        if result is not None:
+            result = result.groups()    # Tuple (db_name, host, user, passwd, db)
+        return result
+
+    def is_connected(self):
+        """ Returns True if we are connected to database
+        """
+        pass
+
+    def connect(self, host, user, passwd, db):
+        """ Connects to DB and returns DB object
+        """
+        pass
+
+    def disconnect(self):
+        """ Close DB connection
+        """
+        pass
+
+    def escape_string(self, str):
+        """ Escapes string so it can be put in SQL query between quotes
+        """
+        pass
+
+    def select_all(self, query):
+        """ Execute SELECT query and get all results
+        """
+        pass
+
+    def insert(self, query, commit=True):
+        """ Execute INSERT query, define if you want to commit
+        """
+        pass
+
+    def get_next_build_id(self, name, desc=''):
+        """ Insert new build_id (DB unique build like ID number to send all test results)
+        """
+        pass
+
+    def get_table_entry_pk(self, table, column, value, update_db=True):
+        """ Checks for entries in tables with two columns (<TABLE_NAME>_pk, <column>)
+            If update_db is True updates table entry if value in specified column doesn't exist
+        """
+        pass
+
+    def update_table_entry(self, table, column, value):
+        """ Updates table entry if value in specified column doesn't exist
+            Locks table to perform atomic read + update
+        """
+        pass
+
+    def insert_test_entry(self, next_build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
+        """ Inserts test result entry to database. All checks regarding existing
+            toolchain names in DB are performed.
+            If some data is missing DB will be updated
+        """
+        pass
+
 
 def get_default_test_options_parser():
     """ Get common test script options used by CLI, webservices etc.
