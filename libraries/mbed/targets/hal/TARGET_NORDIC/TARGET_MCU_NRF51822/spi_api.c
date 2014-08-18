@@ -60,6 +60,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     SPIName spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
+
+    if ((int)spi == NC) {
+        spi = SPI_1;    // pinmap doesn't match, use SPI_1, for only SPI_1 supports SPI slave
+    }
+
     //SPIName
     if(ssel==NC){
         obj->spi = (NRF_SPI_Type*)spi;
@@ -69,9 +74,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spi = (NRF_SPI_Type*)NC;
         obj->spis = (NRF_SPIS_Type*)spi;
     }
-    MBED_ASSERT((int)obj->spi != NC || (int)obj->spis != NC);
 
-      // pin out the spi pins
+    // pin out the spi pins
     if (ssel != NC) {//slave
         obj->spis->POWER=0;
         obj->spis->POWER=1;
