@@ -1159,6 +1159,9 @@ class CLITestLogger(TestLogger):
         return timestamp_str + log_line_str
 
     def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
+        """ Logs line, if log file output was specified log line will be appended 
+            at the end of log file
+        """
         log_entry = TestLogger.log_line(self, LogType, log_line)
         log_line_str = self.log_print(log_entry, timestamp)
         if self.log_file_name is not None:
@@ -1171,14 +1174,18 @@ class CLITestLogger(TestLogger):
 
 
 def factory_db_logger(db_url):
-    (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
-    if db_type == 'mysql':
-        return MySQLDBAccess()
-    else:
-        return None
+    """ Factory database driver depending on database type supplied in database connection string db_url
+    """
+    if db_url is not None:
+        (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
+        if db_type == 'mysql':
+            return MySQLDBAccess()
+    return None
 
 
 def detect_database_verbose(db_url):
+    """ uses verbose mode (prints) database detection sequence to check it database connection string is valid
+    """
     result = BaseDBAccess().parse_db_connection_string(db_url)
     if result is not None:
         # Parsing passed

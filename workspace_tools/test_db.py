@@ -69,10 +69,12 @@ class BaseDBAccess():
             Function should return tuple with parsed (db_type, username, password, host, db_name) or None if error
             E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
-        PATTERN = '^([\w]+)://([\w]+):([\w]*)@(.*)/([\w]+)'
-        result = re.match(PATTERN, str)
-        if result is not None:
-            result = result.groups()    # Tuple (db_name, host, user, passwd, db)
+        result = None
+        if type(str) == type(''):
+            PATTERN = '^([\w]+)://([\w]+):([\w]*)@(.*)/([\w]+)'
+            result = re.match(PATTERN, str)
+            if result is not None:
+                result = result.groups()    # Tuple (db_name, host, user, passwd, db)
         return result # (db_type, username, password, host, db_name)
 
     def is_connected(self):
