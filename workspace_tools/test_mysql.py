@@ -35,7 +35,7 @@ class MySQLDBAccess(BaseDBAccess):
         """ Parsing SQL DB connection string. String should contain:
             - DB Name, user name, password, URL (DB host), name
             Function should return tuple with parsed (host, user, passwd, db) or None if error
-            E.g. connection string: 'mysql://buildbot:buildbot@127.0.0.1/buildbot'
+            E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
         result = BaseDBAccess.parse_db_connection_string(str)
         if result is not None and result[0] != 'mysql':

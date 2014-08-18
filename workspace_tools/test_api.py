@@ -1178,11 +1178,23 @@ class BaseDBAccess():
         self.TABLE_TEST_TYPE = 'mtest_test_type'
         self.TABLE_TOOLCHAIN = 'mtest_toolchain'
 
+    def get_hostname(self):
+        """ Useful when creating build_id in database
+            Function returns (hostname, uname) which can be used as (build_id_name, build_id_desc)
+        """
+        # Get hostname from socket
+        import socket
+        hostname = socket.gethostbyaddr(socket.gethostname())[0]
+        # Get uname from platform resources
+        import platform
+        uname = json.dumps(platform.uname())
+        return (hostname, uname)
+
     def parse_db_connection_string(self, str):
         """ Parsing SQL DB connection string. String should contain:
             - DB Name, user name, password, URL (DB host), name
             Function should return tuple with parsed (host, user, passwd, db) or None if error
-            E.g. connection string: 'mysql://buildbot:buildbot@127.0.0.1/buildbot'
+            E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
         PATTERN = '^([\w]+)://([\w]+):([\w]*)@(.*)/([\w]+)'
         result = re.match(PATTERN, str)
