@@ -36,15 +36,10 @@ DRESULT disk_read (
 )
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    for(DWORD s=sector; s<sector+count; s++) {
-        debug_if(FFS_DBG, " disk_read(sector %d)\n", s);
-        int res = FATFileSystem::_ffs[drv]->disk_read((uint8_t*)buff, s);
-        if(res) {
-            return RES_PARERR;
-        }
-        buff += 512;
-    }
-    return RES_OK;
+    if (FATFileSystem::_ffs[drv]->disk_read((uint8_t*)buff, sector, count))
+        return RES_PARERR;
+    else
+        return RES_OK;
 }
 
 #if _READONLY == 0
@@ -56,15 +51,10 @@ DRESULT disk_write (
 )
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    for(DWORD s = sector; s < sector + count; s++) {
-        debug_if(FFS_DBG, " disk_write(sector %d)\n", s);
-        int res = FATFileSystem::_ffs[drv]->disk_write((uint8_t*)buff, s);
-        if(res) {
-            return RES_PARERR;
-        }
-        buff += 512;
-    }
-    return RES_OK;
+    if (FATFileSystem::_ffs[drv]->disk_write((uint8_t*)buff, sector, count))
+        return RES_PARERR;
+    else
+        return RES_OK;
 }
 #endif /* _READONLY */
 
