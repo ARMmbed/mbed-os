@@ -20,9 +20,8 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 import re
 import MySQLdb as mdb
 
-
 # Imports from TEST API
-from workspace_tools.test_api import BaseDBAccess
+from workspace_tools.test_db import BaseDBAccess
 
 
 class MySQLDBAccess(BaseDBAccess):
@@ -31,6 +30,20 @@ class MySQLDBAccess(BaseDBAccess):
     def __init__(self):
         BaseDBAccess.__init__(self)
 
+    def detect_database(self, verbose=False):
+        """ detect database and return VERION data structure or string (verbose=True)
+        """
+        query = 'SHOW VARIABLES LIKE "%version%"'
+        rows = self.select_all(query)
+        if verbose:
+            result = []
+            for row in rows:
+                result.append("\t%s: %s"% (row['Variable_name'], row['Value']))
+            result = "\n".join(result)
+        else:
+            result = rows
+        return result
+
     def parse_db_connection_string(self, str):
         """ Parsing SQL DB connection string. String should contain:
             - DB Name, user name, password, URL (DB host), name
@@ -38,8 +51,10 @@ class MySQLDBAccess(BaseDBAccess):
             E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
         result = BaseDBAccess.parse_db_connection_string(str)
-        if result is not None and result[0] != 'mysql':
-            result = None
+        if result is not None:
+            (db_type, username, password, host, db_name) = result
+            if db_type != 'mysql':
+                result = None
         return result
 
     def is_connected(self):
@@ -52,15 +67,19 @@ class MySQLDBAccess(BaseDBAccess):
         """
         try:
             self.db_object = mdb.connect(host=host, user=user, passwd=passwd, db=db)
+            self.db_type = 'mysql'
         except mdb.Error, e:
             print "Error %d: %s"% (e.args[0], e.args[1])
             self.db_object = None
+            self.db_type = None
 
     def disconnect(self):
         """ Close DB connection
         """
         if self.db_object:
             self.db_object.close()
+        self.db_object = None
+        self.db_type = None
 
     def escape_string(self, str):
         """ Escapes string so it can be put in SQL query between quotes

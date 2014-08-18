@@ -17,18 +17,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
+"""
 
--------------------------------------------------------------------------------
-
-Call:
-    singletest.py --help
-
-to get help information.
-
--------------------------------------------------------------------------------
-
-File format example: test_spec.json
-
+"""
+File format example: test_spec.json:
 {
     "targets": {
         "KL46Z": ["ARM", "GCC_ARM"],
@@ -38,8 +30,7 @@ File format example: test_spec.json
     }
 }
 
-File format example: muts_all.json
-
+File format example: muts_all.json:
 {
     "1" : {"mcu": "LPC1768",
            "port":"COM4",
@@ -53,8 +44,8 @@ File format example: muts_all.json
            "peripherals": ["digital_loop", "port_loop", "analog_loop"]
     }
 }
-
 """
+
 
 # Check if 'prettytable' module is installed
 try:
@@ -81,13 +72,16 @@ sys.path.insert(0, ROOT)
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
+from workspace_tools.test_api import BaseDBAccess
 from workspace_tools.test_api import SingleTestRunner
+from workspace_tools.test_api import factory_db_logger
 from workspace_tools.test_api import singletest_in_cli_mode
+from workspace_tools.test_api import detect_database_verbose
 from workspace_tools.test_api import get_json_data_from_file
-from workspace_tools.test_api import print_muts_configuration_from_json
-from workspace_tools.test_api import print_test_configuration_from_json
 from workspace_tools.test_api import get_avail_tests_summary_table
 from workspace_tools.test_api import get_default_test_options_parser
+from workspace_tools.test_api import print_muts_configuration_from_json
+from workspace_tools.test_api import print_test_configuration_from_json
 
 
 def get_version():
@@ -117,6 +111,10 @@ if __name__ == '__main__':
     # Print summary / information about automation test status
     if opts.test_automation_report:
         print get_avail_tests_summary_table()
+        exit(0)
+
+    if opts.db_url and opts.verbose_test_configuration_only:
+        detect_database_verbose(opts.db_url)
         exit(0)
 
     # Print summary / information about automation test status
@@ -156,6 +154,7 @@ if __name__ == '__main__':
         print print_test_configuration_from_json(test_spec)
         exit(0)
 
+
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
         print print_muts_configuration_from_json(MUTs)
@@ -169,6 +168,7 @@ if __name__ == '__main__':
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
+                                   _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
