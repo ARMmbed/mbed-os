@@ -29,6 +29,7 @@ class MySQLDBAccess(BaseDBAccess):
     """
     def __init__(self):
         BaseDBAccess.__init__(self)
+        self.DB_TYPE = 'mysql'
 
     def detect_database(self, verbose=False):
         """ detect database and return VERION data structure or string (verbose=True)
@@ -50,7 +51,7 @@ class MySQLDBAccess(BaseDBAccess):
             Function should return tuple with parsed (host, user, passwd, db) or None if error
             E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
-        result = BaseDBAccess.parse_db_connection_string(str)
+        result = BaseDBAccess().parse_db_connection_string(str)
         if result is not None:
             (db_type, username, password, host, db_name) = result
             if db_type != 'mysql':
@@ -67,11 +68,36 @@ class MySQLDBAccess(BaseDBAccess):
         """
         try:
             self.db_object = mdb.connect(host=host, user=user, passwd=passwd, db=db)
-            self.db_type = 'mysql'
+            # Let's remember connection credentials
+            self.db_type = self.DB_TYPE
+            self.host = host
+            self.user = user
+            self.passwd = passwd
+            self.db = db
         except mdb.Error, e:
             print "Error %d: %s"% (e.args[0], e.args[1])
             self.db_object = None
             self.db_type = None
+            self.host = None
+            self.user = None
+            self.passwd = None
+            self.db = None
+
+    def connect_url(self, db_url):
+        """ Connects to database using db_url (database url parsing),
+            store host, username, password, db_name
+        """
+        result = self.parse_db_connection_string(db_url)
+        if result is not None:
+            (db_type, username, password, host, db_name) = result
+            if db_type == self.DB_TYPE:
+                self.connect(host, username, password, db_name)
+
+    def reconnect(self):
+        """ Reconnects to DB and returns DB object using stored host name,
+            database name and credentials (user name and password)
+        """
+        self.connect(self.host, self.user, self.passwd, self.db)
 
     def disconnect(self):
         """ Close DB connection
@@ -107,15 +133,20 @@ class MySQLDBAccess(BaseDBAccess):
             con.commit()
         return cur.lastrowid
 
-    def get_next_build_id(self, name, desc=''):
+    def get_next_build_id(self, name, desc='', status=None):
         """ Insert new build_id (DB unique build like ID number to send all test results)
         """
-        query = """INSERT INTO `%s` (%s_name, %s_desc)
-                        VALUES ('%s', '%s')"""% (self.TABLE_BUILD_ID,
-                                                 self.TABLE_BUILD_ID,
-                                                 self.TABLE_BUILD_ID,
-                                                 self.escape_string(name),
-                                                 self.escape_string(desc))
+        if status is None:
+            status = self.BUILD_ID_STATUS_STARTED
+
+        query = """INSERT INTO `%s` (%s_name, %s_desc, %s_status_fk)
+                        VALUES ('%s', '%s', %d)"""% (self.TABLE_BUILD_ID,
+                                                     self.TABLE_BUILD_ID,
+                                                     self.TABLE_BUILD_ID,
+                                                     self.TABLE_BUILD_ID,
+                                                     self.escape_string(name),
+                                                     self.escape_string(desc),
+                                                     status)
         index = self.insert(query) # Provide inserted record PK
         return index
 
@@ -160,7 +191,30 @@ class MySQLDBAccess(BaseDBAccess):
         cur.execute("UNLOCK TABLES")
         return result
 
-    def insert_test_entry(self, next_build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
+    def update_build_id_info(self, build_id, **kw):
+        """ Update additional data inside build_id table
+            Examples:
+            db.update_build_id_info(build_id, _status_fk=self.BUILD_ID_STATUS_COMPLETED, _shuffle_seed=0.0123456789):
+        """
+        if len(kw):
+            con = self.db_object
+            cur = con.cursor()
+            # Prepare UPDATE query
+            # ["`mtest_build_id_pk`=[value-1]", "`mtest_build_id_name`=[value-2]", "`mtest_build_id_desc`=[value-3]"]
+            set_list = []
+            for col_sufix in kw:
+                assign_str = "`%s%s`='%s'"% (self.TABLE_BUILD_ID, col_sufix, self.escape_string(str(kw[col_sufix])))
+                set_list.append(assign_str)
+            set_str = ', '.join(set_list)
+            query = """UPDATE `%s`
+                          SET %s
+                        WHERE `mtest_build_id_pk`=%d"""% (self.TABLE_BUILD_ID,
+                                                          set_str,
+                                                          build_id)
+            cur.execute(query)
+            con.commit()
+
+    def insert_test_entry(self, build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
         """ Inserts test result entry to database. All checks regarding existing
             toolchain names in DB are performed.
             If some data is missing DB will be updated
@@ -186,7 +240,7 @@ class MySQLDBAccess(BaseDBAccess):
                                       `mtest_test_loop_no`,
                                       `mtest_test_result_extra`)
                          VALUES (%d, %d, %d, %d, %d, %d, %.2f, %.2f, %d, '%s')"""% (self.TABLE_TEST_ENTRY,
-                                                                                    next_build_id,
+                                                                                    build_id,
                                                                                     target_fk,
                                                                                     toolchain_fk,
                                                                                     test_type_fk,

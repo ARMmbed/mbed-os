@@ -197,8 +197,21 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_extend_test_timeout = _opts_extend_test_timeout
 
+        # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
+
+        # database releated initializations
         self.db_logger = factory_db_logger(self.opts_db_url)
+        self.db_logger_build_id = None # Build ID (database index of build_id table)
+        # Let's connect to database to set up credentials and confirm database is ready
+        if self.db_logger:
+            self.db_logger.connect_url(self.opts_db_url) # Save db access info inside db_logger object
+            if self.db_logger.is_connected():
+                # Get hostname and uname so we can use it as build description
+                # when creating new build_id in external database
+                (_hostname, _uname) = self.db_logger.get_hostname()
+                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname)
+                self.db_logger.disconnect()
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -251,6 +264,18 @@ class SingleTestRunner(object):
                 test_map_keys = TEST_MAP.keys()
                 if self.opts_shuffle_test_order:
                     random.shuffle(test_map_keys, self.shuffle_random_func)
+                    # Update database with shuffle seed f applicable
+                    if self.db_logger:
+                        self.db_logger.reconnect();
+                        if self.db_logger.is_connected():
+                            self.db_logger.update_build_id_info(self.db_logger_build_id, _shuffle_seed=self.shuffle_random_func())
+                            self.db_logger.disconnect();
+
+                if self.db_logger:
+                    self.db_logger.reconnect();
+                    if self.db_logger.is_connected():
+                        self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
+                        self.db_logger.disconnect();
 
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
@@ -334,9 +359,17 @@ class SingleTestRunner(object):
                         # which the test gets interrupted
                         test_spec = self.shape_test_request(target, path, test_id, test_duration)
                         test_loops = self.get_test_loop_count(test_id)
+                        # read MUTs, test specification and perform tests
                         single_test_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
                         if single_test_result is not None:
                             test_summary.append(single_test_result)
+
+        if self.db_logger:
+            self.db_logger.reconnect();
+            if self.db_logger.is_connected():
+                self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
+                self.db_logger.disconnect();
+
         return test_summary, self.shuffle_random_seed
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
@@ -586,6 +619,9 @@ class SingleTestRunner(object):
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
+        if self.db_logger:
+            self.db_logger.reconnect()
+
         # Tests can be looped so test results must be stored for the same test
         test_all_result = []
         for test_index in range(test_loops):
@@ -621,10 +657,26 @@ class SingleTestRunner(object):
 
             # Store test result
             test_all_result.append(single_test_result)
-
             elapsed_time = time() - start_host_exec_time
             print self.print_test_result(single_test_result, target_name, toolchain_name,
                                          test_id, test_description, elapsed_time, duration)
+
+            # Update database entries for ongoing test
+            if self.db_logger and self.db_logger.is_connected():
+                test_type = 'SingleTest'
+                self.db_logger.insert_test_entry(self.db_logger_build_id,
+                                                 target_name,
+                                                 toolchain_name,
+                                                 test_type,
+                                                 test_id,
+                                                 single_test_result,
+                                                 elapsed_time,
+                                                 duration,
+                                                 test_index)
+
+        if self.db_logger:
+            self.db_logger.disconnect()
+
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
                 duration, self.shape_test_loop_ok_result_count(test_all_result))
@@ -1159,7 +1211,7 @@ class CLITestLogger(TestLogger):
         return timestamp_str + log_line_str
 
     def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
-        """ Logs line, if log file output was specified log line will be appended 
+        """ Logs line, if log file output was specified log line will be appended
             at the end of log file
         """
         log_entry = TestLogger.log_line(self, LogType, log_line)

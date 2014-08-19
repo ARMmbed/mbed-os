@@ -18,6 +18,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
 import re
+import json
 
 
 class BaseDBAccess():
@@ -26,6 +27,12 @@ class BaseDBAccess():
     def __init__(self):
         self.db_object = None
         self.db_type = None
+        # Connection credentials
+        self.host = None
+        self.user = None
+        self.passwd = None
+        self.db = None
+
         # Test Suite DB scheme (table names)
         self.TABLE_BUILD_ID = 'mtest_build_id'
         self.TABLE_BUILD_ID_STATUS = 'mtest_build_id_status'
@@ -67,6 +74,9 @@ class BaseDBAccess():
         """ Parsing SQL DB connection string. String should contain:
             - DB Name, user name, password, URL (DB host), name
             Function should return tuple with parsed (db_type, username, password, host, db_name) or None if error
+
+            (db_type, username, password, host, db_name) = self.parse_db_connection_string(db_url)
+
             E.g. connection string: 'mysql://username:password@127.0.0.1/db_name'
         """
         result = None
@@ -84,6 +94,18 @@ class BaseDBAccess():
 
     def connect(self, host, user, passwd, db):
         """ Connects to DB and returns DB object
+        """
+        pass
+
+    def connect_url(self, db_url):
+        """ Connects to database using db_url (database url parsing),
+            store host, username, password, db_name
+        """
+        pass
+
+    def reconnect(self):
+        """ Reconnects to DB and returns DB object using stored host name,
+            database name and credentials (user name and password)
         """
         pass
 
@@ -124,7 +146,14 @@ class BaseDBAccess():
         """
         pass
 
-    def insert_test_entry(self, next_build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
+    def update_build_id_info(self, build_id, **kw):
+        """ Update additional data inside build_id table
+            Examples:
+            db.update_build_is(build_id, _status_fk=self.BUILD_ID_STATUS_COMPLETED, _shuffle_seed=0.0123456789):
+        """
+        pass
+
+    def insert_test_entry(self, build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
         """ Inserts test result entry to database. All checks regarding existing
             toolchain names in DB are performed.
             If some data is missing DB will be updated
