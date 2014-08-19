@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
+Author: Przemyslaw Wirkus <Przemyslaw.Wirkus@arm.com>
 """
 
 import re
@@ -166,7 +166,10 @@ class MySQLDBAccess(BaseDBAccess):
         table_pk = '%s_pk'% table
         query = """SELECT `%s`
                      FROM `%s`
-                    WHERE `%s`='%s'"""% (table_pk, table, column, self.escape_string(value))
+                    WHERE `%s`='%s'"""% (table_pk,
+                                         table,
+                                         column,
+                                         self.escape_string(value))
         rows = self.select_all(query)
         if len(rows) == 1:
             result = rows[0][table_pk]
@@ -186,12 +189,17 @@ class MySQLDBAccess(BaseDBAccess):
         table_pk = '%s_pk'% table
         query = """SELECT `%s`
                      FROM `%s`
-                    WHERE `%s`='%s'"""% (table_pk, table, column, self.escape_string(value))
+                    WHERE `%s`='%s'"""% (table_pk,
+                                         table,
+                                         column,
+                                         self.escape_string(value))
         cur.execute(query)
         rows = cur.fetchall()
         if len(rows) == 0:
             query = """INSERT INTO `%s` (%s)
-                            VALUES ('%s')"""% (table, column, self.escape_string(value))
+                            VALUES ('%s')"""% (table,
+                                               column,
+                                               self.escape_string(value))
             cur.execute(query)
             result = cur.lastrowid
         con.commit()
@@ -221,7 +229,7 @@ class MySQLDBAccess(BaseDBAccess):
             cur.execute(query)
             con.commit()
 
-    def insert_test_entry(self, build_id, target, toolchain, test_type, test_id, test_result, test_time, test_timeout, test_loop, test_extra=''):
+    def insert_test_entry(self, build_id, target, toolchain, test_type, test_id, test_result, test_output, test_time, test_timeout, test_loop, test_extra=''):
         """ Inserts test result entry to database. All checks regarding existing
             toolchain names in DB are performed.
             If some data is missing DB will be updated
@@ -242,21 +250,22 @@ class MySQLDBAccess(BaseDBAccess):
                                       `mtest_test_type_fk`,
                                       `mtest_test_id_fk`,
                                       `mtest_test_result_fk`,
+                                      `mtest_test_output`,
                                       `mtest_test_time`,
                                       `mtest_test_timeout`,
                                       `mtest_test_loop_no`,
                                       `mtest_test_result_extra`)
-                         VALUES (%d, %d, %d, %d, %d, %d, %.2f, %.2f, %d, '%s')"""% (self.TABLE_TEST_ENTRY,
-                                                                                    build_id,
-                                                                                    target_fk,
-                                                                                    toolchain_fk,
-                                                                                    test_type_fk,
-                                                                                    test_id_fk,
-                                                                                    test_result_fk,
-                                                                                    test_time,
-                                                                                    test_timeout,
-                                                                                    test_loop,
-                                                                                    self.escape_string(test_extra))
-
+                         VALUES (%d, %d, %d, %d, %d, %d, '%s', %.2f, %.2f, %d, '%s')"""% (self.TABLE_TEST_ENTRY,
+                                                                                          build_id,
+                                                                                          target_fk,
+                                                                                          toolchain_fk,
+                                                                                          test_type_fk,
+                                                                                          test_id_fk,
+                                                                                          test_result_fk,
+                                                                                          self.escape_string(test_output),
+                                                                                          test_time,
+                                                                                          test_timeout,
+                                                                                          test_loop,
+                                                                                          self.escape_string(test_extra))
         cur.execute(query)
         con.commit()

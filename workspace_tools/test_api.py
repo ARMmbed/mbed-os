@@ -42,10 +42,10 @@ from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.test_db import BaseDBAccess
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
-from workspace_tools.test_db import BaseDBAccess
 from workspace_tools.test_mysql import MySQLDBAccess
 
 
@@ -680,10 +680,10 @@ class SingleTestRunner(object):
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result = self.run_host_test(test.host_test, disk, port, duration,
-                                                        verbose=host_test_verbose,
-                                                        reset=host_test_reset,
-                                                        reset_tout=reset_tout)
+                single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                            verbose=host_test_verbose,
+                                                                            reset=host_test_reset,
+                                                                            reset_tout=reset_tout)
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -700,6 +700,7 @@ class SingleTestRunner(object):
                                                  test_type,
                                                  test_id,
                                                  single_test_result,
+                                                 single_test_output,
                                                  elapsed_time,
                                                  duration,
                                                  test_index)
@@ -797,7 +798,7 @@ class SingleTestRunner(object):
             if search_result and len(search_result.groups()):
                 result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
                 break
-        return result
+        return result, "".join(output)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
         """ Checks if specified target should run specific peripheral test case
