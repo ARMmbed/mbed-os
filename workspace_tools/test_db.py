@@ -36,6 +36,7 @@ class BaseDBAccess():
         # Test Suite DB scheme (table names)
         self.TABLE_BUILD_ID = 'mtest_build_id'
         self.TABLE_BUILD_ID_STATUS = 'mtest_build_id_status'
+        self.TABLE_BUILD_ID_TYPE = 'mtest_build_id_type'
         self.TABLE_TARGET = 'mtest_target'
         self.TABLE_TEST_ENTRY = 'mtest_test_entry'
         self.TABLE_TEST_ID = 'mtest_test_id'
@@ -47,6 +48,9 @@ class BaseDBAccess():
         self.BUILD_ID_STATUS_IN_PROGRESS = 2 # In Progress
         self.BUILD_ID_STATUS_COMPLETED = 3 #Completed
         self.BUILD_ID_STATUS_FAILED = 4 # Failed
+        # Build ID type PKs
+        self.BUILD_ID_TYPE_TEST = 1 # Test
+        self.BUILD_ID_TYPE_BUILD_ONLY = 2 # Build Only
 
     def get_hostname(self):
         """ Useful when creating build_id in database
@@ -129,7 +133,7 @@ class BaseDBAccess():
         """
         pass
 
-    def get_next_build_id(self, name, desc=''):
+    def get_next_build_id(self, name, desc='', type=None, status=None):
         """ Insert new build_id (DB unique build like ID number to send all test results)
         """
         pass

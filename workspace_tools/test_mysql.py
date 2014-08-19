@@ -133,19 +133,24 @@ class MySQLDBAccess(BaseDBAccess):
             con.commit()
         return cur.lastrowid
 
-    def get_next_build_id(self, name, desc='', status=None):
+    def get_next_build_id(self, name, desc='', type=None, status=None):
         """ Insert new build_id (DB unique build like ID number to send all test results)
         """
         if status is None:
             status = self.BUILD_ID_STATUS_STARTED
 
-        query = """INSERT INTO `%s` (%s_name, %s_desc, %s_status_fk)
-                        VALUES ('%s', '%s', %d)"""% (self.TABLE_BUILD_ID,
+        if type is None:
+            type = self.BUILD_ID_TYPE_TEST
+
+        query = """INSERT INTO `%s` (%s_name, %s_desc, %s_type_fk, %s_status_fk)
+                        VALUES ('%s', '%s', %d, %d)"""% (self.TABLE_BUILD_ID,
+                                                     self.TABLE_BUILD_ID,
                                                      self.TABLE_BUILD_ID,
                                                      self.TABLE_BUILD_ID,
                                                      self.TABLE_BUILD_ID,
                                                      self.escape_string(name),
                                                      self.escape_string(desc),
+                                                     type,
                                                      status)
         index = self.insert(query) # Provide inserted record PK
         return index

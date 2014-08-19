@@ -210,8 +210,34 @@ class SingleTestRunner(object):
                 # Get hostname and uname so we can use it as build description
                 # when creating new build_id in external database
                 (_hostname, _uname) = self.db_logger.get_hostname()
-                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname)
+                build_id_type = None if self.opts_only_build_tests is None else self.db_logger.BUILD_ID_TYPE_BUILD_ONLY
+                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname, type=build_id_type)
                 self.db_logger.disconnect()
+
+    def dump_options(self):
+        """ Function returns data structure with common settings passed to SingelTestRunner
+            It can be used for example to fill _extra fields in database storing test suite single run data
+            Example:
+            data = self.dump_options()
+            or
+            data_str = json.dumps(self.dump_options())
+        """
+        result = {"db_url" : str(self.opts_db_url),
+                  "log_file_name" :  str(self.opts_log_file_name),
+                  "shuffle_test_order" : str(self.opts_shuffle_test_order),
+                  "shuffle_test_seed" : str(self.opts_shuffle_test_seed),
+                  "test_by_names" :  str(self.opts_test_by_names),
+                  "test_only_peripheral" :  str(self.opts_test_only_peripheral),
+                  "test_only_common" :  str(self.opts_test_only_common),
+                  "verbose" :  str(self.opts_verbose),
+                  "firmware_global_name" :  str(self.opts_firmware_global_name),
+                  "only_build_tests" :  str(self.opts_only_build_tests),
+                  "copy_method" :  str(self.opts_copy_method),
+                  "mut_reset_type" :  str(self.opts_mut_reset_type),
+                  "jobs" :  str(self.opts_jobs),
+                  "extend_test_timeout" :  str(self.opts_extend_test_timeout),
+                  "_dummy" : ''}
+        return result
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -274,7 +300,10 @@ class SingleTestRunner(object):
                 if self.db_logger:
                     self.db_logger.reconnect();
                     if self.db_logger.is_connected():
+                        # Update MUTs and Test Specification in database
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
+                        # Update Etra information in database (some options passed to test suite)
+                        self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                         self.db_logger.disconnect();
 
                 for test_id in test_map_keys:
