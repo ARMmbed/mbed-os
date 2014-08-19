@@ -133,7 +133,7 @@ class BaseDBAccess():
         """
         pass
 
-    def get_next_build_id(self, name, desc='', type=None, status=None):
+    def get_next_build_id(self, name, desc='', location='', type=None, status=None):
         """ Insert new build_id (DB unique build like ID number to send all test results)
         """
         pass

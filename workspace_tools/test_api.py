@@ -200,7 +200,7 @@ class SingleTestRunner(object):
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
 
-        # database releated initializations
+        # database related initializations
         self.db_logger = factory_db_logger(self.opts_db_url)
         self.db_logger_build_id = None # Build ID (database index of build_id table)
         # Let's connect to database to set up credentials and confirm database is ready
@@ -210,8 +210,9 @@ class SingleTestRunner(object):
                 # Get hostname and uname so we can use it as build description
                 # when creating new build_id in external database
                 (_hostname, _uname) = self.db_logger.get_hostname()
+                _host_location = os.path.dirname(os.path.abspath(__file__))
                 build_id_type = None if self.opts_only_build_tests is None else self.db_logger.BUILD_ID_TYPE_BUILD_ONLY
-                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname, type=build_id_type)
+                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname, location=_host_location, type=build_id_type)
                 self.db_logger.disconnect()
 
     def dump_options(self):
