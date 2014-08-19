@@ -37,7 +37,7 @@ void gpio_init(gpio_t *obj, PinName pin) {
 
     obj->mask = gpio_set(pin);
 
-    LPC_GPIO_T *port_reg = (LPC_GPIO_T *) (LPC_GPIO_PORT_BASE);
+    LPC_GPIO_T *port_reg = (LPC_GPIO_T *)(LPC_GPIO_PORT_BASE);
     unsigned int port = (unsigned int)MBED_GPIO_PORT(pin);
 
     obj->reg_set = &port_reg->SET[port];
@@ -57,7 +57,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
             *obj->reg_dir &= ~obj->mask;
             break;
         case PIN_OUTPUT:
-            *obj->reg_dir |=  obj->mask;
+            *obj->reg_dir |= obj->mask;
             break;
     }
 }
