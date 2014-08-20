@@ -19,7 +19,7 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 static const SWM_Map SWM_SPI_SSEL[] = {
     {4, 16},

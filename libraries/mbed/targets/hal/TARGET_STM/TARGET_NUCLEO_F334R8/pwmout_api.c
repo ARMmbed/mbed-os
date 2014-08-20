@@ -33,7 +33,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 // TIM2 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {

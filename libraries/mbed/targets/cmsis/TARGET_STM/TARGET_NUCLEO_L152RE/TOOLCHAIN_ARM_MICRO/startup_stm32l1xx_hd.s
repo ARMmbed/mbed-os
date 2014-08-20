@@ -46,7 +46,7 @@ __initial_sp    EQU     0x20014000 ; Top of RAM (80 KB for STM32L152RE)
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000000
+Heap_Size       EQU     0x00000400
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __heap_base

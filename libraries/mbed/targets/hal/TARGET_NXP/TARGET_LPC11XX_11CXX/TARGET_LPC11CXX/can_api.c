@@ -16,7 +16,7 @@
 #include "can_api.h"
 
 #include "cmsis.h"
-#include "error.h"
+#include "mbed_error.h"
 
 #include <math.h>
 #include <string.h>

@@ -2,7 +2,7 @@
 #include "test_env.h"
 #include "rtos.h"
 
-#define THREAD_DELAY     100
+#define THREAD_DELAY     75
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100
 
@@ -16,6 +16,7 @@ Semaphore two_slots(SEMAPHORE_SLOTS);
 
 volatile int change_counter = 0;
 volatile int sem_counter = 0;
+volatile bool sem_defect = false;
 
 void test_thread(void const *delay) {
     const int thread_delay = int(delay);
@@ -26,8 +27,7 @@ void test_thread(void const *delay) {
         const char msg = sem_lock_failed ? 'e' : sem_counter + '0';
         print_char(msg);
         if (sem_lock_failed) {
-            notify_completion(false);
-            exit(1);
+            sem_defect = true;
         }
         Thread::wait(thread_delay);
         print_char('.');
@@ -46,10 +46,15 @@ int main (void) {
     Thread t3(test_thread, (void *)t3_delay);
 
     while (true) {
-        if (change_counter >= SEM_CHANGES) {
-            notify_completion(true);
+        if (change_counter >= SEM_CHANGES or sem_defect == true) {
+            t1.terminate();
+            t2.terminate();
+            t3.terminate();
             break;
         }
     }
+
+    fflush(stdout);
+    notify_completion(!sem_defect);
     return 0;
 }

@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os import stat, walk, remove
+from os import stat, walk
 from os.path import join, splitext, exists, relpath, dirname, basename, split
 from shutil import copyfile
 from copy import copy
@@ -23,12 +23,10 @@ from inspect import getmro
 from time import time
 
 from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
-from workspace_tools.patch import patch
 from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 
-from multiprocessing import Pool, Manager, cpu_count
+from multiprocessing import Pool, cpu_count
 from time import sleep
-from pprint import pprint
 
 import workspace_tools.hooks as hooks
 import re
@@ -58,7 +56,7 @@ def print_notify_verbose(event):
     elif event['type'] == 'cc':
         event['severity'] = event['severity'].title()
         event['file'] = basename(event['file'])
-        event['mcu_name']  = "None"
+        event['mcu_name'] = "None"
         event['toolchain'] = "None"
         event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
         event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
@@ -153,7 +151,7 @@ class Resources:
             self.linker_script = self.linker_script.replace('\\', '/')
 
     def __str__(self):
-        s  = []
+        s = []
 
         for (label, resources) in (
                 ('Include Directories', self.inc_dirs),
@@ -242,7 +240,7 @@ class mbedToolchain:
         
         self.mp_pool = None
         
-    def __exit__():
+    def __exit__(self):
         if self.mp_pool is not None:
             self.mp_pool.terminate()
 
@@ -366,7 +364,7 @@ class mbedToolchain:
                 elif ext == '.o':
                     resources.objects.append(file_path)
 
-                elif ext ==  self.LIBRARY_EXT:
+                elif ext == self.LIBRARY_EXT:
                     resources.libraries.append(file_path)
                     resources.lib_dirs.add(root)
 
@@ -443,9 +441,9 @@ class mbedToolchain:
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
         
-        objects=[]
-        queue=[]
-        prev_dir=None
+        objects = []
+        queue = []
+        prev_dir = None
         
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
@@ -692,7 +690,8 @@ class mbedToolchain:
 
 
 from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
-from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CS, GCC_CR, GCC_CW_EWL, GCC_CW_NEWLIB
+from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CS, GCC_CR
+from workspace_tools.toolchains.gcc import GCC_CW_EWL, GCC_CW_NEWLIB
 from workspace_tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {

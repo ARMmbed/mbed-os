@@ -59,8 +59,8 @@ protected:
     // From FATFileSystem
     virtual int disk_initialize();
     virtual int disk_status() {return 0;};
-    virtual int disk_read(uint8_t * buffer, uint64_t sector);
-    virtual int disk_write(const uint8_t * buffer, uint64_t sector);
+    virtual int disk_read(uint8_t* buffer, uint64_t sector, uint8_t count);
+    virtual int disk_write(const uint8_t* buffer, uint64_t sector, uint8_t count);
     virtual int disk_sync() {return 0;};
     virtual uint64_t disk_sectors();
 

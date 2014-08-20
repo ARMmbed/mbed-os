@@ -3,7 +3,8 @@ import uuid, shutil, os, logging, fnmatch
 from os import walk, remove
 from os.path import join, dirname, isdir, split
 from copy import copy
-from jinja2 import Template
+from jinja2 import Template, FileSystemLoader
+from jinja2.environment import Environment
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -23,6 +24,8 @@ class Exporter():
         self.program_name = program_name
         self.toolchain = TOOLCHAIN_CLASSES[self.get_toolchain()](TARGET_MAP[target])
         self.build_url_resolver = build_url_resolver
+        jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
+        self.jinja_environment = Environment(loader=jinja_loader)
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -87,8 +90,7 @@ class Exporter():
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
-        template_text = open(template_path).read()
-        template = Template(template_text)
+        template = self.jinja_environment.get_template(template_file)
         target_text = template.render(data)
 
         target_path = join(self.inputDir, target_file)

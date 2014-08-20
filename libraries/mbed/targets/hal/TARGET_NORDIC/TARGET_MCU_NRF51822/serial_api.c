@@ -27,16 +27,6 @@
  ******************************************************************************/
 #define UART_NUM    1
 
-static const PinMap PinMap_UART_TX[] = {
-    {TX_PIN_NUMBER, UART_0, 1},
-    { NC  , NC    , 0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {RX_PIN_NUMBER, UART_0, 1},
-    {NC   , NC    , 0}
-};
-
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
 static uint32_t acceptedSpeeds[16][2] = {{1200,UART_BAUDRATE_BAUDRATE_Baud1200},
@@ -61,10 +51,7 @@ serial_t stdio_uart;
 
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
-    // determine the UART to use -- for mcu's with multiple uart connections
-    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-    UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
+    UARTName uart = UART_0;
     
     MBED_ASSERT((int)uart != NC);
     

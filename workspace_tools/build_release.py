@@ -58,13 +58,13 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L053R8', ('ARM', 'uARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM')),
 
-    ('NRF51822',     ('ARM', )),
-    ('HRM1017',      ('ARM', )),
-    ('ARCH_BLE',     ('ARM', )),
-    ('RBLAB_NRF51822', ('ARM', )),
+    ('NRF51822',     ('ARM', 'GCC_ARM')),
+    ('HRM1017',      ('ARM', 'GCC_ARM')),
+    ('ARCH_BLE',     ('ARM', 'GCC_ARM')),
+    ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
 
     ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
-    ('GHI_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
+    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
 )
 
 
