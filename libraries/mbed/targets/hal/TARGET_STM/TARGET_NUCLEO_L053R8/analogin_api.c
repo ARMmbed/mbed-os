@@ -73,6 +73,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
     if (adc_inited == 0) {
         adc_inited = 1;
 
+        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+
         // Enable ADC clock
         __ADC1_CLK_ENABLE();
 
@@ -80,7 +82,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.OversamplingMode      = DISABLE;
         AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2; // ADCCLK = 8 MHz (HSI 16 MHz / 2)
         AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-        AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_1CYCLE_5;
+        AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_7CYCLES_5;
         AdcHandle.Init.ScanDirection         = ADC_SCAN_DIRECTION_UPWARD;
         AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
         AdcHandle.Init.ContinuousConvMode    = DISABLE;
@@ -92,8 +94,13 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.Overrun               = OVR_DATA_PRESERVED;
         AdcHandle.Init.LowPowerAutoWait      = ENABLE;
         AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
-        AdcHandle.Init.LowPowerAutoOff       = ENABLE;
+        AdcHandle.Init.LowPowerAutoOff       = DISABLE;
         HAL_ADC_Init(&AdcHandle);
+        
+        // Calibration
+        HAL_ADCEx_Calibration_Start(&AdcHandle, ADC_SINGLE_ENDED);
+        
+        __HAL_ADC_ENABLE(&AdcHandle);
     }
 }
 
