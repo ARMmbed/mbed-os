@@ -39,7 +39,7 @@ protected:
     virtual void handler() = 0;
 
     // insert in to linked list
-    void insert(unsigned int timestamp);
+    void insert(timestamp_t timestamp);
 
     // remove from linked list, if in it
     void remove();

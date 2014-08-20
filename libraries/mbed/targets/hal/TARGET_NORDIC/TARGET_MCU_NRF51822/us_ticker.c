@@ -22,8 +22,6 @@
 static bool           us_ticker_inited     = false;
 static app_timer_id_t us_ticker_appTimerID = TIMER_NULL;
 
-static const unsigned RTC_TO_US_CONVERSION_FACTOR = ((1000000 / APP_TIMER_CLOCK_FREQ) + 1);
-
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -42,9 +40,9 @@ uint32_t us_ticker_read()
         us_ticker_init();
     }
 
-    uint32_t value;
+    timestamp_t value;
     app_timer_cnt_get(&value); /* This returns the RTC counter (which is fed by the 32khz crystal clock source) */
-    return value * RTC_TO_US_CONVERSION_FACTOR; /* Return a pseudo microsecond counter value.
+    return (uint32_t)((value * 1000000) / APP_TIMER_CLOCK_FREQ); /* Return a pseudo microsecond counter value.
                                                  * This is only as precise as the 32khz low-freq
                                                  * clock source, but could be adequate.*/
 }
@@ -56,7 +54,7 @@ static void us_ticker_app_timer_callback(void *context)
     us_ticker_irq_handler();
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp)
+void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     static unsigned cachedInterruptTimestamp;
 
@@ -77,11 +75,13 @@ void us_ticker_set_interrupt(unsigned int timestamp)
     }
     cachedInterruptTimestamp = timestamp;
 
-    uint32_t currentCounter;
-    app_timer_cnt_get(&currentCounter);
-    uint32_t targetCounter = (timestamp / RTC_TO_US_CONVERSION_FACTOR) + 1; /* we add 1 to allow for safe round-up of the target. */
+
+    timestamp_t currentCounter64;
+    app_timer_cnt_get(&currentCounter64);
+    uint32_t currentCounter = currentCounter64 & MAX_RTC_COUNTER_VAL;
+    uint32_t targetCounter = ((uint32_t)((timestamp * (uint64_t)APP_TIMER_CLOCK_FREQ) / 1000000) + 1) & MAX_RTC_COUNTER_VAL;
     uint32_t ticksToCount = (targetCounter >= currentCounter) ?
-                             (targetCounter - currentCounter) : APP_TIMER_CLOCK_FREQ - (currentCounter - targetCounter);
+                             (targetCounter - currentCounter) : (MAX_RTC_COUNTER_VAL + 1) - (currentCounter - targetCounter);
     if (ticksToCount > 0) {
         uint32_t rc;
         rc = app_timer_start(us_ticker_appTimerID, ticksToCount, NULL /*p_context*/);

@@ -56,7 +56,7 @@ void us_ticker_irq_handler(void) {
     }
 }
 
-void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id) {
+void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
     /* disable interrupts for the duration of the function */
     __disable_irq();
 
