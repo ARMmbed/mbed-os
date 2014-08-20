@@ -288,7 +288,7 @@ class SingleTestRunner(object):
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
 
                 # Enumerate through all tests and shuffle test order if requested
-                test_map_keys = TEST_MAP.keys()
+                test_map_keys = sorted(TEST_MAP.keys())
                 if self.opts_shuffle_test_order:
                     random.shuffle(test_map_keys, self.shuffle_random_func)
                     # Update database with shuffle seed f applicable
