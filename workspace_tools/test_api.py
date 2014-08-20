@@ -759,7 +759,7 @@ class SingleTestRunner(object):
             cmd += ["-R", str(reset_tout)]
 
         if verbose:
-            print "Host test cmd: " + " ".join(cmd)
+            print "Executing '" + " ".join(cmd) + "'"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
