@@ -45,8 +45,8 @@ uint32_t us_ticker_read()
     timestamp_t value;
     app_timer_cnt_get(&value); /* This returns the RTC counter (which is fed by the 32khz crystal clock source) */
     return (uint32_t)((value * 1000000) / APP_TIMER_CLOCK_FREQ); /* Return a pseudo microsecond counter value.
-                                                 * This is only as precise as the 32khz low-freq
-                                                 * clock source, but could be adequate.*/
+                                                                  * This is only as precise as the 32khz low-freq
+                                                                  * clock source, but could be adequate.*/
 }
 
 /* An adaptor to interface us_ticker_irq_handler with the app_timer callback.
