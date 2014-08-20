@@ -20,8 +20,9 @@
 #include "app_timer.h"
 #include "projectconfig.h"
 
-static bool           us_ticker_inited     = false;
-static app_timer_id_t us_ticker_appTimerID = TIMER_NULL;
+static bool           us_ticker_inited          = false;
+static volatile bool  us_ticker_appTimerRunning = false;
+static app_timer_id_t us_ticker_appTimerID      = TIMER_NULL;
 
 void us_ticker_init(void)
 {
@@ -52,13 +53,12 @@ uint32_t us_ticker_read()
  * Needed because the irq_handler() doesn't take any parameter.*/
 static void us_ticker_app_timer_callback(void *context)
 {
+    us_ticker_appTimerRunning = false;
     us_ticker_irq_handler();
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    static unsigned cachedInterruptTimestamp;
-
     if (!us_ticker_inited) {
         us_ticker_init();
     }
@@ -68,14 +68,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
             /* placeholder to do something to recover from error */
             return;
         }
-    } else {
-        /* we want to avoid taking action on duplicate requests */
-        if (timestamp == cachedInterruptTimestamp) {
-            return;
-        }
     }
-    cachedInterruptTimestamp = timestamp;
 
+    if (us_ticker_appTimerRunning) {
+        return;
+    }
 
     timestamp_t currentCounter64;
     app_timer_cnt_get(&currentCounter64);
@@ -90,6 +87,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
             /* placeholder to do something to recover from error */
             return;
         }
+        us_ticker_appTimerRunning = true;
     }
 }
 
