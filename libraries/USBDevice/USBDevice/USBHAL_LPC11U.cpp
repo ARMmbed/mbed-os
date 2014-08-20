@@ -16,11 +16,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC1347) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68) || defined(TARGET_LPC1549)
+#if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
 
 #if defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
 #define USB_IRQ USB_IRQ_IRQn
-#elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPC11U68)
+#else
 #define USB_IRQ USB_IRQn
 #endif
 
@@ -167,7 +167,7 @@ USBHAL::USBHAL(void) {
        FCCO = FCLKOUT * 2 * P = 48MHz * 2 * 2 = 192MHz (within FCCO range) */
     LPC_SYSCON->USBPLLCTRL = (0x3 | (1UL << 6));
 
-    /* Powerup USB PLL */  
+    /* Powerup USB PLL */
     LPC_SYSCON->PDRUNCFG &= ~(CLK_USB);
 
     /* Wait for PLL to lock */
