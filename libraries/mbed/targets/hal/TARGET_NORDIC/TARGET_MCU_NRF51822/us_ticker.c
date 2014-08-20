@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "app_timer.h"
+#include "projectconfig.h"
 
 static bool           us_ticker_inited     = false;
 static app_timer_id_t us_ticker_appTimerID = TIMER_NULL;
@@ -29,7 +30,7 @@ void us_ticker_init(void)
     }
 
     const bool useScheduler = false;
-    APP_TIMER_INIT(0 /* PRESCALAR */, 2 /* num timers */, 1 /* event queue max depth */, useScheduler);
+    APP_TIMER_INIT(0  /*PRESCALAR*/ , CFG_TIMER_MAX_INSTANCE /* num timers */, CFG_TIMER_OPERATION_QUEUE_SIZE /* event queue max depth */, useScheduler);
 
     us_ticker_inited = true;
 }
