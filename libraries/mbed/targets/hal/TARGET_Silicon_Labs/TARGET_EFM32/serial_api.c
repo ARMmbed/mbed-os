@@ -210,7 +210,9 @@ void serial_free(serial_t *obj)
 void serial_baud(serial_t *obj, int baudrate)
 {
     obj->baudrate = baudrate;
-    uart_init(obj);
+    
+    /* Call emlib directly for changing baud rate without resetting usart */
+    USART_BaudrateAsyncSet(obj->uart, 0, baudrate, obj->oversampling);
 }
 
 /**
