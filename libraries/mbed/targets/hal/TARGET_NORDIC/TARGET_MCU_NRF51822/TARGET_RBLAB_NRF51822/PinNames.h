@@ -136,7 +136,7 @@ typedef enum {
 /*
     I2C_SDA1 = p13,
     I2C_SCL1 = p15, 
-/*
+*/
    
     D0  = p11,
     D1  = p9,
@@ -161,12 +161,12 @@ typedef enum {
     D17 = p22, // SPI - MISO
     D18 = p20, // SPI - MOSI
 
-    A0  = p6,
-    A1  = p5,
-    A2  = p4,
-    A3  = p3,
-    A4  = p2,
-    A5  = p1,
+    A0  = p1,
+    A1  = p2,
+    A2  = p3,
+    A3  = p4,
+    A4  = p5,
+    A5  = p6,
     
     D19 = A0,
     D20 = A1,
