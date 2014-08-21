@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_STM32F4XX)
+#if defined(TARGET_STM32F4)
 
 #include "USBHAL.h"
 #include "USBRegs_STM32.h"
@@ -48,6 +48,13 @@ USBHAL::USBHAL(void) {
     // Enable power and clocking
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 
+#if defined(TARGET_STM32F407VG)
+    pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));
+    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_PULLDOWN, GPIO_AF10_OTG_FS));
+    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS));
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));
+#else
     pin_function(PA_8, STM_PIN_DATA(2, 10));
     pin_function(PA_9, STM_PIN_DATA(0, 0));
     pin_function(PA_10, STM_PIN_DATA(2, 10));
@@ -61,6 +68,7 @@ USBHAL::USBHAL(void) {
 
     // Set VBUS pin to open drain
     pin_mode(PA_9, OpenDrain);
+#endif
 
     RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
 

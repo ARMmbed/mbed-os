@@ -110,7 +110,7 @@ private:
 
 #if defined(TARGET_LPC11U24)
         bool (USBHAL::*epCallback[10 - 2])(void);
-#elif defined(TARGET_STM32F4XX)
+#elif defined(TARGET_STM32F4)
         bool (USBHAL::*epCallback[8 - 2])(void);
 #else
         bool (USBHAL::*epCallback[32 - 2])(void);

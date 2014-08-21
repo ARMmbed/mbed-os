@@ -248,7 +248,7 @@ class STM32F407(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4XX']
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F4XX']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
 
