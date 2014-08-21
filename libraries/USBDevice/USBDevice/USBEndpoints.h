@@ -43,7 +43,7 @@ typedef enum {
 #include "USBEndpoints_LPC11U.h"
 #elif defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M) | defined(TARGET_K64F)
 #include "USBEndpoints_KL25Z.h"
-#elif defined (TARGET_STM32F4XX)
+#elif defined (TARGET_STM32F4)
 #include "USBEndpoints_STM32F4.h"
 #else
 #error "Unknown target type"
