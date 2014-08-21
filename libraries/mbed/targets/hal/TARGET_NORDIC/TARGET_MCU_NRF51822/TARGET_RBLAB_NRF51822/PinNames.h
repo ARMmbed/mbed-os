@@ -157,12 +157,9 @@ typedef enum {
     D14 = p29, // I2C - SDA
     D15 = p28, // I2C - SCL
 
-    D16 = p25  // SPI - SCK
-    D17 = p22  // SPI - MISO
-    D18 = p20  // SPI - MOSI
-
-    D19 = p24
-    D20 = p25
+    D16 = p25, // SPI - SCK
+    D17 = p22, // SPI - MISO
+    D18 = p20, // SPI - MOSI
 
     A0  = p6,
     A1  = p5,
@@ -171,6 +168,13 @@ typedef enum {
     A4  = p2,
     A5  = p1,
     
+    D19 = A0,
+    D20 = A1,
+    D21 = A2,
+    D22 = A3,
+    D23 = A4,
+    D24 = A5,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
