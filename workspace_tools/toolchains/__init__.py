@@ -32,7 +32,7 @@ import workspace_tools.hooks as hooks
 import re
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
-CPU_COUNT_MIN = 1 
+CPU_COUNT_MIN = 1
 
 def print_notify(event):
     # Default command line notification
@@ -74,7 +74,7 @@ def compile_worker(job):
             'output': stderr,
             'command': command
         })
-    
+
     return {
         'source': job['source'],
         'object': job['object'],
@@ -235,11 +235,11 @@ class mbedToolchain:
         self.build_all = False
         self.timestamp = time()
         self.jobs = 1
-        
+
         self.CHROOT = None
-        
+
         self.mp_pool = None
-        
+
     def __exit__(self):
         if self.mp_pool is not None:
             self.mp_pool.terminate()
@@ -271,8 +271,9 @@ class mbedToolchain:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
             # Add target's symbols
-            for macro in self.target.macros:
-                self.symbols.append(macro)
+            self.symbols += self.target.macros
+            # Add extra symbols passed via 'macros' parameter
+            self.symbols += self.macros
 
             # Form factor variables
             if hasattr(self.target, 'supported_form_factors'):
@@ -310,7 +311,7 @@ class mbedToolchain:
                 return True
 
         return False
-        
+
     def scan_resources(self, path):
         labels = self.get_labels()
         resources = Resources(path)
@@ -426,38 +427,38 @@ class mbedToolchain:
         obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
-        
+
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
-        
+
         #for i in self.build_params:
         #    self.debug(i)
         #    self.debug("%s" % self.build_params[i])
-        
+
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
-        
+
         objects = []
         queue = []
         prev_dir = None
-        
+
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
         files_to_compile.sort()
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-            
+
             # Avoid multiple mkdir() calls on same work directory
             work_dir = dirname(object)
             if work_dir is not prev_dir:
                 prev_dir = work_dir
                 mkdir(work_dir)
-            
+
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)
             if commands is not None:
@@ -481,7 +482,7 @@ class mbedToolchain:
     def compile_seq(self, queue, objects):
         for item in queue:
             result = compile_worker(item)
-            
+
             self.compiled += 1
             self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
@@ -497,7 +498,7 @@ class mbedToolchain:
     def compile_queue(self, queue, objects):
         jobs_count = int(self.jobs if self.jobs else cpu_count())
         p = Pool(processes=jobs_count)
-        
+
         results = []
         for i in range(len(queue)):
             results.append(p.apply_async(compile_worker, [queue[i]]))
@@ -509,7 +510,7 @@ class mbedToolchain:
                 p.terminate()
                 p.join()
                 raise ToolException("Compile did not finish in 5 minutes")
-            
+
             pending = 0
             for r in results:
                 if r._ready is True:
@@ -535,7 +536,7 @@ class mbedToolchain:
                     pending += 1
                     if pending > jobs_count:
                         break
-                    
+
 
             if len(results) == 0:
                 break
@@ -544,15 +545,15 @@ class mbedToolchain:
 
         results = None
         p.terminate()
-        p.join()        
-        
+        p.join()
+
         return objects
 
     def compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
-        
+
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
             dep_path = base + '.d'
@@ -568,19 +569,19 @@ class mbedToolchain:
                 return self.assemble(source, object, includes)
         else:
             return False
-        
+
         return None
-        
+
     def compile_output(self, output=[]):
         rc = output[0]
         stderr = output[1]
         command = output[2]
-        
+
         # Parse output for Warnings and Errors
         self.parse_output(stderr)
         self.debug("Return: %s" % rc)
         self.debug("Output: %s" % stderr)
-        
+
         # Check return code
         if rc != 0:
             raise ToolException(stderr)
@@ -588,17 +589,17 @@ class mbedToolchain:
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
         ext = ext.lower()
-        
+
         command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-        
+
         if hasattr(self, "get_dep_opt"):
             base, _ = splitext(object)
             dep_path = base + '.d'
             command.extend(self.get_dep_opt(dep_path))
-        
+
         if hasattr(self, "cc_extra"):
             command.extend(self.cc_extra(base))
-            
+
         return [command]
 
     def compile_c(self, source, object, includes):
@@ -650,7 +651,7 @@ class mbedToolchain:
         stdout, stderr, rc = run_cmd(command)
         self.debug("Return: %s" % rc)
         self.debug("Output: %s" % ' '.join(stdout))
-        
+
         if rc != 0:
             for line in stderr.splitlines():
                 self.tool_error(line)
