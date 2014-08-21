@@ -515,6 +515,13 @@ class DISCO_F407VG(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
+class ARCH_MAX(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
 
 class DISCO_F303VC(Target):
     def __init__(self):
@@ -658,6 +665,7 @@ TARGETS = [
     RBLAB_NRF51822(),
     GHI_MBUINO(),
     MTS_GAMBIT(),
+    ARCH_MAX(),
 ]
 
 # Map each target name to its unique instance
