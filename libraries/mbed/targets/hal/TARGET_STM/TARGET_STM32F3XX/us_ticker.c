@@ -48,7 +48,7 @@ void us_ticker_init(void) {
     // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period        = 0xFFFFFFFF;
-    TIM_TimeBaseStructure.TIM_Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TIM_TimeBaseStructure.TIM_Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 ï¿½s tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
     TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
@@ -65,9 +65,9 @@ uint32_t us_ticker_read() {
     return TIM_MST->CNT;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // Set new output compare value
-    TIM_SetCompare1(TIM_MST, timestamp);
+    TIM_SetCompare1(TIM_MST, (uint32_t)timestamp);
     // Enable IT
     TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
 }

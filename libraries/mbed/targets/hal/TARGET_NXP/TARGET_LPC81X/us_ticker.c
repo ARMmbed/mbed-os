@@ -55,13 +55,13 @@ uint32_t us_ticker_read() {
     return LPC_SCT->COUNT_U;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // halt the counter: 
     //    - setting bit 2 of the CTRL register
     LPC_SCT->CTRL_L |= (1 << 2);
     
     // set timestamp in compare register
-    LPC_SCT->MATCH[0].U = timestamp;
+    LPC_SCT->MATCH[0].U = (uint32_t)timestamp;
     
     // unhalt the counter:
     //    - clearing bit 2 of the CTRL register

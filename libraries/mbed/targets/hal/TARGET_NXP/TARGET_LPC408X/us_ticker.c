@@ -48,9 +48,9 @@ uint32_t us_ticker_read() {
     return US_TICKER_TIMER->TC;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    US_TICKER_TIMER->MR0 = timestamp;
+    US_TICKER_TIMER->MR0 = (uint32_t)timestamp;
     // enable match interrupt
     US_TICKER_TIMER->MCR |= 1;
 }
