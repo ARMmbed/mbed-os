@@ -30,8 +30,7 @@ void us_ticker_init(void)
         return;
     }
 
-    const bool useScheduler = false;
-    APP_TIMER_INIT(0  /*PRESCALAR*/ , CFG_TIMER_MAX_INSTANCE /* num timers */, CFG_TIMER_OPERATION_QUEUE_SIZE /* event queue max depth */, useScheduler);
+    APP_TIMER_INIT(CFG_TIMER_PRESCALER , CFG_TIMER_MAX_INSTANCE, CFG_TIMER_OPERATION_QUEUE_SIZE, CFG_SCHEDULER_ENABLE);
 
     us_ticker_inited = true;
 }
