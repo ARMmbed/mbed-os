@@ -20,17 +20,17 @@
 
 void sleep(void) {
     smc_power_mode_protection_config_t sleep_config = {true};
-    smc_hal_config_power_mode_protection(&sleep_config);
+    SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
 
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
     __WFI();
 }
 
 void deepsleep(void) {
-    mcg_clock_select_t mcg_clock = clock_get_clks();
+    mcg_clock_select_t mcg_clock = CLOCK_HAL_GetClkSrcMode(MCG_BASE);
 
     smc_power_mode_protection_config_t sleep_config = {true};
-    smc_hal_config_power_mode_protection(&sleep_config);
+    SMC_HAL_SetProtection(SMC_BASE, &sleep_config);
     SMC->PMCTRL = SMC_PMCTRL_STOPM(2);
 
     //Deep sleep for ARM core:
@@ -40,10 +40,10 @@ void deepsleep(void) {
 
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
-    if (mcg_clock == kMcgClockSelectOut) {
-        if (clock_get_plls() == kMcgPllSelectPllcs) {
-            while (clock_get_lock0() == kMcgLockUnlocked);
+    if (mcg_clock == kMcgClkSelOut) {
+        if (CLOCK_HAL_GetPllStatMode(MCG_BASE) == kMcgPllStatPllClkSel) {
+            while (CLOCK_HAL_GetLock0Mode(MCG_BASE) == kMcgLockUnlocked);
         }
-        clock_set_clks(kMcgClockSelectOut);
+        CLOCK_HAL_SetClkSrcMode(MCG_BASE, kMcgClkSelOut);
     }
 }

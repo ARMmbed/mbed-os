@@ -32,26 +32,32 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)obj->instance != NC);
 
-    clock_manager_set_gate(kClockModuleI2C, obj->instance, true);
-    clock_manager_set_gate(kClockModulePORT, sda >> GPIO_PORT_SHIFT, true);
-    clock_manager_set_gate(kClockModulePORT, scl >> GPIO_PORT_SHIFT, true);
-    i2c_hal_enable(obj->instance);
+    CLOCK_SYS_EnableI2cClock(obj->instance);
+    CLOCK_SYS_EnablePortClock(sda >> GPIO_PORT_SHIFT);
+    CLOCK_SYS_EnablePortClock(scl >> GPIO_PORT_SHIFT);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_Init(i2c_addrs[obj->instance]);
+    I2C_HAL_Enable(i2c_addrs[obj->instance]);
     i2c_frequency(obj, 100000);
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
-    port_hal_configure_open_drain(sda >> GPIO_PORT_SHIFT, sda & 0xFF, true);
-    port_hal_configure_open_drain(scl >> GPIO_PORT_SHIFT, scl & 0xFF, true);
+
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+    PORT_HAL_SetOpenDrainCmd(port_addrs[sda >> GPIO_PORT_SHIFT], sda & 0xFF, true);
+    PORT_HAL_SetOpenDrainCmd(port_addrs[scl >> GPIO_PORT_SHIFT], scl & 0xFF, true);
 }
 
 int i2c_start(i2c_t *obj) {
-    i2c_hal_send_start(obj->instance);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_SendStart(i2c_addrs[obj->instance]);
     return 0;
 }
 
 int i2c_stop(i2c_t *obj) {
     volatile uint32_t n = 0;
-    i2c_hal_send_stop(obj->instance);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_SendStop(i2c_addrs[obj->instance]);
     
     // It seems that there are timing problems
     // when there is no waiting time after a STOP.
@@ -80,8 +86,8 @@ static int i2c_wait_end_tx_transfer(i2c_t *obj) {
     if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
         return 2;
     }
-
-    i2c_hal_clear_interrupt(obj->instance);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_ClearInt(i2c_addrs[obj->instance]);
 
     // wait transfer complete
     if (timeout_status_poll(obj, I2C_S_TCF_MASK)) {
@@ -89,7 +95,7 @@ static int i2c_wait_end_tx_transfer(i2c_t *obj) {
     }
 
     // check if we received the ACK or not
-    return i2c_hal_get_receive_ack(obj->instance) ? 0 : 1;
+    return I2C_HAL_GetStatusFlag(i2c_addrs[obj->instance], kI2CReceivedNak) ? 0 : 1;
 }
 
 // this function waits the end of a rx transfer and return the status of the transaction:
@@ -100,27 +106,29 @@ static int i2c_wait_end_rx_transfer(i2c_t *obj) {
     if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
         return 1;
     }
-
-    i2c_hal_clear_interrupt(obj->instance);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_ClearInt(i2c_addrs[obj->instance]);
 
     return 0;
 }
 
 static int i2c_do_write(i2c_t *obj, int value) {
-    i2c_hal_write(obj->instance, value);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_WriteByte(i2c_addrs[obj->instance], value);
 
     // init and wait the end of the transfer
     return i2c_wait_end_tx_transfer(obj);
 }
 
 static int i2c_do_read(i2c_t *obj, char * data, int last) {
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     if (last) {
-        i2c_hal_send_nak(obj->instance);
+        I2C_HAL_SendNak(i2c_addrs[obj->instance]);
     } else {
-        i2c_hal_send_ack(obj->instance);
+        I2C_HAL_SendAck(i2c_addrs[obj->instance]);
     }
 
-    *data = (i2c_hal_read(obj->instance) & 0xFF);
+    *data = (I2C_HAL_ReadByte(i2c_addrs[obj->instance]) & 0xFF);
 
     // start rx transfer and wait the end of the transfer
     return i2c_wait_end_rx_transfer(obj);
@@ -128,10 +136,10 @@ static int i2c_do_read(i2c_t *obj, char * data, int last) {
 
 void i2c_frequency(i2c_t *obj, int hz) {
     uint32_t busClock;
-
-    clock_manager_error_code_t error = clock_manager_get_frequency(kBusClock, &busClock);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    clock_manager_error_code_t error = CLOCK_SYS_GetFreq(kBusClock, &busClock);
     if (error == kClockManagerSuccess) {
-        i2c_hal_set_baud(obj->instance, busClock, hz / 1000, NULL);
+        I2C_HAL_SetBaudRate(i2c_addrs[obj->instance], busClock, hz / 1000, NULL);
     }
 }
 
@@ -150,7 +158,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     }
 
     // set rx mode
-    i2c_hal_set_direction(obj->instance, kI2CReceive);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CReceive);
 
     // Read in bytes
     for (count = 0; count < (length); count++) {
@@ -167,7 +176,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_stop(obj);
 
     // last read
-    data[count-1] = i2c_hal_read(obj->instance);
+    data[count-1] = I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
 
     return length;
 }
@@ -204,21 +213,22 @@ void i2c_reset(i2c_t *obj) {
 
 int i2c_byte_read(i2c_t *obj, int last) {
     char data;
-
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     // set rx mode
-    i2c_hal_set_direction(obj->instance, kI2CReceive);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CReceive);
 
     // Setup read
     i2c_do_read(obj, &data, last);
 
     // set tx mode
-    i2c_hal_set_direction(obj->instance, kI2CTransmit);
-    return i2c_hal_read(obj->instance);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CSend);
+    return I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     // set tx mode
-    i2c_hal_set_direction(obj->instance, kI2CTransmit);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CSend);
 
     return !i2c_do_write(obj, (data & 0xFF));
 }
@@ -226,10 +236,11 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
 #if DEVICE_I2CSLAVE
 void i2c_slave_mode(i2c_t *obj, int enable_slave) {
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     if (enable_slave) {
         // set slave mode
         BW_I2C_C1_MST(obj->instance, 0);
-        i2c_hal_enable_interrupt(obj->instance);
+        I2C_HAL_SetIntCmd(i2c_addrs[obj->instance], true);
     } else {
         // set master mode
         BW_I2C_C1_MST(obj->instance, 1);
@@ -253,39 +264,40 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     uint8_t dummy_read;
     uint8_t *ptr;
     int count;
-
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     // set rx mode
-    i2c_hal_set_direction(obj->instance, kI2CTransmit);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CSend);
 
     // first dummy read
-    dummy_read = i2c_hal_read(obj->instance);
+    dummy_read = I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
     if (i2c_wait_end_rx_transfer(obj))
         return 0;
 
     // read address
-    dummy_read = i2c_hal_read(obj->instance);
+    dummy_read = I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
     if (i2c_wait_end_rx_transfer(obj))
         return 0;
 
     // read (length - 1) bytes
     for (count = 0; count < (length - 1); count++) {
-        data[count] = i2c_hal_read(obj->instance);
+        data[count] = I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
         if (i2c_wait_end_rx_transfer(obj))
             return count;
     }
 
     // read last byte
     ptr = (length == 0) ? &dummy_read : (uint8_t *)&data[count];
-    *ptr = i2c_hal_read(obj->instance);
+    *ptr = I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
 
     return (length) ? (count + 1) : 0;
 }
 
 int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     int i, count = 0;
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
 
     // set tx mode
-    i2c_hal_set_direction(obj->instance, kI2CTransmit);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CSend);
 
     for (i = 0; i < length; i++) {
         if (i2c_do_write(obj, data[count++]) == 2)
@@ -293,11 +305,11 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     }
 
     // set rx mode
-    i2c_hal_set_direction(obj->instance, kI2CReceive);
+    I2C_HAL_SetDirMode(i2c_addrs[obj->instance], kI2CReceive);
 
     // dummy rx transfer needed
     // otherwise the master cannot generate a stop bit
-    i2c_hal_read(obj->instance);
+    I2C_HAL_ReadByte(i2c_addrs[obj->instance]);
     if (i2c_wait_end_rx_transfer(obj) == 2)
         return count;
 
@@ -305,7 +317,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 }
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
-    i2c_hal_set_upper_slave_address_7bit(obj->instance, address & 0xfe);
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    I2C_HAL_SetUpperAddress7bit(i2c_addrs[obj->instance], address & 0xfe);
 }
 #endif
 

@@ -23,22 +23,18 @@
 #include "PeripheralPins.h"
 
 void rtc_init(void) {
-    rtc_hal_init_config_t hal_config = {0};
-
-    hal_config.disableClockOutToPeripheral = true;
     if (PinMap_RTC[0].pin == NC) {
-        hal_config.enable32kOscillator = true;
+        RTC_HAL_SetOscillatorCmd(RTC_BASE, true);
     }
-    clock_manager_set_gate(kClockModuleRTC, 0U, true);
-    hal_config.startSecondsCounterAt = 1; /* TSR = 1 */
-    rtc_hal_init(&hal_config);
+    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    RTC_HAL_SetSecsReg(RTC_BASE, 1);
+    RTC_HAL_Init(RTC_BASE);
 
     // select RTC clock source
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
     SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
 
-    rtc_hal_config_oscillator(true);
-    rtc_hal_counter_enable(true);
+    RTC_HAL_EnableCounter(RTC_BASE, true);
 }
 
 void rtc_free(void) {
@@ -50,21 +46,21 @@ void rtc_free(void) {
  * 0 = Disabled, 1 = Enabled
  */
 int rtc_isenabled(void) {
-    clock_manager_set_gate(kClockModuleRTC, 0U, true);
-    return (int)rtc_hal_is_counter_enabled();
+    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    return (int)RTC_HAL_IsCounterEnabled(RTC_BASE);
 }
 
 time_t rtc_read(void) {
-    return BR_RTC_TSR_TSR;
+    return (time_t)RTC_HAL_GetSecsReg(RTC_BASE);
 }
 
 void rtc_write(time_t t) {
     if (t == 0) {
         t = 1;
     }
-    rtc_hal_counter_enable(false);
-    BW_RTC_TSR_TSR(t);
-    rtc_hal_counter_enable(true);
+    RTC_HAL_EnableCounter(RTC_BASE, false);
+    RTC_HAL_SetSecsReg(RTC_BASE, t);
+    RTC_HAL_EnableCounter(RTC_BASE, true);
 }
 
 #endif

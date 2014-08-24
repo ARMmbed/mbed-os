@@ -20,14 +20,14 @@
 #include "fsl_os_abstraction.h"
 #include "wait_api.h"
 
-fsl_rtos_status lock_destroy(lock_object_t *obj) {
-    return kSuccess;
-}
+// fsl_rtos_status lock_destroy(lock_object_t *obj) {
+//     return kSuccess;
+// }
 
 
-fsl_rtos_status event_set(event_object_t *obj, event_group_t flags) {
-    return kSuccess;
-}
+// fsl_rtos_status event_set(event_object_t *obj, event_group_t flags) {
+//     return kSuccess;
+// }
 
 void time_delay(uint32_t delay) {
     wait_ms(delay);

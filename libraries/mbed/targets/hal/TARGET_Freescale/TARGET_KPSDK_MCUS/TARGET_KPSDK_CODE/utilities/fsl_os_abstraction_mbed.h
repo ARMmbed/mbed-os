@@ -35,4 +35,10 @@ typedef int msg_queue_handler_t;
 typedef void msg_queue_t;
 typedef int msg_queue_item_t;
 
+typedef int semaphore_t;
+typedef int mutex_t;
+typedef int event_t;
+typedef int event_flags_t;
+typedef int task_param_t;
+
 #endif // #ifdef FSL_OS_ABSTRACTION_MBED_H_
