@@ -125,7 +125,7 @@ int spi_slave_receive(spi_t *obj) {
 }
 
 int spi_slave_read(spi_t *obj) {
-    dspi_hal_clear_status_flag(obj->instance, kDspiRxFifoDrainRequest);
+    DSPI_HAL_ClearStatusFlag(obj->instance, kDspiRxFifoDrainRequest);
     uint32_t spi_address[] = SPI_BASE_ADDRS;
     return DSPI_HAL_ReadData(spi_address[obj->instance]);
 }
