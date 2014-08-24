@@ -125,13 +125,9 @@ int spi_slave_receive(spi_t *obj) {
 }
 
 int spi_slave_read(spi_t *obj) {
-<<<<<<< HEAD
     dspi_hal_clear_status_flag(obj->instance, kDspiRxFifoDrainRequest);
-    return dspi_hal_read_data(obj->instance);
-=======
     uint32_t spi_address[] = SPI_BASE_ADDRS;
     return DSPI_HAL_ReadData(spi_address[obj->instance]);
->>>>>>> martins/dev_ksdk_update
 }
 
 void spi_slave_write(spi_t *obj, int value) {
