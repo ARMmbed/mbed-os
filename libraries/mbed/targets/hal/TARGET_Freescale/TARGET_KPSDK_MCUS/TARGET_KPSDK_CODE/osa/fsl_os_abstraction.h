@@ -84,14 +84,6 @@ typedef enum _osa_critical_section_mode_t
     #define USE_RTOS 1
     #include "fsl_os_abstraction_ucosiii.h"
 
-#elif defined (FSL_RTOS_CMSIS)
-    #define USE_RTOS 1
-    #include "fsl_os_abstraction_cmsis.h"
-
-#elif defined (FSL_RTOS_MBED)
-    #define USE_RTOS 1
-    #include "fsl_os_abstraction_mbed.h"
-
 #else
     #define USE_RTOS 0
     #include "fsl_os_abstraction_bm.h"
