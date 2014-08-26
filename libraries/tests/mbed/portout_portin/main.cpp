@@ -31,6 +31,15 @@
 #define P2_2    (1 << 11) // p1.25
 #define PORT_2  PortB
 
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define P1_1    (1 <<  5) // PC15 (pin 14 expansion)
+#define P1_2    (1 <<  4) // PC15 (pin 12 expansion)
+#define PORT_1  PortD
+
+#define P2_1    (1 << 15) // PC15 (pin 8 expansion)
+#define P2_2    (1 << 14) // PC14 (pin 10 expansion)
+#define PORT_2  PortC
+
 #elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #define P1_1    (1 << 9)  // p0.9  -> p5
 #define P1_2    (1 << 8)  // p0.8  -> p6
