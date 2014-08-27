@@ -97,7 +97,7 @@ void us_ticker_remove_event(ticker_event_t *obj) {
     if (head == obj) {
         // first in the list, so just drop me
         head = obj->next;
-        if (obj->next == NULL) {
+        if (head == NULL) {
             us_ticker_disable_interrupt();
         } else {
             us_ticker_set_interrupt(head->timestamp);
