@@ -53,8 +53,10 @@ serial_t stdio_uart;
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
     
-    MBED_ASSERT((int)uart != NC);
-    
+    if ((int)uart == NC) {
+        uart = (UARTName)UART_0;
+    }
+
     obj->uart = (NRF_UART_Type *)uart;
     
     //pin configurations --
