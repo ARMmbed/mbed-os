@@ -100,6 +100,10 @@ public:
         setup(t);
     }
 
+    virtual ~Ticker() {
+        detach();
+    }
+
     /** Detach the function
      */
     void detach();
