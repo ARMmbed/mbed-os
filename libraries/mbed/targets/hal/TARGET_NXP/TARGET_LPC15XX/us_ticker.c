@@ -58,7 +58,7 @@ uint32_t us_ticker_read() {
     return (uint32_t)temp;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
 	uint64_t temp = ((uint64_t)timestamp * (SystemCoreClock/1000000));
     LPC_RIT->COMPVAL = (temp & 0xFFFFFFFFL);
     LPC_RIT->COMPVAL_H = ((temp >> 32)& 0x0000FFFFL);

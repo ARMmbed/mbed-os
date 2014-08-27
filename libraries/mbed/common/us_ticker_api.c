@@ -45,6 +45,8 @@ void us_ticker_irq_handler(void) {
             if (event_handler != NULL) {
                 event_handler(p->id); // NOTE: the handler can set new events
             }
+            /* Note: We continue back to examining the head because calling the
+             * event handler may have altered the chain of pending events. */
         } else {
             // This event and the following ones in the list are in the future:
             //      set it as next interrupt and return
@@ -54,7 +56,7 @@ void us_ticker_irq_handler(void) {
     }
 }
 
-void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id) {
+void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
     /* disable interrupts for the duration of the function */
     __disable_irq();
 
@@ -95,7 +97,9 @@ void us_ticker_remove_event(ticker_event_t *obj) {
     if (head == obj) {
         // first in the list, so just drop me
         head = obj->next;
-        if (obj->next != NULL) {
+        if (head == NULL) {
+            us_ticker_disable_interrupt();
+        } else {
             us_ticker_set_interrupt(head->timestamp);
         }
     } else {

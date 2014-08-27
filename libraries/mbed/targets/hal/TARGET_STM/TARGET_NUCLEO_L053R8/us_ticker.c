@@ -85,7 +85,7 @@ void us_ticker_init(void) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period        = 0xFFFF;
-    TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 ï¿½s tick
     TimMasterHandle.Init.ClockDivision = 0;
     TimMasterHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_Base_Init(&TimMasterHandle);
@@ -123,8 +123,8 @@ uint32_t us_ticker_read() {
     return counter2;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
-    int delta = (int)(timestamp - us_ticker_read());
+void us_ticker_set_interrupt(timestamp_t timestamp) {
+    int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
