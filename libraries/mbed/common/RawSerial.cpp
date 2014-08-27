@@ -47,6 +47,13 @@ int RawSerial::puts(const char *str) {
 int RawSerial::printf(const char *format, ...) {
     std::va_list arg;
     va_start(arg, format);
+#if defined(__MICROLIB) && defined(__ARMCC_VERSION) // with microlib and ARM compiler
+    char *temp;
+    temp = (char*)alloca(STRING_STACK_LIMIT);
+    vsprintf(temp, format, arg);
+    puts(temp);
+    int len = strlen(temp);
+#else
     int len = vsnprintf(NULL, 0, format, arg);
     if (len < STRING_STACK_LIMIT) {
         char temp[STRING_STACK_LIMIT];
@@ -58,6 +65,7 @@ int RawSerial::printf(const char *format, ...) {
         puts(temp);
         delete[] temp;
     }
+#endif
     va_end(arg);
     return len;
 }
