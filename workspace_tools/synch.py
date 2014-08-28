@@ -67,7 +67,7 @@ OFFICIAL_CODE = (
     ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
     ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusb"]),
     ("UbloxModemSMSTest", ["tests/net/cellular/sms/common", "tests/net/cellular/sms/ubloxusb"]),
-    ("FatFileSystem", "fs/fat", "mbed-official"),
+    ("FATFileSystem", "fs/fat", "mbed-official"),
 )
 
 
