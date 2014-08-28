@@ -113,9 +113,8 @@ protected:
     virtual void handler();
 
 protected:
-    timestamp_t     _delay;     /* Time delay (in microseconds) for re-setting the multi-shot callback.
-                                 * Initialized at the point where callback is attached. */
-    FunctionPointer _function;  /* Callback. */
+    timestamp_t     _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    FunctionPointer _function;  /**< Callback. */
 };
 
 } // namespace mbed
