@@ -50,7 +50,7 @@ uint32_t us_ticker_read() {
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    US_TICKER_TIMER->MR[3] = (uint32_t)timestamp;
+    US_TICKER_TIMER->MR[0] = (uint32_t)timestamp;
     // enable match interrupt
     US_TICKER_TIMER->MCR |= 1;
 }
