@@ -19,8 +19,8 @@ void togglePin(void)
     if (ticker_count >= MS_INTERVALS) {
         print_char();
         ticker_count = 0;
+        led = !led; // Blink
     }
-    led = !led; // Blink
     ticker_count++;
 }
 
