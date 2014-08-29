@@ -56,6 +56,9 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,    NC,    0}
 };
 
+int i2c1_inited = 0;
+int i2c2_inited = 0;
+
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
@@ -64,19 +67,27 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(obj->i2c != (I2CName)NC);
 
-    // Enable I2C clock
-    if (obj->i2c == I2C_1) {
+    // Enable I2C1 clock and pinout if not done
+    if ((obj->i2c == I2C_1)&& !i2c1_inited) {
+        i2c1_inited = 1;
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-    }
-    if (obj->i2c == I2C_2) {
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+        // Configure I2C pins
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(scl, OpenDrain);
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pin_mode(sda, OpenDrain);
     }
 
-    // Configure I2C pins
-    pinmap_pinout(scl, PinMap_I2C_SCL);
-    pin_mode(scl, OpenDrain);
-    pinmap_pinout(sda, PinMap_I2C_SDA);
-    pin_mode(sda, OpenDrain);
+    // Enable I2C2 clock and pinout if not done
+    if ((obj->i2c == I2C_2)&& !i2c2_inited) {
+        i2c2_inited = 1;
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+        // Configure I2C pins
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(scl, OpenDrain);
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pin_mode(sda, OpenDrain);
+    }
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -88,9 +99,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 void i2c_frequency(i2c_t *obj, int hz) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
+    int timeout;
 
     if (hz == 0) return;
     if (hz > 400000) hz = 400000;
+
+    // wait before init
+    timeout = LONG_TIMEOUT;
+    while((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     /* Warning: To use the I2C at 400 kHz (in fast mode), the PCLK1 frequency
       (I2C peripheral input clock) must be a multiple of 10 MHz.
@@ -272,6 +288,13 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 
 void i2c_reset(i2c_t *obj) {
+    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+    int timeout;
+	
+    // wait before reset
+    timeout = LONG_TIMEOUT;
+    while((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0));
+	
     if (obj->i2c == I2C_1) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
