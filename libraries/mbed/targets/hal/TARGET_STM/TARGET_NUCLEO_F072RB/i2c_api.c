@@ -59,6 +59,9 @@ static const PinMap PinMap_I2C_SCL[] = {
 
 I2C_HandleTypeDef I2cHandle;
 
+int i2c1_inited = 0;
+int i2c2_inited = 0;
+
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
@@ -67,20 +70,27 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(obj->i2c != (I2CName)NC);
 
-    // Enable I2C clock
-    if (obj->i2c == I2C_1) {
+    // Enable I2C1 clock and pinout if not done
+    if ((obj->i2c == I2C_1)&& !i2c1_inited) {
+        i2c1_inited = 1;
         __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
         __I2C1_CLK_ENABLE();
+        // Configure I2C pins
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(sda, OpenDrain);
+        pin_mode(scl, OpenDrain);
     }
-    if (obj->i2c == I2C_2) {
+    // Enable I2C2 clock and pinout if not done
+    if ((obj->i2c == I2C_2)&& !i2c2_inited) {
+        i2c2_inited = 1;
         __I2C2_CLK_ENABLE();
-    }
-
     // Configure I2C pins
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
     pin_mode(sda, OpenDrain);
     pin_mode(scl, OpenDrain);
+    }
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -91,8 +101,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
 void i2c_frequency(i2c_t *obj, int hz) {
     MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
-
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
+    int timeout;
+
+    // wait before init
+    timeout = LONG_TIMEOUT;
+    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
     switch (hz) {
@@ -274,6 +288,12 @@ int i2c_byte_write(i2c_t *obj, int data) {
 }
 
 void i2c_reset(i2c_t *obj) {
+    int timeout;
+	
+    // wait before reset
+    timeout = LONG_TIMEOUT;
+    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+
     if (obj->i2c == I2C_1) {
         __I2C1_FORCE_RESET();
         __I2C1_RELEASE_RESET();
