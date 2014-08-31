@@ -195,16 +195,18 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
   SVC_ArgR(3,t4,a4)
 
 #if (defined (__CORTEX_M0)) || defined (__CORTEX_M0PLUS)
-#define SVC_Call(f)                                                            \
-  __asm volatile                                                                 \
+#define SVC_Call(f) do {                                                       \
+  register int tmp;                                                            \
+  __asm volatile                                                               \
   (                                                                            \
-    "ldr r7,="#f"\n\t"                                                         \
-    "mov r12,r7\n\t"                                                           \
+    "ldr %[tmp],="#f"\n\t"                                                     \
+    "mov r12,%[tmp]\n\t"                                                       \
     "svc 0"                                                                    \
-    :               "=r" (__r0), "=r" (__r1), "=r" (__r2), "=r" (__r3)         \
-    :                "r" (__r0),  "r" (__r1),  "r" (__r2),  "r" (__r3)         \
-    : "r7", "r12", "lr", "cc"                                                  \
-  );
+    : [tmp] "=r" (tmp), "=r" (__r0), "=r" (__r1), "=r" (__r2), "=r" (__r3)     \
+    :                    "r" (__r0),  "r" (__r1),  "r" (__r2),  "r" (__r3)     \
+    : "r12", "lr", "cc"                                                        \
+  );                                                                           \
+} while (0)
 #else
 #define SVC_Call(f)                                                            \
   __asm volatile                                                                 \
