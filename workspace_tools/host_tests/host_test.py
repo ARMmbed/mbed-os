@@ -217,8 +217,9 @@ class Mbed:
                 self.touch_file(reset_file_path)
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-            # Give time to wait for the image loading
+        # Flush serials to get only input after reset
         self.flush()
+        # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
 
