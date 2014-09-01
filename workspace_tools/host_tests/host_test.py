@@ -191,6 +191,7 @@ class Mbed:
                        '--serialno', self.disk.rstrip('/\\'),
                        '--resettype', '2', '--reset',]
                 try:
+                    self.flush()
                     ret = call(cmd, shell=True)
                     if ret:
                         resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
@@ -205,6 +206,7 @@ class Mbed:
                        '--usb', self.disk.rstrip('/\\'),
                        '--resettype', '2', '--reset',]
                 try:
+                    self.flush()
                     ret = call(cmd, shell=True)
                     if ret:
                         resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
@@ -215,10 +217,12 @@ class Mbed:
             elif self.options.forced_reset_type.endswith('.txt'):
                 reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
                 self.touch_file(reset_file_path)
+                self.flush()
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
+            self.flush()
         # Flush serials to get only input after reset
-        self.flush()
+        #self.flush()
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
