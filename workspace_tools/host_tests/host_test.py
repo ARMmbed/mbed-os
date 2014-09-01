@@ -218,14 +218,16 @@ class Mbed:
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
             # Give time to wait for the image loading
+        self.flush()
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
 
     def flush(self):
         """ Flush serial ports
         """
-        self.serial.flushInput()
-        self.serial.flushOutput()
+        if self.serial:
+            self.serial.flushInput()
+            self.serial.flushOutput()
         if self.extra_serial:
             self.extra_serial.flushInput()
             self.extra_serial.flushOutput()
