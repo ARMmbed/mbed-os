@@ -27,9 +27,12 @@ from optparse import OptionParser
 from time import sleep
 from sys import stdout
 
+# This is a little tricky. We need to add upper directory to path so
+# we can find packages we want from the same level as other files do
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from private_settings import EACOMMANDER_CMD
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from workspace_tools.settings import EACOMMANDER_CMD
+
 
 class Mbed:
     """ Base class for a host driven test
