@@ -1424,7 +1424,7 @@ def get_default_test_options_parser():
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
-    parser.add_option('', '--firmware-name',
+    parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
                       help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
 
