@@ -533,6 +533,20 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
+        elif copy_method == 'eACommander-usb':
+            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+            # Note: Commands are executed in the order they are specified on the command line
+            cmd = [EACOMMANDER_CMD,
+                   '--usb', disk.rstrip('/\\'),
+                   '--flash', image_path.encode('ascii', 'ignore')]
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
         else:
             copy_method = "shutils.copy()"
             # Default python method
