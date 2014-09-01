@@ -26,6 +26,12 @@ import os
 from optparse import OptionParser
 from time import sleep
 from sys import stdout
+from subprocess import call
+
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from private_settings import EACOMMANDER_CMD
 
 class Mbed:
     """
@@ -56,7 +62,7 @@ class Mbed:
 
         parser.add_option("-e", "--extra",
                           dest="extra",
-                          help="Extra serial port (used by some tests)", 
+                          help="Extra serial port (used by some tests)",
                           metavar="EXTRA")
 
         parser.add_option("-r", "--reset",
@@ -135,9 +141,26 @@ class Mbed:
             shutdown.txt - shutdown from run mode
             reset.txt    - reset fpga during run mode """
         if self.options.forced_reset_type:
-            path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
-            if self.options.forced_reset_type.endswith('.txt'):
+            if self.options.forced_reset_type == 'eACommander':
+                # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+                # Note: Commands are executed in the order they are specified on the command line
+                cmd = [EACOMMANDER_CMD,
+                       '--serialno', self.disk.rstrip('/\\'),
+                       '--resettype', '2', '--reset',]
+                try:
+                    ret = call(cmd, shell=True)
+                    if ret:
+                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                        result = False
+                except Exception, e:
+                    resutl_msg = e
+                    result = False
+            elif self.options.forced_reset_type.endswith('.txt'):
+                path = os.path.join([self.disk, self.options.forced_reset_type.lower()])
                 self.touch_file(path)
+            elif self.options.forced_reset_type == 'skip':
+                # Do nothing, for example when flashing (copy) method can reset device no need to reset it again
+                pass
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
             # Give time to wait for the image loading
