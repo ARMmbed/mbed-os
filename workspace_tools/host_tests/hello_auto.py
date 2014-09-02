@@ -37,7 +37,7 @@ class HelloTest(DefaultTest):
             res = re.search('^[$]+[0-9a-fA-F]+' + self.HELLO_WORLD, c)
             result = res is not None
         else:
-            result = (c == self.HELLO_WORLD)
+            result = (c.startswith(self.HELLO_WORLD))
             
         if result: # Hello World received
             self.print_result('success')
