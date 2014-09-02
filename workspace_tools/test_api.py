@@ -47,7 +47,6 @@ from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
-from workspace_tools.test_mysql import MySQLDBAccess
 
 
 class ProcessObserver(Thread):
@@ -1290,6 +1289,7 @@ def factory_db_logger(db_url):
     """ Factory database driver depending on database type supplied in database connection string db_url
     """
     if db_url is not None:
+        from workspace_tools.test_mysql import MySQLDBAccess
         (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
         if db_type == 'mysql':
             return MySQLDBAccess()
