@@ -19,9 +19,9 @@ DevNull null("null");
 
 int main()
 {
-    printf("MBED: re-routing stdout to /null\n");
+    printf("MBED: re-routing stdout to /null\r\n");
     freopen("/null", "w", stdout);
-    printf("MBED: printf redirected to /null\n");   // This shouldn't appear
+    printf("MBED: printf redirected to /null\r\n");   // This shouldn't appear
     // If failure message can be seen test should fail :)
     notify_completion(false);   // This is 'false' on purpose
     return 0;
