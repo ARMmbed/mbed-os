@@ -40,6 +40,7 @@ from workspace_tools.tests import TESTS
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
+from workspace_tools.utils import ToolException
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
@@ -363,19 +364,21 @@ class SingleTestRunner(object):
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
-                        path = build_project(test.source_dir,
-                                             join(build_dir, test_id),
-                                             T,
-                                             toolchain,
-                                             test.dependencies,
-                                             options=build_project_options,
-                                             clean=clean_project_options,
-                                             verbose=self.opts_verbose,
-                                             name=project_name,
-                                             macros=MACROS,
-                                             inc_dirs=INC_DIRS,
-                                             jobs=self.opts_jobs)
-
+                        try:
+                            path = build_project(test.source_dir,
+                                                 join(build_dir, test_id),
+                                                 T,
+                                                 toolchain,
+                                                 test.dependencies,
+                                                 options=build_project_options,
+                                                 clean=clean_project_options,
+                                                 verbose=self.opts_verbose,
+                                                 name=project_name,
+                                                 macros=MACROS,
+                                                 inc_dirs=INC_DIRS,
+                                                 jobs=self.opts_jobs)
+                        except ToolException:
+                            return test_summary, self.shuffle_random_seed
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
                             continue
