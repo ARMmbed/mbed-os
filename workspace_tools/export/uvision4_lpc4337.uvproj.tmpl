@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>{{name}}_LPC4337_M4</TargetName>
+      <TargetName>{{name}}_LPC4337</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -77,7 +77,7 @@
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
             <UserProg1Name>$K\ARM\BIN\ElfDwT.exe !L BASEADDRESS(0x1A000000)</UserProg1Name>
-            <UserProg2Name>fromelf --bin -o "$L@L_LPC4337_M4.bin" "$L@L.axf"</UserProg2Name>
+            <UserProg2Name>fromelf --bin -o "$L@L_LPC4337.bin" "$L@L.axf"</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>

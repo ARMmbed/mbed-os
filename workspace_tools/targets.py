@@ -235,7 +235,7 @@ class LPC4330_M0(LPCTarget):
         self.extra_labels = ['NXP', 'LPC43XX', 'LPC4330']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
-class LPC4337_M4(LPCTarget):
+class LPC4337(LPCTarget):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
@@ -643,7 +643,7 @@ TARGETS = [
     LPC810(),
     LPC4088(),
     LPC4330_M4(),
-    LPC4337_M4(),
+    LPC4337(),
     STM32F3XX(),
     STM32F407(),
     NUCLEO_F030R8(),
