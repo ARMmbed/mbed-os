@@ -153,6 +153,7 @@ class SingleTestRunner(object):
                  _opts_copy_method=None,
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
+                 _opts_waterfall_test=None,
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
@@ -196,6 +197,7 @@ class SingleTestRunner(object):
         self.opts_copy_method = _opts_copy_method
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
+        self.opts_waterfall_test = _opts_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
 
         # File / screen logger initialization
@@ -736,6 +738,10 @@ class SingleTestRunner(object):
                                                  elapsed_time,
                                                  duration,
                                                  test_index)
+
+            # If we perform waterfall test we test until we get OK and we stop testing
+            if self.opts_waterfall_test and single_test_result == self.TEST_RESULT_OK:
+                break
 
         if self.db_logger:
             self.db_logger.disconnect()
@@ -1426,6 +1432,12 @@ def get_default_test_options_parser():
     parser.add_option('', '--global-loops',
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
+
+    parser.add_option('-W', '--waterfall',
+                      dest='waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed.')
 
     parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
