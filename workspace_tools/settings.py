@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from os.path import join, abspath, dirname
 import logging
 
@@ -74,6 +75,9 @@ GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
 # cppcheck path (command) and output message format
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
 CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
+
+# SiliconLabs energyAware Commander 2.84 path
+EACOMMANDER_CMD = 'c:/SiliconLabs/SimplicityStudio/v2/commander/eACommander.exe'
 
 BUILD_OPTIONS = []
 

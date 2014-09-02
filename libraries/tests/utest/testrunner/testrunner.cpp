@@ -14,6 +14,9 @@ int main(int ac, char** av)
 {
     unsigned failureCount = 0;
     {
+        // Some compilers may not pass ac, av so we need to supply them ourselves
+        int ac = 2;
+        char* av[] = {__FILE__, "-v"};
         failureCount = CommandLineTestRunner::RunAllTests(ac, av);
     }
 

@@ -19,9 +19,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 import os
 import re
-import sys
 import json
-import time
 import pprint
 import random
 import optparse
@@ -44,9 +42,12 @@ from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.test_db import BaseDBAccess
+from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
+from workspace_tools.test_mysql import MySQLDBAccess
 
 
 class ProcessObserver(Thread):
@@ -132,6 +133,7 @@ class SingleTestRunner(object):
                  _global_loops_count=1,
                  _test_loops_list=None,
                  _muts={},
+                 _opts_db_url=None,
                  _opts_log_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
@@ -175,6 +177,7 @@ class SingleTestRunner(object):
         self.test_spec = _test_spec
 
         # Settings passed e.g. from command line
+        self.opts_db_url = _opts_db_url
         self.opts_log_file_name = _opts_log_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
@@ -195,7 +198,48 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_extend_test_timeout = _opts_extend_test_timeout
 
+        # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
+
+        # database related initializations
+        self.db_logger = factory_db_logger(self.opts_db_url)
+        self.db_logger_build_id = None # Build ID (database index of build_id table)
+        # Let's connect to database to set up credentials and confirm database is ready
+        if self.db_logger:
+            self.db_logger.connect_url(self.opts_db_url) # Save db access info inside db_logger object
+            if self.db_logger.is_connected():
+                # Get hostname and uname so we can use it as build description
+                # when creating new build_id in external database
+                (_hostname, _uname) = self.db_logger.get_hostname()
+                _host_location = os.path.dirname(os.path.abspath(__file__))
+                build_id_type = None if self.opts_only_build_tests is None else self.db_logger.BUILD_ID_TYPE_BUILD_ONLY
+                self.db_logger_build_id = self.db_logger.get_next_build_id(_hostname, desc=_uname, location=_host_location, type=build_id_type)
+                self.db_logger.disconnect()
+
+    def dump_options(self):
+        """ Function returns data structure with common settings passed to SingelTestRunner
+            It can be used for example to fill _extra fields in database storing test suite single run data
+            Example:
+            data = self.dump_options()
+            or
+            data_str = json.dumps(self.dump_options())
+        """
+        result = {"db_url" : str(self.opts_db_url),
+                  "log_file_name" :  str(self.opts_log_file_name),
+                  "shuffle_test_order" : str(self.opts_shuffle_test_order),
+                  "shuffle_test_seed" : str(self.opts_shuffle_test_seed),
+                  "test_by_names" :  str(self.opts_test_by_names),
+                  "test_only_peripheral" :  str(self.opts_test_only_peripheral),
+                  "test_only_common" :  str(self.opts_test_only_common),
+                  "verbose" :  str(self.opts_verbose),
+                  "firmware_global_name" :  str(self.opts_firmware_global_name),
+                  "only_build_tests" :  str(self.opts_only_build_tests),
+                  "copy_method" :  str(self.opts_copy_method),
+                  "mut_reset_type" :  str(self.opts_mut_reset_type),
+                  "jobs" :  str(self.opts_jobs),
+                  "extend_test_timeout" :  str(self.opts_extend_test_timeout),
+                  "_dummy" : ''}
+        return result
 
     def shuffle_random_func(self):
         return self.shuffle_random_seed
@@ -245,9 +289,24 @@ class SingleTestRunner(object):
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
 
                 # Enumerate through all tests and shuffle test order if requested
-                test_map_keys = TEST_MAP.keys()
+                test_map_keys = sorted(TEST_MAP.keys())
                 if self.opts_shuffle_test_order:
                     random.shuffle(test_map_keys, self.shuffle_random_func)
+                    # Update database with shuffle seed f applicable
+                    if self.db_logger:
+                        self.db_logger.reconnect();
+                        if self.db_logger.is_connected():
+                            self.db_logger.update_build_id_info(self.db_logger_build_id, _shuffle_seed=self.shuffle_random_func())
+                            self.db_logger.disconnect();
+
+                if self.db_logger:
+                    self.db_logger.reconnect();
+                    if self.db_logger.is_connected():
+                        # Update MUTs and Test Specification in database
+                        self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
+                        # Update Etra information in database (some options passed to test suite)
+                        self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
+                        self.db_logger.disconnect();
 
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
@@ -331,9 +390,17 @@ class SingleTestRunner(object):
                         # which the test gets interrupted
                         test_spec = self.shape_test_request(target, path, test_id, test_duration)
                         test_loops = self.get_test_loop_count(test_id)
+                        # read MUTs, test specification and perform tests
                         single_test_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
                         if single_test_result is not None:
                             test_summary.append(single_test_result)
+
+        if self.db_logger:
+            self.db_logger.reconnect();
+            if self.db_logger.is_connected():
+                self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
+                self.db_logger.disconnect();
+
         return test_summary, self.shuffle_random_seed
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
@@ -478,7 +545,7 @@ class SingleTestRunner(object):
         if images_config is not None:
             # For different targets additional configuration file has to be changed
             # Here we select target and proper function to handle configuration change
-            if target == 'ARM_MPS2':
+            if target_name == 'ARM_MPS2':
                 images_cfg_path = images_config
                 image0file_path = os.path.join(disk, image_dest, basename(image_path))
                 mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
@@ -508,6 +575,35 @@ class SingleTestRunner(object):
                 source_path = image_path.encode('ascii', 'ignore')
                 destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest)
                 self.file_store_firefox(source_path, destination_path)
+            except Exception, e:
+                resutl_msg = e
+                result = False
+        if copy_method == 'eACommander':
+            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+            # Note: Commands are executed in the order they are specified on the command line
+            cmd = [EACOMMANDER_CMD,
+                   '--serialno', disk.rstrip('/\\'),
+                   '--flash', image_path.encode('ascii', 'ignore'),
+                   '--resettype', '2', '--reset']
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
+        elif copy_method == 'eACommander-usb':
+            # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
+            # Note: Commands are executed in the order they are specified on the command line
+            cmd = [EACOMMANDER_CMD,
+                   '--usb', disk.rstrip('/\\'),
+                   '--flash', image_path.encode('ascii', 'ignore')]
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
             except Exception, e:
                 resutl_msg = e
                 result = False
@@ -583,6 +679,9 @@ class SingleTestRunner(object):
         if not disk.endswith('/') and not disk.endswith('\\'):
             disk += '/'
 
+        if self.db_logger:
+            self.db_logger.reconnect()
+
         # Tests can be looped so test results must be stored for the same test
         test_all_result = []
         for test_index in range(test_loops):
@@ -611,17 +710,34 @@ class SingleTestRunner(object):
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result = self.run_host_test(test.host_test, disk, port, duration,
-                                                        verbose=host_test_verbose,
-                                                        reset=host_test_reset,
-                                                        reset_tout=reset_tout)
+                single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                            verbose=host_test_verbose,
+                                                                            reset=host_test_reset,
+                                                                            reset_tout=reset_tout)
 
             # Store test result
             test_all_result.append(single_test_result)
-
             elapsed_time = time() - start_host_exec_time
             print self.print_test_result(single_test_result, target_name, toolchain_name,
                                          test_id, test_description, elapsed_time, duration)
+
+            # Update database entries for ongoing test
+            if self.db_logger and self.db_logger.is_connected():
+                test_type = 'SingleTest'
+                self.db_logger.insert_test_entry(self.db_logger_build_id,
+                                                 target_name,
+                                                 toolchain_name,
+                                                 test_type,
+                                                 test_id,
+                                                 single_test_result,
+                                                 single_test_output,
+                                                 elapsed_time,
+                                                 duration,
+                                                 test_index)
+
+        if self.db_logger:
+            self.db_logger.disconnect()
+
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
                 duration, self.shape_test_loop_ok_result_count(test_all_result))
@@ -673,7 +789,7 @@ class SingleTestRunner(object):
             cmd += ["-R", str(reset_tout)]
 
         if verbose:
-            print "Host test cmd: " + " ".join(cmd)
+            print "Executing '" + " ".join(cmd) + "'"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
@@ -712,7 +828,7 @@ class SingleTestRunner(object):
             if search_result and len(search_result.groups()):
                 result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
                 break
-        return result
+        return result, "".join(output)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
         """ Checks if specified target should run specific peripheral test case
@@ -1156,6 +1272,9 @@ class CLITestLogger(TestLogger):
         return timestamp_str + log_line_str
 
     def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
+        """ Logs line, if log file output was specified log line will be appended
+            at the end of log file
+        """
         log_entry = TestLogger.log_line(self, LogType, log_line)
         log_line_str = self.log_print(log_entry, timestamp)
         if self.log_file_name is not None:
@@ -1165,6 +1284,43 @@ class CLITestLogger(TestLogger):
             except IOError:
                 pass
         return log_line_str
+
+
+def factory_db_logger(db_url):
+    """ Factory database driver depending on database type supplied in database connection string db_url
+    """
+    if db_url is not None:
+        (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
+        if db_type == 'mysql':
+            return MySQLDBAccess()
+    return None
+
+
+def detect_database_verbose(db_url):
+    """ uses verbose mode (prints) database detection sequence to check it database connection string is valid
+    """
+    result = BaseDBAccess().parse_db_connection_string(db_url)
+    if result is not None:
+        # Parsing passed
+        (db_type, username, password, host, db_name) = result
+        #print "DB type '%s', user name '%s', password '%s', host '%s', db name '%s'"% result
+        # Let's try to connect
+        db_ = factory_db_logger(db_url)
+        if db_ is not None:
+            print "Connecting to database '%s'..."% db_url,
+            db_.connect(host, username, password, db_name)
+            if db_.is_connected():
+                print "ok"
+                print "Detecting database..."
+                print db_.detect_database(verbose=True)
+                print "Disconnecting...",
+                db_.disconnect()
+                print "done"
+        else:
+            print "Database type '%s' unknown"% db_type
+    else:
+        print "Parse error: '%s' - DB Url error"% (db_url)
+
 
 def get_default_test_options_parser():
     """ Get common test script options used by CLI, webservices etc.
@@ -1268,7 +1424,7 @@ def get_default_test_options_parser():
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
-    parser.add_option('', '--firmware-name',
+    parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
                       help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
 
@@ -1298,6 +1454,10 @@ def get_default_test_options_parser():
                       metavar="NUMBER",
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
+
+    parser.add_option('', '--db',
+                      dest='db_url',
+                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
     parser.add_option('-l', '--log',
                       dest='log_file_name',

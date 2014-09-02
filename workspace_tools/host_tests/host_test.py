@@ -27,6 +27,13 @@ from optparse import OptionParser
 from time import sleep
 from sys import stdout
 
+# This is a little tricky. We need to add upper directory to path so
+# we can find packages we want from the same level as other files do
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from workspace_tools.settings import EACOMMANDER_CMD
+
+
 class Mbed:
     """ Base class for a host driven test
     """
@@ -166,27 +173,66 @@ class Mbed:
             sleep(1)
 
     def reset(self):
-        """ Reset function. Supports 'standard' send break command via Mbed's CDC,
-            also handles other reset modes.
-            E.g. reset by touching file with specific file name:
-            reboot.txt   - startup from standby state, reboots when in run mode.
-            shutdown.txt - shutdown from run mode
-            reset.txt    - reset FPGA during run mode
+        """ Reset function.
+            Supports:
+            - 'standard' send break command via Mbed's CDC,
+            - also handles other reset modes:
+              -  E.g. reset by touching file with specific file name:
+                 reboot.txt   - startup from standby state, reboots when in run mode.
+                 shutdown.txt - shutdown from run mode
+                 reset.txt    - reset FPGA during run mode
+              - eACommander for reset of SiLabs Gecko baords.
         """
-        if self.options.forced_reset_type and self.options.forced_reset_type.endswith('.txt'):
-            reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
-            self.touch_file(reset_file_path)
+        if self.options.forced_reset_type:
+            if self.options.forced_reset_type == 'eACommander':
+                # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+                # Note: Commands are executed in the order they are specified on the command line
+                cmd = [EACOMMANDER_CMD,
+                       '--serialno', self.disk.rstrip('/\\'),
+                       '--resettype', '2', '--reset',]
+                try:
+                    self.flush()
+                    ret = call(cmd, shell=True)
+                    if ret:
+                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                        result = False
+                except Exception, e:
+                    resutl_msg = e
+                    result = False
+            elif self.options.forced_reset_type == 'eACommander-usb':
+                # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
+                # Note: Commands are executed in the order they are specified on the command line
+                cmd = [EACOMMANDER_CMD,
+                       '--usb', self.disk.rstrip('/\\'),
+                       '--resettype', '2', '--reset',]
+                try:
+                    self.flush()
+                    ret = call(cmd, shell=True)
+                    if ret:
+                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                        result = False
+                except Exception, e:
+                    resutl_msg = e
+                    result = False
+            elif self.options.forced_reset_type.endswith('.txt'):
+                reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
+                self.touch_file(reset_file_path)
+                self.flush()
         else:
             self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-            # Give time to wait for the image loading
+            self.flush()
+        # Flush serials to get only input after reset
+        #self.flush()
+        # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
 
     def flush(self):
         """ Flush serial ports
         """
-        self.serial.flushInput()
-        self.serial.flushOutput()
+        if self.serial:
+            self.serial.flushInput()
+            self.serial.flushOutput()
         if self.extra_serial:
             self.extra_serial.flushInput()
             self.extra_serial.flushOutput()
