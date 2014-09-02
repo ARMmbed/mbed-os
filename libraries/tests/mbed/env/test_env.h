@@ -24,4 +24,7 @@ void notify_performance_coefficient(const char* measurement_name, const double v
 // Test functionality useful during testing
 unsigned int testenv_randseed();
 
+// Macros, unit test like to provide basic comparisons
+#define TESTENV_STRCMP(GIVEN,EXPECTED) (strcmp(GIVEN,EXPECTED) == 0)
+
 #endif

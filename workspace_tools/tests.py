@@ -510,6 +510,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "pin_toggling"),
         "dependencies": [MBED_LIBRARIES],
     },
+    {
+        "id": "MBED_33", "description": "C string operations",
+        "source_dir": join(TEST_DIR, "mbed", "cstring"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 10,
+        "automated": True,
+    },
+
 
     # CMSIS RTOS tests
     {
