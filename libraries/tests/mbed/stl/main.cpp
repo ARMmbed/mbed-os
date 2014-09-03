@@ -60,14 +60,9 @@ struct greaterAbs {
 
 int main()
 {
-    char buffer[BUFFER_SIZE] = {0};
     int p_integers[] = {POSITIVE_INTEGERS};
     int n_integers[] = {NEGATIVE_INTEGERS};
     float floats[] = {FLOATS};
-
-    //std::vector<int> v_nints(n_integers, n_integers + TABLE_SIZE(n_integers));
-    //std::vector<int> v_floats(floats, floats + TABLE_SIZE(floats));
-
     bool result = true;
 
     {
