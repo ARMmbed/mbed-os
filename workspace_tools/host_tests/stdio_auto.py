@@ -37,6 +37,12 @@ class StdioTest(DefaultTest):
         if c is None:
             self.print_result("ioerr_serial")
             return
+        print c
+        stdout.flush()
+
+        if self.mbed.serial_timeout(1) is None:
+            self.print_result("ioerr_serial")
+            return
 
         for i in range(1, 5):
             random_integer = random.randint(-99999, 99999)
@@ -64,7 +70,7 @@ class StdioTest(DefaultTest):
                     stdout.flush()
                     break
             else:
-                print "Error: No IP and port information sent from server"
+                print "Error: No data from MUT sent"
                 self.print_result('error')
                 exit(-2)
 
