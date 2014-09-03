@@ -92,7 +92,7 @@ TESTS = [
         "id": "MBED_A3", "description": "C++ STL",
         "source_dir": join(TEST_DIR, "mbed", "stl"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
+        "automated": False,
     },
     {
         "id": "MBED_A4", "description": "I2C TMP102",
@@ -515,7 +515,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "cstring"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 10,
-        "automated": True,
+        "automated": False,
     },
 
     # CMSIS RTOS tests
