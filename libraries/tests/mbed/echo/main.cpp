@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 
 #if defined(TARGET_NUCLEO_F103RB) || \
     defined(TARGET_NUCLEO_L152RE) || \
@@ -21,6 +22,7 @@ int main() {
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);
+    pc.puts(TEST_ENV_START);    // Host test is expecting preamble
 
     while (1) {
         pc.gets(buf, 256);

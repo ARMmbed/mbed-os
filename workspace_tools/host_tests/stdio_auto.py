@@ -28,8 +28,14 @@ class StdioTest(DefaultTest):
     def run(self):
         test_result = True
 
+        # Let's wait for Mbed to print its readiness, usually "{{start}}"
+        c = self.mbed.serial_read(16)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+
         for i in range(1, 5):
-            random_integer = random.randint(-10000, 10000)
+            random_integer = random.randint(-99999, 99999)
             print "Generated number: " + str(random_integer)
             stdout.flush()
             self.mbed.serial_write(str(random_integer) + "\n")

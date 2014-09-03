@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import uuid
 from host_test import Test
 
 
@@ -24,11 +25,17 @@ class EchoTest(Test):
         self.mbed.reset()
 
     def test(self):
+        # Let's wait for Mbed to print its readiness, usually "{{start}}"
+        c = self.mbed.serial_read(16)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+
         self.mbed.flush()
         self.notify("Starting the ECHO test")
-        TEST="longer serial test"
         check = True
         for i in range(1, 100):
+            TEST = str(uuid.uuid4())
             self.mbed.serial_write(TEST + "\n")
             l = self.mbed.serial.readline().strip()
             if not l: continue
@@ -38,8 +45,7 @@ class EchoTest(Test):
                 self.notify('"%s" != "%s"' % (l, TEST))
             else:
                 if (i % 10) == 0:
-                    self.notify('.')
-
+                    self.notify(TEST)
         return check
 
 

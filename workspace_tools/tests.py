@@ -324,7 +324,7 @@ TESTS = [
     {
         "id": "MBED_2", "description": "stdio",
         "source_dir": join(TEST_DIR, "mbed", "stdio"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
         "host_test": "stdio_auto"
