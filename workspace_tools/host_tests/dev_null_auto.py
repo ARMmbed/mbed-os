@@ -27,6 +27,7 @@ class DevNullTest(DefaultTest):
         # Data from serial received correctly
         print "Received %d bytes:"% len(c)
         print c
+        stdout.flush()
         # Check for expected and unexpected prints in Mbed output
         result = True
         if "re-routing stdout to /null" not in c:
@@ -39,7 +40,6 @@ class DevNullTest(DefaultTest):
             self.print_result('success')
         else:
             self.print_result('failure')
-        stdout.flush()
 
 if __name__ == '__main__':
     DevNullTest().run()

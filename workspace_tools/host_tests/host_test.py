@@ -77,7 +77,7 @@ class Mbed:
 
         (self.options, _) = parser.parse_args()
 
-        self.DEFAULT_RESET_TOUT = 2
+        self.DEFAULT_RESET_TOUT = 0
         self.DEFAULT_TOUT = 10
 
         if self.options.port is None:

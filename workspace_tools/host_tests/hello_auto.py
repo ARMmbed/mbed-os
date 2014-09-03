@@ -28,6 +28,7 @@ class HelloTest(DefaultTest):
            self.print_result("ioerr_serial")
            return
         print "Read %d bytes"% len(c)
+        stdout.flush()
         result = True
         # Because we can have targetID here let's try to decode
         if len(c) < len(self.HELLO_WORLD):
@@ -38,7 +39,7 @@ class HelloTest(DefaultTest):
             result = res is not None
         else:
             result = (c.startswith(self.HELLO_WORLD))
-            
+
         if result: # Hello World received
             self.print_result('success')
         else:

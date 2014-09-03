@@ -19,6 +19,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 import os
 import re
+import sys
 import json
 import pprint
 import random
@@ -812,6 +813,7 @@ class SingleTestRunner(object):
 
             if c:
                 output.append(c)
+                sys.stdout.write(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
                     if '{end}' in line:
@@ -820,6 +822,14 @@ class SingleTestRunner(object):
                 else:
                     line += c
 
+        try:
+            c = obs.queue.get(block=True, timeout=0.5)
+        except Empty, _:
+            c = None
+
+        if c:
+            output.append(c)
+            sys.stdout.write(c)
         # Stop test process
         obs.stop()
 
