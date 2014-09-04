@@ -47,6 +47,7 @@ class GccArm(Exporter):
         'LPC2368',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
+        'MTS_GAMBIT',
     ]
 
     DOT_IN_RELATIVE_PATH = True
