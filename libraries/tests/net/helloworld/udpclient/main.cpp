@@ -5,7 +5,9 @@
 namespace {
     const char *HTTP_SERVER_NAME = "utcnist.colorado.edu";
     const int HTTP_SERVER_PORT = 37;
+    const float YEARS_TO_PASS = 114.0;
 }
+
 
 int main() {
     bool result = false;
@@ -30,14 +32,14 @@ int main() {
 
     const int n = sock.receiveFrom(nist, in_buffer_tab, sizeof(in_buffer_tab));
     if (n > 0) {
+        result = true;
         const unsigned int timeRes = ntohl(in_buffer_uint);
         const float years = timeRes / 60.0 / 60.0 / 24.0 / 365;
         printf("UDP: Received %d bytes from server %s on port %d\r\n", n, nist.get_address(), nist.get_port());
         printf("UDP: %u seconds since 01/01/1900 00:00 GMT ... %s\r\n", timeRes, timeRes > 0 ? "[OK]" : "[FAIL]");
-        printf("UDP: %.2f years since 01/01/1900 00:00 GMT ... %s\r\n", years, timeRes > 114.0 ? "[OK]" : "[FAIL]");
-        result = true;
+        printf("UDP: %.2f years since 01/01/1900 00:00 GMT ... %s\r\n", years, timeRes > YEARS_TO_PASS ? "[OK]" : "[FAIL]");
 
-        if (years < 114.0) {
+        if (years < YEARS_TO_PASS) {
             result = false;
         }
     }

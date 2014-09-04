@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "EthernetInterface.h"
 
 struct s_ip_address
@@ -10,6 +11,7 @@ struct s_ip_address
 };
 
 #define MAX_ECHO_LOOPS   100
+
 
 int main() {
     char buffer[256] = {0};
@@ -36,7 +38,7 @@ int main() {
         wait(1);
     }
 
-    // Test loop for multiple client conenctions
+    // Test loop for multiple client connections
     bool result = true;
     int count_error = 0;
     for (int i = 0; i < MAX_ECHO_LOOPS; i++) {

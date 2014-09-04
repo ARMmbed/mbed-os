@@ -833,7 +833,9 @@ class SingleTestRunner(object):
             output.append(c)
             if verbose:
                 sys.stdout.write(c)
-                print "Test::Output::Finish"
+
+        if verbose:
+            print "Test::Output::Finish"
         # Stop test process
         obs.stop()
 
