@@ -19,10 +19,9 @@ limitations under the License.
 TEST BUILD & RUN
 """
 import sys
-from os.path import join, abspath, dirname
-from subprocess import call
-from shutil import copy
 from time import sleep
+from shutil import copy
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
