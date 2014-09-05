@@ -89,7 +89,7 @@ class Mbed:
         self.extra_serial = None
         self.serial = None
         self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
-        print 'Host test instrumentation on port: "%s" with serial: "%s"' % (self.port, self.disk)
+        print 'Host test instrumentation on port: "%s" and disk: "%s"' % (self.port, self.disk)
 
     def init_serial(self, baud=9600, extra_baud=9600):
         """ Initialize serial port. Function will return error is port can't be opened or initialized

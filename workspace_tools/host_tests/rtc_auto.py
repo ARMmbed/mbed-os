@@ -45,6 +45,7 @@ class RTCTest(DefaultTest):
                 print "Got RTC time: " + c[:-1] + " ... " + result_msg
                 stdout.flush()
             else:
+                print c
                 test_result = False
                 break
 
