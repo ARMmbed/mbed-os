@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import uuid
+from sys import stdout
 from host_test import Test
 
 
@@ -26,8 +27,18 @@ class EchoTest(Test):
 
     def test(self):
         # Let's wait for Mbed to print its readiness, usually "{{start}}"
-        c = self.mbed.serial_read(16)
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
+
+        c = self.mbed.serial_read(len('{{start}}'))
         if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c
+        stdout.flush()
+
+        if self.mbed.serial_timeout(1) is None:
             self.print_result("ioerr_serial")
             return
 

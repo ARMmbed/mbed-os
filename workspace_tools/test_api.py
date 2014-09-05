@@ -799,6 +799,7 @@ class SingleTestRunner(object):
 
         if verbose:
             print "Executing '" + " ".join(cmd) + "'"
+            print "Test::Output::Start"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
@@ -813,7 +814,8 @@ class SingleTestRunner(object):
 
             if c:
                 output.append(c)
-                sys.stdout.write(c)
+                if verbose:
+                    sys.stdout.write(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
                     if '{end}' in line:
@@ -829,15 +831,13 @@ class SingleTestRunner(object):
 
         if c:
             output.append(c)
-            sys.stdout.write(c)
+            if verbose:
+                sys.stdout.write(c)
+
+        if verbose:
+            print "Test::Output::Finish"
         # Stop test process
         obs.stop()
-
-        # Handle verbose mode
-        if verbose:
-            print "Test::Output::Start"
-            print "".join(output)
-            print "Test::Output::Finish"
 
         # Parse test 'output' data
         result = self.TEST_RESULT_TIMEOUT

@@ -44,6 +44,9 @@ class RTCTest(DefaultTest):
                 result_msg = "OK" if (time_str == correct_time_str) else "FAIL"
                 print "Got RTC time: " + c[:-1] + " ... " + result_msg
                 stdout.flush()
+            else:
+                test_result = False
+                break
 
         if test_result: # All numbers are the same
             self.print_result('success')
