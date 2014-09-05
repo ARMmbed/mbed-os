@@ -49,6 +49,7 @@ from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
+from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 
 
 class ProcessObserver(Thread):
@@ -1017,6 +1018,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
     # { target : [conflicted toolchains] }
     toolchain_conflicts = {}
+    toolchain_path_conflicts = []
     for k in json_data:
         # k should be 'targets'
         targets = json_data[k]
@@ -1028,8 +1030,9 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             row = [target_name]
             toolchains = targets[target]
             for toolchain in sorted(toolchains_info_cols):
-                # Check for conflicts
+                # Check for conflicts: target vs toolchain
                 conflict = False
+                conflict_path = False
                 if toolchain in toolchains:
                     if toolchain not in target_supported_toolchains:
                         conflict = True
@@ -1040,12 +1043,21 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
                 cell_val = 'Yes' if toolchain in toolchains else '-'
                 if conflict:
                     cell_val += '*'
+                # Check for conflicts: toolchain vs toolchain path
+                if toolchain in TOOLCHAIN_BIN_PATH:
+                    toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+                    if not os.path.isdir(toolchain_path):
+                        conflict_path = True
+                        if toolchain not in toolchain_path_conflicts:
+                            toolchain_path_conflicts.append(toolchain)
+                if conflict_path:
+                    cell_val += '#'
                 row.append(cell_val)
             pt.add_row(row)
 
     # generate result string
     result = pt.get_string()    # Test specification table
-    if toolchain_conflicts:     # Print conflicts if exist
+    if toolchain_conflicts or toolchain_path_conflicts:
         result += "\n"
         result += "Toolchain conflicts:\n"
         for target in toolchain_conflicts:
@@ -1054,6 +1066,13 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             conflict_target_list = join_delim.join(toolchain_conflicts[target])
             sufix = 's' if len(toolchain_conflicts[target]) > 1 else ''
             result += "\t* Target %s does not support %s toolchain%s\n"% (target, conflict_target_list, sufix)
+
+        for toolchain in toolchain_path_conflicts:
+        # Let's check toolchain configuration
+            if toolchain in TOOLCHAIN_BIN_PATH:
+                toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+                if not os.path.isdir(toolchain_path):
+                    result += "\t# Toolchain %s path not found: %s\n"% (toolchain, toolchain_path)
     return result
 
 
