@@ -81,6 +81,11 @@ void analogin_init(analogin_t *obj, PinName pin) {
         // Get ADC registers structure address
         adc = (ADC_TypeDef *)(obj->adc);
 
+        // Enable the HSI
+        RCC_HSICmd(ENABLE);
+        // Wait until HSI oscillator is ready
+        while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET) {}
+      
         // Enable ADC clock
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 
