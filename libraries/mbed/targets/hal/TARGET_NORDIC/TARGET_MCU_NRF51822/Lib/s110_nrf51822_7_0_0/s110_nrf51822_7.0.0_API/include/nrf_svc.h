@@ -16,7 +16,7 @@
   { \
     __asm( \
         "svc %0\n" \
-        "bx r14" : : "I" (number) : "r0" \
+        "bx r14" : : "I" ((uint32_t)number) : "r0" \
     ); \
   }
 #elif defined (__ICCARM__)
