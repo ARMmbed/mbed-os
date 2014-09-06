@@ -33,8 +33,11 @@
 /* TODO:
     putchar/getchar 9 and 10 bits support
 */
-
-#define UART_NUM    4
+#ifndef UART3_BASE
+#define UART_NUM    3
+#else
+#define UART_NUM    5
+#endif
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -45,7 +48,7 @@ serial_t stdio_uart;
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
-    obj->index = (UARTName)pinmap_merge(uart_tx, uart_rx);
+    obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
 
     uint32_t uartSourceClock = CLOCK_SYS_GetUartFreq(obj->index);
@@ -55,8 +58,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UART_HAL_Init(uart_addrs[obj->index]);
     UART_HAL_SetBaudRate(uart_addrs[obj->index], uartSourceClock, 9600);
     UART_HAL_SetParityMode(uart_addrs[obj->index], kUartParityDisabled);
+    #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
     UART_HAL_SetStopBitCount(uart_addrs[obj->index], kUartOneStopBit);
+    #endif
     UART_HAL_SetBitCountPerChar(uart_addrs[obj->index], kUart8BitsPerChar);
+    UART_HAL_EnableTransmitter(uart_addrs[obj->index]);
+    UART_HAL_EnableReceiver(uart_addrs[obj->index]);
 
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
@@ -83,7 +90,9 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint32_t uart_addrs[] = UART_BASE_ADDRS;
     UART_HAL_SetBitCountPerChar(uart_addrs[obj->index], (uart_bit_count_per_char_t)data_bits);
     UART_HAL_SetParityMode(uart_addrs[obj->index], (uart_parity_mode_t)parity);
+    #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
     UART_HAL_SetStopBitCount(uart_addrs[obj->index], (uart_stop_bit_count_t)stop_bits);
+    #endif
 }
 
 /******************************************************************************
@@ -112,6 +121,8 @@ void uart2_irq() {
     uart_irq(UART_HAL_IsTxDataRegEmpty(UART2_BASE), UART_HAL_IsRxDataRegFull(UART2_BASE), 2);
 }
 
+#if (UART_NUM > 3)
+
 void uart3_irq() {
     uart_irq(UART_HAL_IsTxDataRegEmpty(UART3_BASE), UART_HAL_IsRxDataRegFull(UART3_BASE), 3);
 }
@@ -119,6 +130,7 @@ void uart3_irq() {
 void uart4_irq() {
     uart_irq(UART_HAL_IsTxDataRegEmpty(UART4_BASE), UART_HAL_IsRxDataRegFull(UART4_BASE), 4);
 }
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -133,8 +145,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         case 0: irq_n=UART0_RX_TX_IRQn; vector = (uint32_t)&uart0_irq; break;
         case 1: irq_n=UART1_RX_TX_IRQn; vector = (uint32_t)&uart1_irq; break;
         case 2: irq_n=UART2_RX_TX_IRQn; vector = (uint32_t)&uart2_irq; break;
+        #if (NUM_UART > 3)
         case 3: irq_n=UART3_RX_TX_IRQn; vector = (uint32_t)&uart3_irq; break;
         case 4: irq_n=UART4_RX_TX_IRQn; vector = (uint32_t)&uart4_irq; break;
+        #endif
     }
     uint32_t uart_addrs[] = UART_BASE_ADDRS;
     if (enable) {
