@@ -38,6 +38,7 @@
 ; *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ; *
 ; *****************************************************************************/
+__initial_sp        EQU     0x20003FFF  ; Top of RAM
 
 
                 PRESERVE8
@@ -50,9 +51,8 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+__Vectors       DCD     __initial_sp  ; Top of Stack
                 DCD     Reset_Handler  ; Reset Handler
                 DCD     NMI_Handler                         ;NMI Handler
                 DCD     HardFault_Handler                   ;Hard Fault Handler
@@ -460,53 +460,29 @@ FSEC            EQU     0xFE
 ;   </h>
 ; </h>
                 IF      :LNOT::DEF:RAM_TARGET
-                AREA    FlashConfig, DATA, READONLY
-__FlashConfig
+                AREA    |.ARM.__at_0x400|, CODE, READONLY
                 DCB     BackDoorK0, BackDoorK1, BackDoorK2, BackDoorK3
                 DCB     BackDoorK4, BackDoorK5, BackDoorK6, BackDoorK7
                 DCB     FPROT0,     FPROT1,     FPROT2,     FPROT3
                 DCB     FSEC,       FOPT,       FEPROT,     FDPROT
                 ENDIF
 
-_NVIC_ICER0     EQU   0xE000E180
-_NVIC_ICPR0     EQU   0xE000E280
-
                 AREA    |.text|, CODE, READONLY
 
+                
 ; Reset Handler
 
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
-                IMPORT  init_data_bss
                 IMPORT  __main
-
-                IF      :LNOT::DEF:RAM_TARGET
-                LDR R0, =FlashConfig    ; dummy read, workaround for flashConfig
-                ENDIF
-
-                CPSID   I               ; Mask interrupts
-                LDR R0, =_NVIC_ICER0    ; Disable interrupts and clear pending flags
-                LDR R1, =_NVIC_ICPR0
-                LDR R2, =0xFFFFFFFF
-                MOV R3, #8
-_irq_clear
-                CBZ R3, _irq_clear_end
-                STR R2, [R0], #4        ; NVIC_ICERx - clear enable IRQ register
-                STR R2, [R1], #4        ; NVIC_ICPRx - clear pending IRQ register
-                SUB R3, R3, #1
-                B _irq_clear
-_irq_clear_end
                 LDR     R0, =SystemInit
                 BLX     R0
-                LDR     R0, =init_data_bss
-                BLX     R0
-                CPSIE   i               ; Unmask interrupts
                 LDR     R0, =__main
                 BX      R0
                 ENDP
 
-
+                
 ; Dummy Exception Handlers (infinite loops which can be modified)
 NMI_Handler\
                 PROC

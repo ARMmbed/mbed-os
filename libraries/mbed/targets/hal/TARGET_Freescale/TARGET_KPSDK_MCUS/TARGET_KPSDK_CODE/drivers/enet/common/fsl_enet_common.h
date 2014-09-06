@@ -35,6 +35,8 @@
 #include "fsl_device_registers.h"
 #include "fsl_enet_hal.h"
 
+#ifndef MBED_NO_ENET
+
 /*! @brief Array for eDMA module register base address. */
 extern const uint32_t g_enetBaseAddr[];
 
@@ -43,6 +45,8 @@ extern const IRQn_Type g_enetTxIrqId[];
 extern const IRQn_Type g_enetRxIrqId[];
 extern const IRQn_Type g_enetTsIrqId[];
 extern const IRQn_Type g_enetErrIrqId[];
+
+#endif /* MBED_NO_ENET */
 
 #endif /* __ENET_COMMON_H__ */
 

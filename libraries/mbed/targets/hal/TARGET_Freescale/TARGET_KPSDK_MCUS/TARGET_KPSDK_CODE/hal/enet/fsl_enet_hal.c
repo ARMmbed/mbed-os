@@ -30,6 +30,8 @@
  
 #include "fsl_enet_hal.h"
 
+#ifndef MBED_NO_ENET
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -745,6 +747,8 @@ void ENET_HAL_Set1588Timer(uint32_t baseAddr,enet_config_ptp_timer_t *ptpCfgPtr)
     /* Set ptp timer slave/master mode*/
     BW_ENET_ATCR_SLAVE(baseAddr, ptpCfgPtr->isSlaveEnabled); 
 }
+
+#endif /* MBED_NO_ENET */
 
 
 /*******************************************************************************

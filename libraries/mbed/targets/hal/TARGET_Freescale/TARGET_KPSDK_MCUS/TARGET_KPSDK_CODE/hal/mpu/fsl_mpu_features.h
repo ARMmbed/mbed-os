@@ -136,7 +136,7 @@
     /* @brief Has master 7. */
     #define FSL_FEATURE_MPU_HAS_MASTER7 (0)
 #else
-    #error "No valid CPU defined!"
+    #define MBED_NO_MPU
 #endif
 
 #endif /* __FSL_MPU_FEATURES_H__ */

@@ -73,7 +73,7 @@
  */
 
 #include <stdint.h>
-#include "device/fsl_device_registers.h"
+#include "cmsis.h"
 
 
 

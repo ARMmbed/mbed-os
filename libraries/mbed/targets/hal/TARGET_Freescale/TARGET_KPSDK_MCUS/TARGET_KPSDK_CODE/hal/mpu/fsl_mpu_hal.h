@@ -36,6 +36,8 @@
 #include "fsl_mpu_features.h"
 #include "fsl_device_registers.h"
 
+#ifndef MBED_NO_MPU
+
 #define MPU_REGION_NUMBER 12
 
 /*!
@@ -1533,6 +1535,8 @@ void MPU_HAL_Init(uint32_t baseAddr);
 #endif
 
 /*! @}*/
+
+#endif /* MBED_NO_MPU */
 
 #endif /* __FSL_MPU_HAL_H__*/
 /*******************************************************************************

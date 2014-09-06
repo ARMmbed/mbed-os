@@ -33,6 +33,9 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "fsl_device_registers.h"
+#include "fsl_sdhc_features.h"
+
+#ifndef MBED_NO_SDHC
 
 /*! @addtogroup sdhc_hal */
 /*! @{ */
@@ -1222,6 +1225,8 @@ void SDHC_HAL_Init(uint32_t baseAddr);
 }
 #endif
 /*! @} */
+
+#endif /* MBED_NO_SDHC */
 
 #endif
 

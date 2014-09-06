@@ -29,6 +29,8 @@
  */
 #include "fsl_enet_common.h"
 
+#ifndef MBED_NO_ENET
+
 /*! @brief Table of base addresses for Enet instances. */
 const uint32_t g_enetBaseAddr[] = ENET_BASE_ADDRS;
 
@@ -37,6 +39,8 @@ const IRQn_Type g_enetTxIrqId[] = ENET_Transmit_IRQS;
 const IRQn_Type g_enetRxIrqId[] = ENET_Receive_IRQS;
 const IRQn_Type g_enetTsIrqId[] = ENET_1588_Timer_IRQS;
 const IRQn_Type g_enetErrIrqId[] = ENET_Error_IRQS;
+
+#endif /* MBED_NO_ENET */
 
 /*******************************************************************************
 * EOF

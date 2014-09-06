@@ -30,6 +30,8 @@
 
 #include "fsl_mpu_hal.h"
 
+#ifndef MBED_NO_MPU
+
 /*******************************************************************************
  * Definitions
  *******************************************************************************/
@@ -65,3 +67,5 @@ void MPU_HAL_Init(uint32_t baseAddr)
         MPU_HAL_SetRegionEndAddr(baseAddr, (mpu_region_num)i, (uint32_t)0);
     }
 }
+
+#endif /* MBED_NO_MPU */

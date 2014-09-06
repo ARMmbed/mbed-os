@@ -109,7 +109,7 @@
     /* @brief Number of interrupt vectors. */
     #define FSL_FEATURE_FLEXCAN_INTERRUPT_COUNT (6)
 #else
-    #error "No valid CPU defined!"
+    #define MBED_NO_FLEXCAN
 #endif
 
 #endif /* __FSL_FLEXCAN_FEATURES_H__ */

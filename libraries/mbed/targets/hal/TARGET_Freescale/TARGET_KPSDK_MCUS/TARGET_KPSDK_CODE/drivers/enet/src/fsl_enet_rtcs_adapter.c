@@ -36,6 +36,8 @@
 #include "fsl_os_abstraction.h"
 #include <string.h>
 
+#ifndef MBED_NO_ENET
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -1393,6 +1395,8 @@ const char * ENET_strerror(uint32_t  error)
     }
     return ENET_errlist[error - kStatus_ENET_InvalidInput];
 }
+
+#endif /* MBED_NO_ENET */
 
 /*******************************************************************************
  * EOF

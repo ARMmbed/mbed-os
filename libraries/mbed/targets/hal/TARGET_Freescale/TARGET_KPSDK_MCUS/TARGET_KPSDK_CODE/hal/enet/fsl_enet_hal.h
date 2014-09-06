@@ -37,6 +37,8 @@
 #include "fsl_enet_features.h"
 #include <assert.h>
 
+#ifndef MBED_NO_ENET
+
 /*!
  * @addtogroup enet_hal
  * @{
@@ -2316,6 +2318,8 @@ static inline uint32_t ENET_HAL_GetRxOtetsFramesOk(uint32_t baseAddr)
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* MBED_NO_ENET */
 
 /*! @}*/
 #endif /*!< __FSL_ENET_HAL_H__*/

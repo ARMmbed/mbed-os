@@ -29,6 +29,8 @@
  */
 #include "fsl_flexcan_hal.h"
 
+#ifndef MBED_NO_FLEXCAN
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -1834,6 +1836,8 @@ flexcan_status_t FLEXCAN_HAL_DisableOperationMode(
 
     return (kStatus_FLEXCAN_Success);
 }
+
+#endif /* MBED_NO_FLEXCAN */
 
 /*******************************************************************************
  * EOF

@@ -74,7 +74,7 @@
     /* @brief Has support of 1.8V voltage (register bit HTCAPBLT[VS18]). */
     #define FSL_FEATURE_SDHC_HAS_V180_SUPPORT (1)
 #else
-    #error "No valid CPU defined!"
+    #define MBED_NO_SDHC
 #endif
 
 #endif /* __FSL_SDHC_FEATURES_H__ */

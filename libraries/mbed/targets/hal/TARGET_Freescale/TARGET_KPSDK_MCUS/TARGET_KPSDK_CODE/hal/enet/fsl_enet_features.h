@@ -75,7 +75,7 @@
     /* @brief Has threshold for the number of frames in the receive FIFO (register bit field RSEM[STAT_SECTION_EMPTY]). */
     #define FSL_FEATURE_ENET_HAS_RECEIVE_STATUS_THRESHOLD (0)
 #else
-    #error "No valid CPU defined!"
+    #define MBED_NO_ENET
 #endif
 
 #endif /* __FSL_ENET_FEATURES_H__ */

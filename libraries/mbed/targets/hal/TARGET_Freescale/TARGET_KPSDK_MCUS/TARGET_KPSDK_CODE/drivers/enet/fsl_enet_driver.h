@@ -34,6 +34,9 @@
 #include <stdbool.h>
 #include "fsl_enet_hal.h"
 #include "fsl_os_abstraction.h"
+
+#ifndef MBED_NO_ENET
+
 /*! 
  * @addtogroup enet_driver
  * @{
@@ -762,6 +765,8 @@ extern }
 #endif
 
 /*! @}*/
+
+#endif /* MBED_NO_ENET */
 
 #endif /* __FSL_ENET_DRIVER_H__ */
 /*******************************************************************************

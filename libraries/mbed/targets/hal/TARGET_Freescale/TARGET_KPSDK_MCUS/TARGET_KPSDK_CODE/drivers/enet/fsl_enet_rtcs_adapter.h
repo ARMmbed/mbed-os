@@ -32,6 +32,9 @@
 #define __FSL_ENET_RTCS_ADAPTOR_H__
 
 #include "fsl_enet_hal.h"
+
+#ifndef MBED_NO_ENET
+
 #ifdef FSL_RTOS_MQX
     #include "rtcs.h"
     #include "pcb.h"
@@ -492,6 +495,8 @@ const char * ENET_strerror(uint32_t  error);
 #endif
 
 /*! @}*/
+
+#endif /* MBED_NO_ENET */
 
 #endif /* __FSL_ENET_RTCS_ADAPTOR_H__ */
 /*******************************************************************************

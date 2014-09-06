@@ -29,6 +29,8 @@
  */
 #include "fsl_sdhc_hal.h"
 
+#ifndef MBED_NO_SDHC
+
 /*FUNCTION****************************************************************
  *
  * Function Name: SDHC_HAL_Init
@@ -158,6 +160,7 @@ uint32_t SDHC_HAL_Reset(uint32_t baseAddr, uint32_t type, uint32_t timeout)
     return (!timeout);
 }
 
+#endif /* MBED_NO_SDHC */
 
 /*************************************************************************************************
  * EOF

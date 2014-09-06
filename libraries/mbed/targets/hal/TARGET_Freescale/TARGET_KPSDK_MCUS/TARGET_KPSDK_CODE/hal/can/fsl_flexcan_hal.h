@@ -36,6 +36,8 @@
 #include "fsl_flexcan_features.h"
 #include "fsl_device_registers.h"
 
+#ifndef MBED_NO_FLEXCAN
+
 /*!
  * @addtogroup flexcan_hal
  * @{
@@ -824,6 +826,8 @@ static inline uint32_t  FLEXCAN_HAL_GetIdAcceptanceFilterRxFifo(uint32_t canBase
 #endif
 
 /*! @}*/
+
+#endif /* MBED_NO_FLEXCAN */
 
 #endif /* __FSL_FLEXCAN_HAL_H__*/
 
