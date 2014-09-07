@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#define BOARD_REV_B
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -435,7 +438,7 @@ typedef enum {
     SFP_CLK1  = MBED_PIN(0x18, 1, 0, 0),
     SFP_CLK2  = MBED_PIN(0x18, 2, 0, 0),
     SFP_CLK3  = MBED_PIN(0x18, 3, 0, 0),
-	
+
     // Group 0x19 : USB1, I2C0, ADC0, ADC1
     SFP_USB1  = MBED_PIN(0x19, 0, 0, 0),
     SFP_I2C0  = MBED_PIN(0x19, 1, 0, 0),
@@ -448,9 +451,7 @@ typedef enum {
     SFP_INS0  = MBED_PIN(0x1C, 0, 0, 0), // Interrupt select for pin interrupts 0 to 3
     SFP_INS1  = MBED_PIN(0x1C, 1, 0, 0), // Interrupt select for pin interrupts 4 to 7
 
-    // Dedicated pin (no GPIO)
-    P_DED = MBED_PIN(0, 0, NO_GPIO, 0),
-
+/*
 #define MBED_ADC_NUM(MBED_PIN)   ((MBED_PIN >> 5) & 0x0000000F)
 #define MBED_ADC_CHAN(MBED_PIN)  (MBED_PIN & 0x0000001F)
 
@@ -471,11 +472,19 @@ typedef enum {
     SFP_ADC1_5 = MBED_PIN(0x19, 3, 1, 5), // ADC1_5
     SFP_ADC1_6 = MBED_PIN(0x19, 3, 1, 6), // ADC1_6
     SFP_ADC1_7 = MBED_PIN(0x19, 3, 1, 7), // ADC1_7
+*/
 
-    // ---------- LPCXpresso 4337 Arduino pins ----------
+    // Dedicated pin (no GPIO)
+    P_DED = MBED_PIN(0, 0, NO_GPIO, 0),
 
-    D0  = P6_5,
-    D1  = P6_4,
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
+    // ---------- LPCXpresso 4337 pins ----------
+
+#ifdef BOARD_REV_A // for Rev.A
+    D0  = P2_1,
+    D1  = P2_0,
     D2  = P1_20,
     D3  = P1_18,
     D4  = P1_16,
@@ -490,63 +499,110 @@ typedef enum {
     D13 = P1_19,
     SDA = P2_3,
     SCL = P2_4,
-    
+
     A0  = P4_3,
     A1  = P4_1,
     A2  = PF_8,
     A3  = P7_5,
     A4  = P1_14,
     A5  = P2_5,
-    
-    // User interfaces: LEDs, buttons
+
     LED_GREEN = GPIO0_14,
     LED_RED   = GPIO3_7,
     LED_BLUE  = GPIO3_5,
+
+    // Serial pins
+    UART0_TX = P2_0,
+    UART0_RX = P2_1,
+    USBTX = UART0_TX,
+    USBRX = UART0_RX,
+#else // for Rev.B
+    D0  = P1_14,
+    D1  = P3_4,
+    D2  = P2_13,
+    D3  = P1_8,
+    D4  = P2_6,
+    D5  = P1_7,
+    D6  = P2_9,
+    D7  = P2_2,
+    D8  = P3_5,
+    D9  = P1_2,
+    D10 = P1_5,
+    D11 = P1_4,
+    D12 = P1_3,
+    D13 = PF_4,
+    SDA = P2_3,
+    SCL = P2_4,
+
+    A0  = P4_3,
+    A1  = P4_1,
+    A2  = PF_8,
+    A3  = P7_5,
+    A4  = P2_11,
+    A5  = P2_5,
+
+    LED_GREEN = P2_10,
+    LED_RED   = P6_11,
+    LED_BLUE  = P6_9,
+
+    // Serial pins
+    UART0_TX = P6_4,
+    UART0_RX = P2_1,
+    UART1_TX = D1,
+    UART1_RX = D0,
+    USBTX = UART0_TX,
+    USBRX = UART0_RX,
+#endif
+
+    I2C_SDA = SDA,
+    I2C_SDL = SCL,
 
     LED1 = LED_RED,
     LED2 = LED_BLUE,
     LED3 = LED_GREEN,
     LED4 = LED_RED,
 
-    BTN1 = P2_7,
+//    UART1_TX = P5_6,
+//    UART1_RX = P1_14,
+//    UART2_TX = P2_10,
+//    UART2_RX = P2_11,
+//    UART3_TX = P2_3,
+//    UART3_RX = P2_4,
 
-    // Serial pins
-    UART0_TX = P6_4,
-    UART0_RX = P6_5,
-    UART1_TX = P5_6,
-    UART1_RX = P1_14,
-    UART2_TX = P2_10,
-    UART2_RX = P2_11,
-    UART3_TX = P2_3,
-    UART3_RX = P2_4,
-
+/*
     // Analog pins
-    P_ADC0_0 = P4_3,
-    P_ADC0_1 = P4_1,
-    P_ADC1_0 = SFP_ADC0_0,
-    P_ADC0_4 = P7_4,
-    P_ADC0_3 = P7_5,
-    P_ADC1_6 = P7_7,
-
-    P_ADC0 = P_ADC0_0,
-    P_ADC1 = P_ADC0_1,
-    P_ADC2 = P_ADC1_0,
-    P_ADC3 = P_ADC0_4,
-    P_ADC4 = P_ADC0_3,
-    P_ADC5 = P_ADC1_6,
-
-    P_DAC0 = P4_4,
+    ADC4 = P4_3,
+    ADC2 = P4_1,
+    ADC0 = P7_4,
+    ADC1 = P7_5,
+    ADC3 = P7_7,
+    DAC0 = P4_4,
+*/
 
     // USB pins
     //P_USB0_TX = SFP_USB1,
     //P_USB0_RX = SFP_USB1,
 
-    USBTX = UART0_TX,
-    USBRX = UART0_RX,
-    // ---------- End of Micromint Bambino 200 ----------
 
-    // Not connected
-    NC = (int)0xFFFFFFFF
+/*
+    // PWM pins
+    //                   210E    210     200E    200
+    //                   ----    ----    ----    ----
+    PWM1 = P1_7,      // J9-3    J9-3    S2-3    S2-3
+    PWM2 = P7_6,      // J9-8    J9-8    S4-6    S4-6
+	PWM3 = P6_12,     // J10-1   J10-1   S10-3   n/p
+    PWM4 = P4_6,      // J10-3   J10-3   S2-6    S2-6
+    PWM5 = P7_5,      // J8-2    J8-2    S4-4    S4-4
+    PWM6 = P4_1,      // J8-3    J8-3    S3-4    S3-4
+    PWM7 = P7_7,      // J8-4    J8-4    S4-5    S4-5
+    PWM8 = P2_8,      // J12-4   n/p     S8-3    n/p
+    PWM9 = P2_9,      // J12-6   n/p     S9-3    n/p
+    PWM10 = P7_1,     // J13-5   n/p     S9-8    n/p
+    PWM11 = P7_0,     // J13-6   n/p     S9-9    n/p
+    PWM12 = P1_5,     // J14-7   n/p     S10-6   n/p
+*/
+
+    // ---------- End of LPCXpresso 4337 pins ----------
 } PinName;
 
 typedef enum {
