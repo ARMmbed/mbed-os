@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 #include "gpio_api.h"
+#include "pinmap.h"
 
-// called before main - implement here if board needs it ortherwise, let
+// called before main - implement here if board needs it otherwise, let
 //  the application override this if necessary
-//void mbed_sdk_init()
-//{
-//
-//}
+void mbed_sdk_init()
+{
+    pin_function(PTA2, 1);          //By default the GREEN LED is enabled. This disables it
+}
 
 // Change the NMI pin to an input. This allows NMI pin to 
 //  be used as a low power mode wakeup.  The application will
