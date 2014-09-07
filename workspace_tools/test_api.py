@@ -19,6 +19,7 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 
 import os
 import re
+import sys
 import json
 import pprint
 import random
@@ -40,6 +41,7 @@ from workspace_tools.tests import TESTS
 from workspace_tools.tests import TEST_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
+from workspace_tools.utils import ToolException
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
@@ -47,7 +49,7 @@ from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
-from workspace_tools.test_mysql import MySQLDBAccess
+from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 
 
 class ProcessObserver(Thread):
@@ -153,6 +155,7 @@ class SingleTestRunner(object):
                  _opts_copy_method=None,
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
+                 _opts_waterfall_test=None,
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
@@ -196,6 +199,7 @@ class SingleTestRunner(object):
         self.opts_copy_method = _opts_copy_method
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
+        self.opts_waterfall_test = _opts_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
 
         # File / screen logger initialization
@@ -364,19 +368,21 @@ class SingleTestRunner(object):
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
-                        path = build_project(test.source_dir,
-                                             join(build_dir, test_id),
-                                             T,
-                                             toolchain,
-                                             test.dependencies,
-                                             options=build_project_options,
-                                             clean=clean_project_options,
-                                             verbose=self.opts_verbose,
-                                             name=project_name,
-                                             macros=MACROS,
-                                             inc_dirs=INC_DIRS,
-                                             jobs=self.opts_jobs)
-
+                        try:
+                            path = build_project(test.source_dir,
+                                                 join(build_dir, test_id),
+                                                 T,
+                                                 toolchain,
+                                                 test.dependencies,
+                                                 options=build_project_options,
+                                                 clean=clean_project_options,
+                                                 verbose=self.opts_verbose,
+                                                 name=project_name,
+                                                 macros=MACROS,
+                                                 inc_dirs=INC_DIRS,
+                                                 jobs=self.opts_jobs)
+                        except ToolException:
+                            return test_summary, self.shuffle_random_seed
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
                             continue
@@ -735,6 +741,10 @@ class SingleTestRunner(object):
                                                  duration,
                                                  test_index)
 
+            # If we perform waterfall test we test until we get OK and we stop testing
+            if self.opts_waterfall_test and single_test_result == self.TEST_RESULT_OK:
+                break
+
         if self.db_logger:
             self.db_logger.disconnect()
 
@@ -790,6 +800,7 @@ class SingleTestRunner(object):
 
         if verbose:
             print "Executing '" + " ".join(cmd) + "'"
+            print "Test::Output::Start"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
@@ -804,6 +815,8 @@ class SingleTestRunner(object):
 
             if c:
                 output.append(c)
+                if verbose:
+                    sys.stdout.write(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
                     if '{end}' in line:
@@ -812,14 +825,20 @@ class SingleTestRunner(object):
                 else:
                     line += c
 
+        try:
+            c = obs.queue.get(block=True, timeout=0.5)
+        except Empty, _:
+            c = None
+
+        if c:
+            output.append(c)
+            if verbose:
+                sys.stdout.write(c)
+
+        if verbose:
+            print "Test::Output::Finish"
         # Stop test process
         obs.stop()
-
-        # Handle verbose mode
-        if verbose:
-            print "Test::Output::Start"
-            print "".join(output)
-            print "Test::Output::Finish"
 
         # Parse test 'output' data
         result = self.TEST_RESULT_TIMEOUT
@@ -999,6 +1018,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
     # { target : [conflicted toolchains] }
     toolchain_conflicts = {}
+    toolchain_path_conflicts = []
     for k in json_data:
         # k should be 'targets'
         targets = json_data[k]
@@ -1010,8 +1030,9 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             row = [target_name]
             toolchains = targets[target]
             for toolchain in sorted(toolchains_info_cols):
-                # Check for conflicts
+                # Check for conflicts: target vs toolchain
                 conflict = False
+                conflict_path = False
                 if toolchain in toolchains:
                     if toolchain not in target_supported_toolchains:
                         conflict = True
@@ -1022,12 +1043,21 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
                 cell_val = 'Yes' if toolchain in toolchains else '-'
                 if conflict:
                     cell_val += '*'
+                # Check for conflicts: toolchain vs toolchain path
+                if toolchain in TOOLCHAIN_BIN_PATH:
+                    toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+                    if not os.path.isdir(toolchain_path):
+                        conflict_path = True
+                        if toolchain not in toolchain_path_conflicts:
+                            toolchain_path_conflicts.append(toolchain)
+                if conflict_path:
+                    cell_val += '#'
                 row.append(cell_val)
             pt.add_row(row)
 
     # generate result string
     result = pt.get_string()    # Test specification table
-    if toolchain_conflicts:     # Print conflicts if exist
+    if toolchain_conflicts or toolchain_path_conflicts:
         result += "\n"
         result += "Toolchain conflicts:\n"
         for target in toolchain_conflicts:
@@ -1036,6 +1066,13 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             conflict_target_list = join_delim.join(toolchain_conflicts[target])
             sufix = 's' if len(toolchain_conflicts[target]) > 1 else ''
             result += "\t* Target %s does not support %s toolchain%s\n"% (target, conflict_target_list, sufix)
+
+        for toolchain in toolchain_path_conflicts:
+        # Let's check toolchain configuration
+            if toolchain in TOOLCHAIN_BIN_PATH:
+                toolchain_path = TOOLCHAIN_BIN_PATH[toolchain]
+                if not os.path.isdir(toolchain_path):
+                    result += "\t# Toolchain %s path not found: %s\n"% (toolchain, toolchain_path)
     return result
 
 
@@ -1290,6 +1327,7 @@ def factory_db_logger(db_url):
     """ Factory database driver depending on database type supplied in database connection string db_url
     """
     if db_url is not None:
+        from workspace_tools.test_mysql import MySQLDBAccess
         (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
         if db_type == 'mysql':
             return MySQLDBAccess()
@@ -1423,6 +1461,12 @@ def get_default_test_options_parser():
     parser.add_option('', '--global-loops',
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
+
+    parser.add_option('-W', '--waterfall',
+                      dest='waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed.')
 
     parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',

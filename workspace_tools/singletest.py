@@ -88,7 +88,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 1
+    single_test_version_minor = 2
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -188,6 +188,7 @@ if __name__ == '__main__':
                                    _opts_copy_method=opts.copy_method,
                                    _opts_mut_reset_type=opts.mut_reset_type,
                                    _opts_jobs=opts.jobs,
+                                   _opts_waterfall_test=opts.waterfall_test,
                                    _opts_extend_test_timeout=opts.extend_test_timeout)
 
     # Runs test suite in CLI mode

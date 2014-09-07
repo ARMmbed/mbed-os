@@ -130,7 +130,8 @@ class UDPEchoServerTest(DefaultTest):
             sleep(1)
             summary_datagram_success = (float(len(dict_udp_recv_datagrams)) / float(self.TEST_PACKET_COUNT)) * 100.0
             # print dict_udp_recv_datagrams
-            print "Datagrams recved after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            print "Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            stdout.flush()
 
         # Getting control data from test
         print
@@ -138,6 +139,7 @@ class UDPEchoServerTest(DefaultTest):
         mbed_stats = self.get_control_data()
         print mbed_stats
         print
+        stdout.flush()
 
         # Receiving serial data from mbed
         print

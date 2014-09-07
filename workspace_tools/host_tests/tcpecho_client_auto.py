@@ -19,6 +19,7 @@ from SocketServer import BaseRequestHandler, TCPServer
 import socket
 from host_test import Test
 from sys import stdout
+from time import sleep
 
 SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
 SERVER_PORT = 7
@@ -31,7 +32,25 @@ class TCPEchoClientTest(Test):
     def send_server_ip_port(self, ip_address, port_no):
         print "Resetting target..."
         self.mbed.reset()
+
+        # Let's wait for Mbed to print its readiness, usually "{{start}}"
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
+
+        c = self.mbed.serial_read(len('TCPCllient waiting for server IP and port...'))
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c
+        stdout.flush()
+
+        if self.mbed.serial_timeout(1) is None:
+            self.print_result("ioerr_serial")
+            return
+
         print "Sending server IP Address to target..."
+        stdout.flush()
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)
 

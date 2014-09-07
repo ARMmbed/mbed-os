@@ -30,6 +30,23 @@ class UDPEchoClientTest(Test):
     def send_server_ip_port(self, ip_address, port_no):
         print "Resetting target..."
         self.mbed.reset()
+
+        # Let's wait for Mbed to print its readiness, usually "{{start}}"
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
+
+        c = self.mbed.serial_read(len('UDPCllient waiting for server IP and port...'))
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c
+        stdout.flush()
+
+        if self.mbed.serial_timeout(1) is None:
+            self.print_result("ioerr_serial")
+            return
+
         print "Sending server IP Address to target..."
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)

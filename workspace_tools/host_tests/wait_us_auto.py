@@ -55,6 +55,7 @@ class WaitusTest(DefaultTest):
                 print ". in %.2f sec (%.2f) [%s]" % (delta, deviation, msg)
             else:
                 print ". skipped"
+            stdout.flush()
             start = time();
         measurement_time = time() - start_serial_pool
         print "Completed in %.2f sec" % (measurement_time)
@@ -63,7 +64,6 @@ class WaitusTest(DefaultTest):
             self.print_result('success')
         else:
             self.print_result('failure')
-        stdout.flush()
 
 if __name__ == '__main__':
     WaitusTest().run()

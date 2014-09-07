@@ -17,32 +17,31 @@ limitations under the License.
 
 from host_test import DefaultTest
 from sys import stdout
+import re
 
 class HelloTest(DefaultTest):
-    HELLO_WORLD = "Hello World\n"
+    HELLO_WORLD = "Hello World"
 
     def run(self):
-        c = self.mbed.serial_read(1)
+        c = self.mbed.serial_read(128)
         if c is None:
            self.print_result("ioerr_serial")
            return
-        data_to_read = len(self.HELLO_WORLD)
-        read_buffer = ''
-        if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
-            #Read additional 39 bytes of TargetID
-            if self.mbed.serial_read(39) is None:
-                self.print_result("ioerr_serial")
-                return
+        print "Read %d bytes"% len(c)
+        print c
+        stdout.flush()
+        result = True
+        # Because we can have targetID here let's try to decode
+        if len(c) < len(self.HELLO_WORLD):
+            result = False
+        elif c[0] == '$':
+            # We are looking for targetID here
+            res = re.search('^[$]+[0-9a-fA-F]+' + self.HELLO_WORLD, c)
+            result = res is not None
         else:
-            data_to_read -= 1
-            read_buffer += c
-        c = self.mbed.serial_read(data_to_read)
-        read_buffer += c
-        if c is None:
-            self.print_result("ioerr_serial")
-            return
-        stdout.write(read_buffer)
-        if read_buffer == self.HELLO_WORLD: # Hello World received
+            result = (c.startswith(self.HELLO_WORLD))
+
+        if result: # Hello World received
             self.print_result('success')
         else:
             self.print_result('failure')
