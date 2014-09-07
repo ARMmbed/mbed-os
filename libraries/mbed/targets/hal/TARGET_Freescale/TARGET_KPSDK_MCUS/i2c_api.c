@@ -33,11 +33,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     MBED_ASSERT((int)obj->instance != NC);
 
     CLOCK_SYS_EnableI2cClock(obj->instance);
-    CLOCK_SYS_EnablePortClock(sda >> GPIO_PORT_SHIFT);
-    CLOCK_SYS_EnablePortClock(scl >> GPIO_PORT_SHIFT);
     uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     I2C_HAL_Init(i2c_addrs[obj->instance]);
     I2C_HAL_Enable(i2c_addrs[obj->instance]);
+    I2C_HAL_SetIntCmd(i2c_addrs[obj->instance], true);
     i2c_frequency(obj, 100000);
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
@@ -57,7 +56,8 @@ int i2c_start(i2c_t *obj) {
 int i2c_stop(i2c_t *obj) {
     volatile uint32_t n = 0;
     uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
-    I2C_HAL_SendStop(i2c_addrs[obj->instance]);
+    if (I2C_HAL_IsMaster(i2c_addrs[obj->instance]))
+        I2C_HAL_SendStop(i2c_addrs[obj->instance]);
     
     // It seems that there are timing problems
     // when there is no waiting time after a STOP.
@@ -67,11 +67,12 @@ int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
+static int timeout_status_poll(i2c_t *obj, i2c_status_flag_t flag) {
     uint32_t i, timeout = 100000;
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
 
     for (i = 0; i < timeout; i++) {
-        if (HW_I2C_S_RD(obj->instance) & mask)
+        if (I2C_HAL_GetStatusFlag(i2c_addrs[obj->instance], flag))
             return 0;
     }
     return 1;
@@ -83,14 +84,15 @@ static int timeout_status_poll(i2c_t *obj, uint32_t mask) {
 //    2: failure
 static int i2c_wait_end_tx_transfer(i2c_t *obj) {
     // wait for the interrupt flag
-    if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+
+    if (timeout_status_poll(obj, kI2CInterruptPending)) {
         return 2;
     }
-    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     I2C_HAL_ClearInt(i2c_addrs[obj->instance]);
 
     // wait transfer complete
-    if (timeout_status_poll(obj, I2C_S_TCF_MASK)) {
+    if (timeout_status_poll(obj, kI2CTransferComplete)) {
         return 2;
     }
 
@@ -103,7 +105,7 @@ static int i2c_wait_end_tx_transfer(i2c_t *obj) {
 //    1: failure
 static int i2c_wait_end_rx_transfer(i2c_t *obj) {
     // wait for the end of the rx transfer
-    if (timeout_status_poll(obj, I2C_S_IICIF_MASK)) {
+    if (timeout_status_poll(obj, kI2CInterruptPending)) {
         return 1;
     }
     uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
@@ -239,16 +241,17 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
     uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
     if (enable_slave) {
         // set slave mode
-        BW_I2C_C1_MST(obj->instance, 0);
+        BW_I2C_C1_MST(i2c_addrs[obj->instance], 0);
         I2C_HAL_SetIntCmd(i2c_addrs[obj->instance], true);
     } else {
         // set master mode
-        BW_I2C_C1_MST(obj->instance, 1);
+        BW_I2C_C1_MST(i2c_addrs[obj->instance], 1);
     }
 }
 
 int i2c_slave_receive(i2c_t *obj) {
-    switch(HW_I2C_S_RD(obj->instance)) {
+    uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
+    switch(HW_I2C_S_RD(i2c_addrs[obj->instance]) {
         // read addressed
         case 0xE6:
             return 1;

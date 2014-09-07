@@ -39,7 +39,6 @@ typedef enum {
 typedef enum {
     I2C_0 = 0,
     I2C_1 = 1,
-    I2C_2 = 2,
 } I2CName;
 
 #define TPM_SHIFT   8

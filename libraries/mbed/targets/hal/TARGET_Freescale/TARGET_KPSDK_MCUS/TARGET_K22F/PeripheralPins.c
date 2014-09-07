@@ -35,12 +35,24 @@ const PinMap PinMap_DAC[] = {
 
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
-   
+    {PTB1 , I2C_0 , 2},
+    {PTB3 , I2C_0 , 2},
+    {PTC11, I2C_1 , 2},
+    {PTD3 , I2C_0 , 7},
+    {PTD9 , I2C_0 , 2},
+    {PTE0 , I2C_1 , 6},
+    {PTE25, I2C_0 , 5},
     {NC   , NC   , 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-   
+    {PTB0 , I2C_0 , 2},
+    {PTB2 , I2C_0 , 2},
+    {PTC10, I2C_1 , 2},
+    {PTD2 , I2C_0 , 7},
+    {PTD8 , I2C_0 , 2},
+    {PTE1 , I2C_1 , 6},
+    {PTE24, I2C_0 , 5},
     {NC   , NC   , 0}
 };
 
