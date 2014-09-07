@@ -44,40 +44,38 @@ typedef enum {
 
 #define TPM_SHIFT   8
 typedef enum {
-    PWM_1  = (0 << TPM_SHIFT) | (0),  // FTM0 CH0
-    PWM_2  = (0 << TPM_SHIFT) | (1),  // FTM0 CH1
-    PWM_3  = (0 << TPM_SHIFT) | (2),  // FTM0 CH2
-    PWM_4  = (0 << TPM_SHIFT) | (3),  // FTM0 CH3
-    PWM_5  = (0 << TPM_SHIFT) | (4),  // FTM0 CH4
-    PWM_6  = (0 << TPM_SHIFT) | (5),  // FTM0 CH5
-    PWM_7  = (0 << TPM_SHIFT) | (6),  // FTM0 CH6
-    PWM_8  = (0 << TPM_SHIFT) | (7),  // FTM0 CH7
-    PWM_9  = (1 << TPM_SHIFT) | (0),  // FTM1 CH0
-    PWM_10 = (1 << TPM_SHIFT) | (1),  // FTM1 CH1
-    PWM_11 = (1 << TPM_SHIFT) | (2),  // FTM1 CH2
-    PWM_12 = (1 << TPM_SHIFT) | (3),  // FTM1 CH3
-    PWM_13 = (1 << TPM_SHIFT) | (4),  // FTM1 CH4
-    PWM_14 = (1 << TPM_SHIFT) | (5),  // FTM1 CH5
-    PWM_15 = (1 << TPM_SHIFT) | (6),  // FTM1 CH6
-    PWM_16 = (1 << TPM_SHIFT) | (7),  // FTM1 CH7
-    PWM_17 = (2 << TPM_SHIFT) | (0),  // FTM2 CH0
-    PWM_18 = (2 << TPM_SHIFT) | (1),  // FTM2 CH1
-    PWM_19 = (2 << TPM_SHIFT) | (2),  // FTM2 CH2
-    PWM_20 = (2 << TPM_SHIFT) | (3),  // FTM2 CH3
-    PWM_21 = (2 << TPM_SHIFT) | (4),  // FTM2 CH4
-    PWM_22 = (2 << TPM_SHIFT) | (5),  // FTM2 CH5
-    PWM_23 = (2 << TPM_SHIFT) | (6),  // FTM2 CH6
-    PWM_24 = (2 << TPM_SHIFT) | (7),  // FTM2 CH7
-    // could be 4 or could be 3... not sure what register
-    //  this is for... too much abstraction
-    PWM_25 = (3 << TPM_SHIFT) | (0),  // FTM3 CH0
-    PWM_26 = (3 << TPM_SHIFT) | (1),  // FTM3 CH1
-    PWM_27 = (3 << TPM_SHIFT) | (2),  // FTM3 CH2
-    PWM_28 = (3 << TPM_SHIFT) | (3),  // FTM3 CH3
-    PWM_29 = (3 << TPM_SHIFT) | (4),  // FTM3 CH4
-    PWM_30 = (3 << TPM_SHIFT) | (5),  // FTM3 CH5
-    PWM_31 = (3 << TPM_SHIFT) | (6),  // FTM3 CH6
-    PWM_32 = (3 << TPM_SHIFT) | (7),  // FTM3 CH7
+    PWM_00  = (0 << TPM_SHIFT) | (0),  // FTM0 CH0
+    PWM_01  = (0 << TPM_SHIFT) | (1),  // FTM0 CH1
+    PWM_02  = (0 << TPM_SHIFT) | (2),  // FTM0 CH2
+    PWM_03  = (0 << TPM_SHIFT) | (3),  // FTM0 CH3
+    PWM_04  = (0 << TPM_SHIFT) | (4),  // FTM0 CH4
+    PWM_05  = (0 << TPM_SHIFT) | (5),  // FTM0 CH5
+    PWM_06  = (0 << TPM_SHIFT) | (6),  // FTM0 CH6
+    PWM_07  = (0 << TPM_SHIFT) | (7),  // FTM0 CH7
+    PWM_10  = (1 << TPM_SHIFT) | (0),  // FTM1 CH0
+    PWM_11 = (1 << TPM_SHIFT) | (1),  // FTM1 CH1
+    PWM_12 = (1 << TPM_SHIFT) | (2),  // FTM1 CH2
+    PWM_13 = (1 << TPM_SHIFT) | (3),  // FTM1 CH3
+    PWM_14 = (1 << TPM_SHIFT) | (4),  // FTM1 CH4
+    PWM_15 = (1 << TPM_SHIFT) | (5),  // FTM1 CH5
+    PWM_16 = (1 << TPM_SHIFT) | (6),  // FTM1 CH6
+    PWM_17 = (1 << TPM_SHIFT) | (7),  // FTM1 CH7
+    PWM_20 = (2 << TPM_SHIFT) | (0),  // FTM2 CH0
+    PWM_21 = (2 << TPM_SHIFT) | (1),  // FTM2 CH1
+    PWM_22 = (2 << TPM_SHIFT) | (2),  // FTM2 CH2
+    PWM_23 = (2 << TPM_SHIFT) | (3),  // FTM2 CH3
+    PWM_24 = (2 << TPM_SHIFT) | (4),  // FTM2 CH4
+    PWM_25 = (2 << TPM_SHIFT) | (5),  // FTM2 CH5
+    PWM_26 = (2 << TPM_SHIFT) | (6),  // FTM2 CH6
+    PWM_27 = (2 << TPM_SHIFT) | (7),  // FTM2 CH7
+    PWM_30 = (3 << TPM_SHIFT) | (0),  // FTM3 CH0
+    PWM_31 = (3 << TPM_SHIFT) | (1),  // FTM3 CH1
+    PWM_32 = (3 << TPM_SHIFT) | (2),  // FTM3 CH2
+    PWM_33 = (3 << TPM_SHIFT) | (3),  // FTM3 CH3
+    PWM_34 = (3 << TPM_SHIFT) | (4),  // FTM3 CH4
+    PWM_35 = (3 << TPM_SHIFT) | (5),  // FTM3 CH5
+    PWM_36 = (3 << TPM_SHIFT) | (6),  // FTM3 CH6
+    PWM_37 = (3 << TPM_SHIFT) | (7),  // FTM3 CH7
 } PWMName;
 
 #define ADC_INSTANCE_SHIFT           8
