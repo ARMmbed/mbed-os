@@ -116,7 +116,6 @@ typedef enum {
 typedef enum {
     SPI_0 = 0,
     SPI_1 = 1,
-    SPI_2 = 2,
 } SPIName;
 
 #ifdef __cplusplus

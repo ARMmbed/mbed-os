@@ -251,7 +251,7 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 
 int i2c_slave_receive(i2c_t *obj) {
     uint32_t i2c_addrs[] = I2C_BASE_ADDRS;
-    switch(HW_I2C_S_RD(i2c_addrs[obj->instance]) {
+    switch(HW_I2C_S_RD(i2c_addrs[obj->instance])) {
         // read addressed
         case 0xE6:
             return 1;
