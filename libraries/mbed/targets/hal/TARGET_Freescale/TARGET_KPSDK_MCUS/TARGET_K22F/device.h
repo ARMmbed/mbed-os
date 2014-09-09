@@ -16,11 +16,11 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#define DEVICE_PORTIN           0
-#define DEVICE_PORTOUT          0
-#define DEVICE_PORTINOUT        0
+#define DEVICE_PORTIN           1
+#define DEVICE_PORTOUT          1
+#define DEVICE_PORTINOUT        1
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         0
 #define DEVICE_ANALOGOUT        0

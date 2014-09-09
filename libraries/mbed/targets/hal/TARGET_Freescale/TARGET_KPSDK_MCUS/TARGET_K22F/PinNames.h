@@ -210,34 +210,34 @@ typedef enum {
     USBRX = PTE1,
 
     // Arduino Headers
-    /*
-    D0 = PTC16,
-    D1 = PTC17,
-    D2 = PTB9,
-    D3 = PTA1,
-    D4 = PTB23,
-    D5 = PTA2,
-    D6 = PTC2,
-    D7 = PTC3,
-    D8 = PTA0,
-    D9 = PTC4,
-    D10 = PTD0,
-    D11 = PTD2,
-    D12 = PTD3,
-    D13 = PTD1,
-    D14 = PTE25,
-    D15 = PTE24,
+    
+    D0 = PTD2,
+    D1 = PTD3,
+    D2 = PTB16,
+    D3 = PTA2,
+    D4 = PTA4,
+    D5 = PTB18,
+    D6 = PTC3,
+    D7 = PTC6,
+    D8 = PTB19,
+    D9 = PTA1,
+    D10 = PTD4,
+    D11 = PTD6,
+    D12 = PTD7,
+    D13 = PTD5,
+    D14 = PTE0,
+    D15 = PTE1,
     
     I2C_SCL = D15,
     I2C_SDA = D14,
 
-    A0 = PTB2,
-    A1 = PTB3,
-    A2 = PTB10,
-    A3 = PTB11,
-    A4 = PTC10,
-    A5 = PTC11,
-    */
+    A0 = PTB0,
+    A1 = PTB1,
+    A2 = PTC1,
+    A3 = PTC2,
+    A4 = PTB3,
+    A5 = PTB2,
+    
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
     // Not connected

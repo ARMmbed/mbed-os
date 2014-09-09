@@ -48,7 +48,7 @@ static void handle_interrupt_in(PortName port, int ch_base) {
 
             gpio_irq_event event = IRQ_NONE;
             uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
-            switch (BR_PORT_PCRn_IRQC(port, i)) {
+            switch (BR_PORT_PCRn_IRQC(port_addrs[port], i)) {
                 case IRQ_RAISING_EDGE:
                     event = IRQ_RISE;
                     break;
@@ -132,9 +132,10 @@ void gpio_irq_free(gpio_irq_t *obj) {
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+    uint32_t port_addrs[] = PORT_BASE_ADDRS;
     port_interrupt_config_t irq_settings = kPortIntDisabled;
 
-    switch (BR_PORT_PCRn_IRQC(obj->port, obj->pin)) {
+    switch (BR_PORT_PCRn_IRQC(port_addrs[obj->port], obj->pin)) {
         case IRQ_DISABLED:
             if (enable)
                 irq_settings = (event == IRQ_RISE) ? (kPortIntRisingEdge) : (kPortIntFallingEdge);
@@ -166,7 +167,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
             }
             break;
     }
-    uint32_t port_addrs[] = PORT_BASE_ADDRS;
+
     PORT_HAL_SetPinIntMode(port_addrs[obj->port], obj->pin, irq_settings);
     PORT_HAL_ClearPinIntFlag(port_addrs[obj->port], obj->pin);
 }
