@@ -23,17 +23,10 @@
 #include "PeripheralPins.h"
 
 void rtc_init(void) {
-    if (PinMap_RTC[0].pin == NC) {
-        RTC_HAL_SetOscillatorCmd(RTC_BASE, true);
-    }
     SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
-    RTC_HAL_SetSecsReg(RTC_BASE, 1);
-    RTC_HAL_Enable(RTC_BASE);
-    RTC_HAL_Init(RTC_BASE);
 
-    // select RTC clock source
-    SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
-    SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
+    RTC_HAL_Init(RTC_BASE);
+    RTC_HAL_Enable(RTC_BASE);
 
     RTC_HAL_EnableCounter(RTC_BASE, true);
 }
