@@ -29,8 +29,18 @@ class StdioTest(DefaultTest):
         test_result = True
 
         # Let's wait for Mbed to print its readiness, usually "{{start}}"
-        c = self.mbed.serial_read(16)
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
+
+        c = self.mbed.serial_read(len('{{start}}'))
         if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c
+        stdout.flush()
+
+        if self.mbed.serial_timeout(1) is None:
             self.print_result("ioerr_serial")
             return
 
@@ -60,7 +70,7 @@ class StdioTest(DefaultTest):
                     stdout.flush()
                     break
             else:
-                print "Error: No IP and port information sent from server"
+                print "Error: No data from MUT sent"
                 self.print_result('error')
                 exit(-2)
 

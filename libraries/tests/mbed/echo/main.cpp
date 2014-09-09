@@ -22,11 +22,13 @@ int main() {
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);
+
+    pc.puts("{{");
     pc.puts(TEST_ENV_START);    // Host test is expecting preamble
+    pc.puts("}}");
 
     while (1) {
         pc.gets(buf, 256);
-
         pc.printf("%s", buf);
     }
 }

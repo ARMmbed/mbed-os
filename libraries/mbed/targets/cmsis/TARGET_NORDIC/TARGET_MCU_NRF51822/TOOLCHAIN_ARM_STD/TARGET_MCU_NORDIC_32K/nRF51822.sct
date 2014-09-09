@@ -1,0 +1,27 @@
+;WITHOUT SOFTDEVICE:
+;LR_IROM1 0x00000000 0x00040000  {
+;  ER_IROM1 0x00000000 0x00040000  {
+;   *.o (RESET, +First)
+;   *(InRoot$$Sections)
+;   .ANY (+RO)
+;  }
+;  RW_IRAM1 0x20000000 0x00004000  {
+;   .ANY (+RW +ZI)
+;  }
+;}
+;
+;WITH SOFTDEVICE:
+
+LR_IROM1 0x16000 0x002A000  {
+  ER_IROM1 0x16000 0x002A000  {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM1 0x20002000 0x00006000  {
+   .ANY (+RW +ZI)
+  }
+}
+
+
+

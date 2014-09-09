@@ -28,6 +28,7 @@ class HelloTest(DefaultTest):
            self.print_result("ioerr_serial")
            return
         print "Read %d bytes"% len(c)
+        print c
         stdout.flush()
         result = True
         # Because we can have targetID here let's try to decode
