@@ -437,7 +437,7 @@ class NRF51822(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822"]
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
 
@@ -473,6 +473,36 @@ class NRF51822(Target):
 
         with open(binf.replace(".bin", ".hex"), "w") as f:
             sdh.tofile(f, format='hex')
+
+
+class ARCH_BLE(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822']
+        self.supported_form_factors = ["ARDUINO"]
+
+
+class HRM1017(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822']
+
+
+class RBLAB_NRF51822(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822']
+
+
+class NRF51_DK(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
+        self.macros = ['TARGET_NRF51822']
+        self.supported_form_factors = ["ARDUINO"]
 
 
 class LPC1549(LPCTarget):
@@ -547,20 +577,6 @@ class XADOW_M0(LPCTarget):
         self.default_toolchain = "uARM"
 
 
-class ARCH_BLE(NRF51822):
-    def __init__(self):
-        NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
-        self.macros = ['TARGET_NRF51822']
-        self.supported_form_factors = ["ARDUINO"]
-
-class NRF51_DK(NRF51822):
-    def __init__(self):
-        NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
-        self.macros = ['TARGET_NRF51822']
-        self.supported_form_factors = ["ARDUINO"]
-
 class ARCH_PRO(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -586,13 +602,6 @@ class LPCCAPPUCCINO(LPC11U37_501):
         LPC11U37_501.__init__(self)
 
 
-class HRM1017(NRF51822):
-    def __init__(self):
-        NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
-        self.macros = ['TARGET_NRF51822']
-
-
 class ARM_MPS2(Target):
     def __init__(self):
         Target.__init__(self)
@@ -600,13 +609,6 @@ class ARM_MPS2(Target):
         self.macros = ['CMSDK_CM4']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
-
-
-class RBLAB_NRF51822(NRF51822):
-    def __init__(self):
-        NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822']
-        self.macros = ['TARGET_NRF51822']
 
 
 class OC_MBUINO(LPC11U24):
