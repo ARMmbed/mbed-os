@@ -26,8 +26,9 @@ void rtc_init(void) {
     if (PinMap_RTC[0].pin == NC) {
         RTC_HAL_SetOscillatorCmd(RTC_BASE, true);
     }
-    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
     RTC_HAL_SetSecsReg(RTC_BASE, 1);
+    RTC_HAL_Enable(RTC_BASE);
     RTC_HAL_Init(RTC_BASE);
 
     // select RTC clock source
@@ -46,7 +47,7 @@ void rtc_free(void) {
  * 0 = Disabled, 1 = Enabled
  */
 int rtc_isenabled(void) {
-    SIM_HAL_EnableRtcClock(RTC_BASE, 0U);
+    SIM_HAL_EnableRtcClock(SIM_BASE, 0U);
     return (int)RTC_HAL_IsCounterEnabled(RTC_BASE);
 }
 
