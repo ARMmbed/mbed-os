@@ -591,7 +591,7 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
-        if copy_method == 'eACommander':
+        elif copy_method == 'eACommander':
             # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
             # Note: Commands are executed in the order they are specified on the command line
             cmd = [EACOMMANDER_CMD,
@@ -628,7 +628,6 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
-
         return result, resutl_msg, copy_method
 
     def delete_file(self, file_path):
@@ -666,8 +665,8 @@ class SingleTestRunner(object):
             print "Error: No Mbed available: MUT[%s]" % data['mcu']
             return None
 
-        disk = mut['disk']
-        port = mut['port']
+        disk = mut.get('disk')
+        port = mut.get('port')
         target_by_mcu = TARGET_MAP[mut['mcu']]
         # Some extra stuff can be declared in MUTs structure
         reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
@@ -675,6 +674,7 @@ class SingleTestRunner(object):
         image_dest = mut.get('image_dest')  # Image file destination DISK + IMAGE_DEST + BINARY_NAME
         images_config = mut.get('images_config')    # Available images selection via config file
         mobo_config = mut.get('mobo_config')        # Available board configuration selection e.g. core selection etc.
+        copy_method = mut.get('copy_method')        # Available board configuration selection e.g. core selection etc.
 
         # Program
         # When the build and test system were separate, this was relative to a
@@ -695,13 +695,15 @@ class SingleTestRunner(object):
         if self.db_logger:
             self.db_logger.reconnect()
 
+        selected_copy_method = self.opts_copy_method if copy_method is None else copy_method
+
         # Tests can be looped so test results must be stored for the same test
         test_all_result = []
         for test_index in range(test_loops):
             # Choose one method of copy files to mbed virtual drive
             #_copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
 
-            _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, self.opts_copy_method,
+            _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
                                                                                 images_config, image_dest)
 
             # Host test execution
