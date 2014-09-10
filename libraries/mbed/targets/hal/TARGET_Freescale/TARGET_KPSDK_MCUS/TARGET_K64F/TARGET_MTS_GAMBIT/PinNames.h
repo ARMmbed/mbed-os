@@ -206,6 +206,37 @@ typedef enum {
     USBTX = PTB17,
     USBRX = PTB16,
 
+    // SPI Pins
+    SPI0_SOUT = PTC6,
+    SPI0_SIN = PTC7,
+    SPI0_SCK = PTC5,
+
+    SPI1_SOUT = PTE3,
+    SPI1_SIN = PTE1,
+    SPI1_SCK = PTE2,
+
+    // SPI Chip Select Pins
+    SPI0_NCS0 = PTC4,
+    SPI0_NCS1 = PTC3,
+    SPI0_NCS2 = PTC2,
+    SPI0_NCS3 = PTC1,
+
+    SPI1_NCS0 = PTE4,
+    SPI1_NCS1 = PTE0,
+    SPI1_NCS2 = PTE5,
+    SPI1_NCS3 = PTE6,
+
+    // GPIO's
+    AP1_GPIO1 = PTB7,
+    AP1_GPIO2 = PTB6,
+    AP1_GPIO3 = PTB5,
+    AP1_GPIO4 = PTB4,
+
+    AP2_GPIO1 = PTA27,
+    AP2_GPIO2 = PTA26,
+    AP2_GPIO3 = PTA25,
+    AP2_GPIO4 = PTA24,
+
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
     // Not connected
