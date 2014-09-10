@@ -281,14 +281,18 @@ class SingleTestRunner(object):
                 build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
                 clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean else None
 
-                build_mbed_libs_result = build_mbed_libs(T,
-                                                         toolchain,
-                                                         options=build_mbed_libs_options,
-                                                         clean=clean_mbed_libs_options,
-                                                         jobs=self.opts_jobs)
-                if not build_mbed_libs_result:
-                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain))
-                    continue
+                try:
+                    build_mbed_libs_result = build_mbed_libs(T,
+                                                             toolchain,
+                                                             options=build_mbed_libs_options,
+                                                             clean=clean_mbed_libs_options,
+                                                             jobs=self.opts_jobs)
+
+                    if not build_mbed_libs_result:
+                        print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain))
+                        continue
+                except ToolException:
+                    return test_summary, self.shuffle_random_seed
 
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
 
@@ -348,13 +352,16 @@ class SingleTestRunner(object):
                                 libraries.append(lib['id'])
                         # Build libs for test
                         for lib_id in libraries:
-                            build_lib(lib_id,
-                                      T,
-                                      toolchain,
-                                      options=build_project_options,
-                                      verbose=self.opts_verbose,
-                                      clean=clean_mbed_libs_options,
-                                      jobs=self.opts_jobs)
+                            try:
+                                build_lib(lib_id,
+                                          T,
+                                          toolchain,
+                                          options=build_project_options,
+                                          verbose=self.opts_verbose,
+                                          clean=clean_mbed_libs_options,
+                                          jobs=self.opts_jobs)
+                            except ToolException:
+                                return test_summary, self.shuffle_random_seed
 
                         # TODO: move this 2 below loops to separate function
                         INC_DIRS = []
