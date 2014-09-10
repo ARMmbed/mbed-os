@@ -315,9 +315,9 @@ class NUCLEO_F401RE(Target):
 class NUCLEO_F411RE(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
