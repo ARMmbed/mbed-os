@@ -547,13 +547,13 @@ class SingleTestRunner(object):
         browser.close()
 
     def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
-                                  images_config=None, image_dest=None):
+                                  images_config=None, image_dest=None, verbose=False):
         """ Function copied image file and fiddles with image configuration files in needed.
             This function will select proper image configuration (modify image config file
             if needed) after image is copied.
         """
         image_dest = image_dest if image_dest is not None else ''
-        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
+        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, copy_method, image_dest=image_dest, verbose=verbose)
 
         if images_config is not None:
             # For different targets additional configuration file has to be changed
@@ -562,10 +562,9 @@ class SingleTestRunner(object):
                 images_cfg_path = images_config
                 image0file_path = os.path.join(disk, image_dest, basename(image_path))
                 mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
-
         return _copy_res, _err_msg, _copy_method
 
-    def file_copy_method_selector(self, image_path, disk, copy_method, image_dest=''):
+    def file_copy_method_selector(self, image_path, disk, copy_method, image_dest='', verbose=False):
         """ Copy file depending on method you want to use. Handles exception
             and return code from shell copy commands.
         """
@@ -573,12 +572,13 @@ class SingleTestRunner(object):
         resutl_msg = ""
         if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
             source_path = image_path.encode('ascii', 'ignore')
-            destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest, basename(image_path).encode('ascii', 'ignore'))
+            image_base_name = basename(image_path).encode('ascii', 'ignore')
+            destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest, image_base_name)
             cmd = [copy_method, source_path, destination_path]
             try:
                 ret = call(cmd, shell=True)
                 if ret:
-                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    resutl_msg = "Return code: %d. Command: "% (ret + " ".join(cmd))
                     result = False
             except Exception, e:
                 resutl_msg = e
@@ -624,6 +624,8 @@ class SingleTestRunner(object):
             copy_method = "shutils.copy()"
             # Default python method
             try:
+                if not disk.endswith('/') and not disk.endswith('\\'):
+                    disk += '/'
                 copy(image_path, disk)
             except Exception, e:
                 resutl_msg = e
@@ -667,6 +669,10 @@ class SingleTestRunner(object):
 
         disk = mut.get('disk')
         port = mut.get('port')
+
+        if disk is None or port is None:
+            return None
+
         target_by_mcu = TARGET_MAP[mut['mcu']]
         # Some extra stuff can be declared in MUTs structure
         reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
@@ -687,10 +693,6 @@ class SingleTestRunner(object):
             return (test_result, target_name, toolchain_name,
                     test_id, test_description, round(elapsed_time, 2),
                     duration, self.shape_test_loop_ok_result_count([]))
-
-        # Program MUT with proper image file
-        if not disk.endswith('/') and not disk.endswith('\\'):
-            disk += '/'
 
         if self.db_logger:
             self.db_logger.reconnect()
