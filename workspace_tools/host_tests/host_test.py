@@ -96,7 +96,7 @@ class Mbed:
         """
         result = True
         try:
-            self.serial = Serial(self.port, timeout=1)
+            self.serial = Serial(self.port, timeout=3)
         except Exception as e:
             result = False
         # Port can be opened
