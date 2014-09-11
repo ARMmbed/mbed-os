@@ -312,7 +312,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088","NRF51822"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088","NRF51822","K22F"]
     },
     {
         "id": "MBED_5", "description": "PWM",

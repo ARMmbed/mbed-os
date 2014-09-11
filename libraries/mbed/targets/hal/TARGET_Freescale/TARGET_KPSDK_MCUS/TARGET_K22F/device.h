@@ -45,7 +45,7 @@
 #define DEVICE_LOCALFILESYSTEM  0
 #define DEVICE_ID_LENGTH       24
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
 #define DEVICE_DEBUG_AWARENESS  0
 
