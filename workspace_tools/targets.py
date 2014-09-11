@@ -224,7 +224,7 @@ class LPC4330_M4(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'LPC43XX']
+        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4330']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
 
 
@@ -232,9 +232,15 @@ class LPC4330_M0(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC43XX']
+        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4330']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
+class LPC4337(LPCTarget):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4337']
+        self.supported_toolchains = ["ARM"]
 
 class LPC1800(LPCTarget):
     def __init__(self):
@@ -315,9 +321,9 @@ class NUCLEO_F401RE(Target):
 class NUCLEO_F411RE(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
@@ -639,6 +645,7 @@ TARGETS = [
     LPC810(),
     LPC4088(),
     LPC4330_M4(),
+    LPC4337(),
     STM32F3XX(),
     STM32F407(),
     NUCLEO_F030R8(),

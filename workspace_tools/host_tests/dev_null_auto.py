@@ -20,22 +20,28 @@ from sys import stdout
 
 class DevNullTest(DefaultTest):
     def run(self):
-        c = self.mbed.serial_read(128)
-        if c is None:
-            self.print_result("ioerr_serial")
-            return
-        # Data from serial received correctly
-        print "Received %d bytes:"% len(c)
-        print c
-        stdout.flush()
-        # Check for expected and unexpected prints in Mbed output
         result = True
-        if "re-routing stdout to /null" not in c:
-            result = False
-        if "printf redirected to /null" in c:
-            result = False
-        if "{failure}" in c:
-            result = False
+        str = ''
+        for i in range(3):
+            c = self.mbed.serial_read(128)
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
+            else:
+                str += c
+            # Check for expected and unexpected prints in Mbed output
+            if "re-routing stdout to /null" not in str:
+                result = False
+            if "printf redirected to /null" in str:
+                result = False
+            if "{failure}" in str:
+                result = False
+            if not result:
+                break
+        # Data from serial received correctly
+        print "Received %d bytes:"% len(str)
+        print str
+        stdout.flush()
         if result:
             self.print_result('success')
         else:

@@ -40,7 +40,8 @@ class WaitusTest(DefaultTest):
                 self.print_result("ioerr_serial")
                 return
         print "Test started"
-        start_serial_pool = start = time();
+        start_serial_pool = time()
+        start = time()
         for i in range(0, 10):
             c = self.mbed.serial_read(1)
             if c is None:
@@ -56,7 +57,7 @@ class WaitusTest(DefaultTest):
             else:
                 print ". skipped"
             stdout.flush()
-            start = time();
+            start = time()
         measurement_time = time() - start_serial_pool
         print "Completed in %.2f sec" % (measurement_time)
 
