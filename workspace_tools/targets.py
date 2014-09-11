@@ -149,7 +149,7 @@ class K64F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'FRDM']
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -624,9 +624,9 @@ class MTS_GAMBIT(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'K64F']
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.macros = ['TARGET_K64F', "CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
 
