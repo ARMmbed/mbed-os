@@ -45,11 +45,11 @@ void analogin_init(analogin_t *obj, PinName pin) {
             break;
     }
     if (clkdiv == 4) {
-        clkdiv = 0x7; //Set max div
+        clkdiv = 0x3; //Set max div
     }
     /* adc is enabled/triggered when reading. */
     ADC_HAL_Init(adc_addrs[instance]);
-    ADC_HAL_SetClkSrcMode(adc_addrs[instance], (adc_clk_src_mode_t)(clkdiv >> 2));
+    ADC_HAL_SetClkSrcMode(adc_addrs[instance], kAdcClkSrcOfBusClk);
     ADC_HAL_SetClkDividerMode(adc_addrs[instance], (adc_clk_divider_mode_t)(clkdiv & 0x3));
     ADC_HAL_SetRefVoltSrcMode(adc_addrs[instance], kAdcRefVoltSrcOfVref);
     ADC_HAL_SetResolutionMode(adc_addrs[instance], kAdcResolutionBitOfSingleEndAs16);

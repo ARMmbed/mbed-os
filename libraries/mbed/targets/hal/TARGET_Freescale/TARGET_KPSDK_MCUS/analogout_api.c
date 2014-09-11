@@ -21,6 +21,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include "fsl_clock_manager.h"
 
 #define RANGE_12BIT     0xFFF
 
@@ -30,7 +31,7 @@ void analogout_init(dac_t *obj, PinName pin) {
         error("DAC pin mapping failed");
     }
 
-    SIM->SCGC2 |= SIM_SCGC2_DAC0_MASK;
+    SIM_HAL_EnableDacClock(SIM_BASE, 0);
 
     DAC0->DAT[obj->dac].DATH = 0;
     DAC0->DAT[obj->dac].DATL = 0;

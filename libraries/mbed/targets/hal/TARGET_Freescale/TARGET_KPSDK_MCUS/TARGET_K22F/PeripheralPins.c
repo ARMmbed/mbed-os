@@ -23,13 +23,31 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    
+    {PTC2,  ADC0_SE4b, 0},
+    {PTC8,  ADC1_SE4b, 0},
+    {PTC9,  ADC1_SE5b, 0},
+    {PTD1,  ADC0_SE5b, 0},
+    {PTC10, ADC1_SE6b, 0},
+    {PTD5,  ADC0_SE6b, 0},
+    {PTC11, ADC1_SE7b, 0},
+    {PTD6,  ADC0_SE7b, 0},
+    {PTB0 , ADC0_SE8 , 0},
+    {PTB1 , ADC0_SE9 , 0},
+    {PTB2 , ADC0_SE12, 0},
+    {PTB3 , ADC0_SE13, 0},
+    {PTC0 , ADC0_SE14, 0},
+    {PTB10, ADC1_SE14, 0},
+    {PTB11, ADC1_SE15, 0},
+    {PTC1 , ADC0_SE15, 0},
+    {PTA17, ADC1_SE17, 0},
+    //{PTE24, ADC0_SE17, 0}, //I2C pull up
+    //{PTE25, ADC0_SE18, 0}, //I2C pull up
     {NC   , NC       , 0}
 };
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
-
+    {DAC0_OUT, DAC_0, 0},
     {NC      , NC   , 0}
 };
 
