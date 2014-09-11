@@ -30,8 +30,6 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC, NC,    0}
 };
 
-uint8_t addrSet = 0;
-
 void i2c_interface_enable(i2c_t *obj)
 {
     obj->i2c->ENABLE = (TWI_ENABLE_ENABLE_Enabled << TWI_ENABLE_ENABLE_Pos);
@@ -97,7 +95,7 @@ int i2c_start(i2c_t *obj)
 {
     int status = 0;
     i2c_reset(obj);
-    addrSet = 0;
+    obj->address_set = 0;
     return status;
 }
 
@@ -113,7 +111,7 @@ int i2c_stop(i2c_t *obj)
             return 1;
         }
     }
-    addrSet = 0;
+    obj->address_set = 0;
     i2c_reset(obj);
     return 0;
 }
@@ -266,8 +264,8 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     int status = 0;
-    if (!addrSet) {
-        addrSet           = 1;
+    if (!obj->address_set) {
+        obj->address_set           = 1;
         obj->i2c->ADDRESS = (data >> 1);
 
         if (data & 1) {

@@ -53,6 +53,7 @@ struct i2c_s {
     PinName sda;
     PinName scl;
     int freq;
+    uint8_t address_set;
 };
 
 struct analogin_s {
