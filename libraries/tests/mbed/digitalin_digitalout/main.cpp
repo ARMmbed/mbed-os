@@ -10,7 +10,7 @@ DigitalIn   in(dp2);
 DigitalOut out(D7);
 DigitalIn  in(D2);
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F103RB) || defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_F411RE)
 DigitalOut out(PC_6);
 DigitalIn   in(PB_8);
 
