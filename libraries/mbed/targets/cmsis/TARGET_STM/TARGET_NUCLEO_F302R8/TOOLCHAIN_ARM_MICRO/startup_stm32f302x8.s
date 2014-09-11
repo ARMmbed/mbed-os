@@ -56,7 +56,7 @@ Heap_Size       EQU     0x00000400
                 
 __heap_base
 Heap_Mem        SPACE   Heap_Size
-__heap_limit
+__heap_limit    EQU (__initial_sp - Stack_Size)
 
                 PRESERVE8
                 THUMB
