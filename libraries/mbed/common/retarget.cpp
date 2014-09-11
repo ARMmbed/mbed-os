@@ -87,6 +87,19 @@ static void init_serial() {
 #endif
 }
 
+#if DEVICE_SERIAL
+/**
+ * Helper for console output. This has been declared WEAK to allow applications
+ * to override it.
+ */
+extern "C" WEAK void consoleOutput(const unsigned char *buffer, unsigned length) {
+    if (!stdio_uart_inited) init_serial();
+    for (unsigned int i = 0; i < length; i++) {
+        serial_putc(&stdio_uart, buffer[i]);
+    }
+}
+#endif
+
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
 #ifdef __ARMCC_VERSION
@@ -199,10 +212,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
     int n; // n is the number of bytes written
     if (fh < 3) {
 #if DEVICE_SERIAL
-        if (!stdio_uart_inited) init_serial();
-        for (unsigned int i = 0; i < length; i++) {
-            serial_putc(&stdio_uart, buffer[i]);
-        }
+        consoleOutput(buffer, length);
 #endif
         n = length;
     } else {
