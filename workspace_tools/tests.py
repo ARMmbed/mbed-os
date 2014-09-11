@@ -445,7 +445,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC2368", "LPC11U24", "KL05Z", "KL25Z", "KL46Z"]
+        "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
     {
         "id": "MBED_23", "description": "Ticker Int us",
