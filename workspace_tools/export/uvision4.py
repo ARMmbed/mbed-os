@@ -34,6 +34,7 @@ class Uvision4(Exporter):
         'LPC11C24',
         'LPC4088',
         'LPC4330_M4',
+        'LPC4337',
         'LPC812',
         'NUCLEO_F030R8',
         'NUCLEO_F072RB',
