@@ -37,7 +37,7 @@
 
 #define DEVICE_RTC              1
 
-#define DEVICE_ETHERNET         1
+#define DEVICE_ETHERNET         0
 
 #define DEVICE_PWMOUT           0
 
