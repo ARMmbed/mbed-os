@@ -54,7 +54,7 @@ class GCC(mbedToolchain):
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-fno-delete-null-pointer-checks",
+            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ] + self.cpu
 
         if "save-asm" in self.options:

@@ -101,11 +101,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     i2c_conclr(obj, 1, 1, 1, 1);
     i2c_interface_enable(obj);
 
-    // If pins are not dedicated, set SCU functions
-    if (sda != P_DED) {
+    // Set SCU functions
+    if (scl == P_DED) {
+        // Enable dedicated I2C0 SDA and SCL pins (open drain)
+        LPC_SCU->SFSI2C0 = (1 << 11) | (1 << 3);
+    } else {
         pinmap_pinout(sda, PinMap_I2C_SDA);
-    }
-    if (scl != P_DED) {
         pinmap_pinout(scl, PinMap_I2C_SCL);
     }
 }

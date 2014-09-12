@@ -103,7 +103,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     LPC_GPIO_T *port_reg = (LPC_GPIO_T *)(LPC_GPIO_PORT_BASE);
     
     // Do not use masking, because it prevents the use of the unmasked pins
-    // obj->MASK[port] = ~mask;
+    // port_reg->MASK[port] = ~mask;
     
     obj->reg_out = &port_reg->PIN[port];
     obj->reg_in  = &port_reg->PIN[port];

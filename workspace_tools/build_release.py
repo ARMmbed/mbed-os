@@ -41,6 +41,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1549',      ('uARM','GCC_ARM','GCC_CR')),
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR')),
+    ('LPC4337',      ('ARM',)),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM')),
     ('KL25Z',        ('ARM', 'GCC_ARM')),
@@ -58,7 +59,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L053R8', ('ARM', 'uARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM')),
 
-    {'ARCH_MAX', ('ARM', 'GCC_ARM')),
+    ('ARCH_MAX', ('ARM', 'GCC_ARM')),
 
     ('NRF51822',     ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),

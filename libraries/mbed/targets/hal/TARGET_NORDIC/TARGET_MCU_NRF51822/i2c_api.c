@@ -30,8 +30,6 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC, NC,    0}
 };
 
-uint8_t addrSet = 0;
-
 void i2c_interface_enable(i2c_t *obj)
 {
     obj->i2c->ENABLE = (TWI_ENABLE_ENABLE_Enabled << TWI_ENABLE_ENABLE_Pos);
@@ -97,7 +95,7 @@ int i2c_start(i2c_t *obj)
 {
     int status = 0;
     i2c_reset(obj);
-    addrSet = 0;
+    obj->address_set = 0;
     return status;
 }
 
@@ -113,7 +111,7 @@ int i2c_stop(i2c_t *obj)
             return 1;
         }
     }
-    addrSet = 0;
+    obj->address_set = 0;
     i2c_reset(obj);
     return 0;
 }
@@ -137,8 +135,13 @@ int i2c_do_read(i2c_t *obj, char *data, int last)
     int timeOut = 100000;
 
     if (last) {
-        obj->i2c->TASKS_STOP = 1;
+        // To trigger stop task when a byte is received,
+        // must be set before resume task.
+        obj->i2c->SHORTS = 2;
     }
+
+    obj->i2c->TASKS_RESUME = 1;
+
     while (!obj->i2c->EVENTS_RXDREADY) {
         timeOut--;
         if (timeOut<0) {
@@ -146,13 +149,7 @@ int i2c_do_read(i2c_t *obj, char *data, int last)
         }
     }
     obj->i2c->EVENTS_RXDREADY = 0;
-
     *data = obj->i2c->RXD;
-
-    for (int i = 0; i<320; i++) {
-    }
-
-    obj->i2c->TASKS_RESUME = 1;
 
     return 0;
 }
@@ -191,7 +188,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
     int status, count, errorResult;
     obj->i2c->ADDRESS         = (address >> 1);
-    obj->i2c->SHORTS          = 0;
+    obj->i2c->SHORTS          = 1;  // to trigger suspend task when a byte is received
     obj->i2c->EVENTS_RXDREADY = 0;
     obj->i2c->TASKS_STARTRX   = 1;
 
@@ -266,14 +263,16 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     int status = 0;
-    if (!addrSet) {
-        addrSet           = 1;
+    if (!obj->address_set) {
+        obj->address_set  = 1;
         obj->i2c->ADDRESS = (data >> 1);
 
         if (data & 1) {
             obj->i2c->EVENTS_RXDREADY = 0;
+            obj->i2c->SHORTS          = 1;
             obj->i2c->TASKS_STARTRX   = 1;
         } else {
+            obj->i2c->SHORTS        = 0;
             obj->i2c->TASKS_STARTTX = 1;
         }
     } else {
