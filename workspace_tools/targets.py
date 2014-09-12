@@ -475,6 +475,16 @@ class NRF51822(Target):
             sdh.tofile(f, format='hex')
 
 
+class NRF51822_OTA(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K", "NRF51822"]
+        self.macros = ['TARGET_NRF51822']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.is_disk_virtual = True
+
+
 class ARCH_BLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -503,6 +513,16 @@ class NRF51_DK(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
         self.macros = ['TARGET_NRF51822']
         self.supported_form_factors = ["ARDUINO"]
+
+
+class NRF51_DK_OTA(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K', "NRF51_DK"]
+        self.macros = ['TARGET_NRF51822', 'TARGET_NRF51_DK']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.is_disk_virtual = True
 
 
 class LPC1549(LPCTarget):
@@ -663,6 +683,7 @@ TARGETS = [
     LPC11U35_401(),
     LPC11U35_501(),
     NRF51822(),
+    NRF51822_OTA(),
     UBLOX_C027(),
     LPC1549(),
     LPC11U68(),
@@ -673,6 +694,7 @@ TARGETS = [
     XADOW_M0(),
     ARCH_BLE(),
     NRF51_DK(),
+    NRF51_DK_OTA(),
     ARCH_PRO(),
     ARCH_GPRS(),
     LPCCAPPUCCINO(),
