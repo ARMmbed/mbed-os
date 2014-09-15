@@ -35,7 +35,7 @@ class StdioTest(DefaultTest):
         print c
         stdout.flush()
 
-        for i in range(0, 5):
+        for i in range(0, 10):
             random_integer = random.randint(-99999, 99999)
             print "HOST: Generated number: " + str(random_integer)
             stdout.flush()
