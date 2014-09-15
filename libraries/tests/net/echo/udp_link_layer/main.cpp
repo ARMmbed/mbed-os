@@ -12,24 +12,24 @@
 
 // Evil globals
 namespace {
-Mutex cli_serv_mutex;
-// cli_serv_mutex.lock(); // LOCK
-// cli_serv_mutex.unlock(); // LOCK
+    // IP and port used to store HOST address info
+    char host_address[32] = {0};
+    volatile int host_port = 0;
 
-const int ECHO_SERVER_PORT = 7;
-const int BUFFER_SIZE = 256;
+    const int ECHO_SERVER_PORT = 7;
+    const int BUFFER_SIZE = 64;
 
-// Forwarding packet queue
-std::list<std::string> datagram_queue;
+    // Forwarding packet queue
+    std::list<std::string> datagram_queue;
 
-// IP and port used to store HOST address info
-char host_address[32] = { 0 };
-volatile int host_port = 0;
+    // Statistics (mbed)
+    volatile int received_packets = 0;
+    volatile int forwarded_packets = 0;
+    volatile int max_queue_len = 0;
 
-// Statistics (mbed)
-volatile int received_packets = 0;
-volatile int forwarded_packets = 0;
-volatile int max_queue_len = 0;
+    Mutex cli_serv_mutex;
+    // cli_serv_mutex.lock(); // LOCK
+    // cli_serv_mutex.unlock(); // LOCK
 }
 
 void udp_server_task(void const *argument)
@@ -107,13 +107,14 @@ int main(void)
 
     eth.init(); //Use DHCP
     eth.connect();
-    printf("Server IP Address is %s:%d\n", eth.getIPAddress(), ECHO_SERVER_PORT);
+    printf("MBED: Server IP Address is %s:%d\r\n", eth.getIPAddress(), ECHO_SERVER_PORT);
 
     Thread UdpServerTask(udp_server_task, NULL, osPriorityNormal, DEFAULT_STACK_SIZE * 2.25);
     Thread UdpClientTask(udp_client_task, NULL, osPriorityNormal, DEFAULT_STACK_SIZE * 2.25);
 
-    // Control TCP server to get mbed statistics
+    // Control TCP server to get MBED statistics
     {
+        char buffer[BUFFER_SIZE] = {0};
         const int TELNET_SERVER_PORT = 23;
         const int BUFFER_SIZE = 256;
         TCPSocketServer server;
@@ -121,18 +122,17 @@ int main(void)
         server.listen();
 
         while (true) {
-            printf("Wait for new connection...\n");
+            printf("MBED: Wait for new connection...\r\n");
             TCPSocketConnection client;
             server.accept(client);
             client.set_blocking(false, 1500); // Timeout after (1.5)s
-            printf("Connection from: %s\n", client.get_address());
+            printf("MBED: Connection from: %s\r\n", client.get_address());
 
-            char buffer[BUFFER_SIZE] = { 0 };
             while (true) {
                 int n = client.receive(buffer, sizeof(buffer));
                 //if (n <= 0) break;
                 if (n > 0) {
-                    printf("Recv %d chars\r\n", n);
+                    // printf("Recv %d chars\r\n", n);
                     const int buffer_string_end_index = n >= BUFFER_SIZE ? BUFFER_SIZE - 1 : n;
                     buffer[buffer_string_end_index] = '\0';
                     // client.send_all(buffer, strlen(buffer));

@@ -17,6 +17,7 @@ extern const char* TEST_ENV_END;
 // Test result related notification functions
 void notify_start();
 void notify_completion(bool success);
+bool notify_completion_str(bool success, char* buffer);
 void notify_performance_coefficient(const char* measurement_name, const int value);
 void notify_performance_coefficient(const char* measurement_name, const unsigned int value);
 void notify_performance_coefficient(const char* measurement_name, const double value);

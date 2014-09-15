@@ -15,11 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import random
 import re
-from host_test import DefaultTest
-from time import time
+import random
 from sys import stdout
+from time import time
+from host_test import DefaultTest
 
 class StdioTest(DefaultTest):
     PATTERN_INT_VALUE = "Your value was: (-?\d+)"
