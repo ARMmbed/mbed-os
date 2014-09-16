@@ -23,23 +23,26 @@ class HelloTest(DefaultTest):
     HELLO_WORLD = "Hello World"
 
     def run(self):
-        c = self.mbed.serial_read(128)
+        c = self.mbed.serial_readline()
+        if c is None:
+           self.print_result("ioerr_serial")
+           return
+        print c.strip()
+        stdout.flush()
+
+        c = self.mbed.serial_readline()
         if c is None:
            self.print_result("ioerr_serial")
            return
         print "Read %d bytes"% len(c)
-        print c
+        print c.strip()
         stdout.flush()
         result = True
         # Because we can have targetID here let's try to decode
         if len(c) < len(self.HELLO_WORLD):
             result = False
-        elif c[0] == '$':
-            # We are looking for targetID here
-            res = re.search('^[$]+[0-9a-fA-F]+' + self.HELLO_WORLD, c)
-            result = res is not None
         else:
-            result = (c.startswith(self.HELLO_WORLD))
+            result = self.HELLO_WORLD in c
 
         if result: # Hello World received
             self.print_result('success')

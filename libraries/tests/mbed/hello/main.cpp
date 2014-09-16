@@ -2,6 +2,7 @@
 
 int main()
 {
-    printf("Hello World\n");
+    notify_start();
+    printf("Hello World\r\n");
     while(1);
 }

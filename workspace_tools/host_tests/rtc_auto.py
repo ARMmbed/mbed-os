@@ -21,31 +21,29 @@ from time import strftime, gmtime
 from sys import stdout
 
 class RTCTest(DefaultTest):
-    PATTERN_RTC_VALUE = "^\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]\\n"
+    PATTERN_RTC_VALUE = "\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]"
     re_detect_rtc_value = re.compile(PATTERN_RTC_VALUE)
 
     def run(self):
         test_result = True
-        if self.mbed.serial_timeout(None) is None:
-            self.print_result("ioerr_serial")
-            return
         for i in range(0, 5):
-            c = self.mbed.serial_read(38)   # 38 len("[1256729742] [2009-10-28 11:35:42 AM]\n"
+            c = self.mbed.serial_readline()
             if c is None:
                 self.print_result("ioerr_serial")
                 return
-            stdout.flush()
+
             m = self.re_detect_rtc_value.search(c)
             if m and len(m.groups()):
                 sec = m.groups()[0]
                 time_str = m.groups()[1]
                 correct_time_str = strftime("%Y-%m-%d %H:%M:%S %p", gmtime(float(sec)))
                 test_result = test_result and (time_str == correct_time_str)
-                result_msg = "OK" if (time_str == correct_time_str) else "FAIL"
+                result_msg = "OK" if (time_str == correct_time_str and sec > 0) else "FAIL"
                 print "Got RTC time: " + c[:-1] + " ... " + result_msg
                 stdout.flush()
             else:
                 print c
+                stdout.flush()
                 test_result = False
                 break
 
