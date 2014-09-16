@@ -35,6 +35,49 @@
  ******************************************************************************/
 
 
+/* Internal irq number*/
+typedef enum _enet_irq_number
+{
+    kEnetTsTimerNumber = 0,     /*!< ENET ts_timer irq number*/
+    kEnetReceiveNumber = 1,     /*!< ENET receive irq number*/
+    kEnetTransmitNumber = 2,    /*!< ENET transmit irq number*/
+    kEnetMiiErrorNumber = 3     /*!< ENET mii error irq number*/
+}enet_irq_number_t;
+
+#if FSL_FEATURE_ENET_SUPPORT_PTP
+extern enet_ptp_master_time_data_t g_ptpMasterTime;
+#if FSL_FEATURE_ENET_PTP_TIMER_CHANNEL_INTERRUPT
+#define ENET_TIMER_CHANNEL_NUM      2
+#endif
+#endif
+
+#if defined (K64F12_SERIES) || defined (K70F12_SERIES)
+IRQn_Type enet_irq_ids[HW_ENET_INSTANCE_COUNT][FSL_FEATURE_ENET_INTERRUPT_COUNT] = 
+{
+    { ENET_1588_Timer_IRQn, ENET_Receive_IRQn, ENET_Transmit_IRQn, ENET_Error_IRQn}            
+};
+
+uint8_t enetIntMap[kEnetIntNum] = 
+{ 
+    kEnetTsTimerNumber, 
+    kEnetTsTimerNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetReceiveNumber,
+    kEnetReceiveNumber,
+    kEnetTransmitNumber,
+    kEnetTransmitNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber,
+    kEnetMiiErrorNumber
+};
+#endif
+
 /*******************************************************************************
  * Code
  ******************************************************************************/

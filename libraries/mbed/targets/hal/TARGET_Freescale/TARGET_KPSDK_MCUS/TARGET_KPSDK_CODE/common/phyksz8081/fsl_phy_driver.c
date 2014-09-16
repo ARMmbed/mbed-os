@@ -29,180 +29,80 @@
 */
 
 #include "fsl_phy_driver.h"
-#include "fsl_enet_hal.h"
-
-#ifndef MBED_NO_ENET
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-uint16_t oldPhyStatus, newPhyStatus;
-extern const uint32_t g_enetBaseAddr[];
+
+/*! @brief Define Phy API structure for MAC application*/
+const enet_phy_api_t g_enetPhyApi = 
+{
+    phy_auto_discover,
+    phy_init,
+    phy_get_link_speed,
+    phy_get_link_status,
+    phy_get_link_duplex,
+};
 /*******************************************************************************
  * Code
  ******************************************************************************/
- /*FUNCTION****************************************************************
- *
- * Function Name: PHY_DRV_Write
- * Return Value: The execution status.
- * Description: PHY Write function.
- * This interface write data over the SMI to the specified PHY register.   
- * This function is called by all PHY interfaces.
- *END*********************************************************************/
-uint32_t PHY_DRV_Write(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, uint32_t data)
-{
-    uint32_t counter = kEnetMaxTimeout, baseAddr;
-    baseAddr = g_enetBaseAddr[instance];
-    /* Check if the mii is enabled*/
-    if (!ENET_HAL_GetSMI(baseAddr))
-    {
-        return kStatus_ENET_SMIUninitialized;
-    }
-
-    /* Clear the SMI interrupt event*/
-    ENET_HAL_ClearIntStatusFlag(baseAddr, kEnetMiiInterrupt);
-
-    /* Set write command*/
-    ENET_HAL_SetSMIWrite(baseAddr, phyAddr, phyReg, kEnetWriteValidFrame, data);
-
-    /* Wait for MII complete*/
-    do{
-        counter --;
-    }while(ENET_HAL_GetIntStatusFlag(baseAddr, kEnetMiiInterrupt) && (counter > 0));
-
-
-    /* Check for timeout*/
-    if (!counter)
-    {
-        return kStatus_ENET_SMIVisitTimeout;
-    }
-
-    /* Clear MII intrrupt event*/
-    ENET_HAL_ClearIntStatusFlag(baseAddr, kEnetMiiInterrupt);
-	
-    return kStatus_ENET_Success;
-}
-
 /*FUNCTION****************************************************************
  *
- * Function Name: PHY_DRV_Read
- * Return Value: The execution status.
- * Description: Read function.
- * This interface read data over the SMI from the specified PHY register,
- * This function is called by all PHY interfaces.
- *END*********************************************************************/
-uint32_t PHY_DRV_Read(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, uint32_t *dataPtr)
-{
-    uint32_t  counter = kEnetMaxTimeout, baseAddr;
-	
-    /* Check the input parameters*/
-    if (!dataPtr)
-    {
-        return kStatus_ENET_InvalidInput;
-    }
-
-    baseAddr = g_enetBaseAddr[instance];
-
-    /* Check if the mii is enabled*/
-    if (!ENET_HAL_GetSMI(baseAddr))
-    {
-        return kStatus_ENET_SMIUninitialized;
-    }
-
-    /* Clear the MII interrupt event*/
-    ENET_HAL_ClearIntStatusFlag(baseAddr, kEnetMiiInterrupt);
-
-    /* Read command operation*/
-    ENET_HAL_SetSMIRead(baseAddr, phyAddr, phyReg, kEnetReadValidFrame);
-
-    /* Wait for MII complete*/
-    do{
-        counter --;
-    }while(!ENET_HAL_GetIntStatusFlag(baseAddr, kEnetMiiInterrupt) && (counter > 0));
-
-    /* Check for timeout*/
-    if (!counter)
-    {
-        return kStatus_ENET_SMIVisitTimeout;
-    }
-
-    /* Get data from mii register*/
-    *dataPtr = ENET_HAL_GetSMIData(baseAddr);
-
-    /* Clear MII interrupt event*/
-    ENET_HAL_ClearIntStatusFlag(baseAddr, kEnetMiiInterrupt);
-	
-    return kStatus_ENET_Success;
-}
-
-/*FUNCTION****************************************************************
- *
- * Function Name: PHY_DRV_Init
+ * Function Name: phy_init
  * Return Value: The execution status.
  * Description: Initialize Phy.
- * This interface provides initialize functions for PHY, This is called by enet  
- * initialize function. PHY is usually deault auto-negotiation. so there is no 
+ * This interface provides initialize functions for Phy, This is called by enet  
+ * initialize function. Phy is usually deault auto-negotiation. so there is no 
  * need to do the intialize about this. we just need to check the loop mode.
  *END*********************************************************************/
-uint32_t PHY_DRV_Init(uint32_t instance, uint32_t phyAddr, bool isLoopEnabled)
+uint32_t phy_init(enet_dev_if_t * enetIfPtr)
 {
-    uint32_t data,dataStatus;
-    uint32_t counter = kEnetMaxTimeout;
+    uint32_t data;
+    uint32_t counter;
     uint32_t result;
    
+    /* Check input parameters*/
+    if (!enetIfPtr)
+    {
+        return kStatus_PHY_InvaildInput;
+    }
+
     /* Reset Phy*/
-    result = PHY_DRV_Write(instance, phyAddr, kEnetPhyCR, kEnetPhyReset);
-    if(result != kStatus_ENET_Success)
+    if ((result = (enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+            enetIfPtr->phyCfgPtr->phyAddr,kEnetPhySR,&data))) == kStatus_PHY_Success)
     {
-        return result;
-    }
-    else
-    {
-        do{
-            counter --;
-    		/* Wait for complete*/
-            result = PHY_DRV_Read(instance, phyAddr, kEnetPhyCR, &data);
-            if(result != kStatus_ENET_Success)
-            {
-                return result;
-            }
-        }while((data & kEnetPhyReset) && (counter > 0));
-        /* Check for timeout */
-        if (!counter)
+        if ((data & kEnetPhyAutoNegAble) != 0)
         {
-            return kStatus_ENET_SMIVisitTimeout;
-        }
-    }
-	
-    result = PHY_DRV_Read(instance, phyAddr, kEnetPhySR, &dataStatus);
-    if(result != kStatus_ENET_Success)
-    {
-        return result;
-    }
-
-    if (((dataStatus & kEnetPhyAutoNegAble) != 0) && ((dataStatus & kEnetPhyAutoNegComplete) == 0))		
-    {
-        /* Set Autonegotiation*/
-       if(PHY_DRV_Write(instance, phyAddr, kEnetPhyCR, data | kEnetPhyAutoNeg)== kStatus_ENET_Success)
-        for (counter = 0; counter < kEnetMaxTimeout; counter++)
-        {
-            if (PHY_DRV_Read(instance, phyAddr, kEnetPhySR, &dataStatus)== kStatus_ENET_Success)
+            /* Set Autonegotiation*/
+            enetIfPtr->macApiPtr->enet_mii_write(enetIfPtr->deviceNumber, 
+                enetIfPtr->phyCfgPtr->phyAddr, kEnetPhyCR, kEnetPhyAutoNeg);
+            for (counter = 0; counter < kPhyTimeout; counter++)
             {
-                if ((dataStatus & kEnetPhyAutoNegComplete) != 0)
+                if (enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+                       enetIfPtr->phyCfgPtr->phyAddr,kEnetPhySR,&data)== kStatus_PHY_Success)
                 {
-                    break;
-                }
-            }            
+                    if ((data & kEnetPhyAutoNegComplete) != 0)
+                    {
+                        break;
+                    }
+                }		  	            
+            }
+
+            if (counter == kPhyTimeout)
+            {
+                return kStatus_PHY_TimeOut;
+            }
         }
     }
 
-    if (isLoopEnabled)
+    if (enetIfPtr->phyCfgPtr->isLoopEnabled)
     {
         /* First read the current status in control register*/ 
-        if (PHY_DRV_Read(instance, phyAddr, kEnetPhyCR, &data) == kStatus_ENET_Success)
+        if (enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+            enetIfPtr->phyCfgPtr->phyAddr,kEnetPhyCR,&data))
         {
-            result = PHY_DRV_Write(instance, phyAddr,kEnetPhyCR,(data|kEnetPhyLoop));
-            return result;
+            result = enetIfPtr->macApiPtr->enet_mii_write(enetIfPtr->deviceNumber, 
+                enetIfPtr->phyCfgPtr->phyAddr,kEnetPhyCR,(data|kEnetPhyLoop));
         }		
     }
 
@@ -211,64 +111,67 @@ uint32_t PHY_DRV_Init(uint32_t instance, uint32_t phyAddr, bool isLoopEnabled)
 
 /*FUNCTION****************************************************************
  *
- * Function Name: PHY_DRV_Autodiscover
+ * Function Name: phy_auto_discover
  * Return Value: The execution status.
  * Description: Phy address auto discover.
  * This function provides a interface to get phy address using phy address auto 
  * discovering, this interface is used when the phy address is unknown.
  *END*********************************************************************/
-uint32_t PHY_DRV_Autodiscover(uint32_t instance, uint32_t *phyAddr)
+uint32_t phy_auto_discover(enet_dev_if_t * enetIfPtr)
 {
     uint32_t addrIdx,data;
-    uint32_t result = kStatus_ENET_PHYAutoDiscoverFail;
-
-    /* Check input param*/
-    if(!phyAddr)
+    uint32_t result = kStatus_PHY_Fail;
+	
+    /* Check input parameters*/
+    if (!enetIfPtr)
     {
-        return kStatus_ENET_InvalidInput;
+        return kStatus_PHY_InvaildInput;
     }
-    
-    for (addrIdx = 0; addrIdx < kEnetPhyRegAll; addrIdx++)
+
+    for (addrIdx = 0; addrIdx < 32; addrIdx++)
     {
-        result = PHY_DRV_Read(instance, addrIdx, kEnetPhyId1, &data);
-        if ((result == kStatus_ENET_Success) && (data != 0) && (data != 0xffff) )
+        enetIfPtr->phyCfgPtr->phyAddr = addrIdx;
+        result = enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber,
+            enetIfPtr->phyCfgPtr->phyAddr,kEnetPhyId1,&data);
+        if ((result == kStatus_PHY_Success) && (data != 0) && (data != 0xffff) )
         {
-            *phyAddr = addrIdx;
-            return kStatus_ENET_Success;
+            return kStatus_PHY_Success;
         }
     }
+
     return result;
 }
 
 /*FUNCTION****************************************************************
  *
- * Function Name: PHY_DRV_GetLinkSpeed
+ * Function Name: phy_get_link_speed
  * Return Value: The execution status.
  * Description: Get phy link speed.
  * This function provides a interface to get link speed.
  *END*********************************************************************/
-uint32_t PHY_DRV_GetLinkSpeed(uint32_t instance, uint32_t phyAddr, enet_phy_speed_t *speed)
+uint32_t phy_get_link_speed(enet_dev_if_t * enetIfPtr, enet_phy_speed_t *status)
 {
-    uint32_t result = kStatus_ENET_Success;
+    uint32_t result = kStatus_PHY_Success;
     uint32_t data;
 	
     /* Check input parameters*/
-    if (!speed)
+    if ((!enetIfPtr) || (!status))
     {
-        return kStatus_ENET_InvalidInput;
+        return kStatus_PHY_InvaildInput;
     }
 
-    result = PHY_DRV_Read(instance, phyAddr, kEnetPhyCt1,&data);
-    if (result == kStatus_ENET_Success)
+    result = enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+        enetIfPtr->phyCfgPtr->phyAddr, kEnetPhyCt2,&data);
+    if (result == kStatus_PHY_Success)
     {
         data &= kEnetPhySpeedDulpexMask; 
         if ((kEnetPhy100HalfDuplex == data) || (kEnetPhy100FullDuplex == data))
         {
-            *speed = kEnetSpeed100M;
+            *status = kEnetSpeed100M;
         }
         else
         {
-            *speed = kEnetSpeed10M;
+            *status = kEnetSpeed10M;
         }
     }
 
@@ -277,29 +180,31 @@ uint32_t PHY_DRV_GetLinkSpeed(uint32_t instance, uint32_t phyAddr, enet_phy_spee
 
 /*FUNCTION****************************************************************
  *
- * Function Name: PHY_DRV_GetLinkStatus
+ * Function Name: phy_get_link_status
  * Return Value: The execution status.
  * Description: Get phy link status.
  * This function provides a interface to get link status to see if the link 
  * status is on or off.
  *END*********************************************************************/
- uint32_t PHY_DRV_GetLinkStatus(uint32_t instance, uint32_t phyAddr, bool *status)
+ uint32_t phy_get_link_status(enet_dev_if_t * enetIfPtr, bool *status)
 {
-    uint32_t result = kStatus_ENET_Success;
+    uint32_t result = kStatus_PHY_Success;
     uint32_t data;
 	
     /* Check input parameters*/
-    if (!status)
+    if ((!enetIfPtr) || (!status))
     {
-        return kStatus_ENET_InvalidInput;
+        return kStatus_PHY_InvaildInput;
     }
 
-    result = PHY_DRV_Read(instance, phyAddr, kEnetPhyCR, &data);
-    if ((result == kStatus_ENET_Success) && (!(data & kEnetPhyReset)))
+    result = enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+        enetIfPtr->phyCfgPtr->phyAddr,kEnetPhyCR,&data);
+    if ((result == kStatus_PHY_Success) && (!(data & kEnetPhyReset)))
     {
         data = 0;
-        result = PHY_DRV_Read(instance, phyAddr, kEnetPhySR, &data);
-        if (result == kStatus_ENET_Success)
+        result = enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+            enetIfPtr->phyCfgPtr->phyAddr,kEnetPhySR, &data);
+        if (result == kStatus_PHY_Success)
         {
             if (!(kEnetPhyLinkStatus & data))
             {
@@ -317,25 +222,26 @@ uint32_t PHY_DRV_GetLinkSpeed(uint32_t instance, uint32_t phyAddr, enet_phy_spee
 
 /*FUNCTION****************************************************************
  *
- * Function Name: PHY_DRV_GetLinkDuplex
+ * Function Name: phy_get_link_duplex
  * Return Value: The execution status.
  * Description: Get phy link duplex.
  * This function provides a interface to get link duplex to see if the link 
  * duplex is full or half.
  *END*********************************************************************/
-uint32_t PHY_DRV_GetLinkDuplex(uint32_t instance, uint32_t phyAddr, enet_phy_duplex_t *status)
+uint32_t phy_get_link_duplex(enet_dev_if_t * enetIfPtr, enet_phy_duplex_t *status)
 {
-    uint32_t result = kStatus_ENET_Success;
+    uint32_t result = kStatus_PHY_Success;
     uint32_t data;
 	
     /* Check input parameters*/
-    if (!status)
+    if ((!enetIfPtr) || (!status))
     {
-        return kStatus_ENET_InvalidInput;
+        return kStatus_PHY_InvaildInput;
     }
 
-    result = PHY_DRV_Read(instance, phyAddr,kEnetPhyCt1,&data);
-    if (result == kStatus_ENET_Success)
+    result = enetIfPtr->macApiPtr->enet_mii_read(enetIfPtr->deviceNumber, 
+        enetIfPtr->phyCfgPtr->phyAddr,kEnetPhyCt2,&data);
+    if (result == kStatus_PHY_Success)
     {
         data &= kEnetPhySpeedDulpexMask; 
         if ((kEnetPhy10FullDuplex == data) || (kEnetPhy100FullDuplex == data))
@@ -351,57 +257,6 @@ uint32_t PHY_DRV_GetLinkDuplex(uint32_t instance, uint32_t phyAddr, enet_phy_dup
     return result;
 }
 
-/*FUNCTION****************************************************************
- *
- * Function Name: PHY_DRV_UpdateSpeed
- * Return Value: The execution status.
- * Description: Poll Phy speed change.
- * This function provides a interface to moniter the change of the link speed.
- *END*********************************************************************/
-bool PHY_DRV_UpdateSpeed(uint32_t instance, uint32_t phyAddr, enet_phy_speed_t *status)
-{
-    bool link;
-	
-    if(PHY_DRV_GetLinkSpeed(instance, phyAddr, status)== kStatus_ENET_Success)
-    {
-        if(status)
-        {
-            newPhyStatus |= kPhyLinkSpeed;
-        }
-        else
-        {
-            newPhyStatus &= ~kPhyLinkSpeed;
-        }	
-    }
-    if(PHY_DRV_GetLinkStatus(instance, phyAddr, &link)== kStatus_ENET_Success)
-    {
-        if(link)
-        {
-            newPhyStatus |= kPhyLinkon;
-        }
-        else
-        {
-            newPhyStatus &= ~kPhyLinkon;
-        }
-    }
-
-    if(newPhyStatus != oldPhyStatus)
-    {
-        oldPhyStatus = newPhyStatus;
-    
-        if(newPhyStatus & kPhyLinkon)
-        {
-            return true;
-        }
-    	else 
-        {
-            return false;
-        }
-    }
-    return false;
-}
-
-#endif /* MBED_NO_ENET */
 
 /*******************************************************************************
  * EOF
