@@ -38,12 +38,12 @@ class RTCTest(DefaultTest):
                 time_str = m.groups()[1]
                 correct_time_str = strftime("%Y-%m-%d %H:%M:%S %p", gmtime(float(sec)))
                 test_result = test_result and (time_str == correct_time_str)
-                result_msg = "OK" if (time_str == correct_time_str) else "FAIL"
+                result_msg = "OK" if (time_str == correct_time_str and sec > 0) else "FAIL"
                 print "Got RTC time: " + c[:-1] + " ... " + result_msg
                 stdout.flush()
             else:
                 print c
-                stdout.fluch()
+                stdout.flush()
                 test_result = False
                 break
 
