@@ -36,7 +36,7 @@ class DevNullTest(DefaultTest):
         result = True
 
         # Test should print some text and later stop printing
-        res = self.check_readline("MBED: re-routing stdout to /null")
+        res = self.check_readline("re-routing stdout to /null")   # 'MBED: re-routing stdout to /null'
         if not res:
             # We haven't read preamble line
             result = False
