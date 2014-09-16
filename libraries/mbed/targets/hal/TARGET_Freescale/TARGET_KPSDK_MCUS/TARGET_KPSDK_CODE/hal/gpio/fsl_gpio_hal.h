@@ -45,7 +45,7 @@
  * @file fsl_gpio_hal.h
  *
  * @brief GPIO hardware driver configuration. Use these functions to set the GPIO input/output, 
- * set output logic or get input logic. Check the GPIO header file for instance numbers. Each 
+ * set output logic or get input logic. Check the GPIO header file for base address. Each 
  * GPIO instance has 32 pins with numbers from 0 to 31.
  */
 
@@ -75,31 +75,30 @@ extern "C" {
 /*!
  * @brief Sets the individual GPIO pin to general input or output.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
  * @param pin  GPIO port pin number 
  * @param direction  GPIO directions
  *        - kGpioDigitalInput: set to input
  *        - kGpioDigitalOutput: set to output
  */
-void gpio_hal_set_pin_direction(uint32_t instance, uint32_t pin,
-                                gpio_pin_direction_t direction);
+void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin,
+                        gpio_pin_direction_t direction);
 
 /*!
  * @brief Sets the GPIO port pins to general input or output.
  *
  * This function  operates all 32 port pins.
  * 
- * @param instance  GPIO instance number (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param direction  GPIO directions
  *        - 0: set to input
  *        - 1: set to output
  *        - LSB: pin 0
  *        - MSB: pin 31
  */
-static inline void gpio_hal_set_port_direction(uint32_t instance, uint32_t direction)
+static inline void GPIO_HAL_SetPortDir(uint32_t baseAddr, uint32_t direction)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
-    HW_GPIO_PDDR_SET(instance, direction);
+    HW_GPIO_PDDR_WR(baseAddr, direction);
 }
 
 /* @} */
@@ -112,17 +111,16 @@ static inline void gpio_hal_set_port_direction(uint32_t instance, uint32_t direc
 /*!
  * @brief Gets the current direction of the individual GPIO pin.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  * @return GPIO directions
- *        - 0: corresponding pin is set to input.
- *        - 1: corresponding pin is set to output.
+ *        - kGpioDigitalInput: corresponding pin is set to input.
+ *        - kGpioDigitalOutput: corresponding pin is set to output.
  */
-static inline uint32_t gpio_hal_get_pin_direction(uint32_t instance, uint32_t pin)
+static inline gpio_pin_direction_t GPIO_HAL_GetPinDir(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    return (HW_GPIO_PDDR_RD(instance) >> pin) & 1U;
+    return (gpio_pin_direction_t)((HW_GPIO_PDDR_RD(baseAddr) >> pin) & 1U);
 } 
 
 /*!
@@ -130,17 +128,16 @@ static inline uint32_t gpio_hal_get_pin_direction(uint32_t instance, uint32_t pi
  *
  * This function  gets all 32-pin directions as a 32-bit integer.
  * 
- * @param instance  GPIO instance number (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @return GPIO directions. Each bit represents one pin. For each bit:
  *        - 0: corresponding pin is set to input
  *        - 1: corresponding pin is set to output
  *        - LSB: pin 0
  *        - MSB: pin 31
  */
-static inline uint32_t gpio_hal_get_port_direction(uint32_t instance)
+static inline uint32_t GPIO_HAL_GetPortDir(uint32_t baseAddr)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    return HW_GPIO_PDDR_RD(instance);
+    return HW_GPIO_PDDR_RD(baseAddr);
 } 
 
 /* @} */
@@ -153,63 +150,59 @@ static inline uint32_t gpio_hal_get_port_direction(uint32_t instance)
 /*!
  * @brief Sets the output level of the individual GPIO pin to logic 1 or 0.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  * @param output  pin output logic level
  */
-void gpio_hal_write_pin_output(uint32_t instance, uint32_t pin, uint32_t output);
+void GPIO_HAL_WritePinOutput(uint32_t baseAddr, uint32_t pin, uint32_t output);
 
 /*!
  * @brief Reads the current pin output.
  * 
- * @param instance  GPIO instance number (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  * @return current pin output status. 0 - Low logic, 1 - High logic
  */
-static inline uint32_t gpio_hal_read_pin_output(uint32_t instance, uint32_t pin)
+static inline uint32_t GPIO_HAL_ReadPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    return ((HW_GPIO_PDOR_RD(instance) >> pin) && 0x1U);
+    return ((HW_GPIO_PDOR_RD(baseAddr) >> pin) & 0x1U);
 }
 
 /*!
  * @brief Sets the output level of the individual GPIO pin to logic 1.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  */
-static inline void gpio_hal_set_pin_output(uint32_t instance, uint32_t pin)
+static inline void GPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_GPIO_PSOR_WR(instance, 1U << pin);
+    HW_GPIO_PSOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
  * @brief Clears the output level of the individual GPIO pin to logic 0.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  */
-static inline void gpio_hal_clear_pin_output(uint32_t instance, uint32_t pin)
+static inline void GPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_GPIO_PCOR_WR(instance, 1U << pin);
+    HW_GPIO_PCOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
  * @brief Reverses the current output logic of the individual GPIO pin.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  */
-static inline void gpio_hal_toggle_pin_output(uint32_t instance, uint32_t pin)
+static inline void GPIO_HAL_TogglePinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_GPIO_PTOR_WR(instance, 1U << pin);
+    HW_GPIO_PTOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
@@ -217,17 +210,16 @@ static inline void gpio_hal_toggle_pin_output(uint32_t instance, uint32_t pin)
  *
  * This function  operates all 32 port pins.
  * 
- * @param instance  GPIO instance number (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
+ * @param baseAddr  GPIO base address (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
  * @param portOutput  data to configure the GPIO output. Each bit represents one pin. For each bit:
  *        - 0: set logic level 0 to pin
  *        - 1: set logic level 1 to pin
  *        - LSB: pin 0
  *        - MSB: pin 31
  */
-static inline void gpio_hal_write_port_output(uint32_t instance, uint32_t portOutput)
+static inline void GPIO_HAL_WritePortOutput(uint32_t baseAddr, uint32_t portOutput)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    HW_GPIO_PDOR_WR(instance, portOutput);
+    HW_GPIO_PDOR_WR(baseAddr, portOutput);
 }
 
 /*!
@@ -235,17 +227,16 @@ static inline void gpio_hal_write_port_output(uint32_t instance, uint32_t portOu
  *
  * This function  operates all 32 port pins.
  * 
- * @param instance  GPIO instance number (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
+ * @param baseAddr  GPIO base address (HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.) 
  * @return current port output status. Each bit represents one pin. For each bit:
  *        - 0: corresponding pin is outputting logic level 0
  *        - 1: corresponding pin is outputting logic level 1
  *        - LSB: pin 0
  *        - MSB: pin 31
  */
-static inline uint32_t gpio_hal_read_port_output(uint32_t instance)
+static inline uint32_t GPIO_HAL_ReadPortOutput(uint32_t baseAddr)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    return HW_GPIO_PDOR_RD(instance);
+    return HW_GPIO_PDOR_RD(baseAddr);
 }
 
 /* @} */
@@ -258,17 +249,16 @@ static inline uint32_t gpio_hal_read_port_output(uint32_t instance)
 /*!
  * @brief Reads the current input value of the individual GPIO pin.
  * 
- * @param instance  GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr  GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @param pin  GPIO port pin number
  * @return GPIO port input value
  *         - 0: Pin logic level is 0, or is not configured for use by digital function.
  *         - 1: Pin logic level is 1
  */
-static inline uint32_t gpio_hal_read_pin_input(uint32_t instance, uint32_t pin)
+static inline uint32_t GPIO_HAL_ReadPinInput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    return (HW_GPIO_PDIR_RD(instance) >> pin) & 1U;
+    return (HW_GPIO_PDIR_RD(baseAddr) >> pin) & 1U;
 }
 
 /*!
@@ -276,17 +266,16 @@ static inline uint32_t gpio_hal_read_pin_input(uint32_t instance, uint32_t pin)
  *
  * This function  gets all 32-pin input as a 32-bit integer.
  * 
- * @param instance GPIO instance number(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
+ * @param baseAddr GPIO base address(HW_GPIOA, HW_GPIOB, HW_GPIOC, etc.)
  * @return GPIO port input data. Each bit represents one pin. For each bit:
  *         - 0: Pin logic level is 0, or is not configured for use by digital function.
  *         - 1: Pin logic level is 1.
  *         - LSB: pin 0
  *         - MSB: pin 31
  */
-static inline uint32_t gpio_hal_read_port_input(uint32_t instance)
+static inline uint32_t GPIO_HAL_ReadPortInput(uint32_t baseAddr)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    return HW_GPIO_PDIR_RD(instance);
+    return HW_GPIO_PDIR_RD(baseAddr);
 }
 
 /* @} */
@@ -310,40 +299,37 @@ static inline uint32_t gpio_hal_read_port_input(uint32_t instance)
 /*!
  * @brief Sets the output level of an individual FGPIO pin to logic 1.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
  * @param pin  FGPIO port pin number
  */
-static inline void fgpio_hal_set_pin_output(uint32_t instance, uint32_t pin)
+static inline void FGPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_FGPIO_PSOR_WR(instance, 1U << pin);
+    HW_FGPIO_PSOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
  * @brief Clears the output level of an individual FGPIO pin to logic 0.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
  * @param pin  FGPIO port pin number
  */
-static inline void fgpio_hal_clear_pin_output(uint32_t instance, uint32_t pin)
+static inline void FGPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_FGPIO_PCOR_WR(instance, 1U << pin);
+    HW_FGPIO_PCOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
  * @brief Reverses the current output logic of an individual FGPIO pin.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
  * @param pin  FGPIO port pin number
  */
-static inline void fgpio_hal_toggle_pin_output(uint32_t instance, uint32_t pin)
+static inline void FGPIO_HAL_TogglePinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    HW_FGPIO_PTOR_WR(instance, 1U << pin);
+    HW_FGPIO_PTOR_WR(baseAddr, 1U << pin);
 }
 
 /*!
@@ -351,17 +337,16 @@ static inline void fgpio_hal_toggle_pin_output(uint32_t instance, uint32_t pin)
  *
  * This function  affects all 32 port pins.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
  * @param portOutput  data to configure the GPIO output. Each bit represents one pin. For each bit:
  *        - 0: set logic level 0 to pin.
  *        - 1: set logic level 1 to pin.
  *        - LSB: pin 0
  *        - MSB: pin 31
  */
-static inline void fgpio_hal_write_port_output(uint32_t instance, uint32_t portOutput)
+static inline void FGPIO_HAL_WritePortOutput(uint32_t baseAddr, uint32_t portOutput)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    HW_FGPIO_PDOR_WR(instance, portOutput);
+    HW_FGPIO_PDOR_WR(baseAddr, portOutput);
 }
 
 /* @} */
@@ -374,17 +359,16 @@ static inline void fgpio_hal_write_port_output(uint32_t instance, uint32_t portO
 /*!
  * @brief Gets the current input value of an individual FGPIO pin.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.)
  * @param pin  FGPIO port pin number
  * @return FGPIO port input data
  *         - 0: Pin logic level is 0, or is not configured for use by digital function.
  *         - 1: Pin logic level is 1.
  */
-static inline uint32_t fgpio_hal_read_pin_input(uint32_t instance, uint32_t pin)
+static inline uint32_t FGPIO_HAL_ReadPinInput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);
     assert(pin < 32);
-    return (HW_FGPIO_PDIR_RD(instance) >> pin) & 1U;
+    return (HW_FGPIO_PDIR_RD(baseAddr) >> pin) & 1U;
 }
 
 /*!
@@ -392,17 +376,16 @@ static inline uint32_t fgpio_hal_read_pin_input(uint32_t instance, uint32_t pin)
  *
  * This function  gets all 32-pin input as a 32-bit integer.
  * 
- * @param instance  GPIO instance number(HW_FPTA, HW_FPTB, HW_FPTC, etc.). 
+ * @param baseAddr  GPIO base address(HW_FPTA, HW_FPTB, HW_FPTC, etc.). 
  * @return FGPIO port input data. Each bit represents one pin. For each bit:
  *         - 0: Pin logic level is 0, or is not configured for use by digital function.
  *         - 1: Pin logic level is 1.
  *         - LSB: pin 0
  *         - MSB: pin 31
  */
-static inline uint32_t fgpio_hal_read_port_input(uint32_t instance)
+static inline uint32_t FGPIO_HAL_ReadPortInput(uint32_t baseAddr)
 {
-    assert(instance < HW_GPIO_INSTANCE_COUNT);    
-    return HW_FGPIO_PDIR_RD(instance);
+    return HW_FGPIO_PDIR_RD(baseAddr);
 }
 
 /* @} */
@@ -419,4 +402,5 @@ static inline uint32_t fgpio_hal_read_port_input(uint32_t instance)
 /*******************************************************************************
  * EOF
  ******************************************************************************/
+
 

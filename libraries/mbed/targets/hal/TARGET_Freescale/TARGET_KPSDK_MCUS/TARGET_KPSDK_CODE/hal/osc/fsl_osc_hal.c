@@ -34,231 +34,157 @@
  * Definitions
  ******************************************************************************/
 
-
 /*******************************************************************************
  * Code
  ******************************************************************************/
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : osc_hal_enable_external_reference_clock
- * Description   : Enable the external reference clock for oscillator
- * This function will enable the external reference clock output 
- * for oscillator - that is the OSCERCLK. This clock will be used
- * by many peripherals. It should be enabled at early system init
- * stage to ensure the peripherals could select it and use it.
+ * Function Name : OSC_HAL_SetExternalRefClkCmd
+ * Description   : Enable/disable the external reference clock 
+ * This function will enable/disable the external reference clock output 
+ * for oscillator - that is the OSCERCLK. This clock will be used by many 
+ * peripherals. It should be enabled at early system init stage to ensure the 
+ * peripherals could select it and use it.
  * 
  *END**************************************************************************/
-void osc_hal_enable_external_reference_clock(osc_instance_t instance)
+void OSC_HAL_SetExternalRefClkCmd(uint32_t baseAddr, bool enable)
 {
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
-    {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR |= OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR |= OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR |= OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-    default:
-        break;
-    }
+    BW_OSC_CR_ERCLKEN(baseAddr, enable);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : osc_hal_disable_external_reference_clock
- * Description   : Disable the external reference clock for oscillator
- * This function will disable the external reference clock output 
- * for oscillator - that is the OSCERCLK. This clock will be used
- * by many peripherals. It should be enabled at early system init
- * stage to ensure the peripherals could select it and use it.
+ * Function Name : OSC_HAL_GetExternalRefClkCmd
+ * Description   : Get the external reference clock enable setting for osc
+ * This function will get the external reference clock output enable setting 
+ * for oscillator - that is the OSCERCLK. This clock will be used by many 
+ * peripherals. It should be enabled at early system init stage to ensure the 
+ * peripherals could select it and use it.
  * 
  *END**************************************************************************/
-void osc_hal_disable_external_reference_clock(osc_instance_t instance)
+bool OSC_HAL_GetExternalRefClkCmd(uint32_t baseAddr)
 {
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
-    {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR &= ~OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR &= ~OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR &= ~OSC_CR_ERCLKEN_MASK;
-        break;
-#endif
-    default:
-        break;
-    }
+    return (bool)BR_OSC_CR_ERCLKEN(baseAddr);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : osc_hal_enable_external_reference_clock_in_stop_mode
- * Description   : Enable the external reference clock in stop mode
- * This function will enable the external reference clock (OSCERCLK) when
+ * Function Name : OSC_HAL_SetExternalRefClkInStopModeCmd
+ * Description   : Enable/disable the external ref clock in stop mode 
+ * This function will enable/disable the external reference clock (OSCERCLK) 
+ * when MCU enters Stop mode. 
+ * 
+ *END**************************************************************************/
+void OSC_HAL_SetExternalRefClkInStopModeCmd(uint32_t baseAddr, bool enable)
+{
+    BW_OSC_CR_EREFSTEN(baseAddr, enable);
+}
+
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : OSC_HAL_GetExternalRefClkInStopModeCmd
+ * Description   : Get the external ref clock enable setting for osc in stop mode 
+ * This function will get the external reference clock (OSCERCLK) setting when 
  * MCU enters Stop mode. 
  * 
  *END**************************************************************************/
-void osc_hal_enable_external_reference_clock_in_stop_mode(osc_instance_t instance)
+bool OSC_HAL_GetExternalRefClkInStopModeCmd(uint32_t baseAddr)
 {
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
-    {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR |= OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR |= OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR |= OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-    default:
-        break;
-    }
+    return (bool)BR_OSC_CR_EREFSTEN(baseAddr);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : osc_hal_disable_external_reference_clock_in_stop_mode
- * Description   : Disable the external reference clock for in stop mode
- * This function will disable the external reference clock (OSCERCLK) when 
- * MCU enters Stop mode. 
- * 
- *END**************************************************************************/
-void osc_hal_disable_external_reference_clock_in_stop_mode(osc_instance_t instance)
-{
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
-    {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR &= ~OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR &= ~OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR &= ~OSC_CR_EREFSTEN_MASK;
-        break;
-#endif
-    default:
-        break;
-    }
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : osc_hal_enable_capacitor_config
- * Description   : Enable the capacitor configuration for oscillator
- * This function will enable the specified capacitors configuration for the 
+ * Function Name : OSC_HAL_SetCapacitorCmd
+ * Description   : Enable/disable the capacitor configuration for oscillator
+ * This function will enable/disable the specified capacitors configuration for  
  * oscillator. This should be done in early system level init function call
  * based on system configuration.
  * 
  *END**************************************************************************/
-void osc_hal_enable_capacitor_config(osc_instance_t instance, uint32_t capacitorConfigs)
+void OSC_HAL_SetCapacitorCmd(uint32_t baseAddr, 
+                             osc_capacitor_config_t capacitorConfig,
+                             bool enable)
 {
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
+    if (capacitorConfig == kOscCapacitor2p)
     {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR |= (capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR |= (capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR |= (capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-    default:
-        break;
+        BW_OSC_CR_SC2P(baseAddr, enable);
+    }
+    else if (capacitorConfig == kOscCapacitor4p)
+    {
+        BW_OSC_CR_SC4P(baseAddr, enable);
+    }
+    else if (capacitorConfig == kOscCapacitor8p)
+    {
+        BW_OSC_CR_SC8P(baseAddr, enable);
+    }
+    else if (capacitorConfig == kOscCapacitor16p)
+    {
+        BW_OSC_CR_SC16P(baseAddr, enable);
     }
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : osc_hal_disable_capacitor_config
- * Description   : Disable the capacitor configuration for specific oscillator
- * This function will enable the specified capacitors configuration for the 
+ * Function Name : OSC_HAL_GetCapacitorCmd
+ * Description   : Get the capacitor configuration for specific oscillator
+ * This function will get the specified capacitors configuration for the 
  * oscillator.
  * 
  *END**************************************************************************/
-void osc_hal_disable_capacitor_config(osc_instance_t instance, uint32_t capacitorConfigs)
+bool OSC_HAL_GetCapacitorCmd(uint32_t baseAddr, 
+                             osc_capacitor_config_t capacitorConfig)
 {
-    /* check instance range */
-    assert(instance < FSL_FEATURE_OSC_COUNT);
-
-    /* branch according to instance */
-    switch (instance)
+    if (capacitorConfig == kOscCapacitor2p)
     {
-#if FSL_FEATURE_OSC_HAS_OSC0
-    case 0:
-        OSC0->CR &= ~(capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC1
-    case 1:
-        OSC1->CR &= ~(capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-#if FSL_FEATURE_OSC_HAS_OSC
-    case 0:
-        OSC->CR &= ~(capacitorConfigs & kOscCapacitorMask);
-        break;
-#endif
-    default:
-        break;
+        return (bool)BR_OSC_CR_SC2P(baseAddr);
     }
+    else if (capacitorConfig == kOscCapacitor4p)
+    {
+        return (bool)BR_OSC_CR_SC4P(baseAddr);
+    }
+    else if (capacitorConfig == kOscCapacitor8p)
+    {
+        return (bool)BR_OSC_CR_SC8P(baseAddr);
+    }
+    else if (capacitorConfig == kOscCapacitor16p)
+    {
+        return (bool)BR_OSC_CR_SC16P(baseAddr);
+    }
+
+    return 0;
 }
+
+#if FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : OSC_HAL_SetExternalRefClkDivCmd
+ * Description   : Set the external reference clock divider setting for osc
+ * This function will get the external reference clock divider setting 
+ * for oscillator - that is the OSCERCLK. This clock will be used by many 
+ * peripherals. 
+ * 
+ *END**************************************************************************/
+void OSC_HAL_SetExternalRefClkDivCmd(uint32_t baseAddr, uint32_t divider)
+{
+    BW_OSC_DIV_ERPS(baseAddr, divider);
+}
+
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : OSC_HAL_GetExternalRefClkDivCmd
+ * Description   : Get the external reference clock divider setting for osc
+ * This function will get the external reference clock divider setting 
+ * for oscillator - that is the OSCERCLK. This clock will be used by many 
+ * peripherals. 
+ * 
+ *END**************************************************************************/
+uint32_t OSC_HAL_GetExternalRefClkDivCmd(uint32_t baseAddr)
+{
+    return BR_OSC_DIV_ERPS(baseAddr);
+}
+#endif
 
 /*******************************************************************************
  * EOF

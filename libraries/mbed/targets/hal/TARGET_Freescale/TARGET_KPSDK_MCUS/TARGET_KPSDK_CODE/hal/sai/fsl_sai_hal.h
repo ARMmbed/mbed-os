@@ -50,36 +50,24 @@
  * Definitions
  ******************************************************************************/
 
-/* Defines the bit limits of in a word*/
+/* Define the bit limits of in a word*/
 #define SAI_BIT_MIN	8
 #define SAI_BIT_MAX	32
 
-/* Defines the limits of word number per frame */
-#define SAI_WORD_MAX	FSL_FEATURE_I2S_MAX_WORDS_PER_FRAME
-
-/* Defines the maximum div and fract value for master clock divider. */
+/* Define the max div and fract value for master clock divider. */
 #define SAI_FRACT_MAX	256
 #define SAI_DIV_MAX		4096
 
-/* Defines the maximum value for watermark setting. */
-#define SAI_WATERMARK_MAX   FSL_FEATURE_I2S_FIFO_COUNT
-#define SAI_FIFO_LEN		FSL_FEATURE_I2S_FIFO_COUNT
-
-/*! @brief Defines the SAI bus type. */
-typedef enum _sai_bus
+/*! @brief Define the bus type of sai */
+typedef enum _sai_protocol
 {
-    kSaiBusI2SLeft = 0x0,/*!< Use I2S left aligned format */
-    kSaiBusI2SRight = 0x1,/*!< Use I2S right aligned format */
-    kSaiBusI2SType = 0x2,/*!< Use I2S format */ 
- } sai_bus_t;
-
-/*! @brief Transmits or receives data; Reads and writes at the same time.*/
-typedef enum _sai_io_mode
-{
-    kSaiIOModeTransmit = 0x0,/*!< Write data to FIFO */
-    kSaiIOModeReceive = 0x1,/*!< Read data from FIFO */
-    kSaiIOModeDuplex = 0x2/*!< Read data and write data at the same time */
-} sai_io_mode_t;
+    kSaiBusI2SLeft = 0x0,
+    kSaiBusI2SRight = 0x1,
+    kSaiBusI2SType = 0x2,
+    kSaiBusPCMA = 0x3,
+    kSaiBusPCMB = 0x4,
+    kSaiBusAC97 = 0x5
+ } sai_protocol_t;
 
 /*! @brief Master or slave mode */
 typedef enum _sai_master_slave
@@ -87,6 +75,27 @@ typedef enum _sai_master_slave
     kSaiMaster = 0x0,/*!< Master mode */
     kSaiSlave = 0x1/*!< Slave mode */
 } sai_master_slave_t;
+
+/*! @brief Polarity of SAI clock. */
+typedef enum _sai_clk_polarity
+{
+    kSaiClkPolarityHigh = 0x0, /*!< Clock active high */
+    kSaiClkPolarityLow = 0x1 /*!< Clock active low */
+} sai_clk_polarity_t;
+
+/*! @brief Clock generate direction. */
+typedef enum _sai_clk_direction
+{
+    kSaiClkInternal = 0x0, /*!< Clock generated internal. */
+    kSaiClkExternal = 0x1 /*!< Clock generated external. */
+} sai_clk_direction_t;
+
+/*! @brief Data transfer polarity, means MSB first of LSB first.*/
+typedef enum _sai_data_order
+{
+    kSaiLSBFirst = 0x0, /*!< Least significant bit transferred first. */
+    kSaiMSBFirst = 0x1 /*!< Most significant bit transferred first. */
+} sai_data_order_t;
 
 /*! @brief Synchronous or asynchronous mode */
 typedef enum _sai_sync_mode
@@ -101,9 +110,9 @@ typedef enum _sai_sync_mode
 typedef enum _sai_mclk_source
 {
     kSaiMclkSourceSysclk = 0x0,/*!< Master clock from the system clock */
-    kSaiMclkSourceExtal = 0x1,/*!< Master clock from the extal */
-    kSaiMclkSourceAltclk = 0x2,/*!< Master clock from the ALT */
-    kSaiMclkSourcePllout = 0x3/*!< Master clock from the PLL */ 
+    kSaiMclkSourceSelect1 = 0x1,/*!< Master clock from source 1 */
+    kSaiMclkSourceSelect2 = 0x2,/*!< Master clock from source 2 */
+    kSaiMclkSourceSelect3 = 0x3/*!< Master clock from source 3 */ 
 } sai_mclk_source_t;
 
 /*! @brief Bit clock source */
@@ -115,7 +124,7 @@ typedef enum _sai_bclk_source
     kSaiBclkSourceOtherSai1 = 0x3/*!< Bit clock from other SAI device */
 } sai_bclk_source_t;
 
-/*! @brief The SAI state flag.*/
+/*! @brief The SAI state flag. */
 typedef enum _sai_interrupt_request
 {
     kSaiIntrequestWordStart = 0x0,/*!< Word start flag, means the first word in a frame detected */
@@ -127,37 +136,54 @@ typedef enum _sai_interrupt_request
 
 
 /*! @brief The DMA request sources */
-typedef enum _sai_dma_type
+typedef enum _sai_dma_request
 {
     kSaiDmaReqFIFOWarning = 0x0,/*!< FIFO warning caused by the DMA request */
     kSaiDmaReqFIFORequest = 0x1/*!< FIFO request caused by the DMA request */
 } sai_dma_request_t;
 
-/*! @brief The SAI state flag*/
+/*! @brief The SAI state flag */
 typedef enum _sai_state_flag
 {
     kSaiStateFlagWordStart = 0x0,/*!< Word start flag, means the first word in a frame detected. */
     kSaiStateFlagSyncError = 0x1,/*!< Sync error flag, means the sync error is detected */
     kSaiStateFlagFIFOError = 0x2,/*!< FIFO error flag */
-    kSaiStateFlagSoftReset = 0x3 /*!< Software reset flag */
+    kSaiStateFlagFIFORequest = 0x3,
+    kSaiStateFlagFIFOWarning = 0x4,
+    kSaiStateFlagSoftReset = 0x5 /*!< Software reset flag */
 } sai_state_flag_t;
 
 /*! @brief The reset type */
-typedef enum _sai_reset
+typedef enum _sai_reset_type
 {
     kSaiResetTypeSoftware = 0x0,/*!< Software reset, reset the logic state */
     kSaiResetTypeFIFO = 0x1/*!< FIFO reset, reset the FIFO read and write pointer */
 } sai_reset_type_t;
 
 /*
- * @brief The SAI running mode 
+ * @brief The SAI running mode
  * The mode includes normal mode, debug mode, and stop mode.
  */
 typedef enum _sai_running_mode
 {
     kSaiRunModeDebug = 0x0,/*!< In debug mode */ 
     kSaiRunModeStop = 0x1/*!< In stop mode */
-} sai_mode_t;
+} sai_run_mode_t;
+
+#if FSL_FEATURE_SAI_HAS_FIFO_PACKING
+
+/*
+ * @brief The SAI packing mode
+ * The mode includes 8 bit and 16 bit packing.
+ */
+typedef enum _sai_fifo_packing
+{
+    kSaiFifoPackingDisabled = 0x0, /*!< Packing disabled. */
+    kSaiFifoPacking8bit = 0x2,/*!< 8 bit packing enabled. */
+    kSaiFifoPacking16bit = 0x3 /*!< 16bit packing enabled. */
+} sai_fifo_packing_t;
+
+#endif
 
 /*******************************************************************************
  * API
@@ -168,47 +194,113 @@ extern "C" {
 #endif
 
 /*!
- * @brief  Initializes the SAI device.
- *
- * The initialization resets the SAI module by setting the SR bit of TCSR and the RCSR register.
- * Note that the function would write 0 to every control registers.
- * @param instance The SAI peripheral instance number.
- */
-void sai_hal_init(uint8_t instance);
+* @name Module control
+* @{
+*/
 
 /*!
- * @brief Sets the bus protocol relevant settings for Tx.
+ * @brief  Initializes the SAI Tx.
  *
- * The bus mode means which protocol SAI uses. It can be I2S left, right, and so on. Each protocol
- * would have different configuration on bit clock and frame sync.
- * @param instance The SAI peripheral instance number.
- * @param bus_mode The protocol selection, it can be I2S left aligned, I2S right aligned, etc.
+ * The initialization resets the SAI module by setting the SR bit of TCSR register.
+ * Note that the function writes 0 to every control registers.
+ * @param saiBaseAddr Register base address of SAI module.
  */
-void sai_hal_set_tx_bus(uint8_t instance, sai_bus_t bus_mode);
+void SAI_HAL_TxInit(uint32_t saiBaseAddr);
 
 /*!
- * @brief Sets the bus protocol relevant settings for Rx.
+ * @brief  Initializes the SAI Rx.
+ *
+ * The initialization resets the SAI module by setting the SR bit of RCSR register.
+ * Note that the function writes 0 to every control registers.
+ * @param saiBaseAddr Register base address of SAI module.
+ */
+void SAI_HAL_RxInit(uint32_t saiBaseAddr);
+
+/*!
+ * @brief Sets Tx protocol relevant settings.
  *
  * The bus mode means which protocol SAI uses. It can be I2S left, right and so on. Each protocol
  * has a different configuration on bit clock and frame sync.
- * @param instance The SAI peripheral instance number.
- * @param bus_mode The protocol selection, it can be I2S left aligned, I2S right aligned, etc.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param protocol The protocol selection. It can be I2S left aligned, I2S right aligned, etc.
  */
-void sai_hal_set_rx_bus(uint8_t instance, sai_bus_t bus_mode);
+void SAI_HAL_TxSetProtocol(uint32_t saiBaseAddr, sai_protocol_t protocol);
+
+/*!
+ * @brief Sets Rx protocol relevant settings.
+ *
+ * The bus mode means which protocol SAI uses. It can be I2S left, right and so on. Each protocol
+ * has a different configuration on bit clock and frame sync.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param protocol The protocol selection. It can be I2S left aligned, I2S right aligned, etc.
+ */
+void SAI_HAL_RxSetProtocol(uint32_t saiBaseAddr, sai_protocol_t protocol);
+
+/*!
+ * @brief Sets master or slave mode.
+ *
+ * The function determines master or slave mode. Master mode  provides its
+ * own clock and slave mode  uses an external clock.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param master_slave_mode Mater or slave mode.
+ */
+void SAI_HAL_TxSetMasterSlave(uint32_t saiBaseAddr, sai_master_slave_t master_slave_mode);
+
+/*!
+ * @brief Sets master or slave mode.
+ *
+ * The function determines master or slave mode. Master mode provides its
+ * own clock and slave mode  uses external clock.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param master_slave_mode Mater or slave mode.
+ */
+void SAI_HAL_RxSetMasterSlave(uint32_t saiBaseAddr, sai_master_slave_t master_slave_mode);
+
+/*! @}*/
+
+/*!
+* @name Master clock configuration
+* @{
+*/
 
 /*!
  * @brief Sets the master clock source.
  *
- * The source of the clock can be: PLL_OUT, ALT_CLK, EXTAL, SYS_CLK.
- * This function  sets the clock source for SAI master clock source.
+ * The source of the clock is different from socs.
+ * This function sets the clock source for SAI master clock source.
  * Master clock is used to produce the bit clock for the data transfer.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source Mater clock source
  */
-static inline void sai_hal_set_mclk_source(uint8_t instance, sai_mclk_source_t source)
+static inline void SAI_HAL_SetMclkSrc(uint32_t saiBaseAddr, sai_mclk_source_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_MCR_MICS(instance,source);
+    BW_I2S_MCR_MICS(saiBaseAddr,source);
+}
+
+/*!
+ * @brief Gets the master clock source.
+ *
+ * The source of the clock is different from socs.
+ * This function gets the clock source for SAI master clock source.
+ * Master clock is used to produce the bit clock for the data transfer.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @return Mater clock source
+ */
+static inline uint32_t SAI_HAL_GetMclkSrc(uint32_t saiBaseAddr)
+{
+    return BR_I2S_MCR_MICS(saiBaseAddr);
+}
+
+/*!
+ * @brief Sets the direction of the SAI master clock.
+ * 
+ * This function would decides the direction of bit clock generated.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means enable, false means disable.
+ */
+static inline void SAI_HAL_SetMclkDividerCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_MCR_MOE(saiBaseAddr,enable);
 }
 
 /*!
@@ -217,701 +309,1107 @@ static inline void sai_hal_set_mclk_source(uint8_t instance, sai_mclk_source_t s
  * Using the divider to get the master clock frequency wanted from the source. 
  * mclk = clk_source * fract/divide. The input is the master clock frequency needed and the source clock frequency.
  * The master clock is decided by the sample rate and the multi-clock number.
- * @param instance The SAI peripheral instance number.
+ * Notice that mclk should less than src_clk, or it would do hang as the HW refuses to write in this situation.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param mclk Master clock frequency needed.
  * @param src_clk The source clock frequency.
  */
-void sai_hal_set_mclk_divider(uint8_t instance, uint32_t mclk, uint32_t src_clk);
+void SAI_HAL_SetMclkDiv(uint32_t saiBaseAddr, uint32_t mclk, uint32_t src_clk);
 
 /*!
- * @brief Sets the  bit clock source of Tx. It  is generated by the master clock, bus clock, and other devices.
- *
- * The function  sets the source of the bit clock. The bit clock can be produced by the master
- * clock,  and  from the bus clock or other SAI Tx/Rx. Tx and Rx in the SAI module can use the same bit 
- * clock either from Tx or Rx.
- * @param instance The SAI peripheral instance number.
- * @param source Bit clock source.
+ * @brief Flag to see if the master clock divider is re-divided.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @return True if the divider updated otherwise false.
  */
-static inline void sai_hal_set_tx_bclk_source(uint8_t instance, sai_bclk_source_t source)
+static inline bool SAI_HAL_GetMclkDivUpdatingCmd(uint32_t saiBaseAddr)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_TCR2_MSEL(instance,source);
+    return BR_I2S_MCR_DUF(saiBaseAddr);
 }
 
+/*! @}*/
+
 /*!
- * @brief Sets the bit clock source of Rx. It is generated by the master clock, bus clock, and other devices.
+* @name Bit clock configuration
+* @{
+*/
+
+/*!
+ * @brief Sets the bit clock source of Tx. It is generated by the master clock, bus clock and other devices.
  *
- * The function  sets the source of the Rx bit clock. The bit clock can be produced by the master
+ * The function sets the source of the bit clock. The bit clock can be produced by the master
  * clock and from the bus clock or other SAI Tx/Rx. Tx and Rx in the SAI module use the same bit 
  * clock either from Tx or Rx.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source Bit clock source.
  */
-static inline void sai_hal_set_rx_bclk_source(uint8_t instance, sai_bclk_source_t source)
+static inline void SAI_HAL_TxSetBclkSrc(uint32_t saiBaseAddr, sai_bclk_source_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_RCR2_MSEL(instance,source);
+    BW_I2S_TCR2_MSEL(saiBaseAddr,source);
 }
 
 /*!
- * @brief Sets the bit clock divider value of Tx. 
+ * @brief Sets bit clock source of the Rx. It is generated by the master clock, bus clock and other devices.
  *
- * bclk = mclk / divider. At the same time, bclk = sample_rate * channel * bits. This means  
- * how much time is needed to transfer one bit.
- * Notice: The function  is called while the bit clock source is the master clock.
- * @param instance The SAI peripheral instance number.
- * @param div The divide number of bit clock.
+ * The function sets the source of the bit clock. The bit clock can be produced by the master
+ * clock, and from the bus clock or other SAI Tx/Rx. Tx and Rx in the SAI module use the same bit 
+ * clock either from Tx or Rx.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param source Bit clock source.
  */
-static inline void sai_hal_set_tx_blck_divider(uint8_t instance, uint32_t divider)
+static inline void SAI_HAL_RxSetBclkSrc(uint32_t saiBaseAddr, sai_bclk_source_t source)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(divider);
-    BW_I2S_TCR2_DIV(instance,divider/2 -1);
+    BW_I2S_RCR2_MSEL(saiBaseAddr,source);
 }
 
 /*!
- * @brief Sets the bit clock divider value of Tx.
+ * @brief Gets the bit clock source of Tx. It is generated by the master clock, bus clock and other devices.
  *
- * bclk = mclk / divider. At the same time, bclk = sample_rate * channel * bits. This means  
- * how much time is needed to transfer one bit.
- * Notice: The function  is called while the bit clock source is the master clock.
- * @param instance The SAI peripheral instance number.
- * @param div The divide number of bit clock.
+ * The function gets the source of the bit clock. The bit clock can be produced by the master
+ * clock and from the bus clock or other SAI Tx/Rx. Tx and Rx in the SAI module use the same bit 
+ * clock either from Tx or Rx.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @return Bit clock source.
  */
-static inline void sai_hal_set_rx_blck_divider(uint8_t instance, uint32_t divider)
+static inline uint32_t SAI_HAL_TxGetBclkSrc(uint32_t saiBaseAddr)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(divider);
-    BW_I2S_RCR2_DIV(instance,divider/2 -1);
+    return BR_I2S_TCR2_MSEL(saiBaseAddr);
 }
 
 /*!
- * @brief Sets the frame size for Tx. 
+ * @brief Gets bit clock source of the Rx. It is generated by the master clock, bus clock and other devices.
+ *
+ * The function gets the source of the bit clock. The bit clock can be produced by the master
+ * clock, and from the bus clock or other SAI Tx/Rx. Tx and Rx in the SAI module use the same bit 
+ * clock either from Tx or Rx.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @return Bit clock source.
+ */
+static inline uint32_t SAI_HAL_RxGetBclkSrc(uint32_t saiBaseAddr)
+{
+    return BR_I2S_RCR2_MSEL(saiBaseAddr);
+}
+
+/*!
+ * @brief Sets the Tx bit clock divider value.
+ *
+ * bclk = mclk / divider. At the same time, bclk = sample_rate * channel * bits. This means
+ * how much time is needed to transfer one bit.
+ * Notice: The function is called while the bit clock source is the master clock.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param divider The divide number of bit clock.
+ */
+static inline void SAI_HAL_TxSetBclkDiv(uint32_t saiBaseAddr, uint32_t divider)
+{
+    BW_I2S_TCR2_DIV(saiBaseAddr,divider/2 -1);
+}
+
+/*!
+ * @brief Sets the Rx bit clock divider value.
+ *
+ * bclk = mclk / divider. At the same time, bclk = sample_rate * channel * bits. This means
+ * how much time is needed to transfer one bit.
+ * Notice: The function is called while the bit clock source is the master clock.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param divider The divide number of bit clock.
+ */
+static inline void SAI_HAL_RxSetBclkDiv(uint32_t saiBaseAddr, uint32_t divider)
+{
+    BW_I2S_RCR2_DIV(saiBaseAddr,divider/2 -1);
+}
+
+/*!
+ * @brief Enables or disables the Tx  bit clock.
+ * 
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means enable, false means disable.
+ */
+static inline void SAI_HAL_TxSetBclkCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCSR_BCE(saiBaseAddr,enable);
+}
+
+/*!
+ * @brief Enables or disables the Rx bit clock.
+ * 
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means enable, false means disable.
+ */
+static inline void SAI_HAL_RxSetBclkCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCSR_BCE(saiBaseAddr, enable);
+}
+
+/*!
+ * @brief Enables or disables the Tx bit clock input bit.
+ * 
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means enable, false means disable.
+ */
+static inline void SAI_HAL_TxSetBclkInputCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCR2_BCI(saiBaseAddr,enable);
+}
+
+/*!
+ * @brief Enables or disables the Rx bit clock input bit.
+ * 
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means enable, false means disable.
+ */
+static inline void SAI_HAL_RxSetBclkInputCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCR2_BCI(saiBaseAddr,enable);
+}
+
+/*!
+ * @brief Sets the Tx bit clock swap.
+ *
+ * This field swaps the bit clock used by the transmitter. When the transmitter is configured in 
+ * asynchronous mode and this bit is set, the transmitter is clocked by the receiver bit clock. 
+ * This allows the transmitter and receiver to share the same bit clock, but the transmitter 
+ * continues to use the transmit frame sync (SAI_TX_SYNC).
+ * When the transmitter is configured in synchronous mode, the transmitter BCS field and receiver
+ * BCS field must be set to the same value. When both are set, the transmitter and receiver are both
+ * clocked by the transmitter bit clock (SAI_TX_BCLK) but use the receiver frame sync (SAI_RX_SYNC).
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means swap bit closk, false means no swap.
+ */
+static inline void SAI_HAL_TxSetSwapBclkCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCR2_BCS(saiBaseAddr,enable);
+}
+
+/*!
+ * @brief Sets the Rx bit clock swap.
+ *
+ * This field swaps the bit clock used by the receiver. When the receiver is configured in 
+ * asynchronous mode and this bit is set, the receiver is clocked by the transmitter bit clock
+ * (SAI_TX_BCLK). This allows the transmitter and receiver to share the same bit clock, but the 
+ * receiver continues to use the receiver frame sync (SAI_RX_SYNC). 
+ * When the receiver is configured in synchronous mode, the transmitter BCS field and receiver BCS 
+ * field must be set to the same value. When both are set, the transmitter and receiver are both 
+ * clocked by the receiver bit clock (SAI_RX_BCLK) but use the transmitter frame sync (SAI_TX_SYNC).
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means swap bit closk, false means no swap.
+ */
+static inline void SAI_HAL_RxSetSwapBclkCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCR2_BCS(saiBaseAddr, enable);
+}
+
+/*!
+ * @brief Sets the direction of the Tx SAI bit clock.
+ * 
+ * This function sets the direction of the bit clock generated.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param direction Bit clock generated internal or external.
+ */
+static inline void SAI_HAL_TxSetBclkDir(uint32_t saiBaseAddr,  sai_clk_direction_t direction)
+{
+    BW_I2S_TCR2_BCD(saiBaseAddr,direction);
+}
+
+/*!
+ * @brief Sets the direction of the Rx SAI bit clock.
+ * 
+ * This function sets the direction of the  bit clock generated.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param direction Bit clock generated internal or external.
+ */
+static inline void SAI_HAL_RxSetBclkDir(uint32_t saiBaseAddr, sai_clk_direction_t direction)
+{
+    BW_I2S_RCR2_BCD(saiBaseAddr,direction);
+}
+
+/*!
+ * @brief Sets the polarity of the Tx SAI bit clock.
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param pol Polarity of the SAI bit clock, which can be configured to active high or low.
+ */
+static inline void SAI_HAL_TxSetBclkPolarity(uint32_t saiBaseAddr, sai_clk_polarity_t pol)
+{
+    BW_I2S_TCR2_BCP(saiBaseAddr, pol);
+}
+
+/*!
+ * @brief Sets the polarity of the Rx SAI bit clock.
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param pol Polarity of SAI bit clock, which can be configured to active high or low.
+ */
+static inline void SAI_HAL_RxSetBclkPolarity(uint32_t saiBaseAddr, sai_clk_polarity_t pol)
+{
+    BW_I2S_RCR2_BCP(saiBaseAddr, pol);
+}
+/*! @} */
+
+/*!
+* @name Frame sync configuration
+* @{
+*/
+
+/*!
+ * @brief Sets the Tx frame size. 
  *
  * The frame size means how many words are in a frame. For example 2-channel
- * audio data, the frame size is 2. This means there are 2 words in a frame.
- * @param instance The SAI peripheral instance number.
+ * audio data, the frame size is 2, which means 2 words in a frame.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param size Words number in a frame.
  */
-static inline void sai_hal_set_tx_frame_size(uint8_t instance, uint8_t size)
+static inline void SAI_HAL_TxSetFrameSize(uint32_t saiBaseAddr, uint32_t size)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(size <= SAI_WORD_MAX);
-    BW_I2S_TCR4_FRSZ(instance,size-1);
+    BW_I2S_TCR4_FRSZ(saiBaseAddr,size -1);
 }
 
 /*!
- * @brief Set the frame size for rx.
+ * @brief Sets the Rx frame size. 
  *
- * The frame size means how many words in a frame. In the usual case, for example 2-channel
- * audio data, the frame size is 2, means 2 words in a frame.
- * @param instance The sai peripheral instance number.
+ * The frame size means how many words are in a frame. For example 2-channel
+ * audio data, the frame size is 2, which means 2 words in a frame.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param size Words number in a frame.
  */
-static inline void sai_hal_set_rx_frame_size(uint8_t instance, uint8_t size)
+static inline void SAI_HAL_RxSetFrameSize(uint32_t saiBaseAddr, uint32_t size)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(size <= SAI_WORD_MAX);
-    BW_I2S_RCR4_FRSZ(instance,size-1);
+    BW_I2S_RCR4_FRSZ(saiBaseAddr,size - 1);
 }
 
 /*!
- * @brief Set the word size for tx.
+ * @brief Gets the Tx frame size. 
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ */
+static inline uint32_t SAI_HAL_TxGetFrameSize(uint32_t saiBaseAddr)
+{
+    return BR_I2S_TCR4_FRSZ(saiBaseAddr);
+}
+
+/*!
+ * @brief Gets the Tx frame size. 
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ */
+static inline uint32_t SAI_HAL_RxGetFrameSize(uint32_t saiBaseAddr)
+{
+    return BR_I2S_RCR4_FRSZ(saiBaseAddr);
+}
+
+/*!
+ * @brief Sets the Tx sync width.
+ *
+ * A sync is the number of bit clocks of a frame. The sync width cannot be longer than the 
+ * length of the first word of the frame.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param width How many bit clock in a sync.
+ */
+static inline void SAI_HAL_TxSetFrameSyncWidth(uint32_t saiBaseAddr, uint32_t width)
+{
+    BW_I2S_TCR4_SYWD(saiBaseAddr, width -1);
+}
+
+/*!
+ * @brief Sets the Rx sync width.
+ *
+ * A sync is the number of bit clocks of a frame. The sync width cannot be longer than the 
+ * length of the first word of the frame.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param width How many bit clock in a sync.
+ */
+static inline void SAI_HAL_RxSetFrameSyncWidth(uint32_t saiBaseAddr, uint32_t width)
+{
+    BW_I2S_RCR4_SYWD(saiBaseAddr, width -1);
+}
+
+/*!
+ * @brief Sets the polarity of the Tx frame sync.
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param pol Polarity of sai frame sync, can be configured to active high or low.
+ */
+static inline void SAI_HAL_TxSetFrameSyncPolarity(uint32_t saiBaseAddr, sai_clk_polarity_t pol)
+{
+    BW_I2S_TCR4_FSP(saiBaseAddr,pol);
+}
+
+/*!
+ * @brief Sets the polarity of the Rx frame sync.
+ *
+ * @param saiBaseAddr Register base address of SAI module..
+ * @param pol Polarity of SAI frame sync, can be configured to active high or low.
+ */
+static inline void SAI_HAL_RxSetFrameSyncPolarity(uint32_t saiBaseAddr, sai_clk_polarity_t pol)
+{
+    BW_I2S_RCR4_FSP(saiBaseAddr,pol);
+}
+
+/*!
+ * @brief Sets the direction of the SAI Tx frame sync.
+ * 
+ * This function sets the  direction of frame sync.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param direction Frame sync generated internal or external.
+ */
+static inline void SAI_HAL_TxSetFrameSyncDir(uint32_t saiBaseAddr,sai_clk_direction_t direction)
+{
+    BW_I2S_TCR4_FSD(saiBaseAddr,direction);
+}
+
+/*!
+ * @brief Sets the direction of the SAI Rx frame sync.
+ * 
+ * This function sets the  direction of frame sync.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param direction Frame sync generated internal or external.
+ */
+static inline void SAI_HAL_RxSetFrameSyncDir(uint32_t saiBaseAddr,sai_clk_direction_t direction)
+{
+    BW_I2S_RCR4_FSD(saiBaseAddr,direction);
+}
+
+/*!
+ * @brief Sets the Tx data transfer order.
+ *
+ * This function sets the data transfer order. It can be set to MSB first or LSB first.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param order MSB transmit first or LSB transmit first.
+ */
+static inline void SAI_HAL_TxSetBitOrder(uint32_t saiBaseAddr, sai_data_order_t order)
+{
+    BW_I2S_TCR4_MF(saiBaseAddr,order);
+}
+
+/*!
+ * @brief Sets the Rx data transfer order.
+ *
+ * This function sets the data transfer order. It can be set to MSB first or LSB first.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param order MSB transmit first or LSB transmit first.
+ */
+static inline void SAI_HAL_RxSetBitOrder(uint32_t saiBaseAddr, sai_data_order_t order)
+{
+    BW_I2S_RCR4_MF(saiBaseAddr,order);
+}
+
+/*!
+ * @brief Tx Frame sync one bit early.
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means the frame sync one bit early and false means no early.
+ */
+static inline void SAI_HAL_TxSetFrameSyncEarlyCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCR4_FSE(saiBaseAddr,enable);
+}
+
+/*!
+ * @brief Rx Frame sync one bit early.
+ *
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means the frame sync one bit early and false means no early.
+ */
+static inline void SAI_HAL_RxSetFrameSyncEarlyCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCR4_FSE(saiBaseAddr,enable);
+}
+
+/*! @} */
+
+/*!
+* @name Word configurations
+* @{
+*/
+
+/*!
+ * @brief Sets the word size for Tx.
  *
  * The word size means the quantization level of audio file. 
- * Generally, there are 8bit, 16bit, 24bit, 32bit format which sai would all support.
- * @param instance The sai peripheral instance number.
+ * SAI supports the 8 bit, 16 bit, 24 bit, and 32 bit formats.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param bits How many bits in a word.
 */
-static inline void sai_hal_set_tx_word_size(uint8_t instance, uint8_t bits)
+static inline void SAI_HAL_TxSetWordSize(uint32_t saiBaseAddr,uint32_t bits)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert((bits >= SAI_BIT_MIN) && (bits <= SAI_BIT_MAX));
-    BW_I2S_TCR5_WNW(instance,bits-1);
+    BW_I2S_TCR5_WNW(saiBaseAddr,bits-1);
 }
 
 /*!
  * @brief Sets the word size for Rx.
  *
- * The word size means the quantization level of the audio file. 
- * Generally, SAI supports  8 bit, 16 bit, 24 bit, and 32 bit formats.
- * @param instance The SAI peripheral instance number.
+ * The word size means the quantization level of audio file. 
+ * SAI supports 8 bit, 16 bit, 24 bit, and 32 bit formats.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param bits How many bits in a word.
- */
-static inline void sai_hal_set_rx_word_size(uint8_t instance, uint8_t bits)
+*/
+static inline void SAI_HAL_RxSetWordSize(uint32_t saiBaseAddr,uint32_t bits)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert((bits >= SAI_BIT_MIN) && (bits <= SAI_BIT_MAX));
-    BW_I2S_RCR5_WNW(instance,bits-1);
+    BW_I2S_RCR5_WNW(saiBaseAddr,bits-1);
 }
 
 /*!
- * @brief Sets the size of the first word of the frame for Tx.
+ * @brief Gets the Tx word size.
+ * @param saiBaseAddr Register base address of SAI module.
+*/
+static inline uint32_t SAI_HAL_TxGetWordSize(uint32_t saiBaseAddr)
+{
+    return BR_I2S_TCR5_WNW(saiBaseAddr);
+}
+
+/*!
+ * @brief Gets the Rx word size.
+ * @param saiBaseAddr Register base address of SAI module.
+*/
+static inline uint32_t SAI_HAL_RxGetWordSize(uint32_t saiBaseAddr)
+{
+    return BR_I2S_RCR5_WNW(saiBaseAddr);
+}
+
+/*!
+ * @brief Sets the size of the first word of the Tx frame .
  *
  * In I2S protocol, the size of the first word is the same as the size of other words. In some protocols,
- * for example, AC'97, the size of the first word is not the same as other sizes. This function  
+ * for example, AC'97, the first word is not the same size as others. This function
  * sets the length of the first word which is, in most situations, the same as others.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param size The length of frame head word.
  */
-static inline void sai_hal_set_tx_word_zero_size(uint8_t instance, uint8_t size)
+static inline void SAI_HAL_TxSetFirstWordSize(uint32_t saiBaseAddr, uint8_t size)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert((size >= SAI_BIT_MIN) && (size <= SAI_BIT_MAX));
-    BW_I2S_TCR5_W0W(instance,size-1);
+    BW_I2S_TCR5_W0W(saiBaseAddr, size-1);
 }
 
 /*!
- * @brief Sets the size of the first word of the frame for Rx.
+ * @brief Sets the size of the first word of Rx frame .
  *
  * In I2S protocol, the size of the first word is the same as the size of other words. In some protocols,
- * for example, AC'97, the first word is not the same size as others. This function  
- * sets the length of the first word, which is, in most situations, the same as others.
- * @param instance The SAI peripheral instance number.
+ * for example, AC'97, the first word is not the same size as others. This function
+ * sets the length of the first word which is, in most situations, the same as others.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param size The length of frame head word.
  */
-static inline void sai_hal_set_rx_word_zero_size(uint8_t instance, uint8_t size)
+static inline void SAI_HAL_RxSetFirstWordSize(uint32_t saiBaseAddr, uint8_t size)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert((size >= SAI_BIT_MIN) && (size <= SAI_BIT_MAX));
-    BW_I2S_RCR5_W0W(instance,size-1);
+    BW_I2S_RCR5_W0W(saiBaseAddr, size-1);
 }
 
 /*!
- * @brief Sets the sync width for Tx.
+ * @brief Sets the FIFO index for the first bit data.
  *
- * A sync is the number of bit clocks of a frame. The sync width cannot be longer than the 
- * length of the first word of the frame.
- * @param instance The SAI peripheral instance number.
- * @param width How many bit clock in a sync.
+ * The FIFO is 32-bit in SAI. However, not all audio data is 32-bit, but is mostly  16-bit.
+ * In this situation, the codec needs to know which bit of the FIFO marks the valid audio data.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param index First bit shifted in FIFO.
  */
-static inline void sai_hal_set_tx_sync_width(uint8_t instance, uint8_t width)
+static inline void SAI_HAL_TxSetFirstBitShifted(uint32_t saiBaseAddr, uint32_t index)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(width <= SAI_BIT_MAX);
-    BW_I2S_TCR4_SYWD(instance,width-1);
+    BW_I2S_TCR5_FBT(saiBaseAddr, index-1);
 }
 
 /*!
- * @brief Sets the sync width for Rx.
+ * @brief Sets the index in FIFO for the first bit data.
  *
- * A sync is the number of bit clocks of a frame. The sync width cannot be longer than the 
- * length of the first word of the frame.
- * @param instance The SAI peripheral instance number.
- * @param width How many bit clock in a sync.
+ * The FIFO is 32-bit in SAI. However, not all audio data is 32-bit, but is mostly  16-bit.
+ * In this situation, the codec needs to know which bit of the FIFO marks the valid audio data.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param index First bit shifted in FIFO.
  */
-static inline void sai_hal_set_rx_sync_width(uint8_t instance, uint8_t width)
+static inline void SAI_HAL_RxSetFirstBitShifted(uint32_t saiBaseAddr, uint32_t index)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(width <= SAI_BIT_MAX);
-    BW_I2S_RCR4_SYWD(instance,width-1);
+    BW_I2S_RCR5_FBT(saiBaseAddr, index-1);
 }
 
+/*!@}*/
+
 /*!
- * @brief Sets the watermark value for Tx FIFO.
+* @name watermark settings
+* @{
+*/
+
+/*!
+ * @brief Sets the Tx watermark value.
  *
- * While the value in the Tx FIFO is less or equal to the watermark , it  generates an interrupt 
+ * While the value in the FIFO is less or equal to the watermark , it generates an interrupt 
  * request or a DMA request. The watermark value cannot be greater than the depth of FIFO.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param watermark Watermark value of a FIFO.
  */
-static inline void sai_hal_set_tx_watermark(uint8_t instance, uint8_t watermark)
+static inline void SAI_HAL_TxSetWatermark(uint32_t saiBaseAddr, uint32_t watermark)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(watermark < SAI_WATERMARK_MAX);
-    BW_I2S_TCR1_TFW(instance,watermark);
+    BW_I2S_TCR1_TFW(saiBaseAddr, watermark);
 }
 
 /*!
- * @brief Sets the watermark value for Rx FIFO.
+ * @brief Sets the Tx watermark value.
  *
- * While the value in Rx FIFO is larger or equal to the watermark , it  generates an interrupt 
+ * While the value in the FIFO is more or equal to the watermark , it generates an interrupt 
  * request or a DMA request. The watermark value cannot be greater than the depth of FIFO.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param watermark Watermark value of a FIFO.
  */
-static inline void sai_hal_set_rx_watermark(uint8_t instance, uint8_t watermark)
+static inline void SAI_HAL_RxSetWatermark(uint32_t saiBaseAddr, uint32_t watermark)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(watermark < SAI_WATERMARK_MAX);
-    BW_I2S_RCR1_RFW(instance,watermark);
+    BW_I2S_RCR1_RFW(saiBaseAddr, watermark);
 }
 
 /*!
- * @brief Sets the master or slave mode of Tx.
+ * @brief Gets the Tx watermark value.
  *
- * The function  sets the Tx mode to either master or slave. The master mode  provides its
- * own clock and slave mode  uses the external clock.
- * @param instance The SAI peripheral instance number.
- * @param master_slave_mode Mater or slave mode.
+ * @param saiBaseAddr Register base address of SAI module.
  */
-void sai_hal_set_tx_master_slave(uint8_t instance, sai_master_slave_t master_slave_mode);
+static inline uint32_t SAI_HAL_TxGetWatermark(uint32_t saiBaseAddr)
+{
+    return BR_I2S_TCR1_TFW(saiBaseAddr);
+}
 
 /*!
- * @brief Sets the Rx master or slave mode.
+ * @brief Gets the Rx watermark value.
  *
- * The function  sets the Rx mode to either master or slave. Master mode  provides its
- * own clock and slave mode  uses the external clock.
- * @param instance The SAI peripheral instance number.
- * @param master_slave_mode Mater or slave mode.
+ * @param saiBaseAddr Register base address of SAI module.
  */
-void sai_hal_set_rx_master_slave(uint8_t instance, sai_master_slave_t master_slave_mode);
+static inline uint32_t SAI_HAL_RxGetWatermark(uint32_t saiBaseAddr)
+{
+    return BR_I2S_RCR1_RFW(saiBaseAddr);
+}
+
+/*! @}*/
 
 /*!
- * @brief Transmits the mode setting. 
+ * @brief SAI Tx sync mode setting. 
  *
  * The mode can be asynchronous mode, synchronous, or synchronous with another SAI device.
- * When configured for a synchronous mode of operation, the receiver must be configured for the asynchronous operation.
- * @param instance The SAI peripheral instance number.
+ * When configured for a synchronous mode of operation, the receiver must be configured for the 
+ * asynchronous operation.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param sync_mode Synchronous mode or Asynchronous mode.
  */
-void sai_hal_set_tx_sync_mode(uint8_t instance, sai_sync_mode_t sync_mode);
+void SAI_HAL_TxSetSyncMode(uint32_t saiBaseAddr, sai_sync_mode_t sync_mode);
 
 /*!
- * @brief Receives the mode setting.
+ * @brief SAI Rx sync mode setting. 
  *
- * The mode can be asynchronous mode, synchronous, synchronous with another SAI device.
- * When configured for a synchronous mode of operation, the receiver must be configured for the asynchronous operation.
- * @param instance The SAI peripheral instance number.
+ * The mode can be asynchronous mode, synchronous, or synchronous with another SAI device.
+ * When configured for a synchronous mode of operation, the receiver must be configured for the 
+ * asynchronous operation.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param sync_mode Synchronous mode or Asynchronous mode.
  */
-void sai_hal_set_rx_sync_mode(uint8_t instance, sai_sync_mode_t sync_mode);
+void SAI_HAL_RxSetSyncMode(uint32_t saiBaseAddr, sai_sync_mode_t sync_mode);
 
 /*!
- * @brief Gets the FIFO read pointer.
+ * @brief Gets the Tx FIFO read pointer.
  *
- * It  is used to judge whether the FIFO is full or empty and know how much space there is for FIFO.
+ * It is used to determine whether the FIFO is full or empty and know how much space there is for FIFO.
  * If read_ptr == write_ptr, the FIFO is empty. While the bit of the read_ptr and the write_ptr are
  * equal except for the MSB, the FIFO is full.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param fifo_channel FIFO channel selected.
  * @return FIFO read pointer value.
  */
-uint8_t sai_hal_get_fifo_read_pointer(uint8_t instance, sai_io_mode_t io_mode, uint8_t fifo_channel);
+static inline uint8_t SAI_HAL_TxGetFifoReadPointer(uint32_t saiBaseAddr,  uint32_t fifo_channel)
+{
+    return BR_I2S_TFRn_RFP(saiBaseAddr,fifo_channel);
+}
 
 /*!
- * @brief Gets the FIFO read pointer.
+ * @brief Gets the Rx FIFO read pointer.
  *
- * It  is used to judge whether the FIFO is full or empty and know how much space there is for  FIFO.
- * If the read_ptr == write_ptr, the FIFO is empty. While the bit of the read_ptr and write_ptr are
+ * It is used to determine whether the FIFO is full or empty and know how much space there is for FIFO.
+ * If read_ptr == write_ptr, the FIFO is empty. While the bit of the read_ptr and the write_ptr are
  * equal except for the MSB, the FIFO is full.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param fifo_channel FIFO channel selected.
- * @return FIFO write pointer value
+ * @return FIFO read pointer value.
  */
-uint8_t sai_hal_get_fifo_write_pointer(uint8_t instance, sai_io_mode_t io_mode,uint8_t fifo_channel);
+static inline uint8_t SAI_HAL_RxGetFifoReadPointer(uint32_t saiBaseAddr,  uint32_t fifo_channel)
+{
+    return BR_I2S_RFRn_RFP(saiBaseAddr,fifo_channel);
+}
 
 /*!
- * @brief Gets the TDR/RDR register address.
+ * @brief Gets the Tx FIFO write pointer.
  *
- * This function is for DMA transfer because it needs to know the dest/src address of the DMA transfer.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
+ * It is used to determine whether the FIFO is full or empty and know how much space there is for FIFO.
+ * If read_ptr == write_ptr, the FIFO is empty. While the bit of the read_ptr and write_ptr are
+ * equal except for the MSB, the FIFO is full.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param fifo_channel FIFO channel selected.
+ * @return FIFO read pointer value.
+ */
+static inline uint8_t SAI_HAL_TxGetFifoWritePointer(uint32_t saiBaseAddr,uint32_t fifo_channel)
+{
+    return BR_I2S_TFRn_WFP(saiBaseAddr,fifo_channel);
+}
+
+/*!
+ * @brief Gets the Rx FIFO write pointer.
+ *
+ * It is used to determine whether the FIFO is full or empty and know how much space there is for FIFO.
+ * If read_ptr == write_ptr, the FIFO is empty. While the bit of the read_ptr and write_ptr are
+ * equal except for the MSB, the FIFO is full.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param fifo_channel FIFO channel selected.
+ * @return FIFO read pointer value.
+ */
+static inline uint8_t SAI_HAL_RxGetFifoWritePointer(uint32_t saiBaseAddr,uint32_t fifo_channel)
+{
+    return BR_I2S_RFRn_WFP(saiBaseAddr,fifo_channel);
+}
+
+/*!
+ * @brief Gets the TDR register address.
+ *
+ * This function determines the dest/src address of the DMA transfer.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param fifo_channel FIFO channel selected.
  * @return TDR register or RDR register address
  */
-uint32_t* sai_hal_get_fifo_address(uint8_t instance, sai_io_mode_t io_mode, uint8_t fifo_channel);
-
-/*!
- * @brief Enables the Tx transmit.
- *
- * Enables the transmitter. This function  enables both the bit clock and the transfer channel.
- * @param instance The SAI peripheral instance number.
- */
-static inline void sai_hal_enable_tx(uint8_t instance)
+static inline uint32_t* SAI_HAL_TxGetFifoAddr(uint32_t saiBaseAddr, uint32_t fifo_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_TCSR_BCE(instance,1);
-    BW_I2S_TCSR_TE(instance,1);
+    return (uint32_t *)HW_I2S_TDRn_ADDR(saiBaseAddr, fifo_channel);
 }
 
 /*!
- * @brief Enables the Rx receive.
+ * @brief Gets the RDR register address.
  *
- * Enables the receiver. This function  enables both the bit clock and the receive channel.
- * @param instance The SAI peripheral instance number.
+ * This function determines the dest/src address of the DMA transfer.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param fifo_channel FIFO channel selected.
+ * @return TDR register or RDR register address
  */
-static inline void sai_hal_enable_rx(uint8_t instance)
+static inline uint32_t* SAI_HAL_RxGetFifoAddr(uint32_t saiBaseAddr, uint32_t fifo_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_RCSR_BCE(instance,1);	
-    BW_I2S_RCSR_RE(instance,1);
+    return (uint32_t *)HW_I2S_RDRn_ADDR(saiBaseAddr, fifo_channel);
 }
 
 /*!
- * @brief Disables the Tx transmit.
+ * @brief Enables the SAI Tx module.
  *
- * Disables the transmitter. This function  disables both the bit clock and the transfer channel.
- * When software clears this field, the transmitter remains enabled, and this bit remains set, until 
- * the end of the current frame.
- * @param instance The SAI peripheral instance number.
+ * Enables the Tx. This function enables both the bit clock and the transfer channel.
+ * @param saiBaseAddr Register base address of SAI module.
  */
-static inline void sai_hal_disable_tx(uint8_t instance)
+static inline void SAI_HAL_TxEnable(uint32_t saiBaseAddr)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_TCSR_TE(instance,0);
-    BW_I2S_TCSR_BCE(instance,0);
+    BW_I2S_TCSR_BCE(saiBaseAddr,true);
+    BW_I2S_TCSR_TE(saiBaseAddr,true);
 }
 
 /*!
- * @brief Disables the Rx receive.
+ * @brief Enables the SAI Rx module.
  *
- * Disables the receiver. This function  disables both the bit clock and the transfer channel.
- * When software clears this field, the receiver remains enabled, and this bit remains set, until 
- * the end of the current frame.
- * @param instance The SAI peripheral instance number.
+ * Enables the Rx. This function enables both the bit clock and the receive channel.
+ * @param saiBaseAddr Register base address of SAI module.
  */
-static inline void sai_hal_disable_rx(uint8_t instance)
+static inline void SAI_HAL_RxEnable(uint32_t saiBaseAddr)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_RCSR_RE(instance,0);
-    BW_I2S_RCSR_BCE(instance,0);
+    BW_I2S_RCSR_BCE(saiBaseAddr,true);    
+    BW_I2S_RCSR_RE(saiBaseAddr,true);
+}
+
+/*!
+ * @brief Disables the Tx module.
+ *
+ * Disables the Tx. This function disables both the bit clock and the transfer channel.
+ * @param saiBaseAddr Register base address of SAI module.
+ */
+static inline void SAI_HAL_TxDisable(uint32_t saiBaseAddr)
+{
+    BW_I2S_TCSR_TE(saiBaseAddr,false);
+    BW_I2S_TCSR_BCE(saiBaseAddr,false);
+}
+
+/*!
+ * @brief Disables the Rx module.
+ *
+ * Disables the Rx. This function disables both the bit clock and the receive channel.
+ * @param saiBaseAddr Register base address of SAI module.
+ */
+static inline void SAI_HAL_RxDisable(uint32_t saiBaseAddr)
+{
+    BW_I2S_RCSR_RE(saiBaseAddr,false);
+    BW_I2S_RCSR_BCE(saiBaseAddr,false);
 }
 
 /*!
  * @brief Enables the Tx interrupt from different interrupt sources.
  *
  * The interrupt source can be : Word start flag, Sync error flag, FIFO error flag, FIFO warning flag, FIFO request flag.
- * This function  sets which flag  causes an interrupt request. 
- * @param instance The SAI peripheral instance number.
+ * This function sets which flag causes an interrupt request. 
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI interrupt request source.
+ * @param enable Enable or disable.
  */
-void sai_hal_enable_tx_interrupt(uint8_t instance, sai_interrupt_request_t source);
+void SAI_HAL_TxSetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source, bool enable);
 
 /*!
- * @brief Enables the Rx interrupt from different sources.
+ * @brief Enables the Rx interrupt from different interrupt sources.
  *
  * The interrupt source can be : Word start flag, Sync error flag, FIFO error flag, FIFO warning flag, FIFO request flag.
- * This function  sets which flag  causes an interrupt request. 
- * @param instance The SAI peripheral instance number.
+ * This function sets which flag causes an interrupt request. 
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI interrupt request source.
+ * @param enable Enable or disable.
  */
-void sai_hal_enable_rx_interrupt(uint8_t instance, sai_interrupt_request_t source);
+void SAI_HAL_RxSetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source, bool enable);
 
 /*!
- * @brief Disables the Tx interrupts from different interrupt sources.
+ * @brief Gets the status as to whether the Tx interrupt source is enabled.
  *
- * This function  disables the interrupt requests from the interrupt request source of SAI.
- * @param instance The SAI peripheral instance number.
+ * The interrupt source can be : Word start flag, Sync error flag, FIFO error flag, FIFO warning flag, FIFO request flag.
+ * This function sets which flag causes an interrupt request. 
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI interrupt request source.
+ * @return Enabled or disabled.
  */
-void sai_hal_disable_tx_interrupt(uint8_t instance, sai_interrupt_request_t source);
+bool SAI_HAL_TxGetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source);
 
 /*!
- * @brief Disables Rx interrupts from different interrupt sources.
+ * @brief Gets the status as to whether the Rx interrupt source is enabled.
  *
- * This function  disables the interrupt requests from interrupt request source of SAI.
- * @param instance The SAI peripheral instance number.
+ * The interrupt source can be : Word start flag, Sync error flag, FIFO error flag, FIFO warning flag, FIFO request flag.
+ * This function sets which flag causes an interrupt request. 
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI interrupt request source.
+ * @return Enabled or disabled.
  */
-void sai_hal_disable_rx_interrupt(uint8_t instance, sai_interrupt_request_t source);
+bool SAI_HAL_RxGetIntCmd(uint32_t saiBaseAddr,sai_interrupt_request_t source);
 
 /*!
  * @brief Enables the Tx DMA request from different sources.
  *
- * The DMA sources can be FIFO warning and FIFO request.
- * This function  enables the DMA request from different DMA request sources.
- * @param instance The SAI peripheral instance number.
+ * The DMA sources can be: FIFO warning and FIFO request.
+ * This function enables the DMA request from different DMA request sources.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI DMA request source.
+ * @param enable Enable or disable.
  */
-void sai_hal_enable_tx_dma(uint8_t instance, sai_dma_request_t request);
+void SAI_HAL_TxSetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source, bool enable);
 
 /*!
  * @brief Enables the Rx DMA request from different sources.
  *
  * The DMA sources can be: FIFO warning and FIFO request.
- * This function  enables the DMA request from different DMA request sources.
- * @param instance The SAI peripheral instance number.
+ * This function enables the DMA request from different DMA request sources.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI DMA request source.
+ * @param enable Enable or disable.
  */
-void sai_hal_enable_rx_dma(uint8_t instance, sai_dma_request_t request);
+void SAI_HAL_RxSetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source, bool enable);
 
 /*!
- * @brief  Disables the Tx DMA request from different sources.
+ * @brief Gets the status whether the Tx DMA source is enabled.
  *
- * The function  disables the DMA request of Tx in SAI. DMA request can from FIFO warning or FIFO
- * request which means FIFO is empty or reach the watermark.
- * @param instance The SAI peripheral instance number.
+ * The DMA sources can be: FIFO warning and FIFO request.
+ * This function enables the DMA request from different DMA request sources.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI DMA request source.
+ * @param Enable or disable.
  */
-void sai_hal_disable_tx_dma(uint8_t instance, sai_dma_request_t request);
+bool SAI_HAL_TxGetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source);
 
 /*!
- * @brief  Disables the Rx DMA request from different sources.
+ * @brief Gets the status whether the Rx DMA source is enabled.
  *
- * The function  disables the DMA request of Tx in SAI. DMA request can from FIFO warning or FIFO
- * request which means FIFO is empty or reach the watermark.
- * @param instance The SAI peripheral instance number.
+ * The DMA sources can be: FIFO warning and FIFO request.
+ * This function enables the DMA request from different DMA request sources.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param source SAI DMA request source.
+ * @return Enable or disable.
  */
-void sai_hal_disable_rx_dma(uint8_t instance, sai_dma_request_t request);
+bool SAI_HAL_RxGetDmaCmd(uint32_t saiBaseAddr, sai_dma_request_t source);
 
 /*!
  * @brief Clears the Tx state flags.
  *
- * The function is used to clear the flags manually. It can clear word start, FIFO warning, FIFO error, and
+ * The function is used to clear the flags manually. It can clear word start, FIFO warning, FIFO error,
  * FIFO request flag.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param flag SAI state flag type. The flag can be word start, sync error, FIFO error/warning.
  */
-void sai_hal_clear_tx_state_flag(uint8_t instance, sai_state_flag_t flag);
+void SAI_HAL_TxClearStateFlag(uint32_t saiBaseAddr, sai_state_flag_t flag);
 
 /*!
- * @brief Clears the state flags for Rx.
+ * @brief Clears the Rx state flags.
  *
- * The function clears the flags manually. It can clear word start, FIFO warning, FIFO error, and
+ * The function is used to clear the flags manually. It can clear word start, FIFO warning, FIFO error,
  * FIFO request flag.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param flag SAI state flag type. The flag can be word start, sync error, FIFO error/warning.
  */
-void sai_hal_clear_rx_state_flag(uint8_t instance, sai_state_flag_t flag);
+void SAI_HAL_RxClearStateFlag(uint32_t saiBaseAddr, sai_state_flag_t flag);
 
 /*!
- * @brief Resets the Tx.
+ * @brief Resets the Tx module.
  *
- * There are two kinds of reset: Software reset and FIFO reset.
- * Software reset: resets all transmitter internal logic, including the bit clock generation, status flags and FIFO pointers. It does not reset the
- * configuration registers.
- * FIFO reset: synchronizes the FIFO write pointer to the same value as the FIFO read pointer. This empties the FIFO contents and is to be used
- * after the Transmit FIFO Error Flag is set, and before the FIFO is re-initialized and the Error Flag is cleared.
- * @param instance The SAI peripheral instance number.
- * @param mode SAI reset type.
+ * There are two kinds of resets: Software reset and FIFO reset.
+ * Software reset: resets all transmitter internal logic, including the bit clock generation, 
+ * status flags and FIFO pointers. It does not reset the configuration registers.
+ * FIFO reset: synchronizes the FIFO write pointer to the same value as the FIFO read pointer. 
+ * This empties the FIFO contents and is to be used after the Transmit FIFO Error Flag is set,
+ * and before the FIFO is re-initialized and the Error Flag is cleared.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param type SAI reset type.
  */
-void sai_hal_reset_tx(uint8_t instance, sai_reset_type_t mode);
+void SAI_HAL_TxSetReset(uint32_t saiBaseAddr, sai_reset_type_t type);
 
 /*!
- * @brief Resets the Rx.
- * @param instance The SAI peripheral instance number.
- * @param mode SAI reset type.
- */
-void sai_hal_reset_rx(uint8_t instance, sai_reset_type_t mode);
-
-/*!
- * @brief Sets the mask word of the frame in Tx.
+ * @brief Resets the Rx module.
  *
- * Each bit number represent the mask word index. For example, 0 represents mask the 0th word, 3 represents mask 0th and 1st word.
- * The TMR register can be different from frame to frame. If the user wants a mono audio, set the mask to 0/1.
- * @param instance The SAI peripheral instance number.
+ * There are two kinds of resets: Software reset and FIFO reset.
+ * Software reset: resets all transmitter internal logic, including the bit clock generation, 
+ * status flags and FIFO pointers. It does not reset the configuration registers.
+ * FIFO reset: synchronizes the FIFO write pointer to the same value as the FIFO read pointer. 
+ * This empties the FIFO contents and is to be used after the Transmit FIFO Error Flag is set,
+ * and before the FIFO is re-initialized and the Error Flag is cleared.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param type SAI reset type.
+ */
+void SAI_HAL_RxSetReset(uint32_t saiBaseAddr, sai_reset_type_t type);
+
+/*!
+ * @brief Sets the Tx mask word of the frame.
+ *
+ * Each bit number represent the mask word index. For example, 0 represents mask the 0th word, 3 
+ * represents mask 0th and 1st word. The TMR register can be different from frame to frame. If the
+ * user wants a mono audio, set the mask to 0/1.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param mask Which bits need to be masked in a frame.
  */
-static inline void sai_hal_set_tx_word_mask(uint8_t instance, uint32_t mask)
+static inline void SAI_HAL_TxSetWordMask(uint32_t saiBaseAddr, uint32_t mask)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    HW_I2S_TMR_WR(instance,mask);
+    BW_I2S_TMR_TWM(saiBaseAddr, mask);
 }
 
 /*!
- * @brief Sets the mask word of the frame in Rx.
- * @param instance The SAI peripheral instance number.
+ * @brief Sets the Rx mask word of the frame.
+ *
+ * Each bit number represent the mask word index. For example, 0 represents mask the 0th word, 3 
+ * represents mask 0th and 1st word. The TMR register can be different from frame to frame. If the
+ * user wants a mono audio, set the mask to 0/1.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param mask Which bits need to be masked in a frame.
  */
-static inline void sai_hal_set_rx_word_mask(uint8_t instance, uint32_t mask)
+static inline void SAI_HAL_RxSetWordMask(uint32_t saiBaseAddr,  uint32_t mask)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    HW_I2S_RMR_WR(instance,mask);
+    BW_I2S_RMR_RWM(saiBaseAddr, mask);
 }
 
 /*!
- * @brief Sets the FIFO Tx channel.
+ * @brief Sets the Tx FIFO channel.
  *
- * A SAI instance includes a Tx and a Rx. Each has several channels according to 
+ * A SAI saiBaseAddr includes a Tx and an Rx. Each has several channels according to 
  * different platforms. A channel means a path for the audio data input/output.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param fifo_channel FIFO channel number.
  */
-static inline void sai_hal_set_tx_fifo_channel(uint8_t instance, uint8_t fifo_channel)
+static inline void SAI_HAL_TxSetDataChn(uint32_t saiBaseAddr, uint8_t fifo_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_TCR3_TCE(instance,fifo_channel + 1);
+    BW_I2S_TCR3_TCE(saiBaseAddr, 1u << fifo_channel);
 }
 
 /*!
  * @brief Sets the Rx FIFO channel.
- * @param instance The SAI peripheral instance number.
+ *
+ * A SAI saiBaseAddr includes a Tx and a Rx. Each has several channels according to 
+ * different platforms. A channel means a path for the audio data input/output.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param fifo_channel FIFO channel number.
  */
-static inline void sai_hal_set_rx_fifo_channel(uint8_t instance, uint8_t fifo_channel)
+static inline void SAI_HAL_RxSetDataChn(uint32_t saiBaseAddr, uint8_t fifo_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    BW_I2S_RCR3_RCE(instance,fifo_channel + 1);
+    BW_I2S_RCR3_RCE(saiBaseAddr, 1u << fifo_channel);
 }
 
 /*!
- * @brief Sets the running mode. There is a debug mode, stop mode and a normal mode.
+ * @brief Sets the running mode of the Tx. There is a debug mode, stop mode, and a normal mode.
  *
- * This function can set the working mode of the SAI instance. Stop mode is always 
- * used in low power cases, and the debug mode  disables the SAI after the current 
+ * This function can set the working mode of the SAI saiBaseAddr. Stop mode is always 
+ * used in low power cases, and the debug mode disables the  SAI after the current 
  * transmit/receive is completed.
- * @param instance The SAI peripheral instance number.
- * @param mode SAI running mode.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param run_mode SAI running mode.
+ * @param enable Enable or disable a mode.
  */
-void sai_hal_set_tx_mode(uint8_t instance, sai_mode_t mode);
+void SAI_HAL_TxSetRunModeCmd(uint32_t saiBaseAddr, sai_run_mode_t run_mode, bool enable);
 
 /*!
- * @brief Sets the Rx running mode.
- * @param instance The SAI peripheral instance number.
- * @param mode SAI running mode.
- */
-void sai_hal_set_rx_mode(uint8_t instance, sai_mode_t mode);
-
-/*!
- * @brief Set Tx bit clock swap.
+ * @brief Sets the running mode of the Rx. There is a debug mode, stop mode, and a normal mode.
  *
- * While set in asynchronous mode, the transmitter is clocked by the receiver bit clock. When set in
- * synchronous mode, the transmitter is clocked by the transmitter bit clock, but uses the receiver frame
- * sync. This bit has no effect when synchronous with another SAI peripheral.
- * @param instance The SAI peripheral instance number.
- * @param ifswap If swap bit clock.
+ * This function can set the working mode of the SAI saiBaseAddr. Stop mode is always 
+ * used in low power cases, and the debug mode disables the  SAI after the current 
+ * transmit/receive is completed.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param run_mode SAI running mode.
+ * @param enable Enable or disable a mode.
  */
-void sai_hal_set_tx_bclk_swap(uint8_t instance, bool ifswap);
+void SAI_HAL_RxSetRunModeCmd(uint32_t saiBaseAddr, sai_run_mode_t run_mode, bool enable);
 
 /*!
- * @brief Sets the Rx bit clock swap.
+ * @brief Configures at which word the start of word flag is set in the Tx.
  *
- * When set in asynchronous mode, the receiver is clocked by the transmitter bit clock. When set in
- * synchronous mode, the receiver is clocked by the receiver bit clock, but uses the transmitter frame sync.
- * This bit has no effect when synchronous with another SAI peripheral.
- * @param instance The SAI peripheral instance number.
- * @param ifswap If swap bit clock.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param index Which word triggers word start flag.
  */
-void sai_hal_set_rx_bclk_swap(uint8_t instance, bool ifswap);
-
-/*!
- * @brief Configures on which word the start of the word flag is set.
- * @param instance The SAI peripheral instance number.
- * @param index Which word  triggers the word start flag.
- */
-static inline void sai_hal_set_tx_word_start_index(uint8_t instance, uint8_t index)
+static inline void SAI_HAL_TxSetWordStartIndex(uint32_t saiBaseAddr,uint32_t index)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(index <= SAI_WORD_MAX);
-    BW_I2S_TCR3_WDFL(instance,index);
+    assert(index <= FSL_FEATURE_SAI_MAX_WORDS_PER_FRAME);
+    BW_I2S_TCR3_WDFL(saiBaseAddr, index -1);
 }
 
 /*!
- * @brief Configures on which word the start of the word flag is set.
- * @param instance The SAI peripheral instance number.
- * @param index Which word would trigger word start flag.
- */
-static inline void sai_hal_set_rx_word_start_index(uint8_t instance, uint8_t index)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(index <= SAI_WORD_MAX);
-    BW_I2S_RCR3_WDFL(instance,index);
-}
-
-/*!
- * @brief Sets the index in FIFO for the first bit data .
+ * @brief Configures at which word the start of word flag is set in the Tx.
  *
- * The FIFO is 32-bit in SAI, but not all audio data is 32-bit. Mostly they are 16-bit.
- * In this situation, the Codec needs to know  which bit of the FIFO marks the valid audio data.
- * @param instance The SAI peripheral instance number.
- * @param index First bit shifted in FIFO.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param index Which word triggers word start flag.
  */
-static inline void sai_hal_set_tx_fbt(uint8_t instance, uint8_t index)
+static inline void SAI_HAL_RxSetWordStartIndex(uint32_t saiBaseAddr,uint32_t index)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(index <= SAI_BIT_MAX);
-    BW_I2S_TCR5_FBT(instance,index);
+    assert(index <= FSL_FEATURE_SAI_MAX_WORDS_PER_FRAME);
+    BW_I2S_RCR3_WDFL(saiBaseAddr, index -1);
 }
 
 /*!
- * @brief Sets the index in FIFO for the first bit data.
- * @param instance The SAI peripheral instance number.
- * @param index First bit shifted in FIFO.
- */
-static inline void sai_hal_set_rx_fbt(uint8_t instance, uint8_t index)
-{
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(index <= SAI_BIT_MAX);
-    BW_I2S_RCR5_FBT(instance,index);
-}
-
-/*!
- * @brief Flags whether the master clock divider is re-divided.
- * @param instance The SAI peripheral instance number.
- * @return True if the divider updated otherwise false.
- */
-bool sai_hal_mclk_divider_is_update(uint8_t instance);
-
-/*!
- * @brief Word start is detected.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
+ * @brief Gets the state of the flags in the TCSR.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param flag State flag type, it can be FIFO error, FIFO warning and so on.
  * @return True if detect word start otherwise false.
  */
-bool sai_hal_word_start_is_detected(uint8_t instance, sai_io_mode_t io_mode);
+bool SAI_HAL_TxGetStateFlag(uint32_t saiBaseAddr, sai_state_flag_t flag);
 
 /*!
- * @brief Sync error is detected.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
- * @return True if detect sync error otherwise false.
+ * @brief Gets the state of the flags in the RCSR.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param flag State flag type, it can be FIFO error, FIFO warning and so on.
+ * @return True if detect word start otherwise false.
  */
-bool sai_hal_sync_error_is_detected(uint8_t instance, sai_io_mode_t io_mode);
+bool SAI_HAL_RxGetStateFlag(uint32_t saiBaseAddr, sai_state_flag_t flag);
 
 /*!
- * @brief FIFO warning is detected.
- *
- * FIFO warning means that the FIFO is empty in Tx. While in Tx, FIFO warning means that
- * the FIFO is empty and it needs data.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
- * @return True if detect FIFO warning otherwise false.
- */
-bool sai_hal_fifo_warning_is_detected(uint8_t instance, sai_io_mode_t io_mode);
-
-/*!
- * @brief FIFO error is detected.
- *
- * FIFO error means that the FIFO has no data and the Codec is still transferring data.
- * While in Rx, FIFO error means that the data is still in but the FIFO is full.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
- * @return True if detects FIFO error otherwise false.
- */
-bool sai_hal_fifo_error_is_detected(uint8_t instance, sai_io_mode_t io_mode);
-
-/*!
- * @brief FIFO request is detected.
- *
- * FIFO request means that the data in FIFO is less than the watermark in Tx and more than the watermark  in Rx.
- * @param instance The SAI peripheral instance number.
- * @param io_mode Transmit or receive data.
- * @return True if detects FIFO request otherwise false.
- */
-bool sai_hal_fifo_request_is_detected(uint8_t instance, sai_io_mode_t io_mode);
-
-/*!
- * @brief Receives the data from FIFO.
- * @param instance The SAI peripheral instance number.
+ * @brief Receives the data from the FIFO.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param rx_channel Rx FIFO channel.
  * @param data Pointer to the address to be written in.
  */
-static inline void sai_hal_receive_data(uint8_t instance, uint8_t rx_channel, uint32_t *data)
+static inline uint32_t SAI_HAL_ReceiveData(uint32_t saiBaseAddr, uint32_t rx_channel)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(rx_channel < FSL_FEATURE_I2S_CHANNEL_COUNT);
-    assert(data);
-    
-    *data = HW_I2S_RDRn_RD(instance, rx_channel);
+    assert(rx_channel < FSL_FEATURE_SAI_CHANNEL_COUNT);   
+    return HW_I2S_RDRn_RD(saiBaseAddr, rx_channel);
 }
 
 /*!
  * @brief Transmits data to the FIFO.
- * @param instance The SAI peripheral instance number.
+ * @param saiBaseAddr Register base address of SAI module.
  * @param tx_channel Tx FIFO channel.
  * @param data Data value which needs to be written into FIFO.
  */
-static inline void sai_hal_transmit_data(uint8_t instance, uint8_t tx_channel, uint32_t data)
+static inline void SAI_HAL_SendData(uint32_t saiBaseAddr, uint32_t tx_channel, uint32_t data)
 {
-    assert(instance < HW_I2S_INSTANCE_COUNT);
-    assert(tx_channel < FSL_FEATURE_I2S_CHANNEL_COUNT);
-    
-    HW_I2S_TDRn_WR(instance,tx_channel,data);
+    assert(tx_channel < FSL_FEATURE_SAI_CHANNEL_COUNT);  
+    HW_I2S_TDRn_WR(saiBaseAddr,tx_channel,data);
 }
+
+/*!
+* @brief Uses blocking to receive data.
+* @param saiBaseAddr The SAI saiBaseAddr.
+* @param rx_channel Rx FIFO channel.
+* @return Received data.
+*/
+uint32_t SAI_HAL_ReceiveDataBlocking(uint32_t saiBaseAddr, uint32_t rx_channel);
+
+/*!
+* @brief Uses blocking to send data.
+* @param saiBaseAddr The SAI saiBaseAddr.
+* @param tx_channel Tx FIFO channel.
+* @param data Data value which needs to be written into FIFO.
+*/
+void SAI_HAL_SendDataBlocking(uint32_t saiBaseAddr, uint32_t tx_channel, uint32_t data);
+
+#if FSL_FEATURE_SAI_HAS_ON_DEMAND_MODE
+/*!
+ * @brief Tx on-demand mode setting.
+ *
+ * When set, the frame sync is generated internally. A frame sync is only generated when the 
+ * FIFO warning flag is clear.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means on demand mode enable, false means disable.
+ */
+static inline void SAI_HAL_TxSetOndemandCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCR4_ONDEM(saiBaseAddr, enable);
+}
+
+/*!
+ * @brief Rx on-demand mode setting.
+ *
+ * When set, the frame sync is generated internally. A frame sync is only generated when the 
+ * FIFO warning flag is clear.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means on demand mode enable, false means disable.
+ */
+static inline void SAI_HAL_RxSetOndemandCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCR4_ONDEM(saiBaseAddr, enable);
+}
+#endif
+
+#if FSL_FEATURE_SAI_HAS_FIFO_FUNCTION_AFTER_ERROR
+/*!
+ * @brief Tx FIFO continues on error.
+ *
+ * Configures when the SAI continues transmitting after a FIFO error has been detected.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means on demand mode enable, false means disable.
+ */
+static inline void SAI_HAL_TxSetFIFOErrorContinueCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_TCR4_FCONT(saiBaseAddr, enable);
+}
+
+/*!
+ * @brief Rx FIFO continues on error.
+ *
+ * Configures when the SAI continues transmitting after a FIFO error has been detected.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param enable True means on demand mode enable, false means disable.
+ */
+static inline void SAI_HAL_RxSetFIFOErrorContinueCmd(uint32_t saiBaseAddr, bool enable)
+{
+    BW_I2S_RCR4_FCONT(saiBaseAddr, enable);
+}
+#endif
+
+#if FSL_FEATURE_SAI_HAS_FIFO_PACKING
+/*!
+ * @brief Tx FIFO packing mode setting.
+ *
+ * Enables packing 8-bit data or 16-bit data into each 32-bit FIFO word. If the word size is 
+ * greater than 8-bit or 16-bit, only the first 8-bit or 16-bits are loaded from the FIFO. 
+ * The first word in each frame always starts with a new 32-bit FIFO word and the first bit shifted
+ * must be configured within the first packed word. When FIFO packing is enabled, the FIFO write
+ * pointer only increments when the full 32-bit FIFO word has been written by software.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param mode FIFO packing mode.
+ */
+static inline void SAI_HAL_TxSetFIFOPackingMode(uint32_t saiBaseAddr, sai_fifo_packing_t mode)
+{
+    BW_I2S_TCR4_FPACK(saiBaseAddr,mode);
+}
+
+/*!
+ * @brief Rx FIFO packing mode setting.
+ *
+ * Enables packing 8-bit data or 16-bit data into each 32-bit FIFO word. If the word size is 
+ * greater than 8-bit or 16-bit, only the first 8-bit or 16-bits are loaded from the FIFO. 
+ * The first word in each frame always starts with a new 32-bit FIFO word and the first bit shifted
+ * must be configured within the first packed word. When FIFO packing is enabled, the FIFO write
+ * pointer only increments when the full 32-bit FIFO word has been written by software.
+ * @param saiBaseAddr Register base address of SAI module.
+ * @param mode FIFO packing mode.
+ */
+static inline void SAI_HAL_RxSetFIFOPackingMode(uint32_t saiBaseAddr, sai_fifo_packing_t mode)
+{
+    BW_I2S_RCR4_FPACK(saiBaseAddr,mode);
+}
+#endif
 
 #if defined(__cplusplus)
 }
@@ -923,4 +1421,3 @@ static inline void sai_hal_transmit_data(uint8_t instance, uint8_t tx_channel, u
 /*******************************************************************************
 * EOF
 *******************************************************************************/
-

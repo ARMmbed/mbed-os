@@ -6,6 +6,9 @@
 #elif defined(TARGET_NUCLEO_F103RB)
 #define TEST_LED D3
 
+#elif defined (TARGET_K22F)
+#define TEST_LED LED_GREEN
+
 #else
 #error This test is not supported on this target.
 #endif

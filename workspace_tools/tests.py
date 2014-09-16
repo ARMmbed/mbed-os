@@ -128,7 +128,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "LPC4088", "LPC1549"]
+        "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "K22F", "LPC4088", "LPC1549"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -339,7 +339,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088", "NRF51822"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088","NRF51822"]
     },
     {
         "id": "MBED_5", "description": "PWM",
