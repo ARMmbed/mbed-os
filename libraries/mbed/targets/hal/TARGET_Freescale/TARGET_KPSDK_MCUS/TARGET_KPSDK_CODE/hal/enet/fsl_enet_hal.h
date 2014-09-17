@@ -37,6 +37,8 @@
 #include "fsl_enet_features.h"
 #include <assert.h>
 
+#ifndef MBED_NO_ENET
+
 /*!
  * @addtogroup enet_hal
  * @{
@@ -1405,6 +1407,8 @@ static inline uint32_t enet_hal_get_bd_size(void)
 
 #if defined(__cplusplus)
 }
+#endif
+
 #endif
 
 /*! @}*/

@@ -34,7 +34,10 @@
 #include <stdbool.h>
 #include "fsl_enet_hal.h"
 #include "fsl_os_abstraction.h"
-/*! 
+
+#ifndef MBED_NO_ENET
+
+/*!
  * @addtogroup enet_driver
  * @{
  */
@@ -936,6 +939,8 @@ void *enet_mac_dequeue_buffer( void **queue);
 
 #if defined(__cplusplus)
 extern }
+#endif
+
 #endif
 
 /*! @}*/

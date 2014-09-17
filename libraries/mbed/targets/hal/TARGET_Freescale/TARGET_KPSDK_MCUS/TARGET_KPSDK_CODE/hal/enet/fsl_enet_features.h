@@ -46,7 +46,7 @@
 	#define FSL_FEATURE_ENET_SUPPORT_PTP                     (0)
 	#define FSL_FEATURE_ENET_INTERRUPT_COUNT                 (4)
 #else
-    #error "No valid CPU defined"
+    #define MBED_NO_ENET
 #endif
 
 
