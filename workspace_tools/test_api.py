@@ -135,6 +135,7 @@ class SingleTestRunner(object):
                  _global_loops_count=1,
                  _test_loops_list=None,
                  _muts={},
+                 _clean=False,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _test_spec={},
@@ -201,6 +202,7 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
+        self.opts_clean = _clean
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
@@ -279,7 +281,7 @@ class SingleTestRunner(object):
 
                 T = TARGET_MAP[target]
                 build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
-                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean else None
+                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
                 try:
                     build_mbed_libs_result = build_mbed_libs(T,
@@ -342,7 +344,7 @@ class SingleTestRunner(object):
                             continue
 
                         build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
-                        clean_project_options = True if self.opts_goanna_for_tests or clean else None
+                        clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
                         # Detect which lib should be added to test
                         # Some libs have to compiled like RTOS or ETH
@@ -382,7 +384,7 @@ class SingleTestRunner(object):
                                                  toolchain,
                                                  test.dependencies,
                                                  options=build_project_options,
-                                                 clean=clean_project_options,
+                                                 clean=clean_project_options ,
                                                  verbose=self.opts_verbose,
                                                  name=project_name,
                                                  macros=MACROS,
@@ -1396,6 +1398,12 @@ def get_default_test_options_parser():
                       metavar=False,
                       action="store_true",
                       help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
+
+    parser.add_option('', '--clean',
+                      dest='clean',
+                      metavar=False,
+                      action="store_true",
+                      help='Clean the build directory')
 
     parser.add_option('-G', '--goanna-for-sdk',
                       dest='goanna_for_mbed_sdk',
