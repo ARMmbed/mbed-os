@@ -45,7 +45,7 @@
 #define DEVICE_I2CSLAVE         1
 
 #define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         0 // Not yet supported
+#define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
 
@@ -56,7 +56,6 @@
 //=======================================
 
 #define DEVICE_SEMIHOST         0
-
 #define DEVICE_LOCALFILESYSTEM  0
 #define DEVICE_ID_LENGTH       24
 
