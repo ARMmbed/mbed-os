@@ -33,7 +33,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "fsl_enet_driver.h"
-/*! 
+
+#ifndef MBED_NO_ENET
+
+/*!
  * @addtogroup phy_driver
  * @{
  */
@@ -179,6 +182,8 @@ uint32_t phy_get_link_duplex(enet_dev_if_t * enetIfPtr, enet_phy_duplex_t *statu
 
 #if defined(__cplusplus)
 extern }
+#endif
+
 #endif
 
 /*! @}*/

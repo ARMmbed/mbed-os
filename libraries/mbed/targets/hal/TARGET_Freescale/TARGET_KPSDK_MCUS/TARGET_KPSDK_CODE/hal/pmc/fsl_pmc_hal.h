@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "fsl_device_registers.h"
 #include "fsl_pmc_features.h"
 
 /*! @addtogroup pmc_hal*/
@@ -45,19 +46,24 @@
  ******************************************************************************/
 
 /*! @brief Low-Voltage Warning Voltage Select*/
-typedef enum _pmc_lvwv_select {
-    kPmcLvwvLowTrip,            /*!< Low trip point selected (VLVW = VLVW1)*/
-    kPmcLvwvMid1Trip,           /*!< Mid 1 trip point selected (VLVW = VLVW2)*/
-    kPmcLvwvMid2Trip,           /*!< Mid 2 trip point selected (VLVW = VLVW3)*/
-    kPmcLvwvHighTrip            /*!< High trip point selected (VLVW = VLVW4)*/
-} pmc_lvwv_select_t;
+typedef enum _pmc_low_volt_warn_volt_select {
+    kPmcLowVoltWarnVoltLowTrip,             /*!< Low trip point selected (VLVW = VLVW1)*/
+    kPmcLowVoltWarnVoltMid1Trip,            /*!< Mid 1 trip point selected (VLVW = VLVW2)*/
+    kPmcLowVoltWarnVoltMid2Trip,            /*!< Mid 2 trip point selected (VLVW = VLVW3)*/
+    kPmcLowVoltWarnVoltHighTrip             /*!< High trip point selected (VLVW = VLVW4)*/
+} pmc_low_volt_warn_volt_select_t;
 
 /*! @brief Low-Voltage Detect Voltage Select*/
-typedef enum _pmc_lvdv_select {
-    kPmcLvdvLowTrip,            /*!< Low trip point selected (V LVD = V LVDL )*/
-    kPmcLvdvHighTrip,           /*!< High trip point selected (V LVD = V LVDH )*/
-} pmc_lvdv_select_t;
+typedef enum _pmc_low_volt_detect_volt_select {
+    kPmcLowVoltDetectVoltLowTrip,           /*!< Low trip point selected (V LVD = V LVDL )*/
+    kPmcLowVoltDetectVoltHighTrip,          /*!< High trip point selected (V LVD = V LVDH )*/
+} pmc_low_volt_detect_volt_select_t;
 
+/*! @brief interrupt control*/
+typedef enum _pmc_int_select {
+    kPmcIntLowVoltDetect,                   /*!< Low Voltage Detect Interrupt */
+    kPmcIntLowVoltWarn,                     /*!< Low Voltage Warning Interrupt */
+} pmc_int_select_t;
 
 /*******************************************************************************
  * API
@@ -72,57 +78,32 @@ extern "C" {
 
 
 /*!
- * @brief Low-Voltage Detect Interrupt Enable
+ * @brief Enables/Disables low voltage-related interrupts.
  *
- * This function  enables  the interrupt for the low voltage detection. When
- * enabled, if the LVDF (Low Voltage Detect Flag) is set, a hardware interrupt
- *  occurs.
+ * This function  enables  the interrupt for the low voltage detection, warning, 
+ * etc. When enabled, if the LVDF (Low Voltage Detect Flag) is set, a hardware 
+ * interrupt occurs.
  *
+ * @param baseAddr  Base address for current PMC instance.
+ * @param intSelect interrut select
+ * @param enable    enable/disable the interrupt
  */
-static inline void pmc_hal_enable_low_voltage_detect_interrupt(void)
-{
-    BW_PMC_LVDSC1_LVDIE(1);
-}
+void PMC_HAL_SetLowVoltIntCmd(uint32_t baseAddr, pmc_int_select_t intSelect, bool enable);
 
 /*!
- * @brief Low-Voltage Detect Interrupt Disable (use polling)
+ * @brief Low-Voltage Detect Hardware Reset Enable/Disable (write once)
  *
- * This function  disables the the interrupt for low voltage detection. When
- * disabled, an application can only check the low voltage through polling the LVDF
- * (Low Voltage Detect Flag).
+ * This function enables/disables the  hardware reset for the low voltage 
+ * detection. When enabled, if the LVDF (Low Voltage Detect Flag) is set, a 
+ * hardware reset occurs. This setting is a write-once-only. Any additional writes 
+ * are ignored.
  *
+ * @param baseAddr  Base address for current PMC instance.
+ * @param enable    enable/disable the LVD hardware reset
  */
-static inline void pmc_hal_disable_low_voltage_detect_interrupt(void)
+static inline void PMC_HAL_SetLowVoltDetectResetCmd(uint32_t baseAddr, bool enable)
 {
-    BW_PMC_LVDSC1_LVDIE(0);
-}
-
-/*!
- * @brief Low-Voltage Detect Hardware Reset Enable (write once)
- *
- * This function  enables the  hardware reset for the low voltage detection. 
- * When enabled, if the LVDF (Low Voltage Detect Flag) is set, a hardware reset
- * occurs. This setting is a write-once-only; Additional writes are 
- * ignored.
- *
- */
-static inline void pmc_hal_enable_low_voltage_detect_reset(void)
-{
-    BW_PMC_LVDSC1_LVDRE(1);
-}
-
-/*!
- * @brief Low-Voltage Detect Hardware Reset Disable
- *
- * This function  disables the the hardware reset for low voltage detection. 
- * When disabled, if the LVDF (Low Voltage Detect Flag) is set, a hardware reset
- * does not occur. This setting is a write-once-only; Additional writes are 
- * ignored.
- *
- */
-static inline void pmc_hal_disable_low_voltage_detect_reset(void)
-{
-    BW_PMC_LVDSC1_LVDRE(0);
+    BW_PMC_LVDSC1_LVDRE(baseAddr, (uint8_t)enable);
 }
 
 /*!
@@ -131,80 +112,57 @@ static inline void pmc_hal_disable_low_voltage_detect_reset(void)
  * This function acknowledges the low voltage detection errors (write 1 to
  * clear LVDF).
  *
+ * @param baseAddr  Base address for current PMC instance.
  */
-static inline void pmc_hal_low_voltage_detect_ack(void)
+static inline void PMC_HAL_SetLowVoltDetectAck(uint32_t baseAddr)
 {
-    BW_PMC_LVDSC1_LVDACK(1);
+    BW_PMC_LVDSC1_LVDACK(baseAddr, 1);
 }
 
 /*!
  * @brief Low-Voltage Detect Flag Read
  *
- * This function  reads the current LVDF status. If it returns 1,  low
+ * This function  reads the current LVDF status. If it returns 1, a low
  * voltage event is detected.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return status Current low voltage detect flag
  *                - true: Low-Voltage detected
  *                - false: Low-Voltage not detected
  */
-static inline bool pmc_hal_get_low_voltage_detect_flag(void)
+static inline bool PMC_HAL_GetLowVoltDetectFlag(uint32_t baseAddr)
 {
-    return BR_PMC_LVDSC1_LVDF;
+    return BR_PMC_LVDSC1_LVDF(baseAddr);
 }
 
 /*!
- * @brief Sets the Low-Voltage Detect Voltage Select
+ * @brief Sets the Low-Voltage Detect Voltage Mode
  *
  * This function  sets the low voltage detect voltage select. It  sets
  * the low voltage detect trip point voltage (Vlvd). An application can select
  * either a low-trip or a high-trip point. See a chip reference manual for details.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @param select Voltage select setting defined in pmc_lvdv_select_t
  */
-static inline void pmc_hal_set_low_voltage_detect_voltage_select(pmc_lvdv_select_t select)
+static inline void PMC_HAL_SetLowVoltDetectVoltMode(uint32_t baseAddr, pmc_low_volt_detect_volt_select_t select)
 {
-    BW_PMC_LVDSC1_LVDV(select);
+    BW_PMC_LVDSC1_LVDV(baseAddr, select);
 }
 
 /*!
- * @brief Gets the Low-Voltage Detect Voltage Select
+ * @brief Gets the Low-Voltage Detect Voltage Mode
  *
  * This function  gets the low voltage detect voltage select. It  gets 
  * the low voltage detect trip point voltage (Vlvd). An application can select
  * either a low-trip or a high-trip point. See a chip reference manual for details.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return select Current voltage select setting
  */
-static inline pmc_lvdv_select_t pmc_hal_get_low_voltage_detect_voltage_select(void)
+static inline pmc_low_volt_detect_volt_select_t PMC_HAL_GetLowVoltDetectVoltMode(uint32_t baseAddr)
 {
-    return (pmc_lvdv_select_t)BR_PMC_LVDSC1_LVDV;
-}
-
-
-/*!
- * @brief Low-Voltage Warning Interrupt Enable
- *
- * This function  enables the  interrupt for the low voltage warning 
- * detection. When enabled, if the LVWF (Low Voltage Warning Flag) is set, 
- * a hardware interrupt  occurs.
- *
- */
-static inline void pmc_hal_enable_low_voltage_warning_interrupt(void)
-{
-    BW_PMC_LVDSC2_LVWIE(1);
-}
-
-/*!
- * @brief Low-Voltage Warning Interrupt Disable (use polling)
- *
- * This function  disables  the interrupt for the low voltage warning 
- * detection. When disabled, if the LVWF (Low Voltage Warning Flag) is set, 
- * a hardware interrupt does not occur.
- *
- */
-static inline void pmc_hal_disable_low_voltage_warning_interrupt(void)
-{
-    BW_PMC_LVDSC2_LVWIE(0);
+    return (pmc_low_volt_detect_volt_select_t)BR_PMC_LVDSC1_LVDV(baseAddr);
 }
 
 /*!
@@ -213,10 +171,11 @@ static inline void pmc_hal_disable_low_voltage_warning_interrupt(void)
  * This function acknowledges the low voltage warning errors (write 1 to
  * clear LVWF).
  *
+ * @param baseAddr  Base address for current PMC instance.
  */
-static inline void pmc_hal_low_voltage_warning_ack(void)
+static inline void PMC_HAL_SetLowVoltWarnAck(uint32_t baseAddr)
 {
-    BW_PMC_LVDSC2_LVWACK(1);
+    BW_PMC_LVDSC2_LVWACK(baseAddr, 1);
 }
 
 /*!
@@ -226,123 +185,108 @@ static inline void pmc_hal_low_voltage_warning_ack(void)
  * indicates a low-voltage warning event. LVWF is set when V Supply transitions
  * below the trip point or after reset and V Supply is already below the V LVW.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return status Current LVWF status
-                  - true: Low-Voltage Warning Flag is set.
-                  - false: the  Low-Voltage Warning does not happen.
+ *                  - true: Low-Voltage Warning Flag is set.
+ *                  - false: the  Low-Voltage Warning does not happen.
  */
-static inline bool pmc_hal_get_low_voltage_warning_flag(void)
+static inline bool PMC_HAL_GetLowVoltWarnFlag(uint32_t baseAddr)
 {
-    return BR_PMC_LVDSC2_LVWF;
+    return BR_PMC_LVDSC2_LVWF(baseAddr);
 }
 
 /*!
- * @brief Sets the Low-Voltage Warning Voltage Select.
+ * @brief Sets the Low-Voltage Warning Voltage Mode.
  *
  * This function  sets the low voltage warning voltage select. It  sets
  * the low voltage warning trip point voltage (Vlvw). An application can select
  * either a low, mid1, mid2 and a high-trip point. See a chip reference manual for 
  * details and the  pmc_lvwv_select_t for supported settings.
  * 
+ * @param baseAddr  Base address for current PMC instance.
  * @param select Low voltage warning select setting
  */
-static inline void pmc_hal_set_low_voltage_warning_voltage_select(pmc_lvwv_select_t select)
+static inline void PMC_HAL_SetLowVoltWarnVoltMode(uint32_t baseAddr, pmc_low_volt_warn_volt_select_t select)
 {
-    BW_PMC_LVDSC2_LVWV(select);
+    BW_PMC_LVDSC2_LVWV(baseAddr, select);
 }
 
 /*!
- * @brief Gets the Low-Voltage Warning Voltage Select.
+ * @brief Gets the Low-Voltage Warning Voltage Mode.
  *
  * This function  gets the low voltage warning voltage select. It  gets
  * the low voltage warning trip point voltage (Vlvw). See the pmc_lvwv_select_t
  * for  supported settings.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return select Current low voltage warning select setting
  */
-static inline pmc_lvwv_select_t pmc_hal_get_low_voltage_warning_voltage_select(void)
+static inline pmc_low_volt_warn_volt_select_t PMC_HAL_GetLowVoltWarnVoltMode(uint32_t baseAddr)
 {
-    return (pmc_lvwv_select_t)BR_PMC_LVDSC2_LVWV;
+    return (pmc_low_volt_warn_volt_select_t)BR_PMC_LVDSC2_LVWV(baseAddr);
 }
 
-#if FSL_FEATURE_SMC_HAS_BGEN
+#if FSL_FEATURE_PMC_HAS_BGEN
 /*!
- * @brief Enables the Bandgap in VLPx Operation.
+ * @brief Enables the Bandgap in the VLPx Operation.
  *
- * This function  enables the bandgap in lower power modes of operation (VLPx, 
- * LLS, and VLLSx). When on-chip peripherals require the bandgap voltage 
- * reference in low power modes of operation, set BGEN to continue to enable
+ * This function enables/disables the bandgap in lower power modes
+ * (VLPx, * LLS, and VLLSx). When on-chip peripherals require the bandgap voltage 
+ * reference in low power modes, set the BGEN to continue to enable
  * the bandgap operation.
  *
+ * @param baseAddr  Base address for current PMC instance.
+ * @param enable    enable/disable the Bangap.
  */
-static inline void pmc_hal_enable_bandgap_in_low_power_mode(void)
+static inline void PMC_HAL_SetBandgapInLowPowerModeCmd(uint32_t baseAddr, bool enable)
 {
-    BW_PMC_REGSC_BGEN(1);
-}
-
-/*!
- * @brief Disables the Bandgap in the VLPx Operation.
- *
- * This function  disables the bandgap in lower power modes of operation (VLPx, 
- * LLS, and VLLSx). When the bandgap voltage reference is not needed in low 
- * power modes, disable BGEN to avoid excess power consumption.
- *
- */
-static inline void pmc_hal_disable_bandgap_in_low_power_mode(void)
-{
-    BW_PMC_REGSC_BGEN(0);
+    BW_PMC_REGSC_BGEN(baseAddr, enable);
 }
 #endif
 
 /*!
- * @brief Enables the Bandgap Buffer.
+ * @brief Enables/Disables the Bandgap Buffer.
  *
- * This function  enables the Bandgap buffer.
+ * This function  enables/disables the Bandgap buffer.
  *
+ * @param baseAddr  Base address for current PMC instance.
+ * @param enable    enable/disable the Bangap Buffer.
  */
-static inline void pmc_hal_enable_bandgap_buffer(void)
+static inline void PMC_HAL_SetBandgapBufferCmd(uint32_t baseAddr, bool enable)
 {
-    BW_PMC_REGSC_BGBE(1);
+    BW_PMC_REGSC_BGBE(baseAddr, enable);
 }
 
 /*!
- * @brief Disables the Bandgap Buffer.
- *
- * This function  disables the Bandgap buffer.
- *
- */
-static inline void pmc_hal_disable_bandgap_buffer(void)
-{
-    BW_PMC_REGSC_BGBE(0);
-}
-
-/*!
- * @brief Gets the Acknowledge Isolation.
+ * @brief Gets the acknowledge isolation value.
  *
  * This function  reads the Acknowledge Isolation setting that indicates 
  * whether certain peripherals and the I/O pads are in a latched state as 
  * a result of having been in the VLLS mode. 
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return value ACK isolation
  *               0 - Peripherals and I/O pads are in a normal run state.
  *               1 - Certain peripherals and I/O pads are in an isolated and
  *                   latched state.
  */
-static inline uint8_t pmc_hal_get_ack_isolation(void)
+static inline uint8_t PMC_HAL_GetAckIsolation(uint32_t baseAddr)
 {
-    return BR_PMC_REGSC_ACKISO;
+    return BR_PMC_REGSC_ACKISO(baseAddr);
 }
 
 /*!
- * @brief Clears an Acknowledge Isolation.
+ * @brief Clears an acknowledge isolation.
  *
  * This function  clears the ACK Isolation flag. Writing one to this setting
  * when it is set releases the I/O pads and certain peripherals to their normal
  * run mode state.
  *
+ * @param baseAddr  Base address for current PMC instance.
  */
-static inline void pmc_hal_clear_ack_isolation(void)
+static inline void PMC_HAL_SetClearAckIsolation(uint32_t baseAddr)
 {
-    BW_PMC_REGSC_ACKISO(1);
+    BW_PMC_REGSC_ACKISO(baseAddr, 1);
 }
 
 /*!
@@ -351,14 +295,15 @@ static inline void pmc_hal_clear_ack_isolation(void)
  * This function  returns the regulator to a run regulation status. It provides
  * the current status of the internal voltage regulator.
  *
+ * @param baseAddr  Base address for current PMC instance.
  * @return value Regulation status
  *               0 - Regulator is in a stop regulation or in transition to/from it.
  *               1 - Regulator is in a run regulation.
  *
  */
-static inline uint8_t pmc_hal_get_regulator_status(void)
+static inline uint8_t PMC_HAL_GetRegulatorStatus(uint32_t baseAddr)
 {
-    return BR_PMC_REGSC_REGONS;
+    return BR_PMC_REGSC_REGONS(baseAddr);
 }
 
 /*@}*/

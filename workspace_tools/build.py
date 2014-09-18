@@ -107,7 +107,7 @@ if __name__ == '__main__':
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
-                      
+
     parser.add_option("-j", "--jobs", type="int", dest="jobs",
                       default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
 
