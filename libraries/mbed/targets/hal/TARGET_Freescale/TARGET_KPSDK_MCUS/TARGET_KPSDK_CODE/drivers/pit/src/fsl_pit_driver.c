@@ -28,6 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
  
+#include "fsl_pit_common.h"
 #include "fsl_pit_driver.h"
 #include "fsl_clock_manager.h"
 #include "fsl_interrupt_manager.h"
@@ -36,12 +37,8 @@
  * Variables
  ******************************************************************************/
 
-/* pit source clock variable which will be updated in pit_init_module. */
+/* pit source clock variable which will be updated in PIT_DRV_Init. */
 uint64_t pitSourceClock;
-
-/* Table to save PIT IRQ enum numbers defined in CMSIS files. This table is 
- * defined in fsl_pit_irq.c */
-extern IRQn_Type pit_irq_ids[FSL_FEATURE_PIT_TIMER_COUNT];
 
 /*******************************************************************************
  * Code
@@ -49,133 +46,149 @@ extern IRQn_Type pit_irq_ids[FSL_FEATURE_PIT_TIMER_COUNT];
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_init_module
+ * Function Name : PIT_DRV_Init
  * Description   : Initialize PIT module.
  * This function must be called before calling all the other PIT driver functions.
  * This function un-gates the PIT clock and enables the PIT module. The isRunInDebug
  * passed into function will affect all timer channels. 
  *
  *END**************************************************************************/
-void pit_init_module(bool isRunInDebug)
+void PIT_DRV_Init(uint32_t instance, bool isRunInDebug)
 {
-    uint32_t busClock;
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
 
     /* Un-gate pit clock*/
-    clock_manager_set_gate(kClockModulePIT, 0U, true);
+    CLOCK_SYS_EnablePitClock( 0U);
 
     /* Enable PIT module clock*/
-    pit_hal_enable();
+    PIT_HAL_Enable(baseAddr);
 
     /* Set timer run or stop in debug mode*/
-    pit_hal_configure_timer_run_in_debug(isRunInDebug);
+    PIT_HAL_SetTimerRunInDebugCmd(baseAddr, isRunInDebug);
    
     /* Finally, update pit source clock frequency.*/
-    clock_manager_get_frequency(kBusClock, &busClock);    
-    pitSourceClock = (uint64_t)busClock;
+    pitSourceClock  = CLOCK_SYS_GetPitFreq(0);    
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_init_channel
+ * Function Name : PIT_DRV_InitChannel
  * Description   : Initialize PIT channel.
  * This function initialize PIT timers by channel. Pass in timer number and its
  * config structure. Timers do not start counting by default after calling this
- * function. Function pit_timer_start must be called to start timer counting. 
- * Call pit_set_timer_period_us to re-set the period.
+ * function. Function PIT_DRV_StartTimer must be called to start timer counting. 
+ * Call PIT_DRV_SetTimerPeriodByUs to re-set the period.
  *
  *END**************************************************************************/
-void pit_init_channel(uint32_t timer, const pit_user_config_t * config)
+void PIT_DRV_InitChannel(uint32_t instance, uint32_t channel, const pit_user_config_t * config)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     /* Set timer period.*/
-    pit_set_timer_period_us(timer, config->periodUs);
+    PIT_DRV_SetTimerPeriodByUs(instance, channel, config->periodUs);
 
     #if FSL_FEATURE_PIT_HAS_CHAIN_MODE
     /* Configure timer chained or not.*/
-    pit_hal_configure_timer_chain(timer, config->isTimerChained);
+    PIT_HAL_SetTimerChainCmd(baseAddr, channel, config->isTimerChained);
     #endif
 
     /* Enable or disable interrupt.*/
-    pit_hal_configure_interrupt(timer, config->isInterruptEnabled);
+    PIT_HAL_SetIntCmd(baseAddr, channel, config->isInterruptEnabled);
 
     /* Configure NVIC*/
     if (config->isInterruptEnabled)
     {
         /* Enable PIT interrupt.*/
-        interrupt_enable(pit_irq_ids[timer]);
+        INT_SYS_EnableIRQ(g_pitIrqId[channel]);
     }
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_shutdown 
+ * Function Name : PIT_DRV_Deinit 
  * Description   : Disable PIT module and gate control
  * This function will disable all PIT interrupts and PIT clock. Then gate the
  * PIT clock control. pit_init must be called in order to use PIT again.
  * 
  *END**************************************************************************/
-void pit_shutdown(void)
+void PIT_DRV_Deinit(uint32_t instance)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     uint32_t i;
 
     /* Disable all PIT interrupts. */
     for (i=0; i < FSL_FEATURE_PIT_TIMER_COUNT; i++)
     {
-        pit_hal_configure_interrupt(i, false);
-        interrupt_disable(pit_irq_ids[i]);
+        PIT_HAL_SetIntCmd(baseAddr, i, false);
+        INT_SYS_DisableIRQ(g_pitIrqId[i]);
     }
 
     /* Disable PIT module clock*/
-    pit_hal_disable();
+    PIT_HAL_Disable(baseAddr);
 
     /* Gate PIT clock control*/
-    clock_manager_set_gate(kClockModulePIT, 0U, false);
+    CLOCK_SYS_DisablePitClock( 0U);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_timer_start
+ * Function Name : PIT_DRV_StartTimer
  * Description   : Start timer counting.
  * After calling this function, timers load period value, count down to 0 and
  * then load the respective start value again. Each time a timer reaches 0,
  * it will generate a trigger pulse and set the timeout interrupt flag.
  * 
  *END**************************************************************************/
-void pit_timer_start(uint32_t timer)
+void PIT_DRV_StartTimer(uint32_t instance, uint32_t channel)
 {
-    pit_hal_timer_start(timer);
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
+    PIT_HAL_StartTimer(baseAddr, channel);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_timer_stop
+ * Function Name : PIT_DRV_StopTimer
  * Description   : Stop timer counting.
  * This function will stop every timer counting. Timers will reload their periods
- * respectively after calling pit_timer_start next time.
+ * respectively after calling PIT_DRV_StartTimer next time.
  *
  *END**************************************************************************/
-void pit_timer_stop(uint32_t timer)
+void PIT_DRV_StopTimer(uint32_t instance, uint32_t channel)
 {
-    pit_hal_timer_stop(timer);
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
+    PIT_HAL_StopTimer(baseAddr, channel);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_set_timer_period_us
+ * Function Name : PIT_DRV_SetTimerPeriodByUs
  * Description   : Set timer period in microseconds unit.
  * The period range depends on the frequency of PIT source clock. If required
  * period is out the range, try to use lifetime timer if applicable. 
  *
  *END**************************************************************************/
-void pit_set_timer_period_us(uint32_t timer, uint32_t us)
+void PIT_DRV_SetTimerPeriodByUs(uint32_t instance, uint32_t channel, uint32_t us)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     /* Calculate the count value, assign it to timer counter register.*/
     uint32_t count = (uint32_t)(us * pitSourceClock / 1000000U - 1U);
-    pit_hal_set_timer_period_count(timer, count);
+    PIT_HAL_SetTimerPeriodByCount(baseAddr, channel, count);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_read_timer_us
+ * Function Name : PIT_DRV_ReadTimerUs
  * Description   : Read current timer value in microseconds unit.
  * This function will return an absolute time stamp in the unit of microseconds.
  * One common use of this function is to measure the running time of part of
@@ -185,10 +198,13 @@ void pit_set_timer_period_us(uint32_t timer, uint32_t us)
  * stamp returned is up-counting.
  *
  *END**************************************************************************/
-uint32_t pit_read_timer_us(uint32_t timer)
+uint32_t PIT_DRV_ReadTimerUs(uint32_t instance, uint32_t channel)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     /* Get current timer count, and reverse it to up-counting.*/
-    uint64_t currentTime = (~pit_hal_read_timer_count(timer));
+    uint64_t currentTime = (~PIT_HAL_ReadTimerCount(baseAddr, channel));
 
     /* Convert count numbers to microseconds unit.*/
     currentTime = (currentTime * 1000000U) / pitSourceClock;
@@ -198,37 +214,43 @@ uint32_t pit_read_timer_us(uint32_t timer)
 #if FSL_FEATURE_PIT_HAS_LIFETIME_TIMER
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_set_lifetime_timer_period_us
+ * Function Name : PIT_DRV_SetLifetimeTimerPeriodByUs
  * Description   : Set lifetime timer period (Timers must be chained).
  * Timer 1 must be chained with timer 0 before using lifetime timer. The period
  * range is restricted by "period * pitSourceClock < max of an uint64_t integer",
  * or it may cause a overflow and is not able to set correct period.
  *
  *END**************************************************************************/
-void pit_set_lifetime_timer_period_us(uint64_t us)
+void PIT_DRV_SetLifetimeTimerPeriodByUs(uint32_t instance, uint64_t us)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     uint64_t lifeTimeCount;
     
     /* Calculate the counter value.*/
     lifeTimeCount = us * pitSourceClock / 1000000U - 1U;
 
     /* Assign to timers.*/
-    pit_hal_set_timer_period_count(0U, (uint32_t)lifeTimeCount);
-    pit_hal_set_timer_period_count(1U, (uint32_t)(lifeTimeCount >> 32U));
+    PIT_HAL_SetTimerPeriodByCount(baseAddr, 0U, (uint32_t)lifeTimeCount);
+    PIT_HAL_SetTimerPeriodByCount(baseAddr, 1U, (uint32_t)(lifeTimeCount >> 32U));
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_read_lifetime_timer_us
+ * Function Name : PIT_DRV_ReadLifetimeTimerUs
  * Description   : Read current lifetime value in microseconds unit.
  * Return an absolute time stamp in the unit of microseconds. The time stamp 
  * value will not exceed the timer period. Also, the timer is up-counting.
  *
  *END**************************************************************************/
-uint64_t pit_read_lifetime_timer_us(void)
+uint64_t PIT_DRV_ReadLifetimeTimerUs(uint32_t instance)
 {
+    assert(instance < HW_PIT_INSTANCE_COUNT);
+
+    uint32_t baseAddr = g_pitBaseAddr[instance];
     /* Get current lifetime timer count, and reverse it to up-counting.*/
-    uint64_t currentTime = (~pit_hal_read_lifetime_timer_count());
+    uint64_t currentTime = (~PIT_HAL_ReadLifetimeTimerCount(baseAddr));
 
     /* Convert count numbers to microseconds unit.*/
     /* Note: using currentTime * 1000 rather than 1000000 to avoid short time overflow. */

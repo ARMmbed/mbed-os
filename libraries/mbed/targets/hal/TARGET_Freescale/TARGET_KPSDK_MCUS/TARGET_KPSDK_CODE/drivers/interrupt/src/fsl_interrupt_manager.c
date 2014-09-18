@@ -30,7 +30,6 @@
 
 #include <assert.h>
 #include "fsl_interrupt_manager.h"
-#include "cmsis_nvic.h"
 
 /*******************************************************************************
  * Definitions
@@ -39,7 +38,7 @@
 /*!
  * @brief Counter to manage the nested callings of global disable/enable interrupt.
  */
-uint32_t g_interrupt_disable_count = 0;
+uint32_t g_interruptDisableCount = 0;
 
 /*******************************************************************************
  * Code
@@ -47,7 +46,7 @@ uint32_t g_interrupt_disable_count = 0;
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : interrupt_register_handler
+ * Function Name : INT_SYS_InstallHandler
  * Description   : Install an interrupt handler routine for a given IRQ number
  * This function will let application to register/replace the interrupt 
  * handler for specified IRQ number. IRQ number is different with Vector
@@ -58,26 +57,38 @@ uint32_t g_interrupt_disable_count = 0;
  * it. 
  * 
  *END**************************************************************************/
-void interrupt_register_handler(IRQn_Type irqNumber, void (*handler)(void))
+void INT_SYS_InstallHandler(IRQn_Type irqNumber, void (*handler)(void))
 {
-    NVIC_SetVector(irqNumber, (uint32_t)handler);
+#if (defined(KEIL))
+    extern uint32_t Image$$VECTOR_RAM$$Base[];
+    #define __VECTOR_RAM Image$$VECTOR_RAM$$Base
+#else
+    extern uint32_t __VECTOR_RAM[];
+#endif
+
+    /* check IRQ number */
+    assert(FSL_FEATURE_INTERRUPT_IRQ_MIN <= irqNumber);
+    assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);
+    
+    /* set handler into vector table*/
+    __VECTOR_RAM[irqNumber + 16] = (uint32_t)handler;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : interrupt_enable_global
+ * Function Name : INT_SYS_EnableIRQGlobal
  * Description   : Enable system interrupt
  * This function will enable the global interrupt by calling the core API
  * 
  *END**************************************************************************/
-void interrupt_enable_global(void)
+void INT_SYS_EnableIRQGlobal(void)
 {
     /* check and update */
-    if (g_interrupt_disable_count > 0)
+    if (g_interruptDisableCount > 0)
     {
-        g_interrupt_disable_count--;
+        g_interruptDisableCount--;
 
-        if (g_interrupt_disable_count > 0)
+        if (g_interruptDisableCount > 0)
         {
             return;
         }
@@ -89,18 +100,18 @@ void interrupt_enable_global(void)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : interrupt_disable_global
+ * Function Name : INT_SYS_DisableIRQGlobal
  * Description   : Disnable system interrupt
  * This function will disable the global interrupt by calling the core API
  * 
  *END**************************************************************************/
-void interrupt_disable_global(void)
+void INT_SYS_DisableIRQGlobal(void)
 {
     /* call core API to disable the global interrupt*/
     __disable_irq();
 
     /* update counter*/
-    g_interrupt_disable_count++;
+    g_interruptDisableCount++;
 }
 
 /*******************************************************************************
