@@ -254,7 +254,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         else {
         	  mode = STM_MODE_IT_EVT_RESET;
             obj->event = EDGE_NONE;
-        }    }
+        }
+    }
 
     pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
 }

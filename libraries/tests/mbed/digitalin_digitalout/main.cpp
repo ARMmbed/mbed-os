@@ -14,6 +14,10 @@ DigitalIn  in(D2);
 DigitalOut out(PC_6);
 DigitalIn   in(PB_8);
 
+#elif defined(TARGET_DISCO_F407VG)
+DigitalOut out(PC_12);
+DigitalIn  in(PD_0);
+
 #elif defined(TARGET_FF_ARDUINO)
 DigitalOut out(D7);
 DigitalIn  in(D0);

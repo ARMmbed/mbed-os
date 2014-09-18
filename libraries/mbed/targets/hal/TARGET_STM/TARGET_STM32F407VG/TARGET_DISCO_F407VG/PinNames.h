@@ -53,6 +53,7 @@ extern "C" {
 #define STM_MODE_EVT_RISING         (9)
 #define STM_MODE_EVT_FALLING        (10)
 #define STM_MODE_EVT_RISING_FALLING (11)
+#define STM_MODE_IT_EVT_RESET       (12)
 
 // High nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H)
 // Low nibble  = pin number
