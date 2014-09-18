@@ -90,13 +90,23 @@ int main() {
         notify_completion(false);
     }
 
+    //Now test switch off edge detection
+    in.rise(NULL);
+    in.fall(NULL);
+    flipper();
+
+    if (checks != 10) {
+        printf("edge detection switch off test failed: %d\n",checks);
+        notify_completion(false);
+    }
+
     //Finally test both
     in.rise(in_handler);
     in.fall(in_handler);
     flipper();
 
     if (checks != 20) {
-        printf("Simultaneous rising and falling edges failed\n");
+        printf("Simultaneous rising and falling edges failed: %d\n",checks);
         notify_completion(false);
     }
 
