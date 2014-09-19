@@ -41,52 +41,53 @@ void k64f_init_eth_hardware(void)
     uint8_t count;
 
     /* Disable the mpu*/
-    BW_MPU_CESR_VLD(0);
+    BW_MPU_CESR_VLD(MPU_BASE, 0);
     
     /* Open POTR clock gate*/
     for (count = 0; count < HW_PORT_INSTANCE_COUNT; count++)
     {
-        clock_manager_set_gate(kClockModulePORT, count, true);
+        CLOCK_SYS_EnablePortClock(count);
     }
 
     /* Configure gpio*/
-    port_hal_mux_control(HW_PORTA, 12, kPortMuxAlt4);  /*!< ENET RMII0_RXD1/MII0_RXD1*/
-    port_hal_mux_control(HW_PORTA, 13, kPortMuxAlt4);  /*!< ENET RMII0_RXD0/MII0_RXD0*/
-    port_hal_mux_control(HW_PORTA, 14, kPortMuxAlt4);  /*!< ENET RMII0_CRS_DV/MII0_RXDV*/
-    port_hal_mux_control(HW_PORTA, 15, kPortMuxAlt4);  /*!< ENET RMII0_TXEN/MII0_TXEN*/
-    port_hal_mux_control(HW_PORTA, 16, kPortMuxAlt4);  /*!< ENET RMII0_TXD0/MII0_TXD0*/
-    port_hal_mux_control(HW_PORTA, 17, kPortMuxAlt4);  /*!< ENET RMII0_TXD01/MII0_TXD1*/
-    port_hal_mux_control(HW_PORTB, 0, kPortMuxAlt4);   /*!< ENET RMII0_MDIO/MII0_MDIO*/
-    port_hal_configure_open_drain(HW_PORTB,0, true);   /*!< ENET RMII0_MDC/MII0_MDC*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 12, kPortMuxAlt4);  /*!< ENET RMII0_RXD1/MII0_RXD1*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 13, kPortMuxAlt4);  /*!< ENET RMII0_RXD0/MII0_RXD0*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 14, kPortMuxAlt4);  /*!< ENET RMII0_CRS_DV/MII0_RXDV*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 15, kPortMuxAlt4);  /*!< ENET RMII0_TXEN/MII0_TXEN*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 16, kPortMuxAlt4);  /*!< ENET RMII0_TXD0/MII0_TXD0*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 17, kPortMuxAlt4);  /*!< ENET RMII0_TXD01/MII0_TXD1*/
+    PORT_HAL_SetMuxMode(HW_PORTB, 0, kPortMuxAlt4);   /*!< ENET RMII0_MDIO/MII0_MDIO*/
+    PORT_HAL_SetOpenDrainCmd(HW_PORTB,0, true);   /*!< ENET RMII0_MDC/MII0_MDC*/
 
     // Added for FRDM-K64F
-    port_hal_pull_select(HW_PORTB, 0, kPortPullUp);
-    port_hal_configure_pull(HW_PORTB, 0, true);
+    PORT_HAL_SetPullMode(HW_PORTB, 0, kPortPullUp);
+    PORT_HAL_SetPullCmd(HW_PORTB, 0, true);
   
-    port_hal_mux_control(HW_PORTB, 1, kPortMuxAlt4);
+    PORT_HAL_SetMuxMode(HW_PORTB, 1, kPortMuxAlt4);
     /* Configure GPIO for MII interface */
-    port_hal_mux_control(HW_PORTA, 9, kPortMuxAlt4);   /*!< ENET MII0_RXD3*/
-    port_hal_mux_control(HW_PORTA, 10, kPortMuxAlt4);   /*!< ENET MII0_RXD2*/
-    port_hal_mux_control(HW_PORTA, 11, kPortMuxAlt4);   /*!< ENET MII0_RXCLK*/
-    port_hal_mux_control(HW_PORTA, 24, kPortMuxAlt4);   /*!< ENET MII0_TXD2*/
-    port_hal_mux_control(HW_PORTA, 25, kPortMuxAlt4);   /*!< ENET MII0_TXCLK*/
-    port_hal_mux_control(HW_PORTA, 26, kPortMuxAlt4);   /*!< ENET MII0_TXD3*/
-    port_hal_mux_control(HW_PORTA, 27, kPortMuxAlt4);   /*!< ENET MII0_CRS*/
-    port_hal_mux_control(HW_PORTA, 28, kPortMuxAlt4);   /*!< ENET MII0_TXER*/
-    port_hal_mux_control(HW_PORTA, 29, kPortMuxAlt4);   /*!< ENET MII0_COL*/  
+    PORT_HAL_SetMuxMode(HW_PORTA, 9, kPortMuxAlt4);   /*!< ENET MII0_RXD3*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 10, kPortMuxAlt4);   /*!< ENET MII0_RXD2*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 11, kPortMuxAlt4);   /*!< ENET MII0_RXCLK*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 24, kPortMuxAlt4);   /*!< ENET MII0_TXD2*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 25, kPortMuxAlt4);   /*!< ENET MII0_TXCLK*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 26, kPortMuxAlt4);   /*!< ENET MII0_TXD3*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 27, kPortMuxAlt4);   /*!< ENET MII0_CRS*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 28, kPortMuxAlt4);   /*!< ENET MII0_TXER*/
+    PORT_HAL_SetMuxMode(HW_PORTA, 29, kPortMuxAlt4);   /*!< ENET MII0_COL*/  
 #if FSL_FEATURE_ENET_SUPPORT_PTP
-    port_hal_mux_control(HW_PORTC, (16 + ENET_TIMER_CHANNEL_NUM), kPortMuxAlt4); /* ENET ENET0_1588_TMR0*/
-    port_hal_configure_drive_strength(HW_PORTC, (16 + ENET_TIMER_CHANNEL_NUM), kPortHighDriveStrength); 
+    PORT_HAL_SetMuxMode(HW_PORTC, (16 + ENET_TIMER_CHANNEL_NUM), kPortMuxAlt4); /* ENET ENET0_1588_TMR0*/
+    PORT_HAL_SetDriveStrengthMode(HW_PORTC, (16 + ENET_TIMER_CHANNEL_NUM), kPortHighDriveStrength); 
 #endif
 
     /* Open ENET clock gate*/
-    clock_manager_set_gate(kClockModuleENET,0,true);
+    CLOCK_SYS_EnableEnetClock( 0U);
 
     /* Select the ptp timer  outclk*/
-    clock_hal_set_clock_source(kSimClockTimeSrc, 2);
+    CLOCK_HAL_SetSource(g_simBaseAddr[0], kClockTimeSrc, 2);
 }
 
 /*******************************************************************************
  * EOF
  ******************************************************************************/
+
 

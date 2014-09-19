@@ -40,222 +40,128 @@
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_manager_find_module
- * Description   : An internal function to find the specified clock module 
- * table pointer for specified clock gate module name with instance. 
- * If the clock module with instance is supported, it will return an valid 
- * pointer. Otherwise it will return a null pointer. 
- * 
- *END**************************************************************************/
-const sim_clock_gate_module_config_t *clock_manager_find_module(
-                                                    sim_clock_gate_module_names_t clockModule,
-                                                    uint8_t instance)
-{
-    uint32_t i = 0;
-
-    /* search through whole name table*/
-    while (kSimClockGateModuleConfigTable[i].clockGateModuleName != kSimClockModuleMax)
-    {
-        /* find only the match with both name and instance*/
-        if ( (kSimClockGateModuleConfigTable[i].clockGateModuleName == clockModule) && 
-             (kSimClockGateModuleConfigTable[i].deviceInstance == instance) )
-        {
-            /* return the table pointer*/
-            return &kSimClockGateModuleConfigTable[i];
-        }
-        i++;
-    }
-    return NULL;
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : clock_hal_set_gate
- * Description   : Enable or disable the clock for specified clock module
- * This function will enable/disable the clock for specified clock module and 
- * instance.
- * 
- *END**************************************************************************/
-sim_hal_status_t clock_hal_set_gate(sim_clock_gate_module_names_t clockModule, 
-                                    uint8_t instance, bool enable)
-{
-    const sim_clock_gate_module_config_t *table = NULL;
-    /* check clock module name*/
-    assert(clockModule < kSimClockModuleMax);
-
-    /* find out the content matches with name and instance*/
-    table = clock_manager_find_module(clockModule, instance);
-
-    if (table != NULL)
-    {
-        if (enable)
-        {
-            /* if matches, execute the set(Enable/Disable) the clock gate*/
-            *(uint32_t *)table->scgcRegAddress |= table->deviceMask;
-        }
-        else
-        {
-            /* if matches, execute the set(Enable/Disable) the clock gate*/
-            *(uint32_t *)table->scgcRegAddress &= ~table->deviceMask;
-        }
-        return kSimHalSuccess;
-    }
-    else
-    {
-        return kSimHalNoSuchModule;
-    }
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : clock_hal_get_gate
- * Description   : Get the clock enable or disable state
- * This function will get the current clock gate status of the specified clock
- * moudle and instance.
- * 
- *END**************************************************************************/
-sim_hal_status_t clock_hal_get_gate(sim_clock_gate_module_names_t clockModule, 
-                                    uint8_t instance, bool *isEnabled)
-{
-    const sim_clock_gate_module_config_t *table = NULL;
-    /* check clock module name*/
-    assert(clockModule < kSimClockModuleMax);
-
-    /* find out the content matches with name and instance*/
-    table = clock_manager_find_module(clockModule, instance);
-
-    if (table != NULL)
-    {
-        if ((*(uint32_t *)table->scgcRegAddress) & table->deviceMask)
-        {
-            *isEnabled = true;
-        }
-        else
-        {
-            *isEnabled = false;
-        }
-        return kSimHalSuccess;
-    }
-    else
-    {
-        return kSimHalNoSuchModule;
-    }
-}
-
-/*FUNCTION**********************************************************************
- *
- * Function Name : clock_hal_set_clock_source
+ * Function Name : CLOCK_HAL_SetSource
  * Description   : Set clock source setting 
  * This function will set the settings for specified clock source. Each clock 
  * source has its clock selection settings. Refer to reference manual for 
- * details of settings for each clock source. Refer to sim_clock_source_names_t 
+ * details of settings for each clock source. Refer to clock_source_names_t 
  * for clock sources.
  * 
  *END**************************************************************************/
-sim_hal_status_t clock_hal_set_clock_source(sim_clock_source_names_t clockSource, uint8_t setting)
+sim_hal_status_t CLOCK_HAL_SetSource(uint32_t baseAddr,
+                                     clock_source_names_t clockSource,
+                                     uint8_t setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockSource < kSimClockSourceMax);
+    assert(clockSource < kClockSourceMax);
 
     switch (clockSource)
     {
 #if FSL_FEATURE_SIM_OPT_HAS_NFCSRC
-    case kSimClockNfcSrc:                   /* NFCSRC*/
-        BW_SIM_SOPT2_NFCSRC(setting);
+    case kClockNfcSrc:                   /* NFCSRC*/
+        BW_SIM_SOPT2_NFCSRC(baseAddr, setting);
         break;
-    case kSimClockNfcSel:                   /* NFC_CLKSEL*/
-        BW_SIM_SOPT2_NFC_CLKSEL(setting);
+    case kClockNfcSel:                   /* NFC_CLKSEL*/
+        BW_SIM_SOPT2_NFC_CLKSEL(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_ESDHCSRC
-    case kSimClockEsdhcSrc:                 /* ESDHCSRC*/
-        BW_SIM_SOPT2_ESDHCSRC(setting);
+    case kClockEsdhcSrc:                 /* ESDHCSRC*/
+        BW_SIM_SOPT2_ESDHCSRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_SDHCSRC
-    case kSimClockSdhcSrc:                  /* SDHCSRC*/
-        BW_SIM_SOPT2_SDHCSRC(setting);
+    case kClockSdhcSrc:                  /* SDHCSRC*/
+        BW_SIM_SOPT2_SDHCSRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_LCDCSRC
-    case kSimClockLcdcSrc:                  /* LCDCSRC*/
-        BW_SIM_SOPT2_LCDCSRC(setting);
+    case kClockLcdcSrc:                  /* LCDCSRC*/
+        BW_SIM_SOPT2_LCDCSRC(baseAddr, setting);
         break;
-    case kSimClockLcdcSel:                  /* LCDC_CLKSEL*/
-        BW_SIM_SOPT2_LCDC_CLKSEL(setting);
+    case kClockLcdcSel:                  /* LCDC_CLKSEL*/
+        BW_SIM_SOPT2_LCDC_CLKSEL(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_TIMESRC
-    case kSimClockTimeSrc:                  /* TIMESRC*/
-        BW_SIM_SOPT2_TIMESRC(setting);
+    case kClockTimeSrc:                  /* TIMESRC*/
+        BW_SIM_SOPT2_TIMESRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_RMIISRC
-    case kSimClockRmiiSrc:                  /* RMIISRC*/
-        BW_SIM_SOPT2_RMIISRC(setting);
+    case kClockRmiiSrc:                  /* RMIISRC*/
+        BW_SIM_SOPT2_RMIISRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBSRC
-    case kSimClockUsbSrc:                    /* USBSRC*/
-        BW_SIM_SOPT2_USBSRC(setting);
+    case kClockUsbSrc:                    /* USBSRC*/
+        BW_SIM_SOPT2_USBSRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBFSRC
-    case kSimClockUsbfSrc:                   /* USBFSRC*/
-        BW_SIM_SOPT2_USBFSRC(setting);
+    case kClockUsbfSrc:                   /* USBFSRC*/
+        BW_SIM_SOPT2_USBFSRC(baseAddr, setting);
         break;
-    case kSimClockUsbfSel:                  /* USBF_CLKSEL*/
-        BW_SIM_SOPT2_USBF_CLKSEL(setting);
+    case kClockUsbfSel:                  /* USBF_CLKSEL*/
+        BW_SIM_SOPT2_USBF_CLKSEL(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBHSRC
-    case kSimClockUsbhSrc:                  /* USBHSRC*/
-        BW_SIM_SOPT2_USBHSRC(setting);
+    case kClockUsbhSrc:                  /* USBHSRC*/
+        BW_SIM_SOPT2_USBHSRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_UART0SRC
-    case kSimClockUart0Src:                 /* UART0SRC*/
-        BW_SIM_SOPT2_UART0SRC(setting);
+    case kClockUart0Src:                 /* UART0SRC*/
+        BW_SIM_SOPT2_UART0SRC(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_TPMSRC
-    case kSimClockTpmSrc:                   /* TPMSRC*/
-        BW_SIM_SOPT2_TPMSRC(setting);
+    case kClockTpmSrc:                   /* TPMSRC*/
+        BW_SIM_SOPT2_TPMSRC(baseAddr, setting);
         break;
 #endif
 
-    case kSimClockOsc32kSel:                /* OSC32KSEL*/
-        BW_SIM_SOPT1_OSC32KSEL(setting);
+#if FSL_FEATURE_SIM_OPT_HAS_LPUARTSRC
+    case kClockLpuartSrc:                /* LPUARTSRC*/
+        BW_SIM_SOPT2_LPUARTSRC(baseAddr, setting);
+        break;
+#endif
+
+    case kClockOsc32kSel:                /* OSC32KSEL*/
+        BW_SIM_SOPT1_OSC32KSEL(baseAddr, setting);
         break;
 
-    case kSimClockPllfllSel:                /* PLLFLLSEL*/
-        BW_SIM_SOPT2_PLLFLLSEL(setting);
+    case kClockPllfllSel:                /* PLLFLLSEL*/
+        BW_SIM_SOPT2_PLLFLLSEL(baseAddr, setting);
         break;
 
 #if FSL_FEATURE_SIM_OPT_HAS_TRACE_CLKSEL
-    case kSimClockTraceSel:                 /* TRACE_CLKSEL*/
-        BW_SIM_SOPT2_TRACECLKSEL(setting);
+    case kClockTraceSel:                 /* TRACE_CLKSEL*/
+        BW_SIM_SOPT2_TRACECLKSEL(baseAddr, setting);
         break;
 #endif
 
-    case kSimClockClkoutSel:                /* CLKOUTSEL*/
-        BW_SIM_SOPT2_CLKOUTSEL(setting);
+    case kClockClkoutSel:                /* CLKOUTSEL*/
+        BW_SIM_SOPT2_CLKOUTSEL(baseAddr, setting);
         break;
 
-    case kSimClockRtcClkoutSel:                /* RTCCLKOUTSEL*/
-        BW_SIM_SOPT2_RTCCLKOUTSEL(setting);
+#if FSL_FEATURE_SIM_OPT_HAS_RTC_CLOCK_OUT_SELECTION
+    case kClockRtcClkoutSel:                /* RTCCLKOUTSEL*/
+        BW_SIM_SOPT2_RTCCLKOUTSEL(baseAddr, setting);
         break;
-
+#endif
+        
     default:
         status = kSimHalNoSuchClockSrc;
         break;
@@ -266,118 +172,128 @@ sim_hal_status_t clock_hal_set_clock_source(sim_clock_source_names_t clockSource
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_clock_source
+ * Function Name : CLOCK_HAL_GetSource
  * Description   : Get clock source setting
  * This function will get the settings for specified clock source. Each clock 
  * source has its clock selection settings. Refer to reference manual for 
- * details of settings for each clock source. Refer to sim_clock_source_names_t
+ * details of settings for each clock source. Refer to clock_source_names_t
  * for clock sources.
  * 
  *END**************************************************************************/
-sim_hal_status_t clock_hal_get_clock_source(sim_clock_source_names_t clockSource, uint8_t *setting)
+sim_hal_status_t CLOCK_HAL_GetSource(uint32_t baseAddr,
+                                     clock_source_names_t clockSource,
+                                     uint8_t *setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockSource < kSimClockSourceMax);
+    assert(clockSource < kClockSourceMax);
 
     switch (clockSource)
     {
 #if FSL_FEATURE_SIM_OPT_HAS_NFCSRC
-    case kSimClockNfcSrc:                   /* NFCSRC*/
-        *setting = BR_SIM_SOPT2_NFCSRC;
+    case kClockNfcSrc:                   /* NFCSRC*/
+        *setting = BR_SIM_SOPT2_NFCSRC(baseAddr);
         break;
-    case kSimClockNfcSel:                   /* NFC_CLKSEL*/
-        *setting = BR_SIM_SOPT2_NFC_CLKSEL;
+    case kClockNfcSel:                   /* NFC_CLKSEL*/
+        *setting = BR_SIM_SOPT2_NFC_CLKSEL(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_ESDHCSRC
-    case kSimClockEsdhcSrc:                 /* ESDHCSRC*/
-        *setting = BR_SIM_SOPT2_ESDHCSRC;
+    case kClockEsdhcSrc:                 /* ESDHCSRC*/
+        *setting = BR_SIM_SOPT2_ESDHCSRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_SDHCSRC
-    case kSimClockSdhcSrc:                  /* SDHCSRC*/
-        *setting = BR_SIM_SOPT2_SDHCSRC;
+    case kClockSdhcSrc:                  /* SDHCSRC*/
+        *setting = BR_SIM_SOPT2_SDHCSRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_LCDCSRC
-    case kSimClockLcdcSrc:                  /* LCDCSRC*/
-        *setting = BR_SIM_SOPT2_LCDCSRC;
+    case kClockLcdcSrc:                  /* LCDCSRC*/
+        *setting = BR_SIM_SOPT2_LCDCSRC(baseAddr);
         break;
-    case kSimClockLcdcSel:                  /* LCDC_CLKSEL*/
-        *setting = BR_SIM_SOPT2_LCDC_CLKSEL;
+    case kClockLcdcSel:                  /* LCDC_CLKSEL*/
+        *setting = BR_SIM_SOPT2_LCDC_CLKSEL(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_TIMESRC
-    case kSimClockTimeSrc:                  /* TIMESRC*/
-        *setting = BR_SIM_SOPT2_TIMESRC;
+    case kClockTimeSrc:                  /* TIMESRC*/
+        *setting = BR_SIM_SOPT2_TIMESRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_RMIISRC
-    case kSimClockRmiiSrc:                  /* RMIISRC*/
-        *setting = BR_SIM_SOPT2_RMIISRC;
+    case kClockRmiiSrc:                  /* RMIISRC*/
+        *setting = BR_SIM_SOPT2_RMIISRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBSRC
-    case kSimClockUsbSrc:                    /* USBSRC*/
-        *setting = BR_SIM_SOPT2_USBSRC;
+    case kClockUsbSrc:                    /* USBSRC*/
+        *setting = BR_SIM_SOPT2_USBSRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBFSRC
-    case kSimClockUsbfSrc:                   /* USBFSRC*/
-        *setting = BR_SIM_SOPT2_USBFSRC;
+    case kClockUsbfSrc:                   /* USBFSRC*/
+        *setting = BR_SIM_SOPT2_USBFSRC(baseAddr);
         break;
-    case kSimClockUsbfSel:                  /* USBF_CLKSEL*/
-        *setting = BR_SIM_SOPT2_USBF_CLKSEL;
+    case kClockUsbfSel:                  /* USBF_CLKSEL*/
+        *setting = BR_SIM_SOPT2_USBF_CLKSEL(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_USBHSRC
-    case kSimClockUsbhSrc:                  /* USBHSRC*/
-        *setting = BR_SIM_SOPT2_USBHSRC;
+    case kClockUsbhSrc:                  /* USBHSRC*/
+        *setting = BR_SIM_SOPT2_USBHSRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_UART0SRC
-    case kSimClockUart0Src:                 /* UART0SRC*/
-        *setting = BR_SIM_SOPT2_UART0SRC;
+    case kClockUart0Src:                 /* UART0SRC*/
+        *setting = BR_SIM_SOPT2_UART0SRC(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_TPMSRC
-    case kSimClockTpmSrc:                   /* TPMSRC*/
-        *setting = BR_SIM_SOPT2_TPMSRC;
+    case kClockTpmSrc:                   /* TPMSRC*/
+        *setting = BR_SIM_SOPT2_TPMSRC(baseAddr);
         break;
 #endif
 
-    case kSimClockOsc32kSel:                /* OSC32KSEL*/
-        *setting = BR_SIM_SOPT1_OSC32KSEL;
+#if FSL_FEATURE_SIM_OPT_HAS_LPUARTSRC
+    case kClockLpuartSrc:                /* LPUARTSRC*/
+        *setting = BR_SIM_SOPT2_LPUARTSRC(baseAddr);
+        break;
+#endif
+
+    case kClockOsc32kSel:                /* OSC32KSEL*/
+        *setting = BR_SIM_SOPT1_OSC32KSEL(baseAddr);
         break;
 
-    case kSimClockPllfllSel:                /* PLLFLLSEL*/
-        *setting = BR_SIM_SOPT2_PLLFLLSEL;
+    case kClockPllfllSel:                /* PLLFLLSEL*/
+        *setting = BR_SIM_SOPT2_PLLFLLSEL(baseAddr);
         break;
 
 #if FSL_FEATURE_SIM_OPT_HAS_TRACE_CLKSEL
-    case kSimClockTraceSel:                 /* TRACE_CLKSEL*/
-        *setting = BR_SIM_SOPT2_TRACECLKSEL;
+    case kClockTraceSel:                 /* TRACE_CLKSEL*/
+        *setting = BR_SIM_SOPT2_TRACECLKSEL(baseAddr);
         break;
 #endif
 
-    case kSimClockClkoutSel:                /* CLKOUTSEL */
-        *setting = BR_SIM_SOPT2_CLKOUTSEL;
+    case kClockClkoutSel:                /* CLKOUTSEL */
+        *setting = BR_SIM_SOPT2_CLKOUTSEL(baseAddr);
         break;
 
-    case kSimClockRtcClkoutSel:                /* RTCCLKOUTSEL */
-        *setting = BR_SIM_SOPT2_RTCCLKOUTSEL;
+#if FSL_FEATURE_SIM_OPT_HAS_RTC_CLOCK_OUT_SELECTION
+    case kClockRtcClkoutSel:                /* RTCCLKOUTSEL */
+        *setting = BR_SIM_SOPT2_RTCCLKOUTSEL(baseAddr);
         break;
-
+#endif
+        
     default:
         status = kSimHalNoSuchClockSrc;
         break;
@@ -388,87 +304,88 @@ sim_hal_status_t clock_hal_get_clock_source(sim_clock_source_names_t clockSource
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_set_clock_divider
+ * Function Name : CLOCK_HAL_SetDivider
  * Description   : Set clock divider setting
  * This function will set the setting for specified clock divider. Refer to 
  * reference manual for supported clock divider and value range. Refer to 
- * sim_clock_divider_names_t for dividers.
+ * clock_divider_names_t for dividers.
  * 
  *END**************************************************************************/
-sim_hal_status_t clock_hal_set_clock_divider(sim_clock_divider_names_t clockDivider, 
-                                             uint32_t setting)
+sim_hal_status_t CLOCK_HAL_SetDivider(uint32_t baseAddr,
+                                      clock_divider_names_t clockDivider, 
+                                      uint32_t setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockDivider < kSimClockDividerMax);
+    assert(clockDivider < kClockDividerMax);
 
     switch (clockDivider)
     {
-    case kSimClockDividerOutdiv1:           /* OUTDIV1*/
-        BW_SIM_CLKDIV1_OUTDIV1(setting);
+    case kClockDividerOutdiv1:           /* OUTDIV1*/
+        BW_SIM_CLKDIV1_OUTDIV1(baseAddr, setting);
         break;
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_OUTDIV2
-    case kSimClockDividerOutdiv2:           /* OUTDIV2*/
-        BW_SIM_CLKDIV1_OUTDIV2(setting);
+    case kClockDividerOutdiv2:           /* OUTDIV2*/
+        BW_SIM_CLKDIV1_OUTDIV2(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_OUTDIV3
-    case kSimClockDividerOutdiv3:           /* OUTDIV3*/
-        BW_SIM_CLKDIV1_OUTDIV3(setting);
+    case kClockDividerOutdiv3:           /* OUTDIV3*/
+        BW_SIM_CLKDIV1_OUTDIV3(baseAddr, setting);
         break;
 #endif
 
-    case kSimClockDividerOutdiv4:           /* OUTDIV4*/
-        BW_SIM_CLKDIV1_OUTDIV4(setting);
+    case kClockDividerOutdiv4:           /* OUTDIV4*/
+        BW_SIM_CLKDIV1_OUTDIV4(baseAddr, setting);
         break;
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBDIV
-    case kSimClockDividerUsbFrac:           /* USBFRAC*/
-        BW_SIM_CLKDIV2_USBFRAC(setting);
+    case kClockDividerUsbFrac:           /* USBFRAC*/
+        BW_SIM_CLKDIV2_USBFRAC(baseAddr, setting);
         break;
-    case kSimClockDividerUsbDiv:            /* USBDIV*/
-        BW_SIM_CLKDIV2_USBDIV(setting);
+    case kClockDividerUsbDiv:            /* USBDIV*/
+        BW_SIM_CLKDIV2_USBDIV(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBFSDIV
-    case kSimClockDividerUsbfsFrac:         /* USBFSFRAC*/
-        BW_SIM_CLKDIV2_USBFSFRAC(setting);
+    case kClockDividerUsbfsFrac:         /* USBFSFRAC*/
+        BW_SIM_CLKDIV2_USBFSFRAC(baseAddr, setting);
         break;
-    case kSimClockDividerUsbfsDiv:          /* USBFSDIV*/
-        BW_SIM_CLKDIV2_USBFSDIV(setting);
+    case kClockDividerUsbfsDiv:          /* USBFSDIV*/
+        BW_SIM_CLKDIV2_USBFSDIV(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBHSDIV
-    case kSimClockDividerUsbhsFrac:         /* USBHSFRAC*/
-        BW_SIM_CLKDIV2_USBHSFRAC(setting);
+    case kClockDividerUsbhsFrac:         /* USBHSFRAC*/
+        BW_SIM_CLKDIV2_USBHSFRAC(baseAddr, setting);
         break;
-    case kSimClockDividerUsbhsDiv:          /* USBHSDIV*/
-        BW_SIM_CLKDIV2_USBHSDIV(setting);
+    case kClockDividerUsbhsDiv:          /* USBHSDIV*/
+        BW_SIM_CLKDIV2_USBHSDIV(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_LCDCSRC
-    case kSimClockDividerLcdcFrac:          /* LCDCFRAC*/
-        BW_SIM_CLKDIV3_LCDCFRAC(setting);
+    case kClockDividerLcdcFrac:          /* LCDCFRAC*/
+        BW_SIM_CLKDIV3_LCDCFRAC(baseAddr, setting);
         break;
-    case kSimClockDividerLcdcDiv:           /* LCDCDIV*/
-        BW_SIM_CLKDIV3_LCDCDIV(setting);
+    case kClockDividerLcdcDiv:           /* LCDCDIV*/
+        BW_SIM_CLKDIV3_LCDCDIV(baseAddr, setting);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_NFCSRC
-    case kSimClockDividerNfcFrac:           /* NFCFRAC*/
-        BW_SIM_CLKDIV4_NFCFRAC(setting);
+    case kClockDividerNfcFrac:           /* NFCFRAC*/
+        BW_SIM_CLKDIV4_NFCFRAC(baseAddr, setting);
         break;
-    case kSimClockDividerNfcDiv:            /* NFCDIV*/
-        BW_SIM_CLKDIV4_NFCDIV(setting);
+    case kClockDividerNfcDiv:            /* NFCDIV*/
+        BW_SIM_CLKDIV4_NFCDIV(baseAddr, setting);
         break;
 #endif
 
-    case kSimClockDividerSpecial1:          /* special divider 1   */
+    case kClockDividerSpecial1:          /* special divider 1   */
         break;
 
     default:
@@ -481,14 +398,14 @@ sim_hal_status_t clock_hal_set_clock_divider(sim_clock_divider_names_t clockDivi
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_set_clock_out_dividers
+ * Function Name : CLOCK_HAL_SetOutDividers
  * Description   : Set all clock out dividers setting at the same time
  * This function will set the setting for all clock out dividers. Refer to 
  * reference manual for supported clock divider and value range. Refer to 
- * sim_clock_divider_names_t for dividers.
+ * clock_divider_names_t for dividers.
  * 
  *END**************************************************************************/
-void clock_hal_set_clock_out_dividers(uint32_t outdiv1, uint32_t outdiv2, 
+void CLOCK_HAL_SetOutDividers(uint32_t baseAddr, uint32_t outdiv1, uint32_t outdiv2, 
                                  uint32_t outdiv3, uint32_t outdiv4)
 {
     uint32_t clkdiv1 = 0;
@@ -502,93 +419,95 @@ void clock_hal_set_clock_out_dividers(uint32_t outdiv1, uint32_t outdiv2,
 #endif
     clkdiv1 |= BF_SIM_CLKDIV1_OUTDIV4(outdiv4);
     
-    HW_SIM_CLKDIV1_WR(clkdiv1);
+    HW_SIM_CLKDIV1_WR(baseAddr, clkdiv1);
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_clock_divider
+ * Function Name : CLOCK_HAL_GetDivider
  * Description   : Get clock divider setting
  * This function will get the setting for specified clock divider. Refer to 
  * reference manual for supported clock divider and value range. Refer to 
- * sim_clock_divider_names_t for dividers.
+ * clock_divider_names_t for dividers.
  * 
  *END**************************************************************************/
-sim_hal_status_t clock_hal_get_clock_divider(sim_clock_divider_names_t clockDivider, uint32_t *setting)
+sim_hal_status_t CLOCK_HAL_GetDivider(uint32_t baseAddr,
+                                      clock_divider_names_t clockDivider,
+                                      uint32_t *setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockDivider < kSimClockDividerMax);
+    assert(clockDivider < kClockDividerMax);
 
     *setting = 0;
 
     switch (clockDivider)
     {
-    case kSimClockDividerOutdiv1:           /* OUTDIV1*/
-        *setting = BR_SIM_CLKDIV1_OUTDIV1;
+    case kClockDividerOutdiv1:           /* OUTDIV1*/
+        *setting = BR_SIM_CLKDIV1_OUTDIV1(baseAddr);
         break;
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_OUTDIV2
-    case kSimClockDividerOutdiv2:           /* OUTDIV2*/
-        *setting = BR_SIM_CLKDIV1_OUTDIV2;
+    case kClockDividerOutdiv2:           /* OUTDIV2*/
+        *setting = BR_SIM_CLKDIV1_OUTDIV2(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_OUTDIV3
-    case kSimClockDividerOutdiv3:           /* OUTDIV3*/
-        *setting = BR_SIM_CLKDIV1_OUTDIV3;
+    case kClockDividerOutdiv3:           /* OUTDIV3*/
+        *setting = BR_SIM_CLKDIV1_OUTDIV3(baseAddr);
         break;
 #endif
 
-    case kSimClockDividerOutdiv4:           /* OUTDIV4*/
-        *setting = BR_SIM_CLKDIV1_OUTDIV4;
+    case kClockDividerOutdiv4:           /* OUTDIV4*/
+        *setting = BR_SIM_CLKDIV1_OUTDIV4(baseAddr);
         break;
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBDIV
-    case kSimClockDividerUsbFrac:           /* USBFRAC*/
-        *setting = BR_SIM_CLKDIV2_USBFRAC;
+    case kClockDividerUsbFrac:           /* USBFRAC*/
+        *setting = BR_SIM_CLKDIV2_USBFRAC(baseAddr);
         break;
-    case kSimClockDividerUsbDiv:            /* USBDIV*/
-        *setting = BR_SIM_CLKDIV2_USBDIV;
+    case kClockDividerUsbDiv:            /* USBDIV*/
+        *setting = BR_SIM_CLKDIV2_USBDIV(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBFSDIV
-    case kSimClockDividerUsbfsFrac:         /* USBFSFRAC*/
-        *setting = BR_SIM_CLKDIV2_USBFSFRAC;
+    case kClockDividerUsbfsFrac:         /* USBFSFRAC*/
+        *setting = BR_SIM_CLKDIV2_USBFSFRAC(baseAddr);
         break;
-    case kSimClockDividerUsbfsDiv:          /* USBFSDIV*/
-        *setting = BR_SIM_CLKDIV2_USBFSDIV;
+    case kClockDividerUsbfsDiv:          /* USBFSDIV*/
+        *setting = BR_SIM_CLKDIV2_USBFSDIV(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_DIVIDER_HAS_USBHSDIV
-    case kSimClockDividerUsbhsFrac:         /* USBHSFRAC*/
-        *setting = BR_SIM_CLKDIV2_USBHSFRAC;
+    case kClockDividerUsbhsFrac:         /* USBHSFRAC*/
+        *setting = BR_SIM_CLKDIV2_USBHSFRAC(baseAddr);
         break;
-    case kSimClockDividerUsbhsDiv:          /* USBHSDIV*/
-        *setting = BR_SIM_CLKDIV2_USBHSDIV;
+    case kClockDividerUsbhsDiv:          /* USBHSDIV*/
+        *setting = BR_SIM_CLKDIV2_USBHSDIV(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_LCDCSRC
-    case kSimClockDividerLcdcFrac:          /* LCDCFRAC*/
-        *setting = BR_SIM_CLKDIV3_LCDCFRAC;
+    case kClockDividerLcdcFrac:          /* LCDCFRAC*/
+        *setting = BR_SIM_CLKDIV3_LCDCFRAC(baseAddr);
         break;
-    case kSimClockDividerLcdcDiv:           /* LCDCDIV*/
-        *setting = BR_SIM_CLKDIV3_LCDCDIV;
+    case kClockDividerLcdcDiv:           /* LCDCDIV*/
+        *setting = BR_SIM_CLKDIV3_LCDCDIV(baseAddr);
         break;
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_NFCSRC
-    case kSimClockDividerNfcFrac:           /* NFCFRAC*/
-        *setting = BR_SIM_CLKDIV4_NFCFRAC;
+    case kClockDividerNfcFrac:           /* NFCFRAC*/
+        *setting = BR_SIM_CLKDIV4_NFCFRAC(baseAddr);
         break;
-    case kSimClockDividerNfcDiv:            /* NFCDIV*/
-        *setting = BR_SIM_CLKDIV4_NFCDIV;
+    case kClockDividerNfcDiv:            /* NFCDIV*/
+        *setting = BR_SIM_CLKDIV4_NFCDIV(baseAddr);
         break;
 #endif
 
-    case kSimClockDividerSpecial1:          /* special divider 1    */
+    case kClockDividerSpecial1:          /* special divider 1    */
         *setting = 1;                   
         break;
 
@@ -602,30 +521,30 @@ sim_hal_status_t clock_hal_get_clock_divider(sim_clock_divider_names_t clockDivi
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_alttrgen
+ * Function Name : SIM_HAL_SetAdcAlternativeTriggerCmd
  * Description   : Set ADCx alternate trigger enable setting
  * This function will enable/disable alternative conversion triggers for ADCx. 
  * 
  *END**************************************************************************/
-void sim_set_alttrgen(uint8_t instance, bool enable)
+void SIM_HAL_SetAdcAlternativeTriggerCmd(uint32_t baseAddr, uint8_t instance, bool enable)
 {
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT7_ADC0ALTTRGEN(enable ? 1 : 0);
+        BW_SIM_SOPT7_ADC0ALTTRGEN(baseAddr, enable ? 1 : 0);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        BW_SIM_SOPT7_ADC1ALTTRGEN(enable ? 1 : 0);
+        BW_SIM_SOPT7_ADC1ALTTRGEN(baseAddr, enable ? 1 : 0);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        BW_SIM_SOPT7_ADC2ALTTRGEN(enable ? 1 : 0);
+        BW_SIM_SOPT7_ADC2ALTTRGEN(baseAddr, enable ? 1 : 0);
         break;
     case 3:
-        BW_SIM_SOPT7_ADC3ALTTRGEN(enable ? 1 : 0);
+        BW_SIM_SOPT7_ADC3ALTTRGEN(baseAddr, enable ? 1 : 0);
         break;
 #endif
 #endif
@@ -636,61 +555,70 @@ void sim_set_alttrgen(uint8_t instance, bool enable)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_alttrgen
+ * Function Name : SIM_HAL_GetAdcAlternativeTriggerCmd
  * Description   : Get ADCx alternate trigger enable settingg
  * This function will get ADCx alternate trigger enable setting. 
  * 
  *END**************************************************************************/
-bool sim_get_alttrgen(uint8_t instance)
+bool SIM_HAL_GetAdcAlternativeTriggerCmd(uint32_t baseAddr, uint8_t instance)
 {
+    bool retValue = false;
+
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        return BR_SIM_SOPT7_ADC0ALTTRGEN;
+        retValue = BR_SIM_SOPT7_ADC0ALTTRGEN(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        return BR_SIM_SOPT7_ADC1ALTTRGEN;
+        retValue = BR_SIM_SOPT7_ADC1ALTTRGEN(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        return BR_SIM_SOPT7_ADC2ALTTRGEN;
+        retValue = BR_SIM_SOPT7_ADC2ALTTRGEN(baseAddr);
+        break;
     case 3:
-        return BR_SIM_SOPT7_ADC3ALTTRGEN;
+        retValue = BR_SIM_SOPT7_ADC3ALTTRGEN(baseAddr);
+        break;
 #endif
 #endif
     default:
-        return false;
+        retValue = false;
+        break;
     }
+
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_pretrgsel
+ * Function Name : SIM_HAL_SetAdcPreTriggerMode
  * Description   : Set ADCx pre-trigger select setting
  * This function will select the ADCx pre-trigger source when alternative
  * triggers are enabled through ADCxALTTRGEN
  * 
  *END**************************************************************************/
-void sim_set_pretrgsel(uint8_t instance, sim_pretrgsel_t select)
+void SIM_HAL_SetAdcPreTriggerMode(uint32_t baseAddr, uint8_t instance, sim_pretrgsel_t select)
 {
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT7_ADC0PRETRGSEL(select);
+        BW_SIM_SOPT7_ADC0PRETRGSEL(baseAddr, select);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        BW_SIM_SOPT7_ADC1PRETRGSEL(select);
+        BW_SIM_SOPT7_ADC1PRETRGSEL(baseAddr, select);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        BW_SIM_SOPT7_ADC2PRETRGSEL(select);
+        BW_SIM_SOPT7_ADC2PRETRGSEL(baseAddr, select);
         break;
     case 3:
-        BW_SIM_SOPT7_ADC3PRETRGSEL(select);
+        BW_SIM_SOPT7_ADC3PRETRGSEL(baseAddr, select);
         break;
 #endif
 #endif
@@ -701,61 +629,69 @@ void sim_set_pretrgsel(uint8_t instance, sim_pretrgsel_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_pretrgsel
+ * Function Name : SIM_HAL_GetAdcPreTriggerMode
  * Description   : Get ADCx pre-trigger select setting
  * This function will get ADCx pre-trigger select setting.
  * 
  *END**************************************************************************/
-sim_pretrgsel_t sim_get_pretrgsel(uint8_t instance)
+sim_pretrgsel_t SIM_HAL_GetAdcPreTriggerMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_pretrgsel_t retValue = (sim_pretrgsel_t)0;
+
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC0PRETRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC0PRETRGSEL(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC1PRETRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC1PRETRGSEL(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC2PRETRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC2PRETRGSEL(baseAddr);
+        break;
     case 3:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC3PRETRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC3PRETRGSEL(baseAddr);
+        break;
 #endif
 #endif
     default:
-        return (sim_pretrgsel_t)false;
+        break;
     }
+
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_trgsel
+ * Function Name : SIM_HAL_SetAdcTriggerMode
  * Description   : Set ADCx trigger select setting
  * This function will select the ADCx trigger source when alternative triggers
  * are enabled through ADCxALTTRGEN
  * 
  *END**************************************************************************/
-void sim_set_trgsel(uint8_t instance, sim_trgsel_t select)
+void SIM_HAL_SetAdcTriggerMode(uint32_t baseAddr, uint8_t instance, sim_trgsel_t select)
 {
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT7_ADC0TRGSEL(select);
+        BW_SIM_SOPT7_ADC0TRGSEL(baseAddr, select);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        BW_SIM_SOPT7_ADC1TRGSEL(select);
+        BW_SIM_SOPT7_ADC1TRGSEL(baseAddr, select);
         break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        BW_SIM_SOPT7_ADC2TRGSEL(select);
+        BW_SIM_SOPT7_ADC2TRGSEL(baseAddr, select);
         break;
     case 3:
-        BW_SIM_SOPT7_ADC3TRGSEL(select);
+        BW_SIM_SOPT7_ADC3TRGSEL(baseAddr, select);
         break;
 #endif
 #endif
@@ -766,52 +702,60 @@ void sim_set_trgsel(uint8_t instance, sim_trgsel_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_trgsel
+ * Function Name : SIM_HAL_GetAdcTriggerMode
  * Description   : Get ADCx trigger select setting 
  * This function will get ADCx trigger select setting.
  * 
  *END**************************************************************************/
-sim_pretrgsel_t sim_get_trgsel(uint8_t instance)
+sim_pretrgsel_t SIM_HAL_GetAdcTriggerMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_pretrgsel_t retValue =(sim_pretrgsel_t)0;
+
     assert(instance < HW_ADC_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC0TRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC0TRGSEL(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 1)
     case 1:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC1TRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC1TRGSEL(baseAddr);
+        break;
 #if (HW_ADC_INSTANCE_COUNT > 2)
     case 2:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC2TRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC2TRGSEL(baseAddr);
+        break;
     case 3:
-        return (sim_pretrgsel_t)BR_SIM_SOPT7_ADC3TRGSEL;
+        retValue = (sim_pretrgsel_t)BR_SIM_SOPT7_ADC3TRGSEL(baseAddr);
+        break;
 #endif
 #endif
     default:
-        return (sim_pretrgsel_t)false;
+        break;
     }
+
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_uart_rxsrc
+ * Function Name : SIM_HAL_SetUartRxSrcMode
  * Description   : Set UARTx receive data source select setting 
  * This function will select the source for the UART1 receive data.
  * 
  *END**************************************************************************/
-void sim_set_uart_rxsrc(uint8_t instance, sim_uart_rxsrc_t select)
+void SIM_HAL_SetUartRxSrcMode(uint32_t baseAddr, uint8_t instance, sim_uart_rxsrc_t select)
 {
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT5_UART0RXSRC(select);
+        BW_SIM_SOPT5_UART0RXSRC(baseAddr, select);
         break;
     case 1:
-        BW_SIM_SOPT5_UART1RXSRC(select);
+        BW_SIM_SOPT5_UART1RXSRC(baseAddr, select);
         break;
     default:
         break;
@@ -820,44 +764,50 @@ void sim_set_uart_rxsrc(uint8_t instance, sim_uart_rxsrc_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_pretrgsel
+ * Function Name : SIM_HAL_GetAdcPreTriggerMode
  * Description   : Get UARTx receive data source select setting 
  * This function will get UARTx receive data source select setting.
  * 
  *END**************************************************************************/
-sim_uart_rxsrc_t sim_get_uart_rxsrc(uint8_t instance)
+sim_uart_rxsrc_t SIM_HAL_GetUartRxSrcMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_uart_rxsrc_t retValue = (sim_uart_rxsrc_t)0;
+
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_uart_rxsrc_t)BR_SIM_SOPT5_UART0RXSRC;
+        retValue = (sim_uart_rxsrc_t)BR_SIM_SOPT5_UART0RXSRC(baseAddr);
+        break;
     case 1:
-        return (sim_uart_rxsrc_t)BR_SIM_SOPT5_UART1RXSRC;
+        retValue = (sim_uart_rxsrc_t)BR_SIM_SOPT5_UART1RXSRC(baseAddr);
+        break;
     default:
-        return (sim_uart_rxsrc_t)0;
+        break;
     }
+
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_uart_txsrc
+ * Function Name : SIM_HAL_SetUartTxSrcMode
  * Description   : Set UARTx transmit data source select setting 
  * This function will select the source for the UARTx transmit data.
  * 
  *END**************************************************************************/
-void sim_set_uart_txsrc(uint8_t instance, sim_uart_txsrc_t select)
+void SIM_HAL_SetUartTxSrcMode(uint32_t baseAddr, uint8_t instance, sim_uart_txsrc_t select)
 {
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT5_UART0TXSRC(select);
+        BW_SIM_SOPT5_UART0TXSRC(baseAddr, select);
         break;
     case 1:
-        BW_SIM_SOPT5_UART1TXSRC(select);
+        BW_SIM_SOPT5_UART1TXSRC(baseAddr, select);
         break;
     default:
         break;
@@ -866,48 +816,54 @@ void sim_set_uart_txsrc(uint8_t instance, sim_uart_txsrc_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_uart_txsrc
+ * Function Name : SIM_HAL_GetUartTxSrcMode
  * Description   : Get UARTx transmit data source select setting 
  * This function will get UARTx transmit data source select setting.
  * 
  *END**************************************************************************/
-sim_uart_txsrc_t sim_get_uart_txsrc(uint8_t instance)
+sim_uart_txsrc_t SIM_HAL_GetUartTxSrcMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_uart_txsrc_t retValue =(sim_uart_txsrc_t)0;
+
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_uart_txsrc_t)BR_SIM_SOPT5_UART0TXSRC;
+        retValue = (sim_uart_txsrc_t)BR_SIM_SOPT5_UART0TXSRC(baseAddr);
+        break;
     case 1:
-        return (sim_uart_txsrc_t)BR_SIM_SOPT5_UART1TXSRC;
+        retValue = (sim_uart_txsrc_t)BR_SIM_SOPT5_UART1TXSRC(baseAddr);
+        break;
     default:
-        return (sim_uart_txsrc_t)0;
+        break;
     }
+
+    return retValue;
 }
 
 #if FSL_FEATURE_SIM_OPT_HAS_ODE
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_uart_ode
+ * Function Name : SIM_HAL_SetUartOpenDrainCmd
  * Description   : Set UARTx Open Drain Enable setting 
  * This function will enable/disable the UARTx Open Drain.
  * 
  *END**************************************************************************/
-void sim_set_uart_ode(uint8_t instance, bool enable)
+void SIM_HAL_SetUartOpenDrainCmd(uint32_t baseAddr, uint8_t instance, bool enable)
 {
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT5_UART0ODE(enable ? 1 : 0);
+        BW_SIM_SOPT5_UART0ODE(baseAddr, enable ? 1 : 0);
         break;
     case 1:
-        BW_SIM_SOPT5_UART1ODE(enable ? 1 : 0);
+        BW_SIM_SOPT5_UART1ODE(baseAddr, enable ? 1 : 0);
         break;
     case 2:
-        BW_SIM_SOPT5_UART2ODE(enable ? 1 : 0);
+        BW_SIM_SOPT5_UART2ODE(baseAddr, enable ? 1 : 0);
         break;
     default:
         break;
@@ -916,38 +872,48 @@ void sim_set_uart_ode(uint8_t instance, bool enable)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_uart_ode
+ * Function Name : SIM_HAL_GetUartOpenDrainCmd
  * Description   : Get UARTx Open Drain Enable setting 
  * This function will get UARTx Open Drain Enable setting.
  * 
  *END**************************************************************************/
-bool sim_get_uart_ode(uint8_t instance)
+bool SIM_HAL_GetUartOpenDrainCmd(uint32_t baseAddr, uint8_t instance)
 {
+    bool retValue = false;
+
     assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
 
     switch (instance)
     {
     case 0:
-        return BR_SIM_SOPT5_UART0ODE;
+        retValue = BR_SIM_SOPT5_UART0ODE(baseAddr);
+        break;
     case 1:
-        return BR_SIM_SOPT5_UART1ODE;
+        retValue = BR_SIM_SOPT5_UART1ODE(baseAddr);
+        break;
     case 2:
-        return BR_SIM_SOPT5_UART2ODE;
+        retValue = BR_SIM_SOPT5_UART2ODE(baseAddr);
+        break;
     default:
-        return (sim_uart_txsrc_t)0;
+        break;
     }
+
+    return retValue;
 }
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_FTM
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_ftm_trg_src
+ * Function Name : SIM_HAL_SetFtmTriggerSrcMode
  * Description   : Set FlexTimer x hardware trigger y source select setting 
  * This function will select the source of FTMx hardware trigger y.
  * 
  *END**************************************************************************/
-void sim_set_ftm_trg_src(uint8_t instance, uint8_t trigger, sim_ftm_trg_src_t select)
+void SIM_HAL_SetFtmTriggerSrcMode(uint32_t baseAddr,
+                                  uint8_t  instance,
+                                  uint8_t  trigger,
+                                  sim_ftm_trg_src_t select)
 {
     assert (instance < HW_FTM_INSTANCE_COUNT);
     assert (trigger < FSL_FEATURE_SIM_OPT_FTM_TRIGGER_COUNT);
@@ -959,10 +925,10 @@ void sim_set_ftm_trg_src(uint8_t instance, uint8_t trigger, sim_ftm_trg_src_t se
         switch (trigger)
         {
         case 0:
-            BW_SIM_SOPT4_FTM0TRG0SRC(select);
+            BW_SIM_SOPT4_FTM0TRG0SRC(baseAddr, select);
             break;
         case 1:
-            BW_SIM_SOPT4_FTM0TRG1SRC(select);
+            BW_SIM_SOPT4_FTM0TRG1SRC(baseAddr, select);
             break;
         default:
             break;
@@ -974,10 +940,10 @@ void sim_set_ftm_trg_src(uint8_t instance, uint8_t trigger, sim_ftm_trg_src_t se
         switch (trigger)
         {
         case 0:
-            BW_SIM_SOPT4_FTM3TRG0SRC(select);
+            BW_SIM_SOPT4_FTM3TRG0SRC(baseAddr, select);
             break;
         case 1:
-            BW_SIM_SOPT4_FTM3TRG1SRC(select);
+            BW_SIM_SOPT4_FTM3TRG1SRC(baseAddr, select);
             break;
         default:
             break;
@@ -991,13 +957,15 @@ void sim_set_ftm_trg_src(uint8_t instance, uint8_t trigger, sim_ftm_trg_src_t se
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_ftm_trg_src
+ * Function Name : SIM_HAL_GetFtmTriggerSrcMode
  * Description   : Get FlexTimer x hardware trigger y source select setting
  * This function will get FlexTimer x hardware trigger y source select setting.
  * 
  *END**************************************************************************/
-sim_ftm_trg_src_t sim_get_ftm_trg_src(uint8_t instance, uint8_t trigger)
+sim_ftm_trg_src_t SIM_HAL_GetFtmTriggerSrcMode(uint32_t baseAddr, uint8_t instance, uint8_t trigger)
 {
+    sim_ftm_trg_src_t retValue = (sim_ftm_trg_src_t)0;
+
     assert (instance < HW_FTM_INSTANCE_COUNT);
     assert (trigger < FSL_FEATURE_SIM_OPT_FTM_TRIGGER_COUNT);
 
@@ -1008,9 +976,11 @@ sim_ftm_trg_src_t sim_get_ftm_trg_src(uint8_t instance, uint8_t trigger)
         switch (trigger)
         {
         case 0:
-            return (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM0TRG0SRC;
+            retValue = (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM0TRG0SRC(baseAddr);
+            break;
         case 1:
-            return (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM0TRG1SRC;
+            retValue = (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM0TRG1SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1021,9 +991,11 @@ sim_ftm_trg_src_t sim_get_ftm_trg_src(uint8_t instance, uint8_t trigger)
         switch (trigger)
         {
         case 0:
-            return (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM3TRG0SRC;
+            retValue = (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM3TRG0SRC(baseAddr);
+            break;
         case 1:
-            return (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM3TRG1SRC;
+            retValue = (sim_ftm_trg_src_t)BR_SIM_SOPT4_FTM3TRG1SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1033,34 +1005,36 @@ sim_ftm_trg_src_t sim_get_ftm_trg_src(uint8_t instance, uint8_t trigger)
         break;
     }
 
-    return (sim_ftm_trg_src_t)0;
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_ftm_clk_sel
+ * Function Name : SIM_HAL_SetFtmExternalClkPinMode
  * Description   : Set FlexTimer x external clock pin select setting 
  * This function will select the source of FTMx external clock pin select
  * 
  *END**************************************************************************/
-void sim_set_ftm_clk_sel(uint8_t instance, sim_ftm_clk_sel_t select)
+void SIM_HAL_SetFtmExternalClkPinMode(uint32_t baseAddr, uint8_t instance, sim_ftm_clk_sel_t select)
 {
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT4_FTM0CLKSEL(select);
+        BW_SIM_SOPT4_FTM0CLKSEL(baseAddr, select);
         break;
     case 1:
-        BW_SIM_SOPT4_FTM1CLKSEL(select);
+        BW_SIM_SOPT4_FTM1CLKSEL(baseAddr, select);
         break;
     case 2:
-        BW_SIM_SOPT4_FTM2CLKSEL(select);
+        BW_SIM_SOPT4_FTM2CLKSEL(baseAddr, select);
         break;
+#if (HW_FTM_INSTANCE_COUNT > 3)
     case 3:
-        BW_SIM_SOPT4_FTM3CLKSEL(select);
+        BW_SIM_SOPT4_FTM3CLKSEL(baseAddr, select);
         break;
+#endif
     default:
         break;
     }
@@ -1068,40 +1042,51 @@ void sim_set_ftm_clk_sel(uint8_t instance, sim_ftm_clk_sel_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_ftm_clk_sel
+ * Function Name : SIM_HAL_GetFtmExternalClkPinMode
  * Description   : Get FlexTimer x external clock pin select setting
  * This function will get FlexTimer x external clock pin select setting.
  * 
  *END**************************************************************************/
-sim_ftm_clk_sel_t sim_get_ftm_clk_sel(uint8_t instance)
+sim_ftm_clk_sel_t SIM_HAL_GetFtmExternalClkPinMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_ftm_clk_sel_t retValue = (sim_ftm_clk_sel_t)0;
+
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM0CLKSEL;
+        retValue = (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM0CLKSEL(baseAddr);
+        break;
     case 1:
-        return (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM1CLKSEL;
+        retValue = (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM1CLKSEL(baseAddr);
+        break;
     case 2:
-        return (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM2CLKSEL;
+        retValue = (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM2CLKSEL(baseAddr);
+        break;
+#if (HW_FTM_INSTANCE_COUNT > 3)
     case 3:
-        return (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM3CLKSEL;
+        retValue = (sim_ftm_clk_sel_t)BR_SIM_SOPT4_FTM3CLKSEL(baseAddr);
+        break;
+#endif
     default:
         break;
     }
 
-    return (sim_ftm_clk_sel_t)0;
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_ftm_ch_src
+ * Function Name : SIM_HAL_SetFtmChSrcMode
  * Description   : FlexTimer x channel y input capture source select setting 
  * This function will select FlexTimer x channel y input capture source
  * 
  *END**************************************************************************/
-void sim_set_ftm_ch_src(uint8_t instance, uint8_t channel, sim_ftm_ch_src_t select)
+void SIM_HAL_SetFtmChSrcMode(uint32_t baseAddr,
+                             uint8_t  instance,
+                             uint8_t  channel,
+                             sim_ftm_ch_src_t select)
 {
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
@@ -1112,7 +1097,7 @@ void sim_set_ftm_ch_src(uint8_t instance, uint8_t channel, sim_ftm_ch_src_t sele
         switch (channel)
         {
         case 0:
-            BW_SIM_SOPT4_FTM1CH0SRC(select);
+            BW_SIM_SOPT4_FTM1CH0SRC(baseAddr, select);
             break;
         default:
             break;
@@ -1124,11 +1109,11 @@ void sim_set_ftm_ch_src(uint8_t instance, uint8_t channel, sim_ftm_ch_src_t sele
         switch (channel)
         {
         case 0:
-            BW_SIM_SOPT4_FTM2CH0SRC(select);
+            BW_SIM_SOPT4_FTM2CH0SRC(baseAddr, select);
             break;
 #if FSL_FEATURE_SIM_OPT_HAS_FTM2_CHANNEL1
         case 1:
-            BW_SIM_SOPT4_FTM2CH1SRC(select);
+            BW_SIM_SOPT4_FTM2CH1SRC(baseAddr, select);
             break;
 #endif
         default:
@@ -1141,7 +1126,7 @@ void sim_set_ftm_ch_src(uint8_t instance, uint8_t channel, sim_ftm_ch_src_t sele
         switch (channel)
         {
         case 0:
-            BW_SIM_SOPT4_FTM3CH0SRC(select);
+            BW_SIM_SOPT4_FTM3CH0SRC(baseAddr, select);
             break;
         default:
             break;
@@ -1155,14 +1140,16 @@ void sim_set_ftm_ch_src(uint8_t instance, uint8_t channel, sim_ftm_ch_src_t sele
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_ftm_ch_src
+ * Function Name : SIM_HAL_GetFtmChSrcMode
  * Description   : Get FlexTimer x channel y input capture source select setting
  * This function will get FlexTimer x channel y input capture source select 
  * setting.
  * 
  *END**************************************************************************/
-sim_ftm_ch_src_t sim_get_ftm_ch_src(uint8_t instance, uint8_t channel)
+sim_ftm_ch_src_t SIM_HAL_GetFtmChSrcMode(uint32_t baseAddr, uint8_t instance, uint8_t channel)
 {
+    sim_ftm_ch_src_t retValue = (sim_ftm_ch_src_t)0;
+
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
     switch (instance)
@@ -1172,7 +1159,8 @@ sim_ftm_ch_src_t sim_get_ftm_ch_src(uint8_t instance, uint8_t channel)
         switch (channel)
         {
         case 0:
-            return (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM1CH0SRC;
+            retValue = (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM1CH0SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1183,10 +1171,12 @@ sim_ftm_ch_src_t sim_get_ftm_ch_src(uint8_t instance, uint8_t channel)
         switch (channel)
         {
         case 0:
-            return (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM2CH0SRC;
+            retValue = (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM2CH0SRC(baseAddr);
+            break;
 #if FSL_FEATURE_SIM_OPT_HAS_FTM2_CHANNEL1
         case 1:
-            return (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM2CH1SRC;
+            retValue = (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM2CH1SRC(baseAddr);
+            break;
 #endif
         default:
             break;
@@ -1198,7 +1188,8 @@ sim_ftm_ch_src_t sim_get_ftm_ch_src(uint8_t instance, uint8_t channel)
         switch (channel)
         {
         case 0:
-            return (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM3CH0SRC;
+            retValue = (sim_ftm_ch_src_t)BR_SIM_SOPT4_FTM3CH0SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1208,17 +1199,20 @@ sim_ftm_ch_src_t sim_get_ftm_ch_src(uint8_t instance, uint8_t channel)
         break;
     }
 
-    return (sim_ftm_ch_src_t)0;
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_ftm_flt_sel
+ * Function Name : SIM_HAL_SetFtmFaultSelMode
  * Description   : Set FlexTimer x fault y select setting 
  * This function will set the FlexTimer x fault y select setting.
  * 
  *END**************************************************************************/
-void sim_set_ftm_flt_sel(uint8_t instance, uint8_t fault, sim_ftm_flt_sel_t select)
+void SIM_HAL_SetFtmFaultSelMode(uint32_t baseAddr,
+                                uint8_t  instance,
+                                uint8_t  fault,
+                                sim_ftm_flt_sel_t select)
 {
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
@@ -1228,18 +1222,18 @@ void sim_set_ftm_flt_sel(uint8_t instance, uint8_t fault, sim_ftm_flt_sel_t sele
         switch (fault)
         {
         case 0:
-            BW_SIM_SOPT4_FTM0FLT0(select);
+            BW_SIM_SOPT4_FTM0FLT0(baseAddr, select);
             break;
         case 1:
-            BW_SIM_SOPT4_FTM0FLT1(select);
+            BW_SIM_SOPT4_FTM0FLT1(baseAddr, select);
             break;
 #if (FSL_FEATURE_SIM_OPT_FTM0_FAULT_COUNT > 2)
         case 2:
-            BW_SIM_SOPT4_FTM0FLT2(select);
+            BW_SIM_SOPT4_FTM0FLT2(baseAddr, select);
             break;
 #if (FSL_FEATURE_SIM_OPT_FTM0_FAULT_COUNT > 3)
         case 3:
-            BW_SIM_SOPT4_FTM0FLT3(select);
+            BW_SIM_SOPT4_FTM0FLT3(baseAddr, select);
             break;
 #endif
 #endif
@@ -1248,14 +1242,16 @@ void sim_set_ftm_flt_sel(uint8_t instance, uint8_t fault, sim_ftm_flt_sel_t sele
         }
         break;
     case 1:
-        BW_SIM_SOPT4_FTM1FLT0(select);
+        BW_SIM_SOPT4_FTM1FLT0(baseAddr, select);
         break;
     case 2:
-        BW_SIM_SOPT4_FTM2FLT0(select);
+        BW_SIM_SOPT4_FTM2FLT0(baseAddr, select);
         break;
+#if (HW_FTM_INSTANCE_COUNT > 3)        
     case 3:
-        BW_SIM_SOPT4_FTM3FLT0(select);
+        BW_SIM_SOPT4_FTM3FLT0(baseAddr, select);
         break;
+#endif
     default:
         break;
     }
@@ -1263,13 +1259,15 @@ void sim_set_ftm_flt_sel(uint8_t instance, uint8_t fault, sim_ftm_flt_sel_t sele
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_ftm_flt_sel
+ * Function Name : SIM_HAL_GetFtmFaultSelMode
  * Description   : Get FlexTimer x fault y select setting
  * This function will get FlexTimer x fault y select setting.
  * 
  *END**************************************************************************/
-sim_ftm_flt_sel_t sim_get_ftm_flt_sel(uint8_t instance, uint8_t fault)
+sim_ftm_flt_sel_t SIM_HAL_GetFtmFaultSelMode(uint32_t baseAddr, uint8_t instance, uint8_t fault)
 {
+    sim_ftm_flt_sel_t retValue = (sim_ftm_flt_sel_t)0;
+
     assert (instance < HW_FTM_INSTANCE_COUNT);
 
     switch (instance)
@@ -1278,15 +1276,19 @@ sim_ftm_flt_sel_t sim_get_ftm_flt_sel(uint8_t instance, uint8_t fault)
         switch (fault)
         {
         case 0:
-            return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT0;
+            retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT0(baseAddr);
+            break;
         case 1:
-            return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT1;
+            retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT1(baseAddr);
+            break;
 #if (FSL_FEATURE_SIM_OPT_FTM0_FAULT_COUNT > 2)
         case 2:
-            return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT2;
+            retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT2(baseAddr);
+            break;
 #if (FSL_FEATURE_SIM_OPT_FTM0_FAULT_COUNT > 3)
         case 3:
-            return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT3;
+            retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM0FLT3(baseAddr);
+            break;
 #endif
 #endif
         default:
@@ -1294,41 +1296,48 @@ sim_ftm_flt_sel_t sim_get_ftm_flt_sel(uint8_t instance, uint8_t fault)
         }
         break;
     case 1:
-        return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM1FLT0;
+        retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM1FLT0(baseAddr);
+        break;
     case 2:
-        return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM2FLT0;
+        retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM2FLT0(baseAddr);
+        break;
+#if (HW_FTM_INSTANCE_COUNT > 3)        
     case 3:
-        return (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM3FLT0;
+        retValue = (sim_ftm_flt_sel_t)BR_SIM_SOPT4_FTM3FLT0(baseAddr);
+        break;
+#endif
     default:
         break;
     }
 
-    return (sim_ftm_flt_sel_t)0;
+    return retValue;
 }
 #endif
 
 #if FSL_FEATURE_SIM_OPT_HAS_TPM
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_tpm_clk_sel
+ * Function Name : SIM_HAL_SetTpmExternalClkPinSelMode
  * Description   : Set Timer/PWM x external clock pin select setting 
  * This function will select the source of Timer/PWM x external clock pin select
  * 
  *END**************************************************************************/
-void sim_set_tpm_clk_sel(uint8_t instance, sim_tpm_clk_sel_t select)
+void SIM_HAL_SetTpmExternalClkPinSelMode(uint32_t baseAddr,
+                                         uint8_t instance,
+                                         sim_tpm_clk_sel_t select)
 {
     assert (instance < HW_TPM_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        BW_SIM_SOPT4_TPM0CLKSEL(select);
+        BW_SIM_SOPT4_TPM0CLKSEL(baseAddr, select);
         break;
     case 1:
-        BW_SIM_SOPT4_TPM1CLKSEL(select);
+        BW_SIM_SOPT4_TPM1CLKSEL(baseAddr, select);
         break;
     case 2:
-        BW_SIM_SOPT4_TPM2CLKSEL(select);
+        BW_SIM_SOPT4_TPM2CLKSEL(baseAddr, select);
         break;
     default:
         break;
@@ -1337,38 +1346,46 @@ void sim_set_tpm_clk_sel(uint8_t instance, sim_tpm_clk_sel_t select)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_tpm_clk_sel
+ * Function Name : SIM_HAL_GetTpmExternalClkPinSelMode
  * Description   : Get Timer/PWM x external clock pin select setting
  * This function will get Timer/PWM x external clock pin select setting.
  * 
  *END**************************************************************************/
-sim_tpm_clk_sel_t sim_get_tpm_clk_sel(uint8_t instance)
+sim_tpm_clk_sel_t SIM_HAL_GetTpmExternalClkPinSelMode(uint32_t baseAddr, uint8_t instance)
 {
+    sim_tpm_clk_sel_t retValue = (sim_tpm_clk_sel_t)0;
+
     assert (instance < HW_TPM_INSTANCE_COUNT);
 
     switch (instance)
     {
     case 0:
-        return (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM0CLKSEL;
+        retValue = (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM0CLKSEL(baseAddr);
+        break;
     case 1:
-        return (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM1CLKSEL;
+        retValue = (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM1CLKSEL(baseAddr);
+        break;
     case 2:
-        return (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM2CLKSEL;
+        retValue = (sim_tpm_clk_sel_t)BR_SIM_SOPT4_TPM2CLKSEL(baseAddr);
+        break;
     default:
         break;
     }
 
-    return (sim_tpm_clk_sel_t)0;
+    return retValue;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_set_tpm_ch_src
+ * Function Name : SIM_HAL_SetTpmChSrcMode
  * Description   : Timer/PWM x channel y input capture source select setting 
  * This function will select Timer/PWM x channel y input capture source
  * 
  *END**************************************************************************/
-void sim_set_tpm_ch_src(uint8_t instance, uint8_t channel, sim_tpm_ch_src_t select)
+void SIM_HAL_SetTpmChSrcMode(uint32_t baseAddr,
+                             uint8_t instance,
+                             uint8_t channel,
+                             sim_tpm_ch_src_t select)
 {
     assert (instance < HW_TPM_INSTANCE_COUNT);
 
@@ -1378,7 +1395,7 @@ void sim_set_tpm_ch_src(uint8_t instance, uint8_t channel, sim_tpm_ch_src_t sele
         switch (channel)
         {
         case 0:
-            BW_SIM_SOPT4_TPM1CH0SRC(select);
+            BW_SIM_SOPT4_TPM1CH0SRC(baseAddr, select);
             break;
         default:
             break;
@@ -1388,7 +1405,7 @@ void sim_set_tpm_ch_src(uint8_t instance, uint8_t channel, sim_tpm_ch_src_t sele
         switch (channel)
         {
         case 0:
-            BW_SIM_SOPT4_TPM2CH0SRC(select);
+            BW_SIM_SOPT4_TPM2CH0SRC(baseAddr, select);
             break;
         default:
             break;
@@ -1401,14 +1418,18 @@ void sim_set_tpm_ch_src(uint8_t instance, uint8_t channel, sim_tpm_ch_src_t sele
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : sim_get_tpm_ch_src
+ * Function Name : SIM_HAL_GetTpmChSrcMode
  * Description   : Get Timer/PWM x channel y input capture source select setting
  * This function will get Timer/PWM x channel y input capture source select 
  * setting.
  * 
  *END**************************************************************************/
-sim_tpm_ch_src_t sim_get_tpm_ch_src(uint8_t instance, uint8_t channel)
+sim_tpm_ch_src_t SIM_HAL_GetTpmChSrcMode(uint32_t baseAddr,
+                                         uint8_t instance,
+                                         uint8_t channel)
 {
+    sim_tpm_ch_src_t retValue = (sim_tpm_ch_src_t)0;
+
     assert (instance < HW_TPM_INSTANCE_COUNT);
 
     switch (instance)
@@ -1417,7 +1438,8 @@ sim_tpm_ch_src_t sim_get_tpm_ch_src(uint8_t instance, uint8_t channel)
         switch (channel)
         {
         case 0:
-            return (sim_tpm_ch_src_t)BR_SIM_SOPT4_TPM1CH0SRC;
+            retValue = (sim_tpm_ch_src_t)BR_SIM_SOPT4_TPM1CH0SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1426,7 +1448,8 @@ sim_tpm_ch_src_t sim_get_tpm_ch_src(uint8_t instance, uint8_t channel)
         switch (channel)
         {
         case 0:
-            return (sim_tpm_ch_src_t)BR_SIM_SOPT4_TPM2CH0SRC;
+            retValue = (sim_tpm_ch_src_t)BR_SIM_SOPT4_TPM2CH0SRC(baseAddr);
+            break;
         default:
             break;
         }
@@ -1435,7 +1458,7 @@ sim_tpm_ch_src_t sim_get_tpm_ch_src(uint8_t instance, uint8_t channel)
         break;
     }
 
-    return (sim_tpm_ch_src_t)0;
+    return retValue;
 }
 #endif
 
