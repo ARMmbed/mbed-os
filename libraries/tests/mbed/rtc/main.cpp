@@ -8,7 +8,7 @@ int main() {
     while(1) {
         time_t seconds = time(NULL);
         strftime(buffer, 32, "%Y-%m-%d %H:%M:%S %p", localtime(&seconds));
-        printf("[%ld] [%s]\n", seconds, buffer);
+        printf("MBED: [%ld] [%s]\r\n", seconds, buffer);
         wait(1);
     }
 }
