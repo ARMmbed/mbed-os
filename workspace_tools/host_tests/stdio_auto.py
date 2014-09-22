@@ -39,12 +39,14 @@ class StdioTest(DefaultTest):
             random_integer = random.randint(-99999, 99999)
             print "HOST: Generated number: " + str(random_integer)
             stdout.flush()
+            start = time()
             self.mbed.serial_write(str(random_integer) + "\n")
 
             serial_stdio_msg = self.mbed.serial_readline()
             if c is None:
                 self.print_result("ioerr_serial")
                 return
+            delay_time = time() - start
             print serial_stdio_msg.strip()
             stdout.flush()
 
@@ -54,13 +56,13 @@ class StdioTest(DefaultTest):
                 int_value = m.groups()[0]
                 int_value_cmp = random_integer == int(int_value)
                 test_result = test_result and int_value_cmp
-                print "Number read %s ... [%s]"% (int_value, "OK" if int_value_cmp else "FAIL")
+                print "HOST: Number %s read after %.3f sec ... [%s]"% (int_value, delay_time, "OK" if int_value_cmp else "FAIL")
                 print
                 stdout.flush()
             else:
                 test_result = False
                 break
-                
+
         if test_result: # All numbers are the same
             self.print_result('success')
         else:
