@@ -10,9 +10,13 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F103RB) || defined(TARGET_NUCLEO_F401RE) || defined(TARGET_NUCLEO_F411RE)
 DigitalInOut d1(PC_6);
 DigitalInOut d2(PB_8);
+
+#elif defined(TARGET_DISCO_F407VG)
+DigitalInOut d1(PC_12);
+DigitalInOut d2(PD_0);
 
 #elif defined(TARGET_FF_ARDUINO)
 DigitalInOut d1(D0);
