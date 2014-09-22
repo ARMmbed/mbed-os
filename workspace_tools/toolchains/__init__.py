@@ -14,22 +14,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os import stat, walk
-from os.path import join, splitext, exists, relpath, dirname, basename, split
-from shutil import copyfile
-from copy import copy
-from types import ListType
-from inspect import getmro
-from time import time
 
-from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
-from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+import re
+from os import stat, walk
+from copy import copy
+from time import time, sleep
+from types import ListType
+from shutil import copyfile
+from os.path import join, splitext, exists, relpath, dirname, basename, split
+from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
-from time import sleep
-
+from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
+from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import workspace_tools.hooks as hooks
-import re
+
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
@@ -68,10 +67,10 @@ def print_notify_verbose(event):
 def compile_worker(job):
     results = []
     for command in job['commands']:
-        _, stderr, rc = run_cmd(command, job['work_dir'])
+        _, _stderr, _rc = run_cmd(command, job['work_dir'])
         results.append({
-            'code': rc,
-            'output': stderr,
+            'code': _rc,
+            'output': _stderr,
             'command': command
         })
 
@@ -573,18 +572,21 @@ class mbedToolchain:
         return None
 
     def compile_output(self, output=[]):
-        rc = output[0]
-        stderr = output[1]
+        _rc = output[0]
+        _stderr = output[1]
         command = output[2]
 
         # Parse output for Warnings and Errors
-        self.parse_output(stderr)
-        self.debug("Return: %s" % rc)
-        self.debug("Output: %s" % stderr)
+        self.parse_output(_stderr)
+        self.debug("Return: %s"% _rc)
+        for error_line in _stderr.splitlines():
+            self.debug("Output: %s"% error_line)
 
         # Check return code
-        if rc != 0:
-            raise ToolException(stderr)
+        if _rc != 0:
+            for line in _stderr.splitlines():
+                self.tool_error(line)
+            raise ToolException(_stderr)
 
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
@@ -647,15 +649,23 @@ class mbedToolchain:
         return bin
 
     def default_cmd(self, command):
-        self.debug("Command: %s" % ' '.join(command))
-        stdout, stderr, rc = run_cmd(command)
-        self.debug("Return: %s" % rc)
-        self.debug("Output: %s" % ' '.join(stdout))
+        _stdout, _stderr, _rc = run_cmd(command)
+        # Print all warning / erros from stderr to console output
+        for error_line in _stderr.splitlines():
+            print error_line
 
-        if rc != 0:
-            for line in stderr.splitlines():
+        self.debug("Command: %s"% ' '.join(command))
+        self.debug("Return: %s"% _rc)
+
+        for output_line in _stdout.splitlines():
+            self.debug("Output: %s"% output_line)
+        for error_line in _stderr.splitlines():
+            self.debug("Errors: %s"% error_line)
+
+        if _rc != 0:
+            for line in _stderr.splitlines():
                 self.tool_error(line)
-            raise ToolException(stderr)
+            raise ToolException(_stderr)
 
     ### NOTIFICATIONS ###
     def info(self, message):

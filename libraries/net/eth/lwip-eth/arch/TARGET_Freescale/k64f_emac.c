@@ -844,14 +844,14 @@ err_t eth_arch_enetif_init(struct netif *netif)
 }
 
 void eth_arch_enable_interrupts(void) {
-  enet_hal_config_interrupt(BOARD_DEBUG_ENET_INSTANCE, (kEnetTxFrameInterrupt | kEnetRxFrameInterrupt), true);  
-  interrupt_enable(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetRxfInt]]);
-  interrupt_enable(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]); 
+  enet_hal_config_interrupt(BOARD_DEBUG_ENET_INSTANCE, (kEnetTxFrameInterrupt | kEnetRxFrameInterrupt), true);
+  INT_SYS_EnableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetRxfInt]]);
+  INT_SYS_EnableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]);
 }
 
 void eth_arch_disable_interrupts(void) {
-  interrupt_disable(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetRxfInt]]);
-  interrupt_disable(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]);  
+  INT_SYS_DisableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetRxfInt]]);
+  INT_SYS_DisableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]);
 }
 
 void ENET_Transmit_IRQHandler(void)

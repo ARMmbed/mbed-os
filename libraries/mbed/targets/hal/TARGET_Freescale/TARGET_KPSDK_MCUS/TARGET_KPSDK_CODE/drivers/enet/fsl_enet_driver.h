@@ -938,7 +938,7 @@ void *enet_mac_dequeue_buffer( void **queue);
 /* @} */
 
 #if defined(__cplusplus)
-extern }
+}
 #endif
 
 #endif

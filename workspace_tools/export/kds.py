@@ -24,6 +24,7 @@ class KDS(Exporter):
 
     TARGETS = [
         'K64F',
+        'K22F',
     ]
 
     def generate(self):
