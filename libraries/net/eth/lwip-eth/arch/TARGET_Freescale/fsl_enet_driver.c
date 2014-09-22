@@ -395,11 +395,8 @@ uint32_t enet_mac_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdCfg,
     /* Get device number and check the parameter*/
     devNumber = enetIfPtr->deviceNumber;
 
-    /* Store the global ENET structure for ISR input parameters for instance 0*/
-    if (!devNumber)
-    {
-        enetIfHandle = enetIfPtr;
-    }
+    /* Store the global ENET structure for ISR input parameters */
+    enetIfHandle = enetIfPtr;
 
     /* Turn on ENET module clock gate */
     CLOCK_SYS_EnableEnetClock(0U);
