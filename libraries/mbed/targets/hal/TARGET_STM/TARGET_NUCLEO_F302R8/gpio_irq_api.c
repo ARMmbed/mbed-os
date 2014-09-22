@@ -204,7 +204,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    uint32_t mode = STM_MODE_INPUT;
+    uint32_t mode = STM_MODE_IT_EVT_RESET;
     uint32_t pull = GPIO_NOPULL;
 
     if (enable) {
@@ -232,7 +232,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 mode = STM_MODE_IT_FALLING;
                 obj->event = EDGE_FALL;
             } else { // NONE or RISE
-                mode = STM_MODE_INPUT;
+                mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
         }
@@ -241,7 +241,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 mode = STM_MODE_IT_RISING;
                 obj->event = EDGE_RISE;
             } else { // NONE or FALL
-                mode = STM_MODE_INPUT;
+                mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
         }
