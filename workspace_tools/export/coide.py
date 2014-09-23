@@ -25,6 +25,9 @@ class CoIDE(Exporter):
     TARGETS = [
         'KL25Z',
         'KL05Z',
+        'DISCO_F407VG',
+        'NUCLEO_F401RE',
+        'NUCLEO_F411RE'
     ]
 
     # seems like CoIDE currently supports only one type
@@ -33,6 +36,9 @@ class CoIDE(Exporter):
         'cpp_sources':'1',
         's_sources':'1'
     }
+    FILE_TYPES2 = {
+        'headers':'1'
+    }
 
     def generate(self):
         self.resources.win_to_unix()
@@ -40,6 +46,12 @@ class CoIDE(Exporter):
         for r_type, n in CoIDE.FILE_TYPES.iteritems():
             for file in getattr(self.resources, r_type):
                 source_files.append({
+                    'name': basename(file), 'type': n, 'path': file
+                })
+        header_files = []
+        for r_type, n in CoIDE.FILE_TYPES2.iteritems():
+            for file in getattr(self.resources, r_type):
+                header_files.append({
                     'name': basename(file), 'type': n, 'path': file
                 })
 
@@ -51,6 +63,7 @@ class CoIDE(Exporter):
         ctx = {
             'name': self.program_name,
             'source_files': source_files,
+            'header_files': header_files,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
