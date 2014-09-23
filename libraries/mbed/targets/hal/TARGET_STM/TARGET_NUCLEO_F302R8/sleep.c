@@ -33,22 +33,26 @@
 
 #include "cmsis.h"
 
-// MCU SLEEP mode
-void sleep(void) {
-    // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+static TIM_HandleTypeDef TimMasterHandle;
+
+void sleep(void)
+{
+    TimMasterHandle.Instance = TIM2;
+
+    // Disable HAL tick interrupt
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
     // Request to enter SLEEP mode
-    PWR_EnterSleepMode(PWR_SLEEPEntry_WFI);
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
-// MCU STOP mode
-void deepsleep(void) {
-    // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-
-    // Enter Stop Mode
-    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+void deepsleep(void)
+{
+    // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
