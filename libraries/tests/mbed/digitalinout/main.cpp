@@ -10,15 +10,17 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
-#elif defined(TARGET_NUCLEO_F103RB) || \
-    defined(TARGET_NUCLEO_L152RE) || \
-    defined(TARGET_NUCLEO_F302R8) || \
-    defined(TARGET_NUCLEO_F030R8) || \
-    defined(TARGET_NUCLEO_F401RE) || \
-    defined(TARGET_NUCLEO_F411RE) || \
-    defined(TARGET_NUCLEO_F072RB) || \
-    defined(TARGET_NUCLEO_F334R8) || \
-    defined(TARGET_NUCLEO_L053R8)
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L152RE)
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
 
