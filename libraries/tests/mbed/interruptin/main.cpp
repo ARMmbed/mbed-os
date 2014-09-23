@@ -64,23 +64,27 @@ void in_handler() {
 DigitalOut out(PIN_OUT);
 InterruptIn in(PIN_IN);
 
+#define IN_OUT_SET      out = 1; myled = 1;
+#define IN_OUT_CLEAR    out = 0; myled = 0;
+
 void flipper() {
     for (int i = 0; i < 5; i++) {
-        out = 1; myled = 1; wait(0.2);
-
-        out = 0; myled = 0; wait(0.2);
+        IN_OUT_SET;
+        wait(0.2);
+        IN_OUT_CLEAR;
+        wait(0.2);
     }
 }
 
 int main() {
-    out = 0; myled = 0;
+    IN_OUT_CLEAR;
     //Test falling edges first
     in.rise(NULL);
     in.fall(in_handler);
     flipper();
 
     if(checks != 5) {
-        printf("falling edges test failed: %d\n",checks);
+        printf("MBED: falling edges test failed: %d\r\n",checks);
         notify_completion(false);
     }
 
@@ -90,7 +94,7 @@ int main() {
     flipper();
 
     if (checks != 10) {
-        printf("raising edges test failed: %d\n",checks);
+        printf("MBED: raising edges test failed: %d\r\n", checks);
         notify_completion(false);
     }
 
@@ -100,7 +104,7 @@ int main() {
     flipper();
 
     if (checks != 10) {
-        printf("edge detection switch off test failed: %d\n",checks);
+        printf("MBED: edge detection switch off test failed: %d\r\n", checks);
         notify_completion(false);
     }
 
@@ -110,7 +114,7 @@ int main() {
     flipper();
 
     if (checks != 20) {
-        printf("Simultaneous rising and falling edges failed: %d\n",checks);
+        printf("MBED: Simultaneous rising and falling edges failed: %d\r\n", checks);
         notify_completion(false);
     }
 
