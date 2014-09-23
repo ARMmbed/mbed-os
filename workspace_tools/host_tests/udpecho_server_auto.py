@@ -53,6 +53,7 @@ class UDPEchoServerTest(DefaultTest):
             try:
                 self.s = socket(AF_INET, SOCK_DGRAM)
             except Exception, e:
+                self.s = None
                 print "HOST: Error: %s" % e
                 self.print_result('error')
                 exit(-1)
@@ -70,7 +71,9 @@ class UDPEchoServerTest(DefaultTest):
         else:
             result = False
 
-        self.s.close()
+        if self.s is not None:
+            self.s.close()
+
         if result:
             self.print_result('success')
         else:
