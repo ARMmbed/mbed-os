@@ -213,7 +213,7 @@ TESTS = [
         "id": "MBED_A21", "description": "Call function before main (mbed_main)",
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": False,
+        "automated": True,
     },
     {
         "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
