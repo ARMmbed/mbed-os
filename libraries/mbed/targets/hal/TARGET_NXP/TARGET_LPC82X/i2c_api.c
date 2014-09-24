@@ -13,11 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdlib.h>
+#include <string.h>
+
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 
+#include "rom_i2c_8xx.h"
+
 #if DEVICE_I2C
+
+typedef struct ROM_API {
+    const uint32_t    unused[5];
+    const I2CD_API_T  *pI2CD;    /*!< I2C driver routines functions table */
+} LPC_ROM_API_T;
+
+
+/* Pointer to ROM API function address */
+#define LPC_ROM_API_BASE_LOC    0x1FFF1FF8UL
+#define LPC_ROM_API             (*(LPC_ROM_API_T * *) LPC_ROM_API_BASE_LOC)
+
+/* Pointer to @ref I2CD_API_T functions in ROM */
+#define LPC_I2CD_API            ((LPC_ROM_API)->pI2CD)
 
 static const SWM_Map SWM_I2C_SDA[] = {
     { 9,  8},
@@ -31,7 +49,10 @@ static const SWM_Map SWM_I2C_SCL[] = {
     {10, 16},
 };
 
+
+static int i2c_used = 0;
 static uint8_t repeated_start = 0;
+static uint32_t *i2c_buffer;
 
 #define I2C_DAT(x)          (x->i2c->MSTDAT)
 #define I2C_STAT(x)         ((x->i2c->STAT >> 1) & (0x07))
@@ -77,7 +98,6 @@ static inline void i2c_power_enable(int ch)
     }
 }
 
-static int i2c_used = 0;
 
 static int get_available_i2c(void) {
     int i;
@@ -130,10 +150,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     // enable power
     i2c_power_enable(i2c_ch);
-
-    // set default frequency at 100k
-    i2c_frequency(obj, 100000);
     i2c_interface_enable(obj);
+
+    uint32_t size_in_bytes = LPC_I2CD_API->i2c_get_mem_size();
+    i2c_buffer = malloc(size_in_bytes);
+    obj->handler = LPC_I2CD_API->i2c_setup((uint32_t)(obj->i2c), i2c_buffer);
+    LPC_I2CD_API->i2c_set_bitrate(obj->handler, SystemCoreClock, 100000);
+    LPC_I2CD_API->i2c_set_timeout(obj->handler, 100000);
 }
 
 inline int i2c_start(i2c_t *obj)
@@ -187,98 +210,47 @@ static inline int i2c_do_read(i2c_t *obj, int last)
 
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    uint32_t PCLK = SystemCoreClock;
-    uint32_t clkdiv = PCLK / (hz * 4) - 1;
-    
-    obj->i2c->CLKDIV = clkdiv;
-    obj->i2c->MSTTIME = 0;
+    LPC_I2CD_API->i2c_set_bitrate(obj->handler, SystemCoreClock, 100000);
 }
-
-// The I2C does a read or a write as a whole operation
-// There are two types of error conditions it can encounter
-//  1) it can not obtain the bus
-//  2) it gets error responses at part of the transmission
-//
-// We tackle them as follows:
-//  1) we retry until we get the bus. we could have a "timeout" if we can not get it
-//      which basically turns it in to a 2)
-//  2) on error, we use the standard error mechanisms to report/debug
-//
-// Therefore an I2C transaction should always complete. If it doesn't it is usually
-// because something is setup wrong (e.g. wiring), and we don't need to programatically
-// check for that
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
-    int count, status;
+    ErrorCode_t err;
+    I2C_PARAM_T i2c_param;
+    I2C_RESULT_T i2c_result;
 
-    i2c_start(obj);
-
-    status = i2c_do_write(obj, (address | 0x01), 1);
-    if (status != 0x01) {
-        i2c_stop(obj);
-        return I2C_ERROR_NO_SLAVE;
-    }
-
-    // Read in all except last byte
-    for (count = 0; count < (length - 1); count++) {
-        int value = i2c_do_read(obj, 0);
-        status = i2c_status(obj);
-        if (status != 0x00) {
-            i2c_stop(obj);
-            return count;
-        }
-        data[count] = (char) value;
-    }
-
-    // read in last byte
-    int value = i2c_do_read(obj, 1);
-    status = i2c_status(obj);
-    if (status != 0x01) {
-        i2c_stop(obj);
-        return length - 1;
-    }
-
-    data[count] = (char) value;
-
-    // If not repeated start, send stop.
-    if (stop) {
-        i2c_stop(obj);
-    } else {
-        repeated_start = 1;
-    }
-
-    return length;
+    uint8_t *buf = malloc(length + 1);
+    buf[0] = (uint8_t)((address | 0x01) & 0xFF);
+    i2c_param.buffer_ptr_rec = buf;
+    i2c_param.num_bytes_rec = length + 1;
+    i2c_param.stop_flag = stop;
+    err = LPC_I2CD_API->i2c_master_receive_poll(obj->handler, &i2c_param, &i2c_result);
+    memcpy(data, buf + 1, i2c_result.n_bytes_recd);
+    free(buf);
+    if (err == 0)
+        return i2c_result.n_bytes_recd;
+    else
+        return -1;
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
-    int i, status;
+    ErrorCode_t err;
+    I2C_PARAM_T i2c_param;
+    I2C_RESULT_T i2c_result;
 
-    i2c_start(obj);
-
-    status = i2c_do_write(obj, (address & 0xFE), 1);
-    if (status != 0x02) {
-        i2c_stop(obj);
-        return I2C_ERROR_NO_SLAVE;
-    }
-
-    for (i=0; i<length; i++) {
-        status = i2c_do_write(obj, data[i], 0);
-        if (status != 0x02) {
-            i2c_stop(obj);
-            return i;
-        }
-    }
-
-    // If not repeated start, send stop.
-    if (stop) {
-        i2c_stop(obj);
-    } else {
-        repeated_start = 1;
-    }
-
-    return length;
+    uint8_t *buf = malloc(length + 1);
+    buf[0] = (uint8_t)(address & 0xFE);
+    memcpy(buf + 1, data, length);
+    i2c_param.buffer_ptr_send = buf;
+    i2c_param.num_bytes_send = length + 1;
+    i2c_param.stop_flag = stop;
+    err = LPC_I2CD_API->i2c_master_transmit_poll(obj->handler, &i2c_param, &i2c_result);
+    free(buf);
+    if (err == 0)
+        return i2c_result.n_bytes_sent;
+    else
+        return -1;
 }
 
 void i2c_reset(i2c_t *obj)
@@ -307,5 +279,80 @@ int i2c_byte_write(i2c_t *obj, int data)
 
     return ack;
 }
+
+#if DEVICE_I2CSLAVE
+
+	void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
+    obj->handler = LPC_I2CD_API->i2c_setup((uint32_t)(obj->i2c), i2c_buffer);
+    if (enable_slave != 0) {
+        obj->i2c->CFG &= ~(1 << 0);
+        obj->i2c->CFG |= (1 << 1);
+    }
+    else {
+        obj->i2c->CFG |= (1 << 0);
+        obj->i2c->CFG &= ~(1 << 1);
+    }
+
+}
+
+int i2c_slave_receive(i2c_t *obj)
+{
+    CHIP_I2C_MODE_T mode;
+    int ret;
+    
+    mode = LPC_I2CD_API->i2c_get_status(obj->handler);
+    switch(mode) {
+        case SLAVE_SEND:
+            ret = 1;
+            break;
+        case SLAVE_RECEIVE:
+            ret = 3;
+            break;
+        case MASTER_SEND:
+        case MASTER_RECEIVE:
+        default:
+            ret = 0;
+            break;
+    }
+    return ret;
+}
+
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
+    ErrorCode_t err;
+    I2C_PARAM_T i2c_param;
+    I2C_RESULT_T i2c_result;
+
+    i2c_param.buffer_ptr_send = (uint8_t *)data;
+    i2c_param.num_bytes_send = length;
+    err = LPC_I2CD_API->i2c_slave_transmit_poll(obj->handler, &i2c_param, &i2c_result);
+    if (err == 0)
+        return i2c_result.n_bytes_sent;
+    else
+        return -1;
+}
+
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
+    ErrorCode_t err;
+    I2C_PARAM_T i2c_param;
+    I2C_RESULT_T i2c_result;
+
+    i2c_param.buffer_ptr_rec = (uint8_t *)data;
+    i2c_param.num_bytes_rec = length;
+    err = LPC_I2CD_API->i2c_slave_receive_poll(obj->handler, &i2c_param, &i2c_result);
+    if (err == 0)
+        return i2c_result.n_bytes_recd;
+    else
+        return -1;
+}
+
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
+    LPC_I2CD_API->i2c_set_slave_addr(obj->handler, address, 0);
+}
+
+#endif
 
 #endif

@@ -643,10 +643,15 @@ typedef struct {                                    /*!< (@ 0x40050000) I2C0 Str
   __IO uint32_t  SLVCTL;                            /*!< (@ 0x40050040) Slave control register.                                */
   __IO uint32_t  SLVDAT;                            /*!< (@ 0x40050044) Combined Slave receiver and transmitter data
                                                          register.                                                             */
+  union {
+    __IO uint32_t SLVADR[4];
+    struct {
   __IO uint32_t  SLVADR0;                           /*!< (@ 0x40050048) Slave address 0.                                       */
   __IO uint32_t  SLVADR1;                           /*!< (@ 0x4005004C) Slave address 0.                                       */
   __IO uint32_t  SLVADR2;                           /*!< (@ 0x40050050) Slave address 0.                                       */
   __IO uint32_t  SLVADR3;                           /*!< (@ 0x40050054) Slave address 0.                                       */
+    };
+  };
   __IO uint32_t  SLVQUAL0;                          /*!< (@ 0x40050058) Slave Qualification for address 0.                     */
   __I  uint32_t  RESERVED2[9];
   __I  uint32_t  MONRXDAT;                          /*!< (@ 0x40050080) Monitor receiver data register.                        */

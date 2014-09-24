@@ -36,6 +36,7 @@ struct serial_s {
 
 struct i2c_s {
     LPC_I2C0_Type *i2c;
+    void *handler;
 };
 
 struct spi_s {
