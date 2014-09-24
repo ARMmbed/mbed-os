@@ -21,6 +21,7 @@ import os
 import re
 import sys
 import json
+import uuid
 import pprint
 import random
 import optparse
@@ -377,6 +378,7 @@ class SingleTestRunner(object):
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
                         MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
                         MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
+                        MACROS.append('TEST_SUITE_UUID="%s"'% str(uuid.uuid4()))
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                         try:
@@ -386,7 +388,7 @@ class SingleTestRunner(object):
                                                  toolchain,
                                                  test.dependencies,
                                                  options=build_project_options,
-                                                 clean=clean_project_options ,
+                                                 clean=clean_project_options,
                                                  verbose=self.opts_verbose,
                                                  name=project_name,
                                                  macros=MACROS,

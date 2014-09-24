@@ -52,6 +52,14 @@ class DetectPlatformTest(DefaultTest):
             print "HOST: MUT Target name '%s', expected '%s'... [%s]"% (micro_name, self.mbed.options.micro, "OK" if micro_cmp else "FAIL")
             stdout.flush()
 
+        for i in range(0, 2):
+            c = self.mbed.serial_readline()
+            if c is None:
+               self.print_result("ioerr_serial")
+               return
+            print c.strip()
+            stdout.flush()
+
         if result: # Hello World received
             self.print_result('success')
         else:

@@ -30,11 +30,15 @@ unsigned int testenv_randseed();
 
 // macros passed via test suite
 #ifndef TEST_SUITE_TARGET_NAME
-#define TEST_SUITE_TARGET_NAME ""
+#define TEST_SUITE_TARGET_NAME "Unknown"
 #endif
 
 #ifndef TEST_SUITE_TEST_ID
-#define TEST_SUITE_TEST_ID ""
+#define TEST_SUITE_TEST_ID "Unknown"
+#endif
+
+#ifndef TEST_SUITE_UUID
+#define TEST_SUITE_UUID "Unknown"
 #endif
 
 #endif

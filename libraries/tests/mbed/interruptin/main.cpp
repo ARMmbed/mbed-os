@@ -47,7 +47,7 @@ void in_handler() {
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L152RE)
 #define PIN_IN      PB_8
-#define PIN_OUT     PC_6
+#define PIN_OUT     PC_7
 
 #elif defined(TARGET_DISCO_F407VG)
 #define PIN_OUT    PC_12
