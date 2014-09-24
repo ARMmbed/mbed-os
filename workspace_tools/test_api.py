@@ -732,6 +732,7 @@ class SingleTestRunner(object):
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
                 single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                            micro=target_name,
                                                                             verbose=host_test_verbose,
                                                                             reset=host_test_reset,
                                                                             reset_tout=reset_tout)
@@ -797,7 +798,7 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, reset=None, reset_tout=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, disk, port, duration, micro=None, reset=None, reset_tout=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -806,6 +807,8 @@ class SingleTestRunner(object):
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
 
         # Add extra parameters to host_test
+        if micro is not None:
+            cmd += ["-m", micro]
         if extra_serial is not None:
             cmd += ["-e", extra_serial]
         if reset is not None:
