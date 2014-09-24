@@ -21,13 +21,14 @@ make.py -m LPC1768 -t ARM -d E:\ -n NET_14
 udp_link_layer_auto.py -p COM20 -d E:\ -t 10
 """
 
-import thread
-from SocketServer import BaseRequestHandler, UDPServer
-import socket
 import re
-from host_test import DefaultTest
-from time import time, sleep
+import uuid
+import socket
+import thread
 from sys import stdout
+from time import time, sleep
+from host_test import DefaultTest
+from SocketServer import BaseRequestHandler, UDPServer
 
 
 # Received datagrams (with time)
@@ -39,7 +40,8 @@ dict_udp_sent_datagrams = dict()
 
 class UDPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
-        """ One handle per connection """
+        """ One handle per connection
+        """
         _data, _socket = self.request
         # Process received datagram
         data_str = repr(_data)[1:-1]
@@ -47,9 +49,10 @@ class UDPEchoClient_Handler(BaseRequestHandler):
 
 
 def udp_packet_recv(threadName, server_ip, server_port):
-    """ This function will receive packet stream from mbed device """
+    """ This function will receive packet stream from mbed device
+    """
     server = UDPServer((server_ip, server_port), UDPEchoClient_Handler)
-    print "[UDP_COUNTER] Listening for connections... %s:%d"%(server_ip, server_port)
+    print "[UDP_COUNTER] Listening for connections... %s:%d"% (server_ip, server_port)
     server.serve_forever()
 
 
@@ -61,52 +64,46 @@ class UDPEchoServerTest(DefaultTest):
 
     TEST_PACKET_COUNT = 1000    # how many packets should be send
     TEST_STRESS_FACTOR = 0.001  # stress factor: 10 ms
+    PACKET_SATURATION_RATIO = 29.9 # Acceptable packet transmission in %
 
-    PATTERN_SERVER_IP = "^Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
+    PATTERN_SERVER_IP = "Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
     re_detect_server_ip = re.compile(PATTERN_SERVER_IP)
 
     def get_control_data(self, command="stat\n"):
         BUFFER_SIZE = 256
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.ECHO_SERVER_ADDRESS, self.CONTROL_PORT))
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.ECHO_SERVER_ADDRESS, self.CONTROL_PORT))
+        except Exception, e:
+            data = None
         s.send(command)
         data = s.recv(BUFFER_SIZE)
         s.close()
         return data
 
     def run(self):
-        ip_msg_timeout = self.mbed.options.timeout
-        serial_ip_msg = ""
-        start_serial_pool = time()
-        while (time() - start_serial_pool) < ip_msg_timeout:
-            c = self.mbed.serial_read(512)
-            if c is None:
-                self.print_result("ioerr_serial")
-                return
-            stdout.write(c)
+        serial_ip_msg = self.mbed.serial_readline()
+        if serial_ip_msg is None:
+            self.print_result("ioerr_serial")
+            return
+        stdout.write(serial_ip_msg)
+        stdout.flush()
+        # Searching for IP address and port prompted by server
+        m = self.re_detect_server_ip.search(serial_ip_msg)
+        if m and len(m.groups()):
+            self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
+            self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
+            print "HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
             stdout.flush()
-            serial_ip_msg += c
-            # Searching for IP address and port prompted by server
-            m = self.re_detect_server_ip.search(serial_ip_msg)
-            if m and len(m.groups()):
-                self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
-                self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-                duration = time() - start_serial_pool
-                print "UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT) + " after " + "%.2f" % duration  + " sec"
-                stdout.flush()
-                break
-        else:
-            print "Error: No IP and port information sent from server"
-            self.print_result('error')
-            exit(-2)
 
         # Open client socket to burst datagrams to UDP server in mbed
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except Exception, e:
-            print "Error: %s" % e
+            self.s = None
+            print "HOST: Error: %s" % e
             self.print_result('error')
-            exit(-1)
+            return
 
         # UDP replied receiver works in background to get echoed datagrams
         SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
@@ -115,35 +112,44 @@ class UDPEchoServerTest(DefaultTest):
         sleep(0.5)
 
         # Burst part
-        TEST_STRING = 'Hello, world !!!'
         for no in range(self.TEST_PACKET_COUNT):
+            TEST_STRING = str(uuid.uuid4())
             payload = str(no) + "__" + TEST_STRING
             self.s.sendto(payload, (self.ECHO_SERVER_ADDRESS, self.ECHO_PORT))
             dict_udp_sent_datagrams[payload] = time()
             sleep(self.TEST_STRESS_FACTOR)
-        self.s.close()
+
+        if self.s is not None:
+            self.s.close()
 
         # Wait 5 seconds for packets to come
+        result = True
         print
-        print "Test Summary:"
+        print "HOST: Test Summary:"
         for d in range(5):
-            sleep(1)
+            sleep(1.0)
             summary_datagram_success = (float(len(dict_udp_recv_datagrams)) / float(self.TEST_PACKET_COUNT)) * 100.0
             # print dict_udp_recv_datagrams
-            print "Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            print "HOST: Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            result = result and (summary_datagram_success >= self.PACKET_SATURATION_RATIO)
             stdout.flush()
 
         # Getting control data from test
         print
-        print "Mbed Summary:"
+        print "HOST: Mbed Summary:"
         mbed_stats = self.get_control_data()
         print mbed_stats
         print
         stdout.flush()
 
+        if result:
+            self.print_result('success')
+        else:
+            self.print_result('failure')
+
         # Receiving serial data from mbed
         print
-        print "Remaining mbed serial port data:"
+        print "HOST: Remaining mbed serial port data:"
         try:
             while True:
                 c = self.mbed.serial_read(512)

@@ -30,6 +30,12 @@
  
 #include "fsl_enet_hal.h"
 
+#ifndef MBED_NO_ENET
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+ 
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -42,7 +48,7 @@
  *END*********************************************************************/
 void enet_hal_set_mac_address(uint32_t instance, enetMacAddr hwAddr)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 
     uint32_t address, data;
 	
@@ -61,7 +67,7 @@ void enet_hal_set_mac_address(uint32_t instance, enetMacAddr hwAddr)
  *END*********************************************************************/
 void enet_hal_set_group_hashtable(uint32_t instance, uint32_t crcValue, enet_special_address_filter_t mode)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT); 
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 	
     switch (mode)
     {
@@ -102,7 +108,7 @@ void enet_hal_set_group_hashtable(uint32_t instance, uint32_t crcValue, enet_spe
  *END*********************************************************************/
 void enet_hal_set_individual_hashtable(uint32_t instance, uint32_t crcValue, enet_special_address_filter_t mode)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT); 
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 	
     switch (mode)
     {
@@ -142,7 +148,7 @@ void enet_hal_set_individual_hashtable(uint32_t instance, uint32_t crcValue, ene
  *END*********************************************************************/
 void enet_hal_config_tx_fifo(uint32_t instance, enet_config_tx_fifo_t *thresholdCfg)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(thresholdCfg);
 
     BW_ENET_TFWR_STRFWD(instance, thresholdCfg->isStoreForwardEnabled);   /* Set store and forward mode*/
@@ -163,7 +169,7 @@ void enet_hal_config_tx_fifo(uint32_t instance, enet_config_tx_fifo_t *threshold
  *END*********************************************************************/
 void enet_hal_config_rx_fifo(uint32_t instance,enet_config_rx_fifo_t *thresholdCfg )
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(thresholdCfg);
     if(thresholdCfg->rxFull > 0)
     {
@@ -398,7 +404,7 @@ bool enet_hal_get_txbd_timestamp_flag(void *curBd)
  *END*********************************************************************/
 void enet_hal_config_rmii(uint32_t instance, enet_config_rmii_t mode, enet_config_speed_t speed, enet_config_duplex_t duplex, bool isRxOnTxDisabled,  bool isLoopEnabled)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 
     BW_ENET_RCR_MII_MODE(instance,1);             /* Set mii mode */
     BW_ENET_RCR_RMII_MODE(instance,mode);
@@ -426,7 +432,7 @@ void enet_hal_config_rmii(uint32_t instance, enet_config_rmii_t mode, enet_confi
  *END*********************************************************************/
 void enet_hal_set_mii_command(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, enet_mii_operation_t operation, uint32_t data)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     uint32_t mmfrValue = 0 ;
 	
     mmfrValue = BF_ENET_MMFR_ST(1)| BF_ENET_MMFR_OP(operation)| BF_ENET_MMFR_PA(phyAddr) | BF_ENET_MMFR_RA(phyReg)| BF_ENET_MMFR_TA(2) | (data&0xFFFF); /* mii command*/
@@ -440,7 +446,7 @@ void enet_hal_set_mii_command(uint32_t instance, uint32_t phyAddr, uint32_t phyR
  *END*********************************************************************/
 void enet_hal_config_ethernet(uint32_t instance, bool isEnhanced, bool isEnabled)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 		
     BW_ENET_ECR_ETHEREN(instance,isEnabled);     /* Enable/Disable Ethernet module*/
     if (isEnhanced)
@@ -461,7 +467,7 @@ void enet_hal_config_ethernet(uint32_t instance, bool isEnhanced, bool isEnabled
  *END*********************************************************************/
 void enet_hal_config_interrupt(uint32_t instance, uint32_t source, bool isEnabled)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
 
     if (isEnabled)
     {
@@ -480,7 +486,7 @@ void enet_hal_config_interrupt(uint32_t instance, uint32_t source, bool isEnable
  *END*********************************************************************/
 void enet_hal_config_tx_accelerator(uint32_t instance, enet_config_tx_accelerator_t *txCfgPtr)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(txCfgPtr);
 	
     HW_ENET_TACC_WR(instance,0);                                    /* Clear all*/
@@ -496,7 +502,7 @@ void enet_hal_config_tx_accelerator(uint32_t instance, enet_config_tx_accelerato
  *END*********************************************************************/
 void enet_hal_config_rx_accelerator(uint32_t instance, enet_config_rx_accelerator_t *rxCfgPtr)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(rxCfgPtr);
 
     HW_ENET_RACC_WR(instance,0);                                         /* Clear all*/
@@ -517,7 +523,7 @@ void enet_hal_config_rx_accelerator(uint32_t instance, enet_config_rx_accelerato
  *END*********************************************************************/
 void enet_hal_set_txpause(uint32_t instance, uint32_t pauseDuration)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(pauseDuration <= BM_ENET_OPD_PAUSE_DUR);
     BW_ENET_OPD_PAUSE_DUR(instance, pauseDuration);
     BW_ENET_TCR_TFC_PAUSE(instance, 1);
@@ -530,7 +536,7 @@ void enet_hal_set_txpause(uint32_t instance, uint32_t pauseDuration)
  *END*********************************************************************/
 void enet_hal_init_ptp_timer(uint32_t instance,enet_config_ptp_timer_t *ptpCfgPtr)
 {
-    assert(instance < HW_ENET_INSTANCE_COUNT);
+    // assert(instance < HW_ENET_INSTANCE_COUNT);
     assert(ptpCfgPtr);
 	
     BW_ENET_ATINC_INC(instance, ptpCfgPtr->clockIncease);   /* Set increase value for ptp timer*/
@@ -541,6 +547,9 @@ void enet_hal_init_ptp_timer(uint32_t instance,enet_config_ptp_timer_t *ptpCfgPt
     /* Set ptp timer slave/master mode*/
     BW_ENET_ATCR_SLAVE(instance, ptpCfgPtr->isSlaveEnabled); 
 }
+
+#endif /* MBED_NO_ENET */
+
 
 /*******************************************************************************
  * EOF

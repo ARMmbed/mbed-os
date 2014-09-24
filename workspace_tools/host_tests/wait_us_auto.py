@@ -50,6 +50,10 @@ class WaitusTest(DefaultTest):
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
                 deviation = abs(delta - 1)
+                # Round values
+                delta = round(delta, 2)
+                deviation = round(deviation, 2)
+                # Check if time measurements are in given range
                 deviation_ok = True if delta > 0 and deviation <= 0.10 else False # +/-10%
                 test_result = test_result and deviation_ok
                 msg = "OK" if deviation_ok else "FAIL"

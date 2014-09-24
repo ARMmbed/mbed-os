@@ -46,7 +46,7 @@
 void *enetIfHandle;
 
 /*! @brief Define MAC driver API structure and for application of stack adaptor layer*/
-const enet_mac_api_t g_enetMacApi = 
+const enet_mac_api_t g_enetMacApi =
 {
     enet_mac_init,
     NULL, // enet_mac_deinit,
@@ -102,7 +102,7 @@ uint32_t enet_mii_read(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, uin
         if (enet_hal_get_interrupt_status(instance, kEnetMiiInterrupt))
         {
             break;
-        }	
+        }
         osDelay(1);
     }
 
@@ -126,7 +126,7 @@ uint32_t enet_mii_read(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, uin
  * Function Name: enet_mii_write
  * Return Value: The execution status.
  * Description: Write function.
- * This interface write data over the (R)MII bus to the specified PHY register.   
+ * This interface write data over the (R)MII bus to the specified PHY register.
  * This function is called by all PHY interfaces.
  *END*********************************************************************/
 uint32_t enet_mii_write(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, uint32_t data)
@@ -151,7 +151,7 @@ uint32_t enet_mii_write(uint32_t instance, uint32_t phyAddr, uint32_t phyReg, ui
         if (enet_hal_get_interrupt_status(instance, kEnetMiiInterrupt))
         {
             break;
-        }		
+        }
         osDelay(1);
     }
 
@@ -180,11 +180,11 @@ uint32_t enet_mac_mii_init(enet_dev_if_t * enetIfPtr)
     if (enetIfPtr == NULL)
     {
         return kStatus_ENET_InvalidInput;
-    }   
+    }
 
     /* Configure mii speed*/
-    clock_manager_get_frequency(kSystemClock, &frequency);
-    enet_hal_config_mii(enetIfPtr->deviceNumber, (frequency/(2 * enetIfPtr->macCfgPtr->miiClock) + 1), 
+    CLOCK_SYS_GetFreq(kSystemClock, &frequency);
+    enet_hal_config_mii(enetIfPtr->deviceNumber, (frequency/(2 * enetIfPtr->macCfgPtr->miiClock) + 1),
                  kEnetMdioHoldOneClkCycle, false);
 
     return kStatus_ENET_Success;
@@ -195,9 +195,9 @@ uint32_t enet_mac_mii_init(enet_dev_if_t * enetIfPtr)
  * Function Name: enet_mac_rxbd_init
  * Return Value: The execution status.
  * Description:Initialize the ENET receive buffer descriptors.
- * Note: If you do receive on receive interrupt handler the receive 
- * data buffer number can be the same as the receive descriptor numbers. 
- * But if you are polling receive frames please make sure the receive data 
+ * Note: If you do receive on receive interrupt handler the receive
+ * data buffer number can be the same as the receive descriptor numbers.
+ * But if you are polling receive frames please make sure the receive data
  * buffers are more than buffer descriptors to guarantee a good performance.
  *END*********************************************************************/
 uint32_t enet_mac_rxbd_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdCfg)
@@ -216,7 +216,7 @@ uint32_t enet_mac_rxbd_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdC
     /* Initialize receive bd base address and current address*/
     enetIfPtr->macContextPtr->rxBdBasePtr = rxbdCfg->rxBdPtrAlign;
     enetIfPtr->macContextPtr->rxBdCurPtr = enetIfPtr->macContextPtr->rxBdBasePtr;
-    enetIfPtr->macContextPtr->rxBdDirtyPtr = enetIfPtr->macContextPtr->rxBdBasePtr;	
+    enetIfPtr->macContextPtr->rxBdDirtyPtr = enetIfPtr->macContextPtr->rxBdBasePtr;
     enet_hal_set_rxbd_address(enetIfPtr->deviceNumber, (uint32_t)(enetIfPtr->macContextPtr->rxBdBasePtr));
 	
     return kStatus_ENET_Success;
@@ -275,7 +275,7 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
     /* Configure tx/rx accelerator*/
     if (enetIfPtr->macCfgPtr->isRxAccelEnabled)
     {
-        enet_hal_config_rx_accelerator(enetIfPtr->deviceNumber, 
+        enet_hal_config_rx_accelerator(enetIfPtr->deviceNumber,
            (enet_config_rx_accelerator_t *)&(enetIfPtr->macCfgPtr->rxAcceler));
         if ((enetIfPtr->macCfgPtr->rxAcceler.isIpcheckEnabled) || (enetIfPtr->macCfgPtr->rxAcceler.isProtocolCheckEnabled))
         {
@@ -284,7 +284,7 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
     }
     if (enetIfPtr->macCfgPtr->isTxAccelEnabled)
     {
-        enet_hal_config_tx_accelerator(enetIfPtr->deviceNumber, 
+        enet_hal_config_tx_accelerator(enetIfPtr->deviceNumber,
             (enet_config_tx_accelerator_t *)&(enetIfPtr->macCfgPtr->txAcceler));
         if ((enetIfPtr->macCfgPtr->txAcceler.isIpCheckEnabled) || (enetIfPtr->macCfgPtr->txAcceler.isProtocolCheckEnabled))
         {
@@ -298,7 +298,7 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
     }
 
 
-    /* Set TFWR value if STRFWD is not being used  */		
+    /* Set TFWR value if STRFWD is not being used  */
     if (txFifo.isStoreForwardEnabled == 1)
           txFifo.txFifoWrite = 0;
     else
@@ -313,7 +313,7 @@ uint32_t enet_mac_configure_fifo_accel(enet_dev_if_t * enetIfPtr)
     txFifo.txAlmostEmpty = 4;
     txFifo.txAlmostFull = 8;
     enet_hal_config_rx_fifo(enetIfPtr->deviceNumber, &rxFifo);
-    enet_hal_config_tx_fifo(enetIfPtr->deviceNumber, &txFifo); 
+    enet_hal_config_tx_fifo(enetIfPtr->deviceNumber, &txFifo);
 
     return kStatus_ENET_Success;
 }
@@ -332,25 +332,25 @@ uint32_t enet_mac_configure_controller(enet_dev_if_t * enetIfPtr)
     if (enetIfPtr == NULL)
     {
         return kStatus_ENET_InvalidInput;
-    }   
+    }
 
-    macCtlCfg = enetIfPtr->macCfgPtr->macCtlConfigure;	
+    macCtlCfg = enetIfPtr->macCfgPtr->macCtlConfigure;
     /* Configure rmii/mii interface*/
-    enet_hal_config_rmii(enetIfPtr->deviceNumber, enetIfPtr->macCfgPtr->rmiiCfgMode, 
-        enetIfPtr->macCfgPtr->speed, enetIfPtr->macCfgPtr->duplex, false, 
+    enet_hal_config_rmii(enetIfPtr->deviceNumber, enetIfPtr->macCfgPtr->rmiiCfgMode,
+        enetIfPtr->macCfgPtr->speed, enetIfPtr->macCfgPtr->duplex, false,
         (macCtlCfg & kEnetRxMiiLoopback));
      /* Configure receive buffer size*/
     if (enetIfPtr->macCfgPtr->isVlanEnabled)
     {
         enetIfPtr->maxFrameSize = kEnetMaxFrameVlanSize;
-        enet_hal_set_rx_max_size(enetIfPtr->deviceNumber, 
+        enet_hal_set_rx_max_size(enetIfPtr->deviceNumber,
               enetIfPtr->macContextPtr->rxBufferSizeAligned, kEnetMaxFrameVlanSize);
     }
     else
-    {   
+    {
         enetIfPtr->maxFrameSize = kEnetMaxFrameSize;
-        enet_hal_set_rx_max_size(enetIfPtr->deviceNumber, 
-              enetIfPtr->macContextPtr->rxBufferSizeAligned, kEnetMaxFrameSize); 
+        enet_hal_set_rx_max_size(enetIfPtr->deviceNumber,
+              enetIfPtr->macContextPtr->rxBufferSizeAligned, kEnetMaxFrameSize);
     }
 
 	/* Set receive controller promiscuous */
@@ -377,14 +377,14 @@ uint32_t enet_mac_configure_controller(enet_dev_if_t * enetIfPtr)
  * Function Name: enet_mac_init
  * Return Value: The execution status.
  * Description:Initialize the ENET device with the basic configuration
- * When ENET is used, this function need to be called by the NET initialize 
+ * When ENET is used, this function need to be called by the NET initialize
  * interface.
  *END*********************************************************************/
 uint32_t enet_mac_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdCfg,
                             enet_txbd_config_t *txbdCfg)
-{   
+{
     uint32_t timeOut = 0;
-    uint32_t devNumber, result = 0; 
+    uint32_t devNumber, result = 0;
 	
     /* Check the input parameters*/
     if (enetIfPtr == NULL)
@@ -395,14 +395,11 @@ uint32_t enet_mac_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdCfg,
     /* Get device number and check the parameter*/
     devNumber = enetIfPtr->deviceNumber;
 
-    /* Store the global ENET structure for ISR input parameters for instance 0*/
-    if (!devNumber)
-    {
-        enetIfHandle = enetIfPtr;
-    }
+    /* Store the global ENET structure for ISR input parameters */
+    enetIfHandle = enetIfPtr;
 
     /* Turn on ENET module clock gate */
-    clock_manager_set_gate(kClockModuleENET, 0U, true);
+    CLOCK_SYS_EnableEnetClock(0U);
 
     /* Reset ENET mac*/
     enet_hal_reset_ethernet(devNumber);
@@ -455,7 +452,7 @@ uint32_t enet_mac_init(enet_dev_if_t * enetIfPtr, enet_rxbd_config_t *rxbdCfg,
     if(result != kStatus_ENET_Success)
     {
         return result;
-    }	
+    }
     /* Initialize rmii/mii interface*/
     result = enet_mac_mii_init(enetIfPtr);
     if (result != kStatus_ENET_Success)

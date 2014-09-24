@@ -24,7 +24,7 @@ except ImportError, e:
 
 import os
 from optparse import OptionParser
-from time import sleep
+from time import sleep, time
 from sys import stdout
 
 # This is a little tricky. We need to add upper directory to path so
@@ -42,7 +42,7 @@ class Mbed:
 
         parser.add_option("-m", "--micro",
                           dest="micro",
-                          help="The target microcontroller ",
+                          help="The target microcontroller",
                           metavar="MICRO")
 
         parser.add_option("-p", "--port",
@@ -126,6 +126,22 @@ class Mbed:
                 result = self.serial.read(count)
             except:
                 result = None
+        return result
+
+    def serial_readline(self, timeout=5):
+        """ Wraps self.mbed.serial object read method to read one line from serial port
+        """
+        result = ''
+        start = time()
+        while (time() - start) < timeout:
+            if self.serial:
+                try:
+                    c = self.serial.read(1)
+                    result += c
+                except:
+                    result = None
+                if c == '\n':
+                    break
         return result
 
     def serial_write(self, write_buffer):

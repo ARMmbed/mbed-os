@@ -76,6 +76,10 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
+            ('coide', 'DISCO_F407VG'),
+            ('coide', 'NUCLEO_F401RE'),
+            ('coide', 'NUCLEO_F411RE'),
+
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
             ('uvision', 'KL25Z'),
@@ -122,6 +126,8 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F407VG'),
             ('gcc_arm', 'DISCO_F303VC'),
             ('gcc_arm', 'NRF51822'),
+            ('gcc_arm', 'NUCLEO_F401RE'),
+            ('gcc_arm', 'NUCLEO_F411RE'),
 
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),

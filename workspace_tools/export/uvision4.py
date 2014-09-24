@@ -28,6 +28,7 @@ class Uvision4(Exporter):
         'KL25Z',
         'KL46Z',
         'K64F',
+        'K22F',
         'K20D50M',
         'LPC1347',
         'LPC1114',

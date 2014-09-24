@@ -7,6 +7,7 @@ const char* TEST_ENV_FAILURE = "failure";
 const char* TEST_ENV_MEASURE = "measure";
 const char* TEST_ENV_END = "end";
 
+
 static void led_blink(PinName led, float delay)
 {
     if (led != NC) {
@@ -41,10 +42,20 @@ void notify_performance_coefficient(const char* measurement_name, const double v
 
 void notify_completion(bool success)
 {
-    printf("{{%s}}" NL, success ? TEST_ENV_SUCCESS : TEST_ENV_FAILURE);
-    printf("{{%s}}" NL, TEST_ENV_END);
+    printf("{{%s}}" NL "{{%s}}" NL, success ? TEST_ENV_SUCCESS : TEST_ENV_FAILURE, TEST_ENV_END);
     led_blink(LED1, success ? 1.0 : 0.1);
 }
+
+bool notify_completion_str(bool success, char* buffer)
+{
+    bool result = false;
+    if (buffer) {
+        sprintf(buffer, "{{%s}}" NL "{{%s}}" NL, success ? TEST_ENV_SUCCESS : TEST_ENV_FAILURE, TEST_ENV_END);
+        result = true;
+    }
+    return result;
+}
+
 
 // -DMBED_BUILD_TIMESTAMP=1406208182.13
 unsigned int testenv_randseed()

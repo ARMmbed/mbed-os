@@ -17,7 +17,6 @@ const char *result_str(bool result) {
 }
 
 int main() {
-    DigitalOut led(LED1);
     bool result = true;
 
     {   // 0xFFFFFFFF *  8 =  0x7fffffff8

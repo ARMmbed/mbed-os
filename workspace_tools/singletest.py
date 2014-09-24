@@ -88,7 +88,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 2
+    single_test_version_minor = 3
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -168,6 +168,7 @@ if __name__ == '__main__':
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
+                                   _clean=opts.clean,
                                    _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _test_spec=test_spec,

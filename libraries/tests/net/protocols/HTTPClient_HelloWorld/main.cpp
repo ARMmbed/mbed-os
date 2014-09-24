@@ -3,7 +3,10 @@
 #include "EthernetInterface.h"
 #include "HTTPClient.h"
 
-#define BUFFER_SIZE 512
+
+namespace {
+    const int BUFFER_SIZE = 512;
+}
 
 int main()
 {
@@ -27,6 +30,7 @@ int main()
         }
 
         if (result == false) {
+            eth.disconnect();
             notify_completion(false);
             exit(ret);
         }
@@ -51,6 +55,7 @@ int main()
         }
 
         if (result == false) {
+            eth.disconnect();
             notify_completion(false);
             exit(ret);
         }

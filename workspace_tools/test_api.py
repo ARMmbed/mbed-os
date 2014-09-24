@@ -21,6 +21,7 @@ import os
 import re
 import sys
 import json
+import uuid
 import pprint
 import random
 import optparse
@@ -135,6 +136,7 @@ class SingleTestRunner(object):
                  _global_loops_count=1,
                  _test_loops_list=None,
                  _muts={},
+                 _clean=False,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _test_spec={},
@@ -201,6 +203,7 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
+        self.opts_clean = _clean
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
@@ -279,7 +282,7 @@ class SingleTestRunner(object):
 
                 T = TARGET_MAP[target]
                 build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
-                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean else None
+                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
                 try:
                     build_mbed_libs_result = build_mbed_libs(T,
@@ -342,7 +345,7 @@ class SingleTestRunner(object):
                             continue
 
                         build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
-                        clean_project_options = True if self.opts_goanna_for_tests or clean else None
+                        clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
                         # Detect which lib should be added to test
                         # Some libs have to compiled like RTOS or ETH
@@ -373,6 +376,9 @@ class SingleTestRunner(object):
                         for lib_id in libraries:
                             if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+                        MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
+                        MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
+                        MACROS.append('TEST_SUITE_UUID="%s"'% str(uuid.uuid4()))
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                         try:
@@ -728,6 +734,7 @@ class SingleTestRunner(object):
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
                 single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                            micro=target_name,
                                                                             verbose=host_test_verbose,
                                                                             reset=host_test_reset,
                                                                             reset_tout=reset_tout)
@@ -793,7 +800,7 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, reset=None, reset_tout=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, disk, port, duration, micro=None, reset=None, reset_tout=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -802,6 +809,8 @@ class SingleTestRunner(object):
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
 
         # Add extra parameters to host_test
+        if micro is not None:
+            cmd += ["-m", micro]
         if extra_serial is not None:
             cmd += ["-e", extra_serial]
         if reset is not None:
@@ -1396,6 +1405,12 @@ def get_default_test_options_parser():
                       metavar=False,
                       action="store_true",
                       help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
+
+    parser.add_option('', '--clean',
+                      dest='clean',
+                      metavar=False,
+                      action="store_true",
+                      help='Clean the build directory')
 
     parser.add_option('-G', '--goanna-for-sdk',
                       dest='goanna_for_mbed_sdk',

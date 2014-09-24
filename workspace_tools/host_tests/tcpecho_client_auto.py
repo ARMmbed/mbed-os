@@ -15,14 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from SocketServer import BaseRequestHandler, TCPServer
+import sys
 import socket
-from host_test import Test
 from sys import stdout
 from time import sleep
+from host_test import Test
+from SocketServer import BaseRequestHandler, TCPServer
+
 
 SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
 SERVER_PORT = 7
+
 
 class TCPEchoClientTest(Test):
     def __init__(self):
@@ -30,48 +33,55 @@ class TCPEchoClientTest(Test):
         self.mbed.init_serial()
 
     def send_server_ip_port(self, ip_address, port_no):
-        print "Resetting target..."
+        """ Set up network host. Reset target and and send server IP via serial to Mbed
+        """
+        print "HOST: Resetting target..."
         self.mbed.reset()
 
-        # Let's wait for Mbed to print its readiness, usually "{{start}}"
-        if self.mbed.serial_timeout(None) is None:
-            self.print_result("ioerr_serial")
-            return
-
-        c = self.mbed.serial_read(len('TCPCllient waiting for server IP and port...'))
+        c = self.mbed.serial_readline() # 'TCPCllient waiting for server IP and port...'
         if c is None:
             self.print_result("ioerr_serial")
             return
-        print c
-        stdout.flush()
 
-        if self.mbed.serial_timeout(1) is None:
-            self.print_result("ioerr_serial")
-            return
-
-        print "Sending server IP Address to target..."
+        print c.strip()
+        print "HOST: Sending server IP Address to target...",
         stdout.flush()
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)
+        print connection_str
+        stdout.flush()
+
+        # Two more strings about connection should be sent by MBED
+        for i in range(0, 2):
+            c = self.mbed.serial_readline()
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
+            print c.strip()
+            stdout.flush()
 
 
 class TCPEchoClient_Handler(BaseRequestHandler):
-    def print_result(self, result):
-        print "\n{%s}\n{end}" % result
-
     def handle(self):
         """ One handle per connection """
-        print "connection received"
+        print "HOST: Connection received...",
+        count = 1;
         while True:
             data = self.request.recv(1024)
             if not data: break
             self.request.sendall(data)
-            print "echo: " + repr(data)
+            if '{{end}}' in str(data):
+                print
+                print str(data)
+            else:
+                if not count % 10:
+                    sys.stdout.write('.')
+                count += 1
             stdout.flush()
 
 
 server = TCPServer((SERVER_IP, SERVER_PORT), TCPEchoClient_Handler)
-print "listening for connections: " + SERVER_IP + ":" + str(SERVER_PORT)
+print "HOST: Listening for connections: " + SERVER_IP + ":" + str(SERVER_PORT)
 
 mbed_test = TCPEchoClientTest();
 mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)

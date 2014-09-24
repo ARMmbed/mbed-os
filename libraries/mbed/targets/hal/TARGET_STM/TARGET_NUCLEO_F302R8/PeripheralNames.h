@@ -67,6 +67,7 @@ typedef enum {
 
 typedef enum {
     PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
     PWM_15 = (int)TIM15_BASE,
     PWM_16 = (int)TIM16_BASE,
     PWM_17 = (int)TIM17_BASE

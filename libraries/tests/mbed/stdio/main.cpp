@@ -7,24 +7,31 @@
  */
 
 int main() {
+    DigitalOut led1(LED1);
+    DigitalOut led2(LED2);
+    
     union {
         int value_int;
     };
 
     notify_start();
 
+    const char* PRINT_PATTERN = "MBED: Your value was: %d\r\n";
+    
     while (true)
     {
         // SCANF PRINTF family
         value_int = 0;
+        led1 = 1;
         scanf("%d", &value_int);
-        printf("Your value was: %d\r\n", value_int);
+        printf(PRINT_PATTERN, value_int);
+        led1 = 0;
 
         // FSCANF, FPRINTF family
         value_int = 0;
+        led2 = 1;
         fscanf(stdin, "%d", &value_int);
-        fprintf(stdout, "Your value was: %d\r\n", value_int);
-
-        //...
+        fprintf(stdout, PRINT_PATTERN, value_int);
+        led2 = 0;
     }
 }

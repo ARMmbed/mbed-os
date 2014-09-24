@@ -1,13 +1,15 @@
 #include "test_env.h"
 
-int called = 0;
+namespace {
+    bool mbed_main_called = false;
+}
 
 extern "C" void mbed_main() {
-    printf("This should be called before main.\n");
-    called = 1;
+    printf("MBED: mbed_main() call before main()\r\n");
+    mbed_main_called = true;
 }
 
 int main() {
-    printf("main() starts now.\n");
-    notify_completion(called == 1);
+    printf("MBED: main() starts now!\r\n");
+    notify_completion(mbed_main_called);
 }

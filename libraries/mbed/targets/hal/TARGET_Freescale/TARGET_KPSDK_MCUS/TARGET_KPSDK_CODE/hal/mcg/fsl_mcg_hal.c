@@ -41,41 +41,41 @@
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : get_mcgffclk
+ * Function Name : CLOCK_HAL_GetFllRefclk
  * Description   : Internal function to find the fll reference clock
  * This is an internal function to get the fll reference clock. The returned
  * value will be used for other APIs to calculate teh fll and other clock value.
- * 
+ *
  *END**************************************************************************/
-uint32_t get_mcgffclk(void)
+uint32_t CLOCK_HAL_GetFllRefClk(uint32_t baseAddr)
 {
     uint32_t mcgffclk;
     uint8_t  divider;
-    
-    if (clock_get_irefs() == kMcgIrefClockSourceExt) 
+
+    if (CLOCK_HAL_GetInternalRefSelMode(baseAddr) == kMcgInternalRefClkSrcExternal)
     {
         /* External reference clock is selected */
 #if FSL_FEATURE_MCG_USE_OSCSEL          /* case 1: use oscsel for ffclk      */
 
-        int32_t oscsel = clock_get_oscsel();
-        if (oscsel == kMcgOscselOsc) 
+        int32_t oscsel = CLOCK_HAL_GetOscselMode(baseAddr);
+        if (oscsel == kMcgOscselOsc)
         {
-#if FSL_FEATURE_MCG_HAS_OSC1          
+#if FSL_FEATURE_MCG_HAS_OSC1
             /* System oscillator 0 drives MCG clock */
             mcgffclk = CPU_XTAL0_CLK_HZ;
 #else
             /* System oscillator 0 drives MCG clock */
             mcgffclk = CPU_XTAL_CLK_HZ;
-#endif            
-        } 
+#endif
+        }
         else if (oscsel == kMcgOscselRtc)
-        { 
+        {
             /* RTC 32 kHz oscillator drives MCG clock */
             mcgffclk = CPU_XTAL32k_CLK_HZ;
         }
 #if FSL_FEATURE_MCG_HAS_IRC_48M         /* case 1.1: if IRC 48M exists*/
         else if (oscsel == kMcgOscselIrc)
-        { 
+        {
             /* IRC 48Mhz oscillator drives MCG clock */
             mcgffclk = CPU_INT_IRC_CLK_HZ;
         }
@@ -90,51 +90,56 @@ uint32_t get_mcgffclk(void)
         /* System oscillator 0 drives MCG clock */
         mcgffclk = CPU_XTAL_CLK_HZ;
 
-#endif        
-        
-        divider = (uint8_t)(1u << clock_get_frdiv());
-        
+#endif
+
+        divider = (uint8_t)(1u << CLOCK_HAL_GetFllExternalRefDivider(baseAddr));
+
         /* Calculate the divided FLL reference clock*/
         mcgffclk = (mcgffclk / divider);
-        
-        if (clock_get_range0() != kMcgFreqRangeSelectLow)
+
+        if ((CLOCK_HAL_GetRange0Mode(baseAddr) != kMcgFreqRangeSelLow) 
+#if FSL_FEATURE_MCG_USE_OSCSEL          /* case 1: use oscsel for ffclk      */
+            && (CLOCK_HAL_GetOscselMode(baseAddr) != kMcgOscselRtc))
+#else
+            )
+#endif
         {
             /* If high range is enabled, additional 32 divider is active*/
             mcgffclk = (mcgffclk >> kMcgConstant5);
         }
-    } 
-    else 
-    { 
+    }
+    else
+    {
         /* The slow internal reference clock is selected */
         mcgffclk = CPU_INT_SLOW_CLK_HZ;
-    } 
+    }
     return mcgffclk;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_fllclk
+ * Function Name : CLOCK_HAL_GetFllclk
  * Description   : Get the current mcg fll clock
- * This function will return the mcgfllclk value in frequency(hz) based on 
+ * This function will return the mcgfllclk value in frequency(hz) based on
  * current mcg configurations and settings. Fll should be properly configured
  * in order to get the valid value.
- * 
+ *
  *END**************************************************************************/
-uint32_t clock_hal_get_fllclk(void)
+uint32_t CLOCK_HAL_GetFllClk(uint32_t baseAddr)
 {
     uint32_t mcgfllclk;
     mcg_dmx32_select_t dmx32;
-    mcg_dco_range_select_t drstDrs;
+    mcg_digital_controlled_osc_range_select_t drstDrs;
 
-    mcgfllclk = get_mcgffclk();
-    
+    mcgfllclk = CLOCK_HAL_GetFllRefClk(baseAddr);
+
     /* Select correct multiplier to calculate the MCG output clock  */
-    dmx32 = clock_get_dmx32();
-    drstDrs = clock_get_drst_drs();
+    dmx32 = CLOCK_HAL_GetDmx32(baseAddr);
+    drstDrs = CLOCK_HAL_GetDigitalControlledOscRangeMode(baseAddr);
 
     switch (drstDrs)
     {
-    case kMcgDcoRangeSelectLow:         /* Low frequency range */
+    case kMcgDigitalControlledOscRangeSelLow:         /* Low frequency range */
         switch (dmx32)
         {
         case kMcgDmx32Default:          /* DCO has a default range of 25% */
@@ -147,7 +152,7 @@ uint32_t clock_hal_get_fllclk(void)
             break;
         }
         break;
-    case kMcgDcoRangeSelectMid:         /* Mid frequency range*/
+    case kMcgDigitalControlledOscRangeSelMid:         /* Mid frequency range*/
         switch (dmx32)
         {
         case kMcgDmx32Default:          /* DCO has a default range of 25% */
@@ -160,7 +165,7 @@ uint32_t clock_hal_get_fllclk(void)
             break;
         }
         break;
-    case kMcgDcoRangeSelectMidHigh:      /* Mid-High frequency range */
+    case kMcgDigitalControlledOscRangeSelMidHigh:      /* Mid-High frequency range */
         switch (dmx32)
         {
         case kMcgDmx32Default:          /* DCO has a default range of 25% */
@@ -173,7 +178,7 @@ uint32_t clock_hal_get_fllclk(void)
             break;
         }
         break;
-    case kMcgDcoRangeSelectHigh:        /* High frequency range */
+    case kMcgDigitalControlledOscRangeSelHigh:        /* High frequency range */
         switch (dmx32)
         {
         case kMcgDmx32Default:          /* DCO has a default range of 25% */
@@ -192,17 +197,17 @@ uint32_t clock_hal_get_fllclk(void)
 
     return mcgfllclk;
 }
-
+#if FSL_FEATURE_MCG_HAS_PLL
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_pll0clk
+ * Function Name : CLOCK_HAL_GetPll0clk
  * Description   : Get the current mcg pll/pll0 clock
  * This function will return the mcgpllclk/mcgpll0 value in frequency(hz) based
- * on current mcg configurations and settings. PLL/PLL0 should be properly 
+ * on current mcg configurations and settings. PLL/PLL0 should be properly
  * configured in order to get the valid value.
- * 
+ *
  *END**************************************************************************/
-uint32_t clock_hal_get_pll0clk(void)
+uint32_t CLOCK_HAL_GetPll0Clk(uint32_t baseAddr)
 {
     uint32_t mcgpll0clk;
     uint8_t  divider;
@@ -210,19 +215,19 @@ uint32_t clock_hal_get_pll0clk(void)
     /* PLL(0) output is selected*/
 #if FSL_FEATURE_MCG_USE_PLLREFSEL /* case 1 use pllrefsel to select pll*/
 
-    if (clock_get_pllrefsel0() != kMcgPllErefClockSelectOsc0)
+    if (CLOCK_HAL_GetPllRefSel0Mode(baseAddr) != kMcgPllExternalRefClkSelOsc0)
     {
         /* OSC1 clock source used as an external reference clock */
         mcgpll0clk = CPU_XTAL1_CLK_HZ;
     }
     else
-    { 
+    {
         /* OSC0 clock source used as an external reference clock*/
         mcgpll0clk = CPU_XTAL0_CLK_HZ;
     }
-#else 
+#else
 #if FSL_FEATURE_MCG_USE_OSCSEL              /* case 2: use oscsel for pll      */
-    uint32_t oscsel = clock_get_oscsel();
+    mcg_oscsel_select_t oscsel = CLOCK_HAL_GetOscselMode(baseAddr);
     if (oscsel == kMcgOscselOsc)        /* case 2.1: OSC0 */
     {
         /* System oscillator drives MCG clock*/
@@ -233,7 +238,7 @@ uint32_t clock_hal_get_pll0clk(void)
         /* RTC 32 kHz oscillator drives MCG clock*/
         mcgpll0clk = CPU_XTAL32k_CLK_HZ;
     }
-#if FSL_FEATURE_MCG_HAS_IRC_48M             
+#if FSL_FEATURE_MCG_HAS_IRC_48M
     else if (oscsel == kMcgOscselIrc)   /* case 2.3: IRC 48M */
     {
         /* IRC 48Mhz oscillator drives MCG clock*/
@@ -249,55 +254,52 @@ uint32_t clock_hal_get_pll0clk(void)
     mcgpll0clk = CPU_XTAL_CLK_HZ;
 #endif
 #endif
-    
-    divider = (kMcgConstant1 + clock_get_prdiv0());
-    
+
+    divider = (kMcgConstant1 + CLOCK_HAL_GetPllExternalRefDivider0(baseAddr));
+
     /* Calculate the PLL reference clock*/
     mcgpll0clk /= divider;
-    divider = (clock_get_vdiv0() + FSL_FEATURE_MCG_PLL_VDIV_BASE);
-    
-    /* Calculate the MCG output clock*/
-    mcgpll0clk = (mcgpll0clk * divider); 
+    divider = (CLOCK_HAL_GetVoltCtrlOscDivider0(baseAddr) + FSL_FEATURE_MCG_PLL_VDIV_BASE);
 
-#if FSL_FEATURE_MCG_HAS_PLL_EXTRA_DIV      
-    mcgpll0clk = (mcgpll0clk >> kMcgConstant1);  /* divided by 2*/
-#endif
-    
+    /* Calculate the MCG output clock*/
+    mcgpll0clk = (mcgpll0clk * divider);
+
     return mcgpll0clk;
 }
+#endif
 
 #if FSL_FEATURE_MCG_HAS_PLL1
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_pll1clk
+ * Function Name : CLOCK_HAL_GetPll1Clk
  * Description   : Get the current mcg pll1 clock
  * This function will return the mcgpll1clk value in frequency(hz) based
  * on current mcg configurations and settings. PLL1 should be properly configured
  * in order to get the valid value.
- * 
+ *
  *END**************************************************************************/
-uint32_t clock_hal_get_pll1clk(void)
+uint32_t CLOCK_HAL_GetPll1Clk(uint32_t baseAddr)
 {
     uint32_t mcgpll1clk;
     uint8_t  divider;
-    
-    if (clock_get_pllrefsel1() != kMcgPllErefClockSelectOsc0)
+
+    if (CLOCK_HAL_GetPllRefSel1Mode(baseAddr) != kMcgPllExternalRefClkSelOsc0)
     {
         /* OSC1 clock source used as an external reference clock*/
         mcgpll1clk = CPU_XTAL1_CLK_HZ;
     }
     else
-    { 
+    {
         /* OSC0 clock source used as an external reference clock*/
         mcgpll1clk = CPU_XTAL0_CLK_HZ;
-    } 
-    
-    divider = (kMcgConstant1 + clock_get_prdiv1());
-    
+    }
+
+    divider = (kMcgConstant1 + CLOCK_HAL_GetPllExternalRefDivider1(baseAddr));
+
     /* Calculate the PLL reference clock*/
     mcgpll1clk /= divider;
-    divider = (clock_get_vdiv1() + FSL_FEATURE_MCG_PLL_VDIV_BASE);
-    
+    divider = (CLOCK_HAL_GetVoltCtrlOscDivider1(baseAddr) + FSL_FEATURE_MCG_PLL_VDIV_BASE);
+
     /* Calculate the MCG output clock*/
     mcgpll1clk = ((mcgpll1clk * divider) >> kMcgConstant1); /* divided by 2*/
     return mcgpll1clk;
@@ -306,89 +308,93 @@ uint32_t clock_hal_get_pll1clk(void)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_irclk
+ * Function Name : CLOCK_HAL_GetIrclk
  * Description   : Get the current mcg ir clock
  * This function will return the mcgirclk value in frequency(hz) based
- * on current mcg configurations and settings. It will not check if the 
+ * on current mcg configurations and settings. It will not check if the
  * mcgirclk is enabled or not, just calculate and return the value.
- * 
+ *
  *END**************************************************************************/
-uint32_t clock_hal_get_irclk(void)
+uint32_t CLOCK_HAL_GetInternalRefClk(uint32_t baseAddr)
 {
     int32_t mcgirclk;
-    if (clock_get_ircs() == kMcgIrefClockSelectSlow)
+    if (CLOCK_HAL_GetInternalRefClkSelMode(baseAddr) == kMcgInternalRefClkSelSlow)
     {
         /* Slow internal reference clock selected*/
         mcgirclk = CPU_INT_SLOW_CLK_HZ;
     }
     else
     {
-        mcgirclk = CPU_INT_FAST_CLK_HZ / (1 << clock_get_fcrdiv());
+        mcgirclk = CPU_INT_FAST_CLK_HZ / (1 << CLOCK_HAL_GetFastClkInternalRefDivider(baseAddr));
     }
     return mcgirclk;
 }
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : clock_hal_get_outclk
+ * Function Name : CLOCK_HAL_GetOutclk
  * Description   : Get the current mcg out clock
- * This function will return the mcgoutclk value in frequency(hz) based on 
- * current mcg configurations and settings. The configuration should be 
+ * This function will return the mcgoutclk value in frequency(hz) based on
+ * current mcg configurations and settings. The configuration should be
  * properly done in order to get the valid value.
- * 
+ *
  *END**************************************************************************/
-uint32_t clock_hal_get_outclk(void)
+uint32_t CLOCK_HAL_GetOutClk(uint32_t baseAddr)
 {
     /* Variable to store output clock frequency of the MCG module*/
     uint32_t mcgoutclk = 0;
 
-    if (clock_get_clks() == kMcgClockSelectOut)
+    if (CLOCK_HAL_GetClkSrcMode(baseAddr) == kMcgClkSelOut)
     {
+#if FSL_FEATURE_MCG_HAS_PLL
         /* Output of FLL or PLL is selected*/
-        if (clock_get_plls() == kMcgPllSelectFll)
+        if (CLOCK_HAL_GetPllSelMode(baseAddr) == kMcgPllSelFll)
         {
             /* FLL is selected*/
-            mcgoutclk = clock_hal_get_fllclk();
+            mcgoutclk = CLOCK_HAL_GetFllClk(baseAddr);
         }
         else
-        { 
+        {
             /* PLL is selected*/
-#if FSL_FEATURE_MCG_HAS_PLL1          
-            if (clock_get_pllcs() != kMcgPllcsSelectPll0)
+#if FSL_FEATURE_MCG_HAS_PLL1
+            if (CLOCK_HAL_GetPllClkSelMode(baseAddr) != kMcgPllClkSelPll0)
             {
                 /* PLL1 output is selected*/
-                mcgoutclk = clock_hal_get_pll1clk();
+                mcgoutclk = CLOCK_HAL_GetPll1Clk(baseAddr);
             }
             else
             {
-                mcgoutclk = clock_hal_get_pll0clk();
+                mcgoutclk = CLOCK_HAL_GetPll0Clk(baseAddr);
             }
 #else
-            mcgoutclk = clock_hal_get_pll0clk();
-#endif            
+            mcgoutclk = CLOCK_HAL_GetPll0Clk(baseAddr);
+#endif // FSL_FEATURE_MCG_HAS_PLL1
         }
+#else
+        mcgoutclk = CLOCK_HAL_GetFllClk(baseAddr);
+#endif // FSL_FEATURE_MCG_HAS_PLL
     }
-    else if (clock_get_clks() == kMcgClockSelectIn)
+    else if (CLOCK_HAL_GetClkSrcMode(baseAddr) == kMcgClkSelInternal)
     {
         /* Internal reference clock is selected*/
-        mcgoutclk = clock_hal_get_irclk();
-    } 
-    else if (clock_get_clks() == kMcgClockSelectExt)
+        mcgoutclk = CLOCK_HAL_GetInternalRefClk(baseAddr);
+    }
+    else if (CLOCK_HAL_GetClkSrcMode(baseAddr) == kMcgClkSelExternal)
     {
         /* External reference clock is selected*/
 
 #if FSL_FEATURE_MCG_USE_OSCSEL              /* case 1: use oscsel for outclock      */
 
-        uint32_t oscsel = clock_get_oscsel();
+        uint32_t oscsel = CLOCK_HAL_GetOscselMode(baseAddr);
         if (oscsel == kMcgOscselOsc)
         {
-#if FSL_FEATURE_MCG_HAS_OSC1          
+#if FSL_FEATURE_MCG_HAS_OSC1
             /* System oscillator drives MCG clock*/
             mcgoutclk = CPU_XTAL0_CLK_HZ;
 #else
             /* System oscillator drives MCG clock*/
             mcgoutclk = CPU_XTAL_CLK_HZ;
-#endif            
+#endif
         }
         else if (oscsel == kMcgOscselRtc)
         {
@@ -416,7 +422,7 @@ uint32_t clock_hal_get_outclk(void)
     {
         /* Reserved value*/
         return mcgoutclk;
-    } 
+    }
     return mcgoutclk;
 }
 
