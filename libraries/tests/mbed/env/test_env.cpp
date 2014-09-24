@@ -56,6 +56,7 @@ bool notify_completion_str(bool success, char* buffer)
     return result;
 }
 
+
 // -DMBED_BUILD_TIMESTAMP=1406208182.13
 unsigned int testenv_randseed()
 {

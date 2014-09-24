@@ -882,6 +882,14 @@ TESTS = [
         "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
+
+    # Tests used for target information purposes
+    {
+        "id": "DTCT_1", "description": "Simple detect test",
+        "source_dir": join(TEST_DIR, "mbed", "detect"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+    },
 ]
 
 # Group tests with the same goals into categories

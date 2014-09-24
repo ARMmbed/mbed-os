@@ -375,6 +375,8 @@ class SingleTestRunner(object):
                         for lib_id in libraries:
                             if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+                        MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
+                        MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                         try:

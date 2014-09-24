@@ -28,4 +28,13 @@ unsigned int testenv_randseed();
 // Macros, unit test like to provide basic comparisons
 #define TESTENV_STRCMP(GIVEN,EXPECTED) (strcmp(GIVEN,EXPECTED) == 0)
 
+// macros passed via test suite
+#ifndef TEST_SUITE_TARGET_NAME
+#define TEST_SUITE_TARGET_NAME ""
+#endif
+
+#ifndef TEST_SUITE_TEST_ID
+#define TEST_SUITE_TEST_ID ""
+#endif
+
 #endif
