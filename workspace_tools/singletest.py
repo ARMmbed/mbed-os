@@ -103,6 +103,7 @@ from workspace_tools.tests import TEST_MAP
 from workspace_tools.tests import TESTS
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.utils import construct_enum
+from workspace_tools.settings import EACOMMANDER_CMD
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -518,6 +519,34 @@ class SingleTestRunner(object):
             except Exception, e:
                 resutl_msg = e
                 result = False
+        if copy_method == 'eACommander':
+            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+            # Note: Commands are executed in the order they are specified on the command line
+            cmd = [EACOMMANDER_CMD,
+                   '--serialno', disk.rstrip('/\\'),
+                   '--flash', image_path.encode('ascii', 'ignore')]
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
+        elif copy_method == 'eACommander-usb':
+            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
+            # Note: Commands are executed in the order they are specified on the command line
+            cmd = [EACOMMANDER_CMD,
+                   '--usb', disk.rstrip('/\\'),
+                   '--flash', image_path.encode('ascii', 'ignore')]
+            try:
+                ret = call(cmd, shell=True)
+                if ret:
+                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
+                    result = False
+            except Exception, e:
+                resutl_msg = e
+                result = False
         else:
             copy_method = "shutils.copy()"
             # Default python method
@@ -635,7 +664,7 @@ class SingleTestRunner(object):
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution."""
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
-        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial]
+        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration), "-e", extra_serial, "-r", "eACommander"]
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
         start_time = time()

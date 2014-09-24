@@ -114,6 +114,12 @@ uint32_t us_ticker_read()
     if (!us_ticker_inited) {
         us_ticker_init();
     }
+	
+	/* If waiting in an interrupt context, update ticker_cnt upon overflow */
+	if( TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF ) {
+		ticker_cnt++;
+        TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_OF);
+	}
 
     /* Avoid jumping in time by reading high bits twice */
     do {
