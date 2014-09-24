@@ -76,6 +76,10 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
+            ('coide', 'DISCO_F407VG'),
+            ('coide', 'NUCLEO_F401RE'),
+            ('coide', 'NUCLEO_F411RE'),
+
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
             ('uvision', 'KL25Z'),

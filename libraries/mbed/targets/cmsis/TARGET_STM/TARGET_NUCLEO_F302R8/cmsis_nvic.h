@@ -33,10 +33,10 @@
 #define MBED_CMSIS_NVIC_H
 
 // STM32F302R8
-// CORE: 16 vectors (= 64 bytes from 0x00 to 0x3F)
-// MCU Peripherals: 82 vectors (= 328 bytes from 0x40 to ...)
-// Total:  392 bytes to be reserved in RAM (see scatter file)
-#define NVIC_NUM_VECTORS      (16 + 82)
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 82 vectors = 328 bytes from 0x40 to 0x187
+// Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
+#define NVIC_NUM_VECTORS      98
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"

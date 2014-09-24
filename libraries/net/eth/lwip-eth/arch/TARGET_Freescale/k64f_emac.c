@@ -148,7 +148,7 @@ static void k64f_rxqueue_pbuf(struct k64f_enetdata *k64f_enet, struct pbuf *p, i
   if (bidx == RX_PBUF_AUTO_INDEX)
     k64f_enet->rx_fill_index = idx;
 
-  enet_hal_active_rxbd(BOARD_DEBUG_ENET_INSTANCE);
+  enet_hal_active_rxbd(BOARD_DEBUG_ENET_INSTANCE_ADDR);
 
   LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
     ("k64f_rxqueue_pbuf: pbuf packet queued: %p (free desc=%d)\n", p,
@@ -296,7 +296,7 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
 static err_t low_level_init(struct netif *netif)
 {
   enet_dev_if_t * enetIfPtr;
-  uint32_t device = BOARD_DEBUG_ENET_INSTANCE;
+  uint32_t device = BOARD_DEBUG_ENET_INSTANCE_ADDR;
   enet_rxbd_config_t rxbdCfg;
   enet_txbd_config_t txbdCfg;
   enet_phy_speed_t phy_speed;
@@ -305,10 +305,10 @@ static err_t low_level_init(struct netif *netif)
   k64f_init_eth_hardware();
   
   /* Initialize device*/
-  enetIfPtr = (enet_dev_if_t *)&enetDevIf[device];
+  enetIfPtr = (enet_dev_if_t *)&enetDevIf[BOARD_DEBUG_ENET_INSTANCE];
   enetIfPtr->deviceNumber = device;
-  enetIfPtr->macCfgPtr = &g_enetMacCfg[device];
-  enetIfPtr->phyCfgPtr = &g_enetPhyCfg[device];
+  enetIfPtr->macCfgPtr = &g_enetMacCfg[BOARD_DEBUG_ENET_INSTANCE];
+  enetIfPtr->phyCfgPtr = &g_enetPhyCfg[BOARD_DEBUG_ENET_INSTANCE];
   enetIfPtr->macApiPtr = &g_enetMacApi;
   enetIfPtr->phyApiPtr = (void *)&g_enetPhyApi;
   memcpy(enetIfPtr->macCfgPtr->macAddr, (char*)netif->hwaddr, kEnetMacAddrLen);
@@ -317,7 +317,7 @@ static err_t low_level_init(struct netif *netif)
   enetIfPtr->macContextPtr = (enet_mac_context_t *)calloc(1, sizeof(enet_mac_context_t));
   if (!enetIfPtr->macContextPtr) {
     return ERR_BUF;
-  }  
+  }
 
   /* Initialize enet buffers*/
   if(k64f_rx_setup(netif, &rxbdCfg) != ERR_OK) {
@@ -353,7 +353,7 @@ static err_t low_level_init(struct netif *netif)
   BW_ENET_TCR_FDEN(enetIfPtr->deviceNumber, phy_duplex == kEnetFullDuplex ? kEnetCfgFullDuplex : kEnetCfgHalfDuplex);
 
   /* Enable Ethernet module*/
-  enet_hal_config_ethernet(device, true, true);
+  enet_hal_config_ethernet(BOARD_DEBUG_ENET_INSTANCE_ADDR, true, true);
 
   /* Active Receive buffer descriptor must be done after module enable*/
   enet_hal_active_rxbd(enetIfPtr->deviceNumber);
@@ -380,7 +380,7 @@ void enet_mac_tx_isr(void *enetIfPtr)
 {
   /*Clear interrupt*/
   enet_hal_clear_interrupt(((enet_dev_if_t *)enetIfPtr)->deviceNumber, kEnetTxFrameInterrupt);
-  sys_sem_signal(&k64f_enetdata.TxCleanSem);    
+  sys_sem_signal(&k64f_enetdata.TxCleanSem);
 }
 
 /**
@@ -393,7 +393,7 @@ void enet_mac_tx_isr(void *enetIfPtr)
  * \return ERR_OK or error code
  */
 err_t k64f_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
-{ 
+{
   /* Only send packet is link is up */
   if (netif->flags & NETIF_FLAG_LINK_UP)
     return etharp_output(netif, q, ipaddr);
@@ -701,7 +701,7 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   }
 
   k64f_enet->tx_produce_index = idx;
-  enet_hal_active_txbd(BOARD_DEBUG_ENET_INSTANCE);
+  enet_hal_active_txbd(BOARD_DEBUG_ENET_INSTANCE_ADDR);
   LINK_STATS_INC(link.xmit);
 
   /* Restore access */
@@ -844,7 +844,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 }
 
 void eth_arch_enable_interrupts(void) {
-  enet_hal_config_interrupt(BOARD_DEBUG_ENET_INSTANCE, (kEnetTxFrameInterrupt | kEnetRxFrameInterrupt), true);
+  enet_hal_config_interrupt(BOARD_DEBUG_ENET_INSTANCE_ADDR, (kEnetTxFrameInterrupt | kEnetRxFrameInterrupt), true);
   INT_SYS_EnableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetRxfInt]]);
   INT_SYS_EnableIRQ(enet_irq_ids[BOARD_DEBUG_ENET_INSTANCE][enetIntMap[kEnetTxfInt]]);
 }

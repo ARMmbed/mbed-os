@@ -71,8 +71,11 @@ class UDPEchoServerTest(DefaultTest):
 
     def get_control_data(self, command="stat\n"):
         BUFFER_SIZE = 256
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.ECHO_SERVER_ADDRESS, self.CONTROL_PORT))
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.ECHO_SERVER_ADDRESS, self.CONTROL_PORT))
+        except Exception, e:
+            data = None
         s.send(command)
         data = s.recv(BUFFER_SIZE)
         s.close()
@@ -97,6 +100,7 @@ class UDPEchoServerTest(DefaultTest):
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except Exception, e:
+            self.s = None
             print "HOST: Error: %s" % e
             self.print_result('error')
             return
@@ -114,7 +118,9 @@ class UDPEchoServerTest(DefaultTest):
             self.s.sendto(payload, (self.ECHO_SERVER_ADDRESS, self.ECHO_PORT))
             dict_udp_sent_datagrams[payload] = time()
             sleep(self.TEST_STRESS_FACTOR)
-        self.s.close()
+
+        if self.s is not None:
+            self.s.close()
 
         # Wait 5 seconds for packets to come
         result = True

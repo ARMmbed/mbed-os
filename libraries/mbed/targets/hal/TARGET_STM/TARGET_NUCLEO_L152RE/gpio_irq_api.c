@@ -211,31 +211,51 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
 
     EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-
-    if (event == IRQ_RISE) {
-        if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-            obj->event = EDGE_BOTH;
-        } else { // NONE or RISE
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-            obj->event = EDGE_RISE;
-        }
-    }
-
-    if (event == IRQ_FALL) {
-        if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-            obj->event = EDGE_BOTH;
-        } else { // NONE or FALL
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-            obj->event = EDGE_FALL;
-        }
-    }
+    EXTI_InitStructure.EXTI_LineCmd = DISABLE; // Default
 
     if (enable) {
-        EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    } else {
-        EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+        if (event == IRQ_RISE) {
+            EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                obj->event = EDGE_BOTH;
+            } else { // NONE or RISE
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+                obj->event = EDGE_RISE;
+            }
+        }
+        if (event == IRQ_FALL) {
+            EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                obj->event = EDGE_BOTH;
+            } else { // NONE or FALL
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+                obj->event = EDGE_FALL;
+            }
+        }
+    }
+    else { // Disable
+        if (event == IRQ_RISE) {
+            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
+                EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+                obj->event = EDGE_FALL;
+            } else { // NONE or RISE
+                EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+                obj->event = EDGE_NONE;
+            }
+        }
+        if (event == IRQ_FALL) {
+            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
+                EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+                obj->event = EDGE_RISE;
+            } else { // NONE or FALL
+                EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+                obj->event = EDGE_NONE;
+            }
+        }      
     }
 
     EXTI_Init(&EXTI_InitStructure);

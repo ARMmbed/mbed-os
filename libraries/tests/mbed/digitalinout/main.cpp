@@ -10,9 +10,23 @@ DigitalInOut d2(dp2);
 DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
-#elif defined(TARGET_NUCLEO_F103RB)
-DigitalInOut d1(PC_6);
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L152RE)
+DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
+
+#elif defined(TARGET_DISCO_F407VG)
+DigitalInOut d1(PC_12);
+DigitalInOut d2(PD_0);
 
 #elif defined(TARGET_FF_ARDUINO)
 DigitalInOut d1(D0);
@@ -25,22 +39,22 @@ DigitalInOut d2(p25);
 #endif
 
 
-int main() {
+int main()
+{
     bool check = true;
-
 
     d1.output();
     d2.input();
     d1 = 1;
     wait(0.1);
     if (d2 != 1) {
-        printf("First check failed! d2 is %d\n", (int) d2);
+        printf("MBED: First check failed! d2 is %d\n", (int)d2);
         check = false;
     }
     d1 = 0;
     wait(0.1);
     if (d2 != 0) {
-        printf("Second check failed! d2 is %d\n", (int) d2);
+        printf("MBED: Second check failed! d2 is %d\n", (int)d2);
         check = false;
     }
 
@@ -49,13 +63,13 @@ int main() {
     d2 = 1;
     wait(0.1);
     if (d1 != 1) {
-        printf("Third check failed! d1 is %d\n", (int) d1);
+        printf("MBED: Third check failed! d1 is %d\n", (int)d1);
         check = false;
     }
     d2 = 0;
     wait(0.1);
     if (d1 != 0) {
-        printf("Fourth check failed! d1 is %d\n", (int) d1);
+        printf("MBED: Fourth check failed! d1 is %d\n", (int)d1);
         check = false;
     }
 

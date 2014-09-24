@@ -213,7 +213,7 @@ TESTS = [
         "id": "MBED_A21", "description": "Call function before main (mbed_main)",
         "source_dir": join(TEST_DIR, "mbed", "call_before_main"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": False,
+        "automated": True,
     },
     {
         "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
@@ -881,6 +881,15 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
+    },
+
+    # Tests used for target information purposes
+    {
+        "id": "DTCT_1", "description": "Simple detect test",
+        "source_dir": join(TEST_DIR, "mbed", "detect"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "host_test" : "detect_auto",
     },
 ]
 
