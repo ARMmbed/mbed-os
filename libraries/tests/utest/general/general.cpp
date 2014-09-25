@@ -16,7 +16,7 @@ TEST_GROUP(Integer_Constant_Division)
 };
 
 // 0xFFFFFFFF *  8 =  0x7fffffff8
-TEST(Integer_Constant_Division, Multiply_By_8)
+TEST(Integer_Constant_Division, Divide_By_8)
 {
     std::pair<uint32_t, uint64_t> values = std::make_pair(0x55555555, 0x7FFFFFFF8);
     uint32_t test_ret = test_64(values.second);
@@ -24,7 +24,7 @@ TEST(Integer_Constant_Division, Multiply_By_8)
 }
 
 // 0xFFFFFFFF * 24 = 0x17ffffffe8
-TEST(Integer_Constant_Division, Multiply_By_24)
+TEST(Integer_Constant_Division, Divide_By_24)
 {
     std::pair<uint32_t, uint64_t> values = std::make_pair(0xFFFFFFFF, 0x17FFFFFFE8);
     uint32_t test_ret = test_64(values.second);
