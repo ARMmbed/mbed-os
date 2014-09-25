@@ -76,6 +76,22 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
+            ('emblocks', 'LPC1768'),
+            ('emblocks', 'LPC1549'),
+            ('emblocks', 'LPC1114'),
+            ('emblocks', 'LPC11U35_401'),
+            ('emblocks', 'LPC11U35_501'),
+            ('emblocks', 'LPCCAPPUCCINO'),
+            ('emblocks', 'LPC2368'),
+            ('emblocks', 'STM32F407'),
+            ('emblocks', 'DISCO_F100RB'),
+            ('emblocks', 'DISCO_F051R8'),
+            ('emblocks', 'DISCO_F407VG'),
+            ('emblocks', 'DISCO_F303VC'),
+            ('emblocks', 'NRF51822'),
+            ('emblocks', 'NUCLEO_F401RE'),
+            ('emblocks', 'NUCLEO_F411RE'),
+
             ('coide', 'DISCO_F407VG'),
             ('coide', 'NUCLEO_F401RE'),
             ('coide', 'NUCLEO_F411RE'),
