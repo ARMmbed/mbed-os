@@ -428,7 +428,7 @@ def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd, cppcheck_m
                       lib.dependencies, options,
                       verbose=verbose, clean=clean, macros=macros, notify=notify, jobs=jobs)
     else:
-        print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        print 'Library "%s" is not yet supported on target %s with toolchain %s'% (lib_id, target.name, toolchain)
 
 
 def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, cppcheck_cmd, cppcheck_msg_format,

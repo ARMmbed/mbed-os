@@ -85,8 +85,9 @@ class SingleTestExecutor(threading.Thread):
     def run(self):
         start = time()
         # Execute tests depending on options and filter applied
-        test_summary, shuffle_seed = self.single_test.execute()
+        test_summary, shuffle_seed, test_summary_ext = self.single_test.execute()
         elapsed_time = time() - start
+
         # Human readable summary
         if not self.single_test.opts_suppress_summary:
             # prints well-formed summary with results (SQL table like)
@@ -139,6 +140,7 @@ class SingleTestRunner(object):
                  _clean=False,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
+                 _opts_report_html_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -184,6 +186,7 @@ class SingleTestRunner(object):
         # Settings passed e.g. from command line
         self.opts_db_url = _opts_db_url
         self.opts_log_file_name = _opts_log_file_name
+        self.opts_report_html_file_name = _opts_report_html_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -267,6 +270,9 @@ class SingleTestRunner(object):
 
         # Here we store test results
         test_summary = []
+        # Here we store test results in extended data structure
+        test_summary_ext = {}
+
         # Generate seed for shuffle if seed is not provided in
         self.shuffle_random_seed = round(random.random(), self.SHUFFLE_SEED_ROUND)
         if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
@@ -413,9 +419,20 @@ class SingleTestRunner(object):
                         test_spec = self.shape_test_request(target, path, test_id, test_duration)
                         test_loops = self.get_test_loop_count(test_id)
                         # read MUTs, test specification and perform tests
-                        single_test_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                        single_test_result, detailed_test_results = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+
+                        # Append test results to global test summary
                         if single_test_result is not None:
                             test_summary.append(single_test_result)
+
+                        # Prepare extended test results data structure (it can be used to generate detailed test report)
+                        if toolchain not in test_summary_ext:
+                            test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
+                        if target not in test_summary_ext[toolchain]:
+                            test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                        if target not in test_summary_ext[toolchain][target]:
+                            test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
+
 
         if self.db_logger:
             self.db_logger.reconnect();
@@ -423,7 +440,7 @@ class SingleTestRunner(object):
                 self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
                 self.db_logger.disconnect();
 
-        return test_summary, self.shuffle_random_seed
+        return test_summary, self.shuffle_random_seed, test_summary_ext
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
         """ Prints well-formed summary with results (SQL table like)
@@ -710,10 +727,11 @@ class SingleTestRunner(object):
 
         # Tests can be looped so test results must be stored for the same test
         test_all_result = []
+        # Test results for one test ran few times
+        detailed_test_results = {}  # { Loop_number: { results ... } }
+
         for test_index in range(test_loops):
             # Choose one method of copy files to mbed virtual drive
-            #_copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
-
             _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
                                                                                 images_config, image_dest)
 
@@ -745,6 +763,19 @@ class SingleTestRunner(object):
             # Store test result
             test_all_result.append(single_test_result)
             elapsed_time = time() - start_host_exec_time
+
+            detailed_test_results[test_index] = {
+                "single_test_result" : single_test_result,
+                "single_test_output" : single_test_output,
+                "target_name" : target_name,
+                "toolchain_name" : toolchain_name,
+                "test_id" : test_id,
+                "test_description" : test_description,
+                "elapsed_time" : elapsed_time,
+                "duration" : duration,
+                "copy_method" : _copy_method,
+            }
+
             print self.print_test_result(single_test_result, target_name, toolchain_name,
                                          test_id, test_description, elapsed_time, duration)
 
@@ -771,7 +802,7 @@ class SingleTestRunner(object):
 
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
-                duration, self.shape_test_loop_ok_result_count(test_all_result))
+                duration, self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
@@ -1206,8 +1237,15 @@ def singletest_in_cli_mode(single_test):
     """
     start = time()
     # Execute tests depending on options and filter applied
-    test_summary, shuffle_seed = single_test.execute()
+    test_summary, shuffle_seed, test_summary_ext = single_test.execute()
     elapsed_time = time() - start
+
+    if single_test.opts_report_html_file_name:
+        # Export results in form of HTML report to separate file
+        from workspace_tools.test_exporters import exporter_html
+        with open(single_test.opts_report_html_file_name, 'w') as f:
+            f.write(exporter_html(test_summary_ext))
+
     # Human readable summary
     if not single_test.opts_suppress_summary:
         # prints well-formed summary with results (SQL table like)
@@ -1300,7 +1338,7 @@ class TestLogger():
         self.LogToFileAttr = construct_enum(CREATE=1,    # Create or overwrite existing log file
                                             APPEND=2)    # Append to existing log file
 
-    def log_line(self, LogType, log_line):
+    def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
         """ Log one line of text
         """
         log_timestamp = time()
@@ -1339,8 +1377,8 @@ class CLITestLogger(TestLogger):
         log_line_str = self.log_print(log_entry, timestamp)
         if self.log_file_name is not None:
             try:
-                with open(self.log_file_name, 'a') as file:
-                    file.write(log_line_str + line_delim)
+                with open(self.log_file_name, 'a') as f:
+                    f.write(log_line_str + line_delim)
             except IOError:
                 pass
         return log_line_str
@@ -1535,6 +1573,10 @@ def get_default_test_options_parser():
     parser.add_option('-l', '--log',
                       dest='log_file_name',
                       help='Log events to external file (note not all console entries may be visible in log file)')
+
+    parser.add_option('', '--report-html',
+                      dest='report_html_file_name',
+                      help='You can log test suite results in form of HTML report')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
