@@ -208,7 +208,7 @@ class SingleTestRunner(object):
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
 
-        # database related initializations
+        # Database related initializations
         self.db_logger = factory_db_logger(self.opts_db_url)
         self.db_logger_build_id = None # Build ID (database index of build_id table)
         # Let's connect to database to set up credentials and confirm database is ready
@@ -277,7 +277,7 @@ class SingleTestRunner(object):
                 # print '=== %s::%s ===' % (target, toolchain)
                 # Let's build our test
                 if target not in TARGET_MAP:
-                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found' % (target))
+                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                     continue
 
                 T = TARGET_MAP[target]
@@ -292,9 +292,10 @@ class SingleTestRunner(object):
                                                              jobs=self.opts_jobs)
 
                     if not build_mbed_libs_result:
-                        print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain))
+                        print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
                         continue
                 except ToolException:
+                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s' % (target, toolchain))
                     return test_summary, self.shuffle_random_seed
 
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
@@ -315,7 +316,7 @@ class SingleTestRunner(object):
                     if self.db_logger.is_connected():
                         # Update MUTs and Test Specification in database
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
-                        # Update Etra information in database (some options passed to test suite)
+                        # Update Extra information in database (some options passed to test suite)
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                         self.db_logger.disconnect();
 
@@ -364,6 +365,7 @@ class SingleTestRunner(object):
                                           clean=clean_mbed_libs_options,
                                           jobs=self.opts_jobs)
                             except ToolException:
+                                print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
                                 return test_summary, self.shuffle_random_seed
 
                         # TODO: move this 2 below loops to separate function
@@ -395,6 +397,7 @@ class SingleTestRunner(object):
                                                  inc_dirs=INC_DIRS,
                                                  jobs=self.opts_jobs)
                         except ToolException:
+                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name))
                             return test_summary, self.shuffle_random_seed
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
@@ -693,7 +696,7 @@ class SingleTestRunner(object):
         # base network folder base path: join(NETWORK_BASE_PATH, )
         image_path = image
         if not exists(image_path):
-            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s' % image_path)
+            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
             elapsed_time = 0
             test_result = self.TEST_RESULT_NO_IMAGE
             return (test_result, target_name, toolchain_name,

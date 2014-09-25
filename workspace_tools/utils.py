@@ -49,9 +49,8 @@ def mkdir(path):
 
 
 def copy_file(src, dst):
-    """
-    Implement the behaviour of "shutil.copy(src, dst)" without copying the
-    permissions (this was causing errors with directories mounted with samba)
+    """ Implement the behaviour of "shutil.copy(src, dst)" without copying the
+        permissions (this was causing errors with directories mounted with samba)
     """
     if isdir(dst):
         _, file = split(src)
