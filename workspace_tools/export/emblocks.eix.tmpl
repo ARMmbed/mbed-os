@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project emblocks_ix="1.0.0">
     <Target name="{{name}}" target="{{target}}">
-        <Original name="mbed.org" version="1.0.0">
+        <Source name="mbed.org" version="1.0.0">
             <Toolchain name="{{toolchain}}"/>
             <CC>
                 {% for s in cc_org %}<Switch name="{{s}}"/>
@@ -19,7 +19,7 @@
                 {% for s in sys_libs %}<Library name="{{s}}"/>
                 {% endfor %}
             </Syslibs>
-        </Original>
+        </Source>
         <Assembler>
         </Assembler>
         <Compiler>
