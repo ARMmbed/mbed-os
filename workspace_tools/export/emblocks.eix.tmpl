@@ -37,6 +37,10 @@
                 {% for s in libraries %}<Library name="{{s}}"/>
                 {% endfor %}
             </Libraries>
+            <Librarypaths>
+                {% for s in library_paths %}<Librarypath path="{{s}}"/>
+                {% endfor %}
+            </Librarypaths>
             <Scriptfile path="{{script_file}}"/>
         </Linker>
         <Files>
