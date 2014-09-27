@@ -25,6 +25,8 @@ class CoIDE(Exporter):
     TARGETS = [
         'KL25Z',
         'KL05Z',
+        'LPC1768',
+        'ARCH_PRO',
         'DISCO_F407VG',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE'
