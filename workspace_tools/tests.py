@@ -882,6 +882,12 @@ TESTS = [
         "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
+    {
+        "id": "UT_3", "description": "General tests",
+        "source_dir": join(TEST_DIR, "utest", "general"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
 
     # Tests used for target information purposes
     {
