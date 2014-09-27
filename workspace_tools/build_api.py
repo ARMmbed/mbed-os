@@ -32,7 +32,8 @@ from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1):
-    """ This function builds project. Project can be for example one test / UT """
+    """ This function builds project. Project can be for example one test / UT
+    """
     # Toolchain instance
     toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
     toolchain.VERBOSE = verbose
@@ -100,7 +101,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
     clean: Rebuild everything if True
     notify: Notify function for logs
     verbose: Write the actual tools command lines if True
-    inc_dirs: additional include directories which should be included in build"""
+    inc_dirs: additional include directories which should be included in build
+    """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
 
@@ -153,6 +155,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
 
 def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
+    """ Wrapper for build_library function.
+        Function builds library in proper directory using all dependencies and macros defined by user.
+    """
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
         # We need to combine macros from parameter list with macros from library definition
@@ -160,9 +165,13 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
         if macros:
             MACROS.extend(macros)
 
-        build_library(lib.source_dir, lib.build_dir, target, toolchain,
-                      lib.dependencies, options,
-                      verbose=verbose, clean=clean, macros=MACROS, notify=notify, inc_dirs=lib.inc_dirs, jobs=jobs)
+        build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options,
+                      verbose=verbose,
+                      clean=clean,
+                      macros=MACROS,
+                      notify=notify,
+                      inc_dirs=lib.inc_dirs,
+                      jobs=jobs)
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
 
@@ -419,7 +428,7 @@ def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd, cppcheck_m
                       lib.dependencies, options,
                       verbose=verbose, clean=clean, macros=macros, notify=notify, jobs=jobs)
     else:
-        print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        print 'Library "%s" is not yet supported on target %s with toolchain %s'% (lib_id, target.name, toolchain)
 
 
 def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, cppcheck_cmd, cppcheck_msg_format,

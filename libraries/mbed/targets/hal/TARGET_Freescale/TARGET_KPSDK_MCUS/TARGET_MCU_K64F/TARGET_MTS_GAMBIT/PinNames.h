@@ -237,6 +237,16 @@ typedef enum {
     AP2_GPIO3 = PTA25,
     AP2_GPIO4 = PTA24,
 
+    // Cellular Radio Serial Pins
+    RADIO_SERIAL_TX = PTE8,
+    RADIO_SERIAL_RX = PTE9,
+    RADIO_SERIAL_RTS = PTE11,
+    RADIO_SERIAL_CTS = PTE10,
+    RADIO_SERIAL_DTR = PTE26,
+    RADIO_SERIAL_DSR = PTE25,
+    RADIO_SERIAL_RI = PTE24,
+    RADIO_SERIAL_CD = PTE12,
+
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
     // Not connected
