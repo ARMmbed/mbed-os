@@ -36,6 +36,7 @@ class IntermediateFile(Exporter):
             'library_paths': self.resources.lib_dirs,
             'libraries': self.resources.libraries,
             'symbols': self.toolchain.get_symbols(),
+            'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,
             'cc_org': self.toolchain.cc[1:],
             'ld_org': self.toolchain.ld[1:],

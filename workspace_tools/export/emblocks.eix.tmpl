@@ -15,6 +15,10 @@
                 {% for s in ld_org %}<Switch name="{{s}}"/>
                 {% endfor %}
             </LD>
+            <Addobjects>
+                {% for s in object_files %}<Addobject name="{{s}}"/>
+                {% endfor %}
+            </Addobjects>
             <Syslibs>
                 {% for s in sys_libs %}<Library name="{{s}}"/>
                 {% endfor %}
