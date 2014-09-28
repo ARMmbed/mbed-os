@@ -127,8 +127,8 @@ int FATFileSystem::format() {
 }
 
 DirHandle *FATFileSystem::opendir(const char *name) {
-	char n[64];
-	sprintf(n, "%d:/%s", _fsid, name);
+    char n[64];
+    sprintf(n, "%d:/%s", _fsid, name);
     FATFS_DIR dir;
     FRESULT res = f_opendir(&dir, n);
     if (res != 0) {
