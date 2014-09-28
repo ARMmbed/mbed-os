@@ -26,13 +26,16 @@ class IntermediateFile(Exporter):
                     'name':file, 'type': n
                 })
 
+        if self.resources.linker_script is None:
+            self.resources.linker_script = ''
+
         ctx = {
             'name': self.program_name,
             'target': self.target,
             'toolchain': self.toolchain.name,
             'source_files': source_files,
             'include_paths': self.resources.inc_dirs,
-            'script_file': self.resources.linker_script if not 'None' else '',
+            'script_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
             'libraries': self.resources.libraries,
             'symbols': self.toolchain.get_symbols(),
