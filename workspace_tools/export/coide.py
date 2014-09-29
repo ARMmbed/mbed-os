@@ -62,6 +62,9 @@ class CoIDE(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
+        if self.resources.linker_script is None:
+            self.resources.linker_script = ''
+            
         ctx = {
             'name': self.program_name,
             'source_files': source_files,
