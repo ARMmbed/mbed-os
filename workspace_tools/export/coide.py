@@ -25,6 +25,8 @@ class CoIDE(Exporter):
     TARGETS = [
         'KL25Z',
         'KL05Z',
+        'LPC1768',
+        'ARCH_PRO',
         'DISCO_F407VG',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE'
@@ -60,6 +62,9 @@ class CoIDE(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
+        if self.resources.linker_script is None:
+            self.resources.linker_script = ''
+            
         ctx = {
             'name': self.program_name,
             'source_files': source_files,
