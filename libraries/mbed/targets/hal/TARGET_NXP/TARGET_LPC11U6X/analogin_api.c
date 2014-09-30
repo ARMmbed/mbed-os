@@ -66,13 +66,15 @@ void analogin_init(analogin_t *obj, PinName pin) {
     // Enable clock for ADC
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 13);
 
-    // Start ADC self-calibration
-    LPC_ADC->CTRL = (1UL << 30);
-    do {
-        tmp =  LPC_ADC->CTRL;
-    } while ((tmp & (1UL << 30)) != 0);
+    // Determine the clock divider for a 500kHz ADC clock during calibration
+    uint32_t clkdiv = (SystemCoreClock / 500000) - 1;
+    
+    // Perform a self-calibration
+    LPC_ADC->CTRL = (1UL << 30) | (clkdiv & 0xFF);
+    while ((LPC_ADC->CTRL & (1UL << 30)) != 0);
 
-    LPC_ADC->CTRL = 1; // Sampling clock: SystemClock divided by 1
+    // Sampling clock: SystemClock divided by 1
+    LPC_ADC->CTRL = 0;
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
