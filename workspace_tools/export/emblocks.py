@@ -1,4 +1,5 @@
 from exporters import Exporter
+from os.path import splitext, basename
 from workspace_tools.targets import TARGET_NAMES
 
 
@@ -10,10 +11,10 @@ class IntermediateFile(Exporter):
     TARGETS = TARGET_NAMES
 
     FILE_TYPES = {
-        'headers':'h',
-        'c_sources':'c',
-        's_sources':'a',
-        'cpp_sources':'cpp'
+        'headers': 'h',
+        'c_sources': 'c',
+        's_sources': 'a',
+        'cpp_sources': 'cpp'
     }
 
 
@@ -23,8 +24,14 @@ class IntermediateFile(Exporter):
         for r_type, n in IntermediateFile.FILE_TYPES.iteritems():
             for file in getattr(self.resources, r_type):
                 source_files.append({
-                    'name':file, 'type': n
+                    'name': file, 'type': n
                 })
+
+        libraries = []
+        for lib in self.resources.libraries:
+            l, _ = splitext(basename(lib))
+            libraries.append(l[3:])
+
 
         if self.resources.linker_script is None:
             self.resources.linker_script = ''
@@ -37,7 +44,7 @@ class IntermediateFile(Exporter):
             'include_paths': self.resources.inc_dirs,
             'script_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
-            'libraries': self.resources.libraries,
+            'libraries': libraries,
             'symbols': self.toolchain.get_symbols(),
             'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,

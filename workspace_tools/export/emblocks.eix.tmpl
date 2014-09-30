@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project emblocks_ix="1.0.0">
+<Project emblocks_ix="1.0.0" name="{{name}}">
     <Target name="{{name}}" target="{{target}}">
         <Source name="mbed.org" version="1.0.0">
             <Toolchain name="{{toolchain}}"/>
@@ -11,6 +11,10 @@
                 {% for s in cppc_org %}<Switch name="{{s}}"/>
                 {% endfor %}
             </CPPC>
+            <Symbols>
+                {% for s in symbols %}<Symbol name="{{s}}"/>
+                {% endfor %}
+            </Symbols>
             <LD>
                 {% for s in ld_org %}<Switch name="{{s}}"/>
                 {% endfor %}
@@ -23,6 +27,7 @@
                 {% for s in sys_libs %}<Library name="{{s}}"/>
                 {% endfor %}
             </Syslibs>
+            <Scriptfile path="{{script_file}}"/>
         </Source>
         <Assembler>
         </Assembler>
@@ -32,8 +37,6 @@
                 {% endfor %}
             </Includepaths>
             <Symbols>
-                {% for s in symbols %}<Symbol name="{{s}}"/>
-                {% endfor %}
             </Symbols>
         </Compiler>
         <Linker>
@@ -45,7 +48,6 @@
                 {% for s in library_paths %}<Librarypath path="{{s}}"/>
                 {% endfor %}
             </Librarypaths>
-            <Scriptfile path="{{script_file}}"/>
         </Linker>
         <Files>
             {% for f in source_files %}<File  name="{{f.name}}" type="{{f.type}}"/>
