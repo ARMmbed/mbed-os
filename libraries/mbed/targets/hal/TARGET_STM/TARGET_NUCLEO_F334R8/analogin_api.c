@@ -110,8 +110,8 @@ static inline uint16_t adc_read(analogin_t *obj)
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
-    sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES_5;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_19CYCLES_5;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
