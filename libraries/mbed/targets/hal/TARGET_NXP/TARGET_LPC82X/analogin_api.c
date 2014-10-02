@@ -23,10 +23,7 @@
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
-#define ADC_10BIT_RANGE             0x3FF
-#define ADC_12BIT_RANGE             0xFFF
-
-#define ADC_RANGE    ADC_12BIT_RANGE
+#define ADC_RANGE    0xFFF
 
 static const PinMap PinMap_ADC[] = {
     {P0_7 , ADC_0, 0},
@@ -59,9 +56,12 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     __IO LPC_ADC_Type *adc_reg = LPC_ADC;
 
-    // start calibration
-    adc_reg->CTRL |= (1UL << 30);
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+    // determine the system clock divider for a 500kHz ADC clock during calibration
+    uint32_t clkdiv = (SystemCoreClock / 500000) - 1;
+
+    // perform a self-calibration
+    adc_reg->CTRL = (1UL << 30) | (clkdiv & 0xFF);
+    while ((adc_reg->CTRL & (1UL << 30)) != 0);
 }
 
 static inline uint32_t adc_read(analogin_t *obj)
