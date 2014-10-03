@@ -241,13 +241,12 @@ static inline int ssp_writeable(spi_t *obj) {
 static inline void ssp_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
-
-    if (obj->bits <= SPI_DATASIZE_8BIT) {
-        // force 8-bit access the data register due to SPI data buffer in this device
+    if (obj->bits == SPI_DATASIZE_8BIT) {
+        // Force 8-bit access to the data register
         uint8_t *p_spi_dr = 0;
         p_spi_dr = (uint8_t *) & (spi->DR);
         *p_spi_dr = (uint8_t)value;
-    } else {
+    } else { // SPI_DATASIZE_16BIT
         spi->DR = (uint16_t)value;
     }
 }
@@ -255,9 +254,8 @@ static inline void ssp_write(spi_t *obj, int value) {
 static inline int ssp_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
-
-    if (obj->bits <= SPI_DATASIZE_8BIT) {
-        // force 8-bit access the data register due to SPI data buffer in this device
+    if (obj->bits == SPI_DATASIZE_8BIT) {
+        // Force 8-bit access to the data register
         uint8_t *p_spi_dr = 0;
         p_spi_dr = (uint8_t *) & (spi->DR);
         return (int)(*p_spi_dr);
@@ -285,13 +283,27 @@ int spi_slave_receive(spi_t *obj) {
 int spi_slave_read(spi_t *obj) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
-    return (int)spi->DR;
+    if (obj->bits == SPI_DATASIZE_8BIT) {
+        // Force 8-bit access to the data register
+        uint8_t *p_spi_dr = 0;
+        p_spi_dr = (uint8_t *) & (spi->DR);
+        return (int)(*p_spi_dr);
+    } else {
+        return (int)spi->DR;
+    }
 }
 
 void spi_slave_write(spi_t *obj, int value) {
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
-    spi->DR = (uint16_t)value;
+    if (obj->bits == SPI_DATASIZE_8BIT) {
+        // Force 8-bit access to the data register
+        uint8_t *p_spi_dr = 0;
+        p_spi_dr = (uint8_t *) & (spi->DR);
+        *p_spi_dr = (uint8_t)value;
+    } else { // SPI_DATASIZE_16BIT
+        spi->DR = (uint16_t)value;
+    }
 }
 
 int spi_busy(spi_t *obj) {
