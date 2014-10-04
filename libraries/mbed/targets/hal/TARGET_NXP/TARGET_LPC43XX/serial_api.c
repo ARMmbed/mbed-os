@@ -139,8 +139,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     serial_format(obj, 8, ParityNone, 1);
     
     // pinout the chosen uart
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
+    if (tx != NC)
+        pin_mode(tx, PullUp);
+    if (rx != NC)
+        pin_mode(rx, PullUp);
     
     // set rx/tx pins in PullUp mode
     pin_mode(tx, PullUp);
