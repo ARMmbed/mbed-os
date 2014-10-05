@@ -83,6 +83,7 @@ if __name__ == '__main__':
             ('coide', 'DISCO_F407VG'),
             ('coide', 'NUCLEO_F401RE'),
             ('coide', 'NUCLEO_F411RE'),
+            ('coide', 'DISCO_F429ZI'),
 
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
@@ -132,6 +133,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NRF51822'),
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F411RE'),
+            ('gcc_arm', 'DISCO_F429ZI'),
 
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
