@@ -198,6 +198,17 @@ class LPC810(LPCTarget):
         self.is_disk_virtual = True
 
 
+class LPC824(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['NXP', 'LPC82X']
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+
+
 class LPC4088(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -695,6 +706,7 @@ TARGETS = [
     K22F(),
     LPC812(),
     LPC810(),
+    LPC824(),
     LPC4088(),
     LPC4330_M4(),
     LPC4337(),
