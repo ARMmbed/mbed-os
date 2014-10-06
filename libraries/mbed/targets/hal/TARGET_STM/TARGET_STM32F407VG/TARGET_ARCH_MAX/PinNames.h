@@ -53,6 +53,7 @@ extern "C" {
 #define STM_MODE_EVT_RISING         (9)
 #define STM_MODE_EVT_FALLING        (10)
 #define STM_MODE_EVT_RISING_FALLING (11)
+#define STM_MODE_IT_EVT_RESET       (12)
 
 // High nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H)
 // Low nibble  = pin number
@@ -132,7 +133,7 @@ typedef enum {
     PD_13 = 0x3D,
     PD_14 = 0x3E,
     PD_15 = 0x3F,
-  
+
     PE_0  = 0x40,
     PE_1  = 0x41,
     PE_2  = 0x42,
@@ -149,7 +150,7 @@ typedef enum {
     PE_13 = 0x4D,
     PE_14 = 0x4E,
     PE_15 = 0x4F,
-  
+
     PF_0  = 0x50,
     PF_1  = 0x51,
     PF_2  = 0x52,
