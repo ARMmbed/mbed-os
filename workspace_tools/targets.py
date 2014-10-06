@@ -505,6 +505,14 @@ class RBLAB_NRF51822(NRF51822):
         NRF51822.__init__(self)
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
+        self.supported_form_factors = ["ARDUINO"]
+
+
+class RBLAB_BLENANO(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822']
 
 
 class NRF51_DK(NRF51822):
@@ -701,6 +709,7 @@ TARGETS = [
     HRM1017(),
     ARM_MPS2(),
     RBLAB_NRF51822(),
+    RBLAB_BLENANO(),
     OC_MBUINO(),
     MTS_GAMBIT(),
     ARCH_MAX(),
