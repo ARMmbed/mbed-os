@@ -700,6 +700,14 @@ class MTS_GAMBIT(Target):
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
 
+class DISCO_F429ZI(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -757,6 +765,7 @@ TARGETS = [
     OC_MBUINO(),
     MTS_GAMBIT(),
     ARCH_MAX(),
+    DISCO_F429ZI(),
 ]
 
 # Map each target name to its unique instance
