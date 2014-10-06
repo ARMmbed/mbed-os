@@ -162,9 +162,9 @@ void UART0_IRQHandler()
 {
     uint32_t irtype = 0;
 
-    if (NRF_UART0->EVENTS_TXDRDY) {
+    if((NRF_UART0->INTENSET & 0x80) && NRF_UART0->EVENTS_TXDRDY) {
         irtype = 1;
-    } else if (NRF_UART0->EVENTS_RXDRDY) {
+    } else if((NRF_UART0->INTENSET & 0x04) && NRF_UART0->EVENTS_RXDRDY) {
         irtype = 2;
     }
     uart_irq(irtype, 0);
@@ -262,3 +262,34 @@ void serial_break_clear(serial_t *obj)
     obj->uart->TASKS_STARTTX = 1;
     obj->uart->TASKS_STARTRX = 1;
 }
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+
+    if (type == FlowControlRTSCTS || type == FlowControlRTS) {
+        NRF_GPIO->DIR |= (1<<rxflow);
+        pin_mode(rxflow, PullUp);
+        obj->uart->PSELRTS = rxflow;
+
+        obj->uart->CONFIG |= 0x01; // Enable HWFC
+    }
+
+    if (type == FlowControlRTSCTS || type == FlowControlCTS) {
+        NRF_GPIO->DIR &= ~(1<<txflow);
+        pin_mode(txflow, PullUp);
+        obj->uart->PSELCTS = txflow;
+
+        obj->uart->CONFIG |= 0x01; // Enable HWFC;
+    }
+
+    if (type == FlowControlNone) {
+        obj->uart->PSELRTS = 0xFFFFFFFF; // Disable RTS
+        obj->uart->PSELCTS = 0xFFFFFFFF; // Disable CTS
+
+        obj->uart->CONFIG &= ~0x01; // Enable HWFC;
+    }
+}
+
+void serial_clear(serial_t *obj) {
+}
+

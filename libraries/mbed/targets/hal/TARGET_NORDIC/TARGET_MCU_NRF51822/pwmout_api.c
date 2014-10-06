@@ -241,7 +241,9 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    // [TODO]
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
+    PWM_taken[obj->pwm] = 0;
+    pwmout_write(obj, 0);
 }
 
 void pwmout_write(pwmout_t *obj, float value)
