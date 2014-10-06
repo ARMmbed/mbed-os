@@ -142,10 +142,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
     
     // set rx/tx pins in PullUp mode
-    if (tx != NC)
+    if (tx != NC) {
         pin_mode(tx, PullUp);
-    if (rx != NC)
+    }
+    if (rx != NC) {
         pin_mode(rx, PullUp);
+    }
     
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
     

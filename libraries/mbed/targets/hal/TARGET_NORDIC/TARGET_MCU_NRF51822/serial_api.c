@@ -85,8 +85,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->index = 0;
 
     // set rx/tx pins in PullUp mode
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
 
     if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
