@@ -29,7 +29,8 @@ class CoIDE(Exporter):
         'ARCH_PRO',
         'DISCO_F407VG',
         'NUCLEO_F401RE',
-        'NUCLEO_F411RE'
+        'NUCLEO_F411RE',
+        'DISCO_F429ZI'
     ]
 
     # seems like CoIDE currently supports only one type

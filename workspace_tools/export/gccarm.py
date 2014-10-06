@@ -53,6 +53,7 @@ class GccArm(Exporter):
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
         'ARCH_MAX',
+        'DISCO_F429ZI',
     ]
 
     DOT_IN_RELATIVE_PATH = True
