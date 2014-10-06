@@ -77,19 +77,21 @@ void analogin_init(analogin_t *obj, PinName pin) {
         LPC_SYSCON->SYSAHBCLKCTRL0 |= (1 << 28);
     }
 
-    // select IRC as async. clock, divided by 1
+    // select IRC as asynchronous clock, divided by 1
     LPC_SYSCON->ADCASYNCCLKSEL  = 0;
     LPC_SYSCON->ADCASYNCCLKDIV  = 1;
 
     __IO LPC_ADC0_Type *adc_reg = (obj->adc < ADC1_0) ? (__IO LPC_ADC0_Type*)(LPC_ADC0) : (__IO LPC_ADC0_Type*)(LPC_ADC1);
 
-    // start calibration
-    adc_reg->CTRL |= (1UL << 30);
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+    // determine the system clock divider for a 500kHz ADC clock during calibration
+    uint32_t clkdiv = (SystemCoreClock / 500000) - 1;
+    
+    // perform a self-calibration
+    adc_reg->CTRL = (1UL << 30) | (clkdiv & 0xFF);
+    while ((adc_reg->CTRL & (1UL << 30)) != 0);
 
-    // asynchronous mode
+    // switch to asynchronous mode
     adc_reg->CTRL = (1UL << 8);
-
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
