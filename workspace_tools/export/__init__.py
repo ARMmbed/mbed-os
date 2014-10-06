@@ -20,7 +20,7 @@ from os import makedirs
 from shutil import copytree, rmtree
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, coide, kds
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import EXPORT_MAP
 
@@ -31,6 +31,7 @@ EXPORTERS = {
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,
     'iar': iar.IAREmbeddedWorkbench,
+    'emblocks' : emblocks.IntermediateFile,
     'coide' : coide.CoIDE,
     'kds' : kds.KDS,
 }
