@@ -552,6 +552,15 @@ class NRF51_DK_OTA(Target):
         self.macros = ['TARGET_NRF51822', 'TARGET_NRF51_DK', 'TARGET_OTA_ENABLED']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
+		
+class DFCM_NNN40_DT0R(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
+        self.macros = ['TARGET_NRF51822', 'TARGET_OTA_ENABLED']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.is_disk_virtual = True
 
 
 class LPC1549(LPCTarget):
@@ -727,6 +736,7 @@ TARGETS = [
     ARCH_BLE(),
     NRF51_DK(),
     NRF51_DK_OTA(),
+	DFCM_NNN40_DT0R(),
     ARCH_PRO(),
     ARCH_GPRS(),
     LPCCAPPUCCINO(),
