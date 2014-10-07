@@ -48,8 +48,8 @@ typedef struct {
     uint16_t mode;      /* SCU pin mode and function */
 } PINMUX_GRP_T;
 
-/* Pins to initialize before clocks are configured */
-static const PINMUX_GRP_T pre_clock_mux[] = {
+/* SCU configuration for SPIFI pins */
+static const PINMUX_GRP_T spifi_pinmux[] = {
     /* SPIFI pins */
     {SCU_REG(0x3, 3), (SCU_PINIO_FAST | 0x3)},  /* P3_3 SPIFI CLK */
     {SCU_REG(0x3, 4), (SCU_PINIO_FAST | 0x3)},  /* P3_4 SPIFI D3  */
@@ -59,8 +59,8 @@ static const PINMUX_GRP_T pre_clock_mux[] = {
     {SCU_REG(0x3, 8), (SCU_PINIO_FAST | 0x3)}   /* P3_8 SPIFI CS/SSEL */
 };
 
-/* Pins to initialize after clocks are configured */
-static const PINMUX_GRP_T post_clock_mux[] = {
+/* SCU configuration for board pins  */
+static const PINMUX_GRP_T board_pinmux[] = {
     /* Boot pins */
     {SCU_REG(0x1, 1), (SCU_PINIO_FAST | 0x0)},  /* P1_1  BOOT0 */
     {SCU_REG(0x1, 2), (SCU_PINIO_FAST | 0x0)},  /* P1_2  BOOT1 */
@@ -73,6 +73,7 @@ static const PINMUX_GRP_T post_clock_mux[] = {
     /* Micromint Bambino 210 */
     {SCU_REG(0x6, 1), (SCU_PINIO_FAST | 0x0)},  /* P6_1  LED3 */
     {SCU_REG(0x6, 2), (SCU_PINIO_FAST | 0x0)},  /* P6_2  LED4 */
+    {SCU_REG(0xF, 4), (SCU_PINIO_FAST | 0x0)},  /* PF_4  SSP1_CLK */
 };
 
 #if (CLOCK_SETUP)
@@ -83,23 +84,20 @@ struct CLK_BASE_STATES {
     uint8_t powerdn;    /* Set to 1 if base clock is initially powered down */
 };
 
-/* Initial base clock states are mostly on */
+/* Base clocks - sources and states (mostly ON) */
 static const struct CLK_BASE_STATES clock_states[] = {
     {CLK_BASE_SAFE, CLKIN_IRC, 0},
     {CLK_BASE_APB1, CLKIN_MAINPLL, 0},
     {CLK_BASE_APB3, CLKIN_MAINPLL, 0},
     {CLK_BASE_USB0, CLKIN_USBPLL, 1},
+#if defined(CHIP_LPC43XX)
     {CLK_BASE_PERIPH, CLKIN_MAINPLL, 0},
     {CLK_BASE_SPI, CLKIN_MAINPLL, 0},
-    {CLK_BASE_PHY_TX, CLKIN_ENET_TX, 0},
-#if defined(USE_RMII)
-    {CLK_BASE_PHY_RX, CLKIN_ENET_TX, 0},
-#else
-    {CLK_BASE_PHY_RX, CLKIN_ENET_RX, 0},
+	{CLK_BASE_ADCHS, CLKIN_MAINPLL, 1},
 #endif
     {CLK_BASE_SDIO, CLKIN_MAINPLL, 0},
-    {CLK_BASE_SSP0, CLKIN_IDIVC, 0},
-    {CLK_BASE_SSP1, CLKIN_IDIVC, 0},
+    {CLK_BASE_SSP0, CLKIN_MAINPLL, 0},
+    {CLK_BASE_SSP1, CLKIN_MAINPLL, 0},
     {CLK_BASE_UART0, CLKIN_MAINPLL, 0},
     {CLK_BASE_UART1, CLKIN_MAINPLL, 0},
     {CLK_BASE_UART2, CLKIN_MAINPLL, 0},
@@ -108,6 +106,14 @@ static const struct CLK_BASE_STATES clock_states[] = {
     {CLK_BASE_APLL, CLKINPUT_PD, 0},
     {CLK_BASE_CGU_OUT0, CLKINPUT_PD, 0},
     {CLK_BASE_CGU_OUT1, CLKINPUT_PD, 0},
+
+    /* Ethernet clocks */
+    {CLK_BASE_PHY_TX, CLKIN_ENET_TX, 0},
+#if defined(USE_RMII)
+    {CLK_BASE_PHY_RX, CLKIN_ENET_TX, 0},
+#else
+    {CLK_BASE_PHY_RX, CLKIN_ENET_RX, 0},
+#endif
 
     /* Clocks derived from dividers */
     {CLK_BASE_LCD, CLKIN_IDIVC, 0},
@@ -129,6 +135,7 @@ static void WaitUs(uint32_t us);
  */
 void SystemInit(void)
 {
+    uint32_t i;
 #if !defined(CORE_M0)
 
     /* Initialize vector table in flash */
@@ -157,9 +164,12 @@ void SystemInit(void)
 #endif
 #endif
 
-    SystemSetupPins(pre_clock_mux, COUNT_OF(pre_clock_mux)); /* Configure pins */
+    SystemSetupPins(board_pinmux, COUNT_OF(board_pinmux)); /* Configure board pins */
+    for (i = 0; i < 3; i++) {
+        LPC_SCU->SFSCLK[i] = SCU_PINIO_FAST; /* Configure dedicated clock pins */
+    }
+    SystemSetupPins(spifi_pinmux, COUNT_OF(spifi_pinmux)); /* Configure SPIFI pins */
     SystemSetupClock();   /* Configure processor and peripheral clocks */
-    SystemSetupPins(post_clock_mux, COUNT_OF(post_clock_mux)); /* Configure pins */
     SystemSetupMemory();  /* Configure external memory */
 #endif /* !defined(CORE_M0) */
 
@@ -235,17 +245,13 @@ void SystemSetupClock(void)
 #if (CLOCK_SETUP)
     uint32_t i;
 
-    /* Switch main clock to Internal RC (IRC) while setting up PLL1 */
-    LPC_CGU->BASE_CLK[CLK_BASE_MX] = (1 << 11) | (CLKIN_IRC << 24);
-    /* Set prescaler/divider on SSP1 assuming 204 MHz clock */
-    LPC_SSP1->CR1 &= ~(1 << 1);
-    LPC_SSP1->CPSR = 0x0002;
-    LPC_SSP1->CR0 = 0x00006507;
-    LPC_SSP1->CR1 |= (1 << 1);
-
-    /* Enable the oscillator and wait 100 us */
-    LPC_CGU->XTAL_OSC_CTRL = 0;
+    /* Clear bypass, enable crystal oscillator and wait 100 us */
+    LPC_CGU->XTAL_OSC_CTRL &= (~2);
+    LPC_CGU->XTAL_OSC_CTRL &= (~1);
     WaitUs(100);
+
+    /* Switch main clock to crystal while setting up PLL1 */
+    LPC_CGU->BASE_CLK[CLK_BASE_MX] = (1 << 11) | (CLKIN_CRYSTAL << 24);
 
 #if (SPIFI_INIT)
     /* Setup SPIFI control register and no-opcode mode */
@@ -259,15 +265,15 @@ void SystemSetupClock(void)
     /* Configure PLL1 (MAINPLL) for main clock */
     LPC_CGU->PLL1_CTRL |= 1; /* Power down PLL1 */
 
-    /* Change PLL1 to 108 Mhz (msel=9, 12 MHz*9=108 MHz) */
-    LPC_CGU->PLL1_CTRL = (1 << 7) | (0 << 8) | (1 << 11) | (0 << 12) | (8 << 16)
-                         | (CLKIN_MAINPLL << 24);
+    /* Change PLL1 to 108 Mhz (psel=1, nsel=1, msel=9, 12 MHz*9=108 MHz) */
+    LPC_CGU->PLL1_CTRL = (1 << 6) | (0 << 7) | (0 << 8) | (1 << 11) | (0 << 12)
+                         | (8 << 16) | (CLKIN_CRYSTAL << 24);
     while (!(LPC_CGU->PLL1_STAT & 1)); /* Wait for PLL1 to lock */
-    WaitUs(100);
+    WaitUs(50);
 
-    /* Change PLL1 to 204 Mhz (msel=17, 12 MHz*17=204 MHz) */
-    LPC_CGU->PLL1_CTRL = (1 << 7) | (0 << 8) | (1 << 11) | (0 << 12) | (16 << 16)
-                         | (CLKIN_MAINPLL << 24);
+    /* Change PLL1 to 204 Mhz (psel=1, nsel=1, msel=17, 12 MHz*17=204 MHz) */
+    LPC_CGU->PLL1_CTRL = (1 << 6) | (1 << 7) |(0 << 8) | (1 << 11) | (0 << 12)
+                         | (16 << 16) | (CLKIN_CRYSTAL << 24);
     while (!(LPC_CGU->PLL1_STAT & 1)); /* Wait for PLL1 to lock */
 
     /* Connect main clock to PLL1 */

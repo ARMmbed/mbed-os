@@ -82,6 +82,7 @@ if __name__ == '__main__':
             ('uvision', 'LPC1347'),
             ('uvision', 'LPC1114'),
             ('uvision', 'LPC4088'),
+            ('uvision', 'LPC4330_M4'),
             ('uvision', 'LPC4337'),
 
             ('uvision', 'NUCLEO_F030R8'),
@@ -96,6 +97,7 @@ if __name__ == '__main__':
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
+            ('lpcxpresso', 'LPC4330_M4'),
             ('lpcxpresso', 'LPC1114'),
             ('lpcxpresso', 'LPC11U35_401'),
             ('lpcxpresso', 'LPC11U35_501'),
@@ -115,6 +117,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC11U35_501'),
             ('gcc_arm', 'LPCCAPPUCCINO'),
             ('gcc_arm', 'LPC2368'),
+            ('gcc_arm', 'LPC4330_M4'),
 
             ('gcc_arm', 'STM32F407'),
             ('gcc_arm', 'DISCO_F100RB'),
