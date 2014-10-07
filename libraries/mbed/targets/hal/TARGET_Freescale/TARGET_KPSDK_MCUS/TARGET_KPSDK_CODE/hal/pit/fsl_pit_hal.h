@@ -60,10 +60,12 @@ extern "C" {
  * This function enables the PIT timer clock (Note: this function does not un-gate
  * the system clock gating control). It should be called before any other timer
  * related setup.
+ *
+ * @param baseAddr Base address for current PIT instance.
  */
-static inline void pit_hal_enable(void)
+static inline void PIT_HAL_Enable(uint32_t baseAddr)
 {
-    BW_PIT_MCR_MDIS(0U);
+    BW_PIT_MCR_MDIS(baseAddr, 0U);
 }
 
 /*!
@@ -71,27 +73,30 @@ static inline void pit_hal_enable(void)
  *
  * This function disables all PIT timer clocks(Note: it does not affect the
  * SIM clock gating control).
+ *
+ * @param baseAddr Base address for current PIT instance.
  */
-static inline void pit_hal_disable(void)
+static inline void PIT_HAL_Disable(uint32_t baseAddr)
 {
-    BW_PIT_MCR_MDIS(1U);
+    BW_PIT_MCR_MDIS(baseAddr, 1U);
 }
 
 /*!
- * @brief Configures the timers to continue  running or stop in debug mode.
+ * @brief Configures the timers to continue  running or to stop in debug mode.
  *
  * In debug mode, the timers may or may not be frozen, based on the configuration of 
  * this function. This is intended to aid software development, allowing the developer
  * to halt the processor, investigate the current state of the system (for example,
  * the timer values), and  continue the operation.
  *
+ * @param baseAddr Base address for current PIT instance.
  * @param timerRun Timers run or stop in debug mode.
  *        - true:  Timers continue to run in debug mode.
  *        - false: Timers stop in debug mode.
  */
-static inline void pit_hal_configure_timer_run_in_debug(bool timerRun)
+static inline void PIT_HAL_SetTimerRunInDebugCmd(uint32_t baseAddr, bool timerRun)
 {
-    BW_PIT_MCR_FRZ(!timerRun);
+    BW_PIT_MCR_FRZ(baseAddr, !timerRun);
 }
 
 #if FSL_FEATURE_PIT_HAS_CHAIN_MODE
@@ -104,15 +109,16 @@ static inline void pit_hal_configure_timer_run_in_debug(bool timerRun)
  * and form a longer timer. The first timer (timer 0) cannot be chained to any
  * other timer.
  *
- * @param timer  Timer channel number which is chained with the previous timer. 
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel  Timer channel number which is chained with the previous timer. 
  * @param enable Enable or disable chain.
  *        - true:  Current timer is chained with the previous timer.
  *        - false: Timer doesn't chain with other timers. 
  */
-static inline void pit_hal_configure_timer_chain(uint32_t timer, bool enable)
+static inline void PIT_HAL_SetTimerChainCmd(uint32_t baseAddr, uint32_t channel, bool enable)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    BW_PIT_TCTRLn_CHN(timer, enable);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    BW_PIT_TCTRLn_CHN(baseAddr, channel, enable);
 }
 
 #endif /* FSL_FEATURE_PIT_HAS_CHAIN_MODE*/
@@ -128,44 +134,47 @@ static inline void pit_hal_configure_timer_chain(uint32_t timer, bool enable)
  * @brief Starts the timer counting.
  * 
  * After calling this function, timers load the start value as specified by the function
- * pit_hal_set_timer_period_count(uint32_t timer, uint32_t count), count down to
+ * PIT_HAL_SetTimerPeriodByCount(uint32_t baseAddr, uint32_t channel, uint32_t count), count down to
  * 0, and  load the respective start value again. Each time a timer reaches 0,
  * it generates a trigger pulse and sets the time-out interrupt flag.
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  */
-static inline void pit_hal_timer_start(uint32_t timer)
+static inline void PIT_HAL_StartTimer(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    BW_PIT_TCTRLn_TEN(timer, 1U);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    BW_PIT_TCTRLn_TEN(baseAddr, channel, 1U);
 }
 
 /*!
  * @brief Stops the timer from counting.
  *
  * This function stops every timer from counting. Timers reload their periods
- * respectively after they call the pit_hal_timer_start the next time.
+ * respectively after they call the PIT_HAL_StartTimer the next time.
  * 
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  */
-static inline void pit_hal_timer_stop(uint32_t timer)
+static inline void PIT_HAL_StopTimer(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    BW_PIT_TCTRLn_TEN(timer, 0U);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    BW_PIT_TCTRLn_TEN(baseAddr, channel, 0U);
 }
 
 /*!
  * @brief Checks to see whether the current timer is started or not.
  * 
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  * @return Current timer running status
  *         -true: Current timer is running.
  *         -false: Current timer has stopped.
  */
-static inline bool pit_hal_is_timer_started(uint32_t timer)
+static inline bool PIT_HAL_IsTimerRunning(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    return BR_PIT_TCTRLn_TEN(timer);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    return BR_PIT_TCTRLn_TEN(baseAddr, channel);
 }
 
 /* @} */
@@ -184,25 +193,27 @@ static inline bool pit_hal_is_timer_started(uint32_t timer)
  * timers are not restarted, the new value is loaded after the next trigger
  * event.
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  * @param count Timer period in units of count
  */
-static inline void pit_hal_set_timer_period_count(uint32_t timer, uint32_t count)
+static inline void PIT_HAL_SetTimerPeriodByCount(uint32_t baseAddr, uint32_t channel, uint32_t count)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    HW_PIT_LDVALn_WR(timer, count);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    HW_PIT_LDVALn_WR(baseAddr, channel, count);
 }
 
 /*!
  * @brief Returns the current timer period in units of count.
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  * @return Timer period in units of count
  */
-static inline uint32_t pit_hal_read_timer_period_count(uint32_t timer)
+static inline uint32_t PIT_HAL_GetTimerPeriodByCount(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    return HW_PIT_LDVALn_RD(timer);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    return HW_PIT_LDVALn_RD(baseAddr, channel);
 }
 
 /*!
@@ -211,13 +222,14 @@ static inline uint32_t pit_hal_read_timer_period_count(uint32_t timer)
  * This function returns the real-time timer counting value, in a range from 0 to a
  * timer period.
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  * @return Current timer counting value
  */
-static inline uint32_t pit_hal_read_timer_count(uint32_t timer)
+static inline uint32_t PIT_HAL_ReadTimerCount(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    return HW_PIT_CVALn_RD(timer);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    return HW_PIT_CVALn_RD(baseAddr, channel);
 }
 
 #if FSL_FEATURE_PIT_HAS_LIFETIME_TIMER
@@ -225,14 +237,15 @@ static inline uint32_t pit_hal_read_timer_count(uint32_t timer)
  * @brief Reads the current lifetime counter value.
  * 
  * The lifetime timer is a 64-bit timer which chains timer 0 and timer 1 together. 
- * Timer 0 and 1 are chained by calling the pit_hal_configure_timer_chain
+ * Timer 0 and 1 are chained by calling the PIT_HAL_SetTimerChainCmd
  * before using this timer. The period of lifetime timer is equal to the "period of
  * timer 0 * period of timer 1". For the 64-bit value, the higher 32-bit has
  * the value of timer 1, and the lower 32-bit has the value of timer 0.
  *
+ * @param baseAddr Base address for current PIT instance.
  * @return Current lifetime timer value
  */
-uint64_t pit_hal_read_lifetime_timer_count(void);
+uint64_t PIT_HAL_ReadLifetimeTimerCount(uint32_t baseAddr);
 #endif /*FSL_FEATURE_PIT_HAS_LIFETIME_TIMER*/
 
 /* @} */
@@ -248,29 +261,31 @@ uint64_t pit_hal_read_lifetime_timer_count(void);
  * If enabled, an interrupt happens when a timeout event occurs
  * (Note: NVIC should be called to enable pit interrupt in system level).
  *
- * @param timer  Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel  Timer channel number
  * @param enable Enable or disable interrupt.
  *        - true:  Generate interrupt when timer counts to 0.
  *        - false: No interrupt is generated.
  */
-static inline void pit_hal_configure_interrupt(uint32_t timer, bool enable)
+static inline void PIT_HAL_SetIntCmd(uint32_t baseAddr, uint32_t channel, bool enable)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    BW_PIT_TCTRLn_TIE(timer, enable);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    BW_PIT_TCTRLn_TIE(baseAddr, channel, enable);
 }
 
 /*!
  * @brief Checks whether the timer interrupt is enabled or not.
  * 
- * @param timer  Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel  Timer channel number
  * @return Status of enabled or disabled interrupt
  *        - true: Interrupt is enabled. 
  *        - false: Interrupt is disabled.
  */
-static inline bool pit_hal_is_interrupt_enabled(uint32_t timer)
+static inline bool PIT_HAL_GetIntCmd(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
-    return BR_PIT_TCTRLn_TIE(timer);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
+    return BR_PIT_TCTRLn_TIE(baseAddr, channel);
 }
 
 /*!
@@ -279,13 +294,14 @@ static inline bool pit_hal_is_interrupt_enabled(uint32_t timer)
  * This function clears the timer interrupt flag after a timeout event
  * occurs. 
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  */
-static inline void pit_hal_clear_interrupt_flag(uint32_t timer)
+static inline void PIT_HAL_ClearIntFlag(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
     /* Write 1 will clear the flag. */
-    HW_PIT_TFLGn_WR(timer, 1U);
+    HW_PIT_TFLGn_WR(baseAddr, channel, 1U);
 }
 
 /*!
@@ -293,15 +309,16 @@ static inline void pit_hal_clear_interrupt_flag(uint32_t timer)
  * 
  * Every time the timer counts to 0, this flag is set.
  *
- * @param timer Timer channel number
+ * @param baseAddr Base address for current PIT instance.
+ * @param channel Timer channel number
  * @return Current status of the timeout flag
  *         - true:  Timeout has occurred. 
  *         - false: Timeout has not yet occurred. 
  */
-static inline bool pit_hal_is_timeout_occurred(uint32_t timer)
+static inline bool PIT_HAL_IsIntPending(uint32_t baseAddr, uint32_t channel)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT); 
-    return HW_PIT_TFLGn_RD(timer);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT); 
+    return HW_PIT_TFLGn_RD(baseAddr, channel);
 }
 
 /* @} */

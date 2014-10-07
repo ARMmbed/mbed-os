@@ -42,7 +42,7 @@ class Mbed:
 
         parser.add_option("-m", "--micro",
                           dest="micro",
-                          help="The target microcontroller ",
+                          help="The target microcontroller",
                           metavar="MICRO")
 
         parser.add_option("-p", "--port",

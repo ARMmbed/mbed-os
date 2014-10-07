@@ -21,6 +21,7 @@ import os
 import re
 import sys
 import json
+import uuid
 import pprint
 import random
 import optparse
@@ -84,8 +85,9 @@ class SingleTestExecutor(threading.Thread):
     def run(self):
         start = time()
         # Execute tests depending on options and filter applied
-        test_summary, shuffle_seed = self.single_test.execute()
+        test_summary, shuffle_seed, test_summary_ext = self.single_test.execute()
         elapsed_time = time() - start
+
         # Human readable summary
         if not self.single_test.opts_suppress_summary:
             # prints well-formed summary with results (SQL table like)
@@ -135,8 +137,10 @@ class SingleTestRunner(object):
                  _global_loops_count=1,
                  _test_loops_list=None,
                  _muts={},
+                 _clean=False,
                  _opts_db_url=None,
                  _opts_log_file_name=None,
+                 _opts_report_html_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -182,6 +186,7 @@ class SingleTestRunner(object):
         # Settings passed e.g. from command line
         self.opts_db_url = _opts_db_url
         self.opts_log_file_name = _opts_log_file_name
+        self.opts_report_html_file_name = _opts_report_html_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -201,11 +206,12 @@ class SingleTestRunner(object):
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
+        self.opts_clean = _clean
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
 
-        # database related initializations
+        # Database related initializations
         self.db_logger = factory_db_logger(self.opts_db_url)
         self.db_logger_build_id = None # Build ID (database index of build_id table)
         # Let's connect to database to set up credentials and confirm database is ready
@@ -264,6 +270,9 @@ class SingleTestRunner(object):
 
         # Here we store test results
         test_summary = []
+        # Here we store test results in extended data structure
+        test_summary_ext = {}
+
         # Generate seed for shuffle if seed is not provided in
         self.shuffle_random_seed = round(random.random(), self.SHUFFLE_SEED_ROUND)
         if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
@@ -274,12 +283,12 @@ class SingleTestRunner(object):
                 # print '=== %s::%s ===' % (target, toolchain)
                 # Let's build our test
                 if target not in TARGET_MAP:
-                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found' % (target))
+                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                     continue
 
                 T = TARGET_MAP[target]
                 build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
-                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean else None
+                clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
                 try:
                     build_mbed_libs_result = build_mbed_libs(T,
@@ -289,9 +298,10 @@ class SingleTestRunner(object):
                                                              jobs=self.opts_jobs)
 
                     if not build_mbed_libs_result:
-                        print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target' % (T.name, toolchain))
+                        print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
                         continue
                 except ToolException:
+                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s' % (target, toolchain))
                     return test_summary, self.shuffle_random_seed
 
                 build_dir = join(BUILD_DIR, "test", target, toolchain)
@@ -312,7 +322,7 @@ class SingleTestRunner(object):
                     if self.db_logger.is_connected():
                         # Update MUTs and Test Specification in database
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
-                        # Update Etra information in database (some options passed to test suite)
+                        # Update Extra information in database (some options passed to test suite)
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                         self.db_logger.disconnect();
 
@@ -342,7 +352,7 @@ class SingleTestRunner(object):
                             continue
 
                         build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
-                        clean_project_options = True if self.opts_goanna_for_tests or clean else None
+                        clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
 
                         # Detect which lib should be added to test
                         # Some libs have to compiled like RTOS or ETH
@@ -361,6 +371,7 @@ class SingleTestRunner(object):
                                           clean=clean_mbed_libs_options,
                                           jobs=self.opts_jobs)
                             except ToolException:
+                                print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
                                 return test_summary, self.shuffle_random_seed
 
                         # TODO: move this 2 below loops to separate function
@@ -373,6 +384,9 @@ class SingleTestRunner(object):
                         for lib_id in libraries:
                             if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
                                 MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+                        MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
+                        MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
+                        MACROS.append('TEST_SUITE_UUID="%s"'% str(uuid.uuid4()))
 
                         project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                         try:
@@ -389,6 +403,7 @@ class SingleTestRunner(object):
                                                  inc_dirs=INC_DIRS,
                                                  jobs=self.opts_jobs)
                         except ToolException:
+                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name))
                             return test_summary, self.shuffle_random_seed
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
@@ -404,9 +419,20 @@ class SingleTestRunner(object):
                         test_spec = self.shape_test_request(target, path, test_id, test_duration)
                         test_loops = self.get_test_loop_count(test_id)
                         # read MUTs, test specification and perform tests
-                        single_test_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                        single_test_result, detailed_test_results = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+
+                        # Append test results to global test summary
                         if single_test_result is not None:
                             test_summary.append(single_test_result)
+
+                        # Prepare extended test results data structure (it can be used to generate detailed test report)
+                        if toolchain not in test_summary_ext:
+                            test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
+                        if target not in test_summary_ext[toolchain]:
+                            test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                        if target not in test_summary_ext[toolchain][target]:
+                            test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
+
 
         if self.db_logger:
             self.db_logger.reconnect();
@@ -414,7 +440,7 @@ class SingleTestRunner(object):
                 self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
                 self.db_logger.disconnect();
 
-        return test_summary, self.shuffle_random_seed
+        return test_summary, self.shuffle_random_seed, test_summary_ext
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
         """ Prints well-formed summary with results (SQL table like)
@@ -687,7 +713,7 @@ class SingleTestRunner(object):
         # base network folder base path: join(NETWORK_BASE_PATH, )
         image_path = image
         if not exists(image_path):
-            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s' % image_path)
+            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
             elapsed_time = 0
             test_result = self.TEST_RESULT_NO_IMAGE
             return (test_result, target_name, toolchain_name,
@@ -701,10 +727,11 @@ class SingleTestRunner(object):
 
         # Tests can be looped so test results must be stored for the same test
         test_all_result = []
+        # Test results for one test ran few times
+        detailed_test_results = {}  # { Loop_number: { results ... } }
+
         for test_index in range(test_loops):
             # Choose one method of copy files to mbed virtual drive
-            #_copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, self.opts_copy_method, image_dest=image_dest)
-
             _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
                                                                                 images_config, image_dest)
 
@@ -728,6 +755,7 @@ class SingleTestRunner(object):
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
                 single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                            micro=target_name,
                                                                             verbose=host_test_verbose,
                                                                             reset=host_test_reset,
                                                                             reset_tout=reset_tout)
@@ -735,6 +763,19 @@ class SingleTestRunner(object):
             # Store test result
             test_all_result.append(single_test_result)
             elapsed_time = time() - start_host_exec_time
+
+            detailed_test_results[test_index] = {
+                "single_test_result" : single_test_result,
+                "single_test_output" : single_test_output,
+                "target_name" : target_name,
+                "toolchain_name" : toolchain_name,
+                "test_id" : test_id,
+                "test_description" : test_description,
+                "elapsed_time" : elapsed_time,
+                "duration" : duration,
+                "copy_method" : _copy_method,
+            }
+
             print self.print_test_result(single_test_result, target_name, toolchain_name,
                                          test_id, test_description, elapsed_time, duration)
 
@@ -761,7 +802,7 @@ class SingleTestRunner(object):
 
         return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
                 test_id, test_description, round(elapsed_time, 2),
-                duration, self.shape_test_loop_ok_result_count(test_all_result))
+                duration, self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
@@ -793,7 +834,7 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, reset=None, reset_tout=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, disk, port, duration, micro=None, reset=None, reset_tout=None, verbose=False, extra_serial=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -802,6 +843,8 @@ class SingleTestRunner(object):
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
 
         # Add extra parameters to host_test
+        if micro is not None:
+            cmd += ["-m", micro]
         if extra_serial is not None:
             cmd += ["-e", extra_serial]
         if reset is not None:
@@ -1194,8 +1237,15 @@ def singletest_in_cli_mode(single_test):
     """
     start = time()
     # Execute tests depending on options and filter applied
-    test_summary, shuffle_seed = single_test.execute()
+    test_summary, shuffle_seed, test_summary_ext = single_test.execute()
     elapsed_time = time() - start
+
+    if single_test.opts_report_html_file_name:
+        # Export results in form of HTML report to separate file
+        from workspace_tools.test_exporters import exporter_html
+        with open(single_test.opts_report_html_file_name, 'w') as f:
+            f.write(exporter_html(test_summary_ext))
+
     # Human readable summary
     if not single_test.opts_suppress_summary:
         # prints well-formed summary with results (SQL table like)
@@ -1288,7 +1338,7 @@ class TestLogger():
         self.LogToFileAttr = construct_enum(CREATE=1,    # Create or overwrite existing log file
                                             APPEND=2)    # Append to existing log file
 
-    def log_line(self, LogType, log_line):
+    def log_line(self, LogType, log_line, timestamp=True, line_delim='\n'):
         """ Log one line of text
         """
         log_timestamp = time()
@@ -1327,8 +1377,8 @@ class CLITestLogger(TestLogger):
         log_line_str = self.log_print(log_entry, timestamp)
         if self.log_file_name is not None:
             try:
-                with open(self.log_file_name, 'a') as file:
-                    file.write(log_line_str + line_delim)
+                with open(self.log_file_name, 'a') as f:
+                    f.write(log_line_str + line_delim)
             except IOError:
                 pass
         return log_line_str
@@ -1396,6 +1446,12 @@ def get_default_test_options_parser():
                       metavar=False,
                       action="store_true",
                       help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
+
+    parser.add_option('', '--clean',
+                      dest='clean',
+                      metavar=False,
+                      action="store_true",
+                      help='Clean the build directory')
 
     parser.add_option('-G', '--goanna-for-sdk',
                       dest='goanna_for_mbed_sdk',
@@ -1517,6 +1573,10 @@ def get_default_test_options_parser():
     parser.add_option('-l', '--log',
                       dest='log_file_name',
                       help='Log events to external file (note not all console entries may be visible in log file)')
+
+    parser.add_option('', '--report-html',
+                      dest='report_html_file_name',
+                      help='You can log test suite results in form of HTML report')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',

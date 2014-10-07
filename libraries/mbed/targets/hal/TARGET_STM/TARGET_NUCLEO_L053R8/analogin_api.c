@@ -80,9 +80,9 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
         // Configure ADC
         AdcHandle.Init.OversamplingMode      = DISABLE;
-        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2; // ADCCLK = 8 MHz (HSI 16 MHz / 2)
+        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV1;
         AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-        AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_7CYCLES_5;
+        AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_41CYCLES_5;
         AdcHandle.Init.ScanDirection         = ADC_SCAN_DIRECTION_UPWARD;
         AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
         AdcHandle.Init.ContinuousConvMode    = DISABLE;
@@ -91,7 +91,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
         AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIG0_T6_TRGO; // Not used here
         AdcHandle.Init.DMAContinuousRequests = DISABLE;
         AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
-        AdcHandle.Init.Overrun               = OVR_DATA_PRESERVED;
+        AdcHandle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
         AdcHandle.Init.LowPowerAutoWait      = ENABLE;
         AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
         AdcHandle.Init.LowPowerAutoOff       = DISABLE;

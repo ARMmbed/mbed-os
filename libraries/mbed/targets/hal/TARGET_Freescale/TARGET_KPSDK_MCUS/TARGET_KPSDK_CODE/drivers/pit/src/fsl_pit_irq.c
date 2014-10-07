@@ -27,9 +27,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #include <stdlib.h>
 #include <assert.h>
+#include "fsl_pit_common.h"
 #include "fsl_pit_driver.h"
 
 /*!
@@ -40,106 +41,90 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if defined (KL25Z4_SERIES)
-/*!
- * @brief Table to save PIT IRQ enum numbers defined in CMSIS files. 
- *
- * They are used by pit_init_channel to enable or disable PIT interrupts. This table is
- * indexed by channel number which could return PIT IRQ numbers.
- */
-const IRQn_Type pit_irq_ids[FSL_FEATURE_PIT_TIMER_COUNT] = 
-{
-    PIT_IRQn, PIT_IRQn
-};
-#elif defined (K64F12_SERIES) || defined (K70F12_SERIES) || defined (K22F51212_SERIES)
-const IRQn_Type pit_irq_ids[FSL_FEATURE_PIT_TIMER_COUNT] = 
-{
-    PIT0_IRQn, PIT1_IRQn, PIT2_IRQn, PIT3_IRQn
-};
-#endif
 
 /*!
  * @brief Function table to save PIT isr callback function pointers.
  *
- * Call pit_register_isr_callback_function to install isr callback functions.
+ * Call PIT_DRV_InstallCallback to install isr callback functions.
  */
-pit_isr_callback_t pit_isr_callback_table[FSL_FEATURE_PIT_TIMER_COUNT] = {NULL};
+static pit_isr_callback_t pitIsrCallbackTable[HW_PIT_INSTANCE_COUNT][FSL_FEATURE_PIT_TIMER_COUNT] = {{NULL}};
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 #if defined (KL25Z4_SERIES)
-/*! 
+/*!
  * @brief System default IRQ handler defined in startup code.
  *
  * Users can either edit this handler or define a callback function. Furthermore,
- * interrupt manager could be used to re-map the IRQ handler to another function. 
+ * interrupt manager could be used to re-map the IRQ handler to another function.
  */
 void PIT_IRQHandler(void)
 {
     uint32_t i;
     for(i=0; i < FSL_FEATURE_PIT_TIMER_COUNT; i++)
     {
-        /* Run callback function if it exists.*/
-        if (pit_isr_callback_table[i])
-        {
-            (*pit_isr_callback_table[i])();
-        }
-
         /* Clear interrupt flag.*/
-        pit_hal_clear_interrupt_flag(i);
+        PIT_HAL_ClearIntFlag(g_pitBaseAddr[0], i);
 
+        /* Run callback function if it exists.*/
+        if (pitIsrCallbackTable[0][i])
+        {
+            (*pitIsrCallbackTable[0][i])();
+        }
     }
 }
 
-#elif defined (K64F12_SERIES) || defined (K70F12_SERIES) || defined (K22F51212_SERIES)
-
+#elif defined (K64F12_SERIES) || defined (K24F12_SERIES) || defined (K63F12_SERIES) || \
+      defined (K22F12810_SERIES) || defined (K22F25612_SERIES) || defined (K22F51212_SERIES) || \
+      defined (KV31F12810_SERIES) || defined (KV31F25612_SERIES) || defined (KV31F51212_SERIES) || \
+      defined (K70F12_SERIES) 
 void PIT0_IRQHandler(void)
 {
-    /* Run callback function if it exists.*/
-    if (pit_isr_callback_table[0])
-    {
-        (*pit_isr_callback_table[0])();
-    }
-
     /* Clear interrupt flag.*/
-    pit_hal_clear_interrupt_flag(0);
+    PIT_HAL_ClearIntFlag(g_pitBaseAddr[0], 0U);
+
+    /* Run callback function if it exists.*/
+    if (pitIsrCallbackTable[0][0])
+    {
+        (*pitIsrCallbackTable[0][0])();
+    }
 }
 
 void PIT1_IRQHandler(void)
 {
-    /* Run callback function if it exists.*/
-    if (pit_isr_callback_table[1])
-    {
-        (*pit_isr_callback_table[1])();
-    }
-
     /* Clear interrupt flag.*/
-    pit_hal_clear_interrupt_flag(1);
+    PIT_HAL_ClearIntFlag(g_pitBaseAddr[0], 1U);
+
+    /* Run callback function if it exists.*/
+    if (pitIsrCallbackTable[0][1])
+    {
+        (*pitIsrCallbackTable[0][1])();
+    }
 }
 
 void PIT2_IRQHandler(void)
 {
-    /* Run callback function if it exists.*/
-    if (pit_isr_callback_table[2])
-    {
-        (*pit_isr_callback_table[2])();
-    }
-    
     /* Clear interrupt flag.*/
-    pit_hal_clear_interrupt_flag(2);
+    PIT_HAL_ClearIntFlag(g_pitBaseAddr[0], 2U);
+
+    /* Run callback function if it exists.*/
+    if (pitIsrCallbackTable[0][2])
+    {
+        (*pitIsrCallbackTable[0][2])();
+    }
 }
 
 void PIT3_IRQHandler(void)
 {
-    /* Run callback function if it exists.*/
-    if (pit_isr_callback_table[3])
-    {
-        (*pit_isr_callback_table[3])();
-    }
-
     /* Clear interrupt flag.*/
-    pit_hal_clear_interrupt_flag(3);
+    PIT_HAL_ClearIntFlag(g_pitBaseAddr[0], 3U);
+
+    /* Run callback function if it exists.*/
+    if (pitIsrCallbackTable[0][3])
+    {
+        (*pitIsrCallbackTable[0][3])();
+    }
 }
 #endif
 
@@ -147,20 +132,20 @@ void PIT3_IRQHandler(void)
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : pit_register_isr_callback_function 
- * Description   : Register pit isr callback function. 
- * System default ISR interfaces are already defined in fsl_pit_irq.c. Users 
+ * Function Name : PIT_DRV_InstallCallback
+ * Description   : Register pit isr callback function.
+ * System default ISR interfaces are already defined in fsl_pit_irq.c. Users
  * can either edit these ISRs or use this function to register a callback
  * function. The default ISR will run the callback function it there is one
  * installed here.
 
  *END**************************************************************************/
-void pit_register_isr_callback_function(uint32_t timer, pit_isr_callback_t function)
+void PIT_DRV_InstallCallback(uint32_t instance, uint32_t channel, pit_isr_callback_t function)
 {
-    assert(timer < FSL_FEATURE_PIT_TIMER_COUNT);
+    assert(channel < FSL_FEATURE_PIT_TIMER_COUNT);
     assert(function != NULL);
-    
-    pit_isr_callback_table[timer] = function;
+
+    pitIsrCallbackTable[instance][channel] = function;
 }
 
 /*******************************************************************************

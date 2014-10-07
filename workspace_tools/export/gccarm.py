@@ -29,6 +29,7 @@ class GccArm(Exporter):
         'KL25Z',
         'KL46Z',
         'K64F',
+        'K22F',
         'K20D50M',
         'LPC4088',
         'LPC4330_M4',
@@ -51,6 +52,8 @@ class GccArm(Exporter):
         'ARCH_MAX',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'ARCH_MAX',
+        'DISCO_F429ZI',
     ]
 
     DOT_IN_RELATIVE_PATH = True

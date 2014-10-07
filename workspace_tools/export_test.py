@@ -76,6 +76,31 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
+            ('emblocks', 'LPC1768'),
+            ('emblocks', 'LPC1549'),
+            ('emblocks', 'LPC1114'),
+            ('emblocks', 'LPC11U35_401'),
+            ('emblocks', 'LPC11U35_501'),
+            ('emblocks', 'LPCCAPPUCCINO'),
+            ('emblocks', 'LPC2368'),
+            ('emblocks', 'STM32F407'),
+            ('emblocks', 'DISCO_F100RB'),
+            ('emblocks', 'DISCO_F051R8'),
+            ('emblocks', 'DISCO_F407VG'),
+            ('emblocks', 'DISCO_F303VC'),
+            ('emblocks', 'NRF51822'),
+            ('emblocks', 'NUCLEO_F401RE'),
+            ('emblocks', 'NUCLEO_F411RE'),
+
+            ('coide', 'KL05Z'),
+            ('coide', 'KL25Z'),
+            ('coide', 'LPC1768'),
+            ('coide', 'ARCH_PRO'),
+            ('coide', 'DISCO_F407VG'),
+            ('coide', 'NUCLEO_F401RE'),
+            ('coide', 'NUCLEO_F411RE'),
+            ('coide', 'DISCO_F429ZI'),
+
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
             ('uvision', 'KL25Z'),
@@ -87,6 +112,7 @@ if __name__ == '__main__':
 
             ('uvision', 'NUCLEO_F030R8'),
             ('uvision', 'NUCLEO_F072RB'),
+            ('uvision', 'NUCLEO_F091RC'),
             ('uvision', 'NUCLEO_F103RB'),
             ('uvision', 'NUCLEO_F302R8'),
             ('uvision', 'NUCLEO_F334R8'),
@@ -127,6 +153,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NRF51822'),
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F411RE'),
+            ('gcc_arm', 'DISCO_F429ZI'),
 
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),

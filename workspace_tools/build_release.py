@@ -33,6 +33,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM',)),
     ('LPC812',       ('uARM',)),
+    ('LPC824',       ('uARM',)),
     ('LPC1347',      ('ARM',)),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC1114',      ('uARM','GCC_ARM')),
@@ -52,6 +53,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('NUCLEO_F030R8', ('ARM', 'uARM')),
     ('NUCLEO_F072RB', ('ARM', 'uARM')),
+    ('NUCLEO_F091RC', ('ARM', 'uARM')),
     ('NUCLEO_F103RB', ('ARM', 'uARM')),
     ('NUCLEO_F302R8', ('ARM', 'uARM')),
     ('NUCLEO_F334R8', ('ARM', 'uARM')),

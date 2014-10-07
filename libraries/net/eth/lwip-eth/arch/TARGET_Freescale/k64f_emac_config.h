@@ -40,6 +40,7 @@
 #define RX_BUF_ALIGNMENT              (16)
 #define TX_BUF_ALIGNMENT              (8)
 #define BOARD_DEBUG_ENET_INSTANCE     (0)
+#define BOARD_DEBUG_ENET_INSTANCE_ADDR (ENET_BASE)
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 

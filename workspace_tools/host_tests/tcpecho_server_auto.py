@@ -53,6 +53,7 @@ class TCPEchoServerTest(DefaultTest):
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.s.connect((self.ECHO_SERVER_ADDRESS, self.ECHO_PORT))
             except Exception, e:
+                self.s = None
                 print "HOST: Error: %s" % e
                 self.print_result('error')
                 exit(-1)
@@ -74,7 +75,9 @@ class TCPEchoServerTest(DefaultTest):
                     print "'%s'"% received_str
                     result = False
                     break
-            self.s.close()
+
+            if self.s is not None:
+                self.s.close()
         else:
             print "HOST: TCP Server not found"
             result = False

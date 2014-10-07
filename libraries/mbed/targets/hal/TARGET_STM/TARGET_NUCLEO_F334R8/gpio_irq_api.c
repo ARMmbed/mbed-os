@@ -204,13 +204,10 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    uint32_t mode = STM_MODE_INPUT;
+    uint32_t mode = STM_MODE_IT_EVT_RESET;
     uint32_t pull = GPIO_NOPULL;
 
     if (enable) {
-
-        pull = GPIO_NOPULL;
-
         if (event == IRQ_RISE) {
             if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
                 mode = STM_MODE_IT_RISING_FALLING;
@@ -220,7 +217,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 obj->event = EDGE_RISE;
             }
         }
-
         if (event == IRQ_FALL) {
             if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
                 mode = STM_MODE_IT_RISING_FALLING;
@@ -230,10 +226,25 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 obj->event = EDGE_FALL;
             }
         }
-    } else {
-        mode = STM_MODE_INPUT;
-        pull = GPIO_NOPULL;
-        obj->event = EDGE_NONE;
+    } else { // Disable
+        if (event == IRQ_RISE) {
+            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
+                mode = STM_MODE_IT_FALLING;
+                obj->event = EDGE_FALL;
+            } else { // NONE or RISE
+                mode = STM_MODE_IT_EVT_RESET;
+                obj->event = EDGE_NONE;
+            }
+        }
+        if (event == IRQ_FALL) {
+            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
+                mode = STM_MODE_IT_RISING;
+                obj->event = EDGE_RISE;
+            } else { // NONE or FALL
+                mode = STM_MODE_IT_EVT_RESET;
+                obj->event = EDGE_NONE;
+            }
+        }
     }
 
     pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
