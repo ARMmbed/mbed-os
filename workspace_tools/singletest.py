@@ -47,26 +47,25 @@ File format example: muts_all.json:
 """
 
 
-# Check if 'prettytable' module is installed
-try:
-    from prettytable import PrettyTable
-except ImportError, e:
-    print "Error: Can't import 'prettytable' module: %s"% e
-    exit(-1)
-
-# Check if 'serial' module is installed
-try:
-    from serial import Serial
-except ImportError, e:
-    print "Error: Can't import 'serial' module: %s"% e
-    exit(-1)
-
+# Be sure that the tools directory is in the search path
 import sys
 from os.path import join, abspath, dirname
 
-# Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
+
+# Check: Extra modules which are required by core test suite
+from workspace_tools.utils import check_required_modules
+
+if not check_required_modules(['prettytable', 'serial']):
+    exit(-1)
+
+
+# We can import this extra modules
+from serial import Serial
+from prettytable import PrettyTable
+
 
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
