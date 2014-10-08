@@ -294,7 +294,7 @@ class NUCLEO_F030R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0725"
@@ -305,7 +305,7 @@ class NUCLEO_F072RB(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F072RB']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0730"
@@ -316,7 +316,7 @@ class NUCLEO_F091RC(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F091RC']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0731"
@@ -338,7 +338,7 @@ class NUCLEO_F302R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0705"
@@ -349,7 +349,7 @@ class NUCLEO_F334R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0735"
@@ -382,7 +382,7 @@ class NUCLEO_L053R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['STM', 'STM32L0', 'STM32L053R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0715"
@@ -393,7 +393,7 @@ class NUCLEO_L152RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0710"
