@@ -205,6 +205,52 @@ typedef enum {
     PH_14 = 0x7E,
     PH_15 = 0x7F,
 
+
+    PI_0  = 0x80,
+    PI_1  = 0x81,
+    PI_2  = 0x82,
+    PI_3  = 0x83,
+    PI_4  = 0x84,
+    PI_5  = 0x85,
+    PI_6  = 0x86,
+    PI_7  = 0x87,
+    PI_8  = 0x88,
+    PI_9  = 0x89,
+    PI_10 = 0x8A,
+    PI_11 = 0x8B,
+    PI_12 = 0x8C,
+    PI_13 = 0x8D,
+    PI_14 = 0x8E,
+    PI_15 = 0x8F,
+
+
+    PJ_0  = 0x90,
+    PJ_1  = 0x91,
+    PJ_2  = 0x92,
+    PJ_3  = 0x93,
+    PJ_4  = 0x94,
+    PJ_5  = 0x95,
+    PJ_6  = 0x96,
+    PJ_7  = 0x97,
+    PJ_8  = 0x98,
+    PJ_9  = 0x99,
+    PJ_10 = 0x9A,
+    PJ_11 = 0x9B,
+    PJ_12 = 0x9C,
+    PJ_13 = 0x9D,
+    PJ_14 = 0x9E,
+    PJ_15 = 0x9F,
+
+
+    PK_0  = 0xA0,
+    PK_1  = 0xA1,
+    PK_2  = 0xA2,
+    PK_3  = 0xA3,
+    PK_4  = 0xA4,
+    PK_5  = 0xA5,
+    PK_6  = 0xA6,
+    PK_7  = 0xA7,
+
     // Arduino connector namings
 /*
     A0          = PA_0,
