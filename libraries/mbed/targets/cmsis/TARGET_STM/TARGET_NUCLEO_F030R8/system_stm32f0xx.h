@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    system_stm32f0xx.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    17-January-2014
-  * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Header File.
+  * @version V2.1.0
+  * @date    03-Oct-2014
+  * @brief   CMSIS Cortex-M0 Device System Source File for STM32F0xx devices.  
   ******************************************************************************
   * @attention
   *
@@ -65,7 +65,14 @@
 /** @addtogroup STM32F0xx_System_Exported_types
   * @{
   */
-
+  /* This variable is updated in three ways:
+      1) by calling CMSIS function SystemCoreClockUpdate()
+      3) by calling HAL API function HAL_RCC_GetHCLKFreq()
+      3) by calling HAL API function HAL_RCC_ClockConfig()
+         Note: If you use this function to configure the system clock; then there
+               is no need to call the 2 first functions listed above, since SystemCoreClock
+               variable is updated automatically.
+  */
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
 
 /**
