@@ -62,11 +62,6 @@ if not check_required_modules(['prettytable', 'serial']):
     exit(-1)
 
 
-# We can import this extra modules
-from serial import Serial
-from prettytable import PrettyTable
-
-
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
 
