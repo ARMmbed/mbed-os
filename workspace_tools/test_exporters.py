@@ -24,10 +24,10 @@ ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter')
 
 
-
-
 class ReportExporter():
-    """
+    """ Class exports extended test result Python data structure to
+        different formats like HTML, JUnit XML.
+
     Parameter 'test_result_ext' format:
 
     u'uARM': {   u'LPC1768': {   'MBED_2': {   0: {   'copy_method': 'shutils.copy()',
@@ -117,6 +117,10 @@ class ReportExporter():
         return result
 
     def get_result_tree(self, test_results):
+        """ If test was run in a loop (we got few results from the same test)
+            we will show it in a column to see all results.
+            This function produces HTML table with corresponding results.
+        """
         result = '<table>'
         test_ids = sorted(test_results.keys())
         for test_no in test_ids:
@@ -128,6 +132,9 @@ class ReportExporter():
         return result
 
     def get_all_unique_test_ids(self, test_result_ext):
+        """ Gets all unique test ids from all ran tests.
+            We need this to create complete list of all test ran.
+        """
         result = []
         toolchains = test_result_ext.keys()
         for toolchain in toolchains:
@@ -193,18 +200,17 @@ class ReportExporter():
                     for test_no in test_ids:
                         test_result = test_results[test_no]
                         name = test_result['test_description']
-                        classname = 'test.target.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                        classname = 'target.test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
                         elapsed_sec = test_result['elapsed_time']
                         _stdout = test_result['single_test_output']
                         _stderr = ''
 
                         tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
                         # Add extra failure / error info to test case result
-                        print test_result['single_test_result']
                         if test_result['single_test_result'] == 'FAIL':
-                            tc.add_error_info()
+                            tc.add_failure_info('Test failed', 'Test result: %s'% test_result['single_test_result'])
                         elif test_result['single_test_result'] != 'OK':
-                            tc.add_failure_info()
+                            tc.add_error_info('Test error', 'Test result: %s'% test_result['single_test_result'])
 
                         test_cases.append(tc)
 
