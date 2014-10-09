@@ -72,7 +72,7 @@ STMicroelectronics:
 
 
 Nordic:
-* [nRF51822-mKIT](https://mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
+* [nRF51822-mKIT](https://developer.mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
 
 Supported Toolchains and IDEs
 -----------------------------
@@ -82,16 +82,17 @@ Supported Toolchains and IDEs
 * GCC code_red: [Red Suite](http://www.code-red-tech.com/)
 * GCC CodeSourcery: [Sourcery CodeBench](http://www.mentor.com/embedded-software/codesourcery)
 * Em::Blocks: [EmBlocks](http://www.emblocks.org/web/)
+* CooCox: [CoIDE](http://www.coocox.org/)
 
 API Documentation
 -----------------
-* [RTOS API](http://mbed.org/handbook/RTOS)
-* [TCP/IP Socket API](http://mbed.org/handbook/Socket) (Transports: Ethernet, WiFi, 3G)
-* [USB Device API](http://mbed.org/handbook/USBDevice)
-* [USB Host API](http://mbed.org/handbook/USBHost)
-* [DSP API](http://mbed.org/users/mbed_official/code/mbed-dsp/docs/tip/)
-* Flash File Systems: [SD](http://mbed.org/handbook/SDFileSystem), [USB MSD](http://mbed.org/handbook/USBHostMSD), [semihosted](http://mbed.org/handbook/LocalFileSystem)
-* [Peripheral Drivers API](http://mbed.org/handbook/Homepage)
+* [RTOS API](http://developer.mbed.org/handbook/RTOS)
+* [TCP/IP Socket API](http://developer.mbed.org/handbook/Socket) (Transports: Ethernet, WiFi, 3G)
+* [USB Device API](http://developer.mbed.org/handbook/USBDevice)
+* [USB Host API](http://developer.mbed.org/handbook/USBHost)
+* [DSP API](http://developer.mbed.org/users/mbed_official/code/mbed-dsp/docs/tip/)
+* Flash File Systems: [SD](http://developer.mbed.org/handbook/SDFileSystem), [USB MSD](http://developer.mbed.org/handbook/USBHostMSD), [semihosted](http://developer.mbed.org/handbook/LocalFileSystem)
+* [Peripheral Drivers API](http://developer.mbed.org/handbook/Homepage)
 
 Community
 ---------
