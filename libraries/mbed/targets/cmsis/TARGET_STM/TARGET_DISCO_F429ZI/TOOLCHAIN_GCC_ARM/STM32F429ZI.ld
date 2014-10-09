@@ -1,4 +1,4 @@
-/* Linker script for STM32F407 */
+/* Linker script for STM32F429ZI */
 
 /* Linker script to configure memory regions. */
 MEMORY

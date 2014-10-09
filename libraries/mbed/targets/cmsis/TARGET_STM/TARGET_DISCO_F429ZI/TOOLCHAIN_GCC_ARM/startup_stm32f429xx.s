@@ -1,6 +1,9 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f407xx.s
+  * @file      startup_stm32f429xx.s
+  * based on startup_stm32f407xx.s with additional interrupt vectors
+  * 
+  * file      startup_stm32f407xx.s
   * @author    MCD Application Team
   * @version   V2.0.0
   * @date      18-February-2014 
