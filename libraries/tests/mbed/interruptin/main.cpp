@@ -66,6 +66,10 @@ void in_handler() {
 #define PIN_OUT    D0
 #define PIN_IN     D7
 
+#elif defined(TARGET_MAXWSNENV)
+#define PIN_OUT    P0_0
+#define PIN_IN     P0_1
+
 #else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
