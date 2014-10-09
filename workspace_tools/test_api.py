@@ -51,6 +51,7 @@ from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
+from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 
 class ProcessObserver(Thread):
@@ -141,6 +142,7 @@ class SingleTestRunner(object):
                  _opts_db_url=None,
                  _opts_log_file_name=None,
                  _opts_report_html_file_name=None,
+                 _opts_report_junit_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -187,6 +189,7 @@ class SingleTestRunner(object):
         self.opts_db_url = _opts_db_url
         self.opts_log_file_name = _opts_log_file_name
         self.opts_report_html_file_name = _opts_report_html_file_name
+        self.opts_report_junit_file_name = _opts_report_junit_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -741,6 +744,7 @@ class SingleTestRunner(object):
             single_test_result = self.TEST_RESULT_UNDEF # singe test run result
             if not _copy_res:   # Serial port copy error
                 single_test_result = self.TEST_RESULT_IOERR_COPY
+                single_test_output = ''
                 print self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
             else:
                 # Copy Extra Files
@@ -765,15 +769,15 @@ class SingleTestRunner(object):
             elapsed_time = time() - start_host_exec_time
 
             detailed_test_results[test_index] = {
-                "single_test_result" : single_test_result,
-                "single_test_output" : single_test_output,
-                "target_name" : target_name,
-                "toolchain_name" : toolchain_name,
-                "test_id" : test_id,
-                "test_description" : test_description,
-                "elapsed_time" : elapsed_time,
-                "duration" : duration,
-                "copy_method" : _copy_method,
+                'single_test_result' : single_test_result,
+                'single_test_output' : single_test_output,
+                'target_name' : target_name,
+                'toolchain_name' : toolchain_name,
+                'test_id' : test_id,
+                'test_description' : test_description,
+                'elapsed_time' : round(elapsed_time, 2),
+                'duration' : duration,
+                'copy_method' : _copy_method,
             }
 
             print self.print_test_result(single_test_result, target_name, toolchain_name,
@@ -1242,9 +1246,13 @@ def singletest_in_cli_mode(single_test):
 
     if single_test.opts_report_html_file_name:
         # Export results in form of HTML report to separate file
-        from workspace_tools.test_exporters import exporter_html
-        with open(single_test.opts_report_html_file_name, 'w') as f:
-            f.write(exporter_html(test_summary_ext))
+        report_exporter = ReportExporter(ResultExporterType.HTML)
+        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_html_file_name)
+
+    if single_test.opts_report_junit_file_name:
+        # Export results in form of HTML report to separate file
+        report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name)
 
     # Human readable summary
     if not single_test.opts_suppress_summary:
@@ -1577,6 +1585,10 @@ def get_default_test_options_parser():
     parser.add_option('', '--report-html',
                       dest='report_html_file_name',
                       help='You can log test suite results in form of HTML report')
+
+    parser.add_option('', '--report-junit',
+                      dest='report_junit_file_name',
+                      help='You can log test suite results in form of JUnit compliant XML report')
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',

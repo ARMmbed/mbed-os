@@ -20,16 +20,13 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 from workspace_tools.utils import construct_enum
 
 
-ResultExporterType = construct_enum(JSON='Json_Exporter',
-                                    TEXT='Text_Exporter',
-                                    HTML='Html_Exporter')
+ResultExporterType = construct_enum(HTML='Html_Exporter',
+                                    JUNIT='JUnit_Exporter')
 
 
-def exporter_factory(result_exporter_type):
-    pass
 
 
-def exporter_html(test_result_ext):
+class ReportExporter():
     """
     Parameter 'test_result_ext' format:
 
@@ -68,17 +65,35 @@ def exporter_html(test_result_ext):
                  </script>
                  """
 
-    def get_tooltip_name(toolchain, target, test_id, loop_no):
+    def __init__(self, result_exporter_type):
+        self.result_exporter_type = result_exporter_type
+
+    def report(self, test_summary_ext):
+        if self.result_exporter_type == ResultExporterType.HTML:
+            return self.exporter_html(test_summary_ext)
+        elif self.result_exporter_type == ResultExporterType.JUNIT:
+            return self.exporter_junit(test_summary_ext)
+        return None
+
+    def report_to_file(self, test_summary_ext, file_name):
+        """ Stores report to specified file
+        """
+        report = self.report(test_summary_ext)
+        if report is not None:
+            with open(file_name, 'w') as f:
+                f.write(report)
+
+    def get_tooltip_name(self, toolchain, target, test_id, loop_no):
         return "target_test_%s_%s_%s_%d"% (toolchain.lower(), target.lower(), test_id.lower(), loop_no)
 
-    def get_result_div_sections(test, test_no):
+    def get_result_div_sections(self, test, test_no):
 
         RESULT_COLORS = {'OK' : 'LimeGreen',
                          'FAIL' : 'Orange',
                          'ERROR' : 'LightCoral',
                          }
 
-        tooltip_name = get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
+        tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
         background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'ERROR']
         result_div_style = "background-color: %s"% background_color
         result = """ <div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
@@ -101,18 +116,18 @@ def exporter_html(test_result_ext):
                        test['single_test_output'].replace('\n', '<br />'))
         return result
 
-    def get_result_tree(test_results):
+    def get_result_tree(self, test_results):
         result = '<table>'
         test_ids = sorted(test_results.keys())
         for test_no in test_ids:
             test = test_results[test_no]
             result += """<tr>
                              <td valign="top">%s</td>
-                         </tr>"""% get_result_div_sections(test, test_no)
+                         </tr>"""% self.get_result_div_sections(test, test_no)
         result += '</table>'
         return result
 
-    def get_all_unique_test_ids(test_result_ext):
+    def get_all_unique_test_ids(self, test_result_ext):
         result = []
         toolchains = test_result_ext.keys()
         for toolchain in toolchains:
@@ -122,38 +137,76 @@ def exporter_html(test_result_ext):
                 result.extend(tests)
         return sorted(list(set(result)))
 
-    result = """<html>
-                <head>
-                    <title>mbed SDK test suite test result report</title>
-                    %s
-                    %s
-                </head>
-                <body>
-             """% (CSS_STYLE, JAVASCRIPT)
+    def exporter_html(self, test_result_ext):
+        """ Export test results in proprietary html format.
+        """
+        result = """<html>
+                    <head>
+                        <title>mbed SDK test suite test result report</title>
+                        %s
+                        %s
+                    </head>
+                    <body>
+                 """% (self.CSS_STYLE, self.JAVASCRIPT)
 
-    unique_test_ids = get_all_unique_test_ids(test_result_ext)
+        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
+        toolchains = sorted(test_result_ext.keys())
+        for toolchain in toolchains:
+            result += '<h2>%s</h2>'% toolchain
+            targets = sorted(test_result_ext[toolchain].keys())
+            result += '<table><tr>'
+            for target in targets:
+                result += '<td valign="center">%s</td>'% (target)
 
-    toolchains = sorted(test_result_ext.keys())
-    for toolchain in toolchains:
-        result += '<h2>%s</h2>'% toolchain
-        targets = sorted(test_result_ext[toolchain].keys())
-        result += '<table><tr>'
-        for target in targets:
-            result += '<td valign="center">%s</td>'% (target)
+                tests = sorted(test_result_ext[toolchain][target].keys())
+                for test in unique_test_ids:
+                    result += """<td align="center">%s</td>"""% test
+                result += """</tr>
+                              <tr>
+                              <td></td>
+                          """
 
-            tests = sorted(test_result_ext[toolchain][target].keys())
-            for test in unique_test_ids:
-                result += """<td align="center">%s</td>"""% test
-            result += """</tr>
-                          <tr>
-                          <td></td>
-                      """
+                for test in unique_test_ids:
+                    test_result = self.get_result_tree(test_result_ext[toolchain][target][test]) if test in tests else ''
+                    result += '<td>%s</td>'% (test_result)
 
-            for test in unique_test_ids:
-                test_result = get_result_tree(test_result_ext[toolchain][target][test]) if test in tests else ''
-                result += '<td>%s</td>'% (test_result)
+                result += '</tr>'
+            result += '</table>'
+        result += '</body></html>'
+        return result
 
-            result += '</tr>'
-        result += '</table>'
-    result += '</body></html>'
-    return result
+    def exporter_junit(self, test_result_ext):
+        """ Export test results in JUnit XML compliant format
+        """
+        from junit_xml import TestSuite, TestCase
+        test_cases = []
+
+        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
+        toolchains = sorted(test_result_ext.keys())
+        for toolchain in toolchains:
+            targets = sorted(test_result_ext[toolchain].keys())
+            for target in targets:
+                tests = sorted(test_result_ext[toolchain][target].keys())
+                for test in unique_test_ids:
+                    test_results = test_result_ext[toolchain][target][test]
+                    test_ids = sorted(test_results.keys())
+                    for test_no in test_ids:
+                        test_result = test_results[test_no]
+                        name = test_result['test_description']
+                        classname = 'test.target.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                        elapsed_sec = test_result['elapsed_time']
+                        _stdout = test_result['single_test_output']
+                        _stderr = ''
+
+                        tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
+                        # Add extra failure / error info to test case result
+                        print test_result['single_test_result']
+                        if test_result['single_test_result'] == 'FAIL':
+                            tc.add_error_info()
+                        elif test_result['single_test_result'] != 'OK':
+                            tc.add_failure_info()
+
+                        test_cases.append(tc)
+
+        ts = TestSuite("mbed SDK test suite", test_cases)
+        return TestSuite.to_xml_string([ts])
