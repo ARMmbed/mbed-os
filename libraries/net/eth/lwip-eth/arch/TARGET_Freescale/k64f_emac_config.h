@@ -44,5 +44,15 @@
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+int phy_link_status(void);
+
+#if defined(__cplusplus)
+}
+#endif
+
 #endif // #define K64F_EMAC_CONFIG_H__
 
