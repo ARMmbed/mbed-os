@@ -37,6 +37,17 @@
 
 // TIM5 cannot be used because already used by the us_ticker
 static const PinMap PinMap_PWM[] = {
+    /*
+     * The lines below show all combinations to conect a port pin with a timer. Commented
+     * lines are alternative possibilities not used per default. But they can be changed
+     * manually instead of the suggested configuration. For example you can see that on 
+     * PA_5 you can have a PWM using either Timer2/Channel1 or Timer8/Channel1N. Today I 
+     * have decided to use Timer2/Channel1. But you can also notice that Timer2/Channel1 
+     * is also used on PA_0. That means that today you cannot output two different PWM 
+     * signals on PA_0 and PA_5 at the same time. If someone wants this, he will need to 
+     * change the timer that is used on PA_5. This is why the other possibilities are
+     * commented to make this change easier without looking deeply into the mcu datasheet.
+     */
     {PA_0,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH1
     {PA_1,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH2
     {PA_2,  PWM_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2)}, // TIM2_CH3
@@ -103,14 +114,10 @@ static const PinMap PinMap_PWM[] = {
     {PE_13, PWM_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1)},  // TIM1_CH3
     {PE_14, PWM_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1)},  // TIM1_CH4
 
-    {PH_10, PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)},  // TIM5_CH1
-    {PH_11, PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)},  // TIM5_CH2
-    {PH_12, PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)},  // TIM5_CH3
     {PH_13, PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH1N
     {PH_14, PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH2N
     {PH_15, PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH3N
 
-    {PI_0,  PWM_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5)},  // TIM5_CH4
     {PI_2,  PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH4
     {PI_5,  PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH1
     {PI_6,  PWM_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF3_TIM8)},  // TIM8_CH2
