@@ -43,6 +43,9 @@ NXP:
 * [DipCortex-M3](https://mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
 * [BlueBoard-LPC11U24](https://mbed.org/platforms/BlueBoard-LPC11U24/) (Cortex-M0)
 * LPCCAPPUCCINO (Cortex-M0)
+* [Arch](https://developer.mbed.org/platforms/Seeeduino-Arch/) (Cortex-M0)
+* [Arch GPRS](https://developer.mbed.org/platforms/Seeed-Arch-GPRS/) (Cortex-M0)
+* [Arch Pro](https://developer.mbed.org/platforms/Seeeduino-Arch-Pro/) (Cortex-M3)
 
 Freescale:
 * FRDM-K20D50M (Cortex-M4)
@@ -64,10 +67,12 @@ STMicroelectronics:
 * STM32VL-Discovery (Cortex-M3)
 * STM32F3-Discovery (Cortex-M4F)
 * STM32F4-Discovery (Cortex-M4F)
+* [Arch Max](https://developer.mbed.org/platforms/Seeed-Arch-Max/) (Cortex-M4F)
 
 
 Nordic:
 * [nRF51822-mKIT](https://mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
+* [Arch BLE](https://developer.mbed.org/platforms/Seeed-Arch-BLE/) (Cortex-M0)
 
 Supported Toolchains and IDEs
 -----------------------------
