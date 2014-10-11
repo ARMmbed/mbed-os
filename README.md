@@ -48,6 +48,7 @@ Freescale:
 * FRDM-K20D50M (Cortex-M4)
 * [FRDM-KL05Z](https://mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
 * [FRDM-KL25Z](http://mbed.org/platforms/KL25Z/) (Cortex-M0+)
+* FRDM-KL43Z (Cortex-M0+)
 * [FRDM-KL46Z](https://mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
 * [FRDM-K64F](https://mbed.org/platforms/FRDM-K64F/) (Cortex-M4F)
 
