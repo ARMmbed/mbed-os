@@ -43,14 +43,15 @@ struct gpio_irq_s {
     IRQn_Type irq_n;
     uint32_t irq_index;
     uint32_t event;
+    PinName pin;
 };
 
 struct port_s {
     PortName port;
     uint32_t mask;
     PinDirection direction;
-    __IO uint16_t *reg_in;
-    __IO uint16_t *reg_out;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
 };
 
 struct analogin_s {

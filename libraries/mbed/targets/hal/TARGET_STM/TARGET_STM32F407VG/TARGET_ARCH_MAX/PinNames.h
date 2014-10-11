@@ -243,13 +243,15 @@ typedef enum {
     D11         = PB_5,
     D12         = PB_4,
     D13         = PB_3,
+    D14         = PB_9,
+    D15         = PB_8,
 
     // Generic signals namings
     LED1        = PB_3,
     LED2        = PD_8,
     LED3        = PD_9,
     LED4        = PD_10,
-    USBTX       = PC_6,	/* USART2 */
+    USBTX       = PC_6,	/* USART6 */
     USBRX       = PC_7,
     I2C_SCL     = PB_8,	/* I2C1 */
     I2C_SDA     = PB_9,
