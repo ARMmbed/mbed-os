@@ -191,7 +191,7 @@ typedef enum {
     PTE30 = 0x4078,
     PTE31 = 0x407c,
 
-    LED_RED = PTE29,
+    LED_RED = PTE31,
     LED_GREEN = PTD5,
 
     // mbed original LED naming
@@ -201,8 +201,8 @@ typedef enum {
     LED4 = LED_RED,
 
     //Push buttons
-    SW1 = PTC3,
-    SW3 = PTC12,
+    SW1 = PTA4,
+    SW3 = PTC3,
 
     // USB Pins
     USBTX = PTA2,

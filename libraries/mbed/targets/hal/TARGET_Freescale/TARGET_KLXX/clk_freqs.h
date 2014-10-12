@@ -27,6 +27,16 @@ static inline uint32_t bus_frequency(void) {
     return SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
 }
 
+#if defined(TARGET_KL43Z)
+static inline uint32_t extosc_frequency(void) {
+	  return CPU_XTAL_CLK_HZ;
+}
+
+static uint32_t mcgirc_frequency(void) {
+		uint32_t mcgirc_clock = CPU_INT_SLOW_CLK_HZ / (1u + ((MCG->SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
+	  return (mcgirc_clock / (1u + (MCG->MC & MCG_MC_LIRC_DIV2_MASK)));
+}
+#else
 //Get external oscillator (crystal) frequency
 static uint32_t extosc_frequency(void) {
     uint32_t MCGClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
@@ -35,7 +45,7 @@ static uint32_t extosc_frequency(void) {
         return MCGClock;
     
     uint32_t divider, multiplier;
-    #ifdef MCG_C5_PLLCLKEN0_MASK                             //PLL available
+    #ifdef MCG_C5_PLLCLKEN0_MASK                            //PLL available
     if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0)) {   //PLL/FLL is selected
         if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {         //FLL is selected
     #endif
@@ -110,6 +120,7 @@ static uint32_t mcgpllfll_frequency(void) {
     //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active 
     //for the peripherals, this is however an unlikely setup
 }
+#endif
 
 #ifdef __cplusplus
 }
