@@ -86,8 +86,8 @@ Supported Toolchains and IDEs
 * IAR: [IAR Embedded Workbench](http://www.iar.com/en/Products/IAR-Embedded-Workbench/ARM/)
 * GCC code_red: [Red Suite](http://www.code-red-tech.com/)
 * GCC CodeSourcery: [Sourcery CodeBench](http://www.mentor.com/embedded-software/codesourcery)
-* Em::Blocks: [EmBlocks](http://www.emblocks.org/web/)
-* CooCox: [CoIDE](http://www.coocox.org/)
+* GCC ARM: [Em::Blocks](http://www.emblocks.org/web/)
+* GCC ARM: [CooCox CoIDE](http://www.coocox.org/)
 
 API Documentation
 -----------------
