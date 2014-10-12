@@ -349,7 +349,7 @@ class NUCLEO_F334R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0735"
