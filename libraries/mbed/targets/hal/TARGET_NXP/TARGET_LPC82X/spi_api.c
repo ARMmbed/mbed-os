@@ -110,6 +110,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
     }
     spi_frequency(obj, 1000000);
+    obj->spi->DLY = 2;             // 2 SPI clock times pre-delay
 
     // enable the ssp channel
     ssp_enable(obj);
@@ -139,7 +140,6 @@ void spi_frequency(spi_t *obj, int hz)
 
     // rise DIV value if it cannot be divided
     obj->spi->DIV = (SystemCoreClock + (hz - 1))/hz - 1;
-    obj->spi->DLY = 0;
 
     ssp_enable(obj);
 }
