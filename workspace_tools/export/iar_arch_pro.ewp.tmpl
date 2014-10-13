@@ -1821,9 +1821,11 @@
       <data/>
     </settings>
   </configuration>
+  {% for files in source_files %}
   <file>
-    <name>$PROJ_DIR$\main.cpp</name>
+    <name>$PROJ_DIR$\{{files}}</name>
   </file>
+  {% endfor %}
 </project>
 
 
