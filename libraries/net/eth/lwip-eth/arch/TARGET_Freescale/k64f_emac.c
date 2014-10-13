@@ -723,6 +723,13 @@ typedef struct {
     enet_phy_duplex_t duplex;
 } PHY_STATE;
 
+int phy_link_status() {
+    bool connection_status;
+    enet_dev_if_t * enetIfPtr = (enet_dev_if_t*)&enetDevIf[BOARD_DEBUG_ENET_INSTANCE];
+    phy_get_link_status(enetIfPtr, &connection_status);
+    return (int)connection_status;
+}
+
 static void k64f_phy_task(void *data) {
   struct netif *netif = (struct netif*)data;
   bool connection_status;
