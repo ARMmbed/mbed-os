@@ -37,7 +37,9 @@ extern "C" {
 #endif
 
 typedef enum {
-    ADC_1 = (int)ADC1_BASE
+    ADC_1 = (int)ADC1_BASE,
+    ADC_2 = (int)ADC2_BASE,
+    ADC_3 = (int)ADC3_BASE
 } ADCName;
 
 typedef enum {
@@ -48,7 +50,12 @@ typedef enum {
 typedef enum {
     UART_1 = (int)USART1_BASE,
     UART_2 = (int)USART2_BASE,
-    UART_6 = (int)USART6_BASE
+    UART_3 = (int)USART3_BASE,
+    UART_4 = (int)UART4_BASE,
+    UART_5 = (int)UART5_BASE,
+    UART_6 = (int)USART6_BASE,
+    UART_7 = (int)UART7_BASE,
+    UART_8 = (int)UART8_BASE
 } UARTName;
 
 #define STDIO_UART_TX  PA_2
@@ -76,6 +83,7 @@ typedef enum {
     PWM_3  = (int)TIM3_BASE,
     PWM_4  = (int)TIM4_BASE,
     PWM_5  = (int)TIM5_BASE,
+    PWM_8  = (int)TIM8_BASE,
     PWM_9  = (int)TIM9_BASE,
     PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE

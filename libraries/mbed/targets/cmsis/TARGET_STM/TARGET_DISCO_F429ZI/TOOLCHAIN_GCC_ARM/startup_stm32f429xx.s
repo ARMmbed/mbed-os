@@ -1,6 +1,9 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f407xx.s
+  * @file      startup_stm32f429xx.s
+  * based on startup_stm32f407xx.s with additional interrupt vectors
+  * 
+  * file      startup_stm32f407xx.s
   * @author    MCD Application Team
   * @version   V2.0.0
   * @date      18-February-2014 
@@ -273,10 +276,19 @@ g_pfnVectors:
   .word     OTG_HS_WKUP_IRQHandler            /* USB OTG HS Wakeup through EXTI */                         
   .word     OTG_HS_IRQHandler                 /* USB OTG HS                   */                   
   .word     DCMI_IRQHandler                   /* DCMI                         */                   
-  .word     0                                 /* CRYP crypto                  */                   
+  .word     CRYP_IRQHandler                   /* CRYP crypto                  */                   
   .word     HASH_RNG_IRQHandler               /* Hash and Rng                 */
   .word     FPU_IRQHandler                    /* FPU                          */
-                         
+  .word     UART7_IRQHandler                  /* UART7                        */                   
+  .word     UART8_IRQHandler                  /* UART8                        */                   
+  .word     SPI4_IRQHandler                   /* SPI4                         */                   
+  .word     SPI5_IRQHandler                   /* SPI5                         */                   
+  .word     SPI6_IRQHandler                   /* SPI6                         */                   
+  .word     SAI1_IRQHandler                   /* SAI1                         */                   
+  .word     LCD_IRQHandler                    /* LTDC                         */                   
+  .word     LCDErr_IRQHandler                 /* LTDC Error                   */                   
+  .word     DMA2D_IRQHandler                  /* DMA2D                        */                   
+                        
                          
 /*******************************************************************************
 *
@@ -546,13 +558,44 @@ g_pfnVectors:
    .weak      OTG_HS_IRQHandler      
    .thumb_set OTG_HS_IRQHandler,Default_Handler
                   
-   .weak      DCMI_IRQHandler            
+   .weak      DCMI_IRQHandler
    .thumb_set DCMI_IRQHandler,Default_Handler
-                                   
-   .weak      HASH_RNG_IRQHandler                  
-   .thumb_set HASH_RNG_IRQHandler,Default_Handler   
 
-   .weak      FPU_IRQHandler                  
-   .thumb_set FPU_IRQHandler,Default_Handler  
+   .weak      CRYP_IRQHandler
+   .thumb_set CRYP_IRQHandler,Default_Handler
+
+   .weak      HASH_RNG_IRQHandler
+   .thumb_set HASH_RNG_IRQHandler,Default_Handler
+
+   .weak      FPU_IRQHandler
+   .thumb_set FPU_IRQHandler,Default_Handler
+
+   .weak      UART7_IRQHandler
+   .thumb_set UART7_IRQHandler,Default_Handler
+
+   .weak      UART8_IRQHandler
+   .thumb_set UART8_IRQHandler,Default_Handler
+
+   .weak      SPI4_IRQHandler
+   .thumb_set SPI4_IRQHandler,Default_Handler
+
+   .weak      SPI5_IRQHandler
+   .thumb_set SPI5_IRQHandler,Default_Handler
+
+   .weak      SPI6_IRQHandler
+   .thumb_set SPI6_IRQHandler,Default_Handler
+
+   .weak      SAI1_IRQHandler
+   .thumb_set SAI1_IRQHandler,Default_Handler
+
+   .weak      LCD_IRQHandler
+   .thumb_set LCD_IRQHandler,Default_Handler
+
+   .weak      LCDErr_IRQHandler
+   .thumb_set LCDErr_IRQHandler,Default_Handler
+
+   .weak      DMA2D_IRQHandler
+   .thumb_set DMA2D_IRQHandler,Default_Handler
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
