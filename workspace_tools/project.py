@@ -18,19 +18,33 @@ if __name__ == '__main__':
     # Parse Options
     parser = OptionParser()
 
+    targetnames = TARGET_NAMES
+    targetnames.sort()
+    toolchainlist = EXPORTERS.keys()
+    toolchainlist.sort()
+
     parser.add_option("-m", "--mcu", metavar="MCU", default='LPC1768',
-        help="generate project for the given MCU (%s)" % ', '.join(TARGET_NAMES))
+        help="generate project for the given MCU (%s)" % ', '.join(targetnames))
 
     parser.add_option("-p", type="int", dest="program",
         help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
     parser.add_option("-i", dest="ide", default='uvision',
-        help="The target IDE: %s" % str(EXPORTERS.keys()))
+        help="The target IDE: %s" % str(toolchainlist))
 
     parser.add_option("-b", dest="build", action="store_true", default=False,
         help="Use the mbed library build, instead of the sources")
 
+    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests",
+                      default=False, help="List available tests in order and exit")
+
     (options, args) = parser.parse_args()
+
+
+    # Print available tests in order and exit
+    if options.list_tests is True:
+        print '\n'.join(map(str, sorted(TEST_MAP.values())))
+        sys.exit()
 
     # Target
     if options.mcu is None :
