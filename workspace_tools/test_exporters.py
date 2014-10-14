@@ -68,22 +68,29 @@ class ReportExporter():
     def __init__(self, result_exporter_type):
         self.result_exporter_type = result_exporter_type
 
-    def report(self, test_summary_ext):
+    def report(self, test_summary_ext, test_suite_properties=None):
+        """ Invokes report depending on exporter_type set in constructor
+        """
         if self.result_exporter_type == ResultExporterType.HTML:
-            return self.exporter_html(test_summary_ext)
+            # HTML exporter
+            return self.exporter_html(test_summary_ext, test_suite_properties)
         elif self.result_exporter_type == ResultExporterType.JUNIT:
-            return self.exporter_junit(test_summary_ext)
+            # JUNIT exporter
+            return self.exporter_junit(test_summary_ext, test_suite_properties)
         return None
 
-    def report_to_file(self, test_summary_ext, file_name):
+    def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
         """ Stores report to specified file
         """
-        report = self.report(test_summary_ext)
+        report = self.report(test_summary_ext, test_suite_properties=test_suite_properties)
         if report is not None:
             with open(file_name, 'w') as f:
                 f.write(report)
 
     def get_tooltip_name(self, toolchain, target, test_id, loop_no):
+        """ Generate simple unique tool-tip name which can be used.
+            For example as HTML <div> section id attribute.
+        """
         return "target_test_%s_%s_%s_%d"% (toolchain.lower(), target.lower(), test_id.lower(), loop_no)
 
     def get_result_div_sections(self, test, test_no):
@@ -91,21 +98,21 @@ class ReportExporter():
         RESULT_COLORS = {'OK' : 'LimeGreen',
                          'FAIL' : 'Orange',
                          'ERROR' : 'LightCoral',
-                         }
+                        }
 
         tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
         background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'ERROR']
         result_div_style = "background-color: %s"% background_color
-        result = """ <div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
-                        <center>%s</center>
-                        <div class = "tooltip" id= "%s">
-                        <b>%s</b> in <b>%.2f sec</b><br />
-                        <hr />
-                        <small>
-                        %s
-                        </small>
-                        </div>
-                     </div>
+        result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
+                       <center>%s</center>
+                       <div class = "tooltip" id= "%s">
+                       <b>%s</b> in <b>%.2f sec</b><br />
+                       <hr />
+                       <small>
+                       %s
+                       </small>
+                       </div>
+                    </div>
                  """% (result_div_style,
                        tooltip_name,
                        tooltip_name,
@@ -144,7 +151,11 @@ class ReportExporter():
                 result.extend(tests)
         return sorted(list(set(result)))
 
-    def exporter_html(self, test_result_ext):
+    #
+    # Exporters functions
+    #
+
+    def exporter_html(self, test_result_ext, test_suite_properties=None):
         """ Export test results in proprietary html format.
         """
         result = """<html>
@@ -182,10 +193,11 @@ class ReportExporter():
         result += '</body></html>'
         return result
 
-    def exporter_junit(self, test_result_ext):
+    def exporter_junit(self, test_result_ext, test_suite_properties=None):
         """ Export test results in JUnit XML compliant format
         """
         from junit_xml import TestSuite, TestCase
+        test_suites = []
         test_cases = []
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
@@ -193,6 +205,7 @@ class ReportExporter():
         for toolchain in toolchains:
             targets = sorted(test_result_ext[toolchain].keys())
             for target in targets:
+                test_cases = []
                 tests = sorted(test_result_ext[toolchain][target].keys())
                 for test in unique_test_ids:
                     test_results = test_result_ext[toolchain][target][test]
@@ -200,7 +213,7 @@ class ReportExporter():
                     for test_no in test_ids:
                         test_result = test_results[test_no]
                         name = test_result['test_description']
-                        classname = 'target.test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                        classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
                         elapsed_sec = test_result['elapsed_time']
                         _stdout = test_result['single_test_output']
                         _stderr = ''
@@ -213,6 +226,6 @@ class ReportExporter():
                             tc.add_error_info('Test error', 'Test result: %s'% test_result['single_test_result'])
 
                         test_cases.append(tc)
-
-        ts = TestSuite("mbed SDK test suite", test_cases)
-        return TestSuite.to_xml_string([ts])
+                ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
+                test_suites.append(ts)
+        return TestSuite.to_xml_string(test_suites)
