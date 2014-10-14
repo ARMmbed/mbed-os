@@ -711,17 +711,9 @@ class SingleTestRunner(object):
         mobo_config = mut.get('mobo_config')        # Available board configuration selection e.g. core selection etc.
         copy_method = mut.get('copy_method')        # Available board configuration selection e.g. core selection etc.
 
-        # Program
         # When the build and test system were separate, this was relative to a
         # base network folder base path: join(NETWORK_BASE_PATH, )
         image_path = image
-        if not exists(image_path):
-            print self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
-            elapsed_time = 0
-            test_result = self.TEST_RESULT_NO_IMAGE
-            return (test_result, target_name, toolchain_name,
-                    test_id, test_description, round(elapsed_time, 2),
-                    duration, self.shape_test_loop_ok_result_count([]))
 
         if self.db_logger:
             self.db_logger.reconnect()
@@ -734,35 +726,42 @@ class SingleTestRunner(object):
         detailed_test_results = {}  # { Loop_number: { results ... } }
 
         for test_index in range(test_loops):
-            # Choose one method of copy files to mbed virtual drive
-            _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
-                                                                                images_config, image_dest)
-
             # Host test execution
             start_host_exec_time = time()
 
             single_test_result = self.TEST_RESULT_UNDEF # singe test run result
-            if not _copy_res:   # Serial port copy error
-                single_test_result = self.TEST_RESULT_IOERR_COPY
-                single_test_output = ''
-                print self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
+
+            if not exists(image_path):
+                single_test_result = self.TEST_RESULT_NO_IMAGE
+                elapsed_time = 0
+                single_test_output = self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
+                print single_test_output
             else:
-                # Copy Extra Files
-                if not target_by_mcu.is_disk_virtual and test.extra_files:
-                    for f in test.extra_files:
-                        copy(f, disk)
+                # Choose one method of copy files to mbed MSD drive
+                _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
+                                                                                    images_config, image_dest)
 
-                sleep(target_by_mcu.program_cycle_s())
-                # Host test execution
-                start_host_exec_time = time()
+                if not _copy_res:   # copy error to mbed MSD
+                    single_test_result = self.TEST_RESULT_IOERR_COPY
+                    single_test_output = self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
+                    print single_test_output
+                else:
+                    # Copy Extra Files
+                    if not target_by_mcu.is_disk_virtual and test.extra_files:
+                        for f in test.extra_files:
+                            copy(f, disk)
 
-                host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
-                host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
-                                                                            micro=target_name,
-                                                                            verbose=host_test_verbose,
-                                                                            reset=host_test_reset,
-                                                                            reset_tout=reset_tout)
+                    sleep(target_by_mcu.program_cycle_s())
+                    # Host test execution
+                    start_host_exec_time = time()
+
+                    host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
+                    host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
+                    single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                                                                                micro=target_name,
+                                                                                verbose=host_test_verbose,
+                                                                                reset=host_test_reset,
+                                                                                reset_tout=reset_tout)
 
             # Store test result
             test_all_result.append(single_test_result)

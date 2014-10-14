@@ -27,6 +27,7 @@ class DetectPlatformTest(DefaultTest):
         result = True
 
         c = self.mbed.serial_readline() # {{start}} preamble
+        print c
         if c is None:
            self.print_result("ioerr_serial")
            return
