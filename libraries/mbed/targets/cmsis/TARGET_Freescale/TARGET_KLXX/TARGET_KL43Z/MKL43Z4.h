@@ -484,7 +484,6 @@ typedef struct {
 #define ADC_BASE_ADDRS                           { ADC0_BASE }
 /** Array initializer of ADC peripheral base pointers */
 #define ADC_BASE_PTRS                            { ADC0 }
-#define ADC_BASES                                { ADC0 }
 /** Interrupt vectors for the ADC peripheral type */
 #define ADC_IRQS                                 { ADC0_IRQn }
 
@@ -667,7 +666,6 @@ typedef struct {
 #define CMP_BASE_ADDRS                           { CMP0_BASE }
 /** Array initializer of CMP peripheral base pointers */
 #define CMP_BASE_PTRS                            { CMP0 }
-#define CMP_BASES                                { CMP0 }
 /** Interrupt vectors for the CMP peripheral type */
 #define CMP_IRQS                                 { CMP0_IRQn }
 
@@ -811,7 +809,6 @@ typedef struct {
 #define DAC_BASE_ADDRS                           { DAC0_BASE }
 /** Array initializer of DAC peripheral base pointers */
 #define DAC_BASE_PTRS                            { DAC0 }
-#define DAC_BASES                                { DAC0 }
 /** Interrupt vectors for the DAC peripheral type */
 #define DAC_IRQS                                 { DAC0_IRQn }
 
@@ -987,7 +984,6 @@ typedef struct {
 #define DMA_BASE_ADDRS                           { DMA_BASE }
 /** Array initializer of DMA peripheral base pointers */
 #define DMA_BASE_PTRS                            { DMA0 }
-#define DMA_BASES                                { DMA0 }
 /** Interrupt vectors for the DMA peripheral type */
 #define DMA_CHN_IRQS                             { DMA0_IRQn, DMA1_IRQn, DMA2_IRQn, DMA3_IRQn }
 
@@ -1104,7 +1100,6 @@ typedef struct {
 #define DMAMUX0_BASE_PTR                         (DMAMUX0)
 /** Array initializer of DMAMUX peripheral base addresses */
 #define DMAMUX_BASE_ADDRS                        { DMAMUX0_BASE }
-#define DMAMUX_BASES                             { DMAMUX0_BASE }
 /** Array initializer of DMAMUX peripheral base pointers */
 #define DMAMUX_BASE_PTRS                         { DMAMUX0 }
 
@@ -1389,7 +1384,6 @@ typedef struct {
 #define FLEXIO_BASE_PTR                          (FLEXIO)
 /** Array initializer of FLEXIO peripheral base addresses */
 #define FLEXIO_BASE_ADDRS                        { FLEXIO_BASE }
-#define FLEXIO_BASES                             { FLEXIO_BASE }
 /** Array initializer of FLEXIO peripheral base pointers */
 #define FLEXIO_BASE_PTRS                         { FLEXIO }
 
@@ -1669,7 +1663,6 @@ typedef struct {
 #define FTFA_BASE_ADDRS                          { FTFA_BASE }
 /** Array initializer of FTFA peripheral base pointers */
 #define FTFA_BASE_PTRS                           { FTFA }
-#define FTFA_BASES                               { FTFA }
 /** Interrupt vectors for the FTFA peripheral type */
 #define FTFA_COMMAND_COMPLETE_IRQS               { FTFA_IRQn }
 
@@ -1827,7 +1820,6 @@ typedef struct {
 #define GPIO_BASE_ADDRS                          { GPIOA_BASE, GPIOB_BASE, GPIOC_BASE, GPIOD_BASE, GPIOE_BASE }
 /** Array initializer of GPIO peripheral base pointers */
 #define GPIO_BASE_PTRS                           { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE }
-#define GPIO_BASES                               { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE }
 
 /* ----------------------------------------------------------------------------
    -- GPIO - Register accessor macros
@@ -2085,7 +2077,6 @@ typedef struct {
 #define I2C_BASE_ADDRS                           { I2C0_BASE, I2C1_BASE }
 /** Array initializer of I2C peripheral base pointers */
 #define I2C_BASE_PTRS                            { I2C0, I2C1 }
-#define I2C_BASES                                { I2C0, I2C1 }
 /** Interrupt vectors for the I2C peripheral type */
 #define I2C_IRQS                                 { I2C0_IRQn, I2C1_IRQn }
 
@@ -2426,7 +2417,6 @@ typedef struct {
 #define I2S_BASE_ADDRS                           { I2S0_BASE }
 /** Array initializer of I2S peripheral base pointers */
 #define I2S_BASE_PTRS                            { I2S0 }
-#define I2S_BASES                                { I2S0 }
 /** Interrupt vectors for the I2S peripheral type */
 #define I2S_RX_IRQS                              { I2S0_IRQn }
 #define I2S_TX_IRQS                              { I2S0_IRQn }
@@ -3842,7 +3832,6 @@ typedef struct {
 #define LCD_BASE_ADDRS                           { LCD_BASE }
 /** Array initializer of LCD peripheral base pointers */
 #define LCD_BASE_PTRS                            { LCD }
-#define LCD_BASES                                { LCD }
 /** Interrupt vectors for the LCD peripheral type */
 #define LCD_LCD_IRQS                             { LCD_IRQn }
 
@@ -4176,7 +4165,6 @@ typedef struct {
 #define LLWU_BASE_ADDRS                          { LLWU_BASE }
 /** Array initializer of LLWU peripheral base pointers */
 #define LLWU_BASE_PTRS                           { LLWU }
-#define LLWU_BASES                               { LLWU }
 /** Interrupt vectors for the LLWU peripheral type */
 #define LLWU_IRQS                                { LLWU_IRQn }
 
@@ -4309,7 +4297,6 @@ typedef struct {
 #define LPTMR_BASE_ADDRS                         { LPTMR0_BASE }
 /** Array initializer of LPTMR peripheral base pointers */
 #define LPTMR_BASE_PTRS                          { LPTMR0 }
-#define LPTMR_BASES                              { LPTMR0 }
 /** Interrupt vectors for the LPTMR peripheral type */
 #define LPTMR_IRQS                               { LPTMR0_IRQn }
 
@@ -4571,7 +4558,6 @@ typedef struct {
 #define LPUART_BASE_ADDRS                        { LPUART0_BASE, LPUART1_BASE }
 /** Array initializer of LPUART peripheral base pointers */
 #define LPUART_BASE_PTRS                         { LPUART0, LPUART1 }
-#define LPUART_BASES                             { LPUART0, LPUART1 }
 /** Interrupt vectors for the LPUART peripheral type */
 #define LPUART_RX_TX_IRQS                        { LPUART0_IRQn, LPUART1_IRQn }
 #define LPUART_ERR_IRQS                          { LPUART0_IRQn, LPUART1_IRQn }
@@ -4752,7 +4738,6 @@ typedef struct {
 #define MCG_BASE_ADDRS                           { MCG_BASE }
 /** Array initializer of MCG peripheral base pointers */
 #define MCG_BASE_PTRS                            { MCG }
-#define MCG_BASES                                { MCG }
 
 /* ----------------------------------------------------------------------------
    -- MCG - Register accessor macros
@@ -4885,7 +4870,6 @@ typedef struct {
 #define MCM_BASE_ADDRS                           { MCM_BASE }
 /** Array initializer of MCM peripheral base pointers */
 #define MCM_BASE_PTRS                            { MCM }
-#define MCM_BASES                                { MCM }
 
 /* ----------------------------------------------------------------------------
    -- MCM - Register accessor macros
@@ -5086,7 +5070,6 @@ typedef struct {
 #define MTB_BASE_ADDRS                           { MTB_BASE }
 /** Array initializer of MTB peripheral base pointers */
 #define MTB_BASE_PTRS                            { MTB }
-#define MTB_BASES                                { MTB }
 
 /* ----------------------------------------------------------------------------
    -- MTB - Register accessor macros
@@ -5272,7 +5255,6 @@ typedef struct {
 #define MTBDWT_BASE_ADDRS                        { MTBDWT_BASE }
 /** Array initializer of MTBDWT peripheral base pointers */
 #define MTBDWT_BASE_PTRS                         { MTBDWT }
-#define MTBDWT_BASES                             { MTBDWT }
 
 /* ----------------------------------------------------------------------------
    -- MTBDWT - Register accessor macros
@@ -5594,7 +5576,6 @@ typedef struct {
 #define OSC_BASE_ADDRS                           { OSC0_BASE }
 /** Array initializer of OSC peripheral base pointers */
 #define OSC_BASE_PTRS                            { OSC0 }
-#define OSC_BASES                                { OSC0 }
 
 /* ----------------------------------------------------------------------------
    -- OSC - Register accessor macros
@@ -5724,7 +5705,6 @@ typedef struct {
 #define PIT_BASE_ADDRS                           { PIT_BASE }
 /** Array initializer of PIT peripheral base pointers */
 #define PIT_BASE_PTRS                            { PIT }
-#define PIT_BASES                                { PIT }
 /** Interrupt vectors for the PIT peripheral type */
 #define PIT_IRQS                                 { PIT_IRQn, PIT_IRQn }
 
@@ -5860,7 +5840,6 @@ typedef struct {
 #define PMC_BASE_ADDRS                           { PMC_BASE }
 /** Array initializer of PMC peripheral base pointers */
 #define PMC_BASE_PTRS                            { PMC }
-#define PMC_BASES                                { PMC }
 /** Interrupt vectors for the PMC peripheral type */
 #define PMC_IRQS                                 { PMC_IRQn }
 
@@ -6011,7 +5990,6 @@ typedef struct {
 #define PORT_BASE_ADDRS                          { PORTA_BASE, PORTB_BASE, PORTC_BASE, PORTD_BASE, PORTE_BASE }
 /** Array initializer of PORT peripheral base pointers */
 #define PORT_BASE_PTRS                           { PORTA, PORTB, PORTC, PORTD, PORTE }
-#define PORT_BASES                               { PORTA, PORTB, PORTC, PORTD, PORTE }
 /** Interrupt vectors for the PORT peripheral type */
 #define PORT_IRQS                                { PORTA_IRQn, NotAvail_IRQn, PORTCD_IRQn, PORTCD_IRQn, NotAvail_IRQn }
 
@@ -6354,7 +6332,6 @@ typedef struct {
 #define RCM_BASE_ADDRS                           { RCM_BASE }
 /** Array initializer of RCM peripheral base pointers */
 #define RCM_BASE_PTRS                            { RCM }
-#define RCM_BASES                                { RCM }
 
 /* ----------------------------------------------------------------------------
    -- RCM - Register accessor macros
@@ -6457,7 +6434,6 @@ typedef struct {
 #define RFSYS_BASE_ADDRS                         { RFSYS_BASE }
 /** Array initializer of RFSYS peripheral base pointers */
 #define RFSYS_BASE_PTRS                          { RFSYS }
-#define RFSYS_BASES                              { RFSYS }
 
 /* ----------------------------------------------------------------------------
    -- RFSYS - Register accessor macros
@@ -6621,7 +6597,6 @@ typedef struct {
 #define ROM_BASE_ADDRS                           { ROM_BASE }
 /** Array initializer of ROM peripheral base pointers */
 #define ROM_BASE_PTRS                            { ROM }
-#define ROM_BASES                                { ROM }
 
 /* ----------------------------------------------------------------------------
    -- ROM - Register accessor macros
@@ -6815,7 +6790,6 @@ typedef struct {
 #define RTC_BASE_ADDRS                           { RTC_BASE }
 /** Array initializer of RTC peripheral base pointers */
 #define RTC_BASE_PTRS                            { RTC }
-#define RTC_BASES                                { RTC }
 /** Interrupt vectors for the RTC peripheral type */
 #define RTC_IRQS                                 { RTC_IRQn }
 #define RTC_SECONDS_IRQS                         { RTC_Seconds_IRQn }
@@ -7163,7 +7137,6 @@ typedef struct {
 #define SIM_BASE_ADDRS                           { SIM_BASE }
 /** Array initializer of SIM peripheral base pointers */
 #define SIM_BASE_PTRS                            { SIM }
-#define SIM_BASES                                { SIM }
 
 /* ----------------------------------------------------------------------------
    -- SIM - Register accessor macros
@@ -7299,7 +7272,6 @@ typedef struct {
 #define SMC_BASE_ADDRS                           { SMC_BASE }
 /** Array initializer of SMC peripheral base pointers */
 #define SMC_BASE_PTRS                            { SMC }
-#define SMC_BASES                                { SMC }
 
 /* ----------------------------------------------------------------------------
    -- SMC - Register accessor macros
@@ -7513,7 +7485,6 @@ typedef struct {
 #define SPI_BASE_ADDRS                           { SPI0_BASE, SPI1_BASE }
 /** Array initializer of SPI peripheral base pointers */
 #define SPI_BASE_PTRS                            { SPI0, SPI1 }
-#define SPI_BASES                                { SPI0, SPI1 }
 /** Interrupt vectors for the SPI peripheral type */
 #define SPI_IRQS                                 { SPI0_IRQn, SPI1_IRQn }
 
@@ -7740,7 +7711,6 @@ typedef struct {
 #define TPM_BASE_ADDRS                           { TPM0_BASE, TPM1_BASE, TPM2_BASE }
 /** Array initializer of TPM peripheral base pointers */
 #define TPM_BASE_PTRS                            { TPM0, TPM1, TPM2 }
-#define TPM_BASES                                { TPM0, TPM1, TPM2 }
 /** Interrupt vectors for the TPM peripheral type */
 #define TPM_IRQS                                 { TPM0_IRQn, TPM1_IRQn, TPM2_IRQn }
 
@@ -8153,7 +8123,6 @@ typedef struct {
 #define UART_BASE_ADDRS                          { UART2_BASE }
 /** Array initializer of UART peripheral base pointers */
 #define UART_BASE_PTRS                           { UART2 }
-#define UART_BASES                               { UART2 }
 /** Interrupt vectors for the UART peripheral type */
 #define UART_RX_TX_IRQS                          { UART2_FLEXIO_IRQn }
 #define UART_ERR_IRQS                            { UART2_FLEXIO_IRQn }
@@ -8524,7 +8493,6 @@ typedef struct {
 #define USB_BASE_ADDRS                           { USB0_BASE }
 /** Array initializer of USB peripheral base pointers */
 #define USB_BASE_PTRS                            { USB0 }
-#define USB_BASES                                { USB0 }
 /** Interrupt vectors for the USB peripheral type */
 #define USB_IRQS                                 { USB0_IRQn }
 
@@ -8673,7 +8641,6 @@ typedef struct {
 #define VREF_BASE_ADDRS                          { VREF_BASE }
 /** Array initializer of VREF peripheral base pointers */
 #define VREF_BASE_PTRS                           { VREF }
-#define VREF_BASES                               { VREF }
 
 /* ----------------------------------------------------------------------------
    -- VREF - Register accessor macros

@@ -24,19 +24,29 @@ extern "C" {
 
 //Get the peripheral bus clock frequency
 static inline uint32_t bus_frequency(void) {
-    return SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1);
+    return (SystemCoreClock / (((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT) + 1));
 }
 
 #if defined(TARGET_KL43Z)
+
 static inline uint32_t extosc_frequency(void) {
-	  return CPU_XTAL_CLK_HZ;
+    return CPU_XTAL_CLK_HZ;
 }
 
-static uint32_t mcgirc_frequency(void) {
-		uint32_t mcgirc_clock = CPU_INT_SLOW_CLK_HZ / (1u + ((MCG->SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
-	  return (mcgirc_clock / (1u + (MCG->MC & MCG_MC_LIRC_DIV2_MASK)));
+static inline uint32_t mcgirc_frequency(void) {
+    uint32_t mcgirc_clock = 0;
+
+    if (MCG->C1 & MCG_C1_IREFSTEN_MASK) {
+        mcgirc_clock  = (MCG->C2 & MCG_C2_IRCS_MASK) ? 8000000u : 2000000u;
+        mcgirc_clock /= 1u + ((MCG->SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT);
+        mcgirc_clock /= 1u +  (MCG->MC & MCG_MC_LIRC_DIV2_MASK);
+    }
+
+    return mcgirc_clock;
 }
+
 #else
+
 //Get external oscillator (crystal) frequency
 static uint32_t extosc_frequency(void) {
     uint32_t MCGClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
@@ -120,6 +130,7 @@ static uint32_t mcgpllfll_frequency(void) {
     //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active 
     //for the peripherals, this is however an unlikely setup
 }
+
 #endif
 
 #ifdef __cplusplus

@@ -66,26 +66,31 @@ uint32_t us_ticker_read() {
 static void lptmr_isr(void);
 
 static void lptmr_init(void) {
-		uint32_t extosc;
+	uint32_t extosc;
 
     /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
     
     /* Reset */
     LPTMR0->CSR = 0;
-    
+
+#if defined(TARGET_KL43Z)
+    /* Set interrupt handler */
+    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)lptmr_isr);
+    NVIC_EnableIRQ(LPTMR0_IRQn);
+
+
+    MCG->C1 |= MCG_C1_IRCLKEN_MASK;
+    extosc = mcgirc_frequency();
+#else
     /* Set interrupt handler */
     NVIC_SetVector(LPTimer_IRQn, (uint32_t)lptmr_isr);
     NVIC_EnableIRQ(LPTimer_IRQn);
 
-#if defined(TARGET_KL43Z)
-		extosc = mcgirc_frequency();
-		MCG->C1 |= MCG_C1_IRCLKEN_MASK;
-#else    
     /* Clock at (1)MHz -> (1)tick/us */
     /* Check if the external oscillator can be divided to 1MHz */
     extosc = extosc_frequency();
-#else    
+#endif
     if (extosc != 0) {                      //If external oscillator found
         if (extosc % 1000000u == 0) {       //If it is a multiple if 1MHz
             extosc /= 1000000;
@@ -109,10 +114,10 @@ static void lptmr_init(void) {
         }
     }
 #if defined(TARGET_KL43Z)
-		//No suitable actual IRC oscillator clock -> Set it to (8MHz / divider) 
-		MCG->SC &= ~MCG_SC_FCRDIV_MASK;
-		MCG->MC &= ~MCG->MC & MCG_MC_LIRC_DIV2_MASK;
-		LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(2);
+    //No suitable actual IRC oscillator clock -> Set it to (8MHz / divider) 
+    MCG->SC &= ~MCG_SC_FCRDIV_MASK;
+    MCG->MC &= ~MCG->MC & MCG_MC_LIRC_DIV2_MASK;
+    LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(2);
 #else
     //No suitable external oscillator clock -> Use fast internal oscillator (4MHz / divider)
     MCG->C1 |= MCG_C1_IRCLKEN_MASK;

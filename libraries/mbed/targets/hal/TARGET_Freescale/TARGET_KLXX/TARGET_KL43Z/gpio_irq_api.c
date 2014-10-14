@@ -48,7 +48,7 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
             continue;
         }
 
-        FGPIO_Type *gpio;
+        GPIO_Type *gpio;
         gpio_irq_event event = IRQ_NONE;
         switch (port->PCR[location] & PORT_PCR_IRQC_MASK) {
             case IRQ_RAISING_EDGE:
@@ -61,11 +61,11 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
 
             case IRQ_EITHER_EDGE:
                 if (port == PORTA) {
-                    gpio = FPTA;
+                    gpio = GPIOA;
                 } else if (port == PORTC) {
-                    gpio = FPTC;
+                    gpio = GPIOC;
                 } else {
-                    gpio = FPTD;
+                    gpio = GPIOD;
                 }
                 event = (gpio->PDIR & (1<<location)) ? (IRQ_RISE) : (IRQ_FALL);
                 break;
@@ -107,11 +107,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
                 break;
 
             case PortC:
-                ch_base = 32; irq_n = PORTC_PORTD_IRQn; vector = (uint32_t)gpio_irqCD;
+                ch_base = 32; irq_n = PORTCD_IRQn; vector = (uint32_t)gpio_irqCD;
                 break;
 
             case PortD:
-                ch_base = 64; irq_n = PORTC_PORTD_IRQn; vector = (uint32_t)gpio_irqCD;
+                ch_base = 64; irq_n = PORTCD_IRQn; vector = (uint32_t)gpio_irqCD;
                 break;
 
             default:
@@ -178,7 +178,7 @@ void gpio_irq_enable(gpio_irq_t *obj) {
     if (obj->port == PortA) {
         NVIC_EnableIRQ(PORTA_IRQn);
     } else {
-        NVIC_EnableIRQ(PORTC_PORTD_IRQn);
+        NVIC_EnableIRQ(PORTCD_IRQn);
     }
 }
 
@@ -186,6 +186,6 @@ void gpio_irq_disable(gpio_irq_t *obj) {
     if (obj->port == PortA) {
         NVIC_DisableIRQ(PORTA_IRQn);
     } else {
-        NVIC_DisableIRQ(PORTC_PORTD_IRQn);
+        NVIC_DisableIRQ(PORTCD_IRQn);
     }
 }
