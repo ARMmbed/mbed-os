@@ -104,6 +104,7 @@ class ReportExporter():
         tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
         background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'ERROR']
         result_div_style = "background-color: %s"% background_color
+
         result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
                        <center>%s</center>
                        <div class = "tooltip" id= "%s">
@@ -121,7 +122,7 @@ class ReportExporter():
                        tooltip_name,
                        test['test_description'],
                        test['elapsed_time'],
-                       unicode(test['single_test_output'], errors='ignore').replace('\n', '<br />'))
+                       test['single_test_output'].replace('\n', '<br />'))
         return result
 
     def get_result_tree(self, test_results):
@@ -216,17 +217,19 @@ class ReportExporter():
                         name = test_result['test_description']
                         classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
                         elapsed_sec = test_result['elapsed_time']
-                        _stdout = unicode(test_result['single_test_output'], errors='ignore')
+                        _stdout = test_result['single_test_output']
                         _stderr = ''
 
                         tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
                         # Add extra failure / error info to test case result
                         if test_result['single_test_result'] == 'FAIL':
-                            tc.add_failure_info('Test failed', 'Test result: %s'% test_result['single_test_result'])
+                            message = test_result['single_test_result']
+                            tc.add_failure_info(message, _stdout)
                         elif test_result['single_test_result'] != 'OK':
-                            tc.add_error_info('Test error', 'Test result: %s'% test_result['single_test_result'])
+                            message = test_result['single_test_result']
+                            tc.add_error_info(message, _stdout)
 
                         test_cases.append(tc)
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
-        return TestSuite.to_xml_string(test_suites, encoding='utf8')
+        return TestSuite.to_xml_string(test_suites)

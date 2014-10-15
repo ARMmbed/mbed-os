@@ -873,6 +873,34 @@ class SingleTestRunner(object):
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
         """
+
+        def get_char_from_queue(obs):
+            """ Get character from queue safe way
+            """
+            try:
+                c = obs.queue.get(block=True, timeout=0.5)
+            except Empty, _:
+                c = None
+            return c
+
+        def filter_queue_char(c):
+            """ Filters out non ASCII characters from serial port
+            """
+            if ord(c) not in range(128):
+                c = ' '
+            return c
+
+        def get_test_result(output):
+            """ Parse test 'output' data
+            """
+            result = self.TEST_RESULT_TIMEOUT
+            for line in "".join(output).splitlines():
+                search_result = self.RE_DETECT_TESTCASE_RESULT.search(line)
+                if search_result and len(search_result.groups()):
+                    result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
+                    break
+            return result
+
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
 
@@ -896,15 +924,13 @@ class SingleTestRunner(object):
         line = ''
         output = []
         while (time() - start_time) < duration:
-            try:
-                c = obs.queue.get(block=True, timeout=0.5)
-            except Empty, _:
-                c = None
+            c = get_char_from_queue(obs)
 
             if c:
-                output.append(c)
                 if verbose:
                     sys.stdout.write(c)
+                c = filter_queue_char(c)
+                output.append(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
                     if '{end}' in line:
@@ -913,28 +939,20 @@ class SingleTestRunner(object):
                 else:
                     line += c
 
-        try:
-            c = obs.queue.get(block=True, timeout=0.5)
-        except Empty, _:
-            c = None
+        c = get_char_from_queue(obs)
 
         if c:
-            output.append(c)
             if verbose:
                 sys.stdout.write(c)
+            c = filter_queue_char(c)
+            output.append(c)
 
         if verbose:
             print "Test::Output::Finish"
         # Stop test process
         obs.stop()
 
-        # Parse test 'output' data
-        result = self.TEST_RESULT_TIMEOUT
-        for line in "".join(output).splitlines():
-            search_result = self.RE_DETECT_TESTCASE_RESULT.search(line)
-            if search_result and len(search_result.groups()):
-                result = self.TEST_RESULT_MAPPING[search_result.groups(0)[0]]
-                break
+        result = get_test_result(output)
         return result, "".join(output)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
