@@ -760,6 +760,7 @@ class SingleTestRunner(object):
             start_host_exec_time = time()
 
             single_test_result = self.TEST_RESULT_UNDEF # singe test run result
+            _copy_method = selected_copy_method
 
             if not exists(image_path):
                 single_test_result = self.TEST_RESULT_NO_IMAGE
