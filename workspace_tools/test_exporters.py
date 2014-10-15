@@ -171,27 +171,28 @@ class ReportExporter():
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
         toolchains = sorted(test_result_ext.keys())
+        result += '<table><tr>'
         for toolchain in toolchains:
-            result += '<h2>%s</h2>'% toolchain
             targets = sorted(test_result_ext[toolchain].keys())
-            result += '<table><tr>'
             for target in targets:
-                result += '<td valign="center">%s</td>'% (target)
+                result += '<td></td>'
+                result += '<td></td>'
 
                 tests = sorted(test_result_ext[toolchain][target].keys())
                 for test in unique_test_ids:
                     result += """<td align="center">%s</td>"""% test
                 result += """</tr>
                               <tr>
-                              <td></td>
-                          """
+                              <td valign="center">%s</td>
+                              <td valign="center"><b>%s</b></td>
+                          """% (toolchain, target)
 
                 for test in unique_test_ids:
                     test_result = self.get_result_tree(test_result_ext[toolchain][target][test]) if test in tests else ''
                     result += '<td>%s</td>'% (test_result)
 
                 result += '</tr>'
-            result += '</table>'
+        result += '</table>'
         result += '</body></html>'
         return result
 
@@ -218,9 +219,9 @@ class ReportExporter():
                         elapsed_sec = test_result['elapsed_time']
                         _stdout = test_result['single_test_output']
                         _stderr = ''
-
+                        # Test case
                         tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
-                        # Add extra failure / error info to test case result
+                        # Test case extra failure / error info
                         if test_result['single_test_result'] == 'FAIL':
                             message = test_result['single_test_result']
                             tc.add_failure_info(message, _stdout)
