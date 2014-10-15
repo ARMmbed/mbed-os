@@ -2,7 +2,11 @@
 #include "test_env.h"
 #include "MMA7660.h"
 
+#if defined(TARGET_FF_ARDUINO)
+MMA7660 MMA(I2C_SDA, I2C_SCL);
+#else
 MMA7660 MMA(p28, p27);
+#endif
 
 int main() {
     if (!MMA.testConnection())
