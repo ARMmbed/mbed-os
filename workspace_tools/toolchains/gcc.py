@@ -229,11 +229,11 @@ class GCC_CW_EWL(GCC_CW):
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
         self.ld = [join(CW_GCC_PATH, "arm-none-eabi-g++"),
-            "-Xlinker", "--gc-sections",
+            "-Xlinker --gc-sections",
             "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
-            "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
-            "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
+            "-Xlinker --undefined=__pformatter_", "-Xlinker --defsym=__pformatter=__pformatter_",
+            "-Xlinker --undefined=__sformatter", "-Xlinker --defsym=__sformatter=__sformatter",
         ] + self.cpu
 
 
