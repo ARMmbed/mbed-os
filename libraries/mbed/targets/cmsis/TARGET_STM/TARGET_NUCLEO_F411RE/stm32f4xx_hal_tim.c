@@ -200,7 +200,7 @@ static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
 { 
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -477,7 +477,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
 HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef* htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -984,7 +984,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1494,7 +1494,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1970,7 +1970,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePulseMode)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -2245,7 +2245,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
   uint32_t tmpccer = 0;
   
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
