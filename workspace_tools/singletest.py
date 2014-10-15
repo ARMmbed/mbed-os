@@ -66,9 +66,7 @@ if not check_required_modules(['prettytable', 'serial']):
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
-from workspace_tools.test_api import BaseDBAccess
 from workspace_tools.test_api import SingleTestRunner
-from workspace_tools.test_api import factory_db_logger
 from workspace_tools.test_api import singletest_in_cli_mode
 from workspace_tools.test_api import detect_database_verbose
 from workspace_tools.test_api import get_json_data_from_file

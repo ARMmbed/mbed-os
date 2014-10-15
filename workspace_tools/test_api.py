@@ -1353,7 +1353,7 @@ def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name
         with open(image_path, 'w') as file:
             for line in new_file_lines:
                 file.write(line),
-    except IOError as e:
+    except IOError:
         return False
 
     return True

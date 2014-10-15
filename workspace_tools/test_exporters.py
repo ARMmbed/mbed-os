@@ -202,7 +202,6 @@ class ReportExporter():
         test_suites = []
         test_cases = []
 
-        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
         toolchains = sorted(test_result_ext.keys())
         for toolchain in toolchains:
             targets = sorted(test_result_ext[toolchain].keys())
