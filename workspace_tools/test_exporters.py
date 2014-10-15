@@ -94,11 +94,12 @@ class ReportExporter():
         return "target_test_%s_%s_%s_%d"% (toolchain.lower(), target.lower(), test_id.lower(), loop_no)
 
     def get_result_div_sections(self, test, test_no):
+        """ Generates separate <dvi> sections which contains test results output.
+        """
 
         RESULT_COLORS = {'OK' : 'LimeGreen',
                          'FAIL' : 'Orange',
-                         'ERROR' : 'LightCoral',
-                        }
+                         'ERROR' : 'LightCoral',}
 
         tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
         background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'ERROR']
@@ -120,7 +121,7 @@ class ReportExporter():
                        tooltip_name,
                        test['test_description'],
                        test['elapsed_time'],
-                       test['single_test_output'].replace('\n', '<br />'))
+                       test['single_test_output'].encode('ascii', 'ignore').replace('\n', '<br />'))
         return result
 
     def get_result_tree(self, test_results):
@@ -207,7 +208,7 @@ class ReportExporter():
             for target in targets:
                 test_cases = []
                 tests = sorted(test_result_ext[toolchain][target].keys())
-                for test in unique_test_ids:
+                for test in tests:
                     test_results = test_result_ext[toolchain][target][test]
                     test_ids = sorted(test_results.keys())
                     for test_no in test_ids:
@@ -215,7 +216,7 @@ class ReportExporter():
                         name = test_result['test_description']
                         classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
                         elapsed_sec = test_result['elapsed_time']
-                        _stdout = test_result['single_test_output']
+                        _stdout = test_result['single_test_output'].encode('ascii', 'ignore')
                         _stderr = ''
 
                         tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
@@ -228,4 +229,4 @@ class ReportExporter():
                         test_cases.append(tc)
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
-        return TestSuite.to_xml_string(test_suites)
+        return TestSuite.to_xml_string(test_suites, encoding='utf8')
