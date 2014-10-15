@@ -12,6 +12,10 @@ from workspace_tools.export import export, setup_user_prj, EXPORTERS
 from workspace_tools.utils import args_error
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.targets import TARGET_NAMES
+try:
+    import workspace_tools.private_settings as ps
+except:
+    ps = object()
 
 
 if __name__ == '__main__':
@@ -29,14 +33,17 @@ if __name__ == '__main__':
     parser.add_option("-p", type="int", dest="program",
         help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
+    parser.add_option("-n", dest="program_name",
+        help="The name of the desired test program")
+
     parser.add_option("-i", dest="ide", default='uvision',
         help="The target IDE: %s" % str(toolchainlist))
 
     parser.add_option("-b", dest="build", action="store_true", default=False,
         help="Use the mbed library build, instead of the sources")
 
-    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests",
-                      default=False, help="List available tests in order and exit")
+    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests", default=False, 
+        help="List available tests in order and exit")
 
     (options, args) = parser.parse_args()
 
@@ -56,12 +63,34 @@ if __name__ == '__main__':
         args_error(parser, "[ERROR] You should specify an IDE")
     ide = options.ide
 
-    # Project
-    if options.program is None or (options.program < 0) or (options.program > (len(TESTS)-1)):
+    # Program Number or name
+    p, n = options.program, options.program_name
+
+    if n is not None and p is not None:
+        args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
+    if n:
+        if not n in TEST_MAP.keys():
+            # Check if there is an alias for this in private_settings.py
+            if getattr(ps, "test_alias", None) is not None:
+                alias = ps.test_alias.get(n, "")
+                if not alias in TEST_MAP.keys():
+                    args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+                else:
+                    n = alias
+            else:
+                args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+        p = TEST_MAP[n].n
+    if p is None or (p < 0) or (p > (len(TESTS)-1)):
         message = "[ERROR] You have to specify one of the following tests:\n"
         message += '\n'.join(map(str, sorted(TEST_MAP.values())))
         args_error(parser, message)
-    test = Test(options.program)
+
+    # Project
+    if p is None or (p < 0) or (p > (len(TESTS)-1)):
+        message = "[ERROR] You have to specify one of the following tests:\n"
+        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+        args_error(parser, message)
+    test = Test(p)
 
     if not options.build:
         # Substitute the library builds with the sources
