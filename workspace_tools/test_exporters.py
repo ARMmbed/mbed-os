@@ -121,7 +121,7 @@ class ReportExporter():
                        tooltip_name,
                        test['test_description'],
                        test['elapsed_time'],
-                       test['single_test_output'].encode('ascii', 'ignore').replace('\n', '<br />'))
+                       unicode(test['single_test_output'], errors='ignore').replace('\n', '<br />'))
         return result
 
     def get_result_tree(self, test_results):
@@ -216,7 +216,7 @@ class ReportExporter():
                         name = test_result['test_description']
                         classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
                         elapsed_sec = test_result['elapsed_time']
-                        _stdout = test_result['single_test_output'].encode('ascii', 'ignore')
+                        _stdout = unicode(test_result['single_test_output'], errors='ignore')
                         _stderr = ''
 
                         tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)

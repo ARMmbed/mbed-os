@@ -1274,16 +1274,6 @@ def singletest_in_cli_mode(single_test):
     test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext = single_test.execute()
     elapsed_time = time() - start
 
-    if single_test.opts_report_html_file_name:
-        # Export results in form of HTML report to separate file
-        report_exporter = ReportExporter(ResultExporterType.HTML)
-        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_html_file_name, test_suite_properties=test_suite_properties_ext)
-
-    if single_test.opts_report_junit_file_name:
-        # Export results in form of HTML report to separate file
-        report_exporter = ReportExporter(ResultExporterType.JUNIT)
-        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
-
     # Human readable summary
     if not single_test.opts_suppress_summary:
         # prints well-formed summary with results (SQL table like)
@@ -1293,6 +1283,16 @@ def singletest_in_cli_mode(single_test):
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
     print "Completed in %.2f sec"% (elapsed_time)
+
+    # Store extra reports in files
+    if single_test.opts_report_html_file_name:
+        # Export results in form of HTML report to separate file
+        report_exporter = ReportExporter(ResultExporterType.HTML)
+        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_html_file_name, test_suite_properties=test_suite_properties_ext)
+    if single_test.opts_report_junit_file_name:
+        # Export results in form of HTML report to separate file
+        report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
 
 
 def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name='images.txt'):
