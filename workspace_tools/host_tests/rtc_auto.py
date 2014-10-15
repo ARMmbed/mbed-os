@@ -29,7 +29,8 @@ class RTCTest(DefaultTest):
         start = time()
         sec_prev = 0
         for i in range(0, 5):
-            c = self.mbed.serial_readline()
+            # Timeout changed from default: we need to wait longer for some boards to start-up
+            c = self.mbed.serial_readline(timeout=10)
             if c is None:
                 self.print_result("ioerr_serial")
                 return
