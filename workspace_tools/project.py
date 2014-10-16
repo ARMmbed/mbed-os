@@ -56,13 +56,11 @@ if __name__ == '__main__':
     if options.list_tests is True:
         print '\n'.join(map(str, sorted(TEST_MAP.values())))
         sys.exit()
-        
+
     # Clean Export Directory
     if options.clean:
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
-        sys.exit()
-
 
     # Target
     if options.mcu is None :
