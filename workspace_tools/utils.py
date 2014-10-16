@@ -115,8 +115,8 @@ def check_required_modules(required_modules, verbose=True):
             all_modules_found = False
             not_installed_modules.append(module_name)
             if verbose:
-                print "Error message: %s"% e
+                print "Error: %s"% e
     if verbose:
         if not all_modules_found:
-            print "Module(s) %s not installed. Please install required module(s) before using this script."% (', '.join(not_installed_modules))
+            print "Warning: Module(s) %s not installed. Please install required module(s) before using this script."% (', '.join(not_installed_modules))
     return all_modules_found
