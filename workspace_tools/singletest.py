@@ -57,10 +57,7 @@ sys.path.insert(0, ROOT)
 
 # Check: Extra modules which are required by core test suite
 from workspace_tools.utils import check_required_modules
-
-if not check_required_modules(['prettytable', 'serial']):
-    exit(-1)
-
+check_required_modules(['prettytable', 'serial'])
 
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
