@@ -23,7 +23,9 @@ from host_test import Test
 class EchoTest(Test):
     def __init__(self):
         Test.__init__(self)
-        self.mbed.init_serial(115200)
+        serial_init_res = self.mbed.init_serial(115200)
+        if not serial_init_res:
+            self.print_result("ioerr_serial")
         self.mbed.reset()
         self.TEST_LOOP_COUNT = 50
 

@@ -47,34 +47,26 @@ File format example: muts_all.json:
 """
 
 
-# Check if 'prettytable' module is installed
-try:
-    from prettytable import PrettyTable
-except ImportError, e:
-    print "Error: Can't import 'prettytable' module: %s"% e
-    exit(-1)
-
-# Check if 'serial' module is installed
-try:
-    from serial import Serial
-except ImportError, e:
-    print "Error: Can't import 'serial' module: %s"% e
-    exit(-1)
-
+# Be sure that the tools directory is in the search path
 import sys
 from os.path import join, abspath, dirname
 
-# Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
+
+# Check: Extra modules which are required by core test suite
+from workspace_tools.utils import check_required_modules
+
+if not check_required_modules(['prettytable', 'serial']):
+    exit(-1)
+
 
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
-from workspace_tools.test_api import BaseDBAccess
 from workspace_tools.test_api import SingleTestRunner
-from workspace_tools.test_api import factory_db_logger
 from workspace_tools.test_api import singletest_in_cli_mode
 from workspace_tools.test_api import detect_database_verbose
 from workspace_tools.test_api import get_json_data_from_file
@@ -172,6 +164,7 @@ if __name__ == '__main__':
                                    _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
+                                   _opts_report_junit_file_name=opts.report_junit_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,

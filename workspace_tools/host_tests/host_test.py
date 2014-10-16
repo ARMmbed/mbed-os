@@ -140,6 +140,7 @@ class Mbed:
                     result += c
                 except:
                     result = None
+                    break
                 if c == '\n':
                     break
         return result
@@ -298,6 +299,8 @@ class DefaultTest(Test):
     def __init__(self):
         Test.__init__(self)
         serial_init_res = self.mbed.init_serial()
+        if not serial_init_res:
+            self.print_result("ioerr_serial")
         self.mbed.reset()
 
 

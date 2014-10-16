@@ -228,7 +228,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     memcpy(data, buf + 1, i2c_result.n_bytes_recd);
     free(buf);
     if (err == 0)
-        return i2c_result.n_bytes_recd;
+        return i2c_result.n_bytes_recd - 1;
     else
         return -1;
 }
@@ -248,7 +248,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     err = LPC_I2CD_API->i2c_master_transmit_poll(obj->handler, &i2c_param, &i2c_result);
     free(buf);
     if (err == 0)
-        return i2c_result.n_bytes_sent;
+        return i2c_result.n_bytes_sent - 1;
     else
         return -1;
 }
@@ -282,7 +282,7 @@ int i2c_byte_write(i2c_t *obj, int data)
 
 #if DEVICE_I2CSLAVE
 
-	void i2c_slave_mode(i2c_t *obj, int enable_slave)
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
     obj->handler = LPC_I2CD_API->i2c_setup((uint32_t)(obj->i2c), i2c_buffer);
     if (enable_slave != 0) {
