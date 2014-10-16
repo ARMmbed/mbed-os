@@ -186,7 +186,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *p
   uint32_t tickstart = 0;
   uint32_t tmp1 = 0, tmp2 = 0;
  
-  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -360,7 +360,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t
   
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -485,7 +485,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;
     
-  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }

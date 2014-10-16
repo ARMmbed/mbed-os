@@ -222,7 +222,7 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
 HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc)
 {
   /* Check the SMARTCARD handle allocation */
-  if(hsc == NULL)
+  if(hsc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -285,7 +285,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc)
 HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
 {
   /* Check the SMARTCARD handle allocation */
-  if(hsc == NULL)
+  if(hsc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -404,7 +404,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -497,7 +497,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -594,7 +594,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc, uint8_
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -652,7 +652,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc, uint8_t
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -711,7 +711,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_DMA(SMARTCARD_HandleTypeDef *hsc, uint8
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -776,7 +776,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_
   tmp1 = hsc->State;
   if((tmp1 == HAL_SMARTCARD_STATE_READY) || (tmp1 == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }

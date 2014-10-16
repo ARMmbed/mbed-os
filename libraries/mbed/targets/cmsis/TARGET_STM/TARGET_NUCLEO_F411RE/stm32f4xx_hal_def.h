@@ -71,7 +71,7 @@ typedef enum
 
 /* Exported macro ------------------------------------------------------------*/
 #ifndef NULL
-  #define NULL      (void *) 0
+  #define HAL_NULL      (void *) 0
 #endif
 
 #define HAL_MAX_DELAY      0xFFFFFFFF

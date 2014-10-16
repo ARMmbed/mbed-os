@@ -155,7 +155,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSen
   TIM_OC_InitTypeDef OC_Config;
     
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
