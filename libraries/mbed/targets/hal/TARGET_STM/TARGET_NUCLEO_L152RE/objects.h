@@ -43,14 +43,15 @@ struct gpio_irq_s {
     IRQn_Type irq_n;
     uint32_t irq_index;
     uint32_t event;
+    PinName pin;
 };
 
 struct port_s {
     PortName port;
     uint32_t mask;
     PinDirection direction;
-    __IO uint16_t *reg_in;
-    __IO uint16_t *reg_out;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
 };
 
 struct analogin_s {
@@ -70,8 +71,8 @@ struct serial_s {
     uint32_t databits;
     uint32_t stopbits;
     uint32_t parity;
-    PinName pin_tx;
-    PinName pin_rx;
+    PinName  pin_tx;
+    PinName  pin_rx;
 };
 
 struct spi_s {
@@ -82,14 +83,15 @@ struct spi_s {
     uint32_t mode;
     uint32_t nss;
     uint32_t br_presc;
-    PinName pin_miso;
-    PinName pin_mosi;
-    PinName pin_sclk;
-    PinName pin_ssel;
+    PinName  pin_miso;
+    PinName  pin_mosi;
+    PinName  pin_sclk;
+    PinName  pin_ssel;
 };
 
 struct i2c_s {
     I2CName  i2c;
+    uint32_t slave;
 };
 
 struct pwmout_s {
