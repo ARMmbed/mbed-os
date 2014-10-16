@@ -629,14 +629,14 @@ class DISCO_F407VG(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 class ARCH_MAX(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
 
 class DISCO_F303VC(Target):
     def __init__(self):
