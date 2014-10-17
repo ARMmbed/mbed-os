@@ -209,6 +209,7 @@ if __name__ == '__main__':
                     lib_build_res = build_mbed_libs(mcu, toolchain, options=options.options,
                                                     notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                                     macros=options.macros)
+
                     for lib_id in libraries:
                         notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain, options=options.options,

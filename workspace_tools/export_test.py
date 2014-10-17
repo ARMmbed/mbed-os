@@ -159,6 +159,7 @@ if __name__ == '__main__':
 
             ('iar', 'LPC1768'),
             ('iar', 'NUCLEO_F411RE'),
+            ('iar', 'LPC1347'),
 
             (None, None),
         ]:
