@@ -49,18 +49,27 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // enable clk
     switch (uart) {
-        case UART_0: SIM->SOPT2 |= SIM_SOPT2_LPUART0SRC(1); break;
-        case UART_1: SIM->SOPT2 |= SIM_SOPT2_LPUART1SRC(1); break;
-        case UART_2: break;
+        case UART_0:
+          SIM->SOPT2 |= SIM_SOPT2_LPUART0SRC(1);
+          SIM->SCGC5 |= SIM_SCGC5_LPUART0_MASK;
+          break;
+        case UART_1:
+          SIM->SOPT2 |= SIM_SOPT2_LPUART1SRC(1);
+          SIM->SCGC5 |= SIM_SCGC5_LPUART1_MASK;
+          break;
+        case UART_2: /* TODO: add UART2 support */ break;
     }
 
-    // Disable UART before changing registers
-    obj->uart->CTRL &= ~(LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
-    
+    // reset UART registers
+    obj->uart->BAUD  = 0x0F000004;
+    obj->uart->STAT  = 0xC01FC000;
+    obj->uart->CTRL  = 0x00000000;
+    obj->uart->MATCH = 0x00000000;
+
     switch (uart) {
         case UART_0: obj->index = 0; break;
         case UART_1: obj->index = 1; break;
-        case UART_2: break;
+        case UART_2: /* TODO: add UART2 support */ break;
     }
 
     // set default baud rate and format
@@ -72,12 +81,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
 
     // set rx/tx pins in PullUp mode
-    if (tx != NC) {
-        pin_mode(tx, PullUp);
-    }
-    if (rx != NC) {
-        pin_mode(rx, PullUp);
-    }
+    if (tx != NC) pin_mode(tx, PullUp);
+    if (rx != NC) pin_mode(rx, PullUp);
 
     obj->uart->CTRL |= (LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
 
@@ -167,10 +172,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     // save C2 state
     uint32_t c2_state = obj->uart->CTRL & (LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
-    
+
     // disable UART before changing registers
     obj->uart->CTRL &= ~(LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
-    
+
 
     uint8_t parity_enable = 0, parity_select = 0;
     switch (parity) {
@@ -185,11 +190,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     // data bits, parity and parity mode
     obj->uart->CTRL = ((parity_enable << 1) |  (parity_select << 0));
-    
+
     // stop bits
     obj->uart->BAUD &= ~LPUART_BAUD_SBNS_MASK;
     obj->uart->BAUD |= (stop_bits << LPUART_BAUD_SBNS_SHIFT);
-    
+
     // restore C2 state
     obj->uart->CTRL |= c2_state;
 }

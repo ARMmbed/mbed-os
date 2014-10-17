@@ -122,6 +122,9 @@ USBHAL::USBHAL(void) {
     epCallback[29] = &USBHAL::EP15_IN_callback;
 
 #if defined(TARGET_KL43Z)
+    // enable USBFS clock
+    SIM->SCGC4 |= SIM_SCGC4_USBFS_MASK;
+
     // enable the IRC48M clock
     USB0->CLK_RECOVER_IRC_EN |= USB_CLK_RECOVER_IRC_EN_IRC_EN_MASK;
 
@@ -130,9 +133,6 @@ USBHAL::USBHAL(void) {
 
     // choose usb src clock
     SIM->SOPT2 |= SIM_SOPT2_USBSRC_MASK;
-
-    // enable USBFS clock
-    SIM->SCGC4 |= SIM_SCGC4_USBFS_MASK;
 #else
     // choose usb src as PLL
     SIM->SOPT2 |= (SIM_SOPT2_USBSRC_MASK | SIM_SOPT2_PLLFLLSEL_MASK);
