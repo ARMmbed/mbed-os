@@ -6,20 +6,20 @@
   agreement with Nordic Semiconductor.
  */
 /**
-  @addtogroup BLE_COMMON 
+  @addtogroup BLE_COMMON
   @{
 */
 
 
 #ifndef BLE_HCI_H__
-#define BLE_HCI_H__ 
+#define BLE_HCI_H__
 
 /** @defgroup BLE_HCI_STATUS_CODES Bluetooth status codes
  * @{ */
 
 #define BLE_HCI_STATUS_CODE_SUCCESS                        0x00
 #define BLE_HCI_STATUS_CODE_UNKNOWN_BTLE_COMMAND           0x01
-#define BLE_HCI_STATUS_CODE_UNKNOWN_CONNECTION_IDENTIFIER  0x02 
+#define BLE_HCI_STATUS_CODE_UNKNOWN_CONNECTION_IDENTIFIER  0x02
 /*0x03 Hardware Failure
 0x04 Page Timeout
 */
