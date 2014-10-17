@@ -24,22 +24,22 @@
 
 static const SWM_Map SWM_SPI_SSEL[] = {
     {4, 16},
-    {5, 16},
+    {6, 8},
 };
 
 static const SWM_Map SWM_SPI_SCLK[] = {
     {3, 24},
-    {4, 24},
+    {5, 16},
 };
 
 static const SWM_Map SWM_SPI_MOSI[] = {
     {4, 0},
-    {5, 0},
+    {5, 24},
 };
 
 static const SWM_Map SWM_SPI_MISO[] = {
     {4, 8},
-    {5, 16},
+    {6, 0},
 };
 
 // bit flags for used SPIs
@@ -55,8 +55,8 @@ static int get_available_spi(void)
     return -1;
 }
 
-static inline int ssp_disable(spi_t *obj);
-static inline int ssp_enable(spi_t *obj);
+static inline void spi_disable(spi_t *obj);
+static inline void spi_enable(spi_t *obj);
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
@@ -104,7 +104,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     LPC_SYSCON->PRESETCTRL    |=  (1 << obj->spi_n);
 
     // set default format and frequency
-    if (ssel == NC) {
+    if (ssel == (PinName)NC) {
         spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
     } else {
         spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
@@ -113,7 +113,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->DLY = 2;             // 2 SPI clock times pre-delay
 
     // enable the ssp channel
-    ssp_enable(obj);
+    spi_enable(obj);
 }
 
 void spi_free(spi_t *obj)
@@ -123,92 +123,87 @@ void spi_free(spi_t *obj)
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     MBED_ASSERT(((bits >= 1) && (bits <= 16)) && ((mode >= 0) && (mode <= 3)));
-    ssp_disable(obj);
+    spi_disable(obj);
 
     obj->spi->CFG &= ~((0x3 << 4) | (1 << 2));
     obj->spi->CFG |=  ((mode & 0x3) << 4) | ((slave ? 0 : 1) << 2);
 
-    obj->spi->TXDATCTL &= ~( 0xF << 24);
-    obj->spi->TXDATCTL |=  (((bits & 0xF) - 1) << 24);
+    obj->spi->TXCTL &= ~( 0xF << 24);
+    obj->spi->TXCTL |=  ((bits - 1) << 24);
 
-    ssp_enable(obj);
+    spi_enable(obj);
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
-    ssp_disable(obj);
+    spi_disable(obj);
 
     // rise DIV value if it cannot be divided
     obj->spi->DIV = (SystemCoreClock + (hz - 1))/hz - 1;
 
-    ssp_enable(obj);
+    spi_enable(obj);
 }
 
-static inline int ssp_disable(spi_t *obj)
+static inline void spi_disable(spi_t *obj)
 {
-    return obj->spi->CFG &= ~(1 << 0);
+    obj->spi->CFG &= ~(1 << 0);
 }
 
-static inline int ssp_enable(spi_t *obj)
+static inline void spi_enable(spi_t *obj)
 {
-    return obj->spi->CFG |= (1 << 0);
+    obj->spi->CFG |= (1 << 0);
 }
 
-static inline int ssp_readable(spi_t *obj)
+static inline int spi_readable(spi_t *obj)
 {
     return obj->spi->STAT & (1 << 0);
 }
 
-static inline int ssp_writeable(spi_t *obj)
+static inline int spi_writeable(spi_t *obj)
 {
     return obj->spi->STAT & (1 << 1);
 }
 
-static inline void ssp_write(spi_t *obj, int value)
+static inline void spi_write(spi_t *obj, int value)
 {
-    while (!ssp_writeable(obj));
+    while (!spi_writeable(obj));
     // end of transfer
-    obj->spi->TXDATCTL |= (1 << 20);
-    obj->spi->TXDAT = value;
+    obj->spi->TXCTL |= (1 << 20);
+    obj->spi->TXDAT = (value & 0xffff);
 }
 
-static inline int ssp_read(spi_t *obj)
+static inline int spi_read(spi_t *obj)
 {
-    while (!ssp_readable(obj));
-    return obj->spi->RXDAT;
+    while (!spi_readable(obj));
+    return (obj->spi->RXDAT & 0xFFFF);
 }
 
-static inline int ssp_busy(spi_t *obj)
+int spi_master_write(spi_t *obj, int value)
+{
+    spi_write(obj, value);
+    return spi_read(obj);
+}
+
+static inline int spi_busy(spi_t *obj)
 {
     // checking RXOV(Receiver Overrun interrupt flag)
     return obj->spi->STAT & (1 << 2);
 }
 
-int spi_master_write(spi_t *obj, int value)
-{
-    ssp_write(obj, value);
-    return ssp_read(obj);
-}
-
 int spi_slave_receive(spi_t *obj)
 {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
 }
 
 int spi_slave_read(spi_t *obj)
 {
-    return obj->spi->RXDAT;
+    return (obj->spi->RXDAT & 0xFFFF);
 }
 
 void spi_slave_write(spi_t *obj, int value)
 {
-    while (ssp_writeable(obj) == 0);
+    while (spi_writeable(obj) == 0);
     obj->spi->TXDAT = value;
-}
-
-int spi_busy(spi_t *obj)
-{
-    return ssp_busy(obj);
 }
 
 #endif
