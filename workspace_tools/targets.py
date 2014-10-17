@@ -474,6 +474,10 @@ class NRF51822(Target):
     # of preference.
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
         {
+            'name' : 's110_nrf51822_7.1.0_softdevice.hex',
+            'offset' : 0x16000
+        },
+        {
             'name' : 's110_nrf51822_7.0.0_softdevice.hex',
             'offset' : 0x16000
         },

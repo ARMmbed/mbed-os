@@ -46,6 +46,13 @@ enum BLE_COMMON_SVCS
   SD_BLE_OPT_GET,                       /**< Get a BLE option. */
 };
 
+/**@brief Common Option IDs.
+ * IDs that uniquely identify a common option.
+ */
+enum BLE_COMMON_OPTS
+{
+  BLE_COMMON_OPT_RADIO_CPU_MUTEX = BLE_OPT_BASE    /**< Radio CPU mutex option. @ref ble_common_opt_radio_cpu_mutex_t */
+};
 /** @} */
 
 /** @addtogroup BLE_COMMON_DEFINES Defines
@@ -153,10 +160,37 @@ typedef struct
   uint16_t  subversion_number;          /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
 } ble_version_t;
 
+/**@brief Mutual exclusion of radio activity and CPU execution.
+ *
+ *        This option configures the application's access to the CPU when the radio is active. The
+ *        application can configure itself to have access to the CPU while the radio is active.
+ *        By default, the application will be not able to share CPU time with the SoftDevice
+ *        during radio activity. This parameter structure is used together with @ref sd_ble_opt_set
+ *        to configure the @ref BLE_COMMON_OPT_RADIO_CPU_MUTEX option.
+ *
+ * @note  Note that the mutual exclusion of radio activity and CPU execution should remain enabled
+ *        when running the SoftDevice on hardware affected by PAN #44 "CCM may exceed real time 
+ *        requirements"and PAN #45 "AAR may exceed real time requirements".
+ *
+ * @note  @ref sd_ble_opt_get is not supported for this option.
+ *
+ */
+typedef struct
+{
+  uint8_t enable : 1;                          /**< Enable mutual exclusion of radio activity and the CPU execution. */
+} ble_common_opt_radio_cpu_mutex_t;
+
+/**@brief Option structure for common options. */
+typedef union
+{
+  ble_common_opt_radio_cpu_mutex_t  radio_cpu_mutex;        /**< Parameters for the option for the mutual exclusion of radio activity and CPU execution. */
+} ble_common_opt_t;
+
 /**@brief Common BLE Option type, wrapping the module specific options. */
 typedef union
 {
-  ble_gap_opt_t     gap;            /**< GAP option, opt_id in BLE_GAP_OPT_* series. */
+  ble_common_opt_t  common_opt;         /**< Common option, opt_id in BLE_COMMON_OPT_* series. */
+  ble_gap_opt_t     gap;                /**< GAP option, opt_id in BLE_GAP_OPT_* series. */
 } ble_opt_t;
 
 /**
