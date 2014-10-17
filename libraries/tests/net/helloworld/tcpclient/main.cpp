@@ -4,7 +4,7 @@
 #include "test_env.h"
 
 namespace {
-    const char *HTTP_SERVER_NAME = "mbed.org";
+    const char *HTTP_SERVER_NAME = "http://developer.mbed.org";
     const int HTTP_SERVER_PORT = 80;
     const int RECV_BUFFER_SIZE = 512;
 
