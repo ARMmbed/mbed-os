@@ -25,6 +25,7 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC1768',
         'UBLOX_C027',
         'ARCH_PRO',
+        'LPC1347',
     ]
 
     def generate(self):

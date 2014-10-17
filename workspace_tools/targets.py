@@ -412,7 +412,7 @@ class LPC1347(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC13XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM","IAR"]
 
 
 class LPC1114(LPCTarget):
