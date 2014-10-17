@@ -204,7 +204,7 @@ static const int timing_pts[23][2] = {
     {0xF, 0x7},      // 24, 67%
 };
 
-static unsigned int can_speed(unsigned int sclk, unsigned int pclk, unsigned int cclk, unsigned char psjw) {
+static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned char psjw) {
     uint32_t    btr;
     uint16_t    brp = 0;
     uint32_t    calcbit;
@@ -212,7 +212,7 @@ static unsigned int can_speed(unsigned int sclk, unsigned int pclk, unsigned int
     int         hit = 0;
     int         bits;
     
-    bitwidth = sclk / (pclk * cclk);
+    bitwidth = (pclk / cclk);
     
     brp = bitwidth / 0x18;
     while ((!hit) && (brp < bitwidth / 4)) {
@@ -275,7 +275,7 @@ void can_free(can_t *obj) {
 int can_frequency(can_t *obj, int f) {
     int pclk = PeripheralClock;
     
-    int btr = can_speed(SystemCoreClock, pclk, (unsigned int)f, 1);
+    int btr = can_speed(pclk, (unsigned int)f, 1);
 
     if (btr > 0) {
         uint32_t modmask = can_disable(obj);

@@ -50,7 +50,7 @@ void us_ticker_init(void) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 ï¿½s tick
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
@@ -68,9 +68,9 @@ uint32_t us_ticker_read() {
     return TIM_MST->CNT;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // Set new output compare value
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, timestamp);
+    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }

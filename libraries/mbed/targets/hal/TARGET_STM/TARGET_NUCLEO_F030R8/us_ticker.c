@@ -30,27 +30,35 @@
 #include "PeripheralNames.h"
 
 // Timer selection:
-#define TIM_MST            TIM1
+#define TIM_MST      TIM1
 #define TIM_MST_UP_IRQ     TIM1_BRK_UP_TRG_COM_IRQn
 #define TIM_MST_OC_IRQ     TIM1_CC_IRQn
-#define TIM_MST_RCC        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
+#define TIM_MST_RCC  __TIM1_CLK_ENABLE()
 
-static int      us_ticker_inited = 0;
+static TIM_HandleTypeDef TimMasterHandle;
+
+
+static int us_ticker_inited = 0;
 static volatile uint32_t SlaveCounter = 0;
 static volatile uint32_t oc_int_part = 0;
 static volatile uint16_t oc_rem_part = 0;
 
 void set_compare(uint16_t count) {
+    TimMasterHandle.Instance = TIM_MST;
+    
     // Set new output compare value
-    TIM_SetCompare1(TIM_MST, count);
+    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
     // Enable IT
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 // Used to increment the slave counter
 static void tim_update_irq_handler(void) {
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_Update) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_Update);
+    TimMasterHandle.Instance = TIM_MST;
+	  
+    // Clear Update interrupt flag
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE);
         SlaveCounter++;
     }
 }
@@ -58,47 +66,47 @@ static void tim_update_irq_handler(void) {
 // Used by interrupt system
 static void tim_oc_irq_handler(void) {
     uint16_t cval = TIM_MST->CNT;
-
-    // Clear interrupt flag
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
-    }
-
-    if (oc_rem_part > 0) {
-        set_compare(oc_rem_part); // Finish the remaining time left
-        oc_rem_part = 0;
-    } else {
-        if (oc_int_part > 0) {
-            set_compare(0xFFFF);
-            oc_rem_part = cval; // To finish the counter loop the next time
-            oc_int_part--;
+    TimMasterHandle.Instance = TIM_MST;
+	  
+    // Clear CC1 interrupt flag
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
+		}
+        if (oc_rem_part > 0) {
+            set_compare(oc_rem_part); // Finish the remaining time left
+            oc_rem_part = 0;
         } else {
-            us_ticker_irq_handler();
+            if (oc_int_part > 0) {
+                set_compare(0xFFFF);
+                oc_rem_part = cval; // To finish the counter loop the next time
+                oc_int_part--;
+            } else {
+                us_ticker_irq_handler();
+            }
         }
-    }
+    
 }
 
 void us_ticker_init(void) {
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-
+	
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
-    // Enable Timer clock
+    // Enable timer clock
     TIM_MST_RCC;
 
     // Configure time base
-    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
-    TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
+    TimMasterHandle.Instance = TIM_MST;
+    TimMasterHandle.Init.Period        = 0xFFFF;
+    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 ï¿½s tick
+    TimMasterHandle.Init.ClockDivision     = 0;
+    TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    HAL_TIM_Base_Init(&TimMasterHandle);
 
     // Configure interrupts
-    TIM_ITConfig(TIM_MST, TIM_IT_Update, ENABLE);
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
 
-    // Update interrupt used for 32-bit counter
+		// Update interrupt used for 32-bit counter
     NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)tim_update_irq_handler);
     NVIC_EnableIRQ(TIM_MST_UP_IRQ);
 
@@ -107,7 +115,7 @@ void us_ticker_init(void) {
     NVIC_EnableIRQ(TIM_MST_OC_IRQ);
 
     // Enable timer
-    TIM_Cmd(TIM_MST, ENABLE);
+    HAL_TIM_Base_Start(&TimMasterHandle);
 }
 
 uint32_t us_ticker_read() {
@@ -131,8 +139,8 @@ uint32_t us_ticker_read() {
     return counter2;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
-    int delta = (int)(timestamp - us_ticker_read());
+void us_ticker_set_interrupt(timestamp_t timestamp) {
+    int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
@@ -151,11 +159,13 @@ void us_ticker_set_interrupt(unsigned int timestamp) {
 }
 
 void us_ticker_disable_interrupt(void) {
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, DISABLE);
+    TimMasterHandle.Instance = TIM_MST;
+	  __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 void us_ticker_clear_interrupt(void) {
-    if (TIM_GetITStatus(TIM_MST, TIM_IT_CC1) == SET) {
-        TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
-    }
+    TimMasterHandle.Instance = TIM_MST;
+	  if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
+		}
 }

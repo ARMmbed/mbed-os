@@ -5,7 +5,7 @@ MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512K
 /*  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K */
-  RAM (rwx) : ORIGIN = 0x20000194, LENGTH = 0x17E6C
+  RAM (rwx) : ORIGIN = 0x20000194, LENGTH = 96k - 0x194
 }
 
 /* Linker script to place sections and symbol values. Should be used together

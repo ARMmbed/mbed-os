@@ -40,7 +40,8 @@ class WaitusTest(DefaultTest):
                 self.print_result("ioerr_serial")
                 return
         print "Test started"
-        start_serial_pool = start = time();
+        start_serial_pool = time()
+        start = time()
         for i in range(0, 10):
             c = self.mbed.serial_read(1)
             if c is None:
@@ -49,13 +50,18 @@ class WaitusTest(DefaultTest):
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
                 deviation = abs(delta - 1)
-                deviation_ok = True if delta > 0 and deviation <= 0.05 else False # +/-5%
+                # Round values
+                delta = round(delta, 2)
+                deviation = round(deviation, 2)
+                # Check if time measurements are in given range
+                deviation_ok = True if delta > 0 and deviation <= 0.10 else False # +/-10%
                 test_result = test_result and deviation_ok
                 msg = "OK" if deviation_ok else "FAIL"
                 print ". in %.2f sec (%.2f) [%s]" % (delta, deviation, msg)
             else:
                 print ". skipped"
-            start = time();
+            stdout.flush()
+            start = time()
         measurement_time = time() - start_serial_pool
         print "Completed in %.2f sec" % (measurement_time)
 
@@ -63,7 +69,6 @@ class WaitusTest(DefaultTest):
             self.print_result('success')
         else:
             self.print_result('failure')
-        stdout.flush()
 
 if __name__ == '__main__':
     WaitusTest().run()

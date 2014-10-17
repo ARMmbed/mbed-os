@@ -1,45 +1,37 @@
 #include "mbed.h"
+#include "test_env.h"
 
 /* This test purpose is to verify the behaviour when the program does not link
  * any symbol from the mbed library.
  * In the past we had an issue where the stdio retargeting was not linked in.
  */
 
-/*
-    scanf("%d", &Value);
-    fprintf(stdout, "Test 3: fprintf(stdout, ...) test\r\n");
-    fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
-    fscanf(stdin, "%d", &Value);
-    fprintf(stdout, "Test 3: fprintf(stdout, ...) test\r\n");
-
-    fprintf(stderr, "Test 4: fprintf(stderr, ...) test\r\n");
-
-    printf("Test 5: fscanf(stdin, ...) test\r\n");
-    printf("    Type number and press Enter: \n");
-    fscanf(stdin, "%d", &Value);
-    printf("\n    Your value was: %d\r\n", Value);
-
-    printf("Test complete\r\n");
-
-*/
-
 int main() {
+    DigitalOut led1(LED1);
+    DigitalOut led2(LED2);
+    
     union {
         int value_int;
     };
 
+    notify_start();
+
+    const char* PRINT_PATTERN = "MBED: Your value was: %d\r\n";
+    
     while (true)
     {
-        // SCANFm PRINTF family
+        // SCANF PRINTF family
         value_int = 0;
+        led1 = 1;
         scanf("%d", &value_int);
-        printf("Your value was: %d\r\n", value_int);
+        printf(PRINT_PATTERN, value_int);
+        led1 = 0;
 
         // FSCANF, FPRINTF family
         value_int = 0;
+        led2 = 1;
         fscanf(stdin, "%d", &value_int);
-        fprintf(stdout, "Your value was: %d\r\n", value_int);
-
-        //...
+        fprintf(stdout, PRINT_PATTERN, value_int);
+        led2 = 0;
     }
 }

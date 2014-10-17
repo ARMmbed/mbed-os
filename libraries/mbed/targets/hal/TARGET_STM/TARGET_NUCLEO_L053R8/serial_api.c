@@ -91,6 +91,10 @@ static void init_uart(serial_t *obj) {
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
+    // Disable the reception overrun detection
+    UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+    UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
+    
     HAL_UART_Init(&UartHandle);
 }
 
@@ -122,8 +126,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
 
     // Configure UART
     obj->baudrate = 9600;
@@ -217,7 +225,7 @@ static void uart_irq(UARTName name, int id) {
         }
         if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET) {
             irq_handler(serial_irq_ids[id], RxIrq);
-            __HAL_UART_SEND_REQ(&UartHandle, UART_RXDATA_FLUSH_REQUEST);
+            volatile uint32_t tmpval = UartHandle.Instance->RDR; // Clear RXNE bit
         }
     }
 }
@@ -278,9 +286,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_RXNE);
             // Check if TxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
+            if ((UartHandle.Instance->CR1 & USART_CR1_TCIE) == 0) all_disabled = 1;
         } else { // TxIrq
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
+            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TC);
             // Check if RxIrq is disabled too
             if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
@@ -297,13 +305,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
 int serial_getc(serial_t *obj) {
     USART_TypeDef *uart = (USART_TypeDef *)(obj->uart);
     while (!serial_readable(obj));
-    return (int)(uart->RDR & 0xFF);
+    return (int)(uart->RDR & (uint32_t)0xFF);
 }
 
 void serial_putc(serial_t *obj, int c) {
     USART_TypeDef *uart = (USART_TypeDef *)(obj->uart);
     while (!serial_writable(obj));
-    uart->TDR = (uint16_t)(c & 0xFF);
+    uart->TDR = (uint32_t)(c & (uint32_t)0xFF);
 }
 
 int serial_readable(serial_t *obj) {

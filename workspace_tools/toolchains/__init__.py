@@ -14,25 +14,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os import stat, walk
-from os.path import join, splitext, exists, relpath, dirname, basename, split
-from shutil import copyfile
-from copy import copy
-from types import ListType
-from inspect import getmro
-from time import time
 
-from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
-from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+import re
+from os import stat, walk
+from copy import copy
+from time import time, sleep
+from types import ListType
+from shutil import copyfile
+from os.path import join, splitext, exists, relpath, dirname, basename, split
+from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
-from time import sleep
-
+from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
+from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import workspace_tools.hooks as hooks
-import re
+
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
-CPU_COUNT_MIN = 1 
+CPU_COUNT_MIN = 1
 
 def print_notify(event):
     # Default command line notification
@@ -68,13 +67,13 @@ def print_notify_verbose(event):
 def compile_worker(job):
     results = []
     for command in job['commands']:
-        _, stderr, rc = run_cmd(command, job['work_dir'])
+        _, _stderr, _rc = run_cmd(command, job['work_dir'])
         results.append({
-            'code': rc,
-            'output': stderr,
+            'code': _rc,
+            'output': _stderr,
             'command': command
         })
-    
+
     return {
         'source': job['source'],
         'object': job['object'],
@@ -235,11 +234,11 @@ class mbedToolchain:
         self.build_all = False
         self.timestamp = time()
         self.jobs = 1
-        
+
         self.CHROOT = None
-        
+
         self.mp_pool = None
-        
+
     def __exit__(self):
         if self.mp_pool is not None:
             self.mp_pool.terminate()
@@ -271,8 +270,9 @@ class mbedToolchain:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
             # Add target's symbols
-            for macro in self.target.macros:
-                self.symbols.append(macro)
+            self.symbols += self.target.macros
+            # Add extra symbols passed via 'macros' parameter
+            self.symbols += self.macros
 
             # Form factor variables
             if hasattr(self.target, 'supported_form_factors'):
@@ -310,7 +310,7 @@ class mbedToolchain:
                 return True
 
         return False
-        
+
     def scan_resources(self, path):
         labels = self.get_labels()
         resources = Resources(path)
@@ -426,38 +426,38 @@ class mbedToolchain:
         obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
-        
+
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
-        
+
         #for i in self.build_params:
         #    self.debug(i)
         #    self.debug("%s" % self.build_params[i])
-        
+
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
-        
+
         objects = []
         queue = []
         prev_dir = None
-        
+
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
         files_to_compile.sort()
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-            
+
             # Avoid multiple mkdir() calls on same work directory
             work_dir = dirname(object)
             if work_dir is not prev_dir:
                 prev_dir = work_dir
                 mkdir(work_dir)
-            
+
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)
             if commands is not None:
@@ -481,7 +481,7 @@ class mbedToolchain:
     def compile_seq(self, queue, objects):
         for item in queue:
             result = compile_worker(item)
-            
+
             self.compiled += 1
             self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
@@ -497,7 +497,7 @@ class mbedToolchain:
     def compile_queue(self, queue, objects):
         jobs_count = int(self.jobs if self.jobs else cpu_count())
         p = Pool(processes=jobs_count)
-        
+
         results = []
         for i in range(len(queue)):
             results.append(p.apply_async(compile_worker, [queue[i]]))
@@ -509,7 +509,7 @@ class mbedToolchain:
                 p.terminate()
                 p.join()
                 raise ToolException("Compile did not finish in 5 minutes")
-            
+
             pending = 0
             for r in results:
                 if r._ready is True:
@@ -535,7 +535,7 @@ class mbedToolchain:
                     pending += 1
                     if pending > jobs_count:
                         break
-                    
+
 
             if len(results) == 0:
                 break
@@ -544,15 +544,15 @@ class mbedToolchain:
 
         results = None
         p.terminate()
-        p.join()        
-        
+        p.join()
+
         return objects
 
     def compile_command(self, source, object, includes):
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
-        
+
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
             dep_path = base + '.d'
@@ -568,37 +568,40 @@ class mbedToolchain:
                 return self.assemble(source, object, includes)
         else:
             return False
-        
+
         return None
-        
+
     def compile_output(self, output=[]):
-        rc = output[0]
-        stderr = output[1]
+        _rc = output[0]
+        _stderr = output[1]
         command = output[2]
-        
+
         # Parse output for Warnings and Errors
-        self.parse_output(stderr)
-        self.debug("Return: %s" % rc)
-        self.debug("Output: %s" % stderr)
-        
+        self.parse_output(_stderr)
+        self.debug("Return: %s"% _rc)
+        for error_line in _stderr.splitlines():
+            self.debug("Output: %s"% error_line)
+
         # Check return code
-        if rc != 0:
-            raise ToolException(stderr)
+        if _rc != 0:
+            for line in _stderr.splitlines():
+                self.tool_error(line)
+            raise ToolException(_stderr)
 
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
         ext = ext.lower()
-        
+
         command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-        
+
         if hasattr(self, "get_dep_opt"):
             base, _ = splitext(object)
             dep_path = base + '.d'
             command.extend(self.get_dep_opt(dep_path))
-        
+
         if hasattr(self, "cc_extra"):
             command.extend(self.cc_extra(base))
-            
+
         return [command]
 
     def compile_c(self, source, object, includes):
@@ -646,15 +649,23 @@ class mbedToolchain:
         return bin
 
     def default_cmd(self, command):
-        self.debug("Command: %s" % ' '.join(command))
-        stdout, stderr, rc = run_cmd(command)
-        self.debug("Return: %s" % rc)
-        self.debug("Output: %s" % ' '.join(stdout))
-        
-        if rc != 0:
-            for line in stderr.splitlines():
+        _stdout, _stderr, _rc = run_cmd(command)
+        # Print all warning / erros from stderr to console output
+        for error_line in _stderr.splitlines():
+            print error_line
+
+        self.debug("Command: %s"% ' '.join(command))
+        self.debug("Return: %s"% _rc)
+
+        for output_line in _stdout.splitlines():
+            self.debug("Output: %s"% output_line)
+        for error_line in _stderr.splitlines():
+            self.debug("Errors: %s"% error_line)
+
+        if _rc != 0:
+            for line in _stderr.splitlines():
                 self.tool_error(line)
-            raise ToolException(stderr)
+            raise ToolException(_stderr)
 
     ### NOTIFICATIONS ###
     def info(self, message):
@@ -689,15 +700,34 @@ class mbedToolchain:
         self.notify({'type': 'var', 'key': key, 'val': value})
 
 
+from workspace_tools.settings import ARM_BIN
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
+from workspace_tools.settings import IAR_PATH
+
+TOOLCHAIN_BIN_PATH = {
+    'ARM': ARM_BIN,
+    'uARM': ARM_BIN,
+    'GCC_ARM': GCC_ARM_PATH,
+    'GCC_CS': GCC_CS_PATH,
+    'GCC_CR': GCC_CR_PATH,
+    'GCC_CW_EWL': CW_EWL_PATH,
+    'GCC_CW_NEWLIB': CW_GCC_PATH,
+    'IAR': IAR_PATH
+}
+
 from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
 from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CS, GCC_CR
 from workspace_tools.toolchains.gcc import GCC_CW_EWL, GCC_CW_NEWLIB
 from workspace_tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
-    'ARM': ARM_STD, 'uARM': ARM_MICRO,
-    'GCC_ARM': GCC_ARM, 'GCC_CS': GCC_CS, 'GCC_CR': GCC_CR,
-    'GCC_CW_EWL': GCC_CW_EWL, 'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
+    'ARM': ARM_STD,
+    'uARM': ARM_MICRO,
+    'GCC_ARM': GCC_ARM,
+    'GCC_CS': GCC_CS,
+    'GCC_CR': GCC_CR,
+    'GCC_CW_EWL': GCC_CW_EWL,
+    'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
 

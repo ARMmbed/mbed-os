@@ -14,13 +14,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from SocketServer import BaseRequestHandler, UDPServer
-from host_test import Test
+
+import sys
 import socket
 from sys import stdout
+from host_test import Test
+from SocketServer import BaseRequestHandler, UDPServer
+
 
 SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
 SERVER_PORT = 7
+
 
 class UDPEchoClientTest(Test):
     def __init__(self):
@@ -28,29 +32,43 @@ class UDPEchoClientTest(Test):
         self.mbed.init_serial()
 
     def send_server_ip_port(self, ip_address, port_no):
-        print "Resetting target..."
+        print "HOST: Resetting target..."
         self.mbed.reset()
-        print "Sending server IP Address to target..."
+
+        c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c.strip()
+        stdout.flush()
+
+        print "HOST: Sending server IP Address to target..."
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)
 
+        c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c.strip()
+        stdout.flush()
 
 class UDPEchoClient_Handler(BaseRequestHandler):
-    def print_result(self, result):
-        print "\n{%s}\n{end}" % result
-
     def handle(self):
-        """ One handle per connection """
-        print "connection received"
+        """ One handle per connection
+        """
         data, socket = self.request
-        print "client: ", self.client_address
-        print "data: ", data
         socket.sendto(data, self.client_address)
+        if '{{end}}' in data:
+            print
+            print data
+        else:
+            sys.stdout.write('.')
         stdout.flush()
 
 
 server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
-print "listening for connections"
+print "HOST: Listening for connections..."
 
 mbed_test = UDPEchoClientTest();
 mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)

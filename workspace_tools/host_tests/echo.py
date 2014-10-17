@@ -14,33 +14,48 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import sys
+import uuid
+from sys import stdout
 from host_test import Test
 
 
 class EchoTest(Test):
     def __init__(self):
         Test.__init__(self)
-        self.mbed.init_serial(115200)
+        serial_init_res = self.mbed.init_serial(115200)
+        if not serial_init_res:
+            self.print_result("ioerr_serial")
         self.mbed.reset()
+        self.TEST_LOOP_COUNT = 50
 
     def test(self):
+        """ Test function, return True or False to get standard test notification on stdout
+        """
+        c = self.mbed.serial_readline() # '{{start}}'
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        print c.strip()
+        stdout.flush()
+
         self.mbed.flush()
-        self.notify("Starting the ECHO test")
-        TEST="longer serial test"
-        check = True
-        for i in range(1, 100):
-            self.mbed.serial_write(TEST + "\n")
-            l = self.mbed.serial.readline().strip()
-            if not l: continue
-
-            if l != TEST:
-                check = False
-                self.notify('"%s" != "%s"' % (l, TEST))
+        self.notify("HOST: Starting the ECHO test")
+        result = True
+        for i in range(0, self.TEST_LOOP_COUNT):
+            TEST = str(uuid.uuid4()) + "\n"
+            self.mbed.serial_write(TEST)
+            c = self.mbed.serial_readline()
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
+            if c.strip() != TEST.strip():
+                self.notify('HOST: "%s" != "%s"'% (c, TEST))
+                result = False
             else:
-                if (i % 10) == 0:
-                    self.notify('.')
-
-        return check
+                sys.stdout.write('.')
+                stdout.flush()
+        return result
 
 
 if __name__ == '__main__':

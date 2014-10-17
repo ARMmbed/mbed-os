@@ -32,175 +32,155 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_init(uint8_t instance, ftm_config_t *config)
-{
-  switch(config->mode)
-  {
-  case kFtmInputCapture:
-    break;
-  case kFtmOutputCompare:
-     break;
-  case kFtmEdgeAlignedPWM:
-  case kFtmCenterAlignedPWM:
-  case kFtmCombinedPWM:
-    ftm_hal_enable_pwm_mode(instance, config);
-     break;
-  case kFtmDualEdgeCapture:
-    break;
-  case kFtmQuadCapture:
-    break;
-  default:
-    assert(0);
-    break;
-  }
-}
-
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_enable_pwm_mode(uint8_t instance, ftm_config_t *config)
-{
-  ftm_hal_enable_dual_capture(instance, config->channel, false);
-  ftm_hal_set_channel_edge_level(instance, config->channel,config->edge_mode.ftm_pwm_edge_mode? 1:2);
-  switch(config->mode)
-  {
-  case kFtmEdgeAlignedPWM:
-    ftm_hal_enable_dual_channel_combine(instance, config->channel, false);
-    ftm_hal_set_cpwms(instance, 0);
-    ftm_hal_set_channel_MSnBA_mode(instance, config->channel, 2);
-     break;
-  case kFtmCenterAlignedPWM:
-    ftm_hal_enable_dual_channel_combine(instance, config->channel, false);
-    ftm_hal_set_cpwms(instance, 1);
-     break;
-  case kFtmCombinedPWM:
-    ftm_hal_set_cpwms(instance, 0);
-    ftm_hal_enable_dual_channel_combine(instance, config->channel, true);
-     break;
-  default:
-    assert(0);
-    break;
-  }
-}
-
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_disable_pwm_mode(uint8_t instance, ftm_config_t *config)
+void FTM_HAL_Init(uint32_t ftmBaseAddr)
 {
 
-  ftm_hal_set_channel_count_value(instance, config->channel, 0);
-  switch(config->mode)
-  {
-  case kFtmEdgeAlignedPWM:
-    ftm_hal_set_channel_MSnBA_mode(instance, config->channel, 1);
-     break;
-  case kFtmCenterAlignedPWM:
-    ftm_hal_set_cpwms(instance, 0);
-     break;
-  case kFtmCombinedPWM:
-    ftm_hal_enable_dual_channel_combine(instance, config->channel, false);
-     break;
-  default:
-    assert(0);
-    break;
-  }
 }
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_reset(uint8_t instance)
+
+void FTM_HAL_EnablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel)
 {
-  uint8_t chan = ((instance == 1) || (instance == 2)) ? 2 : HW_FTM_CHANNEL_COUNT;
-  ftm_hal_set_clock_source(instance,kClock_source_FTM_None);
-  HW_FTM_SC_WR(instance, 0);
-  HW_FTM_CNT_WR(instance, 0);
-  HW_FTM_MOD_WR(instance, 0);
-
-  /*instance 1 and 2 only has two channels,0 and 1*/
-  for(int i = 0; i<chan; i++)
-  {
-    HW_FTM_CnSC_WR(instance, i, 0);
-    HW_FTM_CnV_WR(instance, i, 0);
-  }
-  HW_FTM_CNTIN_WR(instance, 0);
-  HW_FTM_STATUS_WR(instance, 0);
-  HW_FTM_MODE_WR(instance, 0x00000004);
-  HW_FTM_SYNC_WR(instance, 0);
-  HW_FTM_OUTINIT_WR(instance, 0);
-  HW_FTM_OUTMASK_WR(instance, 0);
-  HW_FTM_COMBINE_WR(instance, 0);
-  HW_FTM_DEADTIME_WR(instance, 0);
-  HW_FTM_EXTTRIG_WR(instance, 0);
-  HW_FTM_POL_WR(instance, 0);
-  HW_FTM_FMS_WR(instance, 0);
-  HW_FTM_FILTER_WR(instance, 0);
-  HW_FTM_FLTCTRL_WR(instance, 0);
-  /*HW_FTM_QDCTRL_WR(instance, 0);*/
-  HW_FTM_CONF_WR(instance, 0);
-  HW_FTM_FLTPOL_WR(instance, 0);
-  HW_FTM_SYNCONF_WR(instance, 0);
-  HW_FTM_INVCTRL_WR(instance, 0);
-  HW_FTM_SWOCTRL_WR(instance, 0);
-  HW_FTM_PWMLOAD_WR(instance, 0);
+    FTM_HAL_SetDualEdgeCaptureCmd(ftmBaseAddr, channel, false);
+    FTM_HAL_SetChnEdgeLevel(ftmBaseAddr, channel, config->edgeMode ? 1 : 2);
+    switch(config->mode)
+    {
+        case kFtmEdgeAlignedPWM:
+            FTM_HAL_SetDualChnCombineCmd(ftmBaseAddr, channel, false);
+            FTM_HAL_SetCpwms(ftmBaseAddr, 0);
+            FTM_HAL_SetChnMSnBAMode(ftmBaseAddr, channel, 2);
+            break;
+        case kFtmCenterAlignedPWM:
+            FTM_HAL_SetDualChnCombineCmd(ftmBaseAddr, channel, false);
+            FTM_HAL_SetCpwms(ftmBaseAddr, 1);
+            break;
+        case kFtmCombinedPWM:
+            FTM_HAL_SetCpwms(ftmBaseAddr, 0);
+            FTM_HAL_SetDualChnCombineCmd(ftmBaseAddr, channel, true);
+            break;
+        default:
+            assert(0);
+            break;
+    }
 }
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_set_hardware_trigger(uint8_t instance, uint8_t trigger_num, bool enable)
+
+void FTM_HAL_DisablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   switch(trigger_num)
-   {
-      case 0:
-        BW_FTM_SYNC_TRIG0(instance, enable?1:0);
-        break;
 
-      case 1:
-        BW_FTM_SYNC_TRIG1(instance, enable?1:0);
-        break;
-
-      case 2:
-        BW_FTM_SYNC_TRIG2(instance, enable?1:0);
-        break;
-
-      default:
-         assert(0);
-         break;
-   }
+    FTM_HAL_SetChnCountVal(ftmBaseAddr, channel, 0);
+    FTM_HAL_SetChnEdgeLevel(ftmBaseAddr, channel, 0);
+    FTM_HAL_SetChnMSnBAMode(ftmBaseAddr, channel, 0);
+    FTM_HAL_SetCpwms(ftmBaseAddr, 0);
+    FTM_HAL_SetDualChnCombineCmd(ftmBaseAddr, channel, false);
 }
 
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_enable_channel_trigger(uint8_t instance, uint8_t channel, bool val)
+void FTM_HAL_Reset(uint32_t ftmBaseAddr, uint32_t instance)
 {
-      uint8_t bit = val? 1:0;
-      uint32_t value = (channel > 1U)? (uint8_t)(bit<<(channel-2U)) : (uint8_t)(bit<<(channel+4U));
-      assert(instance <HW_FTM_INSTANCE_COUNT && channel < (HW_FTM_CHANNEL_COUNT - 2));
-      BW_FTM_EXTTRIG_INITTRIGEN(instance, val);
-      val?   HW_FTM_EXTTRIG_SET(instance, value)
-           : HW_FTM_EXTTRIG_CLR(instance, value);
+    uint8_t chan = FSL_FEATURE_FTM_CHANNEL_COUNTn(instance);
+
+    HW_FTM_SC_WR(ftmBaseAddr, 0);
+    HW_FTM_CNT_WR(ftmBaseAddr, 0);
+    HW_FTM_MOD_WR(ftmBaseAddr, 0);
+
+    for(int i = 0; i < chan; i++)
+    {
+        HW_FTM_CnSC_WR(ftmBaseAddr, i, 0);
+        HW_FTM_CnV_WR(ftmBaseAddr, i, 0);
+    }
+    HW_FTM_CNTIN_WR(ftmBaseAddr, 0);
+    HW_FTM_STATUS_WR(ftmBaseAddr, 0);
+    HW_FTM_MODE_WR(ftmBaseAddr, 0x00000004);
+    HW_FTM_SYNC_WR(ftmBaseAddr, 0);
+    HW_FTM_OUTINIT_WR(ftmBaseAddr, 0);
+    HW_FTM_OUTMASK_WR(ftmBaseAddr, 0);
+    HW_FTM_COMBINE_WR(ftmBaseAddr, 0);
+    HW_FTM_DEADTIME_WR(ftmBaseAddr, 0);
+    HW_FTM_EXTTRIG_WR(ftmBaseAddr, 0);
+    HW_FTM_POL_WR(ftmBaseAddr, 0);
+    HW_FTM_FMS_WR(ftmBaseAddr, 0);
+    HW_FTM_FILTER_WR(ftmBaseAddr, 0);
+    HW_FTM_FLTCTRL_WR(ftmBaseAddr, 0);
+    /*HW_FTM_QDCTRL_WR(instance, 0);*/
+    HW_FTM_CONF_WR(ftmBaseAddr, 0);
+    HW_FTM_FLTPOL_WR(ftmBaseAddr, 0);
+    HW_FTM_SYNCONF_WR(ftmBaseAddr, 0);
+    HW_FTM_INVCTRL_WR(ftmBaseAddr, 0);
+    HW_FTM_SWOCTRL_WR(ftmBaseAddr, 0);
+    HW_FTM_PWMLOAD_WR(ftmBaseAddr, 0);
 }
 
-/*see fsl_ftm_hal.h for documentation of this function*/
-void ftm_hal_set_channel_input_capture_filter(uint8_t instance, uint8_t channel, uint8_t val)
+void FTM_HAL_SetHardwareTriggerCmd(uint32_t ftmBaseAddr, uint8_t trigger_num, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_CHAN4);
-   switch(channel)
-   {
-      case 0:
-        BW_FTM_FILTER_CH0FVAL(instance, val);
-        break;
-
-      case 1:
-        BW_FTM_FILTER_CH1FVAL(instance, val);
-        break;
-
-      case 2:
-        BW_FTM_FILTER_CH2FVAL(instance, val);
-        break;
-
-      case 3:
-        BW_FTM_FILTER_CH3FVAL(instance, val);
-        break;
-
-      default:
-         assert(0);
-         break;
-   }
+    switch(trigger_num)
+    {
+        case 0:
+            BW_FTM_SYNC_TRIG0(ftmBaseAddr, enable ? 1 : 0);
+            break;
+        case 1:
+            BW_FTM_SYNC_TRIG1(ftmBaseAddr, enable ? 1 : 0);
+            break;
+        case 2:
+            BW_FTM_SYNC_TRIG2(ftmBaseAddr, enable ? 1 : 0);
+            break;
+        default:
+            assert(0);
+            break;
+    }
 }
 
-/*see fsl_ftm_hal.h for documentation of this function          */
-/*void ftm_hal_set_deadtime(uint8_t instance, uint_32 us)*/
+void FTM_HAL_SetChnTriggerCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val)
+{
+    assert(channel < HW_CHAN6);
+
+    uint8_t bit = val ? 1 : 0;
+    uint32_t value = (channel > 1U) ? (uint8_t)(bit << (channel - 2U)) : (uint8_t)(bit << (channel + 4U));
+
+    val ? HW_FTM_EXTTRIG_SET(ftmBaseAddr, value) : HW_FTM_EXTTRIG_CLR(ftmBaseAddr, value);
+}
+
+void FTM_HAL_SetChnInputCaptureFilter(uint32_t ftmBaseAddr, uint8_t channel, uint8_t val)
+{
+    assert(channel < HW_CHAN4);
+
+    switch(channel)
+    {
+        case HW_CHAN0:
+            BW_FTM_FILTER_CH0FVAL(ftmBaseAddr, val);
+            break;
+        case HW_CHAN1:
+            BW_FTM_FILTER_CH1FVAL(ftmBaseAddr, val);
+            break;
+        case HW_CHAN2:
+            BW_FTM_FILTER_CH2FVAL(ftmBaseAddr, val);
+            break;
+        case HW_CHAN3:
+            BW_FTM_FILTER_CH3FVAL(ftmBaseAddr, val);
+            break;
+        default:
+            assert(0);
+            break;
+    }
+}
+
+uint32_t FTM_HAL_GetChnPairIndex(uint8_t channel)
+{
+    if((channel == HW_CHAN0) || (channel == HW_CHAN1))
+    {
+        return 0;
+    }
+    else if((channel == HW_CHAN2) || (channel == HW_CHAN3))
+    {
+        return 1;
+    }
+    else if((channel == HW_CHAN4) || (channel == HW_CHAN5))
+    {
+        return 2;
+    }
+    else
+    {
+        return 3;
+    }
+}
+
+/*******************************************************************************
+ * EOF
+ ******************************************************************************/
+

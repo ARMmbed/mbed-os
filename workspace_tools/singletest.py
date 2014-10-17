@@ -16,19 +16,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
+Author: Przemyslaw Wirkus <Przemyslaw.Wirkus@arm.com>
+"""
 
--------------------------------------------------------------------------------
-
-Call:
-    singletest.py --help
-
-to get help information.
-
--------------------------------------------------------------------------------
-
-File format example: test_spec.json
-
+"""
+File format example: test_spec.json:
 {
     "targets": {
         "KL46Z": ["ARM", "GCC_ARM"],
@@ -38,8 +30,7 @@ File format example: test_spec.json
     }
 }
 
-File format example: muts_all.json
-
+File format example: muts_all.json:
 {
     "1" : {"mcu": "LPC1768",
            "port":"COM4",
@@ -53,29 +44,20 @@ File format example: muts_all.json
            "peripherals": ["digital_loop", "port_loop", "analog_loop"]
     }
 }
-
 """
 
-# Check if 'prettytable' module is installed
-try:
-    from prettytable import PrettyTable
-except ImportError, e:
-    print "Error: Can't import 'prettytable' module: %s"% e
-    exit(-1)
 
-# Check if 'serial' module is installed
-try:
-    from serial import Serial
-except ImportError, e:
-    print "Error: Can't import 'serial' module: %s"% e
-    exit(-1)
-
+# Be sure that the tools directory is in the search path
 import sys
 from os.path import join, abspath, dirname
 
-# Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
+
+# Check: Extra modules which are required by core test suite
+from workspace_tools.utils import check_required_modules
+check_required_modules(['prettytable', 'serial'])
 
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
@@ -83,18 +65,19 @@ from workspace_tools.build_api import mcu_toolchain_matrix
 # Imports from TEST API
 from workspace_tools.test_api import SingleTestRunner
 from workspace_tools.test_api import singletest_in_cli_mode
+from workspace_tools.test_api import detect_database_verbose
 from workspace_tools.test_api import get_json_data_from_file
-from workspace_tools.test_api import print_muts_configuration_from_json
-from workspace_tools.test_api import print_test_configuration_from_json
 from workspace_tools.test_api import get_avail_tests_summary_table
 from workspace_tools.test_api import get_default_test_options_parser
+from workspace_tools.test_api import print_muts_configuration_from_json
+from workspace_tools.test_api import print_test_configuration_from_json
 
 
 def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 1
+    single_test_version_minor = 3
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -117,6 +100,10 @@ if __name__ == '__main__':
     # Print summary / information about automation test status
     if opts.test_automation_report:
         print get_avail_tests_summary_table()
+        exit(0)
+
+    if opts.db_url and opts.verbose_test_configuration_only:
+        detect_database_verbose(opts.db_url)
         exit(0)
 
     # Print summary / information about automation test status
@@ -156,6 +143,7 @@ if __name__ == '__main__':
         print print_test_configuration_from_json(test_spec)
         exit(0)
 
+
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
         print print_muts_configuration_from_json(MUTs)
@@ -169,7 +157,11 @@ if __name__ == '__main__':
     single_test = SingleTestRunner(_global_loops_count=opts.test_global_loops_value,
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
+                                   _clean=opts.clean,
+                                   _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
+                                   _opts_report_html_file_name=opts.report_html_file_name,
+                                   _opts_report_junit_file_name=opts.report_junit_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,
@@ -188,6 +180,7 @@ if __name__ == '__main__':
                                    _opts_copy_method=opts.copy_method,
                                    _opts_mut_reset_type=opts.mut_reset_type,
                                    _opts_jobs=opts.jobs,
+                                   _opts_waterfall_test=opts.waterfall_test,
                                    _opts_extend_test_timeout=opts.extend_test_timeout)
 
     # Runs test suite in CLI mode

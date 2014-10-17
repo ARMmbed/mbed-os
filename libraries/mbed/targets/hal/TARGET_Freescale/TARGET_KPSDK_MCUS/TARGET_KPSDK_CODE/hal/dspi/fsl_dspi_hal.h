@@ -30,7 +30,6 @@
 #if !defined(__FSL_DSPI_HAL_H__)
 #define __FSL_DSPI_HAL_H__
 
-#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "fsl_dspi_features.h"
@@ -52,6 +51,11 @@ static const uint32_t s_baudratePrescaler[] = { 2, 3, 5, 7 };
 static const uint32_t s_baudrateScaler[] = { 2, 4, 6, 8, 16, 32, 64, 128, 256, 512, 1024, 2048,
                                            4096, 8192, 16384, 32768 };
 
+static const uint32_t s_delayPrescaler[] = { 1, 3, 5, 7 };
+static const uint32_t s_delayScaler[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048,
+                                           4096, 8192, 16384, 32768, 65536 };
+
+
 /*! @brief Error codes for the DSPI driver.*/
 typedef enum _dspi_status
 {
@@ -63,9 +67,9 @@ typedef enum _dspi_status
                                                  transfer.*/
     kStatus_DSPI_NoTransferInProgress,       /*!< Attempt to abort a transfer when no transfer
                                                   was in progress*/
-    kStatus_DSPI_InvalidBitCount,             /*!< bits-per-frame value not valid*/
-    kStatus_DSPI_InvalidInstanceNumber,      /*!< DSPI instance number does not match current count*/
-    kStatus_DSPI_OutOfRange               /*< DSPI out-of-range error used in slave callback */
+    kStatus_DSPI_InvalidBitCount,         /*!< bits-per-frame value not valid*/
+    kStatus_DSPI_InvalidInstanceNumber,   /*!< DSPI instance number does not match current count*/
+    kStatus_DSPI_OutOfRange               /*!< DSPI out-of-range error used in slave callback */
 } dspi_status_t;
 
 /*! @brief DSPI master or slave configuration*/
@@ -132,6 +136,12 @@ typedef enum _dspi_fifo {
     kDspiRxFifo = 1     /*!< DSPI Rx FIFO.*/
 } dspi_fifo_t;
 
+/*! @brief DSPI Tx FIFO Fill and Rx FIFO Drain DMA or Interrupt configuration */
+typedef enum _dspi_dma_or_int_mode {
+    kDspiGenerateIntReq = 0, /*!< Desired flag generates an Interrupt request */
+    kDspiGenerateDmaReq = 1  /*!< Desired flag generates a DMA request */
+} dspi_dma_or_int_mode_t;
+
 /*! @brief DSPI status flags and interrupt request enable*/
 typedef enum _dspi_status_and_interrupt_request {
     kDspiTxComplete = BP_SPI_RSER_TCF_RE,  /*!< TCF status/interrupt enable */
@@ -141,7 +151,6 @@ typedef enum _dspi_status_and_interrupt_request {
     kDspiTxFifoFillRequest = BP_SPI_RSER_TFFF_RE, /*!< TFFF status/interrupt enable*/
     kDspiRxFifoOverflow = BP_SPI_RSER_RFOF_RE, /*!< RFOF status/interrupt enable*/
     kDspiRxFifoDrainRequest = BP_SPI_RSER_RFDF_RE /*!< RFDF status/interrupt enable*/
-
 } dspi_status_and_interrupt_request_t;
 
 /*! @brief DSPI FIFO counter or pointer defines based on bit positions*/
@@ -151,6 +160,13 @@ typedef enum _dspi_fifo_counter_pointer {
     kDspiTxFifoPointer = BP_SPI_SR_TXNXTPTR,  /*!< Tx FIFO pointer*/
     kDspiTxFifoCounter = BP_SPI_SR_TXCTR      /*!< Tx FIFO counter*/
 } dspi_fifo_counter_pointer_t;
+
+/*! @brief DSPI delay type selection*/
+typedef enum _dspi_delay_type {
+    kDspiPcsToSck = 1,      /*!< PCS-to-SCK delay */
+    kDspiLastSckToPcs = 2,  /*!< Last SCK edge to PCS delay */
+    kDspiAfterTransfer = 3, /*!< Delay between transfers */
+} dspi_delay_type_t;
 
 /*!
  * @brief DSPI data format settings configuration structure
@@ -168,47 +184,9 @@ typedef struct DspiDataFormatConfig {
 } dspi_data_format_config_t;
 
 /*!
- * @brief DSPI hardware configuration settings for master mode
- *
- * Use an instance of this structure with the dspi_hal_master_init() to configure the
- * most common settings of the DSPI peripheral in master mode with a single function call.
- *
- * The @c bitsPerSec member is handled in a special way. If this value is set to 0, then the baud is
- * not set by the dspi_hal_master_init(), and must be set with a separate call to either the
- * dspi_hal_set_baud() or the dspi_hal_set_baud_divisors(). This can be useful when you know the
- * divisors in advance and don't want to spend the time to compute them for the provided rate
- * in bits/sec.
- *
- * This structure also contains another structure template as a member:
- * @c dspi_data_format_config_t @c dataConfig.
- * An example usage for this is assuming declaration @c dspi_master_config_t
- * @c dspiConfig:
-   @code
-    dspiConfig.dataConfig.bitsPerFrame = 16;
-    dspiConfig.dataConfig.clkPolarity = kDspiClockPolarity_ActiveHigh;
-    dspiConfig.dataConfig.clkPhase = kDspiClockPhase_FirstEdge;
-    dspiConfig.dataConfig.direction = kDspiMsbFirst;
-   @endcode
- */
-typedef struct DspiMasterConfig {
-    bool isEnabled;                         /*!< Set to true to enable the DSPI peripheral.*/
-    dspi_ctar_selection_t whichCtar;  /*!< Desired Clock and Transfer Attributes Register (CTAR)*/
-    uint32_t bitsPerSec;                   /*!< Baud rate in bits per second*/
-    uint32_t sourceClockInHz;               /*!< Module source clock  */
-    dspi_data_format_config_t dataConfig;    /*!< Data format configuration structure*/
-    bool isSckContinuous;                    /*!< Disable(0) or Enable(1) continuous SCK operation*/
-    dspi_which_pcs_config_t whichPcs;        /*!< Desired Peripheral Chip Select (PCS) */
-    dspi_pcs_polarity_config_t pcsPolarity;  /*!< Peripheral Chip Select (PCS) polarity setting.*/
-    dspi_master_sample_point_t masterInSample; /*!< Master data-in (SIN) sample point setting.*/
-    bool isModifiedTimingFormatEnabled;      /*!< Disable(0) or Enable(1) modified timing format.*/
-    bool isTxFifoDisabled;                    /*!< Disable(1) or Enable(0) Tx FIFO  */
-    bool isRxFifoDisabled;                    /*!< Disable(1) or Enable(0) Rx FIFO */
-} dspi_master_config_t;
-
-/*!
  * @brief DSPI hardware configuration settings for slave mode.
  *
- * Use an instance of this structure with the dspi_hal_slave_init() to configure the
+ * Use an instance of this structure with the DSPI_HAL_SlaveInit() to configure the
  * most common settings of the DSPI peripheral in slave mode with a single function call.
  */
 typedef struct DspiSlaveConfig {
@@ -222,8 +200,8 @@ typedef struct DspiSlaveConfig {
  * @brief DSPI baud rate divisors settings configuration structure.
  *
  * Note: These settings are relevant only in master mode.
- * This structure contains the baud rate divisor settings, which provides the user with the option to
- * explicitly set these baud rate divisors. In addition, the user must also set the
+ * This structure contains the baud rate divisor settings, which provides the user with the option
+ * to explicitly set these baud rate divisors. In addition, the user must also set the
  * CTARn register  with the divisor settings.
  */
 typedef struct DspiBaudRateDivisors {
@@ -231,22 +209,6 @@ typedef struct DspiBaudRateDivisors {
     uint32_t prescaleDivisor;     /*!< Baud Rate Pre-scalar parameter setting*/
     uint32_t baudRateDivisor;     /*!< Baud Rate scaler parameter setting */
 } dspi_baud_rate_divisors_t;
-
-/*!
- * @brief DSPI delay settings configuration structure
- *
- * Note: These settings are relevant only in master mode.
- * This structure contains the various delay settings.  These settings apply to a specific
- * CTARn register, which the user must provide in this structure.
- */
-typedef struct DspiDelaySettingsConfig {
-    uint32_t pcsToSckPre;         /*!< PCS to SCK delay pre-scalar (PCSSCK) */
-    uint32_t pcsToSck;            /*!< PCS to SCK Delay scalar (CSSCK) */
-    uint32_t afterSckPre;         /*!< After SCK delay pre-scalar (PASC)*/
-    uint32_t afterSck;            /*!< After SCK delay scalar (ASC)*/
-    uint32_t afterTransferPre;    /*!< Delay after transfer pre-scalar (PDT)*/
-    uint32_t afterTransfer;       /*!< Delay after transfer scalar (DT) */
-} dspi_delay_settings_config_t;
 
 /*!
  * @brief DSPI command and data configuration structure
@@ -270,6 +232,12 @@ typedef struct DspiCommandDataConfig {
 } dspi_command_config_t;
 
 /*******************************************************************************
+ * Variables
+ ******************************************************************************/
+
+extern const uint32_t spi_base_addr[];
+
+/*******************************************************************************
  * API
  ******************************************************************************/
 
@@ -283,92 +251,33 @@ extern "C" {
  */
 
 /*!
- * @brief Configure the DSPI peripheral in master mode
- *
- * This function  initializes the module to the user defined settings and default settings in master
- * mode.  This is an example demonstrating how to define the dspi_master_config_t structure and call
- * the dspi_hal_master_init function:
-   @code
-    dspi_master_config_t dspiConfig;
-    dspiConfig.isEnabled = false;
-    dspiConfig.whichCtar = kDspiCtar0;
-    dspiConfig.bitsPerSec = 0;
-    dspiConfig.sourceClockInHz = dspiSourceClock;
-    dspiConfig.isSckContinuous = false;
-    dspiConfig.whichPcs = kDspiPcs0;
-    dspiConfig.pcsPolarity = kDspiPcs_ActiveLow;
-    dspiConfig.masterInSample = kDspiSckToSin_0Clock;
-    dspiConfig.isModifiedTimingFormatEnabled = false;
-    dspiConfig.isTxFifoDisabled = false;
-    dspiConfig.isRxFifoDisabled = false;
-    dspiConfig.dataConfig.bitsPerFrame = 16;
-    dspiConfig.dataConfig.clkPolarity = kDspiClockPolarity_ActiveHigh;
-    dspiConfig.dataConfig.clkPhase = kDspiClockPhase_FirstEdge;
-    dspiConfig.dataConfig.direction = kDspiMsbFirst;
-    dspi_hal_master_init(instance, &dspiConfig, calculatedBaudRate);
-   @endcode
- *
- * @param instance Module instance number
- * @param config   Pointer to the master mode configuration data structure
- * @param calculatedBaudRate The calculated baud rate passed back to the user for them to determine
- *                           if the calculated baud rate is close enough to meet their needs.
- * @return  An error code or kStatus_DSPI_Success.
- */
-dspi_status_t dspi_hal_master_init(uint32_t instance, const dspi_master_config_t * config,
-                       uint32_t * calculatedBaudRate);
-
-/*!
- * @brief Configures the DSPI peripheral in slave mode.
- *
- * This function initializes the DSPI module for slave mode. This is an example demonstrating how
- * to define the dspi_slave_config_t structure and call the dspi_hal_slave_init function:
-   @code
-    dspi_slave_config_t dspiConfig;
-    dspiConfig.isEnabled = false;
-    dspiConfig.isTxFifoDisabled = false;
-    dspiConfig.isRxFifoDisabled = false;
-    dspiConfig.dataConfig.bitsPerFrame = 16;
-    dspiConfig.dataConfig.clkPolarity = kDspiClockPolarity_ActiveHigh;
-    dspiConfig.dataConfig.clkPhase = kDspiClockPhase_FirstEdge;
-    dspi_hal_slave_init(instance, &dspiConfig);
-   @endcode
- *
- * @param instance Module instance number
- * @param config   Pointer to the slave mode configuration data structure
- * @return  An error code or kStatus_DSPI_Success.
- */
-dspi_status_t dspi_hal_slave_init(uint32_t instance, const dspi_slave_config_t * config);
-
-/*!
  * @brief Restores the DSPI to reset the configuration.
  *
  * This function basically resets all of the DSPI registers to their default setting including
  * disabling the module.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-void dspi_hal_reset(uint32_t instance);
+void DSPI_HAL_Init(uint32_t baseAddr);
 
 /*!
- * @brief Enable the DSPI peripheral, set MCR MDIS to 0.
+ * @brief Enables the DSPI peripheral and sets the MCR MDIS to 0.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-static inline void dspi_hal_enable(uint32_t instance)
+static inline void DSPI_HAL_Enable(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_MCR_CLR(instance, BM_SPI_MCR_MDIS);
+    BW_SPI_MCR_MDIS(baseAddr, 0);
 }
 
 /*!
  * @brief Disables the DSPI peripheral, sets MCR MDIS to 1.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-static inline void dspi_hal_disable(uint32_t instance)
+static inline void DSPI_HAL_Disable(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_MCR_SET(instance, BM_SPI_MCR_MDIS);
+    BW_SPI_MCR_MDIS(baseAddr, 1);
 }
 
 /*!
@@ -379,65 +288,74 @@ static inline void dspi_hal_disable(uint32_t instance)
  * baud rate in bits-per-second. It requires that the caller also provide the frequency of the
  * module source clock (in Hertz).
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param whichCtar The desired Clock and Transfer Attributes Register (CTAR) of the type
  *                  dspi_ctar_selection_t
  * @param bitsPerSec The desired baud rate in bits per second
  * @param sourceClockInHz Module source input clock in Hertz
  * @return  The actual calculated baud rate
  */
-uint32_t dspi_hal_set_baud(uint32_t instance, dspi_ctar_selection_t whichCtar, uint32_t bitsPerSec,
-                        uint32_t sourceClockInHz);
+uint32_t DSPI_HAL_SetBaudRate(uint32_t baseAddr, dspi_ctar_selection_t whichCtar,
+                              uint32_t bitsPerSec, uint32_t sourceClockInHz);
 
 /*!
  * @brief Configures the baud rate divisors manually.
  *
  * This function allows the caller to manually set the baud rate divisors in the event that
- * these dividers are known and the caller does not wish to call the dspi_hal_set_baud function.
+ * these dividers are known and the caller does not wish to call the DSPI_HAL_SetBaudRate function.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param whichCtar The desired Clock and Transfer Attributes Register (CTAR) of type
  *                  dspi_ctar_selection_t
  * @param divisors Pointer to a structure containing the user defined baud rate divisor settings
  */
-void dspi_hal_set_baud_divisors(uint32_t instance,
-                                dspi_ctar_selection_t whichCtar,
-                                const dspi_baud_rate_divisors_t * divisors);
+void DSPI_HAL_SetBaudDivisors(uint32_t baseAddr,
+                              dspi_ctar_selection_t whichCtar,
+                              const dspi_baud_rate_divisors_t * divisors);
 
 /*!
  * @brief Configures the DSPI for master or slave.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param mode Mode setting (master or slave) of type dspi_master_slave_mode_t
  */
-static inline void dspi_hal_set_master_slave(uint32_t instance, dspi_master_slave_mode_t mode)
+static inline void DSPI_HAL_SetMasterSlaveMode(uint32_t baseAddr, dspi_master_slave_mode_t mode)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_MSTR(instance, (uint32_t)mode);
+    BW_SPI_MCR_MSTR(baseAddr, (uint32_t)mode);
+}
+
+/*!
+ * @brief Returns whether the DSPI module is in master mode.
+ *
+ * @param baseAddr Module base address
+ * @retval true The module is in master mode.
+ * @retval false The module is in slave mode.
+ */
+static inline bool DSPI_HAL_IsMaster(uint32_t baseAddr)
+{
+    return (bool)BR_SPI_MCR_MSTR(baseAddr);
 }
 
 /*!
  * @brief Configures the DSPI for the continuous SCK operation.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param enable Enables (true) or disables(false) continuous SCK operation.
  */
-static inline void dspi_hal_configure_continuous_sck(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetContinuousSckCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_CONT_SCKE(instance, (enable == true));
+    BW_SPI_MCR_CONT_SCKE(baseAddr, (enable == true));
 }
 
 /*!
  * @brief Configures the DSPI to enable modified timing format.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param enable Enables (true) or disables(false) modified timing format.
  */
-static inline void dspi_hal_configure_modified_timing_format(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetModifiedTimingFormatCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_MTFE(instance, (enable == true));
+    BW_SPI_MCR_MTFE(baseAddr, (enable == true));
 }
 
 /*!
@@ -448,14 +366,13 @@ static inline void dspi_hal_configure_modified_timing_format(uint32_t instance, 
  * Chip Select in master mode. When configured as a strobe, it provides a signal to an external
  * demultiplexer to decode PCS[0] to PCS[4] signals into as many as 128 glitch-free PCS signals.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param enable Enable (true) PCS[5] to operate as the peripheral chip select (PCS) strobe
  *               If disable (false), PCS[5] operates as a peripheral chip select
  */
-static inline void dspi_hal_configure_pcs_strobe(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetPcsStrobeCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_PCSSE(instance, (enable == true));
+    BW_SPI_MCR_PCSSE(baseAddr, (enable == true));
 }
 
 /*!
@@ -465,14 +382,13 @@ static inline void dspi_hal_configure_pcs_strobe(uint32_t instance, bool enable)
  * receive shift register when the Rx FIFO is full.  Otherwise when disabled, the incoming data
  * is ignored when the RX FIFO is full.
  *
- * @param instance Module instance number.
+ * @param baseAddr Module base address.
  * @param enable If enabled (true), allows incoming data to overwrite Rx FIFO contents when full,
  *               else incoming data is ignored.
  */
-static inline void dspi_hal_configure_rx_fifo_overwrite(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetRxFifoOverwriteCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_ROOE(instance, (enable == true));
+    BW_SPI_MCR_ROOE(baseAddr, (enable == true));
 }
 
 /*!
@@ -482,60 +398,54 @@ static inline void dspi_hal_configure_rx_fifo_overwrite(uint32_t instance, bool 
  * corresponding desired polarity and  configures the PCS signal to operate with the
  * desired characteristic.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param pcs The particular peripheral chip select (parameter value is of type
  *            dspi_which_pcs_config_t) for which we wish to apply the active high or active
  *            low characteristic.
  * @param activeLowOrHigh The setting for either "active high, inactive low (0)"  or
  *                        "active low, inactive high(1)" of type dspi_pcs_polarity_config_t.
  */
-void dspi_hal_configure_pcs_polarity(uint32_t instance, dspi_which_pcs_config_t pcs,
-                                     dspi_pcs_polarity_config_t activeLowOrHigh);
+void DSPI_HAL_SetPcsPolarityMode(uint32_t baseAddr, dspi_which_pcs_config_t pcs,
+                                 dspi_pcs_polarity_config_t activeLowOrHigh);
 
 /*!
- * @brief Configures the DSPI FIFOs.
+ * @brief Enables (or disables) the DSPI FIFOs.
  *
  * This function  allows the caller to disable/enable the Tx and Rx FIFOs (independently).
- * Note that to disable, the caller must pass in a logic 1 (true) for the particular FIFO
- * configuration.  To enable, the caller must pass in a logic 0 (false).  For example, to enable
- * both the Tx and Rx FIFOs, the caller  makes this function call (where instance is the
- * desired module instance number):
-   @code
-    dspi_hal_configure_fifos(instance, false, false);
-   @endcode
+ * Note that to disable, the caller must pass in a logic 0 (false) for the particular FIFO
+ * configuration.  To enable, the caller must pass in a logic 1 (true).
  *
- * @param instance      Module instance number
- * @param disableTxFifo Disables (false) the TX FIFO, else enables (true) the TX FIFO
- * @param disableRxFifo Disables (false) the RX FIFO, else enables (true) the RX FIFO
+ * @param baseAddr Module instance number
+ * @param enableTxFifo Disables (false) the TX FIFO, else enables (true) the TX FIFO
+ * @param enableRxFifo Disables (false) the RX FIFO, else enables (true) the RX FIFO
  */
-void dspi_hal_configure_fifos(uint32_t instance, bool disableTxFifo, bool disableRxFifo);
+void DSPI_HAL_SetFifoCmd(uint32_t baseAddr, bool enableTxFifo, bool enableRxFifo);
 
 /*!
  * @brief Flushes the DSPI FIFOs.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param enableFlushTxFifo Flushes (true) the Tx FIFO, else do not flush (false) the Tx FIFO
  * @param enableFlushRxFifo Flushes (true) the Rx FIFO, else do not flush (false) the Rx FIFO
  */
-void dspi_hal_flush_fifos(uint32_t instance, bool enableFlushTxFifo, bool enableFlushRxFifo);
+void DSPI_HAL_SetFlushFifoCmd(uint32_t baseAddr, bool enableFlushTxFifo, bool enableFlushRxFifo);
 
 
 /*!
- * @brief Configures when the DSPI master samples SIN in  the Modified Transfer Format
+ * @brief Configures the time when the DSPI master samples SIN in the Modified Transfer Format.
  *
  * This function controls when the DSPI master samples SIN (data in) in the Modified Transfer
  * Format.  Note that this is valid only when the CPHA bit in the CTAR register is 0.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param samplePnt selects when the data in (SIN) is sampled, of type dspi_master_sample_point_t.
  *                  This value selects either 0, 1, or 2 system clocks between the SCK edge
  *                  and the SIN (data in) sample.
  */
-static inline void dspi_hal_set_datain_samplepoint(uint32_t instance,
+static inline void DSPI_HAL_SetDatainSamplepointMode(uint32_t baseAddr,
                                                    dspi_master_sample_point_t samplePnt)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_SMPL_PT(instance, samplePnt);
+    BW_SPI_MCR_SMPL_PT(baseAddr, samplePnt);
 }
 
 
@@ -545,12 +455,11 @@ static inline void dspi_hal_set_datain_samplepoint(uint32_t instance,
  * This function call called whenever the module is ready to begin data transfers in either master
  * or slave mode.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-static inline void dspi_hal_start_transfer(uint32_t instance)
+static inline void DSPI_HAL_StartTransfer(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_MCR_CLR(instance, BM_SPI_MCR_HALT);
+    BW_SPI_MCR_HALT(baseAddr, 0);
 }
 
 /*!
@@ -558,12 +467,11 @@ static inline void dspi_hal_start_transfer(uint32_t instance)
  *
  * This function call  stops data transfers in either master or slave mode.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-static inline void dspi_hal_stop_transfer(uint32_t instance)
+static inline void DSPI_HAL_StopTransfer(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_MCR_SET(instance, BM_SPI_MCR_HALT);
+    BW_SPI_MCR_HALT(baseAddr, 1);
 }
 
 /*!
@@ -577,72 +485,72 @@ static inline void dspi_hal_stop_transfer(uint32_t instance)
     dataFormat.clkPolarity = kDspiClockPolarity_ActiveLow;
     dataFormat.clkPhase = kDspiClockPhase_FirstEdge;
     dataFormat.direction = kDspiMsbFirst;
-    dspi_hal_configure_data_format(instance, kDspiCtar0, &dataFormat);
+    DSPI_HAL_SetDataFormat(instance, kDspiCtar0, &dataFormat);
    @endcode
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param whichCtar The desired Clock and Transfer Attributes Register (CTAR) of type
  *                  dspi_ctar_selection_t.
- * @param config Pointer to a structure containing the user defined data format configuration settings.
+ * @param config Pointer to structure containing user defined data format configuration settings.
  * @return  An error code or kStatus_DSPI_Success
  */
-dspi_status_t dspi_hal_configure_data_format(uint32_t instance,
-                                        dspi_ctar_selection_t whichCtar,
-                                        const dspi_data_format_config_t * config);
+dspi_status_t DSPI_HAL_SetDataFormat(uint32_t baseAddr,
+                                     dspi_ctar_selection_t whichCtar,
+                                     const dspi_data_format_config_t * config);
 
 /*!
- * @brief Configures the delays for a particular CTAR, master mode only.
+ * @brief Manually configures the delay prescaler and scaler for a particular CTAR.
  *
- * This function configures the PCS to SCK delay pre-scalar (PCSSCK),
- * the PCS to SCK Delay scalar (CSSCK),
- * the After SCK delay pre-scalar (PASC),
- * the After SCK delay scalar (ASC),
- * the Delay after transfer pre-scalar (PDT),
- * and the Delay after transfer scalar (DT).
- * The following is an example use case of this function:
- * @code
-    dspi_delay_settings_config_t delayConfig;
-    delayConfig.pcsToSckPre = 0x3;
-    delayConfig.pcsToSck = 0xF;
-    delayConfig.afterSckPre = 0x2;
-    delayConfig.afterSck = 0xA;
-    delayConfig.afterTransferPre = 0x1;
-    delayConfig.afterTransfer = 0x5;
-    dspi_hal_configure_delays(instance, kDspiCtar0, &delayConfig);
- * @endcode
+ * This function configures the PCS to SCK delay pre-scalar (PCSSCK) and scalar (CSSCK),
+ * after SCK delay pre-scalar (PASC) and scalar (ASC), and the delay
+ * after transfer pre-scalar (PDT)and scalar (DT).
  *
- * @param instance Module instance number
+ * These delay names are available in type dspi_delay_type_t.
+ *
+ * The user passes which delay they want to configure along with the prescaler and scaler value.
+ * This  allows the user to directly set the prescaler/scaler values if they have
+ * pre-calculated them or if they simply wish to manually increment either value.
+ *
+ * @param baseAddr Module base address
  * @param whichCtar The desired Clock and Transfer Attributes Register (CTAR) of type
  *                  dspi_ctar_selection_t.
- * @param config Pointer to a structure containing the user defined delay configuration settings.
+ * @param prescaler The prescaler delay value (can be an integer 0, 1, 2, or 3).
+ * @param prescaler The scaler delay value (can be any integer between 0 to 15).
+ * @param whichDelay The desired delay to configure, must be of type dspi_delay_type_t
  */
-void dspi_hal_configure_delays(uint32_t instance,
-                               dspi_ctar_selection_t whichCtar,
-                               const dspi_delay_settings_config_t * config);
+void DSPI_HAL_SetDelay(uint32_t baseAddr, dspi_ctar_selection_t whichCtar, uint32_t prescaler,
+                       uint32_t scaler, dspi_delay_type_t whichDelay);
 
-/*@}*/
-
-/*!
- * @name DMA
- * @{
- */
 
 /*!
- * @brief Configures transmit and receive DMA requests.
+ * @brief Calculates the delay prescaler and scaler based on the desired delay input in nanoseconds.
  *
- * This function configures the FIFOs to generate a DMA or an interrupt request. Note that the
- * corresponding request enable must also be set.  For the Transmit FIFO Fill, in order
- * to generate a DMA request, the Transmit FIFO Fill Request Enable (TFFF_RE) must also be set.
- * Similarly for the Receive FIFO Drain Request, to generate a DMA request, the Receive FIFO Drain
- * Request Enable (RFDF_RE) must also be set.  These requests can be configured with
- * the function dspi_hal_configure_interrupt().  To enable DMA operation, first enable
- * the desired request enable by using the dspi_hal_configure_interrupt() function and then use
- * the dspi_hal_configure_dma() to configure the request and generate a DMA request.
+ * This function calculates the values for:
+ * PCS to SCK delay pre-scalar (PCSSCK) and scalar (CSSCK), or
+ * After SCK delay pre-scalar (PASC) and scalar (ASC), or
+ * Delay after transfer pre-scalar (PDT)and scalar (DT).
  *
- * @param enableTransmit Configures Tx FIFO fill request to generate a DMA or interrupt request
- * @param enableReceive Configures Rx FIFO fill request to generate a DMA or interrupt request
+ * These delay names are available in type dspi_delay_type_t.
+ *
+ * The user passes which delay they want to configure along with the desired delay value in
+ * nano-seconds.  The function calculates the values needed for the prescaler and scaler and
+ * returning the actual calculated delay as an exact delay match may not be possible. In this
+ * case, the closest match is calculated without going below the desired delay value input.
+ * It is possible to input a very large delay value that exceeds the capability of the part, in
+ * which case the maximum supported delay will be returned. It is to the higher level
+ * peripheral driver to alert the user of an out of range delay input.
+ *
+ * @param baseAddr Module base address
+ * @param whichCtar The desired Clock and Transfer Attributes Register (CTAR) of type
+ *                  dspi_ctar_selection_t.
+ * @param whichDelay The desired delay to configure, must be of type dspi_delay_type_t
+ * @param sourceClockInHz Module source input clock in Hertz
+ * @param delayInNanoSec The desired delay value in nano-seconds.
+ * @return The actual calculated delay value.
  */
-void dspi_hal_configure_dma(uint32_t instance, bool enableTransmit, bool enableReceive);
+uint32_t DSPI_HAL_CalculateDelay(uint32_t baseAddr, dspi_ctar_selection_t whichCtar,
+                                 dspi_delay_type_t whichDelay, uint32_t sourceClockInHz,
+                                 uint32_t delayInNanoSec);
 
 /*@}*/
 
@@ -658,14 +566,13 @@ void dspi_hal_configure_dma(uint32_t instance, bool enableTransmit, bool enableR
  * When disabled, the doze mode has no effect on the DSPI, and when enabled, the Doze mode
  * disables the DSPI.
  *
- * @param instance Module instance number
- * @param enable If disabled (false), the doze mode has no effect on the DSPI, if enabled (true), the doze mode
- *                 disables the DSPI.
+ * @param baseAddr Module base address
+ * @param enable If disabled (false), the doze mode has no effect on the DSPI, if enabled (true),
+ *               the doze mode disables the DSPI.
  */
-static inline void dspi_hal_configure_doze_mode(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetDozemodeCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_DOZE(instance, (enable == true));
+    BW_SPI_MCR_DOZE(baseAddr, (enable == true));
 }
 
 /*@}*/
@@ -676,54 +583,92 @@ static inline void dspi_hal_configure_doze_mode(uint32_t instance, bool enable)
  */
 
 /*!
+ * @brief Configures the DSPI Tx FIFO fill request to generate DMA or interrupt requests.
+ *
+ * This function configures the DSPI Tx FIFO Fill flag to generate either
+ * an interrupt or DMA request.  The user passes in which request they'd like to generate
+ * of type dspi_dma_or_int_mode_t and whether or not they wish to enable this request.
+ * Note, when disabling the request, the request type is don't care.
+   @code
+    DSPI_HAL_SetTxFifoFillDmaIntMode(baseAddr, kDspiGenerateDmaReq, true); <- to enable DMA
+    DSPI_HAL_SetTxFifoFillDmaIntMode(baseAddr, kDspiGenerateIntReq, true); <- to enable Interrupt
+    DSPI_HAL_SetTxFifoFillDmaIntMode(baseAddr, kDspiGenerateIntReq, false); <- to disable
+   @endcode
+ * @param baseAddr Module base address
+ * @param mode Configures the DSPI Tx FIFO Fill to generate an interrupt or DMA request
+ * @param enable Enable (true) or disable (false) the DSPI Tx FIFO Fill flag to generate requests
+ */
+void DSPI_HAL_SetTxFifoFillDmaIntMode(uint32_t baseAddr, dspi_dma_or_int_mode_t mode, bool enable);
+
+/*!
+ * @brief Configures the DSPI Rx FIFO Drain request to generate DMA or interrupt requests.
+ *
+ * This function configures the DSPI Rx FIFO Drain flag to generate either
+ * an interrupt or a DMA request.  The user passes in which request they'd like to generate
+ * of type dspi_dma_or_int_mode_t and whether or not they wish to enable this request.
+ * Note, when disabling the request, the request type is don't care.
+   @code
+    DSPI_HAL_SetRxFifoDrainDmaIntMode(baseAddr, kDspiGenerateDmaReq, true); <- to enable DMA
+    DSPI_HAL_SetRxFifoDrainDmaIntMode(baseAddr, kDspiGenerateIntReq, true); <- to enable Interrupt
+    DSPI_HAL_SetRxFifoDrainDmaIntMode(baseAddr, kDspiGenerateIntReq, false); <- to disable
+   @endcode
+ * @param baseAddr Module base address
+ * @param mode Configures the Rx FIFO Drain to generate an interrupt or DMA request
+ * @param enable Enable (true) or disable (false) the Rx FIFO Drain flag to generate requests
+ */
+void DSPI_HAL_SetRxFifoDrainDmaIntMode(uint32_t baseAddr, dspi_dma_or_int_mode_t mode, bool enable);
+
+
+
+/*!
  * @brief Configures the DSPI interrupts.
  *
- * This function  configures the various interrupt sources of the DSPI.  The parameters are instance, interrupt source, and enable/disable setting.
- * The interrupt source is a typedef enum whose value is the bit position of the
+ * This function configures the various interrupt sources of the DSPI.  The parameters are
+ * baseAddr, interrupt source, and enable/disable setting.
+ * The interrupt source is a typedef enumeration whose value is the bit position of the
  * interrupt source setting within the RSER register.  In the DSPI, all interrupt
  * configuration settings are in  one register.  The typedef enum  equates each
  * interrupt source to the bit position defined in the device header file.
  * The function  uses these bit positions in its algorithm to enable/disable the
  * interrupt source, where interrupt source is the dspi_status_and_interrupt_request_t type.
- * @code
-    temp = (HW_SPI_RSER_RD(instance) & ~interruptSrc) | (enable << interruptSrc);
-    HW_SPI_RSER_WR(instance, temp);
-
-    dspi_hal_configure_interrupt(instance, kDspiTxComplete, true); <- example use-case
- * @endcode
+ * Note, for Tx FIFO Fill and Rx FIFO Drain requests, use the functions:
+ * DSPI_HAL_SetTxFifoFillDmaIntMode and DSPI_HAL_SetRxFifoDrainDmaIntMode respectively as
+ * these requests can generate either an interrupt or DMA request.
+   @code
+    DSPI_HAL_SetIntMode(baseAddr, kDspiTxComplete, true); <- example use-case
+   @endcode
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param interruptSrc The interrupt source, of type dspi_status_and_interrupt_request_t
  * @param enable Enable (true) or disable (false) the interrupt source to generate requests
  */
-void dspi_hal_configure_interrupt(uint32_t instance,
+void DSPI_HAL_SetIntMode(uint32_t baseAddr,
                               dspi_status_and_interrupt_request_t interruptSrc,
                               bool enable);
 
 
 /*!
- * @brief Gets the DSPI interrupt configuration, returns if interrupt request is enabled or disabled.
+ * @brief Gets DSPI interrupt configuration, returns if interrupt request is enabled or disabled.
  *
  * This function  returns the requested interrupt source setting (enabled or disabled, of
- * type bool).  The parameters to pass in are instance and interrupt source.  It  utilizes the
- * same enum definitions for the interrupt sources as described in the "interrupt configuration"
+ * type bool).  The parameters to pass in are baseAddr and interrupt source.  It  utilizes the
+ * same enumeration definitions for the interrupt sources as described in the "interrupt configuration"
  * function. The function  uses these bit positions in its algorithm to obtain the desired
  * interrupt source setting.
- * @code
-    return ((HW_SPI_RSER_RD(instance) & interruptSrc) >> interruptSrc);
-
-   getInterruptSetting = dspi_hal_get_interrupt_config(instance, kDspiTxComplete);
- * @endcode
+ * Note, for Tx FIFO Fill and Rx FIFO Drain requests, this returns whether or not their
+ * requests are enabled.
+   @code
+   getInterruptSetting = DSPI_HAL_GetIntMode(baseAddr, kDspiTxComplete);
+   @endcode
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param interruptSrc The interrupt source, of type dspi_status_and_interrupt_request_t
  * @return Configuration of interrupt request: enable (true) or disable (false).
  */
-static inline bool dspi_hal_get_interrupt_config(uint32_t instance,
+static inline bool DSPI_HAL_GetIntMode(uint32_t baseAddr,
                                              dspi_status_and_interrupt_request_t interruptSrc)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    return ((HW_SPI_RSER_RD(instance) >> interruptSrc) & 0x1);
+    return ((HW_SPI_RSER_RD(baseAddr) >> interruptSrc) & 0x1);
 }
 
 /*@}*/
@@ -736,48 +681,42 @@ static inline bool dspi_hal_get_interrupt_config(uint32_t instance,
 /*!
  * @brief Gets the DSPI status flag state.
  *
- * The status flag  is defined in the same enum as the interrupt source enable because the bit
+ * The status flag  is defined in the same enumeration as the interrupt source enable because the bit
  * position of the interrupt source and corresponding status flag are the same in the RSER and
  * SR registers.  The function  uses these bit positions in its algorithm to obtain the desired
  * flag state, similar to the dspi_get_interrupt_config function.
- * @code
-    return ((HW_SPI_SR_RD(instance) & statusFlag) >> statusFlag);
-
-    getStatus = dspi_hal_get_status_flag(instance, kDspiTxComplete);
- * @endcode
+   @code
+    getStatus = DSPI_HAL_GetStatusFlag(baseAddr, kDspiTxComplete);
+   @endcode
  *
- * @param instance   Module instance number
+ * @param baseAddr Module base address
  * @param statusFlag The status flag, of type dspi_status_and_interrupt_request_t
  * @return State of the status flag: asserted (true) or not-asserted (false)
  */
-static inline bool dspi_hal_get_status_flag(uint32_t instance,
+static inline bool DSPI_HAL_GetStatusFlag(uint32_t baseAddr,
                                         dspi_status_and_interrupt_request_t statusFlag)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    return ((HW_SPI_SR_RD(instance) >> statusFlag) & 0x1);
+    return ((HW_SPI_SR_RD(baseAddr) >> statusFlag) & 0x1);
 }
 
 /*!
  * @brief Clears the DSPI status flag.
  *
  * This function  clears the desired status bit by using a write-1-to-clear.  The user passes in
- * the instance and the desired status bit to clear.  The list of status bits is defined in the
+ * the baseAddr and the desired status bit to clear.  The list of status bits is defined in the
  * dspi_status_and_interrupt_request_t.  The function  uses these bit positions in its algorithm
- * to clear the desired flag state. It uses  this macro:
- * @code
-    HW_SPI_SR_WR(instance, statusFlag);
-
-    dspi_hal_clear_status_flag(instance, kDspiTxComplete);
- * @endcode
+ * to clear the desired flag state. Example usage:
+   @code
+    DSPI_HAL_ClearStatusFlag(baseAddr, kDspiTxComplete);
+   @endcode
  *
- * @param instance   Module instance number
+ * @param baseAddr Module base address
  * @param statusFlag The status flag, of type dspi_status_and_interrupt_request_t
  */
-static inline void dspi_hal_clear_status_flag(uint32_t instance,
+static inline void DSPI_HAL_ClearStatusFlag(uint32_t baseAddr,
                                               dspi_status_and_interrupt_request_t statusFlag)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_SR_SET(instance, (0x1U << statusFlag));
+    HW_SPI_SR_SET(baseAddr, (0x1U << statusFlag));
 }
 
 
@@ -785,23 +724,20 @@ static inline void dspi_hal_clear_status_flag(uint32_t instance,
  * @brief Gets the DSPI FIFO counter or pointer.
  *
  * This function  returns the number of entries or the next pointer in the Tx or Rx FIFO.
- * The parameters to pass in are the instance and either the Tx or Rx FIFO counter or a
- * pointer.  The latter  is an enum type defined as the bitmask of
- * those particular bit fields found in the device header file. For example:
- * @code
-    return ((HW_SPI_SR_RD(instance) >> desiredParamter) & 0xF);
-
-    dspi_hal_get_fifo_counter_or_pointer(instance, kDspiRxFifoCounter);
- * @endcode
+ * The parameters to pass in are the baseAddr and either the Tx or Rx FIFO counter or a
+ * pointer.  The latter  is an enumeration type defined as the bitmask of
+ * those particular bit fields found in the device header file. Example usage:
+   @code
+    DSPI_HAL_GetFifoCountOrPtr(baseAddr, kDspiRxFifoCounter);
+   @endcode
  *
- * @param instance         Module instance number
+ * @param baseAddr Module base address
  * @param desiredParameter Desired parameter to obtain, of type dspi_fifo_counter_pointer_t
  */
-static inline uint32_t dspi_hal_get_fifo_counter_or_pointer(uint32_t instance,
+static inline uint32_t DSPI_HAL_GetFifoCountOrPtr(uint32_t baseAddr,
                                               dspi_fifo_counter_pointer_t desiredParameter)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    return ((HW_SPI_SR_RD(instance) >> desiredParameter) & 0xFU);
+    return ((HW_SPI_SR_RD(baseAddr) >> desiredParameter) & 0xFU);
 }
 
 
@@ -815,12 +751,11 @@ static inline uint32_t dspi_hal_get_fifo_counter_or_pointer(uint32_t instance,
 /*!
  * @brief Reads data from the data buffer.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  */
-static inline uint32_t dspi_hal_read_data(uint32_t instance)
+static inline uint32_t DSPI_HAL_ReadData(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    return HW_SPI_POPR_RD(instance);
+    return HW_SPI_POPR_RD(baseAddr);
 }
 
 /*!
@@ -828,13 +763,12 @@ static inline uint32_t dspi_hal_read_data(uint32_t instance)
  *
  * In slave mode, up to 32-bit words may be written.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param data The data to send
  */
-static inline void dspi_hal_write_data_slave_mode(uint32_t instance, uint32_t data)
+static inline void DSPI_HAL_WriteDataSlavemode(uint32_t baseAddr, uint32_t data)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    HW_SPI_PUSHR_SLAVE_WR(instance, data);
+    HW_SPI_PUSHR_SLAVE_WR(baseAddr, data);
 }
 
 /*!
@@ -846,36 +780,66 @@ static inline void dspi_hal_write_data_slave_mode(uint32_t instance, uint32_t da
  * associated SPI frame, the desired PCS signal to use for the data transfer, whether the current
  * transfer is the last in the queue, and whether to clear the transfer count (normally needed when
  * sending the first frame of a data packet). This is an example:
- * @code
+   @code
     dspi_command_config_t commandConfig;
     commandConfig.isChipSelectContinuous = true;
     commandConfig.whichCtar = kDspiCtar0;
     commandConfig.whichPcs = kDspiPcs1;
     commandConfig.clearTransferCount = false;
     commandConfig.isEndOfQueue = false;
-    dspi_hal_write_data_master_mode(instance, &commandConfig, dataWord);
- * endcode
+    DSPI_HAL_WriteDataMastermode(baseAddr, &commandConfig, dataWord);
+   @endcode
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param command Pointer to command structure
  * @param data The data word to be sent
  */
-void dspi_hal_write_data_master_mode(uint32_t instance,
-                                     dspi_command_config_t * command,
-                                     uint16_t data);
+void DSPI_HAL_WriteDataMastermode(uint32_t baseAddr,
+                                  dspi_command_config_t * command,
+                                  uint16_t data);
+
+/*!
+ * @brief Writes data into the data buffer, master mode and waits till complete to return.
+ *
+ * In master mode, the 16-bit data is appended to the 16-bit command info. The command portion
+ * provides characteristics of the data such as: optional continuous chip select
+ * operation between transfers, the desired Clock and Transfer Attributes register to use for the
+ * associated SPI frame, the desired PCS signal to use for the data transfer, whether the current
+ * transfer is the last in the queue, and whether to clear the transfer count (normally needed when
+ * sending the first frame of a data packet). This is an example:
+   @code
+    dspi_command_config_t commandConfig;
+    commandConfig.isChipSelectContinuous = true;
+    commandConfig.whichCtar = kDspiCtar0;
+    commandConfig.whichPcs = kDspiPcs1;
+    commandConfig.clearTransferCount = false;
+    commandConfig.isEndOfQueue = false;
+    DSPI_HAL_WriteDataMastermode(baseAddr, &commandConfig, dataWord);
+   @endcode
+ *
+ * Note that this function does not return until after the transmit is complete. Also note that
+ * the DSPI must be enabled and running in order to transmit data (MCR[MDIS] & [HALT] = 0).
+ * Since the SPI is a synchronous protocol, receive data is available when transmit completes.
+ *
+ * @param baseAddr Module base address
+ * @param command Pointer to command structure
+ * @param data The data word to be sent
+ */
+void DSPI_HAL_WriteDataMastermodeBlocking(uint32_t baseAddr,
+                                          dspi_command_config_t * command,
+                                          uint16_t data);
 
 /*!
  * @brief Gets the transfer count.
  *
  * This function returns the current value of the DSPI Transfer Count Register.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @return The current transfer count
  */
-static inline uint32_t dspi_hal_get_transfer_count(uint32_t instance)
+static inline uint32_t DSPI_HAL_GetTransferCount(uint32_t baseAddr)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    return BR_SPI_TCR_SPI_TCNT(instance);
+    return BR_SPI_TCR_SPI_TCNT(baseAddr);
 }
 
 /*!
@@ -884,13 +848,12 @@ static inline uint32_t dspi_hal_get_transfer_count(uint32_t instance)
  * This function allows the caller to pre-set the DSI Transfer Count Register to a desired value up
  * to 65535; Incrementing past this resets the counter back to 0.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param presetValue The desired pre-set value for the transfer counter
  */
-static inline void dspi_hal_preset_transfer_count(uint32_t instance, uint16_t presetValue)
+static inline void DSPI_HAL_PresetTransferCount(uint32_t baseAddr, uint16_t presetValue)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_TCR_SPI_TCNT(instance, presetValue);
+    BW_SPI_TCR_SPI_TCNT(baseAddr, presetValue);
 }
 
 /*@}*/
@@ -901,26 +864,25 @@ static inline void dspi_hal_preset_transfer_count(uint32_t instance, uint16_t pr
  */
 
 /*!
- * @brief Read FIFO registers for debug purposes.
+ * @brief Reads FIFO registers for debug purposes.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param whichFifo Selects Tx or Rx FIFO, of type dspi_fifo_t.
  * @param whichFifoEntry Selects which FIFO entry to read: 0, 1, 2, or 3.
- * @retrun The desired FIFO register contents
+ * @return The desired FIFO register contents
  */
-uint32_t dspi_hal_get_fifo_data(uint32_t instance, dspi_fifo_t whichFifo, uint32_t whichFifoEntry);
+uint32_t DSPI_HAL_GetFifoData(uint32_t baseAddr, dspi_fifo_t whichFifo, uint32_t whichFifoEntry);
 
 /*!
  * @brief Configures the DSPI to halt during debug mode.
  *
- * @param instance Module instance number
+ * @param baseAddr Module base address
  * @param enable Enables (true) debug mode to halt transfers, else disable to not halt transfer
  *               in debug mode.
  */
-static inline void dspi_hal_configure_halt_in_debug_mode(uint32_t instance, bool enable)
+static inline void DSPI_HAL_SetHaltInDebugmodeCmd(uint32_t baseAddr, bool enable)
 {
-    assert(instance < HW_SPI_INSTANCE_COUNT);
-    BW_SPI_MCR_FRZ(instance, (enable == true));
+    BW_SPI_MCR_FRZ(baseAddr, (enable == true));
 }
 
 /* @}*/

@@ -708,7 +708,7 @@ static void FLASH_SetErrorCode(void)
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR) != RESET)
   {
-   pFlash.ErrorCode |= FLASH_ERROR_PGA;
+   pFlash.ErrorCode |= (FLASH_ErrorTypeDef)FLASH_ERROR_PGA;
   }
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGPERR) != RESET)

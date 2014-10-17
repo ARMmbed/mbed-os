@@ -19,10 +19,9 @@ limitations under the License.
 TEST BUILD & RUN
 """
 import sys
-from os.path import join, abspath, dirname
-from subprocess import call
-from shutil import copy
 from time import sleep
+from shutil import copy
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -115,6 +114,8 @@ if __name__ == '__main__':
                     args_error(parser, "[ERROR] Program with name '%s' not found" % n)
                 else:
                     n = alias
+            else:
+                args_error(parser, "[ERROR] Program with name '%s' not found" % n)
         p = TEST_MAP[n].n
     if p is None or (p < 0) or (p > (len(TESTS)-1)):
         message = "[ERROR] You have to specify one of the following tests:\n"

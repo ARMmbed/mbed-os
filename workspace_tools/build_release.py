@@ -33,6 +33,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM',)),
     ('LPC812',       ('uARM',)),
+    ('LPC824',       ('uARM',)),
     ('LPC1347',      ('ARM',)),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC1114',      ('uARM','GCC_ARM')),
@@ -41,6 +42,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1549',      ('uARM','GCC_ARM','GCC_CR')),
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR')),
+    ('LPC4337',      ('ARM',)),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM')),
     ('KL25Z',        ('ARM', 'GCC_ARM')),
@@ -50,13 +52,16 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('NUCLEO_F030R8', ('ARM', 'uARM')),
     ('NUCLEO_F072RB', ('ARM', 'uARM')),
+    ('NUCLEO_F091RC', ('ARM', 'uARM')),
     ('NUCLEO_F103RB', ('ARM', 'uARM')),
     ('NUCLEO_F302R8', ('ARM', 'uARM')),
     ('NUCLEO_F334R8', ('ARM', 'uARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM')),
-    ('NUCLEO_F411RE', ('ARM', 'uARM')),
+    ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR')),
     ('NUCLEO_L053R8', ('ARM', 'uARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM')),
+
+    ('ARCH_MAX', ('ARM', 'GCC_ARM')),
 
     ('NRF51822',     ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),

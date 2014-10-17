@@ -63,7 +63,17 @@
 #define P2_2    (1 << 25)  // p25
 #define PORT_2  Port0
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L152RE)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5
 #define PORT_1  PortC

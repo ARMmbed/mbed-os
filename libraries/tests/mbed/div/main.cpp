@@ -17,7 +17,6 @@ const char *result_str(bool result) {
 }
 
 int main() {
-    DigitalOut led(LED1);
     bool result = true;
 
     {   // 0xFFFFFFFF *  8 =  0x7fffffff8
@@ -25,7 +24,7 @@ int main() {
         uint32_t test_ret = test_64(values.second);
         bool test_res = values.first == test_ret;
         result = result && test_res;
-        printf("64bit: 0x7FFFFFFF8: expected 0x%X got 0x%X ... %s\r\n", values.first, test_ret, result_str(test_res));
+        printf("64bit: 0x7FFFFFFF8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
     {   // 0xFFFFFFFF * 24 = 0x17ffffffe8
@@ -33,7 +32,7 @@ int main() {
         uint32_t test_ret = test_64(values.second);
         bool test_res = values.first == test_ret;
         result = result && test_res;
-        printf("64bit: 0x17FFFFFFE8: expected 0x%X got 0x%X ... %s\r\n", values.first, test_ret, result_str(test_res));
+        printf("64bit: 0x17FFFFFFE8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
     notify_completion(result);

@@ -70,7 +70,7 @@ extern "C" {
  * @param irqNumber IRQ number
  * @param handler   Interrupt handler routine address pointer
  */
-void interrupt_register_handler(IRQn_Type irqNumber, void (*handler)(void));
+void INT_SYS_InstallHandler(IRQn_Type irqNumber, void (*handler)(void));
 
 /*!
  * @brief Enables an interrupt for a given IRQ number. 
@@ -82,7 +82,7 @@ void interrupt_register_handler(IRQn_Type irqNumber, void (*handler)(void));
  *
  * @param irqNumber IRQ number
  */
-static inline void interrupt_enable(IRQn_Type irqNumber)
+static inline void INT_SYS_EnableIRQ(IRQn_Type irqNumber)
 {
     /* check IRQ number */
     assert(0 <= irqNumber);
@@ -101,7 +101,7 @@ static inline void interrupt_enable(IRQn_Type irqNumber)
  *
  * @param irqNumber IRQ number
  */
-static inline void interrupt_disable(IRQn_Type irqNumber)
+static inline void INT_SYS_DisableIRQ(IRQn_Type irqNumber)
 {
     /* check IRQ number */
     assert(0 <= irqNumber);
@@ -117,7 +117,7 @@ static inline void interrupt_disable(IRQn_Type irqNumber)
  * This function  enables the global interrupt by calling the core API.
  *
  */
-void interrupt_enable_global(void);
+void INT_SYS_EnableIRQGlobal(void);
 
 /*!
  * @brief Disable system interrupt. 
@@ -125,7 +125,7 @@ void interrupt_enable_global(void);
  * This function  disables the global interrupt by calling the core API.
  *
  */
-void interrupt_disable_global(void);
+void INT_SYS_DisableIRQGlobal(void);
 
 /*@}*/
 

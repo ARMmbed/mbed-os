@@ -79,7 +79,10 @@
   <Components path="./"/>
   <Files>
     {% for file in source_files %}
-    <File name="{{file.name}}" path="{{file.path}}" type="{{file.type}}"/>
+    <File name="sources/{{file.path}}" path="{{file.path}}" type="{{file.type}}"/>
+    {% endfor %}
+    {% for file in header_files %}
+    <File name="headers/{{file.path}}" path="{{file.path}}" type="{{file.type}}"/>
     {% endfor %}
   </Files>
 </Project>

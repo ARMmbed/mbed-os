@@ -30,19 +30,11 @@
 #if !defined(__FSL_RTC_HAL_H__)
 #define __FSL_RTC_HAL_H__
 
-
-#include "fsl_rtc_features.h"
-#include "fsl_device_registers.h"
-
-#if FSL_FEATURE_RTC_HAS_MONOTONIC
-  #include "fsl_rtc_hal_monotonic.h"
-#endif
-#if FSL_FEATURE_RTC_HAS_ACCESS_CONTROL
-  #include "fsl_rtc_hal_access_control.h"
-#endif
-
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "fsl_rtc_features.h"
+#include "fsl_device_registers.h"
 
 /*!
  * @addtogroup rtc_hal
@@ -53,93 +45,18 @@
  * Definitions
  ******************************************************************************/
 
-typedef struct rtc_hal_init_config
+/*!
+ * @brief Structure is used to hold the time in a simple "date" format.
+ */
+typedef struct RtcDatetime
 {
-
-  /*! Configures the oscillator load in pF. \n
-   *    Example:\n
-   *    value 0   => to be configured: 0pF \n
-   *    value 2   => to be configured: 2pF \n
-   *    value 4   => to be configured: 4pF \n
-   *    value 8   => to be configured: 8pF \n
-   *    value 16  => to be configured: 16pF \n
-   * Any other value is ignored.
-   */
-  uint8_t enableOscillatorLoadConfg;
-  
-  bool disableClockOutToPeripheral; /*!< at register field CR[CLKO]*/
-  
-  /*! After enabling this,  waits the oscillator startup time before enabling
-   * the time counter TSR[TSR] to allow the 32.768 kHz clock time to stabilize.
-   */
-  bool enable32kOscillator; /*!< at register field CR[OSCE]*/
-  
-#if FSL_FEATURE_RTC_HAS_WAKEUP_PIN
-  /*! For devices that have the wakeup pin, this variable  indicates whether it is
-   *  to be enabled (set to 'true') or not (set to 'false') at the initialization
-   *  function.\n
-   *  See the device's user manual for details depending on each device
-   *  specific wakeup pin feature implementation.
-   */
-  bool enableWakeupPin;
-#endif
-  
-  /*! Sets the register field TSR[TSR]. Set to zero to skip this configuration.*/
-  uint32_t startSecondsCounterAt;
-  
-  /*! Sets the register field TPR[TPR]. Set to zero to skip this configuration.*/
-  uint16_t prescalerAt;
-  
-  /*! Sets the register field TAR[TAR]. Set to zero to skip this configuration.*/
-  uint32_t alarmCounterAt;
-  
-  /*! Configures the compensation interval in seconds from 1 to 256 to control
-   *  how frequently the TCR should adjusts the number of 32.768 kHz cycles in
-   *  each second. The value written should be one less than the number of
-   *  seconds (for example, write zero to configure for a compensation interval
-   *  of one second). This register is double-buffered and writes do not take
-   *  affect until the end of the current compensation interval.\n
-   *  Set to zero to skip this configuration.
-   */
-  uint8_t compensationInterval;
-  
-  /*! Configures the number of 32.768 kHz clock cycles in each second. This
-   *  register is double-buffered and writes do not take affect until the end
-   *  of the current compensation interval.\n 
-   *  \n
-   *    80h Time prescaler register overflows every 32896 clock cycles.\n
-   *    ... ...\n
-   *    FFh Time prescaler register overflows every 32769 clock cycles.\n
-   *    00h Time prescaler register overflows every 32768 clock cycles.\n
-   *    01h Time prescaler register overflows every 32767 clock cycles.\n
-   *    ... ...\n
-   *    7Fh Time prescaler register overflows every 32641 clock cycles.\n
-   */
-  uint8_t timeCompensation;
-   
-  /*! Sets/clears any of the following bitfields to enable/disable the
-   * respective interrupts.\n
-   *   TSIE:    Time Seconds Interrupt Enable \n
-   *   TAIE:    Time Alarm Interrupt Enable \n
-   *   TOIE:    Time Overflow Interrupt Enable \n
-   *   TIIE:    Time Invalid Interrupt Enable \n
-   * \n
-   * For MCUs that have the Wakeup Pin only: \n
-   *   WPON:    Wakeup Pin On (see the corresponding MCU's reference manual)\n
-   * \n
-   * For MCUs that have the Monotonic Counter only: \n
-   *   MOIE:    Monotonic Overflow Interrupt Enable \n
-   */
-  hw_rtc_ier_t enableInterrupts;
-  
-#if FSL_FEATURE_RTC_HAS_MONOTONIC
-  /*! Sets the Monotonic Counter to the pointed variable's value.
-   *  To skip setting a value or if does not apply set pointer to NULL.
-   */
-  uint64_t * monotonicCounterAt;
-#endif
-  
-} rtc_hal_init_config_t;
+   uint16_t year;    /*!< Range from 1970 to 2099.*/
+   uint16_t month;   /*!< Range from 1 to 12.*/
+   uint16_t day;     /*!< Range from 1 to 31 (depending on month).*/
+   uint16_t hour;    /*!< Range from 0 to 23.*/
+   uint16_t minute;  /*!< Range from 0 to 59.*/
+   uint8_t second;   /*!< Range from 0 to 59.*/
+} rtc_datetime_t;
 
 /*******************************************************************************
  * API
@@ -149,457 +66,811 @@ typedef struct rtc_hal_init_config
 extern "C" {
 #endif
 
-/*! @brief      Initializes the RTC module.
+/*!
+ * @name RTC HAL API Functions
+ * @{
+ */
+
+/*!
+ * @brief  Initializes the RTC module.
  *
- *  @param      configs Pointer to a structure where the configuration details are
- *                      stored at. The structure values that do NOT apply to the
- *                      MCU in use are  ignored.
+ * This function enables the RTC oscillator.
+ *
+ * @param  rtcBaseAddr The RTC base address.
  */
-void rtc_hal_init(rtc_hal_init_config_t * configs);
+void RTC_HAL_Enable(uint32_t rtcBaseAddr);
 
+/*!
+ * @brief  Disables the RTC module.
+ *
+ * This function disablesS the RTC counter and oscillator.
+ *
+ * @param  rtcBaseAddr The RTC base address.
+ */
+void RTC_HAL_Disable(uint32_t rtcBaseAddr);
 
+/*!
+ * @brief  Resets the RTC module.
+ *
+ * This function initiates a soft-reset of the RTC module to reset
+ * the RTC registers.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ */
+void RTC_HAL_Init(uint32_t rtcBaseAddr);
+
+/*!
+ * @brief  Converts seconds to date time format data structure.
+ *
+ * @param  seconds holds the date and time information in seconds
+ * @param  datetime holds the converted information from seconds in date and time format
+ */
+void RTC_HAL_ConvertSecsToDatetime(const uint32_t * seconds, rtc_datetime_t * datetime);
+
+/*!
+ * @brief  Checks whether the date time structure elements have the information that is within the range.
+ *
+ * @param  datetime holds the date and time information that needs to be converted to seconds
+ */
+bool RTC_HAL_IsDatetimeCorrectFormat(const rtc_datetime_t * datetime);
+
+/*!
+ * @brief  Converts the date time format data structure to seconds.
+ *
+ * @param  datetime holds the date and time information that needs to be converted to seconds
+ * @param  seconds holds the converted date and time in seconds
+ */
+void RTC_HAL_ConvertDatetimeToSecs(const rtc_datetime_t * datetime, uint32_t * seconds);
+
+/*!
+ * @brief  Sets the RTC date and time according to the given time structure.
+ *
+ * The function converts the data from the time structure to seconds and writes the seconds
+ * value to the RTC register. The RTC counter is started after setting the time.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  datetime [in] Pointer to structure where the date and time
+ *         details to set are stored.
+ */
+void RTC_HAL_SetDatetime(uint32_t rtcBaseAddr, const rtc_datetime_t * datetime);
+
+/*!
+ * @brief  Sets the RTC date and time according to the given time provided in seconds.
+ *
+ * The RTC counter is started after setting the time.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  seconds [in] Time in seconds
+ */
+void RTC_HAL_SetDatetimeInsecs(uint32_t rtcBaseAddr, const uint32_t seconds);
+
+/*!
+ * @brief  Gets the RTC time and stores it in the given time structure.
+ *
+ * The function reads the value in seconds from the RTC register. It then converts to the
+ * time structure which provides the time in date, hour, minutes and seconds.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  datetime [out] pointer to a structure where the date and time details are
+ *         stored.
+ */
+void RTC_HAL_GetDatetime(uint32_t rtcBaseAddr, rtc_datetime_t * datetime);
+
+/*!
+ * @brief  Gets the RTC time and returns it in seconds.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  datetime [out] pointer to variable where the RTC time is stored in seconds
+ */
+void RTC_HAL_GetDatetimeInSecs(uint32_t rtcBaseAddr, uint32_t * seconds);
+
+/*!
+ * @brief  Reads the value of the time alarm.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  date [out] pointer to a variable where the alarm date and time
+ *         details are stored.
+ */
+void RTC_HAL_GetAlarm(uint32_t rtcBaseAddr, rtc_datetime_t * date);
+
+/*!
+ * @brief  Sets the RTC alarm time and enables the alarm interrupt.
+ *
+ * The function checks whether the specified alarm time is greater than the present
+ * time. If not, the function does not set the alarm and returns an error.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  date [in] pointer to structure where the alarm date and time
+ *         details will be stored at.
+ * @return  true: success in setting the RTC alarm\n
+ *          false: error in setting the RTC alarm.
+ */
+bool RTC_HAL_SetAlarm(uint32_t rtcBaseAddr, const rtc_datetime_t * date);
+
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
 /*-------------------------------------------------------------------------------------------*/
-/* RTC Register Reset Functions*/
+/* RTC Monotonic Counter*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Resets the RTC Time Seconds Register (RTC_TSR).*/
-static inline void rtc_hal_reset_reg_TSR(void)
-{
-  HW_RTC_TSR_WR((uint32_t)0x00000000U);
-}
+/*!
+ * @brief  Reads the values of the Monotonic Counter High and Monotonic Counter Low and returns
+ *         them as a single value.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  counter [out] pointer to variable where the value is  stored.
+ */
+void RTC_HAL_GetMonotonicCounter(uint32_t rtcBaseAddr, uint64_t * counter);
 
-/*! @brief      Resets the RTC Time Prescaler Register (RTC_TPR).*/
-static inline void rtc_hal_reset_reg_TPR(void)
-{
-  HW_RTC_TPR_WR((uint32_t)0x00000000U);
-}
+/*!
+ * @brief  Writes values Monotonic Counter High and Monotonic Counter Low by decomposing
+ *         the given single value.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  counter [in] pointer to variable where the value is stored.
+ */
+void RTC_HAL_SetMonotonicCounter(uint32_t rtcBaseAddr, const uint64_t * counter);
 
-/*! @brief      Resets the RTC Time Alarm Register (RTC_TAR).*/
-static inline void rtc_hal_reset_reg_TAR(void)
-{
-  HW_RTC_TAR_WR((uint32_t)0x00000000U);
-}
-
-/*! @brief      Resets the RTC Time Compensation Register (RTC_TCR).*/
-static inline void rtc_hal_reset_reg_TCR(void)
-{
-  HW_RTC_TCR_WR((uint32_t)0x00000000U);
-}
-
-/*! @brief      Resets the RTC Control Register (RTC_CR).*/
-static inline void rtc_hal_reset_reg_CR(void)
-{
-  HW_RTC_CR_WR((uint32_t)0x00000000U);
-}
-
-/*! @brief      Resets the RTC Status Register (RTC_SR).*/
-static inline void rtc_hal_reset_reg_SR(void)
-{
-  HW_RTC_SR_WR((uint32_t)0x00000001U);
-}
-
-/*! @brief      Resets the RTC Lock Register (RTC_LR).*/
-static inline void rtc_hal_reset_reg_LR(void)
-{
-#if (defined(CPU_MKL25Z32VFM4) ||  defined(CPU_MKL25Z64VFM4) ||  defined(CPU_MKL25Z128VFM4) || \
-     defined(CPU_MKL25Z32VFT4) ||  defined(CPU_MKL25Z64VFT4) ||  defined(CPU_MKL25Z128VFT4) || \
-     defined(CPU_MKL25Z32VLH4) ||  defined(CPU_MKL25Z64VLH4) ||  defined(CPU_MKL25Z128VLH4) || \
-     defined(CPU_MKL25Z32VLK4) ||  defined(CPU_MKL25Z64VLK4) ||  defined(CPU_MKL25Z128VLK4) || \
-     defined(CPU_MK22FN512VDC12))
-
-  HW_RTC_LR_WR((uint32_t)0x000000FFU);
-  
-#elif (defined(CPU_MK70FX512VMJ12) || defined(CPU_MK70FN1M0VMJ12) || \
-       defined(CPU_MK70FX512VMJ15) || defined(CPU_MK70FN1M0VMJ15) || \
-       defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK63FN1M0VMD12WS) || \
-       defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK64FX512VMD12))
-
-  HW_RTC_LR_WR((uint32_t)0x0000FFFFU);
-  
-#else
-  #error "No valid CPU defined"
+/*!
+ * @brief  Increments the Monotonic Counter by one.
+ *
+ * Increments the Monotonic Counter (registers RTC_MCLR and RTC_MCHR accordingly) by setting
+ * the monotonic counter enable (MER[MCE]) and then writing to the RTC_MCLR register. A write to the
+ * monotonic counter low that causes it to overflow also increments the monotonic counter high.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: success\n
+ *          false: error occurred, either time invalid or monotonic overflow flag was found
+ */
+bool RTC_HAL_IncrementMonotonicCounter(uint32_t rtcBaseAddr);
 #endif
-}
+/*! @}*/
 
-/*! @brief      Resets the RTC Interrupt Enable Register (RTC_IER).*/
-static inline void rtc_hal_reset_reg_IER(void)
-{
-  HW_RTC_IER_WR((uint32_t)0x00000007U);
-}
-
-/*-------------------------------------------------------------------------------------------*/
-/* RTC Time Seconds*/
-/*-------------------------------------------------------------------------------------------*/
-
-/*! @brief      Reads the value of the time seconds counter.
- *  @param      Seconds [out] pointer to variable where the seconds are  stored.
+/*!
+ * @name RTC register access functions
+ * @{
  */
-static inline void rtc_hal_get_seconds(uint32_t * seconds)
-{
-  /* When the time counter is enabled, the TSR is read only and increments
-   * once a second provided SR[TOF] and SR[TIF] are not set. The time counter
-   * reads as zero when SR[TOF] or SR[TIF] are set. When the time counter
-   * is disabled, the TSR can be read or written. */
-  *seconds = BR_RTC_TSR_TSR;
 
+/*!
+ * @brief  Reads the value of the time seconds counter.
+ *
+ * The time counter reads as zero if either the SR[TOF] or the SR[TIF] is set.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return contents of the seconds register.
+ */
+static inline uint32_t RTC_HAL_GetSecsReg(uint32_t rtcBaseAddr)
+{
+    return BR_RTC_TSR_TSR(rtcBaseAddr);
 }
 
-/*! @brief      Writes to the time seconds counter.
- *  @param      seconds [in] pointer to a variable from where to write the seconds.
- *  @return     true: write success since time counter is disabled.
- *              false: write error since time counter is enabled.
+/*!
+ * @brief  Writes to the time seconds counter.
+ *
+ * When the time counter is enabled, the TSR is read only and increments
+ * once every second provided the SR[TOF] or SR[TIF] is not set. When the time counter
+ * is disabled, the TSR can be read or written. Writing to the TSR when the
+ * time counter is disabled clears the SR[TOF] and/or the SR[TIF]. Writing
+ * to the TSR register with zero is supported, but not recommended, since the TSR
+ * reads as zero when either the SR[TIF] or the SR[TOF] is set (indicating the time is
+ * invalid).
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  seconds [in] seconds value.
+ *
  */
-static inline bool rtc_hal_set_seconds(const uint32_t * seconds)
+static inline void RTC_HAL_SetSecsReg(uint32_t rtcBaseAddr, const uint32_t seconds)
 {
-  /* When the time counter is enabled, the TSR is read only and increments
-   * once a second provided SR[TOF] or SR[TIF] are not set. The time counter
-   * reads as zero when SR[TOF] or SR[TIF] are set. When the time counter
-   * is disabled, the TSR can be read or written. Writing to the TSR when the
-   * time counter is disabled  clears the SR[TOF] and/or the SR[TIF]. Writing
-   * to the TSR register with zero is supported, but not recommended since TSR
-   * reads as zero when SR[TIF] or SR[TOF] are set (indicating the time is
-   * invalid). */
-  
-  bool result = false;
-  
-  if(!(BR_RTC_SR_TCE))
-  {
-    BW_RTC_TSR_TSR(*seconds); /* jgsp: add write to prescaler with 0x00 before writing to TSR.*/
-    result = true;
-  }
-  
-  return result;
+    HW_RTC_TPR_WR(rtcBaseAddr, (uint32_t)0x00000000U);
+    BW_RTC_TSR_TSR(rtcBaseAddr, seconds);
 }
 
-/*-------------------------------------------------------------------------------------------*/
-/* RTC Time Prescaler*/
-/*-------------------------------------------------------------------------------------------*/
-
-/*! @brief      Reads the value of the time prescaler.
- *  @param      prescale [out] pointer to variable where the prescaler's value
- *              is stored.
+/*!
+ * @brief  Sets the time alarm and clears the time alarm flag.
+ *
+ * When the time counter is enabled, the SR[TAF] is set whenever the TAR[TAR]
+ * equals the TSR[TSR] and the TSR[TSR] increments. Writing to the TAR
+ * clears the SR[TAF].
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  seconds [in] alarm value in seconds.
  */
-static inline void rtc_hal_get_prescaler(uint16_t * prescale)
+static inline void RTC_HAL_SetAlarmReg(uint32_t rtcBaseAddr, const uint32_t seconds)
 {
-  /* When the time counter is enabled, the TPR is read only and increments
-   * every 32.768 kHz clock cycle. The time counter  reads as zero when
-   * SR[TOF] or SR[TIF] are set. When the time counter is disabled, the TPR
-   * can be read or written. The TSR[TSR] increments when bit 14 of the TPR
-   * transitions from a logic one to a logic zero. */
-  *prescale = BR_RTC_TPR_TPR;
-
+    BW_RTC_TAR_TAR(rtcBaseAddr, seconds);
 }
 
-/*! @brief      Sets the time prescaler.
- *  @param      prescale [in] pointer to variable from where to write the
- *              seconds.
- *  @return     true: set successfull; false: error, unable to set prescaler
- *              since the the time counter is enabled.
+/*!
+ * @brief  Gets the time alarm register contents.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  contents of the alarm register.
  */
-static inline bool rtc_hal_set_prescaler(const uint16_t * prescale)
+static inline uint32_t RTC_HAL_GetAlarmReg(uint32_t rtcBaseAddr)
 {
-  /* When the time counter is enabled, the TPR is read only and increments
-   * every 32.768 kHz clock cycle. The time counter  reads as zero when the
-   * SR[TOF] or SR[TIF] are set. When the time counter is disabled, the TPR
-   * can be read or written. The TSR[TSR] increments when bit 14 of the TPR
-   * transitions from a logic one to a logic zero. */
-    bool result = false;
-    
-    if(!(BR_RTC_SR_TCE))
-    {
-      BW_RTC_TPR_TPR(*prescale);
-      result = true;
-    }
-    
-    return result;
-    
+    return BR_RTC_TAR_TAR(rtcBaseAddr);
 }
 
-/*-------------------------------------------------------------------------------------------*/
-/* RTC Time Alarm*/
-/*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Reads the value of the time alarm.
- *  @param      seconds [out] pointer to a variable where the alarm value in seconds
- *              will be stored.
+/*!
+ * @brief  Reads the value of the time prescaler.
+ *
+ * The time counter reads as zero when either the SR[TOF] or the SR[TIF] is set.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  contents of the time prescaler register.
  */
-static inline void rtc_hal_get_alarm(uint32_t * seconds)
+static inline uint16_t RTC_HAL_GetPrescaler(uint32_t rtcBaseAddr)
 {
-  *seconds = BR_RTC_TAR_TAR;
+    return BR_RTC_TPR_TPR(rtcBaseAddr);
 }
 
-/*! @brief      Sets the time alarm, this  clears the time alarm flag.
- *  @param      seconds [in] pointer to variable from where to write alarm value
- *              in seconds.
+/*!
+ * @brief  Sets the time prescaler.
+ *
+ * When the time counter is enabled, the TPR is read only and increments
+ * every 32.768 kHz clock cycle. When the time counter is disabled, the TPR
+ * can be read or written. The TSR[TSR] increments when bit 14 of the TPR
+ * transitions from a logic one to a logic zero.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  prescale Prescaler value
  */
-static inline void rtc_hal_set_alarm(const uint32_t * seconds)
+static inline void RTC_HAL_SetPrescaler(uint32_t rtcBaseAddr, const uint16_t prescale)
 {
- /* When the time counter is enabled, the SR[TAF] is set whenever the TAR[TAR]
-  * equals the TSR[TSR] and the TSR[TSR] increments. Writing to the TAR
-  * clears the SR[TAF]. */
-  BW_RTC_TAR_TAR(*seconds);
+    BW_RTC_TPR_TPR(rtcBaseAddr, prescale);
 }
 
 /*-------------------------------------------------------------------------------------------*/
 /* RTC Time Compensation*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Reads the compensation interval counter value.*/
-/*! @param      counter [out] pointer to variable where the value  is stored.*/
-static inline void rtc_hal_get_comp_intrvl_counter(uint8_t * counter)
+/*!
+ * @brief  Reads the time compensation register contents.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return time compensation register contents.
+ */
+static inline uint32_t RTC_HAL_GetCompensationReg(uint32_t rtcBaseAddr)
 {
-  *counter = BR_RTC_TCR_CIC;
+    return HW_RTC_TCR_RD(rtcBaseAddr);
 }
 
-/*! @brief      Reads the current time compensation interval counter value.
- *  @param      tcValue [out] pointer to variable where the value  is stored.
+/*!
+ * @brief  Writes the value to the RTC TCR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  compValue value to be written to the compensation register.
  */
-static inline void rtc_hal_get_current_time_compensation(uint8_t * tcValue)
+static inline void RTC_HAL_SetCompensationReg(uint32_t rtcBaseAddr, const uint32_t compValue)
 {
-  *tcValue = BR_RTC_TCR_TCV;
+    HW_RTC_TCR_WR(rtcBaseAddr, compValue);
 }
 
-/*! @brief      Reads the compensation interval. The value is the configured
- *              compensation interval in seconds from 1 to 256 to control
- *              how frequently the time compensation register  should adjust the
- *              number of 32.768 kHz cycles in each second. The value is one
- *              less than the number of seconds (for example. Zero means a
- *              configuration for a compensation interval of one second). 
- *  @param      value [out] pointer to variable where the value  is stored.
+/*!
+ * @brief  Reads the current value of the compensation interval counter, which is the field CIC in the RTC TCR register.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  compensation interval value.
  */
-static inline void rtc_hal_get_compensation_interval(uint8_t * value)
+static inline uint8_t RTC_HAL_GetCompensationIntervalCounter(uint32_t rtcBaseAddr)
 {
-  *value = BR_RTC_TCR_CIR;
+    return BR_RTC_TCR_CIC(rtcBaseAddr);
 }
 
-/*! @brief      Writes the compensation interval. This configures the
- *              compensation interval in seconds from 1 to 256 to control
- *              how frequently the TCR should adjust the number of 32.768 kHz
- *              cycles in each second. The value written should be one less than
- *              the number of seconds (for example, write zero to configure for
- *              a compensation interval of one second). This register is double
- *              buffered and writes do not take affect until the end of the
- *              current compensation interval.
- *  @param      value [in] pointer to a variable from where to write the value.
+/*!
+ * @brief  Reads the current value used by the compensation logic for the present second interval.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  time compensation value
  */
-static inline void rtc_hal_set_compensation_interval(const uint8_t * value)
+static inline uint8_t RTC_HAL_GetTimeCompensationValue(uint32_t rtcBaseAddr)
 {
-  BW_RTC_TCR_CIR(*value);
+    return BR_RTC_TCR_TCV(rtcBaseAddr);
 }
 
-/*! @brief      Reads the time compensation value which is the configured number
- *              of the 32.768 kHz clock cycles in each second.
- *  @param      value [out] pointer to variable where the value is stored.
+/*!
+ * @brief  Reads the compensation interval register.
+
+ * The value is the configured compensation interval in seconds from 1 to 256 to control
+ * how frequently the time compensation register  should adjust the
+ * number of 32.768 kHz cycles in each second. The value is one
+ * less than the number of seconds (for example, zero means a
+ * configuration for a compensation interval of one second).
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return compensation interval in seconds.
  */
-static inline void rtc_hal_get_time_compensation(uint8_t * value)
+static inline uint8_t RTC_HAL_GetCompensationIntervalRegister(uint32_t rtcBaseAddr)
 {
-  *value = BR_RTC_TCR_TCR;
+    return BR_RTC_TCR_CIR(rtcBaseAddr);
 }
 
-/*! @brief      Writes to the RTC Time Compensation Register (RTC_TCR), field
- *              Time Compensation Register (TCR). Configuring the number of
- *              32.768 kHz clock cycles in each second. This register is double
- *              buffered and writes do not take affect until the end of the
- *              current compensation interval.\n
- *              80h Time prescaler register overflows every 32896 clock cycles.\n
- *              ... ...\n
- *              FFh Time prescaler register overflows every 32769 clock cycles.\n
- *              00h Time prescaler register overflows every 32768 clock cycles.\n
- *              01h Time prescaler register overflows every 32767 clock cycles.\n
- *              ... ...\n
- *              7Fh Time prescaler register overflows every 32641 clock cycles.\n
- *  @param      enable [in] pointer to variable from where to write the value.
+/*!
+ * @brief  Writes the compensation interval.
+ *
+ * This configures the compensation interval in seconds from 1 to 256 to control
+ * how frequently the TCR should adjust the number of 32.768 kHz
+ * cycles in each second. The value written should be one less than
+ * the number of seconds (for example, write zero to configure for
+ * a compensation interval of one second). This register is double
+ * buffered and writes do not take affect until the end of the
+ * current compensation interval.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  value the compensation interval value.
  */
-static inline void rtc_hal_set_time_compensation(const uint8_t * enable)
+static inline void RTC_HAL_SetCompensationIntervalRegister(uint32_t rtcBaseAddr, const uint8_t value)
 {
-  BW_RTC_TCR_TCR(*enable);
+    BW_RTC_TCR_CIR(rtcBaseAddr, value);
+}
+
+/*!
+ * @brief  Reads the time compensation value which is the configured number
+ *         of 32.768 kHz clock cycles in each second.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  time compensation value.
+ */
+static inline uint8_t RTC_HAL_GetTimeCompensationRegister(uint32_t rtcBaseAddr)
+{
+    return BR_RTC_TCR_TCR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes to the field Time Compensation Register (TCR) of the RTC Time Compensation Register (RTC_TCR).
+ *
+ * Configures the number of 32.768 kHz clock cycles in each second. This register is double
+ * buffered and writes do not take affect until the end of the
+ * current compensation interval.
+ * 80h Time prescaler register overflows every 32896 clock cycles.
+ * .. ...\n
+ * FFh Time prescaler register overflows every 32769 clock cycles.\n
+ * 00h Time prescaler register overflows every 32768 clock cycles.\n
+ * 01h Time prescaler register overflows every 32767 clock cycles.\n
+ * ... ...\n
+ * 7Fh Time prescaler register overflows every 32641 clock cycles.\n
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  comp_value value of the time compensation.
+ */
+static inline void RTC_HAL_SetTimeCompensationRegister(uint32_t rtcBaseAddr, const uint8_t compValue)
+{
+    BW_RTC_TCR_TCR(rtcBaseAddr, compValue);
 }
 
 /*-------------------------------------------------------------------------------------------*/
 /* RTC Control*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Enables/disables oscillator configuration for 2pF load.*/
-/*! @param      enable true: enables load; false: disables load.*/
-static inline void rtc_hal_config_osc_2pf_load(bool enable)
-{
-  BW_RTC_CR_SC2P(enable);
-}
-
-/*! @brief      Enables/disables oscillator configuration for 4pF load.*/
-/*! @param      enable true: enables load; false: disables load.*/
-static inline void rtc_hal_config_osc_4pf_load(bool enable)
-{
-  BW_RTC_CR_SC4P(enable);
-}
-
-/*! @brief      Enables/disables oscillator configuration for 8pF load.*/
-/*! @param      enable true: enables load; false: disables load.*/
-static inline void rtc_hal_config_osc_8pf_load(bool enable)
-{
-  BW_RTC_CR_SC8P(enable);
-}
-
-/*! @brief      Enables/disables oscillator configuration for 16pF load.*/
-/*! @param      enable true: enables load; false: disables load.*/
-static inline void rtc_hal_config_osc_16pf_load(bool enable)
-{
-  BW_RTC_CR_SC16P(enable);
-}
-
-/*! @brief      Enables/disables the 32kHz clock output to other peripherals.*/
-/*! @param      enable true: enables clock out; false: disables clock out.*/
-static inline void rtc_hal_config_clock_out(bool enable)
-{
-  BW_RTC_CR_CLKO(!enable);
-}
-
-/*! @brief      Enables/disables  the oscillator. After enablement, wait the
- *              oscillator startup time before enabling the time counter to
- *              allow the 32.768 kHz clock time to stabilize.
- *  @param      enable true: enables oscillator; false: disables oscillator.
+/*!
+ * @brief  Enables/disables the oscillator configuration for the 2pF load.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables load\n
+ *         false: disables load.
  */
-static inline void rtc_hal_config_oscillator(bool enable)
+static inline void RTC_HAL_SetOsc2pfLoadCmd(uint32_t rtcBaseAddr, bool enable)
 {
-  BW_RTC_CR_OSCE(enable);
+    BW_RTC_CR_SC2P(rtcBaseAddr, enable);
 }
 
-/*! @brief      Enables/disables the update mode. This mode allows the time counter
- *              enabled to be written even when the status register is locked.
- *              When set, the time counter enable, can always be written if the
- *              TIF (Time Invalid Flag) or TOF (Time Overflow Flag) are set or
- *              if the time counter enable is clear. For devices with the
- *              monotonic counter, it allows the monotonic enable to be written
- *              when it is locked. When set, the monotonic enable can always be
- *              written if the TIF (Time Invalid Flag) or TOF (Time Overflow Flag)
- *              are set or if the monotonic counter enable is clear.
- *              For devices with tamper detect, it allows the it to be written
- *              when it is locked. When set, the tamper detect can always be
- *              written if the TIF (Time Invalid Flag) is clear.
- *              Note: Tamper and Monotonic features are not available in all MCUs.
- *  @param      lock true: enables register lock, registers cannot be written
- *                         when locked; False: disables register lock, registers
- *                         can be written when locked under limited conditions.
+/*!
+ * @brief  Reads the oscillator 2pF load configure bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 2pF additional load enabled.\n
+ *         false: 2pF additional load disabled.
  */
-static inline void rtc_hal_configure_update_mode(bool lock)
+static inline bool RTC_HAL_GetOsc2pfLoad(uint32_t rtcBaseAddr)
 {
-  BW_RTC_CR_UM(lock);
+    return (bool)BR_RTC_CR_SC2P(rtcBaseAddr);
 }
 
-/*! @brief      Enables/disables the supervisor access, which configures
- *              non-supervisor mode write access to all RTC registers and
- *              non-supervisor mode read access to RTC tamper/monotonic registers.
- *              Note: Tamper and Monotonic features are NOT available in all MCUs.
- *  @param      enable_reg_write true: enables register lock, Non-supervisor
- *              mode write accesses are supported; false: disables register
- *              lock, non-supervisor mode write accesses are not supported and
- *              generate a bus error.
+/*!
+ * @brief  Enables/disables the oscillator configuration for the 4pF load.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables load.\n
+ *         false: disables load
  */
-static inline void rtc_hal_configure_supervisor_access(bool enable_reg_write)
+static inline void RTC_HAL_SetOsc4pfLoadCmd(uint32_t rtcBaseAddr, bool enable)
 {
-  BW_RTC_CR_SUP(enable_reg_write);
+    BW_RTC_CR_SC4P(rtcBaseAddr, enable);
+}
+
+/*!
+ * @brief  Reads the oscillator 4pF load configure bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 4pF additional load enabled.\n
+ *         false: 4pF additional load disabled.
+ */
+static inline bool RTC_HAL_GetOsc4pfLoad(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_SC4P(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the oscillator configuration for the 8pF load.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables load.\n
+ *         false: disables load.
+ */
+static inline void RTC_HAL_SetOsc8pfLoadCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_CR_SC8P(rtcBaseAddr, enable);
+}
+
+/*!
+ * @brief  Reads the oscillator 8pF load configure bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 8pF additional load enabled.\n
+ *         false: 8pF additional load disabled.
+ */
+static inline bool RTC_HAL_GetOsc8pfLoad(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_SC8P(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the oscillator configuration for the 16pF load.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables load.\n
+ *         false: disables load.
+ */
+static inline void RTC_HAL_SetOsc16pfLoadCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_CR_SC16P(rtcBaseAddr, enable);
+}
+
+/*!
+ * @brief  Reads the oscillator 16pF load configure bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 16pF additional load enabled.\n
+ *         false: 16pF additional load disabled.
+ */
+static inline bool RTC_HAL_GetOsc16pfLoad(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_SC16P(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the 32 kHz clock output to other peripherals.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables clock out.\n
+ *         false: disables clock out.
+ */
+static inline void RTC_HAL_SetClockOutCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_CR_CLKO(rtcBaseAddr, !enable);
+}
+
+/*!
+ * @brief  Reads the RTC_CR CLKO bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 32 kHz clock is not output to other peripherals.\n
+ *         false: 32 kHz clock is output to other peripherals.
+ */
+static inline bool RTC_HAL_GetClockOutCmd(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_CLKO(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the oscillator.
+ *
+ * After enabling, waits for the oscillator startup time before enabling the
+ * time counter to allow the 32.768 kHz clock time to stabilize.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables oscillator.\n
+ *         false: disables oscillator.
+ */
+static inline void RTC_HAL_SetOscillatorCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_CR_OSCE(rtcBaseAddr, enable);
+/* TODO: Wait for oscillator startup period if enabling the oscillator
+    if (enable)
+*/
+
+}
+
+/*!
+ * @brief  Reads the RTC_CR OSCE bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: 32.768 kHz oscillator is enabled
+ *         false: 32.768 kHz oscillator is disabled.
+ */
+static inline bool RTC_HAL_IsOscillatorEnabled(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_OSCE(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the update mode.
+ *
+ * This mode allows the time counter enable bit in the SR to be written
+ * even when the status register is locked.
+ * When set, the time counter enable, can always be written if the
+ * TIF (Time Invalid Flag) or TOF (Time Overflow Flag) are set or
+ * if the time counter enable is clear. For devices with the
+ * monotonic counter it allows the monotonic enable to be written
+ * when it is locked. When set, the monotonic enable can always be
+ * written if the TIF (Time Invalid Flag) or TOF (Time Overflow Flag)
+ * are set or if the montonic counter enable is clear.
+ * For devices with tamper detect it allows the it to be written
+ * when it is locked. When set, the tamper detect can always be
+ * written if the TIF (Time Invalid Flag) is clear.
+ * Note: Tamper and Monotonic features are not available in all MCUs.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  lock can be true or false\n
+ *         true: registers can be written when locked under limited conditions\n
+ *         false: registers cannot be written when locked
+ */
+static inline void RTC_HAL_SetUpdateModeCmd(uint32_t rtcBaseAddr, bool lock)
+{
+    BW_RTC_CR_UM(rtcBaseAddr, lock);
+}
+
+/*!
+ * @brief  Reads the RTC_CR update mode bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: Registers can be written when locked under limited conditions.
+ *         false: Registers cannot be written when locked.
+ */
+static inline bool RTC_HAL_GetUpdateMode(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_UM(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the supervisor access.
+ *
+ * This configures non-supervisor mode write access to all RTC registers and
+ * non-supervisor mode read access to RTC tamper/monotonic registers.
+ * Note: Tamper and Monotonic features are NOT available in all MCUs.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  enableRegWrite can be true or false\n
+ *         true: non-supervisor mode write accesses are supported.\n
+ *         false: non-supervisor mode write accesses are not supported and generate a bus error.
+ */
+static inline void RTC_HAL_SetSupervisorAccessCmd(uint32_t rtcBaseAddr, bool enableRegWrite)
+{
+    BW_RTC_CR_SUP(rtcBaseAddr, enableRegWrite);
+}
+
+/*!
+ * @brief  Reads the RTC_CR SUP bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: Non-supervisor mode write accesses are supported
+ *         false: Non-supervisor mode write accesses are not supported.
+ */
+static inline bool RTC_HAL_GetSupervisorAccess(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_SUP(rtcBaseAddr);
 }
 
 #if FSL_FEATURE_RTC_HAS_WAKEUP_PIN
-/*! @brief      Enables/disables the wakeup pin.
- *              Note: The wakeup pin is optional and not available on all devices.
- *  @param      enable_wp true: enables wakeup-pin, wakeup pin asserts if the
- *              RTC interrupt asserts and the chip is powered down;
- *              false: disables wakeup-pin.
+/*!
+ * @brief  Enables/disables the wakeup pin.
+ *
+ * Note: The wakeup pin is optional and not available on all devices.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable_wp can be true or false\n
+ *         true: enables wakeup-pin, wakeup pin asserts if the
+ *               RTC interrupt asserts and the chip is powered down.\n
+ *         false: disables wakeup-pin.
  */
-static inline void rtc_hal_config_wakeup_pin(bool enable_wp)
+static inline void RTC_HAL_SetWakeupPinCmd(uint32_t rtcBaseAddr, bool enableWp)
 {
-  BW_RTC_CR_WPE(enable_wp);
+    BW_RTC_CR_WPE(rtcBaseAddr, enableWp);
+}
+
+/*!
+ * @brief  Reads the RTC_CR WPE bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: Wakeup pin is enabled.
+ *         false: Wakeup pin is disabled.
+ */
+static inline bool RTC_HAL_GetWakeupPin(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_WPE(rtcBaseAddr);
 }
 #endif
 
-/*! @brief      Performs a software reset on the RTC module. This resets all
- *              RTC registers except for the SWR bit and the RTC_WAR and RTC_RAR
- *              registers. The SWR bit is cleared after VBAT POR and by software
- *              explicitly clearing it.
- *              Note: access control features (RTC_WAR and RTC_RAR registers)
- *              are not available in all MCUs.
+/*!
+ * @brief  Performs a software reset on the RTC module.
+ *
+ * This resets all RTC registers except for the SWR bit and the RTC_WAR and RTC_RAR
+ * registers. The SWR bit is cleared after VBAT POR and by software
+ * explicitly clearing it.
+ * Note: access control features (RTC_WAR and RTC_RAR registers)
+ * are not available in all MCUs.
+ *
+ * @param  rtcBaseAddr The RTC base address
  */
-static inline void rtc_hal_software_reset(void)
+static inline void RTC_HAL_SoftwareReset(uint32_t rtcBaseAddr)
 {
-  BW_RTC_CR_SWR(1u);
+    BW_RTC_CR_SWR(rtcBaseAddr, 1u);
 }
 
-/*! @brief      Clears the software reset flag.*/
-static inline void rtc_hal_software_reset_flag_clear(void)
+/*!
+ * @brief  Clears the software reset flag.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_SoftwareResetFlagClear(uint32_t rtcBaseAddr)
 {
-  BW_RTC_CR_SWR(0u);
+    BW_RTC_CR_SWR(rtcBaseAddr, 0u);
+}
+
+/*!
+ * @brief  Reads the RTC_CR SWR bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: SWR is set.
+ *         false: SWR is cleared.
+ */
+static inline bool RTC_HAL_ReadSoftwareResetStatus(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_CR_SWR(rtcBaseAddr);
 }
 
 /*-------------------------------------------------------------------------------------------*/
 /* RTC Status*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Reads the time counter enabled/disabled status.
- *  @return     true: time counter is enabled, time seconds register and time
- *              prescaler register are not writeable, but increment; false: time
- *              counter is disabled, time seconds register and time prescaler
- *              register are writeable, but do not increment. */
-static inline bool rtc_hal_is_counter_enabled(void)
+/*!
+ * @brief  Reads the time counter status (enabled/disabled).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: time counter is enabled, time seconds register and time
+ *                prescaler register are not writeable, but increment.\n
+ *          false: time counter is disabled, time seconds register and
+ *                 time prescaler register are writeable, but do not increment.
+ */
+static inline bool RTC_HAL_IsCounterEnabled(uint32_t rtcBaseAddr)
 {
-  return (bool)BR_RTC_SR_TCE;
+    return (bool)BR_RTC_SR_TCE(rtcBaseAddr);
 }
 
-/*! @brief      Changes the time counter enabled/disabled status.
- *  @param      enable true: enables the time counter;
- *              false: disables the time counter.
+/*!
+ * @brief  Changes the time counter status.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: enables the time counter\n
+ *         false: disables the time counter.
  */
-static inline void rtc_hal_counter_enable(bool enable)
+static inline void RTC_HAL_EnableCounter(uint32_t rtcBaseAddr, bool enable)
 {
-  BW_RTC_SR_TCE(enable);
+    BW_RTC_SR_TCE(rtcBaseAddr, enable);
 }
 
-/*! @brief      Checks if the configured time alarm  occurred.
- *  @return     true: time alarm has occurred.
- *              false: NO time alarm occurred.
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
+/*!
+ * @brief  Reads the value of the Monotonic Overflow Flag (MOF).
+ *
+ * This flag is set when the monotonic counter is enabled and the monotonic
+ * counter high overflows. The monotonic counter does not increment and 
+ * reads as zero when this bit is set. This bit is cleared by writing the monotonic
+ * counter high register when the monotonic counter is disabled.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  true: monotonic counter overflow has occurred and monotonic
+ *                counter is read as zero.\n
+ *          false: No monotonic counter overflow has occurred.
  */
-static inline bool rtc_hal_is_alarm_occured(void)
+static inline bool RTC_HAL_IsMonotonicCounterOverflow(uint32_t rtcBaseAddr)
 {
-  /* Reads time alarm flag (TAF). This flag is set when the time
-   * alarm register (TAR) equals the time seconds register (TSR) and
-   * the TSR increments. This flag is cleared by writing the TAR register. */
-  return (bool)BR_RTC_SR_TAF;
+    return (bool)BR_RTC_SR_MOF(rtcBaseAddr);
+}
+#endif
+
+/*!
+ * @brief  Checks whether the configured time alarm has occurred.
+ *
+ * Reads time alarm flag (TAF). This flag is set when the time
+ * alarm register (TAR) equals the time seconds register (TSR) and
+ * the TSR increments. This flag is cleared by writing the TAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  true: time alarm has occurred.\n
+ *          false: no time alarm occurred.
+ */
+static inline bool RTC_HAL_HasAlarmOccured(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_SR_TAF(rtcBaseAddr);
 }
 
-/*! @brief      Checks whether a counter overflow  happened.
- *  @return     true: time overflow occurred and time counter is zero.
- *              false: NO time overflow occurred.
+/*!
+ * @brief  Checks whether a counter overflow has occurred.
+ *
+ * Reads the value of RTC Status Register (RTC_SR), field Time
+ * Overflow Flag (TOF). This flag is set when the time counter is
+ * enabled and overflows. The TSR and TPR do not increment and read
+ * as zero when this bit is set. This flag is cleared by writing the
+ * TSR register when the time counter is disabled.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  true: time overflow occurred and time counter is zero.\n
+ *          false: no time overflow occurred.
  */
-static inline bool rtc_hal_is_counter_overflow(void)
+static inline bool RTC_HAL_HasCounterOverflowed(uint32_t rtcBaseAddr)
 {
-  /* Reads the value of RTC Status Register (RTC_SR), field Time
-   * Overflow Flag (TOF). This flag is set when the time counter is
-   * enabled and overflows. The TSR and TPR do not increment and read
-   * as zero when this bit is set. This flag is cleared by writing the
-   * TSR register when the time counter is disabled. */
-  return (bool)BR_RTC_SR_TOF;
+    return (bool)BR_RTC_SR_TOF(rtcBaseAddr);
 }
 
-/*! @brief      Checks whether the time is marked as invalid.
- *  @return     true: time is INVALID and time counter is zero.
- *              false: time is valid.
+/*!
+ * @brief  Checks whether the time has been marked as invalid.
+ *
+ * Reads the value of RTC Status Register (RTC_SR), field Time
+ * Invalid Flag (TIF). This flag is set on VBAT POR or software
+ * reset. The TSR and TPR do not increment and read as zero when
+ * this bit is set. This flag is cleared by writing the TSR
+ * register when the time counter is disabled.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  true: time is INVALID and time counter is zero.\n
+ *          false: time is valid.
  */
-static inline bool rtc_hal_is_time_invalid(void)
+static inline bool RTC_HAL_IsTimeInvalid(uint32_t rtcBaseAddr)
 {
-  /*! Reads the value of the RTC Status Register (RTC_SR), field Time
-   *  Invalid Flag (TIF). This flag is set on the VBAT POR or the software
-   *  reset. The TSR and TPR do not increment and read as zero when
-   *  this bit is set. This flag is cleared by writing the TSR
-   *  register when the time counter is disabled. */
-  return (bool)BR_RTC_SR_TIF;
+    return (bool)BR_RTC_SR_TIF(rtcBaseAddr);
 }
 
 /*-------------------------------------------------------------------------------------------*/
 /* RTC Lock*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Configures the register lock to other module fields.
- *  @param      bitfields [in] configuration flags:\n
+/*!
+ * @brief  Configures the register lock to other module fields.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ * @param  bitfields [in] configuration flags:\n
  *  Valid bitfields:\n
  *    LRL: Lock Register Lock \n
  *    SRL: Status Register Lock \n
@@ -618,260 +889,1082 @@ static inline bool rtc_hal_is_time_invalid(void)
  *    MCLL: Monotonic Counter Low Lock \n
  *    MEL: Monotonic Enable Lock \n
  */
-static inline void rtc_hal_config_lock_registers(hw_rtc_lr_t bitfields)
+static inline void RTC_HAL_SetLockRegistersCmd(uint32_t rtcBaseAddr, hw_rtc_lr_t bitfields)
 {
-  uint32_t valid_flags = 0;
+    uint32_t valid_flags = 0;
 
-  valid_flags |= (BM_RTC_LR_LRL | BM_RTC_LR_SRL | BM_RTC_LR_CRL |
-    BM_RTC_LR_TCL);
+    valid_flags |= (BM_RTC_LR_LRL | BM_RTC_LR_SRL | BM_RTC_LR_CRL |
+                    BM_RTC_LR_TCL);
 
 #if FSL_FEATURE_RTC_HAS_MONOTONIC
-  valid_flags |= (BM_RTC_LR_MCHL | BM_RTC_LR_MCLL | BM_RTC_LR_MEL);
+    valid_flags |= (BM_RTC_LR_MCHL | BM_RTC_LR_MCLL | BM_RTC_LR_MEL);
 #endif
-  HW_RTC_LR_WR((bitfields.U) & valid_flags);
-  
+    HW_RTC_LR_WR(rtcBaseAddr, (bitfields.U) & valid_flags);
 }
 
-/*! @brief      Obtains the lock status of the lock register.
- *  @return     true: lock register is not locked and writes complete  normally.
- *              false: lock register is locked and writes are ignored.
+/*!
+ * @brief  Obtains the lock status of the lock register.
+ *
+ * Reads the value of the field Lock Register Lock (LRL) of the  RTC Lock Register (RTC_LR).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: lock register is not locked and writes complete as normal.\n
+ *          false: lock register is locked and writes are ignored.
  */
-static inline bool rtc_hal_get_lock_reg_lock(void)
+static inline bool RTC_HAL_GetLockRegLock(uint32_t rtcBaseAddr)
 {
-  /* Reads the value of the RTC Lock Register (RTC_LR),
-   * field Lock Register Lock (LRL). Once cleared, this flag can
-   * only be set by VBAT POR or software reset. */
-  return (bool)BR_RTC_LR_LRL;
+    return (bool)BR_RTC_LR_LRL(rtcBaseAddr);
 }
 
-/*! @brief      Changes the lock status of the lock register. Once cleared,
- *              this can only be set by the VBAT POR or the software reset.
- *  @param      set_to true: Lock register is not locked and writes complete  normally.
- *              false: Lock register is locked and writes are ignored.
+/*!
+ * @brief  Changes the lock status of the lock register.
+ *
+ * Writes to the field Lock Register Lock (LRL) of the RTC Lock Register (RTC_LR).
+ * Once cleared, this can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  lock can be true or false\n
+ *         true: Lock register is not locked and writes complete as normal.\n
+ *         false: Lock register is locked and writes are ignored.
  */
-static inline void rtc_hal_set_lock_reg_lock(bool set_to)
+static inline void RTC_HAL_SetLockRegLock(uint32_t rtcBaseAddr, bool lock)
 {
- /* Writes to the RTC Lock Register (RTC_LR), field Lock Register Lock (LRL).
-  * Once cleared, this flag can only be set by VBAT POR or software reset. */
-  BW_RTC_LR_LRL((uint32_t) set_to);
+    BW_RTC_LR_LRL(rtcBaseAddr, (uint32_t) lock);
 }
 
-/*! @brief      Obtains the state of the status register lock.
- *  @return     true: Status register is not locked and writes complete 
- *              normally.
- *              false: Status register is locked and writes are ignored.
+/*!
+ * @brief  Obtains the state of the status register lock.
+ *
+ * Reads the value of field Status Register Lock (SRL) of the RTC Lock Register (RTC_LR), which is the field Status Register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Status register is not locked and writes complete as
+ *                normal.\n
+ *          false: Status register is locked and writes are ignored.
  */
-static inline bool rtc_hal_get_status_reg_lock(void)
+static inline bool RTC_HAL_GetStatusRegLock(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Lock Register (RTC_LR), field Status Register 
-  * Lock (SRL). Once cleared, this flag can only be set by VBAT POR or software
-  * reset. */
-  return (bool)BR_RTC_LR_SRL;
+    return (bool)BR_RTC_LR_SRL(rtcBaseAddr);
 }
 
-/*! @brief      Changes the state of the status register lock. Once cleared,
- *              this can only be set by the VBAT POR or the software reset.
- *  @param      set_to true: Status register is not locked and writes complete 
- *              normally.
- *              false: Status register is locked and writes are ignored.
+/*!
+ * @brief Changes the state of the status register lock.
+ *
+ * Writes to the field Status Register Lock (SRL) of the RTC Lock Register (RTC_LR).
+ * Once cleared, this can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  lock can be true or false\n
+ *         true: Status register is not locked and writes complete as
+ *               normal.\n
+ *         false: Status register is locked and writes are ignored.
  */
-static inline void rtc_hal_set_status_reg_lock(bool set_to)
+static inline void RTC_HAL_SetStatusRegLock(uint32_t rtcBaseAddr, bool lock)
 {
-  BW_RTC_LR_SRL((uint32_t) set_to);
+    BW_RTC_LR_SRL(rtcBaseAddr, (uint32_t) lock);
 }
 
-/*! @brief      Obtains the state of the control register lock
- *  @return     true: Control register is not locked and writes complete 
- *              normally.
- *              false: Control register is locked and writes are ignored.
+/*!
+ * @brief  Obtains the state of the control register lock.
+ *
+ * Reads the field Control Register Lock (CRL)value of the RTC Lock Register (RTC_LR).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Control register is not locked and writes complete as
+ *                 normal.\n
+ *          false: Control register is locked and writes are ignored.
  */
-static inline bool rtc_hal_get_control_reg_lock(void)
+static inline bool RTC_HAL_GetControlRegLock(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Lock Register (RTC_LR), field Control Register
-  * Lock (CRL). Once cleared, this flag can only be set by the VBAT POR or the software
-  * reset. */
-  return (bool)BR_RTC_LR_CRL;
+    return (bool)BR_RTC_LR_CRL(rtcBaseAddr);
 }
 
-/*! @brief      Changes the state of the control register lock. Once cleared,
- *              this can only be set by the VBAT POR or the software reset.
- *  @param      set_to true: Control register is not locked and writes complete 
- *              normally.
- *              false: Control register is locked and writes are ignored.
+/*!
+ * @brief  Changes the state of the control register lock.
+ *
+ * Writes to the field Control Register Lock (CRL) of the RTC Lock Register (RTC_LR).
+ * Once cleared, this can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  lock can be true or false\n
+ *         true: Control register is not locked and writes complete
+ *               as normal.\n
+ *         false: Control register is locked and writes are ignored.
  */
-static inline void rtc_hal_set_control_reg_lock(bool set_to)
+static inline void RTC_HAL_SetControlRegLock(uint32_t rtcBaseAddr, bool lock)
 {
- /* Writes to the RTC Lock Register (RTC_LR), field Control Register Lock (CRL).
-  * Once cleared, this flag can only be set by VBAT POR or software reset. */
-  BW_RTC_LR_CRL((uint32_t) set_to);
+    BW_RTC_LR_CRL(rtcBaseAddr, (uint32_t) lock);
 }
 
-/*! @brief      Obtains the state of the time compensation lock.
- *  @return     true: Time compensation register is not locked and writes
- *              complete  normally.
- *              false: Time compensation register is locked and writes are
- *              ignored.
+/*!
+ * @brief  Obtains the state of the time compensation lock.
+ *
+ * Reads the field Time Compensation Lock (TCL) value of the RTC Lock Register (RTC_LR).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Time compensation register is not locked and writes
+ *                complete as normal.\n
+ *          false: Time compensation register is locked and writes are
+ *                 ignored.
  */
-static inline bool rtc_hal_get_time_comp_lock(void)
+static inline bool RTC_HAL_GetTimeCompLock(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Lock Register (RTC_LR), field Time Compensation
-  * Lock (TCL). Once cleared, this flag can only be set by VBAT POR or software
-  * reset. */
-  return (bool)BR_RTC_LR_TCL;
+    return (bool)BR_RTC_LR_TCL(rtcBaseAddr);
 }
 
-/*! @brief      Changes the state of the time compensation lock. Once cleared,
- *              this can only be set by the VBAT POR or the software reset.
- *  @param      set_to true: Time compensation register is not locked and writes
- *              complete  normally.
- *              false: Time compensation register is locked and writes are
- *              ignored.
+/*!
+ * @brief  Changes the state of the time compensation lock.
+ *
+ * Writes to the field Time Compensation Lock (TCL) of the RTC Lock Register (RTC_LR).
+ * Once cleared, this can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  lock can be true or false\n
+ *         true: Time compensation register is not locked and writes
+ *               complete as normal.\n
+ *         false: Time compensation register is locked and writes are
+ *                ignored.
  */
-static inline void rtc_hal_set_time_comp_lock(bool set_to)
+static inline void RTC_HAL_SetTimeCompLock(uint32_t rtcBaseAddr, bool lock)
 {
- /* Writes to the RTC Lock Register (RTC_LR), field Time Compensation Lock (TCL).
-  * Once cleared, this flag can only be set by VBAT POR or software reset. */
-  BW_RTC_LR_TCL((uint32_t) set_to);
+    BW_RTC_LR_TCL(rtcBaseAddr, (uint32_t) lock);
 }
+
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
+/*!
+ * @brief  Reads the value of the Monotonic Counter High Lock.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Monotonic counter high register is not locked and writes
+ *                complete as normal.\n
+ *          false: Monotonic counter high register is locked and writes are
+ *                 ignored.
+ */
+static inline bool RTC_HAL_ReadMonotonicHcounterLock(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_LR_MCHL(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter High Lock (MCHL) of the RTC Lock Register (RTC_LR).
+ *
+ * Once done, this flag can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicHcounterLock(uint32_t rtcBaseAddr)
+{
+    BW_RTC_LR_MCHL(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the value of the Monotonic Counter Low Lock.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Monotonic counter low register is not locked and writes
+ *                complete as normal.\n
+ *          false: Monotonic counter low register is locked and writes are
+ *                 ignored.
+ */
+static inline bool RTC_HAL_ReadMonotonicLcounterLock(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_LR_MCLL(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter Low Lock (MCLL) of the RTC Lock Register (RTC_LR).
+ *
+ * Once done, this flag can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicLcounterLock(uint32_t rtcBaseAddr)
+{
+    BW_RTC_LR_MCLL(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the value of the Monotonic Enable Lock.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Monotonic enable register is not locked and writes
+ *                complete as normal.\n
+ *          false: Monotonic enable register is locked and writes are
+ *                 ignored.
+ */
+static inline bool RTC_HAL_ReadMonotonicEnableLock(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_LR_MEL(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the Monotonic Enable Lock field of the RTC Lock Register (RTC_LR).
+ *
+ * Once done, this flag can only be set by VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicEnableLock(uint32_t rtcBaseAddr)
+{
+    BW_RTC_LR_MEL(rtcBaseAddr, 0U);
+}
+#endif
 
 /*-------------------------------------------------------------------------------------------*/
 /* RTC Interrupt Enable*/
 /*-------------------------------------------------------------------------------------------*/
 
-/*! @brief      Enables/disables RTC interrupts.
- *  @param      bitfields [in]  set/clear respective bitfields to enabled/disabled
- *                              interrupts. \n
- *                        [out] resulting interrupt enable state. \n
- *              Valid bitfields: \n
- *   TSIE:    Time Seconds Interrupt Enable \n
- *   TAIE:    Time Alarm Interrupt Enable \n
- *   TOIE:    Time Overflow Interrupt Enable \n
- *   TIIE:    Time Invalid Interrupt Enable \n
- * \n
- * For MCUs that have the Wakeup Pin only: \n
- *   WPON:    Wakeup Pin On (see the corresponding MCU's reference manual)\n
- * \n
- * For MCUs that have the Monotonic Counter only: \n
- *   MOIE:    Monotonic Overflow Interrupt Enable \n
+/*!
+ * @brief  Checks whether the Time Seconds Interrupt is enabled/disabled.
+ *
+ * Reads the value of field Time Seconds Interrupt Enable (TSIE)of the RTC Interrupt Enable Register (RTC_IER). 
+ * The seconds interrupt is an edge-sensitive
+ * interrupt with a dedicated interrupt vector. It is generated once a second
+ * and requires no software overhead (there is no corresponding status flag to
+ * clear).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Seconds interrupt is enabled.\n
+ *          false: Seconds interrupt is disabled.
  */
-static inline void rtc_hal_config_interrupts(hw_rtc_ier_t * bitfields)
+static inline bool RTC_HAL_IsSecsIntEnabled(uint32_t rtcBaseAddr)
 {
-  HW_RTC_IER_WR((bitfields->U) & ( BM_RTC_IER_TSIE |  BM_RTC_IER_TAIE | BM_RTC_IER_TOIE |
-    BM_RTC_IER_TIIE));
+    return (bool)BR_RTC_IER_TSIE(rtcBaseAddr);
+}
 
-#if FSL_FEATURE_RTC_HAS_WAKEUP_PIN
-    BW_RTC_IER_WPON(bitfields->B.WPON);
-#endif
+/*!
+ * @brief  Enables/disables the Time Seconds Interrupt.
+ *
+ * Writes to the field Time Seconds
+ * Interrupt Enable (TSIE) of the RTC Interrupt Enable Register (RTC_IER).
+ * Note: The seconds interrupt is an edge-sensitive interrupt with a
+ * dedicated interrupt vector. It is generated once a second and
+ * requires no software overhead (there is no corresponding status
+ * flag to clear).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: Seconds interrupt is enabled.\n
+ *         false: Seconds interrupt is disabled.
+ */
+static inline void RTC_HAL_SetSecsIntCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_IER_TSIE(rtcBaseAddr, (uint32_t) enable);
+}
+
 #if FSL_FEATURE_RTC_HAS_MONOTONIC
-    BW_RTC_IER_MOIE(bitfields->B.MOIE);
+
+/*!
+ * @brief  Checks whether the Monotonic Overflow Interrupt is enabled/disabled.
+ *
+ * Reads the value of the RTC Interrupt Enable Register (RTC_IER), field
+ * Monotonic Overflow Interrupt Enable (MOIE).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Monotonic overflow flag does generate an interrupt.\n
+ *          false: Monotonic overflow flag does not generate an interrupt.
+ */
+static inline bool RTC_HAL_ReadMonotonicOverflowInt(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_IER_MOIE(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Enables/disables the Monotonic Overflow Interrupt Enable.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: Monotonic overflow flag does generate an interrupt.\n
+ *         false: Monotonic overflow flag does not generate an interrupt.
+ */
+static inline void RTC_HAL_SetMonotonicOverflowIntCmd(uint32_t rtcBaseAddr, bool enable)
+{
+    BW_RTC_IER_MOIE(rtcBaseAddr, (uint32_t)enable);
+}
+
 #endif
 
-  bitfields->U = HW_RTC_IER_RD();
-}
-
-/*! @brief      Checks whether the Time Seconds Interrupt is enabled/disabled.
- *  @return     true: Seconds interrupt is enabled.
- *              false: Seconds interrupt is disabled.
+/*!
+ * @brief  Checks whether the Time Alarm Interrupt is enabled/disabled.
+ *
+ * Reads the field Time Alarm Interrupt Enable (TAIE) value of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Time alarm flag does generate an interrupt.\n
+ *          false: Time alarm flag does not generate an interrupt.
  */
-static inline bool rtc_hal_read_seconds_int_enable(void)
+static inline bool RTC_HAL_ReadAlarmInt(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Interrupt Enable Register (RTC_IER), field Time
-  * Seconds Interrupt Enable (TSIE). The seconds interrupt is an edge-sensitive
-  * interrupt with a dedicated interrupt vector. It is generated once a second
-  * and requires no software overhead (there is no corresponding status flag to 
-  * clear). */
-  return (bool)BR_RTC_IER_TSIE;
+    return (bool)BR_RTC_IER_TAIE(rtcBaseAddr);
 }
 
-/*! @brief      Enables/disables the Time Seconds Interrupt.
- *              Note: The seconds interrupt is an edge-sensitive interrupt with a
- *              dedicated interrupt vector. It is generated once a second and
- *              requires no software overhead (there is no corresponding status
- *              flag to clear).
- *  @param      enable true: Seconds interrupt is enabled.
- *              false: Seconds interrupt is disabled.
+/*!
+ * @brief  Enables/disables the Time Alarm Interrupt.
+ *
+ * Writes to the field Time Alarm
+ * Interrupt Enable (TAIE) of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: Time alarm flag does generate an interrupt.\n
+ *         false: Time alarm flag does not generate an interrupt.
  */
-static inline void rtc_hal_config_seconds_int(bool enable)
+static inline void RTC_HAL_SetAlarmIntCmd(uint32_t rtcBaseAddr, bool enable)
 {
- /* Writes to the RTC Interrupt Enable Register (RTC_IER), field Time Seconds 
-  * Interrupt Enable (TSIE). The seconds interrupt is an edge-sensitive
-  * interrupt with a dedicated interrupt vector. It is generated once a second
-  * and requires no software overhead (there is no corresponding status flag to
-  * clear). */
-  BW_RTC_IER_TSIE((uint32_t) enable);
+    BW_RTC_IER_TAIE(rtcBaseAddr, (uint32_t) enable);
 }
 
-/*! @brief      Checks whether the Time Alarm Interrupt is enabled/disabled.
- *  @return     true: Time alarm flag does generate an interrupt.
- *              false: Time alarm flag does not generate an interrupt.
+/*!
+ * @brief  Checks whether the Time Overflow Interrupt is enabled/disabled.
+ *
+ * Reads the field
+ * Time Overflow Interrupt Enable (TOIE) of the value of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ *
+ * @return  true: Time overflow flag does generate an interrupt.\n
+ *          false: Time overflow flag does not generate an interrupt.
  */
-static inline bool rtc_hal_read_alarm_int_enable(void)
+static inline bool RTC_HAL_ReadTimeOverflowInt(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Interrupt Enable Register (RTC_IER),
-  * field Time Alarm Interrupt Enable (TAIE). */
-  return (bool)BR_RTC_IER_TAIE;
+    return (bool)BR_RTC_IER_TOIE(rtcBaseAddr);
 }
 
-/*! @brief      Enables/disables the Time Alarm Interrupt.
- *  @param      enable true: Time alarm flag does generate an interrupt.
- *              false: Time alarm flag does not generate an interrupt.
+/*!
+ * @brief  Enables/disables the Time Overflow Interrupt.
+ *
+ * Writes to the field Time Overflow Interrupt Enable (TOIE) of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: Time overflow flag does generate an interrupt.\n
+ *         false: Time overflow flag does not generate an interrupt.
  */
-static inline void rtc_hal_config_alarm_int_enable(bool enable)
+static inline void RTC_HAL_SetTimeOverflowIntCmd(uint32_t rtcBaseAddr, bool enable)
 {
- /* Writes to the RTC Interrupt Enable Register (RTC_IER), field Time Alarm
-  * Interrupt Enable (TAIE). */
-  BW_RTC_IER_TAIE((uint32_t) enable);
+    BW_RTC_IER_TOIE(rtcBaseAddr, (uint32_t) enable);
 }
 
-/*! @brief      Checks whether the Time Overflow Interrupt is enabled/disabled .
- *  @return     true: Time overflow flag does generate an interrupt.
- *              false: Time overflow flag does not generate an interrupt.
+/*!
+ * @brief  Checks whether the Time Invalid Interrupt is enabled/disabled.
+ *
+ * Reads the value of the field Time
+ * Invalid Interrupt Enable (TIIE)of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Time invalid flag does generate an interrupt.\n
+ *          false: Time invalid flag does not generate an interrupt.
  */
-static inline bool rtc_hal_read_time_overflow_int_enable(void)
+static inline bool RTC_HAL_ReadTimeInvalidInt(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Interrupt Enable Register (RTC_IER), field 
-  * Time Overflow Interrupt Enable (TOIE). */
-  return (bool)BR_RTC_IER_TOIE;
+    return (bool)BR_RTC_IER_TIIE(rtcBaseAddr);
 }
 
-/*! @brief      Enables/disables the Time Overflow Interrupt.
- *  @param      enable true: Time overflow flag does generate an interrupt.
- *              false: Time overflow flag does not generate an interrupt.
+/*!
+ * @brief  Enables/disables the Time Invalid Interrupt.
+ *
+ * Writes to the field Time Invalid
+ * Interrupt Enable (TIIE) of the RTC Interrupt Enable Register (RTC_IER).
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable can be true or false\n
+ *         true: Time invalid flag does generate an interrupt.\n
+ *         false: Time invalid flag does not generate an interrupt.
  */
-static inline void rtc_hal_config_time_overflow_int_enable(bool enable)
+static inline void RTC_HAL_SetTimeInvalidIntCmd(uint32_t rtcBaseAddr, bool enable)
 {
- /* Writes to the RTC Interrupt Enable Register (RTC_IER),
-  * field Time Overflow Interrupt Enable (TOIE). */
-  BW_RTC_IER_TOIE((uint32_t) enable);
+    BW_RTC_IER_TIIE(rtcBaseAddr, (uint32_t) enable);
 }
 
-/*! @brief      Checks whether the Time Invalid Interrupt is enabled/disabled.
- *  @return     true: Time invalid flag does generate an interrupt.
- *              false: Time invalid flag does not generate an interrupt.
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
+
+/*-------------------------------------------------------------------------------------------*/
+/* RTC Monotonic Enable*/
+/*-------------------------------------------------------------------------------------------*/
+
+/*!
+ * @brief  Reads the Monotonic Counter Enable bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: This means writing to the monotonic counter increments the counter by one and
+ *               the value written is ignored.\n
+ *         false: This means writing to the monotonic counter loads the counter with the
+ *                value written.
  */
-static inline bool rtc_hal_read_time_interval_int_enable(void)
+static inline bool RTC_HAL_ReadMonotonicEnable(uint32_t rtcBaseAddr)
 {
- /* Reads the value of the RTC Interrupt Enable Register (RTC_IER), field Time 
-  * Invalid Interrupt Enable (TIIE). */
-  return (bool)BR_RTC_IER_TIIE;
+    /* Reads value of the RTC_MER register, field Monotonic Counter Enable (MCE). */
+    return (bool)BR_RTC_MER_MCE(rtcBaseAddr);
 }
 
-/*! @brief      Enables/disables the Time Invalid Interrupt.
- *  @param      enable true: Time invalid flag does generate an interrupt.
- *              false: Time invalid flag does not generate an interrupt.
+/*!
+ * @brief  Changes the state of Monotonic Counter Enable bit.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  enable value to be written to the MER[MCE] bit\n
+ *         true: Set the bit to 1 which means writing to the monotonic counter will increment
+ *               the counter by one and the value written will be ignored.\n
+ *         false: Set the bit to 0 which means writing to the monotonic counter loads the counter
+ *                with the value written.
  */
-static inline void rtc_hal_config_time_interval_int(bool enable)
+static inline void RTC_HAL_SetMonotonicEnableCmd(uint32_t rtcBaseAddr, bool enable)
 {
- /* writes to the RTC Interrupt Enable Register (RTC_IER), field Time Invalid 
-  * Interrupt Enable (TIIE). */
-  BW_RTC_IER_TIIE((uint32_t) enable);
+    /* Writes to the RTC_MER registers Monotonic Counter Enable (MCE) bit.*/
+    BW_RTC_MER_MCE(rtcBaseAddr, (uint32_t) enable);
 }
 
+/*!
+ * @brief  Reads the values of the Monotonic Counter Low register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  Monotonic Counter Low value.
+ */
+static inline uint32_t RTC_HAL_GetMonotonicCounterLow(uint32_t rtcBaseAddr)
+{
+    return BR_RTC_MCLR_MCL(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Reads the values of the Monotonic Counter High register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  Monotonic Counter High value.
+ */
+static inline uint32_t RTC_HAL_GetMonotonicCounterHigh(uint32_t rtcBaseAddr)
+{
+    return BR_RTC_MCHR_MCH(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes values of the Monotonic Counter Low register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  counter [in] Monotonic Counter Low value to be stored.
+ */
+static inline void RTC_HAL_SetMonotonicCounterLow(uint32_t rtcBaseAddr, const uint32_t counter)
+{
+    /* enable writing to the counter*/
+    BW_RTC_MER_MCE(rtcBaseAddr, 0U);
+    BW_RTC_MCLR_MCL(rtcBaseAddr, counter);
+}
+
+/*!
+ * @brief  Writes values of the Monotonic Counter High register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ * @param  counter [in] Monotonic Counter High value to be stored.
+ */
+static inline void RTC_HAL_SetMonotonicCounterHigh(uint32_t rtcBaseAddr, const uint32_t counter)
+{
+    /* enable writing to the counter*/
+    BW_RTC_MER_MCE(rtcBaseAddr, 0U);
+    BW_RTC_MCHR_MCH(rtcBaseAddr, counter);
+}
+
+#endif /* FSL_FEATURE_RTC_HAS_MONOTONIC */
+
+#if FSL_FEATURE_RTC_HAS_ACCESS_CONTROL
+
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
+/*!
+ * @brief  Reads the field Monotonic Counter High Write (MCHW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the monotonic counter high register will complete as normal.\n
+ *          false: Writes to the monotonic counter high register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicHcountWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_MCHW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter High Write (MCHW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicHcountWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_MCHW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Monotonic Counter Low Write (MCLW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the monotonic counter low register will complete as normal.\n
+ *          false: Writes to the monotonic counter low register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicLcountWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_MCLW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter High Write (MCLW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by  the system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address..
+ */
+static inline void RTC_HAL_ClearMonotonicLcountWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_MCLW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Monotonic Enable Register Write (MERW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the monotonic enable register will complete as normal.\n
+ *          false: Writes to the monotonic enable register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicEnableWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_MERW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter High Write (MERW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicEnableWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_MERW(rtcBaseAddr, 0U);
+}
+#endif
+
+/*!
+ * @brief Reads the field Interrupt Enable Register Write (IERW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: Writes to the interrupt enable register will complete as normal.\n
+ *         false: Writes to the interrupt enable register are ignored.
+ */
+static inline bool RTC_HAL_GetIntEnableWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_IERW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Interrupt Enable Register Write (IERW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearIntEnableWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_IERW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Lock Register Write (LRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the lock register will complete as normal.\n
+ *          false: Writes to the lock register are ignored.
+ */
+static inline bool RTC_HAL_GetLockWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_LRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Lock Register Write (LRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearLockWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_LRW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Status Register Write (SRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the status register completes as normal.\n
+ *          false: Writes to the status register are ignored.
+ */
+static inline bool RTC_HAL_GetStatusWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_SRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Status Register Write (SRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearStatusWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_SRW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Control Register Write (CRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the control register will complete as normal.\n
+ *          false: Writes to the control register are ignored.
+ */
+static inline bool RTC_HAL_GetControlWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_CRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Control Register Write (CRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearControlWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_CRW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Compensation Register Write (TCRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the time compensation register will complete as normal.\n
+ *          false: Writes to the time compensation register are ignored.
+ */
+static inline bool RTC_HAL_GetCompensationWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_TCRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Compensation Register Write (TCRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearCompensationWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_TCRW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Alarm Register Write (TARW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the time alarm register will complete as normal.\n
+ *          false: Writes to the time alarm register are ignored.
+ */
+static inline bool RTC_HAL_GetAlarmWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_TARW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Alarm Register Write (TARW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearAlarmWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_TARW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Prescaler Register Write (TPRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the time prescaler register will complete as normal.\n
+ *          false: Writes to the time prescaler register are ignored.
+ */
+static inline bool RTC_HAL_GetPrescalerWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_TPRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Prescaler Register Write (TPRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearPrescalerWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_TPRW(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Seconds Register Write (TSRW) value of the register RTC_WAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Writes to the time seconds register will complete as normal.\n
+ *          false: Writes to the time seconds register are ignored.
+ */
+static inline bool RTC_HAL_GetSecsWreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_WAR_TSRW(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Seconds Register Write (TSRW) of the RTC_WAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearSecsWreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_WAR_TSRW(rtcBaseAddr, 0U);
+}
+
+#if FSL_FEATURE_RTC_HAS_MONOTONIC
+
+/*!
+ * @brief  Reads the field Monotonic Counter High Read (MCHR) value of the register RTC_RAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return true: Reads to the monotonic counter high register completes as normal.\n
+ *         false: Reads to the monotonic counter high register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicHcountRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_MCHR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter High Read (MCHR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicHcountRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_MCHR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Monotonic Counter Low Read (MCLR) value of the register RTC_RAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the monotonic counter low register will complete as normal.\n
+ *          false: Reads to the monotonic counter low register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicLcountRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_MCLR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Counter Low Read (MCLR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicLcountRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_MCLR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Monotonic Enable Register Read (MERR) value of the register RTC_RAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the monotonic enable register  completes as normal.\n
+ *          false: Reads to the monotonic enable register are ignored.
+ */
+static inline bool RTC_HAL_GetMonotonicEnableRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_MERR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Monotonic Enable Register Read (MERR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearMonotonicEnableRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_MERR(rtcBaseAddr, 0U);
+}
+
+#endif
+
+/*!
+ * @brief  Reads the field Interrupt Enable Register Read (IERR) value of the register RTC_RAR.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the interrupt enable register  completes as normal.\n
+ *          false: Reads to the interrupt enable register are ignored.
+ */
+static inline bool RTC_HAL_GetIntEnableRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_IERR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Interrupt Enable Register Read (IERR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearIntEnableRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_IERR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Lock Register Read (LRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the lock register will complete as normal.\n
+ *          false: Reads to the lock register are ignored.
+ */
+static inline bool RTC_HAL_GetLockRreg(uint32_t rtcBaseAddr)
+{
+  return (bool)BR_RTC_RAR_LRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Lock Register Read (LRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearLockRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_LRR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Status Register Read (SRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the status register  completes as normal.\n
+ *          false: Reads to the status register are ignored.
+ */
+static inline bool RTC_HAL_GetStatusRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_SRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Status Register Read (SRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearStatusRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_SRR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Control Register Read (CRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the control register completes as normal.\n
+ *          false: Reads to the control register are ignored.
+ */
+static inline bool RTC_HAL_GetControlRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_CRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Control Register Read (CRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearControlRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_CRR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Compensation Register Read (TCRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the time compensation register completes as normal.\n
+ *          false: Reads to the time compensation register are ignored.
+ */
+static inline bool RTC_HAL_GetCompensationRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_TCRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Compensation Register Read (TCRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearCompensationRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_TCRR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Alarm Register Read (TARR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the time alarm register completes as normal.\n
+ *          false: Reads to the time alarm register are ignored.
+ */
+static inline bool RTC_HAL_GetAlarmRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_TARR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Alarm Register Read (TARR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearAlarmRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_TARR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Prescaler Register Read (TPRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the time prescaler register completes as normal.\n
+ *          false: Reads to the time prescaler register are ignored.
+ */
+static inline bool RTC_HAL_GetPrescalerRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_TPRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Prescaler Register Read (TPRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearPrescalerRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_TPRR(rtcBaseAddr, 0U);
+}
+
+/*!
+ * @brief  Reads the field Time Seconds Register Read (TSRR) value of the RTC_RAR register.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ *
+ * @return  true: Reads to the time seconds register completes as normal.\n
+ *          false: Reads to the time seconds register are ignored.
+ */
+static inline bool RTC_HAL_GetSecsRreg(uint32_t rtcBaseAddr)
+{
+    return (bool)BR_RTC_RAR_TSRR(rtcBaseAddr);
+}
+
+/*!
+ * @brief  Writes 0 to the field Time Seconds Register Read (TSRR) of the RTC_RAR register.
+ *
+ * Once cleared, this bit is only set by system reset. It is not affected by
+ * VBAT POR or software reset.
+ *
+ * @param  rtcBaseAddr The RTC base address
+ */
+static inline void RTC_HAL_ClearSecsRreg(uint32_t rtcBaseAddr)
+{
+    BW_RTC_RAR_TSRR(rtcBaseAddr, 0U);
+}
+
+#endif /* FSL_FEATURE_RTC_HAS_ACCESS_CONTROL */
+
+/*! @}*/
 
 #if defined(__cplusplus)
 }
 #endif
-  
+
 
 /*! @}*/
 

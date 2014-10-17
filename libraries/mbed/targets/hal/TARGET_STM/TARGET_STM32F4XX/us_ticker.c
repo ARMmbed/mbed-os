@@ -47,9 +47,9 @@ uint32_t us_ticker_read() {
     return US_TICKER_TIMER->CNT;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    US_TICKER_TIMER->CCR1 = timestamp;
+    US_TICKER_TIMER->CCR1 = (uint32_t)timestamp;
     // enable compare interrupt
     US_TICKER_TIMER->DIER |= TIM_DIER_CC1IE;
 }

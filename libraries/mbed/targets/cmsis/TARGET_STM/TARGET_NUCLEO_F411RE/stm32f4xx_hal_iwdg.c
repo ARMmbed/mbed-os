@@ -164,7 +164,7 @@
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
   /* Check the IWDG handle allocation */
-  if(hiwdg == NULL)
+  if(hiwdg == HAL_NULL)
   {
     return HAL_ERROR;
   }
