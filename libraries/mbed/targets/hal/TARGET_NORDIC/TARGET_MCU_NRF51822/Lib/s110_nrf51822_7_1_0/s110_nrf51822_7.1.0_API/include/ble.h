@@ -46,6 +46,13 @@ enum BLE_COMMON_SVCS
   SD_BLE_OPT_GET,                       /**< Get a BLE option. */
 };
 
+/**@brief Common Option IDs.
+ * IDs that uniquely identify a common option.
+ */
+enum BLE_COMMON_OPTS
+{
+  BLE_COMMON_OPT_RADIO_CPU_MUTEX = BLE_OPT_BASE    /**< Radio CPU mutex option. @ref ble_common_opt_radio_cpu_mutex_t */
+};
 /** @} */
 
 /** @addtogroup BLE_COMMON_DEFINES Defines
@@ -153,10 +160,37 @@ typedef struct
   uint16_t  subversion_number;          /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
 } ble_version_t;
 
+/**@brief Mutual exclusion of radio activity and CPU execution.
+ *
+ *        This option configures the application's access to the CPU when the radio is active. The
+ *        application can configure itself to have access to the CPU while the radio is active.
+ *        By default, the application will be not able to share CPU time with the SoftDevice
+ *        during radio activity. This parameter structure is used together with @ref sd_ble_opt_set
+ *        to configure the @ref BLE_COMMON_OPT_RADIO_CPU_MUTEX option.
+ *
+ * @note  Note that the mutual exclusion of radio activity and CPU execution should remain enabled
+ *        when running the SoftDevice on hardware affected by PAN #44 "CCM may exceed real time 
+ *        requirements"and PAN #45 "AAR may exceed real time requirements".
+ *
+ * @note  @ref sd_ble_opt_get is not supported for this option.
+ *
+ */
+typedef struct
+{
+  uint8_t enable : 1;                          /**< Enable mutual exclusion of radio activity and the CPU execution. */
+} ble_common_opt_radio_cpu_mutex_t;
+
+/**@brief Option structure for common options. */
+typedef union
+{
+  ble_common_opt_radio_cpu_mutex_t  radio_cpu_mutex;        /**< Parameters for the option for the mutual exclusion of radio activity and CPU execution. */
+} ble_common_opt_t;
+
 /**@brief Common BLE Option type, wrapping the module specific options. */
 typedef union
 {
-  ble_gap_opt_t     gap;            /**< GAP option, opt_id in BLE_GAP_OPT_* series. */
+  ble_common_opt_t  common_opt;         /**< Common option, opt_id in BLE_COMMON_OPT_* series. */
+  ble_gap_opt_t     gap;                /**< GAP option, opt_id in BLE_GAP_OPT_* series. */
 } ble_opt_t;
 
 /**
@@ -164,7 +198,7 @@ typedef union
  */
 typedef struct
 {
-  ble_gatts_enable_params_t  gatts_enable_params; /**< GATTS init options @ref ble_gatts_enable_params_t. */  
+  ble_gatts_enable_params_t  gatts_enable_params; /**< GATTS init options @ref ble_gatts_enable_params_t. */
 } ble_enable_params_t;
 
 /** @} */
@@ -188,16 +222,16 @@ SVCALL(SD_BLE_ENABLE, uint32_t, sd_ble_enable(ble_enable_params_t * p_ble_enable
  * @param[in] p_dest Pointer to buffer to be filled in with an event, or NULL to retrieve the event length. This buffer <b>must be 4-byte aligned in memory</b>.
  * @param[in, out] p_len Pointer the length of the buffer, on return it is filled with the event length.
  *
- * @details This call allows the application to pull a BLE event from the BLE stack. The application is signalled that an event is 
+ * @details This call allows the application to pull a BLE event from the BLE stack. The application is signalled that an event is
  * available from the BLE Stack by the triggering of the SD_EVT_IRQn interrupt (mapped to IRQ 22).
  * The application is free to choose whether to call this function from thread mode (main context) or directly from the Interrupt Service Routine
  * that maps to SD_EVT_IRQn. In any case however, and because the BLE stack runs at a higher priority than the application, this function should be called
- * in a loop (until @ref NRF_ERROR_NOT_FOUND is returned) every time SD_EVT_IRQn is raised to ensure that all available events are pulled from the stack. 
+ * in a loop (until @ref NRF_ERROR_NOT_FOUND is returned) every time SD_EVT_IRQn is raised to ensure that all available events are pulled from the stack.
  * Failure to do so could potentially leave events in the internal queue without the application being aware of this fact.
  * Sizing the p_dest buffer is equally important, since the application needs to provide all the memory necessary for the event to be copied into
  * application memory. If the buffer provided is not large enough to fit the entire contents of the event, @ref NRF_ERROR_DATA_SIZE will be returned
  * and the application can then call again with a larger buffer size.
- * Please note that because of the variable length nature of some events, sizeof(ble_evt_t) will not always be large enough to fit certain events, 
+ * Please note that because of the variable length nature of some events, sizeof(ble_evt_t) will not always be large enough to fit certain events,
  * and so it is the application's responsability to provide an amount of memory large enough so that the relevant event is copied in full.
  * The application may "peek" the event length by providing p_dest as a NULL pointer and inspecting the value of *p_len upon return.
  *
@@ -219,7 +253,7 @@ SVCALL(SD_BLE_EVT_GET, uint32_t, sd_ble_evt_get(uint8_t* p_dest, uint16_t *p_len
  *          The application has two options to handle its own application transmission buffers:
  *          - Use a simple arithmetic calculation: at boot time the application should use this function
  *          to find out the total amount of buffers available to it and store it in a variable.
- *          Every time a packet that consumes an application buffer is sent using any of the 
+ *          Every time a packet that consumes an application buffer is sent using any of the
  *          exposed functions in this BLE API, the application should decrement that variable.
  *          Conversely, whenever a @ref BLE_EVT_TX_COMPLETE event is received by the application
  *          it should retrieve the count field in such event and add that number to the same
@@ -228,11 +262,11 @@ SVCALL(SD_BLE_EVT_GET, uint32_t, sd_ble_evt_get(uint8_t* p_dest, uint16_t *p_len
  *          application packets available in the BLE stack's internal buffers, and therefore
  *          it can know with certainty whether it is possible to send more data or it has to
  *          wait for a @ref BLE_EVT_TX_COMPLETE event before it proceeds.
- *          - Choose to simply not keep track of available buffers at all, and instead handle the 
- *          @ref BLE_ERROR_NO_TX_BUFFERS error by queueing the packet to be transmitted and 
+ *          - Choose to simply not keep track of available buffers at all, and instead handle the
+ *          @ref BLE_ERROR_NO_TX_BUFFERS error by queueing the packet to be transmitted and
  *          try again as soon as a @ref BLE_EVT_TX_COMPLETE event arrives.
  *
- *          The API functions that <b>may</b> consume an application buffer depending on 
+ *          The API functions that <b>may</b> consume an application buffer depending on
  *          the parameters supplied to them can be found below:
  *
  *          - @ref sd_ble_gattc_write (write witout response only)
@@ -253,15 +287,15 @@ SVCALL(SD_BLE_TX_BUFFER_COUNT_GET, uint32_t, sd_ble_tx_buffer_count_get(uint8_t*
  * @details This call enables the application to add a vendor specific UUID to the BLE stack's table,
  *          for later use all other modules and APIs. This then allows the application to use the shorter,
  *          24-bit @ref ble_uuid_t format when dealing with both 16-bit and 128-bit UUIDs without having to
- *          check for lengths and having split code paths. The way that this is accomplished is by extending the 
- *          grouping mechanism that the Bluetooth SIG standard base UUID uses for all other 128-bit UUIDs. The 
- *          type field in the @ref ble_uuid_t structure is an index (relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN) 
- *          to the table populated by multiple calls to this function, and the uuid field in the same structure 
- *          contains the 2 bytes at indices 12 and 13. The number of possible 128-bit UUIDs available to the 
- *          application is therefore the number of Vendor Specific UUIDs added with the help of this function times 65536, 
+ *          check for lengths and having split code paths. The way that this is accomplished is by extending the
+ *          grouping mechanism that the Bluetooth SIG standard base UUID uses for all other 128-bit UUIDs. The
+ *          type field in the @ref ble_uuid_t structure is an index (relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN)
+ *          to the table populated by multiple calls to this function, and the uuid field in the same structure
+ *          contains the 2 bytes at indices 12 and 13. The number of possible 128-bit UUIDs available to the
+ *          application is therefore the number of Vendor Specific UUIDs added with the help of this function times 65536,
  *          although restricted to modifying bytes 12 and 13 for each of the entries in the supplied array.
  *
- * @note Bytes 12 and 13 of the provided UUID will not be used internally, since those are always replaced by 
+ * @note Bytes 12 and 13 of the provided UUID will not be used internally, since those are always replaced by
  * the 16-bit uuid field in @ref ble_uuid_t.
  *
  *
@@ -278,11 +312,11 @@ SVCALL(SD_BLE_UUID_VS_ADD, uint32_t, sd_ble_uuid_vs_add(ble_uuid128_t const * co
 
 
 /** @brief Decode little endian raw UUID bytes (16-bit or 128-bit) into a 24 bit @ref ble_uuid_t structure.
- * 
- * @details The raw UUID bytes excluding bytes 12 and 13 (i.e. bytes 0-11 and 14-15) of p_uuid_le are compared 
- * to the corresponding ones in each entry of the table of vendor specific UUIDs pouplated with @ref sd_ble_uuid_vs_add 
- * to look for a match. If there is such a match, bytes 12 and 13 are returned as p_uuid->uuid and the index 
- * relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN as p_uuid->type. 
+ *
+ * @details The raw UUID bytes excluding bytes 12 and 13 (i.e. bytes 0-11 and 14-15) of p_uuid_le are compared
+ * to the corresponding ones in each entry of the table of vendor specific UUIDs pouplated with @ref sd_ble_uuid_vs_add
+ * to look for a match. If there is such a match, bytes 12 and 13 are returned as p_uuid->uuid and the index
+ * relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN as p_uuid->type.
  *
  * @note If the UUID length supplied is 2, then the type set by this call will always be @ref BLE_UUID_TYPE_BLE.
  *
@@ -294,7 +328,7 @@ SVCALL(SD_BLE_UUID_VS_ADD, uint32_t, sd_ble_uuid_vs_add(ble_uuid128_t const * co
  * @return @ref NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
  * @return @ref NRF_ERROR_INVALID_LENGTH Invalid UUID length.
  * @return @ref NRF_ERROR_NOT_FOUND For a 128-bit UUID, no match in the populated table of UUIDs.
- */                                                 
+ */
 SVCALL(SD_BLE_UUID_DECODE, uint32_t, sd_ble_uuid_decode(uint8_t uuid_le_len, uint8_t const * const p_uuid_le, ble_uuid_t * const p_uuid));
 
 

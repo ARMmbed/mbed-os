@@ -19,7 +19,7 @@
 #include "nrf_svc.h"
 
 
-/**@addtogroup BLE_GAP_ENUMERATIONS Enumerations 
+/**@addtogroup BLE_GAP_ENUMERATIONS Enumerations
  * @{ */
 
 /**@brief GAP API SVC numbers.
@@ -45,8 +45,8 @@ enum BLE_GAP_SVCS
   SD_BLE_GAP_AUTH_KEY_REPLY,                   /**< Reply with an authentication key. */
   SD_BLE_GAP_SEC_INFO_REPLY,                   /**< Reply with Security Information. */
   SD_BLE_GAP_CONN_SEC_GET,                     /**< Obtain connection security level. */
-  SD_BLE_GAP_RSSI_START,                       /**< Start reporting of changes in RSSI. */ 
-  SD_BLE_GAP_RSSI_STOP,                        /**< Stop reporting of changes in RSSI. */ 
+  SD_BLE_GAP_RSSI_START,                       /**< Start reporting of changes in RSSI. */
+  SD_BLE_GAP_RSSI_STOP,                        /**< Stop reporting of changes in RSSI. */
 };
 /**@} */
 
@@ -123,7 +123,7 @@ enum BLE_GAP_SVCS
 #define BLE_GAP_AD_TYPE_PUBLIC_TARGET_ADDRESS               0x17 /**< Public Target Address. */
 #define BLE_GAP_AD_TYPE_RANDOM_TARGET_ADDRESS               0x18 /**< Random Target Address. */
 #define BLE_GAP_AD_TYPE_APPEARANCE                          0x19 /**< Appearance. */
-#define BLE_GAP_AD_TYPE_ADVERTISING_INTERVAL                0x1A /**< Advertising Interval. */ 
+#define BLE_GAP_AD_TYPE_ADVERTISING_INTERVAL                0x1A /**< Advertising Interval. */
 #define BLE_GAP_AD_TYPE_LE_BLUETOOTH_DEVICE_ADDRESS         0x1B /**< LE Bluetooth Device Address. */
 #define BLE_GAP_AD_TYPE_LE_ROLE                             0x1C /**< LE Role. */
 #define BLE_GAP_AD_TYPE_SIMPLE_PAIRING_HASH_C256            0x1D /**< Simple Pairing Hash C-256. */
@@ -366,8 +366,10 @@ typedef struct
   ble_gap_addr_t*       p_peer_addr;          /**< For BLE_GAP_CONN_MODE_DIRECTED mode only, known peer address. */
   uint8_t               fp;                   /**< Filter Policy, see @ref BLE_GAP_ADV_FILTER_POLICIES. */
   ble_gap_whitelist_t * p_whitelist;          /**< Pointer to whitelist, NULL if none is given. */
-  uint16_t              interval;             /**< Advertising interval between 0x0020 and 0x4000 in 0.625 ms units (20ms to 10.24s), see @ref BLE_GAP_ADV_INTERVALS. This parameter must be set to 0 if type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND. */
-  uint16_t              timeout;              /**< Advertising timeout between 0x0001 and 0x3FFF in seconds, 0x0000 disables timeout. See also @ref BLE_GAP_ADV_TIMEOUT_VALUES. This parameter must be set to 0 if type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND. */
+  uint16_t              interval;             /**< Advertising interval between 0x0020 and 0x4000 in 0.625 ms units (20ms to 10.24s), see @ref BLE_GAP_ADV_INTERVALS.
+                                                   - If type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND, this parameter must be set to 0 for high duty cycle directed advertising.
+                                                   - If type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND, set @ref BLE_GAP_ADV_INTERVAL_MIN <= interval <= @ref BLE_GAP_ADV_INTERVAL_MAX for low duty cycle advertising */
+  uint16_t              timeout;              /**< Advertising timeout between 0x0001 and 0x3FFF in seconds, 0x0000 disables timeout. See also @ref BLE_GAP_ADV_TIMEOUT_VALUES. If type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND, this parameter must be set to 0 for High duty cycle directed advertising. */
 } ble_gap_adv_params_t;
 
 
@@ -551,7 +553,7 @@ typedef struct
   struct periph_keys_t
   {
     ble_gap_enc_info_t    enc_info;             /**< Peripheral's Encryption information. */
-  } periph_keys;                                /**< Actual keys distributed from the Peripheral to the Central. */ 
+  } periph_keys;                                /**< Actual keys distributed from the Peripheral to the Central. */
   struct central_keys_t
   {
     ble_gap_irk_t         irk;                  /**< Central's IRK. */
@@ -611,7 +613,7 @@ typedef struct
  *         and cannot be longer than half of the supervision timeout.
  *
  *         Used with @ref sd_ble_opt_set to set the local connection latency. The
- *         @ref sd_ble_opt_get is not supported for this option, but the actual 
+ *         @ref sd_ble_opt_get is not supported for this option, but the actual
  *         local connection latency (unless set to NULL) is set as a return parameter
  *         when setting the option.
  *
@@ -734,9 +736,9 @@ SVCALL(SD_BLE_GAP_ADDRESS_GET, uint32_t, sd_ble_gap_address_get(ble_gap_addr_t *
  *
  * @note The format of the advertisement data will be checked by this call to ensure interoperability.
  *       Limitations imposed by this API call to the data provided include having a flags data type in the scan response data and
- *       duplicating the local name in the advertisement data and scan response data. 
+ *       duplicating the local name in the advertisement data and scan response data.
  *
- * @note: To clear the advertisement data and set it to a 0-length packet, simply provide a valid pointer (p_data/p_sr_data) with its corresponding 
+ * @note: To clear the advertisement data and set it to a 0-length packet, simply provide a valid pointer (p_data/p_sr_data) with its corresponding
  *        length (dlen/srdlen) set to 0.
  *
  * @note: The call will fail if p_data and p_sr_data are both NULL since this would have no effect.
@@ -923,6 +925,7 @@ SVCALL(SD_BLE_GAP_DEVICE_NAME_GET, uint32_t, sd_ble_gap_device_name_get(uint8_t 
  * @return @ref NRF_ERROR_INVALID_PARAM Invalid parameter(s) supplied.
  * @return @ref NRF_ERROR_INVALID_STATE Invalid state to perform operation.
  * @return @ref BLE_ERROR_INVALID_CONN_HANDLE Invalid connection handle supplied.
+ * @return @ref NRF_ERROR_TIMEOUT A SMP timeout has occured, and further SMP operations on this link is prohibited.
  */
 SVCALL(SD_BLE_GAP_AUTHENTICATE, uint32_t, sd_ble_gap_authenticate(uint16_t conn_handle, ble_gap_sec_params_t const * const p_sec_params));
 
@@ -998,7 +1001,7 @@ SVCALL(SD_BLE_GAP_SEC_INFO_REPLY, uint32_t, sd_ble_gap_sec_info_reply(uint16_t c
 SVCALL(SD_BLE_GAP_CONN_SEC_GET, uint32_t, sd_ble_gap_conn_sec_get(uint16_t conn_handle, ble_gap_conn_sec_t * const p_conn_sec));
 
 
-/**@brief Start reporting the received signal strength to the application. 
+/**@brief Start reporting the received signal strength to the application.
  *
  * A new event is reported whenever the RSSI value changes, until @ref sd_ble_gap_rssi_stop is called.
  *
@@ -1011,9 +1014,9 @@ SVCALL(SD_BLE_GAP_CONN_SEC_GET, uint32_t, sd_ble_gap_conn_sec_get(uint16_t conn_
 SVCALL(SD_BLE_GAP_RSSI_START, uint32_t, sd_ble_gap_rssi_start(uint16_t conn_handle));
 
 
-/**@brief Stop reporting the received singnal strength. 
+/**@brief Stop reporting the received singnal strength.
  *
- * An RSSI change detected before the call but not yet received by the application 
+ * An RSSI change detected before the call but not yet received by the application
  * may be reported after @ref sd_ble_gap_rssi_stop has been called.
  *
  * @param[in] conn_handle Connection handle.
