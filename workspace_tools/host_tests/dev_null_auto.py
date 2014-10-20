@@ -26,7 +26,7 @@ class DevNullTest(DefaultTest):
         result = False
         c = self.mbed.serial_readline()
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return None
         if text in c:
             result = True
@@ -46,19 +46,17 @@ class DevNullTest(DefaultTest):
             for i in range(3):
                 c = self.mbed.serial_read(32)
                 if c is None:
-                    self.print_result("ioerr_serial")
+                    self.print_result(self.RESULT_IO_SERIAL)
                     return
                 else:
                     str += c
                 if len(str) > 0:
                     result = False
                     break
-            print "Received %d bytes: %s"% (len(str), str)
-            stdout.flush()
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
+            self.notify("Received %d bytes: %s"% (len(str), str))
+
+        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
+
 
 if __name__ == '__main__':
     DevNullTest().run()
