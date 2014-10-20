@@ -481,6 +481,7 @@ class mbedToolchain:
     def compile_seq(self, queue, objects):
         for item in queue:
             result = compile_worker(item)
+
             self.compiled += 1
             self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
