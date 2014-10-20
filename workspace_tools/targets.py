@@ -208,6 +208,14 @@ class LPC824(LPCTarget):
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
+class SSCI824(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['NXP', 'LPC82X']
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
+        self.is_disk_virtual = True
 
 class LPC4088(LPCTarget):
     def __init__(self):
@@ -736,6 +744,7 @@ TARGETS = [
     LPC812(),
     LPC810(),
     LPC824(),
+    SSCI824(),
     LPC4088(),
     LPC4330_M4(),
     LPC4337(),
