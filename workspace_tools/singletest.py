@@ -167,7 +167,7 @@ if __name__ == '__main__':
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
                                    _clean=opts.clean,
-                                   _opts_db_url=opts.db_url,
+                                   #_opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,
