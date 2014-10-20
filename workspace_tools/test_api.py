@@ -1622,9 +1622,9 @@ def get_default_test_options_parser():
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
-    parser.add_option('', '--db',
-                      dest='db_url',
-                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
+    #parser.add_option('', '--db',
+    #                  dest='db_url',
+    #                  help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
     parser.add_option('-l', '--log',
                       dest='log_file_name',
