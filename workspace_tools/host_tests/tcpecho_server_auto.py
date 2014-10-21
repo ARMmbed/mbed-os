@@ -20,8 +20,8 @@ import sys
 import uuid
 import socket
 from sys import stdout
-from time import time
 from host_test import DefaultTest
+
 
 class TCPEchoServerTest(DefaultTest):
     ECHO_SERVER_ADDRESS = ""
@@ -36,17 +36,15 @@ class TCPEchoServerTest(DefaultTest):
         result = False
         c = self.mbed.serial_readline()
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
-        print c
-        stdout.flush()
+        self.notify(c)
 
         m = self.re_detect_server_ip.search(c)
         if m and len(m.groups()):
             self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
             self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-            print "HOST: TCP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
-            stdout.flush()
+            self.notify("HOST: TCP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT))
 
             # We assume this test fails so can't send 'error' message to server
             try:
@@ -54,8 +52,8 @@ class TCPEchoServerTest(DefaultTest):
                 self.s.connect((self.ECHO_SERVER_ADDRESS, self.ECHO_PORT))
             except Exception, e:
                 self.s = None
-                print "HOST: Error: %s" % e
-                self.print_result('error')
+                self.notify("HOST: Error: %s"% e)
+                self.print_result(self.RESULT_ERROR)
                 exit(-1)
 
             print 'HOST: Sending %d echo strings...'% self.ECHO_LOOPs,
@@ -82,17 +80,14 @@ class TCPEchoServerTest(DefaultTest):
             print "HOST: TCP Server not found"
             result = False
 
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
+        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
 
         # Receiving
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result("ioerr_serial")
+                    self.print_result(self.RESULT_IO_SERIAL)
                     break
                 stdout.write(c)
                 stdout.flush()

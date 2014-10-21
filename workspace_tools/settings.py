@@ -63,7 +63,7 @@ GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_A
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
-IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 6.0/arm"
+IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.0/arm"
 
 # GCC Code Warrior
 CW_GCC_PATH  = "C:/Freescale/CW MCU v10.3/Cross_Tools/arm-none-eabi-gcc-4_6_2/bin"

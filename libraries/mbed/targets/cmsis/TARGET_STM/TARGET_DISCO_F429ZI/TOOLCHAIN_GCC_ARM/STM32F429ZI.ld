@@ -1,11 +1,11 @@
-/* Linker script for STM32F407 */
+/* Linker script for STM32F429ZI */
 
 /* Linker script to configure memory regions. */
 MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 2048k
   CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K
-  RAM (rwx) : ORIGIN = 0x20000188, LENGTH = 192k - 0x188 
+  RAM (rwx) : ORIGIN = 0x200001AC, LENGTH = 192k - 0x1AC 
 }
 
 /* Linker script to place sections and symbol values. Should be used together

@@ -42,7 +42,10 @@ typedef enum {
     PortE = 4,
     PortF = 5,
     PortG = 6,
-    PortH = 7
+    PortH = 7,
+    PortI = 8,
+    PortJ = 9,
+    PortK = 10
 } PortName;
 
 #ifdef __cplusplus

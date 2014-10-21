@@ -43,9 +43,9 @@ extern "C" {
 typedef struct {
     PinName  pin;
     uint32_t mask;
-    __IO uint16_t *reg_in;
+    __IO uint32_t *reg_in;
     __IO uint32_t *reg_set;
-    __IO uint16_t *reg_clr;
+    __IO uint32_t *reg_clr;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {

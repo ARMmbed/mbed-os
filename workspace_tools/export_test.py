@@ -100,6 +100,7 @@ if __name__ == '__main__':
             ('coide', 'NUCLEO_F401RE'),
             ('coide', 'NUCLEO_F411RE'),
             ('coide', 'DISCO_F429ZI'),
+            ('coide', 'NUCLEO_F334R8'),
 
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
@@ -111,6 +112,7 @@ if __name__ == '__main__':
 
             ('uvision', 'NUCLEO_F030R8'),
             ('uvision', 'NUCLEO_F072RB'),
+            ('uvision', 'NUCLEO_F091RC'),
             ('uvision', 'NUCLEO_F103RB'),
             ('uvision', 'NUCLEO_F302R8'),
             ('uvision', 'NUCLEO_F334R8'),
@@ -150,11 +152,14 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F411RE'),
             ('gcc_arm', 'DISCO_F429ZI'),
+            ('gcc_arm', 'NUCLEO_F334R8'),
 
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
             ('iar', 'LPC1768'),
+            ('iar', 'NUCLEO_F411RE'),
+            ('iar', 'LPC1347'),
 
             (None, None),
         ]:

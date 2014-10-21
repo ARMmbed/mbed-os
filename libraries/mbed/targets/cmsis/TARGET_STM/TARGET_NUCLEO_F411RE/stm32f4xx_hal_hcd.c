@@ -119,7 +119,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
 HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 { 
   /* Check the HCD handle allocation */
-  if(hhcd == NULL)
+  if(hhcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -233,7 +233,7 @@ HAL_StatusTypeDef HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd,
 HAL_StatusTypeDef HAL_HCD_DeInit(HCD_HandleTypeDef *hhcd)
 {
   /* Check the HCD handle allocation */
-  if(hhcd == NULL)
+  if(hhcd == HAL_NULL)
   {
     return HAL_ERROR;
   }

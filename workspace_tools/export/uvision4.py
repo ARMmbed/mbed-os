@@ -39,6 +39,7 @@ class Uvision4(Exporter):
         'LPC812',
         'NUCLEO_F030R8',
         'NUCLEO_F072RB',
+        'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
         'NUCLEO_F334R8',
@@ -64,6 +65,7 @@ class Uvision4(Exporter):
         'LPC812',
         'NUCLEO_F030R8',
         'NUCLEO_F072RB',
+        'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
         'NUCLEO_F334R8',
@@ -83,7 +85,7 @@ class Uvision4(Exporter):
     }
 
     FLAGS = [
-        "--gnu",
+        "--gnu", "--no_rtti",
     ]
 
     # By convention uVision projects do not show header files in the editor:

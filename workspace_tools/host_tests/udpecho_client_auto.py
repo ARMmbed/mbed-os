@@ -37,10 +37,9 @@ class UDPEchoClientTest(Test):
 
         c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
-        print c.strip()
-        stdout.flush()
+        self.notify(c.strip())
 
         print "HOST: Sending server IP Address to target..."
         connection_str = ip_address + ":" + str(port_no) + "\n"
@@ -48,10 +47,10 @@ class UDPEchoClientTest(Test):
 
         c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
-        print c.strip()
-        stdout.flush()
+        self.notify(c.strip())
+
 
 class UDPEchoClient_Handler(BaseRequestHandler):
     def handle(self):

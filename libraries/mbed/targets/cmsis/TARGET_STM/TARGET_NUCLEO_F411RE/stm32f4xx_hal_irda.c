@@ -202,7 +202,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == NULL)
+  if(hirda == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -260,7 +260,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == NULL)
+  if(hirda == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -380,7 +380,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -472,7 +472,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -564,7 +564,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -619,7 +619,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -676,7 +676,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -743,7 +743,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -882,12 +882,12 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
   hirda->Instance->CR3 &= ~USART_CR3_DMAR;
   
   /* Abort the UART DMA tx Stream */
-  if(hirda->hdmatx != NULL)
+  if(hirda->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(hirda->hdmatx);
   }
   /* Abort the UART DMA rx Stream */
-  if(hirda->hdmarx != NULL)
+  if(hirda->hdmarx != HAL_NULL)
   {
     HAL_DMA_Abort(hirda->hdmarx);
   }

@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import sys
-from subprocess import Popen, PIPE, STDOUT, call
 from os import listdir, remove, makedirs
-from os.path import isdir, join, exists, split, relpath, splitext
 from shutil import copyfile
+from os.path import isdir, join, exists, split, relpath, splitext
+from subprocess import Popen, PIPE, STDOUT, call
 
 
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
@@ -37,8 +37,7 @@ def run_cmd(command, wd=None, redirect=False):
 
 
 def run_cmd_ext(command):
-    import subprocess
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = Popen(command, stdout=PIPE, stderr=PIPE)
     _stdout, _stderr = p.communicate()
     return _stdout, _stderr, p.returncode
 
@@ -99,3 +98,25 @@ def args_error(parser, message):
 def construct_enum(**enums):
     """ Create your own pseudo-enums """
     return type('Enum', (), enums)
+
+
+def check_required_modules(required_modules, verbose=True):
+    """ Function checks for Python modules which should be "importable" (installed)
+        before test suite can be used.
+        @return returns True if all modules are installed already
+    """
+    import imp
+    all_modules_found = True
+    not_installed_modules = []
+    for module_name in required_modules:
+        try:
+            imp.find_module(module_name)
+        except ImportError as e:
+            all_modules_found = False
+            not_installed_modules.append(module_name)
+            if verbose:
+                print "Error: %s"% e
+    if verbose:
+        if not all_modules_found:
+            print "Warning: Module(s) %s not installed. Please install required module(s) before using this script."% (', '.join(not_installed_modules))
+    return all_modules_found
