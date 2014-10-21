@@ -97,19 +97,28 @@ if __name__ == '__main__':
         print "Version %d.%d"% get_version()
         exit(0)
 
+    #if opts.db_url and opts.verbose_test_configuration_only:
+    #detect_database_verbose(opts.db_url)
+    #exit(0)
+
     # Print summary / information about automation test status
     if opts.test_automation_report:
-        print get_avail_tests_summary_table()
-        exit(0)
-
-    if opts.db_url and opts.verbose_test_configuration_only:
-        detect_database_verbose(opts.db_url)
+        print get_avail_tests_summary_table(platform_filter=opts.general_filter_regex)
         exit(0)
 
     # Print summary / information about automation test status
     if opts.test_case_report:
-        test_case_report_cols = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'source_dir']
-        print get_avail_tests_summary_table(cols=test_case_report_cols, result_summary=False, join_delim='\n')
+        test_case_report_cols = ['id',
+                                 'automated',
+                                 'description',
+                                 'peripherals',
+                                 'host_test',
+                                 'duration',
+                                 'source_dir']
+        print get_avail_tests_summary_table(cols=test_case_report_cols,
+                                            result_summary=False,
+                                            join_delim='\n',
+                                            platform_filter=opts.general_filter_regex)
         exit(0)
 
     # Only prints matrix of supported toolchains
@@ -158,7 +167,7 @@ if __name__ == '__main__':
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
                                    _clean=opts.clean,
-                                   _opts_db_url=opts.db_url,
+                                   #_opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,

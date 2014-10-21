@@ -132,7 +132,8 @@ class SingleTestRunner(object):
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
-                           "end" : TEST_RESULT_UNDEF}
+                           "end" : TEST_RESULT_UNDEF
+    }
 
     def __init__(self,
                  _global_loops_count=1,
@@ -251,7 +252,8 @@ class SingleTestRunner(object):
                   "mut_reset_type" :  str(self.opts_mut_reset_type),
                   "jobs" :  str(self.opts_jobs),
                   "extend_test_timeout" :  str(self.opts_extend_test_timeout),
-                  "_dummy" : ''}
+                  "_dummy" : ''
+        }
         return result
 
     def shuffle_random_func(self):
@@ -547,7 +549,7 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
                        self.TEST_RESULT_TIMEOUT : 0
-                       }
+        }
 
         for test in test_summary:
             if test[0] in result_dict:
@@ -1182,7 +1184,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
     return result
 
 
-def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
+def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=',',platform_filter=None):
     """ Generates table summary with all test cases and additional test cases
         information using pretty print functionality. Allows test suite user to
         see test cases
@@ -1198,7 +1200,12 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
     counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
-    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration'] if cols is None else cols
+    test_properties = ['id',
+                       'automated',
+                       'description',
+                       'peripherals',
+                       'host_test',
+                       'duration'] if cols is None else cols
 
     # All tests status table print
     pt = PrettyTable(test_properties)
@@ -1210,7 +1217,11 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     counter_automated = 0
     pt.padding_width = 1 # One space between column edges and contents (default)
 
-    for test_id in TEST_MAP:
+    for test_id in sorted(TEST_MAP.keys()):
+        if platform_filter is not None:
+            # FIlter out platforms using regex
+            if re.search(platform_filter, test_id) is None:
+                continue
         row = []
         test = TEST_MAP[test_id]
         split = test_id.split('_')[:-1]
@@ -1234,7 +1245,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     result = pt.get_string()
     result += "\n\n"
 
-    if result_summary:
+    if result_summary and not platform_filter:
         # Automation result summary
         test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
         pt = PrettyTable(test_id_cols)
@@ -1331,11 +1342,9 @@ def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name
                     # Check number of total images, should be 1
                     new_file_lines.append(re.sub('^TOTALIMAGES:[\t ]*[\d]+', 'TOTALIMAGES: 1', line))
                     pass
-
                 elif re.search('; - %s[\n\r]*$'% MBED_SDK_TEST_STAMP, line):
                     # Look for test suite entries and remove them
                     pass    # Omit all test suite entries
-
                 elif re.search('^IMAGE[\d]+FILE', line):
                     # Check all image entries and mark the ';'
                     new_file_lines.append(';' + line)   # Comment non test suite lines
@@ -1401,7 +1410,8 @@ class TestLogger():
         log_entry = {'log_type' : LogType,
                      'log_timestamp' : log_timestamp,
                      'log_line' : log_line,
-                     '_future' : None}
+                     '_future' : None
+        }
         # Store log in memory
         if self.store_log:
             self.log.append(log_entry)
@@ -1622,9 +1632,9 @@ def get_default_test_options_parser():
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
-    parser.add_option('', '--db',
-                      dest='db_url',
-                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
+    #parser.add_option('', '--db',
+    #                  dest='db_url',
+    #                  help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
     parser.add_option('-l', '--log',
                       dest='log_file_name',
