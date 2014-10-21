@@ -15,38 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
 from time import time
-from sys import stdout
+from host_test import DefaultTest
+
 
 class WaitusTest(DefaultTest):
-    def run(self):
+    """ This test is reading single characters from stdio
+        and measures time between their occurrences.
+    """
+    def test(self):
         test_result = True
         # First character to start test (to know after reset when test starts)
         if self.mbed.serial_timeout(None) is None:
-            self.print_result(self.RESULT_IO_SERIAL)
-            return
+            return self.RESULT_IO_SERIAL
         c = self.mbed.serial_read(1)
         if c is None:
-            self.print_result(self.RESULT_IO_SERIAL)
-            return
+            return self.RESULT_IO_SERIAL
         if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
             #Read additional 39 bytes of TargetID
             if self.mbed.serial_read(39) is None:
-                self.print_result(self.RESULT_IO_SERIAL)
-                return
+                return self.RESULT_IO_SERIAL
             c = self.mbed.serial_read(1) # Re-read first 'tick'
             if c is None:
-                self.print_result(self.RESULT_IO_SERIAL)
-                return
+                return self.RESULT_IO_SERIAL
         self.notify("Test started")
         start_serial_pool = time()
         start = time()
         for i in range(0, 10):
             c = self.mbed.serial_read(1)
             if c is None:
-                self.print_result(self.RESULT_IO_SERIAL)
-                return
+                return self.RESULT_IO_SERIAL
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
                 deviation = abs(delta - 1)
@@ -60,12 +58,11 @@ class WaitusTest(DefaultTest):
                 self.notify(". in %.2f sec (%.2f) [%s]" % (delta, deviation, msg))
             else:
                 self.notify(". skipped")
-            stdout.flush()
             start = time()
         measurement_time = time() - start_serial_pool
         self.notify("Completed in %.2f sec" % (measurement_time))
-        self.print_result(self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE)
+        return self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE
 
-        
+
 if __name__ == '__main__':
     WaitusTest().run()

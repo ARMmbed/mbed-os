@@ -22,10 +22,12 @@ except ImportError, e:
     print "Error: Can't import 'serial' module: %s"% e
     exit(-1)
 
+
 import os
-from optparse import OptionParser
-from time import sleep, time
 from sys import stdout
+from time import sleep, time
+from optparse import OptionParser
+
 
 # This is a little tricky. We need to add upper directory to path so
 # we can find packages we want from the same level as other files do
@@ -273,17 +275,20 @@ class Test(TestResults):
 
     def run(self):
         """ Test runner for host test. This function will start executing
-            test and forward test result via serial port to test suite
+            test() function and forward test result via serial port to test suite
         """
         try:
-            result = self.test()
-            self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
+            # We expect here output from test in one of possible statuses
+            # E.g. self.RESULT_SUCCESS, self.RESULT_FAILURE, self.RESULT_ERROR
+            result_status = self.test()
+            self.print_result(result_status)
         except Exception, e:
-            print str(e)
+            self.notify(str(e))
             self.print_result(self.RESULT_ERROR)
 
     def setup(self):
-        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
+        """ Setup and check if configuration for test is correct.
+            E.g. if serial port can be opened
         """
         result = True
         if not self.mbed.serial:
@@ -320,17 +325,19 @@ class Simple(DefaultTest):
         output from MUT, no supervision over test running in MUT is executed.
         Just waiting for result
     """
-    def run(self):
+    def test(self):
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result(self.RESULT_IO_SERIAL)
-                    break
+                    return self.RESULT_IO_SERIAL
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
             self.notify("\r\n[CTRL+C] exit")
+        # If this function ends we assume user break or exception
+        # occured and error should be issued to test suite
+        return self.RESULT_ERROR
 
 
 if __name__ == '__main__':
