@@ -20,7 +20,7 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
 
 CPU = -mcpu=cortex-m3 -mthumb
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
+CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti
 CC_FLAGS += -MMD -MP
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 

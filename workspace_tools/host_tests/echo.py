@@ -17,13 +17,16 @@ limitations under the License.
 import sys
 import uuid
 from sys import stdout
-from host_test import Test
+from host_test import TestResults, Test
 
 
 class EchoTest(Test):
     def __init__(self):
+        TestResults.__init__(self)
         Test.__init__(self)
-        self.mbed.init_serial(115200)
+        serial_init_res = self.mbed.init_serial(115200)
+        if not serial_init_res:
+            self.print_result(self.RESULT_IO_SERIAL)
         self.mbed.reset()
         self.TEST_LOOP_COUNT = 50
 
@@ -32,7 +35,7 @@ class EchoTest(Test):
         """
         c = self.mbed.serial_readline() # '{{start}}'
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
         print c.strip()
         stdout.flush()
@@ -45,7 +48,7 @@ class EchoTest(Test):
             self.mbed.serial_write(TEST)
             c = self.mbed.serial_readline()
             if c is None:
-                self.print_result("ioerr_serial")
+                self.print_result(self.RESULT_IO_SERIAL)
                 return
             if c.strip() != TEST.strip():
                 self.notify('HOST: "%s" != "%s"'% (c, TEST))

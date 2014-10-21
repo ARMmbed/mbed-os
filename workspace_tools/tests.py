@@ -519,6 +519,15 @@ TESTS = [
         "duration": 10,
         "automated": False,
     },
+    {
+        "id": "MBED_34", "description": "Ticker Two callbacks",
+        "source_dir": join(TEST_DIR, "mbed", "ticker_3"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
+        "automated": True,
+        "host_test": "wait_us_auto"
+    },
+    
 
     # CMSIS RTOS tests
     {

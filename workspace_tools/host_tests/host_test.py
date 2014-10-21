@@ -140,6 +140,7 @@ class Mbed:
                     result += c
                 except:
                     result = None
+                    break
                 if c == '\n':
                     break
         return result
@@ -254,8 +255,18 @@ class Mbed:
             self.extra_serial.flushOutput()
 
 
-class Test:
-    """ Baseclass for host test's test runner
+class TestResults:
+    """ Test results set by host tests
+    """
+    def __init__(self):
+        self.RESULT_SUCCESS = 'success'
+        self.RESULT_FAILURE = 'failure'
+        self.RESULT_ERROR = 'error'
+        self.RESULT_IO_SERIAL = 'ioerr_serial'
+
+
+class Test(TestResults):
+    """ Base class for host test's test runner
     """
     def __init__(self):
         self.mbed = Mbed()
@@ -266,10 +277,10 @@ class Test:
         """
         try:
             result = self.test()
-            self.print_result("success" if result else "failure")
+            self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
         except Exception, e:
             print str(e)
-            self.print_result("error")
+            self.print_result(self.RESULT_ERROR)
 
     def setup(self):
         """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
@@ -277,7 +288,7 @@ class Test:
         result = True
         if not self.mbed.serial:
             result = False
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
         return result
 
     def notify(self, message):
@@ -289,15 +300,18 @@ class Test:
     def print_result(self, result):
         """ Test result unified printing function
         """
-        self.notify("\n{%s}\n{end}" % result)
+        self.notify("\n{{%s}}\n{{end}}" % result)
 
 
 class DefaultTest(Test):
     """ Test class with serial port initialization
     """
     def __init__(self):
+        TestResults.__init__(self)
         Test.__init__(self)
         serial_init_res = self.mbed.init_serial()
+        if not serial_init_res:
+            self.print_result(self.RESULT_IO_SERIAL)
         self.mbed.reset()
 
 
@@ -311,12 +325,12 @@ class Simple(DefaultTest):
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result("ioerr_serial")
+                    self.print_result(self.RESULT_IO_SERIAL)
                     break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
-            print "\n[CTRL+c] exit"
+            self.notify("\r\n[CTRL+C] exit")
 
 
 if __name__ == '__main__':

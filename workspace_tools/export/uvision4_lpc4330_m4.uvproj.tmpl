@@ -354,7 +354,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>1</uSurpInc>
             <VariousControls>
-              <MiscControls>--gnu --no_rtti</MiscControls>
+              <MiscControls>{% for flag in flags %}{{flag}} {% endfor %}</MiscControls>
               <Define>{% for s in symbols %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in include_paths %} {{path}}; {% endfor %} </IncludePath>

@@ -42,10 +42,6 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
-
-typedef enum {
     UART_1 = (int)USART1_BASE,
     UART_2 = (int)USART2_BASE
 } UARTName;
@@ -65,11 +61,11 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-    TIM_3 = (int)TIM3_BASE,
-    TIM_14 = (int)TIM14_BASE,
-    TIM_15 = (int)TIM15_BASE,
-    TIM_16 = (int)TIM16_BASE,
-    TIM_17 = (int)TIM17_BASE
+    PWM_3 = (int)TIM3_BASE,
+    PWM_14 = (int)TIM14_BASE,
+    PWM_15 = (int)TIM15_BASE,
+    PWM_16 = (int)TIM16_BASE,
+    PWM_17 = (int)TIM17_BASE
 } PWMName;
 
 #ifdef __cplusplus

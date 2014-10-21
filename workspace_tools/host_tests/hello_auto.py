@@ -25,30 +25,25 @@ class HelloTest(DefaultTest):
     def run(self):
         c = self.mbed.serial_readline()
         if c is None:
-           self.print_result("ioerr_serial")
+           self.print_result(self.RESULT_IO_SERIAL)
            return
-        print c.strip()
-        stdout.flush()
+        self.notify(c.strip())
 
         c = self.mbed.serial_readline()
         if c is None:
-           self.print_result("ioerr_serial")
+           self.print_result(self.RESULT_IO_SERIAL)
            return
-        print "Read %d bytes"% len(c)
-        print c.strip()
-        stdout.flush()
+        self.notify("Read %d bytes"% len(c))
+        self.notify(c.strip())
+
         result = True
         # Because we can have targetID here let's try to decode
         if len(c) < len(self.HELLO_WORLD):
             result = False
         else:
             result = self.HELLO_WORLD in c
+        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
 
-        if result: # Hello World received
-            self.print_result('success')
-        else:
-            self.print_result('failure')
-        stdout.flush()
 
 if __name__ == '__main__':
     HelloTest().run()

@@ -231,7 +231,7 @@ static HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, 
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -287,7 +287,7 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -339,7 +339,7 @@ HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -398,7 +398,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
 HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Address, uint32_t WakeUpMethode)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -455,7 +455,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Add
 HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -576,7 +576,7 @@ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, u
   tmp1 = huart->State;
   if((tmp1 == HAL_UART_STATE_READY) || (tmp1 == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -670,7 +670,7 @@ HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, ui
   tmp1 = huart->State;
   if((tmp1 == HAL_UART_STATE_READY) || (tmp1 == HAL_UART_STATE_BUSY_TX))
   { 
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -768,7 +768,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
   tmp = huart->State;
   if((tmp == HAL_UART_STATE_READY) || (tmp == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -826,7 +826,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
   tmp = huart->State;  
   if((tmp == HAL_UART_STATE_READY) || (tmp == HAL_UART_STATE_BUSY_TX))
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -885,7 +885,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pDat
   tmp1 = huart->State;  
   if((tmp1 == HAL_UART_STATE_READY) || (tmp1 == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -953,7 +953,7 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
   tmp1 = huart->State;    
   if((tmp1 == HAL_UART_STATE_READY) || (tmp1 == HAL_UART_STATE_BUSY_TX))
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -1094,12 +1094,12 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   huart->Instance->CR3 &= ~USART_CR3_DMAR;
   
   /* Abort the UART DMA tx Stream */
-  if(huart->hdmatx != NULL)
+  if(huart->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(huart->hdmatx);
   }
   /* Abort the UART DMA rx Stream */
-  if(huart->hdmarx != NULL)
+  if(huart->hdmarx != HAL_NULL)
   {
     HAL_DMA_Abort(huart->hdmarx);
   }

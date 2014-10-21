@@ -37,7 +37,7 @@ void us_ticker_irq_handler(void) {
             return;
         }
 
-        if ((int)(head->timestamp - us_ticker_read()) <= 0) {
+        if ((int64_t)(head->timestamp - us_ticker_read()) <= 0) {
             // This event was in the past:
             //      point to the following one and execute its handler
             ticker_event_t *p = head;
@@ -70,7 +70,7 @@ void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t
     ticker_event_t *prev = NULL, *p = head;
     while (p != NULL) {
         /* check if we come before p */
-        if ((int)(timestamp - p->timestamp) <= 0) {
+        if ((int64_t)(timestamp - p->timestamp) < 0) {
             break;
         }
         /* go to the next element */

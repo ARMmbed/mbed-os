@@ -32,17 +32,27 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 
-#define RANGE_12BIT (0xFFF)
+#define DAC_RANGE (0xFFF) // 12 bits
 
 static const PinMap PinMap_DAC[] = {
-    {PA_4, DAC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // DAC_OUT1
-    {PA_5, DAC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // DAC_OUT2
+    {PA_4, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC_OUT1
+    {PA_5, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC_OUT2 (Warning: LED1 is also on this pin)
     {NC,   NC,    0}
 };
 
-void analogout_init(dac_t *obj, PinName pin) {
-    DAC_InitTypeDef DAC_InitStructure;
+static DAC_HandleTypeDef DacHandle;
+
+// These variables are used for the "free" function
+static int pa4_used = 0;
+static int pa5_used = 0;
+
+void analogout_init(dac_t *obj, PinName pin)
+{
+    DAC_ChannelConfTypeDef sConfig;
+
+    DacHandle.Instance = DAC;
 
     // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
@@ -51,78 +61,90 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    // Save the pin for future use
+    // Save the channel for future use
     obj->pin = pin;
 
     // Enable DAC clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
+    __DAC_CLK_ENABLE();
 
-    // Configure and enable DAC channel
-    DAC_InitStructure.DAC_Trigger                      = DAC_Trigger_None;
-    DAC_InitStructure.DAC_WaveGeneration               = DAC_WaveGeneration_None;
-    DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
-    DAC_InitStructure.DAC_OutputBuffer                 = DAC_OutputBuffer_Disable;
+    // Configure DAC
+    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
 
-    if (obj->pin == PA_4) {
-        DAC_Init(DAC_Channel_1, &DAC_InitStructure);
-        DAC_Cmd(DAC_Channel_1, ENABLE);
-    }
-    if (obj->pin == PA_5) {
-        DAC_Init(DAC_Channel_2, &DAC_InitStructure);
-        DAC_Cmd(DAC_Channel_2, ENABLE);
+    if (pin == PA_4) {
+        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
+        pa4_used = 1;
+    } else { // PA_5
+        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2);
+        pa5_used = 1;
     }
 
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {
-    // Configure GPIOs
-    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL, 0xFF));
+void analogout_free(dac_t *obj)
+{
+    // Reset DAC and disable clock
+    if (obj->pin == PA_4) pa4_used = 0;
+    if (obj->pin == PA_5) pa5_used = 0;
+    if ((pa4_used == 0) && (pa5_used == 0)) {
+        __DAC_FORCE_RESET();
+        __DAC_RELEASE_RESET();
+        __DAC_CLK_DISABLE();
+    }
+
+    // Configure GPIO
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
-static inline void dac_write(dac_t *obj, uint16_t value) {
+static inline void dac_write(dac_t *obj, uint16_t value)
+{
     if (obj->pin == PA_4) {
-        DAC_SetChannel1Data(DAC_Align_12b_R, value);
-    }
-    if (obj->pin == PA_5) {
-        DAC_SetChannel2Data(DAC_Align_12b_R, value);
+        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
+        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
+    } else { // PA_5
+        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
+        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
     }
 }
 
-static inline int dac_read(dac_t *obj) {
+static inline int dac_read(dac_t *obj)
+{
     if (obj->pin == PA_4) {
-        return (int)DAC_GetDataOutputValue(DAC_Channel_1);
+        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
+    } else { // PA_5
+        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
-    if (obj->pin == PA_5) {
-        return (int)DAC_GetDataOutputValue(DAC_Channel_2);
-    }
-    return 0;
 }
 
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     if (value < 0.0f) {
         dac_write(obj, 0); // Min value
     } else if (value > 1.0f) {
-        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+        dac_write(obj, (uint16_t)DAC_RANGE); // Max value
     } else {
-        dac_write(obj, (uint16_t)(value * (float)RANGE_12BIT));
+        dac_write(obj, (uint16_t)(value * (float)DAC_RANGE));
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value) {
-    if (value > (uint16_t)RANGE_12BIT) {
-        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
+    if (value > (uint16_t)DAC_RANGE) {
+        dac_write(obj, (uint16_t)DAC_RANGE); // Max value
     } else {
         dac_write(obj, value);
     }
 }
 
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     uint32_t value = dac_read(obj);
-    return (float)value * (1.0f / (float)RANGE_12BIT);
+    return (float)((float)value * (1.0f / (float)DAC_RANGE));
 }
 
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     return (uint16_t)dac_read(obj);
 }
 

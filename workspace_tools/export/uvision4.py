@@ -85,7 +85,7 @@ class Uvision4(Exporter):
     }
 
     FLAGS = [
-        "--gnu",
+        "--gnu", "--no_rtti",
     ]
 
     # By convention uVision projects do not show header files in the editor:

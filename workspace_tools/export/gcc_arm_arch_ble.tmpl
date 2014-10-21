@@ -20,7 +20,7 @@ OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 SREC_CAT = srec_cat
 
 CPU = -mcpu=cortex-m0 -mthumb
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
+CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
 LD_FLAGS = -mcpu=cortex-m0 -mthumb -Wl,--gc-sections -Wl,--wrap=main --specs=nano.specs -u _printf_float -u _scanf_float

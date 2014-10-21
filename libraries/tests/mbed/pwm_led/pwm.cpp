@@ -16,7 +16,8 @@
       defined(TARGET_NUCLEO_L152RE)
 #define TEST_LED D3
 
-#elif defined (TARGET_K22F)
+#elif defined (TARGET_K22F) || \
+      defined (TARGET_LPC824)
 #define TEST_LED LED_GREEN
 
 #else
