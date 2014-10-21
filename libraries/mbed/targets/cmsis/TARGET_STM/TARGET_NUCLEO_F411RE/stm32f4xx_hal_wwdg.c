@@ -151,7 +151,7 @@
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 {
   /* Check the WWDG handle allocation */
-  if(hwwdg == NULL)
+  if(hwwdg == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -192,7 +192,7 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
 { 
   /* Check the WWDG handle allocation */
-  if(hwwdg == NULL)
+  if(hwwdg == HAL_NULL)
   {
     return HAL_ERROR;
   }

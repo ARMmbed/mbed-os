@@ -14,46 +14,57 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import sys
 import uuid
 from sys import stdout
-from host_test import Test
+from host_test import TestResults, Test
 
 
 class EchoTest(Test):
+    """ This host test will use mbed serial port with 
+        baudrate 115200 to perform echo test on that port.
+    """
+
     def __init__(self):
+        # Constructors
+        TestResults.__init__(self)
         Test.__init__(self)
-        self.mbed.init_serial(115200)
-        self.mbed.reset()
+        
+        # Test parameters
+        self.TEST_SERIAL_BAUDRATE = 115200
         self.TEST_LOOP_COUNT = 50
+
+        # Initializations
+        serial_init_res = self.mbed.init_serial(self.TEST_SERIAL_BAUDRATE)
+        if not serial_init_res:
+            self.print_result(self.RESULT_IO_SERIAL)
+        self.mbed.reset()
 
     def test(self):
         """ Test function, return True or False to get standard test notification on stdout
         """
         c = self.mbed.serial_readline() # '{{start}}'
         if c is None:
-            self.print_result("ioerr_serial")
-            return
-        print c.strip()
-        stdout.flush()
+            return self.RESULT_IO_SERIAL
+        self.notify(c.strip())
 
         self.mbed.flush()
         self.notify("HOST: Starting the ECHO test")
         result = True
         for i in range(0, self.TEST_LOOP_COUNT):
-            TEST = str(uuid.uuid4()) + "\n"
-            self.mbed.serial_write(TEST)
+            TEST_STRING = str(uuid.uuid4()) + "\n"
+            self.mbed.serial_write(TEST_STRING)
             c = self.mbed.serial_readline()
             if c is None:
-                self.print_result("ioerr_serial")
-                return
-            if c.strip() != TEST.strip():
-                self.notify('HOST: "%s" != "%s"'% (c, TEST))
+                return self.RESULT_IO_SERIAL
+            if c.strip() != TEST_STRING.strip():
+                self.notify('HOST: "%s" != "%s"'% (c, TEST_STRING))
                 result = False
             else:
                 sys.stdout.write('.')
                 stdout.flush()
-        return result
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
 
 
 if __name__ == '__main__':

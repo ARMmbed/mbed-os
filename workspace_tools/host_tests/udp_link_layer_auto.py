@@ -84,7 +84,7 @@ class UDPEchoServerTest(DefaultTest):
     def run(self):
         serial_ip_msg = self.mbed.serial_readline()
         if serial_ip_msg is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
         stdout.write(serial_ip_msg)
         stdout.flush()
@@ -93,16 +93,15 @@ class UDPEchoServerTest(DefaultTest):
         if m and len(m.groups()):
             self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
             self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-            print "HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
-            stdout.flush()
+            self.notify("HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT))
 
         # Open client socket to burst datagrams to UDP server in mbed
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except Exception, e:
             self.s = None
-            print "HOST: Error: %s" % e
-            self.print_result('error')
+            self.notify("HOST: Error: %s"% e)
+            self.print_result(self.RESULT_ERROR)
             return
 
         # UDP replied receiver works in background to get echoed datagrams
@@ -129,8 +128,7 @@ class UDPEchoServerTest(DefaultTest):
         for d in range(5):
             sleep(1.0)
             summary_datagram_success = (float(len(dict_udp_recv_datagrams)) / float(self.TEST_PACKET_COUNT)) * 100.0
-            # print dict_udp_recv_datagrams
-            print "HOST: Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            self.notify("HOST: Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms"% (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR))
             result = result and (summary_datagram_success >= self.PACKET_SATURATION_RATIO)
             stdout.flush()
 
@@ -142,10 +140,7 @@ class UDPEchoServerTest(DefaultTest):
         print
         stdout.flush()
 
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
+        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
 
         # Receiving serial data from mbed
         print
@@ -154,7 +149,7 @@ class UDPEchoServerTest(DefaultTest):
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result("ioerr_serial")
+                    self.print_result(self.RESULT_IO_SERIAL)
                     break
                 stdout.write(c)
                 stdout.flush()

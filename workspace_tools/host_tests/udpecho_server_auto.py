@@ -15,12 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 import re
 import sys
 import uuid
 from sys import stdout
-from time import time
 from host_test import DefaultTest
 from socket import socket, AF_INET, SOCK_DGRAM
 
@@ -37,17 +35,15 @@ class UDPEchoServerTest(DefaultTest):
         result = True
         serial_ip_msg = self.mbed.serial_readline()
         if serial_ip_msg is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
-        stdout.write(serial_ip_msg)
-        stdout.flush()
+        self.notify(serial_ip_msg)
         # Searching for IP address and port prompted by server
         m = self.re_detect_server_ip.search(serial_ip_msg)
         if m and len(m.groups()):
             self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
             self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-            print "HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
-            stdout.flush()
+            self.notify("HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT))
 
             # We assume this test fails so can't send 'error' message to server
             try:
@@ -55,7 +51,7 @@ class UDPEchoServerTest(DefaultTest):
             except Exception, e:
                 self.s = None
                 print "HOST: Error: %s" % e
-                self.print_result('error')
+                self.print_result(self.RESULT_ERROR)
                 exit(-1)
 
             for i in range(0, 100):
@@ -74,17 +70,14 @@ class UDPEchoServerTest(DefaultTest):
         if self.s is not None:
             self.s.close()
 
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
+        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
 
         # Receiving
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result("ioerr_serial")
+                    self.print_result(self.RESULT_IO_SERIAL)
                     break
                 stdout.write(c)
                 stdout.flush()

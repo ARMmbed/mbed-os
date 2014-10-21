@@ -29,53 +29,41 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-// 32-bit timer selection
-#define TIM_MST            TIM5
-#define TIM_MST_IRQ        TIM5_IRQn
-#define TIM_MST_RCC        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE)
+#define TIM_MST TIM5
 
+static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-
+void us_ticker_init(void)
+{
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
-    // Enable timer clock
-    TIM_MST_RCC;
+    TimMasterHandle.Instance = TIM_MST;
 
-    // Configure time base
-    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = 0xFFFFFFFF;
-    TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 �s tick
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
-
-    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(TIM_MST_IRQ);
-
-    // Enable timer
-    TIM_Cmd(TIM_MST, ENABLE);
+    HAL_InitTick(0); // The passed value is not used
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     if (!us_ticker_inited) us_ticker_init();
     return TIM_MST->CNT;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     // Set new output compare value
-    TIM_SetCompare1(TIM_MST, (uint32_t)timestamp);
+    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
     // Enable IT
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, ENABLE);
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_disable_interrupt(void) {
-    TIM_ITConfig(TIM_MST, TIM_IT_CC1, DISABLE);
+void us_ticker_disable_interrupt(void)
+{
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void) {
-    TIM_ClearITPendingBit(TIM_MST, TIM_IT_CC1);
+void us_ticker_clear_interrupt(void)
+{
+    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
 }

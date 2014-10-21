@@ -203,7 +203,7 @@
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 {
   /* Check the RTC peripheral state */
-  if(hrtc == NULL)
+  if(hrtc == HAL_NULL)
   {
      return HAL_ERROR;
   }
