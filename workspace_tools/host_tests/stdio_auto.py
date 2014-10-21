@@ -17,21 +17,20 @@ limitations under the License.
 
 import re
 import random
-from sys import stdout
 from time import time
 from host_test import DefaultTest
+
 
 class StdioTest(DefaultTest):
     PATTERN_INT_VALUE = "Your value was: (-?\d+)"
     re_detect_int_value = re.compile(PATTERN_INT_VALUE)
 
-    def run(self):
+    def test(self):
         test_result = True
 
         c = self.mbed.serial_readline() # {{start}} preamble
         if c is None:
-            self.print_result(self.RESULT_IO_SERIAL)
-            return
+            return self.RESULT_IO_SERIAL
         self.notify(c)
 
         for i in range(0, 10):
@@ -42,8 +41,7 @@ class StdioTest(DefaultTest):
 
             serial_stdio_msg = self.mbed.serial_readline()
             if c is None:
-                self.print_result(self.RESULT_IO_SERIAL)
-                return
+                return self.RESULT_IO_SERIAL
             delay_time = time() - start
             self.notify(serial_stdio_msg.strip())
 
@@ -57,8 +55,7 @@ class StdioTest(DefaultTest):
             else:
                 test_result = False
                 break
-
-        self.print_result(self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE)
+        return self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE
 
 
 if __name__ == '__main__':

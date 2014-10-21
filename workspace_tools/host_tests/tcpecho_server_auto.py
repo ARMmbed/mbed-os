@@ -20,8 +20,8 @@ import sys
 import uuid
 import socket
 from sys import stdout
-from time import time
 from host_test import DefaultTest
+
 
 class TCPEchoServerTest(DefaultTest):
     ECHO_SERVER_ADDRESS = ""
