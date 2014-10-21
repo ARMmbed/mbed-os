@@ -15,25 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
-from sys import stdout
 import re
+from sys import stdout
+from host_test import DefaultTest
+
 
 class HelloTest(DefaultTest):
     HELLO_WORLD = "Hello World"
 
-    def run(self):
+    def test(self):
         c = self.mbed.serial_readline()
         if c is None:
-           self.print_result(self.RESULT_IO_SERIAL)
-           return
+           return self.RESULT_IO_SERIAL
         self.notify(c.strip())
 
         c = self.mbed.serial_readline()
         if c is None:
-           self.print_result(self.RESULT_IO_SERIAL)
-           return
-        self.notify("Read %d bytes"% len(c))
+           return self.RESULT_IO_SERIAL
+        self.notify("Read %d bytes:"% len(c))
         self.notify(c.strip())
 
         result = True
@@ -42,7 +41,7 @@ class HelloTest(DefaultTest):
             result = False
         else:
             result = self.HELLO_WORLD in c
-        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
 
 
 if __name__ == '__main__':

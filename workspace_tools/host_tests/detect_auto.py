@@ -15,31 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
-from sys import stdout
 import re
+from sys import stdout
+from host_test import DefaultTest
 
 
 class DetectPlatformTest(DefaultTest):
     PATTERN_MICRO_NAME = "Target '(\w+)'"
     re_detect_micro_name = re.compile(PATTERN_MICRO_NAME)
 
-    def run(self):
+    def test(self):
         result = True
 
         c = self.mbed.serial_readline() # {{start}} preamble
-        print c
         if c is None:
-           self.print_result(self.RESULT_IO_SERIAL)
-           return
+           return self.RESULT_IO_SERIAL
 
         self.notify(c.strip())
         self.notify("HOST: Detecting target name...")
 
         c = self.mbed.serial_readline()
         if c is None:
-           self.print_result(self.RESULT_IO_SERIAL)
-           return
+            return self.RESULT_IO_SERIAL
         self.notify(c.strip())
 
         # Check for target name
@@ -53,11 +50,10 @@ class DetectPlatformTest(DefaultTest):
         for i in range(0, 2):
             c = self.mbed.serial_readline()
             if c is None:
-               self.print_result(self.RESULT_IO_SERIAL)
-               return
+               return self.RESULT_IO_SERIAL
             self.notify(c.strip())
 
-        self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
 
 
 if __name__ == '__main__':

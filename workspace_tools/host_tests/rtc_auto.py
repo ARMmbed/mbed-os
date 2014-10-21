@@ -16,15 +16,16 @@ limitations under the License.
 """
 
 import re
+from sys import stdout
 from host_test import DefaultTest
 from time import time, strftime, gmtime
-from sys import stdout
+
 
 class RTCTest(DefaultTest):
     PATTERN_RTC_VALUE = "\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]"
     re_detect_rtc_value = re.compile(PATTERN_RTC_VALUE)
 
-    def run(self):
+    def test(self):
         test_result = True
         start = time()
         sec_prev = 0
@@ -32,8 +33,7 @@ class RTCTest(DefaultTest):
             # Timeout changed from default: we need to wait longer for some boards to start-up
             c = self.mbed.serial_readline(timeout=10)
             if c is None:
-                self.print_result(self.RESULT_IO_SERIAL)
-                return
+                return self.RESULT_IO_SERIAL
             self.notify(c.strip())
             delta = time() - start
             m = self.re_detect_rtc_value.search(c)
@@ -49,7 +49,7 @@ class RTCTest(DefaultTest):
                 test_result = False
                 break
             start = time()
-        self.print_result(self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE)
+        return self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE
 
 
 if __name__ == '__main__':
