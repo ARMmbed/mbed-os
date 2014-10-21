@@ -17,9 +17,9 @@ limitations under the License.
 
 import re
 import random
-from sys import stdout
 from time import time
 from host_test import DefaultTest
+
 
 class StdioTest(DefaultTest):
     PATTERN_INT_VALUE = "Your value was: (-?\d+)"

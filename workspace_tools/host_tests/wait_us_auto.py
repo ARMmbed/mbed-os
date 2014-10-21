@@ -16,7 +16,6 @@ limitations under the License.
 """
 
 from time import time
-from sys import stdout
 from host_test import DefaultTest
 
 

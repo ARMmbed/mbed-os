@@ -16,7 +16,7 @@ limitations under the License.
 """
 
 from host_test import DefaultTest
-from sys import stdout
+
 
 class DevNullTest(DefaultTest):
 

@@ -15,12 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 import re
 import sys
 import uuid
 from sys import stdout
-from time import time
 from host_test import DefaultTest
 from socket import socket, AF_INET, SOCK_DGRAM
 
