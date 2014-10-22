@@ -23,9 +23,12 @@ except ImportError, e:
     exit(-1)
 
 import os
-from optparse import OptionParser
-from time import sleep, time
 from sys import stdout
+from time import sleep, time
+from optparse import OptionParser
+from subprocess import call
+
+import host_tests_plugins
 
 # This is a little tricky. We need to add upper directory to path so
 # we can find packages we want from the same level as other files do
@@ -156,27 +159,6 @@ class Mbed:
                result = None
         return result
 
-    def safe_sendBreak(self, serial):
-        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-            Traceback (most recent call last):
-              File "make.py", line 189, in <module>
-                serial.sendBreak()
-              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-                termios.tcsendbreak(self.fd, int(duration/0.25))
-            error: (32, 'Broken pipe')
-        """
-        result = True
-        try:
-            serial.sendBreak()
-        except:
-            # In linux a termios.error is raised in sendBreak and in setBreak.
-            # The following setBreak() is needed to release the reset signal on the target mcu.
-            try:
-                serial.setBreak(False)
-            except:
-                result = False
-        return result
-
     def touch_file(self, path):
         """ Touch file and set timestamp to items
         """
@@ -190,56 +172,15 @@ class Mbed:
             sleep(1)
 
     def reset(self):
-        """ Reset function.
-            Supports:
-            - 'standard' send break command via Mbed's CDC,
-            - also handles other reset modes:
-              -  E.g. reset by touching file with specific file name:
-                 reboot.txt   - startup from standby state, reboots when in run mode.
-                 shutdown.txt - shutdown from run mode
-                 reset.txt    - reset FPGA during run mode
-              - eACommander for reset of SiLabs Gecko baords.
+        """ Calls proper reset plugin to do the job.
+            Please refer to host_test_plugins functionality
         """
         if self.options.forced_reset_type:
-            if self.options.forced_reset_type == 'eACommander':
-                # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--serialno', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type == 'eACommander-usb':
-                # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--usb', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type.endswith('.txt'):
-                reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
-                self.touch_file(reset_file_path)
-                self.flush()
+            host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
         else:
-            self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-            self.flush()
+            host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Flush serials to get only input after reset
-        #self.flush()
+        self.flush()
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
