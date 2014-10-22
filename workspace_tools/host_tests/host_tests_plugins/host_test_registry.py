@@ -20,7 +20,7 @@ class HostTestRegistry:
         host test plugins for further usage
     """
     # Here we actually store all the plugins
-    PLUGINS = {}
+    PLUGINS = {}    # 'Plugin Name' : Plugin Object
 
     def print_error(self, text):
         print "Plugin load failed. Reason: %s"% text

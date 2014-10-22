@@ -20,6 +20,7 @@ from host_test_plugins import HostTestPluginBase
 
 
 class HostTestPluginResetMethod_SiLabs(HostTestPluginBase):
+
     # Plugin interface
     name = 'HostTestPluginResetMethod_SiLabs'
     type = 'ResetMethod'
@@ -30,6 +31,7 @@ class HostTestPluginResetMethod_SiLabs(HostTestPluginBase):
         """ Configure plugin, this function should be called before plugin execute() method is used.
         """
         self.EACOMMANDER_CMD = 'c:/SiliconLabs/SimplicityStudio/v2/commander/eACommander.exe'
+        return True
 
     def execute(self, capabilitity, *args, **kwargs):
         """ Executes capability by name.

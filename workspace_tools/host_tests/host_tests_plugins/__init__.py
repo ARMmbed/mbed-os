@@ -30,9 +30,16 @@ HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
 
+
+###############################################################################
+# Functional interface for host test plugin registry
+###############################################################################
 def call_plugin(type, capability, *args, **kwargs):
     """ Interface to call plugin registry functional way
     """
     HOST_TEST_PLUGIN_REGISTRY.call_plugin(type, capability, *args, **kwargs)
 
-#print HOST_TEST_PLUGIN_REGISTRY
+def print_plugin_info():
+    """ Prints plugins' information in user friendly way
+    """
+    print HOST_TEST_PLUGIN_REGISTRY

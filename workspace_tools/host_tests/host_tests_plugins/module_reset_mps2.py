@@ -44,7 +44,7 @@ class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
             This method can receive plugin specific parameters by kwargs and
             ignore other parameters which may affect other plugins.
         """
-        pass
+        return True
 
     def execute(self, capabilitity, *args, **kwargs):
         """ Executes capability by name.

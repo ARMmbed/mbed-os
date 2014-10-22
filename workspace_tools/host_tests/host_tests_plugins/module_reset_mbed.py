@@ -51,7 +51,7 @@ class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
         """
-        pass
+        return True
 
     def execute(self, capabilitity, *args, **kwargs):
         """ Executes capability by name.
