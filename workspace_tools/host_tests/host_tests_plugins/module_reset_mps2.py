@@ -3,9 +3,10 @@
 import os
 from host_test_plugins import HostTestPluginBase
 
+# Note: This plugin is not fully functional, needs improvements
 
 class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
-    """
+    """ Plugin used to reset ARM_MPS2 platform
     Supports:
          reboot.txt   - startup from standby state, reboots when in run mode.
          shutdown.txt - shutdown from run mode.
@@ -41,12 +42,15 @@ class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
                 return False
 
         if capabilitity == 'reboot.txt':
+            # TODO: Implement touch file for reboot
             pass
 
         elif capabilitity == 'shutdown.txt':
+            # TODO: Implement touch file for shutdown
             pass
 
         elif capabilitity == 'reset.txt':
+            # TODO: Implement touch file for reset
             pass
 
         else:

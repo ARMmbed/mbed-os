@@ -31,13 +31,21 @@ class HostTestRegistry:
         print "Plugin load failed. Reason: %s"% text
 
     def register_plugin(self, plugin):
+        """ Registers and stores plugin inside registry for further use.
+            Method also calls plugin's setup() function to configure plugin if needed.
+
+            Note: Different groups of plugins may demand different extra parameter. Plugins
+            should be at least for one type of plugin configured with the same parameters
+            because we do not know which of them will actually use particular parameter.
+        """
         # TODO:
         # - check for unique caps for specified type
         if plugin.name not in self.PLUGINS:
             plugin.setup() # Setup plugin
             self.PLUGINS[plugin.name] = plugin
-        else:
-            self.print_error("%s already loaded"% plugin.name)
+            return True
+        self.print_error("%s already loaded"% plugin.name)
+        return False
 
     def call_plugin(self, type, capability, *args, **kwargs):
         """ Execute plugin functionality respectively to its purpose
@@ -48,7 +56,13 @@ class HostTestRegistry:
                 return plugin.execute(capability, *args, **kwargs)
         return False
 
-    def get_string(self):
+    def load_plugin(self.name):
+        """ Used to load module from
+        """
+        mod = __import__("module_%s"% name)
+        return mod
+
+    def __str__(self):
         """ User friendly printing method to show hooked plugins
         """
         from prettytable import PrettyTable

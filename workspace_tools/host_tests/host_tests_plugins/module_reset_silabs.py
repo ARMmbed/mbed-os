@@ -12,8 +12,9 @@ class HostTestPluginResetMethod_SiLabs(HostTestPluginBase):
     required_parameters = ['disk']
 
     def setup(self, *args, **kwargs):
+        """ Configure plugin, this function should be called before plugin execute() method is used.
+        """
         self.EACOMMANDER_CMD = 'c:/SiliconLabs/SimplicityStudio/v2/commander/eACommander.exe'
-        pass
 
     def execute(self, capabilitity, *args, **kwargs):
         """ Executes capability by name.

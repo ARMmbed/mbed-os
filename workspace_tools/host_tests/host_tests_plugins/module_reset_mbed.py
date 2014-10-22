@@ -34,6 +34,8 @@ class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
     required_parameters = ['serial']
 
     def setup(self, *args, **kwargs):
+        """ Configure plugin, this function should be called before plugin execute() method is used.
+        """
         pass
 
     def execute(self, capabilitity, *args, **kwargs):
