@@ -1,24 +1,19 @@
-# Registry storing plugins
-
 """
-module_example.py:
+mbed SDK
+Copyright (c) 2011-2013 ARM Limited
 
-def plugin_main(*args, **kwargs):
-    print args, kwargs
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-loader.py:
+    http://www.apache.org/licenses/LICENSE-2.0
 
-def load_plugin(name):
-    mod = __import__("module_%s" % name)
-    return mod
-
-def call_plugin(name, *args, **kwargs):
-    plugin = load_plugin(name)
-    plugin.plugin_main(*args, **kwargs)
-
-call_plugin("example", 1234)
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
-
 
 class HostTestRegistry:
     """ Simple class used to register and store
@@ -56,7 +51,7 @@ class HostTestRegistry:
                 return plugin.execute(capability, *args, **kwargs)
         return False
 
-    def load_plugin(self.name):
+    def load_plugin(self, name):
         """ Used to load module from
         """
         mod = __import__("module_%s"% name)

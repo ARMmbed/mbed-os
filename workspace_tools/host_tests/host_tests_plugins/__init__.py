@@ -35,4 +35,4 @@ def call_plugin(type, capability, *args, **kwargs):
     """
     HOST_TEST_PLUGIN_REGISTRY.call_plugin(type, capability, *args, **kwargs)
 
-#print HOST_TEST_PLUGIN_REGISTRY.get_string()
+#print HOST_TEST_PLUGIN_REGISTRY
