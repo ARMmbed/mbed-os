@@ -175,12 +175,12 @@ class Mbed:
         """ Calls proper reset plugin to do the job.
             Please refer to host_test_plugins functionality
         """
+        # Flush serials to get only input after reset
+        self.flush()
         if self.options.forced_reset_type:
             host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
         else:
             host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
-        # Flush serials to get only input after reset
-        self.flush()
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
