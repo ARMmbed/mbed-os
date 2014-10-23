@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:
@@ -68,6 +68,9 @@
   */
 
 #ifdef HAL_RNG_MODULE_ENABLED
+
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -228,17 +231,18 @@ __weak void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng)
 uint32_t HAL_RNG_GetRandomNumber(RNG_HandleTypeDef *hrng)
 {
   uint32_t random32bit = 0;
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;    
   
   /* Process Locked */
   __HAL_LOCK(hrng); 
   
-  timeout = HAL_GetTick() + RNG_TIMEOUT_VALUE;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   /* Check if data register contains valid random data */
   while(__HAL_RNG_GET_FLAG(hrng, RNG_FLAG_DRDY) == RESET)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick() - tickstart ) > RNG_TIMEOUT_VALUE)
     {    
       return HAL_TIMEOUT;
     } 
@@ -413,6 +417,8 @@ HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng)
   * @}
   */
 
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
+
 #endif /* HAL_RNG_MODULE_ENABLED */
 /**
   * @}
@@ -423,4 +429,3 @@ HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-                  

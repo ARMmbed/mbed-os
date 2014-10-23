@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   DCMI HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Digital Camera Interface (DCMI) peripheral:
@@ -367,7 +367,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   */
 HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
 {
-  uint32_t timeout = 0x00;
+  uint32_t tickstart = 0;
 
   /* Lock the DCMI peripheral state */
   hdcmi->State = HAL_DCMI_STATE_BUSY;
@@ -377,13 +377,13 @@ HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
   /* Disable Capture */
   DCMI->CR &= ~(DCMI_CR_CAPTURE);
 
-  /* Get timeout */
-  timeout = HAL_GetTick() + HAL_TIMEOUT_DCMI_STOP;
+  /* Get tick */
+  tickstart = HAL_GetTick();
 
   /* Check if the DCMI capture effectively disabled */
   while((hdcmi->Instance->CR & DCMI_CR_CAPTURE) != 0)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick() - tickstart ) > HAL_TIMEOUT_DCMI_STOP)
     {
       /* Process Unlocked */
       __HAL_UNLOCK(hdcmi);

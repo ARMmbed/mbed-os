@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -562,17 +562,18 @@ FLASH_ErrorTypeDef HAL_FLASH_GetError(void)
   */
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 { 
+  uint32_t tickstart = 0;
   /* Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
      Even if the FLASH operation fails, the BUSY flag will be reset and an error
      flag will be set */
-    
-  uint32_t timeout = HAL_GetTick() + Timeout;
-     
+  /* Get tick */
+  tickstart = HAL_GetTick();
+
   while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) 
   { 
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -707,7 +708,7 @@ static void FLASH_SetErrorCode(void)
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR) != RESET)
   {
-   pFlash.ErrorCode |= FLASH_ERROR_PGA;
+   pFlash.ErrorCode |= (FLASH_ErrorTypeDef)FLASH_ERROR_PGA;
   }
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGPERR) != RESET)

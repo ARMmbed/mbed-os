@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -355,8 +355,42 @@ typedef struct
   *   
   * @retval None
   */
-#define __HAL_USART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR &= ~(__FLAG__))
+#define __HAL_USART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR = ~(__FLAG__))
 
+/** @brief  Clear the USART PE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3 or 6 to select the USART peripheral.
+  * @retval None
+  */
+#define __HAL_USART_CLEAR_PEFLAG(__HANDLE__) do{(__HANDLE__)->Instance->SR;\
+                                                (__HANDLE__)->Instance->DR;}while(0)
+/** @brief  Clear the USART FE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3 or 6 to select the USART peripheral.
+  * @retval None
+  */
+#define __HAL_USART_CLEAR_FEFLAG(__HANDLE__) __HAL_USART_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the USART NE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3 or 6 to select the USART peripheral.
+  * @retval None
+  */
+#define __HAL_USART_CLEAR_NEFLAG(__HANDLE__) __HAL_USART_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the UART ORE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3 or 6 to select the USART peripheral.
+  * @retval None
+  */
+#define __HAL_USART_CLEAR_OREFLAG(__HANDLE__) __HAL_USART_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the USART IDLE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3 or 6 to select the USART peripheral.
+  * @retval None
+  */
+#define __HAL_USART_CLEAR_IDLEFLAG(__HANDLE__) __HAL_USART_CLEAR_PEFLAG(__HANDLE__)
 
 /** @brief  Enables or disables the specified Usart interrupts.
   * @param  __HANDLE__: specifies the USART Handle.

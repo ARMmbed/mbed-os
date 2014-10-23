@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Extended CRYP HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of CRYP extension peripheral:
@@ -111,6 +111,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define CRYPEx_TIMEOUT_VALUE  1
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -163,7 +164,7 @@ static void CRYPEx_GCMCCM_SetDMAConfig(CRYP_HandleTypeDef *hcryp, uint32_t input
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;
   uint32_t headersize = hcryp->Init.HeaderSize;
   uint32_t headeraddr = (uint32_t)hcryp->Init.Header;
   uint32_t loopcounter = 0;
@@ -284,20 +285,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
     /* Enable the CRYP peripheral */
     __HAL_CRYP_ENABLE();
     
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
         
           return HAL_TIMEOUT;
@@ -315,20 +316,21 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
       
       for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
       {
-        /* Get timeout */
-        timeout = HAL_GetTick() + Timeout;
+        /* Get tick */
+        tickstart = HAL_GetTick();
+
         while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
         {
           {
             /* Check for the Timeout */
             if(Timeout != HAL_MAX_DELAY)
             {
-              if(HAL_GetTick() >= timeout)
+              if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
               {
                 /* Change state */
                 hcryp->State = HAL_CRYP_STATE_TIMEOUT;
                 
-                /* Process Unlocked */          
+                /* Process Unlocked */
                 __HAL_UNLOCK(hcryp);
                 
                 return HAL_TIMEOUT;
@@ -347,20 +349,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
         headeraddr+=4;
       }
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + Timeout;
+      /* Get tick */
+      tickstart = HAL_GetTick();
 
       while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
       {
         /* Check for the Timeout */
         if(Timeout != HAL_MAX_DELAY)
         {
-          if(HAL_GetTick() >= timeout)
+          if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -418,7 +420,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;
   
   /* Process Locked */
   __HAL_LOCK(hcryp);
@@ -444,20 +446,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
     /* Enable the CRYP peripheral */
     __HAL_CRYP_ENABLE();
     
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -516,7 +518,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
   /* Process Locked */
   __HAL_LOCK(hcryp);
@@ -542,20 +544,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
     /* Enable the CRYP peripheral */
     __HAL_CRYP_ENABLE();
     
-    /* Get the timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -608,7 +610,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Finish(CRYP_HandleTypeDef *hcryp, uint16_t Size, uint8_t *AuthTag, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t headerlength = hcryp->Init.HeaderSize * 8; /* Header length in bits */
   uint32_t inputlength = Size * 8; /* input length in bits */
   uint32_t tagaddr = (uint32_t)AuthTag;
@@ -664,20 +666,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Finish(CRYP_HandleTypeDef *hcryp, uint16_t S
       CRYP->DR = 0;
       CRYP->DR = (uint32_t)(inputlength);
     }
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_OFNE))
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
         
           return HAL_TIMEOUT;
@@ -716,7 +718,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Finish(CRYP_HandleTypeDef *hcryp, uint16_t S
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Finish(CRYP_HandleTypeDef *hcryp, uint8_t *AuthTag, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t tagaddr = (uint32_t)AuthTag;
   uint32_t ctraddr = (uint32_t)hcryp->Init.pScratch;
   uint32_t temptag[4] = {0}; /* Temporary TAG (MAC) */
@@ -752,20 +754,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Finish(CRYP_HandleTypeDef *hcryp, uint8_t *A
     ctraddr+=4;
     CRYP->DR = *(uint32_t*)ctraddr;
     
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_OFNE))
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -810,7 +812,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Finish(CRYP_HandleTypeDef *hcryp, uint8_t *A
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t headersize = hcryp->Init.HeaderSize;
   uint32_t headeraddr = (uint32_t)hcryp->Init.Header;
   uint32_t loopcounter = 0;
@@ -931,20 +933,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
     /* Enable the CRYP peripheral */
     __HAL_CRYP_ENABLE();
     
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
  
     while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
         
           return HAL_TIMEOUT;
@@ -962,20 +964,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
       
       for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
       {
-        /* Get timeout */
-        timeout = HAL_GetTick() + Timeout;
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
         while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
         {
           /* Check for the Timeout */
           if(Timeout != HAL_MAX_DELAY)
           {
-            if(HAL_GetTick() >= timeout)
+            if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
             {
               /* Change state */
               hcryp->State = HAL_CRYP_STATE_TIMEOUT;
               
-              /* Process Unlocked */          
+              /* Process Unlocked */
               __HAL_UNLOCK(hcryp);
               
               return HAL_TIMEOUT;
@@ -993,20 +995,20 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
         headeraddr+=4;
       }
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + Timeout;
+      /* Get tick */
+      tickstart = HAL_GetTick();
 
       while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
       {
       /* Check for the Timeout */
         if(Timeout != HAL_MAX_DELAY)
         {
-          if(HAL_GetTick() >= timeout)
+          if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -1061,7 +1063,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   
@@ -1097,19 +1099,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
       /* Enable CRYP to start the init phase */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+     /* Get tick */
+     tickstart = HAL_GetTick();
 
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
         
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -1212,7 +1214,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   
@@ -1343,18 +1345,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
       /* Enable the CRYP peripheral */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+     /* Get tick */
+     tickstart = HAL_GetTick();
 
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -1371,18 +1373,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
         
         for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
         {
-          /* Get timeout */
-          timeout = HAL_GetTick() + 1;
+         /* Get tick */
+         tickstart = HAL_GetTick();
 
           while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
           {
             /* Check for the Timeout */
-            if(HAL_GetTick() >= timeout)
+            if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
             {
               /* Change state */
               hcryp->State = HAL_CRYP_STATE_TIMEOUT;
               
-              /* Process Unlocked */          
+              /* Process Unlocked */
               __HAL_UNLOCK(hcryp);
               
               return HAL_TIMEOUT;
@@ -1398,19 +1400,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
           CRYP->DR = *(uint32_t*)(headeraddr);
           headeraddr+=4;
         }
-        
-        /* Get timeout */
-        timeout = HAL_GetTick() + 1;
+
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
         while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
         {
           /* Check for the Timeout */
-          if(HAL_GetTick() >= timeout)
+          if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -1511,7 +1513,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   
@@ -1546,19 +1548,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
       
       /* Enable CRYP to start the init phase */
       __HAL_CRYP_ENABLE();
-      
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
-      
+
+        /* Get tick */
+        tickstart = HAL_GetTick();
+
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -1661,7 +1663,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
 {
   uint32_t inputaddr;
   uint32_t outputaddr;
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   uint32_t headersize = hcryp->Init.HeaderSize;
   uint32_t headeraddr = (uint32_t)hcryp->Init.Header;
   uint32_t loopcounter = 0;
@@ -1788,19 +1790,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
       
       /* Enable the CRYP peripheral */
       __HAL_CRYP_ENABLE();
-      
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+
+      /* Get tick */
+      tickstart = HAL_GetTick();
 
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -1817,18 +1819,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
         
         for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
         {
-          /* Get timeout */
-          timeout = HAL_GetTick() + 1;
+         /* Get tick */
+         tickstart = HAL_GetTick();
 
           while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
           {
             /* Check for the Timeout */
-            if(HAL_GetTick() >= timeout)
+            if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
             {
               /* Change state */
               hcryp->State = HAL_CRYP_STATE_TIMEOUT;
               
-              /* Process Unlocked */          
+              /* Process Unlocked */
               __HAL_UNLOCK(hcryp);
               
               return HAL_TIMEOUT;
@@ -1844,19 +1846,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
           CRYP->DR = *(uint32_t*)(headeraddr);
           headeraddr+=4;
         }
-        
-        /* Get timeout */
-        timeout = HAL_GetTick() + 1;
+
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
         while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
         {
           /* Check for the Timeout */
-          if(HAL_GetTick() >= timeout)
+          if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -1949,7 +1951,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   uint32_t inputaddr;
   uint32_t outputaddr;
   
@@ -1982,18 +1984,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
       /* Enable CRYP to start the init phase */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+      /* Get tick */
+      tickstart = HAL_GetTick();
 
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -2046,7 +2048,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pPlainData, uint16_t Size, uint8_t *pCypherData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   uint32_t headersize;
@@ -2182,18 +2184,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
       /* Enable the CRYP peripheral */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+      /* Get tick */
+      tickstart = HAL_GetTick();
  
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -2210,18 +2212,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
         
         for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
         {
-          /* Get timeout */
-          timeout = HAL_GetTick() + 1;
-          
+         /* Get tick */
+         tickstart = HAL_GetTick();
+
           while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
           {
             /* Check for the Timeout */
-            if(HAL_GetTick() >= timeout)
+            if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
             {
               /* Change state */
               hcryp->State = HAL_CRYP_STATE_TIMEOUT;
               
-              /* Process Unlocked */          
+              /* Process Unlocked */
               __HAL_UNLOCK(hcryp);
               
               return HAL_TIMEOUT;
@@ -2238,18 +2240,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
           headeraddr+=4;
         }
         
-        /* Get timeout */
-        timeout = HAL_GetTick() + 1;
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
         while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
         {
           /* Check for the Timeout */
-          if(HAL_GetTick() >= timeout)
+          if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -2300,7 +2302,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   
@@ -2330,18 +2332,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
       /* Enable CRYP to start the init phase */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+      /* Get tick */
+      tickstart = HAL_GetTick();
 
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -2390,7 +2392,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
   */
 HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pCypherData, uint16_t Size, uint8_t *pPlainData)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t inputaddr;
   uint32_t outputaddr;
   uint32_t headersize;
@@ -2526,19 +2528,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
       /* Enable the CRYP peripheral */
       __HAL_CRYP_ENABLE();
       
-      /* Get timeout */
-      timeout = HAL_GetTick() + 1;
+      /* Get tick */
+      tickstart = HAL_GetTick();
  
       while((CRYP->CR & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN)
       {
         /* Check for the Timeout */
         
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -2556,18 +2558,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
         
         for(loopcounter = 0; (loopcounter < headersize); loopcounter+=16)
         {
-          /* Get timeout */
-          timeout = HAL_GetTick() + 1;
+         /* Get tick */
+         tickstart = HAL_GetTick();
  
           while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
           {
             /* Check for the Timeout */
-            if(HAL_GetTick() >= timeout)
+            if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
             {
               /* Change state */
               hcryp->State = HAL_CRYP_STATE_TIMEOUT;
               
-              /* Process Unlocked */          
+              /* Process Unlocked */
               __HAL_UNLOCK(hcryp);
               
               return HAL_TIMEOUT;
@@ -2584,18 +2586,18 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8
           headeraddr+=4;
         }
         
-/* Get timeout */
-        timeout = HAL_GetTick() + 1;
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
         while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
         {
           /* Check for the Timeout */
-          if(HAL_GetTick() >= timeout)
+          if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -2830,7 +2832,7 @@ static void CRYPEx_GCMCCM_SetInitVector(CRYP_HandleTypeDef *hcryp, uint8_t *Init
   */
 static HAL_StatusTypeDef CRYPEx_GCMCCM_ProcessData(CRYP_HandleTypeDef *hcryp, uint8_t *Input, uint16_t Ilength, uint8_t *Output, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t i = 0;
   uint32_t inputaddr  = (uint32_t)Input;
   uint32_t outputaddr = (uint32_t)Output;
@@ -2847,20 +2849,20 @@ static HAL_StatusTypeDef CRYPEx_GCMCCM_ProcessData(CRYP_HandleTypeDef *hcryp, ui
     CRYP->DR = *(uint32_t*)(inputaddr);
     inputaddr+=4;
     
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
  
     while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_OFNE))
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((HAL_GetTick() - tickstart ) > CRYPEx_TIMEOUT_VALUE)
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;
@@ -2892,7 +2894,7 @@ static HAL_StatusTypeDef CRYPEx_GCMCCM_ProcessData(CRYP_HandleTypeDef *hcryp, ui
   */
 static HAL_StatusTypeDef CRYPEx_GCMCCM_SetHeaderPhase(CRYP_HandleTypeDef *hcryp, uint8_t* Input, uint16_t Ilength, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   uint32_t loopcounter = 0;
   uint32_t headeraddr = (uint32_t)Input;
   
@@ -2906,20 +2908,20 @@ static HAL_StatusTypeDef CRYPEx_GCMCCM_SetHeaderPhase(CRYP_HandleTypeDef *hcryp,
     
     for(loopcounter = 0; (loopcounter < hcryp->Init.HeaderSize); loopcounter+=16)
     {
-      /* Get timeout */
-      timeout = HAL_GetTick() + Timeout;
+      /* Get tick */
+      tickstart = HAL_GetTick();
       
       while(HAL_IS_BIT_CLR(CRYP->SR, CRYP_FLAG_IFEM))
       {
         /* Check for the Timeout */
         if(Timeout != HAL_MAX_DELAY)
         {
-          if(HAL_GetTick() >= timeout)
+          if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
           {
             /* Change state */
             hcryp->State = HAL_CRYP_STATE_TIMEOUT;
             
-            /* Process Unlocked */          
+            /* Process Unlocked */
             __HAL_UNLOCK(hcryp);
             
             return HAL_TIMEOUT;
@@ -2939,20 +2941,20 @@ static HAL_StatusTypeDef CRYPEx_GCMCCM_SetHeaderPhase(CRYP_HandleTypeDef *hcryp,
     
     /* Wait until the complete message has been processed */
 
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
     while((CRYP->SR & CRYP_FLAG_BUSY) == CRYP_FLAG_BUSY)
     {
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
+        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Change state */
           hcryp->State = HAL_CRYP_STATE_TIMEOUT;
           
-          /* Process Unlocked */          
+          /* Process Unlocked */
           __HAL_UNLOCK(hcryp);
           
           return HAL_TIMEOUT;

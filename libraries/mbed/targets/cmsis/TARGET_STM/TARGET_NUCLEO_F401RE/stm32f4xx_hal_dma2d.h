@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of DMA2D HAL module.
   ******************************************************************************
   * @attention
@@ -117,8 +117,10 @@ typedef struct
   uint32_t             AlphaMode;         /*!< configures the DMA2D foreground alpha mode. 
                                                This parameter can be one value of @ref DMA2D_ALPHA_MODE */
 
-  uint32_t             InputAlpha;        /*!< Specifies the DMA2D foreground alpha value. 
-                                               This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF. */
+  uint32_t             InputAlpha;        /*!< Specifies the DMA2D foreground alpha value and color value in case of A8 or A4 color mode. 
+                                               This parameter must be a number between Min_Data = 0x00000000 and Max_Data = 0xFFFFFFFF 
+                                               in case of A8 or A4 color mode (ARGB). 
+                                               Otherwise, This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF.*/
 
 } DMA2D_LayerCfgTypeDef;
 
@@ -219,7 +221,6 @@ typedef struct __DMA2D_HandleTypeDef
 
 #define COLOR_VALUE             ((uint32_t)0x000000FF)                          /*!< color value mask */
 
-#define IS_DMA2D_ALPHA_VALUE(ALPHA_VALUE) ((ALPHA_VALUE) <= COLOR_VALUE)
 #define IS_DMA2D_COLOR(COLOR) ((COLOR) <= COLOR_VALUE)
 /**
   * @}
@@ -406,7 +407,7 @@ typedef struct __DMA2D_HandleTypeDef
   *            @arg DMA2D_FLAG_TE:  Transfer error flag    
   * @retval None
   */
-#define __HAL_DMA2D_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->IFCR |= (__FLAG__))
+#define __HAL_DMA2D_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->IFCR = (__FLAG__))
 
 /**
   * @brief  Enables the specified DMA2D interrupts.

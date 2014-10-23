@@ -1,9 +1,9 @@
 ;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 ;* File Name          : startup_stm32f401xe.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.0RC2
-;* Date               : 14-May-2014
-;* Description        : STM32F401xe devices vector table for MDK-ARM_MICRO toolchain. 
+;* Version            : V2.1.0
+;* Date               : 19-June-2014
+;* Description        : STM32F401xe devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
