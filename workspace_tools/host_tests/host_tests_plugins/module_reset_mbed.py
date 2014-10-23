@@ -15,7 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from subprocess import call
 from host_test_plugins import HostTestPluginBase
 
 
@@ -45,6 +44,7 @@ class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
     # Plugin interface
     name = 'HostTestPluginResetMethod_Mbed'
     type = 'ResetMethod'
+    stable = True
     capabilities = ['default']
     required_parameters = ['serial']
 

@@ -29,8 +29,10 @@ class HostTestPluginBase:
     # Interface attributes defining plugin name, type etc.
     ###########################################################################
     name = "HostTestPluginBase" # Plugin name, can be plugin class name
-    type = "BasePlugin" # Plugin type: ResetMethod, Copymethod etc.
-    capabilities = []   # Capabilities names: what plugin can achieve (e.g. reset using some external command line tool)
+    type = "BasePlugin"         # Plugin type: ResetMethod, Copymethod etc.
+    capabilities = []           # Capabilities names: what plugin can achieve
+                                # (e.g. reset using some external command line tool)
+    stable = False              # Determine if plugin is stable and can be used
 
     ###########################################################################
     # Interface methods

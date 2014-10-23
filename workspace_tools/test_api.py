@@ -34,7 +34,7 @@ from time import sleep, time
 from Queue import Queue, Empty
 from os.path import join, exists, basename
 from threading import Thread
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
 from workspace_tools.tests import TESTS
@@ -1253,64 +1253,6 @@ def singletest_in_cli_mode(single_test):
         # Export results in form of HTML report to separate file
         report_exporter = ReportExporter(ResultExporterType.JUNIT)
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
-
-
-def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name='images.txt'):
-    """ This function will alter image cfg file.
-        Main goal of this function is to change number of images to 1, comment all
-        existing image entries and append at the end of file new entry with test path.
-        @return True when all steps succeed.
-    """
-    MBED_SDK_TEST_STAMP = 'test suite entry'
-    image_path = os.path.join(disk, images_cfg_path, image_name)
-    new_file_lines = [] # New configuration file lines (entries)
-
-    # Check each line of the image configuration file
-    try:
-        with open(image_path, 'r') as file:
-            for line in file:
-                if re.search('^TOTALIMAGES', line):
-                    # Check number of total images, should be 1
-                    new_file_lines.append(re.sub('^TOTALIMAGES:[\t ]*[\d]+', 'TOTALIMAGES: 1', line))
-                    pass
-                elif re.search('; - %s[\n\r]*$'% MBED_SDK_TEST_STAMP, line):
-                    # Look for test suite entries and remove them
-                    pass    # Omit all test suite entries
-                elif re.search('^IMAGE[\d]+FILE', line):
-                    # Check all image entries and mark the ';'
-                    new_file_lines.append(';' + line)   # Comment non test suite lines
-                else:
-                    # Append line to new file
-                    new_file_lines.append(line)
-    except IOError as e:
-        return False
-
-    # Add new image entry with proper commented stamp
-    new_file_lines.append('IMAGE0FILE: %s    ; - %s\r\n'% (image0file_path, MBED_SDK_TEST_STAMP))
-
-    # Write all lines to file
-    try:
-        with open(image_path, 'w') as file:
-            for line in new_file_lines:
-                file.write(line),
-    except IOError:
-        return False
-
-    return True
-
-
-def mps2_select_core(disk, mobo_config_name=""):
-    """ Function selects actual core
-    """
-    # TODO: implement core selection
-    pass
-
-
-def mps2_switch_usb_auto_mounting_after_restart(disk, usb_config_name=""):
-    """ Function alters configuration to allow USB MSD to be mounted after restarts
-    """
-    # TODO: implement USB MSD restart detection
-    pass
 
 
 class TestLogger():

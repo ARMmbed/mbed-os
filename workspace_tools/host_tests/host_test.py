@@ -26,7 +26,6 @@ import os
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
-from subprocess import call
 
 import host_tests_plugins
 

@@ -39,6 +39,7 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
     # Plugin interface
     name = 'HostTestPluginCopyMethod_Mbed'
     type = 'CopyMethod'
+    stable = True
     capabilities = ['default']
     required_parameters = ['image_path', 'destination_disk']
 

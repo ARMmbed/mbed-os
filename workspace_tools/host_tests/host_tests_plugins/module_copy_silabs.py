@@ -15,8 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from os.path import join, basename
-from subprocess import call
 from host_test_plugins import HostTestPluginBase
 
 

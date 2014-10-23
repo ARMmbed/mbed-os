@@ -22,17 +22,20 @@ from host_test_plugins import HostTestPluginBase
 class HostTestPluginCopyMethod_Firefox(HostTestPluginBase):
 
     def file_store_firefox(self, file_path, dest_disk):
-        from selenium import webdriver
-        profile = webdriver.FirefoxProfile()
-        profile.set_preference('browser.download.folderList', 2) # custom location
-        profile.set_preference('browser.download.manager.showWhenStarting', False)
-        profile.set_preference('browser.download.dir', dest_disk)
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-        # Launch browser with profile and get file
-        browser = webdriver.Firefox(profile)
-        browser.get(file_path)
-        browser.close()
-
+        try:
+            from selenium import webdriver
+            profile = webdriver.FirefoxProfile()
+            profile.set_preference('browser.download.folderList', 2) # custom location
+            profile.set_preference('browser.download.manager.showWhenStarting', False)
+            profile.set_preference('browser.download.dir', dest_disk)
+            profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+            # Launch browser with profile and get file
+            browser = webdriver.Firefox(profile)
+            browser.get(file_path)
+            browser.close()
+        except:
+            return False
+        return True
 
     # Plugin interface
     name = 'HostTestPluginCopyMethod_Firefox'

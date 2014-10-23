@@ -17,12 +17,13 @@ limitations under the License.
 
 import host_test_registry
 
+# This plugins provide 'flashing' methods to host test scripts
 import module_copy_mbed
 import module_copy_shell
 import module_copy_firefox
 import module_copy_silabs
 
-# Plugins used to
+# Plugins used to reset certain platform
 import module_reset_mbed
 import module_reset_mps2
 import module_reset_silabs
