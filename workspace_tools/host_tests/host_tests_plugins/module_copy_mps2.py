@@ -40,7 +40,6 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
                     if re.search('^TOTALIMAGES', line):
                         # Check number of total images, should be 1
                         new_file_lines.append(re.sub('^TOTALIMAGES:[\t ]*[\d]+', 'TOTALIMAGES: 1', line))
-                        pass
                     elif re.search('; - %s[\n\r]*$'% MBED_SDK_TEST_STAMP, line):
                         # Look for test suite entries and remove them
                         pass    # Omit all test suite entries
