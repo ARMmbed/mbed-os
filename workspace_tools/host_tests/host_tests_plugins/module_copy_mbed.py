@@ -15,38 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from subprocess import call
+from shutil import copy
 from host_test_plugins import HostTestPluginBase
 
 
-class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
+class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
 
-    def safe_sendBreak(self, serial):
-        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-            Traceback (most recent call last):
-              File "make.py", line 189, in <module>
-                serial.sendBreak()
-              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-                termios.tcsendbreak(self.fd, int(duration/0.25))
-            error: (32, 'Broken pipe')
+    def generic_mbed_copy(self, image_path, destination_disk):
+        """ Generic mbed copy method for "mbed enabled" devices.
+            It uses standard python shuitl function to copy
+            image_file (target specific binary) to device's disk.
         """
         result = True
+        if not destination_disk.endswith('/') and not destination_disk.endswith('\\'):
+            destination_disk += '/'
         try:
-            serial.sendBreak()
-        except:
-            # In linux a termios.error is raised in sendBreak and in setBreak.
-            # The following setBreak() is needed to release the reset signal on the target mcu.
-            try:
-                serial.setBreak(False)
-            except:
-                result = False
+            copy(image_path, destination_disk)
+        except Exception, e:
+            print str(e)
+            result = False
         return result
 
     # Plugin interface
-    name = 'HostTestPluginResetMethod_Mbed'
-    type = 'ResetMethod'
+    name = 'HostTestPluginCopyMethod_Mbed'
+    type = 'CopyMethod'
     capabilities = ['default']
-    required_parameters = ['serial']
+    required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -61,12 +55,13 @@ class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             if capabilitity == 'default':
-                serial = kwargs['serial']
-                result = self.safe_sendBreak(serial)
+                image_path = kwargs['image_path']
+                destination_disk = kwargs['destination_disk']
+                result = self.generic_mbed_copy(image_path, destination_disk)
         return result
 
 
 def load_plugin():
     """ Returns plugin available in this module
     """
-    return HostTestPluginResetMethod_Mbed()
+    return HostTestPluginCopyMethod_Mbed()

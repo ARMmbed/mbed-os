@@ -34,7 +34,6 @@ import host_tests_plugins
 # we can find packages we want from the same level as other files do
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from workspace_tools.settings import EACOMMANDER_CMD
 
 
 class Mbed:

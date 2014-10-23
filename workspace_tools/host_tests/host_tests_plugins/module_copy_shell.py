@@ -15,38 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from os.path import join, basename
 from subprocess import call
 from host_test_plugins import HostTestPluginBase
 
 
-class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
-
-    def safe_sendBreak(self, serial):
-        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-            Traceback (most recent call last):
-              File "make.py", line 189, in <module>
-                serial.sendBreak()
-              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-                termios.tcsendbreak(self.fd, int(duration/0.25))
-            error: (32, 'Broken pipe')
-        """
-        result = True
-        try:
-            serial.sendBreak()
-        except:
-            # In linux a termios.error is raised in sendBreak and in setBreak.
-            # The following setBreak() is needed to release the reset signal on the target mcu.
-            try:
-                serial.setBreak(False)
-            except:
-                result = False
-        return result
+class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
 
     # Plugin interface
-    name = 'HostTestPluginResetMethod_Mbed'
-    type = 'ResetMethod'
-    capabilities = ['default']
-    required_parameters = ['serial']
+    name = 'HostTestPluginCopyMethod_Shell'
+    type = 'CopyMethod'
+    capabilities = ['cp', 'copy', 'xcopy']
+    required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -60,13 +40,19 @@ class HostTestPluginResetMethod_Mbed(HostTestPluginBase):
         """
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
-            if capabilitity == 'default':
-                serial = kwargs['serial']
-                result = self.safe_sendBreak(serial)
+            image_path = kwargs['image_path']
+            destination_disk = kwargs['destination_disk']
+            # Prepare correct command line parameter values
+            image_base_name = basename(image_path)
+            destination_path = join(destination_disk, image_base_name)
+            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'copy':
+                copy_method = capabilitity
+                cmd = [copy_method, image_path, destination_path]
+                result = self.run_command(cmd)
         return result
 
 
 def load_plugin():
     """ Returns plugin available in this module
     """
-    return HostTestPluginResetMethod_Mbed()
+    return HostTestPluginCopyMethod_Shell()

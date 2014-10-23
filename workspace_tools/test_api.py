@@ -32,7 +32,6 @@ from prettytable import PrettyTable
 
 from time import sleep, time
 from Queue import Queue, Empty
-from shutil import copy
 from os.path import join, exists, basename
 from threading import Thread
 from subprocess import Popen, PIPE, call
@@ -46,12 +45,14 @@ from workspace_tools.utils import ToolException
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
-from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+
+
+import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
 
 
 class ProcessObserver(Thread):
@@ -591,22 +592,6 @@ class SingleTestRunner(object):
             result = self.TEST_LOOPS_DICT[test_id]
         return result
 
-    def file_store_firefox(self, file_path, dest_disk):
-        try:
-            from selenium import webdriver
-        except ImportError, e:
-            print "Error: firefox copy method requires selenium library. %s"% e
-            exit(-1)
-        profile = webdriver.FirefoxProfile()
-        profile.set_preference('browser.download.folderList', 2) # custom location
-        profile.set_preference('browser.download.manager.showWhenStarting', False)
-        profile.set_preference('browser.download.dir', dest_disk)
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-        # Launch browser with profile and get file
-        browser = webdriver.Firefox(profile)
-        browser.get(file_path)
-        browser.close()
-
     def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
                                   images_config=None, image_dest=None, verbose=False):
         """ Function copied image file and fiddles with image configuration files in needed.
@@ -629,68 +614,14 @@ class SingleTestRunner(object):
         """ Copy file depending on method you want to use. Handles exception
             and return code from shell copy commands.
         """
-        result = True
-        resutl_msg = ""
-        if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
-            source_path = image_path.encode('ascii', 'ignore')
-            image_base_name = basename(image_path).encode('ascii', 'ignore')
-            destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest, image_base_name)
-            cmd = [copy_method, source_path, destination_path]
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% (ret + " ".join(cmd))
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'firefox':
-            try:
-                source_path = image_path.encode('ascii', 'ignore')
-                destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest)
-                self.file_store_firefox(source_path, destination_path)
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'eACommander':
-            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
-            # Note: Commands are executed in the order they are specified on the command line
-            cmd = [EACOMMANDER_CMD,
-                   '--serialno', disk.rstrip('/\\'),
-                   '--flash', image_path.encode('ascii', 'ignore'),
-                   '--resettype', '2', '--reset']
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'eACommander-usb':
-            # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
-            # Note: Commands are executed in the order they are specified on the command line
-            cmd = [EACOMMANDER_CMD,
-                   '--usb', disk.rstrip('/\\'),
-                   '--flash', image_path.encode('ascii', 'ignore')]
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
+        result = False
+        resutl_msg = '' # TODO: pass result_msg from plugin to test suite
+        if copy_method is not None:
+            # image_path - Where is binary with target's firmware
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
         else:
-            copy_method = "shutils.copy()"
-            # Default python method
-            try:
-                if not disk.endswith('/') and not disk.endswith('\\'):
-                    disk += '/'
-                copy(image_path, disk)
-            except Exception, e:
-                resutl_msg = e
-                result = False
+            copy_method = 'default'
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
         return result, resutl_msg, copy_method
 
     def delete_file(self, file_path):

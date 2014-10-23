@@ -36,9 +36,11 @@ class HostTestRegistry:
         # TODO:
         # - check for unique caps for specified type
         if plugin.name not in self.PLUGINS:
-            plugin.setup() # Setup plugin
-            self.PLUGINS[plugin.name] = plugin
-            return True
+            if plugin.setup(): # Setup plugin can be completed without errors
+                self.PLUGINS[plugin.name] = plugin
+                return True
+            else:
+                self.print_error("%s setup failed"% plugin.name)
         self.print_error("%s already loaded"% plugin.name)
         return False
 

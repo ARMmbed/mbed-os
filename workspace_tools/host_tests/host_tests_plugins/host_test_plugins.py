@@ -15,6 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from subprocess import call
+
+
 class HostTestPluginBase:
     """ Base class for all plug-ins used with host tests.
     """
@@ -43,3 +46,30 @@ class HostTestPluginBase:
             program or execute building pythonic function
         """
         return False
+
+    ###########################################################################
+    # Interface helper methods - overload only if you need to have custom behaviour
+    ###########################################################################
+    def check_parameters(self, capabilitity, *args, **kwargs):
+        """ This function should be ran each time we call execute()
+            to check if none of the required parameters is missing.
+        """
+        for parameter in self.required_parameters:
+            if parameter not in kwargs:
+                print "%s::%s: Plugin parameter '%s' missing!"% (self.name, self.type, parameter)
+                return False
+        return True
+
+    def run_command(self, cmd, shell=True):
+        """ Runs command from command line.
+        """
+        result = True
+        try:
+            ret = call(cmd, shell=shell)
+            if ret:
+                print "%s::%s: [ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd))
+        except Exception, e:
+            result = False
+            print "%s::%s: [ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd))
+            print "%s::%s: " + str(e)
+        return result

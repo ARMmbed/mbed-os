@@ -16,6 +16,13 @@ limitations under the License.
 """
 
 import host_test_registry
+
+import module_copy_mbed
+import module_copy_shell
+import module_copy_firefox
+import module_copy_silabs
+
+# Plugins used to
 import module_reset_mbed
 import module_reset_mps2
 import module_reset_silabs
@@ -25,11 +32,17 @@ import module_reset_silabs
 HOST_TEST_PLUGIN_REGISTRY = host_test_registry.HostTestRegistry()
 
 # Static plugin registration
-# TODO: extend to files with name module_*.py loaded ad-hoc
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mbed.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_shell.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_silabs.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
+
+# Extra supported by default platforms
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
 
+# TODO: extend plugin loading to files with name module_*.py loaded ad-hoc
 
 ###############################################################################
 # Functional interface for host test plugin registry
@@ -37,7 +50,7 @@ HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
 def call_plugin(type, capability, *args, **kwargs):
     """ Interface to call plugin registry functional way
     """
-    HOST_TEST_PLUGIN_REGISTRY.call_plugin(type, capability, *args, **kwargs)
+    return HOST_TEST_PLUGIN_REGISTRY.call_plugin(type, capability, *args, **kwargs)
 
 def print_plugin_info():
     """ Prints plugins' information in user friendly way
