@@ -132,6 +132,16 @@ class KL25Z(Target):
         self.detect_code = "0200"
 
 
+class KL43Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Freescale', 'KLXX']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+
+
 class KL46Z(Target):
     def __init__(self):
         Target.__init__(self)
@@ -737,6 +747,7 @@ TARGETS = [
     LPC11U24_301(),
     KL05Z(),
     KL25Z(),
+    KL43Z(),
     KL46Z(),
     K20D50M(),
     K64F(),
