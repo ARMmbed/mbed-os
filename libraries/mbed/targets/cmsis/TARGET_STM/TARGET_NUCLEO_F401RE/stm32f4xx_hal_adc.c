@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC) peripheral:
   *           + Initialization and de-initialization functions
@@ -206,7 +206,7 @@ static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -259,7 +259,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   } 
@@ -434,10 +434,10 @@ HAL_StatusTypeDef HAL_ADC_Stop(ADC_HandleTypeDef* hadc)
   */
 HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout)
 {
-  uint32_t timeout;
+  uint32_t tickstart = 0;
  
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;  
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
 
   /* Check End of conversion flag */
   while(!(__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_EOC)))
@@ -445,7 +445,7 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         hadc->State= HAL_ADC_STATE_TIMEOUT;
         /* Process unlocked */
@@ -484,13 +484,13 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
   */
 HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout)
 {
+  uint32_t tickstart = 0;
+  
   /* Check the parameters */
   assert_param(IS_ADC_EVENT_TYPE(EventType));
-  
-  uint32_t timeout; 
 
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;   
+  /* Get tick */
+  tickstart = HAL_GetTick();
 
   /* Check selected event flag */
   while(!(__HAL_ADC_GET_FLAG(hadc,EventType)))
@@ -498,7 +498,7 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         hadc->State= HAL_ADC_STATE_TIMEOUT;
         /* Process unlocked */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   HASH HAL Extension module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of HASH peripheral:
@@ -154,7 +154,7 @@ static void HASHEx_DMAError(DMA_HandleTypeDef *hdma);
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -182,15 +182,15 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -230,7 +230,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -258,15 +258,15 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -418,7 +418,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Accumulate(HASH_HandleTypeDef *hhash, uint8_
   */
 HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
 
    /* Process Locked */
   __HAL_LOCK(hhash);
@@ -455,15 +455,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -485,15 +485,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > Timeout)
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -515,15 +515,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > Timeout)
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -561,7 +561,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   */
 HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -601,15 +601,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -631,15 +631,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > Timeout)
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -661,15 +661,15 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   /* Start the digest calculation */
   __HAL_HASH_START_DIGEST();
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while((HASH->SR & HASH_FLAG_BUSY) == HASH_FLAG_BUSY)
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > Timeout)
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -1109,7 +1109,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -1117,15 +1117,15 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
   /* Change HASH peripheral state */
   hhash->State = HAL_HASH_STATE_BUSY;
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while(HAL_IS_BIT_CLR(HASH->SR, HASH_FLAG_DCIS))
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -1213,7 +1213,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t timeout = 0;   
+  uint32_t tickstart = 0;   
   
    /* Process Locked */
   __HAL_LOCK(hhash);
@@ -1221,15 +1221,15 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
   /* Change HASH peripheral state */
   hhash->State = HAL_HASH_STATE_BUSY;
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;
+  /* Get tick */
+  tickstart = HAL_GetTick();
   
   while(HAL_IS_BIT_CLR(HASH->SR, HASH_FLAG_DCIS))
   {
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
