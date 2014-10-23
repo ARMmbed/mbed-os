@@ -31,6 +31,7 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     _thread_def.pthread = task;
     _thread_def.tpriority = priority;
     _thread_def.stacksize = stack_size;
+#ifndef __MBED_CMSIS_RTOS_CA9
     if (stack_pointer != NULL) {
         _thread_def.stack_pointer = stack_pointer;
         _dynamic_stack = false;
@@ -40,6 +41,7 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
             error("Error allocating the stack memory\n");
         _dynamic_stack = true;
     }
+#endif
 #endif
     _tid = osThreadCreate(&_thread_def, argument);
 }
@@ -61,7 +63,13 @@ int32_t Thread::signal_set(int32_t signals) {
 }
 
 Thread::State Thread::get_state() {
+#ifndef __MBED_CMSIS_RTOS_CA9
     return ((State)_thread_def.tcb.state);
+#else
+    uint8_t status;
+    status = osThreadGetState(_tid);
+    return ((State)status);
+#endif
 }
 
 osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
@@ -82,9 +90,11 @@ osThreadId Thread::gettid() {
 
 Thread::~Thread() {
     terminate();
+#ifndef __MBED_CMSIS_RTOS_CA9
     if (_dynamic_stack) {
         delete[] (_thread_def.stack_pointer);
     }
+#endif
 }
 
 }

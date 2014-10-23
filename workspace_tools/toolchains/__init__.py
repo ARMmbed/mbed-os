@@ -198,6 +198,7 @@ class mbedToolchain:
         "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
         "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4"],
         "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
+        "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
     }
 
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
@@ -311,7 +312,7 @@ class mbedToolchain:
 
         return False
 
-    def scan_resources(self, path):
+    def scan_resources(self, path, exclude=None):
         labels = self.get_labels()
         resources = Resources(path)
         self.has_config = False
@@ -354,7 +355,8 @@ class mbedToolchain:
                     resources.c_sources.append(file_path)
 
                 elif ext == '.cpp':
-                    resources.cpp_sources.append(file_path)
+                    if file != exclude:
+                        resources.cpp_sources.append(file_path)
 
                 elif ext == '.h' or ext == '.hpp':
                     if basename(file_path) == "mbed_config.h":
