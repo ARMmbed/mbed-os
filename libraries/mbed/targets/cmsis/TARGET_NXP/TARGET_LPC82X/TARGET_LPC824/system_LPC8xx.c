@@ -338,7 +338,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  *         Initialize the System.
  */
 void SystemInit (void) {
-//  volatile uint32_t i;
 
   /* System clock to the IOCON & the SWM need to be enabled or
   most of the I/O related peripherals won't work. */
