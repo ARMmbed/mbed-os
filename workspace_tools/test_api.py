@@ -600,14 +600,6 @@ class SingleTestRunner(object):
         """
         image_dest = image_dest if image_dest is not None else ''
         _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, copy_method, image_dest=image_dest, verbose=verbose)
-
-        if images_config is not None:
-            # For different targets additional configuration file has to be changed
-            # Here we select target and proper function to handle configuration change
-            if target_name == 'ARM_MPS2':
-                images_cfg_path = images_config
-                image0file_path = os.path.join(disk, image_dest, basename(image_path))
-                mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
         return _copy_res, _err_msg, _copy_method
 
     def file_copy_method_selector(self, image_path, disk, copy_method, image_dest='', verbose=False):

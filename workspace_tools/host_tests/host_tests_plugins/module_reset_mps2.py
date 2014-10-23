@@ -51,26 +51,22 @@ class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
             Each capability may directly just call some command line
             program or execute building pythonic function
         """
-        for parameter in self.required_parameters:
-            if parameter not in kwargs:
-                print "%s. Plugin parameter '%s' missing"% (self.name, parameter)
-                return False
+        result = False
+        if self.check_parameters(capabilitity, *args, **kwargs) is True:
 
-        if capabilitity == 'reboot.txt':
-            # TODO: Implement touch file for reboot
-            pass
+            if capabilitity == 'reboot.txt':
+                # TODO: Implement touch file for reboot
+                pass
 
-        elif capabilitity == 'shutdown.txt':
-            # TODO: Implement touch file for shutdown
-            pass
+            elif capabilitity == 'shutdown.txt':
+                # TODO: Implement touch file for shutdown
+                pass
 
-        elif capabilitity == 'reset.txt':
-            # TODO: Implement touch file for reset
-            pass
+            elif capabilitity == 'reset.txt':
+                # TODO: Implement touch file for reset
+                pass
 
-        else:
-            return False
-        return True
+        return result
 
 def load_plugin():
     """ Returns plugin available in this module

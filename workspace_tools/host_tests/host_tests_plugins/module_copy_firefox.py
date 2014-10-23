@@ -49,7 +49,7 @@ class HostTestPluginCopyMethod_Firefox(HostTestPluginBase):
         try:
             from selenium import webdriver
         except ImportError, e:
-            print "Error: firefox copy method requires selenium library. %s"% e
+            self.print_plugin_error("Error: firefox copy method requires selenium library. %s"% e)
             return False
         return True
 

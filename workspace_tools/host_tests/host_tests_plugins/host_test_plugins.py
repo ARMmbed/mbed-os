@@ -52,14 +52,23 @@ class HostTestPluginBase:
     ###########################################################################
     # Interface helper methods - overload only if you need to have custom behaviour
     ###########################################################################
+    def print_plugin_error(self, text):
+        """ Function prints error in console and exits always with False
+        """
+        print "Plugin error: %s::%s: %s"% (self.name, self.type, text)
+        return False
+
     def check_parameters(self, capabilitity, *args, **kwargs):
         """ This function should be ran each time we call execute()
             to check if none of the required parameters is missing.
         """
+        missing_parameters = []
         for parameter in self.required_parameters:
             if parameter not in kwargs:
-                print "%s::%s: Plugin parameter '%s' missing!"% (self.name, self.type, parameter)
-                return False
+                missing_parameters.append(parameter)
+        if len(missing_parameters) > 0:
+            self.print_plugin_error("execute parameter(s) '%s' missing!"% (', '.join(parameter)))
+            return False
         return True
 
     def run_command(self, cmd, shell=True):
@@ -69,9 +78,9 @@ class HostTestPluginBase:
         try:
             ret = call(cmd, shell=shell)
             if ret:
-                print "%s::%s: [ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd))
+                self.print_plugin_error("[ret=%d] Command: %s"% (self.name, self.type, ret, ' '.join(cmd)))
         except Exception, e:
             result = False
-            print "%s::%s: [ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd))
-            print "%s::%s: " + str(e)
+            self.print_plugin_error("[ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd)))
+            self.print_plugin_error("%s::%s: " + str(e))
         return result

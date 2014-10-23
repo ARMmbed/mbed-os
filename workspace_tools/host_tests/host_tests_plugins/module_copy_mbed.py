@@ -32,7 +32,7 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
         try:
             copy(image_path, destination_disk)
         except Exception, e:
-            print str(e)
+            self.print_plugin_error("shutil.copy(%s, %s) failed: %s"% (image_path, destination_disk, str(e)))
             result = False
         return result
 
