@@ -63,3 +63,7 @@ debug.log
 
 # Orig diff files
 *.orig
+
+# PyCharm
+*.idea
+
