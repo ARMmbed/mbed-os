@@ -6,20 +6,16 @@ LOAD_TTB    0x20000000 0x00004000 ; Page 0 of On-Chip Data Retention RAM
     { }                           ; Level-1 Translation Table for MMU
 }
 
-SFLASH_BOOT 0x18000000 (0x8000)
-{
-    BOOT_LOADER_BEGIN 0x18000000 FIXED
-    {
-        *   ( BOOT_LOADER )
-    }
-
-}
-
-SFLASH 0x18008000 (0x08000000-0x8000)
+SFLASH 0x18000000 (0x08000000)
 {
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; S-Flash ROM : Executable cached region
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    BOOT_LOADER_BEGIN 0x18000000 FIXED
+    {
+        *   ( BOOT_LOADER )
+    }
 
     VECTORS 0x18008000 FIXED
     {
