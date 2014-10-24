@@ -72,8 +72,6 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
-
-    ('RZ_A1H'   ,     ('ARM')),
 )
 
 

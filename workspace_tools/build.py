@@ -157,10 +157,7 @@ if __name__ == '__main__':
 
     # Additional Libraries
     if options.rtos:
-        if mcu == "RZ_A1H":
-            libraries.extend(["rtx_ca", "rtos_ca"])
-        else:
-            libraries.extend(["rtx", "rtos"])
+        libraries.extend(["rtx", "rtos"])
     if options.eth:
         libraries.append("eth")
     if options.usb:
