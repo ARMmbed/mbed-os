@@ -23,6 +23,14 @@
 #include "USBEndpoints.h"
 #include "toolchain.h"
 
+#ifdef TARGET_RZ_A1H
+#include "devdrv_usb_function_api.h"
+#include "usb0_function.h"
+#include "iobitmasks/usb_iobitmask.h"
+#include "rza_io_regrw.h"
+#include "USBDevice_Types.h"
+#endif
+
 //#ifdef __GNUC__
 //#define __packed __attribute__ ((__packed__))
 //#endif
@@ -58,6 +66,19 @@ public:
     bool realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t options);
     bool getEndpointStallState(unsigned char endpoint);
     uint32_t endpointReadcore(uint8_t endpoint, uint8_t *buffer);
+
+#if defined(TARGET_RZ_A1H)
+    static USBHAL * instance;
+    static void _usbisr(void);
+#endif
+
+#ifdef TARGET_RZ_A1H
+    uint32_t EP2PIPE(uint8_t endpoint);
+    void usb0_function_save_request(void);
+    void usb0_function_BRDYInterrupt(uint16_t status, uint16_t intenb);
+    void usb0_function_NRDYInterrupt (uint16_t status, uint16_t intenb);
+    void usb0_function_BEMPInterrupt (uint16_t status, uint16_t intenb);
+#endif
 
 protected:
     virtual void busReset(void){};
@@ -105,8 +126,24 @@ protected:
 
 private:
     void usbisr(void);
+#if !defined(TARGET_RZ_A1H)
     static void _usbisr(void);
     static USBHAL * instance;
+#endif
+
+#ifdef TARGET_RZ_A1H
+    IRQn_Type       int_id;         /* interrupt ID          */
+    uint16_t        int_level;      /* initerrupt level      */
+    uint16_t        clock_mode;     /* input clock selector  */
+    uint16_t        mode;           /* USB speed (HIGH/FULL) */
+
+    DigitalOut *usb0_en;
+
+    uint16_t    EP0_read_status;
+    uint16_t    EPx_read_status;
+
+    void EP0setupControl(void);
+#endif
 
 #if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
         bool (USBHAL::*epCallback[10 - 2])(void);
