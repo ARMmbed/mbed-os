@@ -23,20 +23,11 @@
 #include "USBEndpoints.h"
 #include "toolchain.h"
 
-#ifdef TARGET_RZ_A1H
-#include "devdrv_usb_function_api.h"
-#include "usb0_function.h"
-#include "iobitmasks/usb_iobitmask.h"
-#include "rza_io_regrw.h"
-#include "USBDevice_Types.h"
-#endif
-
 //#ifdef __GNUC__
 //#define __packed __attribute__ ((__packed__))
 //#endif
 
-class USBHAL
-{
+class USBHAL {
 public:
     /* Configuration */
     USBHAL();
@@ -68,150 +59,61 @@ public:
     bool getEndpointStallState(unsigned char endpoint);
     uint32_t endpointReadcore(uint8_t endpoint, uint8_t *buffer);
 
-#if defined(TARGET_RZ_A1H)
-    static USBHAL * instance;
-    static void _usbisr(void);
-#endif
-
-#ifdef TARGET_RZ_A1H
-    uint32_t EP2PIPE(uint8_t endpoint);
-    void usb0_function_save_request(void);
-    void usb0_function_BRDYInterrupt(uint16_t status, uint16_t intenb);
-    void usb0_function_NRDYInterrupt (uint16_t status, uint16_t intenb);
-    void usb0_function_BEMPInterrupt (uint16_t status, uint16_t intenb);
-#endif
-
 protected:
-    virtual void busReset(void) {};
-    virtual void EP0setupCallback(void) {};
-    virtual void EP0out(void) {};
-    virtual void EP0in(void) {};
-    virtual void connectStateChanged(unsigned int connected) {};
-    virtual void suspendStateChanged(unsigned int suspended) {};
-    virtual void SOF(int frameNumber) {};
+    virtual void busReset(void){};
+    virtual void EP0setupCallback(void){};
+    virtual void EP0out(void){};
+    virtual void EP0in(void){};
+    virtual void connectStateChanged(unsigned int connected){};
+    virtual void suspendStateChanged(unsigned int suspended){};
+    virtual void SOF(int frameNumber){};
 
-    virtual bool EP1_OUT_callback() {
-        return false;
-    };
-    virtual bool EP1_IN_callback() {
-        return false;
-    };
-    virtual bool EP2_OUT_callback() {
-        return false;
-    };
-    virtual bool EP2_IN_callback() {
-        return false;
-    };
-    virtual bool EP3_OUT_callback() {
-        return false;
-    };
-    virtual bool EP3_IN_callback() {
-        return false;
-    };
+    virtual bool EP1_OUT_callback(){return false;};
+    virtual bool EP1_IN_callback(){return false;};
+    virtual bool EP2_OUT_callback(){return false;};
+    virtual bool EP2_IN_callback(){return false;};
+    virtual bool EP3_OUT_callback(){return false;};
+    virtual bool EP3_IN_callback(){return false;};
 #if !defined(TARGET_STM32F4)
-    virtual bool EP4_OUT_callback() {
-        return false;
-    };
-    virtual bool EP4_IN_callback() {
-        return false;
-    };
+    virtual bool EP4_OUT_callback(){return false;};
+    virtual bool EP4_IN_callback(){return false;};
 #if !(defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549))
-    virtual bool EP5_OUT_callback() {
-        return false;
-    };
-    virtual bool EP5_IN_callback() {
-        return false;
-    };
-    virtual bool EP6_OUT_callback() {
-        return false;
-    };
-    virtual bool EP6_IN_callback() {
-        return false;
-    };
-    virtual bool EP7_OUT_callback() {
-        return false;
-    };
-    virtual bool EP7_IN_callback() {
-        return false;
-    };
-    virtual bool EP8_OUT_callback() {
-        return false;
-    };
-    virtual bool EP8_IN_callback() {
-        return false;
-    };
-    virtual bool EP9_OUT_callback() {
-        return false;
-    };
-    virtual bool EP9_IN_callback() {
-        return false;
-    };
-    virtual bool EP10_OUT_callback() {
-        return false;
-    };
-    virtual bool EP10_IN_callback() {
-        return false;
-    };
-    virtual bool EP11_OUT_callback() {
-        return false;
-    };
-    virtual bool EP11_IN_callback() {
-        return false;
-    };
-    virtual bool EP12_OUT_callback() {
-        return false;
-    };
-    virtual bool EP12_IN_callback() {
-        return false;
-    };
-    virtual bool EP13_OUT_callback() {
-        return false;
-    };
-    virtual bool EP13_IN_callback() {
-        return false;
-    };
-    virtual bool EP14_OUT_callback() {
-        return false;
-    };
-    virtual bool EP14_IN_callback() {
-        return false;
-    };
-    virtual bool EP15_OUT_callback() {
-        return false;
-    };
-    virtual bool EP15_IN_callback() {
-        return false;
-    };
+    virtual bool EP5_OUT_callback(){return false;};
+    virtual bool EP5_IN_callback(){return false;};
+    virtual bool EP6_OUT_callback(){return false;};
+    virtual bool EP6_IN_callback(){return false;};
+    virtual bool EP7_OUT_callback(){return false;};
+    virtual bool EP7_IN_callback(){return false;};
+    virtual bool EP8_OUT_callback(){return false;};
+    virtual bool EP8_IN_callback(){return false;};
+    virtual bool EP9_OUT_callback(){return false;};
+    virtual bool EP9_IN_callback(){return false;};
+    virtual bool EP10_OUT_callback(){return false;};
+    virtual bool EP10_IN_callback(){return false;};
+    virtual bool EP11_OUT_callback(){return false;};
+    virtual bool EP11_IN_callback(){return false;};
+    virtual bool EP12_OUT_callback(){return false;};
+    virtual bool EP12_IN_callback(){return false;};
+    virtual bool EP13_OUT_callback(){return false;};
+    virtual bool EP13_IN_callback(){return false;};
+    virtual bool EP14_OUT_callback(){return false;};
+    virtual bool EP14_IN_callback(){return false;};
+    virtual bool EP15_OUT_callback(){return false;};
+    virtual bool EP15_IN_callback(){return false;};
 #endif
 #endif
 
 private:
     void usbisr(void);
-#if !defined(TARGET_RZ_A1H)
     static void _usbisr(void);
     static USBHAL * instance;
-#endif
-
-#ifdef TARGET_RZ_A1H
-    IRQn_Type       int_id;         /* interrupt ID          */
-    uint16_t        int_level;      /* initerrupt level      */
-    uint16_t        clock_mode;     /* input clock selector  */
-    uint16_t        mode;           /* USB speed (HIGH/FULL) */
-
-    DigitalOut *usb0_en;
-
-    uint16_t    EP0_read_status;
-    uint16_t    EPx_read_status;
-
-    void EP0setupControl(void);
-#endif
 
 #if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
-    bool (USBHAL::*epCallback[10 - 2])(void);
+        bool (USBHAL::*epCallback[10 - 2])(void);
 #elif defined(TARGET_STM32F4)
-    bool (USBHAL::*epCallback[8 - 2])(void);
+        bool (USBHAL::*epCallback[8 - 2])(void);
 #else
-    bool (USBHAL::*epCallback[32 - 2])(void);
+        bool (USBHAL::*epCallback[32 - 2])(void);
 #endif
 
 

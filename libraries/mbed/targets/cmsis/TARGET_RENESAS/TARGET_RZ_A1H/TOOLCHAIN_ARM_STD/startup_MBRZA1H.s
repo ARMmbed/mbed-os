@@ -67,11 +67,11 @@ CS3_PERIPHERAL_BASE EQU 0x1c000000
 ; </h>
 
 UND_Stack_Size  EQU     0x00000100
-SVC_Stack_Size  EQU     0x00008000
+SVC_Stack_Size  EQU     0x00000100
 ABT_Stack_Size  EQU     0x00000100
-FIQ_Stack_Size  EQU     0x00000100
-IRQ_Stack_Size  EQU     0x00008000
-USR_Stack_Size  EQU     0x00004000
+FIQ_Stack_Size  EQU     0x00000000
+IRQ_Stack_Size  EQU     0x00000100
+USR_Stack_Size  EQU     0x00000100
 
 ISR_Stack_Size  EQU     (UND_Stack_Size + SVC_Stack_Size + ABT_Stack_Size + \
                          FIQ_Stack_Size + IRQ_Stack_Size)
