@@ -121,6 +121,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         i2c_ch = get_available_i2c();
         if (i2c_ch == -1)
             return;
+        i2c_used |= (1 << (i2c_ch - 1));
 
         swm = &SWM_I2C_SDA[i2c_ch - 1];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
