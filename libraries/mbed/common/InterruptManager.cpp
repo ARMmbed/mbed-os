@@ -1,3 +1,6 @@
+#include "cmsis.h"
+#if defined(NVIC_NUM_VECTORS)
+
 #include "InterruptManager.h"
 #include <string.h>
 
@@ -87,3 +90,4 @@ void InterruptManager::static_irq_helper() {
 
 } // namespace mbed
 
+#endif
