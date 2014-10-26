@@ -151,13 +151,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     // enable power
     i2c_power_enable(i2c_ch);
-    i2c_interface_enable(obj);
 
     uint32_t size_in_bytes = LPC_I2CD_API->i2c_get_mem_size();
     i2c_buffer = malloc(size_in_bytes);
     obj->handler = LPC_I2CD_API->i2c_setup((uint32_t)(obj->i2c), i2c_buffer);
     LPC_I2CD_API->i2c_set_bitrate(obj->handler, SystemCoreClock, 100000);
     LPC_I2CD_API->i2c_set_timeout(obj->handler, 100000);
+
+    i2c_interface_enable(obj);
 }
 
 inline int i2c_start(i2c_t *obj)
@@ -211,7 +212,7 @@ static inline int i2c_do_read(i2c_t *obj, int last)
 
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    LPC_I2CD_API->i2c_set_bitrate(obj->handler, SystemCoreClock, 100000);
+    LPC_I2CD_API->i2c_set_bitrate(obj->handler, SystemCoreClock, hz);
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
