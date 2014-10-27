@@ -100,6 +100,9 @@ typedef enum {
     
     LED     = p19,
     LED1    = p19,
+    LED2    = p19,
+    LED3    = p19,
+    LED4    = p19,
         
     RX_PIN_NUMBER = p11,
     TX_PIN_NUMBER = p9,
