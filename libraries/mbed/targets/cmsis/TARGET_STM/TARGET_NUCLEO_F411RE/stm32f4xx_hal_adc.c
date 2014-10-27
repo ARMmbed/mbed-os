@@ -206,7 +206,7 @@ static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -259,7 +259,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   } 

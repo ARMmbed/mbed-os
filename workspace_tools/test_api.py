@@ -32,10 +32,9 @@ from prettytable import PrettyTable
 
 from time import sleep, time
 from Queue import Queue, Empty
-from shutil import copy
 from os.path import join, exists, basename
 from threading import Thread
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
 from workspace_tools.tests import TESTS
@@ -46,12 +45,14 @@ from workspace_tools.utils import ToolException
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
-from workspace_tools.settings import EACOMMANDER_CMD
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+
+
+import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
 
 
 class ProcessObserver(Thread):
@@ -132,7 +133,8 @@ class SingleTestRunner(object):
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
-                           "end" : TEST_RESULT_UNDEF}
+                           "end" : TEST_RESULT_UNDEF
+    }
 
     def __init__(self,
                  _global_loops_count=1,
@@ -251,7 +253,8 @@ class SingleTestRunner(object):
                   "mut_reset_type" :  str(self.opts_mut_reset_type),
                   "jobs" :  str(self.opts_jobs),
                   "extend_test_timeout" :  str(self.opts_extend_test_timeout),
-                  "_dummy" : ''}
+                  "_dummy" : ''
+        }
         return result
 
     def shuffle_random_func(self):
@@ -547,7 +550,7 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
                        self.TEST_RESULT_TIMEOUT : 0
-                       }
+        }
 
         for test in test_summary:
             if test[0] in result_dict:
@@ -589,22 +592,6 @@ class SingleTestRunner(object):
             result = self.TEST_LOOPS_DICT[test_id]
         return result
 
-    def file_store_firefox(self, file_path, dest_disk):
-        try:
-            from selenium import webdriver
-        except ImportError, e:
-            print "Error: firefox copy method requires selenium library. %s"% e
-            exit(-1)
-        profile = webdriver.FirefoxProfile()
-        profile.set_preference('browser.download.folderList', 2) # custom location
-        profile.set_preference('browser.download.manager.showWhenStarting', False)
-        profile.set_preference('browser.download.dir', dest_disk)
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-        # Launch browser with profile and get file
-        browser = webdriver.Firefox(profile)
-        browser.get(file_path)
-        browser.close()
-
     def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
                                   images_config=None, image_dest=None, verbose=False):
         """ Function copied image file and fiddles with image configuration files in needed.
@@ -613,82 +600,20 @@ class SingleTestRunner(object):
         """
         image_dest = image_dest if image_dest is not None else ''
         _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, copy_method, image_dest=image_dest, verbose=verbose)
-
-        if images_config is not None:
-            # For different targets additional configuration file has to be changed
-            # Here we select target and proper function to handle configuration change
-            if target_name == 'ARM_MPS2':
-                images_cfg_path = images_config
-                image0file_path = os.path.join(disk, image_dest, basename(image_path))
-                mps2_set_board_image_file(disk, images_cfg_path, image0file_path)
         return _copy_res, _err_msg, _copy_method
 
     def file_copy_method_selector(self, image_path, disk, copy_method, image_dest='', verbose=False):
         """ Copy file depending on method you want to use. Handles exception
             and return code from shell copy commands.
         """
-        result = True
-        resutl_msg = ""
-        if copy_method == 'cp' or  copy_method == 'copy' or copy_method == 'xcopy':
-            source_path = image_path.encode('ascii', 'ignore')
-            image_base_name = basename(image_path).encode('ascii', 'ignore')
-            destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest, image_base_name)
-            cmd = [copy_method, source_path, destination_path]
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% (ret + " ".join(cmd))
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'firefox':
-            try:
-                source_path = image_path.encode('ascii', 'ignore')
-                destination_path = os.path.join(disk.encode('ascii', 'ignore'), image_dest)
-                self.file_store_firefox(source_path, destination_path)
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'eACommander':
-            # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
-            # Note: Commands are executed in the order they are specified on the command line
-            cmd = [EACOMMANDER_CMD,
-                   '--serialno', disk.rstrip('/\\'),
-                   '--flash', image_path.encode('ascii', 'ignore'),
-                   '--resettype', '2', '--reset']
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
-        elif copy_method == 'eACommander-usb':
-            # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
-            # Note: Commands are executed in the order they are specified on the command line
-            cmd = [EACOMMANDER_CMD,
-                   '--usb', disk.rstrip('/\\'),
-                   '--flash', image_path.encode('ascii', 'ignore')]
-            try:
-                ret = call(cmd, shell=True)
-                if ret:
-                    resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                    result = False
-            except Exception, e:
-                resutl_msg = e
-                result = False
+        result = False
+        resutl_msg = '' # TODO: pass result_msg from plugin to test suite
+        if copy_method is not None:
+            # image_path - Where is binary with target's firmware
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
         else:
-            copy_method = "shutils.copy()"
-            # Default python method
-            try:
-                if not disk.endswith('/') and not disk.endswith('\\'):
-                    disk += '/'
-                copy(image_path, disk)
-            except Exception, e:
-                resutl_msg = e
-                result = False
+            copy_method = 'default'
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
         return result, resutl_msg, copy_method
 
     def delete_file(self, file_path):
@@ -1182,7 +1107,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
     return result
 
 
-def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','):
+def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=',',platform_filter=None):
     """ Generates table summary with all test cases and additional test cases
         information using pretty print functionality. Allows test suite user to
         see test cases
@@ -1198,7 +1123,12 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     counter_dict_test_id_types = dict((t, 0) for t in unique_test_id)
     counter_dict_test_id_types_all = dict((t, 0) for t in unique_test_id)
 
-    test_properties = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration'] if cols is None else cols
+    test_properties = ['id',
+                       'automated',
+                       'description',
+                       'peripherals',
+                       'host_test',
+                       'duration'] if cols is None else cols
 
     # All tests status table print
     pt = PrettyTable(test_properties)
@@ -1210,7 +1140,11 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     counter_automated = 0
     pt.padding_width = 1 # One space between column edges and contents (default)
 
-    for test_id in TEST_MAP:
+    for test_id in sorted(TEST_MAP.keys()):
+        if platform_filter is not None:
+            # FIlter out platforms using regex
+            if re.search(platform_filter, test_id) is None:
+                continue
         row = []
         test = TEST_MAP[test_id]
         split = test_id.split('_')[:-1]
@@ -1234,7 +1168,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     result = pt.get_string()
     result += "\n\n"
 
-    if result_summary:
+    if result_summary and not platform_filter:
         # Automation result summary
         test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
         pt = PrettyTable(test_id_cols)
@@ -1313,66 +1247,6 @@ def singletest_in_cli_mode(single_test):
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
 
 
-def mps2_set_board_image_file(disk, images_cfg_path, image0file_path, image_name='images.txt'):
-    """ This function will alter image cfg file.
-        Main goal of this function is to change number of images to 1, comment all
-        existing image entries and append at the end of file new entry with test path.
-        @return True when all steps succeed.
-    """
-    MBED_SDK_TEST_STAMP = 'test suite entry'
-    image_path = os.path.join(disk, images_cfg_path, image_name)
-    new_file_lines = [] # New configuration file lines (entries)
-
-    # Check each line of the image configuration file
-    try:
-        with open(image_path, 'r') as file:
-            for line in file:
-                if re.search('^TOTALIMAGES', line):
-                    # Check number of total images, should be 1
-                    new_file_lines.append(re.sub('^TOTALIMAGES:[\t ]*[\d]+', 'TOTALIMAGES: 1', line))
-                    pass
-
-                elif re.search('; - %s[\n\r]*$'% MBED_SDK_TEST_STAMP, line):
-                    # Look for test suite entries and remove them
-                    pass    # Omit all test suite entries
-
-                elif re.search('^IMAGE[\d]+FILE', line):
-                    # Check all image entries and mark the ';'
-                    new_file_lines.append(';' + line)   # Comment non test suite lines
-                else:
-                    # Append line to new file
-                    new_file_lines.append(line)
-    except IOError as e:
-        return False
-
-    # Add new image entry with proper commented stamp
-    new_file_lines.append('IMAGE0FILE: %s    ; - %s\r\n'% (image0file_path, MBED_SDK_TEST_STAMP))
-
-    # Write all lines to file
-    try:
-        with open(image_path, 'w') as file:
-            for line in new_file_lines:
-                file.write(line),
-    except IOError:
-        return False
-
-    return True
-
-
-def mps2_select_core(disk, mobo_config_name=""):
-    """ Function selects actual core
-    """
-    # TODO: implement core selection
-    pass
-
-
-def mps2_switch_usb_auto_mounting_after_restart(disk, usb_config_name=""):
-    """ Function alters configuration to allow USB MSD to be mounted after restarts
-    """
-    # TODO: implement USB MSD restart detection
-    pass
-
-
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
     """
@@ -1401,7 +1275,8 @@ class TestLogger():
         log_entry = {'log_type' : LogType,
                      'log_timestamp' : log_timestamp,
                      'log_line' : log_line,
-                     '_future' : None}
+                     '_future' : None
+        }
         # Store log in memory
         if self.store_log:
             self.log.append(log_entry)
@@ -1622,9 +1497,9 @@ def get_default_test_options_parser():
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
-    parser.add_option('', '--db',
-                      dest='db_url',
-                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
+    #parser.add_option('', '--db',
+    #                  dest='db_url',
+    #                  help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
     parser.add_option('-l', '--log',
                       dest='log_file_name',

@@ -16,7 +16,7 @@ limitations under the License.
 """
 
 from host_test import DefaultTest
-from sys import stdout
+
 
 class DevNullTest(DefaultTest):
 
@@ -25,18 +25,15 @@ class DevNullTest(DefaultTest):
         """
         result = False
         c = self.mbed.serial_readline()
-        if c is None:
-            self.print_result("ioerr_serial")
-            return None
-        if text in c:
+        if c and text in c:
             result = True
         return result
 
-    def run(self):
+    def test(self):
         result = True
-
         # Test should print some text and later stop printing
-        res = self.check_readline("re-routing stdout to /null")   # 'MBED: re-routing stdout to /null'
+        # 'MBED: re-routing stdout to /null'
+        res = self.check_readline("re-routing stdout to /null")
         if not res:
             # We haven't read preamble line
             result = False
@@ -46,19 +43,15 @@ class DevNullTest(DefaultTest):
             for i in range(3):
                 c = self.mbed.serial_read(32)
                 if c is None:
-                    self.print_result("ioerr_serial")
-                    return
+                    return self.RESULT_IO_SERIAL
                 else:
                     str += c
                 if len(str) > 0:
                     result = False
                     break
-            print "Received %d bytes: %s"% (len(str), str)
-            stdout.flush()
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
+            self.notify("Received %d bytes: %s"% (len(str), str))
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
+
 
 if __name__ == '__main__':
     DevNullTest().run()

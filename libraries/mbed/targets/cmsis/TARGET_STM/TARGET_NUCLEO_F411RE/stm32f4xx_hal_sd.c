@@ -2574,7 +2574,7 @@ static HAL_SD_ErrorTypedef SD_SendStatus(SD_HandleTypeDef *hsd, uint32_t *pCardS
   SDIO_CmdInitTypeDef sdio_cmdinitstructure;
   HAL_SD_ErrorTypedef errorstate = SD_OK;
   
-  if(pCardStatus == NULL)
+  if(pCardStatus == HAL_NULL)
   {
     errorstate = SD_INVALID_PARAMETER;
     

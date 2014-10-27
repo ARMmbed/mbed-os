@@ -132,6 +132,16 @@ class KL25Z(Target):
         self.detect_code = "0200"
 
 
+class KL43Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Freescale', 'KLXX']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+
+
 class KL46Z(Target):
     def __init__(self):
         Target.__init__(self)
@@ -203,11 +213,19 @@ class LPC824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
+class SSCI824(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['NXP', 'LPC82X']
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
+        self.is_disk_virtual = True
 
 class LPC4088(LPCTarget):
     def __init__(self):
@@ -371,7 +389,7 @@ class NUCLEO_F411RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0740"
@@ -473,6 +491,10 @@ class NRF51822(Target):
     # the following is a list of possible Nordic softdevices in decreasing order
     # of preference.
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+        {
+            'name' : 's110_nrf51822_7.1.0_softdevice.hex',
+            'offset' : 0x16000
+        },
         {
             'name' : 's110_nrf51822_7.0.0_softdevice.hex',
             'offset' : 0x16000
@@ -725,6 +747,7 @@ TARGETS = [
     LPC11U24_301(),
     KL05Z(),
     KL25Z(),
+    KL43Z(),
     KL46Z(),
     K20D50M(),
     K64F(),
@@ -732,6 +755,7 @@ TARGETS = [
     LPC812(),
     LPC810(),
     LPC824(),
+    SSCI824(),
     LPC4088(),
     LPC4330_M4(),
     LPC4337(),

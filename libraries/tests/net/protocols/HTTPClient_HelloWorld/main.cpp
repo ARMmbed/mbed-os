@@ -19,7 +19,7 @@ int main()
     //GET data
     {
         bool result = true;
-        const char *url_hello_txt = "http://mbed.org/media/uploads/donatien/hello.txt";
+        const char *url_hello_txt = "http://developer.mbed.org/media/uploads/donatien/hello.txt";
         printf("HTTP_GET: Trying to fetch page '%s'...\r\n", url_hello_txt);
         HTTPResult ret = http.get(url_hello_txt, http_request_buffer, BUFFER_SIZE);
         if (ret == HTTP_OK) {

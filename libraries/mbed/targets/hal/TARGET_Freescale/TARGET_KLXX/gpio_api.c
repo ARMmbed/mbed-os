@@ -32,7 +32,11 @@ void gpio_init(gpio_t *obj, PinName pin) {
 
     unsigned int port = (unsigned int)pin >> PORT_SHIFT;
 
+#if defined(TARGET_KL43Z)
+    GPIO_Type *reg = (GPIO_Type *)(GPIOA_BASE + port * 0x40);
+#else
     FGPIO_Type *reg = (FGPIO_Type *)(FPTA_BASE + port * 0x40);
+#endif
     obj->reg_set = &reg->PSOR;
     obj->reg_clr = &reg->PCOR;
     obj->reg_in  = &reg->PDIR;

@@ -191,6 +191,10 @@ class GCC_CR(GCC):
         self.cc += additional_compiler_flags
         self.cppc += additional_compiler_flags
 
+        # Use latest gcc nanolib
+        self.ld.append("--specs=nano.specs")
+        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
 
 
