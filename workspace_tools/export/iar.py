@@ -28,7 +28,8 @@ class IAREmbeddedWorkbench(Exporter):
         'ARCH_PRO',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
-        'NUCLEO_L152RE'
+        'NUCLEO_L152RE',
+        'STM32F407'
     ]
 
     def generate(self):
