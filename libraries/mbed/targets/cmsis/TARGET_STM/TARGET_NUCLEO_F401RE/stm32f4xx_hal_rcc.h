@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -190,7 +190,7 @@ typedef struct
 
 
 #define DBP_TIMEOUT_VALUE          ((uint32_t)100)
-#define LSE_TIMEOUT_VALUE          ((uint32_t)500)
+#define LSE_TIMEOUT_VALUE          ((uint32_t)600)
 /**
   * @}
   */
@@ -655,11 +655,15 @@ typedef struct
 /** @brief  Force or release AHB2 peripheral reset.
   */
 #define __AHB2_FORCE_RESET()    (RCC->AHB2RSTR = 0xFFFFFFFF) 
-#define __OTGFS_FORCE_RESET()   (RCC->AHB2RSTR |= (RCC_AHB2RSTR_OTGFSRST))
+#define __USB_OTG_FS_FORCE_RESET()   (RCC->AHB2RSTR |= (RCC_AHB2RSTR_OTGFSRST))
 
 #define __AHB2_RELEASE_RESET()  (RCC->AHB2RSTR = 0x00)
-#define __OTGFS_RELEASE_RESET() (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_OTGFSRST))
+#define __USB_OTG_FS_RELEASE_RESET() (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_OTGFSRST))
 
+/* alias define maintained for legacy */
+#define __OTGFS_FORCE_RESET    __USB_OTG_FS_FORCE_RESET
+#define __OTGFS_RELEASE_RESET  __USB_OTG_FS_RELEASE_RESET                                      
+                                      
 #define __RNG_FORCE_RESET()    (RCC->AHB2RSTR |= (RCC_AHB2RSTR_RNGRST))
 #define __RNG_RELEASE_RESET()  (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_RNGRST))
 
@@ -764,9 +768,13 @@ typedef struct
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
   */
-#define __OTGFS_CLK_SLEEP_ENABLE()  (RCC->AHB2LPENR |= (RCC_AHB2LPENR_OTGFSLPEN))
+#define __USB_OTG_FS_CLK_SLEEP_ENABLE()  (RCC->AHB2LPENR |= (RCC_AHB2LPENR_OTGFSLPEN))
 
-#define __OTGFS_CLK_SLEEP_DISABLE() (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_OTGFSLPEN))
+#define __USB_OTG_FS_CLK_SLEEP_DISABLE()   (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_OTGFSLPEN))
+
+/* alias define maintained for legacy */
+#define __OTGFS_CLK_SLEEP_ENABLE    __USB_OTG_FS_CLK_SLEEP_ENABLE
+#define __OTGFS_CLK_SLEEP_DISABLE   __USB_OTG_FS_CLK_SLEEP_DISABLE
 
 #define __RNG_CLK_SLEEP_ENABLE()   (RCC->AHB2LPENR |= (RCC_AHB2LPENR_RNGLPEN))
 #define __RNG_CLK_SLEEP_DISABLE()  (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_RNGLPEN))

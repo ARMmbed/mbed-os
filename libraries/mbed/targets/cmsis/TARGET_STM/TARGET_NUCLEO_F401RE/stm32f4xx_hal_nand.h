@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
@@ -152,6 +152,16 @@ typedef struct
 #define	NAND_CMD_AREA_A            ((uint8_t)0x00)
 #define	NAND_CMD_AREA_B            ((uint8_t)0x01)
 #define NAND_CMD_AREA_C            ((uint8_t)0x50)
+#define NAND_CMD_AREA_TRUE1        ((uint8_t)0x30)
+
+#define NAND_CMD_WRITE0            ((uint8_t)0x80)
+#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)	
+#define NAND_CMD_ERASE0            ((uint8_t)0x60)
+#define NAND_CMD_ERASE1            ((uint8_t)0xD0)  
+#define NAND_CMD_READID            ((uint8_t)0x90)	
+#define NAND_CMD_STATUS            ((uint8_t)0x70)
+#define NAND_CMD_LOCK_STATUS       ((uint8_t)0x7A)
+#define NAND_CMD_RESET             ((uint8_t)0xFF)
 
 /* NAND memory status */
 #define NAND_VALID_ADDRESS         ((uint32_t)0x00000100)
@@ -179,17 +189,18 @@ typedef struct
   * @param  __HANDLE__ : NAND handle.
   * @retval NAND Raw address value
   */
-#define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.BlockSize)))* ((__HANDLE__)->Info.ZoneSize)))
-
+#define __ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + \
+                         (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.ZoneSize)))* ((__HANDLE__)->Info.BlockSize)))
+        
 /**
   * @brief  NAND memory address cycling.
   * @param  __ADDRESS__: NAND memory address.
   * @retval NAND address cycling value.
   */
-#define ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__)& 0xFF)               /* 1st addressing cycle */
-#define ADDR_2nd_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF00) >> 8)      /* 2nd addressing cycle */
-#define ADDR_3rd_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF0000) >> 16)   /* 3rd addressing cycle */
-#define ADDR_4th_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF000000) >> 24) /* 4th addressing cycle */
+#define __ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)(__ADDRESS__)              /* 1st addressing cycle */
+#define __ADDR_2nd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 8)       /* 2nd addressing cycle */
+#define __ADDR_3rd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 16)      /* 3rd addressing cycle */
+#define __ADDR_4th_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 24)      /* 4th addressing cycle */
 
 /* Exported functions --------------------------------------------------------*/
 
