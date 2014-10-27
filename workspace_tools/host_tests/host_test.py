@@ -48,7 +48,7 @@ class Mbed:
 
         parser.add_option("-p", "--port",
                           dest="port",
-                          help="The serial port of the target mbed (ie: COM3)",
+                          help="The serial port of the target mbed",
                           metavar="PORT")
 
         parser.add_option("-d", "--disk",
@@ -70,11 +70,6 @@ class Mbed:
                           dest="timeout",
                           help="Timeout",
                           metavar="TIMEOUT")
-
-        parser.add_option("-e", "--extra",
-                          dest="extra",
-                          help="Extra serial port (used by some tests)",
-                          metavar="EXTRA")
 
         parser.add_option("-r", "--reset",
                           dest="forced_reset_type",
@@ -100,8 +95,6 @@ class Mbed:
         self.image_path = self.options.image_path
         self.copy_method = self.options.copy_method
 
-        self.extra_port = self.options.extra
-        self.extra_serial = None
         self.serial = None
         self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
         print 'Host test instrumentation on port: "%s" and disk: "%s"' % (self.port, self.disk)
@@ -117,9 +110,6 @@ class Mbed:
         # Port can be opened
         if result:
             self.serial.setBaudrate(baud)
-            if self.extra_port:
-                self.extra_serial = Serial(self.extra_port, timeout = 1)
-                self.extra_serial.setBaudrate(extra_baud)
             self.flush()
         return result
 
@@ -213,9 +203,6 @@ class Mbed:
         if self.serial:
             self.serial.flushInput()
             self.serial.flushOutput()
-        if self.extra_serial:
-            self.extra_serial.flushInput()
-            self.extra_serial.flushOutput()
 
 
 class TestResults:
