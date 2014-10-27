@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   NOR HAL module driver.
   *          This file provides a generic firmware to drive NOR memories mounted 
   *          as external device.
@@ -126,8 +126,7 @@
     
 /**
   * @brief  Perform the NOR memory Initialization sequence
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  Timing: pointer to NOR control timing structure 
   * @param  ExtTiming: pointer to NOR extended mode timing structure    
   * @retval HAL status
@@ -247,13 +246,14 @@ __weak void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout)
   
 /**
   * @brief  Read NOR flash IDs
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  pNOR_ID : pointer to NOR ID structure
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_ID)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -262,20 +262,38 @@ HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_I
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }  
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send read ID command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x0090);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x0090);
 
   /* Read the NOR IDs */
-  pNOR_ID->Manufacturer_Code = *(__IO uint16_t *) __NOR_ADDR_SHIFT(MC_ADDRESS);
-  pNOR_ID->Device_Code1      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(DEVICE_CODE1_ADDR);
-  pNOR_ID->Device_Code2      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(DEVICE_CODE2_ADDR);
-  pNOR_ID->Device_Code3      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(DEVICE_CODE3_ADDR);
+  pNOR_ID->Manufacturer_Code = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, MC_ADDRESS);
+  pNOR_ID->Device_Code1      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, DEVICE_CODE1_ADDR);
+  pNOR_ID->Device_Code2      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, DEVICE_CODE2_ADDR);
+  pNOR_ID->Device_Code3      = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, DEVICE_CODE3_ADDR);
   
   /* Check the NOR controller state */
   hnor->State = HAL_NOR_STATE_READY;
@@ -288,12 +306,13 @@ HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_I
 
 /**
   * @brief  Returns the NOR memory to Read mode.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
 {
+  uint32_t deviceAddress = 0;  
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -303,7 +322,25 @@ HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
      return HAL_BUSY;
   }
   
-  __NOR_WRITE(NOR_MEMORY_ADRESS, 0x00F0);
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }  
+  
+  __NOR_WRITE(deviceAddress, 0x00F0);
 
   /* Check the NOR controller state */
   hnor->State = HAL_NOR_STATE_READY;
@@ -316,14 +353,15 @@ HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Read data from NOR memory 
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  pAddress: pointer to Device address
   * @param  pData : pointer to read data  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint16_t *pData)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -332,14 +370,32 @@ HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  } 
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send read data command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x00555), 0x00AA); 
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x002AA), 0x0055);  
-  __NOR_WRITE(*pAddress, 0x00F0);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x00555), 0x00AA); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x002AA), 0x0055);  
+  __NOR_WRITE(pAddress, 0x00F0);
 
   /* Read the data */
   *pData = *(__IO uint32_t *)pAddress;
@@ -355,14 +411,15 @@ HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint
 
 /**
   * @brief  Program data to NOR memory 
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  pAddress: Device address
   * @param  pData : pointer to the data to write   
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint16_t *pData)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -371,14 +428,32 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  } 
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send program data command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00A0);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00A0);
 
   /* Write the data */
   __NOR_WRITE(pAddress, *pData);
@@ -393,9 +468,8 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
 }
 
 /**
-  * @brief  Reads a block of data from the FMC NOR memory.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @brief  Reads a half-word buffer from the NOR memory.
+  * @param  hnor: pointer to the NOR handle
   * @param  uwAddress: NOR memory internal address to read from.
   * @param  pData: pointer to the buffer that receives the data read from the 
   *         NOR memory.
@@ -404,6 +478,8 @@ HAL_StatusTypeDef HAL_NOR_Program(NOR_HandleTypeDef *hnor, uint32_t *pAddress, u
   */
 HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress, uint16_t *pData, uint32_t uwBufferSize)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -412,13 +488,31 @@ HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }  
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send read data command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x00555), 0x00AA); 
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x002AA), 0x0055);  
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x00555), 0x00AA); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x002AA), 0x0055);  
   __NOR_WRITE(uwAddress, 0x00F0);
   
   /* Read buffer */
@@ -439,13 +533,12 @@ HAL_StatusTypeDef HAL_NOR_ReadBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress
 }
 
 /**
-  * @brief  Writes a half-word buffer to the FMC NOR memory. This function 
-  *         must be used only with S29GL128P NOR memory. 
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
-  * @param  uwAddress: NOR memory internal address from which the data 
+  * @brief  Writes a half-word buffer to the NOR memory. This function must be used 
+            only with S29GL128P NOR memory. 
+  * @param  hnor: pointer to the NOR handle
+  * @param  uwAddress: NOR memory internal start write address 
   * @param  pData: pointer to source data buffer. 
-  * @param  uwBufferSize: number of Half words to write. The maximum allowed 
+  * @param  uwBufferSize: Size of the buffer to write
   * @retval HAL status
   */ 
 HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddress, uint16_t *pData, uint32_t uwBufferSize)
@@ -453,7 +546,8 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
   uint32_t lastloadedaddress = 0;
   uint32_t currentaddress = 0;
   uint32_t endaddress = 0;
-
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -462,6 +556,24 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }  
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
@@ -472,12 +584,12 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
   lastloadedaddress = uwAddress;
 
   /* Issue unlock command sequence */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055); 
 
   /* Write Buffer Load Command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(uwAddress), 0x25); 
-  __NOR_WRITE(__NOR_ADDR_SHIFT(uwAddress), (uwBufferSize - 1)); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, uwAddress), 0x25); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, uwAddress), (uwBufferSize - 1)); 
 
   /* Load Data into NOR Buffer */
   while(currentaddress <= endaddress)
@@ -485,12 +597,12 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
     /* Store last loaded address & data value (for polling) */
     lastloadedaddress = currentaddress;
  
-    __NOR_WRITE(__NOR_ADDR_SHIFT(currentaddress), *pData++);
+    __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, currentaddress), *pData++);
     
     currentaddress += 1; 
   }
 
-  __NOR_WRITE(__NOR_ADDR_SHIFT(lastloadedaddress), 0x29); 
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, lastloadedaddress), 0x29); 
   
   /* Check the NOR controller state */
   hnor->State = HAL_NOR_STATE_READY;
@@ -504,14 +616,15 @@ HAL_StatusTypeDef HAL_NOR_ProgramBuffer(NOR_HandleTypeDef *hnor, uint32_t uwAddr
 
 /**
   * @brief  Erase the specified block of the NOR memory 
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  BlockAddress : Block to erase address 
   * @param  Address: Device address
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Erase_Block(NOR_HandleTypeDef *hnor, uint32_t BlockAddress, uint32_t Address)
 {
+  uint32_t deviceAddress = 0;
+
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -520,16 +633,34 @@ HAL_StatusTypeDef HAL_NOR_Erase_Block(NOR_HandleTypeDef *hnor, uint32_t BlockAdd
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send block erase command sequence */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x0080);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x0080);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);
   __NOR_WRITE((uint32_t)(BlockAddress + Address), 0x30);
 
   /* Check the NOR memory status and update the controller state */
@@ -544,13 +675,14 @@ HAL_StatusTypeDef HAL_NOR_Erase_Block(NOR_HandleTypeDef *hnor, uint32_t BlockAdd
 
 /**
   * @brief  Erase the entire NOR chip.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  Address : Device address  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Erase_Chip(NOR_HandleTypeDef *hnor, uint32_t Address)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -559,17 +691,35 @@ HAL_StatusTypeDef HAL_NOR_Erase_Chip(NOR_HandleTypeDef *hnor, uint32_t Address)
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;  
     
   /* Send NOR chip erase command sequence */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x0080);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x00AA);
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x02AA), 0x0055);  
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0555), 0x0010);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x0080);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x00AA);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x02AA), 0x0055);  
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0555), 0x0010);
   
   /* Check the NOR memory status and update the controller state */
   hnor->State = HAL_NOR_STATE_READY;
@@ -582,13 +732,14 @@ HAL_StatusTypeDef HAL_NOR_Erase_Chip(NOR_HandleTypeDef *hnor, uint32_t Address)
 
 /**
   * @brief  Read NOR flash CFI IDs
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @param  pNOR_CFI : pointer to NOR CFI IDs structure  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR_CFI)
 {
+  uint32_t deviceAddress = 0;
+  
   /* Process Locked */
   __HAL_LOCK(hnor);
   
@@ -597,18 +748,36 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
   {
      return HAL_BUSY;
   }
+  
+  /* Select the NOR device address */
+  if (hnor->Init.NSBank == FMC_NORSRAM_BANK1)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS1;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK2)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS2;
+  }
+  else if (hnor->Init.NSBank == FMC_NORSRAM_BANK3)
+  {
+    deviceAddress = NOR_MEMORY_ADRESS3;
+  }
+  else /* FMC_NORSRAM_BANK4 */
+  {
+    deviceAddress = NOR_MEMORY_ADRESS4;
+  }  
     
   /* Update the NOR controller state */
   hnor->State = HAL_NOR_STATE_BUSY;
   
   /* Send read CFI query command */
-  __NOR_WRITE(__NOR_ADDR_SHIFT(0x0055), 0x0098);
+  __NOR_WRITE(__NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, 0x0055), 0x0098);
 
   /* read the NOR CFI information */
-  pNOR_CFI->CFI_1 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(CFI1_ADDRESS);
-  pNOR_CFI->CFI_2 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(CFI2_ADDRESS);
-  pNOR_CFI->CFI_3 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(CFI3_ADDRESS);
-  pNOR_CFI->CFI_4 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(CFI4_ADDRESS);
+  pNOR_CFI->CFI_1 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, CFI1_ADDRESS);
+  pNOR_CFI->CFI_2 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, CFI2_ADDRESS);
+  pNOR_CFI->CFI_3 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, CFI3_ADDRESS);
+  pNOR_CFI->CFI_4 = *(__IO uint16_t *) __NOR_ADDR_SHIFT(deviceAddress, NOR_MEMORY_8B, CFI4_ADDRESS);
 
   /* Check the NOR controller state */
   hnor->State = HAL_NOR_STATE_READY;
@@ -640,8 +809,7 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
     
 /**
   * @brief  Enables dynamically NOR write operation.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor)
@@ -663,8 +831,7 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Disables dynamically NOR write operation.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor)
@@ -708,8 +875,7 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor)
   
 /**
   * @brief  return the NOR controller state
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.
+  * @param  hnor: pointer to the NOR handle
   * @retval NOR controller state
   */
 HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor)
@@ -719,8 +885,7 @@ HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor)
 
 /**
   * @brief  Returns the NOR operation status.
-  * @param  hnor: pointer to a NOR_HandleTypeDef structure that contains
-  *                the configuration information for NOR module.   
+  * @param  hnor: pointer to the NOR handle  
   * @param  Address: Device address
   * @param  Timeout: NOR progamming Timeout
   * @retval NOR_Status: The returned value can be: NOR_SUCCESS, NOR_ERROR
@@ -730,22 +895,25 @@ NOR_StatusTypedef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, u
 { 
   NOR_StatusTypedef status = NOR_ONGOING;
   uint16_t tmpSR1 = 0, tmpSR2 = 0;
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
 
   /* Poll on NOR memory Ready/Busy signal ------------------------------------*/
-  HAL_NOR_MspWait(hnor, timeout);
+  HAL_NOR_MspWait(hnor, Timeout);
   
   /* Get the NOR memory operation status -------------------------------------*/
   while(status != NOR_SUCCESS)
   {
-    /* Check for timeout value */
-    timeout = HAL_GetTick() + Timeout;
-    
-    if(HAL_GetTick() >= timeout)
+    /* Get tick */
+    tickstart = HAL_GetTick();
+    /* Check for the Timeout */
+    if(Timeout != HAL_MAX_DELAY)
     {
-      status = NOR_TIMEOUT; 
-    }  
-    
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      {
+        status = NOR_TIMEOUT; 
+      } 
+    } 
+
     /* Read NOR status register (DQ6 and DQ5) */
     tmpSR1 = *(__IO uint16_t *)Address;
     tmpSR2 = *(__IO uint16_t *)Address;

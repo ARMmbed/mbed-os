@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of RTC HAL module.
   ******************************************************************************
   * @attention
@@ -663,34 +663,55 @@ typedef struct
   * @brief  Enable the RTC Exti line.
   * @param  __EXTILINE__: specifies the RTC Exti sources to be enabled or disabled.
   *         This parameter can be:
-  *            @arg RTC_EXTI_LINE_ALARM_EVENT   
-  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT 
-  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT      
+  *            @arg RTC_EXTI_LINE_ALARM_EVENT
+  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT
+  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT
   * @retval None
-  */                                         
-#define __HAL_RTC_ENABLE_IT(__EXTILINE__)   (EXTI->IMR |= (__EXTILINE__))
+  */
+#define __HAL_RTC_EXTI_ENABLE_IT(__EXTILINE__)   (EXTI->IMR |= (__EXTILINE__))
+
+/* alias define maintained for legacy */
+#define __HAL_RTC_ENABLE_IT   __HAL_RTC_EXTI_ENABLE_IT
 
 /**
   * @brief  Disable the RTC Exti line.
   * @param  __EXTILINE__: specifies the RTC Exti sources to be enabled or disabled.
   *         This parameter can be:
-  *            @arg RTC_EXTI_LINE_ALARM_EVENT   
-  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT 
-  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT     
+  *            @arg RTC_EXTI_LINE_ALARM_EVENT
+  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT
+  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT
   * @retval None
   */
-#define __HAL_RTC_DISABLE_IT(__EXTILINE__)  (EXTI->IMR &= ~(__EXTILINE__))
+#define __HAL_RTC_EXTI_DISABLE_IT(__EXTILINE__)  (EXTI->IMR &= ~(__EXTILINE__))
+
+/* alias define maintained for legacy */
+#define __HAL_RTC_DISABLE_IT   __HAL_RTC_EXTI_DISABLE_IT
+
+/**
+  * @brief  Generates a Software interrupt on selected EXTI line.
+  * @param  __EXTILINE__: specifies the RTC Exti sources to be enabled or disabled.
+  *         This parameter can be:
+  *            @arg RTC_EXTI_LINE_ALARM_EVENT
+  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT
+  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT
+  * @retval None
+  */
+#define __HAL_RTC_EXTI_GENERATE_SWIT(__EXTI_LINE__) (EXTI->SWIER |= (__EXTI_LINE__))
 
 /**
   * @brief  Clear the RTC Exti flags.
   * @param  __FLAG__: specifies the RTC Exti sources to be enabled or disabled.
   *         This parameter can be:
-  *            @arg RTC_EXTI_LINE_ALARM_EVENT   
-  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT 
-  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT      
+  *            @arg RTC_EXTI_LINE_ALARM_EVENT
+  *            @arg RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT
+  *            @arg RTC_EXTI_LINE_WAKEUPTIMER_EVENT
   * @retval None
   */
-#define __HAL_RTC_CLEAR_FLAG(__FLAG__)  (EXTI->PR = (__FLAG__))
+#define __HAL_RTC_EXTI_CLEAR_FLAG(__FLAG__)  (EXTI->PR = (__FLAG__))
+
+/* alias define maintained for legacy */
+#define __HAL_RTC_CLEAR_FLAG   __HAL_RTC_EXTI_CLEAR_FLAG
+
 
 /* Include RTC HAL Extension module */
 #include "stm32f4xx_hal_rtc_ex.h"

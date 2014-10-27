@@ -41,7 +41,8 @@ class HostTestRegistry:
                 return True
             else:
                 self.print_error("%s setup failed"% plugin.name)
-        self.print_error("%s already loaded"% plugin.name)
+        else:
+            self.print_error("%s already loaded"% plugin.name)
         return False
 
     def call_plugin(self, type, capability, *args, **kwargs):
@@ -52,6 +53,17 @@ class HostTestRegistry:
             if plugin.type == type and capability in plugin.capabilities:
                 return plugin.execute(capability, *args, **kwargs)
         return False
+
+    def get_plugin_caps(self, type):
+        """ Returns list of all capabilities for plugin family with the same type.
+            If there are no capabilities empty list is returned
+        """
+        result = []
+        for plugin_name in self.PLUGINS:
+            plugin = self.PLUGINS[plugin_name]
+            if plugin.type == type:
+                result.extend(plugin.capabilities)
+        return sorted(result)
 
     def load_plugin(self, name):
         """ Used to load module from

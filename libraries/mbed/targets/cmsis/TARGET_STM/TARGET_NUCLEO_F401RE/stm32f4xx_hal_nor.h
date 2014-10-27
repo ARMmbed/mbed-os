@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of NOR HAL module.
   ******************************************************************************
   * @attention
@@ -157,11 +157,15 @@ typedef struct
 /* NOR operation wait timeout */
 #define NOR_TMEOUT               ((uint16_t)0xFFFF)
    
-/* #define NOR_MEMORY_16B */
-#define NOR_MEMORY_8B
+/* NOR memory data width */
+#define NOR_MEMORY_8B            ((uint8_t)0x0)
+#define NOR_MEMORY_16B           ((uint8_t)0x1)
 
 /* NOR memory device read/write start address */
-#define NOR_MEMORY_ADRESS        ((uint32_t)0x60000000)
+#define NOR_MEMORY_ADRESS1       ((uint32_t)0x60000000)
+#define NOR_MEMORY_ADRESS2       ((uint32_t)0x64000000)
+#define NOR_MEMORY_ADRESS3       ((uint32_t)0x68000000)
+#define NOR_MEMORY_ADRESS4       ((uint32_t)0x6C000000)
 
 /**
   * @}
@@ -180,11 +184,8 @@ typedef struct
   * @param  __ADDRESS__: NOR memory address 
   * @retval NOR shifted address value
   */
-#ifdef  NOR_MEMORY_8B
- #define __NOR_ADDR_SHIFT(__ADDRESS__) (uint32_t)(NOR_MEMORY_ADRESS + (2 * (__ADDRESS__)))
-#else /* NOR_MEMORY_16B */
- #define __NOR_ADDR_SHIFT(__ADDRESS__) (uint32_t)(NOR_MEMORY_ADRESS + (__ADDRESS__))
-#endif /* NOR_MEMORY_8B */ 
+#define __NOR_ADDR_SHIFT(__NOR_ADDRESS, __NOR_MEMORY_WIDTH_, __ADDRESS__) (((__NOR_MEMORY_WIDTH_) == NOR_MEMORY_8B)? ((uint32_t)((__NOR_ADDRESS) + (2 * (__ADDRESS__)))):\
+                         ((uint32_t)((__NOR_ADDRESS) + (__ADDRESS__))))
  
 /**
   * @brief  NOR memory write data to specified address.
