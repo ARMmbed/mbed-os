@@ -154,13 +154,14 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
 
-
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
             ('iar', 'LPC1768'),
+            ('iar', 'LPC1347'),
+
             ('iar', 'NUCLEO_F401RE'),
             ('iar', 'NUCLEO_F411RE'),
-            ('iar', 'LPC1347'),
+            ('iar', 'NUCLEO_L152RE'),
 
             (None, None),
         ]:
