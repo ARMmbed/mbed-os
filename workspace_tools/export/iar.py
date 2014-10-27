@@ -25,6 +25,7 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC1768',
         'UBLOX_C027',
         'ARCH_PRO',
+        'NUCLEO_F401RE',
         'NUCLEO_F411RE',
         'LPC1347',
     ]
