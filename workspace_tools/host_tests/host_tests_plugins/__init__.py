@@ -56,6 +56,12 @@ def call_plugin(type, capability, *args, **kwargs):
     """
     return HOST_TEST_PLUGIN_REGISTRY.call_plugin(type, capability, *args, **kwargs)
 
+def get_plugin_caps(type):
+    """ Returns list of all capabilities for plugin family with the same type.
+        If there are no capabilities empty list is returned
+    """
+    return HOST_TEST_PLUGIN_REGISTRY.get_plugin_caps(type)
+
 def print_plugin_info():
     """ Prints plugins' information in user friendly way
     """

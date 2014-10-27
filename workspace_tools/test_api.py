@@ -1372,17 +1372,48 @@ def get_default_test_options_parser():
                       type="int",
                       help="Define number of compilation jobs. Default value is 1")
 
-    parser.add_option('-g', '--goanna-for-tests',
-                      dest='goanna_for_tests',
-                      metavar=False,
-                      action="store_true",
-                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
-
     parser.add_option('', '--clean',
                       dest='clean',
                       metavar=False,
                       action="store_true",
                       help='Clean the build directory')
+
+    parser.add_option('-P', '--only-peripherals',
+                      dest='test_only_peripheral',
+                      default=False,
+                      action="store_true",
+                      help='Test only peripheral declared for MUT and skip common tests')
+
+    parser.add_option('-C', '--only-commons',
+                      dest='test_only_common',
+                      default=False,
+                      action="store_true",
+                      help='Test only board internals. Skip perpherials tests and perform common tests.')
+
+    parser.add_option('-n', '--test-by-names',
+                      dest='test_by_names',
+                      help='Runs only test enumerated it this switch')
+
+    copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
+    copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
+
+    parser.add_option('-c', '--copy-method',
+                      dest='copy_method',
+                      help="Select binary copy (flash) method. Default is Python's shutil.copy() method. %s"% copy_methods_str)
+
+    reset_methods = host_tests_plugins.get_plugin_caps('ResetMethod')
+    reset_methods_str = "Plugin support: " + ', '.join(reset_methods)
+
+    parser.add_option('-r', '--reset-type',
+                      dest='mut_reset_type',
+                      default=None,
+                      help='Extra reset method used to reset MUT by host test script. %s'% reset_methods_str)
+
+    parser.add_option('-g', '--goanna-for-tests',
+                      dest='goanna_for_tests',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
 
     parser.add_option('-G', '--goanna-for-sdk',
                       dest='goanna_for_mbed_sdk',
@@ -1402,7 +1433,7 @@ def get_default_test_options_parser():
                       action="store_true",
                       help='Displays wellformatted table with test x toolchain test result per target')
 
-    parser.add_option('-r', '--test-automation-report',
+    parser.add_option('-A', '--test-automation-report',
                       dest='test_automation_report',
                       default=False,
                       action="store_true",
@@ -1413,26 +1444,6 @@ def get_default_test_options_parser():
                       default=False,
                       action="store_true",
                       help='Prints information about all test cases and exits')
-
-    parser.add_option('-P', '--only-peripherals',
-                      dest='test_only_peripheral',
-                      default=False,
-                      action="store_true",
-                      help='Test only peripheral declared for MUT and skip common tests')
-
-    parser.add_option('-C', '--only-commons',
-                      dest='test_only_common',
-                      default=False,
-                      action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests.')
-
-    parser.add_option('-c', '--copy-method',
-                      dest='copy_method',
-                      help="You can choose which copy method you want to use put bin in mbed. You can choose from 'cp', 'copy', 'xcopy'. Default is python shutils.copy method.")
-
-    parser.add_option('-n', '--test-by-names',
-                      dest='test_by_names',
-                      help='Runs only test enumerated it this switch')
 
     parser.add_option("-S", "--supported-toolchains",
                       action="store_true",
@@ -1480,11 +1491,6 @@ def get_default_test_options_parser():
                       dest='shuffle_test_seed',
                       default=None,
                       help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
-
-    parser.add_option('', '--reset-type',
-                      dest='mut_reset_type',
-                      default=None,
-                      help='Extra reset method used to reset MUT by host test script')
 
     parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
