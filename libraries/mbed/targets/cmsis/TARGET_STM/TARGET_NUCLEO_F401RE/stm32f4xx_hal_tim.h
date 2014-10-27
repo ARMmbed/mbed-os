@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -591,6 +591,8 @@ typedef struct
 /**
   * @}
   */
+#define TIM_COMMUTATION_TRGI              (TIM_CR2_CCUS)
+#define TIM_COMMUTATION_SOFTWARE          ((uint32_t)0x0000)
 
 /** @defgroup TIM_DMA_sources 
   * @{
@@ -771,6 +773,103 @@ typedef struct
   * @}
   */
 
+/** @defgroup TIM_OSSR_Off_State_Selection_for_Run_mode_state
+  * @{
+  */  
+#define TIM_OSSR_ENABLE 	      (TIM_BDTR_OSSR)
+#define TIM_OSSR_DISABLE              ((uint32_t)0x0000)
+
+#define IS_TIM_OSSR_STATE(STATE) (((STATE) == TIM_OSSR_ENABLE) || \
+                                  ((STATE) == TIM_OSSR_DISABLE))
+/**
+  * @}
+  */
+  
+/** @defgroup TIM_OSSI_Off_State_Selection_for_Idle_mode_state 
+  * @{
+  */
+#define TIM_OSSI_ENABLE	 	    (TIM_BDTR_OSSI)
+#define TIM_OSSI_DISABLE            ((uint32_t)0x0000)
+
+#define IS_TIM_OSSI_STATE(STATE) (((STATE) == TIM_OSSI_ENABLE) || \
+                                  ((STATE) == TIM_OSSI_DISABLE))
+/**
+  * @}
+  */
+/** @defgroup TIM_Lock_level 
+  * @{
+  */
+#define TIM_LOCKLEVEL_OFF	   ((uint32_t)0x0000)
+#define TIM_LOCKLEVEL_1            (TIM_BDTR_LOCK_0)
+#define TIM_LOCKLEVEL_2            (TIM_BDTR_LOCK_1)
+#define TIM_LOCKLEVEL_3            (TIM_BDTR_LOCK)
+
+#define IS_TIM_LOCK_LEVEL(LEVEL) (((LEVEL) == TIM_LOCKLEVEL_OFF) || \
+                                  ((LEVEL) == TIM_LOCKLEVEL_1) || \
+                                  ((LEVEL) == TIM_LOCKLEVEL_2) || \
+                                  ((LEVEL) == TIM_LOCKLEVEL_3)) 
+/**
+  * @}
+  */  
+/** @defgroup TIM_Break_Input_enable_disable 
+  * @{
+  */                         
+#define TIM_BREAK_ENABLE          (TIM_BDTR_BKE)
+#define TIM_BREAK_DISABLE         ((uint32_t)0x0000)
+
+#define IS_TIM_BREAK_STATE(STATE) (((STATE) == TIM_BREAK_ENABLE) || \
+                                   ((STATE) == TIM_BREAK_DISABLE))
+/**
+  * @}
+  */
+/** @defgroup TIM_Break_Polarity 
+  * @{
+  */
+#define TIM_BREAKPOLARITY_LOW        ((uint32_t)0x0000)
+#define TIM_BREAKPOLARITY_HIGH       (TIM_BDTR_BKP)
+
+#define IS_TIM_BREAK_POLARITY(POLARITY) (((POLARITY) == TIM_BREAKPOLARITY_LOW) || \
+                                         ((POLARITY) == TIM_BREAKPOLARITY_HIGH))
+/**
+  * @}
+  */
+/** @defgroup TIM_AOE_Bit_Set_Reset 
+  * @{
+  */
+#define TIM_AUTOMATICOUTPUT_ENABLE           (TIM_BDTR_AOE)
+#define	TIM_AUTOMATICOUTPUT_DISABLE          ((uint32_t)0x0000)
+
+#define IS_TIM_AUTOMATIC_OUTPUT_STATE(STATE) (((STATE) == TIM_AUTOMATICOUTPUT_ENABLE) || \
+                                              ((STATE) == TIM_AUTOMATICOUTPUT_DISABLE))
+/**
+  * @}
+  */  
+  
+/** @defgroup TIM_Master_Mode_Selection
+  * @{
+  */  
+#define	TIM_TRGO_RESET            ((uint32_t)0x0000)             
+#define	TIM_TRGO_ENABLE           (TIM_CR2_MMS_0)           
+#define	TIM_TRGO_UPDATE           (TIM_CR2_MMS_1)             
+#define	TIM_TRGO_OC1              ((TIM_CR2_MMS_1 | TIM_CR2_MMS_0))    
+#define	TIM_TRGO_OC1REF           (TIM_CR2_MMS_2)           
+#define	TIM_TRGO_OC2REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_0))          
+#define	TIM_TRGO_OC3REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1))           
+#define	TIM_TRGO_OC4REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1 | TIM_CR2_MMS_0))   
+
+#define IS_TIM_TRGO_SOURCE(SOURCE) (((SOURCE) == TIM_TRGO_RESET) || \
+                                    ((SOURCE) == TIM_TRGO_ENABLE) || \
+                                    ((SOURCE) == TIM_TRGO_UPDATE) || \
+                                    ((SOURCE) == TIM_TRGO_OC1) || \
+                                    ((SOURCE) == TIM_TRGO_OC1REF) || \
+                                    ((SOURCE) == TIM_TRGO_OC2REF) || \
+                                    ((SOURCE) == TIM_TRGO_OC3REF) || \
+                                    ((SOURCE) == TIM_TRGO_OC4REF))
+      
+
+/**
+  * @}
+  */ 
 /** @defgroup TIM_Slave_Mode 
   * @{
   */
@@ -789,6 +888,17 @@ typedef struct
   * @}
   */
 
+/** @defgroup TIM_Master_Slave_Mode 
+  * @{
+  */
+
+#define TIM_MASTERSLAVEMODE_ENABLE          ((uint32_t)0x0080)
+#define TIM_MASTERSLAVEMODE_DISABLE         ((uint32_t)0x0000)
+#define IS_TIM_MSM_STATE(STATE) (((STATE) == TIM_MASTERSLAVEMODE_ENABLE) || \
+                                 ((STATE) == TIM_MASTERSLAVEMODE_DISABLE))
+/**
+  * @}
+  */ 
 /** @defgroup TIM_Trigger_Selection 
   * @{
   */
@@ -1070,13 +1180,13 @@ typedef struct
 #define __HAL_TIM_DISABLE_IT(__HANDLE__, __INTERRUPT__)   ((__HANDLE__)->Instance->DIER &= ~(__INTERRUPT__))
 #define __HAL_TIM_DISABLE_DMA(__HANDLE__, __DMA__)        ((__HANDLE__)->Instance->DIER &= ~(__DMA__))
 #define __HAL_TIM_GET_FLAG(__HANDLE__, __FLAG__)          (((__HANDLE__)->Instance->SR &(__FLAG__)) == (__FLAG__))
-#define __HAL_TIM_CLEAR_FLAG(__HANDLE__, __FLAG__)        ((__HANDLE__)->Instance->SR &= ~(__FLAG__))
+#define __HAL_TIM_CLEAR_FLAG(__HANDLE__, __FLAG__)        ((__HANDLE__)->Instance->SR = ~(__FLAG__))
 
 #define __HAL_TIM_GET_ITSTATUS(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->DIER & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
-#define __HAL_TIM_CLEAR_IT(__HANDLE__, __INTERRUPT__)     ((__HANDLE__)->Instance->SR &= ~(__INTERRUPT__))
+#define __HAL_TIM_CLEAR_IT(__HANDLE__, __INTERRUPT__)     ((__HANDLE__)->Instance->SR = ~(__INTERRUPT__))
 
 #define __HAL_TIM_DIRECTION_STATUS(__HANDLE__)            (((__HANDLE__)->Instance->CR1 &(TIM_CR1_DIR)) == (TIM_CR1_DIR))
-#define __HAL_TIM_PRESCALER (__HANDLE__, __PRESC__)       ((__HANDLE__)->Instance->PSC |= (__PRESC__))
+#define __HAL_TIM_PRESCALER (__HANDLE__, __PRESC__)       ((__HANDLE__)->Instance->PSC = (__PRESC__))
 
 #define __HAL_TIM_SetICPrescalerValue(__HANDLE__, __CHANNEL__, __ICPSC__) \
 (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCMR1 |= (__ICPSC__)) :\

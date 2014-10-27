@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
@@ -97,6 +97,21 @@ typedef struct
   * @retval None
   */
 #define __HAL_CRC_DR_RESET(__HANDLE__) ((__HANDLE__)->Instance->CR |= CRC_CR_RESET)
+
+/**
+  * @brief Stores a 8-bit data in the Independent Data(ID) register.
+  * @param __HANDLE__: CRC handle
+  * @param __VALUE: 8-bit value to be stored in the ID register
+  * @retval None
+  */
+#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (MODIFY_REG((__HANDLE__)->Instance->IDR, CRC_IDR_IDR, (__VALUE__))
+
+/**
+  * @brief Returns the 8-bit data stored in the Independent Data(ID) register.
+  * @param __HANDLE__: CRC handle
+  * @retval 8-bit value of the ID register 
+  */
+#define __HAL_CRC_GET_IDR(__HANDLE__) (((__HANDLE__)->Instance->IDR) & CRC_IDR_IDR)
 
 /* Exported functions --------------------------------------------------------*/
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
@@ -1878,20 +1878,6 @@ typedef struct
   */
 #define __HAL_ETH_MAC_GET_FLAG(__HANDLE__, __FLAG__)                   (((__HANDLE__)->Instance->MACSR &( __FLAG__)) == ( __FLAG__))
 
-/**
-  * @brief  Clears the specified ETHERNET MAC flag.
-  * @param  __HANDLE__: ETH Handle
-  * @param  __FLAG__: specifies the flag to clear.
-  *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_FLAG_TST  : Time stamp trigger flag   
-  *     @arg ETH_MAC_FLAG_MMCT : MMC transmit flag  
-  *     @arg ETH_MAC_FLAG_MMCR : MMC receive flag   
-  *     @arg ETH_MAC_FLAG_MMC  : MMC flag  
-  *     @arg ETH_MAC_FLAG_PMT  : PMT flag  
-  * @retval None.
-  */
-#define __HAL_ETH_MAC_CLEAR_FLAG(__HANDLE__, __FLAG__)                 ((__HANDLE__)->Instance->MACSR &= ~(__FLAG__))
-
 /** 
   * @brief  Enables the specified ETHERNET DMA interrupts.
   * @param  __HANDLE__   : ETH Handle
@@ -1921,7 +1907,7 @@ typedef struct
 /**
   * @brief  Checks whether the specified ETHERNET DMA flag is set or not.
 * @param  __HANDLE__: ETH Handle
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __FLAG__: specifies the flag to check. @defgroup ETH_DMA_Flags
   * @retval The new state of ETH_DMA_FLAG (SET or RESET).
   */
 #define __HAL_ETH_DMA_GET_FLAG(__HANDLE__, __FLAG__)                   (((__HANDLE__)->Instance->DMASR &( __FLAG__)) == ( __FLAG__))
@@ -1929,10 +1915,10 @@ typedef struct
 /**
   * @brief  Checks whether the specified ETHERNET DMA flag is set or not.
   * @param  __HANDLE__: ETH Handle
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __FLAG__: specifies the flag to clear. @defgroup ETH_DMA_Flags
   * @retval The new state of ETH_DMA_FLAG (SET or RESET).
   */
-#define __HAL_ETH_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__)                 ((__HANDLE__)->Instance->DMASR &= ~(__FLAG__))
+#define __HAL_ETH_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__)                 ((__HANDLE__)->Instance->DMASR = (__FLAG__))
 
 /**
   * @brief  Checks whether the specified ETHERNET DMA overflow flag is set or not.
@@ -2133,7 +2119,68 @@ typedef struct
   */
 #define __HAL_ETH_MMC_TX_IT_DISABLE(__HANDLE__, __INTERRUPT__)           ((__HANDLE__)->Instance->MMCRIMR |= (__INTERRUPT__))                                             
 
+/** @defgroup ETH_EXTI_LINE_WAKEUP 
+  * @{
+  */ 
+#define ETH_EXTI_LINE_WAKEUP              ((uint32_t)0x00080000)  /*!< External interrupt line 19 Connected to the ETH EXTI Line */
 
+/**
+  * @}
+  */
+
+/**
+  * @brief  Enables the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_ENABLE_IT()    EXTI->IMR |= (ETH_EXTI_LINE_WAKEUP)
+
+/**
+  * @brief  Disables the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_DISABLE_IT()   EXTI->IMR &= ~(ETH_EXTI_LINE_WAKEUP)
+
+/**
+  * @brief  Get flag of the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_GET_FLAG()     EXTI->PR & (ETH_EXTI_LINE_WAKEUP)
+
+/**
+  * @brief  Clear flag of the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_CLEAR_FLAG()   EXTI->PR = (ETH_EXTI_LINE_WAKEUP)
+
+/**
+  * @brief  Sets rising edge trigger to the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_SET_RISING_EGDE_TRIGGER()  EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                                                  EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP
+
+/**
+  * @brief  Sets falling edge trigger to the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */                                                      
+#define __HAL_ETH_EXTI_SET_FALLING_EGDE_TRIGGER()  EXTI->FTSR |= (ETH_EXTI_LINE_WAKEUP);\
+                                                   EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP)
+
+/**
+  * @brief  Sets rising/falling edge trigger to the ETH External interrupt line.
+  * @param  None
+  * @retval None
+  */
+#define __HAL_ETH_EXTI_SET_FALLINGRISING_TRIGGER()   EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                                                     EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                                                     EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP;\
+                                                     EXTI->FTSR |= ETH_EXTI_LINE_WAKEUP
 
 /* Exported functions --------------------------------------------------------*/
 

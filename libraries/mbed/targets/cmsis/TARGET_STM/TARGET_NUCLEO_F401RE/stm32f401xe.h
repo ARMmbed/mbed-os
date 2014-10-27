@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f401xe.h
   * @author  MCD Application Team
-  * @version V2.1.0RC2
-  * @date    14-May-2014
+  * @version V2.1.0
+  * @date    19-June-2014
   * @brief   CMSIS STM32F401xExx Device Peripheral Access Layer Header File. 
   *
   *          This file contains:
@@ -675,6 +675,7 @@ USB_OTG_HostChannelTypeDef;
 #define SRAM3_BB_BASE         ((uint32_t)0x22020000) /*!< SRAM3(64 KB) base address in the bit-band region                              */
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region                                */
 #define BKPSRAM_BB_BASE       ((uint32_t)0x42024000) /*!< Backup SRAM(4 KB) base address in the bit-band region                         */
+#define FLASH_END             ((uint32_t)0x0807FFFF) /*!< FLASH end address */
 
 /* Legacy defines */
 #define SRAM_BASE             SRAM1_BASE

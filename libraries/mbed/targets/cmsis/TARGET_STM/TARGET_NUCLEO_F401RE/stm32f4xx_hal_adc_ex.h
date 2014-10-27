@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of ADC HAL module.
   ******************************************************************************
   * @attention
@@ -92,7 +92,7 @@ typedef struct
   uint32_t DMAAccessMode;     /*!< Configures the Direct memory access mode for multi ADC mode.
                                    This parameter can be a value of @ref ADCEx_Direct_memory_access_mode_for_multi_mode */
   uint32_t TwoSamplingDelay;  /*!< Configures the Delay between 2 sampling phases.
-                                   This parameter can be a value of @ref ADCEx_delay_between_2_sampling_phases */
+                                   This parameter can be a value of @ref ADC_delay_between_2_sampling_phases */
 }ADC_MultiModeTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
@@ -151,46 +151,6 @@ typedef struct
 /**
   * @}
   */ 
-
-  /** @defgroup ADCEx_delay_between_2_sampling_phases 
-  * @{
-  */ 
-#define ADC_TWOSAMPLINGDELAY_5CYCLES    ((uint32_t)0x00000000)
-#define ADC_TWOSAMPLINGDELAY_6CYCLES    ((uint32_t)ADC_CCR_DELAY_0)
-#define ADC_TWOSAMPLINGDELAY_7CYCLES    ((uint32_t)ADC_CCR_DELAY_1)
-#define ADC_TWOSAMPLINGDELAY_8CYCLES    ((uint32_t)(ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_9CYCLES    ((uint32_t)ADC_CCR_DELAY_2)
-#define ADC_TWOSAMPLINGDELAY_10CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_11CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_12CYCLES   ((uint32_t)(ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_13CYCLES   ((uint32_t)ADC_CCR_DELAY_3)
-#define ADC_TWOSAMPLINGDELAY_14CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_15CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_16CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_1 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_17CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2))
-#define ADC_TWOSAMPLINGDELAY_18CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2 | ADC_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_19CYCLES   ((uint32_t)(ADC_CCR_DELAY_3 | ADC_CCR_DELAY_2 | ADC_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_20CYCLES   ((uint32_t)ADC_CCR_DELAY)
-
-#define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_8CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_9CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_10CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_11CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_12CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_13CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_14CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_15CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_16CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_17CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_18CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_19CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_20CYCLES))
-/**
-  * @}
-  */
 
 /** @defgroup ADCEx_External_trigger_edge_Injected 
   * @{
