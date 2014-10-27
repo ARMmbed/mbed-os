@@ -56,6 +56,16 @@ class Mbed:
                           help="The target disk path",
                           metavar="DISK_PATH")
 
+        parser.add_option("-f", "--image-path",
+                          dest="image_path",
+                          help="Path with target's image",
+                          metavar="IMAGE_PATH")
+
+        parser.add_option("-c", "--copy",
+                          dest="copy_method",
+                          help="Copy method selector",
+                          metavar="COPY_METHOD")
+
         parser.add_option("-t", "--timeout",
                           dest="timeout",
                           help="Timeout",
@@ -84,8 +94,12 @@ class Mbed:
         if self.options.port is None:
             raise Exception("The serial port of the target mbed have to be provided as command line arguments")
 
+        # Options related to copy / reset mbed device
         self.port = self.options.port
         self.disk = self.options.disk
+        self.image_path = self.options.image_path
+        self.copy_method = self.options.copy_method
+
         self.extra_port = self.options.extra
         self.extra_serial = None
         self.serial = None
@@ -157,12 +171,6 @@ class Mbed:
                result = None
         return result
 
-    def touch_file(self, path):
-        """ Touch file and set timestamp to items
-        """
-        with open(path, 'a'):
-            os.utime(path, None)
-
     def reset_timeout(self, timeout):
         """ Timeout executed just after reset command is issued
         """
@@ -183,6 +191,22 @@ class Mbed:
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
 
+    def copy_image(self, image_path=None, disk=None, copy_method=None):
+        """ Copy file depending on method you want to use. Handles exception
+            and return code from shell copy commands.
+        """
+        image_path = image_path if image_path is not None else self.image_path
+        disk = disk if disk is not None else self.disk
+        copy_method = copy_method if copy_method is not None else self.copy_method
+
+        if copy_method is not None:
+            # image_path - Where is binary with target's firmware
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        else:
+            copy_method = 'default'
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        return result;
+
     def flush(self):
         """ Flush serial ports
         """
@@ -202,6 +226,7 @@ class TestResults:
         self.RESULT_FAILURE = 'failure'
         self.RESULT_ERROR = 'error'
         self.RESULT_IO_SERIAL = 'ioerr_serial'
+        self.RESULT_NO_IMAGE = 'no_image'
 
 
 class Test(TestResults):

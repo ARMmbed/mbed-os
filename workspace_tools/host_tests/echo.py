@@ -22,7 +22,7 @@ from host_test import TestResults, Test
 
 
 class EchoTest(Test):
-    """ This host test will use mbed serial port with 
+    """ This host test will use mbed serial port with
         baudrate 115200 to perform echo test on that port.
     """
 
@@ -30,7 +30,7 @@ class EchoTest(Test):
         # Constructors
         TestResults.__init__(self)
         Test.__init__(self)
-        
+
         # Test parameters
         self.TEST_SERIAL_BAUDRATE = 115200
         self.TEST_LOOP_COUNT = 50

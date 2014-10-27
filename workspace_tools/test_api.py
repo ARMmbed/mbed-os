@@ -713,11 +713,13 @@ class SingleTestRunner(object):
 
                     host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                     host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                    single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
+                    single_test_result, single_test_output = self.run_host_test(test.host_test,
+                                                                                image_path, disk, port, duration,
                                                                                 micro=target_name,
                                                                                 verbose=host_test_verbose,
                                                                                 reset=host_test_reset,
-                                                                                reset_tout=reset_tout)
+                                                                                reset_tout=reset_tout,
+                                                                                copy_method=selected_copy_method)
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -793,7 +795,9 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, micro=None, reset=None, reset_tout=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, image_path, disk, port, duration,
+                      micro=None, reset=None, reset_tout=None,
+                      verbose=False, extra_serial=None, copy_method=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -827,9 +831,16 @@ class SingleTestRunner(object):
             return result
 
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
-        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
+        cmd = ["python",
+               '%s.py'% name,
+               '-d', disk,
+               '-f', '"%s"'% image_path,
+               '-p', port,
+               '-t', str(duration)]
 
         # Add extra parameters to host_test
+        if copy_method is not None:
+            cmd += ["-c", copy_method]
         if micro is not None:
             cmd += ["-m", micro]
         if extra_serial is not None:
