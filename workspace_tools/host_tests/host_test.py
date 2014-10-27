@@ -25,6 +25,7 @@ except ImportError, e:
 import os
 from sys import stdout
 from time import sleep, time
+from os.path import exists
 from optparse import OptionParser
 
 import host_tests_plugins
@@ -92,7 +93,7 @@ class Mbed:
         # Options related to copy / reset mbed device
         self.port = self.options.port
         self.disk = self.options.disk
-        self.image_path = self.options.image_path
+        self.image_path = self.options.image_path.strip('"')
         self.copy_method = self.options.copy_method
 
         self.serial = None
@@ -174,21 +175,29 @@ class Mbed:
         # Flush serials to get only input after reset
         self.flush()
         if self.options.forced_reset_type:
-            host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
+            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
         else:
-            host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
+            result = host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
+        return result
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
-        """ Copy file depending on method you want to use. Handles exception
-            and return code from shell copy commands.
+        """ Closure for copy_image_raw() method.
+            Method which is actually copying image to mbed
         """
+        # Set closure environment
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
         copy_method = copy_method if copy_method is not None else self.copy_method
+        # Call proper copy method
+        return self.copy_image_raw(image_path, disk, copy_method)
 
+    def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
+        """ Copy file depending on method you want to use. Handles exception
+            and return code from shell copy commands.
+        """
         if copy_method is not None:
             # image_path - Where is binary with target's firmware
             result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
@@ -214,6 +223,7 @@ class TestResults:
         self.RESULT_ERROR = 'error'
         self.RESULT_IO_SERIAL = 'ioerr_serial'
         self.RESULT_NO_IMAGE = 'no_image'
+        self.RESULT_IOERR_COPY = "ioerr_copy"
 
 
 class Test(TestResults):
@@ -226,6 +236,19 @@ class Test(TestResults):
         """ Test runner for host test. This function will start executing
             test and forward test result via serial port to test suite
         """
+        # Copy image to device
+        self.notify("HOST: Copy image onto target...")
+        result = self.mbed.copy_image()
+        if not result:
+            self.print_result(self.RESULT_IOERR_COPY)
+
+        # Reset device
+        self.notify("HOST: Reset target...")
+        result = self.mbed.reset()
+        if not result:
+            self.print_result(self.RESULT_IO_SERIAL)
+
+        # Run test
         try:
             result = self.test()
             self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
@@ -234,7 +257,8 @@ class Test(TestResults):
             self.print_result(self.RESULT_ERROR)
 
     def setup(self):
-        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
+        """ Setup and check if configuration for test is
+            correct. E.g. if serial port can be opened.
         """
         result = True
         if not self.mbed.serial:
@@ -263,7 +287,6 @@ class DefaultTest(Test):
         serial_init_res = self.mbed.init_serial()
         if not serial_init_res:
             self.print_result(self.RESULT_IO_SERIAL)
-        self.mbed.reset()
 
 
 class Simple(DefaultTest):
@@ -271,7 +294,7 @@ class Simple(DefaultTest):
         output from MUT, no supervision over test running in MUT is executed.
         Just waiting for result
     """
-    def run(self):
+    def test(self):
         try:
             while True:
                 c = self.mbed.serial_read(512)

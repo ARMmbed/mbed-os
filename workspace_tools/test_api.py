@@ -592,30 +592,6 @@ class SingleTestRunner(object):
             result = self.TEST_LOOPS_DICT[test_id]
         return result
 
-    def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
-                                  images_config=None, image_dest=None, verbose=False):
-        """ Function copied image file and fiddles with image configuration files in needed.
-            This function will select proper image configuration (modify image config file
-            if needed) after image is copied.
-        """
-        image_dest = image_dest if image_dest is not None else ''
-        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, copy_method, image_dest=image_dest, verbose=verbose)
-        return _copy_res, _err_msg, _copy_method
-
-    def file_copy_method_selector(self, image_path, disk, copy_method, image_dest='', verbose=False):
-        """ Copy file depending on method you want to use. Handles exception
-            and return code from shell copy commands.
-        """
-        result = False
-        resutl_msg = '' # TODO: pass result_msg from plugin to test suite
-        if copy_method is not None:
-            # image_path - Where is binary with target's firmware
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
-        else:
-            copy_method = 'default'
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
-        return result, resutl_msg, copy_method
-
     def delete_file(self, file_path):
         """ Remove file from the system
         """
@@ -684,7 +660,7 @@ class SingleTestRunner(object):
             # Host test execution
             start_host_exec_time = time()
 
-            single_test_result = self.TEST_RESULT_UNDEF # singe test run result
+            single_test_result = self.TEST_RESULT_UNDEF # single test run result
             _copy_method = selected_copy_method
 
             if not exists(image_path):
@@ -693,28 +669,19 @@ class SingleTestRunner(object):
                 single_test_output = self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
                 print single_test_output
             else:
-                # Choose one method of copy files to mbed MSD drive
-                _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
-                                                                                    images_config, image_dest)
+                sleep(target_by_mcu.program_cycle_s())
+                # Host test execution
+                start_host_exec_time = time()
 
-                if not _copy_res:   # copy error to mbed MSD
-                    single_test_result = self.TEST_RESULT_IOERR_COPY
-                    single_test_output = self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
-                    print single_test_output
-                else:
-                    sleep(target_by_mcu.program_cycle_s())
-                    # Host test execution
-                    start_host_exec_time = time()
-
-                    host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
-                    host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                    single_test_result, single_test_output = self.run_host_test(test.host_test,
-                                                                                image_path, disk, port, duration,
-                                                                                micro=target_name,
-                                                                                verbose=host_test_verbose,
-                                                                                reset=host_test_reset,
-                                                                                reset_tout=reset_tout,
-                                                                                copy_method=selected_copy_method)
+                host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
+                host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
+                single_test_result, single_test_output = self.run_host_test(test.host_test,
+                                                                            image_path, disk, port, duration,
+                                                                            micro=target_name,
+                                                                            verbose=host_test_verbose,
+                                                                            reset=host_test_reset,
+                                                                            reset_tout=reset_tout,
+                                                                            copy_method=selected_copy_method)
 
             # Store test result
             test_all_result.append(single_test_result)
