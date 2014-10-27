@@ -304,7 +304,7 @@ class STM32F407(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F4XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
 
 
 class NUCLEO_F030R8(Target):
