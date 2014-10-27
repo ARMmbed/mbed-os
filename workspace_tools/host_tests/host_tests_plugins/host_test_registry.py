@@ -41,7 +41,8 @@ class HostTestRegistry:
                 return True
             else:
                 self.print_error("%s setup failed"% plugin.name)
-        self.print_error("%s already loaded"% plugin.name)
+        else:
+            self.print_error("%s already loaded"% plugin.name)
         return False
 
     def call_plugin(self, type, capability, *args, **kwargs):
