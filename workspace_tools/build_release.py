@@ -62,7 +62,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L053R8', ('ARM', 'uARM')),
-    ('NUCLEO_L152RE', ('ARM', 'uARM')),
+    ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR')),
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
