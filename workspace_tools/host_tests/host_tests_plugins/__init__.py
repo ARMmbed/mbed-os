@@ -20,27 +20,30 @@ import host_test_registry
 # This plugins provide 'flashing' methods to host test scripts
 import module_copy_mbed
 import module_copy_shell
-import module_copy_firefox
 import module_copy_silabs
+#import module_copy_firefox
+#import module_copy_mps2
 
 # Plugins used to reset certain platform
 import module_reset_mbed
-import module_reset_mps2
 import module_reset_silabs
+#import module_reset_mps2
 
 
 # Plugin registry instance
 HOST_TEST_PLUGIN_REGISTRY = host_test_registry.HostTestRegistry()
 
 # Static plugin registration
+# Some plugins are commented out if they are not stable or not commonly used
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mbed.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_shell.load_plugin())
-HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
-HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_silabs.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
+#HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
 
-# Extra supported by default platforms
-HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
+# Extra platforms support
+#HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mps2.load_plugin())
+#HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_silabs.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
 
 # TODO: extend plugin loading to files with name module_*.py loaded ad-hoc
