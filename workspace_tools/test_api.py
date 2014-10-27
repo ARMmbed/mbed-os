@@ -702,11 +702,6 @@ class SingleTestRunner(object):
                     single_test_output = self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
                     print single_test_output
                 else:
-                    # Copy Extra Files
-                    if not target_by_mcu.is_disk_virtual and test.extra_files:
-                        for f in test.extra_files:
-                            copy(f, disk)
-
                     sleep(target_by_mcu.program_cycle_s())
                     # Host test execution
                     start_host_exec_time = time()
@@ -797,7 +792,7 @@ class SingleTestRunner(object):
 
     def run_host_test(self, name, image_path, disk, port, duration,
                       micro=None, reset=None, reset_tout=None,
-                      verbose=False, extra_serial=None, copy_method=None):
+                      verbose=False, copy_method=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -843,8 +838,6 @@ class SingleTestRunner(object):
             cmd += ["-c", copy_method]
         if micro is not None:
             cmd += ["-m", micro]
-        if extra_serial is not None:
-            cmd += ["-e", extra_serial]
         if reset is not None:
             cmd += ["-r", reset]
         if reset_tout is not None:
