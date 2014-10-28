@@ -39,7 +39,6 @@ class EchoTest(Test):
         serial_init_res = self.mbed.init_serial(self.TEST_SERIAL_BAUDRATE)
         if not serial_init_res:
             self.print_result(self.RESULT_IO_SERIAL)
-        self.mbed.reset()
 
     def test(self):
         """ Test function, return True or False to get standard test notification on stdout

@@ -84,5 +84,6 @@ class UDPEchoServerTest(DefaultTest):
         except KeyboardInterrupt, _:
             print "\n[CTRL+c] exit"
 
+
 if __name__ == '__main__':
     UDPEchoServerTest().run()
