@@ -292,19 +292,20 @@ class DefaultTest(Test):
 class Simple(DefaultTest):
     """ Simple, basic host test's test runner waiting for serial port
         output from MUT, no supervision over test running in MUT is executed.
-        Just waiting for result
     """
     def test(self):
+        result = True
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result(self.RESULT_IO_SERIAL)
-                    break
+                    return self.RESULT_IO_SERIAL
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
             self.notify("\r\n[CTRL+C] exit")
+            result = False
+        return result
 
 
 if __name__ == '__main__':
