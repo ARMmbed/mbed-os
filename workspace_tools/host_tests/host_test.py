@@ -251,7 +251,7 @@ class Test(TestResults):
         # Run test
         try:
             result = self.test()
-            self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
+            self.print_result(result)
         except Exception, e:
             print str(e)
             self.print_result(self.RESULT_ERROR)
