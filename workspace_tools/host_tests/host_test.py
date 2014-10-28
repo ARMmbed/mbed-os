@@ -214,7 +214,7 @@ class Mbed:
             self.serial.flushOutput()
 
 
-class TestResults:
+class HostTestResults:
     """ Test results set by host tests
     """
     def __init__(self):
@@ -226,7 +226,7 @@ class TestResults:
         self.RESULT_IOERR_COPY = "ioerr_copy"
 
 
-class Test(TestResults):
+class Test(HostTestResults):
     """ Base class for host test's test runner
     """
     def __init__(self):
@@ -282,7 +282,7 @@ class DefaultTest(Test):
     """ Test class with serial port initialization
     """
     def __init__(self):
-        TestResults.__init__(self)
+        HostTestResults.__init__(self)
         Test.__init__(self)
         serial_init_res = self.mbed.init_serial()
         if not serial_init_res:

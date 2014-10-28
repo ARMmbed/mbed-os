@@ -18,7 +18,7 @@ limitations under the License.
 import sys
 import uuid
 from sys import stdout
-from host_test import TestResults, Test
+from host_test import HostTestResults, Test
 
 
 class EchoTest(Test):
@@ -28,7 +28,7 @@ class EchoTest(Test):
 
     def __init__(self):
         # Constructors
-        TestResults.__init__(self)
+        HostTestResults.__init__(self)
         Test.__init__(self)
 
         # Test parameters
