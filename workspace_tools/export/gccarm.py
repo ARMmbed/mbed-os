@@ -46,6 +46,7 @@ class GccArm(Exporter):
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
+        'HRM1017',
         'LPC2368',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
