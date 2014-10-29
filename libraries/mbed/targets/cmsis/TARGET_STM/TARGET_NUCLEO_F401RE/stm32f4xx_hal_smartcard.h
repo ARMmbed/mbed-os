@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -356,7 +356,48 @@ typedef struct
   *          USART_SR register followed by a write operation to USART_DR register.
   * @note   TXE flag is cleared only by a write to the USART_DR register.
   */
-#define __HAL_SMARTCARD_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR &= ~(__FLAG__))
+#define __HAL_SMARTCARD_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR = ~(__FLAG__))
+
+/** @brief  Clear the SMARTCARD PE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__) do{(__HANDLE__)->Instance->SR;\
+                                               (__HANDLE__)->Instance->DR;}while(0)
+/** @brief  Clear the SMARTCARD FE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_CLEAR_FEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the SMARTCARD NE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_CLEAR_NEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the SMARTCARD ORE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_CLEAR_OREFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
+
+/** @brief  Clear the SMARTCARD IDLE pending flag.
+  * @param  __HANDLE__: specifies the USART Handle.
+  *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
+  *         UART peripheral.
+  * @retval None
+  */
+#define __HAL_SMARTCARD_CLEAR_IDLEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
+
 
 /** @brief  Enables or disables the specified SmartCard interrupts.
   * @param  __HANDLE__: specifies the SMARTCARD Handle.

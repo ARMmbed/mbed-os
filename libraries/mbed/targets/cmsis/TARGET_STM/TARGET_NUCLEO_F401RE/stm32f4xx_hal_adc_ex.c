@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the ADC extension peripheral:
   *           + Extended features functions
@@ -338,10 +338,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout)
 {
-  uint32_t timeout;
- 
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;  
+  uint32_t tickstart = 0;
+
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
 
   /* Check End of conversion flag */
   while(!(__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_JEOC)))
@@ -349,7 +349,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         hadc->State= HAL_ADC_STATE_TIMEOUT;
         /* Process unlocked */

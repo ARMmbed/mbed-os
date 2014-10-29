@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of DCMI HAL module.
   ******************************************************************************
   * @attention
@@ -410,7 +410,7 @@ typedef struct
   *            @arg DCMI_FLAG_LINERI: Line flag mask
   * @retval None
   */
-#define __HAL_DCMI_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR |= (__FLAG__))
+#define __HAL_DCMI_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
 
 /**
   * @brief  Enable the specified DCMI interrupts.

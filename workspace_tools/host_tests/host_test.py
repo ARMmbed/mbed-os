@@ -22,18 +22,17 @@ except ImportError, e:
     print "Error: Can't import 'serial' module: %s"% e
     exit(-1)
 
-
 import os
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
 
+import host_tests_plugins
 
 # This is a little tricky. We need to add upper directory to path so
 # we can find packages we want from the same level as other files do
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from workspace_tools.settings import EACOMMANDER_CMD
 
 
 class Mbed:
@@ -158,27 +157,6 @@ class Mbed:
                result = None
         return result
 
-    def safe_sendBreak(self, serial):
-        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-            Traceback (most recent call last):
-              File "make.py", line 189, in <module>
-                serial.sendBreak()
-              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-                termios.tcsendbreak(self.fd, int(duration/0.25))
-            error: (32, 'Broken pipe')
-        """
-        result = True
-        try:
-            serial.sendBreak()
-        except:
-            # In linux a termios.error is raised in sendBreak and in setBreak.
-            # The following setBreak() is needed to release the reset signal on the target mcu.
-            try:
-                serial.setBreak(False)
-            except:
-                result = False
-        return result
-
     def touch_file(self, path):
         """ Touch file and set timestamp to items
         """
@@ -192,56 +170,15 @@ class Mbed:
             sleep(1)
 
     def reset(self):
-        """ Reset function.
-            Supports:
-            - 'standard' send break command via Mbed's CDC,
-            - also handles other reset modes:
-              -  E.g. reset by touching file with specific file name:
-                 reboot.txt   - startup from standby state, reboots when in run mode.
-                 shutdown.txt - shutdown from run mode
-                 reset.txt    - reset FPGA during run mode
-              - eACommander for reset of SiLabs Gecko baords.
+        """ Calls proper reset plugin to do the job.
+            Please refer to host_test_plugins functionality
         """
-        if self.options.forced_reset_type:
-            if self.options.forced_reset_type == 'eACommander':
-                # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--serialno', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type == 'eACommander-usb':
-                # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--usb', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type.endswith('.txt'):
-                reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
-                self.touch_file(reset_file_path)
-                self.flush()
-        else:
-            self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-            self.flush()
         # Flush serials to get only input after reset
-        #self.flush()
+        self.flush()
+        if self.options.forced_reset_type:
+            host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
+        else:
+            host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
@@ -275,20 +212,17 @@ class Test(TestResults):
 
     def run(self):
         """ Test runner for host test. This function will start executing
-            test() function and forward test result via serial port to test suite
+            test and forward test result via serial port to test suite
         """
         try:
-            # We expect here output from test in one of possible statuses
-            # E.g. self.RESULT_SUCCESS, self.RESULT_FAILURE, self.RESULT_ERROR
-            result_status = self.test()
-            self.print_result(result_status)
+            result = self.test()
+            self.print_result(self.RESULT_SUCCESS if result else self.RESULT_FAILURE)
         except Exception, e:
-            self.notify(str(e))
+            print str(e)
             self.print_result(self.RESULT_ERROR)
 
     def setup(self):
-        """ Setup and check if configuration for test is correct.
-            E.g. if serial port can be opened
+        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
         """
         result = True
         if not self.mbed.serial:
@@ -325,19 +259,17 @@ class Simple(DefaultTest):
         output from MUT, no supervision over test running in MUT is executed.
         Just waiting for result
     """
-    def test(self):
+    def run(self):
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    return self.RESULT_IO_SERIAL
+                    self.print_result(self.RESULT_IO_SERIAL)
+                    break
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
             self.notify("\r\n[CTRL+C] exit")
-        # If this function ends we assume user break or exception
-        # occured and error should be issued to test suite
-        return self.RESULT_ERROR
 
 
 if __name__ == '__main__':

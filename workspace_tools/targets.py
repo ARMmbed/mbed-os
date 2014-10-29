@@ -214,7 +214,7 @@ class LPC824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -379,7 +379,7 @@ class NUCLEO_F401RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0720"
@@ -412,7 +412,7 @@ class NUCLEO_L152RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0710"

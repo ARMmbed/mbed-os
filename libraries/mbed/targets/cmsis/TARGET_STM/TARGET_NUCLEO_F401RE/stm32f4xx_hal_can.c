@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:
   *           + Initialization and de-initialization functions 
@@ -117,6 +117,7 @@
   
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define CAN_TIMEOUT_VALUE  10
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -153,7 +154,7 @@ static HAL_StatusTypeDef CAN_Transmit_IT(CAN_HandleTypeDef* hcan);
 HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
 {
   uint32_t InitStatus = 3;
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   
   /* Check CAN handle */
   if(hcan == NULL)
@@ -191,13 +192,13 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   /* Request initialisation */
   hcan->Instance->MCR |= CAN_MCR_INRQ ;
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + 10;   
-  
+  /* Get tick */
+  tickstart = HAL_GetTick();
+
   /* Wait the acknowledge */
   while((hcan->Instance->MSR & CAN_MSR_INAK) != CAN_MSR_INAK)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick() - tickstart ) > CAN_TIMEOUT_VALUE)
     {
       hcan->State= HAL_CAN_STATE_TIMEOUT;
       /* Process unlocked */
@@ -283,13 +284,13 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
     /* Request leave initialisation */
     hcan->Instance->MCR &= ~(uint32_t)CAN_MCR_INRQ;
 
-    /* Get timeout */
-    timeout = HAL_GetTick() + 10;   
-   
+  /* Get tick */
+  tickstart = HAL_GetTick();
+
    /* Wait the acknowledge */
    while((hcan->Instance->MSR & CAN_MSR_INAK) == CAN_MSR_INAK)
    {
-     if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick() - tickstart ) > CAN_TIMEOUT_VALUE)
      {
        hcan->State= HAL_CAN_STATE_TIMEOUT;
        /* Process unlocked */
@@ -524,9 +525,8 @@ __weak void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
 HAL_StatusTypeDef HAL_CAN_Transmit(CAN_HandleTypeDef* hcan, uint32_t Timeout)
 {
   uint32_t  transmitmailbox = 5;
-  
-  uint32_t timeout;
-   
+  uint32_t tickstart = 0;
+
   /* Check the parameters */
   assert_param(IS_CAN_IDTYPE(hcan->pTxMsg->IDE));
   assert_param(IS_CAN_RTR(hcan->pTxMsg->RTR));
@@ -599,8 +599,8 @@ HAL_StatusTypeDef HAL_CAN_Transmit(CAN_HandleTypeDef* hcan, uint32_t Timeout)
     /* Request transmission */
     hcan->Instance->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
   
-    /* Get timeout */
-    timeout = HAL_GetTick() + Timeout;   
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
   
     /* Check End of transmission flag */
     while(!(__HAL_CAN_TRANSMIT_STATUS(hcan, transmitmailbox)))
@@ -608,12 +608,12 @@ HAL_StatusTypeDef HAL_CAN_Transmit(CAN_HandleTypeDef* hcan, uint32_t Timeout)
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if(HAL_GetTick() >= timeout)
-        {
-          hcan->State = HAL_CAN_STATE_TIMEOUT;
-          /* Process unlocked */
-          __HAL_UNLOCK(hcan);
-          return HAL_TIMEOUT;
+       if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+       {
+         hcan->State = HAL_CAN_STATE_TIMEOUT;
+         /* Process unlocked */
+         __HAL_UNLOCK(hcan);
+         return HAL_TIMEOUT;
         }
       }
     }
@@ -777,7 +777,7 @@ HAL_StatusTypeDef HAL_CAN_Transmit_IT(CAN_HandleTypeDef* hcan)
   */
 HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef* hcan, uint8_t FIFONumber, uint32_t Timeout)
 {
-  uint32_t timeout;
+  uint32_t tickstart = 0;
    
   /* Check the parameters */
   assert_param(IS_CAN_FIFO(FIFONumber));
@@ -796,8 +796,8 @@ HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef* hcan, uint8_t FIFONumber, u
     hcan->State = HAL_CAN_STATE_BUSY_RX;
   }
     
-  /* Get timeout */
-  timeout = HAL_GetTick() + Timeout;   
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
   
   /* Check pending message */
   while(__HAL_CAN_MSG_PENDING(hcan, FIFONumber) == 0)
@@ -805,7 +805,7 @@ HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef* hcan, uint8_t FIFONumber, u
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         hcan->State = HAL_CAN_STATE_TIMEOUT;
         /* Process unlocked */
@@ -955,7 +955,7 @@ HAL_StatusTypeDef HAL_CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONumber
   */
 HAL_StatusTypeDef HAL_CAN_Sleep(CAN_HandleTypeDef* hcan)
 {
-  uint32_t timeout;
+  uint32_t tickstart = 0;
    
   /* Process locked */
   __HAL_LOCK(hcan);
@@ -973,13 +973,13 @@ HAL_StatusTypeDef HAL_CAN_Sleep(CAN_HandleTypeDef* hcan)
     return HAL_ERROR;
   }
   
-  /* Get timeout */
-  timeout = HAL_GetTick() + 10;   
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
   
   /* Wait the acknowledge */
   while((hcan->Instance->MSR & (CAN_MSR_SLAK|CAN_MSR_INAK)) != CAN_MSR_SLAK)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick()  - tickstart) > CAN_TIMEOUT_VALUE)
     {
       hcan->State = HAL_CAN_STATE_TIMEOUT;
       /* Process unlocked */
@@ -1007,7 +1007,7 @@ HAL_StatusTypeDef HAL_CAN_Sleep(CAN_HandleTypeDef* hcan)
   */
 HAL_StatusTypeDef HAL_CAN_WakeUp(CAN_HandleTypeDef* hcan)
 {
-  uint32_t timeout;
+  uint32_t tickstart = 0;
     
   /* Process locked */
   __HAL_LOCK(hcan);
@@ -1017,14 +1017,14 @@ HAL_StatusTypeDef HAL_CAN_WakeUp(CAN_HandleTypeDef* hcan)
  
   /* Wake up request */
   hcan->Instance->MCR &= ~(uint32_t)CAN_MCR_SLEEP;
-    
-  /* Get timeout */
-  timeout = HAL_GetTick() + 10;   
-  
+
+  /* Get tick */ 
+  tickstart = HAL_GetTick();
+
   /* Sleep mode status */
   while((hcan->Instance->MSR & CAN_MSR_SLAK) == CAN_MSR_SLAK)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick()  - tickstart) > CAN_TIMEOUT_VALUE)
     {
       hcan->State= HAL_CAN_STATE_TIMEOUT;
       /* Process unlocked */

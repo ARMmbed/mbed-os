@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of FSMC HAL module.
   ******************************************************************************
   * @attention
@@ -1014,6 +1014,10 @@ HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 #define FMC_PCCARD_DEVICE                     FSMC_PCCARD_DEVICE 
 
 #define FMC_NAND_BANK2                        FSMC_NAND_BANK2
+
+#define FMC_NORSRAM_BANK1                     FSMC_NORSRAM_BANK1    
+#define FMC_NORSRAM_BANK2                     FSMC_NORSRAM_BANK2    
+#define FMC_NORSRAM_BANK3                     FSMC_NORSRAM_BANK3
 
 #define FMC_IT_RISING_EDGE                    FSMC_IT_RISING_EDGE
 #define FMC_IT_LEVEL                          FSMC_IT_LEVEL
