@@ -605,6 +605,14 @@ class NRF51_DK_OTA(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
 
+        
+class NRF51_DONGLE(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
+        self.macros = ['TARGET_NRF51822']
+        self.supported_form_factors = ["ARDUINO"]
+
 
 class LPC1549(LPCTarget):
     def __init__(self):
@@ -778,6 +786,7 @@ TARGETS = [
     LPC11U35_501(),
     NRF51822(),
     NRF51822_OTA(),
+    NRF51_DONGLE(),
     UBLOX_C027(),
     LPC1549(),
     LPC11U68(),
