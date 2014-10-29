@@ -33,10 +33,6 @@ extern "C"
 //#include "USBRegs_RZ_A1H.h"
 
 
-/*for debug print*/
-#define  DEBUG_RZ_A1H
-
-
 /*************************************************************************/
 const struct PIPECFGREC {
     uint16_t    endpoint;
@@ -448,24 +444,6 @@ void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
 	if (size == MAX_PACKET_SIZE_EP0) {
 		EP0_read_status = DEVDRV_USBF_WRITING;
 	}
-
-#if defined(DEBUG_RZ_A1H)
-    {
-		static const int8_t *statmesg[] = {
-			"END",
-			"SHRT",
-			"ING",
-			"DMA",
-		};
-
-		printf( 
-			"call: EP0write(%.4Xh,%d) %s (%d)\n",
-			(buffer[0] << 8) | buffer[1],
-			size, 
-			statmesg[ EP0_read_status ], 
-			g_usb0_function_CtrZeroLengthFlag );
-    }
-#endif
 }
 
 
@@ -502,11 +480,6 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t max_size)
     } else {
         status = EP_PENDING;
     }
-
-#if defined(DEBUG_RZ_A1H)
-    printf( "call: endpointRead(%d,%d) pipe=%d status=%d\n",
-            endpoint, max_size, pipe, pipe_status );
-#endif
 
     return status;
 }
@@ -547,13 +520,6 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t
     if (pipe_status == DEVDRV_USBF_PIPE_DONE) {
         status = EP_COMPLETED;
     }
-
-
-#if defined(DEBUG_RZ_A1H)
-    printf(
-        "call: endpointReadResult(%d,%p,%u)=%d pipe=%d status=%d\n",
-        endpoint, buffer, *bytes_read, err, pipe, pipe_status );
-#endif
 
     return status;
 }
@@ -612,12 +578,6 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
             status = EP_STALLED;
             break;
     }
-
-#if defined(DEBUG_RZ_A1H)
-    printf(
-        "call: endpointWrite(%d,%p,%d)=%d pipe=%d status=%d\n",
-        endpoint, data, size, err, pipe, pipe_status );
-#endif
 
     return status;
 }
@@ -959,10 +919,6 @@ void USBHAL::usb0_function_save_request(void)
     *bufO++ = USB200.USBINDX;
     /*data[6] data[6] <= wIndex*/
     *bufO++ = USB200.USBLENG;
-
-#if defined(DEBUG_RZ_A1H)
-    printf( "request: %.4xh\n", setup_buffer[0] );
-#endif
 }
 
 /******************************************************************************

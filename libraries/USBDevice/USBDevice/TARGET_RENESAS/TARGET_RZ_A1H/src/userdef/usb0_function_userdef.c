@@ -52,7 +52,7 @@ Typedef definitions
 /*******************************************************************************
 Macro definitions
 *******************************************************************************/
-#define DUMMY_ACCESS (*(volatile unsigned long *)(0x40000000))
+#define DUMMY_ACCESS (*(volatile unsigned long *)(OSTM0CNT))
 
 /* #define CACHE_WRITEBACK */
 
