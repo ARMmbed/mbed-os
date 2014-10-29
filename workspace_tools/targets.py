@@ -158,7 +158,7 @@ class K20D50M(Target):
         Target.__init__(self)
         self.core = "Cortex-M4"
         self.extra_labels = ['Freescale']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = "0230"
 
