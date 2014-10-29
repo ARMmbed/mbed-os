@@ -26,7 +26,7 @@ class WaitusTest(DefaultTest):
     def test(self):
         test_result = True
         # First character to start test (to know after reset when test starts)
-        if self.mbed.serial_timeout(None) is None:
+        if self.mbed.set_serial_timeout(None) is None:
             return self.RESULT_IO_SERIAL
         c = self.mbed.serial_read(1)
         if c is None:

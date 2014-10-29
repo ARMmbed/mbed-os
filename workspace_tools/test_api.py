@@ -820,7 +820,7 @@ class SingleTestRunner(object):
         start_time = time()
         line = ''
         output = []
-        while (time() - start_time) < duration:
+        while (time() - start_time) < (2 * duration):
             c = get_char_from_queue(obs)
 
             if c:

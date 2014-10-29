@@ -25,7 +25,6 @@ except ImportError, e:
 import os
 from sys import stdout
 from time import sleep, time
-from os.path import exists
 from optparse import OptionParser
 
 import host_tests_plugins
@@ -136,7 +135,7 @@ class Mbed:
             self.flush()
         return result
 
-    def serial_timeout(self, timeout):
+    def set_serial_timeout(self, timeout):
         """ Wraps self.mbed.serial object timeout property
         """
         result = None
