@@ -52,6 +52,7 @@ class Uvision4(Exporter):
         'LPC1549',
         'LPC11U35_501',
         'NRF51822',
+        'HRM1017',
         'ARCH_PRO',
         'ARCH_BLE',
         'DISCO_F407VG',
