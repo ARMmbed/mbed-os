@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -174,6 +174,7 @@
 #define FRCR_CLEAR_MASK           ((uint32_t)0xFFF88000)
 #define SLOTR_CLEAR_MASK          ((uint32_t)0x0000F020)
 
+#define SAI_TIMEOUT_VALUE         10
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -569,7 +570,7 @@ __weak void HAL_SAI_MspDeInit(SAI_HandleTypeDef *hsai)
   */
 HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint16_t* pData, uint16_t Size, uint32_t Timeout)
 {
-  uint32_t timeout = 0x00; 
+  uint32_t tickstart = 0;
   
   if((pData == NULL ) || (Size == 0)) 
   {
@@ -592,17 +593,17 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint16_t* pData, uin
     
     while(Size > 0)
     { 
+       /* Get tick */
+       tickstart = HAL_GetTick();
+
       /* Wait the FIFO to be empty */
-      /* Get timeout */
-      timeout = HAL_GetTick() + Timeout; 
       while(__HAL_SAI_GET_FLAG(hsai, SAI_xSR_FREQ) == RESET)
       {
         /* Check for the Timeout */
         if(Timeout != HAL_MAX_DELAY)
         {
-          if(HAL_GetTick() >= timeout)
-          {         
-            
+          if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+          {
             /* Update error code */
             hsai->ErrorCode |= HAL_SAI_ERROR_TIMEOUT;
             
@@ -644,7 +645,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint16_t* pData, uin
   */
 HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint32_t timeout = 0x00;
+  uint32_t tickstart = 0;
  
   if((pData == NULL ) || (Size == 0)) 
   {
@@ -668,18 +669,17 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint16_t *pData, uint
     /* Receive data */
     while(Size > 0)
     {
+      /* Get tick */
+      tickstart = HAL_GetTick();
+
       /* Wait until RXNE flag is set */
-      /* Get timeout */
-      timeout = HAL_GetTick() + Timeout; 
-      
       while(__HAL_SAI_GET_FLAG(hsai, SAI_xSR_FREQ) == RESET)
       {
         /* Check for the Timeout */
         if(Timeout != HAL_MAX_DELAY)
         {
-          if(HAL_GetTick() >= timeout)
-          {         
-            
+          if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+          {
             /* Update error code */
             hsai->ErrorCode |= HAL_SAI_ERROR_TIMEOUT;
             
@@ -1250,7 +1250,7 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai)
   */
 static void SAI_DMATxCplt(DMA_HandleTypeDef *hdma)   
 {
-  uint32_t timeout = 0x00;
+  uint32_t tickstart = 0;
   
   SAI_HandleTypeDef* hsai = (SAI_HandleTypeDef*)((DMA_HandleTypeDef* )hdma)->Parent;
 
@@ -1262,14 +1262,15 @@ static void SAI_DMATxCplt(DMA_HandleTypeDef *hdma)
     /* Disable SAI Tx DMA Request */  
     hsai->Instance->CR1 &= (uint32_t)(~SAI_xCR1_DMAEN);
 
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Set timeout: 10 is the max delay to send the remaining data in the SAI FIFO */
-    timeout = HAL_GetTick() + 10;
-    
     /* Wait until FIFO is empty */    
     while(__HAL_SAI_GET_FLAG(hsai, SAI_xSR_FLVL) != RESET)
     {
       /* Check for the Timeout */
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > SAI_TIMEOUT_VALUE)
       {         
         /* Update error code */
         hsai->ErrorCode |= HAL_SAI_ERROR_TIMEOUT;

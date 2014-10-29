@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -203,7 +203,7 @@
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 {
   /* Check the RTC peripheral state */
-  if(hrtc == NULL)
+  if(hrtc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -275,7 +275,7 @@ HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
   */
 HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
 
   /* Set RTC state */
   hrtc->State = HAL_RTC_STATE_BUSY; 
@@ -301,13 +301,14 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     hrtc->Instance->DR = (uint32_t)0x00002101;
     /* Reset All CR bits except CR[2:0] */
     hrtc->Instance->CR &= (uint32_t)0x00000007;
-       
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
-    
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till WUTWF flag is set and if Time out is reached exit */
     while(((hrtc->Instance->ISR) & RTC_ISR_WUTWF) == (uint32_t)RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       { 
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc); 
@@ -756,7 +757,7 @@ HAL_StatusTypeDef HAL_RTC_GetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDat
   */
 HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   uint32_t tmpreg = 0, subsecondtmpreg = 0;
   
   /* Check the parameters */
@@ -855,12 +856,14 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
     
     /* In case of interrupt mode is used, the interrupt source must disabled */ 
     __HAL_RTC_ALARM_DISABLE_IT(hrtc, RTC_IT_ALRA);
-         
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRAWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -887,12 +890,14 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
     
     /* In case of interrupt mode is used, the interrupt source must disabled */ 
     __HAL_RTC_ALARM_DISABLE_IT(hrtc, RTC_IT_ALRB);
-       
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRBWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -938,7 +943,7 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
   */
 HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   uint32_t tmpreg = 0, subsecondtmpreg = 0;
   
   /* Check the parameters */
@@ -1035,11 +1040,13 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
     /* Clear flag alarm A */
     __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRAF);
 
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRAWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -1069,11 +1076,13 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
     /* Clear flag alarm B */
     __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
 
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRBWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -1097,7 +1106,7 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
   }
 
   /* RTC Alarm Interrupt Configuration: EXTI configuration */
-  __HAL_RTC_ENABLE_IT(RTC_EXTI_LINE_ALARM_EVENT);
+  __HAL_RTC_EXTI_ENABLE_IT(RTC_EXTI_LINE_ALARM_EVENT);
   
   EXTI->RTSR |= RTC_EXTI_LINE_ALARM_EVENT;
   
@@ -1124,7 +1133,7 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
   */
 HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alarm)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
   
   /* Check the parameters */
   assert_param(IS_ALARM(Alarm));
@@ -1144,13 +1153,14 @@ HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alar
     
     /* In case of interrupt mode is used, the interrupt source must disabled */ 
     __HAL_RTC_ALARM_DISABLE_IT(hrtc, RTC_IT_ALRA);
-    
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
-    
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRxWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       { 
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -1171,13 +1181,14 @@ HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alar
     
     /* In case of interrupt mode is used, the interrupt source must disabled */ 
     __HAL_RTC_ALARM_DISABLE_IT(hrtc,RTC_IT_ALRB);
-    
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
-    
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC ALRxWF flag is set and if Time out is reached exit */
     while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
@@ -1297,7 +1308,7 @@ void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
   }
   
   /* Clear the EXTI's line Flag for RTC Alarm */
-  __HAL_RTC_CLEAR_FLAG(RTC_EXTI_LINE_ALARM_EVENT);
+  __HAL_RTC_EXTI_CLEAR_FLAG(RTC_EXTI_LINE_ALARM_EVENT);
   
   /* Change RTC state */
   hrtc->State = HAL_RTC_STATE_READY; 
@@ -1324,18 +1335,17 @@ __weak void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout)
-{  
+{
+  uint32_t tickstart = 0; 
 
-  uint32_t timeout = 0; 
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
-  /* Get Timeout value */
-  timeout = HAL_GetTick() + Timeout;   
-  
   while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAF) == RESET)
   {
     if(Timeout != HAL_MAX_DELAY)
     {
-      if(HAL_GetTick() >= timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         hrtc->State = HAL_RTC_STATE_TIMEOUT;
         return HAL_TIMEOUT;
@@ -1388,17 +1398,18 @@ HAL_StatusTypeDef HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t T
   */
 HAL_StatusTypeDef HAL_RTC_WaitForSynchro(RTC_HandleTypeDef* hrtc)
 {
-  uint32_t timeout = 0;
+  uint32_t tickstart = 0;
 
   /* Clear RSF flag */
   hrtc->Instance->ISR &= (uint32_t)RTC_RSF_MASK;
-  
-  timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
   /* Wait the registers to be synchronised */
   while((hrtc->Instance->ISR & RTC_ISR_RSF) == (uint32_t)RESET)
   {
-    if(HAL_GetTick() >= timeout)
+    if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
     {       
       return HAL_TIMEOUT;
     } 
@@ -1446,19 +1457,21 @@ HAL_RTCStateTypeDef HAL_RTC_GetState(RTC_HandleTypeDef* hrtc)
   */
 HAL_StatusTypeDef RTC_EnterInitMode(RTC_HandleTypeDef* hrtc)
 {
-  uint32_t timeout = 0; 
+  uint32_t tickstart = 0; 
   
   /* Check if the Initialization mode is set */
   if((hrtc->Instance->ISR & RTC_ISR_INITF) == (uint32_t)RESET)
   {
     /* Set the Initialization mode */
     hrtc->Instance->ISR = (uint32_t)RTC_INIT_MASK;
-    
-    timeout = HAL_GetTick() + RTC_TIMEOUT_VALUE;
+
+    /* Get tick */
+    tickstart = HAL_GetTick();
+
     /* Wait till RTC is in INIT state and if Time out is reached exit */
     while((hrtc->Instance->ISR & RTC_ISR_INITF) == (uint32_t)RESET)
     {
-      if(HAL_GetTick() >= timeout)
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {       
         return HAL_TIMEOUT;
       } 

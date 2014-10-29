@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S extension peripheral:
@@ -183,10 +183,10 @@
   */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout)
 {
-  uint32_t timeout = 0;
-  uint32_t tmp1 = 0, tmp2 = 0;   
+  uint32_t tickstart = 0;
+  uint32_t tmp1 = 0, tmp2 = 0;
  
-  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -247,14 +247,15 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *p
         }
         hi2s->Instance->DR = (*pTxData++);
 
-        /* Wait until RXNE flag is set */
-        timeout = HAL_GetTick() + Timeout;
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
+        /* Wait until RXNE flag is set */
         while((I2SxEXT(hi2s->Instance)->SR & SPI_SR_RXNE) != SPI_SR_RXNE)
         {
           if(Timeout != HAL_MAX_DELAY)
           {
-            if(HAL_GetTick() >= timeout)
+            if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
             {
               /* Process Unlocked */
               __HAL_UNLOCK(hi2s);
@@ -293,14 +294,15 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *p
       }
       while(hi2s->TxXferCount > 0)
       {
-        /* Wait until TXE flag is set */
-        timeout = HAL_GetTick() + Timeout;
+        /* Get tick */
+        tickstart = HAL_GetTick();
 
+        /* Wait until TXE flag is set */
         while((I2SxEXT(hi2s->Instance)->SR & SPI_SR_TXE) != SPI_SR_TXE)
         {
           if(Timeout != HAL_MAX_DELAY)
           {
-            if(HAL_GetTick() >= timeout)
+            if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
             {
               /* Process Unlocked */
               __HAL_UNLOCK(hi2s);
@@ -358,7 +360,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t
   
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -483,7 +485,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;
     
-  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }

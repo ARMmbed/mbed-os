@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   GPIO HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -135,7 +135,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define __HAL_GET_GPIO_SOURCE(__GPIOx__) \
+#define GET_GPIO_SOURCE(__GPIOx__) \
 (((uint32_t)(__GPIOx__) == ((uint32_t)GPIOA_BASE))? (uint32_t)0 :\
  ((uint32_t)(__GPIOx__) == ((uint32_t)(GPIOA_BASE + 0x0400)))? (uint32_t)1 :\
  ((uint32_t)(__GPIOx__) == ((uint32_t)(GPIOA_BASE + 0x0800)))? (uint32_t)2 :\
@@ -259,7 +259,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 
         temp = SYSCFG->EXTICR[position >> 2];
         temp &= ~(((uint32_t)0x0F) << (4 * (position & 0x03)));
-        temp |= ((uint32_t)(__HAL_GET_GPIO_SOURCE(GPIOx)) << (4 * (position & 0x03)));
+        temp |= ((uint32_t)(GET_GPIO_SOURCE(GPIOx)) << (4 * (position & 0x03)));
         SYSCFG->EXTICR[position >> 2] = temp;
 
         /* Clear EXTI line configuration */
@@ -386,7 +386,7 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   GPIO_PinState bitstatus;
 
   /* Check the parameters */
-  assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+  assert_param(IS_GPIO_PIN(GPIO_Pin));
 
   if((GPIOx->IDR & GPIO_Pin) != (uint32_t)GPIO_PIN_RESET)
   {
@@ -419,7 +419,7 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState)
 {
   /* Check the parameters */
-  assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+  assert_param(IS_GPIO_PIN(GPIO_Pin));
   assert_param(IS_GPIO_PIN_ACTION(PinState));
 
   if(PinState != GPIO_PIN_RESET)
@@ -442,7 +442,7 @@ void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState Pin
 void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
   /* Check the parameters */
-  assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+  assert_param(IS_GPIO_PIN(GPIO_Pin));
 
   GPIOx->ODR ^= GPIO_Pin;
 }
@@ -476,7 +476,7 @@ HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   /* Read LCKK bit*/
   tmp = GPIOx->LCKR;
 
-  if(GPIOx->LCKR & GPIO_LCKR_LCKK)
+ if((GPIOx->LCKR & GPIO_LCKR_LCKK) != RESET)
   {
     return HAL_OK;
   }
