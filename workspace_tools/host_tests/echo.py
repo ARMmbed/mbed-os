@@ -35,10 +35,8 @@ class EchoTest(Test):
         self.TEST_SERIAL_BAUDRATE = 115200
         self.TEST_LOOP_COUNT = 50
 
-        # Initializations
-        serial_init_res = self.mbed.init_serial(self.TEST_SERIAL_BAUDRATE)
-        if not serial_init_res:
-            self.print_result(self.RESULT_IO_SERIAL)
+        # Custom initialization for echo test
+        self.mbed.init_serial_params(serial_baud=self.TEST_SERIAL_BAUDRATE)
 
     def test(self):
         """ Test function, return True or False to get standard test notification on stdout
@@ -46,7 +44,6 @@ class EchoTest(Test):
         c = self.mbed.serial_readline() # '{{start}}'
         if c is None:
             return self.RESULT_IO_SERIAL
-        self.notify(c.strip())
 
         self.mbed.flush()
         self.notify("HOST: Starting the ECHO test")

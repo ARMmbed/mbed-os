@@ -104,21 +104,35 @@ class Mbed:
         self.program_cycle_s = float(self.options.program_cycle_s)
 
         self.serial = None
+        self.serial_baud = 9600
+        self.serial_timeout = 1
+
         self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
         print 'MBED: Instrumentation: "%s" and disk: "%s"' % (self.port, self.disk)
 
-    def init_serial(self, baud=9600):
-        """ Initialize serial port. Function will return error is port can't be opened or initialized
+    def init_serial_params(self, serial_baud=9600, serial_timeout=1):
+        """ Initialize port parameters.
+            This parameters will be used by self.init_serial() function to open serial port
         """
+        self.serial_baud = serial_baud
+        self.serial_timeout = serial_timeout
+
+    def init_serial(self, serial_baud=None, serial_timeout=None):
+        """ Initialize serial port.
+            Function will return error is port can't be opened or initialized
+        """
+        # Overload serial port configuration from default to parameters' values if they are specified
+        serial_baud = serial_baud if serial_baud is not None else self.serial_baud
+        serial_timeout = serial_timeout if serial_timeout is not None else self.serial_timeout
+
         result = True
         try:
-            self.serial = Serial(self.port, timeout=1)
+            self.serial = Serial(self.port, baudrate=serial_baud, timeout=serial_timeout)
         except Exception as e:
             print "MBED: %s"% str(e)
             result = False
         # Port can be opened
         if result:
-            self.serial.setBaudrate(baud)
             self.flush()
         return result
 
@@ -152,7 +166,8 @@ class Mbed:
                 try:
                     c = self.serial.read(1)
                     result += c
-                except:
+                except Exception as e:
+                    print "MBED: %s"% str(e)
                     result = None
                     break
                 if c == '\n':
@@ -252,6 +267,12 @@ class Test(HostTestResults):
         if not result:
             self.print_result(self.RESULT_IOERR_COPY)
 
+        # Initialize and open target's serial port (console)
+        self.notify("HOST: Initialize serial port...")
+        result = self.mbed.init_serial()
+        if not result:
+            self.print_result(self.RESULT_IO_SERIAL)
+
         # Reset device
         self.notify("HOST: Reset target...")
         result = self.mbed.reset()
@@ -294,9 +315,6 @@ class DefaultTest(Test):
     def __init__(self):
         HostTestResults.__init__(self)
         Test.__init__(self)
-        serial_init_res = self.mbed.init_serial()
-        if not serial_init_res:
-            self.print_result(self.RESULT_IO_SERIAL)
 
 
 class Simple(DefaultTest):
