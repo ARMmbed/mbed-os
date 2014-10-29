@@ -717,7 +717,7 @@ class RZ_A1H(Target):
         Target.__init__(self)
         self.core = "Cortex-A9"
         self.extra_labels = ['RENESAS', 'MBRZA1H']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
 
