@@ -33,10 +33,6 @@ extern "C"
 //#include "USBRegs_RZ_A1H.h"
 
 
-/*for debug print*/
-#define  DEBUG_RZ_A1H
-
-
 /*************************************************************************/
 const struct PIPECFGREC {
     uint16_t    endpoint;
@@ -51,7 +47,7 @@ const struct PIPECFGREC {
         EP1OUT, /*EP1: Host -> Func, INT*/
         6 | USB_FUNCTION_D0FIFO_USE,
         USB_FUNCTION_INTERRUPT |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBOFF   |
         USB_FUNCTION_CNTMDON   |
         USB_FUNCTION_SHTNAKOFF |
@@ -65,7 +61,7 @@ const struct PIPECFGREC {
         EP1IN,  /*EP1: Host <- Func, INT*/
         7 | USB_FUNCTION_D1FIFO_USE,
         USB_FUNCTION_INTERRUPT |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBOFF   |
         USB_FUNCTION_CNTMDOFF  |
         USB_FUNCTION_SHTNAKOFF |
@@ -79,7 +75,7 @@ const struct PIPECFGREC {
         EP2OUT, /*EP2: Host -> Func, BULK*/
         3 | USB_FUNCTION_D0FIFO_USE,
         USB_FUNCTION_BULK      |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBON    |
         USB_FUNCTION_CNTMDON   |
         USB_FUNCTION_SHTNAKON  |
@@ -93,7 +89,7 @@ const struct PIPECFGREC {
         EP2IN,  /*EP2: Host <- Func, BULK*/
         4 | USB_FUNCTION_D1FIFO_USE,
         USB_FUNCTION_BULK      |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBOFF   |
         USB_FUNCTION_CNTMDON   |
         USB_FUNCTION_SHTNAKOFF |
@@ -107,7 +103,7 @@ const struct PIPECFGREC {
         EP3OUT, /*EP3: Host -> Func, ISO*/
         1 | USB_FUNCTION_D0FIFO_USE,
         USB_FUNCTION_ISO       |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBON    |
         USB_FUNCTION_CNTMDON   |
         USB_FUNCTION_SHTNAKON  |
@@ -121,7 +117,7 @@ const struct PIPECFGREC {
         EP3IN,  /*EP3: Host <- Func, ISO*/
         2 | USB_FUNCTION_D1FIFO_USE,
         USB_FUNCTION_ISO       |
-		USB_FUNCTION_BFREOFF   |
+        USB_FUNCTION_BFREOFF   |
         USB_FUNCTION_DBLBON    |
         USB_FUNCTION_CNTMDON   |
         USB_FUNCTION_SHTNAKOFF |
@@ -240,12 +236,12 @@ USBHAL::USBHAL(void)
     /* Initialize USB IP */
     usb0_api_function_init(int_level, mode, clock_mode);
 
-	{
-		uint16_t buf;
-		buf  = USB200.INTENB0;
-		buf |= USB_INTENB0_SOFE;
-		USB200.INTENB0 = buf;
-	}
+    {
+        uint16_t buf;
+        buf  = USB200.INTENB0;
+        buf |= USB_INTENB0_SOFE;
+        USB200.INTENB0 = buf;
+    }
 }
 
 /*************************************************************************/
@@ -405,11 +401,11 @@ void USBHAL::EP0read(void)
     uint8_t *buffer;
     uint32_t size;
 
-	/* remain of last writing */
+    /* remain of last writing */
     while (EP0_read_status != DEVDRV_USBF_WRITEEND) {
-		static uint8_t bbb[2] = { 255, 255 };
-		EP0write(&bbb[0], 0);
-	}
+        static uint8_t bbb[2] = { 255, 255 };
+        EP0write(&bbb[0], 0);
+    }
 
     buffer = (uint8_t*)(&setup_buffer[4]);
     size   = (MAX_PACKET_SIZE_EP0 / 2) - 8;
@@ -431,41 +427,23 @@ void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
 {
     /* zero byte writing */
     if ( (size == 0) && (EP0_read_status == DEVDRV_USBF_WRITEEND) ) {
-		return;
+        return;
     }
 
     if (EP0_read_status == DEVDRV_USBF_WRITEEND) {
         /*1st block*/
         EP0_read_status = usb0_api_function_CtrlReadStart(size, buffer);
     } else {
-		/* waits the last transmission */
+        /* waits the last transmission */
         /*other blocks*/
         g_usb0_function_data_count[ USB_FUNCTION_PIPE0 ]    = size;
         g_usb0_function_data_pointer [ USB_FUNCTION_PIPE0 ] = buffer;
-		EP0_read_status = usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);
+        EP0_read_status = usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);
     }
-	/*max size may be deblocking outside*/
-	if (size == MAX_PACKET_SIZE_EP0) {
-		EP0_read_status = DEVDRV_USBF_WRITING;
-	}
-
-#if defined(DEBUG_RZ_A1H)
-    {
-		static const int8_t *statmesg[] = {
-			"END",
-			"SHRT",
-			"ING",
-			"DMA",
-		};
-
-		printf( 
-			"call: EP0write(%.4Xh,%d) %s (%d)\n",
-			(buffer[0] << 8) | buffer[1],
-			size, 
-			statmesg[ EP0_read_status ], 
-			g_usb0_function_CtrZeroLengthFlag );
+    /*max size may be deblocking outside*/
+    if (size == MAX_PACKET_SIZE_EP0) {
+        EP0_read_status = DEVDRV_USBF_WRITING;
     }
-#endif
 }
 
 
@@ -502,11 +480,6 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t max_size)
     } else {
         status = EP_PENDING;
     }
-
-#if defined(DEBUG_RZ_A1H)
-    printf( "call: endpointRead(%d,%d) pipe=%d status=%d\n",
-            endpoint, max_size, pipe, pipe_status );
-#endif
 
     return status;
 }
@@ -548,13 +521,6 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t
         status = EP_COMPLETED;
     }
 
-
-#if defined(DEBUG_RZ_A1H)
-    printf(
-        "call: endpointReadResult(%d,%p,%u)=%d pipe=%d status=%d\n",
-        endpoint, buffer, *bytes_read, err, pipe, pipe_status );
-#endif
-
     return status;
 }
 
@@ -566,19 +532,19 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
     uint32_t pipe_size;
     uint16_t pipe_status;
     uint16_t err;
-	uint16_t count;
+    uint16_t count;
     EP_STATUS status = EP_PENDING;
 
     pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
 
     /* waits the last transmission */
-	count = 30000;
+    count = 30000;
     while ((pipe_status == DEVDRV_USBF_PIPE_WAIT) || (pipe_status == DEVDRV_USBF_PIPE_DONE)) {
         pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
-		if( --count == 0 ) {
-			pipe_status = DEVDRV_USBF_PIPE_STALL;
-			break;
-		}
+        if( --count == 0 ) {
+            pipe_status = DEVDRV_USBF_PIPE_STALL;
+            break;
+        }
     }
 
     switch (pipe_status) {
@@ -612,12 +578,6 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
             status = EP_STALLED;
             break;
     }
-
-#if defined(DEBUG_RZ_A1H)
-    printf(
-        "call: endpointWrite(%d,%p,%d)=%d pipe=%d status=%d\n",
-        endpoint, data, size, err, pipe, pipe_status );
-#endif
 
     return status;
 }
@@ -759,7 +719,7 @@ void USBHAL::usbisr(void)
         (int_sts0 & USB_FUNCTION_BITSOFR) &&
         (int_enb0 & USB_FUNCTION_BITSOFE)) {
         USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITSOFR;
-		SOF((USB200.FRMNUM & USB_FRMNUM_FRNM) >> USB_FRMNUM_FRNM_SHIFT);
+        SOF((USB200.FRMNUM & USB_FRMNUM_FRNM) >> USB_FRMNUM_FRNM_SHIFT);
     } else if (
         (int_sts0 & USB_FUNCTION_BITDVST) &&
         (int_enb0 & USB_FUNCTION_BITDVSE)) {
@@ -959,10 +919,6 @@ void USBHAL::usb0_function_save_request(void)
     *bufO++ = USB200.USBINDX;
     /*data[6] data[6] <= wIndex*/
     *bufO++ = USB200.USBLENG;
-
-#if defined(DEBUG_RZ_A1H)
-    printf( "request: %.4xh\n", setup_buffer[0] );
-#endif
 }
 
 /******************************************************************************
@@ -1136,7 +1092,6 @@ void USBHAL::usb0_function_BEMPInterrupt(uint16_t status, uint16_t intenb)
         USB200.BEMPSTS = (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
         RZA_IO_RegWrite_16(&USB200.CFIFOSEL, USB_FUNCTION_PIPE0, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
         /*usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);*/
-		printf("<0>");
         EP0in();
     } else {
         usb0_function_bemp_int(status, intenb);
