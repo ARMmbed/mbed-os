@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -50,11 +50,14 @@
   * @{
   */
 
-/** @addtogroup DMA
+/** @addtogroup DMA DMA HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup DMA_Exported_Types DMA Exported Types
+  * @{
+  */
 
 /** 
   * @brief  DMA Configuration Structure definition  
@@ -146,14 +149,16 @@ typedef struct __DMA_HandleTypeDef
   __IO uint32_t              ErrorCode;                                                    /*!< DMA Error code                         */
   
 } DMA_HandleTypeDef;    
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup DMA_Exported_Constants
+/** @defgroup DMA_Exported_Constants DMA Exported Constants
   * @{
   */
 
-/** @defgroup DMA_Error_Code 
+/** @defgroup DMA_Error_Code  DMA Error Code
   * @{
   */ 
 #define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
@@ -164,7 +169,7 @@ typedef struct __DMA_HandleTypeDef
   */
 
 
-/** @defgroup DMA_Data_transfer_direction 
+/** @defgroup DMA_Data_transfer_direction  DMA Data transfer direction
   * @{
   */ 
 #define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)        /*!< Peripheral to memory direction */
@@ -178,7 +183,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Data_buffer_size 
+/** @defgroup DMA_Data_buffer_size DMA Data buffer size
   * @{
   */ 
 #define IS_DMA_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1) && ((SIZE) < 0x10000))
@@ -186,7 +191,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */     
     
-/** @defgroup DMA_Peripheral_incremented_mode 
+/** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral incremented mode
   * @{
   */ 
 #define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< Peripheral increment mode Enable */
@@ -198,7 +203,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup DMA_Memory_incremented_mode 
+/** @defgroup DMA_Memory_incremented_mode DMA Memory incremented mode
   * @{
   */ 
 #define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< Memory increment mode Enable  */
@@ -210,7 +215,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Peripheral_data_size 
+/** @defgroup DMA_Peripheral_data_size DMA Peripheral data size
   * @{
   */ 
 #define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Peripheral data alignment : Byte     */
@@ -225,7 +230,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_Memory_data_size
+/** @defgroup DMA_Memory_data_size DMA Memory data size
   * @{ 
   */
 #define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Memory data alignment : Byte     */
@@ -239,7 +244,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_mode 
+/** @defgroup DMA_mode DMA mode
   * @{
   */ 
 #define DMA_NORMAL         ((uint32_t)0x00000000)       /*!< Normal Mode                  */
@@ -251,7 +256,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Priority_level 
+/** @defgroup DMA_Priority_level DMA Priority level
   * @{
   */
 #define DMA_PRIORITY_LOW             ((uint32_t)0x00000000)    /*!< Priority level : Low       */
@@ -268,7 +273,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_interrupt_enable_definitions 
+/** @defgroup DMA_interrupt_enable_definitions DMA interrupt enable definitions
   * @{
   */
 
@@ -280,7 +285,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_flag_definitions 
+/** @defgroup DMA_flag_definitions DMA flag definitions
   * @{
   */ 
 
@@ -323,6 +328,9 @@ typedef struct __DMA_HandleTypeDef
   */
 
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup DMA_Exported_Macros DMA Exported Macros
+  * @{
+  */
 
 /** @brief  Reset DMA handle state
   * @param  __HANDLE__: DMA handle.
@@ -383,15 +391,32 @@ typedef struct __DMA_HandleTypeDef
   */
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  ((((__HANDLE__)->Instance->CCR & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
-/* Include DMA HAL Extension module */
+/**
+  * @}
+  */
+
+/* Include DMA HAL Extended module */
 #include "stm32f3xx_hal_dma_ex.h"   
 
 /* Exported functions --------------------------------------------------------*/
-  
+/** @addtogroup DMA_Exported_Functions DMA Exported Functions
+  * @{
+  */
+
+/** @addtogroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma); 
 HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 
+/**
+  * @}
+  */
+
+/** @addtogroup DMA_Exported_Functions_Group2 Input and Output operation functions 
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
@@ -399,9 +424,24 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
 
+/**
+  * @}
+  */
+
+/** @addtogroup DMA_Exported_Functions_Group3 Peripheral State functions
+  * @{
+  */
 /* Peripheral State and Error functions ***************************************/
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma);
 uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

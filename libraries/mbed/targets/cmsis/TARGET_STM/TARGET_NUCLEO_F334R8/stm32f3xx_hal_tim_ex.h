@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of TIM HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of TIM HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -55,6 +55,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup TIMEx_Exported_Types TIM Extended Exported Types
+  * @{
+  */
 
 /** 
   * @brief  TIM Hall sensor Configuration Structure definition  
@@ -112,9 +115,10 @@ typedef struct
 
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
-    defined(STM32F302xC) || defined(STM32F303xC) ||defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /** 
   * @brief  TIM Break input(s) and Dead time configuration Structure definition  
   * @note   2 break inputs can be configured (BKIN and BKIN2) with configurable 
@@ -159,17 +163,21 @@ typedef struct {
   uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection 
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
 }TIM_MasterConfigTypeDef;
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup TIMEx_Exported_Constants
+/** @defgroup TIMEx_Exported_Constants TIM Extended Exported Constants
   * @{
   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup TIMEx_Channel
+/** @defgroup TIMEx_Channel TIM Extended Channel
   * @{
   */
 #define TIM_CHANNEL_1                      ((uint32_t)0x0000)
@@ -197,7 +205,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_Output_Compare_and_PWM_modes
+/** @defgroup TIMEx_Output_Compare_and_PWM_modes TIM Extended Output Compare and PWM Modes
   * @{
   */
 
@@ -223,7 +231,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup TIMEx_ClearInput_Source
+/** @defgroup TIMEx_ClearInput_Source TIM Extended Clear Input Source
   * @{
   */
 #define TIM_CLEARINPUTSOURCE_ETR           ((uint32_t)0x0001) 
@@ -235,7 +243,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup TIMEx_Slave_Mode
+/** @defgroup TIMEx_Slave_Mode TIM  Extended Slave Mode
   * @{
   */
 
@@ -254,7 +262,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_Event_Source
+/** @defgroup TIMEx_Event_Source TIM  Extended Event Source
   * @{
   */
 
@@ -272,7 +280,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_DMA_Base_address
+/** @defgroup TIMEx_DMA_Base_address TIM  Extended DMA BAse Address
   * @{
   */
 
@@ -321,10 +329,11 @@ typedef struct {
   */ 
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
-    defined(STM32F302xC) || defined(STM32F303xC) ||defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup TIMEx_Channel
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/** @defgroup TIMEx_Channel TIM  Extended Channel
   * @{
   */
 
@@ -357,7 +366,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_Output_Compare_and_PWM_modes
+/** @defgroup TIMEx_Output_Compare_and_PWM_modes TIM  Extended Output Compare and PWM Modes
   * @{
   */
 #define TIM_OCMODE_TIMING                   ((uint32_t)0x0000)
@@ -395,7 +404,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup TIMEx_ClearInput_Source
+/** @defgroup TIMEx_ClearInput_Source TIM  Extended Clear Input Source
   * @{
   */
 #define TIM_CLEARINPUTSOURCE_ETR            ((uint32_t)0x0001) 
@@ -409,7 +418,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup TIMEx_BreakInput_Filter
+/** @defgroup TIMEx_BreakInput_Filter TIM  Extended Break Input Filter
   * @{
   */
 
@@ -418,7 +427,7 @@ typedef struct {
   * @}
   */  
 
-/** @defgroup TIMEx_Break2_Input_enable_disable 
+/** @defgroup TIMEx_Break2_Input_enable_disable  TIMEX Break input 2 Enable
   * @{
   */                         
 #define TIM_BREAK2_DISABLE         ((uint32_t)0x00000000)
@@ -429,7 +438,7 @@ typedef struct {
 /**
   * @}
   */
-/** @defgroup TIMEx_Break2_Polarity 
+/** @defgroup TIMEx_Break2_Polarity TIM  Extended Break Input 2 Polarity
   * @{
   */
 #define TIM_BREAK2POLARITY_LOW        ((uint32_t)0x00000000)
@@ -441,7 +450,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup TIMEx_Master_Mode_Selection_2
+/** @defgroup TIMEx_Master_Mode_Selection_2 TIM  Extended Master Mode Selection 2 (TRGO2)
   * @{
   */  
 #define	TIM_TRGO2_RESET                          ((uint32_t)0x00000000)             
@@ -482,7 +491,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_Slave_Mode
+/** @defgroup TIMEx_Slave_Mode TIM  Extended Slave mode
   * @{
   */
 #define TIM_SLAVEMODE_DISABLE                ((uint32_t)0x0000)
@@ -502,7 +511,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIM_Event_Source 
+/** @defgroup TIM_Event_Source TIM  Extended Event Source
   * @{
   */
 
@@ -521,7 +530,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIM_DMA_Base_address 
+/** @defgroup TIM_DMA_Base_address TIM  Extended DMA Base Address
   * @{
   */
 
@@ -573,12 +582,16 @@ typedef struct {
 /**
   * @}
   */ 
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
-#if defined(STM32F302xC)
-/** @defgroup TIMEx_Remap 
+#if defined(STM32F302xE)                                                 || \
+    defined(STM32F302xC)                                                 || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/** @defgroup TIMEx_Remap TIM  Extended Remapping
   * @{
   */
 #define TIM_TIM1_ADC1_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
@@ -601,10 +614,13 @@ typedef struct {
 /**
   * @}
   */ 
-#endif /* STM32F302xC */
+#endif /* STM32F302xE                               || */
+       /* STM32F302xC                               || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
 
 #if defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup TIMEx_Remap
+/** @defgroup TIMEx_Remap TIM  Extended Remapping 1
   * @{
   */
 #define TIM_TIM1_ADC1_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
@@ -636,7 +652,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup TIMEx_Remap2
+/** @defgroup TIMEx_Remap2 TIM  Extended Remapping 2
   * @{
   */
 #define TIM_TIM1_ADC4_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
@@ -663,8 +679,85 @@ typedef struct {
   */ 
 #endif /* STM32F303xC || STM32F358xx */
 
+#if defined(STM32F303xE) || defined(STM32F398xx)
+/** @defgroup TIMEx_Remap TIM  Extended Remapping 1
+  * @{
+  */
+#define TIM_TIM1_ADC1_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
+#define TIM_TIM1_ADC1_AWD1                     (0x00000001) /* !< TIM1_ETR is connected to ADC1 AWD1 */
+#define TIM_TIM1_ADC1_AWD2                     (0x00000002) /* !< TIM1_ETR is connected to ADC1 AWD2 */
+#define TIM_TIM1_ADC1_AWD3                     (0x00000003) /* !< TIM1_ETR is connected to ADC1 AWD3 */
+#define TIM_TIM8_ADC2_NONE                     (0x00000000) /* !< TIM8_ETR is not connected to any AWD (analog watchdog) */
+#define TIM_TIM8_ADC2_AWD1                     (0x00000001) /* !< TIM8_ETR is connected to ADC2 AWD1 */
+#define TIM_TIM8_ADC2_AWD2                     (0x00000002) /* !< TIM8_ETR is connected to ADC2 AWD2 */
+#define TIM_TIM8_ADC2_AWD3                     (0x00000003) /* !< TIM8_ETR is connected to ADC2 AWD3 */
+#define TIM_TIM16_GPIO                         (0x00000000) /* !< TIM16 TI1 is connected to GPIO */
+#define TIM_TIM16_RTC                          (0x00000001) /* !< TIM16 TI1 is connected to RTC_clock */
+#define TIM_TIM16_HSE                          (0x00000002) /* !< TIM16 TI1 is connected to HSE/32 */
+#define TIM_TIM16_MCO                          (0x00000003) /* !< TIM16 TI1 is connected to MCO */
+#define TIM_TIM20_ADC3_NONE                    (0x00000000) /* !< TIM20_ETR is not connected to any AWD (analog watchdog) */
+#define TIM_TIM20_ADC3_AWD1                    (0x00000001) /* !< TIM20_ETR is connected to ADC3 AWD1 */
+#define TIM_TIM20_ADC3_AWD2                    (0x00000002) /* !< TIM20_ETR is connected to ADC3 AWD2 */
+#define TIM_TIM20_ADC3_AWD3                    (0x00000003) /* !< TIM20_ETR is connected to ADC3 AWD3 */
+
+#define IS_TIM_REMAP(REMAP1)   (((REMAP1) == TIM_TIM1_ADC1_NONE) ||\
+                                ((REMAP1) == TIM_TIM1_ADC1_AWD1) ||\
+                                ((REMAP1) == TIM_TIM1_ADC1_AWD2) ||\
+                                ((REMAP1) == TIM_TIM1_ADC1_AWD3) ||\
+                                ((REMAP1) == TIM_TIM8_ADC2_NONE) ||\
+                                ((REMAP1) == TIM_TIM8_ADC2_AWD1) ||\
+                                ((REMAP1) == TIM_TIM8_ADC2_AWD2) ||\
+                                ((REMAP1) == TIM_TIM8_ADC2_AWD3) ||\
+                                ((REMAP1) == TIM_TIM16_GPIO)     ||\
+                                ((REMAP1) == TIM_TIM16_RTC)      ||\
+                                ((REMAP1) == TIM_TIM16_HSE)      ||\
+                                ((REMAP1) == TIM_TIM16_MCO)      ||\
+                                ((REMAP1) == TIM_TIM20_ADC3_NONE) ||\
+                                ((REMAP1) == TIM_TIM20_ADC3_AWD1) ||\
+                                ((REMAP1) == TIM_TIM20_ADC3_AWD2) ||\
+                                ((REMAP1) == TIM_TIM20_ADC3_AWD3))
+/**
+  * @}
+  */ 
+
+/** @defgroup TIMEx_Remap2 TIM  Extended Remapping 2
+  * @{
+  */
+#define TIM_TIM1_ADC4_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
+#define TIM_TIM1_ADC4_AWD1                     (0x00000004) /* !< TIM1_ETR is connected to ADC4 AWD1 */
+#define TIM_TIM1_ADC4_AWD2                     (0x00000008) /* !< TIM1_ETR is connected to ADC4 AWD2 */
+#define TIM_TIM1_ADC4_AWD3                     (0x0000000C) /* !< TIM1_ETR is connected to ADC4 AWD3 */
+#define TIM_TIM8_ADC3_NONE                     (0x00000000) /* !< TIM8_ETR is not connected to any AWD (analog watchdog) */
+#define TIM_TIM8_ADC3_AWD1                     (0x00000004) /* !< TIM8_ETR is connected to ADC3 AWD1 */
+#define TIM_TIM8_ADC3_AWD2                     (0x00000008) /* !< TIM8_ETR is connected to ADC3 AWD2 */
+#define TIM_TIM8_ADC3_AWD3                     (0x0000000C) /* !< TIM8_ETR is connected to ADC3 AWD3 */
+#define TIM_TIM16_NONE                         (0x00000000) /* !< Non significant value for TIM16 */
+#define TIM_TIM20_ADC4_NONE                    (0x00000000) /* !< TIM20_ETR is not connected to any AWD (analog watchdog) */
+#define TIM_TIM20_ADC4_AWD1                    (0x00000004) /* !< TIM20_ETR is connected to ADC4 AWD1 */
+#define TIM_TIM20_ADC4_AWD2                    (0x00000008) /* !< TIM20_ETR is connected to ADC4 AWD2 */
+#define TIM_TIM20_ADC4_AWD3                    (0x0000000C) /* !< TIM20_ETR is connected to ADC4 AWD3 */
+
+#define IS_TIM_REMAP2(REMAP2)  (((REMAP2) == TIM_TIM1_ADC4_NONE)  ||\
+                                ((REMAP2) == TIM_TIM1_ADC4_AWD1)  ||\
+                                ((REMAP2) == TIM_TIM1_ADC4_AWD2)  ||\
+                                ((REMAP2) == TIM_TIM1_ADC4_AWD3)  ||\
+                                ((REMAP2) == TIM_TIM8_ADC3_NONE)  ||\
+                                ((REMAP2) == TIM_TIM8_ADC3_AWD1)  ||\
+                                ((REMAP2) == TIM_TIM8_ADC3_AWD2)  ||\
+                                ((REMAP2) == TIM_TIM8_ADC3_AWD3)  ||\
+                                ((REMAP2) == TIM_TIM16_NONE)      ||\
+                                ((REMAP2) == TIM_TIM20_ADC4_NONE) ||\
+                                ((REMAP2) == TIM_TIM20_ADC4_AWD1) ||\
+                                ((REMAP2) == TIM_TIM20_ADC4_AWD2) ||\
+                                ((REMAP2) == TIM_TIM20_ADC4_AWD3))
+/**
+  * @}
+  */ 
+#endif /* STM32F303xE || STM32F398xx */
+
+
 #if defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup TIMEx_Remap 
+/** @defgroup TIMEx_Remap TIM  Extended remapping 
   * @{
   */
 
@@ -691,54 +784,11 @@ typedef struct {
   */ 
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-/** @defgroup TIMEx_Remap 
-  * @{
-  */
-#define TIM_TIM1_ADC1_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
-#define TIM_TIM1_ADC1_AWD1                     (0x00000001) /* !< TIM1_ETR is connected to ADC1 AWD1 */
-#define TIM_TIM1_ADC1_AWD2                     (0x00000002) /* !< TIM1_ETR is connected to ADC1 AWD2 */
-#define TIM_TIM1_ADC1_AWD3                     (0x00000003) /* !< TIM1_ETR is connected to ADC1 AWD3 */
-#define TIM_TIM16_GPIO                         (0x00000000) /* !< TIM16 TI1 is connected to GPIO */
-#define TIM_TIM16_RTC                          (0x00000001) /* !< TIM16 TI1 is connected to RTC_clock */
-#define TIM_TIM16_HSE                          (0x00000002) /* !< TIM16 TI1 is connected to HSE/32 */
-#define TIM_TIM16_MCO                          (0x00000003) /* !< TIM16 TI1 is connected to MCO */
-
-#define IS_TIM_REMAP(REMAP)    (((REMAP) == TIM_TIM1_ADC1_NONE) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD1) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD2) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD3) ||\
-                                ((REMAP) == TIM_TIM16_GPIO)     ||\
-                                ((REMAP) == TIM_TIM16_RTC)      ||\
-                                ((REMAP) == TIM_TIM16_HSE)      ||\
-                                ((REMAP) == TIM_TIM16_MCO))
-/**
-  * @}
-  */
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
-
-#if defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup TIMEx_Remap
-  * @{
-  */
-#define TIM_TIM1_ADC1_NONE                     (0x00000000) /* !< TIM1_ETR is not connected to any AWD (analog watchdog)*/
-#define TIM_TIM1_ADC1_AWD1                     (0x00000001) /* !< TIM1_ETR is connected to ADC1 AWD1 */
-#define TIM_TIM1_ADC1_AWD2                     (0x00000002) /* !< TIM1_ETR is connected to ADC1 AWD2 */
-#define TIM_TIM1_ADC1_AWD3                     (0x00000003) /* !< TIM1_ETR is connected to ADC1 AWD3 */
-
-#define IS_TIM_REMAP(REMAP)    (((REMAP) == TIM_TIM1_ADC1_NONE) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD1) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD2) ||\
-                                ((REMAP) == TIM_TIM1_ADC1_AWD3))
-/**
-  * @}
-  */
-#endif /* STM32F303x8 || STM32F334x8 || STM32F328xx */
-
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
-    defined(STM32F302xC) || defined(STM32F303xC) ||defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup TIMEx_Group_Channel5 
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/** @defgroup TIMEx_Group_Channel5 Group Channel 5 and Channel 1, 2 or 3
   * @{
   */
 #define TIM_GROUPCH5_NONE       (uint32_t)0x00000000  /* !< No effect of OC5REF on OC1REFC, OC2REFC and OC3REFC */
@@ -750,14 +800,28 @@ typedef struct {
 /**
   * @}
   */
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+      
+/** @defgroup TIM_Clock_Filter TIM Clock Filter
+  * @{
+  */
+#define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFF) 
+/**
+  * @}
+  */  
+
 /**
   * @}
   */ 
 
 /* Exported macro ------------------------------------------------------------*/
+/** @defgroup TIMEx_Exported_Macros TIM Extended Exported Macros
+  * @{
+  */  
+
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
   * @brief  Sets the TIM Capture Compare Register value on runtime without
@@ -790,9 +854,10 @@ typedef struct {
   (*(__IO uint32_t *)(&((__HANDLE__)->Instance->CCR1) + ((__CHANNEL__) >> 2)))
 #endif /* STM32F373xC || STM32F378xx */
    
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
-    defined(STM32F302xC) || defined(STM32F303xC) ||defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Sets the TIM Capture Compare Register value on runtime without
   *         calling another time ConfigChannel function.
@@ -836,12 +901,23 @@ typedef struct {
  ((__CHANNEL__) == TIM_CHANNEL_4) ? ((__HANDLE__)->Instance->CCR4) :\
  ((__CHANNEL__) == TIM_CHANNEL_5) ? ((__HANDLE__)->Instance->CCR5) :\
  ((__HANDLE__)->Instance->CCR6))
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/**
+  * @}
+  */ 
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup TIMEx_Exported_Functions TIM Extended Exported Functions
+  * @{
+  */
 
+/** @addtogroup TIMEx_Exported_Functions_Group1 Extended Timer Hall Sensor functions 
+ *  @brief    Timer Hall Sensor functions
+ * @{
+ */
 /*  Timer Hall Sensor functions  **********************************************/
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSensor_InitTypeDef* sConfig);
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_DeInit(TIM_HandleTypeDef *htim);
@@ -858,7 +934,14 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_IT(TIM_HandleTypeDef *htim);
 /* Non-Blocking mode: DMA */
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start_DMA(TIM_HandleTypeDef *htim, uint32_t *pData, uint16_t Length);
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_DMA(TIM_HandleTypeDef *htim);
+/**
+  * @}
+  */
 
+/** @addtogroup TIMEx_Exported_Functions_Group2 Extended Timer Complementary Output Compare functions
+ *  @brief   Timer Complementary Output Compare functions
+ * @{
+ */
 /*  Timer Complementary Output Compare functions  *****************************/
 /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_TIMEx_OCN_Start(TIM_HandleTypeDef *htim, uint32_t Channel);
@@ -871,7 +954,14 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channe
 /* Non-Blocking mode: DMA */
 HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length);
 HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel);
+/**
+  * @}
+  */
 
+/** @addtogroup TIMEx_Exported_Functions_Group3 Extended Timer Complementary PWM functions
+ *  @brief    Timer Complementary PWM functions
+ * @{
+ */
 /*  Timer Complementary PWM functions  ****************************************/
 /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Start(TIM_HandleTypeDef *htim, uint32_t Channel);
@@ -883,7 +973,14 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Chann
 /* Non-Blocking mode: DMA */
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length);
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel);
+/**
+  * @}
+  */
 
+/** @addtogroup TIMEx_Exported_Functions_Group4 Extended Timer Complementary One Pulse functions
+ *  @brief    Timer Complementary One Pulse functions
+ * @{
+ */
 /*  Timer Complementary One Pulse functions  **********************************/
 /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Start(TIM_HandleTypeDef *htim, uint32_t OutputChannel);
@@ -892,42 +989,77 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop(TIM_HandleTypeDef *htim, uint32_t Out
 /* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Start_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel);
 HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel);
+/**
+  * @}
+  */
 
-/* Extnsion Control functions  ************************************************/
+/** @addtogroup TIMEx_Exported_Functions_Group5 Extended Peripheral Control functions
+ *  @brief    Peripheral Control functions
+ * @{
+ */
+/* Extended Control functions  ************************************************/
 HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent(TIM_HandleTypeDef *htim, uint32_t  InputTrigger, uint32_t  CommutationSource);
 HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_IT(TIM_HandleTypeDef *htim, uint32_t  InputTrigger, uint32_t  CommutationSource);
 HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_DMA(TIM_HandleTypeDef *htim, uint32_t  InputTrigger, uint32_t  CommutationSource);
 HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig);
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim, TIM_BreakDeadTimeConfigTypeDef *sBreakDeadTimeConfig);
 
-#if defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap1, uint32_t Remap2);
-#endif /* STM32F303xC || STM32F358xx */
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
+#if defined(STM32F302xE)                                                 || \
+    defined(STM32F302xC)                                                 || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
     defined(STM32F373xC) || defined(STM32F378xx)
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap);
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+#endif /* STM32F302xE                               || */
+       /* STM32F302xC                               || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F373xC || STM32F378xx */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
-    defined(STM32F302xC) || defined(STM32F303xC) ||defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 HAL_StatusTypeDef HAL_TIMEx_GroupChannel5(TIM_HandleTypeDef *htim, uint32_t Channels);
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/**
+  * @}
+  */
 
-
-/* Extension Callback *********************************************************/
+/** @addtogroup TIMEx_Exported_Functions_Group6 Extended Callbacks functions 
+  * @brief    Extended Callbacks functions
+  * @{
+  */
+/* Extended Callback *********************************************************/
 void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim);
 void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim);
 void HAL_TIMEx_DMACommutationCplt(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
-/* Extension Peripheral State functions  **************************************/
+/** @addtogroup TIMEx_Exported_Functions_Group7 Extended Peripheral State functions 
+  * @brief    Extended Peripheral State functions
+  * @{
+  */
+/* Extended Peripheral State functions  **************************************/
 HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */ 
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -50,11 +50,14 @@
   * @{
   */
 
-/** @addtogroup DAC
+/** @addtogroup DAC DAC HAL module driver
   * @{
   */
 
 /* Exported types ------------------------------------------------------------*/
+/** @defgroup DAC_Exported_Types DAC Exported Types
+  * @{
+  */
 
 /** 
   * @brief  HAL State structures definition  
@@ -101,10 +104,16 @@ typedef struct __DAC_HandleTypeDef
   __IO uint32_t               ErrorCode;     /*!< DAC Error code                    */
   
 }DAC_HandleTypeDef;
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
+/** @defgroup DAC_Exported_Constants DAC Exported Contants
+  * @{
+  */
 
-/** @defgroup DAC_Error_Code
+/** @defgroup DAC_Error_Code DAC Error Code
   * @{
   */
 #define  HAL_DAC_ERROR_NONE              0x00    /*!< No error                          */
@@ -115,7 +124,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_wave_generation 
+/** @defgroup DAC_wave_generation DAC wave generation
   * @{
   */
 #define DAC_WAVEGENERATION_NONE            ((uint32_t)0x00000000)
@@ -129,7 +138,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_lfsrunmask_triangleamplitude
+/** @defgroup DAC_lfsrunmask_triangleamplitude DAC lfsrunmask triangleamplitude
   * @{
   */
 #define DAC_LFSRUNMASK_BIT0                ((uint32_t)0x00000000) /*!< Unmask DAC channel LFSR bit0 for noise wave generation */
@@ -185,7 +194,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_output_buffer 
+/** @defgroup DAC_output_buffer DAC output buffer
   * @{
   */
 #define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000)
@@ -197,7 +206,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_data_alignement 
+/** @defgroup DAC_data_alignement DAC data alignement
   * @{
   */
 #define DAC_ALIGN_12B_R                    ((uint32_t)0x00000000)
@@ -211,7 +220,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_wave_generation 
+/** @defgroup DAC_wave_generation DAC wave generation
   * @{
   */
 #define DAC_WAVE_NOISE                     ((uint32_t)DAC_CR_WAVE1_0)
@@ -223,7 +232,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_data 
+/** @defgroup DAC_data DAC data
   * @{
   */
 #define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0) 
@@ -231,7 +240,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_flags_definition 
+/** @defgroup DAC_flags_definition DAC flags definition
   * @{
   */ 
 #define DAC_FLAG_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
@@ -243,7 +252,7 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
-/** @defgroup DAC_interrupts_definition 
+/** @defgroup DAC_interrupts_definition DAC interrupts definition
   * @{
   */ 
 #define DAC_IT_DMAUDR1                   ((uint32_t)DAC_CR_DMAUDRIE1)
@@ -257,7 +266,14 @@ typedef struct __DAC_HandleTypeDef
   * @}
   */
 
+/**
+  * @}
+  */
+
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup DAC_Exported_Macros DAC Exported Macros
+  * @{
+  */
 
 /** @brief Reset DAC handle state
   * @param  __HANDLE__: DAC handle.
@@ -294,36 +310,75 @@ typedef struct __DAC_HandleTypeDef
 /* Clear the DAC's flag */
 #define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = (__FLAG__))
 
-/* Include DAC HAL Extension module */
+/**
+  * @}
+  */
+
+/* Include DAC HAL Extended module */
 #include "stm32f3xx_hal_dac_ex.h" 
 
 /* Exported functions --------------------------------------------------------*/  
+/** @addtogroup DAC_Exported_Functions DAC Exported Functions
+  * @{
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
 /* Initialization and de-initialization functions *****************************/ 
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac);
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac);
 void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac);
 void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
 
+/**
+  * @}
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group2 Input and Output operation functions
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t channel);
 HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef* hdac, uint32_t channel);
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t channel, uint32_t* pData, uint32_t Length, uint32_t alignment);
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t channel);
 uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t channel);
-
-/* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t channel);
-HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t channel, uint32_t alignment, uint32_t data);
-
-/* Peripheral State and Error functions ***************************************/
-HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
-uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
-
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
 void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
+
+/**
+  * @}
+  */
+  
+/** @addtogroup DAC_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
+/* Peripheral Control functions ***********************************************/
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t channel);
+HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t channel, uint32_t alignment, uint32_t data);
+
+/**
+  * @}
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group4 Peripheral State and Error functions
+  * @{
+  */
+/* Peripheral State and Error functions ***************************************/
+HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
+uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

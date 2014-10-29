@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_irda_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of IRDA HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of IRDA HAL Extended module.
   ******************************************************************************
   * @attention
   *                               
@@ -50,21 +50,22 @@
   * @{
   */
 
-/** @addtogroup IRDAEx
+/** @addtogroup IRDAEx IRDA Extended HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup IRDAEx_Exported_Constants
+/** @defgroup IRDAEx_Exported_Constants IRDA Extended Exported Constants
   * @{
   */
   
-/** @defgroup IRDAEx_Word_Length IRDA Word Length
+/** @defgroup IRDAEx_Word_Length IRDA Extended Word Length
   * @{
   */
-#if defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8) \
- || defined (STM32F318xx)            
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F334x8)                                                 || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 #define IRDA_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000)
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
@@ -76,7 +77,9 @@
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 #define IS_IRDA_WORD_LENGTH(LENGTH) (((LENGTH) == IRDA_WORDLENGTH_8B) || \
                                      ((LENGTH) == IRDA_WORDLENGTH_9B))
-#endif                                     
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F334x8                               || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 /**
   * @}
   */
@@ -86,9 +89,9 @@
   * @}
   */  
   
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 
-/** @defgroup IRDAEx_Exported_Macros
+/** @defgroup IRDAEx_Exported_Macros IRDA Extended Exported Macros
   * @{
   */
   
@@ -97,8 +100,8 @@
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval IRDA clocking source, written in __CLOCKSOURCE__.
   */
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F303xE) \
- || defined(STM32F318xC) || defined(STM32F358xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
 #define __HAL_IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -192,7 +195,7 @@
        }                                                      \
     }                                                         \
   } while(0)
-#elif defined(STM32F334x8) || defined(STM32F303x8) || defined(STM32F328xx) 
+#elif defined(STM32F303x8) || defined(STM32F334x8) ||defined(STM32F328xx) 
 #define __HAL_IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -308,7 +311,8 @@
        }                                                      \
     }                                                         \
   } while(0)
-#endif /* defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F303xE) || defined(STM32F318xC) || defined(STM32F358xx) */  
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */ 
   
   
 /** @brief  Computes the mask to apply to retrieve the received data
@@ -316,8 +320,9 @@
   * @param  __HANDLE__: specifies the IRDA Handle
   * @retval none
   */  
-#if defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8) \
- || defined (STM32F318xx)    
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
+    defined(STM32F334x8)
 #define __HAL_IRDA_MASK_COMPUTATION(__HANDLE__)                       \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_9B)            \
@@ -380,8 +385,9 @@
      }                                                                \
   }                                                                   \
 } while(0) 
-#endif /* defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8)
-          || defined (STM32F318xx)   */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+       /* STM32F334x8                                  */
 /**
   * @}
   */
@@ -391,7 +397,6 @@
 /* IO operation functions *****************************************************/
 /* Peripheral Control functions ***********************************************/
 /* Peripheral State and Error functions ***************************************/
-
 
 /**
   * @}

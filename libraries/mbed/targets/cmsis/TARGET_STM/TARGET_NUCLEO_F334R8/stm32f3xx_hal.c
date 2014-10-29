@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -57,7 +57,7 @@
   * @{
   */
 
-/** @defgroup HAL
+/** @defgroup HAL HAL module driver
   * @brief HAL module driver.
   * @{
   */
@@ -66,12 +66,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup HAL_Private Constants
+  * @{
+  */
 /**
- * @brief STM32F3xx HAL Driver version number V1.0.1
+ * @brief STM32F3xx HAL Driver version number V1.1.0
    */
 #define __STM32F3xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F3xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F3xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32F3xx_HAL_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32F3xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F3xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32F3xx_HAL_VERSION         ((__STM32F3xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F3xx_HAL_VERSION_SUB1 << 16)\
@@ -79,18 +82,21 @@
                                         |(__STM32F3xx_HAL_VERSION_RC))
 
 #define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
-
+/**
+  * @}
+  */
+  
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static __IO uint32_t uwTick;
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup HAL_Private_Functions
+/** @defgroup HAL_Exported_Functions HAL Exported Functions
   * @{
   */
 
-/** @defgroup HAL_Group1 Initialization and de-initialization Functions 
+/** @defgroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
  *  @brief    Initialization and de-initialization functions
  *
 @verbatim
@@ -140,7 +146,6 @@ static __IO uint32_t uwTick;
   *         the tick variable is incremented each 1ms in its ISR.
   *         
   * @note                  
-  * @param  None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_Init(void)
@@ -167,7 +172,6 @@ HAL_StatusTypeDef HAL_Init(void)
   * @brief  This function de-Initializes common part of the HAL and stops the source
   *         of time base.
   *         This function is optional.
-  * @param  None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DeInit(void)
@@ -191,7 +195,6 @@ HAL_StatusTypeDef HAL_DeInit(void)
 
 /**
   * @brief  Initializes the MSP.
-  * @param  None
   * @retval None
   */
 __weak void HAL_MspInit(void)
@@ -203,7 +206,6 @@ __weak void HAL_MspInit(void)
 
 /**
   * @brief  DeInitializes the MSP.
-  * @param  None
   * @retval None
   */
 __weak void HAL_MspDeInit(void)
@@ -212,10 +214,6 @@ __weak void HAL_MspDeInit(void)
             the HAL_MspDeInit could be implemented in the user file
    */
 }
-
-/**
-  * @}
-  */
 
 /**
   * @brief  This function configures the source of the time base. 
@@ -246,7 +244,11 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   return HAL_OK;
 }
 
-/** @defgroup HAL_Group2 HAL Control functions 
+/**
+  * @}
+  */
+
+/** @defgroup HAL_Exported_Functions_Group2 HAL Control functions 
  *  @brief    HAL Control functions
  *
 @verbatim
@@ -277,7 +279,6 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   *         in Systick ISR.
   *         The function is declared as __Weak  to be overwritten  in case of other 
   *         implementations  in user file.
-  * @param  None
   * @retval None
   */
 __weak void HAL_IncTick(void)
@@ -289,7 +290,6 @@ __weak void HAL_IncTick(void)
   * @brief  Povides a tick value in millisecond.
   * @note   The function is declared as __Weak  to be overwritten  in case of other 
   *         implementations  in user file.
-  * @param  None
   * @retval tick value
   */
 __weak uint32_t HAL_GetTick(void)
@@ -324,7 +324,6 @@ __weak void HAL_Delay(__IO uint32_t Delay)
   *         is suspended.
   *         The function is declared as __Weak  to be overwritten  in case of other
   *         implementations  in user file.
-  * @param  None
   * @retval None
   */
 __weak void HAL_SuspendTick(void)
@@ -343,7 +342,6 @@ __weak void HAL_SuspendTick(void)
   *         is resumed.
   *         The function is declared as __Weak  to be overwritten  in case of other
   *         implementations  in user file.
-  * @param  None
   * @retval None
   */
 __weak void HAL_ResumeTick(void)
@@ -355,7 +353,6 @@ __weak void HAL_ResumeTick(void)
 
 /**
   * @brief  This function returns the HAL revision
-  * @param  None
   * @retval version : 0xXYZR (8bits for each decimal, R for RC)
   */
 uint32_t HAL_GetHalVersion(void)
@@ -365,7 +362,6 @@ uint32_t HAL_GetHalVersion(void)
 
 /**
   * @brief  Returns the device revision identifier.
-  * @param  None
   * @retval Device revision identifier
   */
 uint32_t HAL_GetREVID(void)
@@ -375,7 +371,6 @@ uint32_t HAL_GetREVID(void)
 
 /**
   * @brief  Returns the device identifier.
-  * @param  None
   * @retval Device identifier
   */
 uint32_t HAL_GetDEVID(void)
@@ -385,7 +380,6 @@ uint32_t HAL_GetDEVID(void)
 
 /**
   * @brief  Enable the Debug Module during SLEEP mode
-  * @param  None
   * @retval None
   */
 void HAL_EnableDBGSleepMode(void)
@@ -395,7 +389,6 @@ void HAL_EnableDBGSleepMode(void)
 
 /**
   * @brief  Disable the Debug Module during SLEEP mode
-  * @param  None
   * @retval None
   */
 void HAL_DisableDBGSleepMode(void)
@@ -405,7 +398,6 @@ void HAL_DisableDBGSleepMode(void)
 
 /**
   * @brief  Enable the Debug Module during STOP mode
-  * @param  None
   * @retval None
   */
 void HAL_EnableDBGStopMode(void)
@@ -415,7 +407,6 @@ void HAL_EnableDBGStopMode(void)
 
 /**
   * @brief  Disable the Debug Module during STOP mode
-  * @param  None
   * @retval None
   */
 void HAL_DisableDBGStopMode(void)
@@ -425,7 +416,6 @@ void HAL_DisableDBGStopMode(void)
 
 /**
   * @brief  Enable the Debug Module during STANDBY mode
-  * @param  None
   * @retval None
   */
 void HAL_EnableDBGStandbyMode(void)
@@ -435,7 +425,6 @@ void HAL_EnableDBGStandbyMode(void)
 
 /**
   * @brief  Disable the Debug Module during STANDBY mode
-  * @param  None
   * @retval None
   */
 void HAL_DisableDBGStandbyMode(void)

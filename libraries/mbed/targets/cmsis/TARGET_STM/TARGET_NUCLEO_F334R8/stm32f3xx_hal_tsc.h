@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
@@ -55,8 +55,11 @@
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/
-   
+/* Exported types ------------------------------------------------------------*/ 
+
+/** @defgroup TSC_Exported_Types TSC Exported Types
+  * @{
+  */
 /** 
   * @brief TSC state structure definition  
   */ 
@@ -119,9 +122,13 @@ typedef struct
   HAL_LockTypeDef           Lock;      /*!< Lock feature */
 } TSC_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup TSC_Exported_Constants
+/** @defgroup TSC_Exported_Constants TSC Exported Constants
   * @{
   */ 
 
@@ -252,7 +259,7 @@ typedef struct
                             ((VAL) == TSC_IOMODE_SHIELD) || \
                             ((VAL) == TSC_IOMODE_SAMPLING))
 
-/** @defgroup TSC_interrupts_definition 
+/** @defgroup TSC_interrupts_definition TSC interrupts definition
   * @{
   */
 #define TSC_IT_EOA ((uint32_t)TSC_IER_EOAIE)  
@@ -262,7 +269,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TSC_flags_definition 
+/** @defgroup TSC_flags_definition TSC Flags Definition
   * @{
   */ 
 #define TSC_FLAG_EOA ((uint32_t)TSC_ISR_EOAF)
@@ -348,6 +355,9 @@ typedef struct
   */ 
 
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup TSC_Exported_Macros TSC Exported Macros
+ * @{
+ */
 
 /** @brief  Reset TSC handle state
   * @param  __HANDLE__: TSC handle.
@@ -538,14 +548,32 @@ typedef struct
 #define __HAL_TSC_GET_GROUP_STATUS(__HANDLE__, __GX_INDEX__) \
 ((((__HANDLE__)->Instance->IOGCSR & (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) == (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
 
+/**
+  * @}
+  */
+  
 /* Exported functions --------------------------------------------------------*/  
-
-/* Initialization and de-initialization functions *****************************/
+/** @addtogroup TSC_Exported_Functions TSC Exported Functions
+  * @{
+  */
+  
+/** @addtogroup TSC_Exported_Functions_Group1 Initialization and de-initialization functions
+ *  @brief    Initialization and Configuration functions 
+ *  @{
+ */
+ /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef *htsc);
 void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc);
 void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc);
-
+/**
+  * @}
+  */
+  
+/** @addtogroup TSC_Exported_Functions_Group2 Input and Output operation functions
+ *  @brief    IO operation functions
+ *  @{
+ */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc);
@@ -553,20 +581,41 @@ HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc);
 TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t gx_index);
 uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index);
-
+/**
+  * @}
+  */
+  
+/** @addtogroup TSC_Exported_Functions_Group3 Peripheral Control functions
+ *  @brief    Peripheral Control functions 
+ *  @{
+ */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef* htsc, TSC_IOConfigTypeDef* config);
 HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice);
-
+/**
+  * @}
+  */
+  
+/** @addtogroup TSC_Exported_Functions_Group4 Peripheral State functions
+ *  @brief   State functions 
+ *  @{
+ */
 /* Peripheral State and Error functions ***************************************/
 HAL_TSC_StateTypeDef HAL_TSC_GetState(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef* htsc);
 void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc);
+/**
+  * @}
+  */
+  
 
 /* Callback functions *********************************************************/
 void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc);
 void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
-
+/**
+  * @}
+  */
+  
 /**
   * @}
   */ 

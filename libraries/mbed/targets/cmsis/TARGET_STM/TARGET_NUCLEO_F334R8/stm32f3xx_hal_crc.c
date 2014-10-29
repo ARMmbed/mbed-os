@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   CRC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -68,7 +68,7 @@
   * @{
   */
 
-/** @defgroup CRC 
+/** @defgroup CRC CRC HAL module driver
   * @brief CRC HAL module driver.
   * @{
   */
@@ -80,14 +80,15 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 static uint32_t CRC_Handle_8(CRC_HandleTypeDef *hcrc, uint8_t pBuffer[], uint32_t BufferLength);
 static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint32_t BufferLength);
-/** @defgroup CRC_Private_Functions
+
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup CRC_Exported_Functions CRC Exported Functions
   * @{
   */
 
-/** @defgroup HAL_CRC_Group1 Initialization/de-initialization functions 
+/** @defgroup CRC_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions. 
  *
 @verbatim    
@@ -114,7 +115,7 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 {
   /* Check the CRC handle allocation */
-  if(hcrc == NULL)
+  if(hcrc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -188,7 +189,7 @@ HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
 { 
   /* Check the CRC handle allocation */
-  if(hcrc == NULL)
+  if(hcrc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -246,7 +247,7 @@ __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   * @}
   */
 
-/** @defgroup HAL_CRC_Group2 Peripheral Control functions 
+/** @defgroup CRC_Exported_Functions_Group2 Peripheral Control functions 
  *  @brief    management functions. 
  *
 @verbatim   
@@ -372,9 +373,48 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   /* Return the CRC computed value */ 
   return temp;
 }
+  
+/**
+  * @}
+  */
+
+/** @defgroup CRC_Exported_Functions_Group3 Peripheral State functions 
+ *  @brief    Peripheral State functions. 
+ *
+@verbatim   
+ ===============================================================================
+                      ##### Peripheral State functions #####
+ ===============================================================================  
+    [..]
+    This subsection permits to get in run-time the status of the peripheral 
+    and the data flow.
+
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Returns the CRC state.
+  * @param  hcrc: CRC handle
+  * @retval HAL state
+  */
+HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc)
+{
+  return hcrc->State;
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 
-
+/** @defgroup CRC_Private_Functions CRC Private Functions
+  * @{
+  */
 /**             
   * @brief  Enter 8-bit input data to the CRC calculator.
   *         Specific data handling to optimize processing time.  
@@ -445,39 +485,6 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
   /* Return the CRC computed value */ 
   return hcrc->Instance->DR;
 }
-
-/**
-  * @}
-  */
-
-/** @defgroup HAL_CRC_Group3 Peripheral State functions 
- *  @brief    Peripheral State functions. 
- *
-@verbatim   
- ===============================================================================
-                      ##### Peripheral State functions #####
- ===============================================================================  
-    [..]
-    This subsection permits to get in run-time the status of the peripheral 
-    and the data flow.
-
-@endverbatim
-  * @{
-  */
-
-/**
-  * @brief  Returns the CRC state.
-  * @param  hcrc: CRC handle
-  * @retval HAL state
-  */
-HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc)
-{
-  return hcrc->State;
-}
-
-/**
-  * @}
-  */
 
 /**
   * @}

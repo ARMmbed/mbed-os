@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_rtc.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of RTC HAL module.
   ******************************************************************************
   * @attention
@@ -50,11 +50,15 @@
   * @{
   */
 
-/** @addtogroup RTC
+/** @addtogroup RTC RTC HAL module driver
   * @{
   */
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup RTC_Exported_Types RTC Exported Types
+  * @{
+  */
+
 /** 
   * @brief  HAL State structures definition  
   */
@@ -178,12 +182,18 @@ typedef struct
   __IO HAL_RTCStateTypeDef  State;      /*!< Time communication state */
 
 }RTC_HandleTypeDef;
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup RTC_Exported_Constants
+/** @defgroup RTC_Exported_Constants RTC Exported Constants
   * @{
   */
 
+/** @defgroup RTC_Mask_Definition RTC Mask Definition
+  * @{
+  */
 /* Masks Definition */
 #define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
 #define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F) 
@@ -196,8 +206,11 @@ typedef struct
                                             RTC_FLAG_RECALPF | RTC_FLAG_SHPF))
 
 #define RTC_TIMEOUT_VALUE  1000
+/**
+  * @}
+  */
   
-/** @defgroup RTC_Hour_Formats
+/** @defgroup RTC_Hour_Formats RTC Hour Formats
   * @{
   */
 #define RTC_HOURFORMAT_24              ((uint32_t)0x00000000)
@@ -209,7 +222,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Output_Polarity_Definitions 
+/** @defgroup RTC_Output_Polarity_Definitions RTC Output Polarity Definitions
   * @{
   */
 #define RTC_OUTPUT_POLARITY_HIGH       ((uint32_t)0x00000000)
@@ -221,7 +234,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Output_Type_ALARM_OUT
+/** @defgroup RTC_Output_Type_ALARM_OUT RTC Output Type ALARM OUT
   * @{
   */
 #define RTC_OUTPUT_TYPE_OPENDRAIN      ((uint32_t)0x00000000)
@@ -234,7 +247,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Asynchronous_Predivider
+/** @defgroup RTC_Asynchronous_Predivider RTC Asynchronous Predivider
   * @{
   */
 #define IS_RTC_ASYNCH_PREDIV(PREDIV)   ((PREDIV) <= (uint32_t)0x7F)
@@ -242,8 +255,7 @@ typedef struct
   * @}
   */
 
-
-/** @defgroup RTC_Synchronous_Predivider
+/** @defgroup RTC_Synchronous_Predivider RTC Synchronous Predivider
   * @{
   */
 #define IS_RTC_SYNCH_PREDIV(PREDIV)    ((PREDIV) <= (uint32_t)0x7FFF)
@@ -251,7 +263,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Time_Definitions
+/** @defgroup RTC_Time_Definitions RTC Time Definitions
   * @{
   */
 #define IS_RTC_HOUR12(HOUR)            (((HOUR) > (uint32_t)0) && ((HOUR) <= (uint32_t)12))
@@ -262,7 +274,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_AM_PM_Definitions
+/** @defgroup RTC_AM_PM_Definitions RTC AM PM Definitions
   * @{
   */
 #define RTC_HOURFORMAT12_AM            ((uint8_t)0x00)
@@ -273,7 +285,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_DayLightSaving_Definitions
+/** @defgroup RTC_DayLightSaving_Definitions RTC DayLightSaving Definitions
   * @{
   */
 #define RTC_DAYLIGHTSAVING_SUB1H       ((uint32_t)0x00020000)
@@ -287,7 +299,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_StoreOperation_Definitions 
+/** @defgroup RTC_StoreOperation_Definitions RTC StoreOperation Definitions
   * @{
   */
 #define RTC_STOREOPERATION_RESET        ((uint32_t)0x00000000)
@@ -299,7 +311,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Input_parameter_format_definitions
+/** @defgroup RTC_Input_parameter_format_definitions RTC Input parameter format definitions
   * @{
   */
 #define FORMAT_BIN                      ((uint32_t)0x000000000)
@@ -310,7 +322,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Year_Date_Definitions
+/** @defgroup RTC_Year_Date_Definitions RTC Year Date Definitions
   * @{
   */
 #define IS_RTC_YEAR(YEAR)              ((YEAR) <= (uint32_t)99)
@@ -318,7 +330,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Month_Date_Definitions
+/** @defgroup RTC_Month_Date_Definitions RTC Month Date Definitions
   * @{
   */
 
@@ -342,7 +354,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_WeekDay_Definitions
+/** @defgroup RTC_WeekDay_Definitions RTC WeekDay Definitions
   * @{
   */
 #define RTC_WEEKDAY_MONDAY             ((uint8_t)0x01)
@@ -364,7 +376,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Alarm_Definitions
+/** @defgroup RTC_Alarm_Definitions RTC Alarm Definitions
   * @{
   */
 #define IS_RTC_ALARM_DATE_WEEKDAY_DATE(DATE) (((DATE) >(uint32_t) 0) && ((DATE) <= (uint32_t)31))
@@ -379,8 +391,7 @@ typedef struct
   * @}
   */
 
-
-/** @defgroup RTC_AlarmDateWeekDay_Definitions
+/** @defgroup RTC_AlarmDateWeekDay_Definitions RTC AlarmDateWeekDay Definitions
   * @{
   */
 #define RTC_ALARMDATEWEEKDAYSEL_DATE      ((uint32_t)0x00000000)
@@ -392,8 +403,7 @@ typedef struct
   * @}
   */
 
-
-/** @defgroup RTC_AlarmMask_Definitions
+/** @defgroup RTC_AlarmMask_Definitions RTC AlarmMask Definitions
   * @{
   */
 #define RTC_ALARMMASK_NONE                ((uint32_t)0x00000000)
@@ -408,7 +418,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Alarms_Definitions
+/** @defgroup RTC_Alarms_Definitions RTC Alarms Definitions
   * @{
   */
 #define RTC_ALARM_A                       RTC_CR_ALRAE
@@ -419,7 +429,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Alarm_Sub_Seconds_Value
+/** @defgroup RTC_Alarm_Sub_Seconds_Value RTC Alarm Sub Seconds Value
   * @{
   */
 #define IS_RTC_ALARM_SUB_SECOND_VALUE(VALUE) ((VALUE) <= (uint32_t)0x00007FFF)
@@ -427,7 +437,7 @@ typedef struct
   * @}
   */
 
-  /** @defgroup RTC_Alarm_Sub_Seconds_Masks_Definitions
+  /** @defgroup RTC_Alarm_Sub_Seconds_Masks_Definitions RTC Alarm Sub Seconds Masks Definitions
   * @{
   */
 #define RTC_ALARMSUBSECONDMASK_ALL         ((uint32_t)0x00000000)  /*!< All Alarm SS fields are masked.
@@ -484,7 +494,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Interrupts_Definitions
+/** @defgroup RTC_Interrupts_Definitions RTC Interrupts Definitions
   * @{
   */
 #define RTC_IT_TS                         ((uint32_t)0x00008000)
@@ -499,7 +509,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_Flags_Definitions
+/** @defgroup RTC_Flags_Definitions RTC Flags Definitions
   * @{
   */
 #define RTC_FLAG_RECALPF                  ((uint32_t)0x00010000)
@@ -527,6 +537,9 @@ typedef struct
   */
 
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup RTC_Exported_Macros RTC Exported Macros
+  * @{
+  */
 
 /** @brief  Reset RTC handle state
   * @param  __HANDLE__: RTC handle.
@@ -698,23 +711,47 @@ typedef struct
 /* alias define maintained for legacy */
 #define __HAL_RTC_CLEAR_FLAG   __HAL_RTC_EXTI_CLEAR_FLAG
 
-/* Include RTC HAL Extension module */
+/**
+  * @}
+  */
+
+/* Include RTC HAL Extended module */
 #include "stm32f3xx_hal_rtc_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup RTC_Exported_Functions RTC Exported Functions
+  * @{
+  */
+
+/** @addtogroup RTC_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc);
 void              HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc);
 void              HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc);
+/**
+  * @}
+  */
+
+/** @addtogroup RTC_Exported_Functions_Group2 RTC Time and Date functions
+  * @{
+  */
 
 /* RTC Time and Date functions ************************************************/
 HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format);
 HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format);
 HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format);
 HAL_StatusTypeDef HAL_RTC_GetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format);
+/**
+  * @}
+  */
 
+/** @addtogroup RTC_Exported_Functions_Group3 RTC Alarm functions
+  * @{
+  */
 /* RTC Alarm functions ********************************************************/
 HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format);
 HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format);
@@ -723,16 +760,41 @@ HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
 void              HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
 void              HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc);
+/**
+  * @}
+  */
 
+/** @addtogroup RTC_Exported_Functions_Group4 Peripheral Control functions
+  * @{
+  */  
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef   HAL_RTC_WaitForSynchro(RTC_HandleTypeDef* hrtc);
+/**
+  * @}
+  */
 
+/** @addtogroup RTC_Exported_Functions_Group5 Peripheral State functions
+  * @{
+  */  
 /* Peripheral State functions *************************************************/
 HAL_RTCStateTypeDef HAL_RTC_GetState(RTC_HandleTypeDef *hrtc);
+/**
+  * @}
+  */
 
+/**
+  * @}
+  */  
+
+/** @addtogroup RTC_Private_Functions
+  * @{
+  */    
 HAL_StatusTypeDef  RTC_EnterInitMode(RTC_HandleTypeDef* hrtc);
 uint8_t            RTC_ByteToBcd2(uint8_t Value);
 uint8_t            RTC_Bcd2ToByte(uint8_t Value);
+/**
+  * @}
+  */  
 
 /**
   * @}

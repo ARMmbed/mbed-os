@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_hrtim.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Resolution Timer (HRTIM) peripheral:
@@ -322,17 +322,20 @@
   * @{
   */
 
-/** @defgroup HRTIM 
-  * @brief HRTIM HAL module driver
-  * @{
-  */
-
 #ifdef HAL_HRTIM_MODULE_ENABLED
 
 #if defined(STM32F334x8)
 
+/** @defgroup HRTIM HRTIM HAL module driver
+  * @brief HRTIM HAL module driver
+  * @{
+  */
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup HRTIM_Private_Defines HRTIM Private Define
+  * @{
+  */
 #define HRTIM_FLTR_FLTxEN (HRTIM_FLTR_FLT1EN |\
                            HRTIM_FLTR_FLT2EN |\
                            HRTIM_FLTR_FLT3EN |\
@@ -345,9 +348,15 @@
                                       HRTIM_TIMUPDATETRIGGER_TIMER_C |\
                                       HRTIM_TIMUPDATETRIGGER_TIMER_D |\
                                       HRTIM_TIMUPDATETRIGGER_TIMER_E)
+/**
+  * @}
+  */
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/** @defgroup HRTIM_Private_Variables HRTIM Private Variables
+  * @{
+  */
 static uint32_t TimerIdxToTimerId[] = 
 {
   HRTIM_TIMERID_TIMER_A,
@@ -357,9 +366,14 @@ static uint32_t TimerIdxToTimerId[] =
   HRTIM_TIMERID_TIMER_E,
   HRTIM_TIMERID_MASTER,
 };
+/**
+  * @}
+  */
 
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/** @defgroup HRTIM_Private_Functions HRTIM Private Functions
+  * @{
+  */
 static void HRTIM_MasterBase_Config(HRTIM_HandleTypeDef * hhrtim, 
                                     HRTIM_TimeBaseCfgTypeDef * pTimeBaseCfg);
 
@@ -427,12 +441,16 @@ static void HRTIM_DMATimerxCplt(DMA_HandleTypeDef *hdma);
 static void HRTIM_DMAError(DMA_HandleTypeDef *hdma);
 
 static void HRTIM_BurstDMACplt(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
-/** @defgroup HRTIM_Private_Functions
-* @{
-*/
+/* Exported functions ---------------------------------------------------------*/
+/** @defgroup HRTIM_Exported_Functions HRTIM Exported Functions
+  * @{
+  */
 
-/** @defgroup HAL_HRTIM_Group1 Initialization and de-initialization functions  
+/** @defgroup HRTIM_Exported_Functions_Group1 Initialization and de-initialization functions  
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -463,7 +481,7 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
   uint32_t hrtim_mcr;
   
   /* Check the HRTIM handle allocation */
-  if(hhrtim == NULL)
+  if(hhrtim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -476,12 +494,12 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
   hhrtim->State = HAL_HRTIM_STATE_BUSY;
   
   /* Initialize the DMA handles */
-  hhrtim->hdmaMaster = (DMA_HandleTypeDef *)NULL;    
-  hhrtim->hdmaTimerA = (DMA_HandleTypeDef *)NULL;     
-  hhrtim->hdmaTimerB = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerC = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerD = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerE = (DMA_HandleTypeDef *)NULL;  
+  hhrtim->hdmaMaster = (DMA_HandleTypeDef *)HAL_NULL;    
+  hhrtim->hdmaTimerA = (DMA_HandleTypeDef *)HAL_NULL;     
+  hhrtim->hdmaTimerB = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerC = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerD = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerE = (DMA_HandleTypeDef *)HAL_NULL;  
   
   /* HRTIM output synchronization configuration (if required) */
   if ((hhrtim->Init.SyncOptions & HRTIM_SYNCOPTION_MASTER) != RESET)
@@ -562,7 +580,7 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
 HAL_StatusTypeDef HAL_HRTIM_DeInit (HRTIM_HandleTypeDef * hhrtim)
 {
   /* Check the HRTIM handle allocation */
-  if(hhrtim == NULL)
+  if(hhrtim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -806,7 +824,7 @@ HAL_StatusTypeDef HAL_HRTIM_TimeBaseConfig(HRTIM_HandleTypeDef *hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group2 Simple time base mode functions  
+/** @defgroup HRTIM_Exported_Functions_Group2 Simple time base mode functions  
  *  @brief    When à HRTIM timer operates in simple time base mode, the
  *            timer counter counts from 0 to the period value.
  *
@@ -1087,7 +1105,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStart_DMA(HRTIM_HandleTypeDef * hhrtim,
   *                   @arg HRTIM_TIMERINDEX_TIMER_C for timer C
   *                   @arg HRTIM_TIMERINDEX_TIMER_D for timer D
   *                   @arg HRTIM_TIMERINDEX_TIMER_E for timer E
- * @retval HAL status
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStop_DMA(HRTIM_HandleTypeDef * hhrtim,
                                               uint32_t TimerIdx)
@@ -1135,7 +1153,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStop_DMA(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group3 Simple output compare mode functions  
+/** @defgroup HRTIM_Exported_Functions_Group3 Simple output compare mode functions  
  *  @brief    When a HRTIM timer operates in simple output compare mode
  *            the output level is set to a programmable value when a match 
  *            is found between the compare register and the counter.
@@ -1697,7 +1715,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCStop_DMA(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group4 Simple PWM output mode functions  
+/** @defgroup HRTIM_Exported_Functions_Group4 Simple PWM output mode functions  
  *  @brief    When a HRTIM timer operates in simple PWM output mode 
  *            the output level is set to a programmable value when a match is
  *            found between the compare register and the counter and reset when
@@ -1752,6 +1770,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCStop_DMA(HRTIM_HandleTypeDef * hhrtim,
   *       Output Set/Reset crossbar is set as follows:
   *         Ouput 1: SETx1R = CMP1, RSTx1R = PER
   *         Output 2: SETx2R = CMP2, RST2R = PER
+  * @note When Simple PWM mode is used the registers preload mechanism is 
+  *       enabled (otherwise the behavior is not guaranteed).
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HRTIM_SimplePWMChannelConfig(HRTIM_HandleTypeDef * hhrtim,
@@ -1762,6 +1782,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMChannelConfig(HRTIM_HandleTypeDef * hhrtim,
   uint32_t CompareUnit = 0xFFFFFFFF;
   HRTIM_CompareCfgTypeDef CompareCfg;
   HRTIM_OutputCfgTypeDef OutputCfg;
+  uint32_t hrtim_timcr;
 
   /* Check parameters */
   assert_param(IS_HRTIM_TIMER_OUTPUT(TimerIdx, PWMChannel));
@@ -1829,7 +1850,12 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMChannelConfig(HRTIM_HandleTypeDef * hhrtim,
   HRTIM_OutputConfig(hhrtim,
                      TimerIdx,
                      PWMChannel,
-                     &OutputCfg);  
+                     &OutputCfg);
+  
+  /* Enable the registers preload mechanism */
+  hrtim_timcr   = hhrtim->Instance->sTimerxRegs[TimerIdx].TIMxCR;
+  hrtim_timcr |= HRTIM_TIMCR_PREEN;
+  hhrtim->Instance->sTimerxRegs[TimerIdx].TIMxCR  = hrtim_timcr;  
   
   hhrtim->State = HAL_HRTIM_STATE_READY;
   
@@ -2282,7 +2308,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStop_DMA(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group5 Simple input capture functions  
+/** @defgroup HRTIM_Exported_Functions_Group5 Simple input capture functions  
  *  @brief    When a HRTIM timer operates in simple input capture mode 
  *            the Capture Register (HRTIM_CPT1/2xR) is used to latch the
  *            value of the timer counter counter after a transition detected 
@@ -2785,7 +2811,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStop_DMA(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group6 Simple one pulse functions  
+/** @defgroup HRTIM_Exported_Functions_Group6 Simple one pulse functions  
  *  @brief    When a HRTIM timer operates in simple one pulse mode 
  *            the timer counter is started in response to transition detected 
  *            on a given external event input to generate a pulse with a 
@@ -3206,7 +3232,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseStop_IT(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group7 HRTIM configuration functions  
+/** @defgroup HRTIM_Exported_Functions_Group7 Configuration functions  
  *  @brief    Functions configuring the HRTIM resources shared by all the
  *            HRTIM timers operating in waveform mode.
  *
@@ -3698,7 +3724,7 @@ HAL_StatusTypeDef HAL_HRTIM_ADCTriggerConfig(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group8 HRTIM timer configuration and functions
+/** @defgroup HRTIM_Exported_Functions_Group8 Timer waveform configuration and functions
  *  @brief    Functions used to configure and control a HRTIM timer 
  *            operating in waveform mode.
  *
@@ -5394,7 +5420,7 @@ HAL_StatusTypeDef HAL_HRTIM_UpdateDisable(HRTIM_HandleTypeDef *hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group9 HRTIM peripheral state functions
+/** @defgroup HRTIM_Exported_Functions_Group9 Peripheral state functions
  *  @brief    Functions used to get HRTIM or HRTIM timer specific
  *            information.
  *
@@ -5809,7 +5835,7 @@ uint32_t HAL_HRTIM_GetIdlePushPullStatus(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @defgroup HAL_HRTIM_Group10 HRTIM interrupts handling
+/** @defgroup HRTIM_Exported_Functions_Group10 Interrupts handling
  *  @brief  Functions called when HRTIM generates an interrupt
  *          7 interrupts can be generated by the master timer:
  *            - Master timer registers update
@@ -6331,6 +6357,14 @@ __weak void HAL_HRTIM_ErrorCallback(HRTIM_HandleTypeDef *hhrtim)
 
 /**
   * @}
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Private_Functions HRTIM Private Functions
+  * @{
   */
 
 /**
@@ -7247,7 +7281,7 @@ static uint32_t HRTIM_GetDMAFromOCMode(HRTIM_HandleTypeDef * hhrtim,
 static DMA_HandleTypeDef * HRTIM_GetDMAHandleFromTimerIdx(HRTIM_HandleTypeDef * hhrtim,
                                                           uint32_t TimerIdx)
 {
-  DMA_HandleTypeDef * hdma = (DMA_HandleTypeDef *)NULL;
+  DMA_HandleTypeDef * hdma = (DMA_HandleTypeDef *)HAL_NULL;
   
   switch (TimerIdx)
   {
@@ -7888,12 +7922,12 @@ static void HRTIM_BurstDMACplt(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-#endif /* STM32F334x8 */
-
-#endif /* HAL_HRTIM_MODULE_ENABLED */
 /**
   * @}
   */
+#endif /* STM32F334x8 */
+
+#endif /* HAL_HRTIM_MODULE_ENABLED */
 
 /**
   * @}

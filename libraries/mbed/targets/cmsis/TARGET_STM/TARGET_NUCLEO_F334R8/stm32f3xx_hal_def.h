@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -70,8 +70,8 @@ typedef enum
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
-#ifndef NULL
-  #define NULL      (void *) 0
+#ifndef HAL_NULL
+  #define HAL_NULL      (void *) 0
 #endif
 
 #define HAL_MAX_DELAY      0xFFFFFFFF
@@ -150,8 +150,6 @@ typedef enum
       #define __ALIGN_BEGIN    __align(4)  
     #elif defined (__ICCARM__)    /* IAR Compiler */
       #define __ALIGN_BEGIN 
-    #elif defined  (__TASKING__)  /* TASKING Compiler */
-      #define __ALIGN_BEGIN    __align(4) 
     #endif /* __CC_ARM */
   #endif /* __ALIGN_BEGIN */
 #endif /* __GNUC__ */

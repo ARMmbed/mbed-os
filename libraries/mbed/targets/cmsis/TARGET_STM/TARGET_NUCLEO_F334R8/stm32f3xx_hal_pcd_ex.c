@@ -2,12 +2,12 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
-  *           + Configururation of the PMA for EP
+  *           + Configuration of the PMA for EP
   *         
   ******************************************************************************
   * @attention
@@ -46,29 +46,30 @@
   * @{
   */
 
-/** @defgroup PCDEx
-  * @brief PCD HAL Extended module driver
+/** @defgroup PCDEx PCD Extended HAL module driver
+  * @brief PCDEx PCDEx Extended HAL module driver
   * @{
   */
 
 #ifdef HAL_PCD_MODULE_ENABLED
 
-#if defined(STM32F302x8) || defined(STM32F302xC) ||                         \
-    defined(STM32F303xC) || defined(STM32F373xC)
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F302x8)                         || \
+    defined(STM32F373xC)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-
-/** @defgroup PCD_Private_Functions
+/** @defgroup PCDEx_Exported_Functions PCD Extended Exported Functions
   * @{
   */
 
-/** @defgroup PCD_Group1 Initialization and de-initialization functions 
+/** @defgroup PCDEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim
@@ -81,7 +82,7 @@
 
 /**
   * @brief Configure PMA for EP
-  * @param  hpcd : PCD handle
+  * @param  hpcd: PCD handle
   * @param  ep_addr: endpoint address
   * @param  ep_kind: endpoint Kind
   *                @arg USB_SNG_BUF: Single Buffer used
@@ -133,10 +134,21 @@ HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
   
   return HAL_OK; 
 }
+/**
+  * @}
+  */ 
 
-#if defined(STM32F301x8) ||                         \
-    defined(STM32F303x8) || defined(STM32F303xC) || defined(STM32F373xC) || \
-    defined(STM32F334x8) || defined(STM32F373xC) || defined(STM32F378xx)
+/**
+  * @}
+  */ 
+
+/** @defgroup PCDEx_Private_Functions PCD Extended Private Functions
+  * @{
+  */
+#if defined(STM32F303xC)                         || \
+    defined(STM32F303x8) || defined(STM32F334x8) || \
+    defined(STM32F301x8)                         || \
+    defined(STM32F373xC) || defined(STM32F378xx)
       
      
 /**
@@ -167,7 +179,7 @@ void PCD_WritePMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, u
 /**
   * @brief Copy a buffer from user memory area to packet memory area (PMA)
   * @param   USBx: USB peripheral instance register address.
-  * @param   pbUsrBuf    = pointer to user memory area.
+  * @param   pbUsrBuf: pointer to user memory area.
   * @param   wPMABufAddr: address into PMA.
   * @param   wNBytes: no. of bytes to be copied.
   * @retval None
@@ -184,10 +196,14 @@ void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
     pbUsrBuf++;
   }
 }
-#endif
+#endif /* STM32F303xC                || */
+       /* STM32F303x8 || STM32F334x8 || */
+       /* STM32F301x8                || */
+       /* STM32F373xC || STM32F378xx    */
 
-#if defined(STM32F302x8) || defined(STM32F302xC)
-         
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC)                         || \
+    defined(STM32F302x8) 
 /**
   * @brief Copy a buffer from user memory area to packet memory area (PMA)
   * @param   USBx: USB peripheral instance register address.
@@ -217,7 +233,7 @@ void PCD_WritePMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, u
 /**
   * @brief Copy a buffer from user memory area to packet memory area (PMA)
   * @param   USBx: USB peripheral instance register address.
-  * @param   pbUsrBuf    = pointer to user memory area.
+  * @param   pbUsrBuf: pointer to user memory area.
   * @param   wPMABufAddr: address into PMA.
   * @param   wNBytes: no. of bytes to be copied.
   * @retval None
@@ -234,8 +250,21 @@ void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
     pbUsrBuf++;
   }
 }
-#endif
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC                || */
+       /* STM32F302x8                   */
 
+/**
+  * @}
+  */ 
+
+/** @addtogroup PCDEx_Exported_Functions PCD Extended Exported Functions
+  * @{
+  */
+
+/** @addtogroup PCDEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions 
+  * @{
+  */
 /**
   * @brief  Software Device Connection
   * @param  hpcd: PCD handle
@@ -248,17 +277,17 @@ void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
             the HAL_PCDEx_SetConnectionState could be implenetd in the user file
    */ 
 }
+/**
+  * @}
+  */ 
 
 /**
   * @}
   */
-
-/**
-  * @}
-  */
-
-#endif /* defined(STM32F302x8) || defined(STM32F302xC) || */
-       /* defined(STM32F303xC) || defined(STM32F373xC)    */
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F302x8                || */
+       /* STM32F373xC                   */
 
 #endif /* HAL_PCD_MODULE_ENABLED */
 /**

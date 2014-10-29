@@ -1,9 +1,9 @@
 /**
   ******************************************************************************
-  * @file    stm32f3xx_hal_adc.c
+  * @file    stm32f3xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -35,7 +35,7 @@
   
   (#) Single and continuous conversion modes.
   
-  (#) Scan mode for automatic conversion of channel 0 to channel ‘n’.
+  (#) Scan mode for automatic conversion of channel 0 to channel 'n'.
   
   (#) Data alignment with in-built data coherency.
   
@@ -73,7 +73,7 @@
   (#) ADC input range: from Vref– (connected to Vssa) to Vref+ (connected to 
       Vdda or to an external voltage reference).
 
-	  
+
                      ##### How to use this driver #####
   ==============================================================================
     [..]
@@ -85,7 +85,10 @@
         For STM32F30x/STM32F33x devices:
         Two possible clock sources: synchronous clock derived from AHB clock 
         or asynchronous clock derived from ADC dedicated PLL 72MHz.
-
+         - synchronous clock is configured using macro __ADCx_CLK_ENABLE()
+         - asynchronous clock is configured using macro __HAL_RCC_ADCx_CONFIG()
+           or function HAL_RCCEx_PeriphCLKConfig().
+        
         For example, in case of device with a single ADC:
             __ADC1_CLK_ENABLE()                            (mandatory)
             __HAL_RCC_ADC1_CONFIG(RCC_ADC1PLLCLK_DIV1);    (optional)  
@@ -195,7 +198,7 @@
   * @{
   */
 
-/** @defgroup ADCEx
+/** @defgroup ADCEx ADC Extended HAL module driver
   * @brief ADC Extended HAL module driver
   * @{
   */
@@ -204,8 +207,13 @@
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+/** @defgroup ADCEx_Private_Constants ADC Extended Private Constants
+  * @{
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
   /* Fixed timeout values for ADC calibration, enable settling time, disable  */
   /* settling time.                                                           */
   /* Values defined to be higher than worst cases: low clock frequency,       */
@@ -239,7 +247,10 @@
   /* have the minimum number of CPU cycles to fulfill this delay.             */
   #define ADC_TEMPSENSOR_DELAY_CPU_CYCLES    ((uint32_t)720)
     
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
   /* Fixed timeout values for ADC calibration, enable settling time.          */
@@ -276,15 +287,25 @@
   #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_71CYCLES5  ((uint32_t) 84)
   #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_239CYCLES5 ((uint32_t)252)
 #endif /* STM32F373xC || STM32F378xx */
+/**
+  * @}
+  */
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 static HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef* hadc);
 static HAL_StatusTypeDef ADC_Disable(ADC_HandleTypeDef* hadc);
 static HAL_StatusTypeDef ADC_ConversionStop(ADC_HandleTypeDef* hadc, uint32_t ConversionGroup);
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
 #if defined(STM32F373xC) || defined(STM32F378xx)
 static HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef* hadc);
 static HAL_StatusTypeDef ADC_ConversionStop_Disable(ADC_HandleTypeDef* hadc);
@@ -294,13 +315,13 @@ static void ADC_DMAConvCplt(DMA_HandleTypeDef *hdma);
 static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma);
 static void ADC_DMAError(DMA_HandleTypeDef *hdma);
 
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup ADCEx_Private_Functions
+/** @defgroup ADCEx_Exported_Functions ADC Extended Exported Functions
   * @{
   */ 
 
-/** @defgroup ADCEx_Group1 Extended Initialization/de-initialization functions
+/** @defgroup ADCEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
   * @brief    Extended Initialization and Configuration functions
   *
 @verbatim    
@@ -315,7 +336,10 @@ static void ADC_DMAError(DMA_HandleTypeDef *hdma);
   * @{
   */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Initializes the ADC peripheral and regular group according to  
   *         parameters specified in structure "ADC_InitTypeDef".
@@ -327,7 +351,7 @@ static void ADC_DMAError(DMA_HandleTypeDef *hdma);
   *         This function initializes the ADC MSP (HAL_ADC_MspInit()) only when
   *         coming from ADC state reset. Following calls to this function can
   *         be used to reconfigure some parameters of ADC_InitTypeDef  
-  *         structure on the fly, without modifiying MSP configuration. If ADC  
+  *         structure on the fly, without modifying MSP configuration. If ADC  
   *         MSP has to be modified again, HAL_ADC_DeInit() must be called
   *         before HAL_ADC_Init().
   *         The setting of these parameters is conditioned to ADC state.
@@ -355,7 +379,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   uint32_t WaitLoopIndex = 0;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -477,7 +501,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
     /* Parameters that can be updated only when ADC is disabled:              */
     /*  - Multimode clock configuration                                       */
     if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-        ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+        ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
           (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
     {
       /* Reset configuration of ADC common register CCR:                      */
@@ -594,7 +618,10 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -625,9 +652,9 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   HAL_StatusTypeDef tmpHALStatus = HAL_OK;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
-     return HAL_ERROR;
+    return HAL_ERROR;
   }
   
   /* Check the parameters */
@@ -736,7 +763,10 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Deinitialize the ADC peripheral registers to their default reset
   *         values, with deinitialization of the ADC MSP.
@@ -763,7 +793,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   ADC_HandleTypeDef tmphadcSharingSameCommonRegister;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -923,7 +953,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
     /* Software is allowed to change common parameters only when all ADCs of  */
     /* the common group are disabled.                                         */
     if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-        ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+        ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
           (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
     {
       /* Reset configuration of ADC common register CCR:
@@ -1001,7 +1031,10 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1018,7 +1051,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   HAL_StatusTypeDef tmpHALStatus = HAL_OK;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -1152,7 +1185,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   * @}
   */
 
-/** @defgroup ADCEx_Group2 Extended IO operation functions
+/** @defgroup ADCEx_Exported_Functions_Group2 Extended Input and Output operation functions
   * @brief    Extended IO operation functions
   *
 @verbatim   
@@ -1190,7 +1223,10 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   * @{
   */
   
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enables ADC, starts conversion of regular group.
   *         Interruptions enabled in this function: None.
@@ -1254,7 +1290,10 @@ HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1318,7 +1357,10 @@ HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Stop ADC conversion of regular group (and injected group in 
   *         case of auto_injection mode), disable ADC peripheral.
@@ -1361,7 +1403,10 @@ HAL_StatusTypeDef HAL_ADC_Stop(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1402,7 +1447,10 @@ HAL_StatusTypeDef HAL_ADC_Stop(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Wait for regular group conversion to be completed.
   * @param  hadc: ADC handle
@@ -1482,7 +1530,10 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
   /* Return ADC state */
   return HAL_OK;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1599,7 +1650,10 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Poll for conversion event.
   * @param  hadc: ADC handle
@@ -1714,7 +1768,10 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
   /* Return ADC state */
   return HAL_OK;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1728,7 +1785,7 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
   */
 HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout)
 {
-  uint32_t tickstart=0; 
+  uint32_t tickstart; 
 
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -1767,7 +1824,10 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enables ADC, starts conversion of regular group with interruption.
   *         Interruptions enabled in this function: EOC (end of conversion),
@@ -1848,7 +1908,10 @@ HAL_StatusTypeDef HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -1915,7 +1978,10 @@ HAL_StatusTypeDef HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Stop ADC conversion of regular group (and injected group in 
   *         case of auto_injection mode), disable interruption of 
@@ -1963,7 +2029,10 @@ HAL_StatusTypeDef HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2005,7 +2074,10 @@ HAL_StatusTypeDef HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enables ADC, starts conversion of regular group and transfers result
   *         through DMA.
@@ -2104,7 +2176,10 @@ HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, ui
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2195,7 +2270,10 @@ HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, ui
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Stop ADC conversion of regular group (and injected channels in 
   *         case of auto_injection mode), disable ADC DMA transfer, disable 
@@ -2256,7 +2334,7 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
     }
 
     /* Check if ADC is effectively disabled */
-    if (tmpHALStatus != HAL_OK)
+    if (tmpHALStatus == HAL_OK)
     {
       /* Change ADC state */
       hadc->State = HAL_ADC_STATE_READY;
@@ -2270,7 +2348,10 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2330,7 +2411,10 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Get ADC regular group conversion result.
   * @param  hadc: ADC handle
@@ -2350,7 +2434,10 @@ uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef* hadc)
   /* Return ADC converted value */ 
   return hadc->Instance->DR;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2371,75 +2458,10 @@ uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-/**
-  * @brief  DMA transfer complete callback. 
-  * @param  hdma: pointer to DMA handle.
-  * @retval None
-  */
-static void ADC_DMAConvCplt(DMA_HandleTypeDef *hdma)
-{
-  /* Retrieve ADC handle corresponding to current DMA handle */
-  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
- 
-  /* Update state machine on conversion status if not in error state */
-  if(hadc->State != HAL_ADC_STATE_ERROR)
-  {
-    /* Update ADC state machine */
-    if(hadc->State != HAL_ADC_STATE_EOC_INJ_REG)
-    {
-      /* Check if a conversion is ready on injected group */
-      if(hadc->State == HAL_ADC_STATE_EOC_INJ)
-      {
-        /* Change ADC state */
-        hadc->State = HAL_ADC_STATE_EOC_INJ_REG;  
-      }
-      else
-      {
-        /* Change ADC state */
-        hadc->State = HAL_ADC_STATE_EOC_REG;
-      }
-    }
-  }
-  
-  /* Conversion complete callback */
-  HAL_ADC_ConvCpltCallback(hadc); 
-}
-
-/**
-  * @brief  DMA half transfer complete callback. 
-  * @param  hdma: pointer to DMA handle.
-  * @retval None
-  */
-static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma)   
-{
-  /* Retrieve ADC handle corresponding to current DMA handle */
-  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
-  /* Half conversion callback */
-  HAL_ADC_ConvHalfCpltCallback(hadc); 
-}
-
-/**
-  * @brief  DMA error callback 
-  * @param  hdma: pointer to DMA handle.
-  * @retval None
-  */
-static void ADC_DMAError(DMA_HandleTypeDef *hdma)   
-{
-  /* Retrieve ADC handle corresponding to current DMA handle */
-  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
-  /* Change ADC state */
-  hadc->State = HAL_ADC_STATE_ERROR;
-  
-  /* Set ADC error code to DMA error */
-  hadc->ErrorCode |= HAL_ADC_ERROR_DMA;
-  
-  /* Error callback */
-  HAL_ADC_ErrorCallback(hadc); 
-}
-
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Handles ADC interrupt request.  
   * @param  hadc: ADC handle
@@ -2678,7 +2700,10 @@ void HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc)
   }
   
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2779,7 +2804,10 @@ void HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc)
 #endif /* STM32F373xC || STM32F378xx */
 
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Perform an ADC automatic self-calibration
   *         Calibration prerequisite: ADC must be disabled (execute this
@@ -2853,7 +2881,10 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t 
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2950,7 +2981,10 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
 
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Get the calibration factor from automatic conversion result
   * @param  hadc: ADC handle
@@ -2976,9 +3010,15 @@ uint32_t HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef* hadc, uint32_t Single
     return ((hadc->Instance->CALFACT) & 0x0000007F);
   }
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Set the calibration factor to overwrite automatic conversion result. ADC must be enabled and no conversion on going.
   * @param  hadc: ADC handle
@@ -3033,9 +3073,15 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enables ADC, starts conversion of injected group.
   *         Interruptions enabled in this function: None.
@@ -3103,7 +3149,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -3169,7 +3218,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Stop conversion of injected channels. Disable ADC peripheral if
   *         no regular conversion is on going.
@@ -3230,7 +3282,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -3289,7 +3344,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Wait for injected group conversion to be completed.
   * @param  hadc: ADC handle
@@ -3366,7 +3424,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
   /* Return ADC state */
   return HAL_OK;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -3478,11 +3539,13 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enables ADC, starts conversion of injected group with interruption.
-  *         Interruptions enabled in this function: JEOC (end of conversion),
-  *         overrun (if available).
+  *         Interruptions enabled in this function: JEOC (end of conversion).
   *         Each of these interruptions has its dedicated callback function.
   * @note:  Case of multimode enabled (for devices with several ADCs): This 
   *         function must be called for ADC slave first, then ADC master. 
@@ -3568,7 +3631,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -3639,7 +3705,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Stop conversion of injected channels, disable interruption of 
   *         end-of-conversion. Disable ADC peripheral if no regular conversion
@@ -3704,7 +3773,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -3766,7 +3838,9 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 /**
   * @brief  Enables ADC, starts conversion of regular group and transfers result
   *         through DMA.
@@ -3801,7 +3875,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef* hadc, uint32_t
   /* (Depending on STM32F3 product, there may be up to 2 ADC slaves)          */
   __HAL_ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
   
-  if (tmphadcSlave.Instance == NULL)
+  if (tmphadcSlave.Instance == HAL_NULL)
   {
     /* Update ADC state machine to error */
     hadc->State = HAL_ADC_STATE_ERROR;
@@ -3921,7 +3995,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc)
     /* (Depending on STM32F3 product, there may be up to 2 ADC slaves)        */
     __HAL_ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
     
-    if (tmphadcSlave.Instance == NULL)
+    if (tmphadcSlave.Instance == HAL_NULL)
     {
       /* Update ADC state machine to error */
       hadc->State = HAL_ADC_STATE_ERROR;
@@ -4031,9 +4105,14 @@ uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
   /* Return the multi mode conversion value */
   return tmpADC_Common->CDR;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Get ADC injected group conversion result.
   * @param  hadc: ADC handle
@@ -4047,6 +4126,8 @@ uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
   */
 uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRank)
 {
+  uint32_t tmp_jdr = 0;
+
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_INJECTED_RANK(InjectedRank));
@@ -4056,21 +4137,31 @@ uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRa
   /* and in case of usage of ADC feature "LowPowerAutoWait".                  */
   __HAL_ADC_CLEAR_FLAG(hadc,(ADC_FLAG_JEOC | ADC_FLAG_JEOS));
   
-  /* Return ADC converted value */ 
+  /* Get ADC converted value */ 
   switch(InjectedRank)
   {  
     case ADC_INJECTED_RANK_4: 
-      return hadc->Instance->JDR4;
+      tmp_jdr = hadc->Instance->JDR4;
+      break;
     case ADC_INJECTED_RANK_3: 
-      return hadc->Instance->JDR3;
+      tmp_jdr = hadc->Instance->JDR3;
+      break;
     case ADC_INJECTED_RANK_2: 
-      return hadc->Instance->JDR2;
+      tmp_jdr = hadc->Instance->JDR2;
+      break;
     case ADC_INJECTED_RANK_1:
     default:
-      return hadc->Instance->JDR1;
+      tmp_jdr = hadc->Instance->JDR1;
+      break;
   }
+  
+  /* Return ADC converted value */ 
+  return tmp_jdr;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -4086,6 +4177,8 @@ uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRa
   */
 uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRank)
 {
+  uint32_t tmp_jdr = 0;
+
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_INJECTED_RANK(InjectedRank));
@@ -4094,19 +4187,26 @@ uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRa
   /* regular group: reading data register also clears end of conversion flag. */
   __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_JEOC);
   
-  /* Return ADC converted value */ 
+  /* Get ADC converted value */ 
   switch(InjectedRank)
   {  
     case ADC_INJECTED_RANK_4: 
-      return hadc->Instance->JDR4;
+      tmp_jdr = hadc->Instance->JDR4;
+      break;
     case ADC_INJECTED_RANK_3: 
-      return hadc->Instance->JDR3;
+      tmp_jdr = hadc->Instance->JDR3;
+      break;
     case ADC_INJECTED_RANK_2: 
-      return hadc->Instance->JDR2;
+      tmp_jdr = hadc->Instance->JDR2;
+      break;
     case ADC_INJECTED_RANK_1:
     default:
-      return hadc->Instance->JDR1;
+      tmp_jdr = hadc->Instance->JDR1;
+      break;
   }
+  
+  /* Return ADC converted value */ 
+  return tmp_jdr;
 }
 #endif /* STM32F373xC || STM32F378xx */
 
@@ -4122,7 +4222,10 @@ __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
   */
 }
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Injected context queue overflow flag callback. 
   * @note:  This callback is called if injected context queue is enabled
@@ -4139,15 +4242,16 @@ __weak void HAL_ADCEx_InjectedQueueOverflowCallback(ADC_HandleTypeDef* hadc)
             in the user file.
   */
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
-
-
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 /**
   * @}
   */
 
-/** @defgroup ADCEx_Group3 Extended Peripheral Control functions
+/** @defgroup ADCEx_Exported_Functions_Group3 Extended Peripheral Control functions
   * @brief    Extended Peripheral Control functions
   *
 @verbatim   
@@ -4165,7 +4269,10 @@ __weak void HAL_ADCEx_InjectedQueueOverflowCallback(ADC_HandleTypeDef* hadc)
   */
 
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Configures the the selected channel to be linked to the regular
   *         group.
@@ -4447,7 +4554,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
       /* Software is allowed to change common parameters only when all ADCs   */
       /* of the common group are disabled.                                    */
       if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-          ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+          ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
             (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
       {
         /* If Channel_16 is selected, enable Temp. sensor measurement path    */
@@ -4509,7 +4616,10 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -4618,7 +4728,10 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Configures the ADC injected group and the selected channel to be
   *         linked to the injected group.
@@ -5092,7 +5205,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       /* Software is allowed to change common parameters only when all ADCs   */
       /* of the common group are disabled.                                    */
       if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-          ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+          ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
             (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
       {
         /* If Channel_16 is selected, enable Temp. sensor measurement path    */
@@ -5100,18 +5213,18 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
         if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_TEMPSENSOR) && (hadc->Instance == ADC1))
         {
           tmpADC_Common->CCR |= ADC_CCR_TSEN;
-        }
-        /* If Channel_17 is selected, enable VBAT measurement path            */
-        /* Note: VBAT internal channels available on ADC1 only                */
-        else if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_VBAT) && (hadc->Instance == ADC1))
-        {
-          tmpADC_Common->CCR |= ADC_CCR_VBATEN;
           
           /* Delay for temperature sensor stabilization time */
           while(WaitLoopIndex < ADC_TEMPSENSOR_DELAY_CPU_CYCLES)
           {
             WaitLoopIndex++;
           }
+        }
+        /* If Channel_17 is selected, enable VBAT measurement path            */
+        /* Note: VBAT internal channels available on ADC1 only                */
+        else if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_VBAT) && (hadc->Instance == ADC1))
+        {
+          tmpADC_Common->CCR |= ADC_CCR_VBATEN;
         }
         /* If Channel_18 is selected, enable VREFINT measurement path         */
         /* Note: VrefInt internal channels available on all ADCs, but only    */
@@ -5142,7 +5255,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -5380,7 +5496,10 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Configures the analog watchdog.
   * @note   Possibility to update parameters on the fly:
@@ -5566,7 +5685,10 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDG
   /* Return function status */
   return tmpHALStatus;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -5630,7 +5752,10 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDG
 #endif /* STM32F373xC || STM32F378xx */
 
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8)/**
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+/**
   * @brief  Enable ADC multimode and configure multimode parameters
   * @note   Possibility to update parameters on the fly:
   *         This function initializes multimode parameters, following  
@@ -5723,34 +5848,93 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_
   /* Return function status */
   return tmpHALStatus;
 } 
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F328xx || STM32F334x8    */
 
 /**
   * @}
   */
 
-/** @defgroup ADCEx_Group4 Extended Peripheral State functions
-  * @brief    Extended Peripheral State functions
-  *
-@verbatim   
- ===============================================================================
-            ##### Peripheral state and errors functions #####
- ===============================================================================
-    [..]
-    This subsection provides functions to get in run-time the status of the  
-    peripheral.
-      (+) Check the ADC state
-      (+) Check the ADC error code
-         
-@endverbatim
+/**
+  * @}
+  */
+  
+/** @defgroup ADCEx_Private_Functions ADC Extended Private Functions
   * @{
   */
+/**
+  * @brief  DMA transfer complete callback. 
+  * @param  hdma: pointer to DMA handle.
+  * @retval None
+  */
+static void ADC_DMAConvCplt(DMA_HandleTypeDef *hdma)
+{
+  /* Retrieve ADC handle corresponding to current DMA handle */
+  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+ 
+  /* Update state machine on conversion status if not in error state */
+  if(hadc->State != HAL_ADC_STATE_ERROR)
+  {
+    /* Update ADC state machine */
+    if(hadc->State != HAL_ADC_STATE_EOC_INJ_REG)
+    {
+      /* Check if a conversion is ready on injected group */
+      if(hadc->State == HAL_ADC_STATE_EOC_INJ)
+      {
+        /* Change ADC state */
+        hadc->State = HAL_ADC_STATE_EOC_INJ_REG;  
+      }
+      else
+      {
+        /* Change ADC state */
+        hadc->State = HAL_ADC_STATE_EOC_REG;
+      }
+    }
+  }
+  
+  /* Conversion complete callback */
+  HAL_ADC_ConvCpltCallback(hadc); 
+}
 
 /**
-  * @}
+  * @brief  DMA half transfer complete callback. 
+  * @param  hdma: pointer to DMA handle.
+  * @retval None
   */
+static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma)   
+{
+  /* Retrieve ADC handle corresponding to current DMA handle */
+  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+  
+  /* Half conversion callback */
+  HAL_ADC_ConvHalfCpltCallback(hadc); 
+}
 
-#if defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F328xx) || defined(STM32F334x8) || defined(STM32F301x8) || defined(STM32F318xx) || defined(STM32F302x8)
+/**
+  * @brief  DMA error callback 
+  * @param  hdma: pointer to DMA handle.
+  * @retval None
+  */
+static void ADC_DMAError(DMA_HandleTypeDef *hdma)   
+{
+  /* Retrieve ADC handle corresponding to current DMA handle */
+  ADC_HandleTypeDef* hadc = ( ADC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+  
+  /* Change ADC state */
+  hadc->State = HAL_ADC_STATE_ERROR;
+  
+  /* Set ADC error code to DMA error */
+  hadc->ErrorCode |= HAL_ADC_ERROR_DMA;
+  
+  /* Error callback */
+  HAL_ADC_ErrorCallback(hadc); 
+}
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Enable the selected ADC.
   * @note   Prerequisite condition to use this function: ADC must be disabled
@@ -5981,7 +6165,10 @@ static HAL_StatusTypeDef ADC_ConversionStop(ADC_HandleTypeDef* hadc, uint32_t Co
   /* Return HAL status */
   return HAL_OK;
 }
-#endif /* STM32F303xC || STM32F358xx || STM32F302xC || STM32F303x8 || STM32F328xx || STM32F334x8 || STM32F301x8 || STM32F318xx || STM32F302x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -5994,7 +6181,7 @@ static HAL_StatusTypeDef ADC_ConversionStop(ADC_HandleTypeDef* hadc, uint32_t Co
 static HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef* hadc)
 {
   uint32_t WaitLoopIndex = 0;
-  uint32_t tickstart=0;
+  uint32_t tickstart = 0;
   
   /* ADC enable and wait for ADC ready (in case of ADC is disabled or         */
   /* enabling phase not yet completed: flag ADC ready not yet set).           */
@@ -6077,21 +6264,11 @@ static HAL_StatusTypeDef ADC_ConversionStop_Disable(ADC_HandleTypeDef* hadc)
   /* Return HAL status */
   return HAL_OK;
 }
-#endif /* STM32F373xC || STM32F378xx */
-
+#endif /* STM32F373xC || STM32F378xx */  
 /**
   * @}
   */
-
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
+  
 #endif /* HAL_ADC_MODULE_ENABLED */
 /**
   * @}

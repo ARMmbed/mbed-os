@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   WWDG HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -89,7 +89,7 @@
   * @{
   */
 
-/** @defgroup WWDG 
+/** @defgroup WWDG WWDG HAL module driver.
   * @brief WWDG HAL module driver.
   * @{
   */
@@ -101,13 +101,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup WWDG_Private_Functions
+/** @defgroup WWDG_Exported_Functions WWDG Exported Functions
   * @{
   */
 
-/** @defgroup HAL_WWDG_Group1 Initialization/de-initialization functions 
+/** @defgroup WWDG_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions. 
  *
 @verbatim    
@@ -133,10 +133,8 @@
   */
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 { 
-  uint32_t tmp = 0;
-
   /* Check the WWDG handle allocation */
-  if(hwwdg == NULL)
+  if(hwwdg == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -157,33 +155,10 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
   hwwdg->State = HAL_WWDG_STATE_BUSY;
   
   /* Set WWDG Prescaler and Window */
-  /* Get the CFR register value */
-  tmp = hwwdg->Instance->CFR;
-  
-  /* Clear WDGTB[1:0] and W[6:0] bits */
-  tmp &= ((uint32_t)~(WWDG_CFR_WDGTB | WWDG_CFR_W));
-  
-  /* Prepare the WWDG Prescaler and Window parameters */
-  tmp |= hwwdg->Init.Prescaler | hwwdg->Init.Window;
-  
-  /* Write to WWDG CFR */
-  hwwdg->Instance->CFR = tmp;   
+  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W), (hwwdg->Init.Prescaler | hwwdg->Init.Window));
  
   /* Set WWDG Counter */
-  /* Get the CR register value */
-  tmp = hwwdg->Instance->CR;
-  
-  /* Clear T[6:0] bits */
-  tmp &= ((uint32_t)~(WWDG_CR_T));
-  
-  /* Prepare the WWDG Counter parameter */
-  tmp |= (hwwdg->Init.Counter);  
-  
-  /* Write to WWDG CR */
-  hwwdg->Instance->CR = tmp;  
-   
-  /* Change WWDG peripheral state */
-  hwwdg->State = HAL_WWDG_STATE_READY;
+  MODIFY_REG(hwwdg->Instance->CR, WWDG_CR_T, hwwdg->Init.Counter);
   
   /* Return function status */
   return HAL_OK;
@@ -261,7 +236,7 @@ __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
   * @}
   */
 
-/** @defgroup HAL_WWDG_Group2 I/O operation functions 
+/** @defgroup WWDG_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief    I/O operation functions 
  *
 @verbatim   
@@ -286,19 +261,19 @@ HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
 {
   /* Process locked */
   __HAL_LOCK(hwwdg); 
-  
+
   /* Change WWDG peripheral state */  
   hwwdg->State = HAL_WWDG_STATE_BUSY;
-                  
+
   /* Enable the Peripheral */
   __HAL_WWDG_ENABLE(hwwdg);  
 
   /* Change WWDG peripheral state */    
   hwwdg->State = HAL_WWDG_STATE_READY; 
-                  
+
   /* Process unlocked */
   __HAL_UNLOCK(hwwdg);
-  
+
   /* Return function status */
   return HAL_OK;
 }
@@ -312,16 +287,16 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 {
   /* Process locked */
   __HAL_LOCK(hwwdg); 
-  
+
   /* Change WWDG peripheral state */  
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* Enable the Early Wakeup Interrupt */ 
   __HAL_WWDG_ENABLE_IT(WWDG_IT_EWI);
-                  
+
   /* Enable the Peripheral */
   __HAL_WWDG_ENABLE(hwwdg);  
-  
+
   /* Return function status */
   return HAL_OK;
 }
@@ -391,7 +366,7 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   * @}
   */
 
-/** @defgroup HAL_WWDG_Group3 Peripheral State functions 
+/** @defgroup WWDG_Exported_Functions_Group3 Peripheral State functions 
  *  @brief    Peripheral State functions. 
  *
 @verbatim   

@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of OPAMP HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of OPAMP HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,41 +50,44 @@
   * @{
   */
 
-/** @addtogroup OPAMPEx
+/** @addtogroup OPAMPEx OPAMP Extended HAL module driver
   * @{
   */
-
-
-
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup OPAMPEx_Exported_Constants
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup OPAMPEx_Exported_Functions OPAMP Extended Exported Functions
   * @{
   */
+
+/** @addtogroup OPAMPEx_Exported_Functions_Group1 Extended Input and Output operation functions
+  * @{
+  */
+
+/* I/O operation functions  *****************************************************/
+
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
+
+HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2); 
+
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
+
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx) 
+HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2, OPAMP_HandleTypeDef *hopamp3, OPAMP_HandleTypeDef *hopamp4);
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
 
 /**
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
-
-/* I/O operation functions  *****************************************************/
-
-#if defined (STM32F302xC)
-
-HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2); 
-
-#endif /* STM32F302xC */
-
-#if defined (STM32F303xC) || defined (STM32F358xx) 
-
-HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2, OPAMP_HandleTypeDef *hopamp3, OPAMP_HandleTypeDef *hopamp4);
-#endif /* STM32F303xC || STM32F358xx */
-
-/* Peripheral Control functions  ************************************************/
-
+/**
+  * @}
+  */
 
 /**
   * @}

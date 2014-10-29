@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   GPIO HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -135,7 +135,7 @@
   * @{
   */
 
-/** @defgroup GPIO GPIO
+/** @defgroup GPIO GPIO HAL module driver
   * @brief GPIO HAL module driver
   * @{
   */
@@ -145,6 +145,9 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+/** @defgroup GPIO_Private_Macros GPIO Private Macros
+ * @{
+ */
 #define GET_GPIO_SOURCE(__GPIOx__) \
 (((uint32_t)(__GPIOx__) == ((uint32_t)GPIOA_BASE))? 0U :\
  ((uint32_t)(__GPIOx__) == ((uint32_t)(GPIOA_BASE + 0x0400)))? 1U :\
@@ -162,15 +165,18 @@
 #define GPIO_OUTPUT_TYPE      ((uint32_t)0x00000010) 
 
 #define GPIO_NUMBER           ((uint32_t)16)
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup GPIO_Private_Functions
-  * @{
+/**
+  * @}
   */
 
-/** @defgroup HAL_GPIO_Group1 Initialization/de-initialization functions 
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
+/** @defgroup GPIO_Exported_Functions GPIO Exported Functions
+* @{
+*/
+
+/** @defgroup GPIO_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -366,7 +372,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   * @}
   */
 
-/** @defgroup HAL_GPIO_Group2 IO operation functions 
+/** @defgroup GPIO_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief   GPIO Read and Write 
  *
 @verbatim   
@@ -415,8 +421,8 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   *          This parameter can be one of GPIO_PIN_x where x can be (0..15).
   * @param  PinState: specifies the value to be written to the selected bit.
   *          This parameter can be one of the GPIO_PinState enum values:
-  *            @arg GPIO_BIT_RESET: to clear the port pin
-  *            @arg GPIO_BIT_SET: to set the port pin
+  *            @arg GPIO_PIN_RESET: to clear the port pin
+  *            @arg GPIO_PIN_SET: to set the port pin
   * @retval None
   */
 void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState)

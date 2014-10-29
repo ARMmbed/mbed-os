@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smartcard_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides extended firmware functions to manage the following 
@@ -64,7 +64,7 @@
   * @{
   */
 
-/** @defgroup SMARTCARDEx
+/** @defgroup SMARTCARDEx SMARTCARD Extended HAL module driver
   * @brief SMARTCARD Extended HAL module driver
   * @{
   */
@@ -75,15 +75,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
-/** @defgroup SMARTCARDEx_Private_Functions
+/* Exported functions ---------------------------------------------------------*/
+
+/** @defgroup SMARTCARDEx_Exported_Functions SMARTCARD Extended Exported Functions
   * @{
   */
 
-
-
-/** @defgroup SMARTCARDEx_Group1 Extended Peripheral Control functions
+/** @defgroup SMARTCARDEx_Exported_Functions_Group1 Extended Peripheral Control functions
   * @brief    Extended control functions
   *
 @verbatim   

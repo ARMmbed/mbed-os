@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -55,6 +55,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup USART_Exported_Types USART Exported Types
+  * @{
+  */
 
 /** 
   * @brief USART Init Structure definition  
@@ -78,7 +81,7 @@ typedef struct
                                                  the word length is set to 9 data bits; 8th bit when the
                                                  word length is set to 8 data bits). */
  
-  uint32_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
+  uint32_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
                                            This parameter can be a value of @ref USART_Mode */
                                            
   uint32_t CLKPolarity;               /*!< Specifies the steady state of the serial clock.
@@ -169,10 +172,13 @@ typedef struct
   
 }USART_HandleTypeDef;
 
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup USART_Exported_Constants
+/** @defgroup USART_Exported_Constants USART Exported Constants
   * @{
   */
 
@@ -346,7 +352,7 @@ typedef struct
     
 /* Exported macros ------------------------------------------------------------*/
 
-/** @defgroup USART_Exported_Macros
+/** @defgroup USART_Exported_Macros USART Exported Macros
   * @{
   */  
   
@@ -498,17 +504,32 @@ typedef struct
   * @}
   */
  
-/* Include USART HAL Extension module */
+/* Include USART HAL Extended module */
 #include "stm32f3xx_hal_usart_ex.h"        
                                  
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup USART_Exported_Functions USART Exported Functions
+  * @{
+  */
 
+/** @addtogroup USART_Exported_Functions_Group1 Initialization and de-initialization functions
+  *  @brief    Initialization and Configuration functions 
+  * @{
+  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart);
 void HAL_USART_MspInit(USART_HandleTypeDef *husart);
 void HAL_USART_MspDeInit(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_CheckIdleState(USART_HandleTypeDef *husart);
+/**
+  * @}
+  */
+
+/** @defgroup USART_Exported_Functions_Group2 Input and Output operation functions 
+  *  @brief   USART Transmit/Receive functions 
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size, uint32_t Timeout);
@@ -529,12 +550,26 @@ void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart);
+/**
+  * @}
+  */
 
+/** @defgroup USART_Exported_Functions_Group3 Peripheral Control functions 
+  *  @brief   USART control functions 
+  * @{
+  */
 /* Peripheral Control functions ***********************************************/
 
 /* Peripheral State and Error functions ***************************************/
 HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart);
 uint32_t HAL_USART_GetError(USART_HandleTypeDef *husart);
+/**
+  * @}
+  */
+  
+/**
+  * @}
+  */
 
 /**
   * @}

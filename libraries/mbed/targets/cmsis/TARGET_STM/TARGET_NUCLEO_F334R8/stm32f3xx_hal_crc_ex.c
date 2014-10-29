@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_crc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended CRC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -85,7 +85,7 @@
   * @{
   */
 
-/** @defgroup CRCEx
+/** @defgroup CRCEx CRC Extended HAL module driver
   * @brief CRC Extended HAL module driver
   * @{
   */
@@ -97,13 +97,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup CRCEx_Private_Functions
+/** @defgroup CRCEx_Exported_Functions CRC Extended Exported Functions
   * @{
   */
 
-/** @defgroup CRCEx_Group1 Extended Initialization/de-initialization functions
+/** @defgroup CRCEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
   * @brief    Extended Initialization and Configuration functions.
   *
 @verbatim    

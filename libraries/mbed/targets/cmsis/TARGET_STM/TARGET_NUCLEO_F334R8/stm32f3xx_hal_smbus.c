@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smbus.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   SMBUS HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -132,7 +132,7 @@
   * @{
   */
 
-/** @defgroup SMBUS
+/** @defgroup SMBUS SMBUS HAL module driver
   * @brief SMBUS HAL module driver
   * @{
   */
@@ -141,6 +141,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup SMBUS_Private_Define SMBUS Private Define
+ * @{
+ */
 #define TIMING_CLEAR_MASK   ((uint32_t)0xF0FFFFFF)      /*<! SMBUS TIMING clear register Mask */
 #define HAL_TIMEOUT_ADDR    ((uint32_t)10000)           /* 10 s  */
 #define HAL_TIMEOUT_BUSY    ((uint32_t)25)              /* 25 ms */
@@ -151,13 +154,25 @@
 #define HAL_TIMEOUT_TCR     ((uint32_t)25)              /* 25 ms */
 #define HAL_TIMEOUT_TXIS    ((uint32_t)25)              /* 25 ms */
 #define MAX_NBYTE_SIZE      255
+/**
+  * @}
+  */
 
 /* Private macro -------------------------------------------------------------*/
+/** @defgroup SMBUS_Private_Macro SMBUS Private Macro
+ * @{
+ */
 #define __SMBUS_GET_ISR_REG(__HANDLE__) ((__HANDLE__)->Instance->ISR)
 #define __SMBUS_CHECK_FLAG(__ISR__, __FLAG__) ((((__ISR__) & ((__FLAG__) & SMBUS_FLAG_MASK)) == ((__FLAG__) & SMBUS_FLAG_MASK)))
+/**
+  * @}
+  */
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup SMBUS_Private_Functions SMBUS Private Functions
+  * @{
+  */
 static HAL_StatusTypeDef SMBUS_WaitOnFlagUntilTimeout(SMBUS_HandleTypeDef *hsmbus, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
 
 static HAL_StatusTypeDef SMBUS_Enable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t InterruptRequest);
@@ -166,14 +181,17 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus);
 static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus);
 
 static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddress, uint8_t Size, uint32_t Mode, uint32_t Request);
+/**
+  * @}
+  */
 
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup SMBUS_Private_Functions
+/** @defgroup SMBUS_Exported_Functions SMBUS Exported Functions
   * @{
   */
 
-/** @defgroup HAL_SMBUS_Group1 Initialization and de-initialization functions
+/** @defgroup SMBUS_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -219,7 +237,7 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
 HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 { 
   /* Check the SMBUS handle allocation */
-  if(hsmbus == NULL)
+  if(hsmbus == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -318,7 +336,7 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
 {
   /* Check the SMBUS handle allocation */
-  if(hsmbus == NULL)
+  if(hsmbus == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -374,7 +392,7 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
   * @}
   */
 
-/** @defgroup HAL_SMBUS_Group2 IO operation functions
+/** @defgroup SMBUS_Exported_Functions_Group2 Input and Output operation functions
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -417,6 +435,10 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
   * @{
   */
 
+/** @defgroup Non-Blocking_mode_Interrupt Non-Blocking mode Interrupt
+ * @{
+ */
+
 /**
   * @brief  Transmit in master/host SMBUS mode an amount of data in no-blocking mode with Interrupt
   * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
@@ -446,7 +468,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint
 
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == NULL)
+    if(hsmbus->pBuffPtr == HAL_NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -535,7 +557,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint1
     
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == NULL)
+    if(hsmbus->pBuffPtr == HAL_NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -662,7 +684,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -676,6 +698,9 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
     hsmbus->State |= HAL_SMBUS_STATE_SLAVE_BUSY_TX;
     hsmbus->ErrorCode = HAL_SMBUS_ERROR_NONE;
     
+    /* Set SBC bit to manage Acknowledge at each bit */
+    hsmbus->Instance->CR1 |= I2C_CR1_SBC;
+
     /* Enable Address Acknowledge */
     hsmbus->Instance->CR2 &= ~I2C_CR2_NACK;
 
@@ -750,7 +775,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -764,6 +789,9 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
     hsmbus->State |= HAL_SMBUS_STATE_SLAVE_BUSY_RX;
     hsmbus->ErrorCode = HAL_SMBUS_ERROR_NONE;
     
+    /* Set SBC bit to manage Acknowledge at each bit */
+    hsmbus->Instance->CR1 |= I2C_CR1_SBC;
+
     /* Enable Address Acknowledge */
     hsmbus->Instance->CR2 &= ~I2C_CR2_NACK;
 
@@ -883,6 +911,14 @@ HAL_StatusTypeDef HAL_SMBUS_DisableAlert_IT(SMBUS_HandleTypeDef *hsmbus)
 
   return HAL_OK; 
 }
+
+/**
+  * @}
+  */
+
+/** @defgroup Blocking_mode_Polling Blocking mode Polling
+ * @{
+ */
 /**
   * @brief  Checks if target device is ready for communication. 
   * @note   This function is used with Memory devices
@@ -1000,6 +1036,13 @@ HAL_StatusTypeDef HAL_SMBUS_IsDeviceReady(SMBUS_HandleTypeDef *hsmbus, uint16_t 
     return HAL_BUSY;
   }
 }
+/**
+  * @}
+  */
+
+/** @defgroup IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
+ * @{
+ */
 
 /**
   * @brief  This function handles SMBUS event interrupt request.
@@ -1124,9 +1167,14 @@ void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
     /* Do not Reset the the HAL state in case of ALERT error */
     if((hsmbus->ErrorCode & HAL_SMBUS_ERROR_ALERT) != HAL_SMBUS_ERROR_ALERT)
     {
-      /* Reset only HAL_SMBUS_STATE_SLAVE_BUSY_XX and HAL_SMBUS_STATE_MASTER_BUSY_XX */
-      /* keep HAL_SMBUS_STATE_LISTEN if set */
-      hsmbus->State &= ~((uint32_t)(HAL_SMBUS_STATE_MASTER_BUSY_RX | HAL_SMBUS_STATE_MASTER_BUSY_TX | HAL_SMBUS_STATE_SLAVE_BUSY_RX | HAL_SMBUS_STATE_SLAVE_BUSY_TX));
+      if(((hsmbus->State & HAL_SMBUS_STATE_SLAVE_BUSY_TX) == HAL_SMBUS_STATE_SLAVE_BUSY_TX)
+         || ((hsmbus->State & HAL_SMBUS_STATE_SLAVE_BUSY_RX) == HAL_SMBUS_STATE_SLAVE_BUSY_RX))
+      {
+        /* Reset only HAL_SMBUS_STATE_SLAVE_BUSY_XX */
+        /* keep HAL_SMBUS_STATE_LISTEN if set */
+        hsmbus->PreviousState = HAL_SMBUS_STATE_READY;
+        hsmbus->State = HAL_SMBUS_STATE_LISTEN;
+      }
     }
     
     /* Call the Error callback to prevent upper layer */
@@ -1230,7 +1278,11 @@ __weak void HAL_SMBUS_SlaveListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   * @}
   */
 
-/** @defgroup HAL_SMBUS_Group3 Peripheral State and Errors functions 
+/**
+  * @}
+  */  
+
+/** @defgroup SMBUS_Exported_Functions_Group3 Peripheral State and Errors functions 
  *  @brief   Peripheral State and Errors functions 
  *
 @verbatim   
@@ -1269,6 +1321,15 @@ uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus)
 /**
   * @}
   */  
+
+/**
+  * @}
+  */  
+
+/** @addtogroup SMBUS_Private_Functions SMBUS Private Functions
+ *  @brief   Data transfers Private functions 
+  * @{
+  */
 
 /**
   * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Master Mode
@@ -1423,7 +1484,7 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
     if(hsmbus->XferCount == 0)
     {
       /* Specific use case for Quick command */
-      if(hsmbus->pBuffPtr == NULL)
+      if(hsmbus->pBuffPtr == HAL_NULL)
       {
         /* Generate a Stop command */
         hsmbus->Instance->CR2 |= I2C_CR2_STOP;
@@ -1509,7 +1570,7 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
 
       /* Disable RX/TX Interrupts, keep only ADDR Interrupt */
       SMBUS_Disable_IRQ(hsmbus, SMBUS_IT_RX | SMBUS_IT_TX);
-      
+
       /* Set ErrorCode corresponding to a Non-Acknowledge */
       hsmbus->ErrorCode |= HAL_SMBUS_ERROR_ACKF;
 
@@ -1885,7 +1946,6 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
   /* update CR2 register */
   hsmbus->Instance->CR2 = tmpreg;  
 }  
-
 /**
   * @}
   */

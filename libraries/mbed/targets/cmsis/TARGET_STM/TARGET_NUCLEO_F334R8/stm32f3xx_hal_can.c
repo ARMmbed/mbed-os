@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   CAN HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -107,17 +107,18 @@
   * @{
   */
 
-/** @defgroup CAN 
+/** @defgroup CAN CAN HAL module driver
   * @brief CAN driver modules
   * @{
   */ 
   
 #ifdef HAL_CAN_MODULE_ENABLED  
   
-#if defined(STM32F302x8) || defined(STM32F302xC) ||                         \
-    defined(STM32F303x8) || defined(STM32F303xC) || defined(STM32F373xC) || \
-    defined(STM32F334x8) ||                                                 \
-    defined(STM32F328xx) || defined(STM32F358xx) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F302x8)                                                 || \
+    defined(STM32F373xC) || defined(STM32F378xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -126,13 +127,13 @@
 /* Private function prototypes -----------------------------------------------*/
 static HAL_StatusTypeDef CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONumber);
 static HAL_StatusTypeDef CAN_Transmit_IT(CAN_HandleTypeDef* hcan);
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup CAN_Private_Functions
+/** @defgroup CAN_Exported_Functions CAN Exported Functions
   * @{
   */
 
-/** @defgroup CAN_Group1 Initialization and de-initialization functions 
+/** @defgroup CAN_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -160,7 +161,7 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   uint32_t tickstart = 0;
   
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -430,7 +431,7 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
 {
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -484,7 +485,7 @@ __weak void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
   * @}
   */
 
-/** @defgroup CAN_Group2 I/O operation functions
+/** @defgroup CAN_Exported_Functions_Group2 Input and Output operation functions
  *  @brief    I/O operation functions 
  *
 @verbatim   
@@ -1184,7 +1185,7 @@ __weak void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
   * @}
   */
 
-/** @defgroup CAN_Group3 Peripheral State and Error functions
+/** @defgroup CAN_Exported_Functions_Group3 Peripheral State and Error functions
  *  @brief   CAN Peripheral State functions 
  *
 @verbatim   
@@ -1227,6 +1228,13 @@ uint32_t HAL_CAN_GetError(CAN_HandleTypeDef *hcan)
   * @}
   */
 
+/**
+  * @}
+  */
+
+/** @defgroup CAN_Private_Functions CAN Private Functions
+ * @{
+ */
 /**
   * @brief  Initiates and transmits a CAN frame message.
   * @param  hcan: pointer to a CAN_HandleTypeDef structure that contains
@@ -1360,16 +1368,15 @@ static HAL_StatusTypeDef CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONum
 
   /* Return function status */
   return HAL_OK;
-}
-
+} 
 /**
-  * @}
-  */
-
-#endif /* defined(STM32F302x8) || defined(STM32F302xC) ||                         */
-       /* defined(STM32F303x8) || defined(STM32F303xC) || defined(STM32F373xC) || */
-       /* defined(STM32F334x8) ||                                                 */
-       /* defined(STM32F328xx) || defined(STM32F358xx) || defined(STM32F378xx)    */
+ * @}
+ */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F302x8                               || */
+       /* STM32F373xC || STM32F378xx                   */
 
 #endif /* HAL_CAN_MODULE_ENABLED */
 /**

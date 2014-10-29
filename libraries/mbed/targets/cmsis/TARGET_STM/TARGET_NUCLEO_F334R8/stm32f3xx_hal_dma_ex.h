@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dma_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of DMA HAL extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of DMA HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,13 +50,16 @@
   * @{
   */
 
-/** @addtogroup DMAEx
+/** @addtogroup DMAEx DMA Extended HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+/** @defgroup DMAEx_Exported_Macros DMA Extended Exported Macros
+  * @{
+  */
 /* Interrupt & Flag management */
 
 /**
@@ -65,8 +68,10 @@
   * @retval The specified transfer complete flag index.
   */
 
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F373xC)
-/** @defgroup STM32F302xC_STM32F303xC_STM32F373xC Product devices
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
+/** @defgroup STM32F302xE_STM32F303xE_STM32F398xx_STM32F302xC_STM32F303xC_STM32F3058xx_STM32F373xC_STM32F378xx Product devices
   * @{
   */
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -126,10 +131,10 @@
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: Get the specified flag.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.   
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *         Where x can be 0, 1, 2, 3, 4, 5, 6 or 7 to select the DMA Channel flag.   
   * @retval The state of FLAG (SET or RESET).
   */
 
@@ -142,10 +147,10 @@
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: specifies the flag to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.   
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *         Where x can be 0, 1, 2, 3, 4, 5, 6 or 7 to select the DMA Channel flag.   
   * @retval None
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) \
@@ -158,7 +163,7 @@
 
 #else
 
-/** @defgroup STM32F301x8_STM32F302x8_STM32F303x8_STM32F334x8 Product devices
+/** @defgroup STM32F301x8_STM32F302x8_STM32F318xx_STM32F303x8_STM32F334x8_STM32F328xx Product devices
   * @{
   */
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -203,10 +208,10 @@
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: Get the specified flag.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.   
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *         Where x can be 0, 1, 2, 3, 4, 5, 6 or 7 to select the DMA Channel flag.   
   * @retval The state of FLAG (SET or RESET).
   */
 
@@ -217,10 +222,10 @@
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: specifies the flag to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.   
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *         Where x can be 0, 1, 2, 3, 4, 5, 6 or 7 to select the DMA Channel flag.   
   * @retval None
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR |= (__FLAG__))
@@ -233,6 +238,10 @@
   
 /**
   * @}
+  */
+
+/**
+  * @}
   */ 
 
 /**
@@ -241,7 +250,9 @@
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
 #endif /* __STM32F3xx_HAL_DMA_H */
 

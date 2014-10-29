@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of OPAMP HAL module.
   ******************************************************************************
   * @attention
@@ -43,9 +43,10 @@
  extern "C" {
 #endif
 
-#if  defined (STM32F303xC) || defined (STM32F358xx) || defined (STM32F302xC) || \
-     defined (STM32F303x8) || defined (STM32F328xx) || defined (STM32F302x8) || \
-     defined (STM32F301x8) || defined (STM32F318xx) || defined (STM32F334x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) 
                   
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
@@ -59,6 +60,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup OPAMP_Exported_Types OPAMP Exported Types
+  * @{
+  */
 
 /** 
   * @brief  OPAMP Init structure definition  
@@ -80,7 +84,7 @@ typedef struct
 
   uint32_t NonInvertingInput;           /*!< Specifies the non inverting input of the opamp: 
                                              This parameter must be a value of @ref OPAMP_NonInvertingInput 
-                                             NonInvertingInput is either VP0, VP1, VP3 or VP4 */                                   
+                                             NonInvertingInput is either VP0, VP1, VP2 or VP3 */                                   
   
   uint32_t TimerControlledMuxmode;      /*!< Specifies if the Timer controlled Mux mode is enabled or disabled 
                                              This parameter must be a value of @ref OPAMP_TimerControlledMuxmode */
@@ -99,7 +103,7 @@ typedef struct
                                              TimerControlledMuxmode is enabled 
                                              i.e. when TimerControlledMuxmode is OPAMP_TIMERCONTROLLEDMUXMODE_ENABLE
                                              This parameter must be a value of @ref OPAMP_NonInvertingInputSecondary 
-                                             NonInvertingInput is either VP0, VP1, VP3 or VP3 */                                   
+                                             NonInvertingInput is either VP0, VP1, VP2 or VP3 */                                   
 
   uint32_t PgaConnect;                  /*!< Specifies the inverting pin in PGA mode 
                                              i.e. when mode is OPAMP_PGA_MODE 
@@ -113,7 +117,7 @@ typedef struct
                                                                                      
   uint32_t UserTrimming;                /*!< Specifies the trimming mode 
                                              This parameter must be a value of @ref OPAMP_UserTrimming 
-                                             UserTrimming is either factory or user timming */
+                                             UserTrimming is either factory or user trimming */
                                         
   uint32_t TrimmingValueP;              /*!< Specifies the offset trimming value (PMOS)
                                              i.e. when UserTrimming is OPAMP_TRIMMING_USER. 
@@ -143,7 +147,7 @@ typedef enum
 }HAL_OPAMP_StateTypeDef;
 
 /** 
-  * @brief PPP Handle Structure definition to @brief  OPAMP Handle Structure definition 
+  * @brief OPAMP Handle Structure definition to @brief  OPAMP Handle Structure definition 
   */ 
 typedef struct
 {
@@ -160,14 +164,17 @@ typedef struct
   */ 
 
 typedef  uint32_t OPAMP_TrimmingValueTypeDef;
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup OPAMP_Exported_Constants
+/** @defgroup OPAMP_Exported_Constants OPAMP Exported Constants
   * @{
   */
 
-/**
-  * CSR register Mask 
+/** @defgroup CSR_INIT CSR init register Mask 
+  * @{
   */
 /* Used for Init phase */
 #define OPAMP_CSR_UPDATE_PARAMETERS_INIT_MASK (OPAMP_CSR_TRIMOFFSETN | OPAMP_CSR_TRIMOFFSETP \
@@ -179,7 +186,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */         
 
-/** @defgroup OPAMP_Mode
+/** @defgroup OPAMP_Mode OPAMP Mode
   * @{
   */
 #define OPAMP_STANDALONE_MODE            ((uint32_t)0x00000000) /*!< standalone mode */
@@ -195,7 +202,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */                                        
                                                                              
-/** @defgroup OPAMP_NonInvertingInput
+/** @defgroup OPAMP_NonInvertingInput OPAMP Non Inverting Input
   * @{
   */
 
@@ -217,7 +224,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
-/** @defgroup OPAMP_InvertingInput
+/** @defgroup OPAMP_InvertingInput OPAMP Inverting Input
   * @{
   */
 
@@ -231,7 +238,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
-/** @defgroup OPAMP_TimerControlledMuxmode
+/** @defgroup OPAMP_TimerControlledMuxmode OPAMP Timer Controlled Mux mode
   * @{
   */
  #define OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE ((uint32_t)0x00000000)    /*!< Timer controlled Mux mode disabled */
@@ -243,7 +250,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
- /** @defgroup OPAMP_NonInvertingInputSecondary
+ /** @defgroup OPAMP_NonInvertingInputSecondary OPAMP Non Inverting Input Secondary
   * @{
   */
 
@@ -265,7 +272,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
-/** @defgroup OPAMP_InvertingInputSecondary
+/** @defgroup OPAMP_InvertingInputSecondary OPAMP Inverting Input Secondary
   * @{
   */
 
@@ -281,7 +288,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
-/** @defgroup OPAMP_PgaConnect
+/** @defgroup OPAMP_PgaConnect OPAMP Pga Connect
   * @{
   */
 
@@ -297,7 +304,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   */
 
 
-/** @defgroup OPAMP_PgaGain
+/** @defgroup OPAMP_PgaGain OPAMP Pga Gain
   * @{
   */
 
@@ -314,7 +321,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */
 
-/** @defgroup OPAMP_UserTrimming
+/** @defgroup OPAMP_UserTrimming OPAMP User Trimming
   * @{
   */
 
@@ -324,7 +331,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
 #define IS_OPAMP_TRIMMING(TRIMMING) (((TRIMMING) == OPAMP_TRIMMING_FACTORY) || \
                                      ((TRIMMING) == OPAMP_TRIMMING_USER))
 
-/** @defgroup OPAMP_FactoryTrimming
+/** @defgroup OPAMP_FactoryTrimming OPAMP Factory Trimming
   * @{
   */
 
@@ -341,7 +348,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   */ 
 
 
-/** @defgroup OPAMP_TrimmingValue
+/** @defgroup OPAMP_TrimmingValue OPAMP Trimming Value
   * @{
   */
 
@@ -353,7 +360,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   */ 
 
 
-/** @defgroup OPAMP_Input
+/** @defgroup OPAMP_Input OPAMP Input
   * @{
   */
 
@@ -367,7 +374,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   */
 
 
-/** @defgroup OPAMP_VREF
+/** @defgroup OPAMP_VREF OPAMP VREF
   * @{
   */
 
@@ -385,7 +392,7 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */ 
 
- /** @defgroup OPAMP_Vref2ADCforCalib
+ /** @defgroup OPAMP_Vref2ADCforCalib OPAMP Vref2ADCforCalib
   */
  
 #define OPAMP_VREF_NOTCONNECTEDTO_ADC          ((uint32_t)0x00000000) /*!< VREF not connected to ADC */
@@ -399,7 +406,14 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   * @}
   */ 
     
+ /**
+  * @}
+  */ 
+
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup OPAMP_Exported_Macros OPAMP Exported Macros
+  * @{
+  */
 
 /** @brief Reset OPAMP handle state
   * @param  __HANDLE__: OPAMP handle.
@@ -407,24 +421,59 @@ typedef  uint32_t OPAMP_TrimmingValueTypeDef;
   */
 #define __HAL_OPAMP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_OPAMP_STATE_RESET)
 
-/* Include OPAMP HAL Extension module */
+/**
+  * @}
+  */ 
+
+/* Include OPAMP HAL Extended module */
 #include "stm32f3xx_hal_opamp_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup OPAMP_Exported_Functions OPAMP Exported Functions
+  * @{
+  */
+
+/** @defgroup OPAMP_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp);
 HAL_StatusTypeDef HAL_OPAMP_DeInit (OPAMP_HandleTypeDef *hopamp);
 void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp);
 void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp);
+/**
+  * @}
+  */
+
+
+/** @defgroup OPAMP_Exported_Functions_Group2 Input and Output operation functions 
+  * @{
+  */
 
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef HAL_OPAMP_Start(OPAMP_HandleTypeDef *hopamp);
 HAL_StatusTypeDef HAL_OPAMP_Stop(OPAMP_HandleTypeDef *hopamp);
 HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp); 
 
+/**
+  * @}
+  */
+
+/** @defgroup OPAMP_Exported_Functions_Group3 Peripheral Control functions 
+  * @{
+  */
+
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp); 
+
+/**
+  * @}
+  */
+
+/** @defgroup OPAMP_Exported_Functions_Group4 Peripheral State functions 
+  * @{
+  */
 
 /* Peripheral State functions  **************************************************/
 HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp);
@@ -432,14 +481,24 @@ OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset (OPAMP_HandleTypeDef *hopamp,
 
 /**
   * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
   */ 
 
 /**
   * @}
   */ 
 
-#endif /* STM32F303xC  STM32F358xx STM32F302xC STM32F303x8 STM32F328xx 
-          STM32F302x8 STM32F301x8 STM32F318xx STM32F334x8 */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #ifdef __cplusplus
 }
