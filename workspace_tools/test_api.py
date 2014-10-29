@@ -669,7 +669,6 @@ class SingleTestRunner(object):
                 single_test_output = self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
                 print single_test_output
             else:
-                sleep(target_by_mcu.program_cycle_s())
                 # Host test execution
                 start_host_exec_time = time()
 
@@ -681,7 +680,8 @@ class SingleTestRunner(object):
                                                                             verbose=host_test_verbose,
                                                                             reset=host_test_reset,
                                                                             reset_tout=reset_tout,
-                                                                            copy_method=selected_copy_method)
+                                                                            copy_method=selected_copy_method,
+                                                                            program_cycle_s=target_by_mcu.program_cycle_s())
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -759,7 +759,7 @@ class SingleTestRunner(object):
 
     def run_host_test(self, name, image_path, disk, port, duration,
                       micro=None, reset=None, reset_tout=None,
-                      verbose=False, copy_method=None):
+                      verbose=False, copy_method=None, program_cycle_s=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -798,7 +798,8 @@ class SingleTestRunner(object):
                '-d', disk,
                '-f', '"%s"'% image_path,
                '-p', port,
-               '-t', str(duration)]
+               '-t', str(duration),
+               '-C', str(program_cycle_s)]
 
         # Add extra parameters to host_test
         if copy_method is not None:

@@ -67,6 +67,12 @@ class Mbed:
                           help="Copy method selector",
                           metavar="COPY_METHOD")
 
+        parser.add_option("-C", "--program_cycle_s",
+                          dest="program_cycle_s",
+                          help="Program cycle sleep. Define how many seconds you want wait after copying bianry onto target",
+                          type="float",
+                          metavar="COPY_METHOD")
+
         parser.add_option("-t", "--timeout",
                           dest="timeout",
                           help="Timeout",
@@ -95,6 +101,7 @@ class Mbed:
         self.disk = self.options.disk
         self.image_path = self.options.image_path.strip('"')
         self.copy_method = self.options.copy_method
+        self.program_cycle_s = float(self.options.program_cycle_s)
 
         self.serial = None
         self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
@@ -192,7 +199,9 @@ class Mbed:
         disk = disk if disk is not None else self.disk
         copy_method = copy_method if copy_method is not None else self.copy_method
         # Call proper copy method
-        return self.copy_image_raw(image_path, disk, copy_method)
+        result = self.copy_image_raw(image_path, disk, copy_method)
+        sleep(self.program_cycle_s)
+        return result
 
     def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
         """ Copy file depending on method you want to use. Handles exception
