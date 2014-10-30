@@ -251,6 +251,7 @@ class HostTestResults:
         self.RESULT_IO_SERIAL = 'ioerr_serial'
         self.RESULT_NO_IMAGE = 'no_image'
         self.RESULT_IOERR_COPY = "ioerr_copy"
+        self.RESULT_PASSIVE = "passive"
 
 
 class Test(HostTestResults):
@@ -284,7 +285,10 @@ class Test(HostTestResults):
         # Run test
         try:
             result = self.test()
-            self.print_result(result)
+            if result is not None:
+                self.print_result(result)
+            else:
+                self.notify("HOST: Passive mode...")
         except Exception, e:
             print str(e)
             self.print_result(self.RESULT_ERROR)
@@ -324,7 +328,7 @@ class Simple(DefaultTest):
         output from MUT, no supervision over test running in MUT is executed.
     """
     def test(self):
-        result = True
+        result = self.RESULT_SUCCESS
         try:
             while True:
                 c = self.mbed.serial_read(512)
@@ -334,7 +338,7 @@ class Simple(DefaultTest):
                 stdout.flush()
         except KeyboardInterrupt, _:
             self.notify("\r\n[CTRL+C] exit")
-            result = False
+            result = self.RESULT_ERROR
         return result
 
 

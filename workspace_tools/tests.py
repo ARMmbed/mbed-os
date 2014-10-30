@@ -657,7 +657,7 @@ TESTS = [
         "peripherals": ["ethernet"],
     },
     {
-        "id": "NET_2", "description": "UDP client hello world",
+        "id": "NET_2", "description": "NIST Internet Time Service",
         "source_dir": join(TEST_DIR, "net", "helloworld", "udpclient"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "duration": 15,
@@ -697,7 +697,7 @@ TESTS = [
         "peripherals": ["ethernet"],
     },
     {
-        "id": "NET_7", "description": "HTTP client",
+        "id": "NET_7", "description": "HTTP client hello world",
         "source_dir": join(TEST_DIR, "net", "protocols", "HTTPClient_HelloWorld"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,

@@ -18,7 +18,7 @@ limitations under the License.
 import sys
 import socket
 from sys import stdout
-from host_test import Test
+from host_test import HostTestResults, Test
 from SocketServer import BaseRequestHandler, TCPServer
 
 
@@ -28,15 +28,12 @@ SERVER_PORT = 7
 
 class TCPEchoClientTest(Test):
     def __init__(self):
+        HostTestResults.__init__(self)
         Test.__init__(self)
-        self.mbed.init_serial()
 
     def send_server_ip_port(self, ip_address, port_no):
         """ Set up network host. Reset target and and send server IP via serial to Mbed
         """
-        self.notify("HOST: Resetting target...")
-        self.mbed.reset()
-
         c = self.mbed.serial_readline() # 'TCPCllient waiting for server IP and port...'
         if c is None:
             self.print_result(self.RESULT_IO_SERIAL)
@@ -57,10 +54,15 @@ class TCPEchoClientTest(Test):
                 return
             self.notify(c.strip())
 
+    def test(self):
+        # Returning none will suppress host test from printing success code
+        return None
+
 
 class TCPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
-        """ One handle per connection """
+        """ One handle per connection
+        """
         print "HOST: Connection received...",
         count = 1;
         while True:
@@ -78,9 +80,10 @@ class TCPEchoClient_Handler(BaseRequestHandler):
 
 
 server = TCPServer((SERVER_IP, SERVER_PORT), TCPEchoClient_Handler)
-print "HOST: Listening for connections: " + SERVER_IP + ":" + str(SERVER_PORT)
+print "HOST: Listening for TCP connections: " + SERVER_IP + ":" + str(SERVER_PORT)
 
 mbed_test = TCPEchoClientTest();
+mbed_test.run()
 mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)
 
 server.serve_forever()
