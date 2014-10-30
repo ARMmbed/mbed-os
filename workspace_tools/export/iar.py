@@ -29,6 +29,7 @@ class IAREmbeddedWorkbench(Exporter):
         'K20D50M',
         'KL05Z',
         'KL25Z',
+        'KL46Z',
         'NUCLEO_F302R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
