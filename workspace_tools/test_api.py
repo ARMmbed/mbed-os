@@ -432,7 +432,8 @@ class SingleTestRunner(object):
                                                  inc_dirs=INC_DIRS,
                                                  jobs=self.opts_jobs)
                         except ToolException:
-                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name))
+                            project_name_str = project_name if project_name is not None else test_id
+                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
                             return test_summary, self.shuffle_random_seed, test_summary_ext, test_suite_properties_ext
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase

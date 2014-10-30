@@ -233,9 +233,12 @@ class Mbed:
     def flush(self):
         """ Flush serial ports
         """
+        result = False
         if self.serial:
             self.serial.flushInput()
             self.serial.flushOutput()
+            result = True
+        return result
 
 
 class HostTestResults:
