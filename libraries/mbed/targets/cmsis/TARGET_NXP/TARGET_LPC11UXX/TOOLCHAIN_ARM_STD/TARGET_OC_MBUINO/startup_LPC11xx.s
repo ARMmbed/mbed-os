@@ -19,7 +19,7 @@
 ; *
 ; *****************************************************************************/
 
-__initial_sp        EQU     0x10002000  ; Top of RAM from LPC11U
+__initial_sp        EQU     0x10001800  ; Top of RAM from LPC11U
 
                 PRESERVE8
                 THUMB
