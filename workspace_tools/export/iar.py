@@ -27,6 +27,7 @@ class IAREmbeddedWorkbench(Exporter):
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
+        'KL05Z',
         'KL25Z',
         'NUCLEO_F302R8',
         'NUCLEO_F401RE',
