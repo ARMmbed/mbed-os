@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -132,7 +132,7 @@
   * @{
   */
 
-/** @defgroup TIM 
+/** @defgroup TIM TIM HAL module driver
   * @brief TIM HAL module driver
   * @{
   */
@@ -157,11 +157,11 @@ static void TIM_DMAPeriodElapsedCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup TIM_Private_Functions
+/** @defgroup TIM_Exported_Functions TIM Exported Functions
   * @{
   */
 
-/** @defgroup TIM_Group1 Time Base functions 
+/** @defgroup TIM_Exported_Functions_Group1 Time Base functions 
  *  @brief    Time Base functions 
  *
 @verbatim    
@@ -191,7 +191,7 @@ static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
 { 
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -429,7 +429,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
   * @}
   */
   
-/** @defgroup TIM_Group2 Time Output Compare functions 
+/** @defgroup TIM_Exported_Functions_Group2 Time Output Compare functions 
  *  @brief    Time Output Compare functions 
  *
 @verbatim    
@@ -459,7 +459,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
 HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef* htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -926,7 +926,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   * @}
   */
 
-/** @defgroup TIM_Group3 Time PWM functions 
+/** @defgroup TIM_Exported_Functions_Group3 Time PWM functions 
  *  @brief    Time PWM functions 
  *
 @verbatim    
@@ -956,7 +956,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1426,7 +1426,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   * @}
   */
 
-/** @defgroup TIM_Group4 Time Input Capture functions 
+/** @defgroup TIM_Exported_Functions_Group4 Time Input Capture functions 
  *  @brief    Time Input Capture functions 
  *
 @verbatim    
@@ -1456,7 +1456,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1888,7 +1888,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   * @}
   */
 
-/** @defgroup TIM_Group5 Time One Pulse functions 
+/** @defgroup TIM_Exported_Functions_Group5 Time One Pulse functions 
  *  @brief    Time One Pulse functions 
  *
 @verbatim    
@@ -1922,7 +1922,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePulseMode)
 {
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -2155,7 +2155,7 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Out
   * @}
   */
 
-/** @defgroup TIM_Group6 Time Encoder functions 
+/** @defgroup TIM_Exported_Functions_Group6 Time Encoder functions 
  *  @brief    Time Encoder functions 
  *
 @verbatim    
@@ -2189,7 +2189,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
   uint32_t tmpccer = 0;
     
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -2668,7 +2668,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
 /**
   * @}
   */
-/** @defgroup TIM_Group7 TIM IRQ handler management 
+/** @defgroup TIM_Exported_Functions_Group7 TIM IRQ handler management 
  *  @brief    IRQ handler management 
  *
 @verbatim   
@@ -2817,7 +2817,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
   * @}
   */
 
-/** @defgroup TIM_Group8 Peripheral Control functions
+/** @defgroup TIM_Exported_Functions_Group8 Peripheral Control functions
  *  @brief   	Peripheral Control functions 
  *
 @verbatim   
@@ -4225,7 +4225,7 @@ uint32_t HAL_TIM_ReadCapturedValue(TIM_HandleTypeDef *htim, uint32_t Channel)
   * @}
   */
   
-/** @defgroup TIM_Group9 TIM Callbacks functions
+/** @defgroup TIM_Exported_Functions_Group9 TIM Callbacks functions
  *  @brief    TIM Callbacks functions 
  *
 @verbatim   
@@ -4319,7 +4319,7 @@ __weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
   * @}
   */
 
-/** @defgroup TIM_Group10 Peripheral State functions 
+/** @defgroup TIM_Exported_Functions_Group10 Peripheral State functions 
  *  @brief   Peripheral State functions 
  *
 @verbatim   

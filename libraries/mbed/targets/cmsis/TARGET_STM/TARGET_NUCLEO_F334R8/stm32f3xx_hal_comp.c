@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   COMP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -57,7 +57,7 @@
           (++) COMP_EXTI_LINE_COMP6_EVENT
           (++) COMP_EXTI_LINE_COMP7_EVENT
 
-[..] Table 1. COMP Inputs for the STM32F303xB/STM32F303xC devices
+[..] Table 1. COMP Inputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
  +------------------------------------------------------------------------------------------+     
  |                 |                | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
  |-----------------|----------------|---------------|---------------------------------------|
@@ -74,7 +74,7 @@
  |    Input        | IO2            |  ---  |  PA3  |  PD14 |  PE7  |  PB13 |  PB11 |  PC1  |
  +------------------------------------------------------------------------------------------+  
   
- [..] Table 2. COMP Outputs for the STM32F303xB/STM32F303xC devices
+ [..] Table 2. COMP Outputs for the STM32F303xB/STM32F303xC/STM32F303xE devices
  +-------------------------------------------------------+     
  | COMP1 | COMP2 | COMP3 | COMP4 | COMP5 | COMP6 | COMP7 |
  |-------|-------|-------|-------|-------|-------|-------|
@@ -114,15 +114,58 @@
  |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
  +----------------------------------------------------------------------------------------------------------------------+
 
- [..] Table 4. COMP Outputs blanking sources for the STM32F303xB/STM32F303xC devices
+ [..] Table 4. COMP Outputs redirection to embedded timers for the STM32F303xE devices
  +----------------------------------------------------------------------------------------------------------------------+
  |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
  |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
- |  TIM1 OC5      |  TIM1 OC5      |  TIM1 OC5      |  TIM3 OC4      |  TIM3 OC3      |  TIM2 OC4      |  TIM1 OC5      |
+ |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |  TIM1 BKIN     |  TIM1 BKIN     |  TIM1 BKIN (1) |
  |                |                |                |                |                |                |                |
- |  TIM2 OC3      |  TIM2 OC3      |  --------      |  TIM8 OC5      |  TIM8 OC5      |  TIM8 OC5      |  TIM8 OC5      |
+ |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
  |                |                |                |                |                |                |                |
- |  TIM3 OC3      |  TIM3 OC3      |  TIM2 OC4      |  TIM15 OC1     |  TIM8 BKIN     |  TIM15 OC2     |  TIM15 OC2     |
+ |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |  TIM8 BKIN     |  TIM8 BKIN     |  TIM8 BKIN (1) |
+ |                |                |                |                |                |                |                |
+ |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
+ |                |                |                |                |                |                |                |
+ |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+ |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+ |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |  TIM8BKIN2     |
+ |                |                |                |                |                |                |                |
+ |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM1 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM8 OCREFCLR |  TIM1 OCREFCLR |  
+ |                |                |                |                |                |                |                |
+ |  TIM1 IC1      |  TIM1 IC1      |  TIM2 OCREFCLR |  TIM3 IC3      |  TIM2 IC1      |  TIM2 IC2      |  TIM8 OCREFCLR |
+ |                |                |                |                |                |                |                |
+ |  TIM2 IC4      |  TIM2 IC4      |  TIM3 IC2      |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM2 OCREFCLR |  TIM2 IC3      |
+ |                |                |                |                |                |                |                |
+ |  TIM2 OCREFCLR |  TIM2 OCREFCLR |  TIM4 IC1      |  TIM4 IC2      |  TIM4 IC3      |  TIM16 OCREFCLR|  TIM1 IC2      |
+ |                |                |                |                |                |                |                |
+ |  TIM3 IC1      |  TIM3 IC1      |  TIM15 IC1     |  TIM15 OCREFCLR|  TIM16 BKIN    |  TIM16 IC1     |  TIM17 OCREFCLR|          
+ |                |                |                |                |                |                |                |
+ |  TIM3 OCREFCLR |  TIM3 OCREFCLR |  TIM15 BKIN    |  TIM15 IC2     |  TIM17 IC1     |  TIM4 IC4      |  TIM17 BKIN    |
+ |                |                |                |                |                |                |                |
+ |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|  TIM20 BKIN    |  TIM20 BKIN    |  TIM20 BKIN (1)|
+ |                |                |                |                |                |                |                |
+ |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
+ |                |                |                |                |                |                |                |
+ |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |  TIM1 BKIN2    |
+ |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+ |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |  TIM8 BKIN2    |
+ |     +          |     +          |     +          |     +          |     +          |     +          |     +          |
+ |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |  TIM20 BKIN2   |
+ |                |                |                |                |                |                |                |
+ +----------------------------------------------------------------------------------------------------------------------+
+ (1):This connection consists of connecting both GPIO and COMP output to TIM1/8/20 BRK input through an OR gate, instead
+     of connecting the GPIO to the TIM1/8/20 BRK input and the COMP output to the TIM1/8/20 BRK_ACTH input. The aim is to 
+     add a digital filter (3  bits) on the COMP output.
+
+ [..] Table 5. COMP Outputs blanking sources for the STM32F303xB/STM32F303xC/STM32F303xE devices
+ +----------------------------------------------------------------------------------------------------------------------+
+ |     COMP1      |     COMP2      |     COMP3      |     COMP4      |     COMP5      |     COMP6      |     COMP7      |
+ |----------------|----------------|----------------|----------------|----------------|----------------|----------------|
+ |  TIM1 OC5      |  TIM1 OC5      |  TIM1 OC5      |  TIM3 OC4      |  --------      |  TIM8 OC5      |  TIM1 OC5      |
+ |                |                |                |                |                |                |                |
+ |  TIM2 OC3      |  TIM2 OC3      |  --------      |  TIM8 OC5      |  TIM3 OC3      |  TIM2 OC4      |  TIM8 OC5      |
+ |                |                |                |                |                |                |                |
+ |  TIM3 OC3      |  TIM3 OC3      |  TIM2 OC4      |  TIM15 OC1     |  TIM8 OC5      |  TIM15 OC2     |  TIM15 OC2     |
  |                |                |                |                |                |                |                |
  +----------------------------------------------------------------------------------------------------------------------+
    
@@ -192,7 +235,7 @@
   * @{
   */
 
-/** @defgroup COMP 
+/** @defgroup COMP COMP HAL module driver
   * @brief COMP HAL module driver
   * @{
   */
@@ -204,13 +247,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup COMP_Private_Functions
+/** @defgroup COMP_Exported_Functions COMP Exported Functions
   * @{
   */
 
-/** @defgroup HAL_COMP_Group1 Initialization/de-initialization functions 
+/** @defgroup COMP_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -236,7 +279,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -299,7 +342,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -328,7 +371,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
 __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_COMP_MspInit could be implenetd in the user file
+            the HAL_COMP_MspInit could be implemented in the user file
    */
 }
 
@@ -348,7 +391,7 @@ __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
   * @}
   */
 
-/** @defgroup HAL_COMP_Group2 I/O operation functions 
+/** @defgroup COMP_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -373,7 +416,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -408,7 +451,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -443,6 +486,9 @@ HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t extiline = 0;
   
+  /* Check the parameter */
+  assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
+
   status = HAL_COMP_Start(hcomp);
   if(status == HAL_OK)
   {
@@ -516,7 +562,7 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
   * @}
   */
 
-/** @defgroup HAL_COMP_Group3 Peripheral Control functions 
+/** @defgroup COMP_Exported_Functions_Group3 Peripheral Control functions 
  *  @brief   management functions 
  *
 @verbatim   
@@ -541,7 +587,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -610,7 +656,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
   * @}
   */
 
-/** @defgroup HAL_COMP_Group4 Peripheral State functions 
+/** @defgroup COMP_Exported_Functions_Group4 Peripheral State functions 
  *  @brief   Peripheral State functions 
  *
 @verbatim   
@@ -633,7 +679,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == NULL)
+  if(hcomp == HAL_NULL)
   {
     return HAL_COMP_STATE_RESET;
   }

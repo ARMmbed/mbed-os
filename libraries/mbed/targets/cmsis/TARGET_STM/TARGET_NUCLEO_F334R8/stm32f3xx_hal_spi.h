@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -55,6 +55,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup SPI_Exported_Types SPI Exported Types
+  * @{
+  */
 
 /** 
   * @brief  SPI Configuration Structure definition  
@@ -179,13 +182,17 @@ typedef struct __SPI_HandleTypeDef
 
 }SPI_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup SPI_Exported_Constants
+/** @defgroup SPI_Exported_Constants SPI Exported Constants
   * @{
   */
 
-/** @defgroup SPI_mode 
+/** @defgroup SPI_mode SPI mode
   * @{
   */  
 
@@ -197,7 +204,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_Direction 
+/** @defgroup SPI_Direction  SPI Direction
   * @{
   */
 #define SPI_DIRECTION_2LINES             ((uint32_t)0x00000000)
@@ -216,7 +223,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
   
-/** @defgroup SPI_data_size 
+/** @defgroup SPI_data_size SPI data size
   * @{
   */
 
@@ -251,7 +258,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup SPI_Clock_Polarity 
+/** @defgroup SPI_Clock_Polarity SPI Clock Polarity
   * @{
   */ 
 
@@ -263,7 +270,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_Clock_Phase 
+/** @defgroup SPI_Clock_Phase  SPI Clock Phase
   * @{
   */
 
@@ -275,7 +282,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_Slave_Select_management 
+/** @defgroup SPI_Slave_Select_management SPI Slave Select management
   * @{
   */ 
 
@@ -291,7 +298,7 @@ typedef struct __SPI_HandleTypeDef
   */
 
  
-/** @defgroup SPI_NSS pulse management 
+/** @defgroup SPI_NSS SPI NSS pulse management 
   * @{
   */ 
 #define SPI_NSS_PULSE_ENABLED           SPI_CR2_NSSP
@@ -305,7 +312,7 @@ typedef struct __SPI_HandleTypeDef
   */
 
    
-/** @defgroup SPI_BaudRate_Prescaler 
+/** @defgroup SPI_BaudRate_Prescaler SPI BaudRate Prescaler
   * @{
   */
 
@@ -329,7 +336,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup SPI_MSB_LSB_transmission 
+/** @defgroup SPI_MSB_LSB_transmission SPI MSB LSB transmission
   * @{
   */ 
 
@@ -341,7 +348,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_TI_mode 
+/** @defgroup SPI_TI_mode SPI TI mode
   * @{
   */
 
@@ -353,7 +360,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */ 
   
-/** @defgroup SPI_CRC_Calculation 
+/** @defgroup SPI_CRC_Calculation SPI CRC Calculation
   * @{
   */
 
@@ -365,7 +372,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_CRC_length 
+/** @defgroup SPI_CRC_length SPI CRC length
   * @{
   * This parameter can be one of the following values:
   *     SPI_CRC_LENGTH_DATASIZE: aligned with the data size 
@@ -382,7 +389,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
   
-/** @defgroup SPI_FIFO_reception_threshold 
+/** @defgroup SPI_FIFO_reception_threshold SPI FIFO reception threshold
   * @{
   * This parameter can be one of the following values:
   *     SPI_RxFIFOThreshold_HF: RXNE event is generated if the FIFO 
@@ -398,7 +405,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */
 
-/** @defgroup SPI_Interrupt_configuration_definition
+/** @defgroup SPI_Interrupt_configuration_definition SPI Interrupt configuration definition
   * @brief SPI Interrupt definition
   *        Elements values convention: 0xXXXXXXXX
   *           - XXXXXXXX  : Interrupt control mask
@@ -415,11 +422,12 @@ typedef struct __SPI_HandleTypeDef
   */
 
 
-/** @defgroup SPI_Flag_definition 
+/** @defgroup SPI_Flag_definition SPI Flag definition
   * @brief Flag definition
   *        Elements values convention: 0xXXXXYYYY
   *           - XXXX  : Flag register Index
   *           - YYYY  : Flag mask
+  * @{
   */ 
 #define SPI_FLAG_RXNE                   SPI_SR_RXNE		/* SPI status flag: Rx buffer not empty flag */
 #define SPI_FLAG_TXE                    SPI_SR_TXE		/* SPI status flag: Tx buffer empty flag */
@@ -439,9 +447,12 @@ typedef struct __SPI_HandleTypeDef
                       	   ((FLAG) == SPI_FLAG_FTLVL) || \
                       	   ((FLAG) == SPI_FLAG_FRLVL) || \
                       	   ((FLAG) == SPI_IT_FRE))
+/**
+  * @}
+  */
 
 
-/** @defgroup SPI_transmission_fifo_status_level 
+/** @defgroup SPI_transmission_fifo_status_level SPI transmission fifo status level
   * @{
   */ 
 
@@ -455,7 +466,7 @@ typedef struct __SPI_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup SPI_reception_fifo_status_level 
+/** @defgroup SPI_reception_fifo_status_level SPI reception fifo status level
   * @{
   */ 
 #define SPI_FRLVL_EMPTY           ((uint16_t)0x0000)
@@ -473,6 +484,9 @@ typedef struct __SPI_HandleTypeDef
 
 
 /* Exported macros ------------------------------------------------------------*/
+/** @defgroup SPI_Exported_Macros SPI Exported Macros
+ * @{
+ */
 
 /** @brief  Reset SPI handle state
   * @param  __HANDLE__: SPI handle.
@@ -593,8 +607,18 @@ typedef struct __SPI_HandleTypeDef
 
                                                  
 #define IS_SPI_CRC_POLYNOMIAL(POLYNOMIAL) (((POLYNOMIAL) >= 0x1) && ((POLYNOMIAL) <= 0xFFFF))
+/**
+  * @}
+  */
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup SPI_Exported_Functions SPI Exported Functions
+  * @{
+  */
+
+/** @addtogroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi);
@@ -602,6 +626,13 @@ HAL_StatusTypeDef HAL_SPI_InitExtended(SPI_HandleTypeDef *hspi);
 HAL_StatusTypeDef HAL_SPI_DeInit (SPI_HandleTypeDef *hspi);
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi);
 void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi);
+/**
+  * @}
+  */
+
+/** @addtogroup SPI_Exported_Functions_Group2 Input and Output operation functions 
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -618,9 +649,23 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
+/**
+  * @}
+  */
+
+/** @addtogroup SPI_Exported_Functions_Group3 Peripheral Control functions 
+  * @{
+  */
 
 /* Peripheral State and Error functions ***************************************/
 HAL_SPI_StateTypeDef HAL_SPI_GetState(SPI_HandleTypeDef *hspi);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

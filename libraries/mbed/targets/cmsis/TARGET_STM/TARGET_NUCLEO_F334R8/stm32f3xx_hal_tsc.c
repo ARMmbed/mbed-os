@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -115,7 +115,7 @@
   * @{
   */
 
-/** @defgroup TSC
+/** @defgroup TSC HAL TSC module driver
   * @brief HAL TSC module driver
   * @{
   */
@@ -128,13 +128,13 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static uint32_t TSC_extract_groups(uint32_t iomask);
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup TSC_Private_Functions
+/** @defgroup TSC_Exported_Functions TSC Exported Functions
   * @{
   */ 
 
-/** @defgroup TSC_Group1 Initialization/de-initialization functions 
+/** @defgroup TSC_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -157,7 +157,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask);
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == NULL)
+  if (htsc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -240,7 +240,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == NULL)
+  if (htsc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -294,7 +294,7 @@ __weak void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc)
   * @}
   */
 
-/** @defgroup HAL_TSC_Group2 IO operation functions
+/** @defgroup TSC_Exported_Functions_Group2 Input and Output operation functions
  *  @brief    IO operation functions 
  *
 @verbatim   
@@ -496,7 +496,7 @@ uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index)
   * @}
   */
   
-/** @defgroup HAL_TSC_Group3 Peripheral Control functions
+/** @defgroup TSC_Exported_Functions_Group3 Peripheral Control functions
  *  @brief    Peripheral Control functions 
  *
 @verbatim   
@@ -582,7 +582,7 @@ HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice)
   * @}
   */
 
-/** @defgroup HAL_TSC_Group4 State functions
+/** @defgroup TSC_Exported_Functions_Group4 Peripheral State functions
  *  @brief   State functions 
  *
 @verbatim   

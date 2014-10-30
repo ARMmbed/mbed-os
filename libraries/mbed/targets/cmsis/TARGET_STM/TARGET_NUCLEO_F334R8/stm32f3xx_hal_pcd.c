@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -78,31 +78,46 @@
   * @{
   */
 
-/** @defgroup PCD
+/** @defgroup PCD PCD HAL module driver
   * @brief PCD HAL module driver
   * @{
   */
 
 #ifdef HAL_PCD_MODULE_ENABLED
 
-#if defined(STM32F302x8) || defined(STM32F302xC) ||                         \
-    defined(STM32F303xC) || defined(STM32F373xC)
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F302x8)                         || \
+    defined(STM32F373xC)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+
+/** @defgroup PCD_Private_Define PCD Private Define
+  * @{
+  */
 #define BTABLE_ADDRESS                  (0x000)  
+/**
+  * @}
+  */ 
+  
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup PCD_Private_Functions PCD Private Functions
+  * @{
+  */
 static HAL_StatusTypeDef PCD_EP_ISR_Handler(PCD_HandleTypeDef *hpcd);
-/* Private functions ---------------------------------------------------------*/
+/**
+  * @}
+  */ 
+/* Exported functions ---------------------------------------------------------*/
 
-
-/** @defgroup PCD_Private_Functions
+/** @defgroup PCD_Exported_Functions PCD Exported Functions
   * @{
   */
 
-/** @defgroup PCD_Group1 Initialization and de-initialization functions 
+/** @defgroup PCD_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim
@@ -128,7 +143,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   uint32_t wInterrupt_Mask = 0;
   
   /* Check the PCD handle allocation */
-  if(hpcd == NULL)
+  if(hpcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -199,7 +214,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
 {
   /* Check the PCD handle allocation */
-  if(hpcd == NULL)
+  if(hpcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -245,7 +260,7 @@ __weak void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
   * @}
   */
 
-/** @defgroup PCD_Group2 IO operation functions 
+/** @defgroup PCD_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -294,7 +309,17 @@ HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd)
   __HAL_UNLOCK(hpcd); 
   return HAL_OK;
 }
+/**
+  * @}
+  */
+  
+/**
+  * @}
+  */  
 
+/** @addtogroup PCD_Private_Functions PCD Private Functions
+  * @{
+  */
 /**
   * @brief  This function handles PCD Endpoint interrupt request.
   * @param  hpcd: PCD handle
@@ -501,6 +526,18 @@ static HAL_StatusTypeDef PCD_EP_ISR_Handler(PCD_HandleTypeDef *hpcd)
   return HAL_OK;
 }
 /**
+  * @}
+  */
+
+/** @addtogroup PCD_Exported_Functions
+  * @{
+  */
+
+/** @defgroup PCD_Exported_Functions_Group2 Input and Output operation functions 
+ * @{
+ */    
+ 
+/**
   * @brief  This function handles PCD interrupt request.
   * @param  hpcd: PCD handle
   * @retval HAL status
@@ -584,7 +621,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_DataOutStageCallback could be implenetd in the user file
+            the HAL_PCD_DataOutStageCallback could be implemented in the user file
    */ 
 }
 
@@ -597,7 +634,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_DataInStageCallback could be implenetd in the user file
+            the HAL_PCD_DataInStageCallback could be implemented in the user file
    */ 
 }
 /**
@@ -608,7 +645,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_SetupStageCallback could be implenetd in the user file
+            the HAL_PCD_SetupStageCallback could be implemented in the user file
    */ 
 }
 
@@ -620,7 +657,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_SOFCallback could be implenetd in the user file
+            the HAL_PCD_SOFCallback could be implemented in the user file
    */ 
 }
 
@@ -632,10 +669,9 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_ResetCallback could be implenetd in the user file
+            the HAL_PCD_ResetCallback could be implemented in the user file
    */ 
 }
-
 
 /**
   * @brief  Suspend event callbacks
@@ -645,7 +681,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_SuspendCallback could be implenetd in the user file
+            the HAL_PCD_SuspendCallback could be implemented in the user file
    */ 
 }
 
@@ -657,7 +693,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_ResumeCallback could be implenetd in the user file
+            the HAL_PCD_ResumeCallback could be implemented in the user file
    */ 
 }
 
@@ -670,7 +706,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_ISOOUTIncompleteCallback could be implenetd in the user file
+            the HAL_PCD_ISOOUTIncompleteCallback could be implemented in the user file
    */ 
 }
 
@@ -683,7 +719,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_ISOINIncompleteCallback could be implenetd in the user file
+            the HAL_PCD_ISOINIncompleteCallback could be implemented in the user file
    */ 
 }
 
@@ -695,7 +731,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_ConnectCallback could be implenetd in the user file
+            the HAL_PCD_ConnectCallback could be implemented in the user file
    */ 
 }
 
@@ -707,15 +743,14 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
  __weak void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_DisconnectCallback could be implenetd in the user file
+            the HAL_PCD_DisconnectCallback could be implemented in the user file
    */ 
 }
-
 /**
   * @}
   */
   
-/** @defgroup PCD_Group3 Peripheral Control functions 
+/** @defgroup PCD_Exported_Functions_Group3 Peripheral Control functions 
  *  @brief   management functions 
  *
 @verbatim   
@@ -740,7 +775,7 @@ HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd)
   __HAL_LOCK(hpcd); 
   
   /* Enabling DP Pull-Down bit to Connect internal pull-up on USB DP line */
-   HAL_PCDEx_SetConnectionState (hpcd, 1);
+   HAL_PCDEx_SetConnectionState(hpcd, 1);
   
   __HAL_UNLOCK(hpcd); 
   return HAL_OK;
@@ -756,7 +791,7 @@ HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd)
   __HAL_LOCK(hpcd); 
   
   /* Disable DP Pull-Down bit*/
-  HAL_PCDEx_SetConnectionState (hpcd, 0);
+  HAL_PCDEx_SetConnectionState(hpcd, 0);
   
   __HAL_UNLOCK(hpcd); 
   return HAL_OK;
@@ -1217,7 +1252,7 @@ HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
   * @}
   */
   
-/** @defgroup PCD_Group4 Peripheral State functions 
+/** @defgroup PCD_Exported_Functions_Group4 Peripheral State functions 
  *  @brief   Peripheral State functions 
  *
 @verbatim   
@@ -1250,8 +1285,10 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd)
   * @}
   */
 
-#endif /* defined(STM32F302x8) || defined(STM32F302xC) ||                         */
-       /* defined(STM32F303xC) || defined(STM32F373xC)    */
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F302x8                || */
+       /* STM32F373xC                   */
 
 #endif /* HAL_PCD_MODULE_ENABLED */
 /**

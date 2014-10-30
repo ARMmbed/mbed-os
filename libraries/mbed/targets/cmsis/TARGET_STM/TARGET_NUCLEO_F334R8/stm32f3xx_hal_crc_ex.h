@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of CRC HAL extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of CRC HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -56,8 +56,11 @@
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup CRCEx_Input_Data_Inversion Input Data Inversion Modes
+/** @defgroup CRCEx_Exported_Constants CRC Extended Exported Constants
+  * @{
+  */
+  
+/** @defgroup CRCEx_Input_Data_Inversion CRC Extended Input Data Inversion Modes
   * @{
   */
 #define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000)
@@ -73,7 +76,7 @@
   * @}
   */
 
-/** @defgroup CRCEx_Output_Data_Inversion Output Data Inversion Modes
+/** @defgroup CRCEx_Output_Data_Inversion CRC Extended Output Data Inversion Modes
   * @{
   */
 #define CRC_OUTPUTDATA_INVERSION_DISABLED         ((uint32_t)0x00000000)
@@ -84,10 +87,14 @@
 /**                                               
   * @}
   */
-
+  
+/**
+  * @}
+  */
+  
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup CRCEx_Exported_Macros
+/** @defgroup CRCEx_Exported_Macros CRC Extended Exported Macros
   * @{
   */
     
@@ -118,14 +125,28 @@
   */
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup CRCEx_Exported_Functions CRC Extended Exported Functions
+  * @{
+  */
+
+/** @addtogroup CRCEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
+  * @brief    Extended Initialization and Configuration functions.
+  * @{
+  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol, uint32_t PolyLength);
 HAL_StatusTypeDef HAL_CRCEx_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t InputReverseMode);
 HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t OutputReverseMode);
+/**
+  * @}
+  */
 
 /* Peripheral Control functions ***********************************************/
 /* Peripheral State and Error functions ***************************************/
 
+/**
+  * @}
+  */
 
 /**
   * @}

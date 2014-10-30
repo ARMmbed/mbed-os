@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
@@ -56,6 +56,9 @@
 
 /* Exported types ------------------------------------------------------------*/ 
 
+/** @defgroup WWDG_Exported_Types WWDG Exported Types
+  * @{
+  */
 /** 
   * @brief  WWDG HAL State Structure definition  
   */ 
@@ -100,13 +103,17 @@ typedef struct
 
 } WWDG_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup WWDG_Exported_Constants
+/** @defgroup WWDG_Exported_Constants WWDG Exported Constants
   * @{
   */
 
-/** @defgroup WWDG_BitAddress_AliasRegion
+/** @defgroup WWDG_BitAddress_AliasRegion WWDG registers bit address in the alias region
   * @brief WWDG registers bit address in the alias region
   * @{
   */  
@@ -119,59 +126,60 @@ typedef struct
   * @}
   */
 
-/** @defgroup WWDG_Interrupt_definition 
+/** @defgroup WWDG_Interrupt_definition WWDG Interrupt definition 
+  * @brief WWDG registers bit address in the alias region
   * @{
   */ 
 #define WWDG_IT_EWI      ((uint32_t)WWDG_CFR_EWI)  
 
-#define IS_WWDG_IT(IT) ((IT) == WWDG_IT_EWI)
+#define IS_WWDG_IT(__IT__) ((__IT__) == WWDG_IT_EWI)
 
 /**
   * @}
   */
 
-/** @defgroup WWDG_Flag_definition 
+/** @defgroup WWDG_Flag_definition WWDG Flag definition
   * @brief WWDG Flag definition
   * @{
   */ 
-#define WWDG_FLAG_EWIF    ((uint32_t)0x0001)  /*!< Early Wakeup Interrupt Flag */
+#define WWDG_FLAG_EWIF    ((uint32_t)WWDG_SR_EWIF)  /*!< Early Wakeup Interrupt Flag */
 
-#define IS_WWDG_FLAG(FLAG)    ((FLAG) == WWDG_FLAG_EWIF)) 
+#define IS_WWDG_FLAG(__FLAG__)    ((__FLAG__) == WWDG_FLAG_EWIF)) 
 
 /**
   * @}
   */
 
-/** @defgroup WWDG_Prescaler 
+/** @defgroup WWDG_Prescaler WWDG Prescaler
   * @{
   */ 
 #define WWDG_PRESCALER_1    ((uint32_t)0x00000000)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
-#define WWDG_PRESCALER_2    ((uint32_t)0x00000080)  /*!< WWDG counter clock = (PCLK1/4096)/2 */
-#define WWDG_PRESCALER_4    ((uint32_t)0x00000100)  /*!< WWDG counter clock = (PCLK1/4096)/4 */
-#define WWDG_PRESCALER_8    ((uint32_t)0x00000180)  /*!< WWDG counter clock = (PCLK1/4096)/8 */
+#define WWDG_PRESCALER_2    ((uint32_t)WWDG_CFR_WDGTB0)  /*!< WWDG counter clock = (PCLK1/4096)/2 */
+#define WWDG_PRESCALER_4    ((uint32_t)WWDG_CFR_WDGTB1)  /*!< WWDG counter clock = (PCLK1/4096)/4 */
+#define WWDG_PRESCALER_8    ((uint32_t)WWDG_CFR_WDGTB)  /*!< WWDG counter clock = (PCLK1/4096)/8 */
 
-#define IS_WWDG_PRESCALER(PRESCALER) (((PRESCALER) == WWDG_PRESCALER_1) || \
-                                      ((PRESCALER) == WWDG_PRESCALER_2) || \
-                                      ((PRESCALER) == WWDG_PRESCALER_4) || \
-                                      ((PRESCALER) == WWDG_PRESCALER_8))
-
-/**
-  * @}
-  */
-
-/** @defgroup WWDG_Window 
-  * @{
-  */ 
-#define IS_WWDG_WINDOW(WINDOW) ((WINDOW) <= 0x7F)
+#define IS_WWDG_PRESCALER(__PRESCALER__) (((__PRESCALER__) == WWDG_PRESCALER_1) || \
+                                          ((__PRESCALER__) == WWDG_PRESCALER_2) || \
+                                          ((__PRESCALER__) == WWDG_PRESCALER_4) || \
+                                          ((__PRESCALER__) == WWDG_PRESCALER_8))
 
 /**
   * @}
   */
 
-/** @defgroup WWDG_Counter 
+/** @defgroup WWDG_Window WWDG Window
   * @{
   */ 
-#define IS_WWDG_COUNTER(COUNTER) (((COUNTER) >= 0x40) && ((COUNTER) <= 0x7F))
+#define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7F)
+
+/**
+  * @}
+  */
+
+/** @defgroup WWDG_Counter WWDG Counter
+  * @{
+  */ 
+#define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40) && ((__COUNTER__) <= 0x7F))
 
 /**
   * @}
@@ -183,7 +191,7 @@ typedef struct
   
 /* Exported macros -----------------------------------------------------------*/
 
-/** @defgroup WWDG_Exported_Macros
+/** @defgroup WWDG_Exported_Macros WWDG Exported Macros
  * @{
  */
 
@@ -198,7 +206,7 @@ typedef struct
   * @param  __HANDLE__: WWDG handle
   * @retval None
   */
-#define __HAL_WWDG_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |=  WWDG_CR_WDGA)
+#define __HAL_WWDG_ENABLE(__HANDLE__) SET_BIT((__HANDLE__)->Instance->CR, WWDG_CR_WDGA)
 
 /**
   * @brief Get the selected WWDG's flag status.
@@ -227,11 +235,27 @@ typedef struct
   */
 #define __HAL_WWDG_ENABLE_IT(__INTERRUPT__) (*(__IO uint32_t *) CFR_BASE |= (__INTERRUPT__))
 
+/** @brief  Clear the WWDG's interrupt pending bits
+  *         bits to clear the selected interrupt pending bits.
+  * @param  __HANDLE__: WWDG handle
+  * @param  __INTERRUPT__: specifies the interrupt pending bit to clear.
+  *         This parameter can be one of the following values:
+  *            @arg WWDG_FLAG_EWIF: Early wakeup interrupt flag
+  */
+#define __HAL_WWDG_CLEAR_IT(__HANDLE__, __INTERRUPT__) __HAL_WWDG_CLEAR_FLAG((__HANDLE__), (__INTERRUPT__))
 /**
   * @}
   */
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup WWDG_Exported_Functions WWDG Exported Functions
+  * @{
+  */
+
+/** @addtogroup WWDG_Exported_Functions_Group1 Initialization and de-initialization functions
+ *  @brief    Initialization and Configuration functions. 
+ * @{
+ */
 
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg);
@@ -239,15 +263,36 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg);
+/**
+  * @}
+  */
 
+/** @addtogroup WWDG_Exported_Functions_Group2 Input and Output operation functions 
+ *  @brief    I/O operation functions 
+ * @{
+ */
 /* I/O operation functions ******************************************************/
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter);
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg);
+/**
+  * @}
+  */
 
+/** @addtogroup WWDG_Exported_Functions_Group3 Peripheral State functions 
+ *  @brief    Peripheral State functions. 
+ * @{
+ */
 /* Peripheral State functions  **************************************************/
 HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

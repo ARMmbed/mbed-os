@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of I2C HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of I2C HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,18 +50,18 @@
   * @{
   */
 
-/** @addtogroup I2CEx
+/** @addtogroup I2CEx I2C Extended HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup I2CEx_Exported_Constants
+/** @defgroup I2CEx_Exported_Constants I2C Extended Exported Constants
   * @{
   */
 
-/** @defgroup I2CEx_Analog_Filter
+/** @defgroup I2CEx_Analog_Filter I2C Extended Analog Filter
   * @{
   */
 #define I2C_ANALOGFILTER_ENABLED        ((uint32_t)0x00000000)
@@ -73,7 +73,7 @@
   * @}
   */
 
-/** @defgroup I2CEx_Digital_Filter
+/** @defgroup I2CEx_Digital_Filter I2C Extended Digital Filter
   * @{
   */
 #define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
@@ -88,6 +88,14 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
+/** @addtogroup I2CEx_Exported_Functions I2C Extended Exported Functions
+  * @{
+  */
+
+/** @addtogroup I2CEx_Exported_Functions_Group1 Extended features functions
+  * @{
+  */
+  
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_I2CEx_AnalogFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
 HAL_StatusTypeDef HAL_I2CEx_DigitalFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
@@ -102,6 +110,14 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c);
   * @}
   */
   
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+    
 #ifdef __cplusplus
 }
 #endif

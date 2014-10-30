@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -49,7 +49,7 @@
   * @{
   */
 
-/** @defgroup PWR
+/** @defgroup PWR PWR HAL module driver
   * @brief PWR HAL module driver
   * @{
   */
@@ -63,11 +63,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup PWR_Private_Functions
+/** @defgroup PWR_Exported_Functions PWR Exported Functions
   * @{
   */
 
-/** @defgroup HAL_PWR_Group1 Initialization and de-initialization functions 
+/** @defgroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
   *  @brief    Initialization and de-initialization functions
   *
 @verbatim
@@ -89,7 +89,6 @@
 
 /**
   * @brief Deinitializes the HAL PWR peripheral registers to their default reset values.
-  * @param None
   * @retval None
   */
 void HAL_PWR_DeInit(void)
@@ -103,7 +102,6 @@ void HAL_PWR_DeInit(void)
   *         backup data registers and backup SRAM).
   * @note  If the HSE divided by 32 is used as the RTC clock, the
   *         Backup Domain Access should be kept enabled.
-  * @param None
   * @retval None
   */
 void HAL_PWR_EnableBkUpAccess(void)
@@ -116,7 +114,6 @@ void HAL_PWR_EnableBkUpAccess(void)
   *         backup data registers and backup SRAM).
   * @note  If the HSE divided by 32 is used as the RTC clock, the
   *         Backup Domain Access should be kept enabled.
-  * @param None
   * @retval None
   */
 void HAL_PWR_DisableBkUpAccess(void)
@@ -128,7 +125,7 @@ void HAL_PWR_DisableBkUpAccess(void)
   * @}
   */
 
-/** @defgroup HAL_PWR_Group2 Peripheral Control functions
+/** @defgroup PWR_Exported_Functions_Group2 Peripheral Control functions 
   *  @brief Low Power modes configuration functions
   *
 @verbatim
@@ -143,7 +140,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           forced in input pull down configuration and is active on rising edges.
       (+) There are up to three WakeUp pins:
           WakeUp Pin 1 on PA.00.
-          WakeUp Pin 2 on PC.13 (STM32F303xC, only).
+          WakeUp Pin 2 on PC.13 (STM32F303xC, STM32F303xE only).
           WakeUp Pin 3 on PE.06.
 
     *** Main and Backup Regulators configuration ***
@@ -340,7 +337,6 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
     __WFE();
     __WFE();
   }
-
 }
 
 /**
@@ -411,7 +407,6 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   *            Alarm out, or RTC clock calibration out.
   *          - RTC_AF2 pin (PI8) if configured for tamper or time-stamp.
   *          - WKUP pin 1 (PA0) if enabled.
-  * @param  None
   * @retval None
   */
 void HAL_PWR_EnterSTANDBYMode(void)

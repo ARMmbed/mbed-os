@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   CEC HAL module driver.
   * 
   *          This file provides firmware functions to manage the following 
@@ -83,31 +83,37 @@
   * @{
   */
 
-/** @defgroup CEC 
-  * @brief HAL CEC module driver
-  * @{
-  */
 #ifdef HAL_CEC_MODULE_ENABLED
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
+/** @defgroup CEC CEC HAL module driver
+  * @brief HAL CEC module driver
+  * @{
+  */
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup CEC_Private CEC Private Constants
+  * @{
+  */
 #define CEC_CFGR_FIELDS     (CEC_CFGR_SFT | CEC_CFGR_RXTOL | CEC_CFGR_BRESTP \
                            | CEC_CFGR_BREGEN | CEC_CFGR_LBPEGEN | CEC_CFGR_SFTOPT \
                            | CEC_CFGR_BRDNOGEN | CEC_CFGR_OAR | CEC_CFGR_LSTN)
+/**
+ * @}
+ */ 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static HAL_StatusTypeDef CEC_Transmit_IT(CEC_HandleTypeDef *hcec);
 static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec);
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup CEC_Private_Functions
+/** @defgroup CEC_Exported_Functions CEC Exported Functions
   * @{
   */
 
-/** @defgroup HAL_CEC_Group1 Initialization/de-initialization functions 
+/** @defgroup CEC_Exported_Functions_Group1 Initialization and de-initialization functions
   *  @brief    Initialization and Configuration functions 
   *
 @verbatim                                               
@@ -142,7 +148,7 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
   uint32_t tmpreg = 0x0;
   
   /* Check the CEC handle allocation */
-  if(hcec == NULL)
+  if(hcec == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -203,7 +209,7 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
 HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
 {
   /* Check the CEC handle allocation */
-  if(hcec == NULL)
+  if(hcec == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -255,7 +261,7 @@ HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
   * @}
   */
 
-/** @defgroup HAL_CEC_Group2 IO operation functions 
+/** @defgroup CEC_Exported_Functions_Group2 Input and Output operation functions 
   *  @brief CEC Transmit/Receive functions 
   *
 @verbatim   
@@ -318,7 +324,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
   if((hcec->State == HAL_CEC_STATE_READY) && (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
-    if((pData == NULL) && (Size > 0)) 
+    if((pData == HAL_NULL) && (Size > 0)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -466,7 +472,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
   if (hcec->State == HAL_CEC_STATE_READY)
   { 
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
-    if (pData == NULL) 
+    if (pData == HAL_NULL) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -570,7 +576,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
   if (((hcec->State == HAL_CEC_STATE_READY) || (hcec->State == HAL_CEC_STATE_STANDBY_RX)) 
   &&   (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {    
-    if((pData == NULL) && (Size > 0)) 
+    if((pData == HAL_NULL) && (Size > 0)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -700,7 +706,7 @@ HAL_StatusTypeDef HAL_CEC_Receive_IT(CEC_HandleTypeDef *hcec, uint8_t *pData)
 {  
   if(hcec->State == HAL_CEC_STATE_READY)
   {
-    if(pData == NULL) 
+    if(pData == HAL_NULL) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return HAL_ERROR;                                    
@@ -890,8 +896,62 @@ __weak void HAL_CEC_RxCpltCallback(CEC_HandleTypeDef *hcec)
    */ 
 }
 
+/**
+  * @}
+  */
+
+/** @defgroup CEC_Exported_Functions_Group3 Peripheral Control functions 
+  *  @brief   CEC control functions 
+  *
+@verbatim   
+ ===============================================================================
+                      ##### Peripheral Control functions #####
+ ===============================================================================  
+    [..]
+    This subsection provides a set of functions allowing to control the CEC.
+     (+) HAL_CEC_GetState() API can be helpful to check in run-time the state of the CEC peripheral. 
+@endverbatim
+  * @{
+  */
+
+
+
+
 
 /**
+  * @brief return the CEC state
+  * @param hcec: CEC handle
+  * @retval HAL state
+  */
+HAL_CEC_StateTypeDef HAL_CEC_GetState(CEC_HandleTypeDef *hcec)
+{
+  return hcec->State;
+}
+
+/**
+* @brief  Return the CEC error code
+* @param  hcec : pointer to a CEC_HandleTypeDef structure that contains
+  *              the configuration information for the specified CEC.
+* @retval CEC Error Code
+*/
+uint32_t HAL_CEC_GetError(CEC_HandleTypeDef *hcec)
+{
+  return hcec->ErrorCode;
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/** @defgroup CEC_Private_Functions CEC Private Functions
+  * @{
+  */
+
+ /**
   * @brief Send data in interrupt mode 
   * @param hcec: CEC handle. 
   *         Function called under interruption only, once
@@ -1027,66 +1087,17 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec)
   }
 }
 
-
-
+/**
+ * @}
+ */ 
+ 
 /**
   * @}
   */
 
-/** @defgroup HAL_CEC_Group3 Peripheral Control functions 
-  *  @brief   CEC control functions 
-  *
-@verbatim   
- ===============================================================================
-                      ##### Peripheral Control functions #####
- ===============================================================================  
-    [..]
-    This subsection provides a set of functions allowing to control the CEC.
-     (+) HAL_CEC_GetState() API can be helpful to check in run-time the state of the CEC peripheral. 
-@endverbatim
-  * @{
-  */
-
-
-
-
-
-/**
-  * @brief return the CEC state
-  * @param hcec: CEC handle
-  * @retval HAL state
-  */
-HAL_CEC_StateTypeDef HAL_CEC_GetState(CEC_HandleTypeDef *hcec)
-{
-  return hcec->State;
-}
-
-/**
-* @brief  Return the CEC error code
-* @param  hcec : pointer to a CEC_HandleTypeDef structure that contains
-  *              the configuration information for the specified CEC.
-* @retval CEC Error Code
-*/
-uint32_t HAL_CEC_GetError(CEC_HandleTypeDef *hcec)
-{
-  return hcec->ErrorCode;
-}
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-  
 #endif /* defined(STM32F373xC) || defined(STM32F378xx) */
 
 #endif /* HAL_CEC_MODULE_ENABLED */
-/**
-  * @}
-  */
-
 /**
   * @}
   */

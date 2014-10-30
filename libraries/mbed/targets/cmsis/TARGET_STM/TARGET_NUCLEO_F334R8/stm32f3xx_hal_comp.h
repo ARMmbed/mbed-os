@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -55,7 +55,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
-
+/** @defgroup COMP_Exported_Types COMP Exported Types
+  * @{
+  */  
 /** 
   * @brief  COMP Init structure definition  
   */
@@ -122,12 +124,16 @@ typedef struct
   
 }COMP_HandleTypeDef;
 
+/**
+  * @}
+  */
+  
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup COMP_Exported_Constants
+/** @defgroup COMP_Exported_Constants COMP Exported Constants
   * @{
   */
 
-/** @defgroup COMP_OutputPolarity
+/** @defgroup COMP_OutputPolarity COMP Output Polarity
   * @{
   */
 #define COMP_OUTPUTPOL_NONINVERTED             ((uint32_t)0x00000000)  /*!< COMP output on GPIO isn't inverted */
@@ -138,7 +144,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup COMP_OutputLevel
+/** @defgroup COMP_OutputLevel COMP Output Level
   * @{
   */ 
 /* When output polarity is not inverted, comparator output is low when
@@ -151,7 +157,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup COMP_TriggerMode 
+/** @defgroup COMP_TriggerMode COMP Trigger Mode
   * @{
   */
 #define COMP_TRIGGERMODE_NONE                  ((uint32_t)0x00000000)   /*!< No External Interrupt trigger detection */
@@ -176,48 +182,89 @@ typedef struct
   */ 
   
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup COMP_Exported_Macros COMP Exported Macros
+  * @{
+  */
 
 /** @brief  Reset COMP handle state
   * @param  __HANDLE__: COMP handle.
   * @retval None
   */
 #define __HAL_COMP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_COMP_STATE_RESET)
+/**
+  * @}
+  */ 
 
-/* Include COMP HAL Extension module */
+/* Include COMP HAL Extended module */
 #include "stm32f3xx_hal_comp_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup COMP_Exported_Functions COMP Exported Functions
+  * @{
+  */
 
+/** @addtogroup COMP_Exported_Functions_Group1 Initialization and de-initialization functions
+ *  @brief    Initialization and Configuration functions 
+ * @{
+ */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_DeInit (COMP_HandleTypeDef *hcomp);
 void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp);
 void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp);
+/**
+ * @}
+ */ 
 
+/** @addtogroup COMP_Exported_Functions_Group2 Input and Output operation functions
+ *  @brief   Data transfers functions 
+ * @{
+ */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp);
 void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp);
+/**
+  * @}
+  */ 
 
+/** @addtogroup COMP_Exported_Functions_Group3 Peripheral Control functions 
+ *  @brief   management functions 
+ * @{
+ */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp);
 uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp);
 
 /* Callback in Interrupt mode */
 void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp);
+/**
+  * @}
+  */ 
 
+/** @addtogroup COMP_Exported_Functions_Group4 Peripheral State functions 
+ *  @brief   Peripheral State functions 
+ * @{
+ */
 /* Peripheral State and Error functions ***************************************/
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
-
 /**
   * @}
   */ 
 
 /**
   * @}
-  */ 
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 }

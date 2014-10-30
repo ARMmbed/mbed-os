@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -50,12 +50,15 @@
   * @{
   */
 
-/** @addtogroup PWR
+/** @addtogroup PWR PWR HAL Driver module
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+/** @defgroup PWR_Alias_Exported_Constants PWR Alias Exported Constants
+  * @{
+  */ 
 /* ------------- PWR registers bit address in the alias region ---------------*/
 #define PWR_OFFSET               (PWR_BASE - PERIPH_BASE)
 
@@ -82,12 +85,15 @@
 /* Alias word address of EWUP3 bit */
 #define EWUP3_BitNumber          POSITION_VAL(PWR_CSR_EWUP3)
 #define CSR_EWUP3_BB             (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (EWUP3_BitNumber * 4))
-
-/** @defgroup PWR_Exported_Constants
-  * @{
+/**
+  * @}
   */
 
-/** @defgroup PWR_WakeUp_Pins
+/** @defgroup PWR_Exported_Constants PWR Exported Constants
+  * @{
+  */ 
+
+/** @defgroup PWR_WakeUp_Pins PWR WakeUp Pins
   * @{
   */
 
@@ -101,7 +107,7 @@
   * @}
   */
 
-/** @defgroup PWR_Regulator_state_in_STOP_mode
+/** @defgroup PWR_Regulator_state_in_STOP_mode PWR Regulator state in STOP mode
   * @{
   */
 #define PWR_MAINREGULATOR_ON                        ((uint32_t)0x00000000)
@@ -113,7 +119,7 @@
   * @}
   */
 
-/** @defgroup PWR_SLEEP_mode_entry
+/** @defgroup PWR_SLEEP_mode_entry PWR SLEEP mode entry
   * @{
   */
 #define PWR_SLEEPENTRY_WFI              ((uint8_t)0x01)
@@ -123,7 +129,7 @@
   * @}
   */
 
-/** @defgroup PWR_STOP_mode_entry
+/** @defgroup PWR_STOP_mode_entry PWR STOP mode entry
   * @{
   */
 #define PWR_STOPENTRY_WFI               ((uint8_t)0x01)
@@ -133,7 +139,7 @@
   * @}
   */
 
-/** @defgroup PWR_Flag
+/** @defgroup PWR_Flag PWR Flag
   * @{
   */
 #define PWR_FLAG_WU                     PWR_CSR_WUF
@@ -153,7 +159,7 @@
   */
 
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup PWR_Exported_Macro
+/** @defgroup PWR_Exported_Macro PWR Exported Macro
   * @{
   */
 
@@ -189,23 +195,50 @@
   * @}
   */
 
-/* Include PWR HAL Extension module */
+/* Include PWR HAL Extended module */
 #include "stm32f3xx_hal_pwr_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
 
+/** @addtogroup PWR_Exported_Functions PWR Exported Functions
+  * @{
+  */
+  
+/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
+
 /* Initialization and de-initialization functions *****************************/
 void HAL_PWR_DeInit(void);
+
+/**
+  * @}
+  */
+
+/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions 
+  * @{
+  */
 
 /* Peripheral Control functions  **********************************************/
 void HAL_PWR_EnableBkUpAccess(void);
 void HAL_PWR_DisableBkUpAccess(void);
+
+/* WakeUp pins configuration functions ****************************************/
 void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx);
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx);
 
+/* Low Power modes configuration functions ************************************/
 void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry);
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry);
 void HAL_PWR_EnterSTANDBYMode(void);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended OPAMP HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -49,7 +49,7 @@
   * @{
   */
 
-/** @defgroup OPAMPEx
+/** @defgroup OPAMPEx OPAMP Extended HAL module driver
   * @brief OPAMP Extended HAL module driver.
   * @{
   */
@@ -61,13 +61,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup OPAMPEx_Private_Functions
+/** @defgroup OPAMPEx_Exported_Functions OPAMP Extended Exported Functions
   * @{
   */
 
-/** @defgroup OPAMPEx_Group1 Extended I/O operation functions
+
+/** @defgroup OPAMPEx_Exported_Functions_Group1 Extended Input and Output operation functions
   * @brief    Extended Self calibration functions
   *
 @verbatim
@@ -80,7 +81,8 @@
   * @{
   */
 
-#if defined (STM32F302xC)
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
 /*  2 OPAMPS available */
 /*  2 OPAMPS can be calibrated in parallel */
 
@@ -104,8 +106,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }
@@ -332,9 +334,11 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   
   return status;
 }
-#endif /* STM32F302xC */
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
 
-#if defined (STM32F303xC) || defined (STM32F358xx)
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
 /*  4 OPAMPS available */
 /*  4 OPAMPS can be calibrated in parallel */
 
@@ -364,10 +368,10 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp3 == NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp4 == NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp3 == HAL_NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp4 == HAL_NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }
@@ -657,7 +661,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       CLEAR_BIT (hopamp3->Instance->CSR, OPAMP_CSR_OPAMPxEN);
       CLEAR_BIT (hopamp4->Instance->CSR, OPAMP_CSR_OPAMPxEN);
 
-      /* Set normale operating mode back */
+      /* Set normal operating mode back */
       CLEAR_BIT(hopamp1->Instance->CSR, OPAMP_CSR_FORCEVP);
       CLEAR_BIT(hopamp2->Instance->CSR, OPAMP_CSR_FORCEVP);
       CLEAR_BIT(hopamp3->Instance->CSR, OPAMP_CSR_FORCEVP);
@@ -707,7 +711,12 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   
   return status;
 }
-#endif /* STM32F303xC  || STM32F358xx */
+#endif /* STM32F303xE || STM32F398xx  || */
+       /* STM32F303xC || STM32F358xx     */
+
+/**
+  * @}
+  */
 
 /**
   * @}
