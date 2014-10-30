@@ -181,7 +181,7 @@ class K22F(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
-        self.macros = ["CPU_MK22FN512VLH12 ", "FSL_RTOS_MBED"]
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
