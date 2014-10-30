@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of I2S HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of I2S HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -43,11 +43,10 @@
  extern "C" {
 #endif
 
-#if defined(STM32F301x8) ||                         \
-    defined(STM32F302x8) || defined(STM32F302xC) || \
-    defined(STM32F303xC) || defined(STM32F373xC) || \
-    defined(STM32F318xx) ||                         \
-    defined(STM32F358xx) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"  
@@ -56,14 +55,18 @@
   * @{
   */
 
-/** @addtogroup I2SEx
+/** @addtogroup I2SEx I2S Extended HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/  
-/* Exported macro ------------------------------------------------------------*/ 
-#if defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+/* Exported macros ------------------------------------------------------------*/ 
+/** @defgroup I2SEx_Exported_Macros I2S Extended Exported Macros
+  * @{
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
 #define I2SxEXT(__INSTANCE__) ((__INSTANCE__) == (SPI2)? (SPI_TypeDef *)(I2S2ext_BASE): (SPI_TypeDef *)(I2S3ext_BASE))
 
 /** @brief  Enable or disable the specified I2SExt peripheral.
@@ -123,12 +126,25 @@
   * @retval None
   */                                                                                                   
 #define __HAL_I2SEXT_CLEAR_UDRFLAG(__HANDLE__)(I2SxEXT((__HANDLE__)->Instance)->SR)    
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx */
- 
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx */
+ /**
+  * @}
+  */
+
+
 /* Exported functions --------------------------------------------------------*/
 /* Initialization/de-initialization functions  ********************************/
+/** @addtogroup I2SEx_Exported_Functions I2S Extended Exported Functions
+  * @{
+  */
 
-#if defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+/** @addtogroup I2SEx_Exported_Functions_Group1 Extended features functions 
+  * @{
+  */
+
 /* Extended features functions ************************************************/
  /* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout);
@@ -136,12 +152,44 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *p
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size);
 /* Non-Blocking mode: DMA */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size);
+/**
+  * @}
+  */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx */
 
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup I2S I2S HAL module driver
+  * @{
+  */ 
+
+/** @addtogroup I2S_Exported_Functions I2S Exported Functions
+  * @{
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+/** @addtogroup  I2S_Exported_Functions_Group2 Input and Output operation functions
+  * @{
+  */
 /* I2S IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */
 void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s);
 void HAL_I2S_TxRxCpltCallback(I2S_HandleTypeDef *hi2s);
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx */
+/**
+  * @}
+  */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx */
 
+/** @addtogroup I2S_Exported_Functions_Group3 Peripheral State and Errors functions
+  * @{
+  */
 /* Peripheral Control and State functions  ************************************/
 HAL_StatusTypeDef HAL_I2S_DMAPause(I2S_HandleTypeDef *hi2s);
 HAL_StatusTypeDef HAL_I2S_DMAResume(I2S_HandleTypeDef *hi2s);
@@ -155,11 +203,17 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s);
   * @}
   */
 
-#endif /* defined(STM32F301x8) ||                         */
-       /* defined(STM32F302x8) || defined(STM32F302xC) || */
-       /* defined(STM32F303xC) || defined(STM32F373xC) || */
-       /* defined(STM32F318xx) ||                         */
-       /* defined(STM32F358xx) || defined(STM32F378xx)    */
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
 #ifdef __cplusplus
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
@@ -56,7 +56,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/
-   
+/** @defgroup ADC_Exported_Types ADC Exported Types
+  * @{
+  */   
 /** 
   * @brief  HAL ADC state machine: ADC States structure definition  
   */ 
@@ -98,11 +100,14 @@ typedef struct __ADC_HandleTypeDef
 
   __IO uint32_t                 ErrorCode;              /*!< ADC Error code */
 }ADC_HandleTypeDef;
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/
      
-/** @defgroup ADC_Exported_Macro
+/** @defgroup ADC_Exported_Macro ADC Exported Macros
   * @{
   */
 /** @brief  Reset ADC handle state
@@ -116,17 +121,31 @@ typedef struct __ADC_HandleTypeDef
   */ 
 
 
-/* Include ADC HAL Extension module */
+/* Include ADC HAL Extended module */
 #include "stm32f3xx_hal_adc_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup ADC_Exported_Functions ADC Exported Functions
+  * @{
+  */ 
+
+/** @addtogroup ADC_Exported_Functions_Group1 Initialization and de-initialization functions 
+ *  @brief    Initialization and Configuration functions 
+ * @{
+ */ 
 /* Initialization and de-initialization functions  **********************************/
 HAL_StatusTypeDef       HAL_ADC_Init(ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef       HAL_ADC_DeInit(ADC_HandleTypeDef *hadc);
 void                    HAL_ADC_MspInit(ADC_HandleTypeDef* hadc);
 void                    HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
+/**
+  * @}
+  */
 
-/* IO operation functions  *****************************************************/
+/** @addtogroup ADC_Exported_Functions_Group2 Input and Output operation functions
+ *  @brief    IO operation functions 
+ * @{
+ */ 
 /* Blocking mode: Polling */
 HAL_StatusTypeDef       HAL_ADC_Start(ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef       HAL_ADC_Stop(ADC_HandleTypeDef* hadc);
@@ -150,15 +169,35 @@ void                    HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 void                    HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc);
 void                    HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc);
 void                    HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
+/**
+  * @}
+  */
 
+/** @addtogroup ADC_Exported_Functions_Group3 Peripheral Control functions
+ *  @brief    Peripheral Control functions 
+ * @{
+ */ 
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef       HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConfTypeDef* sConfig);
 HAL_StatusTypeDef       HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDGConfTypeDef* AnalogWDGConfig);
+/**
+  * @}
+  */
 
+/** @defgroup ADC_Exported_Functions_Group4 Peripheral State functions
+ *  @brief   ADC Peripheral State functions 
+ * @{
+ */ 
 /* Peripheral State functions *************************************************/
 HAL_ADC_StateTypeDef    HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
 uint32_t                HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
+/**
+  * @}
+  */
 
+/**
+  * @}
+  */
 
 /**
   * @}

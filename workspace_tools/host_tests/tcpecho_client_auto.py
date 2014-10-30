@@ -18,7 +18,6 @@ limitations under the License.
 import sys
 import socket
 from sys import stdout
-from time import sleep
 from host_test import Test
 from SocketServer import BaseRequestHandler, TCPServer
 
@@ -35,30 +34,28 @@ class TCPEchoClientTest(Test):
     def send_server_ip_port(self, ip_address, port_no):
         """ Set up network host. Reset target and and send server IP via serial to Mbed
         """
-        print "HOST: Resetting target..."
+        self.notify("HOST: Resetting target...")
         self.mbed.reset()
 
         c = self.mbed.serial_readline() # 'TCPCllient waiting for server IP and port...'
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
 
-        print c.strip()
-        print "HOST: Sending server IP Address to target...",
-        stdout.flush()
+        self.notify(c.strip())
+        self.notify("HOST: Sending server IP Address to target...")
+
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)
-        print connection_str
-        stdout.flush()
+        self.notify(connection_str)
 
         # Two more strings about connection should be sent by MBED
         for i in range(0, 2):
             c = self.mbed.serial_readline()
             if c is None:
-                self.print_result("ioerr_serial")
+                self.print_result(self.RESULT_IO_SERIAL)
                 return
-            print c.strip()
-            stdout.flush()
+            self.notify(c.strip())
 
 
 class TCPEchoClient_Handler(BaseRequestHandler):

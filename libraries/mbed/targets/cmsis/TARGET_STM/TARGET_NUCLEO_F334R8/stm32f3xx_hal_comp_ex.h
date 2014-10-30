@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of COMP HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of COMP HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,18 +50,19 @@
   * @{
   */
 
-/** @addtogroup COMPEx
+/** @defgroup COMPEx COMP Extended HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-/** @addtogroup COMPEx_Exported_Constants
+/** @defgroup COMPEx_Exported_Constants COMP Extended Exported Constants
   * @{
   */
 
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup COMPEx_InvertingInput  COMP_InvertingInput (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+   /** @defgroup COMPEx_InvertingInput  COMP Extended InvertingInput (STM32F302xE/STM32F303xE/STM32F398xx/STM32F302xC/STM32F303xC/STM32F358xx Product devices)
   * @{
   */
 #define COMP_INVERTINGINPUT_1_4VREFINT       ((uint32_t)0x00000000)                        /*!< 1/4 VREFINT connected to comparator inverting input */
@@ -91,7 +92,7 @@
   * @}
   */ 
 #elif defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-/** @defgroup COMPEx_InvertingInput COMP_InvertingInput (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
+/** @defgroup COMPEx_InvertingInput COMP Extended InvertingInput (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
   * @{
   */
 #define COMP_INVERTINGINPUT_1_4VREFINT     ((uint32_t)0x00000000)                        /*!< 1/4 VREFINT connected to comparator inverting input */
@@ -114,7 +115,7 @@
   * @}
   */
 #elif defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup COMPEx_InvertingInput COMP_InvertingInput (STM32F303x8/STM32F334x8/STM32F328xx Product devices)
+/** @defgroup COMPEx_InvertingInput COMP Extended InvertingInput (STM32F303x8/STM32F334x8/STM32F328xx Product devices)
   * @{
   */
 #define COMP_INVERTINGINPUT_1_4VREFINT     ((uint32_t)0x00000000)                        /*!< 1/4 VREFINT connected to comparator inverting input */
@@ -142,7 +143,7 @@
   * @}
   */
 #elif defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup COMPEx_InvertingInput COMP_InvertingInput (STM32F373xC/STM32F378xx Product devices)
+/** @defgroup COMPEx_InvertingInput COMP Extended InvertingInput (STM32F373xC/STM32F378xx Product devices)
   * @{
   */
 #define COMP_INVERTINGINPUT_1_4VREFINT  ((uint32_t)0x00000000)                        /*!< 1/4 VREFINT connected to comparator inverting input */
@@ -168,10 +169,11 @@
 /**
   * @}
   */
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx */
 
 #if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup COMPEx_NonInvertingInput  COMPEx_NonInvertingInput (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
+/** @defgroup COMPEx_NonInvertingInput  COMP Extended NonInvertingInput (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
   * @{
   */
 #define COMP_NONINVERTINGINPUT_IO1               ((uint32_t)0x00000000) /*!< I/O1 (PA1 for COMP1, PA7 for COMP2, PB14 for COMP3, 
@@ -200,7 +202,7 @@
   * @}
   */ 
 #elif defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-/** @defgroup COMPEx_NonInvertingInput COMPEx_NonInvertingInput (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
+/** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
   * @{
   */
 #define COMP_NONINVERTINGINPUT_IO1               ((uint32_t)0x00000000) /*!< I/O1 (PA7 for COMP2, PB0 for COMP4, PB11 for COMP6)
@@ -223,7 +225,7 @@
   * @}
   */ 
 #elif defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup COMPEx_NonInvertingInput COMPEx_NonInvertingInput (STM32F373xC/STM32F378xx Product devices)
+/** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (STM32F373xC/STM32F378xx Product devices)
   * @{
   */
 #define COMP_NONINVERTINGINPUT_IO1               ((uint32_t)0x00000000) /*!< I/O1 (PA1 for COMP1, PA3 for COMP2) 
@@ -245,8 +247,32 @@
 /**
   * @}
   */
+#elif defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+/** @defgroup COMPEx_NonInvertingInput  COMP Extended NonInvertingInput (STM32F302xE/STM32F303xE/STM32F398xx Product devices)
+  * @{
+  */
+#define COMP_NONINVERTINGINPUT_IO1             ((uint32_t)0x00000000)   /*!< I/O1 (PA1 for COMP1, PA7 for COMP2, PB14 for COMP3, 
+                                                                            PB0 for COMP4, PD12 for COMP5, PD11 for COMP6,
+                                                                            PA0 for COMP7) connected to comparator non inverting input */
+#define COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED COMP1_CSR_COMP1SW1      /*!< DAC ouput connected to comparator COMP1 non inverting input */
+
+#define IS_COMP_NONINVERTINGINPUT(INPUT) (((INPUT) == COMP_NONINVERTINGINPUT_IO1) || \
+                                          ((INPUT) == COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED))
+
+/* STM32F302xE/STM32F303xE/STM32F398xx devices comparator instances non inverting source values */
+#define IS_COMP_NONINVERTINGINPUT_INSTANCE(INSTANCE, INPUT)    \
+   ((((INSTANCE) == COMP1)  &&                                 \
+    (((INPUT) == COMP_NONINVERTINGINPUT_IO1)                || \
+     ((INPUT) == COMP_NONINVERTINGINPUT_DAC1SWITCHCLOSED)))    \
+    ||                                                         \
+    (((INPUT) == COMP_NONINVERTINGINPUT_IO1)))
+
+#define COMP_CSR_COMPxNONINSEL_MASK            (COMP1_CSR_COMP1SW1) /*!< COMP_CSR_COMPxNONINSEL mask */
+/**
+  * @}
+  */ 
 #else
-/** @defgroup COMPEx_NonInvertingInput COMPEx_NonInvertingInput (Other Product devices)
+/** @defgroup COMPEx_NonInvertingInput COMP Extended NonInvertingInput (Other Product devices)
   * @{
   */
 #define COMP_NONINVERTINGINPUT_IO1             ((uint32_t)0x00000000) /*!< I/O1 (PA7 for COMP2, PB0 for COMP4, PB11 for COMP6) 
@@ -262,8 +288,59 @@
   */
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx */
 
-#if  defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup COMPEx_Output COMPEx_Output (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
+#if  defined(STM32F302xC)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F302xC Product devices)
+  * @{
+  */
+#define COMP_OUTPUT_NONE                             ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
+/* Output Redirection common for all comparators COMP1, COMP2, COMP4, COMP6 */
+#define COMP_OUTPUT_TIM1BKIN                         COMP_CSR_COMPxOUTSEL_0   /*!< COMP output connected to TIM1 Break Input (BKIN) */
+#define COMP_OUTPUT_TIM1BKIN2_BRK2                   ((uint32_t)0x00000800)   /*!< COMP output connected to TIM1 Break Input 2 (BKIN2) */
+#define COMP_OUTPUT_TIM1BKIN2                        ((uint32_t)0x00001400)   /*!< COMP output connected to TIM1 Break Input 2 */
+/* Output Redirection common for COMP1 and COMP2 */
+#define COMP_OUTPUT_TIM1OCREFCLR                      ((uint32_t)0x00001800)   /*!< COMP output connected to TIM1 OCREF Clear */
+#define COMP_OUTPUT_TIM1IC1                           ((uint32_t)0x00001C00)   /*!< COMP output connected to TIM1 Input Capture 1 */
+#define COMP_OUTPUT_TIM2IC4                           ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 Input Capture 4 */
+#define COMP_OUTPUT_TIM2OCREFCLR                      ((uint32_t)0x00002400)   /*!< COMP output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM3IC1                           ((uint32_t)0x00002800)   /*!< COMP output connected to TIM3 Input Capture 1 */
+/* Output Redirection common for COMP1,COMP2 and COMP4 */
+#define COMP_OUTPUT_TIM3OCREFCLR                      ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM3 OCREF Clear */
+/* Output Redirection specific to COMP4 */
+#define COMP_OUTPUT_TIM3IC3                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM3 Input Capture 3 */
+#define COMP_OUTPUT_TIM15IC2                          ((uint32_t)0x00002000)   /*!< COMP output connected to TIM15 Input Capture 2 */
+#define COMP_OUTPUT_TIM4IC2                           ((uint32_t)0x00002400)   /*!< COMP output connected to TIM4 Input Capture 2 */
+#define COMP_OUTPUT_TIM15OCREFCLR                     ((uint32_t)0x00002800)   /*!< COMP output connected to TIM15 OCREF Clear */
+/* Output Redirection specific to COMP6 */
+#define COMP_OUTPUT_TIM2IC2                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM2 Input Capture 2 */
+#define COMP_OUTPUT_COMP6TIM2OCREFCLR                 ((uint32_t)0x00002000)   /*!< COMP6 output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM16OCREFCLR                     ((uint32_t)0x00002400)   /*!< COMP output connected to TIM16 OCREF Clear */
+#define COMP_OUTPUT_TIM16IC1                          ((uint32_t)0x00002800)   /*!< COMP output connected to TIM16 Input Capture 1 */
+#define COMP_OUTPUT_TIM4IC4                           ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM4 Input Capture 4 */
+
+#define IS_COMP_OUTPUT(OUTPUT) (((OUTPUT) == COMP_OUTPUT_NONE)                || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_BRK2)      || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC4)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC3)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15IC2)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_COMP6TIM2OCREFCLR)   || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC4))
+/**
+  * @}
+  */ 
+#elif  defined(STM32F303xC) || defined(STM32F358xx)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F303xC/STM32F358xx Product devices)
   * @{
   */
 #define COMP_OUTPUT_NONE                  ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
@@ -353,7 +430,7 @@
   * @}
   */ 
 #elif defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-/** @defgroup COMPEx_Output COMPEx_Output (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F301x8/STM32F302x8/STM32F318xx Product devices)
   * @{
   */
 #define COMP_OUTPUT_NONE                  ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
@@ -391,7 +468,7 @@
   * @}
   */ 
 #elif  defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup COMPEx_Output COMPEx_Output (STM32F303x8/STM32F334x8/STM32F328xx Product devices)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F303x8/STM32F334x8/STM32F328xx Product devices)
   * @{
   */
 #define COMP_OUTPUT_NONE                  ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
@@ -435,8 +512,8 @@
 /**
   * @}
   */ 
-#else
-/** @defgroup COMPEx_Output COMPEx_Output (STM32F373xC/STM32F378xx Product devices)
+#elif  defined(STM32F373xC) || defined(STM32F378xx)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F373xC/STM32F378xx Product devices)
   * @{
   */
 /* Output Redirection common for all comparators COMP1 and COMP2 */
@@ -468,10 +545,152 @@
 /**
   * @}
   */ 
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx */
+#elif defined(STM32F302xE)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F302xE Product devices)
+  * @{
+  */
+#define COMP_OUTPUT_NONE                             ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
+/* Output Redirection common for all comparators COMP1, COMP2, COMP4, COMP6 */
+#define COMP_OUTPUT_TIM1BKIN                         COMP_CSR_COMPxOUTSEL_0   /*!< COMP output connected to TIM1 Break Input (BKIN) */
+#define COMP_OUTPUT_TIM1BKIN2_BRK2                   ((uint32_t)0x00000800)   /*!< COMP output connected to TIM1 Break Input 2 (BKIN2) */
+#define COMP_OUTPUT_TIM1BKIN2                        ((uint32_t)0x00001400)   /*!< COMP output connected to TIM1 Break Input 2 */
+/* Output Redirection common for COMP1 and COMP2 */
+#define COMP_OUTPUT_TIM1OCREFCLR                      ((uint32_t)0x00001800)   /*!< COMP output connected to TIM1 OCREF Clear */
+#define COMP_OUTPUT_TIM1IC1                           ((uint32_t)0x00001C00)   /*!< COMP output connected to TIM1 Input Capture 1 */
+#define COMP_OUTPUT_TIM2IC4                           ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 Input Capture 4 */
+#define COMP_OUTPUT_TIM2OCREFCLR                      ((uint32_t)0x00002400)   /*!< COMP output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM3IC1                           ((uint32_t)0x00002800)   /*!< COMP output connected to TIM3 Input Capture 1 */
+#define COMP_OUTPUT_TIM3OCREFCLR                      ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM3 OCREF Clear */
+/* Output Redirection specific to COMP4 */
+#define COMP_OUTPUT_TIM3IC3                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM3 Input Capture 3 */
+#define COMP_OUTPUT_TIM15IC2                          ((uint32_t)0x00002000)   /*!< COMP output connected to TIM15 Input Capture 2 */
+#define COMP_OUTPUT_TIM4IC2                           ((uint32_t)0x00002400)   /*!< COMP output connected to TIM4 Input Capture 2 */
+#define COMP_OUTPUT_TIM15OCREFCLR                     ((uint32_t)0x00002800)   /*!< COMP output connected to TIM15 OCREF Clear */
+/* Output Redirection specific to COMP6 */
+#define COMP_OUTPUT_TIM2IC2                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM2 Input Capture 2 */
+#define COMP_OUTPUT_COMP6TIM2OCREFCLR                 ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM16OCREFCLR                     ((uint32_t)0x00002400)   /*!< COMP output connected to TIM16 OCREF Clear */
+#define COMP_OUTPUT_TIM16IC1                          ((uint32_t)0x00002800)   /*!< COMP output connected to TIM16 Input Capture 1 */
+#define COMP_OUTPUT_TIM4IC4                           ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM4 Input Capture 4 */
+
+#define IS_COMP_OUTPUT(OUTPUT) (((OUTPUT) == COMP_OUTPUT_NONE)                || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_BRK2)      || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC4)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC3)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15IC2)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_COMP6TIM2OCREFCLR)   || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC4))
+
+/**
+  * @}
+  */ 
+#elif defined(STM32F303xE) || defined(STM32F398xx)
+/** @defgroup COMPEx_Output COMP Extended Output (STM32F303xE/STM32F398xx Product devices)
+  * @{
+  */
+#define COMP_OUTPUT_NONE                             ((uint32_t)0x00000000)   /*!< COMP output isn't connected to other peripherals */
+/* Output Redirection common for all comparators COMP1...COMP7 */
+#define COMP_OUTPUT_TIM1BKIN                         COMP_CSR_COMPxOUTSEL_0   /*!< COMP output connected to TIM1 Break Input (BKIN) */
+#define COMP_OUTPUT_TIM1BKIN2                        ((uint32_t)0x00000800)   /*!< COMP output connected to TIM1 Break Input 2 (BKIN2) */
+#define COMP_OUTPUT_TIM8BKIN                         ((uint32_t)0x00000C00)   /*!< COMP output connected to TIM8 Break Input (BKIN) */
+#define COMP_OUTPUT_TIM8BKIN2                        ((uint32_t)0x00001000)   /*!< COMP output connected to TIM8 Break Input 2 (BKIN2) */
+#define COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2              ((uint32_t)0x00001400)   /*!< COMP output connected to TIM1 Break Input 2 and TIM8 Break Input 2 */
+#define COMP_OUTPUT_TIM20BKIN                        ((uint32_t)0x00003000)   /*!< COMP output connected to TIM20 Break Input (BKIN) */
+#define COMP_OUTPUT_TIM20BKIN2                       ((uint32_t)0x00003400)   /*!< COMP output connected to TIM20 Break Input 2 (BKIN2) */
+#define COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2   ((uint32_t)0x00003800)   /*!< COMP output connected to TIM1 Break Input 2, TIM8 Break Input 2 and TIM20 Break Input 2  */
+/* Output Redirection common for COMP1 and COMP2 */
+#define COMP_OUTPUT_TIM1OCREFCLR                      ((uint32_t)0x00001800)   /*!< COMP output connected to TIM1 OCREF Clear */
+#define COMP_OUTPUT_TIM1IC1                           ((uint32_t)0x00001C00)   /*!< COMP output connected to TIM1 Input Capture 1 */
+#define COMP_OUTPUT_TIM2IC4                           ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 Input Capture 4 */
+#define COMP_OUTPUT_TIM2OCREFCLR                      ((uint32_t)0x00002400)   /*!< COMP output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM3IC1                           ((uint32_t)0x00002800)   /*!< COMP output connected to TIM3 Input Capture 1 */
+#define COMP_OUTPUT_TIM3OCREFCLR                      ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM3 OCREF Clear */
+/* Output Redirection specific to COMP2 */
+#define COMP_OUTPUT_TIM20OCREFCLR                     ((uint32_t)0x00003C00)   /*!< COMP output connected to TIM20 OCREF Clear */
+/* Output Redirection specific to COMP3 */
+#define COMP_OUTPUT_TIM4IC1                           ((uint32_t)0x00001C00)   /*!< COMP output connected to TIM4 Input Capture 1 */
+#define COMP_OUTPUT_TIM3IC2                           ((uint32_t)0x00002000)   /*!< COMP output connected to TIM3 Input Capture 2 */
+#define COMP_OUTPUT_TIM15IC1                          ((uint32_t)0x00002800)   /*!< COMP output connected to TIM15 Input Capture 1 */
+#define COMP_OUTPUT_TIM15BKIN                         ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM15 Break Input (BKIN) */
+/* Output Redirection specific to COMP4 */
+#define COMP_OUTPUT_TIM3IC3                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM3 Input Capture 3 */
+#define COMP_OUTPUT_TIM8OCREFCLR                      ((uint32_t)0x00001C00)   /*!< COMP output connected to TIM8 OCREF Clear */
+#define COMP_OUTPUT_TIM15IC2                          ((uint32_t)0x00002000)   /*!< COMP output connected to TIM15 Input Capture 2 */
+#define COMP_OUTPUT_TIM4IC2                           ((uint32_t)0x00002400)   /*!< COMP output connected to TIM4 Input Capture 2 */
+#define COMP_OUTPUT_TIM15OCREFCLR                     ((uint32_t)0x00002800)   /*!< COMP output connected to TIM15 OCREF Clear */
+/* Output Redirection specific to COMP5 */
+#define COMP_OUTPUT_TIM2IC1                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM2 Input Capture 1 */
+#define COMP_OUTPUT_TIM17IC1                          ((uint32_t)0x00002000)   /*!< COMP output connected to TIM17 Input Capture 1 */
+#define COMP_OUTPUT_TIM4IC3                           ((uint32_t)0x00002400)   /*!< COMP output connected to TIM4 Input Capture 3 */
+#define COMP_OUTPUT_TIM16BKIN                         ((uint32_t)0x00002800)   /*!< COMP output connected to TIM16 Break Input (BKIN) */
+/* Output Redirection specific to COMP6 */
+#define COMP_OUTPUT_TIM2IC2                           ((uint32_t)0x00001800)   /*!< COMP output connected to TIM2 Input Capture 2 */
+#define COMP_OUTPUT_COMP6TIM2OCREFCLR                 ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 OCREF Clear */
+#define COMP_OUTPUT_TIM16OCREFCLR                     ((uint32_t)0x00002400)   /*!< COMP output connected to TIM16 OCREF Clear */
+#define COMP_OUTPUT_TIM16IC1                          ((uint32_t)0x00002800)   /*!< COMP output connected to TIM16 Input Capture 1 */
+#define COMP_OUTPUT_TIM4IC4                           ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM4 Input Capture 4 */
+/* Output Redirection specific to COMP7 */
+#define COMP_OUTPUT_TIM2IC3                           ((uint32_t)0x00002000)   /*!< COMP output connected to TIM2 Input Capture 3 */
+#define COMP_OUTPUT_TIM1IC2                           ((uint32_t)0x00002400)   /*!< COMP output connected to TIM1 Input Capture 2 */
+#define COMP_OUTPUT_TIM17OCREFCLR                     ((uint32_t)0x00002800)   /*!< COMP output connected to TIM16 OCREF Clear */
+#define COMP_OUTPUT_TIM17BKIN                         ((uint32_t)0x00002C00)   /*!< COMP output connected to TIM16 Break Input (BKIN) */
+#define IS_COMP_OUTPUT(OUTPUT) (((OUTPUT) == COMP_OUTPUT_NONE)                || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC4)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_COMP6TIM2OCREFCLR)   || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM20OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM8BKIN)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM8BKIN2)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2) || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM20BKIN)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM20BKIN2)          || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1BKIN2_TIM8BKIN2_TIM20BKIN2) || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15BKIN)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM8OCREFCLR)        || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM3IC3)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM15IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC1)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC3)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16BKIN)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM17IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16IC1)            || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM4IC4)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM16OCREFCLR)       || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM2IC3)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM1IC2)             || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM17BKIN)           || \
+                                ((OUTPUT) == COMP_OUTPUT_TIM17OCREFCLR))
+/**
+  * @}
+  */ 
+#endif /* STM32F302xC */
 
 #if  defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup COMPEx_WindowMode COMPEx_WindowMode (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
+/** @defgroup COMPEx_WindowMode COMP Extended WindowMode (STM32F302xC/STM32F303xC/STM32F358xx Product devices)
   * @{
   */
 #define COMP_WINDOWMODE_DISABLED               ((uint32_t)0x00000000)  /*!< Window mode disabled */
@@ -485,7 +704,7 @@
   * @}
   */
 #elif defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup COMPEx_WindowMode COMPEx_WindowMode (STM32F373xC/STM32F378xx Product devices)
+/** @defgroup COMPEx_WindowMode COMP Extended WindowMode (STM32F373xC/STM32F378xx Product devices)
   * @{
   */
 #define COMP_WINDOWMODE_DISABLED               ((uint32_t)0x00000000)  /*!< Window mode disabled */
@@ -499,7 +718,7 @@
   * @}
   */
 #else
-/** @defgroup COMPEx_WindowMode COMPEx_WindowMode (Other Product devices)
+/** @defgroup COMPEx_WindowMode COMP Extended WindowMode (Other Product devices)
   * @{
   */
 #define COMP_WINDOWMODE_DISABLED               ((uint32_t)0x00000000)  /*!< Window mode disabled (not available) */
@@ -512,7 +731,7 @@
   */
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx */
 
-/** @defgroup COMPEx_Mode
+/** @defgroup COMPEx_Mode COMP Extended Mode
   * @{
   */
 #if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
@@ -545,7 +764,7 @@
   * @}
   */
 
-/** @defgroup COMPEx_Hysteresis
+/** @defgroup COMPEx_Hysteresis COMP Extended Hysteresis
   * @{
   */
 #if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
@@ -579,7 +798,7 @@
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-/** @defgroup COMPEx_BlankingSrce  COMPEx_BlankingSrce (STM32F301x8/STM32F302x8/STM32F303x8/STM32F334x8/STM32F318xx/STM32F328xx Product devices)
+/** @defgroup COMPEx_BlankingSrce  COMP Extended Blanking Source (STM32F301x8/STM32F302x8/STM32F303x8/STM32F334x8/STM32F318xx/STM32F328xx Product devices)
   * @{
   */
 /* No blanking source can be selected for all comparators */
@@ -627,7 +846,7 @@
   * @}
   */
 
-/** @defgroup COMPEx_ExtiLineEvent COMPEx_ExtiLineEvent (STM32F301x8/STM32F302x8/STM32F303x8/STM32F334x8/STM32F318xx/STM32F328xx Product devices)
+/** @defgroup COMPEx_ExtiLineEvent COMP Extended EXTI Line Event (STM32F301x8/STM32F302x8/STM32F303x8/STM32F334x8/STM32F318xx/STM32F328xx Product devices)
   *        Elements values convention: XXXXZYYY
   *           - XXXX : Interrupt mask in the register list where Z equal 0x0
   *           - YYY : Interrupt mask in the register list where Z equal 0x1
@@ -648,8 +867,9 @@
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx */
 
-#if defined(STM32F302xC)
-/** @defgroup COMPEx_BlankingSrce COMPEx_BlankingSrce (STM32F302xC Product devices)
+#if defined(STM32F302xE) ||\
+    defined(STM32F302xC)
+/** @defgroup COMPEx_BlankingSrce COMP Extended Blanking Source (STM32F302xE/STM32F302xC Product devices)
   * @{
   */
 /* No blanking source can be selected for all comparators */
@@ -659,13 +879,13 @@
 /* Blanking source common for COMP1 and COMP2 */
 #define COMP_BLANKINGSRCE_TIM2OC3              COMP_CSR_COMPxBLANKING_1  /*!< TIM2 OC3 selected as blanking source for compartor */
 /* Blanking source common for COMP1 and COMP2 */
-#define COMP_BLANKINGSRCE_TIM3OC3              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM3 OC3 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM3OC3              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM3 OC3 selected as blanking source for comparator */
 /* Blanking source for COMP4 */
-#define COMP_BLANKINGSRCE_TIM3OC4              COMP_CSR_COMPxBLANKING_0    /*!< TIM3 OC4 selected as blanking source for compartor */
-#define COMP_BLANKINGSRCE_TIM15OC1             (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM15 OC1 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM3OC4              COMP_CSR_COMPxBLANKING_0    /*!< TIM3 OC4 selected as blanking source for comparator */
+#define COMP_BLANKINGSRCE_TIM15OC1             (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM15 OC1 selected as blanking source for comparator */
 /* Blanking source for COMP6 */
-#define COMP_BLANKINGSRCE_TIM2OC4              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC4 selected as blanking source for compartor */
-#define COMP_BLANKINGSRCE_TIM15OC2              COMP_CSR_COMPxBLANKING_2    /*!< TIM15 OC2 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM2OC4              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC4 selected as blanking source for comparator */
+#define COMP_BLANKINGSRCE_TIM15OC2              COMP_CSR_COMPxBLANKING_2    /*!< TIM15 OC2 selected as blanking source for comparator */
 
 #define IS_COMP_BLANKINGSRCE(SOURCE) (((SOURCE) == COMP_BLANKINGSRCE_NONE)     || \
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM1OC5)  || \
@@ -676,7 +896,7 @@
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM15OC1) || \
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM15OC2))
 
-/* STM32F302xB/STM32F302xC devices comparator instances blanking source values */
+/* STM32F302xB/STM32F302xC/STM32F302xE devices comparator instances blanking source values */
 #define IS_COMP_BLANKINGSRCE_INSTANCE(INSTANCE, BLANKINGSRCE) \
    (((((INSTANCE) == COMP1) || ((INSTANCE) == COMP2))  &&     \
      (((BLANKINGSRCE) == COMP_BLANKINGSRCE_NONE)    ||        \
@@ -700,7 +920,7 @@
   * @}
   */
 
-/** @defgroup COMPEx_ExtiLineEvent COMPEx_ExtiLineEvent (STM32F302xC Product devices)
+/** @defgroup COMPEx_ExtiLineEvent COMP Extended EXTI Line Event (STM32F302xC Product devices)
   *        Elements values convention: XXXXZYYY
   *           - XXXX : Interrupt mask in the register list where Z equal 0x0
   *           - YYY : Interrupt mask in the register list where Z equal 0x1
@@ -719,29 +939,31 @@
 /**
   * @}
   */
-#endif /* STM32F302xC */
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
    
-#if defined(STM32F303xC) || defined(STM32F358xx)
-/** @defgroup COMPEx_BlankingSrce COMPEx_BlankingSrce (STM32F303xC/STM32F358xx Product devices)
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+/** @defgroup COMPEx_BlankingSrce COMP Extended Blanking Source (STM32F303xE/STM32F398xx/STM32F303xC/STM32F358xx Product devices)
   * @{
   */
 /* No blanking source can be selected for all comparators */
 #define COMP_BLANKINGSRCE_NONE                 ((uint32_t)0x00000000)    /*!< No blanking source */
 /* Blanking source common for COMP1, COMP2, COMP3 and COMP7 */
-#define COMP_BLANKINGSRCE_TIM1OC5              COMP_CSR_COMPxBLANKING_0  /*!< TIM1 OC5 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM1OC5              COMP_CSR_COMPxBLANKING_0  /*!< TIM1 OC5 selected as blanking source for comparator */
 /* Blanking source common for COMP1 and COMP2 */
-#define COMP_BLANKINGSRCE_TIM2OC3              COMP_CSR_COMPxBLANKING_1  /*!< TIM2 OC5 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM2OC3              COMP_CSR_COMPxBLANKING_1  /*!< TIM2 OC5 selected as blanking source for comparator */
 /* Blanking source common for COMP1, COMP2 and COMP5 */
-#define COMP_BLANKINGSRCE_TIM3OC3              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC3 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM3OC3              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC3 selected as blanking source for comparator */
 /* Blanking source common for COMP3 and COMP6 */
-#define COMP_BLANKINGSRCE_TIM2OC4              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC4 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM2OC4              (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM2 OC4 selected as blanking source for comparator */
 /* Blanking source common for COMP4, COMP5, COMP6 and COMP7 */
-#define COMP_BLANKINGSRCE_TIM8OC5              COMP_CSR_COMPxBLANKING_1  /*!< TIM8 OC5 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM8OC5              COMP_CSR_COMPxBLANKING_1  /*!< TIM8 OC5 selected as blanking source for comparator */
 /* Blanking source for COMP4 */
-#define COMP_BLANKINGSRCE_TIM3OC4              COMP_CSR_COMPxBLANKING_0  /*!< TIM3 OC4 selected as blanking source for compartor */
-#define COMP_BLANKINGSRCE_TIM15OC1             (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM15 OC1 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM3OC4              COMP_CSR_COMPxBLANKING_0  /*!< TIM3 OC4 selected as blanking source for comparator */
+#define COMP_BLANKINGSRCE_TIM15OC1             (COMP_CSR_COMPxBLANKING_0|COMP_CSR_COMPxBLANKING_1)    /*!< TIM15 OC1 selected as blanking source for comparator */
 /* Blanking source common for COMP6 and COMP7 */
-#define COMP_BLANKINGSRCE_TIM15OC2             COMP_CSR_COMPxBLANKING_2  /*!< TIM15 OC2 selected as blanking source for compartor */
+#define COMP_BLANKINGSRCE_TIM15OC2             COMP_CSR_COMPxBLANKING_2  /*!< TIM15 OC2 selected as blanking source for comparator */
 
 #define IS_COMP_BLANKINGSRCE(SOURCE) (((SOURCE) == COMP_BLANKINGSRCE_NONE)     || \
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM1OC5)  || \
@@ -753,7 +975,7 @@
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM15OC1) || \
                                       ((SOURCE) == COMP_BLANKINGSRCE_TIM15OC2))
 
-/* STM32F303xB/STM32F303xC/STM32F358xx devices comparator instances blanking source values */
+/* STM32F303xE/STM32F398xx/STM32F303xB/STM32F303xC/STM32F358xx devices comparator instances blanking source values */
 #define IS_COMP_BLANKINGSRCE_INSTANCE(INSTANCE, BLANKINGSRCE) \
    (((((INSTANCE) == COMP1) || ((INSTANCE) == COMP2))  &&     \
      (((BLANKINGSRCE) == COMP_BLANKINGSRCE_NONE)    ||        \
@@ -795,7 +1017,7 @@
   * @}
   */
 
-/** @defgroup COMPEx_ExtiLineEvent COMPEx_ExtiLineEvent (STM32F303xC/STM32F358xx Product devices)
+/** @defgroup COMPEx_ExtiLineEvent COMP Extended EXTI Line Event (STM32F303xE/STM32F398xx/STM32F303xC/STM32F358xx Product devices)
   *        Elements values convention: XXXXZYYY
   *           - XXXX : Interrupt mask in the register list where Z equal 0x0
   *           - YYY : Interrupt mask in the register list where Z equal 0x1
@@ -817,10 +1039,11 @@
 /**
   * @}
   */
-#endif /* STM32F303xC || STM32F358xx */
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
 
 #if defined(STM32F373xC) ||defined(STM32F378xx)
-/** @defgroup COMPEx_BlankingSrce COMPEx_BlankingSrce (STM32F373xC/STM32F378xx Product devices)
+/** @defgroup COMPEx_BlankingSrce COMP Extended Blanking Source (STM32F373xC/STM32F378xx Product devices)
   * @{
   */
 /* No blanking source can be selected for all comparators */
@@ -839,7 +1062,7 @@
   * @}
   */
 
-/** @defgroup COMPEx_ExtiLineEvent COMPEx_ExtiLineEvent (STM32F373xC/STM32F378xx Product devices)
+/** @defgroup COMPEx_ExtiLineEvent COMP Extended EXTI Line Event (STM32F373xC/STM32F378xx Product devices)
   *        Elements values convention: XXXX0000
   *           - XXXX : Interrupt mask in the EMR/IMR/RTSR/FTSR register
   * @{   
@@ -874,6 +1097,9 @@
   */
 
 /* Exported macro ------------------------------------------------------------*/
+/** @defgroup USARTEx_Exported_Macros USART Extended Exported Macros
+  * @{
+  */
 #if defined(STM32F373xC) ||defined(STM32F378xx)
 /**
   * @brief  Checks whether the specified EXTI line flag is set or not.
@@ -1198,7 +1424,8 @@
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx */
 
-#if defined(STM32F302xC)
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
   * @param  __INSTANCE__: specifies the COMP instance.
@@ -1208,9 +1435,11 @@
                                                 ((__INSTANCE__) == COMP2) ? COMP_EXTI_LINE_COMP2_EVENT : \
                                                 ((__INSTANCE__) == COMP4) ? COMP_EXTI_LINE_COMP4_EVENT : \
                                                 COMP_EXTI_LINE_COMP6_EVENT)
-#endif /* STM32F302xC */
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
    
-#if defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
   * @param  __INSTANCE__: specifies the COMP instance.
@@ -1223,7 +1452,8 @@
                                                 ((__INSTANCE__) == COMP5) ? COMP_EXTI_LINE_COMP5_EVENT : \
                                                 ((__INSTANCE__) == COMP6) ? COMP_EXTI_LINE_COMP6_EVENT : \
                                                 COMP_EXTI_LINE_COMP7_EVENT)
-#endif /* STM32F303xC || STM32F358xx */
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
                                                  
 #if defined(STM32F373xC) ||defined(STM32F378xx)
 /**
@@ -1235,7 +1465,10 @@
                                                 COMP_EXTI_LINE_COMP2_EVENT)
 #endif /* STM32F373xC || STM32F378xx */
 
-                                                 
+/**
+  * @}
+  */
+  
 /* Exported functions --------------------------------------------------------*/
 
 /* Initialization and de-initialization functions  ****************************/

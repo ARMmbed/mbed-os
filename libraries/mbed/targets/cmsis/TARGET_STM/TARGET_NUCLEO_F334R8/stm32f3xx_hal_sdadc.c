@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_sdadc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Sigma-Delta Analog to Digital Convertor
   *          (SDADC) peripherals:
@@ -197,24 +197,34 @@
   * @{
   */
 
-/** @defgroup SDADC 
-  * @brief SDADC driver modules
+#ifdef HAL_SDADC_MODULE_ENABLED
+#if defined(STM32F373xC) || defined(STM32F378xx)
+/** @defgroup SDADC SDADC HAL module driver
+  * @brief SDADC HAL driver modules
   * @{
   */ 
 
-#ifdef HAL_SDADC_MODULE_ENABLED
-#if defined(STM32F373xC) || defined(STM32F378xx)
-    
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup SDADC_Private_Define SDADC Private Define
+ * @{
+ */
 #define SDADC_TIMEOUT          200
 #define SDADC_CONFREG_OFFSET   0x00000020
 #define SDADC_JDATAR_CH_OFFSET 24
 #define SDADC_MSB_MASK         0xFFFF0000
 #define SDADC_LSB_MASK         0x0000FFFF
+/**
+  * @}
+  */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup SDADC_Private_Functions SDADC Private Functions
+  * @{
+  */
+
 static HAL_StatusTypeDef SDADC_EnterInitMode(SDADC_HandleTypeDef* hsdadc);
 static void              SDADC_ExitInitMode(SDADC_HandleTypeDef* hsdadc);
 static uint32_t          SDADC_GetInjChannelsNbr(uint32_t Channels);
@@ -227,14 +237,17 @@ static void              SDADC_DMARegularConvCplt(DMA_HandleTypeDef *hdma);
 static void              SDADC_DMAInjectedHalfConvCplt(DMA_HandleTypeDef *hdma);
 static void              SDADC_DMAInjectedConvCplt(DMA_HandleTypeDef *hdma);
 static void              SDADC_DMAError(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup SDADC_Private_Functions
+/** @defgroup SDADC_Exported_Functions SDADC Exported Functions
   * @{
   */
 
-/** @defgroup SDADC_Group1 Initialization/de-initialization functions 
+/** @defgroup SDADC_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and de-initialization functions 
  *
 @verbatim    
@@ -267,7 +280,7 @@ HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef* hsdadc)
   assert_param(IS_SDADC_VREF(hsdadc->Init.ReferenceVoltage));
   
   /* Check SDADC handle */
-  if(hsdadc == NULL)
+  if(hsdadc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -330,7 +343,7 @@ HAL_StatusTypeDef HAL_SDADC_DeInit(SDADC_HandleTypeDef* hsdadc)
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
   
   /* Check SDADC handle */
-  if(hsdadc == NULL)
+  if(hsdadc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -386,7 +399,7 @@ __weak void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef* hsdadc)
   * @}
   */
 
-/** @defgroup SDADC_Group2 peripheral control functions
+/** @defgroup SDADC_Exported_Functions_Group2 peripheral control functions
  *  @brief    Peripheral control functions
  *
 @verbatim   
@@ -428,7 +441,7 @@ HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc,
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
   assert_param(IS_SDADC_CONF_INDEX(ConfIndex));
-  assert_param(ConfParamStruct != NULL);
+  assert_param(ConfParamStruct != HAL_NULL);
   assert_param(IS_SDADC_INPUT_MODE(ConfParamStruct->InputMode));
   assert_param(IS_SDADC_GAIN(ConfParamStruct->Gain));
   assert_param(IS_SDADC_COMMON_MODE(ConfParamStruct->CommonMode));
@@ -881,7 +894,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeConfigChannel(SDADC_HandleTypeDef* 
   * @}
   */
 
-/** @defgroup SDADC_Group3 I/O operation functions
+/** @defgroup SDADC_Exported_Functions_Group3 Input and Output operation functions
  *  @brief    I/O operation Control functions 
  *
 @verbatim   
@@ -1266,7 +1279,7 @@ HAL_StatusTypeDef HAL_SDADC_Start_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pDa
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
+  assert_param(pData != HAL_NULL);
   assert_param(Length != 0);
 
   /* Check that DMA is not enabled for injected conversion */
@@ -1591,7 +1604,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStart_DMA(SDADC_HandleTypeDef *hsdadc, uint3
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
+  assert_param(pData != HAL_NULL);
   assert_param(Length != 0);
 
   /* Check that DMA is not enabled for regular conversion */
@@ -1704,7 +1717,7 @@ uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t* Chann
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(Channel != NULL);
+  assert_param(Channel != HAL_NULL);
 
   /* Read SDADC_JDATAR register and extract channel and conversion value */
   value = hsdadc->Instance->JDATAR;
@@ -1731,7 +1744,7 @@ HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
+  assert_param(pData != HAL_NULL);
   assert_param(Length != 0);
 
   /* Check instance is SDADC1 */
@@ -1887,7 +1900,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef* hsda
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != NULL);
+  assert_param(pData != HAL_NULL);
   assert_param(Length != 0);
 
   /* Check instance is SDADC1 */
@@ -2279,7 +2292,7 @@ static void SDADC_DMAError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup SDADC_Group4 SDADC Peripheral State functions
+/** @defgroup SDADC_Exported_Functions_Group4 Peripheral State functions
  *  @brief   SDADC Peripheral State functions 
  *
 @verbatim   
@@ -2622,12 +2635,12 @@ static HAL_StatusTypeDef SDADC_InjConvStop(SDADC_HandleTypeDef* hsdadc)
   * @}
   */
 
-#endif /* defined(STM32F373xC) || defined(STM32F378xx) */
-#endif /* HAL_SDADC_MODULE_ENABLED */
 /**
   * @}
   */ 
 
+#endif /* defined(STM32F373xC) || defined(STM32F378xx) */
+#endif /* HAL_SDADC_MODULE_ENABLED */
 /**
   * @}
   */ 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -109,7 +109,7 @@
   * @{
   */
 
-/** @defgroup DMA 
+/** @defgroup DMA DMA HAL module driver
   * @brief DMA HAL module driver
   * @{
   */
@@ -118,19 +118,31 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup DMA_Private_Defines DMA Private Define
+  * @{
+  */
 #define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
+/**
+  * @}
+  */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup DMA_Private_Functions DMA Private Functions
+  * @{
+  */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
+/**
+  * @}
+  */
 
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup DMA_Private_Functions
+/* Exported functions ---------------------------------------------------------*/
+/** @defgroup DMA_Exported_Functions DMA Exported Functions
   * @{
   */
 
-/** @defgroup DMA_Group1 Initialization and de-initialization functions 
+/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief   Initialization and de-initialization functions 
  *
 @verbatim   
@@ -161,7 +173,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   uint32_t tmp = 0;
   
   /* Check the DMA handle allocation */
-  if(hdma == NULL)
+  if(hdma == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -214,7 +226,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
 {
   /* Check the DMA handle allocation */
-  if(hdma == NULL)
+  if(hdma == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -264,7 +276,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group2 I/O operation functions 
+/** @defgroup DMA_Exported_Functions_Group2 Input and Output operation functions 
  *  @brief   I/O operation functions  
  *
 @verbatim   
@@ -519,7 +531,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma); 
     
-      if (hdma->XferErrorCallback != NULL)
+      if (hdma->XferErrorCallback != HAL_NULL)
       {
         /* Transfer error callback */
         hdma->XferErrorCallback(hdma);
@@ -544,7 +556,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Change DMA peripheral state */
       hdma->State = HAL_DMA_STATE_READY_HALF;
 
-      if(hdma->XferHalfCpltCallback != NULL)
+      if(hdma->XferHalfCpltCallback != HAL_NULL)
       {
         /* Half transfer callback */
         hdma->XferHalfCpltCallback(hdma);
@@ -574,7 +586,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma);
     
-      if(hdma->XferCpltCallback != NULL)
+      if(hdma->XferCpltCallback != HAL_NULL)
       {       
         /* Transfer complete callback */
         hdma->XferCpltCallback(hdma);
@@ -587,7 +599,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group3 Peripheral State functions
+/** @defgroup DMA_Exported_Functions_Group3 Peripheral State functions
  *  @brief    Peripheral State functions 
  *
 @verbatim   
@@ -627,6 +639,14 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
 
 /**
   * @}
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup DMA_Private_Functions DMA Private Functions
+  * @{
   */
 
 /**

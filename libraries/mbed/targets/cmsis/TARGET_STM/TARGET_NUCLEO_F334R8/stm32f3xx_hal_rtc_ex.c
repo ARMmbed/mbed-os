@@ -2,16 +2,16 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
-  *          functionalities of the Real Time Clock (RTC) Extension peripheral:
+  *          functionalities of the Real Time Clock (RTC) Extended peripheral:
   *           + RTC Time Stamp functions
   *           + RTC Tamper functions 
   *           + RTC Wake-up functions
-  *           + Extension Control functions
-  *           + Extension RTC features functions    
+  *           + Extended Control functions
+  *           + Extended RTC features functions    
   *
   @verbatim
   ==============================================================================
@@ -97,7 +97,7 @@
   * @{
   */
 
-/** @defgroup RTCEx
+/** @defgroup RTCEx RTC Extended HAL module driver
   * @brief RTC Extended HAL module driver
   * @{
   */
@@ -109,14 +109,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup RTCEx_Private_Functions
+/** @defgroup RTCEx_Exported_Functions RTC Extended Exported Functions
   * @{
   */
   
 
-/** @defgroup RTCEx_Group1 RTC TimeStamp and Tamper functions
+/** @defgroup RTCEx_Exported_Functions_Group1 RTC TimeStamp and Tamper functions
   * @brief    RTC TimeStamp and Tamper functions
   *
 @verbatim   
@@ -725,7 +725,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_
   * @}
   */
   
-/** @defgroup RTCEx_Group2 RTC Wake-up functions
+/** @defgroup RTCEx_Exported_Functions_Group2 Extended Wake-up functions
   * @brief    RTC Wake-up functions
   *
 @verbatim   
@@ -1020,12 +1020,12 @@ HAL_StatusTypeDef HAL_RTCEx_PollForWakeUpTimerEvent(RTC_HandleTypeDef *hrtc, uin
   */
 
 
-/** @defgroup RTCEx_Group3 Extended Peripheral Control functions
+/** @defgroup RTCEx_Exported_Functions_Group3 Extended Peripheral Control functions
   * @brief    Extended Peripheral Control functions
   *
 @verbatim   
  ===============================================================================
-              ##### Extension Peripheral Control functions #####
+              ##### Extended Peripheral Control functions #####
  ===============================================================================  
     [..]
     This subsection provides functions allowing to
@@ -1499,7 +1499,7 @@ HAL_StatusTypeDef HAL_RTCEx_DisableBypassShadow(RTC_HandleTypeDef* hrtc)
   * @}
   */
 
-/** @defgroup RTCEx_Group4 Extended features functions
+/** @defgroup RTCEx_Exported_Functions_Group4 Extended features functions
   * @brief    Extended features functions
   *
 @verbatim   

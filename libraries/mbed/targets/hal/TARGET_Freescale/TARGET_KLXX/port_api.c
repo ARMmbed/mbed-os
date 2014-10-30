@@ -24,9 +24,11 @@ PinName port_pin(PortName port, int pin_n) {
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     obj->port = port;
     obj->mask = mask;
-
+#if defined(TARGET_KL43Z)
+    GPIO_Type *reg = (GPIO_Type *)(GPIOA_BASE + port * 0x40);
+#else
     FGPIO_Type *reg = (FGPIO_Type *)(FPTA_BASE + port * 0x40);
-
+#endif
     obj->reg_out = &reg->PDOR;
     obj->reg_in  = &reg->PDIR;
     obj->reg_dir = &reg->PDDR;

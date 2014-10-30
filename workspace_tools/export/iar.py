@@ -23,9 +23,14 @@ class IAREmbeddedWorkbench(Exporter):
 
     TARGETS = [
         'LPC1768',
+        'LPC1347',
         'UBLOX_C027',
         'ARCH_PRO',
+        'NUCLEO_F302R8',
+        'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'NUCLEO_L152RE',
+        'STM32F407'
     ]
 
     def generate(self):

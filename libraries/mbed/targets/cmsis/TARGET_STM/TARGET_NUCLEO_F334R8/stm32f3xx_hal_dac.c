@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Digital-to-Analog Converter (DAC) peripheral: 
   *           + DAC channels configuration: trigger, output buffer, data format
@@ -206,8 +206,8 @@
   * @{
   */
 
-/** @defgroup DAC 
-  * @brief DAC driver modules
+/** @defgroup DAC DAC HAL module driver
+  * @brief DAC HAL module driver
   * @{
   */ 
  
@@ -219,13 +219,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
     
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup DAC_Private_Functions
+/* Exported functions ---------------------------------------------------------*/
+/** @defgroup DAC_Exported_Functions DAC Exported Functions
   * @{
   */
 
-/** @defgroup DAC_Group1 Initialization and de-initialization functions 
+/** @defgroup DAC_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -250,7 +249,7 @@
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 { 
   /* Check DAC handle */
-  if(hdac == NULL)
+  if(hdac == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -285,7 +284,7 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
 {
   /* Check DAC handle */
-  if(hdac == NULL)
+  if(hdac == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -342,7 +341,7 @@ __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
   * @}
   */
 
-/** @defgroup DAC_Group2 IO operation functions
+/** @defgroup DAC_Exported_Functions_Group2 Input and Output operation functions
  *  @brief    IO operation functions 
  *
 @verbatim   
@@ -379,7 +378,7 @@ __weak HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t channel
   /*        Function content is located into file stm32f3xx_hal_dac_ex.c  */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -500,7 +499,7 @@ __weak uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
   * @}
   */
   
-/** @defgroup DAC_Group3 Peripheral Control functions
+/** @defgroup DAC_Exported_Functions_Group3 Peripheral Control functions
  *  @brief    Peripheral Control functions 
  *
 @verbatim   
@@ -576,7 +575,7 @@ __weak HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t chan
   /*        Function content is located into file stm32f3xx_hal_dac_ex.c  */
 
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 __weak HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t alignment, uint32_t data1, uint32_t data2)
@@ -585,19 +584,19 @@ __weak HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_
   /*        Function content is located into file stm32f3xx_hal_dac_ex.c  */
 
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
   * @}
   */
 
-/** @defgroup DAC_Group4 DAC Peripheral State functions
- *  @brief   DAC Peripheral State functions 
+/** @defgroup DAC_Exported_Functions_Group4 Peripheral State and Error functions
+ *  @brief   DAC Peripheral State and Error functions 
  *
 @verbatim   
   ==============================================================================
-            ##### DAC Peripheral State functions #####
+            ##### DAC Peripheral State and Error functions #####
   ==============================================================================  
     [..]
     This subsection provides functions allowing to
@@ -634,6 +633,10 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
 
 /**
   * @}
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group2 Input and Output operation functions
+  * @{
   */
 
 /**
@@ -689,6 +692,9 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
    */
 }
 
+/**
+  * @}
+  */
 
 /**
   * @}

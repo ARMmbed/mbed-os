@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_sdadc.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file contains all the functions prototypes for the SDADC
   *          firmware library.
   ******************************************************************************
@@ -58,6 +58,10 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/
+/** @defgroup SDADC_Exported_Types SDADC Exported Types
+  * @{
+  */
+
 
 /** 
   * @brief  HAL SDADC States definition  
@@ -124,7 +128,17 @@ typedef struct
                                 This parameter can be any value lower or equal to 0x00000FFF */
 }SDADC_ConfParamTypeDef;
 
-/** @defgroup SDADC_Idle_Low_Power_Mode 
+/**
+  * @}
+  */
+
+/* Exported constants --------------------------------------------------------*/
+
+/** @defgroup SDADC_Exported_Constants SDADC Exported Constants
+  * @{
+  */
+
+/** @defgroup SDADC_Idle_Low_Power_Mode SDADC Idle Low Power Mode
   * @{
   */
 #define SDADC_LOWPOWER_NONE                  ((uint32_t)0x00000000)
@@ -137,7 +151,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Fast_Conv_Mode 
+/** @defgroup SDADC_Fast_Conv_Mode SDADC Fast Conversion Mode
   * @{
   */
 #define SDADC_FAST_CONV_DISABLE              ((uint32_t)0x00000000)
@@ -148,7 +162,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Slow_Clock_Mode 
+/** @defgroup SDADC_Slow_Clock_Mode SDADC Slow Clock Mode
   * @{
   */
 #define SDADC_SLOW_CLOCK_DISABLE             ((uint32_t)0x00000000)
@@ -159,7 +173,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Reference_Voltage
+/** @defgroup SDADC_Reference_Voltage SDADC Reference Voltage
   * @{
   */
 #define SDADC_VREF_EXT                       ((uint32_t)0x00000000) /*!< The reference voltage is forced externally using VREF pin */
@@ -174,7 +188,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_ConfIndex
+/** @defgroup SDADC_ConfIndex SDADC Configuration Index
   * @{
   */
   
@@ -189,7 +203,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_InputMode
+/** @defgroup SDADC_InputMode SDADC Input Mode
   * @{
   */
 #define SDADC_INPUT_MODE_DIFF                ((uint32_t)0x00000000) /*!< Conversions are executed in differential mode */
@@ -203,7 +217,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Gain 
+/** @defgroup SDADC_Gain SDADC Gain
   * @{
   */
 #define SDADC_GAIN_1                         ((uint32_t)0x00000000)  /*!< Gain equal to 1 */
@@ -224,7 +238,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_CommonMode
+/** @defgroup SDADC_CommonMode SDADC Common Mode
   * @{
   */
 #define SDADC_COMMON_MODE_VSSA               ((uint32_t)0x00000000) /*!< Select SDADC VSSA as common mode */
@@ -237,7 +251,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Offset
+/** @defgroup SDADC_Offset SDADC Offset
   * @{
   */
 #define IS_SDADC_OFFSET_VALUE(VALUE) ((VALUE) <= 0x00000FFF)
@@ -245,7 +259,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Channel_Selection
+/** @defgroup SDADC_Channel_Selection SDADC Channel Selection
   * @{
   */
 
@@ -285,7 +299,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_CalibrationSequence 
+/** @defgroup SDADC_CalibrationSequence SDADC Calibration Sequence
   * @{
   */ 
 #define SDADC_CALIBRATION_SEQ_1                   ((uint32_t)0x00000000) /*!< One calibration sequence to calculate offset of conf0 (OFFSET0[11:0]) */
@@ -299,7 +313,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_ContinuousMode 
+/** @defgroup SDADC_ContinuousMode SDADC Continuous Mode
   * @{
   */ 
 #define SDADC_CONTINUOUS_CONV_OFF            ((uint32_t)0x00000000) /*!< Conversion are not continuous */
@@ -311,7 +325,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_Trigger
+/** @defgroup SDADC_Trigger SDADC Trigger
   * @{
   */ 
 #define SDADC_SOFTWARE_TRIGGER               ((uint32_t)0x00000000) /*!< Software trigger */
@@ -328,7 +342,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_InjectedExtTrigger
+/** @defgroup SDADC_InjectedExtTrigger SDADC Injected External Trigger
   * @{
   */ 
 #define SDADC_EXT_TRIG_TIM13_CC1             ((uint32_t)0x00000000) /*!< Trigger source for SDADC1 */
@@ -376,7 +390,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_ExtTriggerEdge
+/** @defgroup SDADC_ExtTriggerEdge SDADC External Trigger Edge
   * @{
   */ 
 #define SDADC_EXT_TRIG_RISING_EDGE           SDADC_CR2_JEXTEN_0     /*!< External rising edge */
@@ -390,7 +404,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_InjectedDelay
+/** @defgroup SDADC_InjectedDelay SDADC Injected Conversion Delay
   * @{
   */ 
 #define SDADC_INJECTED_DELAY_NONE            ((uint32_t)0x00000000) /*!< No delay on injected conversion */
@@ -402,7 +416,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_MultimodeType
+/** @defgroup SDADC_MultimodeType SDADC Multimode Type
   * @{
   */ 
 #define SDADC_MULTIMODE_SDADC1_SDADC2        ((uint32_t)0x00000000) /*!< Get conversion values for SDADC1 and SDADC2 */
@@ -414,7 +428,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDADC_ErrorCode
+/** @defgroup SDADC_ErrorCode SDADC Error Code
   * @{
   */ 
 #define SDADC_ERROR_NONE                     ((uint32_t)0x00000000) /*!< No error */
@@ -425,7 +439,14 @@ typedef struct
   * @}
   */
 
+/**
+  * @}
+  */
+
 /* Exported macros -----------------------------------------------------------*/  
+/** @defgroup SDADC_Exported_Macros SDADC Exported Macros
+ * @{
+ */
 
 /** @brief  Reset SDADC handle state
   * @param  __HANDLE__: SDADC handle.
@@ -433,13 +454,33 @@ typedef struct
   */
 #define __HAL_SDADC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_SDADC_STATE_RESET)
 
+/**
+  * @}
+  */
+
+
 /* Exported functions --------------------------------------------------------*/  
+/** @addtogroup SDADC_Exported_Functions SDADC Exported Functions
+  * @{
+  */
+
+/** @addtogroup SDADC_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef *hsdadc);
 HAL_StatusTypeDef HAL_SDADC_DeInit(SDADC_HandleTypeDef *hsdadc);
 void HAL_SDADC_MspInit(SDADC_HandleTypeDef* hsdadc);
 void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef* hsdadc);
+
+/**
+  * @}
+  */
+
+/** @addtogroup SDADC_Exported_Functions_Group2 peripheral control functions
+  * @{
+  */
 
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc, 
@@ -463,6 +504,14 @@ HAL_StatusTypeDef HAL_SDADC_SelectRegularTrigger(SDADC_HandleTypeDef *hsdadc, ui
 HAL_StatusTypeDef HAL_SDADC_SelectInjectedTrigger(SDADC_HandleTypeDef *hsdadc, uint32_t Trigger);
 HAL_StatusTypeDef HAL_SDADC_MultiModeConfigChannel(SDADC_HandleTypeDef* hsdadc, uint32_t MultimodeType);
 HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeConfigChannel(SDADC_HandleTypeDef* hsdadc, uint32_t MultimodeType);
+
+/**
+  * @}
+  */
+
+/** @addtogroup SDADC_Exported_Functions_Group3 Input and Output operation functions
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_SDADC_CalibrationStart(SDADC_HandleTypeDef *hsdadc, uint32_t CalibrationSequence);
@@ -505,11 +554,27 @@ void HAL_SDADC_InjectedConvHalfCpltCallback(SDADC_HandleTypeDef* hsdadc);
 void HAL_SDADC_InjectedConvCpltCallback(SDADC_HandleTypeDef* hsdadc);
 void HAL_SDADC_ErrorCallback(SDADC_HandleTypeDef* hsdadc);
 
+/**
+  * @}
+  */
+
+/** @defgroup SDADC_Exported_Functions_Group4 Peripheral State functions
+  * @{
+  */
+
 /* Peripheral State and Error functions ***************************************/
 HAL_SDADC_StateTypeDef HAL_SDADC_GetState(SDADC_HandleTypeDef* hsdadc);
 uint32_t               HAL_SDADC_GetError(SDADC_HandleTypeDef* hsdadc);
 
 /* Private functions ---------------------------------------------------------*/  
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

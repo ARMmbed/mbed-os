@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   USART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -87,13 +87,16 @@
   * @{
   */
 
-/** @defgroup USART 
+/** @defgroup USART HAL USART Synchronous module driver
   * @brief HAL USART Synchronous module driver
   * @{
   */
 #ifdef HAL_USART_MODULE_ENABLED
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup UASRT_Private_Constants USART Private Constants
+  * @{
+  */
 #define DUMMY_DATA                  ((uint16_t) 0xFFFF)
 #define TEACK_REACK_TIMEOUT         ((uint32_t) 1000)
 #define USART_TXDMA_TIMEOUTVALUE            22000
@@ -102,6 +105,9 @@
                                       USART_CR1_TE | USART_CR1_RE))
 #define USART_CR2_FIELDS  ((uint32_t)(USART_CR2_CPHA | USART_CR2_CPOL | \
                                       USART_CR2_CLKEN | USART_CR2_LBCL | USART_CR2_STOP))
+/**
+  * @}
+  */
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -114,16 +120,17 @@ static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husar
 static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart);
+static HAL_StatusTypeDef USART_EndTransmit_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 
-/** @defgroup USART_Private_Functions
+/** @defgroup USART_Exported_Functions USART Exported Functions
   * @{
   */
 
-/** @defgroup USART_Group1 USART Initialization/de-initialization functions 
+/** @defgroup USART_Exported_Functions_Group1 Initialization and de-initialization functions
   *  @brief    Initialization and Configuration functions 
   *
 @verbatim   
@@ -181,7 +188,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
 {
   /* Check the USART handle allocation */
-  if(husart == NULL)
+  if(husart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -227,7 +234,7 @@ HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
 HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
 {
    /* Check the USART handle allocation */
-  if(husart == NULL)
+  if(husart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -281,7 +288,7 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   * @}
   */
 
-/** @defgroup HAL_USART_Group2 IO operation functions 
+/** @defgroup USART_Exported_Functions_Group2 Input and Output operation functions 
   *  @brief   USART Transmit/Receive functions 
   *
 @verbatim   
@@ -352,7 +359,7 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
     
   if(husart->State == HAL_USART_STATE_READY)
   { 
-    if((pTxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -420,7 +427,7 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL) || (Size == 0)) 
+    if((pRxData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -499,7 +506,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (pRxData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -582,7 +589,7 @@ HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pT
 {  
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -629,7 +636,7 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
 {
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL) || (Size == 0)) 
+    if((pRxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -689,7 +696,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint
 
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (pRxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -746,7 +753,7 @@ HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *p
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR; 
     }
@@ -804,7 +811,7 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL) || (Size == 0)) 
+    if((pRxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -873,7 +880,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uin
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == HAL_NULL) || (pRxData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -1023,12 +1030,12 @@ HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
   husart->Instance->CR3 &= ~USART_CR3_DMAR;
 
   /* Abort the USART DMA tx channel */
-  if(husart->hdmatx != NULL)
+  if(husart->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(husart->hdmatx);
   }
   /* Abort the USART DMA rx channel */
-  if(husart->hdmarx != NULL)
+  if(husart->hdmarx != HAL_NULL)
   {
     HAL_DMA_Abort(husart->hdmarx);
   }
@@ -1119,76 +1126,142 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
       USART_TransmitReceive_IT(husart);
     }
   }
+  
+  /* USART in mode Transmitter (transmission end) -----------------------------*/
+  if((__HAL_USART_GET_IT(husart, USART_IT_TC) != RESET) &&(__HAL_USART_GET_IT_SOURCE(husart, USART_IT_TC) != RESET))
+  {
+    USART_EndTransmit_IT(husart);
+  } 
 
 }
 
 
 /**
-  * @brief  This function handles USART Communication Timeout.
-  * @param  husart: USART handle
-  * @param  Flag: specifies the USART flag to check.
-  * @param  Status: The new Flag status (SET or RESET).
-  * @param  Timeout: Timeout duration
-  * @retval HAL status
+  * @brief Tx Transfer completed callbacks
+  * @param husart: usart handle
+  * @retval None
   */
-static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husart, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
+__weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
-  uint32_t tickstart = HAL_GetTick();
-  
-  /* Wait until flag is set */
-  if(Status == RESET)
-  {    
-    while(__HAL_USART_GET_FLAG(husart, Flag) == RESET)
-    {
-      /* Check for the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
-          __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_PE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
-          
-          husart->State= HAL_USART_STATE_TIMEOUT;
-          
-          /* Process Unlocked */
-          __HAL_UNLOCK(husart);
-          
-          return HAL_TIMEOUT;
-        }
-      }
-    }
-  }
-  else
-  {
-    while(__HAL_USART_GET_FLAG(husart, Flag) != RESET)
-    {
-      /* Check for the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
-          __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_PE);
-          __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
-    
-          husart->State= HAL_USART_STATE_TIMEOUT;
-          
-          /* Process Unlocked */
-          __HAL_UNLOCK(husart);
-        
-          return HAL_TIMEOUT;
-        }
-      }
-    }
-  }
-  return HAL_OK;      
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_USART_TxCpltCallback can be implemented in the user file
+   */ 
 }
 
+/**
+  * @brief  Tx Half Transfer completed callbacks.
+  * @param  husart: USART handle
+  * @retval None
+  */
+ __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
+{
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_USART_TxHalfCpltCallback can be implemented in the user file
+   */
+}
+
+/**
+  * @brief  Rx Transfer completed callbacks.
+  * @param  husart: USART handle
+  * @retval None
+  */
+__weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
+{
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_USART_RxCpltCallback can be implemented in the user file
+   */
+}
+
+/**
+  * @brief Rx Half Transfer completed callbacks
+  * @param husart: usart handle
+  * @retval None
+  */
+__weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_USART_RxHalfCpltCallback can be implemented in the user file
+   */
+}
+
+/**
+  * @brief Tx/Rx Transfers completed callback for the non-blocking process
+  * @param husart: usart handle
+  * @retval None
+  */
+__weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_USART_TxRxCpltCallback can be implemented in the user file
+   */
+}
+
+/**
+  * @brief USART error callbacks
+  * @param husart: usart handle
+  * @retval None
+  */
+__weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_USART_ErrorCallback can be implemented in the user file
+   */ 
+}
+
+/**
+  * @}
+  */
+
+/** @defgroup USART_Exported_Functions_Group3 Peripheral Control functions 
+  *  @brief   USART control functions 
+  *
+@verbatim   
+ ===============================================================================
+                      ##### Peripheral Control functions #####
+ ===============================================================================  
+    [..]
+    This subsection provides a set of functions allowing to control the USART.
+     (+) HAL_USART_GetState() API can be helpful to check in run-time the state of the USART peripheral. 
+     (+) USART_CheckIdleState() APi ensures that TEACK and/or REACK bits are set after initialization
+      
+@endverbatim
+  * @{
+  */
+
+
+
+/**
+  * @brief return the USART state
+  * @param husart: USART handle
+  * @retval HAL state
+  */
+HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart)
+{
+  return husart->State;
+}
+
+/**
+  * @brief  Return the USART error code
+  * @param  husart : pointer to a USART_HandleTypeDef structure that contains
+  *              the configuration information for the specified USART.
+  * @retval USART Error Code
+  */
+uint32_t HAL_USART_GetError(USART_HandleTypeDef *husart)
+{
+  return husart->ErrorCode;
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+  
+/** @defgroup USART_Private_Functions USART Private Functions
+ * @{
+ */
 
 /**
   * @brief DMA USART transmit process complete callback 
@@ -1292,77 +1365,185 @@ static void USART_DMAError(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief Tx Transfer completed callbacks
-  * @param husart: usart handle
-  * @retval None
-  */
-__weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_USART_TxCpltCallback can be implemented in the user file
-   */ 
-}
-
-/**
-  * @brief  Tx Half Transfer completed callbacks.
+  * @brief  This function handles USART Communication Timeout.
   * @param  husart: USART handle
-  * @retval None
+  * @param  Flag: specifies the USART flag to check.
+  * @param  Status: The new Flag status (SET or RESET).
+  * @param  Timeout: Timeout duration
+  * @retval HAL status
   */
- __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
+static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husart, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
 {
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_USART_TxHalfCpltCallback can be implemented in the user file
-   */
+  uint32_t tickstart = HAL_GetTick();
+  
+  /* Wait until flag is set */
+  if(Status == RESET)
+  {    
+    while(__HAL_USART_GET_FLAG(husart, Flag) == RESET)
+    {
+      /* Check for the Timeout */
+      if(Timeout != HAL_MAX_DELAY)
+      {
+        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+        {
+          /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
+          __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_PE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
+          
+          husart->State= HAL_USART_STATE_TIMEOUT;
+          
+          /* Process Unlocked */
+          __HAL_UNLOCK(husart);
+          
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+  }
+  else
+  {
+    while(__HAL_USART_GET_FLAG(husart, Flag) != RESET)
+    {
+      /* Check for the Timeout */
+      if(Timeout != HAL_MAX_DELAY)
+      {
+        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+        {
+          /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
+          __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_PE);
+          __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
+    
+          husart->State= HAL_USART_STATE_TIMEOUT;
+          
+          /* Process Unlocked */
+          __HAL_UNLOCK(husart);
+        
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+  }
+  return HAL_OK;      
 }
 
 /**
-  * @brief  Rx Transfer completed callbacks.
-  * @param  husart: USART handle
+  * @brief Configure the USART peripheral 
+  * @param husart: USART handle
   * @retval None
   */
-__weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
+static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
 {
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_USART_RxCpltCallback can be implemented in the user file
-   */
+  uint32_t tmpreg                      = 0x0;
+  USART_ClockSourceTypeDef clocksource = USART_CLOCKSOURCE_UNDEFINED;
+  HAL_StatusTypeDef ret                = HAL_OK;
+  
+  /* Check the parameters */
+  assert_param(IS_USART_POLARITY(husart->Init.CLKPolarity));
+  assert_param(IS_USART_PHASE(husart->Init.CLKPhase));
+  assert_param(IS_USART_LASTBIT(husart->Init.CLKLastBit));
+  assert_param(IS_USART_BAUDRATE(husart->Init.BaudRate));  
+  assert_param(IS_USART_WORD_LENGTH(husart->Init.WordLength));
+  assert_param(IS_USART_STOPBITS(husart->Init.StopBits));
+  assert_param(IS_USART_PARITY(husart->Init.Parity));
+  assert_param(IS_USART_MODE(husart->Init.Mode));
+ 
+
+  /*-------------------------- USART CR1 Configuration -----------------------*/
+   /* Clear M, PCE, PS, TE and RE bits and configure       
+   *  the USART Word Length, Parity and Mode: 
+   *  set the M bits according to husart->Init.WordLength value 
+   *  set PCE and PS bits according to husart->Init.Parity value
+   *  set TE and RE bits according to husart->Init.Mode value */
+  tmpreg = (uint32_t)husart->Init.WordLength | husart->Init.Parity | husart->Init.Mode;
+  MODIFY_REG(husart->Instance->CR1, USART_CR1_FIELDS, tmpreg);
+  
+  /*---------------------------- USART CR2 Configuration ---------------------*/
+  /* Clear and configure the USART Clock, CPOL, CPHA, LBCL and STOP bits:
+   * set CPOL bit according to husart->Init.CLKPolarity value
+   * set CPHA bit according to husart->Init.CLKPhase value
+   * set LBCL bit according to husart->Init.CLKLastBit value
+   * set STOP[13:12] bits according to husart->Init.StopBits value */
+  tmpreg = (uint32_t)(USART_CLOCK_ENABLED); 
+  tmpreg |= ((uint32_t)husart->Init.CLKPolarity | (uint32_t)husart->Init.CLKPhase);
+  tmpreg |= ((uint32_t)husart->Init.CLKLastBit | (uint32_t)husart->Init.StopBits);
+  MODIFY_REG(husart->Instance->CR2, USART_CR2_FIELDS, tmpreg);
+
+  /*-------------------------- USART CR3 Configuration -----------------------*/  
+  /* no CR3 register configuration                                            */
+
+  /*-------------------------- USART BRR Configuration -----------------------*/
+  __HAL_USART_GETCLOCKSOURCE(husart, clocksource);
+  switch (clocksource)
+  {
+    case USART_CLOCKSOURCE_PCLK1: 
+      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK1Freq() / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_PCLK2: 
+      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK2Freq() / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_HSI: 
+      husart->Instance->BRR = (uint16_t)(HSI_VALUE / husart->Init.BaudRate); 
+      break; 
+    case USART_CLOCKSOURCE_SYSCLK:  
+      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetSysClockFreq() / husart->Init.BaudRate);
+      break;  
+    case USART_CLOCKSOURCE_LSE:                
+      husart->Instance->BRR = (uint16_t)(LSE_VALUE / husart->Init.BaudRate); 
+      break;      
+    case USART_CLOCKSOURCE_UNDEFINED:                
+    default:                
+      ret = HAL_ERROR; 
+      break;          
+  } 
+  
+  return ret; 
 }
+
+
 
 /**
-  * @brief Rx Half Transfer completed callbacks
-  * @param husart: usart handle
-  * @retval None
+  * @brief Check the USART Idle State
+  * @param husart: USART handle
+  * @retval HAL status
   */
-__weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
+static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
 {
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_USART_RxHalfCpltCallback can be implemented in the user file
-   */
+  /* Initialize the USART ErrorCode */
+  husart->ErrorCode = HAL_USART_ERROR_NONE;
+  
+  /* Check if the Transmitter is enabled */
+  if((husart->Instance->CR1 & USART_CR1_TE) == USART_CR1_TE)
+  {
+    /* Wait until TEACK flag is set */
+    if(USART_WaitOnFlagUntilTimeout(husart, USART_ISR_TEACK, RESET, TEACK_REACK_TIMEOUT) != HAL_OK)  
+    { 
+      /* Timeout Occured */ 
+      return HAL_TIMEOUT;
+    } 
+  }
+  /* Check if the Receiver is enabled */
+  if((husart->Instance->CR1 & USART_CR1_RE) == USART_CR1_RE)
+  {
+    /* Wait until REACK flag is set */
+    if(USART_WaitOnFlagUntilTimeout(husart, USART_ISR_REACK, RESET, TEACK_REACK_TIMEOUT) != HAL_OK)  
+    { 
+      /* Timeout Occured */ 
+      return HAL_TIMEOUT;
+    }
+  }
+  
+  /* Initialize the USART state*/
+  husart->State= HAL_USART_STATE_READY;
+    
+  /* Process Unlocked */
+  __HAL_UNLOCK(husart);
+  
+  return HAL_OK;  
 }
-
-/**
-  * @brief Tx/Rx Transfers completed callback for the non-blocking process
-  * @param husart: usart handle
-  * @retval None
-  */
-__weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_USART_TxRxCpltCallback can be implemented in the user file
-   */
-}
-
-/**
-  * @brief USART error callbacks
-  * @param husart: usart handle
-  * @retval None
-  */
-__weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_USART_ErrorCallback can be implemented in the user file
-   */ 
-}
-
 
 /**
   * @brief  Simplex Send an amount of data in non-blocking mode.
@@ -1384,16 +1565,8 @@ static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart)
       /* Disable the USART Transmit Complete Interrupt */
       __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
         
-      /* Disable the USART Error Interrupt: (Frame error, noise error, overrun error) */
-      __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
-      
-      if(USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_TC, RESET, USART_TIMEOUT_VALUE) != HAL_OK)
-      { 
-        return HAL_TIMEOUT;
-      }  
-      husart->State = HAL_USART_STATE_READY;
-      
-      HAL_USART_TxCpltCallback(husart);
+      /* Enable the USART Transmit Complete Interrupt */    
+      __HAL_USART_ENABLE_IT(husart, USART_IT_TC);
       
       return HAL_OK;
     }
@@ -1420,6 +1593,29 @@ static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart)
     return HAL_BUSY;   
   }
 }
+
+
+/**
+  * @brief  Wraps up transmission in non blocking mode.
+  * @param  husart: pointer to a USART_HandleTypeDef structure that contains
+  *                the configuration information for the specified USART module.
+  * @retval HAL status
+  */
+static HAL_StatusTypeDef USART_EndTransmit_IT(USART_HandleTypeDef *husart)
+{
+  /* Disable the USART Transmit Complete Interrupt */    
+  __HAL_USART_DISABLE_IT(husart, USART_IT_TC);
+  
+  /* Disable the USART Error Interrupt: (Frame error, noise error, overrun error) */
+  __HAL_USART_DISABLE_IT(husart, USART_IT_ERR);
+    
+  husart->State = HAL_USART_STATE_READY;
+   
+  HAL_USART_TxCpltCallback(husart);
+  
+  return HAL_OK;
+}
+
 
 /**
   * @brief  Simplex Receive an amount of data in non-blocking mode.
@@ -1556,169 +1752,6 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
     return HAL_BUSY; 
   }
 }
-
-/**
-  * @}
-  */
-
-/** @defgroup HAL_USART_Group3 Peripheral Control functions 
-  *  @brief   USART control functions 
-  *
-@verbatim   
- ===============================================================================
-                      ##### Peripheral Control functions #####
- ===============================================================================  
-    [..]
-    This subsection provides a set of functions allowing to control the USART.
-     (+) HAL_USART_GetState() API can be helpful to check in run-time the state of the USART peripheral. 
-     (+) USART_SetConfig() API is used to set the USART communication parameters.
-     (+) USART_CheckIdleState() APi ensures that TEACK and/or REACK bits are set after initialization
-      
-@endverbatim
-  * @{
-  */
-
-
-
-/**
-  * @brief return the USART state
-  * @param husart: USART handle
-  * @retval HAL state
-  */
-HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart)
-{
-  return husart->State;
-}
-
-/**
-  * @brief  Return the USART error code
-  * @param  husart : pointer to a USART_HandleTypeDef structure that contains
-  *              the configuration information for the specified USART.
-  * @retval USART Error Code
-  */
-uint32_t HAL_USART_GetError(USART_HandleTypeDef *husart)
-{
-  return husart->ErrorCode;
-}
-
-/**
-  * @brief Configure the USART peripheral 
-  * @param husart: USART handle
-  * @retval None
-  */
-static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
-{
-  uint32_t tmpreg                      = 0x0;
-  USART_ClockSourceTypeDef clocksource = USART_CLOCKSOURCE_UNDEFINED;
-  HAL_StatusTypeDef ret                = HAL_OK;
-  
-  /* Check the parameters */
-  assert_param(IS_USART_POLARITY(husart->Init.CLKPolarity));
-  assert_param(IS_USART_PHASE(husart->Init.CLKPhase));
-  assert_param(IS_USART_LASTBIT(husart->Init.CLKLastBit));
-  assert_param(IS_USART_BAUDRATE(husart->Init.BaudRate));  
-  assert_param(IS_USART_WORD_LENGTH(husart->Init.WordLength));
-  assert_param(IS_USART_STOPBITS(husart->Init.StopBits));
-  assert_param(IS_USART_PARITY(husart->Init.Parity));
-  assert_param(IS_USART_MODE(husart->Init.Mode));
- 
-
-  /*-------------------------- USART CR1 Configuration -----------------------*/
-   /* Clear M, PCE, PS, TE and RE bits and configure       
-   *  the USART Word Length, Parity and Mode: 
-   *  set the M bits according to husart->Init.WordLength value 
-   *  set PCE and PS bits according to husart->Init.Parity value
-   *  set TE and RE bits according to husart->Init.Mode value */
-  tmpreg = (uint32_t)husart->Init.WordLength | husart->Init.Parity | husart->Init.Mode;
-  MODIFY_REG(husart->Instance->CR1, USART_CR1_FIELDS, tmpreg);
-  
-  /*---------------------------- USART CR2 Configuration ---------------------*/
-  /* Clear and configure the USART Clock, CPOL, CPHA, LBCL and STOP bits:
-   * set CPOL bit according to husart->Init.CLKPolarity value
-   * set CPHA bit according to husart->Init.CLKPhase value
-   * set LBCL bit according to husart->Init.CLKLastBit value
-   * set STOP[13:12] bits according to husart->Init.StopBits value */
-  tmpreg = (uint32_t)(USART_CLOCK_ENABLED); 
-  tmpreg |= ((uint32_t)husart->Init.CLKPolarity | (uint32_t)husart->Init.CLKPhase);
-  tmpreg |= ((uint32_t)husart->Init.CLKLastBit | (uint32_t)husart->Init.StopBits);
-  MODIFY_REG(husart->Instance->CR2, USART_CR2_FIELDS, tmpreg);
-
-  /*-------------------------- USART CR3 Configuration -----------------------*/  
-  /* no CR3 register configuration                                            */
-
-  /*-------------------------- USART BRR Configuration -----------------------*/
-  __HAL_USART_GETCLOCKSOURCE(husart, clocksource);
-  switch (clocksource)
-  {
-    case USART_CLOCKSOURCE_PCLK1: 
-      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK1Freq() / husart->Init.BaudRate);
-      break;
-    case USART_CLOCKSOURCE_PCLK2: 
-      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetPCLK2Freq() / husart->Init.BaudRate);
-      break;
-    case USART_CLOCKSOURCE_HSI: 
-      husart->Instance->BRR = (uint16_t)(HSI_VALUE / husart->Init.BaudRate); 
-      break; 
-    case USART_CLOCKSOURCE_SYSCLK:  
-      husart->Instance->BRR = (uint16_t)(HAL_RCC_GetSysClockFreq() / husart->Init.BaudRate);
-      break;  
-    case USART_CLOCKSOURCE_LSE:                
-      husart->Instance->BRR = (uint16_t)(LSE_VALUE / husart->Init.BaudRate); 
-      break;      
-    case USART_CLOCKSOURCE_UNDEFINED:                
-    default:                
-      ret = HAL_ERROR; 
-      break;          
-  } 
-  
-  return ret; 
-}
-
-
-
-/**
-  * @brief Check the USART Idle State
-  * @param husart: USART handle
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
-{
-  /* Initialize the USART ErrorCode */
-  husart->ErrorCode = HAL_USART_ERROR_NONE;
-  
-  /* Check if the Transmitter is enabled */
-  if((husart->Instance->CR1 & USART_CR1_TE) == USART_CR1_TE)
-  {
-    /* Wait until TEACK flag is set */
-    if(USART_WaitOnFlagUntilTimeout(husart, USART_ISR_TEACK, RESET, TEACK_REACK_TIMEOUT) != HAL_OK)  
-    { 
-      /* Timeout Occured */ 
-      return HAL_TIMEOUT;
-    } 
-  }
-  /* Check if the Receiver is enabled */
-  if((husart->Instance->CR1 & USART_CR1_RE) == USART_CR1_RE)
-  {
-    /* Wait until REACK flag is set */
-    if(USART_WaitOnFlagUntilTimeout(husart, USART_ISR_REACK, RESET, TEACK_REACK_TIMEOUT) != HAL_OK)  
-    { 
-      /* Timeout Occured */ 
-      return HAL_TIMEOUT;
-    }
-  }
-  
-  /* Initialize the USART state*/
-  husart->State= HAL_USART_STATE_READY;
-    
-  /* Process Unlocked */
-  __HAL_UNLOCK(husart);
-  
-  return HAL_OK;  
-}
-
-/**
-  * @}
-  */
 
 /**
   * @}

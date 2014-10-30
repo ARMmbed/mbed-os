@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -11,7 +11,6 @@
   *           + Extended Initialization and de-initialization functions
   *           + Extended Peripheral Control functions
   *         
-  @verbatim
   ******************************************************************************
   * @attention
   *
@@ -49,8 +48,8 @@
   * @{
   */
 
-/** @defgroup PWREx
-  * @brief PWR Extended HAL module driver
+/** @defgroup PWREx PWR Extended HAL module driver
+  * @brief    PWREx HAL module driver
   * @{
   */
 
@@ -58,43 +57,37 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup PWREx_Private_Functions
+/** @defgroup PWREx_Private_Constants PWR Extended Private Constants
   * @{
   */
-
-/** @defgroup PWREx_Group1 Extended Peripheral Initialization and de-initialization functions
-  *  @brief   Extended Peripheral Initialization and de-initialization functions
-  *
-@verbatim
- ===============================================================================
-              ##### Extended Peripheral Initialization and de-initialization functions #####
- ===============================================================================
-    [..]
-
-@endverbatim
-  * @{
-  */
-
+#define PVD_MODE_IT               ((uint32_t)0x00010000)
+#define PVD_MODE_EVT              ((uint32_t)0x00020000)
+#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
+#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
 /**
   * @}
   */
+ 
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup PWREx_Group2 Extended Peripheral Control functions
+/** @defgroup PWREx_Exported_Functions PWR Extended Exported Functions
+  * @{
+  */
+
+/** @defgroup PWREx_Exported_Functions_Group1 Peripheral Extended Control Functions
   *  @brief   Extended Peripheral Control functions
   *
 @verbatim
 
  ===============================================================================
-                 ##### Extended Peripheral Control functions #####
+                 ##### Peripheral Extended control functions #####
  ===============================================================================
-    [..]
     *** PVD configuration (present on all other devices than STM32F3x8 devices) ***
     =========================
+    [..]
       (+) The PVD is used to monitor the VDD power supply by comparing it to a
           threshold selected by the PVD Level (PLS[2:0] bits in the PWR_CR).
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
@@ -135,10 +128,11 @@
   * @{
   */
 
-#if defined(STM32F301x8) ||                         \
-    defined(STM32F302x8) || defined(STM32F302xC) || \
-    defined(STM32F303x8) || defined(STM32F303xC) || defined(STM32F373xC) || \
-    defined(STM32F334x8)
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || \
+    defined(STM32F373xC)
 
 /**
   * @brief Configures the voltage threshold detected by the Power Voltage Detector(PVD).
@@ -157,31 +151,38 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
 
   /* Set PLS[7:5] bits according to PVDLevel value */
   MODIFY_REG(PWR->CR, PWR_CR_PLS, sConfigPVD->PVDLevel);
+  
+  /* Clear any previous config. Keep it clear if no event or IT mode is selected */
+  __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
+  __HAL_PWR_PVD_EXTI_DISABLE_IT();
+  __HAL_PWR_PVD_EXTI_CLEAR_EGDE_TRIGGER();
 
-  /* Configure the EXTI 16 interrupt */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_RISING))
+  /* Configure interrupt mode */
+  if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
   {
-    __HAL_PVD_EXTI_ENABLE_IT(PWR_EXTI_LINE_PVD);
+    __HAL_PWR_PVD_EXTI_ENABLE_IT();
   }
-  /* Configure the rising edge */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_RISING))
+  
+  /* Configure event mode */
+  if((sConfigPVD->Mode & PVD_MODE_EVT) == PVD_MODE_EVT)
   {
-    EXTI->RTSR |= PWR_EXTI_LINE_PVD;
+    __HAL_PWR_PVD_EXTI_ENABLE_EVENT();
   }
-  /* Configure the falling edge */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_FALLING))
+  
+  /* Configure the edge */
+  if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
-    EXTI->FTSR |= PWR_EXTI_LINE_PVD;
+    __HAL_PWR_PVD_EXTI_SET_RISING_EDGE_TRIGGER();
+  }
+  
+  if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
+  {
+    __HAL_PWR_PVD_EXTI_SET_FALLING_EGDE_TRIGGER();
   }
 }
 
 /**
   * @brief Enables the Power Voltage Detector(PVD).
-  * @param None
   * @retval None
   */
 void HAL_PWR_EnablePVD(void)
@@ -191,7 +192,6 @@ void HAL_PWR_EnablePVD(void)
 
 /**
   * @brief Disables the Power Voltage Detector(PVD).
-  * @param None
   * @retval None
   */
 void HAL_PWR_DisablePVD(void)
@@ -202,25 +202,23 @@ void HAL_PWR_DisablePVD(void)
 /**
   * @brief This function handles the PWR PVD interrupt request.
   * @note This API should be called under the PVD_IRQHandler().
-  * @param None
   * @retval None
   */
 void HAL_PWR_PVD_IRQHandler(void)
 {
   /* Check PWR exti flag */
-  if(__HAL_PVD_EXTI_GET_FLAG(PWR_EXTI_LINE_PVD) != RESET)
+  if(__HAL_PWR_PVD_EXTI_GET_FLAG() != RESET)
   {
     /* PWR PVD interrupt user callback */
     HAL_PWR_PVDCallback();
 
     /* Clear PWR Exti pending bit */
-    __HAL_PVD_EXTI_CLEAR_FLAG(PWR_EXTI_LINE_PVD);
+    __HAL_PWR_PVD_EXTI_CLEAR_FLAG();
   }
 }
 
 /**
   * @brief PWR PVD interrupt callback
-  * @param None
   * @retval None
   */
 __weak void HAL_PWR_PVDCallback(void)
@@ -230,9 +228,11 @@ __weak void HAL_PWR_PVDCallback(void)
    */
 }
 
-#endif /* STM32F301x8 || STM32F302x8 || STM32F302xC || */
-       /* STM32F303x8 || STM32F303xC */
-       /* STM32F373xC || STM32F334x8 */
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F303x8 || STM32F334x8 || */
+       /* STM32F301x8 || STM32F302x8 || */
+       /* STM32F373xC                   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 

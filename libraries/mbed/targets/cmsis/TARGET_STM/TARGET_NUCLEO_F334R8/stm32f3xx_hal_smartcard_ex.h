@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup SMARTCARDEx
+/** @addtogroup SMARTCARDEx SMARTCARD Extended HAL module driver
   * @{
   */ 
 
@@ -58,7 +58,7 @@
 /* Exported constants --------------------------------------------------------*/    
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup SMARTCARDEx_Exported_Macros
+/** @defgroup SMARTCARDEx_Exported_Macros SMARTCARD Extended Exported Macros
   * @{
   */
 
@@ -191,15 +191,30 @@
 
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup SMARTCARDEx_Exported_Functions SMARTCARD Extended Exported Functions
+  * @{
+  */
+
 /* Initialization and de-initialization functions  ****************************/
 /* IO operation functions *****************************************************/
 /* Peripheral Control functions ***********************************************/
+/** @addtogroup SMARTCARDEx_Exported_Functions_Group1 Extended Peripheral Control functions
+  * @{
+  */
 void HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint8_t BlockLength);
 void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint32_t TimeOutValue);
 HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
 HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
 
 /* Peripheral State and Error functions ***************************************/
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
 
 /**
   * @}

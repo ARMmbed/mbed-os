@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.c
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   HCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -119,7 +119,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
 HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 { 
   /* Check the HCD handle allocation */
-  if(hhcd == NULL)
+  if(hhcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -127,7 +127,7 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   /* Check the parameters */
   assert_param(IS_HCD_ALL_INSTANCE(hhcd->Instance));
 
-  hhcd->State = HCD_BUSY;
+  hhcd->State = HAL_HCD_STATE_BUSY;
   
   /* Init the low level hardware : GPIO, CLOCK, NVIC... */
   HAL_HCD_MspInit(hhcd);
@@ -144,7 +144,7 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
  /* Init Host */
  USB_HostInit(hhcd->Instance, hhcd->Init);
  
- hhcd->State= HCD_READY;
+ hhcd->State= HAL_HCD_STATE_READY;
  
  return HAL_OK;
 }
@@ -233,19 +233,19 @@ HAL_StatusTypeDef HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd,
 HAL_StatusTypeDef HAL_HCD_DeInit(HCD_HandleTypeDef *hhcd)
 {
   /* Check the HCD handle allocation */
-  if(hhcd == NULL)
+  if(hhcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
   
-  hhcd->State = HCD_BUSY;
+  hhcd->State = HAL_HCD_STATE_BUSY;
   
   /* DeInit the low level hardware */
   HAL_HCD_MspDeInit(hhcd);
   
    __HAL_HCD_DISABLE(hhcd);
   
-  hhcd->State = HCD_READY; 
+  hhcd->State = HAL_HCD_STATE_RESET; 
   
   return HAL_OK;
 }

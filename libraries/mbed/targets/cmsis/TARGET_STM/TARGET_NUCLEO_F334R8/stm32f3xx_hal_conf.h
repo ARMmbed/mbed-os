@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
@@ -60,6 +60,10 @@
 #define HAL_DAC_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
+#define HAL_SRAM_MODULE_ENABLED
+#define HAL_NOR_MODULE_ENABLED
+#define HAL_NAND_MODULE_ENABLED
+#define HAL_PCCARD_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_HRTIM_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
@@ -212,6 +216,22 @@
  #include "stm32f3xx_hal_flash.h"
 #endif /* HAL_FLASH_MODULE_ENABLED */
 
+#ifdef HAL_SRAM_MODULE_ENABLED
+  #include "stm32f3xx_hal_sram.h"
+#endif /* HAL_SRAM_MODULE_ENABLED */
+
+#ifdef HAL_NOR_MODULE_ENABLED
+  #include "stm32f3xx_hal_nor.h"
+#endif /* HAL_NOR_MODULE_ENABLED */
+
+#ifdef HAL_NAND_MODULE_ENABLED
+  #include "stm32f3xx_hal_nand.h"
+#endif /* HAL_NAND_MODULE_ENABLED */
+
+#ifdef HAL_PCCARD_MODULE_ENABLED
+  #include "stm32f3xx_hal_pccard.h"
+#endif /* HAL_PCCARD_MODULE_ENABLED */ 
+  
 #ifdef HAL_HRTIM_MODULE_ENABLED
  #include "stm32f3xx_hal_hrtim.h"
 #endif /* HAL_HRTIM_MODULE_ENABLED */

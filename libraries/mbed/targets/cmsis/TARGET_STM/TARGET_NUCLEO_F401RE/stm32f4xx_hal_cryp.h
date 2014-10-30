@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
@@ -255,7 +255,7 @@ typedef struct
 #define __HAL_CRYP_FIFO_FLUSH() (CRYP->CR |=  CRYP_CR_FFLUSH)
 
 /**
-  * @brief  Set the algorithm mode: AES-ECB, AES-CBC, AES-CTR, DES-ECB, DES-CBC,
+  * @brief  Set the algorithm mode: AES-ECB, AES-CBC, AES-CTR, DES-ECB, DES-CBC.
   * @param  MODE: The algorithm mode.
   * @retval None
   */

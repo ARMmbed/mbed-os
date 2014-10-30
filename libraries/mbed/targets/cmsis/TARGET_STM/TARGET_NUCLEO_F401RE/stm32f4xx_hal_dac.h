@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -279,7 +279,7 @@ typedef struct
   * @param  __HANDLE__: specifies the DAC handle.
   * @retval None
   */
-#define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) |= (__FLAG__))
+#define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = (__FLAG__))
 
 /* Include DAC HAL Extension module */
 #include "stm32f4xx_hal_dac_ex.h"

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
@@ -80,9 +80,9 @@ typedef struct
   */ 
 typedef struct {
   uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection. 
-                                      This parameter can be a value of @ref TIMEx_Master_Mode_Selection */ 
+                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */ 
   uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection. 
-                                      This parameter can be a value of @ref TIMEx_Master_Slave_Mode */
+                                      This parameter can be a value of @ref TIM_Master_Slave_Mode */
 }TIM_MasterConfigTypeDef;
 
 /** 
@@ -91,142 +91,24 @@ typedef struct {
 typedef struct
 {
   uint32_t OffStateRunMode;	        /*!< TIM off state in run mode.
-                                         This parameter can be a value of @ref TIMEx_OSSR_Off_State_Selection_for_Run_mode_state */
+                                         This parameter can be a value of @ref TIM_OSSR_Off_State_Selection_for_Run_mode_state */
   uint32_t OffStateIDLEMode;	      /*!< TIM off state in IDLE mode.
-                                         This parameter can be a value of @ref TIMEx_OSSI_Off_State_Selection_for_Idle_mode_state */
+                                         This parameter can be a value of @ref TIM_OSSI_Off_State_Selection_for_Idle_mode_state */
   uint32_t LockLevel;	 	            /*!< TIM Lock level.
-                                         This parameter can be a value of @ref TIMEx_Lock_level */                             
+                                         This parameter can be a value of @ref TIM_Lock_level */                             
   uint32_t DeadTime;	 	            /*!< TIM dead Time. 
                                          This parameter can be a number between Min_Data = 0x00 and Max_Data = 0xFF */
   uint32_t BreakState;	 	          /*!< TIM Break State. 
-                                         This parameter can be a value of @ref TIMEx_Break_Input_enable_disable */
+                                         This parameter can be a value of @ref TIM_Break_Input_enable_disable */
   uint32_t BreakPolarity;	 	        /*!< TIM Break input polarity. 
-                                         This parameter can be a value of @ref TIMEx_Break_Polarity */
+                                         This parameter can be a value of @ref TIM_Break_Polarity */
   uint32_t AutomaticOutput;	 	      /*!< TIM Automatic Output Enable state. 
-                                         This parameter can be a value of @ref TIMEx_AOE_Bit_Set_Reset */           
+                                         This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */           
 }TIM_BreakDeadTimeConfigTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Constants
   * @{
-  */
-/** @defgroup TIMEx_OSSR_Off_State_Selection_for_Run_mode_state
-  * @{
-  */  
-#define TIM_OSSR_ENABLE 	      (TIM_BDTR_OSSR)
-#define TIM_OSSR_DISABLE              ((uint32_t)0x0000)
-
-#define IS_TIM_OSSR_STATE(STATE) (((STATE) == TIM_OSSR_ENABLE) || \
-                                  ((STATE) == TIM_OSSR_DISABLE))
-/**
-  * @}
-  */
-  
-/** @defgroup TIMEx_OSSI_Off_State_Selection_for_Idle_mode_state 
-  * @{
-  */
-#define TIM_OSSI_ENABLE	 	    (TIM_BDTR_OSSI)
-#define TIM_OSSI_DISABLE            ((uint32_t)0x0000)
-
-#define IS_TIM_OSSI_STATE(STATE) (((STATE) == TIM_OSSI_ENABLE) || \
-                                  ((STATE) == TIM_OSSI_DISABLE))
-/**
-  * @}
-  */
-/** @defgroup TIMEx_Lock_level 
-  * @{
-  */
-#define TIM_LOCKLEVEL_OFF	   ((uint32_t)0x0000)
-#define TIM_LOCKLEVEL_1            (TIM_BDTR_LOCK_0)
-#define TIM_LOCKLEVEL_2            (TIM_BDTR_LOCK_1)
-#define TIM_LOCKLEVEL_3            (TIM_BDTR_LOCK)
-
-#define IS_TIM_LOCK_LEVEL(LEVEL) (((LEVEL) == TIM_LOCKLEVEL_OFF) || \
-                                  ((LEVEL) == TIM_LOCKLEVEL_1) || \
-                                  ((LEVEL) == TIM_LOCKLEVEL_2) || \
-                                  ((LEVEL) == TIM_LOCKLEVEL_3)) 
-/**
-  * @}
-  */  
-/** @defgroup TIMEx_Break_Input_enable_disable 
-  * @{
-  */                         
-#define TIM_BREAK_ENABLE          (TIM_BDTR_BKE)
-#define TIM_BREAK_DISABLE         ((uint32_t)0x0000)
-
-#define IS_TIM_BREAK_STATE(STATE) (((STATE) == TIM_BREAK_ENABLE) || \
-                                   ((STATE) == TIM_BREAK_DISABLE))
-/**
-  * @}
-  */
-/** @defgroup TIMEx_Break_Polarity 
-  * @{
-  */
-#define TIM_BREAKPOLARITY_LOW        ((uint32_t)0x0000)
-#define TIM_BREAKPOLARITY_HIGH       (TIM_BDTR_BKP)
-
-#define IS_TIM_BREAK_POLARITY(POLARITY) (((POLARITY) == TIM_BREAKPOLARITY_LOW) || \
-                                         ((POLARITY) == TIM_BREAKPOLARITY_HIGH))
-/**
-  * @}
-  */
-/** @defgroup TIMEx_AOE_Bit_Set_Reset 
-  * @{
-  */
-#define TIM_AUTOMATICOUTPUT_ENABLE           (TIM_BDTR_AOE)
-#define	TIM_AUTOMATICOUTPUT_DISABLE          ((uint32_t)0x0000)
-
-#define IS_TIM_AUTOMATIC_OUTPUT_STATE(STATE) (((STATE) == TIM_AUTOMATICOUTPUT_ENABLE) || \
-                                              ((STATE) == TIM_AUTOMATICOUTPUT_DISABLE))
-/**
-  * @}
-  */  
-  
-/** @defgroup TIMEx_Master_Mode_Selection
-  * @{
-  */  
-#define	TIM_TRGO_RESET            ((uint32_t)0x0000)             
-#define	TIM_TRGO_ENABLE           (TIM_CR2_MMS_0)           
-#define	TIM_TRGO_UPDATE           (TIM_CR2_MMS_1)             
-#define	TIM_TRGO_OC1              ((TIM_CR2_MMS_1 | TIM_CR2_MMS_0))    
-#define	TIM_TRGO_OC1REF           (TIM_CR2_MMS_2)           
-#define	TIM_TRGO_OC2REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_0))          
-#define	TIM_TRGO_OC3REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1))           
-#define	TIM_TRGO_OC4REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1 | TIM_CR2_MMS_0))   
-
-#define IS_TIM_TRGO_SOURCE(SOURCE) (((SOURCE) == TIM_TRGO_RESET) || \
-                                    ((SOURCE) == TIM_TRGO_ENABLE) || \
-                                    ((SOURCE) == TIM_TRGO_UPDATE) || \
-                                    ((SOURCE) == TIM_TRGO_OC1) || \
-                                    ((SOURCE) == TIM_TRGO_OC1REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC2REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC3REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC4REF))
-      
-   
-/**
-  * @}
-  */ 
-
-/** @defgroup TIMEx_Master_Slave_Mode 
-  * @{
-  */
-
-#define TIM_MASTERSLAVEMODE_ENABLE          ((uint32_t)0x0080)
-#define TIM_MASTERSLAVEMODE_DISABLE         ((uint32_t)0x0000)
-#define IS_TIM_MSM_STATE(STATE) (((STATE) == TIM_MASTERSLAVEMODE_ENABLE) || \
-                                 ((STATE) == TIM_MASTERSLAVEMODE_DISABLE))
-/**
-  * @}
-  */ 
-
-/** @defgroup TIMEx_Commutation_Mode 
-  * @{
-  */
-#define TIM_COMMUTATION_TRGI              (TIM_CR2_CCUS)
-#define TIM_COMMUTATION_SOFTWARE          ((uint32_t)0x0000)
-/**
-  * @}
   */
   
 /** @defgroup TIMEx_Remap 

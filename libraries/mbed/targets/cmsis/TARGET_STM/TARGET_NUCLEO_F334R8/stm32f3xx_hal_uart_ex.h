@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of UART HAL Extension module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of UART HAL Extended module.
   ******************************************************************************
   * @attention
   *                               
@@ -56,15 +56,16 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup UARTEx_Exported_Constants
+/** @defgroup UARTEx_Exported_Constants UART Extented Exported Constants
   * @{
   */
   
-/** @defgroup UARTEx_Word_Length UART Word Length
+/** @defgroup UARTEx_Word_Length UART Extended Word Length
   * @{
   */
-#if defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8) \
- || defined (STM32F318xx) || defined (STM32F303x8) || defined (STM32F328xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 #define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define UART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
@@ -76,7 +77,9 @@
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 #define IS_UART_WORD_LENGTH(LENGTH) (((LENGTH) == UART_WORDLENGTH_8B) || \
                                      ((LENGTH) == UART_WORDLENGTH_9B))
-#endif                                     
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx   */
 /**
   * @}
   */ 
@@ -100,7 +103,7 @@
   
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup UARTEx_Exported_Macros
+/** @defgroup UARTEx_Exported_Macros UART Extended Exported Macros
   * @{
   */
            
@@ -109,7 +112,8 @@
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
 #define __HAL_UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -203,7 +207,7 @@
        }                                                      \
     }                                                         \
   } while(0)
-#elif defined(STM32F334x8) || defined(STM32F303x8) || defined(STM32F328xx)
+#elif defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 #define __HAL_UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -319,7 +323,8 @@
        }                                                      \
     }                                                         \
   } while(0)
-#endif /* defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx    */
 
 
 /** @brief  Computes the UART mask to apply to retrieve the received data
@@ -331,8 +336,9 @@
   * @param  __HANDLE__: specifies the UART Handle
   * @retval none
   */  
-#if defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8) \
- || defined (STM32F318xx) || defined (STM32F303x8) || defined (STM32F328xx)     
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 #define __HAL_UART_MASK_COMPUTATION(__HANDLE__)                       \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == UART_WORDLENGTH_9B)            \
@@ -395,22 +401,44 @@
      }                                                                \
   }                                                                   \
 } while(0) 
-#endif /* defined (STM32F301x8) || defined (STM32F302x8) || defined (STM32F334x8) \
- || defined (STM32F318xx) || defined (STM32F303x8) || defined (STM32F328xx) */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 /**
   * @}
   */                                
 
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup UARTEx_Exported_Functions UART Extended Exported Functions
+  * @{
+  */
+
+/** @defgroup UARTEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
+  * @brief    Extended Initialization and Configuration Functions
+  * @{
+  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t UART_DEPolarity, uint32_t UART_DEAssertionTime, uint32_t UART_DEDeassertionTime);
-HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart);
-HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart);
-/* IO operation functions *****************************************************/
+/**
+  * @}
+  */   
+
+/** @defgroup UARTEx_Exported_Functions_Group2 Extended Peripheral Control functions
+  * @brief    Extended Peripheral Control functions
+  * @{
+  */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
+HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength);
-/* Peripheral State and Error functions ***************************************/
+/**
+  * @}
+  */   
+
+/**
+  * @}
+  */                                
 
 
 /**

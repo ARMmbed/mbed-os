@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.1.0RC2
-  * @date    14-May-2014
+  * @version V1.1.0
+  * @date    19-June-2014
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -348,7 +348,7 @@ typedef struct
   *            @arg I2C_FLAG_BERR: Bus error flag
   * @retval None
   */
-#define __HAL_I2C_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR1 &= ~((__FLAG__) & I2C_FLAG_MASK))
+#define __HAL_I2C_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR1 = ~((__FLAG__) & I2C_FLAG_MASK))
 
 /** @brief  Clears the I2C ADDR pending flag.
   * @param  __HANDLE__: specifies the I2C Handle.

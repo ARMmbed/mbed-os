@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   RTC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -183,7 +183,7 @@
   * @{
   */
 
-/** @defgroup RTC 
+/** @defgroup RTC RTC HAL module driver
   * @brief RTC HAL module driver
   * @{
   */
@@ -195,13 +195,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup RTC_Private_Functions
+/** @defgroup RTC_Exported_Functions RTC Exported Functions
   * @{
   */
   
-/** @defgroup RTC_Group1 Initialization and de-initialization functions 
+/** @defgroup RTC_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -243,7 +243,7 @@
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 {
   /* Check the RTC peripheral state */
-  if(hrtc == NULL)
+  if(hrtc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -436,7 +436,7 @@ __weak void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
   * @}
   */
 
-/** @defgroup RTC_Group2 RTC Time and Date functions
+/** @defgroup RTC_Exported_Functions_Group2 RTC Time and Date functions
  *  @brief   RTC Time and Date functions
  *
 @verbatim   
@@ -766,7 +766,7 @@ HAL_StatusTypeDef HAL_RTC_GetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDat
   * @}
   */
 
-/** @defgroup RTC_Group3 RTC Alarm functions
+/** @defgroup RTC_Exported_Functions_Group3 RTC Alarm functions
  *  @brief   RTC Alarm functions
  *
 @verbatim   
@@ -1385,7 +1385,7 @@ HAL_StatusTypeDef HAL_RTC_PollForAlarmAEvent(RTC_HandleTypeDef *hrtc, uint32_t T
   * @}
   */
 
-/** @defgroup RTC_Group4 Peripheral Control functions 
+/** @defgroup RTC_Exported_Functions_Group4 Peripheral Control functions 
  *  @brief   Peripheral Control functions 
  *
 @verbatim   
@@ -1439,7 +1439,7 @@ HAL_StatusTypeDef HAL_RTC_WaitForSynchro(RTC_HandleTypeDef* hrtc)
   * @}
   */
 
-/** @defgroup RTC_Group5 Peripheral State functions
+/** @defgroup RTC_Exported_Functions_Group5 Peripheral State functions
  *  @brief   Peripheral State functions 
  *
 @verbatim   
@@ -1467,6 +1467,14 @@ HAL_RTCStateTypeDef HAL_RTC_GetState(RTC_HandleTypeDef* hrtc)
   * @}
   */
 
+/**
+  * @}
+  */
+
+/** @defgroup RTC_Private_Functions RTC Private Functions
+  * @{
+  */
+    
 /**
   * @brief  Enters the RTC Initialization mode.
   * @note   The RTC Initialization mode is write protected, use the
@@ -1536,6 +1544,7 @@ uint8_t RTC_Bcd2ToByte(uint8_t Value)
   */
 
 #endif /* HAL_RTC_MODULE_ENABLED */
+
 /**
   * @}
   */

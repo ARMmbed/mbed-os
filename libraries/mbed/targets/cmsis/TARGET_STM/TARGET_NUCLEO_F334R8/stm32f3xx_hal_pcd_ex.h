@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    stm32f3xx_hal_pcd.h
+  * @file    stm32f3xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   Header file of PCD HAL module.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   Header file of PCD HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -43,8 +43,10 @@
  extern "C" {
 #endif
 
-#if defined(STM32F302x8) || defined(STM32F302xC) ||                         \
-    defined(STM32F303xC) || defined(STM32F373xC)
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F302x8)                         || \
+    defined(STM32F373xC)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
@@ -53,13 +55,16 @@
   * @{
   */
 
-/** @addtogroup PCD
+/** @addtogroup PCDEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/                                              
+/** @defgroup PCDEx_Exported_Macros PCD Extended Exported Macros
+  * @{
+  */
 /**
   * @brief  Gets address in an endpoint register.
   * @param  USBx: USB peripheral instance register address.
@@ -67,7 +72,8 @@
   * @retval None
   */
    
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F373xC)
+#if defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F373xC)
       
 #define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint32_t *)((USBx->BTABLE+bEpNum*8)*2+     ((uint32_t)USBx + 0x400)))
 #define PCD_EP_TX_CNT(USBx, bEpNum) ((uint32_t *)((USBx->BTABLE+bEpNum*8+2)*2+  ((uint32_t)USBx + 0x400)))
@@ -79,10 +85,12 @@
     PCD_SET_EP_CNT_RX_REG(pdwReg, wCount);\
   }    
 
-#endif /* STM32F302xC || STM32F303xC || STM32F373xC */
+#endif /* STM32F302xC || STM32F303xC || */
+       /* STM32F373xC                   */
    
       
-#if defined(STM32F302x8) 
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302x8)
            
 #define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((USBx->BTABLE+bEpNum*8)+     ((uint32_t)USBx + 0x400)))
 #define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((USBx->BTABLE+bEpNum*8+2)+  ((uint32_t)USBx + 0x400)))
@@ -94,9 +102,20 @@
     PCD_SET_EP_CNT_RX_REG(pdwReg, wCount);\
   }
 
-#endif /* STM32F302x8 */
-      
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302x8                   */
+/**
+  * @}
+  */ 
+
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup PCDEx_Exported_Functions PCD Extended Exported Functions
+  * @{
+  */
+/** @addtogroup PCDEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions 
+ *  @brief    Initialization and Configuration functions
+  * @{
+  */
 HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
                                      uint16_t ep_addr,
                                      uint16_t ep_kind,
@@ -106,14 +125,24 @@ HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
 
 /**
   * @}
+  */ 
+  
+/**
+  * @}
+  */ 
+
+/**
+  * @}
   */
 
 /**
   * @}
   */
 
-#endif /* defined(STM32F302x8) || defined(STM32F302xC) ||                         */
-       /* defined(STM32F303xC) || defined(STM32F373xC)    */
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F302x8                || */
+       /* STM32F373xC                   */
 
 #ifdef __cplusplus
 }
