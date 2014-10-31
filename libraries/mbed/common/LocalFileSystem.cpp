@@ -173,6 +173,7 @@ public:
         if (xffind("*", &info)!=0) {
             return NULL;
         }
+        cur_entry.d_type = DT_UNKNOWN;
         memcpy(cur_entry.d_name, info.name, sizeof(info.name));
         return &cur_entry;
     }

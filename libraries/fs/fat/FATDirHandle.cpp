@@ -44,6 +44,9 @@ struct dirent *FATDirHandle::readdir() {
 
     FRESULT res = f_readdir(&dir, &finfo);
 
+    // Check if we are handling file or directory
+    cur_entry.d_type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
+
 #if _USE_LFN
     if(res != 0 || finfo.fname[0]==0) {
         return NULL;
