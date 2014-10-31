@@ -22,12 +22,17 @@ from workspace_tools.targets import TARGET_NAMES
 def get_default_options_parser():
     parser = OptionParser()
 
+    targetnames = TARGET_NAMES
+    targetnames.sort()
+    toolchainlist = list(TOOLCHAINS)
+    toolchainlist.sort()
+
     parser.add_option("-m", "--mcu",
-                  help="build for the given MCU (%s)" % ', '.join(TARGET_NAMES),
+                  help="build for the given MCU (%s)" % ', '.join(targetnames),
                   metavar="MCU")
 
     parser.add_option("-t", "--tool",
-                  help="build using the given TOOLCHAIN (%s)" % ', '.join(TOOLCHAINS),
+                  help="build using the given TOOLCHAIN (%s)" % ', '.join(toolchainlist),
                   metavar="TOOLCHAIN")
 
     parser.add_option("-c", "--clean", action="store_true", default=False,
