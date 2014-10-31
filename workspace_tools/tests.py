@@ -527,7 +527,15 @@ TESTS = [
         "automated": True,
         "host_test": "wait_us_auto"
     },
-    
+    {
+        "id": "MBED_35", "description": "FileSystem stat functionality",
+        "source_dir": join(TEST_DIR, "mbed", "sd_stat"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
+        "duration": 15,
+        "automated": True,
+        "peripherals": ["SD"]
+    },
+
 
     # CMSIS RTOS tests
     {
