@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
@@ -50,12 +50,12 @@
   * @{
   */
 
-/** @addtogroup FLASH
+/** @addtogroup FLASH FLASH HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
-/** @defgroup FLASH_Exported_Types
+/** @defgroup FLASH_Exported_Types FLASH Exported Types
   * @{
   */  
 
@@ -152,8 +152,7 @@ typedef struct
   */
 
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup FLASH_Exported_Constants
+/** @defgroup FLASH_Exported_Constants FLASH Exported Constants
   * @{
   */  
 
@@ -208,7 +207,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_Latency 
+/** @defgroup FLASH_Latency FLASH Latency
   * @{
   */ 
 #define FLASH_LATENCY_0            ((uint8_t)0x0000)    /*!< FLASH Zero Latency cycle */
@@ -222,7 +221,7 @@ typedef struct
   * @}
   */ 
   
-/** @defgroup FLASH_OB_Data_Address 
+/** @defgroup FLASH_OB_Data_Address  FLASH Option Byte Data Address
   * @{
   */  
 #define IS_OB_DATA_ADDRESS(ADDRESS) (((ADDRESS) == 0x1FFFF804) || ((ADDRESS) == 0x1FFFF806)) 
@@ -230,7 +229,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_OB_Read_Protection 
+/** @defgroup FLASH_OB_Read_Protection FLASH Option Byte Read Protection
   * @{
   */
 #define OB_RDP_LEVEL_0             ((uint8_t)0xAA)
@@ -244,7 +243,7 @@ typedef struct
   * @}
   */ 
   
-/** @defgroup FLASH_OB_IWatchdog 
+/** @defgroup FLASH_OB_IWatchdog FLASH Option Byte IWatchdog
   * @{
   */ 
 #define OB_IWDG_SW                 ((uint8_t)0x01)  /*!< Software IWDG selected */
@@ -254,7 +253,7 @@ typedef struct
   * @}
   */ 
   
-/** @defgroup FLASH_OB_nRST_STOP 
+/** @defgroup FLASH_OB_nRST_STOP FLASH Option Byte nRST STOP
   * @{
   */ 
 #define OB_STOP_NO_RST             ((uint8_t)0x02) /*!< No reset generated when entering in STOP */
@@ -264,7 +263,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup FLASH_OB_nRST_STDBY 
+/** @defgroup FLASH_OB_nRST_STDBY FLASH Option Byte nRST STDBY
   * @{
   */ 
 #define OB_STDBY_NO_RST            ((uint8_t)0x04) /*!< No reset generated when entering in STANDBY */
@@ -274,7 +273,7 @@ typedef struct
   * @}
   */    
 
-/** @defgroup FLASH_OB_BOOT1
+/** @defgroup FLASH_OB_BOOT1 FLASH Option Byte BOOT1
   * @{
   */
 #define OB_BOOT1_RESET             ((uint8_t)0x00) /*!< BOOT1 Reset */
@@ -284,7 +283,7 @@ typedef struct
   * @}
   */  
 
-/** @defgroup FLASH_OB_VDDA_Analog_Monitoring
+/** @defgroup FLASH_OB_VDDA_Analog_Monitoring FLASH Option Byte VDDA Analog Monitoring
   * @{
   */
 #define OB_VDDA_ANALOG_ON          ((uint8_t)0x20) /*!< Analog monitoring on VDDA Power source ON */
@@ -294,7 +293,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup FLASH_OB_SRAM_Parity_Enable 
+/** @defgroup FLASH_OB_SRAM_Parity_Enable FLASH Option Byte SRAM Parity Enable
   * @{
   */
 #define OB_SRAM_PARITY_SET         ((uint8_t)0x00) /*!< SRAM parity enable set */
@@ -304,7 +303,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup FLASH_OB_SDADC12_VDD_MONITOR
+/** @defgroup FLASH_OB_SDADC12_VDD_MONITOR FLASH Option Byte SDADC12 VDD MONITOR
   * @{
   */
 #define OB_SDADC12_VDD_MONITOR_SET        ((uint8_t)0x80) /*!< SDADC12_VDD power supply supervisor set */
@@ -314,7 +313,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_Flag_definition
+/** @defgroup FLASH_Flag_definition FLASH Flag definition
   * @brief Flag definition
   * @{
   */ 
@@ -330,7 +329,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup FLASH_Interrupt_definition 
+/** @defgroup FLASH_Interrupt_definition FLASH Interrupt definition
   * @brief FLASH Interrupt definition
   * @{
   */ 
@@ -341,7 +340,7 @@ typedef struct
   * @}
   */  
 
-/** @defgroup FLASH_Timeout_definition 
+/** @defgroup FLASH_Timeout_definition FLASH Timeout definition
   * @brief FLASH Timeout definition
   * @{
   */ 
@@ -356,7 +355,7 @@ typedef struct
   
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup FLASH_Macros
+/** @defgroup FLASH_Exported_Macros FLASH Exported Macros
  *  @brief macros to control FLASH features 
  *  @{
  */
@@ -371,37 +370,29 @@ typedef struct
 
 /**
   * @brief  Enable the FLASH prefetch buffer.
-  * @param  None
   * @retval None
   */ 
 #define __HAL_FLASH_PREFETCH_BUFFER_ENABLE()    (FLASH->ACR |= FLASH_ACR_PRFTBE)
 
 /**
   * @brief  Disable the FLASH prefetch buffer.
-  * @param  None
   * @retval None
   */
 #define __HAL_FLASH_PREFETCH_BUFFER_DISABLE()   (FLASH->ACR &= (~FLASH_ACR_PRFTBE))
 
 /**
   * @brief  Enable the FLASH half cycle access.
-  * @param  None
   * @retval None
   */
 #define __HAL_FLASH_HALF_CYCLE_ACCESS_ENABLE()  (FLASH->ACR |= FLASH_ACR_HLFCYA)
 
 /**
   * @brief  Disable the FLASH half cycle access.
-  * @param  None
   * @retval None
   */
 #define __HAL_FLASH_HALF_CYCLE_ACCESS_DISABLE() (FLASH->ACR &= (~FLASH_ACR_HLFCYA))
 
-/**
-  * @}
-  */  
-
-/** @defgroup FLASH_Interrupt
+/** @defgroup FLASH_Interrupt FLASH Interrupt
  *  @brief macros to handle FLASH interrupts
  * @{
  */ 
@@ -451,17 +442,23 @@ typedef struct
 
 /**
   * @}
+  */  
+
+/**
+  * @}
   */ 
 
-/* Include FLASH HAL Extension module */
+/* Include FLASH HAL Extended module */
 #include "stm32f3xx_hal_flash_ex.h"  
 
 /* Exported functions --------------------------------------------------------*/
-/** @defgroup FLASH_Exported_Functions
+/** @addtogroup FLASH_Exported_Functions FLASH Exported Functions
   * @{
-  */  
-
-/* Exported functions --------------------------------------------------------*/
+  */
+  
+/** @addtogroup FLASH_Exported_Functions_Group1 Input and Output operation functions
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
@@ -472,6 +469,13 @@ void              HAL_FLASH_IRQHandler(void);
 void       HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
 void       HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
 
+/**
+  * @}
+  */
+
+/** @addtogroup FLASH_Exported_Functions_Group2 Peripheral Control functions 
+  * @{
+  */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_FLASH_Unlock(void);
 HAL_StatusTypeDef HAL_FLASH_Lock(void);
@@ -480,9 +484,33 @@ HAL_StatusTypeDef HAL_FLASH_OB_Lock(void);
 /* Option bytes control */
 HAL_StatusTypeDef HAL_FLASH_OB_Launch(void);
 
+/**
+  * @}
+  */
+
+/** @addtogroup FLASH_Exported_Functions_Group3 Peripheral State functions 
+  * @{
+  */
 /* Peripheral State and Error functions ***************************************/
 FLASH_ErrorTypeDef HAL_FLASH_GetError(void);
 
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/* Exported Private function -------------------------------------------------*/
+/** @addtogroup FLASH_Exported_Private_Functions FLASH Exported Private Functions
+ * @{
+ */
+/* Erase operations */
+void                    FLASH_PageErase(uint32_t PageAddress);
+HAL_StatusTypeDef       FLASH_WaitForLastOperation(uint32_t Timeout);
+
+/* Program operations */
 /**
   * @}
   */

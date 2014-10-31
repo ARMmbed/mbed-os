@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc.c
   * @author  MCD Application conversion
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -192,8 +192,8 @@
   * @{
   */
 
-/** @defgroup ADC 
-  * @brief ADC driver modules
+/** @defgroup ADC ADC HAL module driver
+  * @brief ADC HAL module driver
   * @{
   */ 
 
@@ -204,13 +204,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup ADC_Private_Functions
+/** @defgroup ADC_Exported_Functions ADC Exported Functions
   * @{
   */ 
 
-/** @defgroup ADC_Group1 Initialization/de-initialization functions 
+/** @defgroup ADC_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -261,7 +261,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -289,7 +289,7 @@ __weak HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
     
 /**
@@ -320,7 +320,7 @@ __weak void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
   * @}
   */
 
-/** @defgroup ADC_Group2 IO operation functions
+/** @defgroup ADC_Exported_Functions_Group2 Input and Output operation functions
  *  @brief    IO operation functions 
  *
 @verbatim   
@@ -355,7 +355,7 @@ __weak void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 __weak HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc)
 {
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -378,7 +378,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Stop(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -393,7 +393,7 @@ __weak HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -415,7 +415,7 @@ __weak HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t 
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -436,7 +436,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -460,7 +460,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -483,7 +483,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pD
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -505,7 +505,7 @@ __weak HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -590,7 +590,7 @@ __weak void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
   * @}
   */
 
-/** @defgroup ADC_Group3 Peripheral Control functions
+/** @defgroup ADC_Exported_Functions_Group3 Peripheral Control functions
  *  @brief    Peripheral Control functions 
  *
 @verbatim   
@@ -634,7 +634,7 @@ __weak HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_Chan
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
@@ -657,14 +657,14 @@ __weak HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_An
   /*        Function content is located into file stm32f3xx_hal_adc_ex.c   */
   
   /* Return function status */
-  return HAL_OK;
+  return HAL_ERROR;
 }
 
 /**
   * @}
   */
 
-/** @defgroup ADC_Group4 ADC Peripheral State functions
+/** @defgroup ADC_Exported_Functions_Group4 Peripheral State functions
  *  @brief   ADC Peripheral State functions 
  *
 @verbatim   

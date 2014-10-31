@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_hrtim.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of HRTIM HAL module.
   ******************************************************************************
   * @attention
@@ -52,13 +52,29 @@
   * @{
   */
 
-/** @addtogroup HRTIM
+/** @addtogroup HRTIM HRTIM HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @addtogroup HRTIM_Exported_Constants HRTIM Exported Constants
+  * @{
+  */
+/** @defgroup HRTIM_Max_Timer HRTIM Max Timer
+  * @{
+  */
 #define MAX_HRTIM_TIMER 6
-   
+/**
+  * @}
+  */
+/**
+  * @}
+  */
+
+/** @defgroup HRTIM_Exported_Types HRTIM Exported Types
+  * @{
+  */
+
 /** 
   * @brief  HRTIM Configuration Structure definition - Time base related parameters
   */
@@ -393,7 +409,7 @@ typedef struct {
   */
 typedef struct {
   uint32_t Mode;           /*!< Specifies the burst mode operating mode
-                                This parameter can be a value of @ref HRTIM_Burst_Mode_Operating_mode */
+                                This parameter can be a value of @ref HRTIM_Burst_Mode_Operating_Mode */
   uint32_t ClockSource;    /*!< Specifies the burst mode clock source
                                 This parameter can be a value of @ref HRTIM_Burst_Mode_Clock_Source */
   uint32_t Prescaler;      /*!< Specifies the burst mode prescaler
@@ -418,13 +434,16 @@ typedef struct {
                               This parameter can be a value of @ref HRTIM_ADC_Trigger_Event  */
 } HRTIM_ADCTriggerCfgTypeDef;
 
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup HRTIM_Exported_Constants
+/** @defgroup HRTIM_Exported_Constants HRTIM Exported Constants
   * @{
   */
 
-/** @defgroup HRTIM_Timer_Index 
+/** @defgroup HRTIM_Timer_Index HRTIM Timer Index
   * @{
   * @brief Constants defining the timer indexes
   */
@@ -454,7 +473,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup HRTIM_Timer_identifier 
+/** @defgroup HRTIM_Timer_identifier HRTIM Timer identifier
   * @{
   * @brief Constants defining timer identifiers
   */ 
@@ -471,7 +490,7 @@ typedef struct {
  * @}
  */
     
-/** @defgroup HRTIM_Compare_Unit 
+/** @defgroup HRTIM_Compare_Unit HRTIM Compare Unit
   * @{
   * @brief Constants defining compare unit identifiers
   */  
@@ -489,7 +508,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup HRTIM_Capture_Unit 
+/** @defgroup HRTIM_Capture_Unit HRTIM Capture Unit
   * @{
   * @brief Constants defining capture unit identifiers
   */  
@@ -503,7 +522,7 @@ typedef struct {
   * @}
   */
  
-/** @defgroup HRTIM_Timer_Output 
+/** @defgroup HRTIM_Timer_Output HRTIM Timer Output
   * @{
   * @brief Constants defining timer output identifiers
   */  
@@ -544,7 +563,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup HRTIM_ADC_Trigger
+/** @defgroup HRTIM_ADC_Trigger HRTIM ADC Trigger
   * @{
   * @brief Constants defining ADC triggers identifiers
   */
@@ -562,7 +581,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Channels
+/** @defgroup HRTIM_External_Event_Channels HRTIM External Event Channels
   * @{
   * @brief Constants defining external event channel identifiers
   */
@@ -593,7 +612,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup HRTIM_Fault_Channel
+/** @defgroup HRTIM_Fault_Channel HRTIM Fault Channel
   * @{
   * @brief Constants defining fault channel identifiers
   */ 
@@ -614,7 +633,7 @@ typedef struct {
   */
 
 
- /** @defgroup HRTIM_Prescaler_Ratio 
+ /** @defgroup HRTIM_Prescaler_Ratio HRTIM Prescaler Ratio
   * @{
   * @brief Constants defining timer high-resolution clock prescaler ratio.
   */  
@@ -640,7 +659,7 @@ typedef struct {
   * @}
   */
   
-/** @defgroup HRTIM_Mode 
+/** @defgroup HRTIM_Mode HRTIM Mode
   * @{
   * @brief Constants defining timer counter operating mode.
   */  
@@ -661,7 +680,7 @@ typedef struct {
   * @}
   */
   
-/** @defgroup HRTIM_Half_Mode_Enable 
+/** @defgroup HRTIM_Half_Mode_Enable HRTIM Half Mode Enable
   * @{
   * @brief Constants defining half mode enabling status.
   */  
@@ -675,7 +694,7 @@ typedef struct {
   * @}
   */
               
-/** @defgroup HRTIM_Start_On_Sync_Input_Event 
+/** @defgroup HRTIM_Start_On_Sync_Input_Event HRTIM Start On Sync Input Event
   * @{
   * @brief Constants defining the timer behavior following the synchronization event
   */
@@ -689,7 +708,7 @@ typedef struct {
   * @}
   */
               
-/** @defgroup HRTIM_Reset_On_Sync_Input_Event 
+/** @defgroup HRTIM_Reset_On_Sync_Input_Event HRTIM Reset On Sync Input Event
   * @{
   * @brief Constants defining the timer behavior following the synchronization event
   */  
@@ -703,7 +722,7 @@ typedef struct {
   * @}
   */    
 
-/** @defgroup HRTIM_DAC_Synchronization 
+/** @defgroup HRTIM_DAC_Synchronization HRTIM DAC Synchronization
   * @{
   * @brief Constants defining on which output the DAC synchronization event is sent
   */ 
@@ -721,7 +740,7 @@ typedef struct {
   * @}
   */         
 
-/** @defgroup HRTIM_Register_Preload_Enable 
+/** @defgroup HRTIM_Register_Preload_Enable HRTIM Register Preload Enable
   * @{
   * @brief Constants defining whether a write access into a preloadable
   *        register is done into the active or the preload register.
@@ -736,7 +755,7 @@ typedef struct {
   * @}
   */   
 
-/** @defgroup HRTIM_Update_Gating 
+/** @defgroup HRTIM_Update_Gating HRTIM Update Gating
   * @{
   * @brief Constants defining how the update occurs relatively to the burst DMA 
   *        transaction and the external update request on update enable inputs 1 to 3.
@@ -770,7 +789,7 @@ typedef struct {
   * @}
   */ 
                   
-/** @defgroup HRTIM_Timer_Burst_Mode 
+/** @defgroup HRTIM_Timer_Burst_Mode HRTIM Timer Burst Mode
   * @{
   * @brief Constants defining how the timer behaves during a burst
             mode operation.
@@ -785,7 +804,7 @@ typedef struct {
   * @}
   */ 
 
-/** @defgroup HRTIM_Timer_Repetition_Update
+/** @defgroup HRTIM_Timer_Repetition_Update HRTIM Timer Repetition Update
   * @{
   * @brief Constants defining whether registers are updated when the timer
   *        repetition period is completed (either due to roll-over or
@@ -802,7 +821,7 @@ typedef struct {
   */
             
 
-/** @defgroup HRTIM_Timer_Push_Pull_Mode
+/** @defgroup HRTIM_Timer_Push_Pull_Mode HRTIM Timer Push Pull Mode
   * @{
   * @brief Constants defining whether or not the puhs-pull mode is enabled for
   *        a timer.
@@ -817,7 +836,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Fault_Enabling
+/** @defgroup HRTIM_Timer_Fault_Enabling HRTIM Timer Fault Enabling
   * @{
   * @brief Constants defining whether a faut channel is enabled for a timer
   */
@@ -834,7 +853,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Fault_Lock
+/** @defgroup HRTIM_Timer_Fault_Lock HRTIM Timer Fault Lock
   * @{
   * @brief Constants defining whether or not fault enabling bits are write 
   *        protected for a timer
@@ -849,7 +868,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Deadtime_Insertion
+/** @defgroup HRTIM_Timer_Deadtime_Insertion HRTIM Timer Deadtime Insertion
   * @{
   * @brief Constants defining whether or not fault the dead time insertion  
   *        feature is enabled for a timer
@@ -868,7 +887,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Delayed_Protection_Mode
+/** @defgroup HRTIM_Timer_Delayed_Protection_Mode HRTIM Timer Delayed Protection Mode
   * @{
   * @brief Constants defining all possible delayed protection modes 
   *        for a timer. Also definethe source and outputs on which the delayed 
@@ -900,7 +919,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Update_Trigger
+/** @defgroup HRTIM_Timer_Update_Trigger HRTIM Timer Update Trigger
   * @{
   * @brief Constants defining whether the registers update is done synchronously 
   *        with any other timer or master update
@@ -918,7 +937,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Reset_Trigger
+/** @defgroup HRTIM_Timer_Reset_Trigger HRTIM Timer Reset Trigger
   * @{
   * @brief Constants defining the events that can be selected to trigger the reset 
   *        of the timer counter
@@ -961,7 +980,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_Reset_Update
+/** @defgroup HRTIM_Timer_Reset_Update HRTIM Timer Reset Update
   * @{
   * @brief Constants defining whether the register are updated upon Timerx 
   *        counter reset or roll-over to 0 after reaching the period value
@@ -977,7 +996,7 @@ typedef struct {
   * @}
   */
               
-/** @defgroup HRTIM_Compare_Unit_Auto_Delayed_Mode
+/** @defgroup HRTIM_Compare_Unit_Auto_Delayed_Mode HRTIM Compare Unit Auto Delayed Mode
   * @{
   * @brief Constants defining whether the compare register is behaving in 
   *        regular mode (compare match issued as soon as counter equal compare),
@@ -1011,7 +1030,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Simple_OC_Mode
+/** @defgroup HRTIM_Simple_OC_Mode HRTIM Simple OC Mode
   * @{
   * @brief Constants defining the behavior of the output signal when the timer
            operates in basic output compare mode
@@ -1028,7 +1047,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Polarity
+/** @defgroup HRTIM_Output_Polarity HRTIM Output Polarity
   * @{
   * @brief Constants defining the polarity of a timer output
   */              
@@ -1042,7 +1061,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Set_Source
+/** @defgroup HRTIM_Output_Set_Source HRTIM Output Set Source
   * @{
   * @brief Constants defining the events that can be selected to configure the
   *        set crossbar of a timer output
@@ -1117,7 +1136,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Reset_Source
+/** @defgroup HRTIM_Output_Reset_Source HRTIM Output Reset Source
   * @{
   * @brief Constants defining the events that can be selected to configure the
   *        set crossbar of a timer output
@@ -1192,7 +1211,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Idle_Mode
+/** @defgroup HRTIM_Output_Idle_Mode HRTIM Output Idle Mode
   * @{
   * @brief Constants defining whether or not the timer output transition to its 
            IDLE state when burst mode is entered
@@ -1207,7 +1226,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_IDLE_Level
+/** @defgroup HRTIM_Output_IDLE_Level HRTIM Output IDLE Level
   * @{
   * @brief Constants defining the output level when output is in IDLE state
   */  
@@ -1221,7 +1240,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_FAULT_Level
+/** @defgroup HRTIM_Output_FAULT_Level HRTIM Output FAULT Level
   * @{
   * @brief Constants defining the output level when output is in FAULT state
   */  
@@ -1239,13 +1258,13 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Chopper_Mode_Enable
+/** @defgroup HRTIM_Output_Chopper_Mode_Enable HRTIM Output Chopper Mode Enable
   * @{
   * @brief Constants defining whether or not chopper mode is enabled for a timer
            output
   */  
-#define HRTIM_OUTPUTCHOPPERMODE_DISABLED   (uint32_t)0x00000000  /*!< The output is not affected by the fault input */
-#define HRTIM_OUTPUTCHOPPERMODE_ENABLED    (HRTIM_OUTR_CHP1)     /*!< Output at active level when in FAULT state */
+#define HRTIM_OUTPUTCHOPPERMODE_DISABLED   (uint32_t)0x00000000  /*!< Output signal is not altered  */
+#define HRTIM_OUTPUTCHOPPERMODE_ENABLED    (HRTIM_OUTR_CHP1)     /*!< Output signal is chopped by a carrier signal  */
 
 #define IS_HRTIM_OUTPUTCHOPPERMODE(OUTPUTCHOPPERMODE)\
               (((OUTPUTCHOPPERMODE) == HRTIM_OUTPUTCHOPPERMODE_DISABLED)  || \
@@ -1254,7 +1273,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Output_Burst_Mode_Entry_Delayed
+/** @defgroup HRTIM_Output_Burst_Mode_Entry_Delayed HRTIM Output Burst Mode Entry Delayed
   * @{
   * @brief Constants defining the idle mode entry is delayed by forcing a 
            deadtime insertion before switching the outputs to their idle state
@@ -1269,7 +1288,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Capture_Unit_Trigger
+/** @defgroup HRTIM_Capture_Unit_Trigger HRTIM Capture Unit Trigger
   * @{
   * @brief Constants defining the events that can be selected to trigger the 
   *        capture of the timing unit counter
@@ -1414,7 +1433,7 @@ typedef struct {
   * @}
   */   
 
-/** @defgroup HRTIM_Timer_External_Event_Filter
+/** @defgroup HRTIM_Timer_External_Event_Filter HRTIM Timer External Event Filter
   * @{
   * @brief Constants defining the event filtering apploed to external events
   *        by a timer
@@ -1457,7 +1476,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timer_External_Event_Latch
+/** @defgroup HRTIM_Timer_External_Event_Latch HRTIM Timer External Event Latch
   * @{
   * @brief Constants defining whether or not the external event is
   *        memorized (latched) and generated as soon as the blanking period
@@ -1473,7 +1492,7 @@ typedef struct {
   * @}
   */
     
-/** @defgroup HRTIM_Deadtime_Prescaler_Ratio
+/** @defgroup HRTIM_Deadtime_Prescaler_Ratio HRTIM Deadtime Prescaler Ratio
   * @{
   * @brief Constants defining division ratio between the timer clock frequency 
   *        (fHRTIM) and the deadtime generator clock (fDTG)
@@ -1500,7 +1519,7 @@ typedef struct {
   * @}
   */
                   
-/** @defgroup HRTIM_Deadtime_Rising_Sign
+/** @defgroup HRTIM_Deadtime_Rising_Sign HRTIM Deadtime Rising Sign
   * @{
   * @brief Constants defining whether the deadtime is positive or negative
   *        (overlapping signal) on rising edge
@@ -1515,7 +1534,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Deadtime_Rising_Lock
+/** @defgroup HRTIM_Deadtime_Rising_Lock HRTIM Deadtime Rising Lock
   * @{
   * @brief Constants defining whether or not the deadtime (rising sign and
   *        value) is write protected
@@ -1530,7 +1549,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Deadtime_Rising_Sign_Lock
+/** @defgroup HRTIM_Deadtime_Rising_Sign_Lock HRTIM Deadtime Rising Sign Lock
   * @{
   * @brief Constants defining whether or not the deadtime rising sign is write
   *        protected
@@ -1545,7 +1564,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Deadtime_Falling_Sign
+/** @defgroup HRTIM_Deadtime_Falling_Sign HRTIM Deadtime Falling Sign
   * @{
   * @brief Constants defining whether the deadtime is positive or negative
   *        (overlapping signal) on falling edge
@@ -1560,7 +1579,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Deadtime_Falling_Lock
+/** @defgroup HRTIM_Deadtime_Falling_Lock HRTIM Deadtime Falling Lock
   * @{
   * @brief Constants defining whether or not the deadtime (falling sign and
   *        value) is write protected
@@ -1575,7 +1594,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Deadtime_Falling_Sign_Lock
+/** @defgroup HRTIM_Deadtime_Falling_Sign_Lock HRTIM Deadtime Falling Sign Lock
   * @{
   * @brief Constants defining whether or not the deadtime falling sign is write
   *        protected
@@ -1590,7 +1609,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Chopper_Frequency
+/** @defgroup HRTIM_Chopper_Frequency HRTIM Chopper Frequency
   * @{
   * @brief Constants defining the frequency of the generated high frequency carrier
   */
@@ -1632,7 +1651,7 @@ typedef struct {
   * @}
   */
   
-/** @defgroup HRTIM_Chopper_Duty_Cycle
+/** @defgroup HRTIM_Chopper_Duty_Cycle HRTIM Chopper Duty Cycle
   * @{
   * @brief Constants defining the duty cycle of the generated high frequency carrier
   *        Duty cycle can be adjusted by 1/8 step (from 0/8 up to 7/8)
@@ -1659,7 +1678,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Chopper_Start_Pulse_Width
+/** @defgroup HRTIM_Chopper_Start_Pulse_Width HRTIM Chopper Start Pulse Width
   * @{
   * @brief Constants defining the pulse width of the first pulse of the generated
   *        high frequency carrier
@@ -1702,7 +1721,7 @@ typedef struct {
   * @}
   */
                           
-/** @defgroup HRTIM_Synchronization_Options
+/** @defgroup HRTIM_Synchronization_Options HRTIM Synchronization Options
   * @{
   * @brief Constants defining the options for synchronizing multiple HRTIM 
   *        instances, as a master unit (generating a synchronization signal) 
@@ -1715,7 +1734,7 @@ typedef struct {
   * @}
   */
                     
-/** @defgroup HRTIM_Synchronization_Input_Source
+/** @defgroup HRTIM_Synchronization_Input_Source HRTIM Synchronization Input Source
   * @{
   * @brief Constants defining defining the synchronization input source
   */ 
@@ -1731,7 +1750,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Synchronization_Output_Source
+/** @defgroup HRTIM_Synchronization_Output_Source HRTIM Synchronization Output Source
   * @{
   * @brief Constants defining the source and event to be sent on the 
   *        synchronization outputs
@@ -1750,7 +1769,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Synchronization_Output_Polarity
+/** @defgroup HRTIM_Synchronization_Output_Polarity HRTIM Synchronization Output Polarity
   * @{
   * @brief Constants defining the routing and conditioning of the synchronization output event
   */ 
@@ -1766,7 +1785,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Sources
+/** @defgroup HRTIM_External_Event_Sources HRTIM External Event Sources
   * @{
   * @brief Constants defining available sources associated to external events
   */
@@ -1784,7 +1803,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Polarity
+/** @defgroup HRTIM_External_Event_Polarity HRTIM External Event Polarity
   * @{
   * @brief Constants defining the polarity of an external event
   */
@@ -1803,7 +1822,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Sensitivity
+/** @defgroup HRTIM_External_Event_Sensitivity HRTIM External Event Sensitivity
   * @{
   * @brief Constants defining the sensitivity (level-sensitive or edge-sensitive)
   *        of an external event
@@ -1822,7 +1841,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Fast_Mode
+/** @defgroup HRTIM_External_Event_Fast_Mode HRTIM External Event Fast Mode
   * @{
   * @brief Constants defining whether or not an external event is programmed in
            fast mode
@@ -1849,7 +1868,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_External_Event_Filter
+/** @defgroup HRTIM_External_Event_Filter HRTIM External Event Filter
   * @{
   * @brief Constants defining the frequency used to sample an external event 6
   *        input and the length (N) of the digital filter applied
@@ -1903,7 +1922,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup External_Event_Prescaler
+/** @defgroup HRTIM_External_Event_Prescaler HRTIM External Event Prescaler
   * @{
   * @brief Constants defining division ratio between the timer clock frequency 
   *        fHRTIM) and the external event signal sampling clock (fEEVS)
@@ -1923,7 +1942,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Fault_Sources
+/** @defgroup HRTIM_Fault_Sources HRTIM Fault Sources
   * @{
   * @brief Constants defining whether a faults is be triggered by any external 
   *        or internal fault source
@@ -1939,7 +1958,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Fault_Polarity
+/** @defgroup HRTIM_Fault_Polarity HRTIM Fault Polarity
   * @{
   * @brief Constants defining the polarity of a fault event
   */
@@ -1953,7 +1972,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Fault_Filter
+/** @defgroup HRTIM_Fault_Filter HRTIM Fault Filter
   * @{
   * @ brief Constants defining the frequency used to sample the fault input and
   *         the length (N) of the digital filter applied
@@ -1996,7 +2015,7 @@ typedef struct {
   * @}
   */
               
-/** @defgroup HRTIM_Fault_Lock
+/** @defgroup HRTIM_Fault_Lock HRTIM Fault Lock
   * @{
   * @brief Constants defining whether or not the fault programming bits are
            write protected
@@ -2011,7 +2030,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup External_Fault_Prescaler
+/** @defgroup HRTIM_External_Fault_Prescaler HRTIM External Fault Prescaler
   * @{
   * @brief Constants defining the division ratio between the timer clock 
   *        frequency (fHRTIM) and the fault signal sampling clock (fFLTS) used 
@@ -2031,7 +2050,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Burst_Mode_Operating_mode
+/** @defgroup HRTIM_Burst_Mode_Operating_Mode HRTIM Burst Mode Operating Mode
   * @{
   * @brief Constants defining if the burst mode is entered once or if it is 
   *        continuously operating
@@ -2046,7 +2065,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Burst_Mode_Clock_Source
+/** @defgroup HRTIM_Burst_Mode_Clock_Source HRTIM Burst Mode Clock Source
   * @{
   * @brief Constants defining the clock source for the burst mode counter
   */ 
@@ -2076,7 +2095,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Burst_Mode_Prescaler
+/** @defgroup HRTIM_Burst_Mode_Prescaler HRTIM Burst Mode Prescaler
   * @{
   * @brief Constants defining the prescaling ratio of the fHRTIM clock 
   *        for the burst mode controller
@@ -2119,7 +2138,7 @@ typedef struct {
   * @}
   */
                 
-/** @defgroup HRTIM_Burst_Mode_Register_Preload_Enable
+/** @defgroup HRTIM_Burst_Mode_Register_Preload_Enable HRTIM Burst Mode Register Preload Enable
   * @{
   * @brief Constants defining whether or not burst mode registers preload 
            mechanism is enabled, i.e. a write access into a preloadable register
@@ -2135,7 +2154,7 @@ typedef struct {
   * @}
   */
                 
-/** @defgroup HRTIM_Burst_Mode_Trigger
+/** @defgroup HRTIM_Burst_Mode_Trigger HRTIM Burst Mode Trigger
   * @{
   * @brief Constants defining the events that can be used tor trig the burst
   *        mode operation
@@ -2210,7 +2229,7 @@ typedef struct {
   * @}
   */
                 
-/** @defgroup HRTIM_ADC_Trigger_Update_Source
+/** @defgroup HRTIM_ADC_Trigger_Update_Source HRTIM ADC Trigger Update Source
   * @{
   * @brief constants defining the source triggering the update of the 
      HRTIM_ADCxR register (transfer from preload to active register).
@@ -2233,7 +2252,7 @@ typedef struct {
   * @}
   */
                 
-/** @defgroup HRTIM_ADC_Trigger_Event
+/** @defgroup HRTIM_ADC_Trigger_Event HRTIM ADC Trigger Event
   * @{
   * @brief constants defining the events triggering ADC conversion.
   *        HRTIM_ADCTRIGGEREVENT13_*: ADC Triggers 1 and 3
@@ -2311,7 +2330,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup DLL_Calibration_Rate 
+/** @defgroup HRTIM_DLL_Calibration_Rate HRTIM DLL Calibration Rate
   * @{
   * @brief Constants defining the DLL calibration periods (in micro seconds)
   */
@@ -2331,7 +2350,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Burst_DMA_Registers_Update 
+/** @defgroup HRTIM_Burst_DMA_Registers_Update HRTIM Burst DMA Registers Update
   * @{
   * @brief Constants defining the registers that can be written during a burst
   *        DMA operation
@@ -2375,7 +2394,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Burst_Mode_Control 
+/** @defgroup HRTIM_Burst_Mode_Control HRTIM Burst Mode Control
   * @{
   * @brief Constants used to enable or disable the burst mode controller
   */ 
@@ -2389,7 +2408,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Fault_Mode_Control 
+/** @defgroup HRTIM_Fault_Mode_Control  HRTIM Fault Mode Control
   * @{
   * @brief Constants used to enable or disable a fault channel
   */ 
@@ -2403,7 +2422,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Software_Timer_Update 
+/** @defgroup HRTIM_Software_Timer_Update HRTIM Software Timer Update
   * @{
   * @brief Constants used to force timer registers update
   */ 
@@ -2419,7 +2438,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Software_Timer_Reset 
+/** @defgroup HRTIM_Software_Timer_Reset HRTIM Software Timer Reset
   * @{
   * @brief Constants used to force timer counter reset
   */ 
@@ -2435,7 +2454,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Output_Level 
+/** @defgroup HRTIM_Output_Level HRTIM Output Level
   * @{
   * @brief Constants defining the level of a timer output
   */ 
@@ -2449,7 +2468,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Output_State 
+/** @defgroup HRTIM_Output_State HRTIM Output State
   * @{
   * @brief Constants defining the state of a timer output
   */ 
@@ -2463,7 +2482,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup Burst_Mode_Status 
+/** @defgroup HRTIM_Burst_Mode_Status HRTIM Burst Mode Status
   * @{
   * @brief Constants defining the operating state of the burst mode controller
   */ 
@@ -2473,7 +2492,7 @@ typedef struct {
   * @}
   */
    
-/** @defgroup Current_Push_Pull_Status 
+/** @defgroup HRTIM_Current_Push_Pull_Status HRTIM Current Push Pull Status
   * @{
   * @brief Constants defining on which output the signal is currently applied
   *        in push-pull mode
@@ -2484,7 +2503,7 @@ typedef struct {
   * @}
   */
    
-/** @defgroup Idle_Push_Pull_Status 
+/** @defgroup HRTIM_Idle_Push_Pull_Status HRTIM Idle Push Pull Status
   * @{
   * @brief Constants defining on which output the signal was applied, in 
   *        push-pull mode balanced fault mode or delayed idle mode, when the 
@@ -2496,7 +2515,7 @@ typedef struct {
   * @}
   */
    
-/** @defgroup HRTIM_Common_Interrupt_Enable
+/** @defgroup HRTIM_Common_Interrupt_Enable HRTIM Common Interrupt Enable
   * @{
   */ 
 #define HRTIM_IT_NONE           (uint32_t)0x00000000  /*!< No interrupt enabled */
@@ -2515,7 +2534,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Master_Interrupt_Enable
+/** @defgroup HRTIM_Master_Interrupt_Enable HRTIM Master Interrupt Enable
   * @{
   */ 
 #define HRTIM_MASTER_IT_NONE         (uint32_t)0x00000000  /*!< No interrupt enabled */
@@ -2533,7 +2552,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timing_Unit_Interrupt_Enable
+/** @defgroup HRTIM_Timing_Unit_Interrupt_Enable HRTIM Timing Unit Interrupt Enable
   * @{
   */ 
 #define HRTIM_TIM_IT_NONE       (uint32_t)0x00000000      /*!< No interrupt enabled */
@@ -2558,7 +2577,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Common_Interrupt_Flag
+/** @defgroup HRTIM_Common_Interrupt_Flag HRTIM Common Interrupt Flag
   * @{
   */ 
 #define HRTIM_FLAG_FLT1           HRTIM_ISR_FLT1    /*!< Fault 1 interrupt flag */
@@ -2574,7 +2593,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Master_Interrupt_Flag
+/** @defgroup HRTIM_Master_Interrupt_Flag HRTIM Master Interrupt Flag
   * @{
   */ 
 #define HRTIM_MASTER_FLAG_MCMP1        HRTIM_MISR_MCMP1    /*!< Master compare 1 interrupt flag */
@@ -2589,7 +2608,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timing_Unit_Interrupt_Flag
+/** @defgroup HRTIM_Timing_Unit_Interrupt_Flag HRTIM Timing Unit Interrupt Flag
   * @{
   */ 
 #define HRTIM_TIM_FLAG_CMP1       HRTIM_TIMISR_CMP1      /*!< Timer compare 1 interrupt flag */
@@ -2611,7 +2630,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Master_DMA_Request_Enable
+/** @defgroup HRTIM_Master_DMA_Request_Enable HRTIM Master DMA Request Enable
   * @{
   */ 
 #define HRTIM_MASTER_DMA_NONE         (uint32_t)0x00000000   /*!< No DMA request enable */
@@ -2628,7 +2647,7 @@ typedef struct {
   * @}
   */
 
-/** @defgroup HRTIM_Timing_Unit_DMA_Request_Enable
+/** @defgroup HRTIM_Timing_Unit_DMA_Request_Enable HRTIM Timing Unit DMA Request Enable
   * @{
   */ 
 #define HRTIM_TIM_DMA_NONE       (uint32_t)0x00000000       /*!< No DMA request enable */
@@ -2653,19 +2672,14 @@ typedef struct {
   * @}
   */
                 
-/** @defgroup HRTIM_Instance_definition 
-  * @{
-  */ 
-#define IS_HRTIM_INSTANCE(INSTANCE) (INSTANCE) == HRTIM1)
-/**
-  * @}
-  */
-
 /**
   * @}
   */ 
   
 /* Exported macros -----------------------------------------------------------*/
+/** @defgroup HRTIM_Exported_Macros HRTIM Exported Macros
+  * @{
+  */
 
 /** @brief Reset HRTIM handle state
   * @param  __HANDLE__: HRTIM handle.
@@ -3110,10 +3124,21 @@ typedef struct {
          ((__COMPAREUNIT__) == HRTIM_COMPAREUNIT_2) ? ((__HANDLE__)->Instance->sTimerxRegs[(__TIMER__)].CMP2xR) :\
          ((__COMPAREUNIT__) == HRTIM_COMPAREUNIT_3) ? ((__HANDLE__)->Instance->sTimerxRegs[(__TIMER__)].CMP3xR) :\
          ((__HANDLE__)->Instance->sTimerxRegs[(__TIMER__)].CMP4xR)))
-        
-/* Exported functions --------------------------------------------------------*/
 
-/* HRTIM common functions  *****************************************************/
+/**
+  * @}
+  */ 
+
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup HRTIM_Exported_Functions HRTIM Exported Functions
+* @{
+*/
+
+/** @addtogroup HRTIM_Exported_Functions_Group1 Initialization and de-initialization functions  
+* @{
+*/
+
+/* Initialization and Configuration functions  ********************************/
 HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef *hhrtim);
 
 HAL_StatusTypeDef HAL_HRTIM_DeInit (HRTIM_HandleTypeDef *hhrtim);
@@ -3134,6 +3159,14 @@ HAL_StatusTypeDef HAL_HRTIM_DLLCalibrationStart_IT(HRTIM_HandleTypeDef *hhrtim,
  
 HAL_StatusTypeDef HAL_HRTIM_PollForDLLCalibration(HRTIM_HandleTypeDef *hhrtim,
                                                   uint32_t Timeout);
+
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group2 Simple time base mode functions  
+* @{
+*/
 
 /* Simple time base related functions  *****************************************/
 HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStart(HRTIM_HandleTypeDef *hhrtim,
@@ -3157,6 +3190,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStart_DMA(HRTIM_HandleTypeDef *hhrtim,
 HAL_StatusTypeDef HAL_HRTIM_SimpleBaseStop_DMA(HRTIM_HandleTypeDef *hhrtim,
                                               uint32_t TimerIdx);
 
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group3 Simple output compare mode functions  
+* @{
+*/
 /* Simple output compare related functions  ************************************/
 HAL_StatusTypeDef HAL_HRTIM_SimpleOCChannelConfig(HRTIM_HandleTypeDef *hhrtim,
                                                  uint32_t TimerIdx,
@@ -3190,6 +3230,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCStop_DMA(HRTIM_HandleTypeDef *hhrtim,
                                             uint32_t TimerIdx,
                                             uint32_t OCChannel);
 
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group4 Simple PWM output mode functions  
+* @{
+*/
 /* Simple PWM output related functions  ****************************************/
 HAL_StatusTypeDef HAL_HRTIM_SimplePWMChannelConfig(HRTIM_HandleTypeDef *hhrtim,
                                                   uint32_t TimerIdx,
@@ -3223,6 +3270,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimplePWMStop_DMA(HRTIM_HandleTypeDef *hhrtim,
                                              uint32_t TimerIdx,
                                              uint32_t PWMChannel);
 
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group5 Simple input capture functions  
+* @{
+*/
 /* Simple capture related functions  *******************************************/
 HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureChannelConfig(HRTIM_HandleTypeDef *hhrtim,
                                                       uint32_t TimerIdx,
@@ -3256,6 +3310,13 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleCaptureStop_DMA(HRTIM_HandleTypeDef *hhrtim,
                                                  uint32_t TimerIdx,
                                                  uint32_t CaptureChannel);
 
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group6 Simple one pulse functions  
+* @{
+*/
 /* Simple one pulse related functions  *****************************************/
 HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseChannelConfig(HRTIM_HandleTypeDef *hhrtim,
                                                        uint32_t TimerIdx,
@@ -3278,6 +3339,45 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOnePulseStop_IT(HRTIM_HandleTypeDef *hhrtim,
                                                  uint32_t TimerIdx,
                                                  uint32_t OnePulseChannel);
 
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group7 Configuration functions  
+* @{
+*/
+HAL_StatusTypeDef HAL_HRTIM_BurstModeConfig(HRTIM_HandleTypeDef *hhrtim,
+                                            HRTIM_BurstModeCfgTypeDef* pBurstModeCfg);
+
+HAL_StatusTypeDef HAL_HRTIM_EventConfig(HRTIM_HandleTypeDef *hhrtim,
+                                        uint32_t Event,
+                                        HRTIM_EventCfgTypeDef* pEventCfg);
+
+HAL_StatusTypeDef HAL_HRTIM_EventPrescalerConfig(HRTIM_HandleTypeDef *hhrtim,
+                                                 uint32_t Prescaler);
+ 
+HAL_StatusTypeDef HAL_HRTIM_FaultConfig(HRTIM_HandleTypeDef *hhrtim,
+                                        uint32_t Fault,
+                                        HRTIM_FaultCfgTypeDef* pFaultCfg);
+
+HAL_StatusTypeDef HAL_HRTIM_FaultPrescalerConfig(HRTIM_HandleTypeDef *hhrtim,
+                                                 uint32_t Prescaler);
+
+void HAL_HRTIM_FaultModeCtl(HRTIM_HandleTypeDef * hhrtim, 
+                            uint32_t Faults, 
+                            uint32_t Enable);
+
+HAL_StatusTypeDef HAL_HRTIM_ADCTriggerConfig(HRTIM_HandleTypeDef *hhrtim,
+                                             uint32_t ADCTrigger,
+                                             HRTIM_ADCTriggerCfgTypeDef* pADCTriggerCfg);
+
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group8 Timer waveform configuration and functions
+* @{
+*/
 /* Waveform related functions *************************************************/
 HAL_StatusTypeDef HAL_HRTIM_WaveformTimerConfig(HRTIM_HandleTypeDef *hhrtim,
                                                 uint32_t TimerIdx,
@@ -3298,6 +3398,11 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformOutputConfig(HRTIM_HandleTypeDef *hhrtim,
                                                  uint32_t Output,
                                                  HRTIM_OutputCfgTypeDef * pOutputCfg);
 
+HAL_StatusTypeDef HAL_HRTIM_WaveformSetOutputLevel(HRTIM_HandleTypeDef *hhrtim,
+                                                   uint32_t TimerIdx,
+                                                   uint32_t Output, 
+                                                   uint32_t OutputLevel);
+
 HAL_StatusTypeDef HAL_HRTIM_TimerEventFilteringConfig(HRTIM_HandleTypeDef *hhrtim,
                                                       uint32_t TimerIdx,
                                                       uint32_t Event,
@@ -3315,27 +3420,7 @@ HAL_StatusTypeDef HAL_HRTIM_BurstDMAConfig(HRTIM_HandleTypeDef *hhrtim,
                                            uint32_t TimerIdx,
                                            uint32_t RegistersToUpdate);
 
-HAL_StatusTypeDef HAL_HRTIM_BurstModeConfig(HRTIM_HandleTypeDef *hhrtim,
-                                            HRTIM_BurstModeCfgTypeDef* pBurstModeCfg);
-
-HAL_StatusTypeDef HAL_HRTIM_EventConfig(HRTIM_HandleTypeDef *hhrtim,
-                                        uint32_t Event,
-                                        HRTIM_EventCfgTypeDef* pEventCfg);
-
-HAL_StatusTypeDef HAL_HRTIM_EventPrescalerConfig(HRTIM_HandleTypeDef *hhrtim,
-                                                 uint32_t Prescaler);
  
-HAL_StatusTypeDef HAL_HRTIM_FaultConfig(HRTIM_HandleTypeDef *hhrtim,
-                                        uint32_t Fault,
-                                        HRTIM_FaultCfgTypeDef* pFaultCfg);
-
-HAL_StatusTypeDef HAL_HRTIM_FaultPrescalerConfig(HRTIM_HandleTypeDef *hhrtim,
-                                                 uint32_t Prescaler);
- 
-HAL_StatusTypeDef HAL_HRTIM_ADCTriggerConfig(HRTIM_HandleTypeDef *hhrtim,
-                                             uint32_t ADCTrigger,
-                                             HRTIM_ADCTriggerCfgTypeDef* pADCTriggerCfg);
-
 HAL_StatusTypeDef HAL_HRTIM_WaveformCounterStart(HRTIM_HandleTypeDef *hhrtim,
                                                  uint32_t Timers);
 
@@ -3362,18 +3447,10 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformOutputStart(HRTIM_HandleTypeDef *hhrtim,
 HAL_StatusTypeDef HAL_HRTIM_WaveformOutputStop(HRTIM_HandleTypeDef *hhrtim,
                                                uint32_t OutputsToStop);
 
-/* IRQ handler */
-void HAL_HRTIM_IRQHandler(HRTIM_HandleTypeDef *hhrtim,
-                          uint32_t TimerIdx);
-
 HAL_StatusTypeDef HAL_HRTIM_BurstModeCtl(HRTIM_HandleTypeDef *hhrtim,
                                          uint32_t Enable);
 
 HAL_StatusTypeDef HAL_HRTIM_BurstModeSoftwareTrigger(HRTIM_HandleTypeDef *hhrtim);
-
-void HAL_HRTIM_FaultModeCtl(HRTIM_HandleTypeDef * hhrtim, 
-                            uint32_t Faults, 
-                            uint32_t Enable);
 
 HAL_StatusTypeDef HAL_HRTIM_SoftwareCapture(HRTIM_HandleTypeDef *hhrtim,
                                             uint32_t TimerIdx,
@@ -3385,7 +3462,10 @@ HAL_StatusTypeDef HAL_HRTIM_SoftwareUpdate(HRTIM_HandleTypeDef *hhrtim,
 HAL_StatusTypeDef HAL_HRTIM_SoftwareReset(HRTIM_HandleTypeDef *hhrtim,
                                           uint32_t Timers);
 
-HAL_HRTIM_StateTypeDef HAL_HRTIM_GetState(HRTIM_HandleTypeDef* hhrtim);
+HAL_StatusTypeDef HAL_HRTIM_BurstDMATransfer(HRTIM_HandleTypeDef *hhrtim,
+                                             uint32_t TimerIdx,
+                                             uint32_t BurstBufferAddress,
+                                             uint32_t BurstBufferLength);
 
 HAL_StatusTypeDef HAL_HRTIM_UpdateEnable(HRTIM_HandleTypeDef *hhrtim,
                                           uint32_t Timers);
@@ -3393,19 +3473,19 @@ HAL_StatusTypeDef HAL_HRTIM_UpdateEnable(HRTIM_HandleTypeDef *hhrtim,
 HAL_StatusTypeDef HAL_HRTIM_UpdateDisable(HRTIM_HandleTypeDef *hhrtim,
                                           uint32_t Timers);
 
-HAL_StatusTypeDef HAL_HRTIM_BurstDMATransfer(HRTIM_HandleTypeDef *hhrtim,
-                                             uint32_t TimerIdx,
-                                             uint32_t BurstBufferAddress,
-                                             uint32_t BurstBufferLength);
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group9 Peripheral state functions
+* @{
+*/
+/* HRTIM peripheral state functions */
+HAL_HRTIM_StateTypeDef HAL_HRTIM_GetState(HRTIM_HandleTypeDef* hhrtim);
 
 uint32_t HAL_HRTIM_GetCapturedValue(HRTIM_HandleTypeDef *hhrtim,
                                     uint32_t TimerIdx,
                                     uint32_t CaptureUnit);
-
-HAL_StatusTypeDef HAL_HRTIM_WaveformSetOutputLevel(HRTIM_HandleTypeDef *hhrtim,
-                                                   uint32_t TimerIdx,
-                                                   uint32_t Output, 
-                                                   uint32_t OutputLevel);
 
 uint32_t HAL_HRTIM_WaveformGetOutputLevel(HRTIM_HandleTypeDef *hhrtim,
                                           uint32_t TimerIdx,
@@ -3426,6 +3506,17 @@ uint32_t HAL_HRTIM_GetCurrentPushPullStatus(HRTIM_HandleTypeDef *hhrtim,
 
 uint32_t HAL_HRTIM_GetIdlePushPullStatus(HRTIM_HandleTypeDef *hhrtim,
                                          uint32_t TimerIdx);
+
+/**
+  * @}
+  */
+
+/** @addtogroup HRTIM_Exported_Functions_Group10 Interrupts handling
+* @{
+*/
+/* IRQ handler */
+void HAL_HRTIM_IRQHandler(HRTIM_HandleTypeDef *hhrtim,
+                          uint32_t TimerIdx);
 
 /* HRTIM events related callback functions */
 void HAL_HRTIM_Fault1Callback(HRTIM_HandleTypeDef *hhrtim);
@@ -3470,6 +3561,14 @@ void HAL_HRTIM_Output2ResetCallback(HRTIM_HandleTypeDef *hhrtim,
 void HAL_HRTIM_BurstDMATransferCallback(HRTIM_HandleTypeDef *hhrtim,
                                                uint32_t TimerIdx);
 void HAL_HRTIM_ErrorCallback(HRTIM_HandleTypeDef *hhrtim);
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended FLASH HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -65,8 +65,8 @@
   * @{
   */
 
-/** @addtogroup FLASH
-  * @brief FLASH HAL module driver
+/** @addtogroup FLASHEx FLASH Extended HAL module driver
+  * @brief FLASH Extended HAL module driver
   * @{
   */
 
@@ -74,14 +74,30 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup FLASHEx_Private_Defines FLASH Extended Private Define
+ * @{
+ */
 #define HAL_FLASH_TIMEOUT_VALUE   ((uint32_t)50000)/* 50 s */
+/**
+  * @}
+  */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/** @defgroup FLASHEx_Private_Variables FLASH Extended Private Variables
+ * @{
+ */
 /* Variables used for Erase pages under interruption*/
 extern FLASH_ProcessTypeDef pFlash;
+/**
+  * @}
+  */
+
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup FLASHEx_Private_Functions FLASH Extended Private Functions
+ * @{
+ */
 /* Erase operations */
-extern void FLASH_PageErase(uint32_t PageAddress);
 static void              FLASH_MassErase(void);
 
 /* Option bytes control */
@@ -93,32 +109,16 @@ static HAL_StatusTypeDef FLASH_OB_ProgramData(uint32_t Address, uint8_t Data);
 static uint32_t          FLASH_OB_GetWRP(void);
 static FlagStatus        FLASH_OB_GetRDP(void);
 static uint8_t           FLASH_OB_GetUser(void);
-
-/* Private functions ---------------------------------------------------------*/
-extern HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
-
-/** @addtogroup FLASH_Private_Functions
-  * @{
-  */
-
-/** @addtogroup FLASH_Group1 Initialization/de-initialization functions
-  * @brief      Initialization and Configuration functions
-  *
-@verbatim    
- ===============================================================================
-              ##### Initialization/de-initialization functions #####
- ===============================================================================
- 
-@endverbatim
-  * @{
-  */
-
-
 /**
   * @}
   */
 
-/** @addtogroup FLASH_Group2 I/O operation functions
+/* Exported functions ---------------------------------------------------------*/
+/** @defgroup FLASHEx_Exported_Functions FLASH Extended Exported Functions
+  * @{
+  */
+  
+/** @defgroup FLASHEx_Exported_Functions_Group1 Extended Input and Output operation functions
   * @brief      I/O operation functions
   *
 @verbatim   
@@ -272,7 +272,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   * @}
   */
     
-/** @addtogroup FLASH_Group3 Peripheral Control functions
+/** @defgroup FLASHEx_Exported_Functions_Group2 Extended Peripheral Control functions
   * @brief      Peripheral Control functions
   *
 @verbatim   
@@ -293,7 +293,6 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   *         The function HAL_FLASH_OB_Unlock() should be called before to unlock the options bytes
   *         The function HAL_FLASH_OB_Launch() should be called after to force the reload of the options bytes
   *         (system reset will occur)
-  * @param  None
   * @retval HAL status
   */
 
@@ -423,8 +422,15 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
   */
 
 /**
+  * @}
+  */
+
+/** @addtogroup FLASHEx_Private_Functions FLASH Extended Private Functions
+ * @{
+ */
+
+/**
   * @brief  Mass erase of FLASH memory
-  * @param  None
   * 
   * @retval None
   */
@@ -437,6 +443,10 @@ static void FLASH_MassErase(void)
   SET_BIT(FLASH->CR, FLASH_CR_MER);
   SET_BIT(FLASH->CR, FLASH_CR_STRT);
 }
+
+/**
+  * @}
+  */
 
 /**
   * @brief  Enable the write protection of the desired pages
@@ -452,9 +462,13 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint16_t WRP0_Data = 0xFFFF, WRP1_Data = 0xFFFF;
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
   uint16_t WRP2_Data = 0xFFFF, WRP3_Data = 0xFFFF;
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WriteProtectPage));
@@ -462,10 +476,17 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
   WriteProtectPage = (uint32_t)(~WriteProtectPage);
   WRP0_Data = (uint16_t)(WriteProtectPage & OB_WRP_PAGES0TO15MASK);
   WRP1_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES16TO31MASK) >> 8);
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
   WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
   WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO127MASK) >> 24); 
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+  WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
+  WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO255MASK) >> 24); 
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
 
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -493,7 +514,9 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
           
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
     if((status == HAL_OK) && (WRP2_Data != 0xFF))
     {
       OB->WRP2 &= WRP2_Data;
@@ -509,7 +532,9 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WriteProtectPage)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
     /* if the program operation is completed, disable the OPTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG);
@@ -533,19 +558,30 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint16_t WRP0_Data = 0xFFFF, WRP1_Data = 0xFFFF;
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
   uint16_t WRP2_Data = 0xFFFF, WRP3_Data = 0xFFFF;
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WriteProtectPage));
 
   WRP0_Data = (uint16_t)(WriteProtectPage & OB_WRP_PAGES0TO15MASK);
   WRP1_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES16TO31MASK) >> 8);
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
   WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
   WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO127MASK) >> 24); 
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+  WRP2_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES32TO47MASK) >> 16);
+  WRP3_Data = (uint16_t)((WriteProtectPage & OB_WRP_PAGES48TO255MASK) >> 24); 
+#endif /* STM32F303xE || STM32F303xE || STM32F398xx */
     
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
@@ -573,7 +609,9 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
           
-#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
     if((status == HAL_OK) && (WRP2_Data != 0xFF))
     {
       OB->WRP2 |= WRP2_Data;
@@ -589,7 +627,9 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WriteProtectPage)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation((uint32_t)HAL_FLASH_TIMEOUT_VALUE);
     }
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || STM32F373xC || STM32F378xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
     /* if the program operation is completed, disable the OPTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG);
@@ -674,9 +714,16 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t UserConfig)
     /* Enable the Option Bytes Programming operation */
     SET_BIT(FLASH->CR, FLASH_CR_OPTPG); 
            
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F302xC) || defined(STM32F303x8) || defined(STM32F303xC) || defined(STM32F318xx) || defined(STM32F334x8) || defined(STM32F358xx)
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8)                         || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
     OB->USER = (UserConfig | 0x88);
-#endif /* STM32F301x8 || STM32F302x8 || STM32F302xC || STM32F303xC || STM32F318xx || STM32F334x8 || STM32F358xx */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8                || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
 #if defined(STM32F373xC) || defined(STM32F378xx)
     OB->USER = (UserConfig | 0x08);
 #endif /* STM32F373xC || STM32F378xx */
@@ -734,7 +781,6 @@ static HAL_StatusTypeDef FLASH_OB_ProgramData(uint32_t Address, uint8_t Data)
 
 /**
   * @brief  Return the FLASH Write Protection Option Bytes value.
-  * @param  None
   * @retval The FLASH Write Protection Option Bytes value
   */
 static uint32_t FLASH_OB_GetWRP(void)
@@ -745,7 +791,6 @@ static uint32_t FLASH_OB_GetWRP(void)
 
 /**
   * @brief  Returns the FLASH Read Protection level.
-  * @param  None
   * @retval FLASH ReadOut Protection Status:
   *           - SET, when OB_RDP_Level_1 or OB_RDP_Level_2 is set
   *           - RESET, when OB_RDP_Level_0 is set
@@ -754,13 +799,16 @@ static FlagStatus FLASH_OB_GetRDP(void)
 {
   FlagStatus readstatus = RESET;
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) 
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
   if ((uint8_t)READ_BIT(FLASH->OBR, FLASH_OBR_RDPRT) != RESET)
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+    
 #if defined(STM32F373xC) || defined(STM32F378xx)
   if ((uint8_t)READ_BIT(FLASH->OBR, (FLASH_OBR_LEVEL1_PROT | FLASH_OBR_LEVEL2_PROT)) != RESET)
 #endif /* STM32F373xC || STM32F378xx */
@@ -776,7 +824,6 @@ static FlagStatus FLASH_OB_GetRDP(void)
 
 /**
   * @brief  Return the FLASH User Option Byte value.
-  * @param  None
   * @retval The FLASH User Option Bytes values: IWDG_SW(Bit0), RST_STOP(Bit1), RST_STDBY(Bit2), BOOT1(Bit4),
   *         VDDA_Analog_Monitoring(Bit5) and SRAM_Parity_Enable(Bit6).
   *         And SDADC12_VDD_MONITOR(Bit7) for STM32F373 or STM32F378 . 

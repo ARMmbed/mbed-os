@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -55,6 +55,10 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup SMARTCARD_Exported_Types SMARTCARD Exported Types
+  * @{
+  */
+
 /** 
   * @brief SMARTCARD Init Structure definition  
   */ 
@@ -89,7 +93,7 @@ typedef struct
                                            data bit (MSB) has to be output on the SCLK pin in synchronous mode.
                                            This parameter can be a value of @ref SMARTCARD_Last_Bit */
                                              
-  uint16_t OneBitSampling;            /*!< Specifies wether a single sample or three samples' majority vote is selected.
+  uint16_t OneBitSampling;            /*!< Specifies whether a single sample or three samples' majority vote is selected.
                                            Selecting the single sample method increases the receiver tolerance to clock
                                            deviations. This parameter can be a value of @ref SMARTCARD_OneBit_Sampling. */
 
@@ -227,9 +231,12 @@ typedef enum
   SMARTCARD_CLOCKSOURCE_UNDEFINED = 0x10  /*!< undefined clock source */  
 }SMARTCARD_ClockSourceTypeDef;
 
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup SMARTCARD_Exported_Constants
+/** @defgroup SMARTCARD_Exported_Constants SMARTCARD Exported Constants
   * @{
   */
 
@@ -550,7 +557,7 @@ typedef enum
   */    
     
 /* Exported macros -----------------------------------------------------------*/
-/** @defgroup SMARTCARD_Exported_Macros
+/** @defgroup SMARTCARD_Exported_Macros SMARTCARD Exported Macros
   * @{
   */
 
@@ -735,17 +742,32 @@ typedef enum
   * @}
   */ 
 
-/* Include SMARTCARD HAL Extension module */
+/* Include SMARTCARD HAL Extended module */
 #include "stm32f3xx_hal_smartcard_ex.h"  
 
                                  
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup SMARTCARD_Exported_Functions SMARTCARD Exported Functions
+  * @{
+  */
+
+/** @addtogroup SMARTCARD_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
+
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsmartcard);
 HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsmartcard);
 void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsmartcard);
 void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsmartcard);
 
+/**
+  * @}
+  */
+
+/** @addtogroup SMARTCARD_Exported_Functions_Group2 Input and Output operation functions 
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsmartcard, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -759,12 +781,25 @@ void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsmartcard);
 void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsmartcard);
 void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsmartcard);
 
-/* Peripheral Control functions ***********************************************/
-void SMARTCARD_AdvFeatureConfig(SMARTCARD_HandleTypeDef *hsmartcard);
+/**
+  * @}
+  */  
+
+/** @defgroup SMARTCARD_Exported_Functions_Group3 Peripheral Control functions 
+  * @{
+  */
 
 /* Peripheral State and Error functions ***************************************/
 HAL_SMARTCARD_StateTypeDef HAL_SMARTCARD_GetState(SMARTCARD_HandleTypeDef *hsmartcard);
 uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsmartcard);
+/**
+  * @}
+  */  
+
+/**
+  * @}
+  */  
+
 /**
   * @}
   */ 
@@ -772,7 +807,7 @@ uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsmartcard);
 /**
   * @}
   */
-  
+ 
 #ifdef __cplusplus
 }
 #endif

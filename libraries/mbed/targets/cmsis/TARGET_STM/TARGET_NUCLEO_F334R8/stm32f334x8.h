@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f334x8.h
   * @author  MCD Application Team
-  * @version V2.0.1
-  * @date    18-June-2014
+  * @version V2.1.0
+  * @date    12-Sept-2014
   * @brief   CMSIS STM32F334x4/STM32F334x6/STM32F334x8 Devices Peripheral Access Layer Header File.
   *
   *          This file contains:

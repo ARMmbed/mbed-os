@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Extended UART HAL module driver.
   *
   *          This file provides firmware functions to manage the following extended
@@ -63,7 +63,7 @@
   * @{
   */
 
-/** @defgroup UARTEx
+/** @defgroup UARTEx UART Extended HAL module driver
   * @brief UART Extended HAL module driver
   * @{
   */
@@ -74,13 +74,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/                                    
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup UARTEx_Private_Functions
+/** @defgroup UARTEx_Exported_Functions UART Extended Exported Functions
   * @{
   */
 
-/** @defgroup UARTEx_Group1 Extended Initialization/de-initialization functions
+/** @defgroup UARTEx_Exported_Functions_Group1 Extended Initialization and de-initialization functions
   * @brief    Extended Initialization and Configuration Functions
   *
 @verbatim    
@@ -161,7 +161,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t UART_DEPo
   uint32_t temp = 0x0;
   
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -222,7 +222,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t UART_DEPo
   * @}
   */
 
-/** @defgroup UARTEx_Group2 Extended Peripheral Control functions
+/** @defgroup UARTEx_Exported_Functions_Group2 Extended Peripheral Control functions
   * @brief    Extended Peripheral Control functions
   *
 @verbatim   
@@ -260,7 +260,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t UART_DEPo
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -392,7 +392,7 @@ HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
 /**
   * @}
   */
-
+  
 #endif /* HAL_UART_MODULE_ENABLED */
 /**
   * @}

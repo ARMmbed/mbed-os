@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
@@ -50,11 +50,14 @@
   * @{
   */
 
-/** @addtogroup IRDA
+/** @addtogroup IRDA IRDA HAL module driver
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup IRDA_Exported_Types IRDA Exported Types
+  * @{
+  */ 
 
 /** 
   * @brief IRDA Init Structure definition  
@@ -75,7 +78,7 @@ typedef struct
                                                  the word length is set to 9 data bits; 8th bit when the
                                                  word length is set to 8 data bits). */
  
-  uint16_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
+  uint16_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
                                            This parameter can be a value of @ref IRDA_Mode */
   
   uint8_t  Prescaler;                 /*!< Specifies the Prescaler value for dividing the UART/USART source clock
@@ -174,6 +177,10 @@ typedef enum
   IRDA_PRESCALER       = 0x04,  
   IRDA_POWERMODE       = 0x05
 }IRDA_ControlTypeDef;
+
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup IRDA_Exported_Constants  IRDA Exported Constants
@@ -370,9 +377,8 @@ typedef enum
  * @}
  */
 
-  
 /* Exported macros -----------------------------------------------------------*/
-/** @defgroup IRDA_Exported_Macros
+/** @defgroup IRDA_Exported_Macros IRDA Exported Macros
   * @{
   */
     
@@ -404,7 +410,6 @@ typedef enum
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_IRDA_GET_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->ISR & (__FLAG__)) == (__FLAG__))   
-
 
 /** @brief  Enables the specified IRDA interrupt.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -546,16 +551,32 @@ typedef enum
  * @}
  */
 
-/* Include IRDA HAL Extension module */
+/* Include IRDA HAL Extended module */
 #include "stm32f3xx_hal_irda_ex.h"  
 
 /* Exported functions --------------------------------------------------------*/
+
+/** @addtogroup IRDA_Exported_Functions IRDA Exported Functions
+  * @{
+  */
+  
+/** @addtogroup IRDA_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
+
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda);
 
+/**
+  * @}
+  */
+
+/** @addtogroup IRDA_Exported_Functions_Group2 Input and Output operation functions 
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -569,6 +590,14 @@ void HAL_IRDA_TxCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda);
 
+/**
+  * @}
+  */
+
+/** @addtogroup IRDA_Exported_Functions_Group3 Peripheral State and Errors functions
+  * @{
+  */
+
 /* Peripheral State and Error functions ***************************************/
 HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda);
 uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
@@ -579,8 +608,15 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 
 /**
   * @}
+  */
+
+/**
+  * @}
   */ 
-  
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif

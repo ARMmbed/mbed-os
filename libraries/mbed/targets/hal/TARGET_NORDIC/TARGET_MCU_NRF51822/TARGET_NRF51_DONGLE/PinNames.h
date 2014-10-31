@@ -58,6 +58,7 @@ typedef enum {
     p25 = 25,
     p28 = 28,
     p29 = 29,
+    p30 = 30,
 
     P0_0  = p0,
     P0_1  = p1,
@@ -94,6 +95,7 @@ typedef enum {
     LED1    = p21,
     LED2    = p22,
     LED3    = p23,
+    LED4    = p23,
     LEDR    = LED1,
     LEDG    = LED2,
     LEDB    = LED3,
@@ -112,6 +114,16 @@ typedef enum {
     SPI_PSELSS0   = p17,
     SPI_PSELSCK0  = p18,
 
+    SPI_PSELMOSI1 = p15,
+    SPI_PSELMISO1 = p16,
+    SPI_PSELSS1   = p17,
+    SPI_PSELSCK1  = p18,
+    
+    SPIS_PSELMOSI = p15,
+    SPIS_PSELMISO = p16,
+    SPIS_PSELSS   = p17,
+    SPIS_PSELSCK  = p18,
+    
     I2C_SDA0 = p19,
     I2C_SCL0 = p20,
 

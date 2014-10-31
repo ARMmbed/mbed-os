@@ -31,8 +31,6 @@
 
 // 32-bit timer selection
 #define TIM_MST      TIM2
-#define TIM_MST_IRQ  TIM2_IRQn
-#define TIM_MST_RCC  __TIM2_CLK_ENABLE()
 
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
@@ -42,26 +40,9 @@ void us_ticker_init(void)
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
-    // Enable timer clock
-    TIM_MST_RCC;
-
-    // Update the SystemCoreClock variable
-    SystemCoreClockUpdate();
-
-    // Configure time base
     TimMasterHandle.Instance = TIM_MST;
-    TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 �s tick
-    TimMasterHandle.Init.ClockDivision     = 0;
-    TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    TimMasterHandle.Init.RepetitionCounter = 0;
-    HAL_TIM_OC_Init(&TimMasterHandle);
 
-    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(TIM_MST_IRQ);
-
-    // Enable timer
-    HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
+    HAL_InitTick(0); // The passed value is not used  
 }
 
 uint32_t us_ticker_read()

@@ -2,11 +2,11 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
-  *          functionalities of the Timer extension peripheral:
+  *          functionalities of the Timer Extended peripheral:
   *           + Time Hall Sensor Interface Initialization
   *           + Time Hall Sensor Interface Start
   *           + Time Complementary signal bread and dead time configuration  
@@ -19,7 +19,7 @@
                       ##### TIMER Extended features #####
   ==============================================================================
   [..] 
-    The Timer Extension features include: 
+    The Timer Extended features include: 
     (#) Complementary outputs with programmable dead-time for :
         (++) Output Compare
         (++) PWM generation (Edge and Center-aligned Mode)
@@ -61,7 +61,7 @@
              the commutation event).
 
      (#) Activate the TIM peripheral using one of the start functions: 
-           (++) Complementary Output Compare : HAL_TIMEx_OCN_Start(), HAL_TIMEx_OCN_Start_DMA(), HAL_TIMEx_OC_Start_IT()
+           (++) Complementary Output Compare : HAL_TIMEx_OCN_Start(), HAL_TIMEx_OCN_Start_DMA(), HAL_TIMEx_OCN_Start_IT()
            (++) Complementary PWM generation : HAL_TIMEx_PWMN_Start(), HAL_TIMEx_PWMN_Start_DMA(), HAL_TIMEx_PWMN_Start_IT()
            (++) Complementary One-pulse mode output : HAL_TIMEx_OnePulseN_Start(), HAL_TIMEx_OnePulseN_Start_IT()
            (++) Hall Sensor output : HAL_TIMEx_HallSensor_Start(), HAL_TIMEx_HallSensor_Start_DMA(), HAL_TIMEx_HallSensor_Start_IT().
@@ -105,7 +105,7 @@
   * @{
   */
 
-/** @defgroup TIMEx
+/** @defgroup TIMEx TIM Extended HAL module driver
   * @brief TIM Extended HAL module driver
   * @{
   */
@@ -114,36 +114,42 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                         \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+      
 #define BDTR_BKF_SHIFT (16)
 #define BDTR_BK2F_SHIFT (20)
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
-
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+      
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                        \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 static void TIM_OC5_SetConfig(TIM_TypeDef *TIMx,
                               TIM_OC_InitTypeDef *OC_Config);
 
 static void TIM_OC6_SetConfig(TIM_TypeDef *TIMx, 
                               TIM_OC_InitTypeDef *OC_Config);
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 static void TIM_CCxNChannelCmd(TIM_TypeDef* TIMx, uint32_t Channel, uint32_t ChannelNState);    
 
 /* Private functions ---------------------------------------------------------*/
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                         \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Timer Ouput Compare 5 configuration
   * @param  TIMx to select the TIM peripheral
@@ -250,15 +256,16 @@ static void TIM_OC6_SetConfig(TIM_TypeDef *TIMx,
   /* Write to TIMx CCER */
   TIMx->CCER = tmpccer;  
 } 
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
-/** @defgroup TIMEx_Private_Functions
+/** @defgroup TIMEx_Exported_Functions TIM Extended Exported Functions
   * @{
   */
 
-/** @defgroup TIMEx_Group1 Timer Hall Sensor functions 
+/** @defgroup TIMEx_Exported_Functions_Group1 Extended Timer Hall Sensor functions 
   * @brief    Timer Hall Sensor functions
   *
 @verbatim    
@@ -290,7 +297,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSen
   TIM_OC_InitTypeDef OC_Config;
     
   /* Check the TIM handle allocation */
-  if(htim == NULL)
+  if(htim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -571,7 +578,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_DMA(TIM_HandleTypeDef *htim)
   * @}
   */
   
-/** @defgroup TIMEx_Group2 Timer Complementary Output Compare functions
+/** @defgroup TIMEx_Exported_Functions_Group2 Extended Timer Complementary Output Compare functions
   *  @brief   Timer Complementary Output Compare functions
   *
 @verbatim   
@@ -702,9 +709,12 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Start_IT(TIM_HandleTypeDef *htim, uint32_t Chann
     break;
   } 
   
-     /* Enable the Capture compare channel N */
-     TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
-    
+  /* Enable the TIM Break interrupt */
+  __HAL_TIM_ENABLE_IT(htim, TIM_IT_BREAK);
+  
+  /* Enable the Capture compare channel N */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+  
   /* Enable the Main Ouput */
     __HAL_TIM_MOE_ENABLE(htim);
 
@@ -729,6 +739,8 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Start_IT(TIM_HandleTypeDef *htim, uint32_t Chann
   */
 HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
+  uint32_t tmpccer = 0;
+
   /* Check the parameters */
   assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel)); 
   
@@ -766,11 +778,18 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channe
     break; 
   }
     
-     /* Disable the Capture compare channel N */
-     TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+  /* Disable the Capture compare channel N */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
     
+  /* Disable the TIM Break interrupt (only if no more channel is active) */
+  tmpccer = htim->Instance->CCER;
+  if ((tmpccer & (TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE)) == RESET)
+  {
+    __HAL_TIM_DISABLE_IT(htim, TIM_IT_BREAK);
+  }
+
   /* Disable the Main Ouput */
-    __HAL_TIM_MOE_DISABLE(htim);
+  __HAL_TIM_MOE_DISABLE(htim);
 
   /* Disable the Peripheral */
   __HAL_TIM_DISABLE(htim);
@@ -967,7 +986,7 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Chann
   * @}
   */
   
-/** @defgroup TIMEx_Group3 Timer Complementary PWM functions
+/** @defgroup TIMEx_Exported_Functions_Group3 Extended Timer Complementary PWM functions
   * @brief    Timer Complementary PWM functions
   *
 @verbatim   
@@ -1136,6 +1155,8 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_IT(TIM_HandleTypeDef *htim, uint32_t Chan
   */
 HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_IT (TIM_HandleTypeDef *htim, uint32_t Channel)
 {
+  uint32_t tmpccer = 0;
+
   /* Check the parameters */
   assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel)); 
 
@@ -1173,11 +1194,15 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_IT (TIM_HandleTypeDef *htim, uint32_t Chan
     break; 
   }
   
-  /* Disable the TIM Break interrupt */
-  __HAL_TIM_DISABLE_IT(htim, TIM_IT_BREAK);
-  
   /* Disable the complementary PWM output  */
   TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+  
+  /* Disable the TIM Break interrupt (only if no more channel is active) */
+  tmpccer = htim->Instance->CCER;
+  if ((tmpccer & (TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE)) == RESET)
+  {
+    __HAL_TIM_DISABLE_IT(htim, TIM_IT_BREAK);
+  }
   
   /* Disable the Main Ouput */
   __HAL_TIM_MOE_DISABLE(htim);
@@ -1294,10 +1319,10 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   }
 
   /* Enable the complementary PWM output  */
-     TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
     
   /* Enable the Main Ouput */
-    __HAL_TIM_MOE_ENABLE(htim);
+  __HAL_TIM_MOE_ENABLE(htim);
   
   /* Enable the Peripheral */
   __HAL_TIM_ENABLE(htim); 
@@ -1358,10 +1383,10 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Chan
   } 
   
   /* Disable the complementary PWM output */
-    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
      
   /* Disable the Main Ouput */
-    __HAL_TIM_MOE_DISABLE(htim);
+  __HAL_TIM_MOE_DISABLE(htim);
 
   /* Disable the Peripheral */
   __HAL_TIM_DISABLE(htim);
@@ -1377,7 +1402,7 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Chan
   * @}
   */
   
-/** @defgroup TIMEx_Group4 Timer Complementary One Pulse functions
+/** @defgroup TIMEx_Exported_Functions_Group4 Extended Timer Complementary One Pulse functions
   * @brief    Timer Complementary One Pulse functions
   *
 @verbatim   
@@ -1437,10 +1462,10 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop(TIM_HandleTypeDef *htim, uint32_t Out
   assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, OutputChannel)); 
 
   /* Disable the complementary One Pulse output */
-    TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_DISABLE);
+  TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_DISABLE);
   
   /* Disable the Main Ouput */
-    __HAL_TIM_MOE_DISABLE(htim);
+  __HAL_TIM_MOE_DISABLE(htim);
   
   /* Disable the Peripheral */
   __HAL_TIM_DISABLE(htim); 
@@ -1508,7 +1533,7 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
   __HAL_TIM_MOE_DISABLE(htim);
   
   /* Disable the Peripheral */
-   __HAL_TIM_DISABLE(htim);  
+  __HAL_TIM_DISABLE(htim);  
   
   /* Return function status */
   return HAL_OK;
@@ -1519,7 +1544,7 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
 /**
   * @}
   */
-/** @defgroup TIMEx_Group5 Peripheral Control functions
+/** @defgroup TIMEx_Exported_Functions_Group5 Extended Peripheral Control functions
   * @brief    Peripheral Control functions
   *
 @verbatim   
@@ -1539,9 +1564,10 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
 @endverbatim
   * @{
   */
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                         \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Configure the TIM commutation event sequence.
   * @note: this function is mandatory to use the commutation event in order to 
@@ -2184,9 +2210,10 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   
   return HAL_OK;
 } 
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2226,16 +2253,17 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                         \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief   Configures the Break feature, dead time, Lock level, OSSI/OSSR State
   *         and the AOE(automatic output enable).
   * @param  htim: TIM handle
   * @param  sBreakDeadTimeConfig: pointer to a TIM_ConfigBreakDeadConfigTypeDef structure that
   *         contains the BDTR Register configuration  information for the TIM peripheral. 
-  * @note   For STM32F302xC, STM32F303xC, STM32F358xx and STM32F303x8 two break inputs can be configured.
+  * @note   For STM32F302xC, STM32F303xC, STM32F358xx, STM32F303xE, STM32F398xx and STM32F303x8 two break inputs can be configured.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim, 
@@ -2248,6 +2276,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   assert_param(IS_TIM_OSSR_STATE(sBreakDeadTimeConfig->OffStateRunMode));
   assert_param(IS_TIM_OSSI_STATE(sBreakDeadTimeConfig->OffStateIDLEMode));
   assert_param(IS_TIM_LOCK_LEVEL(sBreakDeadTimeConfig->LockLevel));
+  assert_param(IS_TIM_DEADTIME(sBreakDeadTimeConfig->DeadTime));
   assert_param(IS_TIM_BREAK_STATE(sBreakDeadTimeConfig->BreakState));
   assert_param(IS_TIM_BREAK_POLARITY(sBreakDeadTimeConfig->BreakPolarity));
   assert_param(IS_TIM_BREAK_FILTER(sBreakDeadTimeConfig->BreakFilter));
@@ -2308,9 +2337,10 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   
   return HAL_OK;
 }
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
@@ -2329,6 +2359,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   assert_param(IS_TIM_OSSR_STATE(sBreakDeadTimeConfig->OffStateRunMode));
   assert_param(IS_TIM_OSSI_STATE(sBreakDeadTimeConfig->OffStateIDLEMode));
   assert_param(IS_TIM_LOCK_LEVEL(sBreakDeadTimeConfig->LockLevel));
+  assert_param(IS_TIM_DEADTIME(sBreakDeadTimeConfig->DeadTime));
   assert_param(IS_TIM_BREAK_STATE(sBreakDeadTimeConfig->BreakState));
   assert_param(IS_TIM_BREAK_POLARITY(sBreakDeadTimeConfig->BreakPolarity));
   assert_param(IS_TIM_AUTOMATIC_OUTPUT_STATE(sBreakDeadTimeConfig->AutomaticOutput));
@@ -2357,7 +2388,48 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
 }
 #endif /* STM32F373xC || STM32F378xx */
 
-#if defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(STM32F303xE) || defined(STM32F398xx)
+/**
+  * @brief  Configures the TIM1, TIM8, TIM16 and TIM20 Remapping input capabilities.
+  * @param  htim: TIM handle.
+  * @param  Remap1: specifies the first TIM remapping source.
+  *          This parameter can be one of the following values:
+  *            @arg TIM_TIM1_ADC1_NONE: TIM1_ETR is not connected to any ADC1 AWD (analog watchdog)
+  *            @arg TIM_TIM1_ADC1_AWD1: TIM1_ETR is connected to ADC1 AWD1
+  *            @arg TIM_TIM1_ADC1_AWD2: TIM1_ETR is connected to ADC1 AWD2 
+  *            @arg TIM_TIM1_ADC1_AWD3: TIM1_ETR is connected to ADC1 AWD3 
+  *            @arg TIM_TIM8_ADC2_NONE: TIM8_ETR is not connected to any ADC2 AWD
+  *            @arg TIM_TIM8_ADC2_AWD1: TIM8_ETR is connected to ADC2 AWD1
+  *            @arg TIM_TIM8_ADC2_AWD2: TIM8_ETR is connected to ADC2 AWD2
+  *            @arg TIM_TIM8_ADC2_AWD3: TIM8_ETR is connected to ADC2 AWD3
+  *            @arg TIM_TIM16_GPIO: TIM16 TI1 is connected to GPIO
+  *            @arg TIM_TIM16_RTC: TIM16 TI1 is connected to RTC clock
+  *            @arg TIM_TIM16_HSE: TIM16 TI1 is connected to HSE/32
+  *            @arg TIM_TIM16_MCO: TIM16 TI1 is connected to MCO
+  *            @arg TIM_TIM20_ADC3_NONE: TIM20_ETR is not connected to any AWD (analog watchdog)
+  *            @arg TIM_TIM20_ADC3_AWD1: TIM20_ETR is connected to ADC3 AWD1
+  *            @arg TIM_TIM20_ADC3_AWD2: TIM20_ETR is connected to ADC3 AWD2
+  *            @arg TIM_TIM20_ADC3_AWD3: TIM20_ETR is connected to ADC3 AWD3
+  * @param  Remap2: specifies the  second TIMremapping source (if any).
+  *          This parameter can be one of the following values:
+  *            @arg TIM_TIM1_ADC4_NONE: TIM1_ETR is not connected to any ADC4 AWD (analog watchdog)
+  *            @arg TIM_TIM1_ADC4_AWD1: TIM1_ETR is connected to ADC4 AWD1
+  *            @arg TIM_TIM1_ADC4_AWD2: TIM1_ETR is connected to ADC4 AWD2 
+  *            @arg TIM_TIM1_ADC4_AWD3: TIM1_ETR is connected to ADC4 AWD3 
+  *            @arg TIM_TIM8_ADC3_NONE: TIM8_ETR is not connected to any ADC3 AWD
+  *            @arg TIM_TIM8_ADC3_AWD1: TIM8_ETR is connected to ADC3 AWD1
+  *            @arg TIM_TIM8_ADC3_AWD2: TIM8_ETR is connected to ADC3 AWD2
+  *            @arg TIM_TIM8_ADC3_AWD3: TIM8_ETR is connected to ADC3 AWD3
+  *            @arg TIM_TIM16_NONE: Non significant value for TIM16
+  *            @arg TIM_TIM20_ADC4_NONE: TIM20_ETR is not connected to any ADC4 AWD
+  *            @arg TIM_TIM20_ADC4_AWD1: TIM20_ETR is connected to ADC4 AWD1
+  *            @arg TIM_TIM20_ADC4_AWD2: TIM20_ETR is connected to ADC4 AWD2
+  *            @arg TIM_TIM20_ADC4_AWD3: TIM20_ETR is connected to ADC4 AWD3
+  * @retval HAL status
+  */
+#else  /* STM32F303xC || STM32F358xx */  
 /**
   * @brief  Configures the TIM1, TIM8 and TIM16 Remapping input capabilities.
   * @param  htim: TIM handle.
@@ -2387,6 +2459,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM8_ADC3_AWD3: TIM8_ETR is connected to ADC3 AWD3
   * @retval HAL status
   */
+#endif /* STM32F303xE || STM32F398xx || */
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap1, uint32_t Remap2)
 {
   __HAL_LOCK(htim);
@@ -2405,11 +2478,35 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap1
   
   return HAL_OK;
 }
-#endif /* STM32F303xC || STM32F358xx */
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx || */
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
+
+#if defined(STM32F302xE)                                                 || \
+    defined(STM32F302xC)                                                 || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
     defined(STM32F373xC) || defined(STM32F378xx)
+#if defined(STM32F302xE)                                                 || \
+    defined(STM32F302xC)                                                 || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/**
+  * @brief  Configures the TIM1 and TIM16 Remapping input capabilities.
+  * @param  htim: TIM handle.
+  * @param  Remap: specifies the TIM remapping source.
+  *          This parameter can be one of the following values:
+  *            @arg TIM_TIM1_ADC1_NONE: TIM1_ETR is not connected to any AWD (analog watchdog)
+  *            @arg TIM_TIM1_ADC1_AWD1: TIM1_ETR is connected to ADC1 AWD1
+  *            @arg TIM_TIM1_ADC1_AWD2: TIM1_ETR is connected to ADC1 AWD2
+  *            @arg TIM_TIM1_ADC1_AWD3: TIM1_ETR is connected to ADC1 AWD3
+  *            @arg TIM_TIM16_GPIO: TIM16 TI1 is connected to GPIO
+  *            @arg TIM_TIM16_RTC: TIM16 TI1 is connected to RTC_clock
+  *            @arg TIM_TIM16_HSE: TIM16 TI1 is connected to HSE/32
+  *            @arg TIM_TIM16_MCO: TIM16 TI1 is connected to MCO
+  * @retval HAL status
+  */
+#else /* STM32F373xC || STM32F378xx */       
 /**
   * @brief  Configures the TIM2 and TIM14 Remapping input capabilities.
   * @param  htim: TIM handle.
@@ -2424,17 +2521,12 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap1
   *            @arg TIM_TIM14_RTC: TIM14 TI1 is connected to RTC_clock
   *            @arg TIM_TIM14_HSE: TIM14 TI1 is connected to HSE/32
   *            @arg TIM_TIM14_MCO: TIM14 TI1 is connected to MCO                              
-  *          STM32F303x8,STM32F334x8, STM32F328xx, STM32F301x8, STM32F302x8, STM32F318xx:
-  *            @arg TIM_TIM1_ADC1_NONE: TIM1_ETR is not connected to any AWD (analog watchdog)
-  *            @arg TIM_TIM1_ADC1_AWD1: TIM1_ETR is connected to ADC1 AWD1
-  *            @arg TIM_TIM1_ADC1_AWD2: TIM1_ETR is connected to ADC1 AWD2
-  *            @arg TIM_TIM1_ADC1_AWD3: TIM1_ETR is connected to ADC1 AWD3
-  *            @arg TIM_TIM16_GPIO: TIM16 TI1 is connected to GPIO
-  *            @arg TIM_TIM16_RTC: TIM16 TI1 is connected to RTC_clock
-  *            @arg TIM_TIM16_HSE: TIM16 TI1 is connected to HSE/32
-  *            @arg TIM_TIM16_MCO: TIM16 TI1 is connected to MCO
   * @retval HAL status
   */
+#endif /* STM32F302xE                               || */
+       /* STM32F302xC                               || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
 {
   __HAL_LOCK(htim);
@@ -2452,14 +2544,17 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
   
   return HAL_OK;
 }
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+#endif /* STM32F302xE                               || */
+       /* STM32F302xC                               || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F373xC || STM32F378xx */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+       /* STM32F373xC || STM32F378xx                   */
 
 
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) ||                         \
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /**
   * @brief  Group channel 5 and channel 1, 2 or 3
   * @param  htim: TIM handle.
@@ -2494,24 +2589,24 @@ HAL_StatusTypeDef HAL_TIMEx_GroupChannel5(TIM_HandleTypeDef *htim, uint32_t OCRe
   
   return HAL_OK;
 }
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx ||                */
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx                   */
-
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 /**
   * @}
   */
 
-/** @defgroup TIMEx_Group6 Extension Callbacks functions 
-  * @brief    Extension Callbacks functions
+/** @defgroup TIMEx_Exported_Functions_Group6 Extended Callbacks functions 
+  * @brief    Extended Callbacks functions
   *
 @verbatim   
   ==============================================================================
-                    ##### Extension Callbacks functions #####
+                    ##### Extended Callbacks functions #####
   ==============================================================================  
   [..]  
-    This section provides Extension TIM callback functions:
+    This section provides Extended TIM callback functions:
     (+) Timer Commutation callback
     (+) Timer Break callback
 
@@ -2547,12 +2642,12 @@ __weak void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim)
   * @}
   */
 
-/** @defgroup TIMEx_Group7 Extension Peripheral State functions 
-  * @brief    Extension Peripheral State functions
+/** @defgroup TIMEx_Exported_Functions_Group7 Extended Peripheral State functions 
+  * @brief    Extended Peripheral State functions
   *
 @verbatim   
   ==============================================================================
-                ##### Extension Peripheral State functions #####
+                ##### Extended Peripheral State functions #####
   ==============================================================================  
   [..]
     This subsection permit to get in run-time the status of the peripheral 

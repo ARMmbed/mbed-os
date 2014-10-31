@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_cec.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of CEC HAL module.
   ******************************************************************************
   * @attention
@@ -56,7 +56,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
-
+/** @defgroup CEC_Exported_Types CEC Exported Types
+  * @{
+  */ 
 /** 
   * @brief CEC Init Structure definition  
   */ 
@@ -181,10 +183,12 @@ typedef struct
     
 }CEC_HandleTypeDef;
 
-
+/**
+ * @}
+ */ 
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup CEC_Exported_Constants
+/** @defgroup CEC_Exported_Constants CEC Exported Constants
   * @{
   */
      
@@ -327,7 +331,7 @@ typedef struct
   */  
   
 /* Exported macros -----------------------------------------------------------*/
-/** @defgroup CEC_Exported_Macros
+/** @defgroup CEC_Exported_Macros CEC Exported Macros
   * @{
   */
 
@@ -521,13 +525,27 @@ typedef struct
   */                       
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup CEC_Exported_Functions CEC Exported Functions
+  * @{
+  */
+  
+/** @addtogroup CEC_Exported_Functions_Group1 Initialization and de-initialization functions
+  *  @brief    Initialization and Configuration functions 
+  * @{
+  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec);
 HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec);
 void HAL_CEC_MspInit(CEC_HandleTypeDef *hcec);
 void HAL_CEC_MspDeInit(CEC_HandleTypeDef *hcec);
+/**
+  * @}
+  */
 
-
+/** @addtogroup CEC_Exported_Functions_Group2 Input and Output operation functions 
+  *  @brief CEC Transmit/Receive functions 
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationAddress, uint8_t *pData, uint32_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint32_t Timeout);
@@ -537,12 +555,25 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec);
 void HAL_CEC_TxCpltCallback(CEC_HandleTypeDef *hcec);
 void HAL_CEC_RxCpltCallback(CEC_HandleTypeDef *hcec);
 void HAL_CEC_ErrorCallback(CEC_HandleTypeDef *hcec);
+/**
+  * @}
+  */
 
-
+/** @defgroup CEC_Exported_Functions_Group3 Peripheral Control functions 
+  *  @brief   CEC control functions 
+  * @{
+  */
 /* Peripheral State and Error functions ***************************************/
 HAL_CEC_StateTypeDef HAL_CEC_GetState(CEC_HandleTypeDef *hcec);
 uint32_t HAL_CEC_GetError(CEC_HandleTypeDef *hcec);
+/**
+  * @}
+  */
 
+/**
+  * @}
+  */
+  
 /**
   * @}
   */ 

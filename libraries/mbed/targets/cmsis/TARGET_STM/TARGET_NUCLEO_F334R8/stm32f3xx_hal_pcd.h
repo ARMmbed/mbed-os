@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -43,8 +43,10 @@
  extern "C" {
 #endif
 
-#if defined(STM32F302x8) || defined(STM32F302xC) ||                         \
-    defined(STM32F303xC) || defined(STM32F373xC)
+#if defined(STM32F302xE) || defined(STM32F303xE) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || \
+    defined(STM32F302x8)                         || \
+    defined(STM32F373xC)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
@@ -58,6 +60,9 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
+/** @defgroup PCD_Exported_Types PCD Exported Types
+  * @{
+  */
 
    /** 
   * @brief  PCD State structures definition  
@@ -165,22 +170,26 @@ typedef struct
   PCD_TypeDef             *Instance;   /*!< Register base address              */ 
   PCD_InitTypeDef         Init;       /*!< PCD required parameters            */
   __IO uint8_t            USB_Address; /*!< USB Address            */  
-  PCD_EPTypeDef           IN_ep[5];  /*!< IN endpoint parameters             */
-  PCD_EPTypeDef           OUT_ep[5]; /*!< OUT endpoint parameters            */ 
+  PCD_EPTypeDef           IN_ep[8];  /*!< IN endpoint parameters             */
+  PCD_EPTypeDef           OUT_ep[8]; /*!< OUT endpoint parameters            */ 
   HAL_LockTypeDef         Lock;       /*!< PCD peripheral status              */
   __IO PCD_StateTypeDef   State;      /*!< PCD communication state            */
   uint32_t                Setup[12];  /*!< Setup packet buffer                */
   void                    *pData;      /*!< Pointer to upper stack Handler     */    
   
 } PCD_HandleTypeDef;
+
+/**
+  * @}
+  */ 
  
 #include "stm32f3xx_hal_pcd_ex.h"    
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup PCD_Exported_Constants
+/** @defgroup PCD_Exported_Constants PCD Exported Constants
   * @{
   */
 
-/** @defgroup USB_Core_Speed
+/** @defgroup USB_Core_Speed USB Core Speed
   * @{
   */
 #define PCD_SPEED_HIGH               0 /* Not Supported */
@@ -189,7 +198,7 @@ typedef struct
   * @}
   */
   
-  /** @defgroup USB_Core_PHY
+/** @defgroup USB_Core_PHY USB Core PHY
   * @{
   */
 #define PCD_PHY_EMBEDDED             2
@@ -197,7 +206,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup USB_EP0_MPS
+/** @defgroup USB_EP0_MPS USB EP0 MPS
   * @{
   */
 #define DEP0CTL_MPS_64                         0
@@ -213,7 +222,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USB_EP_Type
+/** @defgroup USB_EP_Type USB EP Type
   * @{
   */
 #define PCD_EP_TYPE_CTRL                                 0
@@ -223,6 +232,10 @@ typedef struct
 /**
   * @}
   */ 
+
+/** @defgroup USB_ENDP USB ENDP
+  * @{
+  */
 
 #define PCD_ENDP0                             ((uint8_t)0)
 #define PCD_ENDP1                             ((uint8_t)1)
@@ -243,9 +256,13 @@ typedef struct
   * @}
   */ 
   
+/**
+  * @}
+  */   
+
 /* Exported macros -----------------------------------------------------------*/
 
-/** @defgroup PCD_Interrupt_Clock
+/** @defgroup PCD_Exported_Macros PCD Exported Macros
  *  @brief macros to handle interrupts and specific clock configurations
  * @{
  */
@@ -258,7 +275,35 @@ typedef struct
 #define __HAL_USB_EXTI_DISABLE_IT()                EXTI->IMR &= ~(USB_EXTI_LINE_WAKEUP)
 #define __HAL_USB_EXTI_GENERATE_SWIT(__EXTILINE__) (EXTI->SWIER |= (__EXTILINE__))
 
+#define __HAL_USB_EXTI_GET_FLAG()                  EXTI->PR & (USB_EXTI_LINE_WAKEUP)
+#define __HAL_USB_EXTI_CLEAR_FLAG()                EXTI->PR = USB_EXTI_LINE_WAKEUP
+
+#define __HAL_USB_EXTI_SET_RISING_EDGE_TRIGGER()   do {\
+                                                     EXTI->FTSR &= ~(USB_EXTI_LINE_WAKEUP);\
+                                                     EXTI->RTSR |= USB_EXTI_LINE_WAKEUP;\
+                                                   } while(0)
+
+#define __HAL_USB_EXTI_SET_FALLING_EDGE_TRIGGER()  do {\
+                                                     EXTI->FTSR |= (USB_EXTI_LINE_WAKEUP);\
+                                                     EXTI->RTSR &= ~(USB_EXTI_LINE_WAKEUP);\
+                                                   } while(0)
+
+#define __HAL_USB_EXTI_SET_FALLINGRISING_TRIGGER() do {\
+                                                     EXTI->RTSR &= ~(USB_EXTI_LINE_WAKEUP);\
+                                                     EXTI->FTSR &= ~(USB_EXTI_LINE_WAKEUP);\
+                                                     EXTI->RTSR |= USB_EXTI_LINE_WAKEUP;\
+                                                     EXTI->FTSR |= USB_EXTI_LINE_WAKEUP;\
+                                                   } while(0)
+/**
+  * @}
+  */                                                      
+
 /* Internal macros -----------------------------------------------------------*/
+
+/** @defgroup PCD_Private_Macros PCD Private Macros
+ *  @brief macros to handle interrupts and specific clock configurations
+  * @{
+  */
 
 /* SetENDPOINT */
 #define PCD_SET_ENDPOINT(USBx, bEpNum,wRegValue)  (*(&USBx->EP0R + bEpNum * 2)= (uint16_t)wRegValue)
@@ -646,12 +691,26 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 
+/** @addtogroup PCD_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup PCD_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DeInit (PCD_HandleTypeDef *hpcd);
 void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd);
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 
+/**
+  * @}
+  */
+
+/** @addtogroup PCD_Exported_Functions_Group2 Input and Output operation functions
+  * @{
+  */
 /* I/O operation functions  *****************************************************/
  /* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_PCD_Start(PCD_HandleTypeDef *hpcd);
@@ -670,6 +729,13 @@ void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
 void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd);
 void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd);
 
+/**
+  * @}
+  */
+
+/** @addtogroup PCD_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
@@ -684,9 +750,22 @@ HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
+
+/** @addtogroup PCD_Exported_Functions_Group4 Peripheral State functions
+  * @{
+  */
 /* Peripheral State functions  **************************************************/
 PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
 
+/** @addtogroup PCDEx_Private_Functions PCD Extended Private Functions
+  * @{
+  */
 void PCD_WritePMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, uint16_t wNBytes);
 void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, uint16_t wNBytes);
 /**
@@ -697,8 +776,17 @@ void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
   * @}
   */
 
-#endif /* defined(STM32F302x8) || defined(STM32F302xC) ||                         */
-       /* defined(STM32F303xC) || defined(STM32F373xC)    */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+#endif /* STM32F302xE || STM32F303xE || */
+       /* STM32F302xC || STM32F303xC || */
+       /* STM32F302x8                || */
+       /* STM32F373xC                   */
 
 #ifdef __cplusplus
 }

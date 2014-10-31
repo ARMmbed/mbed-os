@@ -2,16 +2,16 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    18-June-2014
-  * @brief   I2C Extension HAL module driver.
+  * @version V1.1.0
+  * @date    12-Sept-2014
+  * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
-  *          functionalities of I2C extension peripheral:
-  *           + Extension features functions
+  *          functionalities of I2C Extended peripheral:
+  *           + Extended features functions
   *         
   @verbatim
   ==============================================================================
-               ##### I2C peripheral extension features  #####
+               ##### I2C peripheral Extended features  #####
   ==============================================================================
            
   [..] Comparing to other previous devices, the I2C interface for STM32F3XX
@@ -68,7 +68,7 @@
   * @{
   */
 
-/** @defgroup I2CEx
+/** @defgroup I2CEx I2C Extended HAL module driver
   * @brief I2C Extended HAL module driver
   * @{
   */
@@ -82,17 +82,16 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup I2CEx_Private_Functions
+/** @defgroup I2CEx_Exported_Functions I2C Extended Exported Functions
   * @{
   */
 
-
-/** @defgroup I2CEx_Group1 Extended features functions
+/** @defgroup I2CEx_Exported_Functions_Group1 Extended features functions
   * @brief    Extended features functions
   *
 @verbatim   
  ===============================================================================
-                      ##### Extension features functions #####
+                      ##### Extended features functions #####
  ===============================================================================  
     [..] This section provides functions allowing to:
       (+) Configure Noise Filters 

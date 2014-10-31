@@ -115,7 +115,7 @@ class KL05Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -126,7 +126,7 @@ class KL25Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM","IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = "0200"
@@ -147,7 +147,7 @@ class KL46Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = "0220"
@@ -158,7 +158,7 @@ class K20D50M(Target):
         Target.__init__(self)
         self.core = "Cortex-M4"
         self.extra_labels = ['Freescale']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = "0230"
 
@@ -169,7 +169,7 @@ class K64F(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
@@ -181,8 +181,8 @@ class K22F(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
-        self.macros = ["CPU_MK22FN512VLH12 ", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
@@ -304,7 +304,7 @@ class STM32F407(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F4XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
 
 
 class NUCLEO_F030R8(Target):
@@ -356,7 +356,7 @@ class NUCLEO_F302R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0705"
@@ -367,7 +367,7 @@ class NUCLEO_F334R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0735"
@@ -400,7 +400,7 @@ class NUCLEO_L053R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['STM', 'STM32L0', 'STM32L053R8']
-        self.supported_toolchains = ["ARM", "uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0715"
@@ -518,7 +518,7 @@ class NRF51822(Target):
         return 6
 
     def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
             hook.hook_add_binary("post", self.binary_hook)
 
     @staticmethod
@@ -604,6 +604,14 @@ class NRF51_DK_OTA(Target):
         self.macros = ['TARGET_NRF51822', 'TARGET_NRF51_DK', 'TARGET_OTA_ENABLED']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
+
+        
+class NRF51_DONGLE(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
+        self.macros = ['TARGET_NRF51822']
+        self.supported_form_factors = ["ARDUINO"]
 
 
 class LPC1549(LPCTarget):
@@ -739,6 +747,14 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class DISCO_L053C8(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['STM', 'STM32L0', 'STM32L053C8']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -778,6 +794,7 @@ TARGETS = [
     LPC11U35_501(),
     NRF51822(),
     NRF51822_OTA(),
+    NRF51_DONGLE(),
     UBLOX_C027(),
     LPC1549(),
     LPC11U68(),
@@ -800,6 +817,7 @@ TARGETS = [
     MTS_GAMBIT(),
     ARCH_MAX(),
     DISCO_F429ZI(),
+    DISCO_L053C8(),
 ]
 
 # Map each target name to its unique instance
