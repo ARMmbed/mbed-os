@@ -292,6 +292,48 @@ __vector_table
         DCD     Default_Handler  ; 253
         DCD     Default_Handler  ; 254
         DCD     Default_Handler  ; 255
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Flash Configuration
+;;16-byte flash configuration field that stores default protection settings (loaded on reset)
+;;and security information that allows the MCU to restrict acces to the FTFL module.
+
+BackDoorK0      EQU     0xFF
+BackDoorK1      EQU     0xFF
+BackDoorK2      EQU     0xFF
+BackDoorK3      EQU     0xFF
+BackDoorK4      EQU     0xFF
+BackDoorK5      EQU     0xFF
+BackDoorK6      EQU     0xFF
+BackDoorK7      EQU     0xFF
+
+nFPROT0         EQU     0x00
+FPROT0          EQU     nFPROT0^0xFF
+
+nFPROT1         EQU     0x00
+FPROT1          EQU     nFPROT1^0xFF
+
+nFPROT2         EQU     0x00
+FPROT2          EQU     nFPROT2^0xFF
+
+nFPROT3         EQU     0x00
+FPROT3          EQU     nFPROT3^0xFF
+
+nFEPROT         EQU     0x00
+FEPROT          EQU     nFEPROT^0xFF
+
+nFDPROT         EQU     0x00
+FDPROT          EQU     nFDPROT^0xFF
+
+FOPT            EQU     0xFD        
+
+FSEC            EQU     0xFE        
+        SECTION FlashConfig:CONST:REORDER:ROOT(2)
+Config:
+        DATA
+        DCB     BackDoorK0, BackDoorK1, BackDoorK2, BackDoorK3
+        DCB     BackDoorK4, BackDoorK5, BackDoorK6, BackDoorK7
+        DCB     FPROT0,     FPROT1,     FPROT2,     FPROT3
+        DCB     FSEC,       FOPT,       FEPROT,     FDPROT        
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Default interrupt handlers.
