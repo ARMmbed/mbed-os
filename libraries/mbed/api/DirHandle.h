@@ -39,10 +39,6 @@ typedef int mode_t;
 #define DT_SOCK         12
 #define DT_WHT          14
 
-// DT_DIR      This is a directory.
-// DT_REG      This is a regular file.
-// DT_UNKNOWN  The file type is unknown.
-
 struct dirent {
     unsigned char d_type;       /* type of file; not supported
                                    by all file system types */
