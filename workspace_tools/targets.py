@@ -747,6 +747,14 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class DISCO_L053C8(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['STM', 'STM32L0', 'STM32L053C8']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+
 # Get a single instance for each target
 TARGETS = [
     LPC2368(),
@@ -809,6 +817,7 @@ TARGETS = [
     MTS_GAMBIT(),
     ARCH_MAX(),
     DISCO_F429ZI(),
+    DISCO_L053C8(),
 ]
 
 # Map each target name to its unique instance
