@@ -26,8 +26,27 @@ typedef int mode_t;
 
 #include "FileHandle.h"
 
+/*
+ * File types
+ */
+#define DT_UNKNOWN       0
+#define DT_FIFO          1
+#define DT_CHR           2
+#define DT_DIR           4
+#define DT_BLK           6
+#define DT_REG           8
+#define DT_LNK          10
+#define DT_SOCK         12
+#define DT_WHT          14
+
+// DT_DIR      This is a directory.
+// DT_REG      This is a regular file.
+// DT_UNKNOWN  The file type is unknown.
+
 struct dirent {
-    char d_name[NAME_MAX+1];
+    unsigned char d_type;       /* type of file; not supported
+                                   by all file system types */
+    char d_name[NAME_MAX+1];    /* filename */
 };
 
 namespace mbed {
