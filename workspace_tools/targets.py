@@ -115,7 +115,7 @@ class KL05Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -126,7 +126,7 @@ class KL25Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM","IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = "0200"
@@ -147,7 +147,7 @@ class KL46Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = "0220"
@@ -158,7 +158,7 @@ class K20D50M(Target):
         Target.__init__(self)
         self.core = "Cortex-M4"
         self.extra_labels = ['Freescale']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = "0230"
 
@@ -169,7 +169,7 @@ class K64F(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
@@ -181,8 +181,8 @@ class K22F(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
-        self.macros = ["CPU_MK22FN512VLH12 ", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
 
