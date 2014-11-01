@@ -150,7 +150,7 @@ HAL_StatusTypeDef HAL_LTDC_Init(LTDC_HandleTypeDef *hltdc)
   uint32_t tmp = 0, tmp1 = 0;
 
   /* Check the LTDC peripheral state */
-  if(hltdc == NULL)
+  if(hltdc == HAL_NULL)
   {
     return HAL_ERROR;
   }

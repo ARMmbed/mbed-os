@@ -141,7 +141,7 @@
 HAL_StatusTypeDef HAL_SDRAM_Init(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_TimingTypeDef *Timing)
 {   
   /* Check the SDRAM handle parameter */
-  if(hsdram == NULL)
+  if(hsdram == HAL_NULL)
   {
     return HAL_ERROR;
   }

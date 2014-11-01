@@ -134,7 +134,7 @@
 HAL_StatusTypeDef  HAL_NAND_Init(NAND_HandleTypeDef *hnand, FMC_NAND_PCC_TimingTypeDef *ComSpace_Timing, FMC_NAND_PCC_TimingTypeDef *AttSpace_Timing)
 {
   /* Check the NAND handle state */
-  if(hnand == NULL)
+  if(hnand == HAL_NULL)
   {
      return HAL_ERROR;
   }

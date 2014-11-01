@@ -224,7 +224,7 @@ static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 { 
   /* Check DAC handle */
-  if(hdac == NULL)
+  if(hdac == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -259,7 +259,7 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
 {
   /* Check DAC handle */
-  if(hdac == NULL)
+  if(hdac == HAL_NULL)
   {
      return HAL_ERROR;
   }

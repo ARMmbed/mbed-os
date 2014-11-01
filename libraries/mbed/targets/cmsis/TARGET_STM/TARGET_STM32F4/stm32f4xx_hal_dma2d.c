@@ -171,7 +171,7 @@ HAL_StatusTypeDef HAL_DMA2D_Init(DMA2D_HandleTypeDef *hdma2d)
   uint32_t tmp = 0;
 
   /* Check the DMA2D peripheral state */
-  if(hdma2d == NULL)
+  if(hdma2d == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -250,7 +250,7 @@ HAL_StatusTypeDef HAL_DMA2D_Init(DMA2D_HandleTypeDef *hdma2d)
 HAL_StatusTypeDef HAL_DMA2D_DeInit(DMA2D_HandleTypeDef *hdma2d)
 {
   /* Check the DMA2D peripheral state */
-  if(hdma2d == NULL)
+  if(hdma2d == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -721,7 +721,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferErrorCallback != NULL)
+      if(hdma2d->XferErrorCallback != HAL_NULL)
       {
         /* Transfer error Callback */
         hdma2d->XferErrorCallback(hdma2d);
@@ -748,7 +748,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferErrorCallback != NULL)
+      if(hdma2d->XferErrorCallback != HAL_NULL)
       {
         /* Transfer error Callback */
         hdma2d->XferErrorCallback(hdma2d);
@@ -775,7 +775,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferCpltCallback != NULL)
+      if(hdma2d->XferCpltCallback != HAL_NULL)
       {
         /* Transfer complete Callback */
         hdma2d->XferCpltCallback(hdma2d);

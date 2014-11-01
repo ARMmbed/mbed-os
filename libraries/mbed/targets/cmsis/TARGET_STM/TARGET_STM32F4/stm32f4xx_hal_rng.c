@@ -112,7 +112,7 @@
 HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
 { 
   /* Check the RNG handle allocation */
-  if(hrng == NULL)
+  if(hrng == HAL_NULL)
   {
     return HAL_ERROR;
   }

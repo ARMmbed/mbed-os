@@ -157,7 +157,7 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   uint32_t tickstart = 0;
   
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -444,7 +444,7 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
 {
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }

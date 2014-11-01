@@ -167,7 +167,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
   uint32_t err = ETH_SUCCESS;
   
   /* Check the ETH peripheral state */
-  if(heth == NULL)
+  if(heth == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -792,7 +792,7 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
     else if((heth->RxDesc->Status & ETH_DMARXDESC_FS) != (uint32_t)RESET)
     {
       (heth->RxFrameInfos).FSRxDesc = heth->RxDesc;
-      (heth->RxFrameInfos).LSRxDesc = NULL;
+      (heth->RxFrameInfos).LSRxDesc = HAL_NULL;
       (heth->RxFrameInfos).SegCount = 1;
       /* Point to next descriptor */
       heth->RxDesc = (ETH_DMADescTypeDef*) (heth->RxDesc->Buffer2NextDescAddr);
@@ -1268,7 +1268,7 @@ HAL_StatusTypeDef HAL_ETH_ConfigMAC(ETH_HandleTypeDef *heth, ETH_MACInitTypeDef 
   assert_param(IS_ETH_SPEED(heth->Init.Speed));
   assert_param(IS_ETH_DUPLEX_MODE(heth->Init.DuplexMode)); 
   
-  if (macconf != NULL)
+  if (macconf != HAL_NULL)
   {
     /* Check the parameters */
     assert_param(IS_ETH_WATCHDOG(macconf->Watchdog));
