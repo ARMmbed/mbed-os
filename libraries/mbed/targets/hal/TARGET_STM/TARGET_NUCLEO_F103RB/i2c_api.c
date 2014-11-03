@@ -59,9 +59,6 @@ int i2c1_inited = 0;
 int i2c2_inited = 0;
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    int timeout;
-    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-	
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
