@@ -486,6 +486,16 @@ class UBLOX_C027(LPCTarget):
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
 
+class DISCO_F334C8(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F3', 'STM32F334C8']
+        self.supported_toolchains = ["GCC_ARM",]
+        self.default_toolchain = "GCC_ARM"
+        self.detect_code = "0735"
+
+
 
 class NRF51822(Target):
     # the following is a list of possible Nordic softdevices in decreasing order
@@ -818,6 +828,7 @@ TARGETS = [
     ARCH_MAX(),
     DISCO_F429ZI(),
     DISCO_L053C8(),
+    DISCO_F334C8(),
 ]
 
 # Map each target name to its unique instance
