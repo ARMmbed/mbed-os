@@ -63,7 +63,7 @@ class Target:
         pass
 
 
-### NXP Silicon ###
+### NXP ###
 
 # This class implements the post-link patching step needed by LPC targets
 class LPCTarget(Target):
@@ -325,7 +325,7 @@ class LPC1800(LPCTarget):
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
         
-### Freescale Silicon ###
+### Freescale ###
 
 class KL05Z(Target):
     def __init__(self):
@@ -408,7 +408,7 @@ class MTS_GAMBIT(Target):
         self.default_toolchain = "ARM"
 
         
-### STMicro Silicon ###
+### STMicro ###
 
 class NUCLEO_F030R8(Target):
     def __init__(self):
@@ -589,7 +589,7 @@ class DISCO_L053C8(Target):
         self.default_toolchain = "uARM"
 
 
-### Nordic Silicon ###
+### Nordic ###
 
 class NRF51822(Target):
     # the following is a list of possible Nordic softdevices in decreasing order
@@ -718,7 +718,7 @@ class XADOW_M0(LPCTarget):
         self.default_toolchain = "uARM"
 
 
-### ARM Silicon ###
+### ARM ###
 
 class ARM_MPS2(Target):
     def __init__(self):
@@ -732,7 +732,7 @@ class ARM_MPS2(Target):
 # Get a single instance for each target
 TARGETS = [
 
-    ### NXP Silicon ###
+    ### NXP ###
     LPC11C24(),
     LPC11U24(),
     OC_MBUINO(),    # LPC11U24
@@ -759,7 +759,7 @@ TARGETS = [
     LPC4330_M0(),
     LPC4337(),
 
-    ### Freescale Silicon ###
+    ### Freescale ###
     KL05Z(),
     KL25Z(),
     KL43Z(),
@@ -769,7 +769,7 @@ TARGETS = [
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F
     
-    ### STMicro Silicon ###
+    ### STMicro ###
     NUCLEO_F030R8(),
     NUCLEO_F072RB(),
     NUCLEO_F091RC(),
@@ -791,7 +791,7 @@ TARGETS = [
     DISCO_F429ZI(),
     DISCO_L053C8(),
     
-    ### Nordic Silicon ###
+    ### Nordic ###
     NRF51822(),
     NRF51822_OTA(), # nRF51822
     NRF51_DK(),
@@ -803,7 +803,7 @@ TARGETS = [
     RBLAB_BLENANO(),# nRF51822
     XADOW_M0(),     # nRF51822
     
-    ### ARM Silicon ###
+    ### ARM ###
     ARM_MPS2(),
 ]
 
