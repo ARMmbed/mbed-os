@@ -1106,7 +1106,7 @@ typedef struct
   */
 
 /* Include RCC HAL Extension module */
-#include "stm32L0xx_hal_rcc_ex.h"
+#include "stm32l0xx_hal_rcc_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
 /* Initialization and de-initialization methods  ******************************/
