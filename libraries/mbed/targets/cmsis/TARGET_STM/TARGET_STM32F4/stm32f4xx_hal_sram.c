@@ -143,7 +143,7 @@
 HAL_StatusTypeDef HAL_SRAM_Init(SRAM_HandleTypeDef *hsram, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming)
 { 
   /* Check the SRAM handle parameter */
-  if(hsram == NULL)
+  if(hsram == HAL_NULL)
   {
      return HAL_ERROR;
   }

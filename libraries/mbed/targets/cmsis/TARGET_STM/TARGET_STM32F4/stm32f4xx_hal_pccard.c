@@ -126,7 +126,7 @@
 HAL_StatusTypeDef HAL_PCCARD_Init(PCCARD_HandleTypeDef *hpccard, FMC_NAND_PCC_TimingTypeDef *ComSpaceTiming, FMC_NAND_PCC_TimingTypeDef *AttSpaceTiming, FMC_NAND_PCC_TimingTypeDef *IOSpaceTiming)
 {
   /* Check the PCCARD controller state */
-  if(hpccard == NULL)
+  if(hpccard == HAL_NULL)
   {
      return HAL_ERROR;
   }

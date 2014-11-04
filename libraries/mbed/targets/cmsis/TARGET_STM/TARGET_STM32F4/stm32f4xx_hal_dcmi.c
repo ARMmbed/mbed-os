@@ -144,7 +144,7 @@ static void       DCMI_DMAError(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DCMI_Init(DCMI_HandleTypeDef *hdcmi)
 {     
   /* Check the DCMI peripheral state */
-  if(hdcmi == NULL)
+  if(hdcmi == HAL_NULL)
   {
      return HAL_ERROR;
   }

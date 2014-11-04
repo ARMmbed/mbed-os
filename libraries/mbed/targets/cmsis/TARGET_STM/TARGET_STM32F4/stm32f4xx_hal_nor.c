@@ -134,7 +134,7 @@
 HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming)
 {
   /* Check the NOR handle parameter */
-  if(hnor == NULL)
+  if(hnor == HAL_NULL)
   {
      return HAL_ERROR;
   }

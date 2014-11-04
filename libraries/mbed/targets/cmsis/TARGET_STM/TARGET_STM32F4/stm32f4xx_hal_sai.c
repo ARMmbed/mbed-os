@@ -238,7 +238,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
   uint32_t saiclocksource = 0;
   
   /* Check the SAI handle allocation */
-  if(hsai == NULL)
+  if(hsai == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -462,7 +462,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
 HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai)
 {
   /* Check the SAI handle allocation */
-  if(hsai == NULL)
+  if(hsai == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -572,7 +572,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint16_t* pData, uin
 {
   uint32_t tickstart = 0;
   
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -647,7 +647,7 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint16_t *pData, uint
 {
   uint32_t tickstart = 0;
  
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -723,7 +723,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_IT(SAI_HandleTypeDef *hsai, uint16_t *pData, 
 {
  if(hsai->State == HAL_SAI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -801,7 +801,7 @@ HAL_StatusTypeDef HAL_SAI_Receive_IT(SAI_HandleTypeDef *hsai, uint16_t *pData, u
 {
   if(hsai->State == HAL_SAI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -925,12 +925,12 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
   hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
   
   /* Abort the SAI DMA Tx Stream */
-  if(hsai->hdmatx != NULL)
+  if(hsai->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(hsai->hdmatx);
   }
   /* Abort the SAI DMA Rx Stream */
-  if(hsai->hdmarx != NULL)
+  if(hsai->hdmarx != HAL_NULL)
   {  
     HAL_DMA_Abort(hsai->hdmarx);
   }
@@ -957,7 +957,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_DMA(SAI_HandleTypeDef *hsai, uint16_t *pData,
 {
   uint32_t *tmp;
 
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == HAL_NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -1019,7 +1019,7 @@ HAL_StatusTypeDef HAL_SAI_Receive_DMA(SAI_HandleTypeDef *hsai, uint16_t *pData, 
 {
   uint32_t *tmp;
   
-  if((pData == NULL) || (Size == 0))
+  if((pData == HAL_NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   } 
@@ -1086,7 +1086,7 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
     /* SAI in mode Receiver --------------------------------------------------*/
     if((tmp1  != RESET) && (tmp2 != RESET))
     {
-      HAL_SAI_Receive_IT(hsai, NULL, 0);
+      HAL_SAI_Receive_IT(hsai, HAL_NULL, 0);
     }
 
     tmp1 = __HAL_SAI_GET_FLAG(hsai, SAI_FLAG_OVRUDR);
@@ -1112,7 +1112,7 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
     /* SAI in mode Transmitter -----------------------------------------------*/
     if((tmp1 != RESET) && (tmp2 != RESET))
     {     
-      HAL_SAI_Transmit_IT(hsai, NULL, 0);
+      HAL_SAI_Transmit_IT(hsai, HAL_NULL, 0);
     } 
     
     tmp1 = __HAL_SAI_GET_FLAG(hsai, SAI_FLAG_OVRUDR);
