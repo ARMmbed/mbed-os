@@ -25,6 +25,14 @@
 extern "C" {
 #endif
 
+#define NRF_DEVICE_SELECT   ((uint32_t)0x10000)
+
+#define NRF_I2C_0(pin)      ((PinName)((uint32_t)pin | NRF_DEVICE_SELECT))
+#define NRF_I2C_1(pin)      (pin)
+
+#define NRF_SPI_0(pin)      (pin)
+#define NRF_SPI_1(pin)      ((PinName)((uint32_t)pin | NRF_DEVICE_SELECT))
+
 struct serial_s {
     NRF_UART_Type *uart;
     int index;
