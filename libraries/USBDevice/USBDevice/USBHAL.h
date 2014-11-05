@@ -67,11 +67,6 @@ public:
     bool getEndpointStallState(unsigned char endpoint);
     uint32_t endpointReadcore(uint8_t endpoint, uint8_t *buffer);
 
-#if defined(TARGET_RZ_A1H)
-    static USBHAL * instance;
-    static void _usbisr(void);
-#endif
-
 #ifdef TARGET_RZ_A1H
     uint32_t EP2PIPE(uint8_t endpoint);
     void usb0_function_save_request(void);
@@ -126,10 +121,8 @@ protected:
 
 private:
     void usbisr(void);
-#if !defined(TARGET_RZ_A1H)
     static void _usbisr(void);
     static USBHAL * instance;
-#endif
 
 #ifdef TARGET_RZ_A1H
     IRQn_Type       int_id;         /* interrupt ID          */

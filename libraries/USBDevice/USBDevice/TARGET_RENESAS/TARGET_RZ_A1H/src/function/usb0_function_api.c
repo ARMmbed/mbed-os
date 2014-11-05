@@ -77,6 +77,7 @@ Private global variables and functions
 *              :                    ; 12MHz ; USBFCLOCK_EXTAL_12MHZ
 * Return Value : none
 *******************************************************************************/
+#if 0
 void usb0_api_function_init (uint8_t int_level, uint16_t mode, uint16_t clockmode)
 {
     volatile uint8_t dummy_buf;
@@ -94,6 +95,7 @@ void usb0_api_function_init (uint8_t int_level, uint16_t mode, uint16_t clockmod
     usb0_function_InitModule(mode);             /* select USB Function and Interrupt Enable */
                                                 /* Detect USB Device to attach or detach    */
 }
+#endif
 
 /*******************************************************************************
 * Function Name: usb0_api_function_IsConfigured

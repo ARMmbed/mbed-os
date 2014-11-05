@@ -1869,33 +1869,35 @@ uint16_t usb0_function_get_inbuf (uint16_t pipe)
 * Arguments    : uint8_t level ;interrupt level
 * Return Value : none
 *******************************************************************************/
+#if 0
 void usb0_function_setting_interrupt (uint8_t level)
 {
-    IRQn_Type d0fifo_dmaintid;
-    IRQn_Type d1fifo_dmaintid;
+    uint16_t d0fifo_dmaintid;
+    uint16_t d1fifo_dmaintid;
 
-    InterruptHandlerRegister(USBI0_IRQn, usb0_function_interrupt);
-    GIC_SetPriority(USBI0_IRQn, level);
-    GIC_EnableIRQ(USBI0_IRQn);
+    R_INTC_RegistIntFunc(INTC_ID_USBI0, usb0_function_interrupt);
+    R_INTC_SetPriority(INTC_ID_USBI0, level);
+    R_INTC_Enable(INTC_ID_USBI0);
 
     d0fifo_dmaintid = Userdef_USB_usb0_function_d0fifo_dmaintid();
 
     if (d0fifo_dmaintid != 0xFFFF)
     {
-        InterruptHandlerRegister(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
-        GIC_SetPriority(d0fifo_dmaintid, level);
-        GIC_EnableIRQ(d0fifo_dmaintid);
+        R_INTC_RegistIntFunc(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
+        R_INTC_SetPriority(d0fifo_dmaintid, level);
+        R_INTC_Enable(d0fifo_dmaintid);
     }
 
     d1fifo_dmaintid = Userdef_USB_usb0_function_d1fifo_dmaintid();
 
     if (d1fifo_dmaintid != 0xFFFF)
     {
-        InterruptHandlerRegister(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
-        GIC_SetPriority(d1fifo_dmaintid, level);
-        GIC_EnableIRQ(d1fifo_dmaintid);
+        R_INTC_RegistIntFunc(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
+        R_INTC_SetPriority(d1fifo_dmaintid, level);
+        R_INTC_Enable(d1fifo_dmaintid);
     }
 }
+#endif
 
 /*******************************************************************************
 * Function Name: usb0_function_reset_module
