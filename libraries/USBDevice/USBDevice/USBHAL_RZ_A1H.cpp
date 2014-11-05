@@ -223,56 +223,56 @@ USBHAL::USBHAL(void)
  * Function Name: usb0_api_function_init
  * Description  : Initializes the USB module in the USB function mode.
  *****************************************************************************/
-	/* The clock of USB0 modules is permitted */
+    /* The clock of USB0 modules is permitted */
     CPG.STBCR7 &= ~(CPG_STBCR7_MSTP71);
     volatile uint8_t    dummy8;
     dummy8 = CPG.STBCR7;
 
-	{
+    {
 /******************************************************************************
  * Function Name: usb0_function_setting_interrupt
  * Description  : Sets the USB module interrupt level.
  *****************************************************************************/
-#if 0	/*DMA is not supported*/
-		IRQn_Type d0fifo_dmaintid;
-		IRQn_Type d1fifo_dmaintid;
+#if 0   /*DMA is not supported*/
+        IRQn_Type d0fifo_dmaintid;
+        IRQn_Type d1fifo_dmaintid;
 #endif
 
-		InterruptHandlerRegister(int_id, &_usbisr);
-		GIC_SetPriority(int_id, int_level);
-		GIC_EnableIRQ(int_id);
+        InterruptHandlerRegister(int_id, &_usbisr);
+        GIC_SetPriority(int_id, int_level);
+        GIC_EnableIRQ(int_id);
 
-#if 0	/*DMA is not supported*/
-		d0fifo_dmaintid = Userdef_USB_usb0_function_d0fifo_dmaintid();
-		if (d0fifo_dmaintid != 0xFFFF)
-		{
-			InterruptHandlerRegister(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
-			GIC_SetPriority(d0fifo_dmaintid, int_level);
-			GIC_EnableIRQ(d0fifo_dmaintid);
-		}
+#if 0   /*DMA is not supported*/
+        d0fifo_dmaintid = Userdef_USB_usb0_function_d0fifo_dmaintid();
+        if (d0fifo_dmaintid != 0xFFFF)
+        {
+            InterruptHandlerRegister(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
+            GIC_SetPriority(d0fifo_dmaintid, int_level);
+            GIC_EnableIRQ(d0fifo_dmaintid);
+        }
 #endif
 
-#if 0	/*DMA is not supported*/
-		d1fifo_dmaintid = Userdef_USB_usb0_function_d1fifo_dmaintid();
-		if (d1fifo_dmaintid != 0xFFFF)
-		{
-			InterruptHandlerRegister(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
-			GIC_SetPriority(d1fifo_dmaintid, int_level);
-			GIC_EnableIRQ(d1fifo_dmaintid);
-		}
+#if 0   /*DMA is not supported*/
+        d1fifo_dmaintid = Userdef_USB_usb0_function_d1fifo_dmaintid();
+        if (d1fifo_dmaintid != 0xFFFF)
+        {
+            InterruptHandlerRegister(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
+            GIC_SetPriority(d1fifo_dmaintid, int_level);
+            GIC_EnableIRQ(d1fifo_dmaintid);
+        }
 #endif
 /*****************************************************************************/
-	}
+    }
 
-	/* reset USB module with setting tranciever and HSE=1 */
-	usb0_function_reset_module(clock_mode);
+    /* reset USB module with setting tranciever and HSE=1 */
+    usb0_function_reset_module(clock_mode);
 
-	/* clear variables */
-	usb0_function_init_status();
+    /* clear variables */
+    usb0_function_init_status();
 
-	/* select USB Function and Interrupt Enable */
-	/* Detect USB Device to attach or detach    */
-	usb0_function_InitModule(mode);
+    /* select USB Function and Interrupt Enable */
+    /* Detect USB Device to attach or detach    */
+    usb0_function_InitModule(mode);
 
     {
         uint16_t buf;
