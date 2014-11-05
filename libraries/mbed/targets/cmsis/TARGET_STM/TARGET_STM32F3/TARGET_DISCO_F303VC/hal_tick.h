@@ -1,11 +1,9 @@
 /**
   ******************************************************************************
-  * @file    system_stm32f3xx.h
+  * @file    hal_tick.h
   * @author  MCD Application Team
-  * @version V2.1.0
-  * @date    12-Sept-2014
-  * @brief   CMSIS Cortex-M4 Device System Source File for STM32F3xx devices.  
-  ******************************************************************************
+  * @brief   Initialization of HAL tick
+  ******************************************************************************  
   * @attention
   *
   * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
@@ -32,93 +30,31 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************
+  ******************************************************************************  
   */ 
-
-/** @addtogroup CMSIS
-  * @{
-  */
-
-/** @addtogroup stm32f3xx_system
-  * @{
-  */  
-  
-/**
-  * @brief Define to prevent recursive inclusion
-  */
-#ifndef __SYSTEM_STM32F3XX_H
-#define __SYSTEM_STM32F3XX_H
+#ifndef __HAL_TICK_H
+#define __HAL_TICK_H
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
-/** @addtogroup STM32F3xx_System_Includes
-  * @{
-  */
+#include "stm32f3xx.h"
+#include "cmsis_nvic.h"
+   
+#define TIM_MST      TIM2
+#define TIM_MST_IRQ  TIM2_IRQn
+#define TIM_MST_RCC  __TIM2_CLK_ENABLE()
 
-/**
-  * @}
-  */
+#define TIM_MST_RESET_ON   __TIM2_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __TIM2_RELEASE_RESET()
 
-
-/** @addtogroup STM32F3xx_System_Exported_types
-  * @{
-  */
-  /* This variable is updated in three ways:
-      1) by calling CMSIS function SystemCoreClockUpdate()
-      3) by calling HAL API function HAL_RCC_GetHCLKFreq()
-      3) by calling HAL API function HAL_RCC_ClockConfig()
-         Note: If you use this function to configure the system clock; then there
-               is no need to call the 2 first functions listed above, since SystemCoreClock
-               variable is updated automatically.
-  */
-extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
-
-
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F3xx_System_Exported_Constants
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F3xx_System_Exported_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F3xx_System_Exported_Functions
-  * @{
-  */
-  
-extern void SystemInit(void);
-extern void SystemCoreClockUpdate(void);
-extern void SetSysClock(void);
-
-/**
-  * @}
-  */
+#define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__SYSTEM_STM32F3XX_H */
+#endif // __HAL_TICK_H
 
-/**
-  * @}
-  */
-  
-/**
-  * @}
-  */  
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

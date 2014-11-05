@@ -31,79 +31,98 @@
 
 #if DEVICE_RTC
 
-#include "wait_api.h"
-
-#define LSE_STARTUP_TIMEOUT ((uint16_t)500) // delay in ms
+#include "mbed_error.h"
 
 static int rtc_inited = 0;
 
-void rtc_init(void) {
-    uint32_t StartUpCounter = 0;
-    uint32_t LSEStatus = 0;
+static RTC_HandleTypeDef RtcHandle;
+
+void rtc_init(void)
+{
+    RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE); // Enable PWR clock
-
-    PWR_BackupAccessCmd(ENABLE); // Enable access to Backup domain
-
-    // Reset back up registers
-    RCC_BackupResetCmd(ENABLE);
-    RCC_BackupResetCmd(DISABLE);
-  
-    // Enable LSE clock
-    RCC_LSEConfig(RCC_LSE_ON);
-
-    // Wait till LSE is ready
-    do {
-        LSEStatus = RCC_GetFlagStatus(RCC_FLAG_LSERDY);
-        wait_ms(1);
-        StartUpCounter++;
-    } while ((LSEStatus == 0) && (StartUpCounter <= LSE_STARTUP_TIMEOUT));
-
-    if (StartUpCounter > LSE_STARTUP_TIMEOUT) {
-        // The LSE has not started, use LSI instead.
-    // The RTC Clock may vary due to LSI frequency dispersion.
-        RCC_LSEConfig(RCC_LSE_OFF);
-    RCC_LSICmd(ENABLE); // Enable LSI
-    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) {} // Wait until ready
-        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); // Select the RTC Clock Source
-        rtc_freq = 40000; // [TODO] To be measured precisely using a timer input capture
-    } else {
-        // The LSE has correctly started
-        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE); // Select the RTC Clock Source
-        rtc_freq = LSE_VALUE;
-    }
-  
-    RCC_RTCCLKCmd(ENABLE); // Enable RTC Clock 
-      
-    RTC_WaitForSynchro(); // Wait for RTC registers synchronization
-
-    RTC_InitTypeDef RTC_InitStructure;
-    RTC_InitStructure.RTC_AsynchPrediv = 127;
-    RTC_InitStructure.RTC_SynchPrediv    = (rtc_freq / 128) - 1;
-    RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
-    RTC_Init(&RTC_InitStructure);
-    
-    PWR_BackupAccessCmd(DISABLE); // Disable access to Backup domain
-
+    if (rtc_inited) return;
     rtc_inited = 1;
+
+    RtcHandle.Instance = RTC;
+
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
+
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE();
+    __HAL_RCC_BACKUPRESET_RELEASE();
+
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; /* Mandatory, otherwise the PLL is reconfigured! */
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; /* External 32.768 kHz clock on OSC_IN/OSC_OUT */
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
+        // Connect LSE to RTC
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+        rtc_freq = LSE_VALUE;
+    } else {
+        // Enable LSI clock
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+        RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            error("RTC error: LSI clock initialization failed.");
+        }
+        // Connect LSI to RTC
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+        // Note: The LSI clock can be measured precisely using a timer input capture.
+        rtc_freq = LSI_VALUE;
+    }
+
+    // Enable RTC
+    __HAL_RCC_RTC_ENABLE();
+
+    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
+    RtcHandle.Init.AsynchPrediv   = 127;
+    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
+    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+
+    if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
+        error("RTC error: RTC initialization failed.");
+    }
 }
 
-void rtc_free(void) {
-    // Reset RTC
-    PWR_BackupAccessCmd(ENABLE); // Enable access to Backup Domain
-    RTC_DeInit();
-    RCC_BackupResetCmd(ENABLE);
-    RCC_BackupResetCmd(DISABLE);
-    // Disable RTC, LSE and LSI clocks
-    RCC_RTCCLKCmd(DISABLE);
-    RCC_LSEConfig(RCC_LSE_OFF);
-    RCC_LSICmd(DISABLE);
+void rtc_free(void)
+{
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
+
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE();
+    __HAL_RCC_BACKUPRESET_RELEASE();
+
+    // Disable access to Backup domain
+    HAL_PWR_DisableBkUpAccess();
+
+    // Disable LSI and LSE clocks
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
+    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+    HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
@@ -124,52 +143,59 @@ int rtc_isenabled(void) {
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
-        
+
+    RtcHandle.Instance = RTC;
+
     // Read actual date and time
-    RTC_GetTime(RTC_Format_BIN, &timeStruct);
-    RTC_GetDate(RTC_Format_BIN, &dateStruct);
-    
+    // Warning: the time must be read first!
+    HAL_RTC_GetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
+    HAL_RTC_GetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
+
     // Setup a tm structure based on the RTC
-    timeinfo.tm_wday = dateStruct.RTC_WeekDay;
-    timeinfo.tm_mon  = dateStruct.RTC_Month - 1;
-    timeinfo.tm_mday = dateStruct.RTC_Date;
-    timeinfo.tm_year = dateStruct.RTC_Year + 100;
-    timeinfo.tm_hour = timeStruct.RTC_Hours;
-    timeinfo.tm_min  = timeStruct.RTC_Minutes;
-    timeinfo.tm_sec  = timeStruct.RTC_Seconds;
-    
+    timeinfo.tm_wday = dateStruct.WeekDay;
+    timeinfo.tm_mon  = dateStruct.Month - 1;
+    timeinfo.tm_mday = dateStruct.Date;
+    timeinfo.tm_year = dateStruct.Year + 100;
+    timeinfo.tm_hour = timeStruct.Hours;
+    timeinfo.tm_min  = timeStruct.Minutes;
+    timeinfo.tm_sec  = timeStruct.Seconds;
+
     // Convert to timestamp
     time_t t = mktime(&timeinfo);
-    
-    return t;    
+
+    return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 
+    RtcHandle.Instance = RTC;
+
     // Convert the time into a tm
     struct tm *timeinfo = localtime(&t);
-    
+
     // Fill RTC structures
-    dateStruct.RTC_WeekDay = timeinfo->tm_wday;
-    dateStruct.RTC_Month   = timeinfo->tm_mon + 1;
-    dateStruct.RTC_Date    = timeinfo->tm_mday;
-    dateStruct.RTC_Year    = timeinfo->tm_year - 100;
-    timeStruct.RTC_Hours   = timeinfo->tm_hour;
-    timeStruct.RTC_Minutes = timeinfo->tm_min;
-    timeStruct.RTC_Seconds = timeinfo->tm_sec;
-    timeStruct.RTC_H12     = RTC_HourFormat_24;
-    
+    dateStruct.WeekDay        = timeinfo->tm_wday;
+    dateStruct.Month          = timeinfo->tm_mon + 1;
+    dateStruct.Date           = timeinfo->tm_mday;
+    dateStruct.Year           = timeinfo->tm_year - 100;
+    timeStruct.Hours          = timeinfo->tm_hour;
+    timeStruct.Minutes        = timeinfo->tm_min;
+    timeStruct.Seconds        = timeinfo->tm_sec;
+    timeStruct.TimeFormat     = RTC_HOURFORMAT12_PM;
+    timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
+
     // Change the RTC current date/time
-    PWR_BackupAccessCmd(ENABLE); // Enable access to RTC    
-    RTC_SetDate(RTC_Format_BIN, &dateStruct);
-    RTC_SetTime(RTC_Format_BIN, &timeStruct);    
-    PWR_BackupAccessCmd(DISABLE); // Disable access to RTC
+    HAL_RTC_SetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
+    HAL_RTC_SetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
 }
 
 #endif
