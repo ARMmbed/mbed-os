@@ -613,7 +613,7 @@ class RBLAB_BLENANO_OTA(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ["NORDIC", "MCU_NRF51822", "MCU_NORDIC_16K", "RBLAB_BLENANO"]
-        self.macros = ['TARGET_NRF51822', 'TARGET_RBLAB_BLENANO', 'TARGET_OTA_ENABLED]
+        self.macros = ['TARGET_NRF51822', 'TARGET_RBLAB_BLENANO', 'TARGET_OTA_ENABLED']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
 
