@@ -1,7 +1,6 @@
 """
 This module defines the attributes of the
 PyPI package for the Mbed SDK
-test message
 """
 
 from distutils.core import setup
