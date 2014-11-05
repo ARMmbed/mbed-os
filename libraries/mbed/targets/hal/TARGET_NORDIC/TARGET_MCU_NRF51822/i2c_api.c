@@ -18,18 +18,6 @@
 #include "cmsis.h"
 #include "pinmap.h"
 
-static const PinMap PinMap_I2C_SDA[] = {
-    {p22, I2C_0, 1},
-    {p13, I2C_1, 2},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {p20, I2C_0, 1},
-    {p15, I2C_1, 2},
-    {NC, NC,    0}
-};
-
 void i2c_interface_enable(i2c_t *obj)
 {
     obj->i2c->ENABLE = (TWI_ENABLE_ENABLE_Enabled << TWI_ENABLE_ENABLE_Pos);
@@ -58,14 +46,19 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    // determine the SPI to use
-    I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
-    I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    I2CName i2c     = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    obj->i2c = (NRF_TWI_Type *)i2c;
+    MBED_ASSERT(sda != NC && scl != NC);
 
-    MBED_ASSERT((int)obj->i2c != NC);
+    // nRF51822's I2C_0 and SPI_0 (I2C_1, SPI_1 and SPIS1) share the same address.
+    // They can't be used at the same time. So we use I2C_0 for I2C and SPI_1 for SPI as default.
+    // See nRF51822 address information at nRF51822_PS v2.0.pdf - Table 15 Peripheral instance reference
+    NRF_TWI_Type *i2c = (NRF_TWI_Type *)I2C_0;
+    uint32_t select = (uint32_t)sda & 0xFFFFFF00;
+    if (select) {
+        sda = (PinName)((uint32_t)sda & 0xFF);
+        i2c = (NRF_TWI_Type *)I2C_1;
+    }
 
+    obj->i2c               = i2c;
     obj->scl               = scl;
     obj->sda               = sda;
     obj->i2c->EVENTS_ERROR = 0;
