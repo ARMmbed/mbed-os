@@ -200,7 +200,7 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
 HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 {
   /* Check the SPI handle allocation */
-  if(hspi == NULL)
+  if(hspi == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -261,7 +261,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
 {
   /* Check the SPI handle allocation */
-  if(hspi == NULL)
+  if(hspi == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -378,7 +378,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint
 
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -525,7 +525,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
 
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -701,7 +701,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
   tmpstate = hspi->State; 
   if((tmpstate == HAL_SPI_STATE_READY) || (tmpstate == HAL_SPI_STATE_BUSY_RX))
   {
-    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0))
+    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0))
     {
       return  HAL_ERROR;
     }
@@ -948,7 +948,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, u
 {
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0))
+    if((pData == HAL_NULL) || (Size == 0))
     {
       return  HAL_ERROR;
     }
@@ -1023,7 +1023,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
 {
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -1107,7 +1107,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
   if((tmpstate == HAL_SPI_STATE_READY) || \
      ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES) && (tmpstate == HAL_SPI_STATE_BUSY_RX)))
   {
-    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
+    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -1176,7 +1176,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, 
 {
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0))
+    if((pData == HAL_NULL) || (Size == 0))
     {
       return  HAL_ERROR;
     }
@@ -1259,7 +1259,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, u
 {
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0))
+    if((pData == HAL_NULL) || (Size == 0))
     {
       return  HAL_ERROR;
     }
@@ -1351,7 +1351,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   if((tmpstate == HAL_SPI_STATE_READY) || ((hspi->Init.Mode == SPI_MODE_MASTER) && \
      (hspi->Init.Direction == SPI_DIRECTION_2LINES) && (tmpstate == HAL_SPI_STATE_BUSY_RX)))
   {
-    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0))
+    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0))
     {
       return  HAL_ERROR;
     }
@@ -1414,9 +1414,9 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
     /* Enable Rx DMA Request */  
     hspi->Instance->CR2 |= SPI_CR2_RXDMAEN;
 
-    /* Set the SPI Tx DMA transfer complete callback as NULL because the communication closing
+    /* Set the SPI Tx DMA transfer complete callback as HAL_NULL because the communication closing
     is performed in DMA reception complete callback  */
-    hspi->hdmatx->XferCpltCallback = NULL;
+    hspi->hdmatx->XferCpltCallback = HAL_NULL;
 
     /* Set the DMA error callback */
     hspi->hdmatx->XferErrorCallback = SPI_DMAError;
@@ -1502,12 +1502,12 @@ HAL_StatusTypeDef HAL_SPI_DMAStop(SPI_HandleTypeDef *hspi)
      */
   
   /* Abort the SPI DMA tx Stream */
-  if(hspi->hdmatx != NULL)
+  if(hspi->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(hspi->hdmatx);
   }
   /* Abort the SPI DMA rx Stream */
-  if(hspi->hdmarx != NULL)
+  if(hspi->hdmarx != HAL_NULL)
   {
     HAL_DMA_Abort(hspi->hdmarx);
   }

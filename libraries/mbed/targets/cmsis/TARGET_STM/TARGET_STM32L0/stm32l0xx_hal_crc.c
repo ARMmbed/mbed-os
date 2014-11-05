@@ -125,7 +125,7 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 {
   /* Check the CRC handle allocation */
-  if(hcrc == NULL)
+  if(hcrc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -199,7 +199,7 @@ HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
 { 
   /* Check the CRC handle allocation */
-  if(hcrc == NULL)
+  if(hcrc == HAL_NULL)
   {
     return HAL_ERROR;
   }

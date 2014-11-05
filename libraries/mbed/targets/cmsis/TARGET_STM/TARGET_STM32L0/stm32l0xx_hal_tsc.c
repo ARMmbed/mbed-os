@@ -157,7 +157,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask);
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == NULL)
+  if (htsc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -240,7 +240,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == NULL)
+  if (htsc == HAL_NULL)
   {
     return HAL_ERROR;
   }

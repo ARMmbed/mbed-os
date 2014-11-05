@@ -174,7 +174,7 @@ HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
   uint32_t tmpcfgr = 0;
   
   /* Check the LPTIM handle allocation */
-  if(hlptim == NULL)
+  if(hlptim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -263,7 +263,7 @@ HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
 HAL_StatusTypeDef HAL_LPTIM_DeInit(LPTIM_HandleTypeDef *hlptim)
 {
   /* Check the LPTIM handle allocation */
-  if(hlptim == NULL)
+  if(hlptim == HAL_NULL)
   {
     return HAL_ERROR;
   }

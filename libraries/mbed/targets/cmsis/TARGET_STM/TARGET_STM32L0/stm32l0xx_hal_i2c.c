@@ -279,7 +279,7 @@ static void I2C_TransferConfig(I2C_HandleTypeDef *hi2c,  uint16_t DevAddress, ui
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c)
 { 
   /* Check the I2C handle allocation */
-  if(hi2c == NULL)
+  if(hi2c == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -359,7 +359,7 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c)
 HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
 {
   /* Check the I2C handle allocation */
-  if(hi2c == NULL)
+  if(hi2c == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -489,7 +489,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevA
 
   if(hi2c->State == HAL_I2C_STATE_READY)
   {    
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -609,7 +609,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAd
 
   if(hi2c->State == HAL_I2C_STATE_READY)
   {    
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -720,7 +720,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Transmit(I2C_HandleTypeDef *hi2c, uint8_t *pData
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {    
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -849,7 +849,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Receive(I2C_HandleTypeDef *hi2c, uint8_t *pData,
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {  
-    if((pData == NULL ) || (Size == 0)) 
+    if((pData == HAL_NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -961,7 +961,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit_IT(I2C_HandleTypeDef *hi2c, uint16_t D
 {   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1033,7 +1033,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive_IT(I2C_HandleTypeDef *hi2c, uint16_t De
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1103,7 +1103,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Transmit_IT(I2C_HandleTypeDef *hi2c, uint8_t *pD
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1153,7 +1153,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Receive_IT(I2C_HandleTypeDef *hi2c, uint8_t *pDa
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1204,7 +1204,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit_DMA(I2C_HandleTypeDef *hi2c, uint16_t 
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }     
@@ -1295,7 +1295,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive_DMA(I2C_HandleTypeDef *hi2c, uint16_t D
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }  
@@ -1375,7 +1375,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Transmit_DMA(I2C_HandleTypeDef *hi2c, uint8_t *p
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }   
@@ -1461,7 +1461,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Receive_DMA(I2C_HandleTypeDef *hi2c, uint8_t *pD
 {
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }   
@@ -1540,7 +1540,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   { 
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1683,7 +1683,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress,
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {    
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1817,7 +1817,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1910,7 +1910,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddre
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -2001,7 +2001,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAdd
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -2110,7 +2110,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
   
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
