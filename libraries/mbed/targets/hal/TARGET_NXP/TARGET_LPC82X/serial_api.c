@@ -76,6 +76,9 @@ static int get_available_uart(void)
 #define RXRDY         (0x01<<0)
 #define TXRDY         (0x01<<2)
 
+#define RXRDYEN       RXRDY
+#define TXRDYEN       TXRDY
+
 #define TXBRKEN       (0x01<<1)
 #define CTSEN         (0x01<<9)
 
@@ -206,22 +209,15 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t iir, uint32_t index)
+static inline void uart_irq(SerialIrq irq_type, uint32_t index)
 {
-    SerialIrq irq_type;
-    switch (iir) {
-        case 1: irq_type = TxIrq; break;
-        case 2: irq_type = RxIrq; break;
-        default: return;
-    }
-
     if (serial_irq_ids[index] != 0)
         irq_handler(serial_irq_ids[index], irq_type);
 }
 
-void uart0_irq() {uart_irq((LPC_USART0->STAT & (1 << 2)) ? 2 : 1, 0);}
-void uart1_irq() {uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);}
-void uart2_irq() {uart_irq((LPC_USART2->STAT & (1 << 2)) ? 2 : 1, 2);}
+void uart0_irq() {uart_irq((LPC_USART0->INTSTAT & RXRDY) ? RxIrq : TxIrq, 0);}
+void uart1_irq() {uart_irq((LPC_USART1->INTSTAT & RXRDY) ? RxIrq : TxIrq, 1);}
+void uart2_irq() {uart_irq((LPC_USART2->INTSTAT & RXRDY) ? RxIrq : TxIrq, 2);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -240,16 +236,15 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 
     if (enable) {
-        obj->uart->INTENSET = (1 << ((irq == RxIrq) ? 0 : 2));
+        NVIC_DisableIRQ(irq_n);
+        obj->uart->INTENSET |= (1 << ((irq == RxIrq) ? 0 : 2));
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
     } else { // disable
-        int all_disabled = 0;
-        SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
-        obj->uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
-        all_disabled = (obj->uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
-        if (all_disabled)
+        obj->uart->INTENCLR |= (1 << ((irq == RxIrq) ? 0 : 2));
+        if ( (obj->uart->INTENSET & (RXRDYEN | TXRDYEN)) == 0) {
             NVIC_DisableIRQ(irq_n);
+        }
     }
 }
 
