@@ -23,18 +23,39 @@ class IAREmbeddedWorkbench(Exporter):
 
     TARGETS = [
         'LPC1768',
+        'LPC1347',
         'UBLOX_C027',
         'ARCH_PRO',
+        'K20D50M',
+        'KL05Z',
+        'KL25Z',
+        'KL46Z',
+        'K22F',
+        'K64F',
+        'NUCLEO_F302R8',
+        'NUCLEO_F334R8',
+        'NUCLEO_F401RE',
+        'NUCLEO_F411RE',
+        'NUCLEO_L053R8',
+        'NUCLEO_L152RE',
+        'STM32F407'
     ]
 
     def generate(self):
+
+        sources = []
+        sources += self.resources.c_sources
+        sources += self.resources.cpp_sources
+        sources += self.resources.s_sources
+
         ctx = {
             'name': self.program_name,
             'include_paths': self.resources.inc_dirs,
             'linker_script': self.resources.linker_script,
             'object_files': self.resources.objects,
             'libraries': self.resources.libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.toolchain.get_symbols(),
+            'source_files': sources,
         }
-        self.gen_file('iar.ewp.tmpl', ctx, '%s.ewp' % self.program_name)
+        self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
         self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)

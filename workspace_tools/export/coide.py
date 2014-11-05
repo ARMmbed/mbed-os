@@ -28,9 +28,11 @@ class CoIDE(Exporter):
         'LPC1768',
         'ARCH_PRO',
         'DISCO_F407VG',
+        'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
-        'DISCO_F429ZI'
+        'DISCO_F429ZI',
+        'DISCO_F334C8'
     ]
 
     # seems like CoIDE currently supports only one type

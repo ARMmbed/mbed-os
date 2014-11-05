@@ -111,7 +111,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         error("No available UART");
     }
     obj->index = uart_n;
-    obj->uart = (LPC_USART0_Type *)(LPC_USART0_BASE + (0x4000 * uart_n));
+    switch (uart_n) {
+        case 0: obj->uart = (LPC_USART0_Type *)LPC_USART0_BASE; break;
+        case 1: obj->uart = (LPC_USART0_Type *)LPC_USART1_BASE; break;
+        case 2: obj->uart = (LPC_USART0_Type *)LPC_USART2_BASE; break;
+    }
     uart_used |= (1 << uart_n);
     
     switch_pin(&SWM_UART_TX[uart_n], tx);
@@ -216,22 +220,14 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t iir, uint32_t index) {
-    // [Chapter 14] LPC17xx UART0/2/3: UARTn Interrupt Handling
-    SerialIrq irq_type;
-    switch (iir) {
-        case 1: irq_type = TxIrq; break;
-        case 2: irq_type = RxIrq; break;
-        default: return;
-    }
-    
+static inline void uart_irq(SerialIrq irq_type, uint32_t index) {
     if (serial_irq_ids[index] != 0)
         irq_handler(serial_irq_ids[index], irq_type);
 }
 
-void uart0_irq() {uart_irq((LPC_USART0->STAT & (1 << 2)) ? 2 : 1, 0);}
-void uart1_irq() {uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);}
-void uart2_irq() {uart_irq((LPC_USART2->STAT & (1 << 2)) ? 2 : 1, 2);}
+void uart0_irq() {uart_irq((LPC_USART0->INTSTAT & 1) ? RxIrq : TxIrq, 0);}
+void uart1_irq() {uart_irq((LPC_USART1->INTSTAT & 1) ? RxIrq : TxIrq, 1);}
+void uart2_irq() {uart_irq((LPC_USART2->INTSTAT & 1) ? RxIrq : TxIrq, 2);}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -248,7 +244,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
     
     if (enable) {
-        obj->uart->INTENSET = (1 << ((irq == RxIrq) ? 0 : 2));
+        NVIC_DisableIRQ(irq_n);
+        obj->uart->INTENSET |= (1 << ((irq == RxIrq) ? 0 : 2));
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
     } else { // disable

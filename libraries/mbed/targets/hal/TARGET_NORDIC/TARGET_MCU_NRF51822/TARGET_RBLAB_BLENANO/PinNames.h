@@ -98,14 +98,11 @@ typedef enum {
     P0_29 = p29,
     P0_30 = p30,
     
-    LED     = p19
+    LED     = p19,
     LED1    = p19,
-//    LED2    = p19,
-//    LED3    = p19,
-//    LED4    = p19,
-    
-//    BUTTON1 = p16,
-//    BUTTON2 = p17,
+    LED2    = p19,
+    LED3    = p19,
+    LED4    = p19,
         
     RX_PIN_NUMBER = p11,
     TX_PIN_NUMBER = p9,
@@ -134,36 +131,17 @@ typedef enum {
     I2C_SDA0 = p10,
     I2C_SCL0 = p8,
 
-/*
-    I2C_SDA1 = p13,
-    I2C_SCL1 = p15, 
-*/
-   
-    D0  = p9,
-    D1  = p11,
-    D2  = p8,
-    D3  = p10,
-//    D4  = p,
-    D5  = p7,
+    D0  = p11,
+    D1  = p9,
+    D2  = p10,
+    D3  = p8,
+    D4  = p28,
+    D5  = p29,
     D6  = p15,
-    D7  = p29,
-    
-    D8  = p28,
-/*
-    D9  = p18,
-    D10 = p14,
-    D11 = p12,
-    D12 = p13,
-*/
-    D13 = p19,
-/*
-    D14 = p29, // I2C - SDA
-    D15 = p28, // I2C - SCL
+    D7  = p7,
 
-    D16 = p25, // SPI - SCK
-    D17 = p22, // SPI - MISO
-    D18 = p20, // SPI - MOSI
-*/
+    D13 = p19,
+
     A0  = p1,
     A1  = p2,
     A2  = p3,

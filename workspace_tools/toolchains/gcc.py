@@ -176,7 +176,7 @@ class GCC_ARM(GCC):
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
         if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
-            self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
+            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
 
         self.sys_libs.append("nosys")
 
@@ -191,6 +191,10 @@ class GCC_CR(GCC):
         self.cc += additional_compiler_flags
         self.cppc += additional_compiler_flags
 
+        # Use latest gcc nanolib
+        self.ld.append("--specs=nano.specs")
+        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
 
 
@@ -229,11 +233,11 @@ class GCC_CW_EWL(GCC_CW):
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
         self.ld = [join(CW_GCC_PATH, "arm-none-eabi-g++"),
-            "-Xlinker", "--gc-sections",
+            "-Xlinker --gc-sections",
             "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
-            "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
-            "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
+            "-Xlinker --undefined=__pformatter_", "-Xlinker --defsym=__pformatter=__pformatter_",
+            "-Xlinker --undefined=__sformatter", "-Xlinker --defsym=__sformatter=__sformatter",
         ] + self.cpu
 
 

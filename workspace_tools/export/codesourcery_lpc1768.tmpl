@@ -13,7 +13,7 @@ LINKER_SCRIPT = {{linker_script}}
 ############################################################################### 
 CC = $(GCC_BIN)arm-none-eabi-gcc
 CPP = $(GCC_BIN)arm-none-eabi-g++
-CC_FLAGS = -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fomit-frame-pointer
+CC_FLAGS = -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -fno-rtti -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fomit-frame-pointer
 ONLY_C_FLAGS = -std=gnu99
 ONLY_CPP_FLAGS = -std=gnu++98
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}

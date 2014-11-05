@@ -47,34 +47,23 @@ File format example: muts_all.json:
 """
 
 
-# Check if 'prettytable' module is installed
-try:
-    from prettytable import PrettyTable
-except ImportError, e:
-    print "Error: Can't import 'prettytable' module: %s"% e
-    exit(-1)
-
-# Check if 'serial' module is installed
-try:
-    from serial import Serial
-except ImportError, e:
-    print "Error: Can't import 'serial' module: %s"% e
-    exit(-1)
-
+# Be sure that the tools directory is in the search path
 import sys
 from os.path import join, abspath, dirname
 
-# Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
+
+
+# Check: Extra modules which are required by core test suite
+from workspace_tools.utils import check_required_modules
+check_required_modules(['prettytable', 'serial'])
 
 # Imports related to mbed build api
 from workspace_tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
-from workspace_tools.test_api import BaseDBAccess
 from workspace_tools.test_api import SingleTestRunner
-from workspace_tools.test_api import factory_db_logger
 from workspace_tools.test_api import singletest_in_cli_mode
 from workspace_tools.test_api import detect_database_verbose
 from workspace_tools.test_api import get_json_data_from_file
@@ -108,19 +97,28 @@ if __name__ == '__main__':
         print "Version %d.%d"% get_version()
         exit(0)
 
+    #if opts.db_url and opts.verbose_test_configuration_only:
+    #detect_database_verbose(opts.db_url)
+    #exit(0)
+
     # Print summary / information about automation test status
     if opts.test_automation_report:
-        print get_avail_tests_summary_table()
-        exit(0)
-
-    if opts.db_url and opts.verbose_test_configuration_only:
-        detect_database_verbose(opts.db_url)
+        print get_avail_tests_summary_table(platform_filter=opts.general_filter_regex)
         exit(0)
 
     # Print summary / information about automation test status
     if opts.test_case_report:
-        test_case_report_cols = ['id', 'automated', 'description', 'peripherals', 'host_test', 'duration', 'source_dir']
-        print get_avail_tests_summary_table(cols=test_case_report_cols, result_summary=False, join_delim='\n')
+        test_case_report_cols = ['id',
+                                 'automated',
+                                 'description',
+                                 'peripherals',
+                                 'host_test',
+                                 'duration',
+                                 'source_dir']
+        print get_avail_tests_summary_table(cols=test_case_report_cols,
+                                            result_summary=False,
+                                            join_delim='\n',
+                                            platform_filter=opts.general_filter_regex)
         exit(0)
 
     # Only prints matrix of supported toolchains
@@ -169,9 +167,10 @@ if __name__ == '__main__':
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
                                    _clean=opts.clean,
-                                   _opts_db_url=opts.db_url,
+                                   #_opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
+                                   _opts_report_junit_file_name=opts.report_junit_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,
