@@ -591,11 +591,31 @@ class RBLAB_NRF51822(NRF51822):
         self.supported_form_factors = ["ARDUINO"]
 
 
+class RBLAB_NRF51822_OTA(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ["NORDIC", "MCU_NRF51822", "MCU_NORDIC_16K", "RBLAB_NRF51822"]
+        self.macros = ['TARGET_NRF51822', 'TARGET_RBLAB_NRF51822', 'TARGET_OTA_ENABLED']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.is_disk_virtual = True
+
+
 class RBLAB_BLENANO(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
+
+
+class RBLAB_BLENANO_OTA(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ["NORDIC", "MCU_NRF51822", "MCU_NORDIC_16K", "RBLAB_BLENANO"]
+        self.macros = ['TARGET_NRF51822', 'TARGET_RBLAB_BLENANO', 'TARGET_OTA_ENABLED]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.is_disk_virtual = True
 
 
 class NRF51_DK(NRF51822):
