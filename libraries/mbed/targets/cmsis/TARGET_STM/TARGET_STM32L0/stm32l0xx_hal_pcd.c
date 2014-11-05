@@ -127,7 +127,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   uint32_t wInterrupt_Mask = 0;
   
   /* Check the PCD handle allocation */
-  if(hpcd == NULL)
+  if(hpcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -198,7 +198,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
 {
   /* Check the PCD handle allocation */
-  if(hpcd == NULL)
+  if(hpcd == HAL_NULL)
   {
     return HAL_ERROR;
   }

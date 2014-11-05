@@ -204,7 +204,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   uint32_t tickstart = 0x00;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -407,7 +407,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   uint32_t tickstart = 0;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }

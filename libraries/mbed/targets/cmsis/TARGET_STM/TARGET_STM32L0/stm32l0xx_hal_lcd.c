@@ -140,7 +140,7 @@
 HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
 {
   /* Check the LCD handle allocation */
-  if(hlcd == NULL)
+  if(hlcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -175,7 +175,7 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   uint8_t counter = 0;
     
   /* Check the LCD handle allocation */
-  if(hlcd == NULL)
+  if(hlcd == HAL_NULL)
   {
     return HAL_ERROR;
   }
