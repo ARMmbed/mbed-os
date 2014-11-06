@@ -33,18 +33,6 @@ LIBRARIES = [
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
     },
-    {
-        "id": "rtx_ca",
-        "source_dir": MBED_RTX_CA,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "rtos_ca",
-        "source_dir": RTOS_ABSTRACTION,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX_CA],
-    },
 
     # USB Device libraries
     {

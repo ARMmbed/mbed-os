@@ -16,13 +16,13 @@ limitations under the License.
 """
 
 CORE_LABELS = {
-    "ARM7TDMI-S": "ARM7",
-    "Cortex-M0" : "M0",
-    "Cortex-M0+": "M0P",
-    "Cortex-M3" : "M3",
-    "Cortex-M4" : "M4",
-    "Cortex-M4F" : "M4",
-    "Cortex-A9" : "A9"
+    "ARM7TDMI-S": ["ARM7"],
+    "Cortex-M0" : ["M0", "CORTEX_M"],
+    "Cortex-M0+": ["M0P", "CORTEX_M"],
+    "Cortex-M3" : ["M3", "CORTEX_M"],
+    "Cortex-M4" : ["M4", "CORTEX_M"],
+    "Cortex-M4F" : ["M4", "CORTEX_M"],
+    "Cortex-A9" : ["A9", "CORTEX_A"]
 }
 
 import os
@@ -58,7 +58,7 @@ class Target:
         return 4 if self.is_disk_virtual else 1.5
 
     def get_labels(self):
-        return [self.name, CORE_LABELS[self.core]] + self.extra_labels
+        return [self.name] + CORE_LABELS[self.core] + self.extra_labels
 
     def init_hooks(self, hook, toolchain_name):
         pass
