@@ -21,7 +21,8 @@ CORE_LABELS = {
     "Cortex-M0+": "M0P",
     "Cortex-M3" : "M3",
     "Cortex-M4" : "M4",
-    "Cortex-M4F" : "M4"
+    "Cortex-M4F" : "M4",
+    "Cortex-A9" : "A9"
 }
 
 import os
@@ -733,6 +734,14 @@ class ARM_MPS2(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
 
+class RZ_A1H(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-A9"
+        self.extra_labels = ['RENESAS', 'MBRZA1H']
+        self.supported_toolchains = ["ARM"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.default_toolchain = "ARM"
 
 # Get a single instance for each target
 TARGETS = [
@@ -811,6 +820,13 @@ TARGETS = [
     
     ### ARM ###
     ARM_MPS2(),
+    RZ_A1H(),
+    RBLAB_NRF51822(),
+    RBLAB_BLENANO(),
+    OC_MBUINO(),
+    MTS_GAMBIT(),
+    ARCH_MAX(),
+    DISCO_F429ZI(),
 ]
 
 # Map each target name to its unique instance
