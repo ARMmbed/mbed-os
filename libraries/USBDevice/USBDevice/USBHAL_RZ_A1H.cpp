@@ -30,11 +30,15 @@ extern "C"
 #include "iodefine.h"
 }
 #include "USBHAL.h"
+#include "devdrv_usb_function_api.h"
 #include "usb0_function.h"
-//#include "USBRegs_RZ_A1H.h"
+#include "iobitmasks/usb_iobitmask.h"
+#include "rza_io_regrw.h"
+#include "USBDevice_Types.h"
 
 
 /*************************************************************************/
+/* constants */
 const struct PIPECFGREC {
     uint16_t    endpoint;
     uint16_t    pipesel;
@@ -135,8 +139,19 @@ const struct PIPECFGREC {
 
 
 /*************************************************************************/
+/* workareas */
 USBHAL * USBHAL::instance;
 
+
+static IRQn_Type    int_id;         /* interrupt ID          */
+static uint16_t     int_level;      /* initerrupt level      */
+static uint16_t     clock_mode;     /* input clock selector  */
+static uint16_t     mode;           /* USB speed (HIGH/FULL) */
+
+static DigitalOut *usb0_en;
+
+static uint16_t     EP0_read_status;
+static uint16_t     EPx_read_status;
 
 static uint16_t setup_buffer[MAX_PACKET_SIZE_EP0 / 2];
 
@@ -147,21 +162,290 @@ volatile static uint16_t    recv_error;
 
 
 /*************************************************************************/
+/* prototypes for C */
+
+/* This C++ functions changed to macro functions.
+   static uint32_t EP2PIPE(uint8_t endpoint);
+   static void usb0_function_save_request(void);
+   void usb0_function_BRDYInterrupt(uint16_t status, uint16_t intenb);
+   void usb0_function_NRDYInterrupt (uint16_t status, uint16_t intenb);
+   void usb0_function_BEMPInterrupt (uint16_t status, uint16_t intenb);
+*/
+
+/*************************************************************************/
+/* macros */
+
+/******************************************************************************
+ * Function Name: usb0_function_BRDYInterruptPIPE0
+ * Description  : Executes BRDY interrupt for pipe0.
+ * Arguments    : uint16_t status       ; BRDYSTS Register Value
+ *              : uint16_t intenb       ; BRDYENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_BRDYInterruptPIPE0(status, intenb)                \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+        uint16_t read_status;                                           \
+                                                                        \
+        USB200.BRDYSTS =                                                \
+            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];     \
+        RZA_IO_RegWrite_16(                                             \
+            &USB200.CFIFOSEL, USB_FUNCTION_PIPE0,                       \
+            USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);          \
+                                                                        \
+        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] =              \
+            g_usb0_function_data_count[USB_FUNCTION_PIPE0];             \
+                                                                        \
+        read_status = usb0_function_read_buffer_c(USB_FUNCTION_PIPE0);  \
+                                                                        \
+        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] -=             \
+            g_usb0_function_data_count[USB_FUNCTION_PIPE0];             \
+                                                                        \
+        switch (read_status) {                                          \
+            case USB_FUNCTION_READING:      /* Continue of data read */ \
+            case USB_FUNCTION_READEND:      /* End of data read */      \
+                /* PID = BUF */                                         \
+                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);          \
+                                                                        \
+                /*callback*/                                            \
+                EP0out();                                               \
+                break;                                                  \
+                                                                        \
+            case USB_FUNCTION_READSHRT:     /* End of data read */      \
+                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);     \
+                /* PID = BUF */                                         \
+                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);          \
+                                                                        \
+                /*callback*/                                            \
+                EP0out();                                               \
+                break;                                                  \
+                                                                        \
+            case USB_FUNCTION_READOVER:     /* FIFO access error */     \
+                /* Buffer Clear */                                      \
+                USB200.CFIFOCTR = USB_FUNCTION_BITBCLR;                 \
+                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);     \
+                /* Req Error */                                         \
+                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);        \
+                                                                        \
+                /*callback*/                                            \
+                EP0out();                                               \
+                break;                                                  \
+                                                                        \
+            case DEVDRV_USBF_FIFOERROR:     /* FIFO access error */     \
+            default:                                                    \
+                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);     \
+                /* Req Error */                                         \
+                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);        \
+                break;                                                  \
+        }                                                               \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.BRDYSTS;                                      \
+    }
+
+
+
+/******************************************************************************
+ * Function Name: usb0_function_BRDYInterrupt
+ * Description  : Executes BRDY interrupt uxclude pipe0.
+ * Arguments    : uint16_t status       ; BRDYSTS Register Value
+ *              : uint16_t intenb       ; BRDYENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_BRDYInterrupt(status, intenb)                     \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+                                                                        \
+        /************************************************************** \
+         * Function Name: usb0_function_brdy_int                        \
+         * Description  : Executes BRDY interrupt(USB_FUNCTION_PIPE1-9). \
+         *              : According to the pipe that interrupt is generated in, \
+         *              : reads/writes buffer allocated in the pipe.    \
+         *              : This function is executed in the BRDY         \
+         *              : interrupt handler.  This function             \
+         *              : clears BRDY interrupt status and BEMP         \
+         *              : interrupt status.                             \
+         * Arguments    : uint16_t Status    ; BRDYSTS Register Value   \
+         *              : uint16_t Int_enbl  ; BRDYENB Register Value   \
+         * Return Value : none                                          \
+         *************************************************************/ \
+        /* copied from usb0_function_intrn.c */                         \
+        uint32_t int_sense = 0;                                         \
+        uint16_t pipe;                                                  \
+        uint16_t pipebit;                                               \
+        uint16_t ep;                                                    \
+                                                                        \
+        for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) { \
+            pipebit = g_usb0_function_bit_set[pipe];                    \
+                                                                        \
+            if ((status & pipebit) && (intenb & pipebit)) {             \
+                USB200.BRDYSTS = (uint16_t)~pipebit;                    \
+                USB200.BEMPSTS = (uint16_t)~pipebit;                    \
+                                                                        \
+                switch (g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) { \
+                    case USB_FUNCTION_D0FIFO_DMA:                       \
+                        if (g_usb0_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY) { \
+                            /*now, DMA is not supported*/               \
+                            usb0_function_dma_interrupt_d0fifo(int_sense); \
+                        }                                               \
+                                                                        \
+                        if (RZA_IO_RegRead_16(                          \
+                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) { \
+                            /*now, DMA is not supported*/               \
+                            usb0_function_read_dma(pipe);               \
+                            usb0_function_disable_brdy_int(pipe);       \
+                        } else {                                        \
+                            USB200.D0FIFOCTR = USB_FUNCTION_BITBCLR;    \
+                            g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE; \
+                        }                                               \
+                        break;                                          \
+                                                                        \
+                    case USB_FUNCTION_D1FIFO_DMA:                       \
+                        if (g_usb0_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY) { \
+                            /*now, DMA is not supported*/               \
+                            usb0_function_dma_interrupt_d1fifo(int_sense); \
+                        }                                               \
+                                                                        \
+                        if (RZA_IO_RegRead_16(                          \
+                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) { \
+                            /*now, DMA is not supported*/               \
+                            usb0_function_read_dma(pipe);               \
+                            usb0_function_disable_brdy_int(pipe);       \
+                        } else {                                        \
+                            USB200.D1FIFOCTR = USB_FUNCTION_BITBCLR;    \
+                            g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE; \
+                        }                                               \
+                        break;                                          \
+                                                                        \
+                    default:                                            \
+                        ep = (g_usb0_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT; \
+                        ep <<= 1;                                       \
+                        ep += (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0)? \
+                            (0): (1);                                   \
+                        EPx_read_status = DEVDRV_USBF_PIPE_WAIT;        \
+                        (instance->*(epCallback[ep - 2])) ();           \
+                        EPx_read_status = DEVDRV_USBF_PIPE_DONE;        \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.BRDYSTS;                                      \
+    }
+
+
+/******************************************************************************
+ * Function Name: usb0_function_NRDYInterruptPIPE0
+ * Description  : Executes NRDY interrupt for pipe0.
+ * Arguments    : uint16_t status       ; NRDYSTS Register Value
+ *              : uint16_t intenb       ; NRDYENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_NRDYInterruptPIPE0(status, intenb)                \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+                                                                        \
+        USB200.NRDYSTS =                                                \
+            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];     \
+                                                                        \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.NRDYSTS;                                      \
+    }
+
+/******************************************************************************
+ * Function Name: usb0_function_NRDYInterrupt
+ * Description  : Executes NRDY interrupt exclude pipe0.
+ * Arguments    : uint16_t status       ; NRDYSTS Register Value
+ *              : uint16_t intenb       ; NRDYENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_NRDYInterrupt(status, intenb)                     \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+                                                                        \
+        usb0_function_nrdy_int(status, intenb);                         \
+                                                                        \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.NRDYSTS;                                      \
+    }
+
+
+/******************************************************************************
+ * Function Name: usb0_function_BEMPInterruptPIPE0
+ * Description  : Executes BEMP interrupt for pipe0.
+ * Arguments    : uint16_t status       ; BEMPSTS Register Value
+ *              : uint16_t intenb       ; BEMPENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_BEMPInterruptPIPE0(status, intenb)                \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+                                                                        \
+        USB200.BEMPSTS =                                                \
+            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];     \
+        RZA_IO_RegWrite_16(                                             \
+            &USB200.CFIFOSEL, USB_FUNCTION_PIPE0,                       \
+            USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);          \
+                                                                        \
+        /*usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);*/           \
+        EP0in();                                                        \
+                                                                        \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.BEMPSTS;                                      \
+    }
+
+
+/******************************************************************************
+ * Function Name: usb0_function_BEMPInterrupt
+ * Description  : Executes BEMP interrupt exclude pipe0.
+ * Arguments    : uint16_t status       ; BEMPSTS Register Value
+ *              : uint16_t intenb       ; BEMPENB Register Value
+ * Return Value : none
+ *****************************************************************************/
+#define usb0_function_BEMPInterrupt(status, intenb)                     \
+    {                                                                   \
+        volatile uint16_t dumy_sts;                                     \
+                                                                        \
+        usb0_function_bemp_int(status, intenb);                         \
+                                                                        \
+        /* Three dummy reads for clearing interrupt requests */         \
+        dumy_sts = USB200.BEMPSTS;                                      \
+}
+
+
+/******************************************************************************
+ * Function Name: EP2PIPE
+ * Description  : Converts from endpoint to pipe
+ * Arguments    : number of endpoint
+ * Return Value : number of pipe
+ *****************************************************************************/
 /*EP2PIPE converter is for pipe1, pipe3 and pipe6 only.*/
-uint32_t
-USBHAL::EP2PIPE(uint8_t endpoint)
-{
-    return (uint32_t)usb0_function_EpToPipe(endpoint);
+#define EP2PIPE(endpoint)   ((uint32_t)usb0_function_EpToPipe(endpoint))
+
+
+/******************************************************************************
+ * Function Name: usb0_function_save_request
+ * Description  : Retains the USB request information in variables.
+ * Arguments    : none
+ * Return Value : none
+ *****************************************************************************/
+#define  usb0_function_save_request()                       \
+    {                                                       \
+        uint16_t *bufO = &setup_buffer[0];                  \
+                                                            \
+        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVALID;  \
+        /*data[0] <= bmRequest, data[1] <= bmRequestType */ \
+        *bufO++ = USB200.USBREQ;                            \
+        /*data[2] data[3] <= wValue*/                       \
+        *bufO++ = USB200.USBVAL;                            \
+        /*data[4] data[5] <= wIndex*/                       \
+        *bufO++ = USB200.USBINDX;                           \
+        /*data[6] data[6] <= wIndex*/                       \
+        *bufO++ = USB200.USBLENG;                           \
 }
 
 
 /*************************************************************************/
-#if 0   // No implements
-uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer)
-{
-    return 0;
-}
-#endif
+/*************************************************************************/
+/*************************************************************************/
 
 /*************************************************************************/
 /* constructor */
@@ -244,8 +528,7 @@ USBHAL::USBHAL(void)
 
 #if 0   /*DMA is not supported*/
         d0fifo_dmaintid = Userdef_USB_usb0_function_d0fifo_dmaintid();
-        if (d0fifo_dmaintid != 0xFFFF)
-        {
+        if (d0fifo_dmaintid != 0xFFFF) {
             InterruptHandlerRegister(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
             GIC_SetPriority(d0fifo_dmaintid, int_level);
             GIC_EnableIRQ(d0fifo_dmaintid);
@@ -254,8 +537,7 @@ USBHAL::USBHAL(void)
 
 #if 0   /*DMA is not supported*/
         d1fifo_dmaintid = Userdef_USB_usb0_function_d1fifo_dmaintid();
-        if (d1fifo_dmaintid != 0xFFFF)
-        {
+        if (d1fifo_dmaintid != 0xFFFF) {
             InterruptHandlerRegister(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
             GIC_SetPriority(d1fifo_dmaintid, int_level);
             GIC_EnableIRQ(d1fifo_dmaintid);
@@ -830,19 +1112,19 @@ void USBHAL::usbisr(void)
         (int_enb0 & USB_FUNCTION_BITBEMP) &&
         ((int_sts3 & int_enb4) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== BEMP PIPE0 ==== */
-        usb0_function_BEMPInterrupt(int_sts3, int_enb4);
+        usb0_function_BEMPInterruptPIPE0(int_sts3, int_enb4);
     } else if (
         (int_sts0 & USB_FUNCTION_BITBRDY) &&
         (int_enb0 & USB_FUNCTION_BITBRDY) &&
         ((int_sts1 & int_enb2) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== BRDY PIPE0 ==== */
-        usb0_function_BRDYInterrupt(int_sts1, int_enb2);
+        usb0_function_BRDYInterruptPIPE0(int_sts1, int_enb2);
     } else if (
         (int_sts0 & USB_FUNCTION_BITNRDY) &&
         (int_enb0 & USB_FUNCTION_BITNRDY) &&
         ((int_sts2 & int_enb3) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== NRDY PIPE0 ==== */
-        usb0_function_NRDYInterrupt(int_sts2, int_enb3);
+        usb0_function_NRDYInterruptPIPE0(int_sts2, int_enb3);
     } else if (
         (int_sts0 & USB_FUNCTION_BITCTRT) && (int_enb0 & USB_FUNCTION_BITCTRE)) {
         int_sts0 = USB200.INTSTS0;
@@ -852,7 +1134,7 @@ void USBHAL::usbisr(void)
                 ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRDS) ||
                 ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRND)) {
 
-            /*EP0‚ðÄ“xì‚èã‚°‚é*/
+            /* remake EP0 into buffer */
             usb0_function_save_request();
             if ((USB200.INTSTS0 & USB_FUNCTION_BITVALID) && (
                         ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_RDDS) ||
@@ -936,206 +1218,6 @@ void USBHAL::usbisr(void)
     /* Three dummy reads for cleearing interrupt requests */
     dumy_sts = USB200.INTSTS0;
     dumy_sts = USB200.INTSTS1;
-}
-
-/******************************************************************************
- * Function Name: usb0_function_save_request
- * Description  : Retains the USB request information in variables.
- * Arguments    : none
- * Return Value : none
- *****************************************************************************/
-void USBHAL::usb0_function_save_request(void)
-{
-    uint16_t *bufO = &setup_buffer[0];
-
-    USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVALID;
-    /*data[0] <= bmRequest, data[1] <= bmRequestType */
-    *bufO++ = USB200.USBREQ;
-    /*data[2] data[3] <= wValue*/
-    *bufO++ = USB200.USBVAL;
-    /*data[4] data[5] <= wIndex*/
-    *bufO++ = USB200.USBINDX;
-    /*data[6] data[6] <= wIndex*/
-    *bufO++ = USB200.USBLENG;
-}
-
-/******************************************************************************
- * Function Name: usb0_function_BRDYInterrupt
- * Description  : Executes BRDY interrupt.
- * Arguments    : uint16_t status       ; BRDYSTS Register Value
- *              : uint16_t intenb       ; BRDYENB Register Value
- * Return Value : none
- *****************************************************************************/
-void USBHAL::usb0_function_BRDYInterrupt(uint16_t status, uint16_t intenb)
-{
-    volatile uint16_t dumy_sts;
-    uint16_t read_status;
-
-    if ( ( status & g_usb0_function_bit_set[USB_FUNCTION_PIPE0] ) &&
-            ( intenb & g_usb0_function_bit_set[USB_FUNCTION_PIPE0] ) ) {
-        USB200.BRDYSTS = (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
-        RZA_IO_RegWrite_16(&USB200.CFIFOSEL, USB_FUNCTION_PIPE0, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
-
-        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] = g_usb0_function_data_count[USB_FUNCTION_PIPE0];
-
-        read_status = usb0_function_read_buffer_c(USB_FUNCTION_PIPE0);
-
-        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] -= g_usb0_function_data_count[USB_FUNCTION_PIPE0];
-
-        switch (read_status) {
-            case USB_FUNCTION_READING:      /* Continue of data read */
-            case USB_FUNCTION_READEND:      /* End of data read */
-                /* PID = BUF */
-                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);
-
-                /*callback*/
-                EP0out();
-                break;
-
-            case USB_FUNCTION_READSHRT:     /* End of data read */
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
-                /* PID = BUF */
-                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);
-
-                /*callback*/
-                EP0out();
-                break;
-
-            case USB_FUNCTION_READOVER:     /* FIFO access error */
-                /* Buffer Clear */
-                USB200.CFIFOCTR = USB_FUNCTION_BITBCLR;
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
-                /* Req Error */
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
-
-                /*callback*/
-                EP0out();
-                break;
-
-            case DEVDRV_USBF_FIFOERROR:     /* FIFO access error */
-            default:
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
-                /* Req Error */
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
-                break;
-        }
-    } else {
-        /**********************************************************************
-         * Function Name: usb0_function_brdy_int
-         * Description  : Executes BRDY interrupt(USB_FUNCTION_PIPE1-9).
-         *              : According to the pipe that interrupt is generated in,
-         *              : reads/writes buffer allocated in the pipe.
-         *              : This function is executed in the BRDY
-         *              : interrupt handler.  This function
-         *              : clears BRDY interrupt status and BEMP
-         *              : interrupt status.
-         * Arguments    : uint16_t Status       ; BRDYSTS Register Value
-         *              : uint16_t Int_enbl     ; BRDYENB Register Value
-         * Return Value : none
-         *********************************************************************/
-        /*usb0_function_brdy_int(status, intenb);*/
-        /* copied from usb0_function_intrn.c */
-        uint32_t int_sense = 0;
-        uint16_t pipe;
-        uint16_t pipebit;
-        uint16_t ep;
-
-        for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-            pipebit = g_usb0_function_bit_set[pipe];
-
-            if ((status & pipebit) && (intenb & pipebit)) {
-                USB200.BRDYSTS = (uint16_t)~pipebit;
-                USB200.BEMPSTS = (uint16_t)~pipebit;
-                if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D0FIFO_DMA) {
-                    if (g_usb0_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY) {
-                        /*now, DMA is not supported*/
-                        usb0_function_dma_interrupt_d0fifo(int_sense);
-                    }
-
-                    if (RZA_IO_RegRead_16(
-                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
-                        /*now, DMA is not supported*/
-                        usb0_function_read_dma(pipe);
-                        usb0_function_disable_brdy_int(pipe);
-                    } else {
-                        USB200.D0FIFOCTR = USB_FUNCTION_BITBCLR;
-                        g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
-                    }
-                } else if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D1FIFO_DMA) {
-                    if (g_usb0_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY) {
-                        /*now, DMA is not supported*/
-                        usb0_function_dma_interrupt_d1fifo(int_sense);
-                    }
-
-                    if (RZA_IO_RegRead_16(
-                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
-                        /*now, DMA is not supported*/
-                        usb0_function_read_dma(pipe);
-                        usb0_function_disable_brdy_int(pipe);
-                    } else {
-                        USB200.D1FIFOCTR = USB_FUNCTION_BITBCLR;
-                        g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
-                    }
-                } else {
-                    ep = (g_usb0_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
-                    ep <<= 1;
-                    ep += (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0)?
-                          (0): (1);
-                    EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
-                    (instance->*(epCallback[ep - 2])) ();
-                    EPx_read_status = DEVDRV_USBF_PIPE_DONE;
-                }
-            }
-        }
-    }
-    /* Three dummy reads for clearing interrupt requests */
-    dumy_sts = USB200.BRDYSTS;
-}
-
-/******************************************************************************
- * Function Name: usb0_function_NRDYInterrupt
- * Description  : Executes NRDY interrupt.
- * Arguments    : uint16_t status       ; NRDYSTS Register Value
- *              : uint16_t intenb       ; NRDYENB Register Value
- * Return Value : none
- *****************************************************************************/
-void USBHAL::usb0_function_NRDYInterrupt(uint16_t status, uint16_t intenb)
-{
-    volatile uint16_t dumy_sts;
-
-    if ((status & g_usb0_function_bit_set[USB_FUNCTION_PIPE0]) &&
-            (intenb & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
-        USB200.NRDYSTS = (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
-    } else {
-        usb0_function_nrdy_int(status, intenb);
-    }
-    /* Three dummy reads for clearing interrupt requests */
-    dumy_sts = USB200.NRDYSTS;
-}
-
-
-/******************************************************************************
- * Function Name: usb0_function_BEMPInterrupt
- * Description  : Executes BEMP interrupt.
- * Arguments    : uint16_t status       ; BEMPSTS Register Value
- *              : uint16_t intenb       ; BEMPENB Register Value
- * Return Value : none
- *****************************************************************************/
-void USBHAL::usb0_function_BEMPInterrupt(uint16_t status, uint16_t intenb)
-{
-    volatile uint16_t dumy_sts;
-
-    if ((status & g_usb0_function_bit_set[USB_FUNCTION_PIPE0]) &&
-            (intenb & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
-        USB200.BEMPSTS = (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
-        RZA_IO_RegWrite_16(&USB200.CFIFOSEL, USB_FUNCTION_PIPE0, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
-        /*usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);*/
-        EP0in();
-    } else {
-        usb0_function_bemp_int(status, intenb);
-    }
-    /* Three dummy reads for clearing interrupt requests */
-    dumy_sts = USB200.BEMPSTS;
 }
 
 /*************************************************************************/
