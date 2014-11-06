@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * @file     system_Renesas_RZ_A1.c
+ * @file     system_MBRZA1H.c
  * @brief    CMSIS Device System Source File for
  *           ARMCA9 Device Series
  * @version  V1.00
