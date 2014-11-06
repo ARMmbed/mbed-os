@@ -33,17 +33,17 @@
 Includes   <System Includes> , "Project Includes"
 ******************************************************************************/
 /* ==== includes each bit mask header ==== */
-#include "iobitmasks/cpg_iobitmask.h"
-#include "iobitmasks/intc_iobitmask.h"
-#include "iobitmasks/bsc_iobitmask.h"
-#include "iobitmasks/dmac_iobitmask.h"
-#include "iobitmasks/mtu2_iobitmask.h"
-#include "iobitmasks/ostm_iobitmask.h"
-#include "iobitmasks/scif_iobitmask.h"
-#include "iobitmasks/rspi_iobitmask.h"
-#include "iobitmasks/riic_iobitmask.h"
-#include "iobitmasks/usb_iobitmask.h"
-#include "iobitmasks/gpio_iobitmask.h"
+#include "cpg_iobitmask.h"
+#include "intc_iobitmask.h"
+#include "bsc_iobitmask.h"
+#include "dmac_iobitmask.h"
+#include "mtu2_iobitmask.h"
+#include "ostm_iobitmask.h"
+#include "scif_iobitmask.h"
+#include "rspi_iobitmask.h"
+#include "riic_iobitmask.h"
+#include "usb_iobitmask.h"
+#include "gpio_iobitmask.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -414,10 +414,6 @@ class mbedToolchain:
         for source in files_paths:
             if rel_path is not None:
                 relative_path = relpath(source, rel_path)
-            elif "RZ_A1H" in source and "iobitmasks" in source:
-                relative_path = source[source.rindex("iobitmasks"):]
-            elif "RZ_A1H" in source and "iodefines" in source:
-                relative_path = source[source.rindex("iodefines"):]
             else:
                 _, relative_path = split(source)
 

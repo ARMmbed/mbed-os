@@ -32,7 +32,7 @@ extern "C"
 #include "USBHAL.h"
 #include "devdrv_usb_function_api.h"
 #include "usb0_function.h"
-#include "iobitmasks/usb_iobitmask.h"
+#include "usb_iobitmask.h"
 #include "rza_io_regrw.h"
 #include "USBDevice_Types.h"
 
