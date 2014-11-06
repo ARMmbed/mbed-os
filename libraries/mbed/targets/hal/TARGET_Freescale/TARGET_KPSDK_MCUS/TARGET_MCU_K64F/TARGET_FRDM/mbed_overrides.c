@@ -38,12 +38,12 @@ void mbed_mac_address(char *mac)
     uint32_t word0 = *(uint32_t *)0x40048060;
     // Fetch word 1
     // we only want bottom 16 bits of word1 (MAC bits 32-47)
-    // and bit 9 forced to 1, bit 8 forced to 0
+    // and bit 1 forced to 1, bit 0 forced to 0
     // Locally administered MAC, reduced conflicts
     // http://en.wikipedia.org/wiki/MAC_address
     uint32_t word1 = *(uint32_t *)0x4004805C;
-    word1 |= 0x00000200;
-    word1 &= 0x0000FEFF;
+    word1 |= 0x00000002;
+    word1 &= 0x0000FFFE;
     
     mac[0] = (word1 & 0x000000ff);
     mac[1] = (word1 & 0x0000ff00) >> 8;
