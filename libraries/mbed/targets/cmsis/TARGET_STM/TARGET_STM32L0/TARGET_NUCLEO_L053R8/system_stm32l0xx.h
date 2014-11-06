@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.1.0
+  * @date    18-June-2014
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Header File.
   ******************************************************************************
   * @attention

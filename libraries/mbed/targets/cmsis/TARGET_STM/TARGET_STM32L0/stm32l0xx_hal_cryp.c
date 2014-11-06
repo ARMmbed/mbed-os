@@ -159,7 +159,7 @@ static void CRYP_SetDMAConfig(CRYP_HandleTypeDef *hcryp, uint32_t inputaddr, uin
 HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp)
 {  
   /* Check the CRYP handle allocation */
-  if(hcryp == NULL)
+  if(hcryp == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -202,7 +202,7 @@ HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp)
 HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp)
 {
   /* Check the CRYP handle allocation */
-  if(hcryp == NULL)
+  if(hcryp == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1802,27 +1802,27 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp)
   switch(AES->CR & CRYP_CR_ALGOMODE_DIRECTION)
   {
   case CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT:
-    HAL_CRYP_AESECB_Encrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYP_AESECB_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_ECB_KEYDERDECRYPT:
-    HAL_CRYP_AESECB_Decrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYP_AESECB_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT:
-    HAL_CRYP_AESCBC_Encrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYP_AESCBC_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CBC_KEYDERDECRYPT:
-    HAL_CRYP_AESCBC_Decrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYP_AESCBC_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT:
-    HAL_CRYP_AESCTR_Encrypt_IT(hcryp, NULL, 0, NULL);       
+    HAL_CRYP_AESCTR_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);       
     break;
     
   case CRYP_CR_ALGOMODE_AES_CTR_DECRYPT:
-    HAL_CRYP_AESCTR_Decrypt_IT(hcryp, NULL, 0, NULL);        
+    HAL_CRYP_AESCTR_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);        
     break;
     
   default:

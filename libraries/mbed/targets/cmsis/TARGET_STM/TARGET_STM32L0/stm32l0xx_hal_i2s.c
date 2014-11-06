@@ -196,7 +196,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   uint32_t tmp = 0, i2sclk = 0;
   
   /* Check the I2S handle allocation */
-  if(hi2s == NULL)
+  if(hi2s == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -300,7 +300,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
 HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
 {
   /* Check the I2S handle allocation */
-  if(hi2s == NULL)
+  if(hi2s == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -410,7 +410,7 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint32_t tmp1 = 0, tmp2 = 0;  
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -493,7 +493,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint32_t tmp1 = 0, tmp2 = 0;   
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -579,7 +579,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   uint32_t tmp1 = 0, tmp2 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -648,7 +648,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
   uint32_t tmp1 = 0, tmp2 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -714,7 +714,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;     
   
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == HAL_NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -799,7 +799,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;  
   
-  if((pData == NULL) || (Size == 0))
+  if((pData == HAL_NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   }
@@ -951,12 +951,12 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   hi2s->Instance->CR2 &= (uint32_t)~((uint32_t)SPI_CR2_RXDMAEN);
   
   /* Abort the I2S DMA Stream tx */
-  if(hi2s->hdmatx != NULL)
+  if(hi2s->hdmatx != HAL_NULL)
   {
     HAL_DMA_Abort(hi2s->hdmatx);
   }
   /* Abort the I2S DMA Stream rx */
-  if(hi2s->hdmarx != NULL)
+  if(hi2s->hdmarx != HAL_NULL)
   {
     HAL_DMA_Abort(hi2s->hdmarx);
   }

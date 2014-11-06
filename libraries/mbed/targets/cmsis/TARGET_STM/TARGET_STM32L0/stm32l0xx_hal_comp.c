@@ -184,7 +184,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
  HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
   {
     status = HAL_ERROR;
   }
@@ -250,7 +250,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
   {
     status = HAL_ERROR;
   }
@@ -327,7 +327,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
   {
     status = HAL_ERROR;
   }
@@ -362,7 +362,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
   {
     status = HAL_ERROR;
   }
@@ -500,7 +500,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
+  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != 0x00))
   {
     status = HAL_ERROR;
   }
@@ -584,7 +584,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == NULL)
+  if(hcomp == HAL_NULL)
   {
     return HAL_COMP_STATE_RESET;
   }

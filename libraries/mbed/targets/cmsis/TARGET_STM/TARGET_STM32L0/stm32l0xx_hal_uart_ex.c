@@ -124,7 +124,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   uint32_t temp = 0x0;
   
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -372,7 +372,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength)
 {
   /* Check the UART handle allocation */
-  if(huart == NULL)
+  if(huart == HAL_NULL)
   {
     return HAL_ERROR;
   }
