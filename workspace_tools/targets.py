@@ -717,6 +717,11 @@ class XADOW_M0(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
         self.default_toolchain = "uARM"
 
+class WALLBOT_BLE(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822']
 
 ### ARM ###
 
@@ -802,6 +807,7 @@ TARGETS = [
     RBLAB_NRF51822(),# nRF51822
     RBLAB_BLENANO(),# nRF51822
     XADOW_M0(),     # nRF51822
+    WALLBOT_BLE(),  # nRF51822
     
     ### ARM ###
     ARM_MPS2(),
