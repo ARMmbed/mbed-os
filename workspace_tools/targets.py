@@ -594,9 +594,10 @@ class MTS_MDOT(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F405RG']
-        self.supported_toolchains = ["IAR"]
+        self.macros = ['HSE_VALUE=26000000']
+        self.supported_toolchains = ["GCC_ARM", "IAR"]
         self.is_disk_virtual = True
-        self.default_toolchain = "IAR"
+        self.default_toolchain = "GCC_ARM"
 
 
 ### Nordic ###
