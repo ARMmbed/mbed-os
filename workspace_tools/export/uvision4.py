@@ -50,8 +50,10 @@ class Uvision4(Exporter):
         'NUCLEO_L152RE',
         'UBLOX_C027',
         'LPC1549',
-        'LPC11U35_501',
+        # Removed as uvision4_lpc11u35_501.uvproj.tmpl is missing.
+        #'LPC11U35_501', 
         'NRF51822',
+        'HRM1017',
         'ARCH_PRO',
         'ARCH_BLE',
         'DISCO_F407VG',

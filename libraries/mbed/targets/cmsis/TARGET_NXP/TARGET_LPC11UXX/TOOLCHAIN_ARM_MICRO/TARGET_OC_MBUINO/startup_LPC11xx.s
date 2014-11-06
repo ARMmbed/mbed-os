@@ -25,7 +25,7 @@ Stack_Size      EQU     0x00000400
                 EXPORT  __initial_sp
 
 Stack_Mem       SPACE   Stack_Size
-__initial_sp        EQU     0x10002000  ; Top of RAM from LPC11U
+__initial_sp        EQU     0x10001800  ; Top of RAM from LPC11U
 
 
 Heap_Size       EQU     0x00000000

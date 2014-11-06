@@ -73,6 +73,7 @@ STMicroelectronics:
 * STM32F3-Discovery (Cortex-M4F)
 * STM32F4-Discovery (Cortex-M4F)
 * STM32F429-Discovery (Cortex-M4F)
+* STM32L0-Discovery (Cortex-M0+)
 * [Arch Max](https://developer.mbed.org/platforms/Seeed-Arch-Max/) (Cortex-M4F)
 
 
