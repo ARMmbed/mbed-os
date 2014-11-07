@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -26,50 +27,35 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#include "mbed_assert.h"
-#include "gpio_api.h"
-#include "pinmap.h"
-#include "mbed_error.h"
+ */ 
+#include "cmsis_nvic.h"
 
-extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-uint32_t gpio_set(PinName pin) {
-    MBED_ASSERT(pin != (PinName)NC);
+static unsigned char vtor_remap = 0; // To keep track that the vectors remap is done
 
-    pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-
-    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
-}
-
-void gpio_init(gpio_t *obj, PinName pin) {
-    obj->pin = pin;
-    if (pin == (PinName)NC) {
-        return;
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    int i;
+    // Space for dynamic vectors, initialised to allocate in R/W
+    static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
+    
+    // Copy and switch to dynamic vectors if first time called
+    if (vtor_remap == 0) {
+      uint32_t *old_vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
+      for (i = 0; i < NVIC_NUM_VECTORS; i++) {
+          vectors[i] = old_vectors[i];
+      }
+      SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
+      vtor_remap = 1; // The vectors remap is done
     }
 
-    uint32_t port_index = STM_PORT(pin);
-
-    // Enable GPIO clock
-    uint32_t gpio_add = Set_GPIO_Clock(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-
-    // Fill GPIO object structure for future use
-    obj->mask    = gpio_set(pin);
-    obj->reg_in  = &gpio->IDR;
-    obj->reg_set = &gpio->BSRR;
-    obj->reg_clr = &gpio->BRR;
+    // Set the vector
+    vectors[IRQn + 16] = vector;
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
-    pin_mode(obj->pin, mode);
-}
-
-void gpio_dir(gpio_t *obj, PinDirection direction) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (direction == PIN_OUTPUT) {
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
-    } else { // PIN_INPUT
-        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    }
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    // Return the vector
+    return vectors[IRQn + 16];
 }
