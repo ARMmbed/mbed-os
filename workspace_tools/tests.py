@@ -20,6 +20,8 @@ from workspace_tools.data.support import *
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
 
+TEST_MBED_TESTRUNNER_LIB = join(TEST_DIR, "utest", "testrunner")
+
 PERIPHERALS = join(TEST_DIR, "peripherals")
 BENCHMARKS_DIR = join(TEST_DIR, "benchmarks")
 
@@ -883,20 +885,20 @@ TESTS = [
     {
         "id": "UT_1", "description": "Basic",
         "source_dir": join(TEST_DIR, "utest", "basic"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY, TEST_MBED_TESTRUNNER_LIB],
         "automated": False,
     },
     {
         "id": "UT_2", "description": "Semihost file system",
         "source_dir": join(TEST_DIR, "utest", "semihost_fs"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY, TEST_MBED_TESTRUNNER_LIB],
         "automated": False,
         "mcu": ["LPC1768", "LPC2368", "LPC11U24"]
     },
     {
         "id": "UT_3", "description": "General tests",
         "source_dir": join(TEST_DIR, "utest", "general"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY, TEST_MBED_TESTRUNNER_LIB],
         "automated": False,
     },
 
