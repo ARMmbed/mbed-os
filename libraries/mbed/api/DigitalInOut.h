@@ -55,7 +55,7 @@ public:
      */
     DigitalInOut(PinName pin, PinDirection direction, PinMode mode, int value) : gpio() {
         gpio_init_inout(&gpio, pin, direction, mode, value);
-        this->inverting = invert;
+        this->inverting = false;
     }
 
     /** Create a DigitalInOut connected to the specified pin
