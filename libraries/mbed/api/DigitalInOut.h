@@ -33,6 +33,17 @@ public:
      */
     DigitalInOut(PinName pin) : gpio() {
         gpio_init_in(&gpio, pin);
+        this->inverting = false;
+    }
+
+    /** Create a DigitalInOut connected to the specified pin
+     *
+     *  @param pin DigitalInOut pin to connect to
+     *  @param invert inverts the singal if set
+     */
+    DigitalInOut(PinName pin, bool invert) : gpio() {
+        gpio_init_in(&gpio, pin);
+        this->inverting = invert;
     }
 
     /** Create a DigitalInOut connected to the specified pin
@@ -44,6 +55,20 @@ public:
      */
     DigitalInOut(PinName pin, PinDirection direction, PinMode mode, int value) : gpio() {
         gpio_init_inout(&gpio, pin, direction, mode, value);
+        this->inverting = invert;
+    }
+
+    /** Create a DigitalInOut connected to the specified pin
+     *
+     *  @param pin DigitalInOut pin to connect to
+     *  @param direction the initial direction of the pin
+     *  @param mode the initial mode of the pin
+     *  @param value the initial value of the pin if is an output
+     *  @param invert inverts the singal if set
+     */
+    DigitalInOut(PinName pin, PinDirection direction, PinMode mode, bool invert, int value) : gpio() {
+        gpio_init_inout(&gpio, pin, direction, mode, value);
+        this->inverting = invert;
     }
 
     /** Set the output, specified as 0 or 1 (int)
@@ -52,7 +77,7 @@ public:
      *      0 for logical 0, 1 (or any other non-zero value) for logical 1
      */
     void write(int value) {
-        gpio_write(&gpio, value);
+        gpio_write(&gpio, this->inverting ^ value);
     }
 
     /** Return the output setting, represented as 0 or 1 (int)
@@ -62,7 +87,7 @@ public:
      *    or read the input if set as an input
      */
     int read() {
-        return gpio_read(&gpio);
+        return this->inverting ^ gpio_read(&gpio);
     }
 
     /** Set as an output
@@ -83,6 +108,14 @@ public:
      */
     void mode(PinMode pull) {
         gpio_mode(&gpio, pull);
+    }
+
+    /** Set invert mode
+     *
+     *  @param invert true false
+     */
+    void invert(bool invert) {
+        this->inverting = invert;
     }
 
 #ifdef MBED_OPERATORS
@@ -107,6 +140,9 @@ public:
 
 protected:
     gpio_t gpio;
+
+private:
+    bool inverting;
 };
 
 } // namespace mbed

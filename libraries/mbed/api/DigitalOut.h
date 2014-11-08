@@ -47,6 +47,7 @@ public:
      */
     DigitalOut(PinName pin) : gpio() {
         gpio_init_out(&gpio, pin);
+        this->inverting = false;
     }
 
     /** Create a DigitalOut connected to the specified pin
@@ -56,6 +57,18 @@ public:
      */
     DigitalOut(PinName pin, int value) : gpio() {
         gpio_init_out_ex(&gpio, pin, value);
+        this->inverting = false;
+    }
+
+    /** Create a DigitalOut connected to the specified pin
+     *
+     *  @param pin DigitalOut pin to connect to
+     *  @param value the initial pin value
+     *  @param invert inverts the singal if set
+     */
+    DigitalOut(PinName pin, bool invert, int value) : gpio() {
+        gpio_init_out_ex(&gpio, pin, value);
+        this->inverting = invert;
     }
 
     /** Set the output, specified as 0 or 1 (int)
@@ -64,7 +77,7 @@ public:
      *      0 for logical 0, 1 (or any other non-zero value) for logical 1
      */
     void write(int value) {
-        gpio_write(&gpio, value);
+        gpio_write(&gpio, this->inverting ^ value);
     }
 
     /** Return the output setting, represented as 0 or 1 (int)
@@ -74,7 +87,15 @@ public:
      *    0 for logical 0, 1 for logical 1
      */
     int read() {
-        return gpio_read(&gpio);
+        return this->inverting ^ gpio_read(&gpio);
+    }
+
+    /** Set invert mode
+     *
+     *  @param invert true false
+     */
+    void invert(bool invert) {
+        this->inverting = invert;
     }
 
 #ifdef MBED_OPERATORS
@@ -99,6 +120,9 @@ public:
 
 protected:
     gpio_t gpio;
+
+private:
+    bool inverting;
 };
 
 } // namespace mbed
