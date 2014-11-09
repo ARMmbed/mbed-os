@@ -35,23 +35,30 @@
 #include "pinmap.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PA_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1 - ARDUINO A0
-    {PA_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN2 - ARDUINO A1
+    {PA_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PA_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN2
     {PA_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN3
     {PA_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
-    {PA_4,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN5 - ARDUINO A2
-    {PA_6,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
-    {PA_7,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN15
+    {PA_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN1
+    {PA_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN5
+    {PA_6,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN3
+    {PA_7,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN4
 
-    {PB_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11 - ARDUINO A3
-    {PB_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN12
+    {PB_0,  ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC3_IN12
+    {PB_1,  ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PB_2,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN12
     {PB_11, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN14
-    {PB_13, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN13
+    {PB_13, ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC3_IN5
 
-    {PC_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6 - ARDUINO A5
-    {PC_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7 - ARDUINO A4
+    {PC_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6
+    {PC_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7
     {PC_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
     {PC_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN9
+    {PC_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN5
+    {PC_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN11
+
+    {PF_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
+    {PF_4,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN5
     {NC,    NC,    0}
 };
 
@@ -76,6 +83,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         adc_inited = 1;
 
         // Enable ADC clock
+        __ADC12_CLK_ENABLE();
         __ADC34_CLK_ENABLE();
 
         // Configure ADC
@@ -123,25 +131,31 @@ static inline uint16_t adc_read(analogin_t *obj)
             sConfig.Channel = ADC_CHANNEL_4;
             break;
         case PA_4:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PA_5:
             sConfig.Channel = ADC_CHANNEL_5;
             break;
         case PA_6:
-            sConfig.Channel = ADC_CHANNEL_10;
+            sConfig.Channel = ADC_CHANNEL_3;
             break;
         case PA_7:
-            sConfig.Channel = ADC_CHANNEL_15;
+            sConfig.Channel = ADC_CHANNEL_4;
             break;
         case PB_0:
-            sConfig.Channel = ADC_CHANNEL_11;
+            sConfig.Channel = ADC_CHANNEL_12;
             break;
         case PB_1:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PB_2:
             sConfig.Channel = ADC_CHANNEL_12;
             break;
         case PB_11:
             sConfig.Channel = ADC_CHANNEL_14;
             break;
         case PB_13:
-            sConfig.Channel = ADC_CHANNEL_13;
+            sConfig.Channel = ADC_CHANNEL_5;
             break;
         case PC_0:
             sConfig.Channel = ADC_CHANNEL_6;
@@ -154,6 +168,18 @@ static inline uint16_t adc_read(analogin_t *obj)
             break;
         case PC_3:
             sConfig.Channel = ADC_CHANNEL_9;
+            break;
+        case PC_4:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PC_5:
+            sConfig.Channel = ADC_CHANNEL_11;
+            break;
+        case PF_2:
+            sConfig.Channel = ADC_CHANNEL_10;
+            break;
+        case PF_4:
+            sConfig.Channel = ADC_CHANNEL_5;
             break;
         default:
             return 0;
