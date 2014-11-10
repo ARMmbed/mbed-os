@@ -31,11 +31,14 @@ uint32_t gpio_set(PinName pin) {
     if (!gpio_enabled)
          gpio_enable();
     
-    int f = ((pin == P0_0)  ||
-             (pin == P0_10) ||
-             (pin == P0_15)) ? (1) : (0);
+    int func = ((pin == P0_0)  || // reset
+                (pin == P0_10) || // SWCLK
+                (pin == P0_12) || // TMS
+                (pin == P0_13) || // TDO
+                (pin == P0_14) || // TRST
+                (pin == P0_15)) ? (1) : (0); // SWDIO
     
-    pin_function(pin, f);
+    pin_function(pin, func);
     
     return (1UL << ((int)pin >> PIN_SHIFT & 0x1F));
 }
