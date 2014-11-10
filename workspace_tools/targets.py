@@ -724,6 +724,7 @@ class WALLBOT_BLE(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
+        
 ### ARM ###
 
 class ARM_MPS2(Target):
@@ -734,6 +735,9 @@ class ARM_MPS2(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
 
+        
+### Renesas ###
+
 class RZ_A1H(Target):
     def __init__(self):
         Target.__init__(self)
@@ -743,6 +747,8 @@ class RZ_A1H(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
 
+        
+        
 # Get a single instance for each target
 TARGETS = [
 
@@ -817,16 +823,12 @@ TARGETS = [
     RBLAB_BLENANO(),# nRF51822
     XADOW_M0(),     # nRF51822
     WALLBOT_BLE(),  # nRF51822
-    
+
     ### ARM ###
     ARM_MPS2(),
+    
+    ### Renesas ###
     RZ_A1H(),
-    RBLAB_NRF51822(),
-    RBLAB_BLENANO(),
-    OC_MBUINO(),
-    MTS_GAMBIT(),
-    ARCH_MAX(),
-    DISCO_F429ZI(),
 ]
 
 # Map each target name to its unique instance
