@@ -52,9 +52,6 @@ serial_t stdio_uart;
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
-
-    MBED_ASSERT((int)uart != NC);
-
     obj->uart = (NRF_UART_Type *)uart;
 
     //pin configurations --
@@ -296,4 +293,3 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
 void serial_clear(serial_t *obj) {
 }
-
