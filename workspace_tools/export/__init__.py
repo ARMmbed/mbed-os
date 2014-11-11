@@ -16,7 +16,6 @@ limitations under the License.
 """
 import os, tempfile
 from os.path import join, exists, basename
-from os import makedirs
 from shutil import copytree, rmtree
 
 from workspace_tools.utils import mkdir
@@ -50,7 +49,7 @@ def online_build_url_resolver(url):
     return {'path':'', 'name':''}
 
 
-def export(project_path, project_name, ide, target, destination='/tmp/', 
+def export(project_path, project_name, ide, target, destination='/tmp/',
            tempdir=None, clean=True, extra_symbols=None, build_url_resolver=online_build_url_resolver):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
