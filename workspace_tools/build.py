@@ -102,6 +102,12 @@ if __name__ == '__main__':
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
 
+    parser.add_option("", "--cpputest",
+                      action="store_true",
+                      dest="cpputest_lib",
+                      default=False,
+                      help="Compiles 'cpputest' unit test library (library should be on the same directory level as mbed repository)")
+
     parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
                       default=None,
@@ -169,6 +175,8 @@ if __name__ == '__main__':
         libraries.extend(["fat"])
     if options.ublox:
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
+    if options.cpputest_lib:
+        libraries.extend(["cpputest"])
 
     notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
 
