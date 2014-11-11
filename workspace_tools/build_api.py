@@ -125,11 +125,13 @@ def build_library(src_paths, build_path, target, toolchain_name,
     resources = []
     for src_path in src_paths:
         resources.append(toolchain.scan_resources(src_path))
+
     # Add extra include directories / files which are required by library
     # This files usually are not in the same directory as source files so
     # previous scan will not include them
-    for inc_ext in inc_dirs_ext:
-        resources.append(toolchain.scan_resources(inc_ext))
+    if inc_dirs_ext is not None:
+        for inc_ext in inc_dirs_ext:
+            resources.append(toolchain.scan_resources(inc_ext))
 
     # Dependencies Include Paths
     dependencies_include_dir = []
