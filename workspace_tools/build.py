@@ -85,6 +85,12 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the u-blox library")
 
+    parser.add_option("", "--cpputest",
+                      action="store_true",
+                      dest="cpputest_lib",
+                      default=False,
+                      help="Compiles 'cpputest' unit test library (library should be on the same directory level as mbed repository)")
+
     parser.add_option("-D", "",
                       action="append",
                       dest="macros",
@@ -101,12 +107,6 @@ if __name__ == '__main__':
                       dest="cppcheck_validation",
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
-
-    parser.add_option("", "--cpputest",
-                      action="store_true",
-                      dest="cpputest_lib",
-                      default=False,
-                      help="Compiles 'cpputest' unit test library (library should be on the same directory level as mbed repository)")
 
     parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
