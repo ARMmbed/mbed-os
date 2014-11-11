@@ -19,6 +19,12 @@
 #if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 #   define NAME_MAX 255
 typedef int mode_t;
+
+typedef long int __off_t;
+typedef __off_t off_t;
+
+#include <time.h>
+
 struct stat {
     off_t     st_size;    /* total size, in bytes */
     time_t    st_mtime;   /* time of last modification */
@@ -28,7 +34,6 @@ struct stat {
 #   include <sys/syslimits.h>
 #endif
 
-#include <time.h>
 #include "FileHandle.h"
 
 /*
