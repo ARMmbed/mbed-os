@@ -77,7 +77,7 @@ class CoIDE(Exporter):
             'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         target = self.target.lower()
 

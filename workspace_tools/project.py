@@ -4,7 +4,6 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
-from os.path import join, exists, basename
 from optparse import OptionParser
 
 from workspace_tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
@@ -13,6 +12,8 @@ from workspace_tools.export import export, setup_user_prj, EXPORTERS
 from workspace_tools.utils import args_error
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.targets import TARGET_NAMES
+from workspace_tools.libraries import LIBRARIES
+
 try:
     import workspace_tools.private_settings as ps
 except:
@@ -46,7 +47,7 @@ if __name__ == '__main__':
     parser.add_option("-b", dest="build", action="store_true", default=False,
         help="use the mbed library build, instead of the sources")
 
-    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests", default=False, 
+    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests", default=False,
         help="list available programs in order and exit")
 
     (options, args) = parser.parse_args()
@@ -101,6 +102,16 @@ if __name__ == '__main__':
         args_error(parser, message)
     test = Test(p)
 
+    # Some libraries have extra macros (called by exporter symbols) to we need to pass 
+    # them to maintain compilation macros integrity between compiled library and 
+    # header files we might use with it
+    lib_symbols = []
+    for lib in LIBRARIES:
+        if lib['build_dir'] in test.dependencies:
+            lib_macros = lib.get('macros', None)
+            if lib_macros is not None:
+                lib_symbols.extend(lib_macros)
+
     if not options.build:
         # Substitute the library builds with the sources
         # TODO: Substitute also the other library build paths
@@ -113,7 +124,7 @@ if __name__ == '__main__':
     setup_user_prj(project_dir, test.source_dir, test.dependencies)
 
     # Export to selected toolchain
-    tmp_path, report = export(project_dir, test.id, ide, mcu, EXPORT_WORKSPACE, EXPORT_TMP)
+    tmp_path, report = export(project_dir, test.id, ide, mcu, EXPORT_WORKSPACE, EXPORT_TMP, extra_symbols=lib_symbols)
     if report['success']:
         zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (test.id, ide, mcu))
         move(tmp_path, zip_path)
