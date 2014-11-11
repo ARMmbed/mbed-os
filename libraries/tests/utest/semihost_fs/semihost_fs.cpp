@@ -1,4 +1,4 @@
-#include "CppUTest/TestHarness.h"
+#include "TestHarness.h"
 #include "mbed.h"
 #include "semihost_api.h"
 #include <stdio.h>

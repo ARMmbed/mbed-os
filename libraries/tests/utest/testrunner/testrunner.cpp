@@ -1,4 +1,4 @@
-#include "CppUTest\CommandLineTestRunner.h"
+#include "CommandLineTestRunner.h"
 #include <stdio.h>
 #include "mbed.h"
 #include "testrunner.h"
