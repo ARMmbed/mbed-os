@@ -96,6 +96,21 @@ public:
      */
     virtual int mkdir(const char *name, mode_t mode) { return -1; }
 
+    /** These functions return information about a file. No permissions are
+     *  required on the file itself, but-in the case of stat() and lstat() - execute
+     *  (search) permission is required on all of the directories in path that
+     *  lead to the file.
+     *
+     *  @param name The name of the directory to create.
+     *  @param buf  Pointer to pre-allocated buffer with stat structure.
+     *
+     *  @returns
+     *    0 on success,
+        !=0 file system specific error,
+     *   -1 on failure (Functionality not supported).
+     */
+    virtual int stat(const char *path, struct stat *buf) { return -1; }
+
     // TODO other filesystem functions (mkdir, rm, rn, ls etc)
 };
 

@@ -151,3 +151,24 @@ int FATFileSystem::unmount() {
     FRESULT res = f_mount(_fsid, NULL);
     return res == 0 ? 0 : -1;
 }
+
+int FATFileSystem::stat(const char* path, struct stat* buf) {
+    FILINFO finfo;
+    FRESULT f_result = f_stat(path, &finfo);
+    if(f_result == FR_OK) {
+        // Translate time from FatFS to POSIX's time_t format
+        struct tm timeinfo;
+        timeinfo.tm_sec  = finfo.ftime & 0x1F;         // seconds after the minute (0-59)
+        timeinfo.tm_min  = (finfo.ftime >> 5) & 0x3F;  // minutes after the hour   (0-59)
+        timeinfo.tm_hour = (finfo.ftime >> 11) & 0x1F; // hours since midnight     (0-23)
+        timeinfo.tm_mday = finfo.fdate & 0x1F;         // day of the month         (1-31)
+        timeinfo.tm_mon  = (finfo.fdate >> 5) & 0x0F;  // months since January     (0-11)
+        timeinfo.tm_year = (finfo.fdate >> 9) & 0x7F;  // years                    (since 1900)
+        timeinfo.tm_year += 80; // Note: in fdate year origin from 1980 (0..127)
+
+        // Set stat structure:
+        buf->st_mtime = mktime(&timeinfo);
+        buf->st_size  = finfo.fsize;
+    }
+    return (int)f_result;
+}

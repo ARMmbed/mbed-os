@@ -19,11 +19,16 @@
 #if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 #   define NAME_MAX 255
 typedef int mode_t;
+struct stat {
+    off_t     st_size;    /* total size, in bytes */
+    time_t    st_mtime;   /* time of last modification */
+};
 
 #else
 #   include <sys/syslimits.h>
 #endif
 
+#include <time.h>
 #include "FileHandle.h"
 
 /*
@@ -114,6 +119,7 @@ extern "C" {
     long telldir(DIR*);
     void seekdir(DIR*, long);
     int mkdir(const char *name, mode_t n);
+    int stat(const char *name, struct stat *buf);
 };
 
 #endif /* MBED_DIRHANDLE_H */

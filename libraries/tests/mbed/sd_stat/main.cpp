@@ -56,22 +56,36 @@ int main()
     struct dirent *ent;
     if ((dir = opendir ("/sd/")) != NULL) {
         // print all the files and directories within directory
+
+        printf("type\tmodified          \tsize\tname\r\n");
         while ((ent = readdir (dir)) != NULL) {
             if (ent->d_type == DT_UNKNOWN) {
                 // If we still get unknown SD card file type...
                 result = false;
             }
+            struct stat statinfo;
+            char name[256] = "/sd/";
+            strcat(name, ent->d_name);
+            int res = stat(name, &statinfo);
+
+            int f_size = res ? 0 : statinfo.st_size;
+            time_t f_mtime = res ? 0 : statinfo.st_mtime;
+
+            char buffer[32] = {0};
+            strftime(buffer, 32, "%Y-%m-%d %H:%M%p", localtime(&f_mtime));
+
             // Print file type and name
             bool is_dir = (ent->d_type == DT_DIR);
-            const char *file_dir = is_dir ? "dir" : "file";
-            printf("%s:\t%s\r\n", file_dir, ent->d_name);
+            const char *file_dir = is_dir ? "d" : "f";
+            printf("%s\t%s\t%d\t%s\r\n", file_dir, buffer, f_size, ent->d_name);
+
         }
         closedir (dir);
     } else {
         // could not open directory
         printf("Could not open directory");
         result = false;
-    }    
-    
+    }
+
     notify_completion(result);
 }
