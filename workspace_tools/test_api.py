@@ -370,10 +370,16 @@ class SingleTestRunner(object):
                         continue
 
                     if test.automated and test.is_supported(target, toolchain):
-                        if not self.is_peripherals_available(target, test.peripherals):
+                        if test.peripherals is None and self.opts_only_build_tests:
+                            # When users are using 'build only flag' and test do not have
+                            # specified peripherals we can allow test building by default
+                            pass
+                        elif not self.is_peripherals_available(target, test.peripherals):
                             if self.opts_verbose_skipped_tests:
-                                test_peripherals = test.peripherals if test.peripherals else []
-                                print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test_peripherals), target))
+                                if test.peripherals:
+                                    print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test.peripherals), target))
+                                else:
+                                    print self.logger.log_line(self.logger.LogType.INFO, 'Test %s skipped for target %s'% (test_id, target))
                             test_suite_properties['skipped'].append(test_id)
                             continue
 
