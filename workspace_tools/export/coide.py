@@ -33,7 +33,7 @@ class CoIDE(Exporter):
         'NUCLEO_F411RE',
         'DISCO_F429ZI',
         'DISCO_F334C8',
-        'MTS_MDOT',
+        'MTS_MDOT_F405RG',
     ]
 
     # seems like CoIDE currently supports only one type
