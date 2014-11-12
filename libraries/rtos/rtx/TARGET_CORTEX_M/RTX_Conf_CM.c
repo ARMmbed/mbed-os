@@ -152,9 +152,6 @@
 #elif defined(TARGET_STM32F103RB)
 #    define OS_CLOCK       72000000
 
-#elif defined(TARGET_MTS_MDOT)
-#    define OS_CLOCK       48000000
-
 #  else
 #    error "no target defined"
 #  endif
