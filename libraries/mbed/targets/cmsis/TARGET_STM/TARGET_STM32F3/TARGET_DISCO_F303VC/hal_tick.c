@@ -71,6 +71,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Reset timer
     TIM_MST_RESET_ON;
     TIM_MST_RESET_OFF;
+
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
   
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
