@@ -446,7 +446,7 @@ class NUCLEO_F103RB(Target):
         Target.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = "0700"
