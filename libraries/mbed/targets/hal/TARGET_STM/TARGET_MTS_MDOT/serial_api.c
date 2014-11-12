@@ -102,30 +102,30 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // Enable USART clock
     switch (obj->uart) {
-    case UART_1:
-        __USART1_CLK_ENABLE();
-        obj->index = 0;
-        break;
-    case UART_2:
-        __USART2_CLK_ENABLE();
-        obj->index = 1;
-        break;
-    case UART_3:
-        __USART3_CLK_ENABLE();
-        obj->index = 2;
-        break;
-    case UART_4:
-        __UART4_CLK_ENABLE();
-        obj->index = 3;
-        break;
-    case UART_5:
-        __UART5_CLK_ENABLE();
-        obj->index = 4;
-        break;
-    case UART_6:
-        __USART6_CLK_ENABLE();
-        obj->index = 5;
-        break;
+        case UART_1:
+            __USART1_CLK_ENABLE();
+            obj->index = 0;
+            break;
+        case UART_2:
+            __USART2_CLK_ENABLE();
+            obj->index = 1;
+            break;
+        case UART_3:
+            __USART3_CLK_ENABLE();
+            obj->index = 2;
+            break;
+        case UART_4:
+            __UART4_CLK_ENABLE();
+            obj->index = 3;
+            break;
+        case UART_5:
+            __UART5_CLK_ENABLE();
+            obj->index = 4;
+            break;
+        case UART_6:
+            __USART6_CLK_ENABLE();
+            obj->index = 5;
+            break;
     }
 
     // Configure the UART pins
@@ -160,36 +160,36 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 void serial_free(serial_t *obj) {
     // Reset UART and disable clock
     switch (obj->uart) {
-	case UART_1:
-        __USART1_FORCE_RESET();
-        __USART1_RELEASE_RESET();
-        __USART1_CLK_DISABLE();
-        break;
-    case UART_2:
-        __USART2_FORCE_RESET();
-        __USART2_RELEASE_RESET();
-        __USART2_CLK_DISABLE();
-        break;
-	case UART_3:
-        __USART3_FORCE_RESET();
-        __USART3_RELEASE_RESET();
-        __USART3_CLK_DISABLE();
-        break;
-    case UART_4:
-        __UART4_FORCE_RESET();
-        __UART4_RELEASE_RESET();
-        __UART4_CLK_DISABLE();
-        break;
-    case UART_5:
-        __UART5_FORCE_RESET();
-        __UART5_RELEASE_RESET();
-        __UART5_CLK_DISABLE();
-        break;
-    case UART_6:
-        __USART6_FORCE_RESET();
-        __USART6_RELEASE_RESET();
-        __USART6_CLK_DISABLE();
-        break;
+        case UART_1:
+            __USART1_FORCE_RESET();
+            __USART1_RELEASE_RESET();
+            __USART1_CLK_DISABLE();
+            break;
+        case UART_2:
+            __USART2_FORCE_RESET();
+            __USART2_RELEASE_RESET();
+            __USART2_CLK_DISABLE();
+            break;
+        case UART_3:
+            __USART3_FORCE_RESET();
+            __USART3_RELEASE_RESET();
+            __USART3_CLK_DISABLE();
+            break;
+        case UART_4:
+            __UART4_FORCE_RESET();
+            __UART4_RELEASE_RESET();
+            __UART4_CLK_DISABLE();
+            break;
+        case UART_5:
+            __UART5_FORCE_RESET();
+            __UART5_RELEASE_RESET();
+            __UART5_CLK_DISABLE();
+            break;
+        case UART_6:
+            __USART6_FORCE_RESET();
+            __USART6_RELEASE_RESET();
+            __USART6_CLK_DISABLE();
+            break;
     }
 
     // Configure GPIOs
@@ -283,35 +283,35 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
     switch (obj->uart) {
-    case UART_1:
-        irq_n = USART1_IRQn;
-        vector = (uint32_t)&uart1_irq;
-        break;
+        case UART_1:
+            irq_n = USART1_IRQn;
+            vector = (uint32_t)&uart1_irq;
+            break;
 
-    case UART_2:
-        irq_n = USART2_IRQn;
-        vector = (uint32_t)&uart2_irq;
-        break;
+        case UART_2:
+            irq_n = USART2_IRQn;
+            vector = (uint32_t)&uart2_irq;
+            break;
 
-    case UART_3:
-        irq_n = USART3_IRQn;
-        vector = (uint32_t)&uart3_irq;
-        break;
+        case UART_3:
+            irq_n = USART3_IRQn;
+            vector = (uint32_t)&uart3_irq;
+            break;
 
-    case UART_4:
-        irq_n = UART4_IRQn;
-        vector = (uint32_t)&uart4_irq;
-        break;
+        case UART_4:
+            irq_n = UART4_IRQn;
+            vector = (uint32_t)&uart4_irq;
+            break;
 
-    case UART_5:
-        irq_n = UART5_IRQn;
-        vector = (uint32_t)&uart5_irq;
-        break;
+        case UART_5:
+            irq_n = UART5_IRQn;
+            vector = (uint32_t)&uart5_irq;
+            break;
 
-    case UART_6:
-        irq_n = USART6_IRQn;
-        vector = (uint32_t)&uart6_irq;
-        break;
+        case UART_6:
+            irq_n = USART6_IRQn;
+            vector = (uint32_t)&uart6_irq;
+            break;
     }
 
     if (enable) {
