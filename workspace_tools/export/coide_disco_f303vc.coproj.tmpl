@@ -24,7 +24,7 @@
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Not use C Library"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="UserEditLinker" value="--specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
+        <Option name="UserEditLinker" value=" -Wl,--wrap,main; --specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
         ${project.path}/{{file}}; {% endfor %} {% for p in library_paths %}-L${project.path}/{{p}}; {% endfor %}"/>
         <LinkedLibraries>
           {% for lib in libraries %}
