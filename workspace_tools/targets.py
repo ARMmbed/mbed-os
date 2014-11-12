@@ -597,7 +597,7 @@ class MTS_MDOT(Target):
         self.macros = ['HSE_VALUE=26000000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.is_disk_virtual = True
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "ARM"
 
 
 ### Nordic ###
