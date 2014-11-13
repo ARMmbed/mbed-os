@@ -94,7 +94,7 @@ static void init_uart(serial_t *obj)
     // Disable the reception overrun detection
     UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
     UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
-    
+
     HAL_UART_Init(&UartHandle);
 }
 
