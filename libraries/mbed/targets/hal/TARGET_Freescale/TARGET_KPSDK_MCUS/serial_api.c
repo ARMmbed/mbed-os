@@ -79,6 +79,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
+    while(!UART_HAL_IsTxDataRegEmpty(uart_addrs[obj->index]));
 }
 
 void serial_free(serial_t *obj) {

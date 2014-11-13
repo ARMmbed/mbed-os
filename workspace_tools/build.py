@@ -37,7 +37,6 @@ from workspace_tools.build_api import static_analysis_scan, static_analysis_scan
 from workspace_tools.build_api import print_build_results
 from workspace_tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 
-
 if __name__ == '__main__':
     start = time()
 
@@ -209,7 +208,6 @@ if __name__ == '__main__':
                     lib_build_res = build_mbed_libs(mcu, toolchain, options=options.options,
                                                     notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                                     macros=options.macros)
-
                     for lib_id in libraries:
                         notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain, options=options.options,

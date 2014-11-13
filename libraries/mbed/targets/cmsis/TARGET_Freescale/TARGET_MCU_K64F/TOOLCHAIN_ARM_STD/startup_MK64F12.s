@@ -402,9 +402,9 @@ FEPROT          EQU     nFEPROT:EOR:0xFF
 ;       <0=> Low-power boot
 ;       <1=> normal boot
 ;     <o.1>  EZPORT_DIS
-;       <0=> EzPort operation is enabled
-;       <1=> EzPort operation is disabled
-FOPT            EQU     0xFF
+;       <0=> EzPort operation is disabled
+;       <1=> EzPort operation is enabled
+FOPT            EQU     0xFD
 ;   </h>
 ;   <h> Flash security byte (FSEC)
 ;     <i> WARNING: If SEC field is configured as "MCU security status is secure" and MEEN field is configured as "Mass erase is disabled",

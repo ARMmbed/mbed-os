@@ -30,9 +30,11 @@ void sleep(void)
 //Very low-power stop mode
 void deepsleep(void)
 {
+#if ! defined(TARGET_KL43Z)
     //Check if PLL/FLL is enabled:
     uint32_t PLL_FLL_en = (MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0);
-    
+#endif 
+   
     SMC->PMPROT = SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLP_MASK;
     SMC->PMCTRL = SMC_PMCTRL_STOPM(2);
 
@@ -41,6 +43,7 @@ void deepsleep(void)
 
     __WFI();
 
+#if ! defined(TARGET_KL43Z)
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
     if (PLL_FLL_en) {
@@ -50,5 +53,5 @@ void deepsleep(void)
         #endif
         MCG->C1 &= ~MCG_C1_CLKS_MASK;
     }
-
+#endif 
 }

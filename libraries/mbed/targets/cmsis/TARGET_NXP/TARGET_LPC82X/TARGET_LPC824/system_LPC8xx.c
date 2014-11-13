@@ -338,7 +338,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  *         Initialize the System.
  */
 void SystemInit (void) {
-  volatile uint32_t i;
 
   /* System clock to the IOCON & the SWM need to be enabled or
   most of the I/O related peripherals won't work. */
@@ -347,6 +346,7 @@ void SystemInit (void) {
 #if (CLOCK_SETUP)                                 /* Clock Setup              */
 
 #if ((SYSPLLCLKSEL_Val & 0x03) == 1)
+  volatile uint32_t i;
   LPC_IOCON->PIO0_8 &= ~(0x3 << 3);
   LPC_IOCON->PIO0_9 &= ~(0x3 << 3);
   LPC_SWM->PINENABLE0 &= ~(0x3 << 6);             /* XTALIN and XTALOUT       */

@@ -76,9 +76,6 @@ GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
 CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
 
-# SiliconLabs energyAware Commander 2.84 path
-EACOMMANDER_CMD = 'c:/SiliconLabs/SimplicityStudio/v2/commander/eACommander.exe'
-
 BUILD_OPTIONS = []
 
 # mbed.org username

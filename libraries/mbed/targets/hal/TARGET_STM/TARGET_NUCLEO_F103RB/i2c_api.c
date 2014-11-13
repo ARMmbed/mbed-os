@@ -59,9 +59,6 @@ int i2c1_inited = 0;
 int i2c2_inited = 0;
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    int timeout;
-    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-	
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -82,12 +79,12 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if ((obj->i2c == I2C_2)&& !i2c2_inited) {
         i2c2_inited = 1;
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
-    // Configure I2C pins
-    pinmap_pinout(scl, PinMap_I2C_SCL);
-    pin_mode(scl, OpenDrain);
-    pinmap_pinout(sda, PinMap_I2C_SDA);
-    pin_mode(sda, OpenDrain);
-		}
+        // Configure I2C pins
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(scl, OpenDrain);
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pin_mode(sda, OpenDrain);
+    }
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -97,17 +94,17 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 }
 
 void i2c_frequency(i2c_t *obj, int hz) {
-	  int timeout;
-	
-    I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
+    int timeout;
+
+    I2C_TypeDef    *i2c = (I2C_TypeDef *)(obj->i2c);
     I2C_InitTypeDef I2C_InitStructure;
 
     if ((hz != 0) && (hz <= 400000)) {
-			
         // wait before init
         timeout = LONG_TIMEOUT;
-        while((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0));
-			
+        while ((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0)) {
+        }
+
         I2C_DeInit(i2c);
 
         // I2C configuration
@@ -125,7 +122,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
 
 inline int i2c_start(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
+    int          timeout;
 
     I2C_ClearFlag(i2c, I2C_FLAG_AF); // Clear Acknowledge failure flag
 
@@ -154,9 +151,9 @@ inline int i2c_stop(i2c_t *obj) {
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
-    int count;
-    int value;
+    int          timeout;
+    int          count;
+    int          value;
 
     i2c_start(obj);
 
@@ -174,7 +171,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
     // Read all bytes except last one
     for (count = 0; count < (length - 1); count++) {
-        value = i2c_byte_read(obj, 0);
+        value       = i2c_byte_read(obj, 0);
         data[count] = (char)value;
     }
 
@@ -185,7 +182,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     }
 
     // Read the last byte
-    value = i2c_byte_read(obj, 1);
+    value       = i2c_byte_read(obj, 1);
     data[count] = (char)value;
 
     return length;
@@ -193,8 +190,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
-    int count;
+    int          timeout;
+    int          count;
 
     i2c_start(obj);
 
@@ -227,8 +224,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 
 int i2c_byte_read(i2c_t *obj, int last) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    uint8_t data;
-    int timeout;
+    uint8_t      data;
+    int          timeout;
 
     if (last) {
         // Don't acknowledge the last byte
@@ -254,14 +251,14 @@ int i2c_byte_read(i2c_t *obj, int last) {
 
 int i2c_byte_write(i2c_t *obj, int data) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
+    int          timeout;
 
     I2C_SendData(i2c, (uint8_t)data);
 
     // Wait until the byte is transmitted
     timeout = FLAG_TIMEOUT;
     while ((I2C_GetFlagStatus(i2c, I2C_FLAG_TXE) == RESET) &&
-            (I2C_GetFlagStatus(i2c, I2C_FLAG_BTF) == RESET)) {
+           (I2C_GetFlagStatus(i2c, I2C_FLAG_BTF) == RESET)) {
         timeout--;
         if (timeout == 0) {
             return 0;
@@ -273,12 +270,13 @@ int i2c_byte_write(i2c_t *obj, int data) {
 
 void i2c_reset(i2c_t *obj) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    int timeout;
-	
+    int          timeout;
+
     // wait before reset
     timeout = LONG_TIMEOUT;
-    while((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0));
-	
+    while ((I2C_GetFlagStatus(i2c, I2C_FLAG_BUSY)) && (timeout-- != 0)) {
+    }
+
     if (obj->i2c == I2C_1) {
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
@@ -293,7 +291,7 @@ void i2c_reset(i2c_t *obj) {
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
-    uint16_t tmpreg;
+    uint16_t     tmpreg;
 
     // Get the old register value
     tmpreg = i2c->OAR1;
@@ -316,8 +314,8 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
 int i2c_slave_receive(i2c_t *obj) {
-    int retValue = NoData;
-    uint32_t event;
+    int          retValue = NoData;
+    uint32_t     event;
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
 
     event = I2C_GetLastEvent(i2c);
@@ -378,7 +376,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 
     return count;
 }
-
 
 #endif // DEVICE_I2CSLAVE
 

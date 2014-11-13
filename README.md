@@ -50,6 +50,7 @@ NXP:
 Freescale:
 * [FRDM-KL05Z](https://developer.mbed.org/platforms/FRDM-KL05Z/) (Cortex-M0+)
 * [FRDM-KL25Z](http://developer.mbed.org/platforms/KL25Z/) (Cortex-M0+)
+* FRDM-KL43Z (Cortex-M0+)
 * [FRDM-KL46Z](https://developer.mbed.org/platforms/FRDM-KL46Z/) (Cortex-M0+)
 * [FRDM-K20D50M](https://developer.mbed.org/platforms/FRDM-K20D50M/) (Cortex-M4)
 * [FRDM-K22F](https://developer.mbed.org/platforms/FRDM-K22F/) (Cortex-M4F)
@@ -72,12 +73,17 @@ STMicroelectronics:
 * STM32F3-Discovery (Cortex-M4F)
 * STM32F4-Discovery (Cortex-M4F)
 * STM32F429-Discovery (Cortex-M4F)
+* STM32L0-Discovery (Cortex-M0+)
 * [Arch Max](https://developer.mbed.org/platforms/Seeed-Arch-Max/) (Cortex-M4F)
 
 
 Nordic:
 * [nRF51822-mKIT](https://developer.mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
 * [Arch BLE](https://developer.mbed.org/platforms/Seeed-Arch-BLE/) (Cortex-M0)
+
+Renesas:
+* [RZ-A1H](http://developer.mbed.org/platforms/Renesas-GR-PEACH/) (Cortex-A9)
+
 
 Supported Toolchains and IDEs
 -----------------------------

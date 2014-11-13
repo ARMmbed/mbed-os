@@ -18,7 +18,6 @@ limitations under the License.
 import sys
 import socket
 from sys import stdout
-from time import sleep
 from host_test import Test
 from SocketServer import BaseRequestHandler, TCPServer
 

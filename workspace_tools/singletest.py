@@ -143,15 +143,15 @@ if __name__ == '__main__':
             parser.print_help()
         exit(-1)
 
-    # Only prints read MUTs configuration
-    if MUTs and opts.verbose_test_configuration_only:
+    if opts.verbose_test_configuration_only:
         print "MUTs configuration in %s:"% opts.muts_spec_filename
-        print print_muts_configuration_from_json(MUTs)
+        if MUTs:
+            print print_muts_configuration_from_json(MUTs)
         print
         print "Test specification in %s:"% opts.test_spec_filename
-        print print_test_configuration_from_json(test_spec)
+        if test_spec:
+            print print_test_configuration_from_json(test_spec)
         exit(0)
-
 
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:

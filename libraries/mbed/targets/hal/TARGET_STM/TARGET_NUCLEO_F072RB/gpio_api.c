@@ -57,8 +57,8 @@ void gpio_init(gpio_t *obj, PinName pin) {
     // Fill GPIO object structure for future use
     obj->mask    = gpio_set(pin);
     obj->reg_in  = &gpio->IDR;
-    obj->reg_set = &gpio->BSRRL;
-    obj->reg_clr = &gpio->BSRRH;
+    obj->reg_set = &gpio->BSRR;
+    obj->reg_clr = &gpio->BRR;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {

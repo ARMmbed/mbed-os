@@ -35,10 +35,12 @@ build_list = (
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
 
-    { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    # { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "DISCO_F334C8",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
@@ -47,6 +49,7 @@ build_list = (
 
     { "target": "KL05Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "KL25Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "KL43Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "KL46Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "K20D50M",       "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
