@@ -35,7 +35,8 @@
 
 static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void) {
+void sleep(void)
+{
     TimMasterHandle.Instance = TIM5;
 
     // Disable HAL tick interrupt
@@ -48,7 +49,8 @@ void sleep(void) {
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
