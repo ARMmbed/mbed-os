@@ -589,6 +589,16 @@ class DISCO_L053C8(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
+class MTS_MDOT_F405RG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F405RG']
+        self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=48000000']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+
 
 ### Nordic ###
 
@@ -810,6 +820,7 @@ TARGETS = [
     ARCH_MAX(),     # STM32F407
     DISCO_F429ZI(),
     DISCO_L053C8(),
+    MTS_MDOT_F405RG(),
     
     ### Nordic ###
     NRF51822(),
