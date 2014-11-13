@@ -36,8 +36,8 @@
 #include "mbed_error.h"
 
 // TIM1 cannot be used because already used by the us_ticker
-// Uncomment/comment line above to use an alternate timer, 
-// If the channel is not the same, 
+// Uncomment/comment line above to use an alternate timer,
+// If the channel is not the same,
 // Please don't forget to uncomment/comment in the pwmout_write() function also
 static const PinMap PinMap_PWM[] = {
     {PA_4,  PWM_14, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF4_TIM14)}, // TIM14_CH1
@@ -67,7 +67,8 @@ static const PinMap PinMap_PWM[] = {
 
 static TIM_HandleTypeDef TimHandle;
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t* obj, PinName pin)
+{
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
 
@@ -92,12 +93,14 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t* obj)
+{
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t* obj, float value)
+{
     TIM_OC_InitTypeDef sConfig;
     int channel = 0;
     int complementary_channel = 0;
@@ -137,12 +140,12 @@ void pwmout_write(pwmout_t* obj, float value) {
         // Channels 1N
         case PB_6:
         case PB_7:
-//  		case PB_15:
+//          case PB_15:
             channel = TIM_CHANNEL_1;
             complementary_channel = 1;
             break;
         // Channels 2
-        case PA_7:					
+        case PA_7:
         case PB_5:
         case PB_15:
         case PC_7:
@@ -171,7 +174,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t* obj)
+{
     float value = 0;
     if (obj->period > 0) {
         value = (float)(obj->pulse) / (float)(obj->period);
@@ -179,15 +183,18 @@ float pwmout_read(pwmout_t* obj) {
     return ((value > (float)1.0) ? (float)(1.0) : (value));
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t* obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t* obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t* obj, int us)
+{
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
 
     float dc = pwmout_read(obj);
@@ -212,15 +219,18 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     __HAL_TIM_ENABLE(&TimHandle);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+{
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);
 }
