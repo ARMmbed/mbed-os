@@ -187,7 +187,7 @@ void pwmout_write(pwmout_t* obj, float value)
             channel = TIM_CHANNEL_2;
             complementary_channel = 1;
             break;
-        
+
         // Channels 3
         case PA_10:
         case PC_2:
