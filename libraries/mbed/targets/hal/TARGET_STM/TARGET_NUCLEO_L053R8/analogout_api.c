@@ -43,7 +43,8 @@ static const PinMap PinMap_DAC[] = {
 
 static DAC_HandleTypeDef DacHandle;
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     DAC_ChannelConfTypeDef sConfig;
 
     DacHandle.Instance = DAC;
@@ -70,7 +71,8 @@ void analogout_init(dac_t *obj, PinName pin) {
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {
+void analogout_free(dac_t *obj)
+{
     // Reset DAC and disable clock
     __DAC_FORCE_RESET();
     __DAC_RELEASE_RESET();
@@ -80,16 +82,19 @@ void analogout_free(dac_t *obj) {
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
-static inline void dac_write(dac_t *obj, uint16_t value) {
+static inline void dac_write(dac_t *obj, uint16_t value)
+{
     HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
     HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
 }
 
-static inline int dac_read(dac_t *obj) {
+static inline int dac_read(dac_t *obj)
+{
     return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
 }
 
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     if (value < 0.0f) {
         dac_write(obj, 0); // Min value
     } else if (value > 1.0f) {
@@ -99,7 +104,8 @@ void analogout_write(dac_t *obj, float value) {
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value) {
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
     if (value > (uint16_t)DAC_RANGE) {
         dac_write(obj, (uint16_t)DAC_RANGE); // Max value
     } else {
@@ -107,12 +113,14 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
     }
 }
 
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     uint32_t value = dac_read(obj);
     return (float)((float)value * (1.0f / (float)DAC_RANGE));
 }
 
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     return (uint16_t)dac_read(obj);
 }
 
