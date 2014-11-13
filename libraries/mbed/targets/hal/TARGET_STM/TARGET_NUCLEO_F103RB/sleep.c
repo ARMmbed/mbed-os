@@ -33,7 +33,8 @@
 
 #include "cmsis.h"
 
-void sleep(void) {
+void sleep(void)
+{
     // Disable us_ticker update interrupt
     TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
 
@@ -44,7 +45,8 @@ void sleep(void) {
     TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
     // Disable us_ticker update interrupt
     TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
 

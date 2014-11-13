@@ -63,7 +63,8 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-static void init_usart(serial_t *obj) {
+static void init_usart(serial_t *obj)
+{
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     USART_InitTypeDef USART_InitStructure;
 
@@ -88,7 +89,8 @@ static void init_usart(serial_t *obj) {
     USART_Cmd(usart, ENABLE);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -133,7 +135,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 }
 
-void serial_free(serial_t *obj) {
+void serial_free(serial_t *obj)
+{
     // Reset UART and disable clock
     if (obj->uart == UART_1) {
         RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, ENABLE);
@@ -158,12 +161,14 @@ void serial_free(serial_t *obj) {
     serial_irq_ids[obj->index] = 0;
 }
 
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
     obj->baudrate = baudrate;
     init_usart(obj);
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
     if (data_bits == 9) {
         obj->databits = USART_WordLength_9b;
     } else {
@@ -198,7 +203,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  ******************************************************************************/
 
 // not api
-static void uart_irq(USART_TypeDef* usart, int id) {
+static void uart_irq(USART_TypeDef* usart, int id)
+{
     if (serial_irq_ids[id] != 0) {
         if (USART_GetITStatus(usart, USART_IT_TC) != RESET) {
             irq_handler(serial_irq_ids[id], TxIrq);
@@ -211,22 +217,27 @@ static void uart_irq(USART_TypeDef* usart, int id) {
     }
 }
 
-static void uart1_irq(void) {
+static void uart1_irq(void)
+{
     uart_irq((USART_TypeDef*)UART_1, 0);
 }
-static void uart2_irq(void) {
+static void uart2_irq(void)
+{
     uart_irq((USART_TypeDef*)UART_2, 1);
 }
-static void uart3_irq(void) {
+static void uart3_irq(void)
+{
     uart_irq((USART_TypeDef*)UART_3, 2);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
@@ -280,19 +291,22 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
  * READ/WRITE
  ******************************************************************************/
 
-int serial_getc(serial_t *obj) {
+int serial_getc(serial_t *obj)
+{
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     while (!serial_readable(obj));
     return (int)(USART_ReceiveData(usart));
 }
 
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     while (!serial_writable(obj));
     USART_SendData(usart, (uint16_t)c);
 }
 
-int serial_readable(serial_t *obj) {
+int serial_readable(serial_t *obj)
+{
     int status;
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     // Check if data is received
@@ -300,7 +314,8 @@ int serial_readable(serial_t *obj) {
     return status;
 }
 
-int serial_writable(serial_t *obj) {
+int serial_writable(serial_t *obj)
+{
     int status;
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     // Check if data is transmitted
@@ -308,22 +323,26 @@ int serial_writable(serial_t *obj) {
     return status;
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     USART_ClearFlag(usart, USART_FLAG_TXE);
     USART_ClearFlag(usart, USART_FLAG_RXNE);
 }
 
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
     USART_TypeDef *usart = (USART_TypeDef *)(obj->uart);
     USART_SendBreak(usart);
 }
 
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
 }
 
 #endif

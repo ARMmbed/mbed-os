@@ -37,7 +37,8 @@
 
 static int rtc_inited = 0;
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     uint32_t StartUpCounter = 0;
     uint32_t LSEStatus = 0;
     uint32_t rtc_freq = 0;
@@ -86,7 +87,8 @@ void rtc_init(void) {
     rtc_inited = 1;
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // Disable RTC, LSE and LSI clocks
     PWR_BackupAccessCmd(ENABLE); // Allow access to Backup Domain
     RCC_RTCCLKCmd(DISABLE);
@@ -96,15 +98,18 @@ void rtc_free(void) {
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     return (time_t)RTC_GetCounter();
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
     RTC_SetCounter(t); // Change the current time
     RTC_WaitForLastTask(); // Wait until last write operation on RTC registers has finished
