@@ -136,7 +136,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-
 }
 
 void serial_free(serial_t *obj)
@@ -225,10 +224,12 @@ static void uart1_irq(void)
 {
     uart_irq(UART_1, 0);
 }
+
 static void uart2_irq(void)
 {
     uart_irq(UART_2, 1);
 }
+
 static void uart6_irq(void)
 {
     uart_irq(UART_6, 2);
