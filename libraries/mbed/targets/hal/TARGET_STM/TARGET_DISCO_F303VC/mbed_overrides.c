@@ -28,7 +28,10 @@
 #include "cmsis.h"
 
 // This function is called after RAM initialization and before main.
-void mbed_sdk_init() {
+void mbed_sdk_init()
+{
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
 }

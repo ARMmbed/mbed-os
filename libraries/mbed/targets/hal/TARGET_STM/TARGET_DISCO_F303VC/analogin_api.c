@@ -27,40 +27,47 @@
  */
 #include "mbed_assert.h"
 #include "analogin_api.h"
-#include "wait_api.h"
 
 #if DEVICE_ANALOGIN
 
+#include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
 
 static const PinMap PinMap_ADC[] = {
-    {PA_0,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN1
-    {PA_1,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN2
-    {PA_2,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN3
-    {PA_3,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN4
-    {PA_4,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN5
-    {PC_0,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN6
-    {PC_1,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN7
-    {PC_2,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN8
-    {PC_3,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN9
-    {PA_6,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN10
-    {PB_0,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN11
-    {PB_1,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN12
-    {PB_13, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN13
-    {PB_11, ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN14
-    {PA_7,  ADC_1, STM_PIN_DATA(GPIO_Mode_AN, GPIO_OType_PP, GPIO_PuPd_NOPULL, 0xFF)}, // ADC_IN15
+    {PA_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PA_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN2
+    {PA_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN3
+    {PA_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
+    {PA_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN1
+    {PA_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN5
+    {PA_6,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN3
+    {PA_7,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN4
+
+    {PB_0,  ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC3_IN12
+    {PB_1,  ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1
+    {PB_2,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN12
+    {PB_11, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN14
+    {PB_13, ADC_3, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC3_IN5
+
+    {PC_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6
+    {PC_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7
+    {PC_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
+    {PC_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN9
+    {PC_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN5
+    {PC_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN11
+
+    {PF_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN10
+    {PF_4,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN5
     {NC,    NC,    0}
 };
 
+ADC_HandleTypeDef AdcHandle;
+
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin) {
-  
-    ADC_TypeDef     *adc;
-    ADC_InitTypeDef ADC_InitStructure;
-    ADC_CommonInitTypeDef ADC_CommonInitStructure;
-  
+void analogin_init(analogin_t *obj, PinName pin)
+{
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
@@ -75,117 +82,133 @@ void analogin_init(analogin_t *obj, PinName pin) {
     if (adc_inited == 0) {
         adc_inited = 1;
 
-        // Get ADC registers structure address
-        adc = (ADC_TypeDef *)(obj->adc);
-      
         // Enable ADC clock
-        RCC_ADCCLKConfig(RCC_ADC12PLLCLK_Div1);
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ADC12, ENABLE);
+        __ADC12_CLK_ENABLE();
+        __ADC34_CLK_ENABLE();
 
-        // Calibration
-        ADC_VoltageRegulatorCmd(adc, ENABLE);
-        wait_us(10);
-        ADC_SelectCalibrationMode(adc, ADC_CalibrationMode_Single);
-        ADC_StartCalibration(adc);
-        while (ADC_GetCalibrationStatus(adc) != RESET) {}
-      
         // Configure ADC
-        ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;
-        ADC_CommonInitStructure.ADC_Clock            = ADC_Clock_AsynClkMode;
-        ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_Disabled;
-        ADC_CommonInitStructure.ADC_DMAMode          = ADC_DMAMode_OneShot;
-        ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-        ADC_CommonInit(adc, &ADC_CommonInitStructure);
-  
-        ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Disable;
-        ADC_InitStructure.ADC_Resolution            = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
-        ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
-        ADC_InitStructure.ADC_DataAlign             = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_OverrunMode           = ADC_OverrunMode_Disable;
-        ADC_InitStructure.ADC_AutoInjMode           = ADC_AutoInjec_Disable;
-        ADC_InitStructure.ADC_NbrOfRegChannel       = 1;
-        ADC_Init(adc, &ADC_InitStructure);
-
-        // Enable ADC
-        ADC_Cmd(adc, ENABLE);
-        
-        while (!ADC_GetFlagStatus(adc, ADC_FLAG_RDY)) {}
+        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
+        AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
+        AdcHandle.Init.ScanConvMode          = DISABLE;
+        AdcHandle.Init.ContinuousConvMode    = DISABLE;
+        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
+        AdcHandle.Init.NbrOfDiscConversion   = 0;
+        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        AdcHandle.Init.NbrOfConversion       = 1;
+        AdcHandle.Init.DMAContinuousRequests = DISABLE;
+        AdcHandle.Init.EOCSelection          = DISABLE;
+        HAL_ADC_Init(&AdcHandle);
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj) {
-  // Get ADC registers structure address
-  ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
-  uint8_t channel = 0;
-  
-  // Configure ADC channel
-  switch (obj->pin) {
-      case PA_0:
-          channel = ADC_Channel_1;
-          break;
-      case PA_1:
-          channel = ADC_Channel_2;
-          break;
-      case PA_2:
-          channel = ADC_Channel_3;
-          break;
-      case PA_3:
-          channel = ADC_Channel_4;
-          break;
-      case PA_4:
-          channel = ADC_Channel_5;
-          break;
-      case PC_0:
-          channel = ADC_Channel_6;
-          break;
-      case PC_1:
-          channel = ADC_Channel_7;
-          break;
-      case PC_2:
-          channel = ADC_Channel_8;
-          break;
-      case PC_3:
-          channel = ADC_Channel_9;
-          break;
-      case PA_6:
-          channel = ADC_Channel_10;
-          break;
-      case PB_0:
-          channel = ADC_Channel_11;
-          break;
-      case PB_1:
-          channel = ADC_Channel_12;
-          break;
-      case PB_13:
-          channel = ADC_Channel_13;
-          break;
-      case PB_11:
-          channel = ADC_Channel_14;
-          break;
-      case PA_7:
-          channel = ADC_Channel_15;
-          break;
-      default:
-          return 0;
-  }
+static inline uint16_t adc_read(analogin_t *obj)
+{
+    ADC_ChannelConfTypeDef sConfig;
 
-  ADC_RegularChannelConfig(adc, channel, 1, ADC_SampleTime_7Cycles5);
-  
-  ADC_StartConversion(adc); // Start conversion
-  
-    while (ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
-  
-    return (ADC_GetConversionValue(adc)); // Get conversion value
+    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+
+    // Configure ADC channel
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_19CYCLES_5;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+
+    switch (obj->pin) {
+        case PA_0:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PA_1:
+            sConfig.Channel = ADC_CHANNEL_2;
+            break;
+        case PA_2:
+            sConfig.Channel = ADC_CHANNEL_3;
+            break;
+        case PA_3:
+            sConfig.Channel = ADC_CHANNEL_4;
+            break;
+        case PA_4:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PA_5:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PA_6:
+            sConfig.Channel = ADC_CHANNEL_3;
+            break;
+        case PA_7:
+            sConfig.Channel = ADC_CHANNEL_4;
+            break;
+        case PB_0:
+            sConfig.Channel = ADC_CHANNEL_12;
+            break;
+        case PB_1:
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PB_2:
+            sConfig.Channel = ADC_CHANNEL_12;
+            break;
+        case PB_11:
+            sConfig.Channel = ADC_CHANNEL_14;
+            break;
+        case PB_13:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PC_0:
+            sConfig.Channel = ADC_CHANNEL_6;
+            break;
+        case PC_1:
+            sConfig.Channel = ADC_CHANNEL_7;
+            break;
+        case PC_2:
+            sConfig.Channel = ADC_CHANNEL_8;
+            break;
+        case PC_3:
+            sConfig.Channel = ADC_CHANNEL_9;
+            break;
+        case PC_4:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PC_5:
+            sConfig.Channel = ADC_CHANNEL_11;
+            break;
+        case PF_2:
+            sConfig.Channel = ADC_CHANNEL_10;
+            break;
+        case PF_4:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        default:
+            return 0;
+    }
+
+    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+
+    HAL_ADC_Start(&AdcHandle); // Start conversion
+
+    // Wait end of conversion and get value
+    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&AdcHandle));
+    } else {
+        return 0;
+    }
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
-    return (adc_read(obj));
+uint16_t analogin_read_u16(analogin_t *obj)
+{
+    uint16_t value = adc_read(obj);
+    // 12-bit to 16-bit conversion
+    value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
+    return value;
 }
 
-float analogin_read(analogin_t *obj) {
-  uint16_t value = adc_read(obj);
-  return (float)value * (1.0f / (float)0xFFF); // 12 bits range
+float analogin_read(analogin_t *obj)
+{
+    uint16_t value = adc_read(obj);
+    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif
