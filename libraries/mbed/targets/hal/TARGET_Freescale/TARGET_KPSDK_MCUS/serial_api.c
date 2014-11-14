@@ -150,10 +150,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         case 0: irq_n=UART0_RX_TX_IRQn; vector = (uint32_t)&uart0_irq; break;
         case 1: irq_n=UART1_RX_TX_IRQn; vector = (uint32_t)&uart1_irq; break;
         case 2: irq_n=UART2_RX_TX_IRQn; vector = (uint32_t)&uart2_irq; break;
-        #if (NUM_UART > 3)
+#if (UART_NUM > 3)
         case 3: irq_n=UART3_RX_TX_IRQn; vector = (uint32_t)&uart3_irq; break;
         case 4: irq_n=UART4_RX_TX_IRQn; vector = (uint32_t)&uart4_irq; break;
-        #endif
+#endif
     }
     uint32_t uart_addrs[] = UART_BASE_ADDRS;
     if (enable) {
