@@ -133,8 +133,8 @@ void create_translation_table(void)
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE1      , 49, Sect_Device_RW);
 
     //Define Image
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, 1, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, 1, Sect_Normal_RO);
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, 1, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, 1, Sect_Normal_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, 1, Sect_Normal_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE  , 10, Sect_Normal_NC);
