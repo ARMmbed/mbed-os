@@ -599,6 +599,18 @@ class MTS_MDOT_F405RG(Target):
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
 
+class MTS_DRAGONFLY_F411RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
+        self.macros = ['HSE_VALUE=26000000']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM" #vince orig "uARM"
+        #vince orig self.default_toolchain = "GCC_ARM" #vince orig "uARM"
+        #vince orig self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        #vince orig self.detect_code = "0740"
+
 
 ### Nordic ###
 
@@ -821,6 +833,7 @@ TARGETS = [
     DISCO_F429ZI(),
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
+    MTS_DRAGONFLY_F411RE(),
     
     ### Nordic ###
     NRF51822(),
