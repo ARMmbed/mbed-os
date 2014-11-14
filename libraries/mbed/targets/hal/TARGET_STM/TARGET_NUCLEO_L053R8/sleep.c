@@ -35,7 +35,8 @@
 
 static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void) {
+void sleep(void)
+{
     // Disable us_ticker update interrupt
     TimMasterHandle.Instance = TIM21;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
@@ -47,7 +48,8 @@ void sleep(void) {
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
     // Disable us_ticker update interrupt
     TimMasterHandle.Instance = TIM21;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);

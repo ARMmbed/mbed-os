@@ -47,7 +47,8 @@ static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0};
 
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(uint32_t irq_index) {
+static void handle_interrupt_in(uint32_t irq_index)
+{
     // Retrieve the gpio and pin that generate the irq
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
@@ -68,21 +69,25 @@ static void handle_interrupt_in(uint32_t irq_index) {
 }
 
 // EXTI lines 0 to 1
-static void gpio_irq0(void) {
+static void gpio_irq0(void)
+{
     handle_interrupt_in(0);
 }
 // EXTI lines 2 to 3
-static void gpio_irq1(void) {
+static void gpio_irq1(void)
+{
     handle_interrupt_in(1);
 }
 // EXTI lines 4 to 15
-static void gpio_irq2(void) {
+static void gpio_irq2(void)
+{
     handle_interrupt_in(2);
 }
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     uint32_t irq_index;
@@ -134,7 +139,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_ids[obj->irq_index] = 0;
     channel_gpio[obj->irq_index] = 0;
     channel_pin[obj->irq_index] = 0;
@@ -191,11 +197,13 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     NVIC_EnableIRQ(obj->irq_n);
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     NVIC_DisableIRQ(obj->irq_n);
     obj->event = EDGE_NONE;
 }

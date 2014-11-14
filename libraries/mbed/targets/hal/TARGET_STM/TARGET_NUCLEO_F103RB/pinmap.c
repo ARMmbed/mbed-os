@@ -48,7 +48,8 @@ static const uint32_t AF_mapping[AF_NUM] = {
 };
 
 // Enable GPIO clock and return GPIO base address
-uint32_t Set_GPIO_Clock(uint32_t port_idx) {
+uint32_t Set_GPIO_Clock(uint32_t port_idx)
+{
     uint32_t gpio_add = 0;
     switch (port_idx) {
         case PortA:
@@ -77,7 +78,8 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
 /**
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
-void pin_function(PinName pin, int data) {
+void pin_function(PinName pin, int data)
+{
     MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
@@ -119,7 +121,8 @@ void pin_function(PinName pin, int data) {
 /**
  * Configure pin pull-up/pull-down
  */
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
     GPIO_InitTypeDef GPIO_InitStructure;
 

@@ -42,7 +42,7 @@ void us_ticker_init(void)
 
     TimMasterHandle.Instance = TIM_MST;
 
-    HAL_InitTick(0); // The passed value is not used  
+    HAL_InitTick(0); // The passed value is not used
 }
 
 uint32_t us_ticker_read()

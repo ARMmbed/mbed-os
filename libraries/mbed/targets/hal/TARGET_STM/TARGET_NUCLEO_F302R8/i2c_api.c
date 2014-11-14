@@ -127,7 +127,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // wait before init
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
@@ -359,10 +359,10 @@ int i2c_byte_write(i2c_t *obj, int data)
 void i2c_reset(i2c_t *obj)
 {
     int timeout;
-	
+
     // wait before reset
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     __I2C1_FORCE_RESET();
     __I2C1_RELEASE_RESET();

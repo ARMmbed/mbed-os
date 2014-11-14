@@ -73,7 +73,8 @@ static const PinMap PinMap_PWM[] = {
     {NC,    NC,    0}
 };
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t* obj, PinName pin)
+{
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(obj->pwm != (PWMName)NC);
@@ -94,12 +95,14 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t* obj)
+{
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t* obj, float value)
+{
     TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
     TIM_OCInitTypeDef TIM_OCInitStructure;
 
@@ -193,7 +196,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     TIM_CtrlPWMOutputs(tim, ENABLE);
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t* obj)
+{
     float value = 0;
     if (obj->period > 0) {
         value = (float)(obj->pulse) / (float)(obj->period);
@@ -201,15 +205,18 @@ float pwmout_read(pwmout_t* obj) {
     return ((value > 1.0) ? (1.0) : (value));
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t* obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t* obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t* obj, int us)
+{
     TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     float dc = pwmout_read(obj);
@@ -231,15 +238,18 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     TIM_Cmd(tim, ENABLE);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+{
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);
 }

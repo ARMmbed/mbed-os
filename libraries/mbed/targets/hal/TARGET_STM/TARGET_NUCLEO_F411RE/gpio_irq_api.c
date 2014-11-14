@@ -241,8 +241,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
-        }
-        else if (event == IRQ_FALL) {
+        } else if (event == IRQ_FALL) {
             if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
                 mode = STM_MODE_IT_RISING;
                 obj->event = EDGE_RISE;
@@ -250,9 +249,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
-        }
-        else {
-        	  mode = STM_MODE_IT_EVT_RESET;
+        } else {
+            mode = STM_MODE_IT_EVT_RESET;
             obj->event = EDGE_NONE;
         }
     }
