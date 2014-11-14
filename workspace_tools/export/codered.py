@@ -48,7 +48,7 @@ class CodeRed(Exporter):
             'linker_script': self.resources.linker_script,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         self.gen_file('codered_%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('codered_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')

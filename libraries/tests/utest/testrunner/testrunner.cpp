@@ -1,14 +1,14 @@
-#include "CppUTest\CommandLineTestRunner.h"
+#include "CommandLineTestRunner.h"
 #include <stdio.h>
 #include "mbed.h"
 #include "testrunner.h"
 #include "test_env.h"
 
 /**
-Object 'console' is used to show prints on console.
+Object 'mbed_cpputest_console' is used to show prints on console.
 It is declared in \cpputest\src\Platforms\armcc\UtestPlatform.cpp
 */
-Serial console(STDIO_UART_TX, STDIO_UART_RX);
+Serial mbed_cpputest_console(STDIO_UART_TX, STDIO_UART_RX);
 
 int main(int ac, char** av)
 {

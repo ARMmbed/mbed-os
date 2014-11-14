@@ -66,7 +66,7 @@ class IntermediateFile(Exporter):
             'script_file': self.resources.linker_script,
             'library_paths': self.resources.lib_dirs,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols(),
+            'symbols': self.get_symbols(),
             'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,
             'cc_org': self.toolchain.cc[1:],

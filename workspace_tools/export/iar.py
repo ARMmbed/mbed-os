@@ -59,7 +59,7 @@ class IAREmbeddedWorkbench(Exporter):
             'linker_script': self.resources.linker_script,
             'object_files': self.resources.objects,
             'libraries': self.resources.libraries,
-            'symbols': self.toolchain.get_symbols(),
+            'symbols': self.get_symbols(),
             'source_files': sources,
         }
         self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)

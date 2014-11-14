@@ -92,7 +92,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None, inc_dirs=None, jobs=1):
+         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None, jobs=1):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -102,6 +102,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     notify: Notify function for logs
     verbose: Write the actual tools command lines if True
     inc_dirs: additional include directories which should be included in build
+    inc_dirs_ext: additional include directories which should be copied to library directory
     """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -124,6 +125,13 @@ def build_library(src_paths, build_path, target, toolchain_name,
     resources = []
     for src_path in src_paths:
         resources.append(toolchain.scan_resources(src_path))
+
+    # Add extra include directories / files which are required by library
+    # This files usually are not in the same directory as source files so
+    # previous scan will not include them
+    if inc_dirs_ext is not None:
+        for inc_ext in inc_dirs_ext:
+            resources.append(toolchain.scan_resources(inc_ext))
 
     # Dependencies Include Paths
     dependencies_include_dir = []
@@ -171,6 +179,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
                       macros=MACROS,
                       notify=notify,
                       inc_dirs=lib.inc_dirs,
+                      inc_dirs_ext=lib.inc_dirs_ext,
                       jobs=jobs)
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
