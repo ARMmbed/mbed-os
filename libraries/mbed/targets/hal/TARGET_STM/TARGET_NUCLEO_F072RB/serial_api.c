@@ -113,6 +113,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART1_CLK_ENABLE();
         obj->index = 0;
     }
+
     if (obj->uart == UART_2) {
         __USART2_CLK_ENABLE();
         obj->index = 1;
@@ -122,6 +123,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART3_CLK_ENABLE();
         obj->index = 2;
     }
+
     if (obj->uart == UART_4) {
         __USART4_CLK_ENABLE();
         obj->index = 3;
@@ -163,16 +165,19 @@ void serial_free(serial_t *obj)
         __USART1_RELEASE_RESET();
         __USART1_CLK_DISABLE();
     }
+
     if (obj->uart == UART_2) {
         __USART2_FORCE_RESET();
         __USART2_RELEASE_RESET();
         __USART2_CLK_DISABLE();
     }
+
     if (obj->uart == UART_3) {
         __USART3_FORCE_RESET();
         __USART3_RELEASE_RESET();
         __USART3_CLK_DISABLE();
     }
+
     if (obj->uart == UART_4) {
         __USART4_FORCE_RESET();
         __USART4_RELEASE_RESET();

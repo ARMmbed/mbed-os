@@ -36,9 +36,6 @@
 #include "mbed_error.h"
 
 // TIM1 cannot be used because already used by the us_ticker
-// Uncomment/comment line above to use an alternate timer,
-// If the channel is not the same,
-// Please don't forget to uncomment/comment in the pwmout_write() function also
 static const PinMap PinMap_PWM[] = {
     {PA_4,  PWM_14, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF4_TIM14)}, // TIM14_CH1
     {PA_6,  PWM_3,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM3)},  // TIM3_CH1
@@ -128,7 +125,6 @@ void pwmout_write(pwmout_t* obj, float value)
         // Channels 1
         case PA_4:
         case PA_6:
-//      case PA_7:
         case PB_1:
         case PB_4:
         case PB_8:
@@ -140,7 +136,6 @@ void pwmout_write(pwmout_t* obj, float value)
         // Channels 1N
         case PB_6:
         case PB_7:
-//          case PB_15:
             channel = TIM_CHANNEL_1;
             complementary_channel = 1;
             break;
@@ -157,7 +152,6 @@ void pwmout_write(pwmout_t* obj, float value)
             channel = TIM_CHANNEL_3;
             break;
         // Channels 4
-//      case PB_1:
         case PC_9:
             channel = TIM_CHANNEL_4;
             break;
