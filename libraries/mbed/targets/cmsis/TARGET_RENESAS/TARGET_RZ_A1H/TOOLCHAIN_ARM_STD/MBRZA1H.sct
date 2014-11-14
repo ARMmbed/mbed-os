@@ -24,7 +24,7 @@ SFLASH 0x18000000 (0x08000000)
         * (+RO-CODE)              ; Application RO code (.text)
     }
 
-    RO_DATA          +0 ALIGN 0x00001000 FIXED
+    RO_DATA          +0
     { * (+RO-DATA) }              ; Application RO data (.constdata)
 
     RW_DATA 0x20600000 0x00100000 ; Page 1 of On-Chip Large-Capacity RAM (0x20060000 to 0x206FFFFF)
