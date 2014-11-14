@@ -47,6 +47,8 @@ typedef enum {
 #include "USBEndpoints_STM32F4.h"
 #elif defined (TARGET_RZ_A1H)
 #include "USBEndpoints_RZ_A1H.h"
+#elif defined (TARGET_NUCLEO_L152RE)
+#include "USBEndpoints_NUCLEO_L152RE.h"
 #else
 #error "Unknown target type"
 #endif
