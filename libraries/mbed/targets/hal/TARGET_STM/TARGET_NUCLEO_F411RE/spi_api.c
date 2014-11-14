@@ -130,15 +130,19 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         __SPI1_CLK_ENABLE();
     }
+
     if (obj->spi == SPI_2) {
         __SPI2_CLK_ENABLE();
     }
+
     if (obj->spi == SPI_3) {
         __SPI3_CLK_ENABLE();
     }
+
     if (obj->spi == SPI_4) {
         __SPI4_CLK_ENABLE();
     }
+
     if (obj->spi == SPI_5) {
         __SPI5_CLK_ENABLE();
     }
@@ -179,21 +183,25 @@ void spi_free(spi_t *obj)
         __SPI1_RELEASE_RESET();
         __SPI1_CLK_DISABLE();
     }
+
     if (obj->spi == SPI_2) {
         __SPI2_FORCE_RESET();
         __SPI2_RELEASE_RESET();
         __SPI2_CLK_DISABLE();
     }
+
     if (obj->spi == SPI_3) {
         __SPI3_FORCE_RESET();
         __SPI3_RELEASE_RESET();
         __SPI3_CLK_DISABLE();
     }
+
     if (obj->spi == SPI_4) {
         __SPI4_FORCE_RESET();
         __SPI4_RELEASE_RESET();
         __SPI4_CLK_DISABLE();
     }
+
     if (obj->spi == SPI_5) {
         __SPI5_FORCE_RESET();
         __SPI5_RELEASE_RESET();

@@ -158,7 +158,7 @@ void spi_free(spi_t *obj)
         __SPI2_CLK_DISABLE();
     }
 
-    // Configure GPIO
+    // Configure GPIOs
     pin_function(obj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(obj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(obj->pin_sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -224,6 +224,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 24000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 24 MHz
     }
+
     init_spi(obj);
 }
 

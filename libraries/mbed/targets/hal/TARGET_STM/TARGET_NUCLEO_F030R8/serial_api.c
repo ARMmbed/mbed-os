@@ -102,6 +102,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __USART1_CLK_ENABLE();
         obj->index = 0;
     }
+
     if (obj->uart == UART_2) {
         __USART2_CLK_ENABLE();
         obj->index = 1;
@@ -110,8 +111,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
 
     // Configure UART
     obj->baudrate = 9600;
@@ -139,6 +144,7 @@ void serial_free(serial_t *obj)
         __USART1_RELEASE_RESET();
         __USART1_CLK_DISABLE();
     }
+
     if (obj->uart == UART_2) {
         __USART2_FORCE_RESET();
         __USART2_RELEASE_RESET();

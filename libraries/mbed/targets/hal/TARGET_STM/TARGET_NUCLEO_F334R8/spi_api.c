@@ -111,7 +111,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->bits = SPI_DATASIZE_8BIT;
     obj->cpol = SPI_POLARITY_LOW;
     obj->cpha = SPI_PHASE_1EDGE;
-    obj->br_presc = SPI_BAUDRATEPRESCALER_256;
+    obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 1 MHz (HSI) or 1.13 MHz (HSE)
 
     obj->pin_miso = miso;
     obj->pin_mosi = mosi;
