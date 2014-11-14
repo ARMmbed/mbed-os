@@ -108,7 +108,7 @@ extern const U32 GICInterface_BASE;
 
 /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c-
  * OS_X_INIT enables the IRQ n in the GIC */
-#define OS_X_INIT(n) char *reg; \
+#define OS_X_INIT(n) volatile char *reg; \
                      reg = (char *)(&GICD_ICDIPR0 + n / 4); \
                      reg += n % 4; \
                      *reg = (char)0xff; \
@@ -163,7 +163,7 @@ __inline static void rt_systick_init (void) {
 
 __inline static void rt_svc_init (void) {
   /* Register pendSV - through SGI */
-  char *reg;
+  volatile char *reg;
 
   reg = (char *)(&GICD_ICDIPR0 + SGI_PENDSV/4);
   reg += SGI_PENDSV % 4;
