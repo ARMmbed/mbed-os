@@ -54,6 +54,7 @@ class IAREmbeddedWorkbench(Exporter):
         'STM32F407',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
+        'MTS_DRAGONFLY_F411RE',
     ]
 
     def generate(self):
