@@ -67,6 +67,7 @@ void analogout_init(dac_t *obj, PinName pin)
     if (obj->dac == DAC_1) {
         __DAC1_CLK_ENABLE();
     }
+
     if (obj->dac == DAC_2) {
         __DAC2_CLK_ENABLE();
     }
