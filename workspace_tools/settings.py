@@ -111,4 +111,4 @@ try:
     # settings file stored in the repository
     from workspace_tools.private_settings import *
 except ImportError:
-    print '[WARNING] Using default settings. Define you settings in the file "workspace_tools/private_settings.py" or in "./mbed_settings.py"'
+    print '[WARNING] Using default settings. Define your settings in the file "workspace_tools/private_settings.py" or in "./mbed_settings.py"'
