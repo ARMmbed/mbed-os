@@ -24,7 +24,7 @@ CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ff
 CC_FLAGS += -MMD -MP
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
-LD_FLAGS = -mcpu=cortex-m0 -mthumb -Wl,--gc-sections --specs=nano.specs
+LD_FLAGS = -mcpu=cortex-m0 -mthumb -Wl,--gc-sections --specs=nano.specs -Wl,--wrap,main
 #LD_FLAGS += -u _printf_float -u _scanf_float
 LD_FLAGS += -Wl,-Map=$(PROJECT).map,--cref
 LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
