@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "cmsis_os.h"
-
+#include "toolchain.h"
 
 /*----------------------------------------------------------------------------
  *      RTX User configuration part BEGIN
@@ -249,7 +249,7 @@
 /*----------------------------------------------------------------------------
  *      OS Idle daemon
  *---------------------------------------------------------------------------*/
-void os_idle_demon (void) {
+WEAK void os_idle_demon (void) {
   /* The idle demon is a system thread, running when no other thread is      */
   /* ready to run.                                                           */
 
