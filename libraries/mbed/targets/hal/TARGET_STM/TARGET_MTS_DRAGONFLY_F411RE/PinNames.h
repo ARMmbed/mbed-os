@@ -94,7 +94,6 @@ typedef enum {
     PB_8  = 0x18,
     PB_9  = 0x19,
     PB_10 = 0x1A, 
-    PB_10 = 0x1A, //vince orig PB_10
     PB_12 = 0x1C,
     PB_13 = 0x1D,
     PB_14 = 0x1E,
