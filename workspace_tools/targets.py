@@ -84,14 +84,14 @@ class LPC11C24(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11CXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
 
 class LPC1114(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
 
 class LPC11U24(LPCTarget):
