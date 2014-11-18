@@ -71,22 +71,14 @@ typedef enum {
     PA_2  = 0x02,
     PA_3  = 0x03,
     PA_4  = 0x04,
-<<<<<<< HEAD
     PA_5  = 0x05, 
-=======
-    PA_5  = 0x05, //0x2001,//vince orig 0x05,
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     PA_6  = 0x06,
     PA_7  = 0x07,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
     PA_11 = 0x0B,
-<<<<<<< HEAD
     PA_12 = 0x0C,
-=======
-    PA_12 = 0x0C,//ORIG vince 0x0C,
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     PA_13 = 0x0D,
     PA_14 = 0x0E,
     PA_15 = 0x0F,
@@ -101,11 +93,8 @@ typedef enum {
     PB_7  = 0x17,
     PB_8  = 0x18,
     PB_9  = 0x19,
-<<<<<<< HEAD
     PB_10 = 0x1A, 
-=======
     PB_10 = 0x1A, //vince orig PB_10
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     PB_12 = 0x1C,
     PB_13 = 0x1D,
     PB_14 = 0x1E,
@@ -118,29 +107,17 @@ typedef enum {
     PC_4  = 0x24,
     PC_5  = 0x25,
     PC_6  = 0x26,
-<<<<<<< HEAD
     PC_7  = 0x27, 
     PC_8  = 0x28,
     PC_9  = 0x29, 
     PC_10 = 0x2A,
     PC_11 = 0x2B, 
-=======
-    PC_7  = 0x27, // 0x2003, //vince orig 0x27,
-    PC_8  = 0x28,
-    PC_9  = 0x29, //0x2004, //vince orig 0x29,
-    PC_10 = 0x2A,
-    PC_11 = 0x2B, //0x2005, //vince orig 0x2B,
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     PC_12 = 0x2C,
     PC_13 = 0x2D,
     PC_14 = 0x2E,
     PC_15 = 0x2F,
 
-<<<<<<< HEAD
     PD_2  = 0x32, 
-=======
-    PD_2  = 0x32, //0x2007,//vince orig 0x32,
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
 
     PH_0  = 0x70,
     PH_1  = 0x71,
@@ -148,7 +125,6 @@ typedef enum {
     // Arduino connector namings
     A0          = PA_0,
     A1          = PA_1,
-<<<<<<< HEAD
     A2          = PC_4, 
     A3          = PB_0,
     A4          = PC_1,
@@ -164,31 +140,6 @@ typedef enum {
     D8          = PA_9,
     D9          = PB_1, 
     D10         = PC_8, 
-=======
-    A2          = PC_4, //vince orig PA_4,
-    A3          = PB_0,
-    A4          = PC_1,
-    A5          = PC_0,
-    D0          = PA_3,//vince orig PA_3,
-    D1          = PA_2,//vince orig PA_2,
-    //vince orig D2          = PA_10,
-    D2          = PB_12, //vince add
-    //vince orig D3          = PB_3,
-    D3          = PB_10, //vince a dd
-    D4          = PA_8, //vince add
-    D5          = PA_7, //vince add
-    //vince orig D4          = PB_5,
-    //vince orig D5          = PB_4,
-    D6          = PB_13, //vince orig PB_10
-    // vince orig D7          = PA_8,
-    D7          = PC_2, //vince add
-    D8          = PA_9,
-    //vince orig D9          = PC_7,
-    D9          = PB_1, //vince add
-    //vince orig D10         = PB_6,
-    D10         = PC_8, //vince add
-    //vince orig D11         = PA_7,
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     D11         = PB_5,
     D12         = PA_6,
     D13         = PA_5,
@@ -196,16 +147,11 @@ typedef enum {
     D15         = PB_8,
 
     // Generic signals namings
-<<<<<<< HEAD
     LED1        = PB_10, 
-=======
-    LED1        = PB_10, /* vince was PA_5 , next 3 lines below */
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
     LED2        = PB_10,
     LED3        = PB_10,
     LED4        = PB_10,
     USER_BUTTON = PC_13,
-<<<<<<< HEAD
     SERIAL_TX   = PB_6, 
     SERIAL_RX   = PB_7, 
     USBTX       = PB_6,
@@ -217,19 +163,6 @@ typedef enum {
     SPI_SCK     = PA_5,
     SPI_CS      = PA_4,
     PWM_OUT     = PB_3, 
-=======
-    SERIAL_TX   = PB_6, //vince orig PA_2
-    SERIAL_RX   = PB_7, //vince orig PA_3
-    USBTX       = PB_6,//PA_11, //vince orig PA_2,
-    USBRX       = PB_7,//PA_12, //vince orig PA_3,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PB_5,//vince orig PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PA_4,//vince orig PB_6,
-    PWM_OUT     = PB_3, //vince TODO check on this 
->>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
 
     // Not connected
     NC = (int)0xFFFFFFFF
