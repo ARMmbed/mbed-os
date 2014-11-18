@@ -161,7 +161,7 @@ class LPC11U68(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC11U6X']
-        self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM"]
+        self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.detect_code = "1168"

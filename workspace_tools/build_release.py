@@ -76,7 +76,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
 
-    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
+    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
 
 #    ('RZ_A1H'   ,     ('ARM',)),
