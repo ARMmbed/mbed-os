@@ -99,7 +99,7 @@ class LPC11U24(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.detect_code = "1040"
 
@@ -109,7 +109,7 @@ class OC_MBUINO(LPC11U24):
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.macros = ['TARGET_LPC11U24']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
 
 class LPC11U24_301(LPCTarget):
@@ -117,14 +117,14 @@ class LPC11U24_301(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
 
 class LPC11U35_401(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
 
 class LPC11U35_501(LPCTarget):
@@ -132,7 +132,7 @@ class LPC11U35_501(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
 
 class LPC11U37_501(LPCTarget):
@@ -140,7 +140,7 @@ class LPC11U37_501(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
 
 class LPCCAPPUCCINO(LPC11U37_501):
@@ -152,7 +152,7 @@ class ARCH_GPRS(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U37_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
@@ -725,7 +725,7 @@ class XADOW_M0(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
 
 class WALLBOT_BLE(NRF51822):

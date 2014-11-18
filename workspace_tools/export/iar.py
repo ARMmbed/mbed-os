@@ -24,6 +24,10 @@ class IAREmbeddedWorkbench(Exporter):
     TARGETS = [
         'LPC1768',
         'LPC1347',
+        'LPC11U24',
+        'LPC11U35_401',
+        'LPC11U35_501',
+        'LPCCAPPUCCINO',        
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
