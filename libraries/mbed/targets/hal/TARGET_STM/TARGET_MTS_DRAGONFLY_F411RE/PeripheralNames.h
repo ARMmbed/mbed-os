@@ -32,7 +32,10 @@
 
 #include "cmsis.h"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,9 +50,15 @@ typedef enum {
     UART_6 = (int)USART6_BASE
 } UARTName;
 
+<<<<<<< HEAD
 #define STDIO_UART_TX  PB_6
 #define STDIO_UART_RX  PB_7
 #define STDIO_UART     UART_1
+=======
+#define STDIO_UART_TX  PA_2
+#define STDIO_UART_RX  PA_3
+#define STDIO_UART     UART_2
+>>>>>>> 2e18da74199fa17e036058f3d1a73c635370049c
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
