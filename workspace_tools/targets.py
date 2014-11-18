@@ -260,7 +260,7 @@ class LPC4088(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['NXP', 'LPC408X']
-        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM", "IAR"]
         self.is_disk_virtual = True
 
     def init_hooks(self, hook, toolchain_name):
