@@ -32,7 +32,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
-    ('LPC812',       ('uARM',)),
+    ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM',)),
     ('SSCI824',      ('uARM',)),
     ('LPC1347',      ('ARM','IAR')),
