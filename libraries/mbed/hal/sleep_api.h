@@ -59,6 +59,11 @@ void deepsleep(void);
 }
 #endif
 
-#endif
+#else  /* #if DEVICE_SLEEP */
 
-#endif
+#define sleep()     /* no-op */
+#define deepsleep() /* no-op */
+
+#endif /* #if DEVICE_SLEEP */
+
+#endif /* MBED_SLEEP_API_H */
