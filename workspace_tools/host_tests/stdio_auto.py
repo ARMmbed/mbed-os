@@ -40,7 +40,7 @@ class StdioTest(DefaultTest):
             self.mbed.serial_write(str(random_integer) + "\n")
 
             serial_stdio_msg = self.mbed.serial_readline()
-            if c is None:
+            if serial_stdio_msg is None:
                 return self.RESULT_IO_SERIAL
             delay_time = time() - start
             self.notify(serial_stdio_msg.strip())

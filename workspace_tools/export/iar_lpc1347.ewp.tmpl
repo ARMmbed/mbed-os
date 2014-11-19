@@ -172,7 +172,9 @@
         </option>
         <option>
           <name>CCDefines</name>
-          <state></state>
+          {% for s in symbols %}
+            <state>{{s}}</state>
+          {% endfor %}
         </option>
         <option>
           <name>CCPreprocFile</name>
