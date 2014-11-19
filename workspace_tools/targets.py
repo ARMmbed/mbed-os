@@ -53,7 +53,7 @@ class Target:
 
         # Code used to determine devices' platform
         # This code is prefix in URL link provided in mbed.htm (in mbed disk)
-        self.detect_code = ""
+        self.detect_code = []
 
     def program_cycle_s(self):
         return 4 if self.is_disk_virtual else 1.5
@@ -102,7 +102,7 @@ class LPC11U24(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
-        self.detect_code = "1040"
+        self.detect_code = ["1040"]
 
 class OC_MBUINO(LPC11U24):
     def __init__(self):
@@ -165,7 +165,7 @@ class LPC11U68(LPCTarget):
         self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = "1168"
+        self.detect_code = ["1168"]
 
 class LPC1347(LPCTarget):
     def __init__(self):
@@ -182,7 +182,7 @@ class LPC1549(LPCTarget):
         self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = "1549"
+        self.detect_code = ["1549"]
 
 class LPC1768(LPCTarget):
     def __init__(self):
@@ -190,7 +190,7 @@ class LPC1768(LPCTarget):
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
-        self.detect_code = "1010"
+        self.detect_code = ["1010"]
 
 class ARCH_PRO(LPCTarget):
     def __init__(self):
@@ -235,7 +235,7 @@ class LPC812(LPCTarget):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
-        self.detect_code = "1050"
+        self.detect_code = ["1050"]
 
 class LPC824(LPCTarget):
     def __init__(self):
@@ -347,7 +347,7 @@ class KL25Z(Target):
         self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM","IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
-        self.detect_code = "0200"
+        self.detect_code = ["0200"]
 
 class KL43Z(Target):
     def __init__(self):
@@ -366,7 +366,7 @@ class KL46Z(Target):
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
-        self.detect_code = "0220"
+        self.detect_code = ["0220"]
 
 class K20D50M(Target):
     def __init__(self):
@@ -375,7 +375,7 @@ class K20D50M(Target):
         self.extra_labels = ['Freescale']
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
-        self.detect_code = "0230"
+        self.detect_code = ["0230"]
 
 class K22F(Target):
     def __init__(self):
@@ -397,7 +397,7 @@ class K64F(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
-        self.detect_code = "0240"
+        self.detect_code = ["0240"]
 
 class MTS_GAMBIT(Target):
     def __init__(self):
@@ -420,7 +420,7 @@ class NUCLEO_F030R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0725"
+        self.detect_code = ["0725"]
 
 class NUCLEO_F072RB(Target):
     def __init__(self):
@@ -430,7 +430,7 @@ class NUCLEO_F072RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0730"
+        self.detect_code = ["0730"]
 
 class NUCLEO_F091RC(Target):
     def __init__(self):
@@ -440,7 +440,7 @@ class NUCLEO_F091RC(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0731"
+        self.detect_code = ["0731"]
 
 class NUCLEO_F103RB(Target):
     def __init__(self):
@@ -450,7 +450,7 @@ class NUCLEO_F103RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0700"
+        self.detect_code = ["0700"]
 
 class NUCLEO_F302R8(Target):
     def __init__(self):
@@ -460,7 +460,7 @@ class NUCLEO_F302R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0705"
+        self.detect_code = ["0705"]
 
 class NUCLEO_F334R8(Target):
     def __init__(self):
@@ -470,7 +470,7 @@ class NUCLEO_F334R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0735"
+        self.detect_code = ["0735"]
 
 class NUCLEO_F401RE(Target):
     def __init__(self):
@@ -480,7 +480,7 @@ class NUCLEO_F401RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0720"
+        self.detect_code = ["0720"]
 
 class NUCLEO_F411RE(Target):
     def __init__(self):
@@ -490,7 +490,7 @@ class NUCLEO_F411RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0740"
+        self.detect_code = ["0740"]
 
 class NUCLEO_L053R8(Target):
     def __init__(self):
@@ -500,7 +500,7 @@ class NUCLEO_L053R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0715"
+        self.detect_code = ["0715"]
 
 class NUCLEO_L152RE(Target):
     def __init__(self):
@@ -510,7 +510,7 @@ class NUCLEO_L152RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = "0710"
+        self.detect_code = ["0710"]
 
 class STM32F3XX(Target):
     def __init__(self):
@@ -565,7 +565,7 @@ class DISCO_F334C8(Target):
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334C8']
         self.supported_toolchains = ["GCC_ARM",]
         self.default_toolchain = "GCC_ARM"
-        self.detect_code = "0735"
+        self.detect_code = ["0735"]
 
 class DISCO_F407VG(Target):
     def __init__(self):
@@ -629,7 +629,7 @@ class NRF51822(Target):
         self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K"]
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
-        self.detect_code = "1070"
+        self.detect_code = ["1070"]
 
     def program_cycle_s(self):
         return 6
@@ -853,3 +853,13 @@ TARGET_NAMES = TARGET_MAP.keys()
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = {}
+
+# Detection APIs
+def get_target_detect_codes():
+    """ Returns dictionary mapping detect_code -> platform_name
+    """
+    result = {}
+    for target in TARGETS:
+        for detect_code in target.detect_code:
+            result[detect_code] = target.name
+    return result
