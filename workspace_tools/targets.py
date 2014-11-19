@@ -51,7 +51,8 @@ class Target:
 
         self.name = self.__class__.__name__
 
-        # Code used to determine device' platform
+        # Code used to determine devices' platform
+        # This code is prefix in URL link provided in mbed.htm (in mbed disk)
         self.detect_code = ""
 
     def program_cycle_s(self):
@@ -199,7 +200,7 @@ class ARCH_PRO(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
-        
+
 class UBLOX_C027(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -325,7 +326,7 @@ class LPC1800(LPCTarget):
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
-        
+
 ### Freescale ###
 
 class KL05Z(Target):
@@ -397,7 +398,7 @@ class K64F(Target):
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
         self.detect_code = "0240"
-        
+
 class MTS_GAMBIT(Target):
     def __init__(self):
         Target.__init__(self)
@@ -408,7 +409,7 @@ class MTS_GAMBIT(Target):
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
 
-        
+
 ### STMicro ###
 
 class NUCLEO_F030R8(Target):
@@ -735,7 +736,7 @@ class WALLBOT_BLE(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
-        
+
 ### ARM ###
 
 class ARM_MPS2(Target):
@@ -746,7 +747,7 @@ class ARM_MPS2(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
 
-        
+
 ### Renesas ###
 
 class RZ_A1H(Target):
@@ -758,8 +759,8 @@ class RZ_A1H(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
 
-        
-        
+
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -799,7 +800,7 @@ TARGETS = [
     K22F(),
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F
-    
+
     ### STMicro ###
     NUCLEO_F030R8(),
     NUCLEO_F072RB(),
@@ -822,7 +823,7 @@ TARGETS = [
     DISCO_F429ZI(),
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
-    
+
     ### Nordic ###
     NRF51822(),
     NRF51822_OTA(), # nRF51822
@@ -838,7 +839,7 @@ TARGETS = [
 
     ### ARM ###
     ARM_MPS2(),
-    
+
     ### Renesas ###
     RZ_A1H(),
 ]
