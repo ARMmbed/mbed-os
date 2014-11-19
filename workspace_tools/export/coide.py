@@ -28,6 +28,7 @@ class CoIDE(Exporter):
         'LPC1768',
         'ARCH_PRO',
         'DISCO_F407VG',
+        'NUCLEO_F302R8',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
