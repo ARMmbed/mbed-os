@@ -620,6 +620,7 @@ class NRF51822(Target):
         }
     ]
     OUTPUT_EXT = '.hex'
+    MERGE_SOFT_DEVICE = True
 
     def __init__(self):
         Target.__init__(self)
@@ -656,20 +657,21 @@ class NRF51822(Target):
         binh = IntelHex()
         binh.loadbin(binf, offset=softdeviceAndOffsetEntry['offset'])
 
-        sdh = IntelHex(hexf)
-        sdh.merge(binh)
+        if t_self.target.MERGE_SOFT_DEVICE is True:
+            sdh = IntelHex(hexf)
+            binh.merge(sdh)
 
         with open(binf.replace(".bin", ".hex"), "w") as f:
-            sdh.tofile(f, format='hex')
+            binh.tofile(f, format='hex')
 
-class NRF51822_OTA(Target):
+class NRF51822_OTA(NRF51822):
     def __init__(self):
-        Target.__init__(self)
+        NRF51822.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K", "NRF51822"]
         self.macros = ['TARGET_NRF51822', 'TARGET_OTA_ENABLED']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.is_disk_virtual = True
+        self.MERGE_SOFT_DEVICE = False
 
 class NRF51_DK(NRF51822):
     def __init__(self):
@@ -678,21 +680,20 @@ class NRF51_DK(NRF51822):
         self.macros = ['TARGET_NRF51822']
         self.supported_form_factors = ["ARDUINO"]
 
-class NRF51_DK_OTA(Target):
+class NRF51_DK_OTA(NRF51822):
     def __init__(self):
-        Target.__init__(self)
+        NRF51822.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K', "NRF51_DK"]
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K', 'NRF51_DK']
         self.macros = ['TARGET_NRF51822', 'TARGET_NRF51_DK', 'TARGET_OTA_ENABLED']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.is_disk_virtual = True
+        self.MERGE_SOFT_DEVICE = False
 
 class NRF51_DONGLE(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K']
         self.macros = ['TARGET_NRF51822']
-        self.supported_form_factors = ["ARDUINO"]
 
 class ARCH_BLE(NRF51822):
     def __init__(self):
