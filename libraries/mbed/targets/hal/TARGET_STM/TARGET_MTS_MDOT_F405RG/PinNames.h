@@ -123,12 +123,12 @@ typedef enum {
     PH_1  = 0x71,
 
     // Generic signals namings
-    LED1        = PA_10,
-    LED2        = PA_10,
-    LED3        = PA_10,
-    LED4        = PA_10,
-    SERIAL_TX   = PA_10,
-    SERIAL_RX   = PA_9,
+    LED1        = PA_9,
+    LED2        = PA_9,
+    LED3        = PA_9,
+    LED4        = PA_9,
+    SERIAL_TX   = PA_9,
+    SERIAL_RX   = PA_10,
     I2C_SCL     = PA_8,
     I2C_SDA     = PC_9,
     SPI_MOSI    = PC_12,
