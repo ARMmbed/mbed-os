@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M) | defined(TARGET_K64F)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F)
 
 #include "USBHAL.h"
 
