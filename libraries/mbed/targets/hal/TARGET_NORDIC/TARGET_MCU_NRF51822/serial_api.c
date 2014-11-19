@@ -36,7 +36,7 @@ static uint32_t acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200}
                                          {14400, UART_BAUDRATE_BAUDRATE_Baud14400},
                                          {19200, UART_BAUDRATE_BAUDRATE_Baud19200},
                                          {28800, UART_BAUDRATE_BAUDRATE_Baud28800},
-                                         {31250, UART_BAUDRATE_BAUDRATE_Baud31250},
+                                         {31250, (0x00800000UL) /* 31250 baud */},
                                          {38400, UART_BAUDRATE_BAUDRATE_Baud38400},
                                          {57600, UART_BAUDRATE_BAUDRATE_Baud57600},
                                          {76800, UART_BAUDRATE_BAUDRATE_Baud76800},
