@@ -27,22 +27,22 @@ from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.targets import TARGET_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
-    ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM')),
+    ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
-    ('LPC812',       ('uARM',)),
+    ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM',)),
     ('SSCI824',      ('uARM',)),
     ('LPC1347',      ('ARM','IAR')),
-    ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR')),
-    ('LPC1114',      ('uARM','GCC_ARM')),
-    ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('LPC1549',      ('uARM','GCC_ARM','GCC_CR')),
+    ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('LPC1114',      ('uARM','GCC_ARM', 'IAR')),
+    ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC1549',      ('uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR')),
+    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
@@ -76,8 +76,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
 
-    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
-    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM')),
+    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
 #    ('RZ_A1H'   ,     ('ARM',)),
 )
