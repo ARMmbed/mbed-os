@@ -230,8 +230,6 @@ void SystemInit (void)
   /* Configure the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers */
   /* Configure the Flash Latency cycles and enable prefetch buffer */
   SetSysClock();
-  
-  SystemCoreClockUpdate();
 }
 
 /**
