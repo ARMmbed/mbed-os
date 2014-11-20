@@ -46,7 +46,8 @@ SDFileSystem sd(D11, D12, D13, D10, "sd");
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 
-namespace {
+namespace
+{
 }
 
 int main()
@@ -54,38 +55,38 @@ int main()
     bool result = true;
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir ("/sd/")) != NULL) {
+    char name[128] = "/sd/";
+    char buffer[32] = {0};
+    if ((dir = opendir(name)) != NULL) {
         // print all the files and directories within directory
-
         printf("type\tmodified          \tsize\tname\r\n");
         while ((ent = readdir (dir)) != NULL) {
             if (ent->d_type == DT_UNKNOWN) {
                 // If we still get unknown SD card file type...
                 result = false;
             }
-            struct stat statinfo;
-            char name[256] = "/sd/";
             strcat(name, ent->d_name);
+
+            struct stat statinfo = {0};
             int res = stat(name, &statinfo);
 
             int f_size = res ? 0 : statinfo.st_size;
             time_t f_mtime = res ? 0 : statinfo.st_mtime;
 
-            char buffer[32] = {0};
             strftime(buffer, 32, "%Y-%m-%d %H:%M%p", localtime(&f_mtime));
 
             // Print file type and name
             bool is_dir = (ent->d_type == DT_DIR);
-            const char *file_dir = is_dir ? "d" : "f";
-            printf("%s\t%s\t%d\t%s\r\n", file_dir, buffer, f_size, ent->d_name);
-
+            const char file_dir = is_dir ? 'd' : 'f';
+            printf("%c\t%s\t%d\t%s\r\n", file_dir, buffer, f_size, ent->d_name);
         }
-        closedir (dir);
+        closedir(dir);
     } else {
         // could not open directory
-        printf("Could not open directory");
+        printf("Could not open directory: %s", name);
         result = false;
     }
 
     notify_completion(result);
+    return 0;
 }

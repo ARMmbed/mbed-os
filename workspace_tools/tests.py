@@ -528,7 +528,7 @@ TESTS = [
         "host_test": "wait_us_auto"
     },
     {
-        "id": "MBED_35", "description": "FileSystem stat functionality",
+        "id": "MBED_35", "description": "FileSystem stat() func",
         "source_dir": join(TEST_DIR, "mbed", "sd_stat"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
         "duration": 15,

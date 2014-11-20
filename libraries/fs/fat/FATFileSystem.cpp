@@ -157,7 +157,7 @@ int FATFileSystem::stat(const char* path, struct stat* buf) {
     FRESULT f_result = f_stat(path, &finfo);
     if(f_result == FR_OK) {
         // Translate time from FatFS to POSIX's time_t format
-        struct tm timeinfo;
+        struct tm timeinfo = {0};
         timeinfo.tm_sec  = finfo.ftime & 0x1F;         // seconds after the minute (0-59)
         timeinfo.tm_min  = (finfo.ftime >> 5) & 0x3F;  // minutes after the hour   (0-59)
         timeinfo.tm_hour = (finfo.ftime >> 11) & 0x1F; // hours since midnight     (0-23)
@@ -166,8 +166,10 @@ int FATFileSystem::stat(const char* path, struct stat* buf) {
         timeinfo.tm_year = (finfo.fdate >> 9) & 0x7F;  // years                    (since 1900)
         timeinfo.tm_year += 80; // Note: in fdate year origin from 1980 (0..127)
 
-        // Set stat structure:
-        buf->st_mtime = mktime(&timeinfo);
+        const time_t mkt = mktime(&timeinfo);
+        const time_t MKTIME_ERR = (time_t)-1;
+        // Set struct stat
+        buf->st_mtime = mkt == MKTIME_ERR ? 0 : mkt;
         buf->st_size  = finfo.fsize;
     }
     return (int)f_result;
