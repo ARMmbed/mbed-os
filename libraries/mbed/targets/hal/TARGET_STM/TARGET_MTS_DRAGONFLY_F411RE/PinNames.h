@@ -159,10 +159,11 @@ typedef enum {
     RADIO_RX    = PC_6,
     I2C_SCL     = D15,
     I2C_SDA     = D14,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    SPI_CS      = PA_4,
+    SPI_MOSI    = PC_12,
+    SPI_MISO    = PC_11,
+    SPI_SCK     = PC_10,
+    SPI_CS1     = PA_4,
+    SPI_CS2     = PB_14,
     PWM_OUT     = PB_3,
 
     // Not connected
