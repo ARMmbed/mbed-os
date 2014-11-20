@@ -133,7 +133,7 @@ typedef enum {
     //vince orig D2          = PA_10,
     D2          = PB_12, //vince add
     //vince orig D3          = PB_3,
-    D3          = PB_10, //vince a dd
+    D3          = PB_15, //vince a dd
     D4          = PA_8, //vince add
     D5          = PA_7, //vince add
     //vince orig D4          = PB_5,
@@ -154,10 +154,10 @@ typedef enum {
     D15         = PB_8,
 
     // Generic signals namings
-    LED1        = PB_10, /* vince was PA_5 , next 3 lines below */
-    LED2        = PB_10,
-    LED3        = PB_10,
-    LED4        = PB_10,
+    LED1        = D3, /* vince was PA_5 , next 3 lines below */
+    LED2        = D3,
+    LED3        = D3,
+    LED4        = D3,
     USER_BUTTON = PC_13,
     SERIAL_TX   = PB_6, //vince orig PA_2
     SERIAL_RX   = PB_7, //vince orig PA_3
