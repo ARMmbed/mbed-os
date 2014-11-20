@@ -636,11 +636,8 @@ class MTS_DRAGONFLY_F411RE(Target):
         self.macros = ['HSE_VALUE=26000000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "ARM" #vince orig "uARM"
-        #vince orig self.default_toolchain = "GCC_ARM" #vince orig "uARM"
-        #vince orig self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        #vince orig self.detect_code = "0740"
 
-
+        
 ### Nordic ###
 
 class NRF51822(Target):
