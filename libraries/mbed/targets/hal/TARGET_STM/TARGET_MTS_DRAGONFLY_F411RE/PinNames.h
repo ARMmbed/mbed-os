@@ -155,6 +155,8 @@ typedef enum {
     SERIAL_RX   = PB_7,
     USBTX       = SERIAL_TX,
     USBRX       = SERIAL_RX,
+    RADIO_TX    = PC_7,
+    RADIO_RX    = PC_6,
     I2C_SCL     = D15,
     I2C_SDA     = D14,
     SPI_MOSI    = D11,
