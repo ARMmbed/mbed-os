@@ -265,8 +265,8 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
 
 #define __NO_RETURN __noreturn
 
-#define RET_osEvent        "=r"(ret.status), "=r"(ret.value), "=r"(ret.def)
-#define RET_osCallback     "=r"(ret.fp), "=r"(ret.arg)
+// #define RET_osEvent        "=r"(ret.status), "=r"(ret.value), "=r"(ret.def)
+// #define RET_osCallback     "=r"(ret.fp), "=r"(ret.arg)
 
 #define osEvent_type       osEvent
 #define osEvent_ret_status ret
@@ -274,21 +274,19 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
 #define osEvent_ret_msg    ret
 #define osEvent_ret_mail   ret
 
-#define osCallback_type    uint64_t
-#define osCallback_ret     ((uint64_t)ret.fp | ((uint64_t)ret.arg)<<32)
+#define osCallback_type    osCallback
+// #define osCallback_ret     ((uint64_t)ret.fp | ((uint64_t)ret.arg)<<32)
+#define osCallback_ret     ret
+
+#define RET_osEvent     osEvent
+#define RET_osCallback  osCallback
 
 #define SVC_Setup(f)                                                           \
-  __asm(                                                                         \
+  __asm(                                                                       \
     "mov r12,%0\n"                                                             \
     :: "r"(&f): "r12"                                                          \
   );
 
-#define SVC_Ret3()                                                             \
-  __asm(                                                                         \
-    "ldr r0,[sp,#0]\n"                                                         \
-    "ldr r1,[sp,#4]\n"                                                         \
-    "ldr r2,[sp,#8]\n"                                                         \
-  );
 
 #define SVC_0_1(f,t,...)                                                       \
 t f (void);                                                                    \
@@ -330,47 +328,35 @@ static inline t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                           \
   return _##f(a1,a2,a3,a4);                                                    \
 }
 
+#define SVC_1_2 SVC_1_1
+#define SVC_1_3 SVC_1_1
+#define SVC_2_3 SVC_2_1
+
+#if 0
 #define SVC_1_2(f,t,t1,rr)                                                     \
-uint64_t f (t1 a1);                                                            \
-_Pragma("swi_number=0") __swi uint64_t _##f (t1 a1);                           \
+t f (t1 a1);                                                                   \
+_Pragma("swi_number=0") __swi  t _##f (t1 a1);                                 \
 static inline t __##f (t1 a1) {                                                \
-  t ret;                                                                       \
   SVC_Setup(f);                                                                \
-  _##f(a1);                                                                    \
-  __asm("" : rr : :);                                                            \
-  return ret;                                                                  \
+  return _##f(a1);                                                             \
 }
 
 #define SVC_1_3(f,t,t1,rr)                                                     \
-t f (t1 a1);                                                                   \
-void f##_ (t1 a1) {                                                            \
-  f(a1);                                                                       \
-  SVC_Ret3();                                                                  \
-}                                                                              \
-_Pragma("swi_number=0") __swi void _##f (t1 a1);                               \
+ t f (t1 a1);                                                                  \
+_Pragma("swi_number=0") __swi __value_in_regs  rr _##f (t1 a1);                \
 static inline t __##f (t1 a1) {                                                \
-  t ret;                                                                       \
-  SVC_Setup(f##_);                                                             \
-  _##f(a1);                                                                    \
-  __asm("" : rr : :);                                                            \
-  return ret;                                                                  \
+  SVC_Setup(f);                                                                \
+  return _##f(a1);                                                             \
 }
 
 #define SVC_2_3(f,t,t1,t2,rr)                                                  \
-t f (t1 a1, t2 a2);                                                            \
-void f##_ (t1 a1, t2 a2) {                                                     \
-  f(a1,a2);                                                                    \
-  SVC_Ret3();                                                                  \
-}                                                                              \
-_Pragma("swi_number=0") __swi void _##f (t1 a1, t2 a2);                        \
+ t f (t1 a1, t2 a2);                                                           \
+_Pragma("swi_number=0") __svc __value_in_regs rr _##f (t1 a1, t2 a2);          \
 static inline t __##f (t1 a1, t2 a2) {                                         \
-  t ret;                                                                       \
-  SVC_Setup(f##_);                                                             \
-  _##f(a1,a2);                                                                 \
-  __asm("" : rr : :);                                                            \
-  return ret;                                                                  \
+  SVC_Setup(f);                                                                \
+  return _##f(a1,a2);                                                          \
 }
-
+#endif
 #endif
 
 

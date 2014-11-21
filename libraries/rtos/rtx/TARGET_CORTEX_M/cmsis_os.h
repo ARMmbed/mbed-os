@@ -115,7 +115,7 @@ used throughout the whole project.
 #define CMSIS_OS_RTX
 
 // The stack space occupied is mainly dependent on the underling C standard library
-#if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD)
+#if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
 #    define WORDS_STACK_SIZE   512
 #elif defined(TOOLCHAIN_ARM_MICRO)
 #    define WORDS_STACK_SIZE   128
@@ -134,6 +134,8 @@ used throughout the whole project.
 #define osFeature_Wait         0       ///< osWait function: 1=available, 0=not available
 
 #if defined (__CC_ARM)
+#define os_InRegs __value_in_regs      // Compiler specific: force struct in registers
+#elif defined (__ICCARM__)
 #define os_InRegs __value_in_regs      // Compiler specific: force struct in registers
 #else
 #define os_InRegs
