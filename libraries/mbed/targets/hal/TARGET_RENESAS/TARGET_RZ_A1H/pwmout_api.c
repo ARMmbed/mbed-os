@@ -27,35 +27,38 @@
 //  PORT ID, PWM ID, Pin function
 static const PinMap PinMap_PWM[] = {
     {LED_RED  , 0, 4},
-    {LED_GREEN, 1, 4},
+    {LED_GREEN, 1, 7},
     {LED_BLUE , 2, 4},
     {P4_7     , 3, 4},
     {P8_14    , 4, 6},
     {P8_15    , 5, 6},
     {P8_13    , 6, 6},
     {P8_11    , 7, 6},
+    {LED_GREEN_REV_01, 1, 4},
     {NC, NC, 0}
 };
 
 static __IO uint16_t PORT[] = {
      PWM2E,
-     PWM2F,
+     PWM2C,
      PWM2G,
      PWM2H,
      PWM1G,
      PWM1H,
      PWM1F,
      PWM1D,
+     PWM2F,
 };
 static __IO uint16_t *PWM_MATCH[] = {
     &PWMPWBFR_2E,
-    &PWMPWBFR_2E,
+    &PWMPWBFR_2C,
     &PWMPWBFR_2G,
     &PWMPWBFR_2G,
     &PWMPWBFR_1G,
     &PWMPWBFR_1G,
     &PWMPWBFR_1E,
     &PWMPWBFR_1C,
+    &PWMPWBFR_2E,
 };
 
 #define TCR_PWM_EN       0x00000008
