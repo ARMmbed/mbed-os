@@ -417,7 +417,7 @@ class NUCLEO_F030R8(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0725"]
