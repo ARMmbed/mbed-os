@@ -137,7 +137,7 @@ void pin_mode(PinName pin, PinMode mode)
     {
         pupd = 0; // Open-drain = No pull-up/No pull-down
     }
-    gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
+    gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPD0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
 
 }
