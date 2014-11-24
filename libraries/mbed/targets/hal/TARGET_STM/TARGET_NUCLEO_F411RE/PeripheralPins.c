@@ -30,6 +30,12 @@
 
 #include "PeripheralPins.h"
 
+// =====
+// Note: Commented lines are alternative possibilities which are not used per default.
+//       If you change them, you will have also to modify the corresponding xxx_api.c file
+//       for pwmout, analogin, analogout, ...
+// =====
+
 //*** ADC ***
 
 const PinMap PinMap_ADC[] = {
