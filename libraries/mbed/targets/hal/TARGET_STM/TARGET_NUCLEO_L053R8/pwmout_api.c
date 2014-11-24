@@ -34,30 +34,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-
-// TIM21 cannot be used because already used by the us_ticker
-static const PinMap PinMap_PWM[] = {
-    {PA_0,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH1
-    {PA_1,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH2
-//  {PA_2,  PWM_21, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21)}, // TIM21_CH1
-//  {PA_2,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH3 - used by STDIO TX
-//  {PA_3,  PWM_21, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21)}, // TIM21_CH2
-//  {PA_3,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH4 - used by STDIO RX
-    {PA_5,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2)},  // TIM2_CH1 - used also to drive the LED
-    {PA_6,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22)}, // TIM22_CH1
-    {PA_7,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22)}, // TIM22_CH2
-    {PA_15, PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2)},  // TIM2_CH1
-    {PB_3,  PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH2
-    {PB_4,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22)}, // TIM22_CH1
-    {PB_5,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22)}, // TIM22_CH2
-    {PB_10, PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH3
-    {PB_11, PWM_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2)},  // TIM2_CH4
-//  {PB_13, PWM_21, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21)}, // TIM21_CH1
-//  {PB_14, PWM_21, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21)}, // TIM21_CH2
-    {PC_6,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM22)}, // TIM22_CH1
-    {PC_7,  PWM_22, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM22)}, // TIM22_CH2
-    {NC,    NC,     0}
-};
+#include "PeripheralPins.h"
 
 static TIM_HandleTypeDef TimHandle;
 
@@ -115,22 +92,18 @@ void pwmout_write(pwmout_t* obj, float value)
     switch (obj->pin) {
         // Channels 1
         case PA_0:
-//      case PA_2:
         case PA_5:
         case PA_6:
         case PA_15:
         case PB_4:
-//      case PB_13:
         case PC_6:
             channel = TIM_CHANNEL_1;
             break;
         // Channels 2
         case PA_1:
-//      case PA_3:
         case PA_7:
         case PB_3:
         case PB_5:
-//      case PB_14:
         case PC_7:
             channel = TIM_CHANNEL_2;
             break;
@@ -180,7 +153,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
     __HAL_TIM_DISABLE(&TimHandle);
 
     TimHandle.Init.Period        = us - 1;
-    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_PWM_Init(&TimHandle);
