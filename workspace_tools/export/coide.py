@@ -29,6 +29,8 @@ class CoIDE(Exporter):
         'ARCH_PRO',
         'DISCO_F407VG',
         'NUCLEO_L152RE',
+        'NUCLEO_F030R8',
+        'NUCLEO_F072RB',
         'NUCLEO_F302R8',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
