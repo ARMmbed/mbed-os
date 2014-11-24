@@ -130,7 +130,7 @@ typedef enum {
     A5          = PC_0,
     D0          = PA_3,
     D1          = PA_2,
-    D2          = PB_12,
+    D2          = PC_9,
     D3          = PB_15,
     D4          = PA_8,
     D5          = PA_7,
@@ -164,7 +164,6 @@ typedef enum {
     SPI_SCK     = PC_10,
     SPI_CS1     = PA_4,
     SPI_CS2     = PB_14,
-    PWM_OUT     = PB_3,
 
     // Not connected
     NC = (int)0xFFFFFFFF
