@@ -40,7 +40,7 @@ uint32_t us_ticker_read()
         us_ticker_init();
     }
 
-    timestamp_t value;
+    uint64_t value;
     app_timer_cnt_get(&value); /* This returns the RTC counter (which is fed by the 32khz crystal clock source) */
     return ((value * 1000000) / (uint32_t)APP_TIMER_CLOCK_FREQ); /* Return a pseudo microsecond counter value.
                                                                   * This is only as precise as the 32khz low-freq
@@ -72,7 +72,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         return;
     }
 
-    timestamp_t currentCounter64;
+    uint64_t currentCounter64;
     app_timer_cnt_get(&currentCounter64);
     uint32_t currentCounter = currentCounter64 & MAX_RTC_COUNTER_VAL;
     uint32_t targetCounter = ((uint32_t)((timestamp * (uint64_t)APP_TIMER_CLOCK_FREQ) / 1000000) + 1) & MAX_RTC_COUNTER_VAL;
