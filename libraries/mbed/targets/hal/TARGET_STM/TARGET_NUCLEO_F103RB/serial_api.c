@@ -35,24 +35,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include <string.h>
-
-static const PinMap PinMap_UART_TX[] = {
-    {PA_2,  UART_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PA_9,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_6,  UART_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 3)}, // GPIO_Remap_USART1
-    {PB_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PC_10, UART_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 5)}, // GPIO_PartialRemap_USART3
-    {NC,    NC,     0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {PA_3,  UART_2, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PA_10, UART_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PB_7,  UART_1, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 3)}, // GPIO_Remap_USART1
-    {PB_11, UART_3, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0)},
-    {PC_11, UART_3, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 5)}, // GPIO_PartialRemap_USART3
-    {NC,    NC,     0}
-};
+#include "PeripheralPins.h"
 
 #define UART_NUM (3)
 

@@ -33,26 +33,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "wait_api.h"
-
-static const PinMap PinMap_ADC[] = {
-    {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN0
-    {PA_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN1
-    {PA_2, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN2
-    {PA_3, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN3
-    {PA_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN4
-    {PA_5, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN5
-    {PA_6, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN6
-    {PA_7, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN7
-    {PB_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN8
-    {PB_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN9
-    {PC_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN10
-    {PC_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN11
-    {PC_2, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN12
-    {PC_3, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN13
-    {PC_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN14
-    {PC_5, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)}, // ADC12_IN15
-    {NC,   NC,    0}
-};
+#include "PeripheralPins.h"
 
 int adc_inited = 0;
 
