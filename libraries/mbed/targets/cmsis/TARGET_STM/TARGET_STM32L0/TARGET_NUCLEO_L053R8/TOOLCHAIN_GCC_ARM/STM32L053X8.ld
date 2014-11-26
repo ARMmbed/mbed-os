@@ -1,5 +1,3 @@
-/* Linker script for STM32L0 */
-
 /* Linker script to configure memory regions. */
 MEMORY
 {
@@ -32,6 +30,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   _estack
  */
 ENTRY(Reset_Handler)
 
@@ -41,7 +40,6 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
-
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -64,7 +62,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab :
+    .ARM.extab : 
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
