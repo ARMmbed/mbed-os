@@ -27,7 +27,7 @@
 //  PORT ID, PWM ID, Pin function
 static const PinMap PinMap_PWM[] = {
     {LED_RED  , 0, 4},
-    {LED_GREEN, 1, 4},
+    {LED_GREEN, 1, 7},
     {LED_BLUE , 2, 4},
     {P4_7     , 3, 4},
     {P8_14    , 4, 6},
@@ -39,7 +39,7 @@ static const PinMap PinMap_PWM[] = {
 
 static __IO uint16_t PORT[] = {
      PWM2E,
-     PWM2F,
+     PWM2C,
      PWM2G,
      PWM2H,
      PWM1G,
@@ -49,7 +49,7 @@ static __IO uint16_t PORT[] = {
 };
 static __IO uint16_t *PWM_MATCH[] = {
     &PWMPWBFR_2E,
-    &PWMPWBFR_2E,
+    &PWMPWBFR_2C,
     &PWMPWBFR_2G,
     &PWMPWBFR_2G,
     &PWMPWBFR_1G,
