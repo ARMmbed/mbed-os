@@ -60,13 +60,11 @@ typedef enum {
     LED2 = P3_2,
     LED3 = P4_6,
     LED4 = P4_7,
-    LED2_REV_01 = P4_5,
 
     LED_RED  = LED1,
     LED_GREEN= LED2,
     LED_BLUE = LED3,
     LED_USER = LED4,
-    LED_GREEN_REV_01 = LED2_REV_01,
 
     USBTX = P6_3,
     USBRX = P6_2,

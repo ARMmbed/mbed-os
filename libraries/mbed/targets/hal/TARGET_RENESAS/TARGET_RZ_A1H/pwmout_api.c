@@ -34,7 +34,6 @@ static const PinMap PinMap_PWM[] = {
     {P8_15    , 5, 6},
     {P8_13    , 6, 6},
     {P8_11    , 7, 6},
-    {LED_GREEN_REV_01, 1, 4},
     {NC, NC, 0}
 };
 
@@ -47,7 +46,6 @@ static __IO uint16_t PORT[] = {
      PWM1H,
      PWM1F,
      PWM1D,
-     PWM2F,
 };
 static __IO uint16_t *PWM_MATCH[] = {
     &PWMPWBFR_2E,
@@ -58,7 +56,6 @@ static __IO uint16_t *PWM_MATCH[] = {
     &PWMPWBFR_1G,
     &PWMPWBFR_1E,
     &PWMPWBFR_1C,
-    &PWMPWBFR_2E,
 };
 
 #define TCR_PWM_EN       0x00000008

@@ -160,21 +160,12 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     GPIOPFCE1   |=  0x4000;
     GPIOPFC1    |=  0x4000;
 
-#if 1 /* Modify for New GR-PEACH */
     /* P3_0(ET_TXCLK), P3_3(ET_MDIO), P3_4(ET_RXCLK), P3_5(ET_RXER), P3_6(ET_RXDV) */
     GPIOPMC3    |=  0x0079;
     GPIOPFCAE3  &= ~0x0079;
     GPIOPFCE3   &= ~0x0079;
     GPIOPFC3    |=  0x0079;
     GPIOPIPC3   |=  0x0079;
-#else /* below is GR-PEACH REV_01 */
-    /* P3_3(ET_MDIO), P3_4(ET_RXCLK), P3_5(ET_RXER), P3_6(ET_RXDV) */
-    GPIOPMC3    |=  0x0078;
-    GPIOPFCAE3  &= ~0x0078;
-    GPIOPFCE3   &= ~0x0078;
-    GPIOPFC3    |=  0x0078;
-    GPIOPIPC3   |=  0x0078;
-#endif
 
     /* P5_9(ET_MDC) */
     GPIOPMC5    |=  0x0200;
@@ -183,7 +174,6 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     GPIOPFC5    |=  0x0200;
     GPIOPIPC5   |=  0x0200;
 
-#if 1 /* Modify for New GR-PEACH */
     /* P10_1(ET_TXER), P10_2(ET_TXEN), P10_3(ET_CRS), P10_4(ET_TXD0), P10_5(ET_TXD1) */
     /* P10_6(ET_TXD2), P10_7(ET_TXD3), P10_8(ET_RXD0), P10_9(ET_RXD1), P10_10(ET_RXD2), P10_11(ET_RXD3) */
     GPIOPMC10   |=  0x0FFE;
@@ -191,15 +181,6 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     GPIOPFCE10  |=  0x0FFE;
     GPIOPFC10   |=  0x0FFE;
     GPIOPIPC10  |=  0x0FFE;
-#else /* below is GR-PEACH REV_01 */
-    /* P10_0(ET_TXCLK), P10_1(ET_TXER), P10_2(ET_TXEN), P10_3(ET_CRS), P10_4(ET_TXD0), P10_5(ET_TXD1) */
-    /* P10_6(ET_TXD2), P10_7(ET_TXD3), P10_8(ET_RXD0), P10_9(ET_RXD1), P10_10(ET_RXD2), P10_11(ET_RXD3) */
-    GPIOPMC10   |=  0x0FFF;
-    GPIOPFCAE10 &= ~0x0FFF;
-    GPIOPFCE10  |=  0x0FFF;
-    GPIOPFC10   |=  0x0FFF;
-    GPIOPIPC10  |=  0x0FFF;
-#endif
 
     /* Resets the E-MAC,E-DMAC */
     lan_reg_reset();
