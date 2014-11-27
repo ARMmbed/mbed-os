@@ -758,7 +758,10 @@ class RZ_A1H(Target):
         self.supported_toolchains = ["ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
-
+        
+    def program_cycle_s(self):
+        return 2
+        
 
 
 # Get a single instance for each target
