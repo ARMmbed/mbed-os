@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F)
 
 #include "USBHAL.h"
 
@@ -121,9 +121,9 @@ USBHAL::USBHAL(void) {
     epCallback[28] = &USBHAL::EP15_OUT_callback;
     epCallback[29] = &USBHAL::EP15_IN_callback;
 
-
     // choose usb src as PLL
-    SIM->SOPT2 |= (SIM_SOPT2_USBSRC_MASK | SIM_SOPT2_PLLFLLSEL_MASK);
+    SIM->SOPT2 &= ~SIM_SOPT2_PLLFLLSEL_MASK;
+    SIM->SOPT2 |= (SIM_SOPT2_USBSRC_MASK | (1 << SIM_SOPT2_PLLFLLSEL_SHIFT));
 
     // enable OTG clock
     SIM->SCGC4 |= SIM_SCGC4_USBOTG_MASK;
