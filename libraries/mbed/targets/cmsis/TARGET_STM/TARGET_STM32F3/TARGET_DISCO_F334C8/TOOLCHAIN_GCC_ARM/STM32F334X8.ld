@@ -1,17 +1,16 @@
-/* Linker script for STM32L0 */
-
 /* Linker script to configure memory regions. */
 MEMORY
-{
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64k
-  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 0x2000-0xC0
+{ 
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 64K
+  CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 4K
+  RAM (xrw)       : ORIGIN = 0x20000188, LENGTH = 12K - 0x0188
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- *
+ * 
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -32,6 +31,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   _estack
  */
 ENTRY(Reset_Handler)
 
@@ -41,7 +41,6 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
-
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -64,7 +63,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab :
+    .ARM.extab : 
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
@@ -126,7 +125,7 @@ SECTIONS
         __bss_end__ = .;
         _ebss = .;
     } > RAM
-
+    
     .heap (COPY):
     {
         __end__ = .;
@@ -149,7 +148,8 @@ SECTIONS
     _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
-
+    
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
+

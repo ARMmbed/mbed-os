@@ -1,18 +1,15 @@
-/* Linker script for STM32F407 */
-
 /* Linker script to configure memory regions. */
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512K
-/*  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K */
-  RAM (rwx) : ORIGIN = 0x20000194, LENGTH = 96k - 0x194
+{
+  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64k
+  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 0x2000-0xC0
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -33,6 +30,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   _estack
  */
 ENTRY(Reset_Handler)
 
@@ -42,7 +40,6 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
-
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -78,10 +75,12 @@ SECTIONS
     __exidx_end = .;
 
     __etext = .;
-        
+    _sidata = .;
+
     .data : AT (__etext)
     {
         __data_start__ = .;
+        _sdata = .;
         *(vtable)
         *(.data*)
 
@@ -110,6 +109,7 @@ SECTIONS
         . = ALIGN(4);
         /* All data end */
         __data_end__ = .;
+        _edata = .;
 
     } > RAM
 
@@ -117,12 +117,14 @@ SECTIONS
     {
         . = ALIGN(4);
         __bss_start__ = .;
+        _sbss = .;
         *(.bss*)
         *(COMMON)
         . = ALIGN(4);
         __bss_end__ = .;
+        _ebss = .;
     } > RAM
-    
+
     .heap (COPY):
     {
         __end__ = .;
@@ -142,10 +144,10 @@ SECTIONS
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
-    
+
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
-
