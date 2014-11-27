@@ -644,7 +644,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
         "automated": True,
         "peripherals": ["SD"],
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z"],
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
     },
 
     # Networking Tests

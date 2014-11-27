@@ -27,24 +27,28 @@
 static const PinMap PinMap_SPI_SCLK[] = {
     {P10_12, SPI_0, 4},
     {P11_12, SPI_1, 2},
+    {P8_3,   SPI_2, 3},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {P10_13, SPI_0, 4},
     {P11_13, SPI_1, 2},
+    {P8_4,   SPI_2, 3},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {P10_14, SPI_0, 4},
     {P11_14, SPI_1, 2},
+    {P8_5,   SPI_2, 3},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {P10_15, SPI_0, 4},
     {P11_15, SPI_1, 2},
+    {P8_6,   SPI_2, 3},
     {NC   , NC   , 0}
 };
 
@@ -73,6 +77,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     switch ((int)obj->spi) {
         case SPI_0: CPGSTBCR10 &= ~(0x80); break;
         case SPI_1: CPGSTBCR10 &= ~(0x40); break;
+        case SPI_2: CPGSTBCR10 &= ~(0x20); break;
     }
     dummy = CPGSTBCR10;
     
