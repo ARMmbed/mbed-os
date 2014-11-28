@@ -217,10 +217,10 @@ void i2c_frequency(i2c_t *obj, int hz) {
     }
     
     for (count = 0; count < 7; count++) {
-        // IICƒÓ = P0ƒÓ / rate
+        // IIC phi = P0 phi / rate
         pclk = 33333333 / (2 << count);
-        // In case of "CLE = 1ANFE = 1ACKS != 000( IICƒÓ < P0ƒÓ )Anf = 1"
-        // freq = 1 / {[( BRH + 2 + 1 ) { ( BRL + 2 + 1 )] / pclk }
+        // In case of "CLE = 1, NFE = 1, CKS != 000( IIC phi < P0 phi ), nf = 1"
+        // freq = 1 / {[( BRH + 2 + 1 ) + ( BRL + 2 + 1 )] / pclk }
         // BRH is regarded as same value with BRL
         // 2( BRH + 3 ) / pclk  = 1 / freq
         tmp_width = ((pclk / freq) / 2) - 3;
