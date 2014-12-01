@@ -386,6 +386,7 @@ class K22F(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
+        self.detect_code = ["0201"]
 
 class K64F(Target):
     def __init__(self):
@@ -758,10 +759,10 @@ class RZ_A1H(Target):
         self.supported_toolchains = ["ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
-        
+
     def program_cycle_s(self):
         return 2
-        
+
 
 
 # Get a single instance for each target
