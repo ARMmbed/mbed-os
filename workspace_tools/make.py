@@ -155,21 +155,19 @@ if __name__ == '__main__':
     if n is not None and p is not None:
         args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
     if n:
-        if not n in TEST_MAP.keys():
-            # Check if there is an alias for this in private_settings.py
-            if getattr(ps, "test_alias", None) is not None:
-                alias = ps.test_alias.get(n, "")
-                if not alias in TEST_MAP.keys():
-                    args_error(parser, "[ERROR] Program with name '%s' not found" % n)
-                else:
-                    n = alias
-            else:
-                args_error(parser, "[ERROR] Program with name '%s' not found" % n)
-        p = TEST_MAP[n].n
-    if p is None or (p < 0) or (p > (len(TESTS)-1)):
-        message = "[ERROR] You have to specify one of the following tests:\n"
-        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-        args_error(parser, message)
+        nlist = n.split(',')
+        for test_id in nlist:
+            if test_id not in TEST_MAP.keys():
+                args_error(parser, "[ERROR] Program with name '%s' not found"% test_id)
+
+        p = [TEST_MAP[n].n for n in nlist]
+    elif p is not None:
+        plist = p.split(',')
+        if not plist or (plist < 0) or (plist > (len(TESTS)-1)):
+            message = "[ERROR] You have to specify one of the following tests:\n"
+            message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+            args_error(parser, message)
+        p = plist
 
     # Target
     if options.mcu is None :
@@ -182,88 +180,83 @@ if __name__ == '__main__':
     toolchain = options.tool
 
     # Test
-    test = Test(p)
-    if options.automated is not None:
-        test.automated = options.automated
-    if options.dependencies is not None:
-        test.dependencies = options.dependencies
-    if options.host_test is not None:
-        test.host_test = options.host_test;
-    if options.peripherals is not None:
-        test.peripherals = options.peripherals;
-    if options.duration is not None:
-        test.duration = options.duration;
-    if options.extra is not None:
-        test.extra_files = options.extra
+    for test_no in p:
+        test = Test(test_no)
+        if options.automated is not None:    test.automated = options.automated
+        if options.dependencies is not None: test.dependencies = options.dependencies
+        if options.host_test is not None:    test.host_test = options.host_test;
+        if options.peripherals is not None:  test.peripherals = options.peripherals;
+        if options.duration is not None:     test.duration = options.duration;
+        if options.extra is not None:        test.extra_files = options.extra
 
-    if not test.is_supported(mcu, toolchain):
-        print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
-        sys.exit()
+        if not test.is_supported(mcu, toolchain):
+            print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
+            sys.exit()
 
-    # Linking with extra libraries
-    if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
-    if options.eth:      test.dependencies.append(ETH_LIBRARY)
-    if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
-    if options.usb:      test.dependencies.append(USB_LIBRARIES)
-    if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
-    if options.fat:      test.dependencies.append(FS_LIBRARY)
-    if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
-    if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
+        # Linking with extra libraries
+        if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
+        if options.eth:      test.dependencies.append(ETH_LIBRARY)
+        if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
+        if options.usb:      test.dependencies.append(USB_LIBRARIES)
+        if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
+        if options.fat:      test.dependencies.append(FS_LIBRARY)
+        if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
+        if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 
-    build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
-    if options.source_dir is not None:
-        test.source_dir = options.source_dir
-        build_dir = options.source_dir
+        build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
+        if options.source_dir is not None:
+            test.source_dir = options.source_dir
+            build_dir = options.source_dir
 
-    if options.build_dir is not None:
-        build_dir = options.build_dir
+        if options.build_dir is not None:
+            build_dir = options.build_dir
 
-    target = TARGET_MAP[mcu]
-    try:
-        bin = build_project(test.source_dir, build_dir, target, toolchain,
-                            test.dependencies, options.options,
-                            linker_script=options.linker_script,
-                            clean=options.clean, verbose=options.verbose,
-                            macros=options.macros, jobs=options.jobs)
-        print 'Image: %s' % bin
+        target = TARGET_MAP[mcu]
+        try:
+            bin = build_project(test.source_dir, build_dir, target, toolchain,
+                                test.dependencies, options.options,
+                                linker_script=options.linker_script,
+                                clean=options.clean, verbose=options.verbose,
+                                macros=options.macros, jobs=options.jobs)
+            print 'Image: %s' % bin
 
-        if options.disk:
-            # Simple copy to the mbed disk
-            copy(bin, options.disk)
+            if options.disk:
+                # Simple copy to the mbed disk
+                copy(bin, options.disk)
 
-        if options.serial:
-            # Import pyserial: https://pypi.python.org/pypi/pyserial
-            from serial import Serial
+            if options.serial:
+                # Import pyserial: https://pypi.python.org/pypi/pyserial
+                from serial import Serial
 
-            sleep(target.program_cycle_s())
+                sleep(target.program_cycle_s())
 
-            serial = Serial(options.serial, timeout = 1)
-            if options.baud:
-                serial.setBaudrate(options.baud)
+                serial = Serial(options.serial, timeout = 1)
+                if options.baud:
+                    serial.setBaudrate(options.baud)
 
-            serial.flushInput()
-            serial.flushOutput()
+                serial.flushInput()
+                serial.flushOutput()
 
-            try:
-                serial.sendBreak()
-            except:
-                # In linux a termios.error is raised in sendBreak and in setBreak.
-                # The following setBreak() is needed to release the reset signal on the target mcu.
                 try:
-                    serial.setBreak(False)
+                    serial.sendBreak()
                 except:
-                    pass
+                    # In linux a termios.error is raised in sendBreak and in setBreak.
+                    # The following setBreak() is needed to release the reset signal on the target mcu.
+                    try:
+                        serial.setBreak(False)
+                    except:
+                        pass
 
-            while True:
-                c = serial.read(512)
-                sys.stdout.write(c)
-                sys.stdout.flush()
+                while True:
+                    c = serial.read(512)
+                    sys.stdout.write(c)
+                    sys.stdout.flush()
 
-    except KeyboardInterrupt, e:
-        print "\n[CTRL+c] exit"
-    except Exception,e:
-        if options.verbose:
-            import traceback
-            traceback.print_exc(file=sys.stdout)
-        else:
-            print "[ERROR] %s" % str(e)
+        except KeyboardInterrupt, e:
+            print "\n[CTRL+c] exit"
+        except Exception,e:
+            if options.verbose:
+                import traceback
+                traceback.print_exc(file=sys.stdout)
+            else:
+                print "[ERROR] %s" % str(e)
