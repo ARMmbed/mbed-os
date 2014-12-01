@@ -27,9 +27,7 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from workspace_tools.options import get_default_options_parser
-from workspace_tools.build_api import build_project
-from workspace_tools.tests import TESTS, Test, TEST_MAP
+from workspace_tools.utils import args_error
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import RTOS_LIBRARIES
 from workspace_tools.paths import ETH_LIBRARY
@@ -37,9 +35,11 @@ from workspace_tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
 from workspace_tools.paths import DSP_LIBRARIES
 from workspace_tools.paths import FS_LIBRARY
 from workspace_tools.paths import UBLOX_LIBRARY
+from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.tests import TEST_MBED_LIB
 from workspace_tools.targets import TARGET_MAP
-from workspace_tools.utils import args_error
+from workspace_tools.options import get_default_options_parser
+from workspace_tools.build_api import build_project
 try:
     import workspace_tools.private_settings as ps
 except:
@@ -155,19 +155,21 @@ if __name__ == '__main__':
     if n is not None and p is not None:
         args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
     if n:
+        # We will transform 'n' to list of 'p' (integers which are test numbers)
         nlist = n.split(',')
         for test_id in nlist:
             if test_id not in TEST_MAP.keys():
                 args_error(parser, "[ERROR] Program with name '%s' not found"% test_id)
 
         p = [TEST_MAP[n].n for n in nlist]
-    elif p is not None:
-        plist = p.split(',')
-        if not plist or (plist < 0) or (plist > (len(TESTS)-1)):
-            message = "[ERROR] You have to specify one of the following tests:\n"
-            message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-            args_error(parser, message)
-        p = plist
+    elif p is None or (p < 0) or (p > (len(TESTS)-1)):
+        message = "[ERROR] You have to specify one of the following tests:\n"
+        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+        args_error(parser, message)
+
+    # If 'p' was set via -n to list of numbers make this a single element integer list
+    if type(p) != type([]):
+        p = [p]
 
     # Target
     if options.mcu is None :
@@ -213,16 +215,17 @@ if __name__ == '__main__':
 
         target = TARGET_MAP[mcu]
         try:
-            bin = build_project(test.source_dir, build_dir, target, toolchain,
-                                test.dependencies, options.options,
-                                linker_script=options.linker_script,
-                                clean=options.clean, verbose=options.verbose,
-                                macros=options.macros, jobs=options.jobs)
-            print 'Image: %s' % bin
+            bin_file = build_project(test.source_dir, build_dir, target, toolchain, test.dependencies, options.options,
+                                     linker_script=options.linker_script,
+                                     clean=options.clean,
+                                     verbose=options.verbose,
+                                     macros=options.macros,
+                                     jobs=options.jobs)
+            print 'Image: %s'% bin_file
 
             if options.disk:
                 # Simple copy to the mbed disk
-                copy(bin, options.disk)
+                copy(bin_file, options.disk)
 
             if options.serial:
                 # Import pyserial: https://pypi.python.org/pypi/pyserial
