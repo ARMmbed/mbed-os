@@ -30,7 +30,14 @@ sys.path.insert(0, ROOT)
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_project
 from workspace_tools.tests import TESTS, Test, TEST_MAP
-from workspace_tools.paths import BUILD_DIR, RTOS_LIBRARIES
+from workspace_tools.paths import BUILD_DIR
+from workspace_tools.paths import RTOS_LIBRARIES
+from workspace_tools.paths import ETH_LIBRARY
+from workspace_tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
+from workspace_tools.paths import DSP_LIBRARIES
+from workspace_tools.paths import FS_LIBRARY
+from workspace_tools.paths import UBLOX_LIBRARY
+from workspace_tools.tests import TEST_MBED_LIB
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.utils import args_error
 try:
@@ -80,9 +87,51 @@ if __name__ == '__main__':
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
-    # without the rtos
-    parser.add_option("--rtos", action="store_true", dest="rtos",
-                      default=False, help="Link to the rtos")
+    # without the rtos, eth, usb_host, usb, dsp, fat, ublox
+    parser.add_option("--rtos",
+                      action="store_true", dest="rtos",
+                      default=False, help="Link with RTOS library")
+
+    parser.add_option("--eth",
+                      action="store_true", dest="eth",
+                      default=False,
+                      help="Link with Ethernet library")
+
+    parser.add_option("--usb_host",
+                      action="store_true",
+                      dest="usb_host",
+                      default=False,
+                      help="Link with USB Host library")
+
+    parser.add_option("--usb",
+                      action="store_true",
+                      dest="usb",
+                      default=False,
+                      help="Link with USB Device library")
+
+    parser.add_option("--dsp",
+                      action="store_true",
+                      dest="dsp",
+                      default=False,
+                      help="Link with DSP library")
+
+    parser.add_option("--fat",
+                      action="store_true",
+                      dest="fat",
+                      default=False,
+                      help="Link with FS ad SD card file system library")
+
+    parser.add_option("--ublox",
+                      action="store_true",
+                      dest="ublox",
+                      default=False,
+                      help="Link with U-Blox library")
+
+    parser.add_option("--testlib",
+                      action="store_true",
+                      dest="testlib",
+                      default=False,
+                      help="Link with mbed test library")
 
     # Specify a different linker script
     parser.add_option("-l", "--linker", dest="linker_script",
@@ -151,9 +200,15 @@ if __name__ == '__main__':
         print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
         sys.exit()
 
-    # RTOS
-    if options.rtos:
-        test.dependencies.append(RTOS_LIBRARIES)
+    # Linking with extra libraries
+    if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
+    if options.eth:      test.dependencies.append(ETH_LIBRARY)
+    if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
+    if options.usb:      test.dependencies.append(USB_LIBRARIES)
+    if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
+    if options.fat:      test.dependencies.append(FS_LIBRARY)
+    if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
+    if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 
     build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
     if options.source_dir is not None:
