@@ -2,7 +2,7 @@
 MEMORY
 {
   /* 512KB FLASH, 80KB RAM, Reserve up till 0x13C. There are 0x73 vectors = 292
-   * bytes (0x124) in RAM. But all GCC compilers seem to require BootRAM @0x138
+   * bytes (0x124) in RAM. But all GCC scripts seem to require BootRAM @0x138
    */
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512k
   RAM (rwx) : ORIGIN = 0x2000013C, LENGTH = 0x14000-0x13C
