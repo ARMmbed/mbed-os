@@ -20,6 +20,8 @@
 
 
 #include "riic_iodefine.h"
+#include "RZ_A1_Init.h"
+#include "MBRZA1H.h"
 
 volatile struct st_riic *RIIC[] = RIIC_ADDRESS_LIST;
 
@@ -202,10 +204,19 @@ void i2c_frequency(i2c_t *obj, int hz) {
     int oldfreq = 0;
     int newfreq = 0;
     uint32_t pclk;
+    uint32_t pclk_base;
     uint32_t tmp_width;
     uint32_t width = 0;
     uint8_t count;
     uint8_t pclk_bit = 0;
+    
+    /* set PCLK */
+    if (false == RZ_A1_IsClockMode0())
+    {
+        pclk_base = (uint32_t)CM1_RENESAS_RZ_A1_P0_CLK;
+    } else {
+        pclk_base = (uint32_t)CM0_RENESAS_RZ_A1_P0_CLK;
+    }
     
     /* Min 10kHz, Max 400kHz */
     if (hz < 10000) {
@@ -218,7 +229,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     
     for (count = 0; count < 7; count++) {
         // IIC phi = P0 phi / rate
-        pclk = 33333333 / (2 << count);
+        pclk = pclk_base / (2 << count);
         // In case of "CLE = 1, NFE = 1, CKS != 000( IIC phi < P0 phi ), nf = 1"
         // freq = 1 / {[( BRH + 2 + 1 ) + ( BRL + 2 + 1 )] / pclk }
         // BRH is regarded as same value with BRL
