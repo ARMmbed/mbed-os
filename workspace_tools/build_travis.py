@@ -61,6 +61,7 @@ build_list = (
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+
 )
 
 ################################################################################
@@ -69,11 +70,11 @@ build_list = (
 linking_list = [
     {"target": "LPC1768",
      "toolchains": "GCC_ARM",
-     "tests": {"testlib" : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
-               "eth" : ["NET_1", "NET_2", "NET_3", "NET_4"],
-               "fat" : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+               "eth"  : ["NET_1", "NET_2", "NET_3", "NET_4"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-               "usb" : ["USB_1", "USB_2" ,"USB_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
      }
      ]
@@ -110,10 +111,11 @@ def run_test_linking(dry_run):
 
             for test_lib in tests:
                 test_names = tests[test_lib]
-                cmdline = "python workspace_tools/make.py -m %s -t %s --%s -n %s" % (link["target"],
-                                                                                     toolchain,
-                                                                                     test_lib,
-                                                                                     ",".join(test_names))
+                test_lib_switch = "--" + test_lib if not test_lib else ""
+                cmdline = "python workspace_tools/make.py -m %s -t %s %s -n %s" % (link["target"],
+                                                                                   toolchain,
+                                                                                   test_lib_switch,
+                                                                                   ",".join(test_names))
                 print "Executing: " + cmdline
                 if not dry_run:
                     if os.system(cmdline) != 0:
