@@ -508,7 +508,7 @@ class mbedToolchain:
         itr = 0
         while True:
             itr += 1
-            if itr > 6000:
+            if itr > 30000:
                 p.terminate()
                 p.join()
                 raise ToolException("Compile did not finish in 5 minutes")
