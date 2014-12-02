@@ -36,15 +36,24 @@
 extern "C" {
 #endif
 
-// MODE (see GPIOMode_TypeDef structure)
-// OTYPE (see GPIOOType_TypeDef structure)
-// PUPD (see GPIOPuPd_TypeDef structure)
-// AFNUM (see AF_mapping constant table, 0xFF is not used)
-#define STM_PIN_DATA(MODE, OTYPE, PUPD, AFNUM)  (((AFNUM)<<8)|((PUPD)<<4)|((OTYPE)<<2)|((MODE)<<0))
-#define STM_PIN_MODE(X)   (((X)>>0) & 0x3)
-#define STM_PIN_OTYPE(X)  (((X)>>2) & 0x1)
-#define STM_PIN_PUPD(X)   (((X)>>4) & 0x3)
-#define STM_PIN_AFNUM(X)  (((X)>>8) & 0xF)
+// See stm32f0xx_hal_gpio.h and stm32f0xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
+#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
+#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
+#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
+#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_MODE_INPUT              (0)
+#define STM_MODE_OUTPUT_PP          (1)
+#define STM_MODE_OUTPUT_OD          (2)
+#define STM_MODE_AF_PP              (3)
+#define STM_MODE_AF_OD              (4)
+#define STM_MODE_ANALOG             (5)
+#define STM_MODE_IT_RISING          (6)
+#define STM_MODE_IT_FALLING         (7)
+#define STM_MODE_IT_RISING_FALLING  (8)
+#define STM_MODE_EVT_RISING         (9)
+#define STM_MODE_EVT_FALLING        (10)
+#define STM_MODE_EVT_RISING_FALLING (11)
+#define STM_MODE_IT_EVT_RESET       (12)
 
 // High nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H)
 // Low nibble  = pin number
@@ -201,6 +210,8 @@ typedef enum {
     LED3        = PC_9,
     LED4        = PC_8,
     USER_BUTTON = PA_0,
+    SERIAL_TX   = PA_2,
+    SERIAL_RX   = PA_3,
     USBTX       = PA_2,
     USBRX       = PA_3,
     I2C_SCL     = PB_8,

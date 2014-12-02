@@ -1,10 +1,8 @@
-/* Linker script for STM32F */
-
 /* Linker script to configure memory regions. */
 MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64k
-  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 0x2000-0xC0 
+  RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 8k - 0x0C0
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -32,6 +30,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   _estack
  */
 ENTRY(Reset_Handler)
 
