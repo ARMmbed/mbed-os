@@ -99,7 +99,7 @@ def run_builds(dry_run):
 
 
 def run_test_linking(dry_run):
-    """ Function run make.py commands to build and link simple mbed SDK 
+    """ Function run make.py commands to build and link simple mbed SDK
         tests against few libraries to make sure there are no simple linking errors.
     """
     for link in linking_list:
@@ -108,10 +108,10 @@ def run_test_linking(dry_run):
             toolchain_list = [toolchain_list]
         for toolchain in toolchain_list:
             tests = link["tests"]
-
+            # Call make.py for each test group for particular library
             for test_lib in tests:
                 test_names = tests[test_lib]
-                test_lib_switch = "--" + test_lib if not test_lib else ""
+                test_lib_switch = "--" + test_lib if test_lib else ""
                 cmdline = "python workspace_tools/make.py -m %s -t %s %s -n %s" % (link["target"],
                                                                                    toolchain,
                                                                                    test_lib_switch,
@@ -120,8 +120,8 @@ def run_test_linking(dry_run):
                 if not dry_run:
                     if os.system(cmdline) != 0:
                         sys.exit(1)
-                    
-                    
+
+
 if __name__ == "__main__":
     run_builds("-s" in sys.argv)
     run_test_linking("-s" in sys.argv)
