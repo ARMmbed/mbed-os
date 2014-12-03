@@ -37,29 +37,17 @@ CPU_COUNT_MIN = 1
 def print_notify(event, silent=False):
     """ Default command line notification
     """
-    if "counter" not in print_notify.__dict__:
-        print_notify.counter = event['type']
-
     if event['type'] in ['info', 'debug']:
-        if silent:
-            if print_notify.counter == 'progress':
-                print
         print event['message']
 
     elif event['type'] == 'cc':
         event['severity'] = event['severity'].title()
         event['file'] = basename(event['file'])
-        if silent:
-            if print_notify.counter == 'progress':
-                print
         print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
 
     elif event['type'] == 'progress':
         if not silent:
             print '%s: %s' % (event['action'].title(), basename(event['file']))
-        else:
-            sys.stdout.write('-' if event['action'].title() == 'Copy' else '=')
-    print_notify.counter = event['type']
 
 def print_notify_verbose(event, silent=False):
     """ Default command line notification with more verbose mode
