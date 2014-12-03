@@ -61,7 +61,6 @@ build_list = (
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-
 )
 
 ################################################################################
@@ -112,10 +111,7 @@ def run_test_linking(dry_run):
             for test_lib in tests:
                 test_names = tests[test_lib]
                 test_lib_switch = "--" + test_lib if test_lib else ""
-                cmdline = "python workspace_tools/make.py -m %s -t %s %s -n %s" % (link["target"],
-                                                                                   toolchain,
-                                                                                   test_lib_switch,
-                                                                                   ",".join(test_names))
+                cmdline = "python workspace_tools/make.py -m %s -t -c --silent %s %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
                 print "Executing: " + cmdline
                 if not dry_run:
                     if os.system(cmdline) != 0:
