@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 import re
+import sys
 from os import stat, walk
 from copy import copy
 from time import time, sleep
@@ -33,9 +34,16 @@ import workspace_tools.hooks as hooks
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
 
-def print_notify(event):
-    # Default command line notification
+def print_notify(event, silent=False):
+    """ Default command line notification
+    """
+    if "counter" not in print_notify.__dict__:
+        print_notify.counter = event['type']
+
     if event['type'] in ['info', 'debug']:
+        if silent:
+            if print_notify.counter == 'progress':
+                print
         print event['message']
 
     elif event['type'] == 'cc':
@@ -44,11 +52,15 @@ def print_notify(event):
         print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
 
     elif event['type'] == 'progress':
-        print '%s: %s' % (event['action'].title(), basename(event['file']))
+        if not silent:
+            print '%s: %s' % (event['action'].title(), basename(event['file']))
+        else:
+            sys.stdout.write('-' if event['action'].title() == 'Copy' else '=')
+    print_notify.counter = event['type']
 
-
-def print_notify_verbose(event):
-    """ Default command line notification with more verbose mode """
+def print_notify_verbose(event, silent=False):
+    """ Default command line notification with more verbose mode
+    """
     if event['type'] in ['info', 'debug']:
         print_notify(event) # standard handle
 
@@ -204,22 +216,16 @@ class mbedToolchain:
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
-    def __init__(self, target, options=None, notify=None, macros=None):
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
+        self.silent = silent
 
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
-        if notify is not None:
-            self.notify = notify
-        else:
-            self.notify = print_notify
-
-        if options is None:
-            self.options = []
-        else:
-            self.options = options
+        self.notify_fun = notify if notify is not None else print_notify
+        self.options = options if options is not None else []
 
         self.macros = macros or []
         self.options.extend(BUILD_OPTIONS)
@@ -239,6 +245,11 @@ class mbedToolchain:
         self.CHROOT = None
 
         self.mp_pool = None
+
+    def notify(self, event):
+        """ Little closure for notify functions
+        """
+        return self.notify_fun(event, self.silent)
 
     def __exit__(self):
         if self.mp_pool is not None:
