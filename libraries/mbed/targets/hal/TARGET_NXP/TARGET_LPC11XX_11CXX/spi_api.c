@@ -67,11 +67,23 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             LPC_SYSCON->SYSAHBCLKCTRL |= 1 << 11;
             LPC_SYSCON->SSP0CLKDIV = 0x01;
             LPC_SYSCON->PRESETCTRL |= 1 << 0;
+            if (sclk == P0_6) {
+                LPC_IOCON->SCK_LOC = 0x02;
+            }
+            else {
+                LPC_IOCON->SCK_LOC = 0x01;
+            }
             break;
         case SPI_1:
             LPC_SYSCON->SYSAHBCLKCTRL |= 1 << 18;
             LPC_SYSCON->SSP1CLKDIV = 0x01;
             LPC_SYSCON->PRESETCTRL |= 1 << 2;
+            LPC_IOCON->SCK1_LOC = 0x00;
+            LPC_IOCON->MISO1_LOC = 0x00;
+            LPC_IOCON->MOSI1_LOC = 0x00;
+            if (ssel != NC) {
+                LPC_IOCON->SSEL1_LOC = 0x00;
+            }
             break;
     }
     
@@ -192,11 +204,11 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_slave_receive(spi_t *obj) {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    return ssp_readable(obj) ? (1) : (0);
 }
 
 int spi_slave_read(spi_t *obj) {
-    return obj->spi->DR;
+    return obj->spi->DR & 0xFFFF;
 }
 
 void spi_slave_write(spi_t *obj, int value) {
