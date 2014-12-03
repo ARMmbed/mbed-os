@@ -49,6 +49,9 @@ def print_notify(event, silent=False):
     elif event['type'] == 'cc':
         event['severity'] = event['severity'].title()
         event['file'] = basename(event['file'])
+        if silent:
+            if print_notify.counter == 'progress':
+                print
         print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
 
     elif event['type'] == 'progress':
