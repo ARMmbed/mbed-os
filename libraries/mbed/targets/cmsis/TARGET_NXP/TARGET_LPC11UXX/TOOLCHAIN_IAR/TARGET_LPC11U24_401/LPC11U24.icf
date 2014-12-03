@@ -12,7 +12,7 @@ define symbol __ICFEDIT_region_RAM_start__   = 0x100000C0;
 define symbol __ICFEDIT_region_RAM_end__     = 0x10001FDF;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__   = 0x400;
-define symbol __ICFEDIT_size_heap__     = 0x800;
+define symbol __ICFEDIT_size_heap__     = 0xA00;
 /**** End of ICF editor section. ###ICF###*/
 
 define symbol __CRP_start__   = 0x000002FC;
