@@ -31,11 +31,11 @@ from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1):
+        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1, silent=False):
     """ This function builds project. Project can be for example one test / UT
     """
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
@@ -92,7 +92,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None, jobs=1):
+         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None, jobs=1, silent=False):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -112,7 +112,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
             raise Exception("The library source folder does not exist: %s", src_path)
 
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
@@ -162,7 +162,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain.build_library(objects, bin_path, name)
 
 
-def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
+def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False):
     """ Wrapper for build_library function.
         Function builds library in proper directory using all dependencies and macros defined by user.
     """
@@ -175,6 +175,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
 
         build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options,
                       verbose=verbose,
+                      silent=silent,
                       clean=clean,
                       macros=MACROS,
                       notify=notify,
@@ -186,7 +187,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False):
     """ Function returns True is library was built and false if building was skipped """
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
@@ -196,7 +197,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         return False
 
     # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
