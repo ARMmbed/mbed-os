@@ -31,11 +31,11 @@ from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1):
+        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1, silent=False):
     """ This function builds project. Project can be for example one test / UT
     """
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean

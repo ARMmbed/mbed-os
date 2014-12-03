@@ -122,7 +122,7 @@ if __name__ == '__main__':
                       default=False,
                       help="Verbose diagnostic output")
 
-    parser.add_option("-s", "--silent",
+    parser.add_option("--silent",
                       action="store_true",
                       dest="silent",
                       default=False,
