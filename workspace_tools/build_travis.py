@@ -88,7 +88,7 @@ def run_builds(dry_run):
         toolchain_list = build["toolchains"]
         if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
         for toolchain in toolchain_list:
-            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c " % (build["target"], toolchain)
+            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c --silent "% (build["target"], toolchain)
             libs = build.get("libs", [])
             if libs:
                 cmdline = cmdline + " ".join(["--" + l for l in libs])
