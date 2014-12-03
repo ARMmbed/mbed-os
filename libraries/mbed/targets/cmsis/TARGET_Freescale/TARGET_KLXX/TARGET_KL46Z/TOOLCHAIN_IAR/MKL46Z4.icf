@@ -6,7 +6,9 @@ define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
 define symbol __ICFEDIT_region_ROM_end__   = 0x0002ffff;
-define symbol __ICFEDIT_region_RAM_start__ = 0x1fffe000;
+define symbol __ICFEDIT_region_NVIC_start__   = 0x1fffe000;
+define symbol __ICFEDIT_region_NVIC_end__   = 0x1fffe0bf;
+define symbol __ICFEDIT_region_RAM_start__ = 0x1fffe0c0;
 define symbol __ICFEDIT_region_RAM_end__   = 0x1fffffff;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = 0x800;
@@ -37,4 +39,4 @@ place in FlashConfig_region {section FlashConfig};
 
 place in ROM_region   { readonly };
 
-place in RAM_region   { readwrite, block CSTACK, block HEAP };
+place in RAM_region   { readwrite, block HEAP, block CSTACK };

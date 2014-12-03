@@ -33,7 +33,8 @@
 
 #include "cmsis.h"
 
-void sleep(void) {
+void sleep(void)
+{
     // Stop HAL systick
     HAL_SuspendTick();
     // Request to enter SLEEP mode
@@ -42,7 +43,8 @@ void sleep(void) {
     HAL_ResumeTick();
 }
 
-void deepsleep(void) {
+void deepsleep(void)
+{
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 

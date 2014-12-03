@@ -33,28 +33,27 @@
 
 #include "cmsis.h"
 
-void sleep(void) {
-    // Disable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
-  
-    SCB->SCR = 0; // Normal sleep mode for ARM core
-    __WFI();
-  
-    // Re-enable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  
+void sleep(void)
+{
+    // Stop HAL systick
+    HAL_SuspendTick();
+    // Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
 
-// MCU STOP mode
-// Wake-up with external interrupt
-void deepsleep(void) {
-    // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-    
+void deepsleep(void)
+{
     // Request to enter STOP mode with regulator in low power mode
-    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+    HAL_InitTick(TICK_INT_PRIORITY);
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
+
+    HAL_InitTick(TICK_INT_PRIORITY);
 }
 
 #endif

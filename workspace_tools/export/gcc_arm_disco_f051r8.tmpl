@@ -20,11 +20,11 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
 
 CPU = -mcpu=cortex-m0 -mthumb
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-rtti
+CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
 CC_FLAGS += -MMD -MP
 CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
-LD_FLAGS = -mcpu=cortex-m0 -mthumb -Wl,--gc-sections --specs=nano.specs
+LD_FLAGS = $(CPU) -Wl,--gc-sections --specs=nano.specs -Wl,--wrap,main
 #LD_FLAGS += -u _printf_float -u _scanf_float
 LD_FLAGS += -Wl,-Map=$(PROJECT).map,--cref
 LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
@@ -35,7 +35,7 @@ else
   CC_FLAGS += -DNDEBUG -Os
 endif
 
-all: $(PROJECT).bin $(PROJECT).hex size
+all: $(PROJECT).bin $(PROJECT).hex 
 
 clean:
 	rm -f $(PROJECT).bin $(PROJECT).elf $(PROJECT).hex $(PROJECT).map $(PROJECT).lst $(OBJECTS) $(DEPS)
@@ -47,11 +47,12 @@ clean:
 	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu99   $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
-	$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu++98 $(INCLUDE_PATHS) -o $@ $<
+	$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu++98 -fno-rtti $(INCLUDE_PATHS) -o $@ $<
 
 
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS)
 	$(LD) $(LD_FLAGS) -T$(LINKER_SCRIPT) $(LIBRARY_PATHS) -o $@ $^ $(LIBRARIES) $(LD_SYS_LIBS) $(LIBRARIES) $(LD_SYS_LIBS)
+	$(SIZE) $@
 
 $(PROJECT).bin: $(PROJECT).elf
 	@$(OBJCOPY) -O binary $< $@

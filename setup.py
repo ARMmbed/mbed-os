@@ -39,7 +39,8 @@ setup(name='mbed-tools',
       maintainer_email=OWNER_EMAILS,
       url='https://github.com/mbedmicro/mbed',
       packages=find_packages(),
-      license=LICENSE)
+      license=LICENSE,
+      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3"])
 
 # Restore previous private_settings if needed
 if backup:

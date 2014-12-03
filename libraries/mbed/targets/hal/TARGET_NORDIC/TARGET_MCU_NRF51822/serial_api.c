@@ -29,13 +29,14 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
-static uint32_t acceptedSpeeds[16][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
+static uint32_t acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
                                          {2400, UART_BAUDRATE_BAUDRATE_Baud2400},
                                          {4800, UART_BAUDRATE_BAUDRATE_Baud4800},
                                          {9600, UART_BAUDRATE_BAUDRATE_Baud9600},
                                          {14400, UART_BAUDRATE_BAUDRATE_Baud14400},
                                          {19200, UART_BAUDRATE_BAUDRATE_Baud19200},
                                          {28800, UART_BAUDRATE_BAUDRATE_Baud28800},
+                                         {31250, (0x00800000UL) /* 31250 baud */},
                                          {38400, UART_BAUDRATE_BAUDRATE_Baud38400},
                                          {57600, UART_BAUDRATE_BAUDRATE_Baud57600},
                                          {76800, UART_BAUDRATE_BAUDRATE_Baud76800},
@@ -52,9 +53,6 @@ serial_t stdio_uart;
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
-
-    MBED_ASSERT((int)uart != NC);
-
     obj->uart = (NRF_UART_Type *)uart;
 
     //pin configurations --
@@ -112,7 +110,7 @@ void serial_baud(serial_t *obj, int baudrate)
         return;
     }
 
-    for (int i = 1; i<16; i++) {
+    for (int i = 1; i<17; i++) {
         if (baudrate<acceptedSpeeds[i][0]) {
             obj->uart->BAUDRATE = acceptedSpeeds[i - 1][1];
             return;
@@ -296,4 +294,3 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
 void serial_clear(serial_t *obj) {
 }
-

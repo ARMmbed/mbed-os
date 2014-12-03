@@ -370,10 +370,16 @@ class SingleTestRunner(object):
                         continue
 
                     if test.automated and test.is_supported(target, toolchain):
-                        if not self.is_peripherals_available(target, test.peripherals):
+                        if test.peripherals is None and self.opts_only_build_tests:
+                            # When users are using 'build only flag' and test do not have
+                            # specified peripherals we can allow test building by default
+                            pass
+                        elif not self.is_peripherals_available(target, test.peripherals):
                             if self.opts_verbose_skipped_tests:
-                                test_peripherals = test.peripherals if test.peripherals else []
-                                print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test_peripherals), target))
+                                if test.peripherals:
+                                    print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test.peripherals), target))
+                                else:
+                                    print self.logger.log_line(self.logger.LogType.INFO, 'Test %s skipped for target %s'% (test_id, target))
                             test_suite_properties['skipped'].append(test_id)
                             continue
 
@@ -432,7 +438,8 @@ class SingleTestRunner(object):
                                                  inc_dirs=INC_DIRS,
                                                  jobs=self.opts_jobs)
                         except ToolException:
-                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name))
+                            project_name_str = project_name if project_name is not None else test_id
+                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
                             return test_summary, self.shuffle_random_seed, test_summary_ext, test_suite_properties_ext
                         if self.opts_only_build_tests:
                             # With this option we are skipping testing phase
@@ -592,30 +599,6 @@ class SingleTestRunner(object):
             result = self.TEST_LOOPS_DICT[test_id]
         return result
 
-    def image_copy_method_selector(self, target_name, image_path, disk, copy_method,
-                                  images_config=None, image_dest=None, verbose=False):
-        """ Function copied image file and fiddles with image configuration files in needed.
-            This function will select proper image configuration (modify image config file
-            if needed) after image is copied.
-        """
-        image_dest = image_dest if image_dest is not None else ''
-        _copy_res, _err_msg, _copy_method = self.file_copy_method_selector(image_path, disk, copy_method, image_dest=image_dest, verbose=verbose)
-        return _copy_res, _err_msg, _copy_method
-
-    def file_copy_method_selector(self, image_path, disk, copy_method, image_dest='', verbose=False):
-        """ Copy file depending on method you want to use. Handles exception
-            and return code from shell copy commands.
-        """
-        result = False
-        resutl_msg = '' # TODO: pass result_msg from plugin to test suite
-        if copy_method is not None:
-            # image_path - Where is binary with target's firmware
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
-        else:
-            copy_method = 'default'
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
-        return result, resutl_msg, copy_method
-
     def delete_file(self, file_path):
         """ Remove file from the system
         """
@@ -684,7 +667,7 @@ class SingleTestRunner(object):
             # Host test execution
             start_host_exec_time = time()
 
-            single_test_result = self.TEST_RESULT_UNDEF # singe test run result
+            single_test_result = self.TEST_RESULT_UNDEF # single test run result
             _copy_method = selected_copy_method
 
             if not exists(image_path):
@@ -693,31 +676,19 @@ class SingleTestRunner(object):
                 single_test_output = self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
                 print single_test_output
             else:
-                # Choose one method of copy files to mbed MSD drive
-                _copy_res, _err_msg, _copy_method = self.image_copy_method_selector(target_name, image_path, disk, selected_copy_method,
-                                                                                    images_config, image_dest)
+                # Host test execution
+                start_host_exec_time = time()
 
-                if not _copy_res:   # copy error to mbed MSD
-                    single_test_result = self.TEST_RESULT_IOERR_COPY
-                    single_test_output = self.logger.log_line(self.logger.LogType.ERROR, "Copy method '%s' failed. Reason: %s"% (_copy_method, _err_msg))
-                    print single_test_output
-                else:
-                    # Copy Extra Files
-                    if not target_by_mcu.is_disk_virtual and test.extra_files:
-                        for f in test.extra_files:
-                            copy(f, disk)
-
-                    sleep(target_by_mcu.program_cycle_s())
-                    # Host test execution
-                    start_host_exec_time = time()
-
-                    host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
-                    host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                    single_test_result, single_test_output = self.run_host_test(test.host_test, disk, port, duration,
-                                                                                micro=target_name,
-                                                                                verbose=host_test_verbose,
-                                                                                reset=host_test_reset,
-                                                                                reset_tout=reset_tout)
+                host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
+                host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
+                single_test_result, single_test_output = self.run_host_test(test.host_test,
+                                                                            image_path, disk, port, duration,
+                                                                            micro=target_name,
+                                                                            verbose=host_test_verbose,
+                                                                            reset=host_test_reset,
+                                                                            reset_tout=reset_tout,
+                                                                            copy_method=selected_copy_method,
+                                                                            program_cycle_s=target_by_mcu.program_cycle_s())
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -793,7 +764,9 @@ class SingleTestRunner(object):
             result = test_all_result[0]
         return result
 
-    def run_host_test(self, name, disk, port, duration, micro=None, reset=None, reset_tout=None, verbose=False, extra_serial=None):
+    def run_host_test(self, name, image_path, disk, port, duration,
+                      micro=None, reset=None, reset_tout=None,
+                      verbose=False, copy_method=None, program_cycle_s=None):
         """ Function creates new process with host test configured with particular test case.
             Function also is pooling for serial port activity from process to catch all data
             printed by test runner and host test during test execution
@@ -827,13 +800,19 @@ class SingleTestRunner(object):
             return result
 
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
-        cmd = ["python", "%s.py" % name, '-p', port, '-d', disk, '-t', str(duration)]
+        cmd = ["python",
+               '%s.py'% name,
+               '-d', disk,
+               '-f', '"%s"'% image_path,
+               '-p', port,
+               '-t', str(duration),
+               '-C', str(program_cycle_s)]
 
         # Add extra parameters to host_test
+        if copy_method is not None:
+            cmd += ["-c", copy_method]
         if micro is not None:
             cmd += ["-m", micro]
-        if extra_serial is not None:
-            cmd += ["-e", extra_serial]
         if reset is not None:
             cmd += ["-r", reset]
         if reset_tout is not None:
@@ -848,7 +827,7 @@ class SingleTestRunner(object):
         start_time = time()
         line = ''
         output = []
-        while (time() - start_time) < duration:
+        while (time() - start_time) < (2 * duration):
             c = get_char_from_queue(obs)
 
             if c:
@@ -1320,9 +1299,11 @@ def factory_db_logger(db_url):
     """
     if db_url is not None:
         from workspace_tools.test_mysql import MySQLDBAccess
-        (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
-        if db_type == 'mysql':
-            return MySQLDBAccess()
+        connection_info = BaseDBAccess().parse_db_connection_string(db_url)
+        if connection_info is not None:
+            (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)
+            if db_type == 'mysql':
+                return MySQLDBAccess()
     return None
 
 
@@ -1503,9 +1484,9 @@ def get_default_test_options_parser():
                       type="int",
                       help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
-    #parser.add_option('', '--db',
-    #                  dest='db_url',
-    #                  help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
+    parser.add_option('', '--db',
+                      dest='db_url',
+                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
     parser.add_option('-l', '--log',
                       dest='log_file_name',

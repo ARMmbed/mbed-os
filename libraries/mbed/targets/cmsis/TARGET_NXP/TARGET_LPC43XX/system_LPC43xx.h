@@ -38,6 +38,7 @@ extern "C" {
 #define CLOCK_SETUP           1 /* Configure clocks during initialization */
 #define MEMORY_SETUP          0 /* Configure external memory during init */
 #define SPIFI_INIT            1 /* Initialize SPIFI */
+#define FLASH_INIT            0 /* Initialize internal flash */
 
 /* Crystal frequency into device */
 #define CRYSTAL_MAIN_FREQ_IN 12000000

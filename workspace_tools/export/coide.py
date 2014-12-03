@@ -28,11 +28,17 @@ class CoIDE(Exporter):
         'LPC1768',
         'ARCH_PRO',
         'DISCO_F407VG',
+        'NUCLEO_L152RE',
+        'NUCLEO_F030R8',
+        'NUCLEO_F072RB',
+        'NUCLEO_F302R8',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
         'DISCO_F429ZI',
-        'DISCO_F334C8'
+        'DISCO_F334C8',
+        'DISCO_F303VC',
+        'MTS_MDOT_F405RG',
     ]
 
     # seems like CoIDE currently supports only one type
@@ -77,7 +83,7 @@ class CoIDE(Exporter):
             'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         target = self.target.lower()
 

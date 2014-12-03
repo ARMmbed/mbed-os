@@ -97,9 +97,9 @@ if __name__ == '__main__':
         print "Version %d.%d"% get_version()
         exit(0)
 
-    #if opts.db_url and opts.verbose_test_configuration_only:
-    #detect_database_verbose(opts.db_url)
-    #exit(0)
+    if opts.db_url and opts.verbose_test_configuration_only:
+        detect_database_verbose(opts.db_url)
+        exit(0)
 
     # Print summary / information about automation test status
     if opts.test_automation_report:
@@ -143,15 +143,15 @@ if __name__ == '__main__':
             parser.print_help()
         exit(-1)
 
-    # Only prints read MUTs configuration
-    if MUTs and opts.verbose_test_configuration_only:
+    if opts.verbose_test_configuration_only:
         print "MUTs configuration in %s:"% opts.muts_spec_filename
-        print print_muts_configuration_from_json(MUTs)
+        if MUTs:
+            print print_muts_configuration_from_json(MUTs)
         print
         print "Test specification in %s:"% opts.test_spec_filename
-        print print_test_configuration_from_json(test_spec)
+        if test_spec:
+            print print_test_configuration_from_json(test_spec)
         exit(0)
-
 
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
@@ -167,7 +167,7 @@ if __name__ == '__main__':
                                    _test_loops_list=opts.test_loops_list,
                                    _muts=MUTs,
                                    _clean=opts.clean,
-                                   #_opts_db_url=opts.db_url,
+                                   _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,

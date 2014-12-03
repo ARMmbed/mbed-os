@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from shutil import copy
+import re
 from os.path import join
 from host_test_plugins import HostTestPluginBase
 

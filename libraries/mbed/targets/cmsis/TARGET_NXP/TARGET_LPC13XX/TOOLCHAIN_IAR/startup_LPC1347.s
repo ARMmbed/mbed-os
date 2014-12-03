@@ -33,13 +33,14 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
+        EXTERN  SystemInit
         PUBLIC  __vector_table
         PUBLIC  __vector_table_0x1c
 
         DATA
 __vector_table
         DCD     sfe(CSTACK)                 ; Top of Stack
-        DCD     __iar_program_start         ; Reset Handler
+        DCD     Reset_Handler         ; Reset Handler
         DCD     NMI_Handler                 ; NMI Handler
         DCD     HardFault_Handler           ; Hard Fault Handler
         DCD     MemManage_Handler           ; MPU Fault Handler
@@ -91,7 +92,16 @@ __vector_table_0x1c
 ;;
 ;; Default interrupt handlers.
 ;;
+        THUMB
+        PUBWEAK Reset_Handler
+        SECTION .text:CODE:NOROOT:REORDER(2)
+Reset_Handler
 
+        LDR     R0, =SystemInit
+        BLX     R0
+        LDR     R0, =__iar_program_start
+        BX      R0
+        
       PUBWEAK NMI_Handler       
       PUBWEAK HardFault_Handler 
       PUBWEAK MemManage_Handler 

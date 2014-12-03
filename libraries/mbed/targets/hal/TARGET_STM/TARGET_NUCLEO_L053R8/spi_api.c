@@ -35,44 +35,12 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PA_12, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_15, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI2)},
-    {PC_3,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_SPI2)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PA_11, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_14, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI2)},
-    {PC_2,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_SPI2)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_3,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_10, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
-    {PB_13, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI2)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PA_15, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)},
-    {PB_9,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
-    {PB_12, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI2)},
-    {NC,    NC,    0}
-};
+#include "PeripheralPins.h"
 
 static SPI_HandleTypeDef SpiHandle;
 
-static void init_spi(spi_t *obj) {
+static void init_spi(spi_t *obj)
+{
     SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
 
     __HAL_SPI_DISABLE(&SpiHandle);
@@ -94,7 +62,8 @@ static void init_spi(spi_t *obj) {
     __HAL_SPI_ENABLE(&SpiHandle);
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // Determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -143,7 +112,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     init_spi(obj);
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
     // Reset SPI and disable clock
     if (obj->spi == SPI_1) {
         __SPI1_FORCE_RESET();
@@ -164,7 +134,8 @@ void spi_free(spi_t *obj) {
     pin_function(obj->pin_ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     // Save new values
     if (bits == 16) {
         obj->bits = SPI_DATASIZE_16BIT;
@@ -202,7 +173,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     init_spi(obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     // Note: The frequencies are obtained with SPI1 clock = 32 MHz (APB2 clock)
     if (hz < 250000) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz
@@ -224,7 +196,8 @@ void spi_frequency(spi_t *obj, int hz) {
     init_spi(obj);
 }
 
-static inline int ssp_readable(spi_t *obj) {
+static inline int ssp_readable(spi_t *obj)
+{
     int status;
     SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
     // Check if data is received
@@ -232,7 +205,8 @@ static inline int ssp_readable(spi_t *obj) {
     return status;
 }
 
-static inline int ssp_writeable(spi_t *obj) {
+static inline int ssp_writeable(spi_t *obj)
+{
     int status;
     SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
     // Check if data is transmitted
@@ -240,47 +214,55 @@ static inline int ssp_writeable(spi_t *obj) {
     return status;
 }
 
-static inline void ssp_write(spi_t *obj, int value) {
+static inline void ssp_write(spi_t *obj, int value)
+{
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
     spi->DR = (uint16_t)value;
 }
 
-static inline int ssp_read(spi_t *obj) {
+static inline int ssp_read(spi_t *obj)
+{
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
     return (int)spi->DR;
 }
 
-static inline int ssp_busy(spi_t *obj) {
+static inline int ssp_busy(spi_t *obj)
+{
     int status;
     SpiHandle.Instance = (SPI_TypeDef *)(obj->spi);
     status = ((__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_BSY) != RESET) ? 1 : 0);
     return status;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     ssp_write(obj, value);
     return ssp_read(obj);
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return (ssp_readable(obj) ? 1 : 0);
 };
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_readable(obj));
     return (int)spi->DR;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     SPI_TypeDef *spi = (SPI_TypeDef *)(obj->spi);
     while (!ssp_writeable(obj));
     spi->DR = (uint16_t)value;
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return ssp_busy(obj);
 }
 

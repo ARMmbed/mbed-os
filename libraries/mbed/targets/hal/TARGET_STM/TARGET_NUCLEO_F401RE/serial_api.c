@@ -35,24 +35,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include <string.h>
-
-static const PinMap PinMap_UART_TX[] = {
-    {PA_2,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
-    {PA_9,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PA_11, UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
-    {PB_6,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PC_6,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
-    {NC,    NC,     0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {PA_3,  UART_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
-    {PA_10, UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PA_12, UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
-    {PB_7,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
-    {PC_7,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},
-    {NC,    NC,     0}
-};
+#include "PeripheralPins.h"
 
 #define UART_NUM (3)
 
@@ -65,7 +48,8 @@ UART_HandleTypeDef UartHandle;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-static void init_uart(serial_t *obj) {
+static void init_uart(serial_t *obj)
+{
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
     UartHandle.Init.BaudRate   = obj->baudrate;
@@ -85,7 +69,8 @@ static void init_uart(serial_t *obj) {
     HAL_UART_Init(&UartHandle);
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -134,10 +119,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-
 }
 
-void serial_free(serial_t *obj) {
+void serial_free(serial_t *obj)
+{
     // Reset UART and disable clock
     if (obj->uart == UART_1) {
         __USART1_FORCE_RESET();
@@ -162,12 +147,14 @@ void serial_free(serial_t *obj) {
     serial_irq_ids[obj->index] = 0;
 }
 
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
     obj->baudrate = baudrate;
     init_uart(obj);
 }
 
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
     if (data_bits == 9) {
         obj->databits = UART_WORDLENGTH_9B;
     } else {
@@ -201,7 +188,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(UARTName name, int id) {
+static void uart_irq(UARTName name, int id)
+{
     UartHandle.Instance = (USART_TypeDef *)name;
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) {
@@ -215,22 +203,29 @@ static void uart_irq(UARTName name, int id) {
     }
 }
 
-static void uart1_irq(void) {
+static void uart1_irq(void)
+{
     uart_irq(UART_1, 0);
 }
-static void uart2_irq(void) {
+
+static void uart2_irq(void)
+{
     uart_irq(UART_2, 1);
 }
-static void uart6_irq(void) {
+
+static void uart6_irq(void)
+{
     uart_irq(UART_6, 2);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
@@ -285,19 +280,22 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
  * READ/WRITE
  ******************************************************************************/
 
-int serial_getc(serial_t *obj) {
+int serial_getc(serial_t *obj)
+{
     USART_TypeDef *uart = (USART_TypeDef *)(obj->uart);
     while (!serial_readable(obj));
     return (int)(uart->DR & 0x1FF);
 }
 
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
     USART_TypeDef *uart = (USART_TypeDef *)(obj->uart);
     while (!serial_writable(obj));
     uart->DR = (uint32_t)(c & 0x1FF);
 }
 
-int serial_readable(serial_t *obj) {
+int serial_readable(serial_t *obj)
+{
     int status;
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
     // Check if data is received
@@ -305,7 +303,8 @@ int serial_readable(serial_t *obj) {
     return status;
 }
 
-int serial_writable(serial_t *obj) {
+int serial_writable(serial_t *obj)
+{
     int status;
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
     // Check if data is transmitted
@@ -313,22 +312,26 @@ int serial_writable(serial_t *obj) {
     return status;
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
     __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_TXE);
     __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_RXNE);
 }
 
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
     HAL_LIN_SendBreak(&UartHandle);
 }
 
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
 }
 
 #endif

@@ -17,18 +17,13 @@
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 
-static const PinMap PinMap_I2C_SDA[] = {
-    {p22, I2C_0, 1},
-    {p13, I2C_1, 2},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {p20, I2C_0, 1},
-    {p15, I2C_1, 2},
-    {NC, NC,    0}
-};
+// nRF51822's I2C_0 and SPI_0 (I2C_1, SPI_1 and SPIS1) share the same address.
+// They can't be used at the same time. So we use two global variable to track the usage.
+// See nRF51822 address information at nRF51822_PS v2.0.pdf - Table 15 Peripheral instance reference
+volatile i2c_spi_peripheral_t i2c0_spi0_peripheral = {0, 0, 0, 0};
+volatile i2c_spi_peripheral_t i2c1_spi1_peripheral = {0, 0, 0, 0};
 
 void i2c_interface_enable(i2c_t *obj)
 {
@@ -58,14 +53,40 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    // determine the SPI to use
-    I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
-    I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    I2CName i2c     = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
-    obj->i2c = (NRF_TWI_Type *)i2c;
+    NRF_TWI_Type *i2c;
+  
+    if (i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
+            i2c0_spi0_peripheral.sda_mosi == (uint8_t)sda &&
+            i2c0_spi0_peripheral.scl_miso == (uint8_t)scl) {
+        // The I2C with the same pins is already initialized
+        i2c = (NRF_TWI_Type *)I2C_0;
+        obj->peripheral = 0x1;
+    } else if (i2c1_spi1_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
+            i2c1_spi1_peripheral.sda_mosi == (uint8_t)sda &&
+            i2c1_spi1_peripheral.scl_miso == (uint8_t)scl) {
+        // The I2C with the same pins is already initialized
+        i2c = (NRF_TWI_Type *)I2C_1;
+        obj->peripheral = 0x2;
+    } else if (i2c0_spi0_peripheral.usage == 0) {
+        i2c0_spi0_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_I2C;
+        i2c0_spi0_peripheral.sda_mosi = (uint8_t)sda;
+        i2c0_spi0_peripheral.scl_miso = (uint8_t)scl;
+        
+        i2c = (NRF_TWI_Type *)I2C_0;
+        obj->peripheral = 0x1;
+    } else if (i2c1_spi1_peripheral.usage == 0) {
+        i2c1_spi1_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_I2C;
+        i2c1_spi1_peripheral.sda_mosi = (uint8_t)sda;
+        i2c1_spi1_peripheral.scl_miso = (uint8_t)scl;
+        
+        i2c = (NRF_TWI_Type *)I2C_1;
+        obj->peripheral = 0x2;
+    } else {
+        // No available peripheral
+        error("No available I2C");
+    }
 
-    MBED_ASSERT((int)obj->i2c != NC);
-
+    obj->i2c               = i2c;
     obj->scl               = scl;
     obj->sda               = sda;
     obj->i2c->EVENTS_ERROR = 0;

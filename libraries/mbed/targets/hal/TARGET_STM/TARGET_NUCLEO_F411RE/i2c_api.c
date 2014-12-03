@@ -34,6 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -41,32 +42,14 @@
 #define FLAG_TIMEOUT ((int)0x1000)
 #define LONG_TIMEOUT ((int)0x8000)
 
-static const PinMap PinMap_I2C_SDA[] = {
-    {PB_3,  I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C2)},
-    {PB_4,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C3)},
-    {PB_7,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-//  {PB_8,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C3)}, // Warning: also on SCL
-    {PB_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // ARDUINO
-//  {PB_9,  I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_I2C2)},
-    {PC_9,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {PA_8,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},
-    {PB_6,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_8,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // ARDUINO
-    {PB_10, I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},
-    {NC,    NC,    0}
-};
-
 I2C_HandleTypeDef I2cHandle;
 
 int i2c1_inited = 0;
 int i2c2_inited = 0;
 int i2c3_inited = 0;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -75,7 +58,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     MBED_ASSERT(obj->i2c != (I2CName)NC);
 
     // Enable I2C1 clock and pinout if not done
-    if ((obj->i2c == I2C_1)&& !i2c1_inited) {
+    if ((obj->i2c == I2C_1) && !i2c1_inited) {
         i2c1_inited = 1;
         __I2C1_CLK_ENABLE();
         // Configure I2C pins
@@ -85,7 +68,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         pin_mode(scl, OpenDrain);
     }
     // Enable I2C2 clock and pinout if not done
-    if ((obj->i2c == I2C_2)&& !i2c2_inited) {
+    if ((obj->i2c == I2C_2) && !i2c2_inited) {
         i2c2_inited = 1;
         __I2C2_CLK_ENABLE();
         // Configure I2C pins
@@ -95,7 +78,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         pin_mode(scl, OpenDrain);
     }
     // Enable I2C3 clock and pinout if not done
-    if ((obj->i2c == I2C_3)&& !i2c3_inited) {
+    if ((obj->i2c == I2C_3) && !i2c3_inited) {
         i2c3_inited = 1;
         __I2C3_CLK_ENABLE();
         // Configure I2C pins
@@ -115,14 +98,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->slave = 0;
 }
 
-void i2c_frequency(i2c_t *obj, int hz) {
+void i2c_frequency(i2c_t *obj, int hz)
+{
     MBED_ASSERT((hz != 0) && (hz <= 400000));
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
     int timeout;
-	
+
     // wait before init
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     // I2C configuration
     I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -141,7 +125,8 @@ void i2c_frequency(i2c_t *obj, int hz) {
 
 }
 
-inline int i2c_start(i2c_t *obj) {
+inline int i2c_start(i2c_t *obj)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
 
@@ -164,7 +149,8 @@ inline int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-inline int i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
 
     // Generate the STOP condition
@@ -173,7 +159,8 @@ inline int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
     int timeout;
@@ -223,7 +210,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     return length;
 }
 
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
+int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
     int timeout;
@@ -268,7 +256,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     return count;
 }
 
-int i2c_byte_read(i2c_t *obj, int last) {
+int i2c_byte_read(i2c_t *obj, int last)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
 
@@ -291,7 +280,8 @@ int i2c_byte_read(i2c_t *obj, int last) {
     return (int)i2c->DR;
 }
 
-int i2c_byte_write(i2c_t *obj, int data) {
+int i2c_byte_write(i2c_t *obj, int data)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     int timeout;
 
@@ -309,12 +299,13 @@ int i2c_byte_write(i2c_t *obj, int data) {
     return 1;
 }
 
-void i2c_reset(i2c_t *obj) {
+void i2c_reset(i2c_t *obj)
+{
     int timeout;
-	
+
     // wait before reset
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     if (obj->i2c == I2C_1) {
         __I2C1_FORCE_RESET();
@@ -332,7 +323,8 @@ void i2c_reset(i2c_t *obj) {
 
 #if DEVICE_I2CSLAVE
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     uint16_t tmpreg = 0;
 
@@ -346,7 +338,8 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     i2c->OAR1 = tmpreg;
 }
 
-void i2c_slave_mode(i2c_t *obj, int enable_slave) {
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
     I2cHandle.Instance = (I2C_TypeDef *)(obj->i2c);
     if (enable_slave) {
         obj->slave = 1;
@@ -361,7 +354,8 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteGeneral   2 // the master is writing to all slave
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
-int i2c_slave_receive(i2c_t *obj) {
+int i2c_slave_receive(i2c_t *obj)
+{
     int retValue = NoData;
 
     if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == 1) {
@@ -378,7 +372,8 @@ int i2c_slave_receive(i2c_t *obj) {
     return (retValue);
 }
 
-int i2c_slave_read(i2c_t *obj, char *data, int length) {
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
     uint32_t Timeout;
     int size = 0;
 
@@ -432,7 +427,8 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     return size;
 }
 
-int i2c_slave_write(i2c_t *obj, const char *data, int length) {
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
     uint32_t Timeout;
     int size = 0;
 

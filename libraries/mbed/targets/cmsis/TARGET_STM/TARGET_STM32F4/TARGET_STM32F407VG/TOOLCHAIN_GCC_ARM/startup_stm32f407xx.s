@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f407xx.s
   * @author    MCD Application Team
-  * @version   V2.0.0
-  * @date      18-February-2014 
+  * @version   V2.1.0
+  * @date      19-June-2014
   * @brief     STM32F407xx Devices vector table for Atollic TrueSTUDIO toolchain. 
   *            This module performs:
   *                - Set the initial SP
@@ -72,41 +72,6 @@ defined in linker script */
  * @param  None
  * @retval : None
 */
-   .section .stack
-    .align 3
-#ifdef __STACK_SIZE
-    .equ    Stack_Size, __STACK_SIZE
-#else
-    .equ    Stack_Size, 0xc00
-#endif
-    .globl    __StackTop
-    .globl    __StackLimit
-__StackLimit:
-    .space    Stack_Size
-    .size __StackLimit, . - __StackLimit
-__StackTop:
-    .size __StackTop, . - __StackTop
-
-    .section .heap
-    .align 3
-#ifdef __HEAP_SIZE
-    .equ    Heap_Size, __HEAP_SIZE
-#else
-    .equ    Heap_Size, 0x400
-#endif
-    .globl    __HeapBase
-    .globl    __HeapLimit
-__HeapBase:
-    .if    Heap_Size
-    .space    Heap_Size
-    .endif
-    .size __HeapBase, . - __HeapBase
-__HeapLimit:
-    .size __HeapLimit, . - __HeapLimit
-
-
-
-
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
@@ -145,10 +110,10 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
 /* Call static constructors */
-/*    bl __libc_init_array  */
+    bl __libc_init_array
 /* Call the application's entry point.*/
-  bl  _start
-/*  bx  lr    */ /* no return */
+  bl  main
+  bx  lr    
 .size  Reset_Handler, .-Reset_Handler
 
 /**

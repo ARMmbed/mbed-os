@@ -43,9 +43,10 @@ static volatile uint32_t SlaveCounter = 0;
 static volatile uint32_t oc_int_part = 0;
 static volatile uint16_t oc_rem_part = 0;
 
-void set_compare(uint16_t count) {
+void set_compare(uint16_t count)
+{
     TimMasterHandle.Instance = TIM_MST;
-    
+
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
     // Enable IT
@@ -53,9 +54,10 @@ void set_compare(uint16_t count) {
 }
 
 // Used to increment the slave counter
-static void tim_update_irq_handler(void) {
+static void tim_update_irq_handler(void)
+{
     TimMasterHandle.Instance = TIM_MST;
-	  
+
     // Clear Update interrupt flag
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE);
@@ -64,31 +66,33 @@ static void tim_update_irq_handler(void) {
 }
 
 // Used by interrupt system
-static void tim_oc_irq_handler(void) {
+static void tim_oc_irq_handler(void)
+{
     uint16_t cval = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
-	  
+
     // Clear CC1 interrupt flag
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
-		}
-        if (oc_rem_part > 0) {
-            set_compare(oc_rem_part); // Finish the remaining time left
-            oc_rem_part = 0;
+    }
+    if (oc_rem_part > 0) {
+        set_compare(oc_rem_part); // Finish the remaining time left
+        oc_rem_part = 0;
+    } else {
+        if (oc_int_part > 0) {
+            set_compare(0xFFFF);
+            oc_rem_part = cval; // To finish the counter loop the next time
+            oc_int_part--;
         } else {
-            if (oc_int_part > 0) {
-                set_compare(0xFFFF);
-                oc_rem_part = cval; // To finish the counter loop the next time
-                oc_int_part--;
-            } else {
-                us_ticker_irq_handler();
-            }
+            us_ticker_irq_handler();
         }
-    
+    }
+
 }
 
-void us_ticker_init(void) {
-	
+void us_ticker_init(void)
+{
+
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
@@ -106,7 +110,7 @@ void us_ticker_init(void) {
     // Configure interrupts
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
 
-		// Update interrupt used for 32-bit counter
+    // Update interrupt used for 32-bit counter
     NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)tim_update_irq_handler);
     NVIC_EnableIRQ(TIM_MST_UP_IRQ);
 
@@ -118,7 +122,8 @@ void us_ticker_init(void) {
     HAL_TIM_Base_Start(&TimMasterHandle);
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
     // A situation might appear when Master overflows right after Slave is read and before the
@@ -139,7 +144,8 @@ uint32_t us_ticker_read() {
     return counter2;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
@@ -158,14 +164,16 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     }
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     TimMasterHandle.Instance = TIM_MST;
-	  __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     TimMasterHandle.Instance = TIM_MST;
-	  if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
-		}
+    }
 }

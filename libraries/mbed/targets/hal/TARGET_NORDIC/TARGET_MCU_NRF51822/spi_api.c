@@ -20,48 +20,55 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-static const PinMap PinMap_SPI_SCLK[] = {
-    {SPI_PSELSCK0, SPI_0, 0x01},
-    {SPI_PSELSCK1, SPI_1, 0x02},
-    {SPIS_PSELSCK, SPIS, 0x03},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {SPI_PSELMOSI0, SPI_0, 0x01},
-    {SPI_PSELMOSI1, SPI_1, 0x02},
-    {SPIS_PSELMOSI, SPIS, 0x03},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {SPI_PSELMISO0, SPI_0, 0x01},
-    {SPI_PSELMISO1, SPI_1, 0x02},
-    {SPIS_PSELMISO, SPIS, 0x03},
-    {NC, NC, 0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {SPIS_PSELSS, SPIS, 0x03},
-    {NC, NC, 0}
-};
-//   {SPI_PSELSS0 , SPI_0, 0x01},
 #define SPIS_MESSAGE_SIZE 1
 volatile uint8_t m_tx_buf[SPIS_MESSAGE_SIZE] = {0};
 volatile uint8_t m_rx_buf[SPIS_MESSAGE_SIZE] = {0};
 
+// nRF51822's I2C_0 and SPI_0 (I2C_1, SPI_1 and SPIS1) share the same address.
+// They can't be used at the same time. So we use two global variable to track the usage.
+// See nRF51822 address information at nRF51822_PS v2.0.pdf - Table 15 Peripheral instance reference
+extern volatile i2c_spi_peripheral_t i2c0_spi0_peripheral; // from i2c_api.c
+extern volatile i2c_spi_peripheral_t i2c1_spi1_peripheral;
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    // determine the SPI to use
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    SPIName spi      = (SPIName)pinmap_merge(spi_data, spi_cntl);
-    //SPIName
+    SPIName spi;
+    
+    if (ssel == NC && i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_SPI &&
+            i2c0_spi0_peripheral.sda_mosi == (uint8_t)mosi &&
+            i2c0_spi0_peripheral.scl_miso == (uint8_t)miso &&
+            i2c0_spi0_peripheral.sclk     == (uint8_t)sclk) {
+        // The SPI with the same pins is already initialized
+        spi = SPI_0;
+        obj->peripheral = 0x1;
+    } else if (ssel == NC && i2c1_spi1_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_SPI &&
+            i2c1_spi1_peripheral.sda_mosi == (uint8_t)mosi &&
+            i2c1_spi1_peripheral.scl_miso == (uint8_t)miso &&
+            i2c1_spi1_peripheral.sclk     == (uint8_t)sclk) {
+        // The SPI with the same pins is already initialized
+        spi = SPI_1;
+        obj->peripheral = 0x2;
+    } else if (i2c1_spi1_peripheral.usage == 0) {
+        i2c1_spi1_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_SPI;
+        i2c1_spi1_peripheral.sda_mosi = (uint8_t)mosi;
+        i2c1_spi1_peripheral.scl_miso = (uint8_t)miso;
+        i2c1_spi1_peripheral.sclk     = (uint8_t)sclk;
+        
+        spi = SPI_1;
+        obj->peripheral = 0x2;
+    } else if (i2c0_spi0_peripheral.usage == 0) {
+        i2c0_spi0_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_SPI;
+        i2c0_spi0_peripheral.sda_mosi = (uint8_t)mosi;
+        i2c0_spi0_peripheral.scl_miso = (uint8_t)miso;
+        i2c0_spi0_peripheral.sclk     = (uint8_t)sclk;
+        
+        spi = SPI_0;
+        obj->peripheral = 0x1;
+    } else {
+        // No available peripheral
+        error("No available SPI");
+    }
+
     if (ssel==NC) {
         obj->spi  = (NRF_SPI_Type *)spi;
         obj->spis = (NRF_SPIS_Type *)NC;
@@ -69,7 +76,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spi  = (NRF_SPI_Type *)NC;
         obj->spis = (NRF_SPIS_Type *)spi;
     }
-    MBED_ASSERT((int)obj->spi != NC || (int)obj->spis != NC);
 
     // pin out the spi pins
     if (ssel != NC) { //slave
@@ -146,7 +152,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
 }
 
 static inline void spi_disable(spi_t *obj, int slave)

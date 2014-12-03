@@ -78,9 +78,9 @@ class HostTestPluginBase:
         try:
             ret = call(cmd, shell=shell)
             if ret:
-                self.print_plugin_error("[ret=%d] Command: %s"% (self.name, self.type, ret, ' '.join(cmd)))
-        except Exception, e:
+                self.print_plugin_error("[ret=%d] Command: %s"% (int(ret), cmd))
+        except Exception as e:
             result = False
-            self.print_plugin_error("[ret=%d] Command: %s"% (self.name, self.type, ret, " ".join(cmd)))
-            self.print_plugin_error("%s::%s: " + str(e))
+            self.print_plugin_error("[ret=%d] Command: %s"% (int(ret), cmd))
+            self.print_plugin_error(str(e))
         return result

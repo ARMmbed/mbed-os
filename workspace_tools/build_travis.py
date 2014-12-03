@@ -36,9 +36,14 @@ build_list = (
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
 
     { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_L152RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F030R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "MTS_MDOT_F405RG", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     # { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F334C8",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
@@ -59,6 +64,22 @@ build_list = (
 )
 
 ################################################################################
+# Configure example test building (linking against external mbed SDK libraries liek fat or rtos)
+
+linking_list = [
+    {"target": "LPC1768",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+               "eth"  : ["NET_1", "NET_2", "NET_3", "NET_4"],
+               "fat"  : ["MBED_A12", "MBED_19", "PERF_1", "PERF_2", "PERF_3"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     }
+     ]
+
+################################################################################
+
 # Driver
 
 def run_builds(dry_run):
@@ -66,7 +87,7 @@ def run_builds(dry_run):
         toolchain_list = build["toolchains"]
         if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
         for toolchain in toolchain_list:
-            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c " % (build["target"], toolchain)
+            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c --silent "% (build["target"], toolchain)
             libs = build.get("libs", [])
             if libs:
                 cmdline = cmdline + " ".join(["--" + l for l in libs])
@@ -75,5 +96,28 @@ def run_builds(dry_run):
                 if os.system(cmdline) != 0:
                     sys.exit(1)
 
+
+def run_test_linking(dry_run):
+    """ Function run make.py commands to build and link simple mbed SDK
+        tests against few libraries to make sure there are no simple linking errors.
+    """
+    for link in linking_list:
+        toolchain_list = link["toolchains"]
+        if type(toolchain_list) != type([]):
+            toolchain_list = [toolchain_list]
+        for toolchain in toolchain_list:
+            tests = link["tests"]
+            # Call make.py for each test group for particular library
+            for test_lib in tests:
+                test_names = tests[test_lib]
+                test_lib_switch = "--" + test_lib if test_lib else ""
+                cmdline = "python workspace_tools/make.py -m %s -t %s -c --silent %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
+                print "Executing: " + cmdline
+                if not dry_run:
+                    if os.system(cmdline) != 0:
+                        sys.exit(1)
+
+
 if __name__ == "__main__":
     run_builds("-s" in sys.argv)
+    run_test_linking("-s" in sys.argv)

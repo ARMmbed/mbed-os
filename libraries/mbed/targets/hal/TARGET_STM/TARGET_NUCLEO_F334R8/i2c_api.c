@@ -34,6 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -41,25 +42,12 @@
 #define FLAG_TIMEOUT ((int)0x4000)
 #define LONG_TIMEOUT ((int)0x8000)
 
-static const PinMap PinMap_I2C_SDA[] = {
-    {PA_14, I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_7,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {PA_15, I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_6,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_8,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {NC,    NC,    0}
-};
-
 I2C_HandleTypeDef I2cHandle;
 
 int i2c1_inited = 0;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -67,8 +55,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->i2c = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(obj->i2c != (I2CName)NC);
 
-    // Enable I2C1 clock and pinout if not done
-    if ((obj->i2c == I2C_1)&& !i2c1_inited) {
+    // Enable I2C clock and pinout if not done
+    if ((obj->i2c == I2C_1) && !i2c1_inited) {
         i2c1_inited = 1;
         __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
         __I2C1_CLK_ENABLE();
@@ -97,7 +85,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // wait before init
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
@@ -320,10 +308,10 @@ int i2c_byte_write(i2c_t *obj, int data)
 void i2c_reset(i2c_t *obj)
 {
     int timeout;
-	
+
     // wait before reset
     timeout = LONG_TIMEOUT;
-    while((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
+    while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
     __I2C1_FORCE_RESET();
     __I2C1_RELEASE_RESET();

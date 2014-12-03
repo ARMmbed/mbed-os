@@ -39,11 +39,13 @@ extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
 // high nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 // low nibble  = pin number
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     return (PinName)(pin_n + (port << 4));
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     uint32_t port_index = (uint32_t)port;
 
     // Enable GPIO clock
@@ -60,7 +62,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     port_dir(obj, dir);
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     uint32_t i;
     obj->direction = dir;
     for (i = 0; i < 16; i++) { // Process all pins
@@ -74,7 +77,8 @@ void port_dir(port_t *obj, PinDirection dir) {
     }
 }
 
-void port_mode(port_t *obj, PinMode mode) {
+void port_mode(port_t *obj, PinMode mode)
+{
     uint32_t i;
     for (i = 0; i < 16; i++) { // Process all pins
         if (obj->mask & (1 << i)) { // If the pin is used
@@ -83,11 +87,13 @@ void port_mode(port_t *obj, PinMode mode) {
     }
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     *obj->reg_out = (*obj->reg_out & ~obj->mask) | (value & obj->mask);
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     if (obj->direction == PIN_OUTPUT) {
         return (*obj->reg_out & obj->mask);
     } else { // PIN_INPUT

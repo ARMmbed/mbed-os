@@ -78,7 +78,7 @@ void rtc_init(void)
         // Connect LSI to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
+        // This value is LSI typical value. To be measured precisely using a timer input capture for example.
         rtc_freq = 40000;
     }
 

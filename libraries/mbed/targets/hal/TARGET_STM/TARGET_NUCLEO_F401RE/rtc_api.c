@@ -37,7 +37,8 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
@@ -78,7 +79,7 @@ void rtc_init(void) {
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
         // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-        rtc_freq = 32000;
+        rtc_freq = LSI_VALUE;
     }
 
     // Enable RTC
@@ -96,7 +97,8 @@ void rtc_init(void) {
     }
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -121,7 +123,8 @@ void rtc_free(void) {
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
@@ -142,7 +145,8 @@ int rtc_isenabled(void) {
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
@@ -169,7 +173,8 @@ time_t rtc_read(void) {
     return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 
