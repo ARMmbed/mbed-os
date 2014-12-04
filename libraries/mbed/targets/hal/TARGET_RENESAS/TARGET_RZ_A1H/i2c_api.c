@@ -72,8 +72,10 @@ static void i2c_reg_reset(i2c_t *obj) {
     REG(MR1.UINT8[0])  =  0x08;  // P_phi /8  9bit (including Ack)
     REG(SER.UINT8[0])  =  0x00;  // no slave addr enabled
 
-    // set default frequency at 100k
-    i2c_frequency(obj, 100000);
+    // set frequency
+    REG(MR1.UINT8[0]) |=  obj->pclk_bit;
+    REG(BRL.UINT32)    =  obj->width;
+    REG(BRH.UINT32)    =  obj->width;
 
     REG(MR2.UINT8[0])  =  0x07;
     REG(MR3.UINT8[0])  =  0x00;
@@ -129,6 +131,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     // enable power
     i2c_power_enable(obj);
+
+    // set default frequency at 100k
+    i2c_frequency(obj, 100000);
 
     // full reset
     i2c_reg_reset(obj);
@@ -209,15 +214,14 @@ void i2c_frequency(i2c_t *obj, int hz) {
     uint32_t width = 0;
     uint8_t count;
     uint8_t pclk_bit = 0;
-    
+
     /* set PCLK */
-    if (false == RZ_A1_IsClockMode0())
-    {
+    if (false == RZ_A1_IsClockMode0()) {
         pclk_base = (uint32_t)CM1_RENESAS_RZ_A1_P0_CLK;
     } else {
         pclk_base = (uint32_t)CM0_RENESAS_RZ_A1_P0_CLK;
     }
-    
+
     /* Min 10kHz, Max 400kHz */
     if (hz < 10000) {
         freq = 10000;
@@ -226,7 +230,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
     } else {
         freq = hz;
     }
-    
+
     for (count = 0; count < 7; count++) {
         // IIC phi = P0 phi / rate
         pclk = pclk_base / (2 << count);
@@ -250,15 +254,12 @@ void i2c_frequency(i2c_t *obj, int hz) {
 
     if (width != 0) {
         // I2C Rate
-        REG(MR1.UINT8[0])  |=  pclk_bit;  // P_phi / xx
-        width |= 0x000000E0;
-        REG(BRL.UINT32) = width;
-        REG(BRH.UINT32) = width;
+        obj->pclk_bit = pclk_bit;  // P_phi / xx
+        obj->width    = (width | 0x000000E0);
     } else {
         // Default 
-        REG(MR1.UINT8[0])  |=  0x00;  // P_phi / 1
-        REG(BRL.UINT32) = 0x000000FF;
-        REG(BRH.UINT32) = 0x000000FF;
+        obj->pclk_bit = 0x00;      // P_phi / 1
+        obj->width    = 0x000000FF;
     }
 }
 

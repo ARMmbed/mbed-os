@@ -67,17 +67,15 @@ static gpio_irq_event irq_event;
 static void handle_interrupt_in(void) {
     int i;
     uint16_t irqs;
-    int irq_num;
     
     irqs = INTCIRQRR;
     for(i = 0; i< 8; i++) {
         if (channel_ids[i] && (irqs & (1 << i))) {
             irq_handler(channel_ids[i], irq_event);
             INTCIRQRR &= ~(1 << i);
-            irq_num = i;
+            GIC_EndInterrupt((IRQn_Type)(nIRQn_h + i));
         }
     }
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + irq_num));
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
