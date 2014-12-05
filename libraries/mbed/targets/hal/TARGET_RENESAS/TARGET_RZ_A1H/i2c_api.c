@@ -296,7 +296,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     }
     
     // Read in all except last byte
-    if (length > 1) {
+    if (length > 2) {
         for (count = 0; count < (length - 1); count++) {
             if (count == (length - 2)) {
                 value = i2c_do_read(obj, 1);
@@ -312,6 +312,26 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
             }
             data[count] = (char) value;
         }
+    } else if (length == 2) {
+        /* Set MR3 WATI bit is 1 */;
+        REG(MR3.UINT32) |= (1 << 6);
+        // dummy read
+        value = REG(DRR.UINT32);
+        // wait for it to arrive
+        i2c_wait_RDRF(obj);
+        // send a NOT ACK
+        REG(MR3.UINT32) |=  (1 <<3);
+        data[count] = (char)REG(DRR.UINT32);
+        count = 1;
+    } else if (length == 1) {
+        /* Set MR3 WATI bit is 1 */;
+        REG(MR3.UINT32) |= (1 << 6);
+        // send a NOT ACK
+        REG(MR3.UINT32) |=  (1 <<3);
+        // dummy read
+        value = REG(DRR.UINT32);
+    } else {
+        // Do Nothing
     }
 
     // read in last byte
@@ -325,7 +345,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     /* RIICnMR3.WAIT = 0 */
     REG(MR3.UINT32) &= ~(1 << 6);
     /* wait SR2.STOP = 1 */
-    while ((work_reg & (1 << 3)) == (1 << 3)) {
+    while (!((work_reg & (1 << 3)) == (1 << 3))) {
         work_reg = REG(SR2.UINT32);
     }
     /* SR2.NACKF = 0 */
