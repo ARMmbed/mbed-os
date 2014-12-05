@@ -157,7 +157,7 @@ void spi_frequency(spi_t *obj, int hz) {
     spi_disable(obj);
     const int P1CLK = 66666666; // 66.6666MHz
     uint8_t div, brdv;
-    uint16_t mask = 0x000c0;
+    uint16_t mask = 0x000c;
 
     if (hz <= P1CLK/2 && hz >= P1CLK/255) {
         div = (P1CLK / hz / 2) -1;
