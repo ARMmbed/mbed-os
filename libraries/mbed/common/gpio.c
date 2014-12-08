@@ -29,7 +29,11 @@ static inline void _gpio_init_out(gpio_t* gpio, PinName pin, PinMode mode, int v
     gpio_init(gpio, pin);
     if (pin != NC) {
         gpio_write(gpio, value);
-        gpio_dir(gpio, PIN_OUTPUT);
+        if(mode == OpenDrain)
+            gpio_dir(gpio, PIN_OUTPUT_OD);
+        else{
+            gpio_dir(gpio, PIN_OUTPUT);
+        }
         gpio_mode(gpio, mode);
     }
 }

@@ -71,6 +71,8 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (direction == PIN_OUTPUT) {
         pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
+    } else if (direction == PIN_OUTPUT_OD){
+        pin_function(obj->pin, STM_PIN_DATA(STM_MODE_OUTPUT_OD, GPIO_NOPULL, 0));
     } else { // PIN_INPUT
         pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     }
