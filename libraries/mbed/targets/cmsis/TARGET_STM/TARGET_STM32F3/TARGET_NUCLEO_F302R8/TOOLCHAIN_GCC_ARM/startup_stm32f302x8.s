@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f302x8.s
   * @author    MCD Application Team
-  * @version   V2.0.1
-  * @date      18-June-2014
+  * @version   V1.1.0
+  * @date      12-Sept-2014
   * @brief     STM32F302x6/STM32F302x8 devices vector table for 
   *            Atollic TrueSTUDIO toolchain.
   *            This module performs:
