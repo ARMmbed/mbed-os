@@ -24,7 +24,11 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     char buf[12]; /* :0x12345678 + null byte */
     std::sprintf(buf, ":%p", this);
     _file = std::fopen(buf, "w+");
+#if defined (__ICCARM__)
+    std::setvbuf(_file,buf,_IONBF,NULL);    
+#else
     setbuf(_file, NULL);
+#endif
 }
 
 Stream::~Stream() {
@@ -41,11 +45,31 @@ int Stream::puts(const char *s) {
 }
 int Stream::getc() {
     fflush(_file);
+#if defined (__ICCARM__)
+    int res = std::fgetc(_file);
+    if (res>=0){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }    
+    return res;
+#else    
     return std::fgetc(_file);
+#endif    
 }
 char* Stream::gets(char *s, int size) {
     fflush(_file);
+#if defined (__ICCARM__)
+    char *str = fgets(s,size,_file);
+    if (str!=NULL){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }
+    return str;
+#else    
     return std::fgets(s,size,_file);
+#endif
 }
 
 int Stream::close() {
