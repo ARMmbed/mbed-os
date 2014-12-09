@@ -480,3 +480,55 @@ extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) prev_heap;
 }
 #endif
+
+
+namespace mbed {
+
+void mbed_set_unbuffered_stream(FILE *_file) {
+#if defined (__ICCARM__)
+    char buf[2];
+    std::setvbuf(_file,buf,_IONBF,NULL);    
+#else
+    setbuf(_file, NULL);
+#endif
+}
+
+int mbed_getc(FILE *_file){
+#if defined (__ICCARM__)
+    /*This is only valid for unbuffered streams*/
+    int res = std::fgetc(_file);
+    if (res>=0){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }    
+    return res;
+#else    
+    return std::fgetc(_file);
+#endif   
+}
+
+char* mbed_gets(char*s, int size, FILE *_file){
+#if defined (__ICCARM__)
+    /*This is only valid for unbuffered streams*/
+    char *str = fgets(s,size,_file);
+    if (str!=NULL){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }
+    return str;
+#else    
+    return std::fgets(s,size,_file);
+#endif
+}
+
+} // namespace mbed
+
+
+
+
+
+
+
+
