@@ -82,6 +82,7 @@
   */
 
 #include "stm32f0xx.h"
+#include "hal_tick.h"
 
 /**
   * @}
@@ -159,6 +160,8 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @{
   */
 
+extern int NVIC_vtor_remap;
+
 /**
   * @brief  Setup the microcontroller system.
   *         Initialize the default HSI clock source, vector table location and the PLL configuration is reset.
@@ -209,11 +212,17 @@ void SystemInit(void)
   RCC->CIR = 0x00000000;
 
   /* Configure the Cube driver */
+  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
+  NVIC_vtor_remap = 0; // Because it is not cleared the first time we enter in NVIC_SetVector()
   HAL_Init();
 
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
+
+  /* Reset the timer to avoid issues after the RAM initialization */
+  TIM_MST_RESET_ON;
+  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -419,12 +428,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSI48, RCC_MCO_DIV1); // 48 MHz
 
   return 1; // OK
-}
-
-/* Used for the different timeouts in the HAL */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
 }
 
 /**

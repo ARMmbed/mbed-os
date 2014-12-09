@@ -33,21 +33,21 @@
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-static unsigned char vtor_remap = 0; // To keep track that the vectors remap is done
+int NVIC_vtor_remap = 0; // To keep track that the vectors remap is done
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     int i;
     // Space for dynamic vectors, initialised to allocate in R/W
-    static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
+    uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     
     // Copy and switch to dynamic vectors if first time called
-    if (vtor_remap == 0) {
+    if (NVIC_vtor_remap == 0) {
       uint32_t *old_vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
       for (i = 0; i < NVIC_NUM_VECTORS; i++) {
           vectors[i] = old_vectors[i];
       }
       SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
-      vtor_remap = 1; // The vectors remap is done
+      NVIC_vtor_remap = 1; // The vectors remap is done
     }
 
     // Set the vector
