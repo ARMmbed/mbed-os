@@ -58,7 +58,7 @@ void us_ticker_irq_handler(void) {
 
 void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
     /* disable interrupts for the duration of the function */
-    __disable_irq();
+    int was_masked = __disable_irq();
 
     // initialise our data
     obj->timestamp = timestamp;
@@ -87,11 +87,14 @@ void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t
     /* if we're at the end p will be NULL, which is correct */
     obj->next = p;
 
-    __enable_irq();
+    /* re-enable interrupts if necessary */
+    if (!was_masked)
+        __enable_irq();
 }
 
 void us_ticker_remove_event(ticker_event_t *obj) {
-    __disable_irq();
+    /* disable interrupts for the duration of the function */
+    int was_masked = __disable_irq();
 
     // remove this object from the list
     if (head == obj) {
@@ -114,5 +117,7 @@ void us_ticker_remove_event(ticker_event_t *obj) {
         }
     }
 
-    __enable_irq();
+    /* re-enable interrupts if necessary */
+    if (!was_masked)
+        __enable_irq();
 }
