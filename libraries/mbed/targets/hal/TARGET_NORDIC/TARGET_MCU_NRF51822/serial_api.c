@@ -56,19 +56,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (NRF_UART_Type *)uart;
 
     //pin configurations --
-    //outputs
     NRF_GPIO->DIR |= (1 << tx); //TX_PIN_NUMBER);
     NRF_GPIO->DIR |= (1 << RTS_PIN_NUMBER);
 
     NRF_GPIO->DIR &= ~(1 << rx); //RX_PIN_NUMBER);
     NRF_GPIO->DIR &= ~(1 << CTS_PIN_NUMBER);
-
-    obj->uart->PSELRTS = RTS_PIN_NUMBER;
-    obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
-
-    //inputs
-    obj->uart->PSELCTS = CTS_PIN_NUMBER;
-    obj->uart->PSELRXD = rx; //RX_PIN_NUMBER;
 
 
     // set default baud rate and format
@@ -79,8 +71,16 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->TASKS_STARTTX = 1;
     obj->uart->TASKS_STARTRX = 1;
     obj->uart->EVENTS_RXDRDY = 0;
+    // dummy write needed or TXDRDY trails write rather than leads write.
+    //  pins are disconnected so nothing is physically transmitted on the wire
+    obj->uart->TXD = 0;
 
     obj->index = 0;
+    
+    obj->uart->PSELRTS = RTS_PIN_NUMBER;
+    obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
+    obj->uart->PSELCTS = CTS_PIN_NUMBER;
+    obj->uart->PSELRXD = rx; //RX_PIN_NUMBER;
 
     // set rx/tx pins in PullUp mode
     if (tx != NC) {
@@ -194,24 +194,27 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         switch (irq) {
             case RxIrq:
-                obj->uart->INTENSET |= (UART_INTENSET_RXDRDY_Msk);
+                obj->uart->INTEN |= (UART_INTENSET_RXDRDY_Msk);
                 break;
             case TxIrq:
-                obj->uart->INTENSET |= (UART_INTENSET_TXDRDY_Msk);
+                obj->uart->INTEN |= (UART_INTENSET_TXDRDY_Msk);
                 break;
         }
         NVIC_SetPriority(irq_n, 3);
         NVIC_EnableIRQ(irq_n);
     } else { // disable
+        // maseked writes to INTENSET dont disable and masked writes to
+        //  INTENCLR seemed to clear the entire register, not bits.
+        //  Added INTEN to memory map and seems to allow set and clearing of specific bits as desired
         int all_disabled = 0;
         switch (irq) {
             case RxIrq:
-                obj->uart->INTENSET &= ~(UART_INTENSET_RXDRDY_Msk);
-                all_disabled         = (obj->uart->INTENSET & (UART_INTENSET_TXDRDY_Msk))==0;
+                obj->uart->INTEN &= ~(UART_INTENCLR_RXDRDY_Msk);
+                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
                 break;
             case TxIrq:
-                obj->uart->INTENSET &= ~(UART_INTENSET_TXDRDY_Msk);
-                all_disabled         = (obj->uart->INTENSET & (UART_INTENSET_RXDRDY_Msk))==0;
+                obj->uart->INTEN &= ~(UART_INTENCLR_TXDRDY_Msk);
+                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
                 break;
         }
 
@@ -236,12 +239,11 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    obj->uart->TXD = (uint8_t)c;
-
     while (!serial_writable(obj)) {
     }
 
     obj->uart->EVENTS_TXDRDY = 0;
+    obj->uart->TXD = (uint8_t)c;
 }
 
 int serial_readable(serial_t *obj)
@@ -251,7 +253,7 @@ int serial_readable(serial_t *obj)
 
 int serial_writable(serial_t *obj)
 {
-    return (obj->uart->EVENTS_TXDRDY ==1);
+    return (obj->uart->EVENTS_TXDRDY == 1);
 }
 
 void serial_break_set(serial_t *obj)

@@ -376,7 +376,8 @@ typedef struct {                                    /*!< UART Structure         
   __IO uint32_t  EVENTS_RXTO;                       /*!< Receiver timeout.                                                     */
   __I  uint32_t  RESERVED5[46];
   __IO uint32_t  SHORTS;                            /*!< Shortcuts for TWI.                                                    */
-  __I  uint32_t  RESERVED6[64];
+  __I  uint32_t  RESERVED6[63];
+  __IO uint32_t  INTEN;                             /*!< Interrupt enable register.                                            */
   __IO uint32_t  INTENSET;                          /*!< Interrupt enable set register.                                        */
   __IO uint32_t  INTENCLR;                          /*!< Interrupt enable clear register.                                      */
   __I  uint32_t  RESERVED7[93];
@@ -1213,4 +1214,3 @@ typedef struct {                                    /*!< GPIO Structure         
 
 
 #endif  /* nRF51_H */
-
