@@ -104,7 +104,7 @@ class IAR(mbedToolchain):
         self.default_cmd([self.ar, lib_path] + objects)
 
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map]
+        args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
     @hook_tool

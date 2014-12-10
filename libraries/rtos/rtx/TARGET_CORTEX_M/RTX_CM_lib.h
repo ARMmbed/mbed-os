@@ -436,21 +436,34 @@ __attribute__((naked)) void software_init_hook (void) {
 
 #elif defined (__ICCARM__)
 
+extern void* __vector_table;
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
+extern __weak void __iar_init_core( void );
+extern __weak void __iar_init_vfp( void );
+extern void __iar_dynamic_initialization(void);
+extern void mbed_sdk_init(void);
 extern void exit(int arg);
 
-__noreturn __stackless void __cmain(void) {
+#pragma required=__vector_table
+void __iar_program_start( void )
+{
+  __iar_init_core();
+  __iar_init_vfp();
+
   int a;
 
   if (__low_level_init() != 0) {
     __iar_data_init3();
-  }
+    mbed_sdk_init();
+    __iar_dynamic_initialization(); 
+  } 
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
-  exit(a);
+  exit(a);  
+  
 }
 
 #endif
