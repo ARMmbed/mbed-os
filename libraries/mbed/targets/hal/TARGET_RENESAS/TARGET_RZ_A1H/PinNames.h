@@ -97,6 +97,9 @@ typedef enum {
     I2C_SCL = D15,
     I2C_SDA = D14,
 
+    USER_BUTTON0 = P6_0,
+    USER_BUTTON1 = P6_1,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

@@ -16,13 +16,11 @@
 #include "mbed_assert.h"
 #include "serial_api.h"
 
-// math.h required for floating point operations for baud rate calculation
-#include <math.h>
-
 #include <string.h>
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "clk_freqs.h"
 
 static const PinMap PinMap_UART_TX[] = {
     {PTB17, UART_0, 3},
@@ -60,17 +58,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (UART_Type *)uart;
     // enable clk
     switch (uart) {
-        case UART_0:
-            SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
-            SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
-            SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
+        case UART_0: 
+            mcgpllfll_frequency();
+            SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; 
             break;
         case UART_1:
-            SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
+            mcgpllfll_frequency();
             SIM->SCGC4 |= SIM_SCGC4_UART1_MASK;
             break;
         case UART_2:
-            SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK;
             SIM->SCGC4 |= SIM_SCGC4_UART2_MASK;
             break;
     }
@@ -119,25 +115,29 @@ void serial_free(serial_t *obj) {
 
 void serial_baud(serial_t *obj, int baudrate) {
     // save C2 state
-    uint32_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
-
+    uint8_t c2_state = (obj->uart->C2 & (UART_C2_RE_MASK | UART_C2_TE_MASK));
+    
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UART_C2_RE_MASK | UART_C2_TE_MASK);
-
-    uint32_t PCLK = (obj->uart == UART0) ? SystemCoreClock : SystemCoreClock/2;
-
-    // First we check to see if the basic divide with no DivAddVal/MulVal
-    // ratio gives us an integer result. If it does, we set DivAddVal = 0,
-    // MulVal = 1. Otherwise, we search the valid ratio value range to find
-    // the closest match. This could be more elegant, using search methods
-    // and/or lookup tables, but the brute force method is not that much
-    // slower, and is more maintainable.
+    
+    uint32_t PCLK;
+    if (obj->uart != UART2) {
+        PCLK = mcgpllfll_frequency();
+    }
+    else {
+        PCLK = bus_frequency();
+    }
+    
     uint16_t DL = PCLK / (16 * baudrate);
+    uint32_t BRFA = (2 * PCLK) / baudrate - 32 * DL;
 
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);
     obj->uart->BDL = (obj->uart->BDL & ~(0xff)) | ((DL >> 0) & 0xff);
-
+    
+    obj->uart->C4 &= ~0x1F;
+    obj->uart->C4 |= BRFA & 0x1F;    
+    
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }

@@ -19,10 +19,20 @@
 #include "intc_iodefine.h"
 #include "pinmap.h"
 #include "cmsis.h"
+#include "gpio_addrdefine.h"
 
 #define CHANNEL_NUM     8
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
+static void gpio_irq0(void);
+static void gpio_irq1(void);
+static void gpio_irq2(void);
+static void gpio_irq3(void);
+static void gpio_irq4(void);
+static void gpio_irq5(void);
+static void gpio_irq6(void);
+static void gpio_irq7(void);
+
+static gpio_irq_t *channel_obj[CHANNEL_NUM] = {NULL};
 static gpio_irq_handler irq_handler;
 static const int nIRQn_h = 32;
 extern PinName gpio_multi_guard;
@@ -34,6 +44,17 @@ enum {
     IRQ6,IRQ7, 
 
 } IRQNo;
+
+static const IRQHandler irq_tbl[CHANNEL_NUM] = {
+    &gpio_irq0,
+    &gpio_irq1,
+    &gpio_irq2,
+    &gpio_irq3,
+    &gpio_irq4,
+    &gpio_irq5,
+    &gpio_irq6,
+    &gpio_irq7,
+};
 
 static const PinMap PinMap_IRQ[] = {
     {P1_0,  IRQ0, 4}, {P1_1,  IRQ1, 4}, {P1_2,  IRQ2, 4},
@@ -62,22 +83,75 @@ static const PinMap PinMap_IRQ[] = {
     {NC,    NC,     0}
 };
 
-static gpio_irq_event irq_event;
-
-static void handle_interrupt_in(void) {
-    int i;
+static void handle_interrupt_in(int irq_num) {
     uint16_t irqs;
-    int irq_num;
-    
+    uint16_t edge_req;
+    gpio_irq_t *obj;
+    gpio_irq_event irq_event;
+
     irqs = INTCIRQRR;
-    for(i = 0; i< 8; i++) {
-        if (channel_ids[i] && (irqs & (1 << i))) {
-            irq_handler(channel_ids[i], irq_event);
-            INTCIRQRR &= ~(1 << i);
-            irq_num = i;
+    if (irqs & (1 << irq_num)) {
+        obj = channel_obj[irq_num];
+        if (obj != NULL) {
+            edge_req = ((INTCICR1 >> (obj->ch * 2)) & 3);
+            if (edge_req == 1) {
+                irq_event = IRQ_FALL;
+            } else if (edge_req == 2) {
+                irq_event = IRQ_RISE;
+            } else {
+                uint32_t      mask    = (1 << (obj->pin & 0x0F));
+                __I  uint32_t *reg_in = (volatile uint32_t *) PPR((int)PINGROUP(obj->pin));
+
+                if ((*reg_in & mask) == 0) {
+                    irq_event = IRQ_FALL;
+                } else {
+                    irq_event = IRQ_RISE;
+                }
+	        }
+            irq_handler(obj->port, irq_event);
         }
+        INTCIRQRR &= ~(1 << irq_num);
     }
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + irq_num));
+}
+
+static void gpio_irq0(void) {
+    handle_interrupt_in(0);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 0));
+}
+
+static void gpio_irq1(void) {
+    handle_interrupt_in(1);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 1));
+}
+
+static void gpio_irq2(void) {
+    handle_interrupt_in(2);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 2));
+}
+
+static void gpio_irq3(void) {
+    handle_interrupt_in(3);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 3));
+}
+
+static void gpio_irq4(void) {
+    handle_interrupt_in(4);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 4));
+}
+
+static void gpio_irq5(void) {
+    handle_interrupt_in(5);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 5));
+}
+
+static void gpio_irq6(void) {
+    handle_interrupt_in(6);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 6));
+}
+
+static void gpio_irq7(void) {
+    handle_interrupt_in(7);
+    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 7));
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
@@ -87,19 +161,18 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->ch = pinmap_peripheral(pin, PinMap_IRQ);
     obj->pin = (int)pin ;
     obj->port = (int)id ;
-    
+
     shift = obj->ch*2;
-    channel_ids[obj->ch] = id;
+    channel_obj[obj->ch] = obj;
     irq_handler = handler;
     
     pinmap_pinout(pin, PinMap_IRQ);
     gpio_multi_guard = pin;           /* Set multi guard */
 
     // INTC settings
-    InterruptHandlerRegister((IRQn_Type)(nIRQn_h+obj->ch), (void (*)(uint32_t))handle_interrupt_in);
+    InterruptHandlerRegister((IRQn_Type)(nIRQn_h+obj->ch), (void (*)(uint32_t))irq_tbl[obj->ch]);
     INTCICR1 &= ~(0x3 << shift);
     INTCICR1 |= (0x3 << shift);
-    irq_event = IRQ_RISE;
     GIC_SetPriority((IRQn_Type)(nIRQn_h+obj->ch), 5);
     GIC_EnableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
     __enable_irq();
@@ -108,7 +181,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 }
 
 void gpio_irq_free(gpio_irq_t *obj) {
-    channel_ids[obj->ch] = 0;
+    channel_obj[obj->ch] = NULL;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
@@ -136,13 +209,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         INTCIRQRR = (work_irqrr_val & ~(1 << obj->ch));
     } else {
         /* Edge interrupt setting */
-        if ((work_icr_val & (3 << shift)) == 2) {
-            /* Setting of rising edge */
-            irq_event = IRQ_RISE;
-        } else { 
-            /* Setting of falling edge of both edge */
-            irq_event = IRQ_FALL;
-        }
         GIC_EnableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
     }
     INTCICR1  = work_icr_val;

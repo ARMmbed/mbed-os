@@ -33,17 +33,12 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "stm32f4xx_hal.h"
+#include "PeripheralPins.h"
 
 #define RANGE_12BIT (0xFFF)
 
 DAC_HandleTypeDef    DacHandle;
 static DAC_ChannelConfTypeDef sConfig;
-
-static const PinMap PinMap_DAC[] = {
-    {PA_4, DAC_0, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF)}, // DAC_OUT1
-    {PA_5, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF)}, // DAC_OUT2
-    {NC,   NC,    0}
-};
 
 void analogout_init(dac_t *obj, PinName pin)
 {
