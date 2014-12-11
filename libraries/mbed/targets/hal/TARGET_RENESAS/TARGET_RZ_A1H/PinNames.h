@@ -57,7 +57,7 @@ typedef enum {
 
     // Other mbed Pin Names
     LED1 = P4_4,
-    LED2 = P4_5,
+    LED2 = P3_2,
     LED3 = P4_6,
     LED4 = P4_7,
 
@@ -96,6 +96,9 @@ typedef enum {
 
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    USER_BUTTON0 = P6_0,
+    USER_BUTTON1 = P6_1,
 
     // Not connected
     NC = (int)0xFFFFFFFF

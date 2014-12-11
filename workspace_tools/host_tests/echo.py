@@ -18,28 +18,25 @@ limitations under the License.
 import sys
 import uuid
 from sys import stdout
-from host_test import TestResults, Test
+from host_test import HostTestResults, Test
 
 
 class EchoTest(Test):
-    """ This host test will use mbed serial port with 
+    """ This host test will use mbed serial port with
         baudrate 115200 to perform echo test on that port.
     """
 
     def __init__(self):
         # Constructors
-        TestResults.__init__(self)
+        HostTestResults.__init__(self)
         Test.__init__(self)
-        
+
         # Test parameters
         self.TEST_SERIAL_BAUDRATE = 115200
         self.TEST_LOOP_COUNT = 50
 
-        # Initializations
-        serial_init_res = self.mbed.init_serial(self.TEST_SERIAL_BAUDRATE)
-        if not serial_init_res:
-            self.print_result(self.RESULT_IO_SERIAL)
-        self.mbed.reset()
+        # Custom initialization for echo test
+        self.mbed.init_serial_params(serial_baud=self.TEST_SERIAL_BAUDRATE)
 
     def test(self):
         """ Test function, return True or False to get standard test notification on stdout
@@ -47,7 +44,6 @@ class EchoTest(Test):
         c = self.mbed.serial_readline() # '{{start}}'
         if c is None:
             return self.RESULT_IO_SERIAL
-        self.notify(c.strip())
 
         self.mbed.flush()
         self.notify("HOST: Starting the ECHO test")

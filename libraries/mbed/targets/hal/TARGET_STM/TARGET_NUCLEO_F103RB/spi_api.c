@@ -35,34 +35,7 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
-    {PB_15, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
-    {PB_14, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PB_3,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
-    {PB_13, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {PA_15, SPI_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 1)}, // GPIO_Remap_SPI1
-    {PB_12, SPI_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)},
-    {NC,    NC,    0}
-};
+#include "PeripheralPins.h"
 
 static void init_spi(spi_t *obj)
 {

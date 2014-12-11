@@ -35,30 +35,7 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {PA_7,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {PB_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {PA_6,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {PB_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SCLK[] = {
-    {PA_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {PB_3,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {PA_15, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI1)},
-    {NC,    NC,    0}
-};
+#include "PeripheralPins.h"
 
 static SPI_HandleTypeDef SpiHandle;
 

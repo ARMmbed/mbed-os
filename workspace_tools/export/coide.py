@@ -28,6 +28,10 @@ class CoIDE(Exporter):
         'LPC1768',
         'ARCH_PRO',
         'DISCO_F407VG',
+        'NUCLEO_L152RE',
+        'NUCLEO_F030R8',
+        'NUCLEO_F072RB',
+        'NUCLEO_F302R8',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
@@ -35,6 +39,7 @@ class CoIDE(Exporter):
         'DISCO_F334C8',
         'DISCO_F303VC',
         'MTS_MDOT_F405RG',
+        'MTS_MDOT_F411RE',
     ]
 
     # seems like CoIDE currently supports only one type

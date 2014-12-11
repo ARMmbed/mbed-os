@@ -76,6 +76,7 @@ typedef enum {
 typedef enum {
     SPI_0 = 0,
     SPI_1,
+    SPI_2,
 } SPIName;
 
 typedef enum {

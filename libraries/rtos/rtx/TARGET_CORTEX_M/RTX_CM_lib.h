@@ -223,6 +223,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_K64F)
 #define INITIAL_SP            (0x20030000UL)
 
+#elif defined(TARGET_K22F)
+#define INITIAL_SP            (0x20010000UL)
+
 #elif defined(TARGET_KL46Z)
 #define INITIAL_SP            (0x20006000UL)
 
@@ -291,6 +294,9 @@ extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
 #elif defined(__GNUC__)
 extern unsigned char     __end__[];
 #define HEAP_START      (__end__)
+#elif defined(__ICCARM__)
+#pragma section="HEAP"
+#define HEAP_START     (void *)__section_begin("HEAP")
 #endif
 
 void set_main_stack(void) {
@@ -441,6 +447,7 @@ __noreturn __stackless void __cmain(void) {
     __iar_data_init3();
   }
   osKernelInitialize();
+  set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
   exit(a);

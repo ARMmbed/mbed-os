@@ -43,6 +43,7 @@ class Uvision4(Exporter):
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
@@ -51,7 +52,7 @@ class Uvision4(Exporter):
         'UBLOX_C027',
         'LPC1549',
         # Removed as uvision4_lpc11u35_501.uvproj.tmpl is missing.
-        #'LPC11U35_501', 
+        #'LPC11U35_501',
         'NRF51822',
         'HRM1017',
         'ARCH_PRO',
@@ -60,6 +61,8 @@ class Uvision4(Exporter):
         'MTS_GAMBIT',
         'ARCH_MAX',
         'MTS_MDOT_F405RG',
+        'NRF51_DK',
+        'NRF51_DONGLE',
     ]
 
     USING_MICROLIB = [
@@ -72,6 +75,7 @@ class Uvision4(Exporter):
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',

@@ -473,7 +473,7 @@ static inline void DAC_HAL_SetBuffCurrentIndex(uint32_t baseAddr, uint8_t index)
 }
 
 #if defined(__cplusplus)
-extern }
+}
 #endif
 
 /*!

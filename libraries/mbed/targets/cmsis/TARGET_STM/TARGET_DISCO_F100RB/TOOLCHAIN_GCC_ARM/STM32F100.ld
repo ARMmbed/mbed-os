@@ -4,7 +4,7 @@
 MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 128k
-  RAM (rwx) : ORIGIN = 0x20000188, LENGTH = 0x2000-0x188 
+  RAM (rwx) : ORIGIN = 0x200001D0, LENGTH = 8K - 0x1D0 
 }
 
 /* Linker script to place sections and symbol values. Should be used together

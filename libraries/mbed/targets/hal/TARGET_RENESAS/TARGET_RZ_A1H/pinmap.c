@@ -17,28 +17,34 @@
 #include "mbed_error.h"
 #include "gpio_addrdefine.h"
 
+PinName gpio_multi_guard = (PinName)NC; /* If set pin name here, setting of the "pin" is just one time */
+
 void pin_function(PinName pin, int function) {
     if (pin == (PinName)NC) return;
     
     int n = pin >> 4;
     int bitmask = 1<<(pin  & 0xf);
     
-    if (function == 0) {
-        // means GPIO mode
-        *PMC(n) &= ~bitmask;
-    } else {
-        // alt-function mode
-        *PMC(n) |= bitmask;
-        --function;
+    if (gpio_multi_guard != pin) {
+        if (function == 0) {
+            // means GPIO mode
+            *PMC(n) &= ~bitmask;
+        } else {
+            // alt-function mode
+            *PMC(n) |= bitmask;
+            --function;
 
-        if (function & (1 << 2)) { *PFCAE(n) |= bitmask;}else  { *PFCAE(n) &= ~bitmask;}
-        if (function & (1 << 1)) { *PFCE(n) |= bitmask;}else  { *PFCE(n) &= ~bitmask;}
-        if (function & (1 << 0)) { *PFC(n) |= bitmask;}else  { *PFC(n) &= ~bitmask;}
-        *PIPC(n) |= bitmask;
+            if (function & (1 << 2)) { *PFCAE(n) |= bitmask;}else  { *PFCAE(n) &= ~bitmask;}
+            if (function & (1 << 1)) { *PFCE(n) |= bitmask;}else  { *PFCE(n) &= ~bitmask;}
+            if (function & (1 << 0)) { *PFC(n) |= bitmask;}else  { *PFC(n) &= ~bitmask;}
+            *PIPC(n) |= bitmask;
 
-        if (P1_0 <= pin && pin <= P1_7 && function == 0) {
-            *PBDC(n) |= bitmask;
+            if (P1_0 <= pin && pin <= P1_7 && function == 0) {
+                *PBDC(n) |= bitmask;
+            }
         }
+    } else {
+        gpio_multi_guard = (PinName)NC;
     }
 }
 

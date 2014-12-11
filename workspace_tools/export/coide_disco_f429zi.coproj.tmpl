@@ -17,14 +17,14 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="DiscardUnusedSection" value="1"/>
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="LTO" value="0"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Not use C Library"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="UserEditLinker" value="--specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
+        <Option name="UserEditLinker" value="-Wl,--wrap,main; --specs=nano.specs; -u _printf_float; -u _scanf_float; {% for file in object_files %}
         ${project.path}/{{file}}; {% endfor %} {% for p in library_paths %}-L${project.path}/{{p}}; {% endfor %}"/>
         <LinkedLibraries>
           {% for lib in libraries %}
@@ -39,7 +39,7 @@
         </LinkedLibraries>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00200000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x0002FE78" startValue="0x20000188"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x0002FE54" startValue="0x200001AC"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
         </MemoryAreas>

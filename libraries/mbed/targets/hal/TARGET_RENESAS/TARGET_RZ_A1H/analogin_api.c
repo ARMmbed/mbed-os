@@ -31,7 +31,9 @@ static const PinMap PinMap_ADC[] = {
     {P1_9,  AN1, 1},
     {P1_10, AN2, 1},
     {P1_11, AN3, 1},
+        {P1_12, AN3, 1},
     {P1_13, AN5, 1},
+        {P1_14, AN5, 1},
     {P1_15, AN7, 1},
     {NC,    NC,     0}
 };
@@ -56,19 +58,25 @@ void analogin_init(analogin_t *obj, PinName pin) {
     CPGSTBCR3 &= ~(1 << 1);
     CPGSTBCR6 &= ~(1 << 7);
 
-    // 000_0 000_1 11_00 0_xxx
+    // 000_0 000_1 00_00 0_xxx
     // 15: ADFlag 14: IntEn 13: start, [12:9] Triger..0
     //    [8:6] CLK 100 :: 12-bit 1054tclk
     //    [5:3] scanmode 000 :: single mode
     //    [2:0] channel select
-    ADCADCSR = 0x0100 | (obj->adc&0xf);
+    ADCADCSR = 0x01c0 ;
     
-    pinmap_pinout(pin, PinMap_ADC);
+    for (int i = 0; i< sizeof(PinMap_ADC)/sizeof(PinMap); i++) {
+        pinmap_pinout(PinMap_ADC[i].pin, PinMap_ADC);
+    }
+
+    //pinmap_pinout(pin, PinMap_ADC);
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
     // Select the appropriate channel and start conversion
-    ADCADCSR |= (1 << 13 | (obj->adc&0xf));
+    
+    ADCADCSR &= 0xfff8;
+    ADCADCSR |= (1 << 13 | (obj->adc&0x7));
     
     // Repeatedly get the sample data until DONE bit
 #define nothing

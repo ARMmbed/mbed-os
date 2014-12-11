@@ -34,44 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
-
-// TIM4 cannot be used because already used by the us_ticker
-static const PinMap PinMap_PWM[] = {
-    {PA_1,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH2 - Default
-    {PA_2,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH3 - Default (warning: not connected on D1 per default)
-    {PA_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM2_CH4 - Default (warning: not connected on D0 per default)
-    {PA_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH1 - Default
-    {PA_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH2 - Default
-//  {PA_7,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH1N - GPIO_PartialRemap_TIM1
-    {PA_8,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH1 - Default
-    {PA_9,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH2 - Default
-    {PA_10, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH3 - Default
-    {PA_11, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH4 - Default
-    {PA_15, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH1_ETR - GPIO_FullRemap_TIM2
-
-    {PB_0,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH3 - Default
-//  {PB_0,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH2N - GPIO_PartialRemap_TIM1
-    {PB_1,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM3_CH4 - Default
-//  {PB_1,  PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 6)}, // TIM1_CH3N - GPIO_PartialRemap_TIM1
-    {PB_3,  PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH2 - GPIO_FullRemap_TIM2
-    {PB_4,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3_CH1 - GPIO_PartialRemap_TIM3
-    {PB_5,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 7)}, // TIM3_CH2 - GPIO_PartialRemap_TIM3
-//  {PB_6,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH1 - Default (used by ticker)
-//  {PB_7,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH2 - Default (used by ticker)
-//  {PB_8,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH3 - Default (used by ticker)
-//  {PB_9,  PWM_4, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM4_CH4 - Default (used by ticker)
-    {PB_10, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH3 - GPIO_FullRemap_TIM2
-    {PB_11, PWM_2, STM_PIN_DATA(GPIO_Mode_AF_PP, 8)}, // TIM2_CH4 - GPIO_FullRemap_TIM2
-    {PB_13, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH1N - Default
-    {PB_14, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH2N - Default
-    {PB_15, PWM_1, STM_PIN_DATA(GPIO_Mode_AF_PP, 0)}, // TIM1_CH3N - Default
-
-    {PC_6,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH1 - GPIO_FullRemap_TIM3
-    {PC_7,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH2 - GPIO_FullRemap_TIM3
-    {PC_8,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH3 - GPIO_FullRemap_TIM3
-    {PC_9,  PWM_3, STM_PIN_DATA(GPIO_Mode_AF_PP, 9)}, // TIM3_CH4 - GPIO_FullRemap_TIM3
-    {NC,    NC,    0}
-};
+#include "PeripheralPins.h"
 
 void pwmout_init(pwmout_t* obj, PinName pin)
 {

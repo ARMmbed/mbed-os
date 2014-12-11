@@ -33,15 +33,9 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "PeripheralPins.h"
 
 #define DAC_RANGE (0xFFF) // 12 bits
-
-static const PinMap PinMap_DAC[] = {
-    {PA_4, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC1_OUT1
-    {PA_5, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC1_OUT2 (Warning: LED1 is also on this pin)
-    {PA_6, DAC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC2_OUT1
-    {NC,   NC,    0}
-};
 
 static DAC_HandleTypeDef DacHandle;
 
@@ -53,7 +47,7 @@ void analogout_init(dac_t *obj, PinName pin)
 {
     DAC_ChannelConfTypeDef sConfig;
 
-    // Get the peripheral name (DAC_1, DAC_2...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 

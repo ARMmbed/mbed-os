@@ -53,6 +53,11 @@ void in_handler() {
 #define PIN_OUT    PC_12
 #define PIN_IN     PD_0
 
+#elif defined(TARGET_RZ_A1H)
+#define PIN_OUT    D1
+#define PIN_IN     D5
+
+
 #elif defined(TARGET_FF_ARDUINO)
 #define PIN_OUT    D0
 #define PIN_IN     D7

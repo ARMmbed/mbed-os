@@ -30,6 +30,8 @@ extern "C" {
 struct i2c_s {
     uint32_t i2c;
     uint32_t dummy;
+    uint8_t  pclk_bit;
+    uint32_t width;
 };
 
 struct spi_s {
