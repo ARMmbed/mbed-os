@@ -16,6 +16,12 @@
 #include "wait_api.h"
 #include "us_ticker_api.h"
 
+#if defined(TARGET_RZ_A1H)
+#define EXPIRE_US (128849020)
+#else
+#define EXPIRE_US (0)
+#endif
+
 void wait(float s) {
     wait_us(s * 1000000.0f);
 }
@@ -26,5 +32,17 @@ void wait_ms(int ms) {
 
 void wait_us(int us) {
     uint32_t start = us_ticker_read();
-    while ((us_ticker_read() - start) < (uint32_t)us);
+    uint32_t expire_time = 0;
+    uint32_t now;
+#if (EXPIRE_US > 0)
+    uint32_t last  = start;
+#endif
+
+    do {
+        now = us_ticker_read();
+#if (EXPIRE_US > 0)
+        if ( last > now ) expire_time += EXPIRE_US;
+        last = now;
+#endif
+    } while ((now + expire_time - start) < (uint32_t)us);
 }

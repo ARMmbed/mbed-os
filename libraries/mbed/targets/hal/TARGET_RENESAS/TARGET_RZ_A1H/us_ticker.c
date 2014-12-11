@@ -39,9 +39,9 @@ void us_ticker_init(void) {
     
     /* set Counter Clock(us) */
     if (false == RZ_A1_IsClockMode0()) {
-        count_clock = (double)(CM1_RENESAS_RZ_A1_P0_CLK / US_TICKER_CLOCK_US_DEV);
+        count_clock = ((double)CM1_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
     } else {
-        count_clock = (double)(CM0_RENESAS_RZ_A1_P0_CLK / US_TICKER_CLOCK_US_DEV);
+        count_clock = ((double)CM0_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
     }
 
     /* Power Control for Peripherals      */
