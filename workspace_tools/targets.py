@@ -635,7 +635,7 @@ class MTS_DRAGONFLY_F411RE(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
         self.macros = ['HSE_VALUE=26000000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "ARM" #vince orig "uARM"
+        self.default_toolchain = "ARM"
 
         
 ### Nordic ###
