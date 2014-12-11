@@ -47,21 +47,38 @@ class AnalogIn {
 
 public:
 
-    /** Create an AnalogIn, connected to the specified pin
+    /** Create an AnalogIn object, connected to the specified pin and initialize
      *
-     * @param pin AnalogIn pin to connect to
-     * @param name (optional) A string to identify the object
+     * @param pin AnalogIn pin to connect to and initialize
      */
     AnalogIn(PinName pin) {
         analogin_init(&_adc, pin);
     }
 
-    /** Read the input voltage, represented as a float in the range [0.0, 1.0]
+    /** Read the input voltage, represented as a float in the range [0.0f, 1.0f]
      *
      * @returns A floating-point value representing the current input voltage, measured as a percentage
      */
     float read() {
         return analogin_read(&_adc);
+    }
+
+    /** Read the input voltage, represented as acutally measured by the analog to digital converter
+     *
+     * @returns A the value as measured by the ADC. These can vary based on the capability of the 
+     *  peripheral being accessed.
+     */
+    unsigned int read_reg() {
+        return analogin_read_reg(&_adc);
+    }
+
+    /** Read the input voltage, represented as an unsigned char in the range [0x0, 0xFF]
+     *
+     * @returns
+     *   8-bit unsigned char representing the current input voltage, normalised to a 8-bit value
+     */
+    unsigned char read_u8() {
+        return analogin_read_u8(&_adc);
     }
 
     /** Read the input voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
@@ -71,6 +88,15 @@ public:
      */
     unsigned short read_u16() {
         return analogin_read_u16(&_adc);
+    }
+
+    /** Read the input voltage, represented as an unsigned int in the range [0x0, 0xFFFFFFFF]
+     *
+     * @returns
+     *   32-bit unsigned int representing the current input voltage, normalised to a 32-bit value
+     */
+    unsigned int read_u32() {
+        return analogin_read_u32(&_adc);
     }
 
 #ifdef MBED_OPERATORS
@@ -89,6 +115,23 @@ public:
      */
     operator float() {
         return read();
+    }
+
+    /** An operator shorthand for read_reg()
+     *
+     * The unsigned int() operator can be used as a shorthand for read_reg() to simplify common code sequences
+     *
+     * Example:
+     * @code
+     * unsigned int x = volume.read_reg();
+     * unsigned int x = volume;
+     *
+     * if(volume.read_reg() > 512) { ... }
+     * if(volume > 512) { ... }
+     * @endcode
+     */
+    operator unsigned int() {
+        return read_reg();
     }
 #endif
 
