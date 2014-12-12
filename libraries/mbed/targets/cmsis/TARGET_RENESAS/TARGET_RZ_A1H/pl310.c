@@ -64,7 +64,7 @@ void PL310_InvAllByWay (void)
         assoc =  8;
 
     PL310->INV_WAY = (1 << assoc) - 1;
-    while(PL310->INV_WAY && ((1 << assoc) - 1)); //poll invalidate
+    while(PL310->INV_WAY & ((1 << assoc) - 1)); //poll invalidate
 
     PL310_Sync();
 }
@@ -89,7 +89,7 @@ void PL310_CleanInvAllByWay (void)
 void PL310_Enable(void)
 {
     PL310->CONTROL = 0;
-    PL310->INTERRUPT_CLEAR = 0;
+    PL310->INTERRUPT_CLEAR = 0x000001FFuL;
     PL310->DEBUG_CONTROL = 0;
     PL310->DATA_LOCK_0_WAY = 0;
     PL310->CACHE_SYNC = 0;
