@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
@@ -24,12 +25,42 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include "cmsis.h"
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
-}
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
+
+#include "pinmap.h"
+#include "PeripheralNames.h"
+
+//*** ADC ***
+
+extern const PinMap PinMap_ADC[];
+
+//*** DAC ***
+
+extern const PinMap PinMap_DAC[];
+
+//*** I2C ***
+
+extern const PinMap PinMap_I2C_SDA[];
+extern const PinMap PinMap_I2C_SCL[];
+
+//*** PWM ***
+
+extern const PinMap PinMap_PWM[];
+
+//*** SERIAL ***
+
+extern const PinMap PinMap_UART_TX[];
+extern const PinMap PinMap_UART_RX[];
+
+//*** SPI ***
+
+extern const PinMap PinMap_SPI_MOSI[];
+extern const PinMap PinMap_SPI_MISO[];
+extern const PinMap PinMap_SPI_SCLK[];
+extern const PinMap PinMap_SPI_SSEL[];
+
+#endif

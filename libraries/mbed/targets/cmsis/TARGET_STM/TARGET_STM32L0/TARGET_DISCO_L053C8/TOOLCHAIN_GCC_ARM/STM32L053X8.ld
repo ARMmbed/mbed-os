@@ -2,14 +2,14 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64k
-  RAM (rwx)  : ORIGIN = 0x200000C0, LENGTH = 8K - 0xC0
+  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 8K - 0xC0
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -62,7 +62,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab :
+    .ARM.extab : 
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
