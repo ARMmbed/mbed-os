@@ -136,8 +136,8 @@
   */
 
 /* Select the SYSCLOCK  to start with (0=OFF, 1=ON) */
-#define USE_SYSCLOCK_168 (1) /* Use external xtal */
-#define USE_SYSCLOCK_180 (0) /* Use external clock */
+#define USE_SYSCLOCK_168 (1) /* Use external 8MHz xtal and sets SYSCLK to 168MHz */
+#define USE_SYSCLOCK_180 (0) /* Use external 8MHz xtal and sets SYSCLK to 180MHz */
 
 /**
   * @}
