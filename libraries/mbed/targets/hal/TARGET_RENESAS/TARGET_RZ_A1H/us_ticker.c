@@ -28,6 +28,8 @@
 
 int us_ticker_inited = 0;
 static double count_clock = 0;
+static uint32_t last_read = 0;
+static uint32_t wrap_arround = 0;
 
 void us_ticker_interrupt(void) {
     us_ticker_irq_handler();
@@ -36,12 +38,12 @@ void us_ticker_interrupt(void) {
 void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
-    
+
     /* set Counter Clock(us) */
     if (false == RZ_A1_IsClockMode0()) {
-        count_clock = (double)(CM1_RENESAS_RZ_A1_P0_CLK / US_TICKER_CLOCK_US_DEV);
+        count_clock = ((double)CM1_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
     } else {
-        count_clock = (double)(CM0_RENESAS_RZ_A1_P0_CLK / US_TICKER_CLOCK_US_DEV);
+        count_clock = ((double)CM0_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
     }
 
     /* Power Control for Peripherals      */
@@ -61,14 +63,21 @@ void us_ticker_init(void) {
 
 uint32_t us_ticker_read() {
     uint32_t val;
+    uint64_t val64;
+
     if (!us_ticker_inited)
         us_ticker_init();
-    
+
     /* read counter */
     val = OSTM1CNT;
-    
+    if ( last_read > val ) {
+        wrap_arround++;
+    }
+    last_read = val;
+    val64 = ((uint64_t)wrap_arround << 32) + val;
+
     /* clock to us */
-    val = (uint32_t)(val / count_clock);
+    val = (uint32_t)(val64 / count_clock);
     return val;
 }
 
