@@ -153,7 +153,7 @@
 #    define OS_CLOCK       72000000
 
 #elif defined(TARGET_STM32F429ZI)
-#    define OS_CLOCK       16000000
+#    define OS_CLOCK       168000000
 
 #  else
 #    error "no target defined"
