@@ -37,7 +37,8 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
@@ -58,8 +59,8 @@ void rtc_init(void) {
 
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; /* Mandatory, otherwise the PLL is reconfigured! */
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; /* External 32.768 kHz clock on OSC_IN/OSC_OUT */
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         // Connect LSE to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
@@ -77,7 +78,7 @@ void rtc_init(void) {
         // Connect LSI to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
+        // This value is LSI typical value. To be measured precisely using a timer input capture for example.
         rtc_freq = 32000;
     }
 
@@ -96,7 +97,8 @@ void rtc_init(void) {
     }
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -121,7 +123,8 @@ void rtc_free(void) {
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
@@ -142,7 +145,8 @@ int rtc_isenabled(void) {
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
@@ -169,7 +173,8 @@ time_t rtc_read(void) {
     return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 
