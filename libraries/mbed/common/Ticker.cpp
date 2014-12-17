@@ -32,8 +32,30 @@ void Ticker::setup(timestamp_t t) {
 }
 
 void Ticker::handler() {
-    insert(event.timestamp + _delay);
+
     _function.call();
+
+    /* extend 32 bit timestamps to 64 bit for easy math */
+    uint64_t currentTime = us_ticker_read(); 
+    uint64_t scheduledTime = event.timestamp;
+
+    /*  Check if the timer has wrapped around since the scheduled event and now.
+        If it has, increment the current time with (1 << 32)
+    */
+    if (currentTime < scheduledTime) {
+        currentTime += (1ULL << 32);
+    }
+
+    /*  Check if we are too late to schedule an event with the right interval.
+        If we are, fast forward the event.timestamp to match the current time.
+    */
+    if (scheduledTime + _delay < currentTime) {
+        uint32_t missedTicks = (currentTime - scheduledTime) / _delay;
+
+        event.timestamp = scheduledTime + missedTicks * _delay;
+    }
+
+    insert(event.timestamp + _delay);
 }
 
 } // namespace mbed
