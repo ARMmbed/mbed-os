@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
@@ -63,9 +63,9 @@
 /** @defgroup USARTEx_Word_Length USARTEx Word Length
   * @{
   */
-#if defined (STM32F042x6) || defined (STM32F048xx) || \
-    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+#if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
+    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
+    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
 #define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
@@ -77,9 +77,9 @@
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 #define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WORDLENGTH_8B) || \
                                       ((LENGTH) == USART_WORDLENGTH_9B))
-#endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
+#endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || defined (STM32F070xB) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) */
+          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
 /**
   * @}
   */
@@ -121,7 +121,7 @@
         break;                                                 \
      }                                                         \
   } while(0)
-#elif defined (STM32F030x8) ||                                 \
+#elif defined (STM32F030x8) || defined (STM32F070x6) ||        \
       defined (STM32F042x6) || defined (STM32F048xx) ||        \
       defined (STM32F051x8) || defined (STM32F058xx)
 #define __HAL_USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
@@ -148,6 +148,47 @@
        }                                                       \
     }                                                          \
     else if((__HANDLE__)->Instance == USART2)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
+    }                                                          \
+  } while(0)  
+#elif defined (STM32F070xB)
+#define __HAL_USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART1)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                   \
+       {                                                       \
+        case RCC_USART1CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART2)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART3)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART4)                  \
     {                                                          \
       (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
     }                                                          \
@@ -304,7 +345,56 @@
     {                                                          \
       (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
     }                                                          \
-  } while(0)  
+  } while(0)
+#elif defined(STM32F030xC)
+#define __HAL_USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART1)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                   \
+       {                                                       \
+        case RCC_USART1CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART2)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART3)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART4)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART5)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART6)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
+    }                                                          \
+  } while(0)    
 #endif /* defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) */
 
   
@@ -317,9 +407,9 @@
   * @param  __HANDLE__: specifies the USART Handle
   * @retval none
   */  
-#if defined (STM32F042x6) || defined (STM32F048xx) || \
-    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+#if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
+    defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
+    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
 #define __HAL_USART_MASK_COMPUTATION(__HANDLE__)                      \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == USART_WORDLENGTH_9B)           \
@@ -382,9 +472,9 @@
      }                                                                \
   }                                                                   \
 } while(0) 
-#endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
-          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) */
+#endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
+          defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
+          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
 /**
   * @}
   */

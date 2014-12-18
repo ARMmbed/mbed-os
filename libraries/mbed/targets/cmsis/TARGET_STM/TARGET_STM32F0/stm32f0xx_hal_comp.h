@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -97,18 +97,6 @@ typedef struct
 }COMP_InitTypeDef;
 
 /** 
-  * @brief  HAL State structures definition  
-  */ 
-typedef enum
-{
-  HAL_COMP_STATE_RESET             = 0x00,    /*!< COMP not yet initialized or disabled             */
-  HAL_COMP_STATE_READY             = 0x01,    /*!< COMP initialized and ready for use               */
-  HAL_COMP_STATE_READY_LOCKED      = 0x11,    /*!< COMP initialized but the configuration is locked */
-  HAL_COMP_STATE_BUSY              = 0x02,    /*!< COMP is running                                  */
-  HAL_COMP_STATE_BUSY_LOCKED       = 0x12     /*!< COMP is running and the configuration is locked  */
-}HAL_COMP_StateTypeDef;
-
-/** 
   * @brief  COMP Handle Structure definition  
   */ 
 typedef struct
@@ -116,7 +104,8 @@ typedef struct
   COMP_TypeDef                *Instance; /*!< Register base address    */
   COMP_InitTypeDef            Init;      /*!< COMP required parameters */
   HAL_LockTypeDef             Lock;      /*!< Locking object           */
-  __IO HAL_COMP_StateTypeDef  State;     /*!< COMP communication state */
+  __IO uint32_t               State;     /*!< COMP communication state 
+                                              This parameter can be a value of @ref COMP_State  */
 }COMP_HandleTypeDef;
 
 /**
@@ -126,6 +115,18 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup COMP_Exported_Constants COMP Exported Constants
   * @{
+  */
+
+/** @defgroup COMP_State COMP State
+  * @{
+  */
+#define HAL_COMP_STATE_RESET             ((uint32_t)0x00000000)    /*!< COMP not yet initialized or disabled             */
+#define HAL_COMP_STATE_READY             ((uint32_t)0x00000001)    /*!< COMP initialized and ready for use               */
+#define HAL_COMP_STATE_READY_LOCKED      ((uint32_t)0x00000011)    /*!< COMP initialized but the configuration is locked */
+#define HAL_COMP_STATE_BUSY              ((uint32_t)0x00000002)    /*!< COMP is running                                  */
+#define HAL_COMP_STATE_BUSY_LOCKED       ((uint32_t)0x00000012)    /*!< COMP is running and the configuration is locked  */
+/**
+  * @}
   */
 
 /** @defgroup COMP_OutputPolarity COMP OutputPolarity
@@ -447,7 +448,7 @@ void                  HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp);
  * @{
  */   
 /* Peripheral State and Error functions ***************************************/
-HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
+uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 /**
   * @}
   */ 

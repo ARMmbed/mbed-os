@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -288,34 +288,34 @@ typedef struct __DMA_HandleTypeDef
   * @{
   */ 
 
-#define DMA_FLAG_GL1                      ((uint32_t)0x00000001)
-#define DMA_FLAG_TC1                      ((uint32_t)0x00000002)
-#define DMA_FLAG_HT1                      ((uint32_t)0x00000004)
-#define DMA_FLAG_TE1                      ((uint32_t)0x00000008)
-#define DMA_FLAG_GL2                      ((uint32_t)0x00000010)
-#define DMA_FLAG_TC2                      ((uint32_t)0x00000020)
-#define DMA_FLAG_HT2                      ((uint32_t)0x00000040)
-#define DMA_FLAG_TE2                      ((uint32_t)0x00000080)
-#define DMA_FLAG_GL3                      ((uint32_t)0x00000100)
-#define DMA_FLAG_TC3                      ((uint32_t)0x00000200)
-#define DMA_FLAG_HT3                      ((uint32_t)0x00000400)
-#define DMA_FLAG_TE3                      ((uint32_t)0x00000800)
-#define DMA_FLAG_GL4                      ((uint32_t)0x00001000)
-#define DMA_FLAG_TC4                      ((uint32_t)0x00002000)
-#define DMA_FLAG_HT4                      ((uint32_t)0x00004000)
-#define DMA_FLAG_TE4                      ((uint32_t)0x00008000)
-#define DMA_FLAG_GL5                      ((uint32_t)0x00010000)
-#define DMA_FLAG_TC5                      ((uint32_t)0x00020000)
-#define DMA_FLAG_HT5                      ((uint32_t)0x00040000)
-#define DMA_FLAG_TE5                      ((uint32_t)0x00080000)
-#define DMA_FLAG_GL6                      ((uint32_t)0x00100000)
-#define DMA_FLAG_TC6                      ((uint32_t)0x00200000)
-#define DMA_FLAG_HT6                      ((uint32_t)0x00400000)
-#define DMA_FLAG_TE6                      ((uint32_t)0x00800000)
-#define DMA_FLAG_GL7                      ((uint32_t)0x01000000)
-#define DMA_FLAG_TC7                      ((uint32_t)0x02000000)
-#define DMA_FLAG_HT7                      ((uint32_t)0x04000000)
-#define DMA_FLAG_TE7                      ((uint32_t)0x08000000)
+#define DMA_FLAG_GL1                      ((uint32_t)0x00000001) /*!< Channel 1 global interrupt flag  */
+#define DMA_FLAG_TC1                      ((uint32_t)0x00000002) /*!< Channel 1 transfer complete flag */
+#define DMA_FLAG_HT1                      ((uint32_t)0x00000004) /*!< Channel 1 half transfer flag     */
+#define DMA_FLAG_TE1                      ((uint32_t)0x00000008) /*!< Channel 1 transfer error flag    */
+#define DMA_FLAG_GL2                      ((uint32_t)0x00000010) /*!< Channel 2 global interrupt flag  */
+#define DMA_FLAG_TC2                      ((uint32_t)0x00000020) /*!< Channel 2 transfer complete flag */
+#define DMA_FLAG_HT2                      ((uint32_t)0x00000040) /*!< Channel 2 half transfer flag     */
+#define DMA_FLAG_TE2                      ((uint32_t)0x00000080) /*!< Channel 2 transfer error flag    */
+#define DMA_FLAG_GL3                      ((uint32_t)0x00000100) /*!< Channel 3 global interrupt flag  */
+#define DMA_FLAG_TC3                      ((uint32_t)0x00000200) /*!< Channel 3 transfer complete flag */
+#define DMA_FLAG_HT3                      ((uint32_t)0x00000400) /*!< Channel 3 half transfer flag     */
+#define DMA_FLAG_TE3                      ((uint32_t)0x00000800) /*!< Channel 3 transfer error flag    */
+#define DMA_FLAG_GL4                      ((uint32_t)0x00001000) /*!< Channel 4 global interrupt flag  */
+#define DMA_FLAG_TC4                      ((uint32_t)0x00002000) /*!< Channel 4 transfer complete flag */
+#define DMA_FLAG_HT4                      ((uint32_t)0x00004000) /*!< Channel 4 half transfer flag     */
+#define DMA_FLAG_TE4                      ((uint32_t)0x00008000) /*!< Channel 4 transfer error flag    */
+#define DMA_FLAG_GL5                      ((uint32_t)0x00010000) /*!< Channel 5 global interrupt flag  */
+#define DMA_FLAG_TC5                      ((uint32_t)0x00020000) /*!< Channel 5 transfer complete flag */
+#define DMA_FLAG_HT5                      ((uint32_t)0x00040000) /*!< Channel 5 half transfer flag     */
+#define DMA_FLAG_TE5                      ((uint32_t)0x00080000) /*!< Channel 5 transfer error flag    */
+#define DMA_FLAG_GL6                      ((uint32_t)0x00100000) /*!< Channel 6 global interrupt flag  */
+#define DMA_FLAG_TC6                      ((uint32_t)0x00200000) /*!< Channel 6 transfer complete flag */
+#define DMA_FLAG_HT6                      ((uint32_t)0x00400000) /*!< Channel 6 half transfer flag     */
+#define DMA_FLAG_TE6                      ((uint32_t)0x00800000) /*!< Channel 6 transfer error flag    */
+#define DMA_FLAG_GL7                      ((uint32_t)0x01000000) /*!< Channel 7 global interrupt flag  */
+#define DMA_FLAG_TC7                      ((uint32_t)0x02000000) /*!< Channel 7 transfer complete flag */
+#define DMA_FLAG_HT7                      ((uint32_t)0x04000000) /*!< Channel 7 half transfer flag     */
+#define DMA_FLAG_TE7                      ((uint32_t)0x08000000) /*!< Channel 7 transfer error flag    */
 
 
 /**
