@@ -32,8 +32,8 @@ void Ticker::setup(timestamp_t t) {
 }
 
 void Ticker::handler() {
-    insert(event.timestamp + _delay);
     _function.call();
+    insert(event.timestamp + _delay);
 }
 
 } // namespace mbed

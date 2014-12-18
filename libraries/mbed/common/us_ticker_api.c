@@ -37,7 +37,7 @@ void us_ticker_irq_handler(void) {
             return;
         }
 
-        if ((int)(head->timestamp - us_ticker_read()) <= 0) {
+        if ((int32_t)(head->timestamp - us_ticker_read()) <= 0) {
             // This event was in the past:
             //      point to the following one and execute its handler
             ticker_event_t *p = head;
@@ -57,37 +57,51 @@ void us_ticker_irq_handler(void) {
 }
 
 void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
-    /* disable interrupts for the duration of the function */
-    __disable_irq();
 
-    // initialise our data
-    obj->timestamp = timestamp;
-    obj->id = id;
+    /*  If event is closer to being in the past than in the future, call event handler immeditately.
+        Otherwise, insert event in linked list and schedule interrupt if it is the first coming one.
+    */
+    if ((int32_t)(timestamp - us_ticker_read()) <= 0) {
+        // initialise our data
+        obj->timestamp = timestamp;
+        obj->id = id;
 
-    /* Go through the list until we either reach the end, or find
-       an element this should come before (which is possibly the
-       head). */
-    ticker_event_t *prev = NULL, *p = head;
-    while (p != NULL) {
-        /* check if we come before p */
-        if ((int64_t)(timestamp - p->timestamp) < 0) {
-            break;
+        if (event_handler != NULL) {
+            event_handler(id);
         }
-        /* go to the next element */
-        prev = p;
-        p = p->next;
-    }
-    /* if prev is NULL we're at the head */
-    if (prev == NULL) {
-        head = obj;
-        us_ticker_set_interrupt(timestamp);
     } else {
-        prev->next = obj;
-    }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
+        /* disable interrupts for the duration of the function */
+        __disable_irq();
 
-    __enable_irq();
+        // initialise our data
+        obj->timestamp = timestamp;
+        obj->id = id;
+
+        /* Go through the list until we either reach the end, or find
+           an element this should come before (which is possibly the
+           head). */
+        ticker_event_t *prev = NULL, *p = head;
+        while (p != NULL) {
+            /* check if we come before p */
+            if ((int32_t)(timestamp - p->timestamp) < 0) {
+                break;
+            }
+            /* go to the next element */
+            prev = p;
+            p = p->next;
+        }
+        /* if prev is NULL we're at the head */
+        if (prev == NULL) {
+            head = obj;
+            us_ticker_set_interrupt(timestamp);
+        } else {
+            prev->next = obj;
+        }
+        /* if we're at the end p will be NULL, which is correct */
+        obj->next = p;
+
+        __enable_irq();
+    }
 }
 
 void us_ticker_remove_event(ticker_event_t *obj) {
