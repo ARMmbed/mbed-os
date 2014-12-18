@@ -28,6 +28,10 @@ typedef enum {
     UART1,
     UART2,
     UART3,
+    UART4,
+    UART5,
+    UART6,
+    UART7,
 } UARTName;
 
 // PWMType & 1 == 1 then have to use PWDTR[12] == 1
@@ -93,7 +97,7 @@ typedef enum {
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        P_SCIF2
+#define STDIO_UART        UART2
 
 // Default peripherals
 #define MBED_SPI0         p5, p6, p7, p8
