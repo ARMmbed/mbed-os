@@ -269,7 +269,7 @@ void ethernetext_set_link_mode(int32_t link) {
 int ethernet_init() {
     ethernet_cfg_t ethcfg;
 
-    ethcfg.int_priority = 0;
+    ethcfg.int_priority = 5;
     ethcfg.recv_cb      = NULL;
     ethcfg.ether_mac    = NULL;
     ethernetext_init(&ethcfg);
