@@ -101,29 +101,15 @@ void serial_free(serial_t *obj) {
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
     int calcBaudrate;
-    uint16_t sbr, sbrTemp, i;
-    uint32_t osr, temp, baudDiff;
+    uint32_t i, sbr, sbrTemp, osr, temp, baud, baudDiff;
 
-    /* Use Fast IRC Clock 48Mhz */
+    /* Use Fast IRC Clock 48Mhz (set in serial_init(...)) */
     uint32_t PCLK = CPU_INT_FAST_CLK_HZ;
-
-    /* This lpuart instantiation uses a slightly different baud rate calculation
-     * The idea is to use the best OSR (over-sampling rate) possible
-     * Note, osr is typically hard-set to 16 in other lpuart instantiations
-     * First calculate the baud rate using the minimum OSR possible (4) */
-    osr = 4;
-    sbr = PCLK / (baudrate * osr);
-    calcBaudrate = PCLK / (osr * sbr);
-
-    if (calcBaudrate > baudrate) {
-        baudDiff = calcBaudrate - baudrate;
-    } else {
-        baudDiff = baudrate - calcBaudrate;
-    }
 
     /* loop to find the best osr value possible, one that generates minimum baudDiff
      * iterate through the rest of the supported values of osr */
-    for (i = 5; i <= 32; i++) {
+    temp = 0xFFFFFFFF;
+    for (i = 5; i <= 33; i++) {
         /* calculate the temporary sbr value   */
         sbrTemp = PCLK / (baudrate * i);
 
@@ -131,17 +117,23 @@ void serial_baud(serial_t *obj, int baudrate) {
         calcBaudrate = PCLK / (i * sbrTemp);
 
         if (calcBaudrate > baudrate) {
-            temp = calcBaudrate - baudrate;
+            baudDiff = calcBaudrate - baudrate;
         } else {
-            temp = baudrate - calcBaudrate;
+            baudDiff = baudrate - calcBaudrate;
         }
 
-        if (temp <= baudDiff) {
-            baudDiff = temp;
-            osr = i;        /* update and store the best osr value calculated */
+        if (baudDiff < temp) {
+            osr = i - 1;    /* update and store the best osr value calculated */
             sbr = sbrTemp;  /* update store the best sbr value calculated */
+
+            if(baudDiff == 0) {
+              break;        /* end for loop if founded the best osr and sbr value */
+            } else {
+              temp = baudDiff;
+            }
         }
     }
+
 
     /* save C2 state */
     temp = obj->uart->CTRL & (LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
@@ -149,17 +141,20 @@ void serial_baud(serial_t *obj, int baudrate) {
     /* disable UART before changing registers */
     obj->uart->CTRL &= ~(LPUART_CTRL_RE_MASK | LPUART_CTRL_TE_MASK);
 
-    /* reset old baudrate settings */
-    obj->uart->BAUD &= ~(LPUART_BAUD_SBR_MASK | LPUART_BAUD_OSR_MASK | LPUART_BAUD_BOTHEDGE_MASK);
+    /* read BAUD register with clearing old baudrate settings into baud variable */
+    baud = obj->uart->BAUD & ~(LPUART_BAUD_SBR_MASK | LPUART_BAUD_OSR_MASK | LPUART_BAUD_BOTHEDGE_MASK);
 
-    /* write the new osr and sbr values to the BAUD register */
-    obj->uart->BAUD |= LPUART_BAUD_SBR(sbr) | LPUART_BAUD_OSR(osr-1);
+    /* write the new osr and sbr values */
+    baud |= (LPUART_BAUD_SBR(sbr) | LPUART_BAUD_OSR(osr));
 
     /* Check if osr is between 4x and 7x oversampling.
      * If so, then "BOTHEDGE" sampling must be turned on */
     if ((osr > 3) && (osr < 8)) {
-        obj->uart->BAUD |= LPUART_BAUD_BOTHEDGE_MASK;
+      baud |= LPUART_BAUD_BOTHEDGE_MASK;
     }
+
+    /* write new values into BAUD register */
+    obj->uart->BAUD = baud;
 
     /* restore C2 state */
     obj->uart->CTRL |= temp;
