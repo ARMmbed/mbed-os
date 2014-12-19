@@ -38,6 +38,29 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
+static inline uint32_t serial_get_src_clock(serial_t *obj) {
+  uint32_t mux, srcclk;
+
+  switch ((int)obj->uart) {
+      case UART_0:
+        mux = (SIM->SOPT2 & SIM_SOPT2_LPUART0SRC_MASK) >> SIM_SOPT2_LPUART0SRC_SHIFT;
+        break;
+      case UART_1:
+        mux = (SIM->SOPT2 & SIM_SOPT2_LPUART1SRC_MASK) >> SIM_SOPT2_LPUART1SRC_SHIFT;
+        break;
+      case UART_2: /* TODO: add UART2 support */ break;
+  }
+
+  switch (mux) {
+    case 1: srcclk = fastirc_frequency(); break;
+    case 2: srcclk = extosc_frequency();  break;
+    case 3: srcclk = mcgirc_frequency();  break;
+    default: srcclk = 0; break;
+  }
+
+  return srcclk;
+}
+
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     // determine the UART to use
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
@@ -103,8 +126,8 @@ void serial_baud(serial_t *obj, int baudrate) {
     int calcBaudrate;
     uint32_t i, sbr, sbrTemp, osr, temp, baud, baudDiff;
 
-    /* Use Fast IRC Clock 48Mhz (set in serial_init(...)) */
-    uint32_t PCLK = CPU_INT_FAST_CLK_HZ;
+    /* get value of serial source clock */
+    uint32_t PCLK = serial_get_src_clock(obj);
 
     /* loop to find the best osr value possible, one that generates minimum baudDiff
      * iterate through the rest of the supported values of osr */
