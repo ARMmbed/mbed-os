@@ -262,6 +262,14 @@ TESTS = [
         "duration": 15,
     },
 
+    {
+        "id": "MBED_BUSOUT", "description": "BusOut",
+        "source_dir": join(TEST_DIR, "mbed", "bus_out"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "duration": 15,
+    },
+
     # Size benchmarks
     {
         "id": "BENCHMARK_1", "description": "Size (c environment)",
@@ -527,7 +535,7 @@ TESTS = [
         "automated": True,
         "host_test": "wait_us_auto"
     },
-    
+
 
     # CMSIS RTOS tests
     {
@@ -896,6 +904,12 @@ TESTS = [
     {
         "id": "UT_3", "description": "General tests",
         "source_dir": join(TEST_DIR, "utest", "general"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_BUSIO", "description": "BusIn BusOut",
+        "source_dir": join(TEST_DIR, "utest", "bus"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
     },
