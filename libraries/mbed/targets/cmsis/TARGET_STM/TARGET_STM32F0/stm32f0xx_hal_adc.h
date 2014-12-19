@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
@@ -66,7 +66,7 @@
   *          - For all parameters: ADC disabled (this is the only possible ADC state to modify parameter 'ClockPrescaler')
    *         - For all parameters except 'ClockPrescaler': ADC enabled without conversion on going on regular group.
   *         If ADC is not in the appropriate state to modify some parameters, these parameters setting is bypassed
-  *         without error reporting without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
+  *         without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
   */
 typedef struct
 {
@@ -726,7 +726,7 @@ typedef struct
 
 /**
   * @brief Enable ADC discontinuous conversion mode for regular group
-  * @param _REG_DISCONTINUOUS_MODE_: Regulat discontinuous mode.
+  * @param _REG_DISCONTINUOUS_MODE_: Regular discontinuous mode.
   * @retval None
   */
 #define __HAL_ADC_CFGR1_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_) ((_REG_DISCONTINUOUS_MODE_) << 16)
@@ -781,14 +781,7 @@ typedef struct
   * @retval None
   */
 #define __HAL_ADC_CFGR1_DMACONTREQ(_DMACONTREQ_MODE_) ((_DMACONTREQ_MODE_) << 1)
-        
-/**
-  * @brief Configure the channel number into offset OFRx register
-  * @param _CHANNEL_: ADC Channel
-  * @retval None
-  */
-#define __HAL_ADC_OFR_CHANNEL(_CHANNEL_) ((_CHANNEL_) << 26)
-    
+
 /**
   * @brief Configure the analog watchdog high threshold into register TR.
   * @param _Threshold_: Threshold value
@@ -810,7 +803,7 @@ typedef struct
   */
 #define __HAL_ADC_ENABLING_CONDITIONS(__HANDLE__)                             \
        (( ( ((__HANDLE__)->Instance->CR) &                                    \
-            (ADC_CR_ADCAL | ADC_CR_ADSTP |  \
+            (ADC_CR_ADCAL | ADC_CR_ADSTP |                                    \
              ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN                    ) \
            ) == RESET                                                         \
         ) ? SET : RESET)

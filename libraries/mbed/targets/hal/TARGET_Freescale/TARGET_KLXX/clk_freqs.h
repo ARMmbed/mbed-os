@@ -33,6 +33,10 @@ static inline uint32_t extosc_frequency(void) {
     return CPU_XTAL_CLK_HZ;
 }
 
+static inline uint32_t fastirc_frequency(void) {
+    return CPU_INT_FAST_CLK_HZ;
+}
+
 static inline uint32_t mcgirc_frequency(void) {
     uint32_t mcgirc_clock = 0;
 
@@ -53,7 +57,7 @@ static uint32_t extosc_frequency(void) {
 
     if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(2))     //MCG clock = external reference clock
         return MCGClock;
-    
+
     uint32_t divider, multiplier;
     #ifdef MCG_C5_PLLCLKEN0_MASK                            //PLL available
     if ((MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0)) {   //PLL/FLL is selected
@@ -91,18 +95,18 @@ static uint32_t extosc_frequency(void) {
                       multiplier = 2929u;
                       break;
                 }
-                
+
                 return MCGClock * divider / multiplier;
             }
     #ifdef MCG_C5_PLLCLKEN0_MASK
         } else {             //PLL is selected
             divider = (1u + (MCG->C5 & MCG_C5_PRDIV0_MASK));
-            multiplier = ((MCG->C6 & MCG_C6_VDIV0_MASK) + 24u); 
-            return MCGClock * divider / multiplier;         
+            multiplier = ((MCG->C6 & MCG_C6_VDIV0_MASK) + 24u);
+            return MCGClock * divider / multiplier;
         }
     }
     #endif
-    
+
     //In all other cases either there is no crystal or we cannot determine it
     //For example when the FLL is running on the internal reference, and there is also an
     //external crystal. However these are unlikely situations
@@ -110,10 +114,10 @@ static uint32_t extosc_frequency(void) {
 }
 
 //Get MCG PLL/2 or FLL frequency, depending on which one is active, sets PLLFLLSEL bit
-static uint32_t mcgpllfll_frequency(void) { 
+static uint32_t mcgpllfll_frequency(void) {
     if ((MCG->C1 & MCG_C1_CLKS_MASK) != MCG_C1_CLKS(0))   //PLL/FLL is not selected
         return 0;
-    
+
     uint32_t MCGClock = SystemCoreClock * (1u + ((SIM->CLKDIV1 & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT));
     #ifdef MCG_C5_PLLCLKEN0_MASK
     if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {         //FLL is selected
@@ -126,8 +130,8 @@ static uint32_t mcgpllfll_frequency(void) {
         return (MCGClock >> 1);
     }
     #endif
-    
-    //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active 
+
+    //It is possible the SystemCoreClock isn't running on the PLL, and the PLL is still active
     //for the peripherals, this is however an unlikely setup
 }
 

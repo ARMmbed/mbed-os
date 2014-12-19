@@ -39,6 +39,7 @@ class Uvision4(Exporter):
         'LPC4337',
         'LPC812',
         'NUCLEO_F030R8',
+        'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
@@ -63,6 +64,7 @@ class Uvision4(Exporter):
         'MTS_MDOT_F405RG',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'BLE_SMURFS',
     ]
 
     USING_MICROLIB = [
@@ -71,6 +73,7 @@ class Uvision4(Exporter):
         'LPC11C24',
         'LPC812',
         'NUCLEO_F030R8',
+        'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',

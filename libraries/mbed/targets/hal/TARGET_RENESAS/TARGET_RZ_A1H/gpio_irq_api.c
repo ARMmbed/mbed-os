@@ -116,42 +116,34 @@ static void handle_interrupt_in(int irq_num) {
 
 static void gpio_irq0(void) {
     handle_interrupt_in(0);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 0));
 }
 
 static void gpio_irq1(void) {
     handle_interrupt_in(1);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 1));
 }
 
 static void gpio_irq2(void) {
     handle_interrupt_in(2);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 2));
 }
 
 static void gpio_irq3(void) {
     handle_interrupt_in(3);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 3));
 }
 
 static void gpio_irq4(void) {
     handle_interrupt_in(4);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 4));
 }
 
 static void gpio_irq5(void) {
     handle_interrupt_in(5);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 5));
 }
 
 static void gpio_irq6(void) {
     handle_interrupt_in(6);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 6));
 }
 
 static void gpio_irq7(void) {
     handle_interrupt_in(7);
-    GIC_EndInterrupt((IRQn_Type)(nIRQn_h + 7));
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -38,7 +38,6 @@
 
     (+) Min-max timeout value @48 MHz(PCLK): ~85,3us / ~5,46 ms
    
- ===============================================================================
                      ##### How to use this driver #####
  ===============================================================================
       [..]
@@ -118,7 +117,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup WWDG_Exported_Functions WWDG Exported Functions
   * @{
@@ -153,7 +152,7 @@
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 { 
   /* Check the WWDG handle allocation */
-  if(hwwdg == HAL_NULL)
+  if(hwwdg == NULL)
   {
     return HAL_ERROR;
   }
@@ -311,7 +310,7 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* Enable the Early Wakeup Interrupt */ 
-  __HAL_WWDG_ENABLE_IT(WWDG_IT_EWI);
+  __HAL_WWDG_ENABLE_IT(hwwdg, WWDG_IT_EWI);
                   
   /* Enable the peripheral */
   __HAL_WWDG_ENABLE(hwwdg);  
@@ -355,7 +354,7 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   * @brief  Handles WWDG interrupt request.
   * @note   The Early Wakeup Interrupt (EWI) can be used if specific safety operations 
   *         or data logging must be performed before the actual reset is generated. 
-  *         The EWI interrupt is enabled using __HAL_WWDG_ENABLE_IT() macro.
+  *         The EWI interrupt is enabled when calling HAL_WWDG_Start_IT function.
   *         When the downcounter reaches the value 0x40, and EWI interrupt is 
   *         generated and the corresponding Interrupt Service Routine (ISR) can 
   *         be used to trigger specific actions (such as communications or data 
@@ -366,22 +365,26 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   */
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
 {
-  /* WWDG Early Wakeup Interrupt occurred */   
-  if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+  /* Check if Early Wakeup Interrupt is enable */
+  if(__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET)
   {
-    /* Early Wakeup callback */ 
-    HAL_WWDG_WakeupCallback(hwwdg);
-  
-    /* Change WWDG peripheral state */
-    hwwdg->State = HAL_WWDG_STATE_READY; 
-                  
-    /* Clear the WWDG Data Ready flag */
-    __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
-  
-    /* Process Unlocked */
-    __HAL_UNLOCK(hwwdg);
-}
+    /* Wheck if WWDG Early Wakeup Interrupt occurred */
+    if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+    {
+      /* Early Wakeup callback */ 
+      HAL_WWDG_WakeupCallback(hwwdg);
+    
+      /* Change WWDG peripheral state */
+      hwwdg->State = HAL_WWDG_STATE_READY; 
+
+      /* Clear the WWDG Early Wakeup flag */
+      __HAL_WWDG_CLEAR_FLAG(hwwdg, WWDG_FLAG_EWIF);
+    
+      /* Process Unlocked */
+      __HAL_UNLOCK(hwwdg);
+    }
   }
+}
 
 /**
   * @brief  Early Wakeup WWDG callback.

@@ -12,9 +12,9 @@
 ;*                        calls main()).
 ;*                      After Reset the Cortex-M0+ processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
-;* <<< Use Configuration Wizard in Context Menu >>>
+;* <<< Use Configuration Wizard in Context Menu >>>   
 ;*******************************************************************************
-;*
+;* 
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:
 ;*   1. Redistributions of source code must retain the above copyright notice,
@@ -48,20 +48,25 @@
 Stack_Size      EQU     0x00000400
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
+                EXPORT  __initial_sp
+                
 Stack_Mem       SPACE   Stack_Size
-__initial_sp
+__initial_sp    EQU     0x20002000 ; Top of RAM
 
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000200
+Heap_Size       EQU     0x00000400
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+                EXPORT  __heap_base
+                EXPORT  __heap_limit
+                
 __heap_base
 Heap_Mem        SPACE   Heap_Size
-__heap_limit
+__heap_limit    EQU (__initial_sp - Stack_Size)
 
                 PRESERVE8
                 THUMB
@@ -103,7 +108,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     DMA1_Channel1_IRQHandler       ; DMA1 Channel 1
                 DCD     DMA1_Channel2_3_IRQHandler     ; DMA1 Channel 2 and Channel 3
                 DCD     DMA1_Channel4_5_6_7_IRQHandler ; DMA1 Channel 4, Channel 5, Channel 6 and Channel 7
-                DCD     ADC1_COMP_IRQHandler           ; ADC1, COMP1 and COMP2
+                DCD     ADC1_COMP_IRQHandler           ; ADC1, COMP1 and COMP2 
                 DCD     LPTIM1_IRQHandler              ; LPTIM1
                 DCD     0                              ; Reserved
                 DCD     TIM2_IRQHandler                ; TIM2
@@ -123,7 +128,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     RNG_LPUART1_IRQHandler         ; RNG and LPUART1
                 DCD     LCD_IRQHandler                 ; LCD
                 DCD     USB_IRQHandler                 ; USB
-
+                
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors
@@ -134,7 +139,7 @@ __Vectors_Size  EQU  __Vectors_End - __Vectors
 Reset_Handler    PROC
                  EXPORT  Reset_Handler                 [WEAK]
         IMPORT  __main
-        IMPORT  SystemInit
+        IMPORT  SystemInit  
                  LDR     R0, =SystemInit
                  BLX     R0
                  LDR     R0, =__main
@@ -213,7 +218,7 @@ TSC_IRQHandler
 DMA1_Channel1_IRQHandler
 DMA1_Channel2_3_IRQHandler
 DMA1_Channel4_5_6_7_IRQHandler
-ADC1_COMP_IRQHandler
+ADC1_COMP_IRQHandler 
 LPTIM1_IRQHandler
 TIM2_IRQHandler
 TIM6_DAC_IRQHandler
@@ -234,33 +239,4 @@ USB_IRQHandler
                 ENDP
 
                 ALIGN
-
-;*******************************************************************************
-; User Stack and Heap initialization
-;*******************************************************************************
-                 IF      :DEF:__MICROLIB
-
-                 EXPORT  __initial_sp
-                 EXPORT  __heap_base
-                 EXPORT  __heap_limit
-
-                 ELSE
-
-                 IMPORT  __use_two_region_memory
-                 EXPORT  __user_initial_stackheap
-
-__user_initial_stackheap
-
-                 LDR     R0, =  Heap_Mem
-                 LDR     R1, =(Stack_Mem + Stack_Size)
-                 LDR     R2, = (Heap_Mem +  Heap_Size)
-                 LDR     R3, = Stack_Mem
-                 BX      LR
-
-                 ALIGN
-
-                 ENDIF
-
-                 END
-
-;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****
+                END

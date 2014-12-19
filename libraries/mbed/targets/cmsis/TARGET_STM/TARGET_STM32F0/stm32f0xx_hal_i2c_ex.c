@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   I2C Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C extension peripheral:
@@ -194,6 +194,7 @@ HAL_StatusTypeDef HAL_I2CEx_DigitalFilter_Config(I2C_HandleTypeDef *hi2c, uint32
   return HAL_OK; 
 }  
 
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) 
 /**
   * @brief  Enables I2C wakeup from stop mode.
   * @param  hi2c : pointer to a I2C_HandleTypeDef structure that contains
@@ -270,7 +271,7 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c)
 
   return HAL_OK; 
 }  
-
+#endif /* !(STM32F030x6) && !(STM32F030x8) && !(STM32F070x6) && !(STM32F070xB) && !(STM32F030xC) */
 /**
   * @}
   */  

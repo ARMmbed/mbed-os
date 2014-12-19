@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -207,7 +207,7 @@ static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
 { 
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
@@ -475,7 +475,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
 HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef* htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
@@ -972,7 +972,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
@@ -1472,7 +1472,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 {
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
@@ -1938,7 +1938,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePulseMode)
 {
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
@@ -2205,7 +2205,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
   uint32_t tmpccer = 0;
     
   /* Check the TIM handle allocation */
-  if(htim == HAL_NULL)
+  if(htim == NULL)
   {
     return HAL_ERROR;
   }
