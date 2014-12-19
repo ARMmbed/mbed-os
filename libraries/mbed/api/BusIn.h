@@ -58,10 +58,16 @@ public:
      */
     void mode(PinMode pull);
 
+    static DigitalIn din_dummy;
+
 #ifdef MBED_OPERATORS
     /** A shorthand for read()
      */
     operator int();
+
+    /** Access to particular bit in random-iterator fashion
+     */
+    DigitalIn & operator[] (unsigned int index);
 #endif
 
 protected:

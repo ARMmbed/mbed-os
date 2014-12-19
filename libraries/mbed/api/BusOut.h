@@ -56,11 +56,17 @@ public:
      */
     int read();
 
+    static DigitalOut dout_dummy;
+
 #ifdef MBED_OPERATORS
     /** A shorthand for write()
      */
     BusOut& operator= (int v);
     BusOut& operator= (BusOut& rhs);
+
+    /** Access to particular bit in random-iterator fashion
+     */
+    DigitalOut& operator[] (unsigned int index);
 
     /** A shorthand for read()
      */
