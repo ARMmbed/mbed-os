@@ -63,6 +63,7 @@ class Uvision4(Exporter):
         'MTS_MDOT_F405RG',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'BLE_SMURFS',
     ]
 
     USING_MICROLIB = [
