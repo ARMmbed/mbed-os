@@ -83,7 +83,9 @@ public:
 protected:
     DigitalIn* _pin[16];
 
-    /** Mask of NC pins, if bit [n] bit is set to 1, [n] pin in bus is in NC state
+    /** Mask of bus's NC pins
+     * If bit[n] is set to 1 - pin is connected
+     * if bit[n] is cleared - pin is not connected (NC)
      */
     int _nc_mask;
 
