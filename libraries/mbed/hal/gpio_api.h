@@ -30,8 +30,7 @@ uint32_t gpio_set(PinName pin);
 
 /* Checks if gpio object is connected (pin was not initialized with NC)
  * @param pin The pin to be set as GPIO
- * @return Non zero value if port is connected to pin
- *         0 if port is initialized with NC
+ * @return 0 if port is initialized with NC
  **/
 int gpio_is_connected(const gpio_t *obj);
 

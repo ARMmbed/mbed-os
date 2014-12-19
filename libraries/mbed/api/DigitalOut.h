@@ -77,6 +77,16 @@ public:
         return gpio_read(&gpio);
     }
 
+    /** Return the output setting, represented as 0 or 1 (int)
+     *
+     *  @returns
+     *    Non zero value if pin is connected to uc GPIO
+     *    0 if gpio object was initialized with NC
+     */
+    int is_connected() {
+        return gpio_is_connected(&gpio);
+    }
+
 #ifdef MBED_OPERATORS
     /** A shorthand for write()
      */
