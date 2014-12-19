@@ -111,7 +111,6 @@ DigitalInOut& BusInOut::operator[] (unsigned int index) {
     return *_pin[index];
 }
 
-
 BusInOut::operator int() {
     return read();
 }
