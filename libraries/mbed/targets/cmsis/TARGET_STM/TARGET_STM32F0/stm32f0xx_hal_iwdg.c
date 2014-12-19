@@ -2,11 +2,11 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   IWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
-  *          functionalities of the IWDG peripheral:
+  *          functionalities of the Independent Watchdog (IWDG) peripheral:
   *           + Initialization and Configuration functions
   *           + IO operation functions
   *           + Peripheral State functions
@@ -37,7 +37,6 @@
           can be used to have an IWDG timeout with an acceptable accuracy.
           For more information, please refer to the STM32F0x Reference manual.
 
- ===============================================================================
                         ##### How to use this driver #####
  ===============================================================================
     [..]
@@ -171,7 +170,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   uint32_t tickstart = 0;
 
   /* Check the IWDG handle allocation */
-  if(hiwdg == HAL_NULL)
+  if(hiwdg == NULL)
   {
     return HAL_ERROR;
   }

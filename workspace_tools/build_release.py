@@ -54,6 +54,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('K20D50M',      ('ARM', 'GCC_ARM' , 'IAR')),
 
     ('NUCLEO_F030R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F070RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F072RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F091RC', ('ARM', 'uARM', 'IAR')),
     ('NUCLEO_F103RB', ('ARM', 'uARM', 'IAR')),

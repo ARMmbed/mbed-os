@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -177,6 +177,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
+#ifdef HAL_DAC_MODULE_ENABLED
+
+#if defined(STM32F051x8) || defined(STM32F058xx) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined (STM32F098xx)
+
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
   */
@@ -185,12 +191,6 @@
   * @brief DAC driver modules
   * @{
   */ 
-
-#ifdef HAL_DAC_MODULE_ENABLED
-
-#if defined(STM32F051x8) || defined(STM32F058xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -229,7 +229,7 @@
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 { 
   /* Check DAC handle */
-  if(hdac == HAL_NULL)
+  if(hdac == NULL)
   {
      return HAL_ERROR;
   }
@@ -264,7 +264,7 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
 {
   /* Check DAC handle */
-  if(hdac == HAL_NULL)
+  if(hdac == NULL)
   {
      return HAL_ERROR;
   }
@@ -442,11 +442,19 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
   {
     status = HAL_DMA_Abort(hdac->DMA_Handle2);   
   }
-  
-  
+
+  /* Check if DMA Channel effectively disabled */
+  if (status != HAL_OK)
+  {
+  /* Update DAC state machine to error */
+  hdac->State = HAL_DAC_STATE_ERROR; 
+  }
+  else
+  {
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
-  
+  }
+
   /* Return function status */
   return status;
 }
@@ -667,18 +675,19 @@ __weak void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
 /**
   * @}
   */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 #endif /* STM32F051x8 || STM32F058xx ||                */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
 #endif /* HAL_DAC_MODULE_ENABLED */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

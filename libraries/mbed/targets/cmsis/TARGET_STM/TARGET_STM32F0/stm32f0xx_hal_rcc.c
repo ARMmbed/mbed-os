@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
-  *           + Initialization/de-initialization function
-  *           + Peripheral Control function
+  *           + Initialization and de-initialization functions
+  *           + Peripheral Control functions
   *
   @verbatim
   ==============================================================================
@@ -23,9 +23,7 @@
       (+) The clock for all peripherals is switched off, except the SRAM and FLASH.
       (+) All GPIOs are in input floating state, except the JTAG pins which
           are assigned to be used for debug purpose.
-
-    [..]
-      Once the device started from reset, the user application has to:
+    [..] Once the device started from reset, the user application has to:
       (+) Configure the clock source to be used to drive the System clock
           (if the application needs higher frequency/performance)
       (+) Configure the System clock frequency and Flash settings
@@ -33,7 +31,27 @@
       (+) Enable the clock for the peripheral(s) to be used
       (+) Configure the clock source(s) for peripherals which clocks are not
           derived from the System clock (RTC, ADC, I2C, USART, TIM, USB FS, etc..)
-  @endverbatim
+
+                      ##### RCC Limitations #####
+  ==============================================================================
+    [..]  
+      A delay between an RCC peripheral clock enable and the effective peripheral 
+      enabling should be taken into account in order to manage the peripheral read/write 
+      from/to registeres.
+      (+) This delay depends on the peripheral mapping.
+      (+) If peripheral is mapped on AHB: the delay is 2 AHB clock cycle 
+          after the clock enable bit is set on the hardware register
+      (+) If peripheral is mapped on APB: the delay is 2 APB clock cycle 
+          after the clock enable bit is set on the hardware register
+
+    [..]  
+      Possible Workarounds:
+      (#) Enable the peripheral clock sometimes before the peripheral read/write 
+          register is required.
+      (#) For AHB peripheral, insert two dummy read to the peripheral register.
+      (#) For APB peripheral, insert a dummy read to the peripheral register.
+  
+@endverbatim
   ******************************************************************************
   * @attention
   *
