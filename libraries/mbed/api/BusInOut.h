@@ -73,6 +73,18 @@ public:
      */
     void mode(PinMode pull);
 
+    /** Binary mask of bus pins connected to actual pins (not NC pins)
+     *  If bus pin is in NC state make corresponding bit will be cleared (set to 0), else bit will be set to 1
+     *
+     *  @returns
+     *    Binary mask of connected pins
+     */
+    int mask() {
+        return _nc_mask;
+    }
+
+    static DigitalInOut dinout_dummy;
+
 #ifdef MBED_OPERATORS
      /** A shorthand for write()
      */
@@ -87,10 +99,15 @@ public:
 protected:
     DigitalInOut* _pin[16];
 
+    /** Mask of NC pins, if bit [n] bit is set to 1, [n] pin in bus is in NC state
+     */
+    int _nc_mask;
+
     /* disallow copy constructor and assignment operators */
 private:
     BusInOut(const BusInOut&);
     BusInOut & operator = (const BusInOut&);
+    DigitalInOut& operator[] (unsigned int index);
 };
 
 } // namespace mbed
