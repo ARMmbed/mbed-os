@@ -2646,19 +2646,19 @@ void HAL_CRYPEx_GCMCCM_IRQHandler(CRYP_HandleTypeDef *hcryp)
   switch(CRYP->CR & CRYP_CR_ALGOMODE_DIRECTION)
   {    
   case CRYP_CR_ALGOMODE_AES_GCM_ENCRYPT:
-    HAL_CRYPEx_AESGCM_Encrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYPEx_AESGCM_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_GCM_DECRYPT:
-    HAL_CRYPEx_AESGCM_Decrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYPEx_AESGCM_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CCM_ENCRYPT:
-    HAL_CRYPEx_AESCCM_Encrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYPEx_AESCCM_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CCM_DECRYPT:
-    HAL_CRYPEx_AESCCM_Decrypt_IT(hcryp, NULL, 0, NULL);
+    HAL_CRYPEx_AESCCM_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
     break;
     
   default:
