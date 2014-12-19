@@ -51,7 +51,6 @@ public:
      */
     void write(int value);
 
-
     /** Read the value currently output on the bus
      *
      *  @returns
