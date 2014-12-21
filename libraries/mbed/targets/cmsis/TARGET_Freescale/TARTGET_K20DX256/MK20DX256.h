@@ -844,13 +844,12 @@ typedef struct {
   struct {                                         /* offset: 0x0, array step: 0x2 */
     __IO uint8_t DATL;                               /**< DAC Data Low Register, array offset: 0x0, array step: 0x2 */
     __IO uint8_t DATH;                               /**< DAC Data High Register, array offset: 0x1, array step: 0x2 */
-  } DAT[2];
-       uint8_t RESERVED_0[28];
+  } DAT[16];
   __IO uint8_t SR;                                 /**< DAC Status Register, offset: 0x20 */
   __IO uint8_t C0;                                 /**< DAC Control Register, offset: 0x21 */
   __IO uint8_t C1;                                 /**< DAC Control Register 1, offset: 0x22 */
   __IO uint8_t C2;                                 /**< DAC Control Register 2, offset: 0x23 */
-} DAC_Type;
+} DAC_Type, *DAC_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
    -- DAC Register Masks
@@ -874,11 +873,15 @@ typedef struct {
 #define DAC_SR_DACBFRPBF_SHIFT                   0
 #define DAC_SR_DACBFRPTF_MASK                    0x2u
 #define DAC_SR_DACBFRPTF_SHIFT                   1
+#define DAC_SR_DACBFWMF_MASK                     0x4u
+#define DAC_SR_DACBFWMF_SHIFT                    2
 /* C0 Bit Fields */
 #define DAC_C0_DACBBIEN_MASK                     0x1u
 #define DAC_C0_DACBBIEN_SHIFT                    0
 #define DAC_C0_DACBTIEN_MASK                     0x2u
 #define DAC_C0_DACBTIEN_SHIFT                    1
+#define DAC_C0_DACBWIEN_MASK                     0x4u
+#define DAC_C0_DACBWIEN_SHIFT                    2
 #define DAC_C0_LPEN_MASK                         0x8u
 #define DAC_C0_LPEN_SHIFT                        3
 #define DAC_C0_DACSWTRG_MASK                     0x10u
@@ -892,15 +895,21 @@ typedef struct {
 /* C1 Bit Fields */
 #define DAC_C1_DACBFEN_MASK                      0x1u
 #define DAC_C1_DACBFEN_SHIFT                     0
-#define DAC_C1_DACBFMD_MASK                      0x4u
-#define DAC_C1_DACBFMD_SHIFT                     2
+#define DAC_C1_DACBFMD_MASK                      0x6u
+#define DAC_C1_DACBFMD_SHIFT                     1
+#define DAC_C1_DACBFMD(x)                        (((uint8_t)(((uint8_t)(x))<<DAC_C1_DACBFMD_SHIFT))&DAC_C1_DACBFMD_MASK)
+#define DAC_C1_DACBFWM_MASK                      0x18u
+#define DAC_C1_DACBFWM_SHIFT                     3
+#define DAC_C1_DACBFWM(x)                        (((uint8_t)(((uint8_t)(x))<<DAC_C1_DACBFWM_SHIFT))&DAC_C1_DACBFWM_MASK)
 #define DAC_C1_DMAEN_MASK                        0x80u
 #define DAC_C1_DMAEN_SHIFT                       7
 /* C2 Bit Fields */
-#define DAC_C2_DACBFUP_MASK                      0x1u
+#define DAC_C2_DACBFUP_MASK                      0xFu
 #define DAC_C2_DACBFUP_SHIFT                     0
-#define DAC_C2_DACBFRP_MASK                      0x10u
+#define DAC_C2_DACBFUP(x)                        (((uint8_t)(((uint8_t)(x))<<DAC_C2_DACBFUP_SHIFT))&DAC_C2_DACBFUP_MASK)
+#define DAC_C2_DACBFRP_MASK                      0xF0u
 #define DAC_C2_DACBFRP_SHIFT                     4
+#define DAC_C2_DACBFRP(x)                        (((uint8_t)(((uint8_t)(x))<<DAC_C2_DACBFRP_SHIFT))&DAC_C2_DACBFRP_MASK)
 
 /**
  * @}
@@ -4100,7 +4109,9 @@ typedef struct {
   __IO uint32_t SOPT7;                             /**< System Options Register 7, offset: 0x1018 */
        uint8_t RESERVED_3[8];
   __I  uint32_t SDID;                              /**< System Device Identification Register, offset: 0x1024 */
-       uint8_t RESERVED_4[12];
+  __IO uint32_t SCGC1;                             /**< System Clock Gating Control Register 1, offset: 0x1028 */
+  __IO uint32_t SCGC2;                             /**< System Clock Gating Control Register 2, offset: 0x102C */
+  __IO uint32_t SCGC3;                             /**< System Clock Gating Control Register 3, offset: 0x1030 */
   __IO uint32_t SCGC4;                             /**< System Clock Gating Control Register 4, offset: 0x1034 */
   __IO uint32_t SCGC5;                             /**< System Clock Gating Control Register 5, offset: 0x1038 */
   __IO uint32_t SCGC6;                             /**< System Clock Gating Control Register 6, offset: 0x103C */
@@ -4163,17 +4174,28 @@ typedef struct {
 #define SIM_SOPT4_FTM0FLT0_SHIFT                 0
 #define SIM_SOPT4_FTM0FLT1_MASK                  0x2u
 #define SIM_SOPT4_FTM0FLT1_SHIFT                 1
+#define SIM_SOPT4_FTM0FLT2_MASK                  0x4u
+#define SIM_SOPT4_FTM0FLT2_SHIFT                 2
 #define SIM_SOPT4_FTM1FLT0_MASK                  0x10u
 #define SIM_SOPT4_FTM1FLT0_SHIFT                 4
+#define SIM_SOPT4_FTM2FLT0_MASK                  0x100u
+#define SIM_SOPT4_FTM2FLT0_SHIFT                 8
 #define SIM_SOPT4_FTM1CH0SRC_MASK                0xC0000u
 #define SIM_SOPT4_FTM1CH0SRC_SHIFT               18
 #define SIM_SOPT4_FTM1CH0SRC(x)                  (((uint32_t)(((uint32_t)(x))<<SIM_SOPT4_FTM1CH0SRC_SHIFT))&SIM_SOPT4_FTM1CH0SRC_MASK)
+#define SIM_SOPT4_FTM2CH0SRC_MASK                0x300000u
+#define SIM_SOPT4_FTM2CH0SRC_SHIFT               20
+#define SIM_SOPT4_FTM2CH0SRC(x)                  (((uint32_t)(((uint32_t)(x))<<SIM_SOPT4_FTM2CH0SRC_SHIFT))&SIM_SOPT4_FTM2CH0SRC_MASK)
 #define SIM_SOPT4_FTM0CLKSEL_MASK                0x1000000u
 #define SIM_SOPT4_FTM0CLKSEL_SHIFT               24
 #define SIM_SOPT4_FTM1CLKSEL_MASK                0x2000000u
 #define SIM_SOPT4_FTM1CLKSEL_SHIFT               25
+#define SIM_SOPT4_FTM2CLKSEL_MASK                0x4000000u
+#define SIM_SOPT4_FTM2CLKSEL_SHIFT               26
 #define SIM_SOPT4_FTM0TRG0SRC_MASK               0x10000000u
 #define SIM_SOPT4_FTM0TRG0SRC_SHIFT              28
+#define SIM_SOPT4_FTM0TRG1SRC_MASK               0x20000000u
+#define SIM_SOPT4_FTM0TRG1SRC_SHIFT              29
 /* SOPT5 Bit Fields */
 #define SIM_SOPT5_UART0TXSRC_MASK                0x1u
 #define SIM_SOPT5_UART0TXSRC_SHIFT               0
@@ -4185,25 +4207,6 @@ typedef struct {
 #define SIM_SOPT5_UART1RXSRC_MASK                0xC0u
 #define SIM_SOPT5_UART1RXSRC_SHIFT               6
 #define SIM_SOPT5_UART1RXSRC(x)                  (((uint32_t)(((uint32_t)(x))<<SIM_SOPT5_UART1RXSRC_SHIFT))&SIM_SOPT5_UART1RXSRC_MASK)
-/* SCGC6 Bit Fields */
-#define SIM_SCGC6_FTF_MASK                       0x1u
-#define SIM_SCGC6_FTF_SHIFT                      0
-#define SIM_SCGC6_DMAMUX_MASK                    0x2u
-#define SIM_SCGC6_DMAMUX_SHIFT                   1
-#define SIM_SCGC6_PIT_MASK                       0x800000u
-#define SIM_SCGC6_PIT_SHIFT                      23
-#define SIM_SCGC6_TPM0_MASK                      0x1000000u
-#define SIM_SCGC6_TPM0_SHIFT                     24
-#define SIM_SCGC6_TPM1_MASK                      0x2000000u
-#define SIM_SCGC6_TPM1_SHIFT                     25
-#define SIM_SCGC6_TPM2_MASK                      0x4000000u
-#define SIM_SCGC6_TPM2_SHIFT                     26
-#define SIM_SCGC6_ADC0_MASK                      0x8000000u
-#define SIM_SCGC6_ADC0_SHIFT                     27
-#define SIM_SCGC6_RTC_MASK                       0x20000000u
-#define SIM_SCGC6_RTC_SHIFT                      29
-#define SIM_SCGC6_DAC0_MASK                      0x80000000u
-#define SIM_SCGC6_DAC0_SHIFT                     31
 /* SOPT7 Bit Fields */
 #define SIM_SOPT7_ADC0TRGSEL_MASK                0xFu
 #define SIM_SOPT7_ADC0TRGSEL_SHIFT               0
@@ -4212,6 +4215,13 @@ typedef struct {
 #define SIM_SOPT7_ADC0PRETRGSEL_SHIFT            4
 #define SIM_SOPT7_ADC0ALTTRGEN_MASK              0x80u
 #define SIM_SOPT7_ADC0ALTTRGEN_SHIFT             7
+#define SIM_SOPT7_ADC1TRGSEL_MASK                0xF00u
+#define SIM_SOPT7_ADC1TRGSEL_SHIFT               8
+#define SIM_SOPT7_ADC1TRGSEL(x)                  (((uint32_t)(((uint32_t)(x))<<SIM_SOPT7_ADC1TRGSEL_SHIFT))&SIM_SOPT7_ADC1TRGSEL_MASK)
+#define SIM_SOPT7_ADC1PRETRGSEL_MASK             0x1000u
+#define SIM_SOPT7_ADC1PRETRGSEL_SHIFT            12
+#define SIM_SOPT7_ADC1ALTTRGEN_MASK              0x8000u
+#define SIM_SOPT7_ADC1ALTTRGEN_SHIFT             15
 /* SDID Bit Fields */
 #define SIM_SDID_PINID_MASK                      0xFu
 #define SIM_SDID_PINID_SHIFT                     0
@@ -4222,6 +4232,14 @@ typedef struct {
 #define SIM_SDID_REVID_MASK                      0xF000u
 #define SIM_SDID_REVID_SHIFT                     12
 #define SIM_SDID_REVID(x)                        (((uint32_t)(((uint32_t)(x))<<SIM_SDID_REVID_SHIFT))&SIM_SDID_REVID_MASK)
+/* SCGC2 Bit Fields */
+#define SIM_SCGC2_DAC0_MASK                      0x1000u
+#define SIM_SCGC2_DAC0_SHIFT                     12
+/* SCGC3 Bit Fields */
+#define SIM_SCGC3_FTM2_MASK                      0x1000000u
+#define SIM_SCGC3_FTM2_SHIFT                     24
+#define SIM_SCGC3_ADC1_MASK                      0x8000000u
+#define SIM_SCGC3_ADC1_SHIFT                     27
 /* SCGC4 Bit Fields */
 #define SIM_SCGC4_EWM_MASK                       0x2u
 #define SIM_SCGC4_EWM_SHIFT                      1
@@ -4229,6 +4247,8 @@ typedef struct {
 #define SIM_SCGC4_CMT_SHIFT                      2
 #define SIM_SCGC4_I2C0_MASK                      0x40u
 #define SIM_SCGC4_I2C0_SHIFT                     6
+#define SIM_SCGC4_I2C1_MASK                      0x80u
+#define SIM_SCGC4_I2C1_SHIFT                     7
 #define SIM_SCGC4_UART0_MASK                     0x400u
 #define SIM_SCGC4_UART0_SHIFT                    10
 #define SIM_SCGC4_UART1_MASK                     0x800u
@@ -4261,8 +4281,12 @@ typedef struct {
 #define SIM_SCGC6_FTFL_SHIFT                     0
 #define SIM_SCGC6_DMAMUX_MASK                    0x2u
 #define SIM_SCGC6_DMAMUX_SHIFT                   1
+#define SIM_SCGC6_FLEXCAN0_MASK                  0x10u
+#define SIM_SCGC6_FLEXCAN0_SHIFT                 4
 #define SIM_SCGC6_SPI0_MASK                      0x1000u
 #define SIM_SCGC6_SPI0_SHIFT                     12
+#define SIM_SCGC6_SPI1_MASK                      0x2000u
+#define SIM_SCGC6_SPI1_SHIFT                     13
 #define SIM_SCGC6_I2S_MASK                       0x8000u
 #define SIM_SCGC6_I2S_SHIFT                      15
 #define SIM_SCGC6_CRC_MASK                       0x40000u
@@ -6005,4 +6029,5 @@ typedef struct {
 #endif  /* #if !defined(MK20D5_H_) */
 
 /* MK20D5.h, eof. */
+
 
