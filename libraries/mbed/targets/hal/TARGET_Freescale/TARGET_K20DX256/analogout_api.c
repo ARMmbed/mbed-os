@@ -18,20 +18,20 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
- //#include "PeripheralNames.h"
+#include "PeripheralNames.h"
 
 #define RANGE_12BIT     0xFFF
 
 static const PinMap PinMap_DAC[] = {
-    {PTE30 , DAC0_OUT, 0},
-    {NC    , NC   , 0}
+    {DAC0_OUT, DAC_0, 0},
+    {NC      , NC   , 0}
 };
 
 void analogout_init(dac_t *obj, PinName pin) {
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 
-    SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;
+    SIM->SCGC2 |= SIM_SCGC2_DAC0_MASK;
 
     uint32_t port = (uint32_t)pin >> PORT_SHIFT;
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
@@ -41,10 +41,9 @@ void analogout_init(dac_t *obj, PinName pin) {
 
     DAC0->C1 = DAC_C1_DACBFMD_MASK;     // One-Time Scan Mode
 
-    DAC0->C0 = DAC_C0_DACEN_MASK        // Enable
-             | DAC_C0_DACSWTRG_MASK;    // Software Trigger
-
-    pinmap_pinout(pin, PinMap_DAC);
+    DAC0->C0 = DAC_C0_DACEN_MASK      // Enable
+             | DAC_C0_DACSWTRG_MASK   // Software Trigger
+             | DAC_C0_DACRFS_MASK;    // VDDA selected
 
     analogout_write_u16(obj, 0);
 }
