@@ -37,7 +37,8 @@
 
 ADC_HandleTypeDef AdcHandle;
 
-int adc_inited = 0;
+int adc1_inited = 0;
+int adc2_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -51,13 +52,16 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
-
-        // Enable ADC clock
-        if (obj->adc == ADC_1) __ADC1_CLK_ENABLE();
-        if (obj->adc == ADC_2) __ADC2_CLK_ENABLE();
+    // The ADC initialization is done only once for each ADC
+    if ((adc1_inited == 0) || (adc2_inited == 0)) {
+        if (obj->adc == ADC_1) {
+            __ADC12_CLK_ENABLE();
+            adc1_inited = 1;
+        }
+        if (obj->adc == ADC_2) {
+            __ADC12_CLK_ENABLE();
+            adc2_inited = 1;
+        }
 
         // Configure ADC
         AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
