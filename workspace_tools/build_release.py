@@ -75,6 +75,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NRF51_DONGLE', ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),
     ('ARCH_BLE',     ('ARM', 'GCC_ARM')),
+    ('BLE_SMURFS',     ('ARM', 'GCC_ARM')),
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
@@ -122,4 +123,3 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
-

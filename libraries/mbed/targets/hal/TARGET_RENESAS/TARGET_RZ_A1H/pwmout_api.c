@@ -73,6 +73,8 @@ static __IO uint16_t *PWM_MATCH[] = {
 
 static uint16_t init_period_ch1 = 0;
 static uint16_t init_period_ch2 = 0;
+static int32_t  period_ch1 = 1;
+static int32_t  period_ch2 = 1;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
@@ -207,6 +209,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
         // Counter Start
         PWMPWCR_2_BYTE_L |= 0x08;
+
+        // Save for future use
+        period_ch2 = us;
     } else {
         wk_last_cycle    = PWMPWCYR_1 & 0x03ff;
         PWMPWCR_1_BYTE_L = 0xc0 | wk_cks;
@@ -220,10 +225,10 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
         // Counter Start
         PWMPWCR_1_BYTE_L |= 0x08;
-    }
 
-    // Save for future use
-    obj->period = us;
+        // Save for future use
+        period_ch1 = us;
+    }
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -235,6 +240,17 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    float value = (float)us / (float)obj->period;
+    float value = 0;
+
+    if (obj->ch == 2) {
+        if (period_ch2 != 0) {
+            value = (float)us / (float)period_ch2;
+        }
+    } else {
+        if (period_ch1 != 0) {
+            value = (float)us / (float)period_ch1;
+        }
+    }
+
     pwmout_write(obj, value);
 }

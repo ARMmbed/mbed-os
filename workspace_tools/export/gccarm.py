@@ -69,6 +69,7 @@ class GccArm(Exporter):
         'NUCLEO_L152RE',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'BLE_SMURFS',
     ]
 
     DOT_IN_RELATIVE_PATH = True
