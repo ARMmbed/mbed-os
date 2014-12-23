@@ -29,7 +29,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td>&#10003;</td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -39,7 +39,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -49,7 +49,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td>&#10003;</td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -59,7 +59,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td>&#10003;</td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -69,7 +69,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -79,7 +79,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -89,7 +89,7 @@ Exporter Toolchain/Platform Support
     <td>&#10003;</td>
     <td></td>
     <td>&#10003;</td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -99,7 +99,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -109,7 +109,7 @@ Exporter Toolchain/Platform Support
     <td>&#10003;</td>
     <td></td>
     <td>&#10003;</td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -119,7 +119,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td>&#10003;</td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
     <tr>
@@ -129,7 +129,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -139,7 +139,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -149,7 +149,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
     <tr>
@@ -159,7 +159,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
   <tr>
@@ -179,7 +179,7 @@ Exporter Toolchain/Platform Support
     <td></td>
     <td></td>
     <td></td>
-    <td></td>
+    <td>&#10003;</td>
     <td>&#10003;</td>
   </tr>
     <tr>
