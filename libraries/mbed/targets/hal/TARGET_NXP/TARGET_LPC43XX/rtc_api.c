@@ -35,10 +35,22 @@
  * The RTC may already be running, so we should set it up
  * without impacting if it is the case
  */
-void rtc_init(void) {
-    LPC_RTC->CCR = 0x00;
 
-    LPC_RTC->CCR |= 1 << 0; // Ensure the RTC is enabled
+static int rtc_inited = 0;
+
+void rtc_init(void) {
+    if (rtc_inited)
+        return;
+    rtc_inited = 1;
+
+    // Enable 1kHz output of 32kHz oscillator
+    LPC_CREG->CREG0 &= ~((1 << 3) | (1 << 2));
+    LPC_CREG->CREG0 |= (0x03 << 6) | (1 << 1) | (1 << 0);
+
+    // Enable RTC
+    do {
+        LPC_RTC->CCR |= 1 << 0;
+    } while ((LPC_RTC->CCR & 1) == 0);
 }
 
 void rtc_free(void) {
