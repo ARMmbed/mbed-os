@@ -6,7 +6,7 @@ MEMORY
 {
   VECTORS (rx) : ORIGIN = 0x00000000, LENGTH = 0x00000410
   FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 32K - 0x00000410
-  RAM (rwx) : ORIGIN = 0x1FFFFC00, LENGTH = 4K - 0xC0
+  RAM (rwx) : ORIGIN = 0x1FFFFCC0, LENGTH = 4K - 0xC0
 }
 
 /* Linker script to place sections and symbol values. Should be used together
