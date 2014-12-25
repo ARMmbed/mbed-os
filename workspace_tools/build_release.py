@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -32,6 +33,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
+    ('LPC2460',      ('ARM', 'GCC_ARM')),
     ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM',)),
     ('SSCI824',      ('uARM',)),

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -26,7 +27,7 @@ from workspace_tools.utils import mkdir, cmd
 from workspace_tools.export import export, setup_user_prj
 
 
-USR_PRJ_NAME = "usr_prj"
+USR_PRJ_NAME = "myapp"
 USER_PRJ = join(EXPORT_WORKSPACE, USR_PRJ_NAME)
 USER_SRC = join(USER_PRJ, "src")
 
@@ -74,8 +75,7 @@ def test_export(toolchain, target, expected_error=None):
 
 if __name__ == '__main__':
     setup_test_user_prj()
-
-    for toolchain, target in [
+    exportlist = [
             ('emblocks', 'LPC1768'),
             ('emblocks', 'LPC1549'),
             ('emblocks', 'LPC1114'),
@@ -147,6 +147,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC11U35_501'),
             ('gcc_arm', 'LPCCAPPUCCINO'),
             ('gcc_arm', 'LPC2368'),
+            ('gcc_arm', 'LPC2460'),
 
             ('gcc_arm', 'STM32F407'),
             ('gcc_arm', 'DISCO_F100RB'),
@@ -179,10 +180,12 @@ if __name__ == '__main__':
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
 
-            (None, None),
-        ]:
-        print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
-        test_export(toolchain, target)
+            (None, None) ]
+#   print exportlist
+    test_export('gcc_arm', 'LPC2460')
+    for (toolchain, target) in exportlist :
+	print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
+	test_export(toolchain, target)
 
     print "\n=== Test error messages ==="
     test_export('lpcxpresso', 'LPC11U24', expected_error='lpcxpresso')

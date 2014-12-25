@@ -48,6 +48,7 @@ class GccArm(Exporter):
         'NRF51822',
         'HRM1017',
         'LPC2368',
+        'LPC2460',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
         'MTS_GAMBIT',
