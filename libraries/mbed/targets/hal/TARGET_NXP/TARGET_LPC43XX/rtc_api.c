@@ -36,12 +36,10 @@
  * without impacting if it is the case
  */
 
-static int rtc_inited = 0;
-
 void rtc_init(void) {
-    if (rtc_inited)
+    // Return, if already enabled
+    if (LPC_RTC->CCR & 1)
         return;
-    rtc_inited = 1;
 
     // Enable 1kHz output of 32kHz oscillator
     LPC_CREG->CREG0 &= ~((1 << 3) | (1 << 2));
