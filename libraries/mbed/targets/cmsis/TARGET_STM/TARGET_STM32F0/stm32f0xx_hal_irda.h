@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   This file contains all the functions prototypes for the IRDA 
   *          firmware library.
   ******************************************************************************
@@ -44,7 +44,7 @@
  extern "C" {
 #endif
 
-#if !defined(STM32F030x6) && !defined(STM32F030x8) 
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) 
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -107,19 +107,6 @@ typedef enum
   HAL_IRDA_STATE_ERROR             = 0x04     /*!< Error */
 }HAL_IRDA_StateTypeDef;
 
-/** 
-  * @brief  HAL IRDA Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_IRDA_ERROR_NONE      = 0x00,    /*!< No error            */
-  HAL_IRDA_ERROR_PE        = 0x01,    /*!< Parity error        */
-  HAL_IRDA_ERROR_NE        = 0x02,    /*!< Noise error         */
-  HAL_IRDA_ERROR_FE        = 0x04,    /*!< frame error         */
-  HAL_IRDA_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_IRDA_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
-}HAL_IRDA_ErrorTypeDef;
-
 /**
   * @brief IRDA clock sources definition
   */
@@ -137,34 +124,35 @@ typedef enum
   */  
 typedef struct
 {
-  USART_TypeDef            *Instance;        /* USART registers base address       */
+  USART_TypeDef            *Instance;        /*!< USART registers base address       */
   
-  IRDA_InitTypeDef         Init;             /* IRDA communication parameters      */
+  IRDA_InitTypeDef         Init;             /*!< IRDA communication parameters      */
   
-  uint8_t                  *pTxBuffPtr;      /* Pointer to IRDA Tx transfer Buffer */
+  uint8_t                  *pTxBuffPtr;      /*!< Pointer to IRDA Tx transfer Buffer */
   
-  uint16_t                 TxXferSize;       /* IRDA Tx Transfer size              */
+  uint16_t                 TxXferSize;       /*!< IRDA Tx Transfer size              */
   
-  uint16_t                 TxXferCount;      /* IRDA Tx Transfer Counter           */
+  uint16_t                 TxXferCount;      /*!< IRDA Tx Transfer Counter           */
   
-  uint8_t                  *pRxBuffPtr;      /* Pointer to IRDA Rx transfer Buffer */
+  uint8_t                  *pRxBuffPtr;      /*!< Pointer to IRDA Rx transfer Buffer */
   
-  uint16_t                 RxXferSize;       /* IRDA Rx Transfer size              */
+  uint16_t                 RxXferSize;       /*!< IRDA Rx Transfer size              */
   
-  uint16_t                 RxXferCount;      /* IRDA Rx Transfer Counter           */
+  uint16_t                 RxXferCount;      /*!< IRDA Rx Transfer Counter           */
   
-  uint16_t                 Mask;             /* USART RX RDR register mask         */   
+  uint16_t                 Mask;             /*!< USART RX RDR register mask         */   
   
-  DMA_HandleTypeDef        *hdmatx;          /* IRDA Tx DMA Handle parameters      */
+  DMA_HandleTypeDef        *hdmatx;          /*!< IRDA Tx DMA Handle parameters      */
     
-  DMA_HandleTypeDef        *hdmarx;          /* IRDA Rx DMA Handle parameters      */
+  DMA_HandleTypeDef        *hdmarx;          /*!< IRDA Rx DMA Handle parameters      */
   
-  HAL_LockTypeDef          Lock;             /* Locking object                     */
+  HAL_LockTypeDef          Lock;             /*!< Locking object                     */
 
-  HAL_IRDA_StateTypeDef    State;            /* IRDA communication state           */
+  HAL_IRDA_StateTypeDef    State;            /*!< IRDA communication state           */
   
-  HAL_IRDA_ErrorTypeDef    ErrorCode;        /* IRDA Error code                    */
-  
+  __IO uint32_t            ErrorCode;        /*!< IRDA Error code
+                                                  This parameter can be a value of @ref IRDA_Error */
+
 }IRDA_HandleTypeDef;
 
 /** 
@@ -188,6 +176,19 @@ typedef enum
 /** @defgroup IRDA_Exported_Constants  IRDA Exported constants
   * @{
   */
+
+/** @defgroup IRDA_Error IRDA Error 
+  * @{
+  */ 
+#define HAL_IRDA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error            */
+#define HAL_IRDA_ERROR_PE        ((uint32_t)0x00000001)    /*!< Parity error        */
+#define HAL_IRDA_ERROR_NE        ((uint32_t)0x00000002)    /*!< Noise error         */
+#define HAL_IRDA_ERROR_FE        ((uint32_t)0x00000004)    /*!< frame error         */
+#define HAL_IRDA_ERROR_ORE       ((uint32_t)0x00000008)    /*!< Overrun error       */
+#define HAL_IRDA_ERROR_DMA       ((uint32_t)0x00000010)    /*!< DMA transfer error  */
+/**
+  * @}
+  */ 
 
 /** @defgroup IRDA_Parity IRDA Parity 
   * @{
@@ -551,7 +552,7 @@ typedef enum
  * @}
  */
 
-/* Include IRDA HAL Extension module */
+/* Include IRDA HAL Extended module */
 #include "stm32f0xx_hal_irda_ex.h"  
 
 /* Exported functions --------------------------------------------------------*/
@@ -618,7 +619,7 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
   * @}
   */
 
-#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */  
+#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)  */  
   
 #ifdef __cplusplus
 }

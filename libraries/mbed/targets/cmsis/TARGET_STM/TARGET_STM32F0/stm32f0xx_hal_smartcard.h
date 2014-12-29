@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if !defined(STM32F030x4) && !defined(STM32F030x6) && !defined(STM32F030x8) 
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) 
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -106,7 +106,7 @@ typedef struct
   
   uint16_t NACKEnable;                /*!< Specifies whether the SmartCard NACK transmission is enabled
                                            in case of parity error.
-                                           This parameter can be a value of @ref SMARTCARD_NACK_State */ 
+                                           This parameter can be a value of @ref SMARTCARD_NACK_Enable */ 
                                            
   uint32_t TimeOutEnable;             /*!< Specifies whether the receiver timeout is enabled. 
                                             This parameter can be a value of @ref SMARTCARD_Timeout_Enable*/
@@ -173,20 +173,6 @@ typedef enum
 }HAL_SMARTCARD_StateTypeDef;
 
 /** 
-  * @brief  HAL SMARTCARD Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_SMARTCARD_ERROR_NONE      = 0x00,    /*!< No error                */
-  HAL_SMARTCARD_ERROR_PE        = 0x01,    /*!< Parity error            */
-  HAL_SMARTCARD_ERROR_NE        = 0x02,    /*!< Noise error             */
-  HAL_SMARTCARD_ERROR_FE        = 0x04,    /*!< frame error             */
-  HAL_SMARTCARD_ERROR_ORE       = 0x08,    /*!< Overrun error           */
-  HAL_SMARTCARD_ERROR_DMA       = 0x10,    /*!< DMA transfer error      */
-  HAL_SMARTCARD_ERROR_RTO       = 0x20     /*!< Receiver TimeOut error  */  
-}HAL_SMARTCARD_ErrorTypeDef;
-
-/** 
   * @brief  SMARTCARD clock sources  
   */
 typedef enum
@@ -203,33 +189,34 @@ typedef enum
   */  
 typedef struct
 {
-  USART_TypeDef                   *Instance;        /* USART registers base address                          */
+  USART_TypeDef                   *Instance;        /*!< USART registers base address                          */
   
-  SMARTCARD_InitTypeDef           Init;             /* SmartCard communication parameters                    */
+  SMARTCARD_InitTypeDef           Init;             /*!< SmartCard communication parameters                    */
   
-  SMARTCARD_AdvFeatureInitTypeDef AdvancedInit;     /* SmartCard advanced features initialization parameters */
+  SMARTCARD_AdvFeatureInitTypeDef AdvancedInit;     /*!< SmartCard advanced features initialization parameters */
   
-  uint8_t                         *pTxBuffPtr;      /* Pointer to SmartCard Tx transfer Buffer               */
+  uint8_t                         *pTxBuffPtr;      /*!< Pointer to SmartCard Tx transfer Buffer               */
   
-  uint16_t                        TxXferSize;       /* SmartCard Tx Transfer size                            */
+  uint16_t                        TxXferSize;       /*!< SmartCard Tx Transfer size                            */
   
-  uint16_t                        TxXferCount;      /* SmartCard Tx Transfer Counter                         */
+  uint16_t                        TxXferCount;      /*!< SmartCard Tx Transfer Counter                         */
   
-  uint8_t                         *pRxBuffPtr;      /* Pointer to SmartCard Rx transfer Buffer               */
+  uint8_t                         *pRxBuffPtr;      /*!< Pointer to SmartCard Rx transfer Buffer               */
   
-  uint16_t                        RxXferSize;       /* SmartCard Rx Transfer size                            */
+  uint16_t                        RxXferSize;       /*!< SmartCard Rx Transfer size                            */
   
-  uint16_t                        RxXferCount;      /* SmartCard Rx Transfer Counter                         */
+  uint16_t                        RxXferCount;      /*!< SmartCard Rx Transfer Counter                         */
   
-  DMA_HandleTypeDef               *hdmatx;          /* SmartCard Tx DMA Handle parameters                    */
+  DMA_HandleTypeDef               *hdmatx;          /*!< SmartCard Tx DMA Handle parameters                    */
     
-  DMA_HandleTypeDef               *hdmarx;          /* SmartCard Rx DMA Handle parameters                    */
+  DMA_HandleTypeDef               *hdmarx;          /*!< SmartCard Rx DMA Handle parameters                    */
   
-  HAL_LockTypeDef                 Lock;             /* Locking object                                        */
+  HAL_LockTypeDef                 Lock;             /*!< Locking object                                        */
   
-  HAL_SMARTCARD_StateTypeDef      State;            /* SmartCard communication state                         */
+  HAL_SMARTCARD_StateTypeDef      State;            /*!< SmartCard communication state                         */
   
-  HAL_SMARTCARD_ErrorTypeDef      ErrorCode;        /* SmartCard Error code                                  */
+  __IO uint32_t                   ErrorCode;        /*!< SmartCard Error code                   
+                                                         This parameter can be a value of @ref SMARTCARD_Error */
   
 }SMARTCARD_HandleTypeDef;
 
@@ -240,6 +227,20 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup SMARTCARD_Exported_Constants  SMARTCARD Exported constants
   * @{
+  */
+
+/** @defgroup SMARTCARD_Error SMARTCARD Error 
+  * @{
+  */
+#define HAL_SMARTCARD_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error                */
+#define HAL_SMARTCARD_ERROR_PE        ((uint32_t)0x00000001)    /*!< Parity error            */
+#define HAL_SMARTCARD_ERROR_NE        ((uint32_t)0x00000002)    /*!< Noise error             */
+#define HAL_SMARTCARD_ERROR_FE        ((uint32_t)0x00000004)    /*!< frame error             */
+#define HAL_SMARTCARD_ERROR_ORE       ((uint32_t)0x00000008)    /*!< Overrun error           */
+#define HAL_SMARTCARD_ERROR_DMA       ((uint32_t)0x00000010)    /*!< DMA transfer error      */
+#define HAL_SMARTCARD_ERROR_RTO       ((uint32_t)0x00000020)    /*!< Receiver TimeOut error  */  
+/**
+  * @}
   */
 
 /** @defgroup SMARTCARD_Word_Length   SMARTCARD Word Length 
@@ -324,7 +325,8 @@ typedef struct
   * @}
   */  
 
-/** @defgroup SMARTCARD_NACK_State   SMARTCARD NACK State
+
+/** @defgroup SMARTCARD_NACK_Enable   SMARTCARD NACK Enable
   * @{
   */
 #define SMARTCARD_NACK_ENABLED          ((uint16_t)USART_CR3_NACK)
@@ -741,7 +743,7 @@ typedef struct
   * @}
   */ 
 
-/* Include SMARTCARD HAL Extension module */
+/* Include SMARTCARD HAL Extended module */
 #include "stm32f0xx_hal_smartcard_ex.h"  
 
                                  
@@ -804,7 +806,7 @@ uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsmartcard);
   * @}
   */
 
-#endif /* !defined(STM32F030x4) && !defined(STM32F030x6) && !defined(STM32F030x8) */  
+#endif /* !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) */  
   
 #ifdef __cplusplus
 }

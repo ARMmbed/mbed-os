@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   CAN HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:
@@ -101,6 +101,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
+#ifdef HAL_CAN_MODULE_ENABLED  
+  
+#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) 
+
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
   */
@@ -109,10 +113,6 @@
   * @brief CAN driver modules
   * @{
   */ 
-  
-#ifdef HAL_CAN_MODULE_ENABLED  
-  
-#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) 
   
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -169,7 +169,7 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   uint32_t tickstart = 0;
   
   /* Check CAN handle */
-  if(hcan == HAL_NULL)
+  if(hcan == NULL)
   {
      return HAL_ERROR;
   }
@@ -439,7 +439,7 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
 {
   /* Check CAN handle */
-  if(hcan == HAL_NULL)
+  if(hcan == NULL)
   {
      return HAL_ERROR;
   }
@@ -1384,16 +1384,17 @@ static HAL_StatusTypeDef CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONum
 /**
   * @}
   */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
  
 #endif /* defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) */
 
 #endif /* HAL_CAN_MODULE_ENABLED */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

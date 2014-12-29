@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_irda_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if !defined(STM32F030x6) && !defined(STM32F030x8) 
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) 
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -103,7 +103,7 @@
   * @retval IRDA clocking source, written in __CLOCKSOURCE__.
   */
 
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx)
+#if defined(STM32F031x6) || defined(STM32F038xx)
 #define __HAL_IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
      switch(__HAL_RCC_GET_USART1_SOURCE())                    \
@@ -125,8 +125,7 @@
         break;                                                \
      }                                                        \
   } while(0) 
-#elif defined (STM32F030x8) ||                                \
-      defined (STM32F042x6) || defined (STM32F048xx) ||       \
+#elif defined (STM32F042x6) || defined (STM32F048xx) ||       \
       defined (STM32F051x8) || defined (STM32F058xx)
 #define __HAL_IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
@@ -310,7 +309,7 @@
     }                                                         \
   } while(0)
   
-#endif /* defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) */
+#endif /* defined(STM32F031x6) || defined(STM32F038xx) */
   
   
 /** @brief  Computes the mask to apply to retrieve the received data
@@ -404,7 +403,7 @@
   * @}
   */ 
 
-#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */
+#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)  */
   
 #ifdef __cplusplus
 }

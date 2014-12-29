@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Extended PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -44,7 +44,7 @@
 
 #ifdef HAL_PCD_MODULE_ENABLED
 
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)|| defined(STM32F070x6)
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
@@ -65,7 +65,7 @@
   * @{
   */
 
-/** @defgroup PCDEx_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @defgroup PCDEx_Exported_Functions_Group2 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim
@@ -146,7 +146,7 @@ HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
   * @}
   */
 
-#endif /* STM32F042x6 || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F072xB || STM32F078xx || STM32F070xB || STM32F070x6 */
 
 #endif /* HAL_PCD_MODULE_ENABLED */
 

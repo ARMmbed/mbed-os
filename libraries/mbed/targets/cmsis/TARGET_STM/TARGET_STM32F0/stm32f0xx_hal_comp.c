@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -40,7 +40,7 @@
           (++) COMP_EXTI_LINE_COMP2_EVENT
 
 
-[..] Table 1. COMP Inputs for the STM32F05x and STM32F07x devices
+[..] Table 1. COMP Inputs for the STM32F05x, STM32F07x and STM32F09x devices
  +--------------------------------------------------+    
  |                 |                | COMP1 | COMP2 |
  |-----------------|----------------|---------------|
@@ -56,7 +56,7 @@
  |    Input        |                |       |       |
  +--------------------------------------------------+  
   
- [..] Table 2. COMP Outputs for the STM32F05x and STM32F07x devices
+ [..] Table 2. COMP Outputs for the STM32F05x, STM32F07x and STM32F09x devices
  +---------------+     
  | COMP1 | COMP2 |
  |-------|-------|
@@ -65,7 +65,7 @@
  |  PA11 |  PA12 |
  +---------------+
 
- [..] Table 3. COMP Outputs redirection to embedded timers for the STM32F05x and STM32F07x devices
+ [..] Table 3. COMP Outputs redirection to embedded timers for the STM32F05x, STM32F07x and STM32F09x devices
  +---------------------------------+     
  |     COMP1      |     COMP2      |
  |----------------|----------------|
@@ -87,7 +87,7 @@
             ##### How to use this driver #####
 ================================================================================
   [..]
-      This driver provides functions to configure and program the Comparators of STM32F05x and STM32F07x devices.
+      This driver provides functions to configure and program the Comparators of STM32F05x, STM32F07x and STM32F09x devices.
 
       To use the comparator, perform the following steps:
   
@@ -143,12 +143,14 @@
   ******************************************************************************  
   */
 
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f0xx_hal.h"
+
+#ifdef HAL_COMP_MODULE_ENABLED
+
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined (STM32F098xx)
-
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_hal.h"
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
@@ -158,8 +160,6 @@
   * @brief COMP HAL module driver
   * @{
   */
-
-#ifdef HAL_COMP_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -215,7 +215,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -297,7 +297,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -378,7 +378,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -418,7 +418,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -559,7 +559,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   uint32_t regshift = COMP_CSR_COMP1_SHIFT;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -657,10 +657,10 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
   * @param  hcomp : COMP handle
   * @retval HAL state
   */
-HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
+uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == HAL_NULL)
+  if(hcomp == NULL)
   {
     return HAL_COMP_STATE_RESET;
   }
@@ -678,7 +678,6 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
   * @}
   */
 
-#endif /* HAL_COMP_MODULE_ENABLED */
 /**
   * @}
   */
@@ -690,5 +689,7 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || defined (STM32F098xx) */
+
+#endif /* HAL_COMP_MODULE_ENABLED */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

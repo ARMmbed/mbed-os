@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smbus.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   SMBUS HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -12,7 +12,6 @@
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State and Errors functions
-  *         
   @verbatim
   ==============================================================================
                         ##### How to use this driver #####
@@ -237,7 +236,7 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
 HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 { 
   /* Check the SMBUS handle allocation */
-  if(hsmbus == HAL_NULL)
+  if(hsmbus == NULL)
   {
     return HAL_ERROR;
   }
@@ -336,7 +335,7 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
 {
   /* Check the SMBUS handle allocation */
-  if(hsmbus == HAL_NULL)
+  if(hsmbus == NULL)
   {
     return HAL_ERROR;
   }
@@ -464,7 +463,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint
 
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == HAL_NULL)
+    if(hsmbus->pBuffPtr == NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -553,7 +552,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint1
     
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == HAL_NULL)
+    if(hsmbus->pBuffPtr == NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -680,7 +679,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -771,7 +770,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1280,7 +1279,7 @@ __weak void HAL_SMBUS_SlaveListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   * @param  hsmbus : SMBUS handle
   * @retval HAL state
   */
-HAL_SMBUS_StateTypeDef HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus)
+uint32_t HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus)
 {
   return hsmbus->State;
 }
@@ -1462,7 +1461,7 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
     if(hsmbus->XferCount == 0)
     {
       /* Specific use case for Quick command */
-      if(hsmbus->pBuffPtr == HAL_NULL)
+      if(hsmbus->pBuffPtr == NULL)
       {
         /* Generate a Stop command */
         hsmbus->Instance->CR2 |= I2C_CR2_STOP;
