@@ -119,13 +119,6 @@ def setup_user_prj(user_dir, prj_path, lib_paths=None):
         for lib_path in lib_paths:
             copy_tree(lib_path, join(user_lib, basename(lib_path)))
 
-def get_unique_supported_ides():
-    """ Get list of all unique IDEs supported by targets """
-    unique_supported_ides = []
-    for key in EXPORTERS.iterkeys():
-        unique_supported_ides.append(key)
-    return unique_supported_ides
-
 def mcu_ide_matrix(verbose_html=False, platform_filter=None):
     """  Shows target map using prettytable """
     supported_ides = []
