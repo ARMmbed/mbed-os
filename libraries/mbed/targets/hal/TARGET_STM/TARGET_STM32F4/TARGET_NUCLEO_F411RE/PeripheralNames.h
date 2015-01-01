@@ -27,35 +27,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "sleep_api.h"
-
-#if DEVICE_SLEEP
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void sleep(void)
-{
-    TimMasterHandle.Instance = TIM5;
+typedef enum {
+    ADC_1 = (int)ADC1_BASE
+} ADCName;
 
-    // Disable HAL tick interrupt
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    UART_6 = (int)USART6_BASE
+} UARTName;
 
-    // Request to enter SLEEP mode
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+#define STDIO_UART_TX  PA_2
+#define STDIO_UART_RX  PA_3
+#define STDIO_UART     UART_2
 
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE,
+    SPI_3 = (int)SPI3_BASE,
+    SPI_4 = (int)SPI4_BASE,
+    SPI_5 = (int)SPI5_BASE
+} SPIName;
+
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
+    I2C_3 = (int)I2C3_BASE
+} I2CName;
+
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
+    PWM_3  = (int)TIM3_BASE,
+    PWM_4  = (int)TIM4_BASE,
+    PWM_5  = (int)TIM5_BASE,
+    PWM_9  = (int)TIM9_BASE,
+    PWM_10 = (int)TIM10_BASE,
+    PWM_11 = (int)TIM11_BASE
+} PWMName;
+
+#ifdef __cplusplus
 }
-
-void deepsleep(void)
-{
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-}
+#endif
 
 #endif

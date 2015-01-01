@@ -89,6 +89,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         __SPI3_CLK_ENABLE();
     }
 
+#if defined SPI4_BASE
+    if (obj->spi == SPI_4) {
+        __SPI4_CLK_ENABLE();
+    }
+#endif
+
+#if defined SPI5_BASE
+    if (obj->spi == SPI_5) {
+        __SPI5_CLK_ENABLE();
+    }
+#endif
+
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -138,6 +150,22 @@ void spi_free(spi_t *obj)
         __SPI3_CLK_DISABLE();
     }
 
+#if defined SPI4_BASE
+    if (obj->spi == SPI_4) {
+        __SPI4_FORCE_RESET();
+        __SPI4_RELEASE_RESET();
+        __SPI4_CLK_DISABLE();
+    }
+#endif
+
+#if defined SPI5_BASE
+    if (obj->spi == SPI_5) {
+        __SPI5_FORCE_RESET();
+        __SPI5_RELEASE_RESET();
+        __SPI5_CLK_DISABLE();
+    }
+#endif
+
     // Configure GPIOs
     pin_function(obj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(obj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -186,6 +214,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
+#if defined(TARGET_STM32F401RE) || defined(TARGET_STM32F401VC)
     // Note: The frequencies are obtained with SPI1 clock = 84 MHz (APB2 clock)
     if (hz < 600000) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 330 kHz
@@ -204,6 +233,49 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 42000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 42 MHz
     }
+#elif defined(TARGET_STM32F411RE)
+    // Values depend of PCLK2: 100 MHz
+    if ((obj->spi == SPI_1) || (obj->spi == SPI_4) || (obj->spi == SPI_5)) {
+        if (hz < 700000) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 391 kHz
+        } else if ((hz >= 700000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 781 kHz
+        } else if ((hz >= 1000000) && (hz < 3000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_64;  // 1.56 MHz
+        } else if ((hz >= 3000000) && (hz < 6000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_32;  // 3.13 MHz
+        } else if ((hz >= 6000000) && (hz < 12000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_16;  // 6.25 MHz
+        } else if ((hz >= 12000000) && (hz < 25000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_8;   // 12.5 MHz
+        } else if ((hz >= 25000000) && (hz < 50000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_4;   // 25 MHz
+        } else { // >= 50000000
+            obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 50 MHz
+        }
+    }
+
+    // Values depend of PCLK1: 50 MHz
+    if ((obj->spi == SPI_2) || (obj->spi == SPI_3)) {
+        if (hz < 400000) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 195 kHz
+        } else if ((hz >= 400000) && (hz < 700000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 391 kHz
+        } else if ((hz >= 700000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_64;  // 781 MHz
+        } else if ((hz >= 1000000) && (hz < 3000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_32;  // 1.56 MHz
+        } else if ((hz >= 3000000) && (hz < 6000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_16;  // 3.13 MHz
+        } else if ((hz >= 6000000) && (hz < 12000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_8;   // 6.25 MHz
+        } else if ((hz >= 12000000) && (hz < 25000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_4;   // 12.5 MHz
+        } else { // >= 25000000
+            obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 25 MHz
+        }
+    }
+#endif
     init_spi(obj);
 }
 
