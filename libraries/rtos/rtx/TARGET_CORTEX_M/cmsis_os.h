@@ -121,11 +121,7 @@ used throughout the whole project.
 #    define WORDS_STACK_SIZE   128
 #endif
 
-#if defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
-#    define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*1)
-#else
-#    define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
-#endif
+#define DEFAULT_STACK_SIZE         (WORDS_STACK_SIZE*4)
 
 
 /// \note MUST REMAIN UNCHANGED: \b osFeature_xxx shall be consistent in every CMSIS-RTOS.

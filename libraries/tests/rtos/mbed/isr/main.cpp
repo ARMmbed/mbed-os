@@ -7,6 +7,17 @@
 #define QUEUE_PUT_ISR_VALUE     128
 #define QUEUE_PUT_THREAD_VALUE  127
 
+/*
+ * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
+ * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
+ * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
+ */
+#if defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#else
+    #define STACK_SIZE DEFAULT_STACK_SIZE
+#endif
+
 Queue<uint32_t, QUEUE_SIZE> queue;
 
 DigitalOut myled(LED1);
@@ -25,7 +36,7 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
-    Thread thread(queue_thread);
+    Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);
     int isr_puts_counter = 0;
