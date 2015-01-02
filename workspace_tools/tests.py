@@ -772,38 +772,37 @@ TESTS = [
     {
         "id": "USB_1", "description": "Mouse",
         "source_dir": join(TEST_DIR, "usb", "device", "basic"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_2", "description": "Keyboard",
         "source_dir": join(TEST_DIR, "usb", "device", "keyboard"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_3", "description": "Mouse_Keyboard",
         "source_dir": join(TEST_DIR, "usb", "device", "keyboard"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_4", "description": "Serial Port",
         "source_dir": join(TEST_DIR, "usb", "device", "serial"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_5", "description": "Generic HID",
         "source_dir": join(TEST_DIR, "usb", "device", "raw_hid"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_6", "description": "MIDI",
         "source_dir": join(TEST_DIR, "usb", "device", "midi"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
     {
         "id": "USB_7", "description": "AUDIO",
         "source_dir": join(TEST_DIR, "usb", "device", "audio"),
-        "dependencies": [MBED_LIBRARIES, USB_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, USB, USB_LIBRARIES],
     },
 
     # CMSIS DSP
