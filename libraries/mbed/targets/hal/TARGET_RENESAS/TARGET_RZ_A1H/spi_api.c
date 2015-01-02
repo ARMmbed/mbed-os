@@ -169,6 +169,8 @@ void spi_frequency(spi_t *obj, int hz) {
     uint32_t  pclk_base;
     uint32_t  div;
     uint32_t  brdv = 0;
+    uint32_t  hz_max;
+    uint32_t  hz_min;
     uint16_t  mask = 0x000c;
 
     /* set PCLK */
@@ -178,7 +180,9 @@ void spi_frequency(spi_t *obj, int hz) {
         pclk_base = CM0_RENESAS_RZ_A1_P1_CLK;
     }
 
-    if ((hz < (pclk_base / 2 / 256 / 8)) || (hz > (pclk_base / 2))) {
+    hz_min = pclk_base / 2 / 256 / 8;
+    hz_max = pclk_base / 2;
+    if ((hz < hz_min) || (hz > hz_max)) {
         error("Couldn't setup requested SPI frequency");
         return;
     }
