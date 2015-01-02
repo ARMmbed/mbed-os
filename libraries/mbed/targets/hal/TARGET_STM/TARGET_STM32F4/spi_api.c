@@ -233,7 +233,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 42000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 42 MHz
     }
-#elif defined(TARGET_STM32F411RE)
+#elif defined(TARGET_STM32F411RE) || defined(TARGET_STM32F429ZI)
     // Values depend of PCLK2: 100 MHz
     if ((obj->spi == SPI_1) || (obj->spi == SPI_4) || (obj->spi == SPI_5)) {
         if (hz < 700000) {
