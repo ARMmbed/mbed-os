@@ -27,31 +27,84 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "sleep_api.h"
-
-#if DEVICE_SLEEP
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
 #include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void sleep(void) {
-    TimMasterHandle.Instance = TIM5;
-    // Disable HAL tick interrupt
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
 
-    // Request to enter SLEEP mode
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;  
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+};
+
+struct dac_s {
+    DACName dac;
+    PinName channel;
+};
+
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity; 
+    PinName pin_tx;
+    PinName pin_rx;
+};
+
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+};
+
+struct i2c_s {
+    I2CName  i2c;
+    uint32_t slave;
+};
+
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t period;
+    uint32_t pulse;
+};
+
+#include "gpio_object.h"
+
+#ifdef __cplusplus
 }
-
-void deepsleep(void) {
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-}
+#endif
 
 #endif

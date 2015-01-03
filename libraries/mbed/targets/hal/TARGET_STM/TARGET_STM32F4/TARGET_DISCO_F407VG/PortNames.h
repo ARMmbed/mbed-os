@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
@@ -24,14 +25,28 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include "cmsis.h"
-#include "stm32f4xx_hal.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
-    HAL_Init();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {
+    PortA = 0,
+    PortB = 1,
+    PortC = 2,
+    PortD = 3,
+    PortE = 4,
+    PortF = 5,
+    PortG = 6,
+    PortH = 7,
+    PortI = 8
+} PortName;
+
+#ifdef __cplusplus
 }
+#endif
+#endif
