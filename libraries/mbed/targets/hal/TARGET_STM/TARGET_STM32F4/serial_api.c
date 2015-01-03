@@ -37,9 +37,9 @@
 #include <string.h>
 #include "PeripheralPins.h"
 
-#define UART_NUM (3)
+#define UART_NUM (6)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0};
 
 static uart_irq_handler irq_handler;
 
@@ -80,17 +80,37 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(obj->uart != (UARTName)NC);
 
     // Enable USART clock
-    if (obj->uart == UART_1) {
-        __USART1_CLK_ENABLE();
-        obj->index = 0;
-    }
-    if (obj->uart == UART_2) {
-        __USART2_CLK_ENABLE();
-        obj->index = 1;
-    }
-    if (obj->uart == UART_6) {
-        __USART6_CLK_ENABLE();
-        obj->index = 2;
+    switch (obj->uart) {
+        case UART_1:
+            __USART1_CLK_ENABLE();
+            obj->index = 0;
+            break;
+        case UART_2:
+            __USART2_CLK_ENABLE();
+            obj->index = 1;
+            break;
+#if defined(USART3_BASE)
+        case UART_3:
+            __USART3_CLK_ENABLE();
+            obj->index = 2;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case UART_4:
+            __UART4_CLK_ENABLE();
+            obj->index = 3;
+            break;
+#endif
+#if defined(UART5_BASE)
+        case UART_5:
+            __UART5_CLK_ENABLE();
+            obj->index = 4;
+            break;
+#endif
+        case UART_6:
+            __USART6_CLK_ENABLE();
+            obj->index = 5;
+            break;
     }
 
     // Configure the UART pins
@@ -124,22 +144,44 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 void serial_free(serial_t *obj)
 {
     // Reset UART and disable clock
-    if (obj->uart == UART_1) {
-        __USART1_FORCE_RESET();
-        __USART1_RELEASE_RESET();
-        __USART1_CLK_DISABLE();
+    switch (obj->uart) {
+        case UART_1:
+            __USART1_FORCE_RESET();
+            __USART1_RELEASE_RESET();
+            __USART1_CLK_DISABLE();
+            break;
+        case UART_2:
+            __USART2_FORCE_RESET();
+            __USART2_RELEASE_RESET();
+            __USART2_CLK_DISABLE();
+            break;
+#if defined(USART3_BASE)
+        case UART_3:
+            __USART3_FORCE_RESET();
+            __USART3_RELEASE_RESET();
+            __USART3_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART4_BASE)
+        case UART_4:
+            __UART4_FORCE_RESET();
+            __UART4_RELEASE_RESET();
+            __UART4_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART5_BASE)
+        case UART_5:
+            __UART5_FORCE_RESET();
+            __UART5_RELEASE_RESET();
+            __UART5_CLK_DISABLE();
+            break;
+#endif
+        case UART_6:
+            __USART6_FORCE_RESET();
+            __USART6_RELEASE_RESET();
+            __USART6_CLK_DISABLE();
+            break;
     }
-    if (obj->uart == UART_2) {
-        __USART2_FORCE_RESET();
-        __USART2_RELEASE_RESET();
-        __USART2_CLK_DISABLE();
-    }
-    if (obj->uart == UART_6) {
-        __USART6_FORCE_RESET();
-        __USART6_RELEASE_RESET();
-        __USART6_CLK_DISABLE();
-    }
-
     // Configure GPIOs
     pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(obj->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -213,9 +255,30 @@ static void uart2_irq(void)
     uart_irq(UART_2, 1);
 }
 
+#if defined(USART3_BASE)
+static void uart3_irq(void) 
+{
+    uart_irq(UART_3, 2);
+}
+#endif
+
+#if defined(UART4_BASE)
+static void uart4_irq(void) 
+{
+    uart_irq(UART_4, 3);
+}
+#endif
+
+#if defined(UART5_BASE)
+static void uart5_irq(void) 
+{
+    uart_irq(UART_5, 4);
+}
+#endif
+
 static void uart6_irq(void)
 {
-    uart_irq(UART_6, 2);
+    uart_irq(UART_6, 5);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
@@ -231,19 +294,38 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
-    if (obj->uart == UART_1) {
-        irq_n = USART1_IRQn;
-        vector = (uint32_t)&uart1_irq;
-    }
+    switch (obj->uart) {
+        case UART_1:
+            irq_n = USART1_IRQn;
+            vector = (uint32_t)&uart1_irq;
+            break;
 
-    if (obj->uart == UART_2) {
-        irq_n = USART2_IRQn;
-        vector = (uint32_t)&uart2_irq;
-    }
-
-    if (obj->uart == UART_6) {
-        irq_n = USART6_IRQn;
-        vector = (uint32_t)&uart6_irq;
+        case UART_2:
+            irq_n = USART2_IRQn;
+            vector = (uint32_t)&uart2_irq;
+            break;
+#if defined(USART3_BASE)
+        case UART_3:
+            irq_n = USART3_IRQn;
+            vector = (uint32_t)&uart3_irq;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case UART_4:
+            irq_n = UART4_IRQn;
+            vector = (uint32_t)&uart4_irq;
+            break;
+#endif
+#if defined(UART5_BASE)
+        case UART_5:
+            irq_n = UART5_IRQn;
+            vector = (uint32_t)&uart5_irq;
+            break;
+#endif
+        case UART_6:
+            irq_n = USART6_IRQn;
+            vector = (uint32_t)&uart6_irq;
+            break;
     }
 
     if (enable) {
