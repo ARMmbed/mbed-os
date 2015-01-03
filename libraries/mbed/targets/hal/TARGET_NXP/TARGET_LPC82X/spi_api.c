@@ -184,7 +184,7 @@ int spi_master_write(spi_t *obj, int value)
     return spi_read(obj);
 }
 
-static inline int spi_busy(spi_t *obj)
+int spi_busy(spi_t *obj)
 {
     // checking RXOV(Receiver Overrun interrupt flag)
     return obj->spi->STAT & (1 << 2);
