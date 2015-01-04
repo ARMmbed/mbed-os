@@ -250,7 +250,7 @@ class LPC824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM", "GCC_ARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM","GCC_CR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True

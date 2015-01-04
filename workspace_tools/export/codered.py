@@ -34,6 +34,7 @@ class CodeRed(Exporter):
         'LPC1549',
         'LPC11U68',
         'LPCCAPPUCCINO',
+        'LPC824',
     ]
 
     def generate(self):
