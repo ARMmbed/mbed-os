@@ -392,7 +392,22 @@ class K20DX256(Target):
         self.extra_labels = ['Freescale']
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         self.is_disk_virtual = True
-        self.detect_code = ["0230"]        
+        self.detect_code = ["0230"] 
+
+        OUTPUT_EXT = '.hex'
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
+            hook.hook_add_binary("post", self.binary_hook)
+            
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from intelhex import IntelHex
+        binh = IntelHex()
+        binh.loadbin(binf, offset = 0)
+        
+        with open(binf.replace(".bin", ".hex"), "w") as f:
+            binh.tofile(f, format='hex')
 
 class K22F(Target):
     def __init__(self):
@@ -868,6 +883,7 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
+    K20DX256(),
     K22F(),
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F

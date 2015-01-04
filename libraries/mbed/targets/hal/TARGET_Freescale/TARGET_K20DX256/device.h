@@ -23,7 +23,7 @@
 #define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        1 
+#define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
 
@@ -49,7 +49,7 @@
 
 #define DEVICE_DEBUG_AWARENESS  0
 
-#define DEVICE_STDIO_MESSAGES   1
+#define DEVICE_STDIO_MESSAGES   0
 
 #define DEVICE_ERROR_RED        1
 
