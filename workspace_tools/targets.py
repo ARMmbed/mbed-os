@@ -380,7 +380,7 @@ class K20D50M(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'K20XX']
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
@@ -389,7 +389,7 @@ class K20DX256(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'K20XX']
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         self.is_disk_virtual = True
         self.detect_code = ["0230"] 

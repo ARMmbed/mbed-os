@@ -48,7 +48,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // enable power
     switch ((int)obj->i2c) {
         case I2C_0: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 6; break;
+        #ifdef TARGET_K20DX256
         case I2C_1: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 7; break;
+        #endif
     }
 
     // set default frequency at 100k

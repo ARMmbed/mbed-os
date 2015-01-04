@@ -1,4 +1,4 @@
-Enter file contents here/* mbed Microcontroller Library
+/* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ extern "C" {
 typedef struct {
     PinName  pin;
     uint32_t mask;
-
     __IO uint32_t *reg_dir;
     __IO uint32_t *reg_set;
     __IO uint32_t *reg_clr;
