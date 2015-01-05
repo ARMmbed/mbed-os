@@ -45,8 +45,26 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     obj->i2c = (I2C_Type*)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)obj->i2c != NC);
 
+    
+    
+#if defined(TARGET_K20DX256)
+    switch ((int)obj->i2c) {
+        case I2C_0: SIM->SCGC4 |= 1 << 6; break;
+        case I2C_1: SIM->SCGC4 |= 1 << 7; break;
+
+       		 /*
+        	// enable power
+        	switch ((int)obj->i2c) {
+        	case I2C_0: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 6; break;
+       		case I2C_1: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 7; break;
+        	}
+        	*/
+        
+    }
+#else
     SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
-    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    		//SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+#endif    
 
     // set default frequency at 100k
     i2c_frequency(obj, 100000);
