@@ -55,7 +55,7 @@
 #    define OS_TASKCNT         14
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
-   || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8)
+   || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
 #    define OS_TASKCNT         6
 #  else
 #    error "no target defined"
@@ -72,7 +72,7 @@
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8)
 #      define OS_SCHEDULERSTKSIZE    128
-#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8)
+#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
 #      define OS_SCHEDULERSTKSIZE    112
 #  else
 #    error "no target defined"
@@ -159,6 +159,9 @@
 
 #elif defined(TARGET_STM32F302R8)
 #    define OS_CLOCK       64000000
+
+#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#    define OS_CLOCK       32000000
 
 #  else
 #    error "no target defined"
