@@ -203,43 +203,47 @@ typedef enum {
     LED4 = LED_BLUE,
 
     // USB Pins
-    USBTX = PTB17,
+    USBTX = PTB17,  //Todo, we need usb com's
     USBRX = PTB16,
     
     // DAC Pins
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
     
-    // Arduino Headers
-    D0 = PTE1,
-    D1 = PTE0,
-    D2 = PTA5,
-    D3 = PTD4,
-    D4 = PTC8,
-    D5 = PTA1,
-    D6 = PTC3,
-    D7 = PTC4,
-    D8 = PTA12,
-    D9 = PTA2,
-    D10 = PTC2,
-    D11 = PTD2,
-    D12 = PTD3,
-    D13 = PTD1,
-    D14 = PTB3,
-    D15 = PTB2,
-
-    A0 = PTC0,
-    A1 = PTC1,
-    A2 = PTD6,
-    A3 = PTD5,
-    A4 = PTB1,
-    A5 = PTB0,
-    
-    I2C_SCL = D15,
-    I2C_SDA = D14,
-
-    TSI_ELEC0 = PTB16,
-    TSI_ELEC1 = PTB17,
-    
+    // Teensy3.1 Headers
+    p0 = PTB16,
+    p1 = PTB17,
+    p2 = PTD0,
+    p3 = PTA12,
+    p4 = PTA13,
+    p5 = PTD7,
+    p6 = PTD4,
+    p7 = PTD2,
+    p8 = PTD3,
+    p9 = PTC3,
+    p10 = PTC4,
+    p11 = PTC6,
+    p12 = PTC7,
+    p13 = PTC5,
+    p14 = PTD1,
+    p15 = PTC0,
+    p16 = PTB0,
+    p17 = PTB1,
+    p18 = PTB3,
+    p19 = PTB2,
+    p20 = PTD5,
+    p21 = PTD6,
+    p22 = PTC1,
+    p23 = PTC2,
+    p24 = PTA5,
+    p25 = PTD19,
+    p26 = PTE1,
+    p27 = PTC9,
+    p28 = PTC8,
+    p29 = PTC10,
+    p30 = PTC11,
+    p31 = PTE0,
+    p32 = PTB18,
+    p33 = PTA4,    
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
