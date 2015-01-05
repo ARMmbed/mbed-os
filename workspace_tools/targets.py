@@ -647,7 +647,15 @@ class MTS_DRAGONFLY_F411RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "ARM"
 
-        
+class DISCO_F401VC(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F401', 'STM32F401VC']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
+
 ### Nordic ###
 
 class NRF51822(Target):
@@ -898,7 +906,8 @@ TARGETS = [
     MTS_MDOT_F405RG(),
     MTS_MDOT_F411RE(),
     MTS_DRAGONFLY_F411RE(),
-    
+    DISCO_F401VC(),
+
     ### Nordic ###
     NRF51822(),
     NRF51822_OTA(), # nRF51822

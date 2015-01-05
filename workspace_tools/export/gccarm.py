@@ -71,6 +71,7 @@ class GccArm(Exporter):
         'NRF51_DK',
         'NRF51_DONGLE',
         'BLE_SMURFS',
+        'DISCO_F401VC',
     ]
 
     DOT_IN_RELATIVE_PATH = True

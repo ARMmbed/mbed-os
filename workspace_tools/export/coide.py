@@ -44,6 +44,7 @@ class CoIDE(Exporter):
         'DISCO_F429ZI',
         'DISCO_F334C8',
         'DISCO_F303VC',
+        'DISCO_F401VC',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
     ]
