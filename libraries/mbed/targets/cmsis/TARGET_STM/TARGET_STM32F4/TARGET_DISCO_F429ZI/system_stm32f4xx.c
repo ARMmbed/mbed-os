@@ -169,6 +169,7 @@
   static void SystemInit_ExtMemCtl(void); 
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
+void SystemClock_Config(void);
 /**
   * @}
   */
