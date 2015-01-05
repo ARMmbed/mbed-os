@@ -54,6 +54,12 @@ struct analogin_s {
     ADCName adc;
 };
 
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+};
+#endif
+
 struct i2c_s {
     I2C_Type *i2c;
 };
