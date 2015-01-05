@@ -35,10 +35,11 @@ build_list = (
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
     { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
 
-    { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_L152RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F030R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F091RC", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
