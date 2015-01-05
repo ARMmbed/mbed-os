@@ -29,6 +29,14 @@
  */
 #include "rtc_api.h"
 
+/* The mcu STM32L053C8 seems to have a problem in the RCC - LSE hardware block. The Disco_L053 don't have a 32kHz crystal connected to LSE port pins.
+ * During initialization the HAL tests if it can start the LSE oscillator. The Flag LSERDY in RCC_CSR should be set to 1 by RCC clock control when
+ * the oscillator runs stable. Without a crystal the flag shouldn't be set and the HAL trys to start the internal LSI oscillator.
+ * But the flag is also set to 1 without a crystal. That's why the RTC doesn't start.
+ *
+ */
+#define DONT_USE_LSE
+
 #if DEVICE_RTC
 
 #include "mbed_error.h"
@@ -61,12 +69,14 @@ void rtc_init(void)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+#ifndef DONT_USE_LSE 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         // Connect LSE to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
         rtc_freq = LSE_VALUE;
     } else {
+#endif
         // Enable LSI clock
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -79,8 +89,10 @@ void rtc_init(void)
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
         // This value is LSI typical value. To be measured precisely using a timer input capture for example.
-        rtc_freq = 32000;
+        rtc_freq = 37000;
+#ifndef DONT_USE_LSE 
     }
+#endif
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();

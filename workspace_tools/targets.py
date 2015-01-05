@@ -250,7 +250,7 @@ class LPC824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM", "GCC_ARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM","GCC_CR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -608,7 +608,7 @@ class DISCO_F429ZI(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI']
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "IAR"]
         self.default_toolchain = "GCC_ARM"
 
 class DISCO_L053C8(Target):
@@ -637,6 +637,23 @@ class MTS_MDOT_F411RE(Target):
         self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
+
+class MTS_DRAGONFLY_F411RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
+        self.macros = ['HSE_VALUE=26000000']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM"
+
+class DISCO_F401VC(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F401', 'STM32F401VC']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
 
 
 ### Nordic ###
@@ -888,6 +905,8 @@ TARGETS = [
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
     MTS_MDOT_F411RE(),
+    MTS_DRAGONFLY_F411RE(),
+    DISCO_F401VC(),
 
     ### Nordic ###
     NRF51822(),
