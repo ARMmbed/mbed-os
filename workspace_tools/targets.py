@@ -385,11 +385,11 @@ class K20D50M(Target):
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
         
-class K20DX256(Target):
+class TEENSY3_1(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale', 'K20XX']
+        self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         self.is_disk_virtual = True
         self.detect_code = ["0230"] 
@@ -883,7 +883,7 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
-    K20DX256(),
+    TEENSY3_1(),
     K22F(),
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F
