@@ -103,7 +103,7 @@ BusInOut& BusInOut::operator= (BusInOut& rhs) {
 }
 
 DigitalInOut& BusInOut::operator[] (int index) {
-    MBED_ASSERT(index < 0 || index >= MBED_BUS_SIZE);
+    MBED_ASSERT(index < 0 || index >= 16);
     MBED_ASSERT(_pin[index]);
     if (index >= 16 || _pin[index] == NULL) {
         return dinout_dummy;
