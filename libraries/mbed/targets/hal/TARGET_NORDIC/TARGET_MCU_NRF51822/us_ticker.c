@@ -94,13 +94,17 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 void us_ticker_disable_interrupt(void)
 {
     if (us_ticker_appTimerRunning) {
-        app_timer_stop(us_ticker_appTimerID);
+        if (app_timer_stop(us_ticker_appTimerID) == NRF_SUCCESS) {
+            us_ticker_appTimerRunning = false;
+        }
     }
 }
 
 void us_ticker_clear_interrupt(void)
 {
     if (us_ticker_appTimerRunning) {
-        app_timer_stop(us_ticker_appTimerID);
+        if (app_timer_stop(us_ticker_appTimerID) == NRF_SUCCESS) {
+            us_ticker_appTimerRunning = false;
+        }
     }
 }
