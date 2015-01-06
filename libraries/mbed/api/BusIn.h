@@ -77,7 +77,7 @@ public:
 
     /** Access to particular bit in random-iterator fashion
      */
-    DigitalIn & operator[] (unsigned int index);
+    DigitalIn & operator[] (int index);
 #endif
 
 protected:

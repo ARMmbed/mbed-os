@@ -90,6 +90,10 @@ public:
     BusInOut& operator= (int v);
     BusInOut& operator= (BusInOut& rhs);
 
+    /** Access to particular bit in random-iterator fashion
+    */
+    DigitalInOut& operator[] (int index);
+
     /** A shorthand for read()
      */
     operator int();
@@ -108,7 +112,6 @@ protected:
 private:
     BusInOut(const BusInOut&);
     BusInOut & operator = (const BusInOut&);
-    DigitalInOut& operator[] (unsigned int index);
 };
 
 } // namespace mbed

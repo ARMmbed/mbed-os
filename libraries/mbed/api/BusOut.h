@@ -76,7 +76,7 @@ public:
 
     /** Access to particular bit in random-iterator fashion
      */
-    DigitalOut& operator[] (unsigned int index);
+    DigitalOut& operator[] (int index);
 
     /** A shorthand for read()
      */

@@ -78,9 +78,9 @@ BusOut& BusOut::operator= (BusOut& rhs) {
     return *this;
 }
 
-DigitalOut& BusOut::operator[] (unsigned int index) {
-    //MBED_ASSERT(index >= MBED_BUS_SIZE);
-    //MBED_ASSERT(_pin[index]);
+DigitalOut& BusOut::operator[] (int index) {
+    MBED_ASSERT(index < 0 || index >= MBED_BUS_SIZE);
+    MBED_ASSERT(_pin[index]);
     if (index >= 16 || _pin[index] == NULL) {
         return dout_dummy;
     }
