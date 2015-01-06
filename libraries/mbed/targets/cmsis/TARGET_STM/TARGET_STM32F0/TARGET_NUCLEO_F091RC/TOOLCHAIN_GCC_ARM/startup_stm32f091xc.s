@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f072xb.s
+  * @file      startup_stm32f091xc.s
   * @author    MCD Application Team
   * @version   V2.1.0
   * @date      03-Oct-2014
-  * @brief     STM32F072x8/STM32F072xB devices vector table for Atollic TrueSTUDIO toolchain.
+  * @brief     STM32F091xC devices vector table for Atollic TrueSTUDIO toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -168,9 +168,9 @@ g_pfnVectors:
   .word  EXTI2_3_IRQHandler                /* EXTI Line 2 and 3            */
   .word  EXTI4_15_IRQHandler               /* EXTI Line 4 to 15            */
   .word  TSC_IRQHandler                    /* TSC                          */
-  .word  DMA1_Channel1_IRQHandler          /* DMA1 Channel 1               */
-  .word  DMA1_Channel2_3_IRQHandler        /* DMA1 Channel 2 and Channel 3 */
-  .word  DMA1_Channel4_5_6_7_IRQHandler    /* DMA1 Channel 4, Channel 5, Channel 6 and Channel 7*/
+  .word  DMA1_Ch1_IRQHandler               /* DMA1 Channel 1               */
+  .word  DMA1_Ch2_3_DMA2_Ch1_2_IRQHandler  /* DMA1 Channel 2 and 3 & DMA2 Channel 1 and 2 */
+  .word  DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler  /* DMA1 Channel 4 to 7 & DMA2 Channel 3 to 5 */
   .word  ADC1_COMP_IRQHandler              /* ADC1, COMP1 and COMP2         */
   .word  TIM1_BRK_UP_TRG_COM_IRQHandler    /* TIM1 Break, Update, Trigger and Commutation */
   .word  TIM1_CC_IRQHandler                /* TIM1 Capture Compare         */
@@ -188,9 +188,8 @@ g_pfnVectors:
   .word  SPI2_IRQHandler                   /* SPI2                         */
   .word  USART1_IRQHandler                 /* USART1                       */
   .word  USART2_IRQHandler                 /* USART2                       */
-  .word  USART3_4_IRQHandler               /* USART3 and USART4            */
+  .word  USART3_8_IRQHandler               /* USART3, USART4, USART5, USART6, USART7, USART8 */
   .word  CEC_CAN_IRQHandler                /* CEC and CAN                  */
-  .word  USB_IRQHandler                    /* USB                          */
 
 /*******************************************************************************
 *
@@ -242,14 +241,14 @@ g_pfnVectors:
   .weak      TSC_IRQHandler
   .thumb_set TSC_IRQHandler,Default_Handler
 
-  .weak      DMA1_Channel1_IRQHandler
-  .thumb_set DMA1_Channel1_IRQHandler,Default_Handler
+  .weak      DMA1_Ch1_IRQHandler
+  .thumb_set DMA1_Ch1_IRQHandler,Default_Handler
 
-  .weak      DMA1_Channel2_3_IRQHandler
-  .thumb_set DMA1_Channel2_3_IRQHandler,Default_Handler
+  .weak      DMA1_Ch2_3_DMA2_Ch1_2_IRQHandler
+  .thumb_set DMA1_Ch2_3_DMA2_Ch1_2_IRQHandler,Default_Handler
 
-  .weak      DMA1_Channel4_5_6_7_IRQHandler
-  .thumb_set DMA1_Channel4_5_6_7_IRQHandler,Default_Handler
+  .weak      DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler
+  .thumb_set DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler,Default_Handler
 
   .weak      ADC1_COMP_IRQHandler
   .thumb_set ADC1_COMP_IRQHandler,Default_Handler
@@ -302,14 +301,11 @@ g_pfnVectors:
   .weak      USART2_IRQHandler
   .thumb_set USART2_IRQHandler,Default_Handler
 
-  .weak      USART3_4_IRQHandler
-  .thumb_set USART3_4_IRQHandler,Default_Handler
+  .weak      USART3_8_IRQHandler
+  .thumb_set USART3_8_IRQHandler,Default_Handler
 
   .weak      CEC_CAN_IRQHandler
   .thumb_set CEC_CAN_IRQHandler,Default_Handler
-
-  .weak      USB_IRQHandler
-  .thumb_set USB_IRQHandler,Default_Handler
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
