@@ -41,7 +41,7 @@ typedef void    *OS_ID;
 typedef U32     OS_RESULT;
 
 #define TCB_STACKF      32        /* 'stack_frame' offset                    */
-#define TCB_TSTACK      36        /* 'tsk_stack' offset                      */
+#define TCB_TSTACK      40        /* 'tsk_stack' offset                      */
 
 typedef struct OS_PSFE {          /* Post Service Fifo Entry                 */
   void  *id;                      /* Object Identification                   */

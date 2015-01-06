@@ -32,8 +32,9 @@ typedef struct OS_TCB {
 
   /* Hardware dependant part: specific for CM processor                      */
   U8     stack_frame;             /* Stack frame: 0=Basic, 1=Extended        */
-  U8     reserved;
-  U16    priv_stack;              /* Private stack size in bytes             */
+  U8     reserved1;
+  U16    reserved2;
+  U32    priv_stack;              /* Private stack size in bytes             */
   U32    tsk_stack;               /* Current task Stack pointer (R13)        */
   U32    *stack;                  /* Pointer to Task Stack memory block      */
 

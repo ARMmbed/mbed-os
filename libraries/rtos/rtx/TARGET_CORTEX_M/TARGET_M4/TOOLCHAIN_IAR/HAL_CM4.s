@@ -35,7 +35,7 @@
         NAME    HAL_CM4.S
 
         #define TCB_STACKF 32
-        #define TCB_TSTACK 36
+        #define TCB_TSTACK 40
 
         EXTERN  os_flags
         EXTERN  os_tsk

@@ -59,6 +59,7 @@ class Uvision4(Exporter):
         'ARCH_PRO',
         'ARCH_BLE',
         'DISCO_F407VG',
+        'DISCO_L053C8',
         'MTS_GAMBIT',
         'ARCH_MAX',
         'MTS_MDOT_F405RG',
