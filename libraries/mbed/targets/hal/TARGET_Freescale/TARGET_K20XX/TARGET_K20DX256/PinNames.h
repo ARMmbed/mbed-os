@@ -203,7 +203,7 @@ typedef enum {
     LED4 = LED_BLUE,
 
     // USB Pins
-    USBTX = PTB17,  //Todo, we need usb com's
+    USBTX = PTB17,  
     USBRX = PTB16,
     
     // DAC Pins
@@ -243,7 +243,37 @@ typedef enum {
     p30 = PTC11,
     p31 = PTE0,
     p32 = PTB18,
-    p33 = PTA4,    
+    p33 = PTA4,
+    
+    A0 = PTD1,
+    A1 = PTC0,
+    A2 = PTB0,
+    A3 = PTB1,
+    A4 = PTB3,
+    A5 = PTB2,
+    A6 = PTD5,
+    A7 = PTD6,
+    A8 = PTC1,
+    A9 = PTC2,
+
+    I2C_SCL = PTB3,
+    I2C_SDA = PTB2,
+    
+    SPI_SCK = PTC5,  // sclk
+    SPI_DOUT = PTC6, // mosi
+    SPI_DIN = PTC7,  // miso
+    SPI_CS = PTC4,   // ssel    
+    
+    SERIAL_TX = PTB17,
+    SERIAL_RX = PTB16,
+    
+    PWM = PTD7,
+    
+    DAC = DAC0_OUT,
+
+    TSI_ELEC0 = PTC1,
+    TSI_ELEC1 = PTC2,
+        
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
