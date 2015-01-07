@@ -117,6 +117,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     int      phase     = (mode & 0x1) ? 1 : 0;
     uint16_t tmp       = 0;
     uint16_t mask      = 0xf03;
+    uint16_t wk_spcmd0;
     uint8_t  splw;
 
     switch (mode) {
@@ -154,8 +155,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->bits = bits;
 
     spi_disable(obj);
-    obj->spi->SPCMD0 &= ~mask;
-    obj->spi->SPCMD0 |= (mask & tmp);
+    wk_spcmd0 = obj->spi->SPCMD0;
+    wk_spcmd0 &= ~mask;
+    wk_spcmd0 |= (mask & tmp);
+    obj->spi->SPCMD0 = wk_spcmd0;
     obj->spi->SPDCR   = splw;
     if (slave) {
         obj->spi->SPCR &=~(1 << 3);  // MSTR to 0
@@ -172,6 +175,7 @@ void spi_frequency(spi_t *obj, int hz) {
     uint32_t  hz_max;
     uint32_t  hz_min;
     uint16_t  mask = 0x000c;
+    uint16_t  wk_spcmd0;
 
     /* set PCLK */
     if (RZ_A1_IsClockMode0() == false) {
@@ -197,8 +201,10 @@ void spi_frequency(spi_t *obj, int hz) {
 
     spi_disable(obj);
     obj->spi->SPBR = div;
-    obj->spi->SPCMD0 &= ~mask;
-    obj->spi->SPCMD0 |= (mask & brdv);
+    wk_spcmd0 = obj->spi->SPCMD0;
+    wk_spcmd0 &= ~mask;
+    wk_spcmd0 |= (mask & brdv);
+    obj->spi->SPCMD0 = wk_spcmd0;
     spi_enable(obj);
 }
 
