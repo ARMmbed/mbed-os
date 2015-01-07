@@ -46,6 +46,7 @@ struct gpio_irq_s {
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
+    uint8_t  int_enable;
 };
 
 struct port_s {

@@ -31,7 +31,6 @@ void pin_function(PinName pin, int function) {
             *PMC(n) &= ~bitmask;
         } else {
             // alt-function mode
-            *PMC(n) |= bitmask;
             --function;
 
             if (function & (1 << 2)) { *PFCAE(n) |= bitmask;}else  { *PFCAE(n) &= ~bitmask;}
@@ -42,6 +41,7 @@ void pin_function(PinName pin, int function) {
             if (P1_0 <= pin && pin <= P1_7 && function == 0) {
                 *PBDC(n) |= bitmask;
             }
+            *PMC(n) |= bitmask;
         }
     } else {
         gpio_multi_guard = (PinName)NC;
