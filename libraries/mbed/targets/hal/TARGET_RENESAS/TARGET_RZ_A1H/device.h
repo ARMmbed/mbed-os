@@ -16,6 +16,10 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
+#if defined(__arm__) && (__ARMCC_VERSION <= 5040027)
+#pragma Ospace
+#endif
+
 #define DEVICE_PORTIN           1
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1
