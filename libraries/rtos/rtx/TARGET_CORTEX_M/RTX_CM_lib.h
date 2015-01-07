@@ -295,6 +295,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F091RC)
 #define INITIAL_SP            (0x20008000UL)
 
+#elif defined(TARGET_STM32F401VC)
+#define INITIAL_SP            (0x20010000UL)
+
 #else
 #error "no target defined"
 
