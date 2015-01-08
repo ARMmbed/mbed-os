@@ -40,6 +40,9 @@ I2C i2c(PTC9, PTC8);
 #elif defined(TARGET_K64F)
 I2C i2c(PTE25, PTE24);
 
+#elif defined(TARGET_K22F)
+I2C i2c(PTE0, PTE1);
+
 #elif defined(TARGET_K20D50M)
 I2C i2c(PTB3, PTB2);
 
