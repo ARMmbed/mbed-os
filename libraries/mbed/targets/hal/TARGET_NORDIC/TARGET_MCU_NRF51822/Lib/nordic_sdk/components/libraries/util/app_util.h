@@ -86,9 +86,9 @@ typedef struct
  */
 #define IS_POWER_OF_TWO(A) ( ((A) != 0) && ((((A) - 1) & (A)) == 0) )
 
-/**@brief To convert ticks to millisecond
- * @param[in] time          Number of millseconds that needs to be converted.
- * @param[in] resolution    Units to be converted.
+/**@brief To convert milliseconds to ticks.
+ * @param[in] TIME          Number of milliseconds to convert.
+ * @param[in] RESOLUTION    Unit to be converted to in [us/ticks].
  */
 #define MSEC_TO_UNITS(TIME, RESOLUTION) (((TIME) * 1000) / (RESOLUTION))
 
