@@ -11,6 +11,7 @@ DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
