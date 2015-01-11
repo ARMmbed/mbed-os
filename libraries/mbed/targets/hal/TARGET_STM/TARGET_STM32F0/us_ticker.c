@@ -29,6 +29,8 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
+#if defined(TARGET_STM32F070RB)
+
 // Timer selection
 #define TIM_MST TIM1
 
@@ -111,3 +113,46 @@ void us_ticker_clear_interrupt(void)
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
     }
 }
+
+#else
+
+// 32-bit timer selection
+#define TIM_MST TIM2
+
+static TIM_HandleTypeDef TimMasterHandle;
+static int us_ticker_inited = 0;
+
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) return;
+    us_ticker_inited = 1;
+
+    TimMasterHandle.Instance = TIM_MST;
+
+    HAL_InitTick(0); // The passed value is not used
+}
+
+uint32_t us_ticker_read()
+{
+    if (!us_ticker_inited) us_ticker_init();
+    return TIM_MST->CNT;
+}
+
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
+    // Set new output compare value
+    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
+    // Enable IT
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+}
+
+void us_ticker_disable_interrupt(void)
+{
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+}
+
+void us_ticker_clear_interrupt(void)
+{
+    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+}
+#endif
