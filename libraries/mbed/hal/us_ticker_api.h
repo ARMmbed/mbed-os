@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 typedef uint32_t timestamp_t;
+typedef int32_t  signedTimestamp_t; /* The signed version of the above declaration. */
 
 uint32_t us_ticker_read(void);
 
