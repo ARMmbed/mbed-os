@@ -222,14 +222,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "spifi1"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC4088"]
+        "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
         "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
         "source_dir": join(TEST_DIR, "mbed", "spifi2"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC4088"]
+        "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
         "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
@@ -341,7 +341,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088","NRF51822"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088","LPC4088_DM","NRF51822"]
     },
     {
         "id": "MBED_5", "description": "PWM",
