@@ -61,36 +61,43 @@ const int DATA_SIZE = 256;
 int main()
 {
     uint8_t data_written[DATA_SIZE] = { 0 };
-    bool result = true;
+    bool result = false;
 
     // Fill data_written buffer with random data
     // Write these data into the file
+    bool write_result = false;
     {
-        FILE *f = fopen(sd_file_path, "w");
-
         printf("SD: Writing ... ");
-        for (int i = 0; i < DATA_SIZE; i++) {
-            data_written[i] = rand() % 0XFF;
-            fprintf(f, "%c", data_written[i]);
+        FILE *f = fopen(sd_file_path, "w");
+        if (f) {
+            for (int i = 0; i < DATA_SIZE; i++) {
+                data_written[i] = rand() % 0XFF;
+                fprintf(f, "%c", data_written[i]);
+            }
+            write_result = true;
+            fclose(f);
         }
-        printf("[OK]\r\n");
-        fclose(f);
+        printf("[%s]\r\n", write_result ? "OK" : "FAIL");
     }
 
     // Read back the data from the file and store them in data_read
+    bool read_result = false;
     {
-        FILE *f = fopen(sd_file_path, "r");
         printf("SD: Reading data ... ");
-        for (int i = 0; i < DATA_SIZE; i++) {
-            uint8_t data = fgetc(f);
-            if (data != data_written[i]) {
-                result = false;
-                break;
+        FILE *f = fopen(sd_file_path, "r");
+        if (f) {
+            for (int i = 0; i < DATA_SIZE; i++) {
+                uint8_t data = fgetc(f);
+                if (data != data_written[i]) {
+                    read_result = false;
+                    break;
+                }
             }
+            fclose(f);
         }
-        printf("[%s]\r\n", result ? "OK" : "FAIL");
-        fclose(f);
+        printf("[%s]\r\n", read_result ? "OK" : "FAIL");
     }
 
+    result = write_result && read_result;
     notify_completion(result);
 }
