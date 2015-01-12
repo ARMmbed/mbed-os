@@ -23,6 +23,7 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
 SDFileSystem sd(p12, p13, p15, p14, "sd");
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
