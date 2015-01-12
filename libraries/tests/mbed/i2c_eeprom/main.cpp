@@ -30,6 +30,9 @@ I2C i2c(PTC9, PTC8);
 #elif defined(TARGET_K64F)
 I2C i2c(PTE25, PTE24);
 
+#elif defined(TARGET_K22F)
+I2C i2c(PTE0, PTE1);
+
 #elif defined(TARGET_K20D50M)
 I2C i2c(PTB3, PTB2);
 
@@ -43,6 +46,7 @@ I2C i2c(P0_23, P0_22);
 I2C i2c(SDA, SCL);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \

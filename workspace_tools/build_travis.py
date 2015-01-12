@@ -47,6 +47,8 @@ build_list = (
     { "target": "MTS_MDOT_F405RG", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     { "target": "MTS_MDOT_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
     { "target": "MTS_DRAGONFLY_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "ARCH_MAX",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "DISCO_F401VC",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F429ZI",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F334C8",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
