@@ -711,7 +711,7 @@ class MTS_DRAGONFLY_F411RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.macros = ['HSE_VALUE=26000000', 'VECT_TAB_OFFSET=0x08008000']
+        self.macros = ['HSE_VALUE=26000000', 'VECT_TAB_OFFSET=0x08010000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "ARM"
 

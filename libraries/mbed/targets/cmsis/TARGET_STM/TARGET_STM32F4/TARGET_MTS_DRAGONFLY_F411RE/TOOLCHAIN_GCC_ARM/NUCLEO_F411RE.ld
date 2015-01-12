@@ -3,8 +3,9 @@
 /* Linker script to configure memory regions. */
 MEMORY
 { 
-  /* First 32kB of flash reserved for bootloader */
-  FLASH (rx) : ORIGIN = 0x08008000, LENGTH = 480K
+  /* First 64kB of flash reserved for bootloader */
+  /* Other 448kB for application */
+  FLASH (rx) : ORIGIN = 0x08010000, LENGTH = 448K
 /*  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K */
   RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
 }

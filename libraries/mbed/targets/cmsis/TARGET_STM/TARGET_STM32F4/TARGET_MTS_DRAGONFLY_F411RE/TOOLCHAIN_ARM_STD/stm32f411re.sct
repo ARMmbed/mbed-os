@@ -27,11 +27,12 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32F411RE: 480 KB FLASH (0x78000) + 128 KB SRAM (0x20000)
-; FIRST 32 KB FLASH FOR BOOTLOADER
-LR_IROM1 0x08008000 0x78000  {    ; load region size_region
+; STM32F411RE: 512 KB FLASH (0x80000) + 128 KB SRAM (0x20000)
+; FIRST 64 KB FLASH FOR BOOTLOADER
+; REST 448 KB FLASH FOR APPLICATION
+LR_IROM1 0x08010000 0x70000  {    ; load region size_region
 
-  ER_IROM1 0x08008000 0x78000  {  ; load address = execution address
+  ER_IROM1 0x08010000 0x70000  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
