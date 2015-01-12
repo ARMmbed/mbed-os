@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library - stackheap
- * Copyright (C) 2009-2011 ARM Limited. All rights reserved.
+ * Copyright (C) 2009-2015 ARM Limited. All rights reserved.
  *
  * Setup a fixed single stack/heap memory model,
  *  between the top of the RW/ZI region and the stackpointer

@@ -5,7 +5,7 @@
 ; * @version: 1.0
 ; * @date:    2011-12-15
 ; *
-; * Copyright: 1997 - 2012 Freescale Semiconductor, Inc. All Rights Reserved.
+; * Copyright: 1997 - 2015 Freescale Semiconductor, Inc. All Rights Reserved.
 ;*
 ; *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ; *

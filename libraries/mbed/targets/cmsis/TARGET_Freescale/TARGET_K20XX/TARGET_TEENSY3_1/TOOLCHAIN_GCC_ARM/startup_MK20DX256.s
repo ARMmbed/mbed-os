@@ -4,7 +4,7 @@
  * Version: V1.3
  * Date: 08 Feb 2012
  *
- * Copyright (c) 2012, ARM Limited
+ * Copyright (c) 2015, ARM Limited
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,27 +43,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (I2C_Type*)pinmap_merge(i2c_sda, i2c_scl);
-    MBED_ASSERT((int)obj->i2c != NC);
-
-    
+    MBED_ASSERT((int)obj->i2c != NC);    
     
 #if defined(TARGET_K20DX256)
     switch ((int)obj->i2c) {
-        case I2C_0: SIM->SCGC4 |= 1 << 6; break;
-        case I2C_1: SIM->SCGC4 |= 1 << 7; break;
-
-       		 /*
-        	// enable power
-        	switch ((int)obj->i2c) {
-        	case I2C_0: SIM->SCGC5 |= 1 << 13; SIM->SCGC4 |= 1 << 6; break;
-       		case I2C_1: SIM->SCGC5 |= 1 << 11; SIM->SCGC4 |= 1 << 7; break;
-        	}
-        	*/
-        
+        case I2C_0: SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
+        case I2C_1: SIM->SCGC4 |= SIM_SCGC4_I2C1_MASK;               
     }
 #else
-    SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;
-    		//SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK;    		
 #endif    
 
     // set default frequency at 100k

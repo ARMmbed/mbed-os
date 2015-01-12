@@ -14,7 +14,7 @@
 **         contains the system frequency. It configures the device and initializes
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
-**     Copyright: 2011 Freescale Semiconductor, Inc. All Rights Reserved.
+**     Copyright: 2015 Freescale Semiconductor, Inc. All Rights Reserved.
 **
 **     http:                 www.freescale.com
 **     mail:                 support@freescale.com
@@ -54,7 +54,7 @@
          Core clock/Bus clock derived directly from an external crystal 8MHz with no multiplication
          Core clock = 8MHz, BusClock = 8MHz
    3 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
-         Reference clock source for MCG module is an external crystal 8MHz
+         Reference clock source for MCG module is an external crystal 16MHz
          Core clock = 72MHz, BusClock = 48MHz
          This is the Teensy3.1 72Mhz set up      
 */

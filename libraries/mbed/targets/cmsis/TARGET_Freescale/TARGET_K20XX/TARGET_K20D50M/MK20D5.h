@@ -14,7 +14,7 @@
 **     Abstract:
 **         CMSIS Peripheral Access Layer for MK20D5
 **
-**     Copyright: 1997 - 2012 Freescale Semiconductor, Inc. All Rights Reserved.
+**     Copyright: 1997 - 2015 Freescale Semiconductor, Inc. All Rights Reserved.
 **
 **     http:                 www.freescale.com
 **     mail:                 support@freescale.com
