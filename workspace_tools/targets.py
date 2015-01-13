@@ -31,6 +31,7 @@ CORE_LABELS = {
 import os
 import shutil
 from workspace_tools.patch import patch
+from paths import TOOLS_BOOTLOADERS
 
 class Target:
     def __init__(self):
@@ -714,6 +715,31 @@ class MTS_DRAGONFLY_F411RE(Target):
         self.macros = ['HSE_VALUE=26000000', 'VECT_TAB_OFFSET=0x08010000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "ARM"
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
+            hook.hook_add_binary("post", self.combine_bins)
+
+    @staticmethod
+    def combine_bins(t_self, resources, elf, binf):
+        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_DRAGONFLY_F411RE", "bootloader-" + t_self.name + ".bin")
+        target = binf + ".tmp"
+        if not os.path.exists(loader):
+            print "Can't find bootloader binary: " + loader
+            return
+        outbin = open(target, 'wb')
+        part = open(loader, 'rb')
+        data = part.read()
+        outbin.write(data)
+        outbin.write('\xFF' * (64*1024 - len(data)))
+        part.close()
+        part = open(binf, 'rb')
+        data = part.read()
+        outbin.write(data)
+        part.close()
+        outbin.close()
+        os.remove(binf)
+        os.rename(target, binf)
 
 class DISCO_F401VC(Target):
     def __init__(self):
