@@ -222,6 +222,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "spifi1"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "duration": 30,
         "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
@@ -229,6 +230,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "spifi2"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
+        "duration": 30,
         "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
