@@ -722,7 +722,7 @@ class MTS_DRAGONFLY_F411RE(Target):
 
     @staticmethod
     def combine_bins(t_self, resources, elf, binf):
-        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_DRAGONFLY_F411RE", "bootloader-" + t_self.name + ".bin")
+        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_DRAGONFLY_F411RE", "bootloader.bin")
         target = binf + ".tmp"
         if not os.path.exists(loader):
             print "Can't find bootloader binary: " + loader
