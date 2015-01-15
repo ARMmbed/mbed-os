@@ -380,10 +380,34 @@ class K20D50M(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'K20XX']
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
+        
+class TEENSY3_1(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.is_disk_virtual = True
+        self.detect_code = ["0230"] 
+
+        OUTPUT_EXT = '.hex'
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
+            hook.hook_add_binary("post", self.binary_hook)
+            
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from intelhex import IntelHex
+        binh = IntelHex()
+        binh.loadbin(binf, offset = 0)
+        
+        with open(binf.replace(".bin", ".hex"), "w") as f:
+            binh.tofile(f, format='hex')
 
 class K22F(Target):
     def __init__(self):
@@ -876,6 +900,7 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
+    TEENSY3_1(),
     K22F(),
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F
