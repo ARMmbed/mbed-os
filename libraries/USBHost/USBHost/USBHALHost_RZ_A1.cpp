@@ -14,32 +14,23 @@
  * limitations under the License.
  */
 
+#if defined(TARGET_RZ_A1H)
+
 #include "mbed.h"
 #include "USBHALHost.h"
 #include "dbg.h"
 
-// bits of the USB/OTG clock control register
-#define HOST_CLK_EN     (1<<0)
-#define DEV_CLK_EN      (1<<1)
-#define PORTSEL_CLK_EN  (1<<3)
-#define AHB_CLK_EN      (1<<4)
+#include "ohci_wrapp_RZ_A1.h"
 
-// bits of the USB/OTG clock status register
-#define HOST_CLK_ON     (1<<0)
-#define DEV_CLK_ON      (1<<1)
-#define PORTSEL_CLK_ON  (1<<3)
-#define AHB_CLK_ON      (1<<4)
-
-// we need host clock, OTG/portsel clock and AHB clock
-#define CLOCK_MASK (HOST_CLK_EN | PORTSEL_CLK_EN | AHB_CLK_EN)
 
 #define HCCA_SIZE sizeof(HCCA)
 #define ED_SIZE sizeof(HCED)
 #define TD_SIZE sizeof(HCTD)
 
 #define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE) + (MAX_TD*TD_SIZE))
+#define ALIGNE_MSK (0x0000000F)
 
-static volatile uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"),aligned(256)));  //256 bytes aligned!
+static volatile uint8_t usb_buf[TOTAL_SIZE + ALIGNE_MSK];  //16 bytes aligned!
 
 USBHALHost * USBHALHost::instHost;
 
@@ -56,87 +47,53 @@ USBHALHost::USBHALHost() {
 }
 
 void USBHALHost::init() {
-    NVIC_DisableIRQ(USB_IRQn);
+    ohciwrapp_init(&_usbisr, 1);
 
-    //Cut power
-    LPC_SC->PCONP &= ~(1UL<<31);
-    wait_ms(100);
-
-    // turn on power for USB
-    LPC_SC->PCONP       |= (1UL<<31);
-
-    // Enable USB host clock, port selection and AHB clock
-    LPC_USB->USBClkCtrl |= CLOCK_MASK;
-
-    // Wait for clocks to become available
-    while ((LPC_USB->USBClkSt & CLOCK_MASK) != CLOCK_MASK);
-
-    // it seems the bits[0:1] mean the following
-    // 0: U1=device, U2=host
-    // 1: U1=host, U2=host
-    // 2: reserved
-    // 3: U1=host, U2=device
-    // NB: this register is only available if OTG clock (aka "port select") is enabled!!
-    // since we don't care about port 2, set just bit 0 to 1 (U1=host)
-    LPC_USB->OTGStCtrl |= 1;
-
-    // now that we've configured the ports, we can turn off the portsel clock
-    LPC_USB->USBClkCtrl &= ~PORTSEL_CLK_EN;
-
-    // configure USB D+/D- pins
-    // P0[29] = USB_D+, 01
-    // P0[30] = USB_D-, 01
-    LPC_PINCON->PINSEL1 &= ~((3<<26) | (3<<28));
-    LPC_PINCON->PINSEL1 |=  ((1<<26) | (1<<28));
-
-    LPC_USB->HcControl       = 0; // HARDWARE RESET
-    LPC_USB->HcControlHeadED = 0; // Initialize Control list head to Zero
-    LPC_USB->HcBulkHeadED    = 0; // Initialize Bulk list head to Zero
+    ohciwrapp_reg_w(OHCI_REG_CONTROL, 1);       // HARDWARE RESET
+    ohciwrapp_reg_w(OHCI_REG_CONTROLHEADED, 0); // Initialize Control list head to Zero
+    ohciwrapp_reg_w(OHCI_REG_BULKHEADED, 0);    // Initialize Bulk list head to Zero
 
     // Wait 100 ms before apply reset
     wait_ms(100);
 
     // software reset
-    LPC_USB->HcCommandStatus = OR_CMD_STATUS_HCR;
+    ohciwrapp_reg_w(OHCI_REG_COMMANDSTATUS, OR_CMD_STATUS_HCR);
 
     // Write Fm Interval and Largest Data Packet Counter
-    LPC_USB->HcFmInterval    = DEFAULT_FMINTERVAL;
-    LPC_USB->HcPeriodicStart = FI * 90 / 100;
+    ohciwrapp_reg_w(OHCI_REG_FMINTERVAL, DEFAULT_FMINTERVAL);
+    ohciwrapp_reg_w(OHCI_REG_PERIODICSTART,  FI * 90 / 100);
 
     // Put HC in operational state
-    LPC_USB->HcControl  = (LPC_USB->HcControl & (~OR_CONTROL_HCFS)) | OR_CONTROL_HC_OPER;
+    ohciwrapp_reg_w(OHCI_REG_CONTROL, (ohciwrapp_reg_r(OHCI_REG_CONTROL) & (~OR_CONTROL_HCFS)) | OR_CONTROL_HC_OPER);
     // Set Global Power
-    LPC_USB->HcRhStatus = OR_RH_STATUS_LPSC;
+    ohciwrapp_reg_w(OHCI_REG_RHSTATUS, OR_RH_STATUS_LPSC);
 
-    LPC_USB->HcHCCA = (uint32_t)(usb_hcca);
+    ohciwrapp_reg_w(OHCI_REG_HCCA, (uint32_t)(usb_hcca));
 
     // Clear Interrrupt Status
-    LPC_USB->HcInterruptStatus |= LPC_USB->HcInterruptStatus;
+    ohciwrapp_reg_w(OHCI_REG_INTERRUPTSTATUS, ohciwrapp_reg_r(OHCI_REG_INTERRUPTSTATUS));
 
-    LPC_USB->HcInterruptEnable  = OR_INTR_ENABLE_MIE | OR_INTR_ENABLE_WDH | OR_INTR_ENABLE_RHSC;
+    ohciwrapp_reg_w(OHCI_REG_INTERRUPTENABLE, OR_INTR_ENABLE_MIE | OR_INTR_ENABLE_WDH | OR_INTR_ENABLE_RHSC);
 
     // Enable the USB Interrupt
-    NVIC_SetVector(USB_IRQn, (uint32_t)(_usbisr));
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_CSC;
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRSC;
-
-    NVIC_EnableIRQ(USB_IRQn);
+    ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_CSC);
+    ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_PRSC);
 
     // Check for any connected devices
-    if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CCS) {
+    if (ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_CCS) {
         //Device connected
         wait_ms(150);
-        USB_DBG("Device connected (%08x)\n\r", LPC_USB->HcRhPortStatus1);
-        deviceConnected(0, 1, LPC_USB->HcRhPortStatus1 & OR_RH_PORT_LSDA);
+        USB_DBG("Device connected (%08x)\n\r", ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1));
+        deviceConnected(0, 1, ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA);
     }
 }
 
 uint32_t USBHALHost::controlHeadED() {
-    return LPC_USB->HcControlHeadED;
+    return ohciwrapp_reg_r(OHCI_REG_CONTROLHEADED);
 }
 
 uint32_t USBHALHost::bulkHeadED() {
-    return LPC_USB->HcBulkHeadED;
+    return ohciwrapp_reg_r(OHCI_REG_BULKHEADED);
 }
 
 uint32_t USBHALHost::interruptHeadED() {
@@ -144,12 +101,12 @@ uint32_t USBHALHost::interruptHeadED() {
 }
 
 void USBHALHost::updateBulkHeadED(uint32_t addr) {
-    LPC_USB->HcBulkHeadED = addr;
+    ohciwrapp_reg_w(OHCI_REG_BULKHEADED, addr);
 }
 
 
 void USBHALHost::updateControlHeadED(uint32_t addr) {
-    LPC_USB->HcControlHeadED = addr;
+    ohciwrapp_reg_w(OHCI_REG_CONTROLHEADED, addr);
 }
 
 void USBHALHost::updateInterruptHeadED(uint32_t addr) {
@@ -158,43 +115,56 @@ void USBHALHost::updateInterruptHeadED(uint32_t addr) {
 
 
 void USBHALHost::enableList(ENDPOINT_TYPE type) {
+    uint32_t wk_data;
+
     switch(type) {
         case CONTROL_ENDPOINT:
-            LPC_USB->HcCommandStatus = OR_CMD_STATUS_CLF;
-            LPC_USB->HcControl |= OR_CONTROL_CLE;
+            ohciwrapp_reg_w(OHCI_REG_COMMANDSTATUS, OR_CMD_STATUS_CLF);
+            wk_data = (ohciwrapp_reg_r(OHCI_REG_CONTROL) | OR_CONTROL_CLE);
+            ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
             break;
         case ISOCHRONOUS_ENDPOINT:
             break;
         case BULK_ENDPOINT:
-            LPC_USB->HcCommandStatus = OR_CMD_STATUS_BLF;
-            LPC_USB->HcControl |= OR_CONTROL_BLE;
+            ohciwrapp_reg_w(OHCI_REG_COMMANDSTATUS, OR_CMD_STATUS_BLF);
+            wk_data = (ohciwrapp_reg_r(OHCI_REG_CONTROL) | OR_CONTROL_BLE);
+            ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
             break;
         case INTERRUPT_ENDPOINT:
-            LPC_USB->HcControl |= OR_CONTROL_PLE;
+            wk_data = (ohciwrapp_reg_r(OHCI_REG_CONTROL) | OR_CONTROL_PLE);
+            ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
             break;
     }
 }
 
 
 bool USBHALHost::disableList(ENDPOINT_TYPE type) {
+    uint32_t wk_data;
+
     switch(type) {
         case CONTROL_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_CLE) {
-                LPC_USB->HcControl &= ~OR_CONTROL_CLE;
+            wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
+            if(wk_data & OR_CONTROL_CLE) {
+                wk_data &= ~OR_CONTROL_CLE;
+                ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
             }
             return false;
         case ISOCHRONOUS_ENDPOINT:
             return false;
         case BULK_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_BLE){
-                LPC_USB->HcControl &= ~OR_CONTROL_BLE;
+            wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
+            if(wk_data & OR_CONTROL_BLE) {
+                wk_data &= ~OR_CONTROL_BLE;
+                ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
             }
             return false;
         case INTERRUPT_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_PLE) {
-                LPC_USB->HcControl &= ~OR_CONTROL_PLE;
+            wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
+            if(wk_data & OR_CONTROL_PLE) {
+                wk_data &= ~OR_CONTROL_PLE;
+                ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
             }
             return false;
@@ -204,9 +174,11 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
 
 
 void USBHALHost::memInit() {
-    usb_hcca = (volatile HCCA *)usb_buf;
-    usb_edBuf = usb_buf + HCCA_SIZE;
-    usb_tdBuf = usb_buf + HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE);
+    volatile uint8_t *p_wk_buf = (uint8_t *)(((uint32_t)usb_buf + ALIGNE_MSK) & ~ALIGNE_MSK);
+
+    usb_hcca = (volatile HCCA *)p_wk_buf;
+    usb_edBuf = (volatile uint8_t *)(p_wk_buf + HCCA_SIZE);
+    usb_tdBuf = (volatile uint8_t *)(p_wk_buf + HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE));
 }
 
 volatile uint8_t * USBHALHost::getED() {
@@ -248,12 +220,12 @@ void USBHALHost::freeTD(volatile uint8_t * td) {
 
 void USBHALHost::resetRootHub() {
     // Initiate port reset
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRS;
+    ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_PRS);
 
-    while (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_PRS);
+    while (ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_PRS);
 
     // ...and clear port reset signal
-    LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRSC;
+    ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_PRSC);
 }
 
 
@@ -264,27 +236,25 @@ void USBHALHost::_usbisr(void) {
 }
 
 void USBHALHost::UsbIrqhandler() {
-    if( LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable ) //Is there something to actually process?
-    {
+    uint32_t int_status = ohciwrapp_reg_r(OHCI_REG_INTERRUPTSTATUS) & ohciwrapp_reg_r(OHCI_REG_INTERRUPTENABLE);
 
-        uint32_t int_status = LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable;
-
+    if (int_status != 0) { //Is there something to actually process?
         // Root hub status change interrupt
         if (int_status & OR_INTR_STATUS_RHSC) {
-            if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CSC) {
-                if (LPC_USB->HcRhStatus & OR_RH_STATUS_DRWE) {
+            if (ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_CSC) {
+                if (ohciwrapp_reg_r(OHCI_REG_RHSTATUS) & OR_RH_STATUS_DRWE) {
                     // When DRWE is on, Connect Status Change
                     // means a remote wakeup event.
                 } else {
 
                     //Root device connected
-                    if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_CCS) {
+                    if (ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_CCS) {
 
                         // wait 150ms to avoid bounce
                         wait_ms(150);
 
                         //Hub 0 (root hub), Port 1 (count starts at 1), Low or High speed
-                        deviceConnected(0, 1, LPC_USB->HcRhPortStatus1 & OR_RH_PORT_LSDA);
+                        deviceConnected(0, 1, ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA);
                     }
 
                     //Root device disconnected
@@ -301,22 +271,23 @@ void USBHALHost::UsbIrqhandler() {
 
                         if (int_status & OR_INTR_STATUS_WDH) {
                             usb_hcca->DoneHead = 0;
-                            LPC_USB->HcInterruptStatus = OR_INTR_STATUS_WDH;
+                            ohciwrapp_reg_w(OHCI_REG_INTERRUPTSTATUS, OR_INTR_STATUS_WDH);
                         }
                     }
                 }
-                LPC_USB->HcRhPortStatus1 = OR_RH_PORT_CSC;
+                ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_CSC);
             }
-            if (LPC_USB->HcRhPortStatus1 & OR_RH_PORT_PRSC) {
-                LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRSC;
+            if (ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_PRSC) {
+                ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_PRSC);
             }
-            LPC_USB->HcInterruptStatus = OR_INTR_STATUS_RHSC;
+            ohciwrapp_reg_w(OHCI_REG_INTERRUPTSTATUS, OR_INTR_STATUS_RHSC);
         }
 
         // Writeback Done Head interrupt
         if (int_status & OR_INTR_STATUS_WDH) {
             transferCompleted(usb_hcca->DoneHead & 0xFFFFFFFE);
-            LPC_USB->HcInterruptStatus = OR_INTR_STATUS_WDH;
+            ohciwrapp_reg_w(OHCI_REG_INTERRUPTSTATUS, OR_INTR_STATUS_WDH);
         }
     }
 }
+#endif
