@@ -75,9 +75,9 @@ class GCC(mbedToolchain):
 
         if "debug-info" in self.options:
             common_flags.append("-g")
-            common_flags.append("-O0")
+            common_flags.append("-Og")
         else:
-            common_flags.append("-O2")
+            common_flags.append("-Os")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
