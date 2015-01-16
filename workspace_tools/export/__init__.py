@@ -84,6 +84,8 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
     zip_path = None
     if report['success']:
+        # add readme file to every offline export.
+        open(tempdir+"\\README.html",'w').write('<meta http-equiv="refresh" content="0; url=http://developer.mbed.org/handbook/ExportToOfflineToolchain#%s#%s"/>'% (target,ide))
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
 
     return zip_path, report
