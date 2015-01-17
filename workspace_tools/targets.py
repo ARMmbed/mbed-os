@@ -334,6 +334,15 @@ class LPC1800(LPCTarget):
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
+class LPC11U37H_401(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+
 
 ### Freescale ###
 
@@ -893,6 +902,7 @@ TARGETS = [
     LPC4330_M4(),
     LPC4330_M0(),
     LPC4337(),
+    LPC11U37H_401(),
 
     ### Freescale ###
     KL05Z(),
