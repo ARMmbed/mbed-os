@@ -102,10 +102,10 @@ typedef enum {
     USBRX = P0_18,
     
     // I2C pins
-    SDA = P0_10,
-    SCL = P0_11,
-    I2C_SDA = P0_10,
-    I2C_SCL = P0_11,
+    SCL = P0_10,
+    SDA = P0_11,
+    I2C_SCL = P0_10,
+    I2C_SDA = P0_11,
     
     // Not connected
     NC = (int)0xFFFFFFFF,
