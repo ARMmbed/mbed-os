@@ -31,6 +31,7 @@ class Uvision4(Exporter):
         'K64F',
         'K22F',
         'K20D50M',
+        'TEENSY3_1',
         'LPC1347',
         'LPC1114',
         'LPC11C24',
