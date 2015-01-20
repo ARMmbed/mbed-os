@@ -222,6 +222,9 @@ void USBHostHub::portReset(uint8_t port) {
     uint32_t status;
     USB_DBG("reset port %d on hub: %p [this: %p]", port, dev, this)
     setPortFeature(PORT_RESET_FEATURE, port);
+#if defined(TARGET_RZ_A1H)
+    Thread::wait(50);   // Reset release waiting for Hi-Speed check.
+#endif
     while(1) {
         status = getPortStatus(port);
         if (status & (PORT_ENABLE | PORT_RESET))
