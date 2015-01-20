@@ -57,6 +57,7 @@ build_list = (
     { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_501",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "LPC11U68",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC11U37H_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
     { "target": "KL05Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "KL25Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
