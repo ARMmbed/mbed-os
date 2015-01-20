@@ -29,6 +29,7 @@ CORE_LABELS = {
 }
 
 import os
+import hashlib
 import shutil
 from workspace_tools.patch import patch
 from paths import TOOLS_BOOTLOADERS
@@ -720,6 +721,8 @@ class MTS_DRAGONFLY_F411RE(Target):
         if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
             hook.hook_add_binary("post", self.combine_bins)
 
+    # combine application binary with bootloader
+    # bootloader + padding to 64kB + application + md5sum (16 bytes)
     @staticmethod
     def combine_bins(t_self, resources, elf, binf):
         loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_DRAGONFLY_F411RE", "bootloader.bin")
@@ -727,7 +730,7 @@ class MTS_DRAGONFLY_F411RE(Target):
         if not os.path.exists(loader):
             print "Can't find bootloader binary: " + loader
             return
-        outbin = open(target, 'wb')
+        outbin = open(target, 'w+b')
         part = open(loader, 'rb')
         data = part.read()
         outbin.write(data)
@@ -737,6 +740,9 @@ class MTS_DRAGONFLY_F411RE(Target):
         data = part.read()
         outbin.write(data)
         part.close()
+        data = outbin.read()
+        md5 = hashlib.md5(data)
+        outbin.write(md5.digest())
         outbin.close()
         os.remove(binf)
         os.rename(target, binf)
