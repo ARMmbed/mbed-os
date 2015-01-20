@@ -44,6 +44,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
+    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
