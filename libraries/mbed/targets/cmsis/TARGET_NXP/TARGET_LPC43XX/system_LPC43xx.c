@@ -159,11 +159,9 @@ void SystemInit(void)
     SCB->VTOR = (unsigned int) &g_pfnVectors;
 #endif
 
-#if !defined(TOOLCHAIN_GCC)
 #if defined(__FPU_PRESENT) && __FPU_PRESENT == 1
     /* Initialize floating point */
     fpuInit();
-#endif
 #endif
 
     SystemSetupPins();    /* Configure MCU pins */
@@ -398,7 +396,7 @@ void fpuInit(void)
 
 static void WaitUs(uint32_t us)
 {
-    uint32_t  cyc = us * CPU_NANOSEC(1000) / 4;
+    volatile uint32_t  cyc = us * CPU_NANOSEC(1000) / 4;
     while (cyc--)
         ;
 }
