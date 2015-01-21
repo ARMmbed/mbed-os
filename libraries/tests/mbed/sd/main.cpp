@@ -81,7 +81,7 @@ int main()
     }
 
     // Read back the data from the file and store them in data_read
-    bool read_result = false;
+    bool read_result = true;
     {
         printf("SD: Reading data ... ");
         FILE *f = fopen(sd_file_path, "r");
