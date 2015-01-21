@@ -42,12 +42,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('LPC1549',      ('uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-<<<<<<< HEAD
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC4330_M4',   ('ARM', 'GCC_ARM', 'GCC_CR')),
-=======
-    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
->>>>>>> upstream/master
     ('LPC4337',      ('ARM',)),
     ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
 
