@@ -31,6 +31,7 @@ class Uvision4(Exporter):
         'K64F',
         'K22F',
         'K20D50M',
+        'TEENSY3_1',
         'LPC1347',
         'LPC1114',
         'LPC11C24',
@@ -39,6 +40,7 @@ class Uvision4(Exporter):
         'LPC4337',
         'LPC812',
         'NUCLEO_F030R8',
+        'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
@@ -58,11 +60,14 @@ class Uvision4(Exporter):
         'ARCH_PRO',
         'ARCH_BLE',
         'DISCO_F407VG',
+        'DISCO_L053C8',
         'MTS_GAMBIT',
         'ARCH_MAX',
         'MTS_MDOT_F405RG',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'BLE_SMURFS',
+        'LPC11U37H_401',
     ]
 
     USING_MICROLIB = [
@@ -71,6 +76,7 @@ class Uvision4(Exporter):
         'LPC11C24',
         'LPC812',
         'NUCLEO_F030R8',
+        'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
@@ -84,6 +90,7 @@ class Uvision4(Exporter):
         'LPC1549',
         'LPC11U35_501',
         'KL05Z',
+        'LPC11U37H_401',
     ]
 
     FILE_TYPES = {

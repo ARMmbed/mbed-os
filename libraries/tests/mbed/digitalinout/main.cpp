@@ -11,6 +11,7 @@ DigitalInOut d1(D2);
 DigitalInOut d2(D7);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -24,7 +25,9 @@ DigitalInOut d2(D7);
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
 
-#elif defined(TARGET_DISCO_F407VG)
+#elif defined(TARGET_DISCO_F407VG) || \
+      defined(TARGET_DISCO_F429ZI)|| \
+      defined(TARGET_DISCO_F401VC)
 DigitalInOut d1(PC_12);
 DigitalInOut d2(PD_0);
 

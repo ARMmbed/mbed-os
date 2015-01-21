@@ -4,7 +4,7 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 128K
-  RAM (rwx) : ORIGIN =  0x200000EC, LENGTH = 0x5000-0xEC /* First 236 bytes (0xEC) of RAM are reserved for ISR Vectors */
+  RAM (rwx) : ORIGIN =  0x200000EC, LENGTH = 20K - 0xEC /* First 236 bytes (0xEC) of RAM are reserved for ISR Vectors */
 }
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.

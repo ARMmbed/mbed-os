@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smbus.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of SMBUS HAL module.
   ******************************************************************************
   * @attention
@@ -104,42 +104,6 @@ typedef struct
 } SMBUS_InitTypeDef;
 
 /** 
-  * @brief  HAL State structures definition  
-  */ 
-typedef enum
-{
-  HAL_SMBUS_STATE_RESET           = 0x00,  /*!< SMBUS not yet initialized or disabled         */
-  HAL_SMBUS_STATE_READY           = 0x01,  /*!< SMBUS initialized and ready for use           */
-  HAL_SMBUS_STATE_BUSY            = 0x02,  /*!< SMBUS internal process is ongoing             */
-  HAL_SMBUS_STATE_MASTER_BUSY_TX  = 0x12,  /*!< Master Data Transmission process is ongoing   */ 
-  HAL_SMBUS_STATE_MASTER_BUSY_RX  = 0x22,  /*!< Master Data Reception process is ongoing      */
-  HAL_SMBUS_STATE_SLAVE_BUSY_TX   = 0x32,  /*!< Slave Data Transmission process is ongoing    */ 
-  HAL_SMBUS_STATE_SLAVE_BUSY_RX   = 0x42,  /*!< Slave Data Reception process is ongoing       */
-  HAL_SMBUS_STATE_TIMEOUT         = 0x03,  /*!< Timeout state                                 */  
-  HAL_SMBUS_STATE_ERROR           = 0x04,  /*!< Reception process is ongoing                  */      
-  HAL_SMBUS_STATE_SLAVE_LISTEN    = 0x08,   /*!< Address Listen Mode is ongoing                */
-  /* Aliases for inter STM32 series compatibility */
-  HAL_SMBUS_STATE_LISTEN          = HAL_SMBUS_STATE_SLAVE_LISTEN 
-}HAL_SMBUS_StateTypeDef;
-
-/** 
-  * @brief  HAL SMBUS Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_SMBUS_ERROR_NONE        = 0x00,    /*!< No error             */
-  HAL_SMBUS_ERROR_BERR        = 0x01,    /*!< BERR error           */
-  HAL_SMBUS_ERROR_ARLO        = 0x02,    /*!< ARLO error           */   
-  HAL_SMBUS_ERROR_ACKF        = 0x04,    /*!< ACKF error           */
-  HAL_SMBUS_ERROR_OVR         = 0x08,    /*!< OVR error            */
-  HAL_SMBUS_ERROR_HALTIMEOUT  = 0x10,    /*!< Timeout error        */
-  HAL_SMBUS_ERROR_BUSTIMEOUT  = 0x20,    /*!< Bus Timeout error    */
-  HAL_SMBUS_ERROR_ALERT       = 0x40,    /*!< Alert error          */
-  HAL_SMBUS_ERROR_PECERR      = 0x80     /*!< PEC error            */
-
-}HAL_SMBUS_ErrorTypeDef;
-
-/** 
   * @brief  SMBUS handle Structure definition  
   */
 typedef struct
@@ -156,13 +120,16 @@ typedef struct
 
   __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
 
-  __IO HAL_SMBUS_StateTypeDef  PreviousState;   /*!< SMBUS communication Previous tate  */
+  __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous state  
+                                                     This parameter can be a value of @ref SMBUS_State */
 
   HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
 
-  __IO HAL_SMBUS_StateTypeDef  State;           /*!< SMBUS communication state          */
+  __IO uint32_t                State;           /*!< SMBUS communication state          
+                                                     This parameter can be a value of @ref SMBUS_State */
 
-  __IO HAL_SMBUS_ErrorTypeDef  ErrorCode;       /*!< SMBUS Error code                   */
+  __IO uint32_t                ErrorCode;       /*!< SMBUS Error code                   
+                                                     This parameter can be a value of @ref SMBUS_Error */
 
 }SMBUS_HandleTypeDef;
 /**
@@ -173,6 +140,43 @@ typedef struct
 
 /** @defgroup SMBUS_Exported_Constants SMBUS Exported Constants
   * @{
+  */
+
+/** @defgroup SMBUS_Error SMBUS Error
+  * @{
+  */
+#define HAL_SMBUS_ERROR_NONE        ((uint32_t)0x00000000)    /*!< No error             */
+#define HAL_SMBUS_ERROR_BERR        ((uint32_t)0x00000001)    /*!< BERR error           */
+#define HAL_SMBUS_ERROR_ARLO        ((uint32_t)0x00000002)    /*!< ARLO error           */   
+#define HAL_SMBUS_ERROR_ACKF        ((uint32_t)0x00000004)    /*!< ACKF error           */
+#define HAL_SMBUS_ERROR_OVR         ((uint32_t)0x00000008)    /*!< OVR error            */
+#define HAL_SMBUS_ERROR_HALTIMEOUT  ((uint32_t)0x00000010)    /*!< Timeout error        */
+#define HAL_SMBUS_ERROR_BUSTIMEOUT  ((uint32_t)0x00000020)    /*!< Bus Timeout error    */
+#define HAL_SMBUS_ERROR_ALERT       ((uint32_t)0x00000040)    /*!< Alert error          */
+#define HAL_SMBUS_ERROR_PECERR      ((uint32_t)0x00000080)    /*!< PEC error            */
+/**
+  * @}
+  */
+
+/** @defgroup SMBUS_State SMBUS State
+  * @{
+  */
+
+#define HAL_SMBUS_STATE_RESET           ((uint32_t)0x00000000)  /*!< SMBUS not yet initialized or disabled         */
+#define HAL_SMBUS_STATE_READY           ((uint32_t)0x00000001)  /*!< SMBUS initialized and ready for use           */
+#define HAL_SMBUS_STATE_BUSY            ((uint32_t)0x00000002)  /*!< SMBUS internal process is ongoing             */
+#define HAL_SMBUS_STATE_MASTER_BUSY_TX  ((uint32_t)0x00000012)  /*!< Master Data Transmission process is ongoing   */ 
+#define HAL_SMBUS_STATE_MASTER_BUSY_RX  ((uint32_t)0x00000022)  /*!< Master Data Reception process is ongoing      */
+#define HAL_SMBUS_STATE_SLAVE_BUSY_TX   ((uint32_t)0x00000032)  /*!< Slave Data Transmission process is ongoing    */ 
+#define HAL_SMBUS_STATE_SLAVE_BUSY_RX   ((uint32_t)0x00000042)  /*!< Slave Data Reception process is ongoing       */
+#define HAL_SMBUS_STATE_TIMEOUT         ((uint32_t)0x00000003)  /*!< Timeout state                                 */  
+#define HAL_SMBUS_STATE_ERROR           ((uint32_t)0x00000004)  /*!< Reception process is ongoing                  */      
+#define HAL_SMBUS_STATE_SLAVE_LISTEN    ((uint32_t)0x00000008)  /*!< Address Listen Mode is ongoing                */
+  /* Aliases for inter STM32 series compatibility */
+#define HAL_SMBUS_STATE_LISTEN          HAL_SMBUS_STATE_SLAVE_LISTEN 
+
+/**
+  * @}
   */
 
 /** @defgroup SMBUS_Analog_Filter SMBUS Analog Filter
@@ -584,8 +588,8 @@ void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus);
  */
 
 /* Peripheral State and Errors functions  **************************************************/
-HAL_SMBUS_StateTypeDef HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus);
-uint32_t               HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
+uint32_t HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus);
+uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
 
 /**
   * @}

@@ -1014,11 +1014,11 @@ void HAL_HASHEx_IRQHandler(HASH_HandleTypeDef *hhash)
   {
     
     case HASH_AlgoSelection_SHA224:
-       HAL_HASHEx_SHA224_Start_IT(hhash, NULL, 0, NULL);
+       HAL_HASHEx_SHA224_Start_IT(hhash, HAL_NULL, 0, HAL_NULL);
     break;
     
     case HASH_AlgoSelection_SHA256:
-      HAL_HASHEx_SHA256_Start_IT(hhash, NULL, 0, NULL);
+      HAL_HASHEx_SHA256_Start_IT(hhash, HAL_NULL, 0, HAL_NULL);
     break;
     
     default:

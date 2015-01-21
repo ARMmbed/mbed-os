@@ -22,6 +22,7 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 #include "gpio_object.h"
+#include "rspi_iodefine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,16 +31,22 @@ extern "C" {
 struct i2c_s {
     uint32_t i2c;
     uint32_t dummy;
+    uint8_t  pclk_bit;
+    uint8_t  width_low;
+    uint8_t  width_hi;
+    int      bbsy_wait_cnt;
 };
 
 struct spi_s {
-    uint32_t spi;
+    struct st_rspi *spi;
+    uint32_t       bits;
 };
 
 struct gpio_irq_s {
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
+    uint8_t  int_enable;
 };
 
 struct port_s {
@@ -56,9 +63,7 @@ struct serial_s {
 };
 
 struct pwmout_s {
-    __IO uint16_t *MR;
-    __IO uint16_t *CY;
-    uint16_t flag;
+    uint32_t ch;
     PWMName pwm;
 };
 

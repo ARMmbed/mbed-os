@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -70,8 +70,8 @@ typedef enum
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
-#ifndef HAL_NULL
-  #define HAL_NULL      (void *) 0
+#ifndef NULL
+  #define NULL             0
 #endif
 
 #define HAL_MAX_DELAY      0xFFFFFFFF
@@ -85,6 +85,8 @@ typedef enum
                               (__DMA_HANDLE_).Parent = (__HANDLE__);               \
                           } while(0)
 
+#define UNUSED(x) ((void)(x))                            
+                            
 /** @brief Reset the Handle's State field.
   * @param __HANDLE__: specifies the Peripheral Handle.
   * @note  This macro can be used for the following purpose:
@@ -153,6 +155,23 @@ typedef enum
     #endif /* __CC_ARM */
   #endif /* __ALIGN_BEGIN */
 #endif /* __GNUC__ */
+
+/** 
+  * @brief  __NOINLINE definition
+  */ 
+#if defined ( __CC_ARM   ) || defined   (  __GNUC__  )
+/* ARM & GNUCompiler 
+   ---------------- 
+*/
+#define __NOINLINE __attribute__ ( (noinline) )
+
+#elif defined ( __ICCARM__ )
+/* ICCARM Compiler
+   ---------------
+*/
+#define __NOINLINE _Pragma("optimize = no_inline")
+
+#endif
 
 #ifdef __cplusplus
 }

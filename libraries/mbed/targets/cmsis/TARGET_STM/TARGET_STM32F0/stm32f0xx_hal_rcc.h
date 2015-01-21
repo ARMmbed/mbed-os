@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -105,7 +105,7 @@ typedef struct
   uint32_t HSI14CalibrationValue;  /*!< The HSI14 calibration trimming value (default is RCC_HSI14CALIBRATION_DEFAULT).
                                         This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x1F */
 
-  uint32_t HSI48State;             /*!< The new state of the HSI48 (only applicable to STM32F07x and STM32F0x2 devices).
+  uint32_t HSI48State;             /*!< The new state of the HSI48 (only applicable to STM32F07x, STM32F0x2 and STM32F09x devices).
                                         This parameter can be a value of @ref RCCEx_HSI48_Config */
 
   uint32_t LSIState;               /*!< The new state of the LSI.
@@ -959,32 +959,6 @@ typedef struct
   *            @arg RCC_I2C1CLKSOURCE_SYSCLK: System Clock selected as I2C1 clock
   */
 #define __HAL_RCC_GET_I2C1_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_I2C1SW)))
-/**
-  * @}
-  */
-
-/** @addtogroup RCC_USARTx_Clock_Config RCC USARTx Clock Config
-  * @{   
-  */   
-/** @brief  Macro to configure the USART2 clock (USART2CLK).
-  * @param  __USART2CLKSource__: specifies the USART2 clock source.
-  *         This parameter can be one of the following values:
-  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
-  */
-#define __HAL_RCC_USART2_CONFIG(__USART2CLKSource__) \
-                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART2SW, (uint32_t)(__USART2CLKSource__))
-
-/** @brief  Macro to get the USART2 clock source.
-  * @retval The clock source can be one of the following values:
-  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
-  */
-#define __HAL_RCC_GET_USART2_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USART2SW)))
 /**
   * @}
   */

@@ -6,6 +6,17 @@
 #define SIGNAL_HANDLE_DELEY 25
 #define SIGNAL_SET_VALUE    0x01
 
+/*
+ * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
+ * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
+ * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
+ */
+#if defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#else
+    #define STACK_SIZE DEFAULT_STACK_SIZE
+#endif
+
 DigitalOut led(LED1);
 volatile int signal_counter = 0;
 
@@ -19,7 +30,7 @@ void led_thread(void const *argument) {
 }
 
 int main (void) {
-    Thread thread(led_thread);
+    Thread thread(led_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
 
     while (true) {

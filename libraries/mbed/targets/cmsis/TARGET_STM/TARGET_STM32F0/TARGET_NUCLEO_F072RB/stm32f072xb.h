@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f072xb.h
   * @author  MCD Application Team
-  * @version V2.1.0
-  * @date    03-Oct-2014
+  * @version V2.2.0
+  * @date    05-December-2014
   * @brief   CMSIS STM32F072x8/STM32F072xB devices Peripheral Access Layer Header File.
   *
   *          This file contains:
@@ -506,24 +506,15 @@ typedef struct
 
 typedef struct
 {
-  __IO uint16_t CR1;      /*!< SPI Control register 1 (not used in I2S mode),       Address offset: 0x00 */
-  uint16_t  RESERVED0;    /*!< Reserved, 0x02                                                            */
-  __IO uint16_t CR2;      /*!< SPI Control register 2,                              Address offset: 0x04 */
-  uint16_t  RESERVED1;    /*!< Reserved, 0x06                                                            */
-  __IO uint16_t SR;       /*!< SPI Status register,                                 Address offset: 0x08 */
-  uint16_t  RESERVED2;    /*!< Reserved, 0x0A                                                            */
-  __IO uint16_t DR;       /*!< SPI data register,                                   Address offset: 0x0C */
-  uint16_t  RESERVED3;    /*!< Reserved, 0x0E                                                            */
-  __IO uint16_t CRCPR;    /*!< SPI CRC polynomial register (not used in I2S mode),  Address offset: 0x10 */
-  uint16_t  RESERVED4;    /*!< Reserved, 0x12                                                            */
-  __IO uint16_t RXCRCR;   /*!< SPI Rx CRC register (not used in I2S mode),          Address offset: 0x14 */
-  uint16_t  RESERVED5;    /*!< Reserved, 0x16                                                            */
-  __IO uint16_t TXCRCR;   /*!< SPI Tx CRC register (not used in I2S mode),          Address offset: 0x18 */
-  uint16_t  RESERVED6;    /*!< Reserved, 0x1A                                                            */ 
-  __IO uint16_t I2SCFGR;  /*!< SPI_I2S configuration register,                      Address offset: 0x1C */
-  uint16_t  RESERVED7;    /*!< Reserved, 0x1E                                                            */
-  __IO uint16_t I2SPR;    /*!< SPI_I2S prescaler register,                          Address offset: 0x20 */
-  uint16_t  RESERVED8;    /*!< Reserved, 0x22                                                            */    
+  __IO uint32_t CR1;      /*!< SPI Control register 1 (not used in I2S mode),       Address offset: 0x00 */
+  __IO uint32_t CR2;      /*!< SPI Control register 2,                              Address offset: 0x04 */
+  __IO uint32_t SR;       /*!< SPI Status register,                                 Address offset: 0x08 */
+  __IO uint32_t DR;       /*!< SPI data register,                                   Address offset: 0x0C */
+  __IO uint32_t CRCPR;    /*!< SPI CRC polynomial register (not used in I2S mode),  Address offset: 0x10 */
+  __IO uint32_t RXCRCR;   /*!< SPI Rx CRC register (not used in I2S mode),          Address offset: 0x14 */
+  __IO uint32_t TXCRCR;   /*!< SPI Tx CRC register (not used in I2S mode),          Address offset: 0x18 */
+  __IO uint32_t I2SCFGR;  /*!< SPI_I2S configuration register,                      Address offset: 0x1C */
+  __IO uint32_t I2SPR;    /*!< SPI_I2S prescaler register,                          Address offset: 0x20 */
 }SPI_TypeDef;
 
 /**
@@ -5237,14 +5228,19 @@ typedef struct
                                        ((INSTANCE) == DMA1_Channel7))
 
 /****************************** GPIO Instances ********************************/
-#define IS_GPIO_ALL_INSTANCE(INSTANCE) (((INSTANCE) == GPIOA) || \
-                                        ((INSTANCE) == GPIOB) || \
-                                        ((INSTANCE) == GPIOC) || \
-                                        ((INSTANCE) == GPIOD) || \
-                                        ((INSTANCE) == GPIOE) || \
-                                        ((INSTANCE) == GPIOF))
+#define IS_GPIO_ALL_INSTANCE(INSTANCE)  (((INSTANCE) == GPIOA) || \
+                                         ((INSTANCE) == GPIOB) || \
+                                         ((INSTANCE) == GPIOC) || \
+                                         ((INSTANCE) == GPIOD) || \
+                                         ((INSTANCE) == GPIOE) || \
+                                         ((INSTANCE) == GPIOF))
+  
+#define IS_GPIO_AF_INSTANCE(INSTANCE)   (((INSTANCE) == GPIOA) || \
+                                         ((INSTANCE) == GPIOB) || \
+                                         ((INSTANCE) == GPIOC) || \
+                                         ((INSTANCE) == GPIOD) || \
+                                         ((INSTANCE) == GPIOE))
 
-/****************************** GPIO Lock Instances ****************************/
 #define IS_GPIO_LOCK_INSTANCE(INSTANCE) (((INSTANCE) == GPIOA) || \
                                          ((INSTANCE) == GPIOB))
 

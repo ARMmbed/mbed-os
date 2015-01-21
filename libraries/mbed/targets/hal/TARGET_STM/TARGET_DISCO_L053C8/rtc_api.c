@@ -29,6 +29,14 @@
  */
 #include "rtc_api.h"
 
+/* The mcu STM32L053C8 seems to have a problem in the RCC - LSE hardware block. The Disco_L053 don't have a 32kHz crystal connected to LSE port pins.
+ * During initialization the HAL tests if it can start the LSE oscillator. The Flag LSERDY in RCC_CSR should be set to 1 by RCC clock control when
+ * the oscillator runs stable. Without a crystal the flag shouldn't be set and the HAL trys to start the internal LSI oscillator.
+ * But the flag is also set to 1 without a crystal. That's why the RTC doesn't start.
+ *
+ */
+#define DONT_USE_LSE
+
 #if DEVICE_RTC
 
 #include "mbed_error.h"
@@ -37,7 +45,8 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
@@ -58,14 +67,16 @@ void rtc_init(void) {
 
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; /* Mandatory, otherwise the PLL is reconfigured! */
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; /* External 32.768 kHz clock on OSC_IN/OSC_OUT */
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+#ifndef DONT_USE_LSE 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         // Connect LSE to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
         rtc_freq = LSE_VALUE;
     } else {
+#endif
         // Enable LSI clock
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -77,9 +88,11 @@ void rtc_init(void) {
         // Connect LSI to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-        rtc_freq = 32000;
+        // This value is LSI typical value. To be measured precisely using a timer input capture for example.
+        rtc_freq = 37000;
+#ifndef DONT_USE_LSE 
     }
+#endif
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
@@ -96,7 +109,8 @@ void rtc_init(void) {
     }
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -121,7 +135,8 @@ void rtc_free(void) {
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return rtc_inited;
 }
 
@@ -142,7 +157,8 @@ int rtc_isenabled(void) {
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
@@ -169,7 +185,8 @@ time_t rtc_read(void) {
     return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 

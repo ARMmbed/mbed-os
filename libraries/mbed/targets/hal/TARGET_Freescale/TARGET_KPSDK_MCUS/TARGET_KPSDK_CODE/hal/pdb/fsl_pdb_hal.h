@@ -616,7 +616,7 @@ static inline void PDB_HAL_SetPulseOutDelayForLow(uint32_t baseAddr, uint32_t pu
 }
 
 #if defined(__cplusplus)
-extern }
+}
 #endif
 
 /*!

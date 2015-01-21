@@ -92,6 +92,7 @@ if __name__ == '__main__':
             ('emblocks', 'NUCLEO_F401RE'),
             ('emblocks', 'NUCLEO_F411RE'),
             ('emblocks', 'MTS_MDOT_F405RG'),
+            ('emblocks', 'MTS_MDOT_F411RE'),
 
             ('coide', 'KL05Z'),
             ('coide', 'KL25Z'),
@@ -103,6 +104,7 @@ if __name__ == '__main__':
             ('coide', 'DISCO_F429ZI'),
             ('coide', 'NUCLEO_F334R8'),
             ('coide', 'MTS_MDOT_F405RG'),
+            ('coide', 'MTS_MDOT_F411RE'),
 
             ('uvision', 'LPC1768'),
             ('uvision', 'LPC11U24'),
@@ -115,6 +117,7 @@ if __name__ == '__main__':
             ('uvision', 'HRM1017'),
 
             ('uvision', 'NUCLEO_F030R8'),
+            ('uvision', 'NUCLEO_F070RB'),
             ('uvision', 'NUCLEO_F072RB'),
             ('uvision', 'NUCLEO_F091RC'),
             ('uvision', 'NUCLEO_F103RB'),
@@ -163,6 +166,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
             ('gcc_arm', 'MTS_MDOT_F405RG'),
+            ('gcc_arm', 'MTS_MDOT_F411RE'),
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
@@ -170,6 +174,7 @@ if __name__ == '__main__':
             ('iar', 'LPC1347'),
 
             ('iar', 'NUCLEO_F030R8'),
+            ('iar', 'NUCLEO_F070RB'),
             ('iar', 'NUCLEO_F072RB'),
             ('iar', 'NUCLEO_F091RC'),
             ('iar', 'NUCLEO_F302R8'),
@@ -181,6 +186,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_L152RE'),
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
+            ('iar', 'MTS_MDOT_F411RE'),
 
             (None, None),
         ]:

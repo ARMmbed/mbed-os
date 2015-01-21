@@ -16,6 +16,14 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
+/* ->Take measures about optimization problems of web compiler */
+   /* Web compiler has problem that inlining code may not be generated correctly */
+   /* when "-O3 -Otime" was specified. */
+#if defined(__arm__) && (__ARMCC_VERSION <= 5040027)
+#pragma Ospace
+#endif
+/* <-Take measures about optimization problems of web compiler */
+
 #define DEVICE_PORTIN           1
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1

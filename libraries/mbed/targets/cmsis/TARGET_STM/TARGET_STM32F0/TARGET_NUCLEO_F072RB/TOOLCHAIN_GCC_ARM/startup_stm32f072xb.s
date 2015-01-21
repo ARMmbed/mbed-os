@@ -98,12 +98,18 @@ LoopFillZerobss:
   bcc FillZerobss
 
 /* Call the clock system intitialization function.*/
-  bl  SystemInit
+    bl  SystemInit
 /* Call static constructors */
-//  bl __libc_init_array
+    //bl __libc_init_array
 /* Call the application's entry point.*/
-//  bl main
-  bl _start
+    //bl  main
+/**
+ * Calling the crt0 'cold-start' entry point. There __libc_init_array is called
+ * and when existing hardware_init_hook() and software_init_hook() before 
+ * starting main(). software_init_hook() is available and has to be called due 
+ * to initializsation when using rtos.
+*/
+    bl _start
 
 LoopForever:
     b LoopForever

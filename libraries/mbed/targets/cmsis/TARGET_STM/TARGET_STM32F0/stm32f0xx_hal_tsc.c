@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -111,6 +111,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
+#ifdef HAL_TSC_MODULE_ENABLED
+
+#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || \
+    defined(STM32F042x6) || defined(STM32F072xB) ||                         \
+    defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx)
+
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
   */
@@ -119,12 +125,6 @@
   * @brief TSC HAL module driver
   * @{
   */
-
-#ifdef HAL_TSC_MODULE_ENABLED
-
-#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || \
-    defined(STM32F042x6) || defined(STM32F072xB) ||                         \
-    defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -161,7 +161,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask);
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == HAL_NULL)
+  if (htsc == NULL)
   {
     return HAL_ERROR;
   }
@@ -244,7 +244,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == HAL_NULL)
+  if (htsc == NULL)
   {
     return HAL_ERROR;
   }
@@ -774,18 +774,18 @@ static uint32_t TSC_extract_groups(uint32_t iomask)
   * @}
   */
 
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
+
 #endif /* defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || */
        /* defined(STM32F042x6) || defined(STM32F072xB) ||                         */
        /* defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx) */
 
 #endif /* HAL_TSC_MODULE_ENABLED */
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -104,53 +104,41 @@ typedef enum
 }HAL_I2S_StateTypeDef;
 
 /** 
-  * @brief  HAL I2S Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_I2S_ERROR_NONE      = 0x00,  /*!< No error           */
-  HAL_I2S_ERROR_TIMEOUT   = 0x01,  /*!< Timeout error      */  
-  HAL_I2S_ERROR_OVR       = 0x02,  /*!< OVR error          */
-  HAL_I2S_ERROR_UDR       = 0x04,  /*!< UDR error          */
-  HAL_I2S_ERROR_DMA       = 0x08,  /*!< DMA transfer error */
-  HAL_I2S_ERROR_UNKNOW    = 0x10   /*!< Unknow Error error */  
-}HAL_I2S_ErrorTypeDef;
-
-/** 
   * @brief I2S handle Structure definition  
   */
 typedef struct
 {
-  SPI_TypeDef                *Instance;    /* I2S registers base address */
+  SPI_TypeDef                *Instance;    /*!< I2S registers base address */
 
-  I2S_InitTypeDef            Init;         /* I2S communication parameters */
+  I2S_InitTypeDef            Init;         /*!< I2S communication parameters */
   
-  uint16_t                   *pTxBuffPtr;  /* Pointer to I2S Tx transfer buffer */
+  uint16_t                   *pTxBuffPtr;  /*!< Pointer to I2S Tx transfer buffer */
   
-  __IO uint16_t              TxXferSize;   /* I2S Tx transfer size */
+  __IO uint16_t              TxXferSize;   /*!< I2S Tx transfer size */
   
-  __IO uint16_t              TxXferCount;  /* I2S Tx transfer Counter */
+  __IO uint16_t              TxXferCount;  /*!< I2S Tx transfer Counter */
   
-  uint16_t                   *pRxBuffPtr;  /* Pointer to I2S Rx transfer buffer */
+  uint16_t                   *pRxBuffPtr;  /*!< Pointer to I2S Rx transfer buffer */
   
-  __IO uint16_t              RxXferSize;   /* I2S Rx transfer size */
+  __IO uint16_t              RxXferSize;   /*!< I2S Rx transfer size */
   
-  __IO uint16_t              RxXferCount;  /* I2S Rx transfer counter 
+  __IO uint16_t              RxXferCount;  /*!< I2S Rx transfer counter 
                                               (This field is initialized at the 
                                                same value as transfer size at the 
                                                beginning of the transfer and 
                                                decremented when a sample is received. 
                                                NbSamplesReceived = RxBufferSize-RxBufferCount) */
 
-  DMA_HandleTypeDef          *hdmatx;      /* I2S Tx DMA handle parameters */
+  DMA_HandleTypeDef          *hdmatx;      /*!< I2S Tx DMA handle parameters */
 
-  DMA_HandleTypeDef          *hdmarx;      /* I2S Rx DMA handle parameters */
+  DMA_HandleTypeDef          *hdmarx;      /*!< I2S Rx DMA handle parameters */
   
-  __IO HAL_LockTypeDef       Lock;         /* I2S locking object */
+  __IO HAL_LockTypeDef       Lock;         /*!< I2S locking object */
   
-  __IO HAL_I2S_StateTypeDef  State;        /* I2S communication state */
+  __IO HAL_I2S_StateTypeDef  State;        /*!< I2S communication state */
 
-  __IO HAL_I2S_ErrorTypeDef  ErrorCode;    /* I2S Error code                 */
+  __IO uint32_t              ErrorCode;    /*!< I2S Error code          
+                                                This parameter can be a value of @ref I2S_Error */
 
 }I2S_HandleTypeDef;
 /**
@@ -160,6 +148,18 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup I2S_Exported_Constants I2S Exported Constants
   * @{
+  */
+/** @defgroup I2S_Error I2S Error
+  * @{
+  */
+#define HAL_I2S_ERROR_NONE      ((uint32_t)0x00000000)  /*!< No error           */
+#define HAL_I2S_ERROR_TIMEOUT   ((uint32_t)0x00000001)  /*!< Timeout error      */  
+#define HAL_I2S_ERROR_OVR       ((uint32_t)0x00000002)  /*!< OVR error          */
+#define HAL_I2S_ERROR_UDR       ((uint32_t)0x00000004)  /*!< UDR error          */
+#define HAL_I2S_ERROR_DMA       ((uint32_t)0x00000008)  /*!< DMA transfer error */
+#define HAL_I2S_ERROR_UNKNOW    ((uint32_t)0x00000010)  /*!< Unknow Error error */  
+/**
+  * @}
   */
 
 /** @defgroup I2S_Mode I2S Mode
@@ -348,13 +348,21 @@ typedef struct
   * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
   */                                                                                                   
-#define __HAL_I2S_CLEAR_OVRFLAG(__HANDLE__) do{__IO uint32_t tmpreg = (__HANDLE__)->Instance->DR;\
-                                               tmpreg = (__HANDLE__)->Instance->SR;}while(0)
+#define __HAL_I2S_CLEAR_OVRFLAG(__HANDLE__) do{ \
+                                               __IO uint32_t tmpreg; \
+                                               tmpreg = (__HANDLE__)->Instance->DR; \
+                                               tmpreg = (__HANDLE__)->Instance->SR; \
+                                               UNUSED(tmpreg); \
+                                              }while(0)
 /** @brief Clears the I2S UDR pending flag.
   * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
   */                                                                                                   
-#define __HAL_I2S_CLEAR_UDRFLAG(__HANDLE__)((__HANDLE__)->Instance->SR)    
+#define __HAL_I2S_CLEAR_UDRFLAG(__HANDLE__) do{\
+                                               __IO uint32_t tmpreg;\
+                                               tmpreg = ((__HANDLE__)->Instance->SR);\
+                                               UNUSED(tmpreg); \
+                                              }while(0) 
 /**
   * @}
   */ 
@@ -412,7 +420,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
   */
 /* Peripheral Control and State functions  ************************************/
 HAL_I2S_StateTypeDef HAL_I2S_GetState(I2S_HandleTypeDef *hi2s);
-HAL_I2S_ErrorTypeDef HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
+uint32_t HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
 /**
   * @}
   */

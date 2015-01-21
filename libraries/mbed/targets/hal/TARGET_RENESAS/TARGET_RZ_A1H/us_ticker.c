@@ -16,81 +16,83 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
-#include "mtu2_iodefine.h"
+#include "ostm_iodefine.h"
 
-#define US_TICKER_TIMER      (OSTM0.OSTMnCMP)
-#define US_TICKER_TIMER_IRQn TIMER3_IRQn
+#include "RZ_A1_Init.h"
+#include "MBRZA1H.h"
+
+#define US_TICKER_TIMER_IRQn (OSTMI1TINT_IRQn)
+#define CPG_STBCR5_BIT_MSTP50   (0x01u) /* OSTM1 */
+
+#define US_TICKER_CLOCK_US_DEV (1000000)
 
 int us_ticker_inited = 0;
+static double count_clock = 0;
+static uint32_t last_read = 0;
+static uint32_t wrap_arround = 0;
 
 void us_ticker_interrupt(void) {
     us_ticker_irq_handler();
-    GIC_EndInterrupt(TGI2A_IRQn);
 }
 
 void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
-    
+
+    /* set Counter Clock(us) */
+    if (false == RZ_A1_IsClockMode0()) {
+        count_clock = ((double)CM1_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
+    } else {
+        count_clock = ((double)CM0_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
+    }
+
     /* Power Control for Peripherals      */
-    CPGSTBCR3 &= ~ 0x8;   // turn on MTU2
+    CPGSTBCR5 &= ~(CPG_STBCR5_BIT_MSTP50); /* enable OSTM1 clock */
 
     // timer settings
-    MTU2.TSYR = 0x6;      // cascading T_1-T_2
+    OSTM1TT   = 0x01;    /* Stop the counter and clears the OSTM1TE bit.     */
+    OSTM1CTL  = 0x02;    /* Free running timer mode. Interrupt disabled when star counter  */
 
-    MTU2.TCR_2 = 0x03;    // divider 1/64
-    MTU2.TCR_1 = 0x07;    // count-up from T_2 pulse(cascade)
-
-    MTU2.TCNT_1 = 0x00;   // counter value set to 0
-    MTU2.TCNT_2 = 0x00;   // 
-
-    MTU2.TSTR |= 0x06;     //
-    MTU2.TSR_2 = 0xc0;    // timer start
+    OSTM1TS   = 0x1;    /* Start the counter and sets the OSTM0TE bit.     */
 
     // INTC settings
-    InterruptHandlerRegister(TGI2A_IRQn, (void (*)(uint32_t))us_ticker_interrupt);
-    GIC_SetPriority(TGI2A_IRQn, 5);
-    GIC_EnableIRQ(TGI2A_IRQn);
-    __enable_irq();
+    InterruptHandlerRegister(US_TICKER_TIMER_IRQn, (void (*)(uint32_t))us_ticker_interrupt);
+    GIC_SetPriority(US_TICKER_TIMER_IRQn, 5);
+    GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-//static const float PCLK     =33.33,          // dummy
-                   //PRESCALE =64.0;           // dummy
-static const float FACTOR_C2U = 1.9201920192019204, //(PRESCALE/PCLK)
-                   FACTOR_U2C = 0.52078125;         //(PCLK/PRESCALE)
-
-#define F_CLK2us(val)  ((uint32_t)((val)*FACTOR_C2U))
-#define F_us2CLK(val)  ((uint32_t)((val)*FACTOR_U2C))
-
-
 uint32_t us_ticker_read() {
-    static uint32_t max_val = 0x8551eb85; //*F_us2CLK(0xffffffff)+1;
     uint32_t val;
+    uint64_t val64;
+
     if (!us_ticker_inited)
         us_ticker_init();
-    
-    val = MTU2.TCNT_1<<16 | MTU2.TCNT_2;  // concat cascaded Counters
-    if (val > max_val) {  // if overflow (in us-timer)
-        val -= max_val;   // correct value
-        MTU2.TCNT_1 = 0;  // reset counter
-        MTU2.TCNT_2 = val;
+
+    /* read counter */
+    val = OSTM1CNT;
+    if ( last_read > val ) {
+        wrap_arround++;
     }
-    val = F_CLK2us(val);
+    last_read = val;
+    val64 = ((uint64_t)wrap_arround << 32) + val;
+
+    /* clock to us */
+    val = (uint32_t)(val64 / count_clock);
     return val;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    timestamp = F_us2CLK(timestamp);
-    MTU2.TGRA_2 = timestamp & 0xffff;
-    // enable match interrupt
-    MTU2.TIER_2 = 0x01;
+    timestamp = (timestamp_t)(timestamp * count_clock);
+    OSTM1CMP  = (uint32_t)(timestamp & 0xffffffff);
+    GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
 void us_ticker_disable_interrupt(void) {
-    MTU2.TIER_2 &= ~(0xc0);
+    GIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }
 
 void us_ticker_clear_interrupt(void) {
-    MTU2.TSR_2 &= 0xc0;
+    /* There are no Flags of OSTM1 to clear here */
+    /* Do Nothing */
 }

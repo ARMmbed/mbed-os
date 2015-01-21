@@ -28,6 +28,10 @@ typedef enum {
     UART1,
     UART2,
     UART3,
+    UART4,
+    UART5,
+    UART6,
+    UART7,
 } UARTName;
 
 // PWMType & 1 == 1 then have to use PWDTR[12] == 1
@@ -50,16 +54,20 @@ typedef enum {
     PWM2H,
 } PWMType;
 
-#define PTM_SHIFT 8
 typedef enum {
-    PWM0_PIN = (1 << PTM_SHIFT) | PWM2E,  // LED_R (through MTU2) TIOC4A [T.B.D]
-    PWM1_PIN = (0 << PTM_SHIFT) | PWM2F,  // LED_G
-    PWM2_PIN = (0 << PTM_SHIFT) | PWM2G,  // LED_B
-    PWM3_PIN = (0 << PTM_SHIFT) | PWM2H,  // LED_USER (not explicitly supported)
-    PWM4_PIN = (0 << PTM_SHIFT) | PWM1G,  // D9    
-    PWM5_PIN = (0 << PTM_SHIFT) | PWM1H,  // D8  not explicitly supported
-    PWM6_PIN = (0 << PTM_SHIFT) | PWM1F,  // D7  not explicitly supported
-    PWM7_PIN = (0 << PTM_SHIFT) | PWM1D,  // D6
+    PWM0_PIN,
+    PWM1_PIN,
+    PWM2_PIN,
+    PWM3_PIN,
+    PWM4_PIN,
+    PWM5_PIN,
+    PWM6_PIN,
+    PWM7_PIN,
+    PWM8_PIN,
+    PWM9_PIN,
+    PWM10_PIN,
+    PWM11_PIN,
+    PWM12_PIN,
 } PWMName;
 
 typedef enum {
@@ -89,7 +97,7 @@ typedef enum {
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        P_SCIF2
+#define STDIO_UART        UART2
 
 // Default peripherals
 #define MBED_SPI0         p5, p6, p7, p8

@@ -1,6 +1,17 @@
 #include "mbed.h"
 #include "rtos.h"
 
+/*
+ * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
+ * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
+ * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
+ */
+#if defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#define STACK_SIZE DEFAULT_STACK_SIZE/4
+#else
+#define STACK_SIZE DEFAULT_STACK_SIZE
+#endif
+
 void print_char(char c = '*')
 {
     printf("%c", c);
@@ -19,7 +30,7 @@ void led2_thread(void const *argument) {
 }
 
 int main() {
-    Thread thread(led2_thread);
+    Thread thread(led2_thread, NULL, osPriorityNormal, STACK_SIZE);
 
     while (true) {
         led1 = !led1;

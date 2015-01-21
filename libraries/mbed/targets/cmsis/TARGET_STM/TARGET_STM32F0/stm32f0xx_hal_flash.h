@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
@@ -59,15 +59,6 @@
 /** @defgroup FLASH_Exported_Types FLASH Exported Types
   * @{
   */  
-
-/** 
-  * @brief FLASH Error source  
-  */ 
-typedef enum
-{ 
-  FLASH_ERROR_PG        = 0x01,
-  FLASH_ERROR_WRP       = 0x02
-} FLASH_ErrorTypeDef;
 
 /**
   * @brief  FLASH Erase structure definition
@@ -134,17 +125,18 @@ typedef enum
   */
 typedef struct
 {
-  __IO FLASH_ProcedureTypeDef ProcedureOnGoing; /* Internal variable to indicate which procedure is ongoing or not in IT context */
+  __IO FLASH_ProcedureTypeDef ProcedureOnGoing; /*!< Internal variable to indicate which procedure is ongoing or not in IT context */
   
-  __IO uint32_t               DataRemaining;    /* Internal variable to save the remaining pages to erase or half-word to program in IT context */
+  __IO uint32_t               DataRemaining;    /*!< Internal variable to save the remaining pages to erase or half-word to program in IT context */
   
-  __IO uint32_t               Address;          /* Internal variable to save address selected for program or erase */
+  __IO uint32_t               Address;          /*!< Internal variable to save address selected for program or erase */
   
-  __IO uint64_t               Data;             /* Internal variable to save data to be programmed */
+  __IO uint64_t               Data;             /*!< Internal variable to save data to be programmed */
 
-  HAL_LockTypeDef             Lock;             /* FLASH locking object                */
+  HAL_LockTypeDef             Lock;             /*!< FLASH locking object                */
 
-  __IO FLASH_ErrorTypeDef     ErrorCode;        /* FLASH error code                    */
+  __IO uint32_t               ErrorCode;        /*!< FLASH error code                    
+                                                     This parameter can be a value of @ref FLASH_Error  */
 
 } FLASH_ProcessTypeDef;
 
@@ -157,6 +149,16 @@ typedef struct
 /** @defgroup FLASH_Exported_Constants FLASH Exported Constants
   * @{
   */  
+
+/** @defgroup FLASH_Error FLASH Error
+  * @{
+  */ 
+#define FLASH_ERROR_NONE      ((uint32_t)0x00000000)
+#define FLASH_ERROR_PG        ((uint32_t)0x00000001)
+#define FLASH_ERROR_WRP       ((uint32_t)0x00000002)
+/**
+  * @}
+  */
 
 /** @defgroup FLASH_Type_Erase FLASH Type Erase
   * @{
@@ -204,7 +206,7 @@ typedef struct
 #define OPTIONBYTE_USER      ((uint32_t)0x04)  /*!<USER option byte configuration*/
 #define OPTIONBYTE_DATA      ((uint32_t)0x08)  /*!<DATA option byte configuration*/
 
-#define IS_OPTIONBYTE(VALUE) (((VALUE) < (OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER | OPTIONBYTE_DATA)))
+#define IS_OPTIONBYTE(VALUE) ((VALUE) <= (OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER | OPTIONBYTE_DATA))
 /**
   * @}
   */
@@ -485,7 +487,7 @@ HAL_StatusTypeDef  HAL_FLASH_OB_Launch(void);
  * @{
  */
 /* Peripheral State and Error functions ***************************************/
-FLASH_ErrorTypeDef HAL_FLASH_GetError(void);
+uint32_t HAL_FLASH_GetError(void);
 
 /**
   * @}
