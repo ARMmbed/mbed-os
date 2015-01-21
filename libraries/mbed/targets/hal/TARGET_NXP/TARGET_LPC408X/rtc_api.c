@@ -28,7 +28,6 @@
  * Clock Control Register
  *  RTC_CCR[0] : Enable - 0 = Disabled, 1 = Enabled
  *  RTC_CCR[1] : Reset - 0 = Normal, 1 = Reset
- *  RTC_CCR[4] : Clock Source - 0 = Prescaler, 1 = 32k Xtal
  *
  * The RTC may already be running, so we should set it up
  * without impacting if it is the case
@@ -37,7 +36,6 @@ void rtc_init(void) {
     LPC_SC->PCONP |= 0x200; // Ensure power is on
     LPC_RTC->CCR = 0x00;
     
-// clock source on 2368 is special test mode on 1768!
     LPC_RTC->CCR |= 1 << 0; // Ensure the RTC is enabled
 }
 
