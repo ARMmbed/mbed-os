@@ -86,6 +86,7 @@ int main()
         printf("SD: Reading data ... ");
         FILE *f = fopen(sd_file_path, "r");
         if (f) {
+            read_result = true; 
             for (int i = 0; i < DATA_SIZE; i++) {
                 uint8_t data = fgetc(f);
                 if (data != data_written[i]) {
