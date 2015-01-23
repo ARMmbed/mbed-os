@@ -18,7 +18,19 @@
 #include "cmsis.h"
 #include "pinmap.h"
 
+
+#ifdef TARGET_DFCM_NNN40
 static const PinMap PinMap_I2C_SDA[] = {
+    {I2C_SDA0, I2C_0, 1},
+    {NC, NC, 0}
+};
+
+static const PinMap PinMap_I2C_SCL[] = {
+    {I2C_SCL0, I2C_0, 1},
+    {NC, NC,    0}
+};
+#else
+    static const PinMap PinMap_I2C_SDA[] = {
     {p22, I2C_0, 1},
     {p13, I2C_1, 2},
     {NC, NC, 0}
@@ -29,6 +41,7 @@ static const PinMap PinMap_I2C_SCL[] = {
     {p15, I2C_1, 2},
     {NC, NC,    0}
 };
+#endif
 
 void i2c_interface_enable(i2c_t *obj)
 {

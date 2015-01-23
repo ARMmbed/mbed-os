@@ -22,6 +22,20 @@
 #define ADC_10BIT_RANGE             0x3FF
 #define ADC_RANGE    ADC_10BIT_RANGE
 
+#ifdef TARGET_DFCM_NNN40
+
+static const PinMap PinMap_ADC[] = {
+    {p0, ADC0_0, 4},
+    {p1, ADC0_0, 8},
+    {p2, ADC0_0, 16},
+    {p3, ADC0_0, 32},
+    {p4, ADC0_0, 64},
+    {p5, ADC0_0, 128},
+    {NC, NC, 0}
+}; 
+
+#else
+
 static const PinMap PinMap_ADC[] = {
     {p1, ADC0_0, 4},
     {p2, ADC0_0, 8},
@@ -31,6 +45,7 @@ static const PinMap PinMap_ADC[] = {
     {p6, ADC0_0, 128},
     {NC, NC, 0}
 };
+#endif
 
 void analogin_init(analogin_t *obj, PinName pin)
 {

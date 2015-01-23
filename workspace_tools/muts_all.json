@@ -1,0 +1,8 @@
+{
+    "1" : { 
+            "mcu": "DFCM_NNN40",
+			"port":"COM55",
+            "disk":"F:\\",
+            "peripherals": [""]
+    }
+}

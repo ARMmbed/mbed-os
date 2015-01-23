@@ -21,7 +21,7 @@
 #include "nrf51822.h"
 #include "system_nrf51822.h"
 
-#ifdef DFCM_NNN40_DT0R
+#ifdef TARGET_DFCM_NNN40
 
 	#define __SYSTEM_CLOCK      (32000000UL)     /*!< nRF51 devices use a fixed System Clock Frequency of 32MHz */
 #else
@@ -73,6 +73,8 @@ void SystemInit(void)
 
 #ifdef TARGET_HRM1017
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
+#elifdef TARGET_DFCM_NNN40
+	NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
 #else
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
 #endif

@@ -50,9 +50,9 @@ int main() {
 	}
 
 	if (successes > 8) {
-		notify_success(true);
+		notify_completion(true);
 	}
 	else {
-		notify_success(false);
+		notify_completion(false);
 	}
 }
