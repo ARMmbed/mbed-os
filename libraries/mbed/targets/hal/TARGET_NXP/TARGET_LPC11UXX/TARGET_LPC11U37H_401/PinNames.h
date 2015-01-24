@@ -139,6 +139,12 @@ typedef enum {
     SDA= P0_5, // same port as A4
     SCL= P0_4, // same port as A5
     
+    //SD Card pins
+    SDMOSI = P0_9,
+    SDMISO = P0_8,
+    SDSCLK = P1_29,
+    SDSSEL = P1_12,
+    
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
