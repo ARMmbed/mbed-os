@@ -50,7 +50,7 @@ void sleep(void)
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
-#elif defined(TARGET_STM32F030R8)
+#elif defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
 void sleep(void)
 {
     // Stop HAL systick
@@ -79,7 +79,7 @@ void sleep(void)
 }
 #endif
 
-#if defined(TARGET_STM32F030R8)
+#if defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
 void deepsleep(void)
 {
     // Request to enter STOP mode with regulator in low power mode

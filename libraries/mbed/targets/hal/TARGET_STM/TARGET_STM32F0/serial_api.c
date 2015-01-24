@@ -42,7 +42,7 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-#elif defined (TARGET_STM32F030R8)
+#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
 #define UART_NUM (2)
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0};
@@ -410,7 +410,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart8_irq;
     }
 
-#elif defined (TARGET_STM32F030R8)
+#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
 
 #else
     if (obj->uart == UART_3) {
