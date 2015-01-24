@@ -49,6 +49,18 @@ void sleep(void)
     // Enable HAL tick and us_ticker update interrupts
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
+
+#elif defined(TARGET_STM32F030R8)
+void sleep(void)
+{
+    // Stop HAL systick
+    HAL_SuspendTick();
+    // Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    // Restart HAL systick
+    HAL_ResumeTick();
+}
+
 #else
 static TIM_HandleTypeDef TimMasterHandle;
 
@@ -67,6 +79,21 @@ void sleep(void)
 }
 #endif
 
+#if defined(TARGET_STM32F030R8)
+void deepsleep(void)
+{
+    // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+    HAL_InitTick(TICK_INT_PRIORITY);
+
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
+
+    HAL_InitTick(TICK_INT_PRIORITY);
+}
+
+#else
 void deepsleep(void)
 {
     // Request to enter STOP mode with regulator in low power mode
@@ -75,5 +102,6 @@ void deepsleep(void)
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
 }
+#endif
 
 #endif
