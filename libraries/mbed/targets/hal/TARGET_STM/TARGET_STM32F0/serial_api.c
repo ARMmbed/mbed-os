@@ -42,6 +42,11 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+#elif defined (TARGET_STM32F030R8)
+#define UART_NUM (2)
+
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0};
+
 #else
 #define UART_NUM (4)
 
@@ -102,15 +107,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         obj->index = 1;
     }
 
+#if defined USART3_BASE
     if (obj->uart == UART_3) {
         __USART3_CLK_ENABLE();
         obj->index = 2;
     }
+#endif
 
+#if defined USART4_BASE
     if (obj->uart == UART_4) {
         __USART4_CLK_ENABLE();
         obj->index = 3;
     }
+#endif
 
 #if defined USART5_BASE
     if (obj->uart == UART_5) {
@@ -183,17 +192,21 @@ void serial_free(serial_t *obj)
         __USART2_CLK_DISABLE();
     }
 
+#if defined USART3_BASE
     if (obj->uart == UART_3) {
         __USART3_FORCE_RESET();
         __USART3_RELEASE_RESET();
         __USART3_CLK_DISABLE();
     }
+#endif
 
+#if defined USART4_BASE
     if (obj->uart == UART_4) {
         __USART4_FORCE_RESET();
         __USART4_RELEASE_RESET();
         __USART4_CLK_DISABLE();
     }
+#endif
 
 #if defined USART5_BASE
     if (obj->uart == UART_5) {
@@ -301,15 +314,19 @@ static void uart2_irq(void)
     uart_irq(UART_2, 1);
 }
 
+#if defined USART3_BASE
 static void uart3_irq(void)
 {
     uart_irq(UART_3, 2);
 }
+#endif
 
+#if defined USART4_BASE
 static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
+#endif
 
 #if defined USART5_BASE
 static void uart5_irq(void)
@@ -392,6 +409,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         irq_n = USART3_8_IRQn;
         vector = (uint32_t)&uart8_irq;
     }
+
+#elif defined (TARGET_STM32F030R8)
 
 #else
     if (obj->uart == UART_3) {
