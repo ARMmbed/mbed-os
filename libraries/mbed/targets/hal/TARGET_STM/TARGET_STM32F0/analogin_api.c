@@ -88,7 +88,11 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_RANK_CHANNEL_NUMBER;
+#if defined (TARGET_STM32F091RC)
+    sConfig.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
+#else
     sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
+#endif
 
     switch (obj->pin) {
         case PA_0:

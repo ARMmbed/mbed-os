@@ -33,7 +33,7 @@ void mbed_sdk_init()
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
 
-#if defined(TARGET_STM32F072RB)
+#if defined(TARGET_STM32F072RB) || defined (TARGET_STM32F091RC)
     // Need to restart HAL driver after the RAM is initialized
     HAL_Init();
 #endif

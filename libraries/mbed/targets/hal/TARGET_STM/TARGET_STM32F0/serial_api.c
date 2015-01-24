@@ -37,9 +37,17 @@
 #include <string.h>
 #include "PeripheralPins.h"
 
+#if defined (TARGET_STM32F091RC)
+#define UART_NUM (8)
+
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+#else
 #define UART_NUM (4)
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0};
+
+#endif
 
 static uart_irq_handler irq_handler;
 
@@ -104,6 +112,34 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         obj->index = 3;
     }
 
+#if defined USART5_BASE
+    if (obj->uart == UART_5) {
+        __USART5_CLK_ENABLE();
+        obj->index = 4;
+    }
+#endif
+
+#if defined USART6_BASE
+    if (obj->uart == UART_6) {
+        __USART6_CLK_ENABLE();
+        obj->index = 5;
+    }
+#endif
+
+#if defined USART7_BASE
+    if (obj->uart == UART_7) {
+        __USART7_CLK_ENABLE();
+        obj->index = 6;
+    }
+#endif
+
+#if defined USART8_BASE
+    if (obj->uart == UART_8) {
+        __USART8_CLK_ENABLE();
+        obj->index = 7;
+    }
+#endif
+
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
@@ -158,6 +194,39 @@ void serial_free(serial_t *obj)
         __USART4_RELEASE_RESET();
         __USART4_CLK_DISABLE();
     }
+
+#if defined USART5_BASE
+    if (obj->uart == UART_5) {
+        __USART5_FORCE_RESET();
+        __USART5_RELEASE_RESET();
+        __USART5_CLK_DISABLE();
+    }
+#endif
+
+#if defined USART6_BASE
+    if (obj->uart == UART_6) {
+        __USART6_FORCE_RESET();
+        __USART6_RELEASE_RESET();
+        __USART6_CLK_DISABLE();
+    }
+#endif
+
+#if defined USART7_BASE
+    if (obj->uart == UART_7) {
+        __USART7_FORCE_RESET();
+        __USART7_RELEASE_RESET();
+        __USART7_CLK_DISABLE();
+    }
+#endif
+
+#if defined USART8_BASE
+    if (obj->uart == UART_8) {
+        __USART8_FORCE_RESET();
+        __USART8_RELEASE_RESET();
+        __USART8_CLK_DISABLE();
+    }
+#endif
+
 
     // Configure GPIOs
     pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -242,6 +311,34 @@ static void uart4_irq(void)
     uart_irq(UART_4, 3);
 }
 
+#if defined USART5_BASE
+static void uart5_irq(void)
+{
+    uart_irq(UART_5, 4);
+}
+#endif
+
+#if defined USART6_BASE
+static void uart6_irq(void)
+{
+    uart_irq(UART_6, 5);
+}
+#endif
+
+#if defined USART7_BASE
+static void uart7_irq(void)
+{
+    uart_irq(UART_7, 6);
+}
+#endif
+
+#if defined USART8_BASE
+static void uart8_irq(void)
+{
+    uart_irq(UART_8, 7);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -265,6 +362,38 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart2_irq;
     }
 
+#if defined (TARGET_STM32F091RC)
+    if (obj->uart == UART_3) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart3_irq;
+    }
+
+    if (obj->uart == UART_4) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart4_irq;
+    }
+
+    if (obj->uart == UART_5) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart5_irq;
+    }
+
+    if (obj->uart == UART_6) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart6_irq;
+    }
+
+    if (obj->uart == UART_7) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart7_irq;
+    }
+
+    if (obj->uart == UART_8) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart8_irq;
+    }
+
+#else
     if (obj->uart == UART_3) {
         irq_n = USART3_4_IRQn;
         vector = (uint32_t)&uart3_irq;
@@ -274,6 +403,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         irq_n = USART3_4_IRQn;
         vector = (uint32_t)&uart4_irq;
     }
+#endif
 
     if (enable) {
 
