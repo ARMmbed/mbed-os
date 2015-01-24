@@ -27,36 +27,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
+#include "cmsis.h"
 
-#include "pinmap.h"
-#include "PeripheralNames.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//*** ADC ***
+typedef enum {
+    ADC_1 = (int)ADC1_BASE,
+    ADC_2 = (int)ADC_BASE
+} ADCName;
 
-extern const PinMap PinMap_ADC[];
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE
+} UARTName;
 
-//*** I2C ***
+#define STDIO_UART_TX  PA_2
+#define STDIO_UART_RX  PA_3
+#define STDIO_UART     UART_2
 
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE
+} SPIName;
 
-//*** PWM ***
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE
+} I2CName;
 
-extern const PinMap PinMap_PWM[];
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_3 = (int)TIM3_BASE,
+    PWM_14 = (int)TIM14_BASE,
+    PWM_15 = (int)TIM15_BASE,
+    PWM_16 = (int)TIM16_BASE,
+    PWM_17 = (int)TIM17_BASE
+} PWMName;
 
-//*** SERIAL ***
-
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-
-//*** SPI ***
-
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
+#ifdef __cplusplus
+}
+#endif
 
 #endif
