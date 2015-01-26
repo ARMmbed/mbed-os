@@ -34,7 +34,7 @@ class GCC(mbedToolchain):
         mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0"
+            cpu = "cortex-m0plus"
         elif target.core == "Cortex-M4F":
             cpu = "cortex-m4"
         else:

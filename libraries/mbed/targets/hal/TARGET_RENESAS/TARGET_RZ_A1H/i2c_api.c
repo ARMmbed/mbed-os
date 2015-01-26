@@ -462,16 +462,25 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         i2c_set_err_noslave(obj);
         return I2C_ERROR_NO_SLAVE;
     }
-    /* RIICnSR2.STOP = 0 */
-    REG(SR2.UINT32) &= ~SR2_STOP;
-    /* RIICnCR2.SP   = 1 */
-    REG(CR2.UINT32) |= CR2_SP;
-    /* RIICnDRR read */
-    value = REG(DRR.UINT32) & 0xFF;
-    data[count] = (char)value;
-    /* RIICnMR3.WAIT = 0 */
-    REG(MR3.UINT32) &= ~MR3_WAIT;
-    (void)i2c_wait_STOP(obj);
+    /* If not repeated start, send stop. */
+    if (stop) {
+        /* RIICnSR2.STOP = 0 */
+        REG(SR2.UINT32) &= ~SR2_STOP;
+        /* RIICnCR2.SP   = 1 */
+        REG(CR2.UINT32) |= CR2_SP;
+        /* RIICnDRR read */
+        value = REG(DRR.UINT32) & 0xFF;
+        data[count] = (char)value;
+        /* RIICnMR3.WAIT = 0 */
+        REG(MR3.UINT32) &= ~MR3_WAIT;
+        (void)i2c_wait_STOP(obj);
+    } else {
+        /* RIICnDRR read */
+        value = REG(DRR.UINT32) & 0xFF;
+        data[count] = (char)value;
+        /* RIICnMR3.WAIT = 0 */
+        REG(MR3.UINT32) &= ~MR3_WAIT;
+    }
     i2c_set_NACKF_STOP(obj);
 
     return length;
@@ -506,8 +515,11 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         i2c_set_err_noslave(obj);
         return I2C_ERROR_NO_SLAVE;
     }
-    i2c_stop(obj);
-    (void)i2c_wait_STOP(obj);
+    /* If not repeated start, send stop. */
+    if (stop) {
+        i2c_stop(obj);
+        (void)i2c_wait_STOP(obj);
+    }
     i2c_set_NACKF_STOP(obj);
     
     return length;

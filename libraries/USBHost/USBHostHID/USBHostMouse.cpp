@@ -47,6 +47,7 @@ bool USBHostMouse::connected() {
 }
 
 bool USBHostMouse::connect() {
+    int len_listen;
 
     if (dev_connected) {
         return true;
@@ -69,7 +70,11 @@ bool USBHostMouse::connect() {
                 host->registerDriver(dev, mouse_intf, this, &USBHostMouse::init);
 
                 int_in->attach(this, &USBHostMouse::rxHandler);
-                host->interruptRead(dev, int_in, report, int_in->getSize(), false);
+                len_listen = int_in->getSize();
+                if (len_listen > sizeof(report)) {
+                    len_listen = sizeof(report);
+                }
+                host->interruptRead(dev, int_in, report, len_listen, false);
 
                 dev_connected = true;
                 return true;
@@ -108,6 +113,10 @@ void USBHostMouse::rxHandler() {
     x = report[1];
     y = report[2];
     z = report[3];
+
+    if (len_listen > sizeof(report)) {
+        len_listen = sizeof(report);
+    }
 
     if (dev)
         host->interruptRead(dev, int_in, report, len_listen, false);

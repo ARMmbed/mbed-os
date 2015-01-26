@@ -24,13 +24,13 @@ SFLASH 0x18000000 (0x08000000)
         * (+RO-CODE)              ; Application RO code (.text)
     }
 
-    RO_DATA          +0
+    RO_DATA    +0
     { * (+RO-DATA) }              ; Application RO data (.constdata)
 
-    RW_DATA 0x20600000 0x00100000 ; Page 1 of On-Chip Large-Capacity RAM (0x20060000 to 0x206FFFFF)
+    RW_DATA    0x20020000
     { * (+RW) }                   ; Application RW data (.data)
 
-    ZI_DATA 0x20100000 0x00100000 ; Page 1 of On-Chip Large-Capacity RAM (0x20010000 to 0x201FFFFF)
+    ZI_DATA    +0 ALIGN 0x400
     { * (+ZI) }                   ; Application ZI data (.bss)
 
     RW_DATA_NC 0x60900000 0x00100000
@@ -38,9 +38,6 @@ SFLASH 0x18000000 (0x08000000)
 
     ZI_DATA_NC +0
     { * (NC_BSS) }               ; Application ZI data Non cached area
-    
-    ;HEAP    0x90000000 
-    ;{ * (HEAP) }
 }
 
 

@@ -286,16 +286,28 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F429ZI)
 #define INITIAL_SP            (0x20030000UL)
 
+#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#define INITIAL_SP            (0x20002000UL)
+
+#elif defined(TARGET_STM32F072RB)
+#define INITIAL_SP            (0x20004000UL)
+
+#elif defined(TARGET_STM32F091RC)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_STM32F401VC)
+#define INITIAL_SP            (0x20010000UL)
+
 #else
 #error "no target defined"
 
 #endif
 
 #ifdef __CC_ARM
-extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
+extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
 #elif defined(__GNUC__)
-extern unsigned char     __end__[];
+extern uint32_t          __end__[];
 #define HEAP_START      (__end__)
 #elif defined(__ICCARM__)
 #pragma section="HEAP"
