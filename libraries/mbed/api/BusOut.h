@@ -66,8 +66,6 @@ public:
         return _nc_mask;
     }
 
-    static DigitalOut dout_dummy;
-
 #ifdef MBED_OPERATORS
     /** A shorthand for write()
      */

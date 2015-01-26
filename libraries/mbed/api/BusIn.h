@@ -68,8 +68,6 @@ public:
         return _nc_mask;
     }
 
-    static DigitalIn din_dummy;
-
 #ifdef MBED_OPERATORS
     /** A shorthand for read()
      */

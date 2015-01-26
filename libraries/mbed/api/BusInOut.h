@@ -82,8 +82,6 @@ public:
         return _nc_mask;
     }
 
-    static DigitalInOut dinout_dummy;
-
 #ifdef MBED_OPERATORS
      /** A shorthand for write()
      */

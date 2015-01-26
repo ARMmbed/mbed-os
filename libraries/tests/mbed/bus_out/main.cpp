@@ -1,7 +1,10 @@
 #include "mbed.h"
 #include "test_env.h"
 
+namespace {
 BusOut bus_out(LED1, LED2, LED3, LED4);
+PinName led_pins[4] = {LED1, LED2, LED3, LED4}; // Temp, used to map pins in bus_out
+}
 
 int main()
 {
@@ -26,21 +29,18 @@ int main()
         }
 
         // Checking if DigitalOut is correctly set as connected
-        for (int i=0; i<4; i++) {
-            printf("MBED: BusOut.bit[%d] is %s\r\n", i, bus_out[i].is_connected() ? "connected" : "not connected");
+        for (int i=0; i < 4; i++) {
+            printf("MBED: BusOut.bit[%d] is %s\r\n",
+                i,
+                (led_pins[i] != NC && bus_out[i].is_connected())
+                    ? "connected"
+                    : "not connected");
         }
 
-        if (LED1 != NC && bus_out[0].is_connected() == 0) {
-            break;
-        }
-        if (LED1 != NC && bus_out[1].is_connected() == 0) {
-            break;
-        }
-        if (LED1 != NC && bus_out[2].is_connected() == 0) {
-            break;
-        }
-        if (LED1 != NC && bus_out[3].is_connected() == 0) {
-            break;
+        for (int i=0; i < 4; i++) {
+            if (led_pins[i] != NC && bus_out[0].is_connected() == 0) {
+                break;
+            }
         }
 
         // Write mask all LEDs
@@ -58,18 +58,25 @@ int main()
         break;
     }
 
-    printf("MBED: Blinking LEDs...\r\n");
+    printf("MBED: Blinking LEDs: \r\n");
 
     // Just a quick LED blinking...
     for (int i=0; i<4; i++) {
-        if (bus_out[i].is_connected()) {
+        if (led_pins[i] != NC && bus_out[i].is_connected()) {
             bus_out[i] = 1;
+            printf("%c", 'A' + i);
+        } else {
+            printf(".");
         }
         wait(0.2);
-        if (bus_out[i].is_connected()) {
+        if (led_pins[i] != NC && bus_out[i].is_connected()) {
             bus_out[i] = 0;
+            printf("%c", 'a' + i);
+        } else {
+            printf(".");
         }
     }
+    printf("\r\n");
 
     notify_completion(result);
 }
