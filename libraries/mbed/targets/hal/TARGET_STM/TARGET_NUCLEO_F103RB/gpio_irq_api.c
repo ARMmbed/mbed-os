@@ -258,7 +258,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->irq_n = irq_n;
     obj->irq_index = irq_index;
     obj->event = EDGE_NONE;
-	
+    obj->pin = pin;
+
     gpio_channel = &channels[irq_index];
     gpio_idx = pin_base_nr[pin_index];
     gpio_channel->pin_mask |= (1 << gpio_idx);
@@ -286,6 +287,9 @@ void gpio_irq_free(gpio_irq_t *obj)
     EXTI_InitTypeDef EXTI_InitStructure;
     EXTI_StructInit(&EXTI_InitStructure);
     EXTI_Init(&EXTI_InitStructure);
+    
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_Out_PP, 0));
+    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
     obj->event = EDGE_NONE;
 }
 
