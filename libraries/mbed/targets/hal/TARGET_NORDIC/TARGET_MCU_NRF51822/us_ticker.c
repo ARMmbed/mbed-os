@@ -18,7 +18,6 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "app_timer.h"
-#include "projectconfig.h"
 
 static bool           us_ticker_inited          = false;
 static volatile bool  us_ticker_appTimerRunning = false;
@@ -30,8 +29,7 @@ void us_ticker_init(void)
         return;
     }
 
-    APP_TIMER_INIT(CFG_TIMER_PRESCALER, CFG_TIMER_MAX_INSTANCE, CFG_TIMER_OPERATION_QUEUE_SIZE, CFG_SCHEDULER_ENABLE);
-
+APP_TIMER_INIT(0 /*CFG_TIMER_PRESCALER*/ , 1 /*CFG_TIMER_MAX_INSTANCE*/, 1 /*CFG_TIMER_OPERATION_QUEUE_SIZE*/, false /*CFG_SCHEDULER_ENABLE*/);
     us_ticker_inited = true;
 }
 
