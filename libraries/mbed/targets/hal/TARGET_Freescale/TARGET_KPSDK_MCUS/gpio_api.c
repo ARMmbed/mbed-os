@@ -30,7 +30,7 @@ uint32_t gpio_set(PinName pin) {
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-    obj->pinName = pin;
+    obj->pin = pin;
     if (pin == (PinName)NC)
         return;
 
@@ -42,14 +42,14 @@ void gpio_init(gpio_t *obj, PinName pin) {
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-    pin_mode(obj->pinName, mode);
+    pin_mode(obj->pin, mode);
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
-    MBED_ASSERT(obj->pinName != (PinName)NC);
-    uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
-    uint32_t pin_num = obj->pinName & 0xFF;
+    uint32_t pin_num = obj->pin & 0xFF;
 
     switch (direction) {
         case PIN_INPUT:

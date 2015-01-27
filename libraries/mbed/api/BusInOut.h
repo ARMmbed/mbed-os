@@ -51,7 +51,6 @@ public:
      */
     void write(int value);
 
-
     /** Read the value currently output on the bus
      *
      *  @returns
@@ -73,11 +72,25 @@ public:
      */
     void mode(PinMode pull);
 
+    /** Binary mask of bus pins connected to actual pins (not NC pins)
+     *  If bus pin is in NC state make corresponding bit will be cleared (set to 0), else bit will be set to 1
+     *
+     *  @returns
+     *    Binary mask of connected pins
+     */
+    int mask() {
+        return _nc_mask;
+    }
+
 #ifdef MBED_OPERATORS
      /** A shorthand for write()
      */
     BusInOut& operator= (int v);
     BusInOut& operator= (BusInOut& rhs);
+
+    /** Access to particular bit in random-iterator fashion
+    */
+    DigitalInOut& operator[] (int index);
 
     /** A shorthand for read()
      */
@@ -86,6 +99,12 @@ public:
 
 protected:
     DigitalInOut* _pin[16];
+
+    /** Mask of bus's NC pins
+     * If bit[n] is set to 1 - pin is connected
+     * if bit[n] is cleared - pin is not connected (NC)
+     */
+    int _nc_mask;
 
     /* disallow copy constructor and assignment operators */
 private:
