@@ -36,6 +36,11 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(ISR (Queue));
+    TEST_START("RTOS_8");
+
     Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);
@@ -59,6 +64,6 @@ int main (void) {
         }
     }
 
-    notify_completion(result);
+    TEST_RESULT(result);
     return 0;
 }

@@ -17,8 +17,7 @@
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
-void print_char(char c = '*')
-{
+void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
 }
@@ -49,6 +48,11 @@ void test_thread(void const *delay) {
 }
 
 int main (void) {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(Semaphore resource lock);
+    TEST_START("RTOS_3");
+
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
     const int t3_delay = THREAD_DELAY * 3;
@@ -66,6 +70,6 @@ int main (void) {
     }
 
     fflush(stdout);
-    notify_completion(!sem_defect);
+    TEST_RESULT(!sem_defect);
     return 0;
 }

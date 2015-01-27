@@ -46,7 +46,7 @@ void sd_thread(void const *argument)
             }
             fclose(f);
         } else {
-            notify_completion(false);
+            TEST_RESULT(false);
             return;
         }
     }
@@ -65,7 +65,7 @@ void sd_thread(void const *argument)
             }
             fclose(f);
         } else {
-            notify_completion(false);
+            TEST_RESULT(false);
             return;
         }
     }
@@ -74,15 +74,19 @@ void sd_thread(void const *argument)
     // check that the data written == data read
     for (int i = 0; i < SIZE; i++) {
         if (data_written[i] != data_read[i]) {
-            notify_completion(false);
+            TEST_RESULT(false);
             return;
         }
     }
-    notify_completion(true);
+    TEST_RESULT(true);
 }
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(SD File write-read);
+    TEST_START("RTOS_9");
+
     Thread t(sd_thread, NULL, osPriorityNormal, (DEFAULT_STACK_SIZE * 2.25));
 
     while (true) {

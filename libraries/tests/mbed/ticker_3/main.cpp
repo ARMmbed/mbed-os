@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 
 void ticker_callback_1(void);
 void ticker_callback_2(void);
@@ -31,6 +32,12 @@ void ticker_callback_1(void)
 
 int main(void)
 {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(wait_us_auto);
+    TEST_DESCRIPTION(Ticker Two callbacks);
+    TEST_START("MBED_34");
+
     ticker.attach(ticker_callback_1, 1.0);
+
     while(1);
 }

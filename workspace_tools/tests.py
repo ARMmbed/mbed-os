@@ -375,14 +375,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "hello"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "hello_auto",
+        #"host_test": "hello_auto",
     },
     {
         "id": "MBED_11", "description": "Ticker Int",
         "source_dir": join(TEST_DIR, "mbed", "ticker"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "wait_us_auto",
+        #"host_test": "wait_us_auto",
         "duration": 20,
     },
     {
@@ -455,7 +455,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_24", "description": "Timeout Int us",
@@ -463,7 +463,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_25", "description": "Time us",
@@ -471,7 +471,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_26", "description": "Integer constant division",
@@ -525,7 +525,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     
 
@@ -579,10 +579,10 @@ TESTS = [
     {
         "id": "RTOS_1", "description": "Basic thread",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "basic"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto",
+        #"host_test": "wait_us_auto",
         "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC", "DISCO_F401VC"],
     },
     {
@@ -625,10 +625,10 @@ TESTS = [
     {
         "id": "RTOS_7", "description": "Timer",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "timer"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto",
+        #"host_test": "wait_us_auto",
         "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8", "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC", "DISCO_F401VC"],
     },
     {

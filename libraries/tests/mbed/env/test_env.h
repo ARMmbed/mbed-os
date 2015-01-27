@@ -29,25 +29,25 @@ void notify_test_id(const char *test_id);
 void notify_test_description(const char *description);
 
 // Host test auto-detection API
-#define TEST_START(TESTID)      notify_start(); notify_test_id(TESTID)
+#define TEST_START(TESTID)      notify_test_id(TESTID); notify_start()
 #define TEST_HOSTTEST(NAME)     notify_host_test_name(#NAME)
 #define TEST_TIMEOUT(SECONDS)   notify_timeout(SECONDS)
 #define TEST_DESCRIPTION(DESC)  notify_test_description(#DESC)
+#define TEST_RESULT(RESULT)     notify_completion(RESULT)
 
 /**
     Test auto-detection preamble example:
     main() {
-        TEST_START("MBED_10");
         TEST_TIMEOUT(10);
         TEST_HOSTTEST( host_test );
         TEST_DESCRIPTION(Hello World);
+        TEST_START("MBED_10");
         // Proper 'host_test.py' should take over supervising of this test
 
         // Test code
         bool result = ...;
 
-
-        notify_completion(result);
+        TEST_RESULT(result);
     }
 */
 

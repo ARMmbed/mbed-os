@@ -30,6 +30,11 @@ void led_thread(void const *argument) {
 }
 
 int main (void) {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(Signals messaging);
+    TEST_START("RTOS_4");
+
     Thread thread(led_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
 
@@ -41,6 +46,6 @@ int main (void) {
             break;
         }
     }
-    notify_completion(result);
+    TEST_RESULT(result);
     return 0;
 }

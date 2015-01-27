@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 
 Ticker tick;
 DigitalOut led(LED1);
@@ -26,6 +27,12 @@ void togglePin(void)
 
 int main()
 {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(wait_us_auto);
+    TEST_DESCRIPTION(Ticker Int us);
+    TEST_START("MBED_23");
+
     tick.attach_us(togglePin, 1000);
+
     while (1);
 }

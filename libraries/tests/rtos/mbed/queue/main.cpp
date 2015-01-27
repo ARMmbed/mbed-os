@@ -42,6 +42,11 @@ void send_thread (void const *argument) {
 }
 
 int main (void) {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(Queue messaging);
+    TEST_START("RTOS_5");
+
     Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
     int result_counter = 0;
@@ -67,6 +72,6 @@ int main (void) {
             }
         }
     }
-    notify_completion(result);
+    TEST_RESULT(result);
     return 0;
 }

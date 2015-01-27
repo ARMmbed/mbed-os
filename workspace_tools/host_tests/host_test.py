@@ -23,6 +23,8 @@ except ImportError, e:
     exit(-1)
 
 import os
+import re
+import types
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
@@ -254,11 +256,36 @@ class HostTestResults:
         self.RESULT_PASSIVE = "passive"
 
 
+import workspace_tools.host_tests as host_tests
+
+
 class Test(HostTestResults):
     """ Base class for host test's test runner
     """
+    # Select default host_test supervision (replaced after autodetection)
+    test_supervisor = host_tests.get_host_test("default")
+
     def __init__(self):
         self.mbed = Mbed()
+
+    def detect_test_config(self, verbose=False):
+        """ Detects test case configuration
+        """
+        result = {}
+        while True:
+            line = self.mbed.serial_readline()
+            if "{start}" in line:
+                self.notify("HOST: Start test...")
+                break
+            else:
+                m = re.search('{([\w_]+);([\w\d ]+)}}', line[:-1])
+                if m and len(m.groups()) == 2:
+                    result[m.group(1)] = m.group(2)
+                    if verbose:
+                        self.notify("HOST: Property '%s' = '%s'"% (m.group(1), m.group(2)))
+                else:
+                    self.notify("HOST: Unknown property: %s"% line.strip())
+        return result
 
     def run(self):
         """ Test runner for host test. This function will start executing
@@ -284,7 +311,13 @@ class Test(HostTestResults):
 
         # Run test
         try:
-            result = self.test()
+            CONFIG = self.detect_test_config(verbose=True) # print CONFIG
+
+            if "host_test_name" in CONFIG:
+                if host_tests.is_host_test(CONFIG["host_test_name"]):
+                    self.test_supervisor = host_tests.get_host_test(CONFIG["host_test_name"])
+            result = self.test_supervisor.test(self)    #result = self.test()
+
             if result is not None:
                 self.print_result(result)
             else:
@@ -340,7 +373,6 @@ class Simple(DefaultTest):
             self.notify("\r\n[CTRL+C] exit")
             result = self.RESULT_ERROR
         return result
-
 
 if __name__ == '__main__':
     Simple().run()

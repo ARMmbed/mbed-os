@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "rtos.h"
 
 DigitalOut LEDs[4] = {
@@ -22,6 +23,11 @@ void blink(void const *n) {
 }
 
 int main(void) {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(wait_us_auto);
+    TEST_DESCRIPTION(Timer);
+    TEST_START("RTOS_7");
+
     RtosTimer led_1_timer(blink, osTimerPeriodic, (void *)0);
     RtosTimer led_2_timer(blink, osTimerPeriodic, (void *)1);
     RtosTimer led_3_timer(blink, osTimerPeriodic, (void *)2);

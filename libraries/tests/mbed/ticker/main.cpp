@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 
 void print_char(char c = '*')
 {
@@ -32,6 +33,11 @@ void flip_2() {
 }
 
 int main() {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(wait_us_auto);
+    TEST_DESCRIPTION(Ticker Int);
+    TEST_START("MBED_11");
+
     led1 = 0;
     led2 = 0;
     flipper_1.attach(&flip_1, 1.0); // the address of the function to be attached (flip) and the interval (1 second)
