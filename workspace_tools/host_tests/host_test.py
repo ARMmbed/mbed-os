@@ -126,6 +126,10 @@ class Mbed:
         serial_baud = serial_baud if serial_baud is not None else self.serial_baud
         serial_timeout = serial_timeout if serial_timeout is not None else self.serial_timeout
 
+        if self.serial:
+            self.serial.close()
+            self.serial = None
+
         result = True
         try:
             self.serial = Serial(self.port, baudrate=serial_baud, timeout=serial_timeout)

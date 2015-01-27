@@ -22,6 +22,7 @@ from wait_us_auto import WaitusTest
 from stdio_auto import StdioTest
 from dev_null_auto import DevNullTest
 from rtc_auto import RTCTest
+from echo import EchoTest
 
 
 HOSTREGISTRY = HostRegistry()
@@ -32,6 +33,7 @@ HOSTREGISTRY.register_host_test("wait_us_auto", WaitusTest())
 HOSTREGISTRY.register_host_test("stdio_auto", StdioTest())
 HOSTREGISTRY.register_host_test("dev_null_auto", DevNullTest())
 HOSTREGISTRY.register_host_test("rtc_auto", RTCTest())
+HOSTREGISTRY.register_host_test("echo", EchoTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

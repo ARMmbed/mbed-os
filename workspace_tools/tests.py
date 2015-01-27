@@ -137,7 +137,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "echo"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "echo"
+        #"host_test": "echo"
     },
     {
         "id": "MBED_A10", "description": "PortOut PortIn",

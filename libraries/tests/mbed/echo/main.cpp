@@ -7,17 +7,17 @@
 
 namespace {
     const int BUFFER_SIZE = 48;
+    char buffer[BUFFER_SIZE] = {0};
 }
 
 int main() {
-    char buffer[BUFFER_SIZE] = {0};
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(echo);
+    TEST_DESCRIPTION(Serial Echo at 115200);
+    TEST_START("MBED_A9");
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);
-
-    pc.puts("{{");
-    pc.puts(TEST_ENV_START);    // Host test is expecting preamble
-    pc.puts("}}");
 
     while (1) {
         pc.gets(buffer, BUFFER_SIZE - 1);
