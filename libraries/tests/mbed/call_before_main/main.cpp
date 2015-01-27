@@ -10,6 +10,12 @@ extern "C" void mbed_main() {
 }
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(Call function mbed_main before main);
+    TEST_START("MBED_A21");
+
     printf("MBED: main() starts now!\r\n");
-    notify_completion(mbed_main_called);
+
+    TEST_RESULT(mbed_main_called);
 }

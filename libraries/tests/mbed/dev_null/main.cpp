@@ -1,8 +1,7 @@
 #include "mbed.h"
 #include "test_env.h"
 
-class DevNull : public Stream
-{
+class DevNull : public Stream {
 public:
     DevNull(const char *name = NULL) : Stream(name) {}
 
@@ -17,12 +16,15 @@ protected:
 
 DevNull null("null");
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(dev_null_auto);
+    TEST_DESCRIPTION(stdout redirected to dev null);
+    TEST_START("EXAMPLE_1");
+    
     printf("MBED: re-routing stdout to /null\r\n");
     freopen("/null", "w", stdout);
     printf("MBED: printf redirected to /null\r\n");   // This shouldn't appear
     // If failure message can be seen test should fail :)
-    notify_completion(false);   // This is 'false' on purpose
-    return 0;
+    TEST_RESULT(false);   // This is 'false' on purpose
 }

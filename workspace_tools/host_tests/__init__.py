@@ -19,6 +19,9 @@ from host_registry import HostRegistry
 from default_auto import DefaultAuto
 from hello_auto import HelloTest
 from wait_us_auto import WaitusTest
+from stdio_auto import StdioTest
+from dev_null_auto import DevNullTest
+from rtc_auto import RTCTest
 
 
 HOSTREGISTRY = HostRegistry()
@@ -26,6 +29,9 @@ HOSTREGISTRY.register_host_test("default", DefaultAuto())
 HOSTREGISTRY.register_host_test("default_auto", DefaultAuto())
 HOSTREGISTRY.register_host_test("hello_auto", HelloTest())
 HOSTREGISTRY.register_host_test("wait_us_auto", WaitusTest())
+HOSTREGISTRY.register_host_test("stdio_auto", StdioTest())
+HOSTREGISTRY.register_host_test("dev_null_auto", DevNullTest())
+HOSTREGISTRY.register_host_test("rtc_auto", RTCTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

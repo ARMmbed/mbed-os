@@ -254,6 +254,7 @@ class HostTestResults:
         self.RESULT_NO_IMAGE = 'no_image'
         self.RESULT_IOERR_COPY = "ioerr_copy"
         self.RESULT_PASSIVE = "passive"
+        self.RESULT_NOT_DETECTED = "not_detected"
 
 
 import workspace_tools.host_tests as host_tests
@@ -348,31 +349,12 @@ class Test(HostTestResults):
         self.notify("\n{{%s}}\n{{end}}" % result)
 
 
-class DefaultTest(Test):
+class DefaultTestSelector(Test):
     """ Test class with serial port initialization
     """
     def __init__(self):
         HostTestResults.__init__(self)
         Test.__init__(self)
 
-
-class Simple(DefaultTest):
-    """ Simple, basic host test's test runner waiting for serial port
-        output from MUT, no supervision over test running in MUT is executed.
-    """
-    def test(self):
-        result = self.RESULT_SUCCESS
-        try:
-            while True:
-                c = self.mbed.serial_read(512)
-                if c is None:
-                    return self.RESULT_IO_SERIAL
-                stdout.write(c)
-                stdout.flush()
-        except KeyboardInterrupt, _:
-            self.notify("\r\n[CTRL+C] exit")
-            result = self.RESULT_ERROR
-        return result
-
 if __name__ == '__main__':
-    Simple().run()
+    DefaultTestSelector().run()

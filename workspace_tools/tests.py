@@ -329,7 +329,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "host_test": "stdio_auto"
+        #"host_test": "stdio_auto"
     },
     {
         "id": "MBED_3", "description": "PortOut",
@@ -411,9 +411,9 @@ TESTS = [
     {
         "id": "MBED_16", "description": "RTC",
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "rtc_auto",
+        #"host_test": "rtc_auto",
         "duration": 15
     },
     {
@@ -862,7 +862,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "dev_null_auto",
+        #"host_test" : "dev_null_auto",
     },
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
