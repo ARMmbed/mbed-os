@@ -88,6 +88,7 @@ public:
     virtual int disk_write(const uint8_t * buffer, uint64_t sector, uint8_t count) = 0;
     virtual int disk_sync() { return 0; }
     virtual uint64_t disk_sectors() = 0;
+    virtual int stat(const char *path, struct stat *buf);
 
 };
 

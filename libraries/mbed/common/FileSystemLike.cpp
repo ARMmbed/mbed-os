@@ -45,6 +45,7 @@ public:
         n++;
 
         /* Setup cur entry and return a pointer to it */
+        cur_entry.d_type = DT_UNKNOWN;
         std::strncpy(cur_entry.d_name, ptr->getName(), NAME_MAX);
         return &cur_entry;
     }

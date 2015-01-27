@@ -20,14 +20,39 @@
 #   define NAME_MAX 255
 typedef int mode_t;
 
+typedef long int __off_t;
+typedef __off_t off_t;
+
+#include <time.h>
+
+struct stat {
+    off_t     st_size;    /* total size, in bytes */
+    time_t    st_mtime;   /* time of last modification */
+};
+
 #else
 #   include <sys/syslimits.h>
 #endif
 
 #include "FileHandle.h"
 
+/*
+ * File types
+ */
+#define DT_UNKNOWN       0
+#define DT_FIFO          1
+#define DT_CHR           2
+#define DT_DIR           4
+#define DT_BLK           6
+#define DT_REG           8
+#define DT_LNK          10
+#define DT_SOCK         12
+#define DT_WHT          14
+
 struct dirent {
-    char d_name[NAME_MAX+1];
+    unsigned char d_type;       /* type of file; not supported
+                                   by all file system types */
+    char d_name[NAME_MAX+1];    /* filename */
 };
 
 namespace mbed {
@@ -99,6 +124,7 @@ extern "C" {
     long telldir(DIR*);
     void seekdir(DIR*, long);
     int mkdir(const char *name, mode_t n);
+    int stat(const char *name, struct stat *buf);
 };
 
 #endif /* MBED_DIRHANDLE_H */
