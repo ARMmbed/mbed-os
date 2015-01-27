@@ -86,18 +86,22 @@ inline int i2c_start(i2c_t *obj) {
     return status;
 }
 
+
+
+//Generate Stop condition and wait until bus is Idle
+//Will also send NAK for previous RD
 inline int i2c_stop(i2c_t *obj) {
     int timeout = 0;
 
-    obj->i2c->MSTCTL = (1 << 2) | (1 << 0);
-    while ((obj->i2c->STAT & ((1 << 0) | (7 << 1))) != ((1 << 0) | (0 << 1))) {
+    obj->i2c->MSTCTL = (1 << 2) | (1 << 0); // STP bit and Continue bit. Sends NAK to complete previous RD
+    
+    while ((obj->i2c->STAT & ((7 << 1) | (1 << 0))) != ((0 << 1) | (1 << 0))) { //Spin until Ready (b0 == 1)and Status is Idle (b3..b1 == 000)
         timeout ++;
         if (timeout > 100000) return 1;
     }
 
     return 0;
 }
-
 
 static inline int i2c_do_write(i2c_t *obj, int value, uint8_t addr) {
     // write the data
@@ -145,62 +149,82 @@ void i2c_frequency(i2c_t *obj, int hz) {
 // because something is setup wrong (e.g. wiring), and we don't need to programatically
 // check for that
 
+//New version WH, Tested OK for Start and Repeated Start
+//Old version was Wrong: Calls i2c_start without setting address, i2c_do_read continues before checking status, status check for wrong value
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count, status;
     
-    i2c_start(obj);
-    
-    status = i2c_do_write(obj, (address | 0x01), 1);
-    if (status != 0x01) {
+    //Store the address+RD and then generate STA
+    I2C_DAT(obj) = address | 0x01;
+    i2c_start(obj);    
+
+    // Wait for completion of STA and Sending of SlaveAddress+RD and first Read byte
+    i2c_wait_SI(obj);
+    status = i2c_status(obj);    
+    if (status == 0x03) { // NAK on SlaveAddress
         i2c_stop(obj);
         return I2C_ERROR_NO_SLAVE;
     }
-    
+
     // Read in all except last byte
-    for (count = 0; count < (length - 1); count++) {
-        int value = i2c_do_read(obj, 0);
-        status = i2c_status(obj);
-        if (status != 0x00) {
-            i2c_stop(obj);
-            return count;
-        }
-        data[count] = (char) value;
-    }
-    
-    // read in last byte
-    int value = i2c_do_read(obj, 1);
-    status = i2c_status(obj);
-    if (status != 0x01) {
+    for (count = 0; count < (length-1); count++) {
+        
+      // Wait for it to arrive, note that first byte read after address+RD is already waiting
+      i2c_wait_SI(obj);
+      status = i2c_status(obj);
+      if (status != 0x01) { // RX RDY
         i2c_stop(obj);
-        return length - 1;
+        return count;
+      }
+      data[count] = I2C_DAT(obj) & 0xFF; // Store read byte
+
+      obj->i2c->MSTCTL = (1 << 0); // Send ACK and Continue to read
     }
     
-    data[count] = (char) value;
-    
+    // Read final byte
+    // Wait for it to arrive
+    i2c_wait_SI(obj);
+
+    status = i2c_status(obj);
+    if (status != 0x01) { // RX RDY
+      i2c_stop(obj);
+      return count;
+    }
+    data[count] = I2C_DAT(obj) & 0xFF; // Store final read byte
+
     // If not repeated start, send stop.
     if (stop) {
-        i2c_stop(obj);
+        i2c_stop(obj); // Also sends NAK for last read byte
     } else {
         repeated_start = 1;
     }
-    
+   
     return length;
 }
 
+
+
+//New version WH, Tested OK for Start and Repeated Start
+//Old version was Wrong: Calls i2c_start without setting address first
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int i, status;
-    
+
+    //Store the address+/WR and then generate STA
+    I2C_DAT(obj) = address & 0xFE;   
     i2c_start(obj);
     
-    status = i2c_do_write(obj, (address & 0xFE), 1);
-    if (status != 0x02) {
+    // Wait for completion of STA and Sending of SlaveAddress+/WR
+    i2c_wait_SI(obj);
+    status = i2c_status(obj);    
+    if (status == 0x03) { // NAK SlaveAddress
         i2c_stop(obj);
         return I2C_ERROR_NO_SLAVE;
     }
     
+    //Write all bytes
     for (i=0; i<length; i++) {
         status = i2c_do_write(obj, data[i], 0);
-        if (status != 0x02) {
+        if (status != 0x02) { // TX RDY. Handles a Slave NAK on datawrite
             i2c_stop(obj);
             return i;
         }
@@ -215,6 +239,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     return length;
 }
+
+
 
 void i2c_reset(i2c_t *obj) {
     i2c_stop(obj);
