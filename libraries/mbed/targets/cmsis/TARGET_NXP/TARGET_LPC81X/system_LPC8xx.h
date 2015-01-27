@@ -30,6 +30,8 @@ extern "C" {
 
 #include <stdint.h>
 
+//WH
+extern uint32_t MainClock;           /*!< Main Clock Frequency                 */
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 
 
