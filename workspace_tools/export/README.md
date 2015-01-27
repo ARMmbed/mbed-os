@@ -101,7 +101,7 @@ Exporter IDE/Platform Support
     <tr>
         <td>DISCO_F051R8</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -113,7 +113,7 @@ Exporter IDE/Platform Support
     <tr>
         <td>DISCO_F100RB</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -136,6 +136,18 @@ Exporter IDE/Platform Support
     </tr>
     <tr>
         <td>DISCO_F334C8</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>DISCO_F401VC</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
@@ -173,14 +185,14 @@ Exporter IDE/Platform Support
     <tr>
         <td>DISCO_L053C8</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
     </tr>
     <tr>
         <td>HRM1017</td>
@@ -363,6 +375,18 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
+        <td>LPC11U37H_401</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
         <td>LPC11U37_501</td>
         <td>-</td>
         <td>-</td>
@@ -515,7 +539,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
     </tr>
     <tr>
@@ -528,6 +552,18 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>MTS_DRAGONFLY_F411RE</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
         <td>-</td>
     </tr>
     <tr>
@@ -677,10 +713,10 @@ Exporter IDE/Platform Support
     <tr>
         <td>NUCLEO_F091RC</td>
         <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
         <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
@@ -689,10 +725,10 @@ Exporter IDE/Platform Support
     <tr>
         <td>NUCLEO_F103RB</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
         <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
@@ -715,7 +751,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
@@ -761,7 +797,7 @@ Exporter IDE/Platform Support
     <tr>
         <td>NUCLEO_L053R8</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -867,6 +903,18 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
+        <td>TEENSY3_1</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
         <td>UBLOX_C027</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -904,5 +952,5 @@ Exporter IDE/Platform Support
     </tr>
 </table>
 Total IDEs: 9
-<br>Total platforms: 74
-<br>Total permutations: 225
+<br>Total platforms: 78
+<br>Total permutations: 248
