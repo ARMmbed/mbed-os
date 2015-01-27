@@ -71,6 +71,7 @@ bool USBHostSerial::connect() {
             {
                 USBHostSerialPort::connect(host,d,port_intf,bulk_in, bulk_out);
                 dev = d;
+                dev_connected = true;
             }
         }
     }
@@ -171,6 +172,7 @@ bool USBHostMultiSerial::connect() {
                     {
                         ports[port]->connect(host,d,port_intf[port],bulk_in, bulk_out);
                         dev = d;
+                        dev_connected = true;
                     }
                 }
             }
@@ -242,7 +244,7 @@ void USBHostSerialPort::connect(USBHost* _host, USBDeviceConnected * _dev,
     USB_INFO("New Serial device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, serial_intf);
     dev->setName("Serial", serial_intf);
     host->registerDriver(dev, serial_intf, this, &USBHostSerialPort::init);
-    //baud(9600);
+    baud(9600);
     size_bulk_in = bulk_in->getSize();
     size_bulk_out = bulk_out->getSize();
     bulk_in->attach(this, &USBHostSerialPort::rxHandler);
