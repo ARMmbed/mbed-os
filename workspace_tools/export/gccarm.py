@@ -38,6 +38,7 @@ class GccArm(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
+        'LPC11U37H_401',
         'STM32F407',
         'DISCO_F100RB',
         'DISCO_F051R8',

@@ -31,6 +31,7 @@ class Uvision4(Exporter):
         'K64F',
         'K22F',
         'K20D50M',
+        'TEENSY3_1',
         'LPC1347',
         'LPC1114',
         'LPC11C24',
@@ -66,6 +67,7 @@ class Uvision4(Exporter):
         'NRF51_DK',
         'NRF51_DONGLE',
         'BLE_SMURFS',
+        'LPC11U37H_401',
     ]
 
     USING_MICROLIB = [
@@ -88,6 +90,7 @@ class Uvision4(Exporter):
         'LPC1549',
         'LPC11U35_501',
         'KL05Z',
+        'LPC11U37H_401',
     ]
 
     FILE_TYPES = {

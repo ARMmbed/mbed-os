@@ -25,25 +25,29 @@ extern "C" {
 #endif
 
 typedef struct {
-    PinName pinName;
+    PinName pin;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    MBED_ASSERT(obj->pinName != (PinName)NC);
-    uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
-    uint32_t pin = obj->pinName & 0xFF;
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
+    uint32_t pin = obj->pin & 0xFF;
     uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
 
     GPIO_HAL_WritePinOutput(gpio_addrs[port], pin, value);
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    MBED_ASSERT(obj->pinName != (PinName)NC);
-    uint32_t port = obj->pinName >> GPIO_PORT_SHIFT;
-    uint32_t pin = obj->pinName & 0xFF;
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
+    uint32_t pin = obj->pin & 0xFF;
     uint32_t gpio_addrs[] = GPIO_BASE_ADDRS;
 
     return (int)GPIO_HAL_ReadPinInput(gpio_addrs[port], pin);
+}
+
+static inline int gpio_is_connected(const gpio_t *obj) {
+    return obj->pin != (PinName)NC;
 }
 
 #ifdef __cplusplus

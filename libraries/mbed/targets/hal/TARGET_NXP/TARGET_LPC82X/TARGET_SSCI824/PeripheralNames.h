@@ -30,7 +30,7 @@ extern "C" {
 #define MBED_UART0        P0_7, P0_18
 #define MBED_UARTUSB      USBTX, USBRX
 
-#define MBED_I2C0         P0_10, P0_11
+#define MBED_I2C0         P0_11, P0_10
 
 typedef enum {
     ADC_0 = 0,
