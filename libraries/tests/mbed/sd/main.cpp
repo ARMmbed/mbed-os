@@ -61,8 +61,12 @@ const char *sd_file_path = "/sd/out.txt";
 const int DATA_SIZE = 256;
 }
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(SD File System);
+    TEST_START("MBED_A12");
+
     uint8_t data_written[DATA_SIZE] = { 0 };
     bool result = false;
 
@@ -103,5 +107,5 @@ int main()
     }
 
     result = write_result && read_result;
-    notify_completion(result);
+    TEST_RESULT(result);
 }
