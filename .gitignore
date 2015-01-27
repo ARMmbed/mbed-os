@@ -63,3 +63,13 @@ debug.log
 
 # Orig diff files
 *.orig
+
+# PyCharm
+*.idea
+
+# Cscope
+cscope.*
+
+# vim swap files
+*.swp
+

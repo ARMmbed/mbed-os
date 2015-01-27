@@ -27,6 +27,7 @@ class GccArm(Exporter):
         'LPC1549',
         'KL05Z',
         'KL25Z',
+        'KL43Z',
         'KL46Z',
         'K64F',
         'K22F',
@@ -37,6 +38,7 @@ class GccArm(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
+        'LPC11U37H_401',
         'STM32F407',
         'DISCO_F100RB',
         'DISCO_F051R8',
@@ -45,6 +47,7 @@ class GccArm(Exporter):
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
+        'HRM1017',
         'LPC2368',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
@@ -52,6 +55,25 @@ class GccArm(Exporter):
         'ARCH_MAX',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'ARCH_MAX',
+        'DISCO_F429ZI',
+        'NUCLEO_F030R8',
+        'NUCLEO_F070RB',
+        'NUCLEO_F072RB',
+        'NUCLEO_F091RC',
+        'NUCLEO_F103RB',
+        'NUCLEO_F302R8',
+        'NUCLEO_F334R8',
+        'DISCO_L053C8',
+        'NUCLEO_L053R8',
+        'DISCO_F334C8',
+        'MTS_MDOT_F405RG',
+        'MTS_MDOT_F411RE',
+        'NUCLEO_L152RE',
+        'NRF51_DK',
+        'NRF51_DONGLE',
+        'BLE_SMURFS',
+        'DISCO_F401VC',
     ]
 
     DOT_IN_RELATIVE_PATH = True
@@ -81,6 +103,6 @@ class GccArm(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')

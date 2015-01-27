@@ -33,40 +33,15 @@
 #include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-
-static const PinMap PinMap_ADC[] = {
-    {PA_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN1 - ARDUINO
-    {PA_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN2 - ARDUINO
-    {PA_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN3
-    {PA_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN4
-    {PA_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN1 - ARDUINO
-    {PA_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN2
-    {PA_6,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN3
-    {PA_7,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN4
-
-    {PB_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN11 - ARDUINO
-    {PB_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN12
-    {PB_2,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN12
-    {PB_12, ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN13
-    {PB_13, ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN13
-    {PB_14, ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN14
-    {PB_15, ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN15
-
-    {PC_0,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN6 - ARDUINO
-    {PC_1,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN7 - ARDUINO
-    {PC_2,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN8
-    {PC_3,  ADC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC1_IN9
-    {PC_4,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN5
-    {PC_5,  ADC_2, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // ADC2_IN11
-    {NC,   NC,    0}
-};
+#include "PeripheralPins.h"
 
 ADC_HandleTypeDef AdcHandle;
 
-int adc_inited = 0;
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
+    static int adc1_inited = 0;
+    static int adc2_inited = 0;
+
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
@@ -77,30 +52,30 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
+    // Check if ADC is already initialized
+    if ((obj->adc == ADC_1) && adc1_inited) return;
+    if ((obj->adc == ADC_2) && adc2_inited) return;
+    if (obj->adc == ADC_1) adc1_inited = 1;
+    if (obj->adc == ADC_2) adc2_inited = 1;
 
-        // Enable ADC clock
-        if (obj->adc == ADC_1) __ADC1_CLK_ENABLE();
-        if (obj->adc == ADC_2) __ADC2_CLK_ENABLE();
+    // Enable ADC clock
+    __ADC12_CLK_ENABLE();
 
-        // Configure ADC
-        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-        AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-        AdcHandle.Init.ScanConvMode          = DISABLE;
-        AdcHandle.Init.ContinuousConvMode    = DISABLE;
-        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-        AdcHandle.Init.NbrOfDiscConversion   = 0;
-        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.NbrOfConversion       = 1;
-        AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.EOCSelection          = DISABLE;
-        HAL_ADC_Init(&AdcHandle);
-    }
+    // Configure ADC
+    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
+    AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
+    AdcHandle.Init.ScanConvMode          = DISABLE;
+    AdcHandle.Init.ContinuousConvMode    = DISABLE;
+    AdcHandle.Init.DiscontinuousConvMode = DISABLE;
+    AdcHandle.Init.NbrOfDiscConversion   = 0;
+    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    AdcHandle.Init.NbrOfConversion       = 1;
+    AdcHandle.Init.DMAContinuousRequests = DISABLE;
+    AdcHandle.Init.EOCSelection          = DISABLE;
+    HAL_ADC_Init(&AdcHandle);
 }
 
 static inline uint16_t adc_read(analogin_t *obj)

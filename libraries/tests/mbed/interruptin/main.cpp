@@ -36,6 +36,7 @@ void in_handler() {
 #define PIN_OUT     (p12)
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -49,9 +50,16 @@ void in_handler() {
 #define PIN_IN      PB_8
 #define PIN_OUT     PC_7
 
-#elif defined(TARGET_DISCO_F407VG)
+#elif defined(TARGET_DISCO_F407VG) || \
+      defined(TARGET_DISCO_F429ZI)|| \
+      defined(TARGET_DISCO_F401VC)
 #define PIN_OUT    PC_12
 #define PIN_IN     PD_0
+
+#elif defined(TARGET_RZ_A1H)
+#define PIN_OUT    D1
+#define PIN_IN     D5
+
 
 #elif defined(TARGET_FF_ARDUINO)
 #define PIN_OUT    D0

@@ -22,6 +22,8 @@
 #ifdef TOOLCHAIN_GCC_CW
 // TODO: Ideally, we would like to define directly "_ExitProcess"
 void mbed_exit(int return_code) {
+#elif defined TOOLCHAIN_GCC_ARM
+void _exit(int return_code) {
 #else
 void exit(int return_code) {
 #endif

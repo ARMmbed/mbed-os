@@ -4,6 +4,7 @@
 #define TEST_LED D9
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -16,7 +17,8 @@
       defined(TARGET_NUCLEO_L152RE)
 #define TEST_LED D3
 
-#elif defined (TARGET_K22F)
+#elif defined (TARGET_K22F) || \
+      defined (TARGET_LPC824)
 #define TEST_LED LED_GREEN
 
 #else

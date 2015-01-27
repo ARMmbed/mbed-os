@@ -1,5 +1,5 @@
 {
 	"targets": {
-        "DFCM_NNN40" : ["GCC_ARM"]
+        "DELTA_DFCM_NNN40" : ["GCC_ARM"]
      }
 }

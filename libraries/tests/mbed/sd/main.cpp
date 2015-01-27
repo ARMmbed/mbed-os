@@ -11,6 +11,9 @@ SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 #elif defined(TARGET_K64F)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 
+#elif defined(TARGET_K22F)
+SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+
 #elif defined(TARGET_K20D50M)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
 
@@ -18,6 +21,7 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
 SDFileSystem sd(p12, p13, p15, p14, "sd");
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -42,6 +46,12 @@ SDFileSystem sd(D11, D12, D13, D10, "sd");
 #elif defined(TARGET_LPC1549)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
+#elif defined(TARGET_RZ_A1H)
+SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
+
+#elif defined(TARGET_LPC11U37H_401)
+SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
+    
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
@@ -54,36 +64,44 @@ const int DATA_SIZE = 256;
 int main()
 {
     uint8_t data_written[DATA_SIZE] = { 0 };
-    bool result = true;
+    bool result = false;
 
     // Fill data_written buffer with random data
     // Write these data into the file
+    bool write_result = false;
     {
-        FILE *f = fopen(sd_file_path, "w");
-
         printf("SD: Writing ... ");
-        for (int i = 0; i < DATA_SIZE; i++) {
-            data_written[i] = rand() % 0XFF;
-            fprintf(f, "%c", data_written[i]);
+        FILE *f = fopen(sd_file_path, "w");
+        if (f) {
+            for (int i = 0; i < DATA_SIZE; i++) {
+                data_written[i] = rand() % 0XFF;
+                fprintf(f, "%c", data_written[i]);
+            }
+            write_result = true;
+            fclose(f);
         }
-        printf("[OK]\r\n");
-        fclose(f);
+        printf("[%s]\r\n", write_result ? "OK" : "FAIL");
     }
 
     // Read back the data from the file and store them in data_read
+    bool read_result = false;
     {
-        FILE *f = fopen(sd_file_path, "r");
         printf("SD: Reading data ... ");
-        for (int i = 0; i < DATA_SIZE; i++) {
-            uint8_t data = fgetc(f);
-            if (data != data_written[i]) {
-                result = false;
-                break;
+        FILE *f = fopen(sd_file_path, "r");
+        if (f) {
+              read_result = true;
+            for (int i = 0; i < DATA_SIZE; i++) {
+                uint8_t data = fgetc(f);
+                if (data != data_written[i]) {
+                    read_result = false;
+                    break;
+                }
             }
+            fclose(f);
         }
-        printf("[%s]\r\n", result ? "OK" : "FAIL");
-        fclose(f);
+        printf("[%s]\r\n", read_result ? "OK" : "FAIL");
     }
 
+    result = write_result && read_result;
     notify_completion(result);
 }

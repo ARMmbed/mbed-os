@@ -29,13 +29,14 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
-static uint32_t acceptedSpeeds[16][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
+static uint32_t acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
                                          {2400, UART_BAUDRATE_BAUDRATE_Baud2400},
                                          {4800, UART_BAUDRATE_BAUDRATE_Baud4800},
                                          {9600, UART_BAUDRATE_BAUDRATE_Baud9600},
                                          {14400, UART_BAUDRATE_BAUDRATE_Baud14400},
                                          {19200, UART_BAUDRATE_BAUDRATE_Baud19200},
                                          {28800, UART_BAUDRATE_BAUDRATE_Baud28800},
+                                         {31250, (0x00800000UL) /* 31250 baud */},
                                          {38400, UART_BAUDRATE_BAUDRATE_Baud38400},
                                          {57600, UART_BAUDRATE_BAUDRATE_Baud57600},
                                          {76800, UART_BAUDRATE_BAUDRATE_Baud76800},
@@ -52,25 +53,14 @@ serial_t stdio_uart;
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
-
-    MBED_ASSERT((int)uart != NC);
-
     obj->uart = (NRF_UART_Type *)uart;
 
     //pin configurations --
-    //outputs
     NRF_GPIO->DIR |= (1 << tx); //TX_PIN_NUMBER);
     NRF_GPIO->DIR |= (1 << RTS_PIN_NUMBER);
 
     NRF_GPIO->DIR &= ~(1 << rx); //RX_PIN_NUMBER);
     NRF_GPIO->DIR &= ~(1 << CTS_PIN_NUMBER);
-
-    obj->uart->PSELRTS = RTS_PIN_NUMBER;
-    obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
-
-    //inputs
-    obj->uart->PSELCTS = CTS_PIN_NUMBER;
-    obj->uart->PSELRXD = rx; //RX_PIN_NUMBER;
 
 
     // set default baud rate and format
@@ -81,12 +71,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->TASKS_STARTTX = 1;
     obj->uart->TASKS_STARTRX = 1;
     obj->uart->EVENTS_RXDRDY = 0;
+    // dummy write needed or TXDRDY trails write rather than leads write.
+    //  pins are disconnected so nothing is physically transmitted on the wire
+    obj->uart->TXD = 0;
 
     obj->index = 0;
+    
+    obj->uart->PSELRTS = RTS_PIN_NUMBER;
+    obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
+    obj->uart->PSELCTS = CTS_PIN_NUMBER;
+    obj->uart->PSELRXD = rx; //RX_PIN_NUMBER;
 
     // set rx/tx pins in PullUp mode
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
 
     if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
@@ -108,7 +110,7 @@ void serial_baud(serial_t *obj, int baudrate)
         return;
     }
 
-    for (int i = 1; i<16; i++) {
+    for (int i = 1; i<17; i++) {
         if (baudrate<acceptedSpeeds[i][0]) {
             obj->uart->BAUDRATE = acceptedSpeeds[i - 1][1];
             return;
@@ -162,9 +164,9 @@ void UART0_IRQHandler()
 {
     uint32_t irtype = 0;
 
-    if (NRF_UART0->EVENTS_TXDRDY) {
+    if((NRF_UART0->INTENSET & 0x80) && NRF_UART0->EVENTS_TXDRDY) {
         irtype = 1;
-    } else if (NRF_UART0->EVENTS_RXDRDY) {
+    } else if((NRF_UART0->INTENSET & 0x04) && NRF_UART0->EVENTS_RXDRDY) {
         irtype = 2;
     }
     uart_irq(irtype, 0);
@@ -192,24 +194,27 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         switch (irq) {
             case RxIrq:
-                obj->uart->INTENSET |= (UART_INTENSET_RXDRDY_Msk);
+                obj->uart->INTEN |= (UART_INTENSET_RXDRDY_Msk);
                 break;
             case TxIrq:
-                obj->uart->INTENSET |= (UART_INTENSET_TXDRDY_Msk);
+                obj->uart->INTEN |= (UART_INTENSET_TXDRDY_Msk);
                 break;
         }
         NVIC_SetPriority(irq_n, 3);
         NVIC_EnableIRQ(irq_n);
     } else { // disable
+        // maseked writes to INTENSET dont disable and masked writes to
+        //  INTENCLR seemed to clear the entire register, not bits.
+        //  Added INTEN to memory map and seems to allow set and clearing of specific bits as desired
         int all_disabled = 0;
         switch (irq) {
             case RxIrq:
-                obj->uart->INTENSET &= ~(UART_INTENSET_RXDRDY_Msk);
-                all_disabled         = (obj->uart->INTENSET & (UART_INTENSET_TXDRDY_Msk))==0;
+                obj->uart->INTEN &= ~(UART_INTENCLR_RXDRDY_Msk);
+                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
                 break;
             case TxIrq:
-                obj->uart->INTENSET &= ~(UART_INTENSET_TXDRDY_Msk);
-                all_disabled         = (obj->uart->INTENSET & (UART_INTENSET_RXDRDY_Msk))==0;
+                obj->uart->INTEN &= ~(UART_INTENCLR_TXDRDY_Msk);
+                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
                 break;
         }
 
@@ -234,12 +239,11 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    obj->uart->TXD = (uint8_t)c;
-
     while (!serial_writable(obj)) {
     }
 
     obj->uart->EVENTS_TXDRDY = 0;
+    obj->uart->TXD = (uint8_t)c;
 }
 
 int serial_readable(serial_t *obj)
@@ -249,7 +253,7 @@ int serial_readable(serial_t *obj)
 
 int serial_writable(serial_t *obj)
 {
-    return (obj->uart->EVENTS_TXDRDY ==1);
+    return (obj->uart->EVENTS_TXDRDY == 1);
 }
 
 void serial_break_set(serial_t *obj)
@@ -261,4 +265,34 @@ void serial_break_clear(serial_t *obj)
 {
     obj->uart->TASKS_STARTTX = 1;
     obj->uart->TASKS_STARTRX = 1;
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+
+    if (type == FlowControlRTSCTS || type == FlowControlRTS) {
+        NRF_GPIO->DIR |= (1<<rxflow);
+        pin_mode(rxflow, PullUp);
+        obj->uart->PSELRTS = rxflow;
+
+        obj->uart->CONFIG |= 0x01; // Enable HWFC
+    }
+
+    if (type == FlowControlRTSCTS || type == FlowControlCTS) {
+        NRF_GPIO->DIR &= ~(1<<txflow);
+        pin_mode(txflow, PullUp);
+        obj->uart->PSELCTS = txflow;
+
+        obj->uart->CONFIG |= 0x01; // Enable HWFC;
+    }
+
+    if (type == FlowControlNone) {
+        obj->uart->PSELRTS = 0xFFFFFFFF; // Disable RTS
+        obj->uart->PSELCTS = 0xFFFFFFFF; // Disable CTS
+
+        obj->uart->CONFIG &= ~0x01; // Enable HWFC;
+    }
+}
+
+void serial_clear(serial_t *obj) {
 }

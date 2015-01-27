@@ -334,6 +334,15 @@ class LPC1800(LPCTarget):
         self.extra_labels = ['NXP', 'LPC43XX']
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
 
+class LPC11U37H_401(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+
 
 ### Freescale ###
 
@@ -380,10 +389,34 @@ class K20D50M(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale']
+        self.extra_labels = ['Freescale', 'K20XX']
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
+        
+class TEENSY3_1(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
+        self.supported_toolchains = ["GCC_ARM", "ARM"]
+        self.is_disk_virtual = True
+        self.detect_code = ["0230"] 
+
+        OUTPUT_EXT = '.hex'
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
+            hook.hook_add_binary("post", self.binary_hook)
+            
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from intelhex import IntelHex
+        binh = IntelHex()
+        binh.loadbin(binf, offset = 0)
+        
+        with open(binf.replace(".bin", ".hex"), "w") as f:
+            binh.tofile(f, format='hex')
 
 class K22F(Target):
     def __init__(self):
@@ -486,7 +519,7 @@ class NUCLEO_F303RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F303RE']
-        self.supported_toolchains = ["ARM", "uARM", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0706"]
@@ -810,7 +843,7 @@ class WALLBOT_BLE(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 		
-class DFCM_NNN40(NRF51822):
+class DELTA_DFCM_NNN40(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
         self.core = "Cortex-M0"
@@ -818,14 +851,15 @@ class DFCM_NNN40(NRF51822):
         self.macros = ['TARGET_NRF51822']
         self.supported_toolchains = "GCC_ARM"
 
-class DFCM_NNN40_OTA(NRF51822):
+class DELTA_DFCM_NNN40_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DFCM_NNN40']
-        self.macros = ['TARGET_NRF51822', 'TARGET_DFCM_NNN40','TARGET_OTA_ENABLED']
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
+        self.macros = ['TARGET_NRF51822', 'TARGET_DELTA_DFCM_NNN40','TARGET_OTA_ENABLED']
         self.supported_toolchains = "GCC_ARM"
         self.MERGE_SOFT_DEVICE = False
+
 
 ### ARM ###
 
@@ -885,6 +919,7 @@ TARGETS = [
     LPC4330_M4(),
     LPC4330_M0(),
     LPC4337(),
+    LPC11U37H_401(),
 
     ### Freescale ###
     KL05Z(),
@@ -892,6 +927,7 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
+    TEENSY3_1(),
     K22F(),
     K64F(),
     MTS_GAMBIT(),   # FRDM K64F
@@ -935,11 +971,11 @@ TARGETS = [
     BLE_SMURFS_OTA(),
     HRM1017(),      # nRF51822
     RBLAB_NRF51822(),# nRF51822
-    RBLAB_BLENANO(),# nRF51822
+    RBLAB_BLENANO(),# nRF51822git
     NRF51822_Y5_MBUG(),#nRF51822
     WALLBOT_BLE(),  # nRF51822
-	DFCM_NNN40(),	# nRF51822
-	DFCM_NNN40_OTA(),
+	DELTA_DFCM_NNN40(),	# nRF51822
+	DELTA_DFCM_NNN40_OTA(),	# nRF51822
 
     ### ARM ###
     ARM_MPS2(),

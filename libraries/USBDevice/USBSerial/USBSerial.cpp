@@ -59,8 +59,6 @@ bool USBSerial::EP2_OUT_callback() {
     //call a potential handler
     rx.call();
 
-    // We reactivate the endpoint to receive next characters
-    readStart(EPBULK_OUT, MAX_PACKET_SIZE_EPBULK);
     return true;
 }
 

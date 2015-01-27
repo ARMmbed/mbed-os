@@ -13,6 +13,9 @@ SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 #elif defined(TARGET_K64F)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 
+#elif defined(TARGET_K22F)
+SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
+
 #elif defined(TARGET_K20D50M)
 SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
 
@@ -20,6 +23,7 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTC2, "sd");
 SDFileSystem sd(p12, p13, p15, p14, "sd");
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -43,6 +47,9 @@ SDFileSystem sd(D11, D12, D13, D10, "sd");
 
 #elif defined(TARGET_LPC1549)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
+
+#elif defined(TARGET_LPC11U37H_401)
+SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");

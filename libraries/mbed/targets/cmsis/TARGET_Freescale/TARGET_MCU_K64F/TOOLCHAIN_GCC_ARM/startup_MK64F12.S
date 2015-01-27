@@ -364,6 +364,6 @@ kinetis_flash_config:
     .long 0xffffffff
     .long 0xffffffff
     .long 0xffffffff
-    .long 0xfffffffe
+    .long 0xfffffdfe
 
     .end

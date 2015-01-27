@@ -891,7 +891,7 @@ static inline void ADC_HAL_SetPgaOffsetMeasurementCmd(uint32_t baseAddr, bool en
 #endif /* FSL_FEATURE_ADC_HAS_PGA */
 
 #if defined(__cplusplus)
-extern }
+}
 #endif
 
 /*!

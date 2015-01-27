@@ -57,13 +57,13 @@ def udp_packet_recv(threadName, server_ip, server_port):
 
 
 class UDPEchoServerTest(DefaultTest):
-    ECHO_SERVER_ADDRESS = ""    # UDP IP of datagram bursts
-    ECHO_PORT = 0               # UDP port for datagram bursts
-    CONTROL_PORT = 23           # TCP port used to get stats from mbed device, e.g. counters
-    s = None                    # Socket
+    ECHO_SERVER_ADDRESS = ""       # UDP IP of datagram bursts
+    ECHO_PORT = 0                  # UDP port for datagram bursts
+    CONTROL_PORT = 23              # TCP port used to get stats from mbed device, e.g. counters
+    s = None                       # Socket
 
-    TEST_PACKET_COUNT = 1000    # how many packets should be send
-    TEST_STRESS_FACTOR = 0.001  # stress factor: 10 ms
+    TEST_PACKET_COUNT = 1000       # how many packets should be send
+    TEST_STRESS_FACTOR = 0.001     # stress factor: 10 ms
     PACKET_SATURATION_RATIO = 29.9 # Acceptable packet transmission in %
 
     PATTERN_SERVER_IP = "Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
@@ -81,11 +81,10 @@ class UDPEchoServerTest(DefaultTest):
         s.close()
         return data
 
-    def run(self):
+    def test(self):
         serial_ip_msg = self.mbed.serial_readline()
         if serial_ip_msg is None:
-            self.print_result("ioerr_serial")
-            return
+            return self.RESULT_IO_SERIAL
         stdout.write(serial_ip_msg)
         stdout.flush()
         # Searching for IP address and port prompted by server
@@ -93,17 +92,15 @@ class UDPEchoServerTest(DefaultTest):
         if m and len(m.groups()):
             self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
             self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-            print "HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
-            stdout.flush()
+            self.notify("HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT))
 
         # Open client socket to burst datagrams to UDP server in mbed
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except Exception, e:
             self.s = None
-            print "HOST: Error: %s" % e
-            self.print_result('error')
-            return
+            self.notify("HOST: Error: %s"% e)
+            return self.RESULT_ERROR
 
         # UDP replied receiver works in background to get echoed datagrams
         SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
@@ -124,42 +121,25 @@ class UDPEchoServerTest(DefaultTest):
 
         # Wait 5 seconds for packets to come
         result = True
-        print
-        print "HOST: Test Summary:"
+        self.notify("HOST: Test Summary:")
         for d in range(5):
             sleep(1.0)
             summary_datagram_success = (float(len(dict_udp_recv_datagrams)) / float(self.TEST_PACKET_COUNT)) * 100.0
-            # print dict_udp_recv_datagrams
-            print "HOST: Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms" % (d, summary_datagram_success, len(dict_udp_recv_datagrams), self.TEST_PACKET_COUNT, self.TEST_STRESS_FACTOR)
+            self.notify("HOST: Datagrams received after +%d sec: %.3f%% (%d / %d), stress=%.3f ms"% (d,
+                                                                                                     summary_datagram_success,
+                                                                                                     len(dict_udp_recv_datagrams),
+                                                                                                     self.TEST_PACKET_COUNT,
+                                                                                                     self.TEST_STRESS_FACTOR))
             result = result and (summary_datagram_success >= self.PACKET_SATURATION_RATIO)
             stdout.flush()
 
         # Getting control data from test
-        print
-        print "HOST: Mbed Summary:"
+        self.notify("...")
+        self.notify("HOST: Mbed Summary:")
         mbed_stats = self.get_control_data()
-        print mbed_stats
-        print
-        stdout.flush()
+        self.notify(mbed_stats)
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
 
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
-
-        # Receiving serial data from mbed
-        print
-        print "HOST: Remaining mbed serial port data:"
-        try:
-            while True:
-                c = self.mbed.serial_read(512)
-                if c is None:
-                    self.print_result("ioerr_serial")
-                    break
-                stdout.write(c)
-                stdout.flush()
-        except KeyboardInterrupt, _:
-            print "\n[CTRL+c] exit"
 
 if __name__ == '__main__':
     UDPEchoServerTest().run()

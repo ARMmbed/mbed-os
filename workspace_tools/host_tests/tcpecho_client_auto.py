@@ -18,8 +18,7 @@ limitations under the License.
 import sys
 import socket
 from sys import stdout
-from time import sleep
-from host_test import Test
+from host_test import HostTestResults, Test
 from SocketServer import BaseRequestHandler, TCPServer
 
 
@@ -29,41 +28,41 @@ SERVER_PORT = 7
 
 class TCPEchoClientTest(Test):
     def __init__(self):
+        HostTestResults.__init__(self)
         Test.__init__(self)
-        self.mbed.init_serial()
 
     def send_server_ip_port(self, ip_address, port_no):
         """ Set up network host. Reset target and and send server IP via serial to Mbed
         """
-        print "HOST: Resetting target..."
-        self.mbed.reset()
-
         c = self.mbed.serial_readline() # 'TCPCllient waiting for server IP and port...'
         if c is None:
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
             return
 
-        print c.strip()
-        print "HOST: Sending server IP Address to target...",
-        stdout.flush()
+        self.notify(c.strip())
+        self.notify("HOST: Sending server IP Address to target...")
+
         connection_str = ip_address + ":" + str(port_no) + "\n"
         self.mbed.serial_write(connection_str)
-        print connection_str
-        stdout.flush()
+        self.notify(connection_str)
 
         # Two more strings about connection should be sent by MBED
         for i in range(0, 2):
             c = self.mbed.serial_readline()
             if c is None:
-                self.print_result("ioerr_serial")
+                self.print_result(self.RESULT_IO_SERIAL)
                 return
-            print c.strip()
-            stdout.flush()
+            self.notify(c.strip())
+
+    def test(self):
+        # Returning none will suppress host test from printing success code
+        return None
 
 
 class TCPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
-        """ One handle per connection """
+        """ One handle per connection
+        """
         print "HOST: Connection received...",
         count = 1;
         while True:
@@ -81,9 +80,10 @@ class TCPEchoClient_Handler(BaseRequestHandler):
 
 
 server = TCPServer((SERVER_IP, SERVER_PORT), TCPEchoClient_Handler)
-print "HOST: Listening for connections: " + SERVER_IP + ":" + str(SERVER_PORT)
+print "HOST: Listening for TCP connections: " + SERVER_IP + ":" + str(SERVER_PORT)
 
 mbed_test = TCPEchoClientTest();
+mbed_test.run()
 mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)
 
 server.serve_forever()

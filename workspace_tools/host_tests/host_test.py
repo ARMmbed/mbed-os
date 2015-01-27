@@ -23,15 +23,16 @@ except ImportError, e:
     exit(-1)
 
 import os
-from optparse import OptionParser
-from time import sleep, time
 from sys import stdout
+from time import sleep, time
+from optparse import OptionParser
+
+import host_tests_plugins
 
 # This is a little tricky. We need to add upper directory to path so
 # we can find packages we want from the same level as other files do
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from workspace_tools.settings import EACOMMANDER_CMD
 
 
 class Mbed:
@@ -47,7 +48,7 @@ class Mbed:
 
         parser.add_option("-p", "--port",
                           dest="port",
-                          help="The serial port of the target mbed (ie: COM3)",
+                          help="The serial port of the target mbed",
                           metavar="PORT")
 
         parser.add_option("-d", "--disk",
@@ -55,15 +56,26 @@ class Mbed:
                           help="The target disk path",
                           metavar="DISK_PATH")
 
+        parser.add_option("-f", "--image-path",
+                          dest="image_path",
+                          help="Path with target's image",
+                          metavar="IMAGE_PATH")
+
+        parser.add_option("-c", "--copy",
+                          dest="copy_method",
+                          help="Copy method selector",
+                          metavar="COPY_METHOD")
+
+        parser.add_option("-C", "--program_cycle_s",
+                          dest="program_cycle_s",
+                          help="Program cycle sleep. Define how many seconds you want wait after copying bianry onto target",
+                          type="float",
+                          metavar="COPY_METHOD")
+
         parser.add_option("-t", "--timeout",
                           dest="timeout",
                           help="Timeout",
                           metavar="TIMEOUT")
-
-        parser.add_option("-e", "--extra",
-                          dest="extra",
-                          help="Extra serial port (used by some tests)",
-                          metavar="EXTRA")
 
         parser.add_option("-r", "--reset",
                           dest="forced_reset_type",
@@ -83,32 +95,47 @@ class Mbed:
         if self.options.port is None:
             raise Exception("The serial port of the target mbed have to be provided as command line arguments")
 
+        # Options related to copy / reset mbed device
         self.port = self.options.port
         self.disk = self.options.disk
-        self.extra_port = self.options.extra
-        self.extra_serial = None
-        self.serial = None
-        self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
-        print 'Host test instrumentation on port: "%s" and disk: "%s"' % (self.port, self.disk)
+        self.image_path = self.options.image_path.strip('"')
+        self.copy_method = self.options.copy_method
+        self.program_cycle_s = float(self.options.program_cycle_s)
 
-    def init_serial(self, baud=9600, extra_baud=9600):
-        """ Initialize serial port. Function will return error is port can't be opened or initialized
+        self.serial = None
+        self.serial_baud = 9600
+        self.serial_timeout = 1
+
+        self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
+        print 'MBED: Instrumentation: "%s" and disk: "%s"' % (self.port, self.disk)
+
+    def init_serial_params(self, serial_baud=9600, serial_timeout=1):
+        """ Initialize port parameters.
+            This parameters will be used by self.init_serial() function to open serial port
         """
+        self.serial_baud = serial_baud
+        self.serial_timeout = serial_timeout
+
+    def init_serial(self, serial_baud=None, serial_timeout=None):
+        """ Initialize serial port.
+            Function will return error is port can't be opened or initialized
+        """
+        # Overload serial port configuration from default to parameters' values if they are specified
+        serial_baud = serial_baud if serial_baud is not None else self.serial_baud
+        serial_timeout = serial_timeout if serial_timeout is not None else self.serial_timeout
+
         result = True
         try:
-            self.serial = Serial(self.port, timeout=1)
+            self.serial = Serial(self.port, baudrate=serial_baud, timeout=serial_timeout)
         except Exception as e:
+            print "MBED: %s"% str(e)
             result = False
         # Port can be opened
         if result:
-            self.serial.setBaudrate(baud)
-            if self.extra_port:
-                self.extra_serial = Serial(self.extra_port, timeout = 1)
-                self.extra_serial.setBaudrate(extra_baud)
             self.flush()
         return result
 
-    def serial_timeout(self, timeout):
+    def set_serial_timeout(self, timeout):
         """ Wraps self.mbed.serial object timeout property
         """
         result = None
@@ -138,8 +165,10 @@ class Mbed:
                 try:
                     c = self.serial.read(1)
                     result += c
-                except:
+                except Exception as e:
+                    print "MBED: %s"% str(e)
                     result = None
+                    break
                 if c == '\n':
                     break
         return result
@@ -155,33 +184,6 @@ class Mbed:
                result = None
         return result
 
-    def safe_sendBreak(self, serial):
-        """ Wraps serial.sendBreak() to avoid serial::serialposix.py exception on Linux
-            Traceback (most recent call last):
-              File "make.py", line 189, in <module>
-                serial.sendBreak()
-              File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 511, in sendBreak
-                termios.tcsendbreak(self.fd, int(duration/0.25))
-            error: (32, 'Broken pipe')
-        """
-        result = True
-        try:
-            serial.sendBreak()
-        except:
-            # In linux a termios.error is raised in sendBreak and in setBreak.
-            # The following setBreak() is needed to release the reset signal on the target mcu.
-            try:
-                serial.setBreak(False)
-            except:
-                result = False
-        return result
-
-    def touch_file(self, path):
-        """ Touch file and set timestamp to items
-        """
-        with open(path, 'a'):
-            os.utime(path, None)
-
     def reset_timeout(self, timeout):
         """ Timeout executed just after reset command is issued
         """
@@ -189,73 +191,71 @@ class Mbed:
             sleep(1)
 
     def reset(self):
-        """ Reset function.
-            Supports:
-            - 'standard' send break command via Mbed's CDC,
-            - also handles other reset modes:
-              -  E.g. reset by touching file with specific file name:
-                 reboot.txt   - startup from standby state, reboots when in run mode.
-                 shutdown.txt - shutdown from run mode
-                 reset.txt    - reset FPGA during run mode
-              - eACommander for reset of SiLabs Gecko baords.
+        """ Calls proper reset plugin to do the job.
+            Please refer to host_test_plugins functionality
         """
-        if self.options.forced_reset_type:
-            if self.options.forced_reset_type == 'eACommander':
-                # For this copy method 'disk' will be 'serialno' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--serialno', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type == 'eACommander-usb':
-                # For this copy method 'disk' will be 'usb address' for eACommander command line parameters
-                # Note: Commands are executed in the order they are specified on the command line
-                cmd = [EACOMMANDER_CMD,
-                       '--usb', self.disk.rstrip('/\\'),
-                       '--resettype', '2', '--reset',]
-                try:
-                    self.flush()
-                    ret = call(cmd, shell=True)
-                    if ret:
-                        resutl_msg = "Return code: %d. Command: "% ret + " ".join(cmd)
-                        result = False
-                except Exception, e:
-                    resutl_msg = e
-                    result = False
-            elif self.options.forced_reset_type.endswith('.txt'):
-                reset_file_path = os.path.join(self.disk, self.options.forced_reset_type.lower())
-                self.touch_file(reset_file_path)
-                self.flush()
-        else:
-            self.safe_sendBreak(self.serial)  # Instead of serial.sendBreak()
-            self.flush()
         # Flush serials to get only input after reset
-        #self.flush()
+        self.flush()
+        if self.options.forced_reset_type:
+            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
+        else:
+            result = host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
+        return result
+
+    def copy_image(self, image_path=None, disk=None, copy_method=None):
+        """ Closure for copy_image_raw() method.
+            Method which is actually copying image to mbed
+        """
+        # Set closure environment
+        image_path = image_path if image_path is not None else self.image_path
+        disk = disk if disk is not None else self.disk
+        copy_method = copy_method if copy_method is not None else self.copy_method
+        # Call proper copy method
+        result = self.copy_image_raw(image_path, disk, copy_method)
+        sleep(self.program_cycle_s)
+        return result
+
+    def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
+        """ Copy file depending on method you want to use. Handles exception
+            and return code from shell copy commands.
+        """
+        if copy_method is not None:
+            # image_path - Where is binary with target's firmware
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        else:
+            copy_method = 'default'
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        return result;
 
     def flush(self):
         """ Flush serial ports
         """
+        result = False
         if self.serial:
             self.serial.flushInput()
             self.serial.flushOutput()
-        if self.extra_serial:
-            self.extra_serial.flushInput()
-            self.extra_serial.flushOutput()
+            result = True
+        return result
 
 
-class Test:
-    """ Baseclass for host test's test runner
+class HostTestResults:
+    """ Test results set by host tests
+    """
+    def __init__(self):
+        self.RESULT_SUCCESS = 'success'
+        self.RESULT_FAILURE = 'failure'
+        self.RESULT_ERROR = 'error'
+        self.RESULT_IO_SERIAL = 'ioerr_serial'
+        self.RESULT_NO_IMAGE = 'no_image'
+        self.RESULT_IOERR_COPY = "ioerr_copy"
+        self.RESULT_PASSIVE = "passive"
+
+
+class Test(HostTestResults):
+    """ Base class for host test's test runner
     """
     def __init__(self):
         self.mbed = Mbed()
@@ -264,20 +264,43 @@ class Test:
         """ Test runner for host test. This function will start executing
             test and forward test result via serial port to test suite
         """
+        # Copy image to device
+        self.notify("HOST: Copy image onto target...")
+        result = self.mbed.copy_image()
+        if not result:
+            self.print_result(self.RESULT_IOERR_COPY)
+
+        # Initialize and open target's serial port (console)
+        self.notify("HOST: Initialize serial port...")
+        result = self.mbed.init_serial()
+        if not result:
+            self.print_result(self.RESULT_IO_SERIAL)
+
+        # Reset device
+        self.notify("HOST: Reset target...")
+        result = self.mbed.reset()
+        if not result:
+            self.print_result(self.RESULT_IO_SERIAL)
+
+        # Run test
         try:
             result = self.test()
-            self.print_result("success" if result else "failure")
+            if result is not None:
+                self.print_result(result)
+            else:
+                self.notify("HOST: Passive mode...")
         except Exception, e:
             print str(e)
-            self.print_result("error")
+            self.print_result(self.RESULT_ERROR)
 
     def setup(self):
-        """ Setup and check if configuration for test is correct. E.g. if serial port can be opened
+        """ Setup and check if configuration for test is
+            correct. E.g. if serial port can be opened.
         """
         result = True
         if not self.mbed.serial:
             result = False
-            self.print_result("ioerr_serial")
+            self.print_result(self.RESULT_IO_SERIAL)
         return result
 
     def notify(self, message):
@@ -289,34 +312,34 @@ class Test:
     def print_result(self, result):
         """ Test result unified printing function
         """
-        self.notify("\n{%s}\n{end}" % result)
+        self.notify("\n{{%s}}\n{{end}}" % result)
 
 
 class DefaultTest(Test):
     """ Test class with serial port initialization
     """
     def __init__(self):
+        HostTestResults.__init__(self)
         Test.__init__(self)
-        serial_init_res = self.mbed.init_serial()
-        self.mbed.reset()
 
 
 class Simple(DefaultTest):
     """ Simple, basic host test's test runner waiting for serial port
         output from MUT, no supervision over test running in MUT is executed.
-        Just waiting for result
     """
-    def run(self):
+    def test(self):
+        result = self.RESULT_SUCCESS
         try:
             while True:
                 c = self.mbed.serial_read(512)
                 if c is None:
-                    self.print_result("ioerr_serial")
-                    break
+                    return self.RESULT_IO_SERIAL
                 stdout.write(c)
                 stdout.flush()
         except KeyboardInterrupt, _:
-            print "\n[CTRL+c] exit"
+            self.notify("\r\n[CTRL+C] exit")
+            result = self.RESULT_ERROR
+        return result
 
 
 if __name__ == '__main__':

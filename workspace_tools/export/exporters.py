@@ -18,7 +18,7 @@ class Exporter():
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
-    def __init__(self, target, inputDir, program_name, build_url_resolver):
+    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None):
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
@@ -26,6 +26,7 @@ class Exporter():
         self.build_url_resolver = build_url_resolver
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
+        self.extra_symbols = extra_symbols
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -97,6 +98,16 @@ class Exporter():
         logging.debug("Generating: %s" % target_path)
         open(target_path, "w").write(target_text)
 
+    def get_symbols(self, add_extra_symbols=True):
+        """ This function returns symbols which must be exported.
+            Please add / overwrite symbols in each exporter separately
+        """
+        symbols = self.toolchain.get_symbols()
+        # We have extra symbols from e.g. libraries, we want to have them also added to export
+        if add_extra_symbols:
+            if self.extra_symbols is not None:
+                symbols.extend(self.extra_symbols)
+        return symbols
 
 def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, program_name=None, clean=True):
     uid = str(uuid.uuid4())

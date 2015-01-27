@@ -97,7 +97,7 @@ static int i2c_wait_end_tx_transfer(i2c_t *obj) {
     }
 
     // check if we received the ACK or not
-    return I2C_HAL_GetStatusFlag(i2c_addrs[obj->instance], kI2CReceivedNak) ? 0 : 1;
+    return I2C_HAL_GetStatusFlag(i2c_addrs[obj->instance], kI2CReceivedNak) ? 1 : 0;
 }
 
 // this function waits the end of a rx transfer and return the status of the transaction:

@@ -1,4 +1,4 @@
-#include "CppUTest/TestHarness.h"
+#include "TestHarness.h"
 #include <utility>
 #include "mbed.h"
 

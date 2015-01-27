@@ -27,9 +27,27 @@ class CoIDE(Exporter):
         'KL05Z',
         'LPC1768',
         'ARCH_PRO',
-        'DISCO_F407VG',
+        'UBLOX_C027',
+        'NUCLEO_L053R8',
+        'NUCLEO_L152RE',
+        'NUCLEO_F030R8',
+        'NUCLEO_F072RB',
+        'NUCLEO_F091RC',
+        'NUCLEO_F103RB',
+        'NUCLEO_F302R8',
+        'NUCLEO_F334R8',
         'NUCLEO_F401RE',
-        'NUCLEO_F411RE'
+        'NUCLEO_F411RE',
+        'DISCO_L053C8',
+        'DISCO_F051R8',
+        'DISCO_F100RB',
+        'DISCO_F303VC',
+        'DISCO_F334C8',
+        'DISCO_F401VC',
+        'DISCO_F407VG',
+        'DISCO_F429ZI',
+        'MTS_MDOT_F405RG',
+        'MTS_MDOT_F411RE',
     ]
 
     # seems like CoIDE currently supports only one type
@@ -74,7 +92,7 @@ class CoIDE(Exporter):
             'library_paths': self.resources.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         target = self.target.lower()
 

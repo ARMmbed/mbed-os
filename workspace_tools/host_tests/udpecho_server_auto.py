@@ -15,12 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 import re
 import sys
 import uuid
 from sys import stdout
-from time import time
 from host_test import DefaultTest
 from socket import socket, AF_INET, SOCK_DGRAM
 
@@ -33,30 +31,26 @@ class UDPEchoServerTest(DefaultTest):
     PATTERN_SERVER_IP = "Server IP Address is (\d+).(\d+).(\d+).(\d+):(\d+)"
     re_detect_server_ip = re.compile(PATTERN_SERVER_IP)
 
-    def run(self):
+    def test(self):
         result = True
         serial_ip_msg = self.mbed.serial_readline()
         if serial_ip_msg is None:
-            self.print_result("ioerr_serial")
-            return
-        stdout.write(serial_ip_msg)
-        stdout.flush()
+            return self.RESULT_IO_SERIAL
+        self.notify(serial_ip_msg)
         # Searching for IP address and port prompted by server
         m = self.re_detect_server_ip.search(serial_ip_msg)
         if m and len(m.groups()):
             self.ECHO_SERVER_ADDRESS = ".".join(m.groups()[:4])
             self.ECHO_PORT = int(m.groups()[4]) # must be integer for socket.connect method
-            print "HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT)
-            stdout.flush()
+            self.notify("HOST: UDP Server found at: " + self.ECHO_SERVER_ADDRESS + ":" + str(self.ECHO_PORT))
 
             # We assume this test fails so can't send 'error' message to server
             try:
                 self.s = socket(AF_INET, SOCK_DGRAM)
             except Exception, e:
                 self.s = None
-                print "HOST: Error: %s" % e
-                self.print_result('error')
-                exit(-1)
+                self.notify("HOST: Socket error: %s"% e)
+                return self.RESULT_ERROR
 
             for i in range(0, 100):
                 TEST_STRING = str(uuid.uuid4())
@@ -73,23 +67,8 @@ class UDPEchoServerTest(DefaultTest):
 
         if self.s is not None:
             self.s.close()
+        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
 
-        if result:
-            self.print_result('success')
-        else:
-            self.print_result('failure')
-
-        # Receiving
-        try:
-            while True:
-                c = self.mbed.serial_read(512)
-                if c is None:
-                    self.print_result("ioerr_serial")
-                    break
-                stdout.write(c)
-                stdout.flush()
-        except KeyboardInterrupt, _:
-            print "\n[CTRL+c] exit"
 
 if __name__ == '__main__':
     UDPEchoServerTest().run()

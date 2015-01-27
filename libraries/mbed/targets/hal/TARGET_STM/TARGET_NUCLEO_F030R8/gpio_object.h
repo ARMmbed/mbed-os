@@ -43,12 +43,13 @@ extern "C" {
 typedef struct {
     PinName  pin;
     uint32_t mask;
-    __IO uint16_t *reg_in;
+    __IO uint32_t *reg_in;
     __IO uint32_t *reg_set;
-    __IO uint16_t *reg_clr;
+    __IO uint32_t *reg_clr;
 } gpio_t;
 
-static inline void gpio_write(gpio_t *obj, int value) {
+static inline void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (value) {
         *obj->reg_set = obj->mask;
@@ -57,7 +58,8 @@ static inline void gpio_write(gpio_t *obj, int value) {
     }
 }
 
-static inline int gpio_read(gpio_t *obj) {
+static inline int gpio_read(gpio_t *obj)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }

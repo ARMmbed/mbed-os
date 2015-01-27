@@ -94,7 +94,7 @@ LIBRARIES = [
         "build_dir": CPPUTEST_LIBRARY,
         "dependencies": [MBED_LIBRARIES],
         'inc_dirs': [CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC, TEST_MBED_LIB],
-        'inc_dirs_ext': [CPPUTEST_INC],
+        'inc_dirs_ext': [CPPUTEST_INC_EXT],
         'macros': ["CPPUTEST_USE_MEM_LEAK_DETECTION=0", "CPPUTEST_USE_STD_CPP_LIB=0", "CPPUTEST=1"],
     },
 ]

@@ -36,7 +36,7 @@
 
 #define DEVICE_CAN              1
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_ETHERNET         0
 

@@ -21,13 +21,13 @@
 #include "nrf51822.h"
 #include "system_nrf51822.h"
 
-#ifdef TARGET_DFCM_NNN40
+#ifdef TARGET_DELTA_DFCM_NNN40
 
 	#define __SYSTEM_CLOCK      (32000000UL)     /*!< nRF51 devices use a fixed System Clock Frequency of 32MHz */
 #else
 	#define __SYSTEM_CLOCK      (16000000UL)     /*!< nRF51 devices use a fixed System Clock Frequency of 16MHz */
 #endif
-	
+
 static bool is_manual_peripheral_setup_needed(void);
 static bool is_disabled_in_debug_needed(void);
 
@@ -71,10 +71,8 @@ void SystemInit(void)
 
     // Start the external 32khz crystal oscillator.
 
-#ifdef TARGET_HRM1017
+#ifdef TARGET_DELTA_DFCM_NNN40 || TARGET_HRM1017
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
-#elifdef TARGET_DFCM_NNN40
-	NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
 #else
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
 #endif

@@ -56,7 +56,7 @@ class DS5_5(Exporter):
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.get_symbols()
         }
         target = self.target.lower()
 

@@ -46,7 +46,8 @@ static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0, 0, 0, 0, 0};
 
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(uint32_t irq_index) {
+static void handle_interrupt_in(uint32_t irq_index)
+{
     // Retrieve the gpio and pin that generate the irq
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
     uint32_t pin = (uint32_t)(1 << channel_pin[irq_index]);
@@ -67,31 +68,39 @@ static void handle_interrupt_in(uint32_t irq_index) {
 }
 
 // The irq_index is passed to the function
-static void gpio_irq0(void) {
+static void gpio_irq0(void)
+{
     handle_interrupt_in(0);   // EXTI line 0
 }
-static void gpio_irq1(void) {
+static void gpio_irq1(void)
+{
     handle_interrupt_in(1);   // EXTI line 1
 }
-static void gpio_irq2(void) {
+static void gpio_irq2(void)
+{
     handle_interrupt_in(2);   // EXTI line 2
 }
-static void gpio_irq3(void) {
+static void gpio_irq3(void)
+{
     handle_interrupt_in(3);   // EXTI line 3
 }
-static void gpio_irq4(void) {
+static void gpio_irq4(void)
+{
     handle_interrupt_in(4);   // EXTI line 4
 }
-static void gpio_irq5(void) {
+static void gpio_irq5(void)
+{
     handle_interrupt_in(5);   // EXTI lines 5 to 9
 }
-static void gpio_irq6(void) {
+static void gpio_irq6(void)
+{
     handle_interrupt_in(6);   // EXTI lines 10 to 15
 }
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     uint32_t irq_index;
@@ -193,7 +202,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_ids[obj->irq_index] = 0;
     channel_gpio[obj->irq_index] = 0;
     channel_pin[obj->irq_index] = 0;
@@ -204,7 +214,8 @@ void gpio_irq_free(gpio_irq_t *obj) {
     obj->event = EDGE_NONE;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
     EXTI_InitTypeDef EXTI_InitStructure;
 
     uint32_t pin_index = channel_pin[obj->irq_index];
@@ -234,8 +245,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
                 obj->event = EDGE_FALL;
             }
         }
-    }
-    else { // Disable
+    } else { // Disable
         if (event == IRQ_RISE) {
             if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
                 EXTI_InitStructure.EXTI_LineCmd = ENABLE;
@@ -255,17 +265,19 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
                 EXTI_InitStructure.EXTI_LineCmd = DISABLE;
                 obj->event = EDGE_NONE;
             }
-        }      
+        }
     }
 
     EXTI_Init(&EXTI_InitStructure);
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     NVIC_EnableIRQ(obj->irq_n);
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     NVIC_DisableIRQ(obj->irq_n);
     obj->event = EDGE_NONE;
 }
