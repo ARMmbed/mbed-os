@@ -93,12 +93,11 @@ if __name__ == '__main__':
     if options.supported_ides_html:
         html = mcu_ide_matrix(verbose_html=True)
         try:
-            with open("./export/README.html","w") as f:  # you have to rename README.htlm to README.md manually
+            with open("./export/README.md","w") as f:
                 f.write("Exporter IDE/Platform Support\n")
                 f.write("-----------------------------------\n")
-                f.write("\n");
+                f.write("\n")
                 f.write(html)
-                f.close()
         except IOError as e:
             print "I/O error({0}): {1}".format(e.errno, e.strerror)
         except:
