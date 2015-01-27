@@ -23,6 +23,7 @@ from stdio_auto import StdioTest
 from dev_null_auto import DevNullTest
 from rtc_auto import RTCTest
 from echo import EchoTest
+from detect_auto import DetectPlatformTest
 
 
 HOSTREGISTRY = HostRegistry()
@@ -34,6 +35,7 @@ HOSTREGISTRY.register_host_test("stdio_auto", StdioTest())
 HOSTREGISTRY.register_host_test("dev_null_auto", DevNullTest())
 HOSTREGISTRY.register_host_test("rtc_auto", RTCTest())
 HOSTREGISTRY.register_host_test("echo", EchoTest())
+HOSTREGISTRY.register_host_test("detect_auto", DetectPlatformTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

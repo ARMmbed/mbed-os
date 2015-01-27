@@ -906,7 +906,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "detect"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "detect_auto",
+        #"host_test" : "detect_auto",
     },
 ]
 
