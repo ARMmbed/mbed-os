@@ -283,7 +283,7 @@ class Test(HostTestResults):
                 self.notify("HOST: Start test...")
                 break
             else:
-                m = re.search('{([\w_]+);([\w\d ]+)}}', line[:-1])
+                m = re.search('{([\w_]+);([\w\d\+ ]+)}}', line[:-1])
                 if m and len(m.groups()) == 2:
                     result[m.group(1)] = m.group(2)
                     if verbose:
