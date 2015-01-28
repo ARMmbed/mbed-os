@@ -91,6 +91,11 @@ PortInOut port1(PORT_1, MASK_1);
 PortInOut port2(PORT_2, MASK_2);
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(PortInOut);
+    TEST_START("MBED_A11");
+
     bool check = true;
 
     port1.output();
@@ -111,5 +116,5 @@ int main() {
     port2 = 0; wait(0.1);
     if (port1 != 0) check = false;
 
-    notify_completion(check);
+    TEST_RESULT(check);
 }

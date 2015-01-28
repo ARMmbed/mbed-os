@@ -87,6 +87,11 @@ void flipper() {
 }
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(InterruptIn);
+    TEST_START("MBED_A7");
+
     IN_OUT_CLEAR;
     //Test falling edges first
     in.rise(NULL);
@@ -95,7 +100,7 @@ int main() {
 
     if(checks != 5) {
         printf("MBED: falling edges test failed: %d\r\n",checks);
-        notify_completion(false);
+        TEST_RESULT(false);
     }
 
     //Now test rising edges
@@ -105,7 +110,7 @@ int main() {
 
     if (checks != 10) {
         printf("MBED: raising edges test failed: %d\r\n", checks);
-        notify_completion(false);
+        TEST_RESULT(false);
     }
 
     //Now test switch off edge detection
@@ -115,7 +120,7 @@ int main() {
 
     if (checks != 10) {
         printf("MBED: edge detection switch off test failed: %d\r\n", checks);
-        notify_completion(false);
+        TEST_RESULT(false);
     }
 
     //Finally test both
@@ -125,9 +130,8 @@ int main() {
 
     if (checks != 20) {
         printf("MBED: Simultaneous rising and falling edges failed: %d\r\n", checks);
-        notify_completion(false);
+        TEST_RESULT(false);
     }
 
-    notify_completion(true);
-    return 0;
+    TEST_RESULT(true);
 }

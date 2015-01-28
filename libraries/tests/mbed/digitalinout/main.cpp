@@ -44,6 +44,11 @@ DigitalInOut d2(p25);
 
 int main()
 {
+    TEST_TIMEOUT(10);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(DigitalInOut);
+    TEST_START("MBED_A6");
+
     bool check = true;
 
     d1.output();
@@ -76,5 +81,5 @@ int main()
         check = false;
     }
 
-    notify_completion(check);
+    TEST_RESULT(check);
 }

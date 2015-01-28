@@ -41,20 +41,24 @@ DigitalIn in(p25);
 
 #endif
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(10);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(DigitalIn DigitalOut);
+    TEST_START("MBED_A5");
+
     out = 0;
     wait(0.1);
     if (in != 0) {
         printf("ERROR: in != 0\n");
-        notify_completion(false);
+        TEST_RESULT(false);
     }
     out = 1;
     wait(0.1);
     if (in != 1) {
         printf("ERROR: in != 1\n");
-        notify_completion(false);
+        TEST_RESULT(false);
     }
 
-    notify_completion(true);
+    TEST_RESULT(true);
 }
