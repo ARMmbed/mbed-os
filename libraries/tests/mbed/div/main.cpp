@@ -17,6 +17,11 @@ const char *result_str(bool result) {
 }
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(Integer constant division);
+    TEST_START("MBED_26");
+
     bool result = true;
 
     {   // 0xFFFFFFFF *  8 =  0x7fffffff8
@@ -35,6 +40,5 @@ int main() {
         printf("64bit: 0x17FFFFFFE8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
-    notify_completion(result);
-    return 0;
+    TEST_RESULT(result);
 }
