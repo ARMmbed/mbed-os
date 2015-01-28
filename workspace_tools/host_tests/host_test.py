@@ -283,13 +283,23 @@ class Test(HostTestResults):
                 self.notify("HOST: Start test...")
                 break
             else:
+                # Detect if this is property from TEST_ENV print
                 m = re.search('{([\w_]+);([\w\d\+ ]+)}}', line[:-1])
                 if m and len(m.groups()) == 2:
+                    # This is most likely auto-detection property
                     result[m.group(1)] = m.group(2)
                     if verbose:
                         self.notify("HOST: Property '%s' = '%s'"% (m.group(1), m.group(2)))
                 else:
-                    self.notify("HOST: Unknown property: %s"% line.strip())
+                    # We can check if this is TArget Id in mbed specific format
+                    m2 = re.search('^([\$]+)([a-fA-F0-9]+)', line[:-1])
+                    if m2 and len(m2.groups()) == 2:
+                        if verbose:
+                            target_id = m2.group(1) + m2.group(2)
+                            self.notify("HOST: TargetID '%s'"% target_id)
+                            self.notify(line[len(target_id):-1])
+                    else:
+                        self.notify("HOST: Unknown property: %s"% line.strip())
         return result
 
     def run(self):
