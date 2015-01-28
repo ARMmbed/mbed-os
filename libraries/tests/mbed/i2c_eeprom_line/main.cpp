@@ -22,13 +22,13 @@
 ******************************************************************************/
 
 // Test configuration block
-namespace
-{
+namespace {
 const int ntests = 1000;
 const int i2c_freq_hz = 400000;
 const int i2c_delay_us = 0;
 // const int EEPROM_24LC256_SIZE = (256 * 1024 / 8);   // 256 kbit memory
 }
+
 // End of test configuration block
 
 #if defined(TARGET_KL25Z)
@@ -75,8 +75,12 @@ I2C i2c(p28, p27);
 
 #define PATTERN_MASK 0x66, ~0x66, 0x00, 0xFF, 0xA5, 0x5A, 0xF0, 0x0F
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(I2C EEPROM line read write test);
+    TEST_START("MBED_A25");
+
     const int EEPROM_MEM_ADDR = 0xA0;
     bool result = true;
 
@@ -134,5 +138,5 @@ int main()
     printf("EEPROM: Pattern match errors: %d/%d ... [%s]\r\n", pattern_errors, ntests, pattern_errors ? "FAIL" : "OK");
 
     result = write_errors == 0 && read_errors == 0;
-    notify_completion(result);
+    TEST_RESULT(result);
 }

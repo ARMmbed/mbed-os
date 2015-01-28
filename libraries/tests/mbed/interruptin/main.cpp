@@ -87,7 +87,7 @@ void flipper() {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
+    TEST_TIMEOUT(15);
     TEST_HOSTTEST(default_auto);
     TEST_DESCRIPTION(InterruptIn);
     TEST_START("MBED_A7");

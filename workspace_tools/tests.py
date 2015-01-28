@@ -119,6 +119,7 @@ TESTS = [
         "id": "MBED_A7", "description": "InterruptIn",
         "source_dir": join(TEST_DIR, "mbed", "interruptin"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
         "automated": True,
         "peripherals": ["digital_loop"]
     },
