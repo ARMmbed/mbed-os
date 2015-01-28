@@ -10,6 +10,11 @@ namespace {
 
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(NIST Internet Time Service);
+    TEST_START("NET_2");
+
     bool result = false;
     EthernetInterface eth;
     eth.init(); //Use DHCP
@@ -34,9 +39,11 @@ int main() {
     if (n > 0) {
         result = true;
         const unsigned int timeRes = ntohl(in_buffer_uint);
-        const float years = timeRes / 60.0 / 60.0 / 24.0 / 365;
+        const float years = timeRes / 60.0 / 60.0 / 24.0 / 365.0;
+        const float days = timeRes / 24.0 / 60.0 / 60.0;
         printf("UDP: Received %d bytes from server %s on port %d\r\n", n, nist.get_address(), nist.get_port());
         printf("UDP: %u seconds since 01/01/1900 00:00 GMT ... %s\r\n", timeRes, timeRes > 0 ? "[OK]" : "[FAIL]");
+        printf("UDP: %.2f days since 01/01/1900 00:00 GMT ... %s\r\n", days, timeRes > 0 ? "[OK]" : "[FAIL]");
         printf("UDP: %.2f years since 01/01/1900 00:00 GMT ... %s\r\n", years, timeRes > YEARS_TO_PASS ? "[OK]" : "[FAIL]");
 
         if (years < YEARS_TO_PASS) {
@@ -45,6 +52,5 @@ int main() {
     }
     sock.close();
     eth.disconnect();
-    notify_completion(result);
-    return 0;
+    TEST_RESULT(result);
 }

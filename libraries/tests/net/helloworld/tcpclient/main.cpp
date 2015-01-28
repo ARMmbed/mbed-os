@@ -24,6 +24,11 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 }
 
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(TCP client hello world);
+    TEST_START("NET_1");
+
     bool result = false;
     EthernetInterface eth;
     eth.init(); //Use DHCP
@@ -76,6 +81,5 @@ int main() {
 
     sock.close();
     eth.disconnect();
-    notify_completion(result);
-    return 0;
+    TEST_RESULT(result);
 }
