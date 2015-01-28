@@ -681,18 +681,19 @@ class SingleTestRunner(object):
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result, single_test_output = self.run_host_test(test.host_test,
-                                                                            image_path, disk, port, duration,
-                                                                            micro=target_name,
-                                                                            verbose=host_test_verbose,
-                                                                            reset=host_test_reset,
-                                                                            reset_tout=reset_tout,
-                                                                            copy_method=selected_copy_method,
-                                                                            program_cycle_s=target_by_mcu.program_cycle_s())
+                single_test_result, single_test_output, single_testduration = self.run_host_test(test.host_test,
+                                                                                                 image_path, disk, port, duration,
+                                                                                                 micro=target_name,
+                                                                                                 verbose=host_test_verbose,
+                                                                                                 reset=host_test_reset,
+                                                                                                 reset_tout=reset_tout,
+                                                                                                 copy_method=selected_copy_method,
+                                                                                                 program_cycle_s=target_by_mcu.program_cycle_s())
 
             # Store test result
             test_all_result.append(single_test_result)
-            elapsed_time = time() - start_host_exec_time
+            total_elapsed_time = time() - start_host_exec_time   # Test time with copy (flashing) / reset
+            elapsed_time = single_testduration  # TIme of single test case execution after reset
 
             detailed_test_results[test_index] = {
                 'single_test_result' : single_test_result,
@@ -730,9 +731,14 @@ class SingleTestRunner(object):
         if self.db_logger:
             self.db_logger.disconnect()
 
-        return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
-                test_id, test_description, round(elapsed_time, 2),
-                duration, self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
+        return (self.shape_global_test_loop_result(test_all_result),
+                target_name,
+                toolchain_name,
+                test_id,
+                test_description,
+                round(elapsed_time, 2),
+                duration,
+                self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
@@ -825,6 +831,7 @@ class SingleTestRunner(object):
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
         start_time = time()
+        start_time_update = False
         line = ''
         output = []
         while (time() - start_time) < (2 * duration):
@@ -837,11 +844,17 @@ class SingleTestRunner(object):
                 output.append(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
+                    if not start_time_update and 'HOST: Reset target...' in line:
+                        # We will update this marker only once to prevent multiple time resets
+                        start_time_update = True
+                        start_time = time()
                     if '{end}' in line:
                         break
                     line = ''
                 else:
                     line += c
+        end_time = time()
+        testcase_duration = end_time - start_time   # Test case duration from reset to {end}
 
         c = get_char_from_queue(obs)
 
@@ -857,7 +870,7 @@ class SingleTestRunner(object):
         obs.stop()
 
         result = get_test_result(output)
-        return result, "".join(output)
+        return result, "".join(output), testcase_duration
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
         """ Checks if specified target should run specific peripheral test case
