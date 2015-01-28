@@ -680,9 +680,9 @@ TESTS = [
     {
         "id": "NET_3", "description": "TCP echo server",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "tcpecho_server_auto",
+        #"host_test" : "tcpecho_server_auto",
         "peripherals": ["ethernet"],
     },
     {
@@ -696,7 +696,7 @@ TESTS = [
     {
         "id": "NET_5", "description": "UDP echo server",
         "source_dir": join(TEST_DIR, "net", "echo", "udp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
         "host_test" : "udpecho_server_auto",
         "peripherals": ["ethernet"]
