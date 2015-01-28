@@ -25,6 +25,7 @@ from rtc_auto import RTCTest
 from echo import EchoTest
 from detect_auto import DetectPlatformTest
 from tcpecho_server_auto import TCPEchoServerTest
+from udpecho_server_auto import UDPEchoServerTest
 
 
 HOSTREGISTRY = HostRegistry()
@@ -38,6 +39,7 @@ HOSTREGISTRY.register_host_test("rtc_auto", RTCTest())
 HOSTREGISTRY.register_host_test("echo", EchoTest())
 HOSTREGISTRY.register_host_test("detect_auto", DetectPlatformTest())
 HOSTREGISTRY.register_host_test("tcpecho_server_auto", TCPEchoServerTest())
+HOSTREGISTRY.register_host_test("udpecho_server_auto", UDPEchoServerTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

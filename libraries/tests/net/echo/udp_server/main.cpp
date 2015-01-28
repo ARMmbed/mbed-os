@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "EthernetInterface.h"
 
 namespace {
@@ -7,6 +8,11 @@ namespace {
 }
 
 int main (void) {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(udpecho_server_auto);
+    TEST_DESCRIPTION(UDP echo server);
+    TEST_START("NET_5");
+
     EthernetInterface eth;
     eth.init(); //Use DHCP
     eth.connect();

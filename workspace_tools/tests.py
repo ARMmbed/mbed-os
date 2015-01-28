@@ -698,7 +698,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "echo", "udp_server"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "udpecho_server_auto",
+        #"host_test" : "udpecho_server_auto",
         "peripherals": ["ethernet"]
     },
     {
