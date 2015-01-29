@@ -118,7 +118,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     LPC_SYSCON->PRESETCTRL &= ~(0x1 << (3 + uart_n));
     LPC_SYSCON->PRESETCTRL |=  (0x1 << (3 + uart_n));
 
-//WH    
+    // Derive UART Clock from MainClock    
     UARTSysClk = MainClock / LPC_SYSCON->UARTCLKDIV;    
 
     // set default baud rate and format
