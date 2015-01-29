@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "BusInOut.h"
+#include "mbed_assert.h"
 
 namespace mbed {
 
