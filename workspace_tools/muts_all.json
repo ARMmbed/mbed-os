@@ -1,8 +1,0 @@
-{
-    "1" : { 
-            "mcu": "DELTA_DFCM_NNN40",
-			"port":"COM56",
-            "disk":"F:\\",
-            "peripherals": ["24LC256"]
-    }
-}

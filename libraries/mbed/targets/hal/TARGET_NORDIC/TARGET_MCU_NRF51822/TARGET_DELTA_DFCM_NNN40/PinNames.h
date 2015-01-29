@@ -50,7 +50,7 @@ typedef enum {
     p16 = 16,
     p17 = 17,
     p18 = NC,
-    p19 = NC,
+    p19 = 19,
     p20 = 20,
     p21 = 21,
     p22 = 22,
@@ -96,7 +96,9 @@ typedef enum {
     A3  = p3,
     A4  = p4,
     A5  = p5,
-
+	
+	SWIO = p19,
+	VERF0 = p0,
     // Not connected
 	
 	CTS_PIN_NUMBER	= NC,
