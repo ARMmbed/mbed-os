@@ -102,7 +102,7 @@
 */
 #define CLOCK_SETUP     1	// 1 == IRC: 2 == System Oscillator 12Mhz Xtal:
 
-//WH Fixed to use PLL
+//Fixed to use PLL
 #if (CLOCK_SETUP == 1)
 //use PLL for IRC
 	#define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
@@ -121,7 +121,6 @@
 	#define MAINCLKSEL_Val        0x00000003              // Reset: 0x000 MainClock = PLLCLKOUT
 	#define SYSAHBCLKDIV_Val      0x00000002              // Reset: 0x001 DIV=2 => SYSTEMCORECLK = 60 / 2 = 30MHz
 #endif
-//WH
 
 /*
 //-------- <<< end of configuration section >>> ------------------------------
@@ -250,11 +249,10 @@
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
-//WH Added MainClock
 uint32_t MainClock = __MAIN_CLOCK;         /*!< Main Clock Frequency */
 uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Clock)*/
 
-//WH Replaced SystemCoreClock with MainClock
+//Replaced SystemCoreClock with MainClock
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
@@ -326,7 +324,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
   SystemCoreClock = MainClock / LPC_SYSCON->SYSAHBCLKDIV;
 }
-//WH
 
 /**
  * Initialize the system
