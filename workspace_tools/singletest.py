@@ -146,7 +146,7 @@ if __name__ == '__main__':
     if opts.verbose_test_configuration_only:
         print "MUTs configuration in %s:"% opts.muts_spec_filename
         if MUTs:
-            print print_muts_configuration_from_json(MUTs)
+            print print_muts_configuration_from_json(MUTs, platform_filter=opts.general_filter_regex)
         print
         print "Test specification in %s:"% opts.test_spec_filename
         if test_spec:

@@ -989,7 +989,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
     return result
 
 
-def print_muts_configuration_from_json(json_data, join_delim=", "):
+def print_muts_configuration_from_json(json_data, join_delim=", ", platform_filter=None):
     """ Prints MUTs configuration passed to test script for verboseness
     """
     muts_info_cols = []
@@ -1010,12 +1010,17 @@ def print_muts_configuration_from_json(json_data, join_delim=", "):
     for k in json_data:
         row = [k]
         mut_info = json_data[k]
-        for col in muts_info_cols:
-            cell_val = mut_info[col] if col in mut_info else None
-            if type(cell_val) == ListType:
-                cell_val = join_delim.join(cell_val)
-            row.append(cell_val)
-        pt.add_row(row)
+
+        add_row = True
+        if platform_filter and 'mcu' in mut_info:
+            add_row = re.search(platform_filter, mut_info['mcu']) is not None
+        if add_row:
+            for col in muts_info_cols:
+                cell_val = mut_info[col] if col in mut_info else None
+                if type(cell_val) == ListType:
+                    cell_val = join_delim.join(cell_val)
+                row.append(cell_val)
+            pt.add_row(row)
     return pt.get_string()
 
 
@@ -1052,6 +1057,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             target_name = target if target in TARGET_MAP else "%s*"% target
             row = [target_name]
             toolchains = targets[target]
+
             for toolchain in sorted(toolchains_info_cols):
                 # Check for conflicts: target vs toolchain
                 conflict = False
