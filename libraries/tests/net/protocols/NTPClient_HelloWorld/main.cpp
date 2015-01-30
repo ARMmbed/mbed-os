@@ -3,8 +3,12 @@
 #include "EthernetInterface.h"
 #include "NTPClient.h"
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(NTP client);
+    TEST_START("NET_8");
+
     EthernetInterface eth;
     NTPClient ntp;
     eth.init(); //Use DHCP
@@ -27,11 +31,9 @@ int main()
         }
 
         if (result == false) {
-            notify_completion(false);
-            exit(ret);
+            TEST_RESULT(false);
         }
     }
     eth.disconnect();
-    notify_completion(true);
-    return 0;
+    TEST_RESULT(true);
 }

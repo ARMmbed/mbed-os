@@ -8,8 +8,12 @@ namespace {
     const int BUFFER_SIZE = 512;
 }
 
-int main()
-{
+int main() {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(HTTP client hello world);
+    TEST_START("NET_7");
+
     char http_request_buffer[BUFFER_SIZE + 1] = {0};
     HTTPClient http;
     EthernetInterface eth;
@@ -31,8 +35,7 @@ int main()
 
         if (result == false) {
             eth.disconnect();
-            notify_completion(false);
-            exit(ret);
+            TEST_RESULT(false);
         }
     }
 
@@ -56,11 +59,9 @@ int main()
 
         if (result == false) {
             eth.disconnect();
-            notify_completion(false);
-            exit(ret);
+            TEST_RESULT(false);
         }
     }
     eth.disconnect();
-    notify_completion(true);
-    return 0;
+    TEST_RESULT(true);
 }
