@@ -690,7 +690,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "tcpecho_client_auto",
+        #"host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"]
     },
     {
@@ -706,7 +706,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "echo", "udp_client"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "udpecho_client_auto",
+        #"host_test" : "udpecho_client_auto",
         "peripherals": ["ethernet"],
     },
     {
@@ -754,7 +754,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
         "duration": 15,
-        "host_test": "tcpecho_client_auto",
+        #"host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"],
     },
     {

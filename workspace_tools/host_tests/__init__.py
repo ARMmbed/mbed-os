@@ -26,7 +26,8 @@ from echo import EchoTest
 from detect_auto import DetectPlatformTest
 from tcpecho_server_auto import TCPEchoServerTest
 from udpecho_server_auto import UDPEchoServerTest
-
+from tcpecho_client_auto import TCPEchoClientTest
+from udpecho_client_auto import UDPEchoClientTest
 
 HOSTREGISTRY = HostRegistry()
 HOSTREGISTRY.register_host_test("default", DefaultAuto())
@@ -40,6 +41,8 @@ HOSTREGISTRY.register_host_test("echo", EchoTest())
 HOSTREGISTRY.register_host_test("detect_auto", DetectPlatformTest())
 HOSTREGISTRY.register_host_test("tcpecho_server_auto", TCPEchoServerTest())
 HOSTREGISTRY.register_host_test("udpecho_server_auto", UDPEchoServerTest())
+HOSTREGISTRY.register_host_test("tcpecho_client_auto", TCPEchoClientTest())
+HOSTREGISTRY.register_host_test("udpecho_client_auto", UDPEchoClientTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

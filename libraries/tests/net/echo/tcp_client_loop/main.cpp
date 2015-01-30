@@ -21,8 +21,12 @@ char char_rand() {
     return (rand() % ASCII_MAX) + ' ';
 }
 
-
 int main() {
+    TEST_TIMEOUT(20);
+    TEST_HOSTTEST(tcpecho_client_auto);
+    TEST_DESCRIPTION(TCP client echo loop);
+    TEST_START("NET_13");
+
     char buffer[BUFFER_SIZE] = {0};
     char out_buffer[BUFFER_SIZE] = {0};
     s_ip_address ip_addr = {0, 0, 0, 0};
@@ -70,6 +74,5 @@ int main() {
     }
     socket.close();
     eth.disconnect();
-    notify_completion(result);
-    return 0;
+    TEST_RESULT(result);
 }
