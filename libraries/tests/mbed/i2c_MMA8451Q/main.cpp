@@ -29,6 +29,11 @@ float calc_3d_vector_len(float x, float y, float z) {
 #define MEASURE_DEVIATION_TOLERANCE     0.025   // 2.5%
 
 int main(void) {
+    TEST_TIMEOUT(15);
+    TEST_HOSTTEST(default_auto);
+    TEST_DESCRIPTION(MMA8451Q accelerometer);
+    TEST_START("KL25Z_5");
+
     DigitalOut led(LED_GREEN);
     MMA8451Q acc(SDA, SCL, MMA8451_I2C_ADDRESS);
     bool result = true;
@@ -47,5 +52,5 @@ int main(void) {
         wait(0.5);
         led = !led;
     }
-    notify_completion(result);
+    TEST_RESULT(result);
 }

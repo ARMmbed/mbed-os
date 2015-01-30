@@ -360,7 +360,7 @@ class Test(HostTestResults):
     def print_result(self, result):
         """ Test result unified printing function
         """
-        self.notify("\n{{%s}}\n{{end}}" % result)
+        self.notify("\r\n{{%s}}\r\n{{end}}" % result)
 
 
 class DefaultTestSelector(Test):
