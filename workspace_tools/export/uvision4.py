@@ -68,6 +68,7 @@ class Uvision4(Exporter):
         'NRF51_DONGLE',
         'BLE_SMURFS',
         'LPC11U37H_401',
+		'DELTA_DFCM_NNN40',
     ]
 
     USING_MICROLIB = [
