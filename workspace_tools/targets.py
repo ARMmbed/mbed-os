@@ -848,7 +848,6 @@ class DELTA_DFCM_NNN40(NRF51822):
         NRF51822.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
-		self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros = ['TARGET_NRF51822']
 
 class DELTA_DFCM_NNN40_OTA(NRF51822):
@@ -856,7 +855,6 @@ class DELTA_DFCM_NNN40_OTA(NRF51822):
         NRF51822.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
-		self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.MERGE_SOFT_DEVICE = False
 
 
