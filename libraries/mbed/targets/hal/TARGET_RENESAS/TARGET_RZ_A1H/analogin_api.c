@@ -54,11 +54,11 @@ void analogin_init(analogin_t *obj, PinName pin) {
     CPGSTBCR3 &= ~(1 << 1);
     CPGSTBCR6 &= ~(1 << 7);
 
-    // 15: ADF 14: ADIE 13: ADST, [12:9] TRGS..0
-    //    [8:6] CKS 000 :: 256tclk
-    //    [5:3] MDS 000 :: single mode
-    //    [2:0] CH  000 :: AN0
-    ADCADCSR = 0x0000;
+    // 15: ADF 14: ADIE 13: ADST, [12:9] TRGS..0 
+    //    [8:6] CKS 010 :: 340tclk 
+    //    [5:3] MDS 000 :: single mode 
+    //    [2:0] CH  000 :: AN0 
+    ADCADCSR = 0x0080; 
 
     pinmap_pinout(pin, PinMap_ADC);
 }
