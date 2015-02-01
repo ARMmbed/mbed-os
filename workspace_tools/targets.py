@@ -694,7 +694,7 @@ class UBLOX_C029(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F439', 'STM32F439ZI']
         self.macros = ['HSE_VALUE=24000000', 'HSE_STARTUP_TIMEOUT=5000']
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
