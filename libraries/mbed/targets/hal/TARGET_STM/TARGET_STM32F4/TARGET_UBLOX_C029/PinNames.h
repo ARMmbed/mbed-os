@@ -179,7 +179,7 @@ typedef enum {
     LED_GRE = PB_4,   // Green
     LED_YEL = PE_9,   // Yellow, CS_CARD
     LED_RED = PB_3,   // Red
-    BTN     = PA_15
+    BTN     = PA_15,
     USBRXD  = PD_9, // RX
     USBTXD  = PD_8, // TX
 
