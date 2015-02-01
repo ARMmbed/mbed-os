@@ -108,41 +108,42 @@ typedef enum {
 
     // Module Pins
     // A
-    P_A5    = PC_2,
-    P_A6    = PF_3,
-    P_A7    = PG_15,
-    P_A8    = PB_6,
-    P_A9    = PB_8,
-    P_A10   = PA_11,
-    P_A11   = PA_9,   // D2   TX
-    P_A12   = PA_12,
-    P_A13   = PA_10,  // D8   RX
-    P_A14   = PD_9,   // D1   RX   USB CDC
-    P_A15   = PD_8,   // D0   TX   USB CDC
-    P_A16   = PD_11,
-    P_A17   = PD_12,
-    P_A18   = PA_3,
+    P_A5    = PC_2,   // UART-DTR
+    P_A6    = PF_3,   // Switch-0
+    P_A7    = PG_15,  // Red, Mode
+    P_A8    = PB_6,   // Green, Switch-1
+    P_A9    = PB_8,   // Blue
+    P_A10   = PA_11,  // UART-CTS
+    P_A11   = PA_9,   // UART-TXD
+    P_A12   = PA_12,  // UART-RTS
+    P_A13   = PA_10,  // UART-RXD
+    P_A14   = PD_9,   // GPIO-0
+    P_A15   = PD_8,   // GPIO-1
+    P_A16   = PD_11,  // GPIO-2
+    P_A17   = PD_12,  // GPIO-3
+    P_A18   = PA_3,   // UART-DSR
     // B
-    P_C5    = PF_14,
-    P_C6    = PE_13,  // D12  MISO
-    P_C8    = PE_12,  // D8   SCK
-    P_C10   = PE_14,  // D11  MOSI
-    P_C11   = PE_11,  // D10  SSEL
-    P_C12   = PE_9,
-    P_C13   = PF_8,   // ETH RSTn
-    P_C14   = PC_1,   // ETH MDC
-    P_C15   = PA_2,   // ETH MDIO
-    P_C16   = PF_7,
-    P_C17   = PF_1,   // D15  SCL
-    P_C18   = PF_0,   // D14  SDA
-    // D
-    P_D1    = PB_12,  // ETH TXD0
-    P_D2    = PB_13,  // ETH TXD1
-    P_D3    = PB_11,  // ETH TXEN
-    P_D4    = PA_7,   // ETH CRSDV
-    P_D5    = PC_4,   // ETH RXD0
-    P_D6    = PC_5,   // ETH RXD1
-    P_D8    = PA_1,   // ETH REFCLK
+	// C
+    P_C5    = PF_14,  // SPI-IRQ
+    P_C6    = PE_13,  // SPI-MISO
+    P_C8    = PE_12,  // Res
+    P_C10   = PE_14,  // SPI-MOSI
+    P_C11   = PE_11,  // SPI-CS0
+    P_C12   = PE_9,   // Res
+    P_C13   = PF_8,   // GPIO-4, RMII-RSTn
+    P_C14   = PC_1,   // RMII-MDC
+    P_C15   = PA_2,   // RMII-MDIO
+    P_C16   = PF_7,   // GPIO-7
+    P_C17   = PF_1,   // I2C-SCL
+    P_C18   = PF_0,   // I2C-SDA
+	// D
+    P_D1    = PB_12,  // RMII-TXD0
+    P_D2    = PB_13,  // RMII-TXD1
+    P_D3    = PB_11,  // RMII-TXEN
+    P_D4    = PA_7,   // RMII-CRSDV
+    P_D5    = PC_4,   // RMII-RXD0
+    P_D6    = PC_5,   // RMII-RXD1
+    P_D8    = PA_1,   // RMII-REFCLK
     // TP
     P_TP5   = PB_4,   // NTRST
     P_TP7   = PA_13,  // TMS  SWDIO
