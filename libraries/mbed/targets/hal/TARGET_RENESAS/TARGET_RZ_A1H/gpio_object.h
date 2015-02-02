@@ -16,6 +16,8 @@
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
+#include "mbed_assert.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

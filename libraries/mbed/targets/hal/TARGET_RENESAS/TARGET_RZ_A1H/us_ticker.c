@@ -61,9 +61,12 @@ void us_ticker_init(void) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-uint32_t us_ticker_read() {
+uint64_t us_ticker_read64() {
     uint32_t val;
-    uint64_t val64;
+    volatile uint64_t val64;
+    int check_irq_masked;
+
+    check_irq_masked = __disable_irq();
 
     if (!us_ticker_inited)
         us_ticker_init();
@@ -77,14 +80,50 @@ uint32_t us_ticker_read() {
     val64 = ((uint64_t)wrap_arround << 32) + val;
 
     /* clock to us */
-    val = (uint32_t)(val64 / count_clock);
-    return val;
+    val64 = val64 / count_clock;
+
+    if (!check_irq_masked) {
+        __enable_irq();
+    }
+
+    return val64;
+}
+
+uint32_t us_ticker_read() {
+    return (uint32_t)us_ticker_read64();
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    timestamp = (timestamp_t)(timestamp * count_clock);
-    OSTM1CMP  = (uint32_t)(timestamp & 0xffffffff);
+    volatile uint64_t set_cmp_val = 0;
+    uint64_t  timestamp_tmp;
+    int64_t  timestamp_req;
+    int64_t  timestamp_comp;
+    uint64_t timestamp_now = us_ticker_read64();
+    
+    /* calc compare mach timestamp */
+    set_cmp_val = (timestamp_now & 0xFFFFFFFF00000000) + timestamp;
+    
+    timestamp_tmp = (uint64_t)timestamp;
+    timestamp_req = (int64_t)timestamp_tmp;
+    
+    timestamp_tmp = (uint64_t)(timestamp_now & 0x00000000FFFFFFFF);
+    timestamp_comp = (int64_t)timestamp_tmp;
+    
+    if (timestamp_req <= timestamp_comp + 1) {
+        if (((timestamp_req - timestamp_comp) <= 1) && ((timestamp_req - timestamp_comp) >= -10)) {
+            /* This event was in the past */
+            us_ticker_irq_handler();
+            return;
+        } else {
+            /* This event is wrap arround */
+            set_cmp_val += 0x100000000;
+        }
+    }
+    
+    /* calc compare mach timestamp */
+    set_cmp_val = set_cmp_val * count_clock;
+    OSTM1CMP  = (uint32_t)(set_cmp_val & 0xffffffff);
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
