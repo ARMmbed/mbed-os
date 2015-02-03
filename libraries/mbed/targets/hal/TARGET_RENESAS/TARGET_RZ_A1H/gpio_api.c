@@ -25,9 +25,9 @@ uint32_t gpio_set(PinName pin) {
 
 void gpio_init(gpio_t *obj, PinName pin) {
     int group ;
+    obj->pin = pin;
     if(pin == NC) return;
     
-    obj->pin = pin;
     obj->mask = gpio_set(pin);
 
     group = PINGROUP(pin);

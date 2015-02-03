@@ -58,14 +58,34 @@ public:
      */
     void mode(PinMode pull);
 
+    /** Binary mask of bus pins connected to actual pins (not NC pins)
+     *  If bus pin is in NC state make corresponding bit will be cleared (set to 0), else bit will be set to 1
+     *
+     *  @returns
+     *    Binary mask of connected pins
+     */
+    int mask() {
+        return _nc_mask;
+    }
+
 #ifdef MBED_OPERATORS
     /** A shorthand for read()
      */
     operator int();
+
+    /** Access to particular bit in random-iterator fashion
+     */
+    DigitalIn & operator[] (int index);
 #endif
 
 protected:
     DigitalIn* _pin[16];
+
+    /** Mask of bus's NC pins
+     * If bit[n] is set to 1 - pin is connected
+     * if bit[n] is cleared - pin is not connected (NC)
+     */
+    int _nc_mask;
 
     /* disallow copy constructor and assignment operators */
 private:

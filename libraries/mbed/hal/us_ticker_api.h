@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-typedef uint64_t timestamp_t;
+typedef uint32_t timestamp_t;
 
 uint32_t us_ticker_read(void);
 

@@ -117,9 +117,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     /* Peripheral reset control to UART, a "1" bring it out of reset. */
     LPC_SYSCON->PRESETCTRL &= ~(0x1 << (3 + uart_n));
     LPC_SYSCON->PRESETCTRL |=  (0x1 << (3 + uart_n));
-    
-    UARTSysClk = SystemCoreClock / LPC_SYSCON->UARTCLKDIV;
-    
+
+    // Derive UART Clock from MainClock    
+    UARTSysClk = MainClock / LPC_SYSCON->UARTCLKDIV;    
+
     // set default baud rate and format
     serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);

@@ -38,6 +38,7 @@ class GccArm(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
+        'LPC11U37H_401',
         'STM32F407',
         'DISCO_F100RB',
         'DISCO_F051R8',
@@ -73,6 +74,7 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'BLE_SMURFS',
         'DISCO_F401VC',
+		'DELTA_DFCM_NNN40',
     ]
 
     DOT_IN_RELATIVE_PATH = True

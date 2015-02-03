@@ -35,6 +35,7 @@ struct i2c_s {
     uint8_t  width_low;
     uint8_t  width_hi;
     int      bbsy_wait_cnt;
+    int      last_stop_flag;
 };
 
 struct spi_s {
