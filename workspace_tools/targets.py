@@ -307,9 +307,7 @@ class LPC4088(LPCTarget):
         LPCTarget.lpc_patch(t_self, resources, elf, binf)
 
 class LPC4088_DM(LPC4088):
-    def __init__(self):
-        LPC4088.__init__(self)
-        self.extra_labels.append('LPC4088_DM')
+    pass
 
 class LPC4330_M4(LPCTarget):
     def __init__(self):
@@ -406,7 +404,7 @@ class TEENSY3_1(Target):
         self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         self.is_disk_virtual = True
-        self.detect_code = ["0230"] 
+        self.detect_code = ["0230"]
 
         OUTPUT_EXT = '.hex'
 
