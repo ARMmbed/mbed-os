@@ -306,6 +306,11 @@ class LPC4088(LPCTarget):
         t_self.debug("Generated custom binary file (internal flash + SPIFI)")
         LPCTarget.lpc_patch(t_self, resources, elf, binf)
 
+class LPC4088_DM(LPC4088):
+    def __init__(self):
+        LPC4088.__init__(self)
+        self.extra_labels.append('LPC4088_DM')
+
 class LPC4330_M4(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -913,6 +918,7 @@ TARGETS = [
     LPC824(),
     SSCI824(),      # LPC824
     LPC4088(),
+    LPC4088_DM(),
     LPC4330_M4(),
     LPC4330_M0(),
     LPC4337(),
@@ -989,7 +995,7 @@ for t in TARGETS:
 TARGET_NAMES = TARGET_MAP.keys()
 
 # Some targets with different name have the same exporters
-EXPORT_MAP = {}
+EXPORT_MAP = { "LPC4088_DM" : "LPC4088"}
 
 # Detection APIs
 def get_target_detect_codes():
