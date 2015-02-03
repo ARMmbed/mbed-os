@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,6 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-/* ->Take measures about optimization problems of web compiler */
-   /* Web compiler has problem that inlining code may not be generated correctly */
-   /* when "-O3 -Otime" was specified. */
-#if defined(__arm__) && (__ARMCC_VERSION <= 5040027)
-#pragma Ospace
-#endif
-/* <-Take measures about optimization problems of web compiler */
-
 #define DEVICE_PORTIN           1
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1
@@ -34,34 +26,31 @@
 #define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
-#define DEVICE_SERIAL_FC        1
 
 #define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+#define DEVICE_I2CSLAVE         0
 
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         1
 
 #define DEVICE_CAN              0
 
-#define DEVICE_RTC              1
+#define DEVICE_RTC              0
 
-#define DEVICE_ETHERNET         1
+#define DEVICE_ETHERNET         0
 
 #define DEVICE_PWMOUT           1
 
 #define DEVICE_SEMIHOST         0
 #define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       32
-#define DEVICE_MAC_OFFSET      20
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
-#define DEVICE_DEBUG_AWARENESS  0
+#define DEVICE_DEBUG_AWARENESS  1
 
 #define DEVICE_STDIO_MESSAGES   0
 
-#define DEVICE_ERROR_PATTERN    0
+#define DEVICE_ERROR_PATTERN    1
 
 #include "objects.h"
 

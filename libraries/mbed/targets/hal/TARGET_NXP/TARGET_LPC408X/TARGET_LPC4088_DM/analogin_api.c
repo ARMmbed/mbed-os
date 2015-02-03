@@ -15,73 +15,74 @@
  */
 #include "mbed_assert.h"
 #include "analogin_api.h"
-
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 
-#include "adc_iodefine.h"
-#include "cpg_iodefine.h"
+#define ANALOGIN_MEDIAN_FILTER      1
 
-#define ANALOGIN_MEDIAN_FILTER      0
+#define ADC_10BIT_RANGE             0x3FF
+#define ADC_12BIT_RANGE             0xFFF
+
+static inline int div_round_up(int x, int y) {
+  return (x + (y - 1)) / y;
+}
 
 static const PinMap PinMap_ADC[] = {
-    {P1_8,  AN0, 1},
-    {P1_9,  AN1, 1},
-    {P1_10, AN2, 1},
-    {P1_11, AN3, 1},
-    {P1_12, AN3, 1},
-    {P1_13, AN5, 1},
-    {P1_14, AN5, 1},
-    {P1_15, AN7, 1},
-    {NC,    NC,  0}
+    {P0_25, ADC0_2, 0x01},
+    {P0_26, ADC0_3, 0x01},
+    {NC   , NC    , 0   }
 };
 
-static volatile uint16_t *ADCDR[] = {
-    &ADCADDRA,
-    &ADCADDRB,
-    &ADCADDRC,
-    &ADCADDRD,
-    &ADCADDRE,
-    &ADCADDRF,
-    &ADCADDRG,
-    &ADCADDRH,
-};
+#define ADC_RANGE    ADC_12BIT_RANGE
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
-    CPGSTBCR3 &= ~(1 << 1);
-    CPGSTBCR6 &= ~(1 << 7);
+    // ensure power is turned on
+    LPC_SC->PCONP |= (1 << 12);
 
-    // 15: ADF 14: ADIE 13: ADST, [12:9] TRGS..0 
-    //    [8:6] CKS 010 :: 340tclk 
-    //    [5:3] MDS 000 :: single mode 
-    //    [2:0] CH  000 :: AN0 
-    ADCADCSR = 0x0080; 
+    uint32_t PCLK = PeripheralClock;
+
+    // calculate minimum clock divider
+    //  clkdiv = divider - 1
+    uint32_t MAX_ADC_CLK = 12400000;
+    uint32_t clkdiv = div_round_up(PCLK, MAX_ADC_CLK) - 1;
+
+    // Set the generic software-controlled ADC settings
+    LPC_ADC->CR = (0 << 0)      // SEL: 0 = no channels selected
+                  | (clkdiv << 8) // CLKDIV:
+                  | (0 << 16)     // BURST: 0 = software control
+                  | (1 << 21)     // PDN: 1 = operational
+                  | (0 << 24)     // START: 0 = no start
+                  | (0 << 27);    // EDGE: not applicable
+
+    // must enable analog mode (ADMODE = 0)
+    __IO uint32_t *reg = (__IO uint32_t*) (LPC_IOCON_BASE + 4 * pin);
+    *reg &= ~(1 << 7);
 
     pinmap_pinout(pin, PinMap_ADC);
 }
 
 static inline uint32_t adc_read(analogin_t *obj) {
-    volatile uint16_t data;
-
     // Select the appropriate channel and start conversion
-    ADCADCSR &= 0xfff8;
-    ADCADCSR |= (1 << 13 | (obj->adc & 0x7));
+    LPC_ADC->CR &= ~0xFF;
+    LPC_ADC->CR |= 1 << (int)obj->adc;
+    LPC_ADC->CR |= 1 << 24;
 
-    // Wait end of conversion
+    // Repeatedly get the sample data until DONE bit
+    unsigned int data;
     do {
-        data = ADCADCSR;
-    } while (((data & (1 << 15)) == 0) || ((data & (1 << 13)) != 0));
+        data = LPC_ADC->GDR;
+    } while ((data & ((unsigned int)1 << 31)) == 0);
 
-    // clear flag
-    ADCADCSR &= ~(1 << 15);
+    // Stop conversion
+    LPC_ADC->CR &= ~(1 << 24);
 
-    return ((*(ADCDR[obj->adc])) >> 4) & 0x0FFF;   // 12 bits range
+    return (data >> 4) & ADC_RANGE; // 12 bit
 }
 
-#if ANALOGIN_MEDIAN_FILTER
 static inline void order(uint32_t *a, uint32_t *b) {
     if (*a > *b) {
         uint32_t t = *a;
@@ -89,7 +90,6 @@ static inline void order(uint32_t *a, uint32_t *b) {
         *b = t;
     }
 }
-#endif
 
 static inline uint32_t adc_read_u32(analogin_t *obj) {
     uint32_t value;
@@ -110,11 +110,10 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
 uint16_t analogin_read_u16(analogin_t *obj) {
     uint32_t value = adc_read_u32(obj);
 
-    return (value << 4) | ((value >> 8) & 0x000F); // 12-bit to 16-bit conversion
+    return (value << 4) | ((value >> 8) & 0x000F); // 12 bit
 }
 
 float analogin_read(analogin_t *obj) {
     uint32_t value = adc_read_u32(obj);
-
-    return (float)value * (1.0f / (float)0x0FFF);  // 12 bits range
+    return (float)value * (1.0f / (float)ADC_RANGE);
 }
