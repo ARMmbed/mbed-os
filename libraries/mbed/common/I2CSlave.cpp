@@ -43,7 +43,16 @@ int I2CSlave::read(char *data, int length) {
 }
 
 int I2CSlave::read(void) {
+// The dedicated I2C Slave byte read and byte write functions need to be called
+// from 'common' mbed I2CSlave API for devices that have separate Master and 
+// Slave engines such as the lpc812 and lpc1549.
+//
+//#if defined (TARGET_LPC812) || defined (TARGET_LPC824) || defined (TARGET_LPC1549)
+#if defined (TARGET_LPC812)
+    return i2c_slave_byte_read(&_i2c, 0);
+#else        
     return i2c_byte_read(&_i2c, 0);
+#endif    
 }
 
 int I2CSlave::write(const char *data, int length) {
@@ -51,7 +60,16 @@ int I2CSlave::write(const char *data, int length) {
 }
 
 int I2CSlave::write(int data) {
+// The dedicated I2C Slave byte read and byte write functions need to be called
+// from 'common' mbed I2CSlave API for devices that have separate Master and 
+// Slave engines such as the lpc812 and lpc1549.
+//
+//#if defined (TARGET_LPC812) || defined (TARGET_LPC824) || defined (TARGET_LPC1549)
+#if defined (TARGET_LPC812)
+    return i2c_slave_byte_write(&_i2c, data);    
+#else    
     return i2c_byte_write(&_i2c, data);
+#endif    
 }
 
 void I2CSlave::stop(void) {
