@@ -691,6 +691,15 @@ class DISCO_F401VC(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class UBLOX_C029(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F439', 'STM32F439ZI']
+        self.macros = ['HSE_VALUE=24000000', 'HSE_STARTUP_TIMEOUT=5000']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
 
 ### Nordic ###
 
@@ -960,7 +969,8 @@ TARGETS = [
     MTS_MDOT_F411RE(),
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
-
+    UBLOX_C029(),   # STM32F439
+	
     ### Nordic ###
     NRF51822(),
     NRF51822_OTA(), # nRF51822
