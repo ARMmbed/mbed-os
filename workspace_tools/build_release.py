@@ -72,7 +72,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
-    ('NRF51822',     ('ARM', 'GCC_ARM')),
+    ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),
     ('NRF51_DK',     ('ARM', 'GCC_ARM')),
     ('NRF51_DONGLE', ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),
