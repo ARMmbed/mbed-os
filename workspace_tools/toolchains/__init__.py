@@ -170,7 +170,7 @@ class Resources:
                 ('Libraries', self.libraries),
 
                 ('Hex files', self.hex_files),
-                ('Hex files', self.bin_files),
+                ('Bin files', self.bin_files),
             ):
             if resources:
                 s.append('%s:\n  ' % label + '\n  '.join(resources))
