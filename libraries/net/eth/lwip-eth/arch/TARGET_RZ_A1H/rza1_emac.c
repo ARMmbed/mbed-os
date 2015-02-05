@@ -63,7 +63,7 @@ static void rza1_phy_task(void *arg) {
     struct netif *netif = (struct netif*)arg;
     s32_t        connect_sts = 0;   /* 0: disconnect, 1:connect */
     s32_t        link_sts;
-    s32_t        link_mode_new;
+    s32_t        link_mode_new = NEGO_FAIL;
     s32_t        link_mode_old = NEGO_FAIL;
 
     while (1) {
@@ -125,7 +125,6 @@ static err_t rza1_low_level_output(struct netif *netif, struct pbuf *p) {
             }
         }
     }
-    pbuf_free(p);
 
     return err;
 }
