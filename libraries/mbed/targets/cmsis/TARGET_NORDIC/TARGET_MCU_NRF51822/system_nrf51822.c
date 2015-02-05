@@ -71,7 +71,7 @@ void SystemInit(void)
 
     // Start the external 32khz crystal oscillator.
 
-#ifdef TARGET_DELTA_DFCM_NNN40 || TARGET_HRM1017
+#if defined(TARGET_DELTA_DFCM_NNN40) || defined(TARGET_HRM1017)
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
 #else
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
