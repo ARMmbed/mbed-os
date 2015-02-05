@@ -110,6 +110,7 @@ class Resources:
 
         # Other files
         self.hex_files = []
+        self.bin_files = []
 
     def add(self, resources):
         self.inc_dirs += resources.inc_dirs
@@ -133,6 +134,7 @@ class Resources:
             self.linker_script = resources.linker_script
 
         self.hex_files += resources.hex_files
+        self.bin_files += resources.bin_files
 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
@@ -168,6 +170,7 @@ class Resources:
                 ('Libraries', self.libraries),
 
                 ('Hex files', self.hex_files),
+                ('Bin files', self.bin_files),
             ):
             if resources:
                 s.append('%s:\n  ' % label + '\n  '.join(resources))
@@ -387,6 +390,9 @@ class mbedToolchain:
 
                 elif ext == '.hex':
                     resources.hex_files.append(file_path)
+                
+                elif ext == '.bin':
+                    resources.bin_files.append(file_path)
 
         return resources
 
