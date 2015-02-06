@@ -29,7 +29,8 @@ CORE_LABELS = {
 }
 
 import os
-import hashlib
+import binascii
+import struct
 import shutil
 from workspace_tools.patch import patch
 from paths import TOOLS_BOOTLOADERS
@@ -740,9 +741,10 @@ class MTS_DRAGONFLY_F411RE(Target):
         data = part.read()
         outbin.write(data)
         part.close()
+        outbin.seek(0, 0)
         data = outbin.read()
-        md5 = hashlib.md5(data)
-        outbin.write(md5.digest())
+        crc = struct.pack('<I', binascii.crc32(data) & 0xFFFFFFFF)
+        outbin.write(crc)
         outbin.close()
         os.remove(binf)
         os.rename(target, binf)
