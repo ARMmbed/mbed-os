@@ -15,6 +15,14 @@ void mbed_sdk_init()
                                         | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
 
 	NRF_GPIO->OUTCLR 		= 	(GPIO_OUTCLR_PIN19_Clear << GPIO_OUTCLR_PIN19_Pos);
+	
+	// Config External Crystal to 32MHz
+	NRF_CLOCK->XTALFREQ = 0x00;
+	NRF_CLOCK->EVENTS_HFCLKSTARTED  = 0;
+    NRF_CLOCK->TASKS_HFCLKSTART     = 1;
+    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) 
+    {// Do nothing.
+    }
 
 #endif
 }
