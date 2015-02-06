@@ -120,6 +120,19 @@ class LPC11U24_301(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
 
+class LPC11U34_421(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+
+class APPNEARME_MICRONFCBOARD(LPC11U34_421):
+    def __init__(self):
+        LPC11U34_421.__init__(self)
+        self.macros = ['LPC11U34_421']
+
 class LPC11U35_401(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -905,6 +918,8 @@ TARGETS = [
     LPC11U24(),
     OC_MBUINO(),    # LPC11U24
     LPC11U24_301(),
+    LPC11U34_421(),
+    APPNEARME_MICRONFCBOARD(), #LPC11U34_421
     LPC11U35_401(),
     LPC11U35_501(),
     XADOW_M0(),     # LPC11U35_501
