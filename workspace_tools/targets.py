@@ -306,6 +306,9 @@ class LPC4088(LPCTarget):
         t_self.debug("Generated custom binary file (internal flash + SPIFI)")
         LPCTarget.lpc_patch(t_self, resources, elf, binf)
 
+class LPC4088_DM(LPC4088):
+    pass
+
 class LPC4330_M4(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -401,7 +404,7 @@ class TEENSY3_1(Target):
         self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
         self.supported_toolchains = ["GCC_ARM", "ARM"]
         self.is_disk_virtual = True
-        self.detect_code = ["0230"] 
+        self.detect_code = ["0230"]
 
         OUTPUT_EXT = '.hex'
 
@@ -688,6 +691,15 @@ class DISCO_F401VC(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class UBLOX_C029(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F439', 'STM32F439ZI']
+        self.macros = ['HSE_VALUE=24000000', 'HSE_STARTUP_TIMEOUT=5000']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
 
 ### Nordic ###
 
@@ -715,7 +727,7 @@ class NRF51822(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K"]
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.is_disk_virtual = True
         self.detect_code = ["1070"]
 
@@ -723,7 +735,7 @@ class NRF51822(Target):
         return 6
 
     def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
+        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM', 'IAR']:
             hook.hook_add_binary("post", self.binary_hook)
 
     @staticmethod
@@ -913,6 +925,7 @@ TARGETS = [
     LPC824(),
     SSCI824(),      # LPC824
     LPC4088(),
+    LPC4088_DM(),
     LPC4330_M4(),
     LPC4330_M0(),
     LPC4337(),
@@ -956,7 +969,8 @@ TARGETS = [
     MTS_MDOT_F411RE(),
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
-
+    UBLOX_C029(),   # STM32F439
+	
     ### Nordic ###
     NRF51822(),
     NRF51822_OTA(), # nRF51822
@@ -989,7 +1003,7 @@ for t in TARGETS:
 TARGET_NAMES = TARGET_MAP.keys()
 
 # Some targets with different name have the same exporters
-EXPORT_MAP = {}
+EXPORT_MAP = { "LPC4088_DM" : "LPC4088"}
 
 # Detection APIs
 def get_target_detect_codes():
