@@ -66,7 +66,7 @@ class Uvision4(Exporter):
         'MTS_MDOT_F405RG',
         'NRF51_DK',
         'NRF51_DONGLE',
-        'BLE_SMURFS',
+        'SEEED_TINY_BLE',
         'LPC11U37H_401',
 		'DELTA_DFCM_NNN40',
     ]

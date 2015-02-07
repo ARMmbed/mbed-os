@@ -75,7 +75,7 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
-        <td>BLE_SMURFS</td>
+        <td>SEEED_TINY_BLE</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -87,7 +87,7 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
-        <td>BLE_SMURFS_OTA</td>
+        <td>SEEED_TINY_BLE_OTA</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
