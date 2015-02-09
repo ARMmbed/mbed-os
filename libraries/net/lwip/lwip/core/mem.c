@@ -178,7 +178,7 @@ struct mem {
  * how that space is calculated). */
 #ifndef LWIP_RAM_HEAP_POINTER
 
-#if defined(TARGET_LPC4088)
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
 #  elif defined(TOOLCHAIN_GCC_CR)

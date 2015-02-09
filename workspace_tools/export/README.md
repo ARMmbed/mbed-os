@@ -471,6 +471,18 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
+        <td>LPC4088_DM</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
         <td>LPC4330_M0</td>
         <td>-</td>
         <td>-</td>

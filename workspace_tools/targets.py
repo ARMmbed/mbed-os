@@ -1003,7 +1003,7 @@ for t in TARGETS:
 TARGET_NAMES = TARGET_MAP.keys()
 
 # Some targets with different name have the same exporters
-EXPORT_MAP = { "LPC4088_DM" : "LPC4088"}
+EXPORT_MAP = { }
 
 # Detection APIs
 def get_target_detect_codes():

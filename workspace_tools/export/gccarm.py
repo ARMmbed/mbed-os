@@ -33,6 +33,7 @@ class GccArm(Exporter):
         'K22F',
         'K20D50M',
         'LPC4088',
+        'LPC4088_DM',
         'LPC4330_M4',
         'LPC11U24',
         'LPC1114',
