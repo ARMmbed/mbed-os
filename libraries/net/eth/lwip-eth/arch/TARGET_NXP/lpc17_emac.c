@@ -134,7 +134,7 @@ struct lpc_enetdata {
 #endif
 };
 
-#if defined(TARGET_LPC4088)
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
 #  elif defined(TOOLCHAIN_GCC_CR)
@@ -444,7 +444,7 @@ static s32_t lpc_packet_addr_notsafe(void *addr) {
 	/* Check for legal address ranges */
 #if defined(TARGET_LPC1768)
 	if ((((u32_t) addr >= 0x2007C000) && ((u32_t) addr < 0x20083FFF))) {
-#elif defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 	if ((((u32_t) addr >= 0x20000000) && ((u32_t) addr < 0x20007FFF))) {
 #endif
 	    return 0;
@@ -804,7 +804,7 @@ static err_t low_level_init(struct netif *netif)
 #if defined(TARGET_LPC1768)
 	LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
 	LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
-#elif defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
   LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
   LPC_IOCON->P1_0  |= 0x01;     /* ENET_TXD0 */
   LPC_IOCON->P1_1  &= ~0x07;

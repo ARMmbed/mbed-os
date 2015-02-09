@@ -73,12 +73,12 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
-    ('NRF51822',     ('ARM', 'GCC_ARM')),
+    ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),
     ('NRF51_DK',     ('ARM', 'GCC_ARM')),
     ('NRF51_DONGLE', ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),
     ('ARCH_BLE',     ('ARM', 'GCC_ARM')),
-    ('BLE_SMURFS',     ('ARM', 'GCC_ARM')),
+    ('SEEED_TINY_BLE', ('ARM', 'GCC_ARM')),
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),

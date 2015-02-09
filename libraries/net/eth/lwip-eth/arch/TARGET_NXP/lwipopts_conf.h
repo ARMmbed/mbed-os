@@ -21,7 +21,7 @@
 
 #define LWIP_TRANSPORT_ETHERNET       1
 
-#if defined(TARGET_LPC4088)
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #define MEM_SIZE                      15360
 #elif defined(TARGET_LPC1768)
 #define MEM_SIZE                      16362

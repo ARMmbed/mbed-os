@@ -168,7 +168,7 @@ static u8_t *const memp_bases[] = {
 
 #if defined(TARGET_LPC1768)
 #  define ETHMEM_SECTION __attribute((section("AHBSRAM1")))
-#elif defined(TARGET_LPC4088) || defined(TARGET_K64F) || defined(TARGET_RZ_A1H)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_K64F) || defined(TARGET_RZ_A1H)
 #  define ETHMEM_SECTION 
 #endif
 
