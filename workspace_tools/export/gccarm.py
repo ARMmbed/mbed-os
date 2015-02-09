@@ -72,7 +72,7 @@ class GccArm(Exporter):
         'NUCLEO_L152RE',
         'NRF51_DK',
         'NRF51_DONGLE',
-        'BLE_SMURFS',
+        'SEEED_TINY_BLE',
         'DISCO_F401VC',
 		'DELTA_DFCM_NNN40',
     ]
