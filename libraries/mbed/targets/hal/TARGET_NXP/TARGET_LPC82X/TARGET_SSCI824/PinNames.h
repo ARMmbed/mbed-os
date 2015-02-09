@@ -40,8 +40,8 @@ typedef enum {
     P0_5  = ( 5 << PIN_SHIFT) | 0x0C,
     P0_6  = ( 6 << PIN_SHIFT) | 0x40,
     P0_7  = ( 7 << PIN_SHIFT) | 0x3C,
-    P0_8  = ( 8 << PIN_SHIFT) | 0x38,
-    P0_9  = ( 9 << PIN_SHIFT) | 0x34,
+
+
     P0_10 = (10 << PIN_SHIFT) | 0x20,
     P0_11 = (11 << PIN_SHIFT) | 0x1C,
     P0_12 = (12 << PIN_SHIFT) | 0x08,
