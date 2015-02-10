@@ -71,7 +71,15 @@ from workspace_tools.test_api import get_avail_tests_summary_table
 from workspace_tools.test_api import get_default_test_options_parser
 from workspace_tools.test_api import print_muts_configuration_from_json
 from workspace_tools.test_api import print_test_configuration_from_json
+from workspace_tools.test_api import get_autodetected_MUTS
+from workspace_tools.test_api import get_autodetected_TEST_SPEC
+from workspace_tools.test_api import get_module_avail
 
+# Importing extra modules which can be not installed but if available they can extend test suite functionality
+try:
+    import mbed_lstools
+except:
+    pass
 
 def get_version():
     """ Returns test script version
@@ -126,22 +134,41 @@ if __name__ == '__main__':
         print mcu_toolchain_matrix(platform_filter=opts.general_filter_regex)
         exit(0)
 
-    # Open file with test specification
-    # test_spec_filename tells script which targets and their toolchain(s)
-    # should be covered by the test scenario
-    test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
-    if test_spec is None:
-        if not opts.test_spec_filename:
-            parser.print_help()
-        exit(-1)
+    test_spec = None
+    MUTs = None
 
-    # Get extra MUTs if applicable
-    MUTs = get_json_data_from_file(opts.muts_spec_filename) if opts.muts_spec_filename else None
+    if opts.auto_detect:
+        print "Detecting connected mbed-enabled devices.."
 
-    if MUTs is None:
-        if not opts.muts_spec_filename:
-            parser.print_help()
-        exit(-1)
+        if get_module_avail('mbed_lstools'):
+            mbeds = mbed_lstools.create()
+            muts_list = mbeds.list_mbeds()
+
+        use_default_toolchain = 'default' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
+        use_supported_toolchains = 'all' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
+        toolchain_filter = opts.toolchains_filter
+        test_spec = get_autodetected_TEST_SPEC(muts_list,
+                                               use_default_toolchain=use_default_toolchain,
+                                               use_supported_toolchains=use_supported_toolchains,
+                                               toolchain_filter=toolchain_filter)
+        MUTs = get_autodetected_MUTS(muts_list)
+    else:
+        # Open file with test specification
+        # test_spec_filename tells script which targets and their toolchain(s)
+        # should be covered by the test scenario
+        test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
+        if test_spec is None:
+            if not opts.test_spec_filename:
+                parser.print_help()
+            exit(-1)
+
+        # Get extra MUTs if applicable
+        MUTs = get_json_data_from_file(opts.muts_spec_filename) if opts.muts_spec_filename else None
+
+        if MUTs is None:
+            if not opts.muts_spec_filename:
+                parser.print_help()
+            exit(-1)
 
     if opts.verbose_test_configuration_only:
         print "MUTs configuration in %s:"% opts.muts_spec_filename

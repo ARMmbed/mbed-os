@@ -54,6 +54,11 @@ from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
 
+try:
+    import mbed_lstools
+except:
+    pass
+
 
 class ProcessObserver(Thread):
     def __init__(self, proc):
@@ -1374,8 +1379,72 @@ def detect_database_verbose(db_url):
         print "Parse error: '%s' - DB Url error"% (db_url)
 
 
+def get_module_avail(module_name):
+    """ This function returns True if module_name is already impored module
+    """
+    return module_name in sys.modules.keys()
+
+
+def get_autodetected_MUTS(mbeds_list):
+    """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
+        If function fails to auto-detect devices it will return empty dictionary.
+
+        if get_module_avail('mbed_lstools'):
+            mbeds = mbed_lstools.create()
+            mbeds_list = mbeds.list_mbeds()
+    """
+    result = {}   # Should be in muts_all.json format
+    # Align mbeds_list from mbed_lstools to MUT file format (JSON dictionary with muts)
+    # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
+    index = 1
+    for mut in mbeds_list:
+        m = {'mcu' : mut['platform_name'],
+             'port' : mut['serial_port'],
+             'disk' : mut['mount_point'],
+             'peripherals' : []     # No peripheral detection
+             }
+        if index not in result:
+            result[index] = {}
+        result[index] = m
+        index += 1
+    return result
+
+
+def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_supported_toolchains=False, toolchain_filter=None):
+    """ Function detects all connected to host mbed-enabled devices and generates artificial test_spec file.
+        If function fails to auto-detect devices it will return empty 'targets' test_spec description.
+
+        use_default_toolchain - if True add default toolchain to test_spec
+        use_supported_toolchains - if True add all supported toolchains to test_spec
+        toolchain_filter - if [...list of toolchains...] add from all toolchains only those in filter to test_spec
+    """
+    result = {'targets': {}
+             }
+
+    for mut in mbeds_list:
+        mcu = mut['platform_name']
+        if mcu in TARGET_MAP:
+            default_toolchain = TARGET_MAP[mcu].default_toolchain
+            supported_toolchains = TARGET_MAP[mcu].supported_toolchains
+
+            toolchains = []
+            if use_default_toolchain:
+                toolchains.append(default_toolchain)
+            if use_supported_toolchains:
+                toolchains += supported_toolchains
+
+            if toolchain_filter is not None:
+                all_toolchains = supported_toolchains + [default_toolchain]
+                for toolchain in toolchain_filter:
+                    if toolchain in all_toolchains:
+                        toolchains.append(toolchain)
+
+            result['targets'][mcu] = list(set(toolchains))
+    return result
+
+
 def get_default_test_options_parser():
-    """ Get common test script options used by CLI, webservices etc.
+    """ Get common test script options used by CLI, web services etc.
     """
     parser = optparse.OptionParser()
     parser.add_option('-i', '--tests',
@@ -1393,6 +1462,19 @@ def get_default_test_options_parser():
                       metavar="NUMBER",
                       type="int",
                       help="Define number of compilation jobs. Default value is 1")
+
+    if get_module_avail('mbed_lstools'):
+        # Additional features available when mbed_lstools is installed on host and imported
+        # mbed_lstools allow users to detect connected to host mbed-enabled devices
+        parser.add_option('', '--auto',
+                          dest='auto_detect',
+                          metavar=False,
+                          action="store_true",
+                          help='Use mbed-ls module to detect all connected mbed devices')
+
+        parser.add_option('', '--tc',
+                          dest='toolchains_filter',
+                          help="Toolchain filter for --auto option. Use toolcahins names separated by comma, 'default' or 'all' to select toolchains")
 
     parser.add_option('', '--clean',
                       dest='clean',
