@@ -1,7 +1,5 @@
 /* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
- *******************************************************************************
- * Copyright (c) 2011 ARM Limited. All rights reserved.
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of ARM Limited nor the names of its contributors
+ * 3. Neither the name of STMicroelectronics nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -26,26 +24,17 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
  */
-
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
-
-#define NVIC_NUM_VECTORS      (16 + 86)   // CORE + MCU Peripherals
-#define NVIC_USER_IRQ_OFFSET  16
-
 #include "cmsis.h"
 
-#ifdef __cplusplus
-extern "C" {
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init()
+{
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+
+#if defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC)
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
 #endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
 }
-#endif
-
-#endif
