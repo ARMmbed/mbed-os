@@ -1418,8 +1418,7 @@ def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_suppo
         use_supported_toolchains - if True add all supported toolchains to test_spec
         toolchain_filter - if [...list of toolchains...] add from all toolchains only those in filter to test_spec
     """
-    result = {'targets': {}
-             }
+    result = {'targets': {} }
 
     for mut in mbeds_list:
         mcu = mut['platform_name']
@@ -1427,15 +1426,15 @@ def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_suppo
             default_toolchain = TARGET_MAP[mcu].default_toolchain
             supported_toolchains = TARGET_MAP[mcu].supported_toolchains
 
+            # Decide which toolchains should be added to test specification toolchain pool for each target
             toolchains = []
             if use_default_toolchain:
                 toolchains.append(default_toolchain)
             if use_supported_toolchains:
                 toolchains += supported_toolchains
-
             if toolchain_filter is not None:
                 all_toolchains = supported_toolchains + [default_toolchain]
-                for toolchain in toolchain_filter:
+                for toolchain in toolchain_filter.split(','):
                     if toolchain in all_toolchains:
                         toolchains.append(toolchain)
 
