@@ -894,6 +894,15 @@ class ARM_MPS2_M0P(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
 
+class ARM_MPS2_M1(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M1"
+        self.extra_labels = ['ARM_SSG', 'MPS2_M1']
+        self.macros = ['CMSDK_CM1']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.default_toolchain = "ARM"
+
 class ARM_MPS2_M3(Target):
     def __init__(self):
         Target.__init__(self)
