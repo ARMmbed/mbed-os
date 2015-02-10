@@ -681,14 +681,15 @@ class SingleTestRunner(object):
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result, single_test_output, single_testduration = self.run_host_test(test.host_test,
-                                                                                                 image_path, disk, port, duration,
-                                                                                                 micro=target_name,
-                                                                                                 verbose=host_test_verbose,
-                                                                                                 reset=host_test_reset,
-                                                                                                 reset_tout=reset_tout,
-                                                                                                 copy_method=selected_copy_method,
-                                                                                                 program_cycle_s=target_by_mcu.program_cycle_s())
+                host_test_result = self.run_host_test(test.host_test,
+                                                      image_path, disk, port, duration,
+                                                      micro=target_name,
+                                                      verbose=host_test_verbose,
+                                                      reset=host_test_reset,
+                                                      reset_tout=reset_tout,
+                                                      copy_method=selected_copy_method,
+                                                      program_cycle_s=target_by_mcu.program_cycle_s())
+                single_test_result, single_test_output, single_testduration, single_timeout = host_test_result
 
             # Store test result
             test_all_result.append(single_test_result)
@@ -703,12 +704,12 @@ class SingleTestRunner(object):
                 'test_id' : test_id,
                 'test_description' : test_description,
                 'elapsed_time' : round(elapsed_time, 2),
-                'duration' : duration,
+                'duration' : single_timeout,
                 'copy_method' : _copy_method,
             }
 
             print self.print_test_result(single_test_result, target_name, toolchain_name,
-                                         test_id, test_description, elapsed_time, duration)
+                                         test_id, test_description, elapsed_time, single_timeout)
 
             # Update database entries for ongoing test
             if self.db_logger and self.db_logger.is_connected():
@@ -721,7 +722,7 @@ class SingleTestRunner(object):
                                                  single_test_result,
                                                  single_test_output,
                                                  elapsed_time,
-                                                 duration,
+                                                 single_timeout,
                                                  test_index)
 
             # If we perform waterfall test we test until we get OK and we stop testing
@@ -737,7 +738,7 @@ class SingleTestRunner(object):
                 test_id,
                 test_description,
                 round(elapsed_time, 2),
-                duration,
+                single_timeout,
                 self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
@@ -805,6 +806,17 @@ class SingleTestRunner(object):
                     break
             return result
 
+        def get_auto_property_value(property_name, line):
+            """ Scans auto detection line from MUT and returns scanned parameter 'property_name'
+                Returns string
+            """
+            result = None
+            if re.search("HOST: Property '%s'"% property_name, line) is not None:
+                property = re.search("HOST: Property '%s' = '([\w\d _]+)'"% property_name, line)
+                if property is not None and len(property.groups()) == 1:
+                    result = property.groups()[0]
+            return result
+
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python",
                '%s.py'% name,
@@ -830,13 +842,12 @@ class SingleTestRunner(object):
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
-        start_time = time()
-        start_time_update = False
+        update_once_flag = {}   # Stores flags checking if some auto-parameter was already set
         line = ''
         output = []
-        while (time() - start_time) < (2 * duration):
+        start_time = time()
+        while (time() - start_time) < (duration + 5):   # Extra 5 seconds for flashing
             c = get_char_from_queue(obs)
-
             if c:
                 if verbose:
                     sys.stdout.write(c)
@@ -844,10 +855,21 @@ class SingleTestRunner(object):
                 output.append(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
-                    if not start_time_update and 'HOST: Reset target...' in line:
+
+                    # Checking for auto-detection information from the test about MUT reset moment
+                    if 'reset_target' not in update_once_flag and "HOST: Reset target..." in line:
                         # We will update this marker only once to prevent multiple time resets
-                        start_time_update = True
+                        update_once_flag['reset_target'] = True
                         start_time = time()
+
+                    # Checking for auto-detection information from the test about timeout
+                    auto_timeout_val = get_auto_property_value('timeout', line)
+                    if 'timeout' not in update_once_flag and auto_timeout_val is not None:
+                        # We will update this marker only once to prevent multiple time resets
+                        update_once_flag['timeout'] = True
+                        duration = int(auto_timeout_val)
+
+                    # Check for test end
                     if '{end}' in line:
                         break
                     line = ''
@@ -870,7 +892,7 @@ class SingleTestRunner(object):
         obs.stop()
 
         result = get_test_result(output)
-        return result, "".join(output), testcase_duration
+        return (result, "".join(output), testcase_duration, duration)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
         """ Checks if specified target should run specific peripheral test case

@@ -2,7 +2,7 @@
 
 int main()
 {
-    TEST_TIMEOUT(10);
+    TEST_TIMEOUT(5);
     TEST_HOSTTEST(hello_auto);
     TEST_DESCRIPTION(Hello World);
     TEST_START("MBED_10");
