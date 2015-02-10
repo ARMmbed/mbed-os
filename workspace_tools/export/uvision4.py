@@ -36,6 +36,7 @@ class Uvision4(Exporter):
         'LPC1114',
         'LPC11C24',
         'LPC4088',
+        'LPC4088_DM',
         'LPC4330_M4',
         'LPC4337',
         'LPC812',
@@ -66,8 +67,9 @@ class Uvision4(Exporter):
         'MTS_MDOT_F405RG',
         'NRF51_DK',
         'NRF51_DONGLE',
-        'BLE_SMURFS',
+        'SEEED_TINY_BLE',
         'LPC11U37H_401',
+		'DELTA_DFCM_NNN40',
     ]
 
     USING_MICROLIB = [

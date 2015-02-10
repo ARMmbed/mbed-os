@@ -41,8 +41,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 {
     static int adc1_inited = 0;
     static int adc2_inited = 0;
-    static int adc3_inited = 0;
-    static int adc4_inited = 0;
 
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
@@ -57,8 +55,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Check if ADC is already initialized
     if ((obj->adc == ADC_1) && adc1_inited) return;
     if ((obj->adc == ADC_2) && adc2_inited) return;
-    if ((obj->adc == ADC_3) && adc3_inited) return;
-    if ((obj->adc == ADC_4) && adc4_inited) return;
 
     if (obj->adc == ADC_1) {
         __ADC12_CLK_ENABLE();
@@ -70,23 +66,13 @@ void analogin_init(analogin_t *obj, PinName pin)
         adc2_inited = 1;
     }
 
-    if (obj->adc == ADC_3) {
-        __ADC34_CLK_ENABLE();
-        adc3_inited = 1;
-    }
-
-    if (obj->adc == ADC_4) {
-        __ADC34_CLK_ENABLE();
-        adc4_inited = 1;
-    }
-
     // Configure ADC
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
     AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.ScanConvMode          = DISABLE;
-    AdcHandle.Init.EOCSelection          = DISABLE;
+    AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
     AdcHandle.Init.LowPowerAutoWait      = DISABLE;
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.NbrOfConversion       = 1;
@@ -114,51 +100,22 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     switch (obj->pin) {
         case PA_0:
-            sConfig.Channel = ADC_CHANNEL_1;
-            break;
-        case PA_1:
-            sConfig.Channel = ADC_CHANNEL_2;
-            break;
-        case PA_2:
-            sConfig.Channel = ADC_CHANNEL_3;
-            break;
-        case PA_3:
-            sConfig.Channel = ADC_CHANNEL_4;
-            break;
         case PA_4:
             sConfig.Channel = ADC_CHANNEL_1;
             break;
+        case PA_1:
         case PA_5:
             sConfig.Channel = ADC_CHANNEL_2;
             break;
+        case PA_2:
         case PA_6:
             sConfig.Channel = ADC_CHANNEL_3;
             break;
+        case PA_3:
         case PA_7:
             sConfig.Channel = ADC_CHANNEL_4;
             break;
-        case PB_0:
-            sConfig.Channel = ADC_CHANNEL_12;
-            break;
-        case PB_1:
-            sConfig.Channel = ADC_CHANNEL_1;
-            break;
-        case PB_2:
-            sConfig.Channel = ADC_CHANNEL_12;
-            break;
-        case PB_11:
-            sConfig.Channel = ADC_CHANNEL_14;
-            break;
-        case PB_12:
-            sConfig.Channel = ADC_CHANNEL_3;
-            break;
-        case PB_13:
-            sConfig.Channel = ADC_CHANNEL_5;
-            break;
-        case PB_14:
-            sConfig.Channel = ADC_CHANNEL_4;
-            break;
-        case PB_15:
+        case PC_4:
             sConfig.Channel = ADC_CHANNEL_5;
             break;
         case PC_0:
@@ -173,11 +130,14 @@ static inline uint16_t adc_read(analogin_t *obj)
         case PC_3:
             sConfig.Channel = ADC_CHANNEL_9;
             break;
-        case PC_4:
-            sConfig.Channel = ADC_CHANNEL_5;
-            break;
         case PC_5:
             sConfig.Channel = ADC_CHANNEL_11;
+            break;
+        case PB_2:
+            sConfig.Channel = ADC_CHANNEL_12;
+            break;
+        case PB_11:
+            sConfig.Channel = ADC_CHANNEL_14;
             break;
         default:
             return 0;

@@ -49,7 +49,7 @@
 //       counting "main", but not counting "osTimerThread"
 //   <i> Default: 6
 #ifndef OS_TASKCNT
-#  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4330_M4) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347) || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
+#  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330_M4) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347) || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_NRF51822) || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC)
 #    define OS_TASKCNT         14
@@ -65,7 +65,7 @@
 
 //   <o>Scheduler (+ interrupts) stack size [bytes] <64-4096:8><#/4>
 #ifndef OS_SCHEDULERSTKSIZE
-#  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4330_M4) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
+#  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330_M4) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_KL46Z) || defined(TARGET_KL43Z) || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_NRF51822) || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC)
 #      define OS_SCHEDULERSTKSIZE    256
@@ -135,7 +135,7 @@
 #  elif  defined(TARGET_STM32F100RB)
 #    define OS_CLOCK       24000000
 
-#  elif defined(TARGET_LPC4088) || defined(TARGET_K64F) || defined(TARGET_K22F)
+#  elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_K64F) || defined(TARGET_K22F)
 #    define OS_CLOCK       120000000
 
 #  elif defined(TARGET_LPC4330_M4) || defined(TARGET_LPC4337)

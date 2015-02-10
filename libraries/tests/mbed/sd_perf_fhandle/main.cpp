@@ -48,6 +48,9 @@ SDFileSystem sd(D11, D12, D13, D10, "sd");
 #elif defined(TARGET_LPC1549)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
+#elif defined(TARGET_LPC11U37H_401)
+SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
+    
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif

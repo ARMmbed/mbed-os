@@ -235,7 +235,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_KL05Z)
 #define INITIAL_SP            (0x20000C00UL)
 
-#elif defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #define INITIAL_SP            (0x10010000UL)
 
 #elif defined(TARGET_LPC4330_M4)
@@ -307,10 +307,10 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #endif
 
 #ifdef __CC_ARM
-extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
+extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
 #elif defined(__GNUC__)
-extern unsigned char     __end__[];
+extern uint32_t          __end__[];
 #define HEAP_START      (__end__)
 #elif defined(__ICCARM__)
 #pragma section="HEAP"

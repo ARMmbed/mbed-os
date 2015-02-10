@@ -32,6 +32,7 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC1549',
         'LPC812',
         'LPC4088',
+        'LPC4088_DM',
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
@@ -56,6 +57,7 @@ class IAREmbeddedWorkbench(Exporter):
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'MTS_DRAGONFLY_F411RE',
+        'NRF51822',
     ]
 
     def generate(self):
