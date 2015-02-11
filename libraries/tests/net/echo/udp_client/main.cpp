@@ -24,10 +24,10 @@ char char_rand() {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(udpecho_client_auto);
-    TEST_DESCRIPTION(UDP echo client);
-    TEST_START("NET_6");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(udpecho_client_auto);
+    MBED_HOSTTEST_DESCRIPTION(UDP echo client);
+    MBED_HOSTTEST_START("NET_6");
 
     char buffer[BUFFER_SIZE] = {0};
     char out_buffer[BUFFER_SIZE] = {0};
@@ -78,5 +78,5 @@ int main() {
 
     socket.close();
     eth.disconnect();
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

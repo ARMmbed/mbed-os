@@ -11,10 +11,10 @@ It is declared in \cpputest\src\Platforms\armcc\UtestPlatform.cpp
 Serial mbed_cpputest_console(STDIO_UART_TX, STDIO_UART_RX);
 
 int main(int ac, char** av) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Unit test);
-    TEST_START("UT");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Unit test);
+    MBED_HOSTTEST_START("UT");
 
     unsigned failureCount = 0;
     {
@@ -24,6 +24,6 @@ int main(int ac, char** av) {
         failureCount = CommandLineTestRunner::RunAllTests(ac, av);
     }
 
-    TEST_RESULT(failureCount == 0);
+    MBED_HOSTTEST_RESULT(failureCount == 0);
     return failureCount;
 }

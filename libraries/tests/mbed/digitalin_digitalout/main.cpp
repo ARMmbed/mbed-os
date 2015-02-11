@@ -42,23 +42,23 @@ DigitalIn in(p25);
 #endif
 
 int main() {
-    TEST_TIMEOUT(10);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(DigitalIn DigitalOut);
-    TEST_START("MBED_A5");
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);
+    MBED_HOSTTEST_START("MBED_A5");
 
     out = 0;
     wait(0.1);
     if (in != 0) {
         printf("ERROR: in != 0\n");
-        TEST_RESULT(false);
+        MBED_HOSTTEST_RESULT(false);
     }
     out = 1;
     wait(0.1);
     if (in != 1) {
         printf("ERROR: in != 1\n");
-        TEST_RESULT(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
-    TEST_RESULT(true);
+    MBED_HOSTTEST_RESULT(true);
 }

@@ -40,10 +40,10 @@ void send_thread (void const *argument) {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Mail messaging);
-    TEST_START("RTOS_6");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Mail messaging);
+    MBED_HOSTTEST_START("RTOS_6");
 
     Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
@@ -70,6 +70,6 @@ int main (void) {
             }
         }
     }
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
     return 0;
 }

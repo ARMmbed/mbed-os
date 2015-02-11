@@ -43,10 +43,10 @@ void test_close(FILE *f) {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Semihost file system);
-    TEST_START("MBED_A2");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Semihost file system);
+    MBED_HOSTTEST_START("MBED_A2");
 
     pc.printf("Test the Stream class\n");
 
@@ -74,5 +74,5 @@ int main() {
     test_close(f);
 
     // Check the two strings are equal
-    TEST_RESULT((strncmp(buffer, str, str_len) == 0));
+    MBED_HOSTTEST_RESULT((strncmp(buffer, str, str_len) == 0));
 }

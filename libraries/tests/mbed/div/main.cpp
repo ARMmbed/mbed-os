@@ -17,10 +17,10 @@ const char *result_str(bool result) {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Integer constant division);
-    TEST_START("MBED_26");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Integer constant division);
+    MBED_HOSTTEST_START("MBED_26");
 
     bool result = true;
 
@@ -40,5 +40,5 @@ int main() {
         printf("64bit: 0x17FFFFFFE8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

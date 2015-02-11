@@ -30,10 +30,10 @@ void led_thread(void const *argument) {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Signals messaging);
-    TEST_START("RTOS_4");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Signals messaging);
+    MBED_HOSTTEST_START("RTOS_4");
 
     Thread thread(led_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
@@ -46,6 +46,6 @@ int main (void) {
             break;
         }
     }
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
     return 0;
 }

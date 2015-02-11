@@ -44,10 +44,10 @@ DigitalInOut d2(p25);
 
 int main()
 {
-    TEST_TIMEOUT(10);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(DigitalInOut);
-    TEST_START("MBED_A6");
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalInOut);
+    MBED_HOSTTEST_START("MBED_A6");
 
     bool check = true;
 
@@ -81,5 +81,5 @@ int main()
         check = false;
     }
 
-    TEST_RESULT(check);
+    MBED_HOSTTEST_RESULT(check);
 }

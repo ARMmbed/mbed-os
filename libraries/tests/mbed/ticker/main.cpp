@@ -33,10 +33,10 @@ void flip_2() {
 }
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(wait_us_auto);
-    TEST_DESCRIPTION(Ticker Int);
-    TEST_START("MBED_11");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Ticker Int);
+    MBED_HOSTTEST_START("MBED_11");
 
     led1 = 0;
     led2 = 0;

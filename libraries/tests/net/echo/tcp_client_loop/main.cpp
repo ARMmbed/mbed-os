@@ -22,10 +22,10 @@ char char_rand() {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(tcpecho_client_auto);
-    TEST_DESCRIPTION(TCP client echo loop);
-    TEST_START("NET_13");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(tcpecho_client_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP client echo loop);
+    MBED_HOSTTEST_START("NET_13");
 
     char buffer[BUFFER_SIZE] = {0};
     char out_buffer[BUFFER_SIZE] = {0};
@@ -74,5 +74,5 @@ int main() {
     }
     socket.close();
     eth.disconnect();
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

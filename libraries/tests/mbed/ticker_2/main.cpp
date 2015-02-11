@@ -27,10 +27,10 @@ void togglePin(void)
 
 int main()
 {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(wait_us_auto);
-    TEST_DESCRIPTION(Ticker Int us);
-    TEST_START("MBED_23");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Ticker Int us);
+    MBED_HOSTTEST_START("MBED_23");
 
     tick.attach_us(togglePin, 1000);
 

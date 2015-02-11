@@ -11,10 +11,10 @@ namespace {
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(echo);
-    TEST_DESCRIPTION(Serial Echo at 115200);
-    TEST_START("MBED_A9");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(echo);
+    MBED_HOSTTEST_DESCRIPTION(Serial Echo at 115200);
+    MBED_HOSTTEST_START("MBED_A9");
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);

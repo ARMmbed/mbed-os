@@ -120,10 +120,10 @@ char RandomChar() {
 }
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(SD FileHandle RW Speed);
-    TEST_START("PERF_2");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(SD FileHandle RW Speed);
+    MBED_HOSTTEST_START("PERF_2");
 
     // Test header
     printf("\r\n");
@@ -151,5 +151,5 @@ int main() {
         }
         break;
     }
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

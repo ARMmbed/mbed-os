@@ -36,10 +36,10 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(ISR (Queue));
-    TEST_START("RTOS_8");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(ISR (Queue));
+    MBED_HOSTTEST_START("RTOS_8");
 
     Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
@@ -64,6 +64,6 @@ int main (void) {
         }
     }
 
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
     return 0;
 }

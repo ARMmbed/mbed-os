@@ -7,10 +7,10 @@
  */
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(stdio_auto);
-    TEST_DESCRIPTION(stdio);
-    TEST_START("MBED_2");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(stdio_auto);
+    MBED_HOSTTEST_DESCRIPTION(stdio);
+    MBED_HOSTTEST_START("MBED_2");
 
     DigitalOut led1(LED1);
     DigitalOut led2(LED2);

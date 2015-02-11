@@ -30,10 +30,10 @@ void led2_thread(void const *argument) {
 }
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(wait_us_auto);
-    TEST_DESCRIPTION(Basic thread);
-    TEST_START("RTOS_1");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Basic thread);
+    MBED_HOSTTEST_START("RTOS_1");
 
     Thread thread(led2_thread, NULL, osPriorityNormal, STACK_SIZE);
 

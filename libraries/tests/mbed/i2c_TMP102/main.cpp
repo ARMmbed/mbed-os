@@ -33,10 +33,10 @@ TMP102 temperature(p28, p27, 0x90);
 #endif
 
 int main() {
-    TEST_TIMEOUT(10);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(DigitalIn DigitalOut);
-    TEST_START("MBED_A4");
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);
+    MBED_HOSTTEST_START("MBED_A4");
 
     float t = temperature.read();
 
@@ -44,5 +44,5 @@ int main() {
     // In our test environment (ARM office) we should get a temperature within
     // the range ]15, 30[C
     bool result = (t > 15.0) && (t < 30.0);
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

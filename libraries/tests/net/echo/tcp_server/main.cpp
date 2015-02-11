@@ -8,10 +8,10 @@ namespace {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(tcpecho_server_auto);
-    TEST_DESCRIPTION(TCP echo server);
-    TEST_START("NET_3");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(tcpecho_server_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP echo server);
+    MBED_HOSTTEST_START("NET_3");
 
     char buffer[BUFFER_SIZE] = {0};
     EthernetInterface eth;

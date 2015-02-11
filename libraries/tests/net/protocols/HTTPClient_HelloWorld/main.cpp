@@ -9,10 +9,10 @@ namespace {
 }
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(HTTP client hello world);
-    TEST_START("NET_7");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(HTTP client hello world);
+    MBED_HOSTTEST_START("NET_7");
 
     char http_request_buffer[BUFFER_SIZE + 1] = {0};
     HTTPClient http;
@@ -35,7 +35,7 @@ int main() {
 
         if (result == false) {
             eth.disconnect();
-            TEST_RESULT(false);
+            MBED_HOSTTEST_RESULT(false);
         }
     }
 
@@ -59,9 +59,9 @@ int main() {
 
         if (result == false) {
             eth.disconnect();
-            TEST_RESULT(false);
+            MBED_HOSTTEST_RESULT(false);
         }
     }
     eth.disconnect();
-    TEST_RESULT(true);
+    MBED_HOSTTEST_RESULT(true);
 }

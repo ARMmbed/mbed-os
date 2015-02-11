@@ -10,10 +10,10 @@ struct s_ip_address {
 };
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(tcpecho_client_auto);
-    TEST_DESCRIPTION(TCP echo client);
-    TEST_START("NET_4");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(tcpecho_client_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP echo client);
+    MBED_HOSTTEST_START("NET_4");
 
     char buffer[256] = {0};
     char out_buffer[] = "Hello World\n";

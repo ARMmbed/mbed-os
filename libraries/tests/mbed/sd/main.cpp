@@ -62,10 +62,10 @@ const int DATA_SIZE = 256;
 }
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(SD File System);
-    TEST_START("MBED_A12");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(SD File System);
+    MBED_HOSTTEST_START("MBED_A12");
 
     uint8_t data_written[DATA_SIZE] = { 0 };
     bool result = false;
@@ -107,5 +107,5 @@ int main() {
     }
 
     result = write_result && read_result;
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

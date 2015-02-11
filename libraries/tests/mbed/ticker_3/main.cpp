@@ -32,10 +32,10 @@ void ticker_callback_1(void)
 
 int main(void)
 {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(wait_us_auto);
-    TEST_DESCRIPTION(Ticker Two callbacks);
-    TEST_START("MBED_34");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Ticker Two callbacks);
+    MBED_HOSTTEST_START("MBED_34");
 
     ticker.attach(ticker_callback_1, 1.0);
 

@@ -24,10 +24,10 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(TCP client hello world);
-    TEST_START("NET_1");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP client hello world);
+    MBED_HOSTTEST_START("NET_1");
 
     bool result = false;
     EthernetInterface eth;
@@ -81,5 +81,5 @@ int main() {
 
     sock.close();
     eth.disconnect();
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

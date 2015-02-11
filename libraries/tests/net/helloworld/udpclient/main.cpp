@@ -10,10 +10,10 @@ namespace {
 
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(NIST Internet Time Service);
-    TEST_START("NET_2");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(NIST Internet Time Service);
+    MBED_HOSTTEST_START("NET_2");
 
     bool result = false;
     EthernetInterface eth;
@@ -52,5 +52,5 @@ int main() {
     }
     sock.close();
     eth.disconnect();
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

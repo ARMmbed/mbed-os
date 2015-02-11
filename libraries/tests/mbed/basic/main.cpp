@@ -1,9 +1,9 @@
 #include "test_env.h"
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Basic);
-    TEST_START("MBED_A1");
-    TEST_RESULT(true);
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Basic);
+    MBED_HOSTTEST_START("MBED_A1");
+    MBED_HOSTTEST_RESULT(true);
 }

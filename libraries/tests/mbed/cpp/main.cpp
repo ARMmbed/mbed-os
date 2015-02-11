@@ -54,10 +54,10 @@ Heap::hello
 Heap::destroy
 *******************/
 int main (void) {
-    TEST_TIMEOUT(10);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(C++);
-    TEST_START("MBED_12");
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(C++);
+    MBED_HOSTTEST_START("MBED_12");
 
     bool result = true;
     for (;;)
@@ -82,5 +82,5 @@ int main (void) {
         break;
     }
 
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

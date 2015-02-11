@@ -48,10 +48,10 @@ void test_thread(void const *delay) {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(Semaphore resource lock);
-    TEST_START("RTOS_3");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Semaphore resource lock);
+    MBED_HOSTTEST_START("RTOS_3");
 
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
@@ -70,6 +70,6 @@ int main (void) {
     }
 
     fflush(stdout);
-    TEST_RESULT(!sem_defect);
+    MBED_HOSTTEST_RESULT(!sem_defect);
     return 0;
 }

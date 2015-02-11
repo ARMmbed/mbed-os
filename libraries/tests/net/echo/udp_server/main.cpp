@@ -8,10 +8,10 @@ namespace {
 }
 
 int main (void) {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(udpecho_server_auto);
-    TEST_DESCRIPTION(UDP echo server);
-    TEST_START("NET_5");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(udpecho_server_auto);
+    MBED_HOSTTEST_DESCRIPTION(UDP echo server);
+    MBED_HOSTTEST_START("NET_5");
 
     EthernetInterface eth;
     eth.init(); //Use DHCP

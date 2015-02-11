@@ -50,7 +50,7 @@ void sd_thread(void const *argument)
             printf("MBED: Done" NL);
         } else {
             printf("MBED: Can't open '%s'" NL, FILE_NAME);
-            TEST_RESULT(false);
+            MBED_HOSTTEST_RESULT(false);
         }
     }
 
@@ -71,7 +71,7 @@ void sd_thread(void const *argument)
             printf("MBED: Done\r\n");
         } else {
             printf("MBED: Can't open '%s'" NL, FILE_NAME);
-            TEST_RESULT(false);
+            MBED_HOSTTEST_RESULT(false);
         }
     }
 
@@ -79,17 +79,17 @@ void sd_thread(void const *argument)
     for (int i = 0; i < SIZE; i++) {
         if (data_written[i] != data_read[i]) {
             printf("MBED: Data index=%d: w[0x%02X] != r[0x%02X]" NL, i, data_written[i], data_read[i]);
-            TEST_RESULT(false);
+            MBED_HOSTTEST_RESULT(false);
         }
     }
-    TEST_RESULT(true);
+    MBED_HOSTTEST_RESULT(true);
 }
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(SD File write read);
-    TEST_START("RTOS_9");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(SD File write read);
+    MBED_HOSTTEST_START("RTOS_9");
 
     Thread t(sd_thread, NULL, osPriorityNormal, (DEFAULT_STACK_SIZE * 2.25));
 

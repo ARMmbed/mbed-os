@@ -76,10 +76,10 @@ I2C i2c(p28, p27);
 #define PATTERN_MASK 0x66, ~0x66, 0x00, 0xFF, 0xA5, 0x5A, 0xF0, 0x0F
 
 int main() {
-    TEST_TIMEOUT(15);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(I2C EEPROM line read write test);
-    TEST_START("MBED_A25");
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(I2C EEPROM line read write test);
+    MBED_HOSTTEST_START("MBED_A25");
 
     const int EEPROM_MEM_ADDR = 0xA0;
     bool result = true;
@@ -138,5 +138,5 @@ int main() {
     printf("EEPROM: Pattern match errors: %d/%d ... [%s]\r\n", pattern_errors, ntests, pattern_errors ? "FAIL" : "OK");
 
     result = write_errors == 0 && read_errors == 0;
-    TEST_RESULT(result);
+    MBED_HOSTTEST_RESULT(result);
 }

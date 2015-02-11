@@ -91,10 +91,10 @@ PortOut port_out(PORT_1, MASK_1);
 PortIn  port_in (PORT_2, MASK_2);
 
 int main() {
-    TEST_TIMEOUT(20);
-    TEST_HOSTTEST(default_auto);
-    TEST_DESCRIPTION(PortOut PortIn);
-    TEST_START("MBED_A10");
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(PortOut PortIn);
+    MBED_HOSTTEST_START("MBED_A10");
 
     port_out = MASK_1;
     wait(0.1);

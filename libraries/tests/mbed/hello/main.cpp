@@ -2,10 +2,10 @@
 
 int main()
 {
-    TEST_TIMEOUT(5);
-    TEST_HOSTTEST(hello_auto);
-    TEST_DESCRIPTION(Hello World);
-    TEST_START("MBED_10");
+    MBED_HOSTTEST_TIMEOUT(5);
+    MBED_HOSTTEST_SELECT(hello_auto);
+    MBED_HOSTTEST_DESCRIPTION(Hello World);
+    MBED_HOSTTEST_START("MBED_10");
 
     printf("Hello World\r\n");
 
