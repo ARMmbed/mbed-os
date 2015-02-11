@@ -4,5 +4,5 @@ python:
   - "2.7"
 script: "python workspace_tools/build_travis.py"
 install:
-  - pip install colorama
-  - pip install prettytable
+  - sudo pip install colorama
+  - sudo pip install prettytable
