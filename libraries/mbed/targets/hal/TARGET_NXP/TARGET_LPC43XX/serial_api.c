@@ -134,8 +134,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
                    | 0 << 2; // Rx Line Status irq enable
     
     // set default baud rate and format
-    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);   
-    serial_baud  (obj, is_stdio_uart ? 115200 : 9600);
+    serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
     
     // pinout the chosen uart
@@ -159,7 +158,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uart_data[obj->index].sw_rts.pin = NC;
     uart_data[obj->index].sw_cts.pin = NC;
     serial_set_flow_control(obj, FlowControlNone, NC, NC);
-    
+
+    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);   
+
     if (is_stdio_uart) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
