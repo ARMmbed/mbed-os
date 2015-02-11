@@ -132,6 +132,7 @@ class APPNEARME_MICRONFCBOARD(LPC11U34_421):
     def __init__(self):
         LPC11U34_421.__init__(self)
         self.macros = ['LPC11U34_421']
+        self.is_disk_virtual = True
 
 class LPC11U35_401(LPCTarget):
     def __init__(self):
