@@ -118,8 +118,8 @@ __isr_vector:
     .long   TIMER32_1_IRQHandler      /* 35 19 CT32B1 32 bit timer 1               */
     .long   SSP0_IRQHandler           /* 36 20 SSP                                 */
     .long   UART_IRQHandler           /* 37 21 UART                                */
-    .long   Default_Handler           /* 38 22                                     */
-    .long   Default_Handler           /* 39 23                                     */
+    .long   USB_IRQHandler            /* 38 22 USB IRQ                             */
+    .long   USB_FIQHandler            /* 39 23 USB FIQ                             */
     .long   ADC_IRQHandler            /* 40 24 ADC end of conversion               */
     .long   WDT_IRQHandler            /* 41 25 Watchdog interrupt (WDINT)          */
     .long   BOD_IRQHandler            /* 42 26 BOD Brown-out detect                */
@@ -203,6 +203,8 @@ Reset_Handler:
     def_irq_default_handler    TIMER32_1_IRQHandler
     def_irq_default_handler    SSP0_IRQHandler
     def_irq_default_handler    UART_IRQHandler
+    def_irq_default_handler    USB_IRQHandler
+    def_irq_default_handler    USB_FIQHandler
     def_irq_default_handler    ADC_IRQHandler
     def_irq_default_handler    WDT_IRQHandler
     def_irq_default_handler    BOD_IRQHandler
