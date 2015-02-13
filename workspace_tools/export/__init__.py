@@ -16,7 +16,7 @@ limitations under the License.
 """
 import os, tempfile
 from os.path import join, exists, basename
-from shutil import copytree, rmtree
+from shutil import copytree, rmtree, copy
 
 from workspace_tools.utils import mkdir
 from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds
@@ -85,7 +85,9 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     zip_path = None
     if report['success']:
         # add readme file to every offline export.
-        open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/ExportToOfflineToolchain#%s"/>'% (ide))
+        open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
+        # copy .hgignore file to exported direcotry as well.
+        copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
 
     return zip_path, report
