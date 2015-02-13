@@ -76,6 +76,8 @@ if __name__ == '__main__':
     setup_test_user_prj()
 
     for toolchain, target in [
+            ('zip', 'LPC1768'),
+            
             ('emblocks', 'LPC1768'),
             ('emblocks', 'LPC1549'),
             ('emblocks', 'LPC1114'),
@@ -189,6 +191,7 @@ if __name__ == '__main__':
             ('iar', 'MTS_MDOT_F405RG'),
             ('iar', 'MTS_MDOT_F411RE'),
 
+            
             (None, None),
         ]:
         print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
