@@ -11,7 +11,7 @@ CAN can1(D2, D3);
 CAN can1(p9, p10);
 #endif
 
-#if defined(TARGET_LPC4088)
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 CAN can2(p34, p33);
 #elif defined (TARGET_LPC1768)
 CAN can2(p30, p29);

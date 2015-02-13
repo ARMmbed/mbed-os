@@ -175,7 +175,7 @@ class GCC_ARM(GCC):
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
 
         self.sys_libs.append("nosys")
@@ -193,7 +193,7 @@ class GCC_CR(GCC):
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
 

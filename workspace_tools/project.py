@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 from workspace_tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
 from workspace_tools.paths import MBED_BASE, MBED_LIBRARIES
-from workspace_tools.export import export, setup_user_prj, EXPORTERS
+from workspace_tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
 from workspace_tools.utils import args_error
 from workspace_tools.tests import TESTS, Test, TEST_MAP
 from workspace_tools.targets import TARGET_NAMES
@@ -65,12 +65,45 @@ if __name__ == '__main__':
                       default=False,
                       help="list available programs in order and exit")
 
+    parser.add_option("-S", "--list-matrix",
+                      action="store_true",
+                      dest="supported_ides",
+                      default=False,
+                      help="displays supported matrix of MCUs and IDEs")
+
+    parser.add_option("-E",
+                      action="store_true",
+                      dest="supported_ides_html",
+                      default=False,
+                      help="writes workspace_tools/export/README.md")
+
     (options, args) = parser.parse_args()
 
     # Print available tests in order and exit
     if options.list_tests is True:
         print '\n'.join(map(str, sorted(TEST_MAP.values())))
         sys.exit()
+
+    # Only prints matrix of supported IDEs
+    if options.supported_ides:
+        print mcu_ide_matrix()
+        exit(0)
+
+    # Only prints matrix of supported IDEs
+    if options.supported_ides_html:
+        html = mcu_ide_matrix(verbose_html=True)
+        try:
+            with open("./export/README.md","w") as f:
+                f.write("Exporter IDE/Platform Support\n")
+                f.write("-----------------------------------\n")
+                f.write("\n")
+                f.write(html)
+        except IOError as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        exit(0)
 
     # Clean Export Directory
     if options.clean:
