@@ -705,9 +705,40 @@ class MTS_MDOT_F411RE(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0']
+        self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0', 'VECT_TAB_OFFSET=0x00010000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
+
+    def init_hooks(self, hook, toolchain_name):
+        if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
+            hook.hook_add_binary("post", self.combine_bins)
+
+    # combine application binary with bootloader
+    # bootloader + padding to 64kB + application + md5sum (16 bytes)
+    @staticmethod
+    def combine_bins(t_self, resources, elf, binf):
+        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_MDOT_F411RE", "bootloader.bin")
+        target = binf + ".tmp"
+        if not os.path.exists(loader):
+            print "Can't find bootloader binary: " + loader
+            return
+        outbin = open(target, 'w+b')
+        part = open(loader, 'rb')
+        data = part.read()
+        outbin.write(data)
+        outbin.write('\xFF' * (64*1024 - len(data)))
+        part.close()
+        part = open(binf, 'rb')
+        data = part.read()
+        outbin.write(data)
+        part.close()
+        outbin.seek(0, 0)
+        data = outbin.read()
+        crc = struct.pack('<I', binascii.crc32(data) & 0xFFFFFFFF)
+        outbin.write(crc)
+        outbin.close()
+        os.remove(binf)
+        os.rename(target, binf)
 
 class MTS_DRAGONFLY_F411RE(Target):
     def __init__(self):
