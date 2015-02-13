@@ -22,10 +22,24 @@
 #include "nrf_delay.h"
 #include "app_util_platform.h"
 
+ /*
+  * Note: The micro-second timer API on the nRF51 platform is implemented using
+  * the RTC counter run at 32kHz (sourced from an external oscillator). This is
+  * a trade-off between precision and power. Running a normal 32-bit MCU counter
+  * at high frequency causes the average power consumption to rise to a few
+  * hundred micro-amps, which is prohibitive for typical low-power BLE
+  * applications.
+  * A 32kHz clock doesn't offer the precision needed for keeping u-second time,
+  * but we're assuming that this will not be a problem for the average user.
+  */
+
 #define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
-#define RTC_CLOCK_FREQ          (32768 / (CFG_TIMER_PRESCALER + 1))
+#define RTC_CLOCK_FREQ          (uint32_t)(32768 / (CFG_TIMER_PRESCALER + 1))
 #define RTC1_IRQ_PRI            APP_IRQ_PRIORITY_LOW                        /**< Priority of the RTC1 interrupt (used for checking for timeouts and executing timeout handlers). */
 #define MAX_RTC_TASKS_DELAY     47                                          /**< Maximum delay until an RTC task is executed. */
+
+#define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
+#define MICROSECONDS_TO_RTC_UNITS(MICROS)    (((uint64_t)(MICROS) * RTC_CLOCK_FREQ) / 1000000)
 
 static bool              m_rtc1_running            = false;                 /**< Boolean indicating if RTC1 is running. */
 
@@ -84,7 +98,7 @@ static void rtc1_start(uint32_t prescaler)
     m_rtc1_running = true;
 }
 
-/**@brief Function for stopping the RTC1 timer.
+/**@brief Function for stopping the RTC1 timer. We don't expect to call this.
  */
 static void rtc1_stop(void)
 {
@@ -112,16 +126,10 @@ static void rtc1_stop(void)
  */
 static __INLINE uint32_t rtc1_getCounter(void)
 {
-    /* TODO: finish this review */
-    // uint32_t overflowed = 0;
-    // uint32_t counter    = NRF_RTC1->COUNTER;
-    // if (NRF_RTC1->EVENTS_OVRFLW && (counter < MAX_RTC_COUNTER_VAL / 2)) {
-    //     overflowed = (1 << 24);
-    // }
-
     if (NRF_RTC1->EVENTS_OVRFLW) {
         overflowBits += (1 << 24);
         NRF_RTC1->EVENTS_OVRFLW = 0;
+        NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
     return overflowBits | NRF_RTC1->COUNTER;
 }
@@ -135,36 +143,17 @@ void RTC1_IRQHandler(void)
     if (NRF_RTC1->EVENTS_OVRFLW) {
         overflowBits += (1 << 24);
         NRF_RTC1->EVENTS_OVRFLW = 0;
+        NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
-    /* TODO review */
-    #define WINDOW 10000 /* 10ms window; hopefully all interrupt storms subside by then. */
     if (NRF_RTC1->EVENTS_COMPARE[0] &&
         us_ticker_callbackPending   &&
-        (((int32_t)rtc1_getCounter() - (int32_t)us_ticker_callbackTimestamp) < WINDOW)) {
+        ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0)) {
         NRF_RTC1->EVENTS_COMPARE[0] = 0;
+        NRF_RTC1->EVTENCLR          = RTC_EVTEN_COMPARE0_Msk;
         us_ticker_callbackPending   = false;
-
         rtc1_disableCompareInterrupt();
         us_ticker_irq_handler();
     }
-}
-
-/**@brief Function for setting the RTC1 Capture Compare register 0, and enabling the corresponding
- *        event.
- *
- * @param[in] value   New value of Capture Compare register 0.
- */
-static __INLINE void rtc1_compare0_set(uint32_t value)
-{
-    if (us_ticker_callbackPending) {
-        return;
-    }
-
-    NRF_RTC1->CC[0] = value & MAX_RTC_COUNTER_VAL;
-    rtc1_enableCompareInterrupt();
-
-    us_ticker_callbackTimestamp = value;
-    us_ticker_callbackPending   = true;
 }
 
 void us_ticker_init(void)
@@ -186,7 +175,7 @@ uint32_t us_ticker_read()
 
     /* Return a pseudo microsecond counter value. This is only as precise as the
      * 32khz low-freq clock source, but could be adequate.*/
-    return ((rtc1_getCounter() * (uint64_t)1000000) / (uint32_t)APP_TIMER_CLOCK_FREQ);
+    return RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter());
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
@@ -199,8 +188,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         return;
     }
 
-    NRF_RTC1->CC[0]             = timestamp & MAX_RTC_COUNTER_VAL;
-    us_ticker_callbackTimestamp = timestamp;
+    uint32_t callbackTime       = MICROSECONDS_TO_RTC_UNITS(timestamp);
+    NRF_RTC1->CC[0]             = callbackTime & MAX_RTC_COUNTER_VAL;
+    us_ticker_callbackTimestamp = callbackTime;
     us_ticker_callbackPending   = true;
     rtc1_enableCompareInterrupt();
 }
