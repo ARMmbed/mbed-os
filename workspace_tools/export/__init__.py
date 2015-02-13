@@ -62,6 +62,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
+            ide = "zip"
             exporter = zip.ZIP(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
             exporter.scan_and_copy_resources(project_path, tempdir)
             exporter.generate()
