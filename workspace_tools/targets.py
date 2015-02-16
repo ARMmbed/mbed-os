@@ -615,6 +615,9 @@ class ARCH_MAX(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        
+    def program_cycle_s(self):
+        return 2
 
 class DISCO_F051R8(Target):
     def __init__(self):
