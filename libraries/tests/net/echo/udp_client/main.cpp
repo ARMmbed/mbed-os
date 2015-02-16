@@ -11,8 +11,7 @@ namespace {
     const int MAX_ECHO_LOOPS = 100;
     const char ASCII_MAX = '~' - ' ';
 
-    struct s_ip_address
-    {
+    struct s_ip_address {
         int ip_1;
         int ip_2;
         int ip_3;
@@ -24,8 +23,12 @@ char char_rand() {
     return (rand() % ASCII_MAX) + ' ';
 }
 
-
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(udpecho_client_auto);
+    MBED_HOSTTEST_DESCRIPTION(UDP echo client);
+    MBED_HOSTTEST_START("NET_6");
+
     char buffer[BUFFER_SIZE] = {0};
     char out_buffer[BUFFER_SIZE] = {0};
     s_ip_address ip_addr = {0, 0, 0, 0};
@@ -75,6 +78,5 @@ int main() {
 
     socket.close();
     eth.disconnect();
-    notify_completion(result);
-    return 0;
+    MBED_HOSTTEST_RESULT(result);
 }

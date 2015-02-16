@@ -18,41 +18,10 @@ limitations under the License.
 import sys
 import socket
 from sys import stdout
-from host_test import HostTestResults, Test
 from SocketServer import BaseRequestHandler, UDPServer
-
 
 SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
 SERVER_PORT = 7
-
-
-class UDPEchoClientTest(Test):
-    def __init__(self):
-        HostTestResults.__init__(self)
-        Test.__init__(self)
-
-    def send_server_ip_port(self, ip_address, port_no):
-        c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
-        if c is None:
-            self.print_result(self.RESULT_IO_SERIAL)
-            return
-        self.notify(c.strip())
-
-        self.notify("HOST: Sending server IP Address to target...")
-        connection_str = ip_address + ":" + str(port_no) + "\n"
-        self.mbed.serial_write(connection_str)
-
-        c = self.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
-        if c is None:
-            self.print_result(self.RESULT_IO_SERIAL)
-            return
-        self.notify(c.strip())
-        return self.RESULT_PASSIVE
-
-    def test(self):
-        # Returning none will suppress host test from printing success code
-        return None
-
 
 class UDPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
@@ -67,12 +36,29 @@ class UDPEchoClient_Handler(BaseRequestHandler):
             sys.stdout.write('.')
         stdout.flush()
 
+class UDPEchoClientTest():
 
-server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
-print "HOST: Listening for UDP connections..."
+    def send_server_ip_port(self, selftest, ip_address, port_no):
+        c = selftest.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            selftest.print_result(selftest.RESULT_IO_SERIAL)
+            return
+        selftest.notify(c.strip())
 
-mbed_test = UDPEchoClientTest();
-mbed_test.run()
-mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)
+        selftest.notify("HOST: Sending server IP Address to target...")
+        connection_str = ip_address + ":" + str(port_no) + "\n"
+        selftest.mbed.serial_write(connection_str)
 
-server.serve_forever()
+        c = selftest.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            self.print_result(selftest.RESULT_IO_SERIAL)
+            return
+        selftest.notify(c.strip())
+        return selftest.RESULT_PASSIVE
+
+    def test(self, selftest):
+        # Returning none will suppress host test from printing success code
+        server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
+        print "HOST: Listening for UDP connections..."
+        self.send_server_ip_port(selftest, SERVER_IP, SERVER_PORT)
+        server.serve_forever()
