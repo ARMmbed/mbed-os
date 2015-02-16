@@ -493,6 +493,7 @@ extern "C" void mbed_exit(int return_code) {
 #elif defined TOOLCHAIN_GCC_ARM
 extern "C" void _exit(int return_code) {
 #else
+namespace std {
 extern "C" void exit(int return_code) {
 #endif
 
@@ -512,6 +513,10 @@ extern "C" void exit(int return_code) {
 
     while (1);
 }
+
+#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CW)
+} //namespace std
+#endif
 
 
 namespace mbed {
