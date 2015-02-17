@@ -17,7 +17,7 @@ limitations under the License.
 
 import re
 import sys
-import colorama
+COLORAMA_MODULE='colorama' in sys.modules
 from os import stat, walk
 from copy import copy
 from time import time, sleep
@@ -239,7 +239,7 @@ class mbedToolchain:
 
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
-        self.notify_fun = notify if notify is not None else print_notify_color
+        self.notify_fun = notify if notify is not None else print_notify_color if COLORAMA_MODULE else print_notify
         self.options = options if options is not None else []
 
         self.macros = macros or []
@@ -731,8 +731,9 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
-from colorama import init
-init()
+if COLORAMA_MODULE:
+    from colorama import init
+    init()
 
 from workspace_tools.settings import ARM_BIN
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
