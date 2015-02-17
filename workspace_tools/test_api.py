@@ -855,7 +855,7 @@ class SingleTestRunner(object):
         line = ''
         output = []
         start_time = time()
-        while (time() - start_time) < (duration):
+        while (time() - start_time) < (2 * duration):
             c = get_char_from_queue(obs)
             if c:
                 if verbose:
