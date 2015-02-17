@@ -235,8 +235,11 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_KL05Z)
 #define INITIAL_SP            (0x20000C00UL)
 
-#elif defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #define INITIAL_SP            (0x10010000UL)
+
+#elif defined(TARGET_LPC4330)
+#define INITIAL_SP            (0x10008000UL)
 
 #elif defined(TARGET_LPC4337)
 #define INITIAL_SP            (0x10008000UL)
@@ -261,9 +264,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #elif defined(TARGET_LPC11U68)
 #define INITIAL_SP            (0x10004000UL)
-
-#elif defined(TARGET_NRF51822)
-#define INITIAL_SP            (0x20004000UL)
 
 #elif defined(TARGET_STM32F411RE)
 #define INITIAL_SP            (0x20020000UL)

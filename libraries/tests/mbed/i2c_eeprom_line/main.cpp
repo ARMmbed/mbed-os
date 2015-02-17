@@ -22,13 +22,13 @@
 ******************************************************************************/
 
 // Test configuration block
-namespace
-{
+namespace {
 const int ntests = 1000;
 const int i2c_freq_hz = 400000;
 const int i2c_delay_us = 0;
 // const int EEPROM_24LC256_SIZE = (256 * 1024 / 8);   // 256 kbit memory
 }
+
 // End of test configuration block
 
 #if defined(TARGET_KL25Z)
@@ -55,6 +55,9 @@ I2C i2c(P0_23, P0_22);
 #elif defined(TARGET_LPC11U68)
 I2C i2c(SDA, SCL);
 
+#elif defined(TARGET_DELTA_DFCM_NNN40)
+I2C i2c(I2C_SDA0, I2C_SCL0);
+
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
@@ -75,8 +78,12 @@ I2C i2c(p28, p27);
 
 #define PATTERN_MASK 0x66, ~0x66, 0x00, 0xFF, 0xA5, 0x5A, 0xF0, 0x0F
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(I2C EEPROM line read write test);
+    MBED_HOSTTEST_START("MBED_A25");
+
     const int EEPROM_MEM_ADDR = 0xA0;
     bool result = true;
 
@@ -134,5 +141,5 @@ int main()
     printf("EEPROM: Pattern match errors: %d/%d ... [%s]\r\n", pattern_errors, ntests, pattern_errors ? "FAIL" : "OK");
 
     result = write_errors == 0 && read_errors == 0;
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
 }

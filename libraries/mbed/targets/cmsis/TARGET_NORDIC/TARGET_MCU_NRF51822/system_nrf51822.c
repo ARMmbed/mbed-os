@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
 
- * Copyright (c) 2013 Nordic Semiconductor.
+ * Copyright (c) 2015 Nordic Semiconductor.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 #include <stdbool.h>
 #include "nrf51822.h"
 #include "system_nrf51822.h"
-
 
 #define __SYSTEM_CLOCK      (16000000UL)     /*!< nRF51 devices use a fixed System Clock Frequency of 16MHz */
 
@@ -67,7 +66,7 @@ void SystemInit(void)
 
     // Start the external 32khz crystal oscillator.
 
-#ifdef TARGET_HRM1017
+#if defined(TARGET_DELTA_DFCM_NNN40) || defined(TARGET_HRM1017)
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
 #else
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);

@@ -55,16 +55,14 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 
-namespace
-{
+namespace {
 char buffer[1024];
 const int KIB_RW = 128;
 Timer timer;
 const char *bin_filename = "/sd/testfile.bin";
 }
 
-bool test_sf_file_write_stdio(const char *filename, const int kib_rw)
-{
+bool test_sf_file_write_stdio(const char *filename, const int kib_rw) {
     bool result = true;
     FILE* file = fopen(filename, "w");
     if (file != NULL) {
@@ -94,8 +92,7 @@ bool test_sf_file_write_stdio(const char *filename, const int kib_rw)
     return result;
 }
 
-bool test_sf_file_read_stdio(const char *filename, const int kib_rw)
-{
+bool test_sf_file_read_stdio(const char *filename, const int kib_rw) {
     bool result = true;
     FILE* file = fopen(filename, "r");
     if (file) {
@@ -118,13 +115,16 @@ bool test_sf_file_read_stdio(const char *filename, const int kib_rw)
     return result;
 }
 
-char RandomChar()
-{
+char RandomChar() {
     return rand() % 100;
 }
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(SD stdio RW Speed);
+    MBED_HOSTTEST_START("PERF_1");
+
     // Test header
     printf("\r\n");
     printf("SD Card Stdio Performance Test\r\n");
@@ -151,5 +151,5 @@ int main()
         }
         break;
     }
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
 }

@@ -70,7 +70,7 @@ void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t
     ticker_event_t *prev = NULL, *p = head;
     while (p != NULL) {
         /* check if we come before p */
-        if ((int64_t)(timestamp - p->timestamp) < 0) {
+        if ((int)(timestamp - p->timestamp) < 0) {
             break;
         }
         /* go to the next element */

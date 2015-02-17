@@ -1,8 +1,8 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "EthernetInterface.h"
 
-struct s_ip_address
-{
+struct s_ip_address {
     int ip_1;
     int ip_2;
     int ip_3;
@@ -10,6 +10,11 @@ struct s_ip_address
 };
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(tcpecho_client_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP echo client);
+    MBED_HOSTTEST_START("NET_4");
+
     char buffer[256] = {0};
     char out_buffer[] = "Hello World\n";
     char out_success[] = "{{success}}\n{{end}}\n";
@@ -17,20 +22,20 @@ int main() {
     s_ip_address ip_addr = {0, 0, 0, 0};
     int port = 0;
 
-    printf("TCPCllient waiting for server IP and port...\r\n");
+    printf("TCPCllient waiting for server IP and port..." NL);
     scanf("%d.%d.%d.%d:%d", &ip_addr.ip_1, &ip_addr.ip_2, &ip_addr.ip_3, &ip_addr.ip_4, &port);
-    printf("Address received:%d.%d.%d.%d:%d\r\n", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4, port);
+    printf("Address received:%d.%d.%d.%d:%d" NL, ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4, port);
 
     EthernetInterface eth;
     eth.init(); //Use DHCP
     eth.connect();
 
-    printf("TCPClient IP Address is %s\r\n", eth.getIPAddress());
+    printf("TCPClient IP Address is %s" NL, eth.getIPAddress());
     sprintf(buffer, "%d.%d.%d.%d", ip_addr.ip_1, ip_addr.ip_2, ip_addr.ip_3, ip_addr.ip_4);
 
     TCPSocketConnection socket;
     while (socket.connect(buffer, port) < 0) {
-        printf("TCPCllient unable to connect to %s:%d\r\n", buffer, port);
+        printf("TCPCllient unable to connect to %s:%d" NL, buffer, port);
         wait(1);
     }
 

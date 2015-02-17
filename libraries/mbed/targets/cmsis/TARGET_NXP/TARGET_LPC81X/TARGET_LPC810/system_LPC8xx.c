@@ -100,14 +100,18 @@
 //   </h>
 // </e>
 */
+
+// 1 == IRC 12Mhz 2 == System Oscillator 12Mhz Xtal:
 #define CLOCK_SETUP           1
+//use PLL for IRC
 #define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
 #define WDTOSCCTRL_Val        0x00000000              // Reset: 0x000
-#define SYSPLLCTRL_Val        0x00000041              // Reset: 0x000
-#define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000
-#define MAINCLKSEL_Val        0x00000003              // Reset: 0x000
-#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001
-
+#define SYSPLLCTRL_Val        0x00000041              // Reset: 0x000  MSEL=1 => M=2; PSEL=2 => 2P=8; PLLCLKOUT = (12x2) = 24MHz
+//#define SYSPLLCTRL_Val        0x00000004              // Reset: 0x000  MSEL=4 => M=5; PSEL=0 => 2P=2; PLLCLKOUT = (12x5) = 60MHz
+#define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000  Select IRC
+#define MAINCLKSEL_Val        0x00000003              // Reset: 0x000  MainClock = PLLCLKOUT
+#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001  DIV=1 => SYSTEMCORECLK = 24 / 1 = 24MHz
+//#define SYSAHBCLKDIV_Val      0x00000002              // Reset: 0x001  DIV=2 => SYSTEMCORECLK = 60 / 2 = 30MHz
 /*
 //-------- <<< end of configuration section >>> ------------------------------
 */
@@ -235,9 +239,10 @@
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Clock)*/
+uint32_t MainClock = __MAIN_CLOCK;         /*!< Main Clock Frequency */
+uint32_t SystemCoreClock = __SYSTEM_CLOCK; /*!< System Clock Frequency (Core Clock)*/
 
-
+//Replaced SystemCoreClock with MainClock
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
@@ -268,46 +273,46 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
   switch (LPC_SYSCON->MAINCLKSEL & 0x03) {
     case 0:                             /* Internal RC oscillator             */
-      SystemCoreClock = __IRC_OSC_CLK;
+      MainClock = __IRC_OSC_CLK;
       break;
     case 1:                             /* Input Clock to System PLL          */
       switch (LPC_SYSCON->SYSPLLCLKSEL & 0x03) {
           case 0:                       /* Internal RC oscillator             */
-            SystemCoreClock = __IRC_OSC_CLK;
+            MainClock = __IRC_OSC_CLK;
             break;
           case 1:                       /* System oscillator                  */
-            SystemCoreClock = __SYS_OSC_CLK;
+            MainClock = __SYS_OSC_CLK;
             break;
           case 2:                       /* Reserved                           */
-            SystemCoreClock = 0;
+            MainClock = 0;
             break;
           case 3:                       /* CLKIN pin                          */
-            SystemCoreClock = __CLKIN_CLK;
+            MainClock = __CLKIN_CLK;
             break;
       }
       break;
     case 2:                             /* WDT Oscillator                     */
-      SystemCoreClock = wdt_osc;
+      MainClock = wdt_osc;
       break;
     case 3:                             /* System PLL Clock Out               */
       switch (LPC_SYSCON->SYSPLLCLKSEL & 0x03) {
           case 0:                       /* Internal RC oscillator             */
-            SystemCoreClock = __IRC_OSC_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
+            MainClock = __IRC_OSC_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
             break;
           case 1:                       /* System oscillator                  */
-            SystemCoreClock = __SYS_OSC_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
+            MainClock = __SYS_OSC_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
             break;
           case 2:                       /* Reserved                           */
-            SystemCoreClock = 0;
+            MainClock = 0;
             break;
           case 3:                       /* CLKIN pin                          */
-            SystemCoreClock = __CLKIN_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
+            MainClock = __CLKIN_CLK * ((LPC_SYSCON->SYSPLLCTRL & 0x01F) + 1);
             break;
       }
       break;
   }
 
-  SystemCoreClock /= LPC_SYSCON->SYSAHBCLKDIV;
+  SystemCoreClock = MainClock / LPC_SYSCON->SYSAHBCLKDIV;
 
 }
 

@@ -3,11 +3,11 @@ This module defines the attributes of the
 PyPI package for the Mbed SDK
 """
 
-from distutils.core import setup
-from setuptools import find_packages
+from shutil import copyfileobj
 from os.path import isfile, join
 from tempfile import TemporaryFile
-from shutil import copyfileobj
+from setuptools import find_packages
+from distutils.core import setup
 
 LICENSE = open('LICENSE').read()
 DESCRIPTION = """A set of Python scripts that can be used to compile programs written on top of the `mbed framework`_. It can also be used to export mbed projects to other build systems and IDEs (uVision, IAR, makefiles).
@@ -40,7 +40,7 @@ setup(name='mbed-tools',
       url='https://github.com/mbedmicro/mbed',
       packages=find_packages(),
       license=LICENSE,
-      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3"])
+      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3"])
 
 # Restore previous private_settings if needed
 if backup:
