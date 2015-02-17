@@ -28,7 +28,10 @@ import optparse
 import datetime
 import threading
 from types import ListType
-from colorama import Fore, Back, Style
+COLORAMA_MODULE='colorama' in sys.modules
+
+if COLORAMA_MODULE:
+    from colorama import Fore, Back, Style
 from prettytable import PrettyTable
 
 from time import sleep, time
@@ -171,10 +174,11 @@ class SingleTestRunner(object):
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
                  _opts_extend_test_timeout=None):
-        """ Let's try hard to init this object
-        """
-        from colorama import init
-        init()
+        if COLORAMA_MODULE:
+            """ Let's try hard to init this object
+            """
+            from colorama import init
+            init()
 
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
@@ -763,7 +767,9 @@ class SingleTestRunner(object):
         separator = "::"
         time_info = " in %.2f of %d sec" % (round(elapsed_time, 2), duration)
         result = separator.join(tokens) + " [" + test_result +"]" + time_info
-        return Fore.MAGENTA + result + Fore.RESET
+        if COLORAMA_MODULE:
+            return Fore.MAGENTA + result + Fore.RESET
+        return result
 
     def shape_test_loop_ok_result_count(self, test_all_result):
         """ Reformats list of results to simple string
@@ -846,7 +852,10 @@ class SingleTestRunner(object):
             cmd += ["-R", str(reset_tout)]
 
         if verbose:
-            print Fore.MAGENTA + "Executing '" + " ".join(cmd) + "'" + Fore.RESET
+            if COLORAMA_MODULE:
+                print Fore.MAGENTA + "Executing '" + " ".join(cmd) + "'" + Fore.RESET
+            else:
+                print "Executing '" + " ".join(cmd) + "'"
             print "Test::Output::Start"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
