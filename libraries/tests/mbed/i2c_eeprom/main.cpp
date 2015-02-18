@@ -73,8 +73,12 @@ const int i2c_freq_hz = 400000;
 const int i2c_delay_us = 0;
 }
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(I2C EEPROM read write test);
+    MBED_HOSTTEST_START("MBED_A19");
+
     const int EEPROM_MEM_ADDR = 0xA0;
     const char MARK = 0x66;
     int fw = 0;
@@ -146,5 +150,5 @@ int main()
         printf("\tTotal failures:  %d\r\n", fw + fr + fc);
     }
 
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
 }

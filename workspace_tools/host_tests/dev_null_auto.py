@@ -15,25 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
+class DevNullTest():
 
-
-class DevNullTest(DefaultTest):
-
-    def check_readline(self, text):
+    def check_readline(self, selftest, text):
         """ Reads line from serial port and checks if text was part of read string
         """
         result = False
-        c = self.mbed.serial_readline()
+        c = selftest.mbed.serial_readline()
         if c and text in c:
             result = True
         return result
 
-    def test(self):
+    def test(self, selftest):
         result = True
         # Test should print some text and later stop printing
         # 'MBED: re-routing stdout to /null'
-        res = self.check_readline("re-routing stdout to /null")
+        res = self.check_readline(selftest, "re-routing stdout to /null")
         if not res:
             # We haven't read preamble line
             result = False
@@ -41,17 +38,13 @@ class DevNullTest(DefaultTest):
             # Check if there are printed characters
             str = ''
             for i in range(3):
-                c = self.mbed.serial_read(32)
+                c = selftest.mbed.serial_read(32)
                 if c is None:
-                    return self.RESULT_IO_SERIAL
+                    return selftest.RESULT_IO_SERIAL
                 else:
                     str += c
                 if len(str) > 0:
                     result = False
                     break
-            self.notify("Received %d bytes: %s"% (len(str), str))
-        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
-
-
-if __name__ == '__main__':
-    DevNullTest().run()
+            selftest.notify("Received %d bytes: %s"% (len(str), str))
+        return selftest.RESULT_SUCCESS if result else selftest.RESULT_FAILURE

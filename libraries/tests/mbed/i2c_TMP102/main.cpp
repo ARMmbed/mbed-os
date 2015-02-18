@@ -32,13 +32,17 @@ TMP102 temperature(I2C_SDA, I2C_SCL, 0x90);
 TMP102 temperature(p28, p27, 0x90);
 #endif
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);
+    MBED_HOSTTEST_START("MBED_A4");
+
     float t = temperature.read();
 
     printf("TMP102: Temperature: %f\n\r", t);
     // In our test environment (ARM office) we should get a temperature within
     // the range ]15, 30[C
     bool result = (t > 15.0) && (t < 30.0);
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
 }

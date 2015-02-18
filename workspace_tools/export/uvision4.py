@@ -54,6 +54,7 @@ class Uvision4(Exporter):
         'NUCLEO_L152RE',
         'UBLOX_C027',
         'LPC1549',
+        'LPC11U68',
         # Removed as uvision4_lpc11u35_501.uvproj.tmpl is missing.
         #'LPC11U35_501',
         'NRF51822',
@@ -91,6 +92,7 @@ class Uvision4(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
         'LPC1549',
+        'LPC11U68',
         'LPC11U35_501',
         'KL05Z',
         'LPC11U37H_401',

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,11 @@
 #include "FilePath.h"
 #include "serial_api.h"
 #include "toolchain.h"
+#include "semihost_api.h"
+#include "mbed_interface.h"
+#if DEVICE_STDIO_MESSAGES
+#include <stdio.h>
+#endif
 #include <errno.h>
 
 #if defined(__ARMCC_VERSION)
@@ -482,6 +487,38 @@ extern "C" caddr_t _sbrk(int incr) {
 #endif
 
 
+#ifdef TOOLCHAIN_GCC_CW
+// TODO: Ideally, we would like to define directly "_ExitProcess"
+extern "C" void mbed_exit(int return_code) {
+#elif defined TOOLCHAIN_GCC_ARM
+extern "C" void _exit(int return_code) {
+#else
+namespace std {
+extern "C" void exit(int return_code) {
+#endif
+
+#if DEVICE_STDIO_MESSAGES
+    fflush(stdout);
+    fflush(stderr);
+#endif
+
+#if DEVICE_SEMIHOST
+    if (mbed_interface_connected()) {
+        semihost_exit();
+    }
+#endif
+    if (return_code) {
+        mbed_die();
+    }
+
+    while (1);
+}
+
+#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CW)
+} //namespace std
+#endif
+
+
 namespace mbed {
 
 void mbed_set_unbuffered_stream(FILE *_file) {
@@ -524,11 +561,3 @@ char* mbed_gets(char*s, int size, FILE *_file){
 }
 
 } // namespace mbed
-
-
-
-
-
-
-
-
