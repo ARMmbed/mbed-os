@@ -15,6 +15,8 @@
 .weak __mbed_dcc_irq
 .weak __mbed_reset
 .global __mbed_init_realmonitor
+.extern SVC_Handler
+.extern IRQ_Handler
 /*  .global __mbed_init */
 
 
@@ -29,7 +31,8 @@ __mbed_prefetch_abort:
 __mbed_data_abort:
         LDR PC, =0x7fffffc0
 __mbed_irq:
-        MSR CPSR_c, #0x1F|0x80|0x40
+	B IRQ_Handler
+/*        MSR CPSR_c, #0x1F|0x80|0x40
         
         STMDB sp!, {r0-r3,r12,lr}
         
@@ -47,13 +50,16 @@ __mbed_irq:
         MSR CPSR_c, #0x12|0x80|0x40
         
         SUBS pc, lr, #4
+*/
 __mbed_swi:
-        STMFD sp!, {a4, r4, ip, lr}
+        B SVC_Handler
+/*        STMFD sp!, {a4, r4, ip, lr}
         
         LDR r4, =0x40000040
         
         LDR a4, =0x00940000
         LDR PC, =0x7ffff820
+*/
 __mbed_dcc_irq:
         LDMFD sp!,{r0-r3,r12,lr}
         
@@ -76,13 +82,24 @@ __mbed_dcc_irq:
 .global Reset_handler
 Reset_Handler:   
         .extern __libc_init_array
-        .extern  SystemInit
+        .extern SystemInit
+        .extern software_init_hook
         LDR     R0, =SystemInit
-        MOV     LR, PC       
+        MOV     LR, PC
         BX      R0
 
+/* if (software_init_hook) // give control to the RTOS
+        software_init_hook(); // this will also call __libc_init_array
+*/
+        LDR    R0, =software_init_hook
+        CMP    R0, #0
+        BEQ    nortos
+        ORR    R0,R0,#1      /* set thumb address */
+        BX     R0
+/* else */
+nortos:
         LDR     R0, =__libc_init_array
-        MOV     LR, PC       
+        MOV     LR, PC
         BX      R0
 
         MSR CPSR_c, #0x1F /* enable irq */
@@ -118,6 +135,8 @@ __mbed_reset:
 */
         MSR CPSR_c, #0x1F|0x80|0x40
         MOV SP, R0
+
+        MSR CPSR_c, #0x13|0x80|0x40 /* execute in Supervisor mode */
         
 /*  Relocate .data section (Copy from ROM to RAM) */
         LDR     R1, =__text_end__        /* _etext */ 
@@ -147,7 +166,7 @@ BSSIsEmpty:
 /*        LDR R0, =__mbed_init_realmonitor
         MOV LR, PC
         BX R0
-/*
+*/
         
 /* Go to Reset_Handler */ 
         LDR     R0, =Reset_Handler

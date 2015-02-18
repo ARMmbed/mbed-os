@@ -9,16 +9,16 @@
 #define __ARM7_CORE_H__
 
 #include "vector_defns.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif 
+//#include "cmsis_nvic.h"
 
 #define __CM3_CMSIS_VERSION_MAIN  (0x01)                                                       /*!< [31:16] CMSIS HAL main version */
 #define __CM3_CMSIS_VERSION_SUB   (0x20)                                                       /*!< [15:0]  CMSIS HAL sub version  */
 #define __CM3_CMSIS_VERSION       ((__CM3_CMSIS_VERSION_MAIN << 16) | __CM3_CMSIS_VERSION_SUB) /*!< CMSIS HAL version number       */
 
-#define __CORTEX_M                (0x03)                                                       /*!< Cortex core                    */
+#define __CORTEX_M                (0x00)                                                       /*!< Cortex core                    */
 
 /**
  *  Lint configuration \n
@@ -203,7 +203,7 @@ static __INLINE void __enable_irq() {
                          : "memory");
 }
 
-static __INLINE void __disable_irq() {
+static __INLINE uint32_t __disable_irq() {
     unsigned long old,temp;
     __asm__ __volatile__("mrs %0, cpsr\n"
                          "orr %1, %0, #0xc0\n"
@@ -211,10 +211,33 @@ static __INLINE void __disable_irq() {
                          : "=r" (old), "=r" (temp)
                          :
                          : "memory");
-    // return (old & 0x80) == 0;
+    return (old & 0x80) == 0;
 }
 
 static __INLINE void __NOP()                      { __ASM volatile ("nop"); }
+
+/** \brief  Get Control Bits of Status Register
+
+    This function returns the content of the Control Bits from the Program Status Register.
+
+    \return               Control Bits value
+ */
+__attribute__( ( always_inline ) ) static inline  uint32_t __get_CONTROL(void)
+{
+  uint32_t result;
+  
+  __asm__ __volatile__ ("MRS %0, CPSR \n"
+                        "AND %0,%0,#31" : "=r" (result) );
+  return(result);
+}
+#define MODE_USER        0x10
+#define MODE_FIQ         0x11
+#define MODE_IRQ         0x12
+#define MODE_SUPERVISOR  0x13
+#define MODE_ABORT       0x17
+#define MODE_UNDEFINED   0x1B
+#define MODE_SYSTEM      0x1F
+
 
 #elif (defined (__TASKING__)) /*------------------ TASKING Compiler ---------------------*/
 /* TASKING carm specific functions */
@@ -237,7 +260,7 @@ static __INLINE void __NOP()                      { __ASM volatile ("nop"); }
  * Enable a device specific interupt in the NVIC interrupt controller.
  * The interrupt number cannot be a negative value.
  */
-static __INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
+static __INLINE void NVIC_EnableIRQ(uint32_t IRQn)
 {
  NVIC->IntEnable = 1 << (uint32_t)IRQn;
 }
@@ -252,9 +275,53 @@ static __INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
  * Disable a device specific interupt in the NVIC interrupt controller.
  * The interrupt number cannot be a negative value.
  */
-static __INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
+static __INLINE void NVIC_DisableIRQ(uint32_t IRQn)
 {
  NVIC->IntEnClr = 1 << (uint32_t)IRQn;
+}
+
+/**
+ * @brief  Pend Interrupt in NVIC Interrupt Controller
+ *
+ * @param  IRQn_Type IRQn specifies the interrupt number
+ * @return none 
+ *
+ * Force software a device specific interupt in the NVIC interrupt controller.
+ * The interrupt number cannot be a negative value.
+ */
+static __INLINE void NVIC_PendIRQ(uint32_t IRQn)
+{
+ NVIC->SoftInt = 1 << (uint32_t)IRQn;
+}
+
+
+/**
+ * @brief  Unpend the interrupt in NVIC Interrupt Controller
+ * 
+ * @param  IRQn_Type IRQn is the positive number of the external interrupt
+ * @return none
+ * 
+ * Clear software  device specific interupt in the NVIC interrupt controller.
+ * The interrupt number cannot be a negative value.
+ */
+static __INLINE void NVIC_UnpendIRQ(uint32_t IRQn)
+{
+ NVIC->SoftIntClr = 1 << (uint32_t)IRQn;
+}
+
+/**
+ * @brief  Is IRQ pending
+ * 
+ * @param  IRQn_Type IRQn is the positive number of the external interrupt
+ * @return 0 if IRQ is not pending
+ *         1 if IRQ is pending
+ * 
+ * Returns  software  device specific interupt in the NVIC interrupt controller.
+ * The interrupt number cannot be a negative value.
+ */
+static __INLINE uint32_t NVIC_Pending(uint32_t IRQn)
+{
+ return (NVIC->SoftInt & (1 << (uint32_t)IRQn)) != 0;
 }
 
 static __INLINE uint32_t __get_IPSR(void)
@@ -264,7 +331,7 @@ static __INLINE uint32_t __get_IPSR(void)
  for(i = 0; i < 32; i ++)
    if(NVIC->Address == NVIC->VectAddr[i])
      return i;
- return 1; // 1 is an invalid entry in the interrupt table on LPC2368
+ return 1; // 1 is an invalid entry in the interrupt table on LPC2460
 }
 
 #ifdef __cplusplus

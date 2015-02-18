@@ -28,6 +28,7 @@ __abt_stack_top__ = __und_stack_top__ - UND_Stack_Size ;
 __fiq_stack_top__ = __abt_stack_top__ - ABT_Stack_Size ;
 __irq_stack_top__ = __fiq_stack_top__ - FIQ_Stack_Size ;
 __svc_stack_top__ = __irq_stack_top__ - IRQ_Stack_Size ;
+__usr_stack_top__ = __svc_stack_top__ - User_Stack_Size ;
 
 /* C-accessible symbols for memory address ranges: */
 __FLASH_segment_start__ = ORIGIN( Flash );
