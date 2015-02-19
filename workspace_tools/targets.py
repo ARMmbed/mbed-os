@@ -415,7 +415,7 @@ class K20D50M(Target):
         self.detect_code = ["0230"]
 
 class TEENSY3_1(Target):
-    OUTPUT_EXT = '.hex'
+    OUTPUT_EXT = 'hex'
     
     def __init__(self):
         Target.__init__(self)
@@ -742,7 +742,7 @@ class NRF51822(Target):
             'offset' : 0x14000
         }
     ]
-    OUTPUT_EXT = '.hex'
+    OUTPUT_EXT = 'hex'
     MERGE_SOFT_DEVICE = True
 
     def __init__(self):
