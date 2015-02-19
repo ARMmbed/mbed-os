@@ -20,9 +20,6 @@ import socket
 from sys import stdout
 from SocketServer import BaseRequestHandler, TCPServer
 
-SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
-SERVER_PORT = 7
-
 class TCPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
         """ One handle per connection
@@ -67,6 +64,22 @@ class TCPEchoClientTest():
             selftest.notify(c.strip())
 
     def test(self, selftest):
+        # We need to discover SERVEP_IP and set up SERVER_PORT
+        # Note: Port 7 is Echo Protocol:
+        #
+        # Port number rationale:
+        #
+        # The Echo Protocol is a service in the Internet Protocol Suite defined
+        # in RFC 862. It was originally proposed for testing and measurement
+        # of round-trip times[citation needed] in IP networks.
+        #
+        # A host may connect to a server that supports the Echo Protocol using
+        # the Transmission Control Protocol (TCP) or the User Datagram Protocol
+        # (UDP) on the well-known port number 7. The server sends back an
+        # identical copy of the data it received.
+        SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
+        SERVER_PORT = 7
+
         # Returning none will suppress host test from printing success code
         server = TCPServer((SERVER_IP, SERVER_PORT), TCPEchoClient_Handler)
         print "HOST: Listening for TCP connections: " + SERVER_IP + ":" + str(SERVER_PORT)
