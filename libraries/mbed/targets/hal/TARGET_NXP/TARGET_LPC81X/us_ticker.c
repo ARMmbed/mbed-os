@@ -20,7 +20,8 @@
 //New, using MRT instead of SCT, needed to free up SCT for PWM
 //Ported from LPC824 libs
 static int us_ticker_inited = 0;
-static int ticker_expired = 0;
+unsigned int ticker_fullcount_us;
+unsigned long int ticker_expired_count_us = 0;
 int MRT_Clock_MHz;
 
 #define US_TICKER_TIMER_IRQn     MRT_IRQn
@@ -31,9 +32,11 @@ void us_ticker_init(void) {
         return;
 
     us_ticker_inited = 1;
-
+    
     // Calculate MRT clock value (MRT has no prescaler)
     MRT_Clock_MHz = (SystemCoreClock / 1000000);
+    // Calculate fullcounter value in us (MRT has 31 bits and clock is 30 MHz) 
+    ticker_fullcount_us = 0x80000000UL/MRT_Clock_MHz;
 
     // Enable the MRT clock
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 10);
@@ -64,8 +67,18 @@ uint32_t us_ticker_read() {
 
     // Generate ticker value
     // MRT source clock is SystemCoreClock (30MHz) and MRT is a 31-bit countdown timer
-    // Calculate expected value using number of expired times to mimic a 32bit timer @ 1 MHz
-    return (0x7FFFFFFFUL - LPC_MRT->TIMER0)/MRT_Clock_MHz + (ticker_expired * (0x80000000UL/MRT_Clock_MHz));
+    // Calculate expected value using current count and number of expired times to mimic a 32bit timer @ 1 MHz 
+    //
+    // ticker_expired_count_us
+    // The variable ticker_expired_count_us keeps track of the number of 31bits overflows (counted by TIMER0) and
+    // corrects that back to us counts.
+    //
+    // (0x7FFFFFFFUL - LPC_MRT->TIMER0)/MRT_Clock_MHz
+    // The counter is a 31bit downcounter from 7FFFFFFF so correct to actual count-up value and correct
+    // for 30 counts per us.
+    //
+    // Added up these 2 parts result in current us time returned as 32 bits.
+    return (0x7FFFFFFFUL - LPC_MRT->TIMER0)/MRT_Clock_MHz + ticker_expired_count_us;            
 }
 
 //TIMER1 is used for Timestamped interrupts (Ticker(), Timeout())
@@ -100,6 +113,9 @@ void us_ticker_clear_interrupt() {
     //Timer0 for us counter (31 bits downcounter @ SystemCoreClock)
     if (LPC_MRT->STAT0 & 1) {
         LPC_MRT->STAT0 = 1;
-        ticker_expired++;
+        // ticker_expired_count_us = (ticker_expired * 0x80000000UL) / MRT_Clock_MHz
+        // The variable ticker_expired_count_us keeps track of the number of 31bits overflows (counted by TIMER0) and
+        // the multiplication/division corrects that back to us counts.
+        ticker_expired_count_us += ticker_fullcount_us;
     }
 }
