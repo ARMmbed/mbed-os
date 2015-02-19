@@ -174,19 +174,19 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
 __inline static void rt_systick_init (void) {
 #if SYS_TICK_IRQn == TIMER0_IRQn
  #define SYS_TICK_TIMER  LPC_TIM0
- LPC_SC->PCONP |= PCTIM0;
+ LPC_SC->PCONP |= (1 << PCTIM0);
  LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(1<<3))) | (1<<2); //PCLK == CPUCLK
 #elif SYS_TICK_IRQn == TIMER1_IRQn
  #define SYS_TICK_TIMER LPC_TIM1
- LPC_SC->PCONP |= PCTIM1;
+ LPC_SC->PCONP |= (1 << PCTIM1);
  LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(1<<5))) | (1<<4); //PCLK == CPUCLK
 #elif SYS_TICK_IRQn == TIMER2_IRQn
  #define SYS_TICK_TIMER LPC_TIM2
- LPC_SC->PCONP |= PCTIM2;
+ LPC_SC->PCONP |= (1 << PCTIM2);
  LPC_SC->PCLKSEL1 = (LPC_SC->PCLKSEL1 & (~(1<<13))) | (1<<12); //PCLK == CPUCLK
 #else
  #define SYS_TICK_TIMER LPC_TIM3
- LPC_SC->PCONP |= PCTIM3;
+ LPC_SC->PCONP |= (1 << PCTIM3);
  LPC_SC->PCLKSEL1 = (LPC_SC->PCLKSEL1 & (~(1<<15))) | (1<<14); //PCLK == CPUCLK
 #endif
 
@@ -196,7 +196,7 @@ __inline static void rt_systick_init (void) {
   SYS_TICK_TIMER->TC = os_trv;
   SYS_TICK_TIMER->PR = 0; // set the prescale divider
   //Reset of TC and Interrupt when MR3  MR2 matches TC
-  SYS_TICK_TIMER->MCR = (1 << 6) |(1 << 7); //TMCR_MR3_R_Msk | TMCR_MR3_I_Msk
+  SYS_TICK_TIMER->MCR = (1 << 9) |(1 << 10); //TMCR_MR3_R_Msk | TMCR_MR3_I_Msk
   SYS_TICK_TIMER->MR3 = os_trv; // match registers
   SYS_TICK_TIMER->CCR = 0; // disable compare registers
   SYS_TICK_TIMER->EMR = 0; // disable external match register
