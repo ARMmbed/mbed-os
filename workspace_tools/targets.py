@@ -616,6 +616,7 @@ class ARCH_MAX(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_form_factors = ["ARDUINO"]
         
     def program_cycle_s(self):
         return 2
