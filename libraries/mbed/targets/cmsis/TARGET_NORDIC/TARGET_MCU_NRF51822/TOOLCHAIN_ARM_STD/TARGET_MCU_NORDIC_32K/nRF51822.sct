@@ -5,7 +5,7 @@
 ;   *(InRoot$$Sections)
 ;   .ANY (+RO)
 ;  }
-;  RW_IRAM1 0x20000000 0x00004000  {
+;  RW_IRAM1 0x20000000 0x00008000  {
 ;   .ANY (+RW +ZI)
 ;  }
 ;}
