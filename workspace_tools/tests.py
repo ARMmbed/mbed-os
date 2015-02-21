@@ -119,6 +119,7 @@ TESTS = [
         "id": "MBED_A7", "description": "InterruptIn",
         "source_dir": join(TEST_DIR, "mbed", "interruptin"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "duration": 15,
         "automated": True,
         "peripherals": ["digital_loop"]
     },
@@ -137,7 +138,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "echo"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "echo"
+        #"host_test": "echo"
     },
     {
         "id": "MBED_A10", "description": "PortOut PortIn",
@@ -222,14 +223,16 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "spifi1"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC4088"]
+        "duration": 30,
+        "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
         "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
         "source_dir": join(TEST_DIR, "mbed", "spifi2"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC4088"]
+        "duration": 30,
+        "mcu": ["LPC4088","LPC4088_DM"]
     },
     {
         "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
@@ -259,6 +262,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "bus"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": False,
+        "duration": 15,
+    },
+
+    {
+        "id": "MBED_BUSOUT", "description": "BusOut",
+        "source_dir": join(TEST_DIR, "mbed", "bus_out"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
         "duration": 15,
     },
 
@@ -329,7 +340,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "host_test": "stdio_auto"
+        #"host_test": "stdio_auto"
     },
     {
         "id": "MBED_3", "description": "PortOut",
@@ -341,7 +352,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088","NRF51822"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088","LPC4088_DM","NRF51822"]
     },
     {
         "id": "MBED_5", "description": "PWM",
@@ -375,14 +386,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "hello"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "hello_auto",
+        #"host_test": "hello_auto",
     },
     {
         "id": "MBED_11", "description": "Ticker Int",
         "source_dir": join(TEST_DIR, "mbed", "ticker"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "wait_us_auto",
+        #"host_test": "wait_us_auto",
         "duration": 20,
     },
     {
@@ -411,9 +422,9 @@ TESTS = [
     {
         "id": "MBED_16", "description": "RTC",
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
-        "dependencies": [MBED_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "rtc_auto",
+        #"host_test": "rtc_auto",
         "duration": 15
     },
     {
@@ -455,7 +466,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_24", "description": "Timeout Int us",
@@ -463,7 +474,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_25", "description": "Time us",
@@ -471,7 +482,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
     {
         "id": "MBED_26", "description": "Integer constant division",
@@ -525,9 +536,9 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto"
+        #"host_test": "wait_us_auto"
     },
-    
+
 
     # CMSIS RTOS tests
     {
@@ -579,11 +590,16 @@ TESTS = [
     {
         "id": "RTOS_1", "description": "Basic thread",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "basic"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        #"host_test": "wait_us_auto",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -591,7 +607,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -599,44 +620,74 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 20,
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "timer"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "duration": 15,
         "automated": True,
-        "host_test": "wait_us_auto",
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        #"host_test": "wait_us_auto",
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC1549", "LPC11U24", "LPC812",
+                "KL25Z", "KL05Z", "K64F", "KL46Z",
+                "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
+                "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "DISCO_F401VC"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
@@ -644,7 +695,9 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
         "automated": True,
         "peripherals": ["SD"],
-        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z", "KL05Z", "K64F", "KL46Z", "RZ_A1H"],
+        "mcu": ["LPC1768", "LPC11U24", "LPC812", "KL25Z",
+                "KL05Z", "K64F", "KL46Z", "RZ_A1H",
+                "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE", "NUCLEO_F401RE"],
     },
 
     # Networking Tests
@@ -667,9 +720,9 @@ TESTS = [
     {
         "id": "NET_3", "description": "TCP echo server",
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "tcpecho_server_auto",
+        #"host_test" : "tcpecho_server_auto",
         "peripherals": ["ethernet"],
     },
     {
@@ -677,15 +730,15 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "echo", "tcp_client"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test": "tcpecho_client_auto",
+        #"host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"]
     },
     {
         "id": "NET_5", "description": "UDP echo server",
         "source_dir": join(TEST_DIR, "net", "echo", "udp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "udpecho_server_auto",
+        #"host_test" : "udpecho_server_auto",
         "peripherals": ["ethernet"]
     },
     {
@@ -693,7 +746,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "net", "echo", "udp_client"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "udpecho_client_auto",
+        #"host_test" : "udpecho_client_auto",
         "peripherals": ["ethernet"],
     },
     {
@@ -741,7 +794,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
         "automated": True,
         "duration": 15,
-        "host_test": "tcpecho_client_auto",
+        #"host_test": "tcpecho_client_auto",
         "peripherals": ["ethernet"],
     },
     {
@@ -862,7 +915,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dev_null"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "dev_null_auto",
+        #"host_test" : "dev_null_auto",
     },
     {
         "id": "EXAMPLE_2", "description": "FS + RTOS",
@@ -899,6 +952,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
     },
+    {
+        "id": "UT_BUSIO", "description": "BusIn BusOut",
+        "source_dir": join(TEST_DIR, "utest", "bus"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
 
     # Tests used for target information purposes
     {
@@ -906,7 +965,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "detect"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "host_test" : "detect_auto",
+        #"host_test" : "detect_auto",
     },
 ]
 

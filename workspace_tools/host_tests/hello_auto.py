@@ -15,23 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
-
-
-class HelloTest(DefaultTest):
+class HelloTest():
     HELLO_WORLD = "Hello World"
 
-    def test(self):
-        c = self.mbed.serial_readline()
+    def test(self, selftest):
+        c = selftest.mbed.serial_readline()
         if c is None:
-           return self.RESULT_IO_SERIAL
-        self.notify(c.strip())
-
-        c = self.mbed.serial_readline()
-        if c is None:
-           return self.RESULT_IO_SERIAL
-        self.notify("Read %d bytes:"% len(c))
-        self.notify(c.strip())
+           return selftest.RESULT_IO_SERIAL
+        selftest.notify("Read %d bytes:"% len(c))
+        selftest.notify(c.strip())
 
         result = True
         # Because we can have targetID here let's try to decode
@@ -39,8 +31,4 @@ class HelloTest(DefaultTest):
             result = False
         else:
             result = self.HELLO_WORLD in c
-        return self.RESULT_SUCCESS if result else self.RESULT_FAILURE
-
-
-if __name__ == '__main__':
-    HelloTest().run()
+        return selftest.RESULT_SUCCESS if result else selftest.RESULT_FAILURE

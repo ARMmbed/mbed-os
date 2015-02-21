@@ -30,13 +30,15 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
-    def __init__(self, target, options=None, notify=None, macros=None):
-        mbedToolchain.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
+        elif target.core == "Cortex-M7F":
+            cpu = "Cortex-M7.fp.sp"
         else:
             cpu = target.core
 
@@ -147,8 +149,8 @@ class ARM(mbedToolchain):
         self.default_cmd(args)
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        ARM.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        ARM.__init__(self, target, options, notify, macros, silent)
         self.cc   += ["-D__ASSERT_MSG"]
         self.cppc += ["-D__ASSERT_MSG"]
         self.ld.append("--libpath=%s" % ARM_LIB)
@@ -157,8 +159,8 @@ class ARM_STD(ARM):
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
-    def __init__(self, target, options=None, notify=None, macros=None):
-        ARM.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        ARM.__init__(self, target, options, notify, macros, silent)
 
         # Compiler
         self.asm  += ["-D__MICROLIB"]

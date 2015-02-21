@@ -2,15 +2,14 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Extended RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) Extension peripheral:
-  *           + TimeStamp configuration
-  *           + Tampers configuration
-  *           + WakeUp Timer configuration
-  *           + RTC Tamper and TimeStamp Pins Selection 
+  *           + RTC TimeStamp functions
+  *           + RTC Tamper functions
+  *           + RTC Wake-up functions
   *           + Extension Control functions
   *           + Extension RTC features functions    
   *
@@ -23,19 +22,20 @@
         (+) Configure the RTC Prescaler (Asynchronous and Synchronous) and RTC hour 
             format using the HAL_RTC_Init() function.
 
-    *** RTC Wakeup configuration ***
+    *** RTC Wake-up configuration ***
     ================================
     [..] 
-        (+) To configure the RTC Wakeup Clock source and Counter use the HAL_RTCEx_SetWakeUpTimer()
-            function. You can also configure the RTC Wakeup timer with interrupt mode 
+        (+) To configure the RTC Wake-up Clock source and Counter use the HAL_RTCEx_SetWakeUpTimer()
+            function. You can also configure the RTC Wake-up timer in interrupt mode 
             using the HAL_RTCEx_SetWakeUpTimer_IT() function.
-        (+) To read the RTC WakeUp Counter register, use the HAL_RTCEx_GetWakeUpTimer() 
+        (+) To read the RTC Wake-up Counter register, use the HAL_RTCEx_GetWakeUpTimer() 
             function.
+        (@) Not available on F030x6/x8/xC and F070x6/xB            
   
     *** TimeStamp configuration ***
     ===============================
     [..]
-        (+) Configure the RTC_AF trigger and enables the RTC TimeStamp using the 
+        (+) Configure the RTC_AF trigger and enable the RTC TimeStamp using the 
             HAL_RTCEx_SetTimeStamp() function. You can also configure the RTC TimeStamp with 
             interrupt mode using the HAL_RTCEx_SetTimeStamp_IT() function.
         (+) To read the RTC TimeStamp Time and Date register, use the HAL_RTCEx_GetTimeStamp()
@@ -44,10 +44,10 @@
     *** Tamper configuration ***
     ============================
     [..]
-        (+) Enable the RTC Tamper and Configure the Tamper filter count, trigger Edge 
+        (+) Enable the RTC Tamper and configure the Tamper filter count, trigger Edge 
             or Level according to the Tamper filter (if equal to 0 Edge else Level) 
             value, sampling frequency, precharge or discharge and Pull-UP using the 
-            HAL_RTCEx_SetTamper() function. You can configure RTC Tamper with interrupt 
+            HAL_RTCEx_SetTamper() function. You can configure RTC Tamper in interrupt 
             mode using HAL_RTCEx_SetTamper_IT() function.
   
     *** Backup Data Registers configuration ***
@@ -57,6 +57,7 @@
             function.  
         (+) To read the RTC Backup Data registers, use the HAL_RTCEx_BKUPRead()
             function.
+        (@) Not available on F030x6/x8/xC and F070x6/xB
    
      
    @endverbatim
@@ -115,7 +116,6 @@
   * @{
   */
   
-
 /** @defgroup RTCEx_Exported_Functions_Group1 RTC TimeStamp and Tamper functions
  *  @brief   RTC TimeStamp and Tamper functions
  *
@@ -124,7 +124,7 @@
                  ##### RTC TimeStamp and Tamper functions #####
  ===============================================================================  
  
- [..] This section provide functions allowing to configure TimeStamp feature
+ [..] This section provides functions allowing to configure TimeStamp feature
 
 @endverbatim
   * @{
@@ -133,13 +133,14 @@
 /**
   * @brief  Sets TimeStamp.
   * @note   This API must be called before enabling the TimeStamp feature. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  TimeStampEdge: Specifies the pin edge on which the TimeStamp is 
   *         activated.
-  *          This parameter can be one of the following:
-  *             @arg TimeStampEdge_Rising: the Time stamp event occurs on the  
+  *          This parameter can be one of the following values:
+  *             @arg RTC_TIMESTAMPEDGE_RISING: the Time stamp event occurs on the  
   *                                        rising edge of the related pin.
-  *             @arg TimeStampEdge_Falling: the Time stamp event occurs on the 
+  *             @arg RTC_TIMESTAMPEDGE_FALLING: the Time stamp event occurs on the 
   *                                         falling edge of the related pin.
   * @param  RTC_TimeStampPin: specifies the RTC TimeStamp Pin.
   *          This parameter can be one of the following values:
@@ -186,14 +187,15 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp(RTC_HandleTypeDef *hrtc, uint32_t TimeS
 
 /**
   * @brief  Sets TimeStamp with Interrupt. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @note   This API must be called before enabling the TimeStamp feature.
   * @param  TimeStampEdge: Specifies the pin edge on which the TimeStamp is 
   *         activated.
-  *          This parameter can be one of the following:
-  *             @arg TimeStampEdge_Rising: the Time stamp event occurs on the  
+  *          This parameter can be one of the following values:
+  *             @arg RTC_TIMESTAMPEDGE_RISING: the Time stamp event occurs on the  
   *                                        rising edge of the related pin.
-  *             @arg TimeStampEdge_Falling: the Time stamp event occurs on the 
+  *             @arg RTC_TIMESTAMPEDGE_FALLING: the Time stamp event occurs on the 
   *                                         falling edge of the related pin.
   * @param  RTC_TimeStampPin: Specifies the RTC TimeStamp Pin.
   *          This parameter can be one of the following values:
@@ -247,7 +249,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp_IT(RTC_HandleTypeDef *hrtc, uint32_t Ti
 
 /**
   * @brief  Deactivates TimeStamp. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_DeactivateTimeStamp(RTC_HandleTypeDef *hrtc)
@@ -284,13 +287,14 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateTimeStamp(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  Gets the RTC TimeStamp value.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  sTimeStamp: Pointer to Time structure
   * @param  sTimeStampDate: Pointer to Date structure  
   * @param  Format: specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
-  *             @arg Format_BIN: Binary data format 
-  *             @arg Format_BCD: BCD data format
+  *             @arg FORMAT_BIN: Binary data format 
+  *             @arg FORMAT_BCD: BCD data format
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_GetTimeStamp(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef* sTimeStamp, RTC_DateTypeDef* sTimeStampDate, uint32_t Format)
@@ -340,7 +344,8 @@ HAL_StatusTypeDef HAL_RTCEx_GetTimeStamp(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDe
 /**
   * @brief  Sets Tamper
   * @note   By calling this API we disable the tamper interrupt for all tampers. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  sTamper: Pointer to Tamper Structure.
   * @retval HAL status
   */
@@ -388,7 +393,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper(RTC_HandleTypeDef *hrtc, RTC_TamperTypeDef
 /**
   * @brief  Sets Tamper with interrupt.
   * @note   By calling this API we force the tamper interrupt for all tampers.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  sTamper: Pointer to RTC Tamper.
   * @retval HAL status
   */
@@ -444,7 +450,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
 
 /**
   * @brief  Deactivates Tamper.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Tamper: Selected tamper pin.
   *          This parameter can be any combination of RTC_TAMPER_1, RTC_TAMPER_2 and RTC_TAMPER_3.
   * @retval HAL status
@@ -471,7 +478,8 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t T
 
 /**
   * @brief  This function handles TimeStamp interrupt request.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
@@ -542,7 +550,8 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  TimeStamp callback. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
@@ -554,7 +563,8 @@ __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  Tamper 1 callback. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
@@ -566,7 +576,8 @@ __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  Tamper 2 callback. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
@@ -576,7 +587,7 @@ __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
    */
 }
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F070xB) || defined(STM32F030xC)
 /**
   * @brief  Tamper 3 callback. 
   * @param  hrtc: RTC handle
@@ -592,7 +603,8 @@ __weak void HAL_RTCEx_Tamper3EventCallback(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  This function handles TimeStamp polling request.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
@@ -600,14 +612,14 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTimeStampEvent(RTC_HandleTypeDef *hrtc, uint3
 {
   uint32_t tickstart = 0;
 
-  /* Get Timeout value */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   while(__HAL_RTC_TIMESTAMP_GET_FLAG(hrtc, RTC_FLAG_TSF) == RESET)
   {
     if(__HAL_RTC_TIMESTAMP_GET_FLAG(hrtc, RTC_FLAG_TSOVF) != RESET)
     {
-      /* Clear the TIMESTAMP OverRun Flag */
+      /* Clear the TIMESTAMP Overrun Flag */
       __HAL_RTC_TIMESTAMP_CLEAR_FLAG(hrtc, RTC_FLAG_TSOVF);
 
       /* Change TIMESTAMP state */
@@ -634,7 +646,8 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTimeStampEvent(RTC_HandleTypeDef *hrtc, uint3
 
 /**
   * @brief  This function handles Tamper1 Polling.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
@@ -642,7 +655,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper1Event(RTC_HandleTypeDef *hrtc, uint32_
 {  
   uint32_t tickstart = 0; 
 
-  /* Get Timeout value */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Get the status of the Interrupt */
@@ -669,7 +682,8 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper1Event(RTC_HandleTypeDef *hrtc, uint32_
 
 /**
   * @brief  This function handles Tamper2 Polling.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
@@ -677,7 +691,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper2Event(RTC_HandleTypeDef *hrtc, uint32_
 {  
   uint32_t tickstart = 0; 
 
-  /* Get Timeout value */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Get the status of the Interrupt */
@@ -705,7 +719,8 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper2Event(RTC_HandleTypeDef *hrtc, uint32_
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
 /**
   * @brief  This function handles Tamper3 Polling.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
@@ -713,7 +728,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_
 {  
   uint32_t tickstart = 0; 
 
-  /* Get Timeout value */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Get the status of the Interrupt */
@@ -752,7 +767,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_
                         ##### RTC Wake-up functions #####
  ===============================================================================  
  
- [..] This section provide functions allowing to configure Wake-up feature
+ [..] This section provides functions allowing to configure Wake-up feature
 
 @endverbatim
   * @{
@@ -760,7 +775,8 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_
 
 /**
   * @brief  Sets wake up timer. 
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  WakeUpCounter: Wake up counter
   * @param  WakeUpClock: Wake up clock  
   * @retval HAL status
@@ -783,6 +799,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
 
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
      
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
@@ -802,16 +819,16 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
     }
   }
 
-  /* Clear the Wakeup Timer clock source bits in CR register */
+  /* Clear the Wake-up Timer clock source bits in CR register */
   hrtc->Instance->CR &= (uint32_t)~RTC_CR_WUCKSEL;
 
   /* Configure the clock source */
   hrtc->Instance->CR |= (uint32_t)WakeUpClock;
 
-  /* Configure the Wakeup Timer counter */
+  /* Configure the Wake-up Timer counter */
   hrtc->Instance->WUTR = (uint32_t)WakeUpCounter;
 
-   /* Enable the Wakeup Timer */
+   /* Enable the Wake-up Timer */
   __HAL_RTC_WAKEUPTIMER_ENABLE(hrtc);
 
   /* Enable the write protection for RTC registers */
@@ -827,9 +844,10 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
 
 /**
   * @brief  Sets wake up timer with interrupt
-  * @param  hrtc: RTC handle
-  * @param  WakeUpCounter: wake up counter
-  * @param  WakeUpClock: wake up clock  
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
+  * @param  WakeUpCounter: Wake up counter
+  * @param  WakeUpClock: Wake up clock  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t WakeUpCounter, uint32_t WakeUpClock)
@@ -850,6 +868,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
 
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
@@ -869,10 +888,10 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
     }
   }
 
-  /* Configure the Wakeup Timer counter */
+  /* Configure the Wake-up Timer counter */
   hrtc->Instance->WUTR = (uint32_t)WakeUpCounter;
 
-  /* Clear the Wakeup Timer clock source bits in CR register */
+  /* Clear the Wake-up Timer clock source bits in CR register */
   hrtc->Instance->CR &= (uint32_t)~RTC_CR_WUCKSEL;
 
   /* Configure the clock source */
@@ -886,7 +905,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
   /* Configure the Interrupt in the RTC_CR register */
   __HAL_RTC_WAKEUPTIMER_ENABLE_IT(hrtc,RTC_IT_WUT);
 
-  /* Enable the Wakeup Timer */
+  /* Enable the Wake-up Timer */
   __HAL_RTC_WAKEUPTIMER_ENABLE(hrtc);
 
   /* Enable the write protection for RTC registers */
@@ -902,7 +921,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
 
 /**
   * @brief  Deactivates wake up timer counter.
-  * @param  hrtc: RTC handle 
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC. 
   * @retval HAL status
   */
 uint32_t HAL_RTCEx_DeactivateWakeUpTimer(RTC_HandleTypeDef *hrtc)
@@ -917,12 +937,13 @@ uint32_t HAL_RTCEx_DeactivateWakeUpTimer(RTC_HandleTypeDef *hrtc)
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
 
-  /* Disable the Wakeup Timer */
+  /* Disable the Wake-up Timer */
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
   /* In case of interrupt mode is used, the interrupt source must disabled */
   __HAL_RTC_WAKEUPTIMER_DISABLE_IT(hrtc,RTC_IT_WUT);
 
+  /* Get tick */
   tickstart = HAL_GetTick();
   
   /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
@@ -955,7 +976,8 @@ uint32_t HAL_RTCEx_DeactivateWakeUpTimer(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  Gets wake up timer counter.
-  * @param  hrtc: RTC handle 
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC. 
   * @retval Counter value
   */
 uint32_t HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc)
@@ -966,7 +988,8 @@ uint32_t HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  This function handles Wake Up Timer interrupt request.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
@@ -993,7 +1016,8 @@ void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  Wake Up Timer callback.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @retval None
   */
 __weak void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
@@ -1005,7 +1029,8 @@ __weak void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 /**
   * @brief  This function handles Wake Up Timer Polling.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
@@ -1013,7 +1038,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForWakeUpTimerEvent(RTC_HandleTypeDef *hrtc, uin
 {
   uint32_t tickstart = 0;
 
-  /* Get Timeout value */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTF) == RESET)
@@ -1052,27 +1077,28 @@ HAL_StatusTypeDef HAL_RTCEx_PollForWakeUpTimerEvent(RTC_HandleTypeDef *hrtc, uin
  ===============================================================================  
     [..]
     This subsection provides functions allowing to
-      (+) Writes a data in a specified RTC Backup data register
+      (+) Write a data in a specified RTC Backup data register
       (+) Read a data in a specified RTC Backup data register
-      (+) Sets the Coarse calibration parameters.
-      (+) Deactivates the Coarse calibration parameters
-      (+) Sets the Smooth calibration parameters.
-      (+) Configures the Synchronization Shift Control Settings.
-      (+) Configures the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
-      (+) Deactivates the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
-      (+) Enables the RTC reference clock detection.
+      (+) Set the Coarse calibration parameters.
+      (+) Deactivate the Coarse calibration parameters
+      (+) Set the Smooth calibration parameters.
+      (+) Configure the Synchronization Shift Control Settings.
+      (+) Configure the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
+      (+) Deactivate the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
+      (+) Enable the RTC reference clock detection.
       (+) Disable the RTC reference clock detection.
-      (+) Enables the Bypass Shadow feature.
-      (+) Disables the Bypass Shadow feature.
+      (+) Enable the Bypass Shadow feature.
+      (+) Disable the Bypass Shadow feature.
 
 @endverbatim
   * @{
   */
 
-#if !defined(STM32F030x6) && !defined(STM32F030x8)
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
 /**
   * @brief  Writes a data in a specified RTC Backup data register.
-  * @param  hrtc: RTC handle 
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC. 
   * @param  BackupRegister: RTC Backup data Register number.
   *          This parameter can be: RTC_BKP_DRx where x can be from 0 to 4 to 
   *                                 specify the register.
@@ -1095,7 +1121,8 @@ void HAL_RTCEx_BKUPWrite(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint3
 
 /**
   * @brief  Reads data from the specified RTC Backup data Register.
-  * @param  hrtc: RTC handle 
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC. 
   * @param  BackupRegister: RTC Backup data Register number.
   *          This parameter can be: RTC_BKP_DRx where x can be from 0 to 4 to 
   *                                 specify the register.                   
@@ -1114,25 +1141,26 @@ uint32_t HAL_RTCEx_BKUPRead(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister)
   /* Read the specified register */
   return (*(__IO uint32_t *)tmp);
 }
-#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */
+#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC) */
 
 /**
   * @brief  Sets the Smooth calibration parameters.
-  * @param  hrtc: RTC handle  
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.  
   * @param  SmoothCalibPeriod: Select the Smooth Calibration Period.
   *          This parameter can be can be one of the following values :
-  *             @arg RTC_SMOOTHCALIB_PERIOD_32SEC: The smooth calibration periode is 32s.
-  *             @arg RTC_SMOOTHCALIB_PERIOD_16SEC: The smooth calibration periode is 16s.
-  *             @arg RTC_SMOOTHCALIB_PERIOD_8SEC: The smooth calibartion periode is 8s.
+  *             @arg RTC_SMOOTHCALIB_PERIOD_32SEC: The smooth calibration period is 32s.
+  *             @arg RTC_SMOOTHCALIB_PERIOD_16SEC: The smooth calibration period is 16s.
+  *             @arg RTC_SMOOTHCALIB_PERIOD_8SEC: The smooth calibration period is 8s.
   * @param  SmoothCalibPlusPulses: Select to Set or reset the CALP bit.
   *          This parameter can be one of the following values:
-  *             @arg RTC_SMOOTHCALIB_PLUSPULSES_SET: Add one RTCCLK puls every 2*11 pulses.
+  *             @arg RTC_SMOOTHCALIB_PLUSPULSES_SET: Add one RTCCLK pulse every 2*11 pulses.
   *             @arg RTC_SMOOTHCALIB_PLUSPULSES_RESET: No RTCCLK pulses are added.
   * @param  SmouthCalibMinusPulsesValue: Select the value of CALM[8:0] bits.
   *          This parameter can be one any value from 0 to 0x000001FF.
   * @note   To deactivate the smooth calibration, the field SmoothCalibPlusPulses 
   *         must be equal to SMOOTHCALIB_PLUSPULSES_RESET and the field 
-  *         SmouthCalibMinusPulsesValue mut be equal to 0.  
+  *         SmouthCalibMinusPulsesValue must be equal to 0.  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_SetSmoothCalib(RTC_HandleTypeDef* hrtc, uint32_t SmoothCalibPeriod, uint32_t SmoothCalibPlusPulses, uint32_t SmouthCalibMinusPulsesValue)
@@ -1155,6 +1183,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetSmoothCalib(RTC_HandleTypeDef* hrtc, uint32_t Smo
   /* check if a calibration is pending*/
   if((hrtc->Instance->ISR & RTC_ISR_RECALPF) != RESET)
   {
+  /* Get tick */
     tickstart = HAL_GetTick();
 
     /* check if a calibration is pending*/
@@ -1194,7 +1223,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetSmoothCalib(RTC_HandleTypeDef* hrtc, uint32_t Smo
 /**
   * @brief  Configures the Synchronization Shift Control Settings.
   * @note   When REFCKON is set, firmware must not write to Shift control register. 
-  * @param  hrtc: RTC handle    
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.    
   * @param  ShiftAdd1S: Select to add or not 1 second to the time calendar.
   *          This parameter can be one of the following values :
   *             @arg RTC_SHIFTADD1S_SET: Add one second to the clock calendar. 
@@ -1219,6 +1249,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetSynchroShift(RTC_HandleTypeDef* hrtc, uint32_t Sh
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
 
+  /* Get tick */
     tickstart = HAL_GetTick();
 
     /* Wait until the shift is completed*/
@@ -1289,7 +1320,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetSynchroShift(RTC_HandleTypeDef* hrtc, uint32_t Sh
 
 /**
   * @brief  Configures the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.    
   * @param  CalibOutput : Select the Calibration output Selection .
   *          This parameter can be one of the following values:
   *             @arg RTC_CALIBOUTPUT_512HZ: A signal has a regular waveform at 512Hz. 
@@ -1331,7 +1363,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetCalibrationOutPut(RTC_HandleTypeDef* hrtc, uint32
 
 /**
   * @brief  Deactivates the Calibration Pinout (RTC_CALIB) Selection (1Hz or 512Hz).
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.    
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_DeactivateCalibrationOutPut(RTC_HandleTypeDef* hrtc)
@@ -1360,7 +1393,8 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateCalibrationOutPut(RTC_HandleTypeDef* hrtc)
 
 /**
   * @brief  Enables the RTC reference clock detection.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.    
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_SetRefClock(RTC_HandleTypeDef* hrtc)
@@ -1409,7 +1443,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetRefClock(RTC_HandleTypeDef* hrtc)
 
 /**
   * @brief  Disable the RTC reference clock detection.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.    
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTCEx_DeactivateRefClock(RTC_HandleTypeDef* hrtc)
@@ -1458,7 +1493,8 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateRefClock(RTC_HandleTypeDef* hrtc)
 
 /**
   * @brief  Enables the Bypass Shadow feature.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.  
   * @note   When the Bypass Shadow is enabled the calendar value are taken 
   *         directly from the Calendar counter.
   * @retval HAL status
@@ -1490,7 +1526,8 @@ HAL_StatusTypeDef HAL_RTCEx_EnableBypassShadow(RTC_HandleTypeDef* hrtc)
 
 /**
   * @brief  Disables the Bypass Shadow feature.
-  * @param  hrtc: RTC handle
+  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
+  *                the configuration information for RTC.  
   * @note   When the Bypass Shadow is enabled the calendar value are taken
   *         directly from the Calendar counter.
   * @retval HAL status

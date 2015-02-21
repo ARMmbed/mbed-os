@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA (Infrared Data Association) Peripheral 
@@ -131,6 +131,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
+#ifdef HAL_IRDA_MODULE_ENABLED
+
+#if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)  
+
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
   */
@@ -139,16 +143,13 @@
   * @brief HAL IRDA module driver
   * @{
   */
-#ifdef HAL_IRDA_MODULE_ENABLED
 
-#if !defined(STM32F030x6) && !defined(STM32F030x8) 
-    
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /** @defgroup IRDA_Private_Constants   IRDA Private Constants
   * @{
   */
-#define TEACK_REACK_TIMEOUT       1000
+#define TEACK_REACK_TIMEOUT            1000
 #define IRDA_TXDMA_TIMEOUTVALUE        22000
 #define IRDA_TIMEOUT_VALUE             22000
 #define IRDA_CR1_FIELDS  ((uint32_t)(USART_CR1_M | USART_CR1_PCE \
@@ -238,7 +239,7 @@ static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == HAL_NULL)
+  if(hirda == NULL)
   {
     return HAL_ERROR;
   }
@@ -287,7 +288,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == HAL_NULL)
+  if(hirda == NULL)
   {
     return HAL_ERROR;
   }
@@ -407,7 +408,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
    
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX)) 
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -487,7 +488,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   { 
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -565,7 +566,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
 {
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -615,7 +616,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
 {  
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -674,7 +675,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -737,7 +738,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -1305,7 +1306,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
           
-          hirda->State= HAL_IRDA_STATE_TIMEOUT;
+          hirda->State= HAL_IRDA_STATE_READY;
           
           /* Process Unlocked */
           __HAL_UNLOCK(hirda);
@@ -1330,7 +1331,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
   
-          hirda->State= HAL_IRDA_STATE_TIMEOUT;
+          hirda->State= HAL_IRDA_STATE_READY;
           
           /* Process Unlocked */
           __HAL_UNLOCK(hirda);
@@ -1347,15 +1348,16 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
   * @}
   */
 
-#endif /* !defined(STM32F030x6) && !defined(STM32F030x8) */  
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+#endif /* !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)  */  
 
 #endif /* HAL_IRDA_MODULE_ENABLED */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

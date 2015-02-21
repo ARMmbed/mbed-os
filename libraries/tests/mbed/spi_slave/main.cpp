@@ -8,6 +8,8 @@ SPISlave device(p12, p13, p15, p14);  // mosi, miso, sclk, ssel
 SPISlave device(P0_14, P0_15, P0_12, P0_13);    // mosi, miso, sclk, ssel
 #elif defined(TARGET_FF_ARDUINO)
 SPISlave device(D11, D12, D13, D10);       // mosi, miso, sclk, ssel
+#elif defined(TARGET_LPC1114)
+SPISlave device(dp2, dp1, dp6, dp25);            // mosi, miso, sclk, ssel
 #else
 SPISlave device(p5, p6, p7, p8);            // mosi, miso, sclk, ssel
 #endif

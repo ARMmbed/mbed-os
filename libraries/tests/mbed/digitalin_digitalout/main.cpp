@@ -11,6 +11,7 @@ DigitalOut out(D7);
 DigitalIn in(D2);
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -24,7 +25,9 @@ DigitalIn in(D2);
 DigitalOut out(PC_7);
 DigitalIn in(PB_8);
 
-#elif defined(TARGET_DISCO_F407VG)
+#elif defined(TARGET_DISCO_F407VG) || \
+      defined(TARGET_DISCO_F429ZI)|| \
+      defined(TARGET_DISCO_F401VC)
 DigitalOut out(PC_12);
 DigitalIn in(PD_0);
 
@@ -38,20 +41,24 @@ DigitalIn in(p25);
 
 #endif
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);
+    MBED_HOSTTEST_START("MBED_A5");
+
     out = 0;
     wait(0.1);
     if (in != 0) {
         printf("ERROR: in != 0\n");
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
     out = 1;
     wait(0.1);
     if (in != 1) {
         printf("ERROR: in != 1\n");
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
-    notify_completion(true);
+    MBED_HOSTTEST_RESULT(true);
 }

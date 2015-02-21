@@ -122,6 +122,12 @@ if __name__ == '__main__':
                       default=False,
                       help="Verbose diagnostic output")
 
+    parser.add_option("--silent",
+                      action="store_true",
+                      dest="silent",
+                      default=False,
+                      help="Silent diagnostic output (no copy, compile notification)")
+
     parser.add_option("-x", "--extra-verbose-notifications",
                       action="store_true",
                       dest="extra_verbose_notify",
@@ -213,14 +219,24 @@ if __name__ == '__main__':
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    lib_build_res = build_mbed_libs(mcu, toolchain, options=options.options,
-                                                    notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
+                    lib_build_res = build_mbed_libs(mcu, toolchain,
+                                                    options=options.options,
+                                                    notify=notify,
+                                                    verbose=options.verbose,
+                                                    silent=options.silent,
+                                                    jobs=options.jobs,
+                                                    clean=options.clean,
                                                     macros=options.macros)
                     for lib_id in libraries:
                         notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
-                        build_lib(lib_id, mcu, toolchain, options=options.options,
-                                  notify=notify, verbose=options.verbose, clean=options.clean,
-                                  macros=options.macros, jobs=options.jobs)
+                        build_lib(lib_id, mcu, toolchain,
+                                  options=options.options,
+                                  notify=notify,
+                                  verbose=options.verbose,
+                                  silent=options.silent,
+                                  clean=options.clean,
+                                  macros=options.macros,
+                                  jobs=options.jobs)
                     if lib_build_res:
                         successes.append(tt_id)
                     else:
@@ -234,6 +250,7 @@ if __name__ == '__main__':
                     print e
 
     # Write summary of the builds
+    print
     print "Completed in: (%.2f)s" % (time() - start)
     print
 

@@ -64,6 +64,7 @@
 #define PORT_2  Port0
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -90,6 +91,11 @@ PortOut port_out(PORT_1, MASK_1);
 PortIn  port_in (PORT_2, MASK_2);
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(PortOut PortIn);
+    MBED_HOSTTEST_START("MBED_A10");
+
     port_out = MASK_1;
     wait(0.1);
     int value = port_in.read();

@@ -67,6 +67,7 @@ int main()
 //SDFileSystem sd(p20, p22, p25, p24, "sd");
     SDFileSystem sd(p12, p13, p15, p14, "sd");
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -78,6 +79,8 @@ int main()
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L152RE)
     SDFileSystem sd(D11, D12, D13, D10, "sd");
+#elif defined(TARGET_LPC11U37H_401)
+    SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 #else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif

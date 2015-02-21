@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -142,22 +142,6 @@ typedef struct
 } UART_AdvFeatureInitTypeDef;
 
 /** 
-  * @brief  UART wake up from stop mode parameters  
-  */
-typedef struct                                      
-{
-  uint32_t WakeUpEvent;        /*!< Specifies which event will activat the Wakeup from Stop mode flag (WUF).
-                                    This parameter can be a value of @ref UART_WakeUp_from_Stop_Selection.
-                                    If set to UART_WAKEUP_ON_ADDRESS, the two other fields below must
-                                    be filled up. */
-  
-  uint16_t AddressLength;      /*!< Specifies whether the address is 4 or 7-bit long.
-                                    This parameter can be a value of @ref UART_WakeUp_Address_Length  */
-                                           
-  uint8_t Address;             /*!< UART/USART node address (7-bit long max) */
-} UART_WakeUpTypeDef;
-
-/** 
   * @brief HAL UART State structures definition  
   */ 
 typedef enum
@@ -171,19 +155,6 @@ typedef enum
   HAL_UART_STATE_TIMEOUT           = 0x03,    /*!< Timeout state                                      */
   HAL_UART_STATE_ERROR             = 0x04     /*!< Error                                              */
 }HAL_UART_StateTypeDef;
-
-/** 
-  * @brief  HAL UART Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_UART_ERROR_NONE      = 0x00,    /*!< No error            */
-  HAL_UART_ERROR_PE        = 0x01,    /*!< Parity error        */
-  HAL_UART_ERROR_NE        = 0x02,    /*!< Noise error         */
-  HAL_UART_ERROR_FE        = 0x04,    /*!< frame error         */
-  HAL_UART_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_UART_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
-}HAL_UART_ErrorTypeDef;
 
 /**
   * @brief UART clock sources definition
@@ -202,35 +173,36 @@ typedef enum
   */  
 typedef struct
 {
-  USART_TypeDef            *Instance;        /* UART registers base address        */
+  USART_TypeDef            *Instance;        /*!< UART registers base address        */
 
-  UART_InitTypeDef         Init;             /* UART communication parameters      */
+  UART_InitTypeDef         Init;             /*!< UART communication parameters      */
 
-  UART_AdvFeatureInitTypeDef AdvancedInit;   /* UART Advanced Features initialization parameters */
+  UART_AdvFeatureInitTypeDef AdvancedInit;   /*!< UART Advanced Features initialization parameters */
 
-  uint8_t                  *pTxBuffPtr;      /* Pointer to UART Tx transfer Buffer */
+  uint8_t                  *pTxBuffPtr;      /*!< Pointer to UART Tx transfer Buffer */
 
-  uint16_t                 TxXferSize;       /* UART Tx Transfer size              */
+  uint16_t                 TxXferSize;       /*!< UART Tx Transfer size              */
 
-  uint16_t                 TxXferCount;      /* UART Tx Transfer Counter           */
+  uint16_t                 TxXferCount;      /*!< UART Tx Transfer Counter           */
 
-  uint8_t                  *pRxBuffPtr;      /* Pointer to UART Rx transfer Buffer */
+  uint8_t                  *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
 
-  uint16_t                 RxXferSize;       /* UART Rx Transfer size              */
+  uint16_t                 RxXferSize;       /*!< UART Rx Transfer size              */
 
-  uint16_t                 RxXferCount;      /* UART Rx Transfer Counter           */
+  uint16_t                 RxXferCount;      /*!< UART Rx Transfer Counter           */
 
-  uint16_t                 Mask;             /* UART Rx RDR register mask          */
+  uint16_t                 Mask;             /*!< UART Rx RDR register mask          */
 
-  DMA_HandleTypeDef        *hdmatx;          /* UART Tx DMA Handle parameters      */
+  DMA_HandleTypeDef        *hdmatx;          /*!< UART Tx DMA Handle parameters      */
 
-  DMA_HandleTypeDef        *hdmarx;          /* UART Rx DMA Handle parameters      */
+  DMA_HandleTypeDef        *hdmarx;          /*!< UART Rx DMA Handle parameters      */
 
-  HAL_LockTypeDef           Lock;            /* Locking object                     */
+  HAL_LockTypeDef          Lock;             /*!< Locking object                     */
 
-  HAL_UART_StateTypeDef    State;            /* UART communication state           */
+  HAL_UART_StateTypeDef    State;            /*!< UART communication state           */
   
-  HAL_UART_ErrorTypeDef    ErrorCode;        /* UART Error code                    */
+  __IO uint32_t            ErrorCode;        /*!< UART Error code
+                                                  This parameter can be a value of @ref UART_Error */
   
 }UART_HandleTypeDef;
 
@@ -243,13 +215,28 @@ typedef struct
   * @{
   */
 
+/** @defgroup UART_Error UART Error
+  * @{
+  */
+#define HAL_UART_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error            */
+#define HAL_UART_ERROR_PE        ((uint32_t)0x00000001)    /*!< Parity error        */
+#define HAL_UART_ERROR_NE        ((uint32_t)0x00000002)    /*!< Noise error         */
+#define HAL_UART_ERROR_FE        ((uint32_t)0x00000004)    /*!< frame error         */
+#define HAL_UART_ERROR_ORE       ((uint32_t)0x00000008)    /*!< Overrun error       */
+#define HAL_UART_ERROR_DMA       ((uint32_t)0x00000010)    /*!< DMA transfer error  */
+/**
+  * @}
+  */ 
+
 /** @defgroup UART_Stop_Bits   UART Number of Stop Bits
   * @{
   */
 #define UART_STOPBITS_1                     ((uint32_t)0x0000)
 #define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
+#define UART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
 #define IS_UART_STOPBITS(STOPBITS) (((STOPBITS) == UART_STOPBITS_1) || \
-                                    ((STOPBITS) == UART_STOPBITS_2))
+                                    ((STOPBITS) == UART_STOPBITS_2) || \
+                                    ((STOPBITS) == UART_STOPBITS_1_5))
 /**
   * @}
   */ 

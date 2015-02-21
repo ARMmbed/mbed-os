@@ -33,6 +33,7 @@ NXP:
 * LPC810 (Cortex-M0+)
 * [LPC812](http://developer.mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
 * [EA LPC4088](http://developer.mbed.org/platforms/EA-LPC4088/) (Cortex-M4F)
+* [EA LPC4088 DM](http://developer.mbed.org/platforms/EA-LPC4088-Display-Module/) (Cortex-M4F)
 * LPC4330 (Cortex-M4F + Cortex-M0)
 * [LPC1347](http://developer.mbed.org/platforms/DipCortex-M3/) (Cortex-M3)
 * [LPC1114](http://developer.mbed.org/platforms/LPC1114FN28/) (Cortex-M0)

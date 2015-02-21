@@ -75,7 +75,7 @@
 //   <i> Defines the combined stack size for threads with user-provided stack size.
 //   <i> Default: 0
 #ifndef OS_PRIVSTKSIZE
- #define OS_PRIVSTKSIZE 4096
+ #define OS_PRIVSTKSIZE 8192
 #endif
 
 // <q>Check for stack overflow
@@ -90,7 +90,7 @@
 //   <1=> Privileged mode
 // <i> Default: Privileged mode
 #ifndef OS_RUNPRIV
- #define OS_RUNPRIV     0
+ #define OS_RUNPRIV     1
 #endif
 
 // </h>
@@ -107,7 +107,11 @@
 //   <i> Defines the timer clock value.
 //   <i> Default: 12000000  (12MHz)
 #ifndef OS_CLOCK
+#  if defined(TARGET_RZ_A1H)
  #define OS_CLOCK       12000000
+#  else
+#    error "no target defined"
+#  endif
 #endif
 
 //   <o>Timer tick value [us] <1-1000000>
@@ -161,7 +165,7 @@
 //   <i> Defines stack size for Timer thread.
 //   <i> Default: 200
 #ifndef OS_TIMERSTKSZ
- #define OS_TIMERSTKSZ  400
+ #define OS_TIMERSTKSZ  WORDS_STACK_SIZE
 #endif
 
 //   <o>Timer Callback Queue size <1-32>
@@ -194,7 +198,7 @@
 //  Define max. number system mutexes that are used to protect 
 //  the arm standard runtime library. For microlib they are not used.
 #ifndef OS_MUTEXCNT
- #define OS_MUTEXCNT    8
+ #define OS_MUTEXCNT    12
 #endif
 
 /*----------------------------------------------------------------------------
@@ -216,10 +220,6 @@ void os_idle_demon (void) {
 
   for (;;) {
     /* HERE: include optional user code to be executed when no thread runs.*/
-#if 0
-      __DSB();
-      __WFI();
-#endif
   }
 }
 

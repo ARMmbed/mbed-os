@@ -303,7 +303,7 @@ int USBHostMSD::getMaxLun() {
 
 int USBHostMSD::disk_initialize() {
     USB_DBG("FILESYSTEM: init");
-    U16 i, timeout = 10;
+    uint16_t i, timeout = 10;
 
     getMaxLun();
 

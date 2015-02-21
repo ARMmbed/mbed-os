@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -63,7 +63,8 @@
 /**
   * @brief  RCC extended clocks structure definition  
   */
-#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx)
+#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || \
+    defined(STM32F030xC)
 typedef struct
 {
   uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
@@ -79,7 +80,29 @@ typedef struct
                                       This parameter can be a value of @ref RCC_I2C1_Clock_Source */
 
 }RCC_PeriphCLKInitTypeDef;
-#endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx */
+#endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx ||
+          STM32F030xC */
+
+#if defined(STM32F070x6) || defined(STM32F070xB)
+typedef struct
+{
+  uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
+                                      This parameter can be a value of @ref RCCEx_Periph_Clock_Selection */
+
+  uint32_t RTCClockSelection;    /*!< Specifies RTC Clock Prescalers Selection 
+                                      This parameter can be a value of @ref RCC_RTC_Clock_Source */
+
+  uint32_t Usart1ClockSelection; /*!< USART1 clock source
+                                      This parameter can be a value of @ref RCC_USART1_Clock_Source */
+
+  uint32_t I2c1ClockSelection;   /*!< I2C1 clock source
+                                      This parameter can be a value of @ref RCC_I2C1_Clock_Source */
+
+  uint32_t UsbClockSelection;    /*!< USB clock source
+                                      This parameter can be a value of @ref RCCEx_USB_Clock_Source */                                      
+
+}RCC_PeriphCLKInitTypeDef;
+#endif /* STM32F070x6 || STM32F070xB */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)
 typedef struct
@@ -205,23 +228,9 @@ typedef struct
 }RCC_PeriphCLKInitTypeDef;
 #endif /* STM32F091xC || STM32F098xx */
 
-
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
-/** 
-  * @brief  RCC CRS Status structures definition  
-  */  
-typedef enum 
-{
-  RCC_CRS_NONE      = 0x00,
-  RCC_CRS_TIMEOUT   = 0x01,
-  RCC_CRS_SYNCOK    = 0x02,
-  RCC_CRS_SYNCWARM  = 0x04,
-  RCC_CRS_SYNCERR   = 0x08,
-  RCC_CRS_SYNCMISS  = 0x10,
-  RCC_CRS_TRIMOV    = 0x20
-} RCC_CRSStatusTypeDef;
 
 /** 
   * @brief RCC_CRS Init structure definition  
@@ -271,7 +280,7 @@ typedef struct
 
 }RCC_CRSSynchroInfoTypeDef;
 
-#endif /* STM32F042x6 || */
+#endif /* STM32F042x6 || STM32F048xx */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
@@ -285,17 +294,51 @@ typedef struct
   * @{
   */
 
+/** @defgroup RCCEx_CRS_Status RCCEx CRS Status
+  * @{
+  */
+#if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+
+#define RCC_CRS_NONE      ((uint32_t)0x00000000)
+#define RCC_CRS_TIMEOUT   ((uint32_t)0x00000001)
+#define RCC_CRS_SYNCOK    ((uint32_t)0x00000002)
+#define RCC_CRS_SYNCWARM  ((uint32_t)0x00000004)
+#define RCC_CRS_SYNCERR   ((uint32_t)0x00000008)
+#define RCC_CRS_SYNCMISS  ((uint32_t)0x00000010)
+#define RCC_CRS_TRIMOV    ((uint32_t)0x00000020)
+
+#endif /* STM32F042x6 || STM32F048xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
+/**
+  * @}
+  */
+
 /** @defgroup RCCEx_Periph_Clock_Selection RCCEx Periph Clock Selection
   * @{
   */
-#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx)
+#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || \
+    defined(STM32F030xC)
 #define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
 #define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
 #define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
 
 #define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
                                                      RCC_PERIPHCLK_RTC))
-#endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx */
+#endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || 
+          STM32F030xC */
+
+#if defined(STM32F070x6) || defined(STM32F070xB)
+#define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
+#define RCC_PERIPHCLK_I2C1             ((uint32_t)0x00000020)
+#define RCC_PERIPHCLK_RTC              ((uint32_t)0x00010000)
+#define RCC_PERIPHCLK_USB              ((uint32_t)0x00020000)
+
+#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
+                                                     RCC_PERIPHCLK_RTC    | RCC_PERIPHCLK_USB))
+#endif /* STM32F070x6 || STM32F070xB */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)
 #define RCC_PERIPHCLK_USART1           ((uint32_t)0x00000001)
@@ -365,7 +408,7 @@ typedef struct
   * @{
   */
   
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx)
+#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || defined(STM32F070xB) || defined(STM32F030xC)
 
 #define RCC_MCOSOURCE_PLLCLK_NODIV       (RCC_CFGR_MCO_PLL | RCC_CFGR_PLLNODIV)
 
@@ -379,7 +422,7 @@ typedef struct
                                    ((SOURCE) == RCC_MCOSOURCE_PLLCLK_DIV2)  || \
                                    ((SOURCE) == RCC_MCOSOURCE_HSI14))
 
-#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx */
+#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F070x6 || STM32F070xB || STM32F030xC */
 
 #if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
 
@@ -441,6 +484,20 @@ typedef struct
   */
 
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+
+#if defined(STM32F070x6) || defined(STM32F070xB)
+
+/** @defgroup RCCEx_USB_Clock_Source RCCEx USB Clock Source
+  * @{
+  */
+#define RCC_USBCLKSOURCE_PLLCLK          RCC_CFGR3_USBSW_PLLCLK
+
+#define IS_RCC_USBCLKSOURCE(SOURCE)  (((SOURCE) == RCC_USBCLKSOURCE_PLLCLK))
+/**
+  * @}
+  */
+
+#endif /* STM32F070x6 || STM32F070xB */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
@@ -554,12 +611,16 @@ typedef struct
 /**
   * @}
   */
-
 #else
 /** @defgroup RCCEx_PLL_Clock_Source RCCEx PLL Clock Source
   * @{
   */
+
+#if defined(STM32F070xB) || defined(STM32F070x6) || defined(STM32F030xC)
+#define RCC_PLLSOURCE_HSI                RCC_CFGR_PLLSRC_HSI_PREDIV
+#else
 #define RCC_PLLSOURCE_HSI                RCC_CFGR_PLLSRC_HSI_DIV2
+#endif
 
 #define IS_RCC_PLLSOURCE(SOURCE) (((SOURCE) == RCC_PLLSOURCE_HSI)   || \
                                   ((SOURCE) == RCC_PLLSOURCE_HSE))
@@ -608,10 +669,10 @@ typedef struct
 
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || \
-    defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F071xB) || \
+#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || \
+    defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F071xB) || defined(STM32F070xB) || \
     defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define RCC_MCO_DIV1                     ((uint32_t)0x00000000)
 #define RCC_MCO_DIV2                     ((uint32_t)0x10000000)
@@ -628,8 +689,8 @@ typedef struct
                             ((DIV) == RCC_MCO_DIV64) || ((DIV) == RCC_MCO_DIV128))
 
 #endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070x6 || STM32F070xB */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 /**
   * @}
@@ -760,13 +821,13 @@ typedef struct
   * @}
   */
 
-/**
-  * @}
-  */
-  
 #endif /* STM32F042x6 || STM32F048xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
+
+/**
+  * @}
+  */
 
 /* Exported macros ------------------------------------------------------------*/
 /** @defgroup RCCEx_Exported_Macros RCCEx Exported Macros
@@ -780,29 +841,29 @@ typedef struct
   *         using it.
   * @{
   */
-#if defined(STM32F030x6) || defined(STM32F030x8) ||                         \
-    defined(STM32F051x8) || defined(STM32F058xx) ||                         \
+#if defined(STM32F030x6) || defined(STM32F030x8) || \
+    defined(STM32F051x8) || defined(STM32F058xx) || defined(STM32F070xB) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __GPIOD_CLK_ENABLE()         (RCC->AHBENR |= (RCC_AHBENR_GPIODEN))
 
 #define __GPIOD_CLK_DISABLE()        (RCC->AHBENR &= ~(RCC_AHBENR_GPIODEN))
 
-#endif /* STM32F030x6 || STM32F030x8 ||                */
-       /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx |[ */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F030x6 || STM32F030x8 ||  */
+       /* STM32F051x8 || STM32F058xx || STM32F070xB || */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __GPIOE_CLK_ENABLE()         (RCC->AHBENR |= (RCC_AHBENR_GPIOEEN))
 
 #define __GPIOE_CLK_DISABLE()        (RCC->AHBENR &= ~(RCC_AHBENR_GPIOEEN))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
@@ -834,8 +895,8 @@ typedef struct
 #if defined(STM32F030x8) ||                                                 \
     defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __USART2_CLK_ENABLE()  (RCC->APB1ENR |= (RCC_APB1ENR_USART2EN))
 #define __SPI2_CLK_ENABLE()    (RCC->APB1ENR |= (RCC_APB1ENR_SPI2EN))
@@ -845,8 +906,8 @@ typedef struct
 
 #endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F031x6) || defined(STM32F038xx) ||                         \
     defined(STM32F042x6) || defined(STM32F048xx) ||                         \
@@ -866,8 +927,8 @@ typedef struct
 
 #if defined(STM32F030x8) ||                                                 \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __TIM6_CLK_ENABLE()    (RCC->APB1ENR |= (RCC_APB1ENR_TIM6EN))
 #define __I2C2_CLK_ENABLE()    (RCC->APB1ENR |= (RCC_APB1ENR_I2C2EN))
@@ -877,8 +938,8 @@ typedef struct
 
 #endif /* STM32F030x8 ||                               */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F051x8) || defined(STM32F058xx) ||                         \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
@@ -906,8 +967,8 @@ typedef struct
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) ||  \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __TIM7_CLK_ENABLE()    (RCC->APB1ENR |= (RCC_APB1ENR_TIM7EN))
 #define __USART3_CLK_ENABLE()  (RCC->APB1ENR |= (RCC_APB1ENR_USART3EN))
@@ -917,18 +978,18 @@ typedef struct
 #define __USART3_CLK_DISABLE() (RCC->APB1ENR &= ~(RCC_APB1ENR_USART3EN))
 #define __USART4_CLK_DISABLE() (RCC->APB1ENR &= ~(RCC_APB1ENR_USART4EN))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
-#if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
-    defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
+    defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)
 
 #define __USB_CLK_ENABLE()     (RCC->APB1ENR |= (RCC_APB1ENR_USBEN))
 
 #define __USB_CLK_DISABLE()    (RCC->APB1ENR &= ~(RCC_APB1ENR_USBEN))
 
-#endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F072xB || STM32F078xx    */
+#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 || */
+       /* STM32F072xB || STM32F078xx || STM32F070xB  */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || \
     defined(STM32F091xC) || defined(STM32F098xx)
@@ -951,40 +1012,46 @@ typedef struct
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __USART5_CLK_ENABLE()       (RCC->APB1ENR |= (RCC_APB1ENR_USART5EN))
 
 #define __USART5_CLK_DISABLE()      (RCC->APB1ENR &= ~(RCC_APB1ENR_USART5EN))
 
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 /** @brief  Enable or disable the High Speed APB (APB2) peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
   *         is disabled and the application software has to enable this clock before
   *         using it.
   */
-#if defined(STM32F030x8) || defined(STM32F042x6) || defined(STM32F048xx) || \
+#if defined(STM32F030x8) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC) 
 
 #define __TIM15_CLK_ENABLE()    (RCC->APB2ENR |= (RCC_APB2ENR_TIM15EN))
 
 #define __TIM15_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_TIM15EN))
 
-#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || */
+#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || STM32F070x6 || */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
+
+#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+
+#define __USART6_CLK_ENABLE()       (RCC->APB2ENR |= (RCC_APB2ENR_USART6EN))
+
+#define __USART6_CLK_DISABLE()      (RCC->APB2ENR &= ~(RCC_APB2ENR_USART6EN))
+
+#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 
-#define __USART6_CLK_ENABLE()       (RCC->APB2ENR |= (RCC_APB2ENR_USART6EN))
 #define __USART7_CLK_ENABLE()       (RCC->APB2ENR |= (RCC_APB2ENR_USART7EN))
 #define __USART8_CLK_ENABLE()       (RCC->APB2ENR |= (RCC_APB2ENR_USART8EN))
 
-#define __USART6_CLK_DISABLE()      (RCC->APB2ENR &= ~(RCC_APB2ENR_USART6EN))
 #define __USART7_CLK_DISABLE()      (RCC->APB2ENR &= ~(RCC_APB2ENR_USART7EN))
 #define __USART8_CLK_DISABLE()      (RCC->APB2ENR &= ~(RCC_APB2ENR_USART8EN))
 
@@ -1002,10 +1069,10 @@ typedef struct
 
 /** @brief  Force or release AHB peripheral reset.
   */
-#if defined(STM32F030x6) || defined(STM32F030x8) ||                         \
-    defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F030x6) || defined(STM32F030x8) || \
+    defined(STM32F051x8) || defined(STM32F058xx) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __GPIOD_FORCE_RESET()   (RCC->AHBRSTR |= (RCC_AHBRSTR_GPIODRST))
 
@@ -1013,18 +1080,18 @@ typedef struct
 
 #endif /* STM32F030x6 || STM32F030x8 ||                */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __GPIOE_FORCE_RESET()   (RCC->AHBRSTR |= (RCC_AHBRSTR_GPIOERST))
 
 #define __GPIOE_RELEASE_RESET() (RCC->AHBRSTR &= ~(RCC_AHBRSTR_GPIOERST))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
@@ -1043,10 +1110,10 @@ typedef struct
 /** @brief  Force or release APB1 peripheral reset.
   */
 #if defined(STM32F030x8) ||                                                 \
-    defined(STM32F042x6) || defined(STM32F048xx) ||                         \
+    defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __USART2_FORCE_RESET()   (RCC->APB1RSTR |= (RCC_APB1RSTR_USART2RST))
 #define __SPI2_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_SPI2RST))
@@ -1054,10 +1121,10 @@ typedef struct
 #define __USART2_RELEASE_RESET() (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USART2RST))
 #define __SPI2_RELEASE_RESET()   (RCC->APB1RSTR &= ~(RCC_APB1RSTR_SPI2RST))
 
-#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || */
+#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || STM32F070x6 || */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F031x6) || defined(STM32F038xx) ||                         \
     defined(STM32F042x6) || defined(STM32F048xx) ||                         \
@@ -1077,8 +1144,8 @@ typedef struct
 
 #if defined(STM32F030x8) ||                                                 \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) ||\
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __TIM6_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM6RST))
 #define __I2C2_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_I2C2RST))
@@ -1088,8 +1155,8 @@ typedef struct
 
 #endif /* STM32F030x8 ||                               */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F051x8) || defined(STM32F058xx) ||                         \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
@@ -1117,8 +1184,8 @@ typedef struct
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __TIM7_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM7RST))
 #define __USART3_FORCE_RESET()   (RCC->APB1RSTR |= (RCC_APB1RSTR_USART3RST))
@@ -1128,18 +1195,18 @@ typedef struct
 #define __USART3_RELEASE_RESET() (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USART3RST))
 #define __USART4_RELEASE_RESET() (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USART4RST))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
 
-#if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
-    defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) ||  \
+    defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)
 
 #define __USB_FORCE_RESET()      (RCC->APB1RSTR |= (RCC_APB1RSTR_USBRST))
 
 #define __USB_RELEASE_RESET()    (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USBRST))
 
-#endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F072xB || STM32F078xx    */
+#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 || */
+       /* STM32F072xB || STM32F078xx || STM32F070xB */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || \
     defined(STM32F091xC) || defined(STM32F098xx)
@@ -1163,38 +1230,44 @@ typedef struct
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __USART5_FORCE_RESET()    (RCC->APB1RSTR |= (RCC_APB1RSTR_USART5RST))
 
 #define __USART5_RELEASE_RESET()  (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USART5RST))
 
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 
 /** @brief  Force or release APB2 peripheral reset.
   */
-#if defined(STM32F030x8) || defined(STM32F042x6) || defined(STM32F048xx) || \
+#if defined(STM32F030x8) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 #define __TIM15_FORCE_RESET()    (RCC->APB2RSTR |= (RCC_APB2RSTR_TIM15RST))
 
 #define __TIM15_RELEASE_RESET()  (RCC->APB2RSTR &= ~(RCC_APB2RSTR_TIM15RST))
 
-#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || */
+#endif /* STM32F030x8 || STM32F042x6 || STM32F048xx || STM32F070x6 || */
        /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC */
+
+#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+
+#define __USART6_FORCE_RESET()    (RCC->APB2RSTR |= (RCC_APB2RSTR_USART6RST))
+
+#define __USART6_RELEASE_RESET()  (RCC->APB2RSTR &= ~(RCC_APB2RSTR_USART6RST))
+
+#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 
-#define __USART6_FORCE_RESET()    (RCC->APB2RSTR |= (RCC_APB2RSTR_USART6RST))
 #define __USART7_FORCE_RESET()    (RCC->APB2RSTR |= (RCC_APB2RSTR_USART7RST))
 #define __USART8_FORCE_RESET()    (RCC->APB2RSTR |= (RCC_APB2RSTR_USART8RST))
 
-#define __USART6_RELEASE_RESET()  (RCC->APB2RSTR &= ~(RCC_APB2RSTR_USART6RST))
 #define __USART7_RELEASE_RESET()  (RCC->APB2RSTR &= ~(RCC_APB2RSTR_USART7RST))
 #define __USART8_RELEASE_RESET()  (RCC->APB2RSTR &= ~(RCC_APB2RSTR_USART8RST))
 
@@ -1250,13 +1323,14 @@ typedef struct
 /** @defgroup RCCEx_Peripheral_Clock_Source_Config RCCEx Peripheral Clock Source Config
   * @{
   */
-#if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
-    defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) ||  \
+    defined(STM32F072xB) || defined(STM32F078xx) ||  \
+    defined(STM32F070x6) || defined(STM32F070xB)
 
 /** @brief  Macro to configure the USB clock (USBCLK).
   * @param  __USBCLKSource__: specifies the USB clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock
+  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock (not available for STM32F070x6 & STM32F070xB)
   *            @arg RCC_USBCLKSOURCE_PLLCLK: PLL Clock selected as USB clock
   */
 #define __HAL_RCC_USB_CONFIG(__USBCLKSource__) \
@@ -1264,13 +1338,14 @@ typedef struct
 
 /** @brief  Macro to get the USB clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock
+  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock (not available for STM32F070x6 & STM32F070xB)
   *            @arg RCC_USBCLKSOURCE_PLLCLK: PLL Clock selected as USB clock
   */
 #define __HAL_RCC_GET_USB_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USBSW)))
 
 #endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F072xB || STM32F078xx */
+       /* STM32F072xB || STM32F078xx || */
+       /* STM32F070x6 || STM32F070xB    */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
@@ -1299,9 +1374,9 @@ typedef struct
        /* STM32F091xC || defined(STM32F098xx) */
 
 #if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || \
-    defined(STM32F042x6) || defined(STM32F048xx) ||                         \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
 /** @brief  Macro to configure the MCO clock.
   * @param  __MCOCLKSource__: specifies the MCO clock source.
@@ -1348,10 +1423,33 @@ typedef struct
 #define __HAL_RCC_MCO_CONFIG(__MCOCLKSource__, __MCODiv__) \
                  MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, __MCOCLKSource__)
 
-#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || */
-       /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F070x6 || */
+       /* STM32F042x6 || STM32F048xx ||                               */
+       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
+       /* STM32F091xC || STM32F098xx || STM32F030xC                   */
+                   
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+/** @brief  Macro to configure the USART2 clock (USART2CLK).
+  * @param  __USART2CLKSource__: specifies the USART2 clock source.
+  *         This parameter can be one of the following values:
+  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
+  */
+#define __HAL_RCC_USART2_CONFIG(__USART2CLKSource__) \
+                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART2SW, (uint32_t)(__USART2CLKSource__))
+
+/** @brief  Macro to get the USART2 clock source.
+  * @retval The clock source can be one of the following values:
+  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
+  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
+  */
+#define __HAL_RCC_GET_USART2_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USART2SW)))
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx*/
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 /** @brief  Macro to configure the USART3 clock (USART3CLK).
@@ -1374,7 +1472,7 @@ typedef struct
   */
 #define __HAL_RCC_GET_USART3_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USART3SW)))
 
-#endif /*STM32F091xC || STM32F098xx*/
+#endif /* STM32F091xC || STM32F098xx */
 /**
   * @}
   */
@@ -1551,7 +1649,7 @@ void                  HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *Pe
 void                  HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit);
 void                  HAL_RCCEx_CRSSoftwareSynchronizationGenerate(void);
 void                  HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo);
-RCC_CRSStatusTypeDef  HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout);
+uint32_t              HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout);
 #endif /* STM32F042x6 || STM32F048xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */

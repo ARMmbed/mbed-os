@@ -64,6 +64,7 @@
 #define PORT_2  Port0
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -90,6 +91,11 @@ PortInOut port1(PORT_1, MASK_1);
 PortInOut port2(PORT_2, MASK_2);
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(PortInOut);
+    MBED_HOSTTEST_START("MBED_A11");
+
     bool check = true;
 
     port1.output();
@@ -110,5 +116,5 @@ int main() {
     port2 = 0; wait(0.1);
     if (port1 != 0) check = false;
 
-    notify_completion(check);
+    MBED_HOSTTEST_RESULT(check);
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Extended RCC HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -952,16 +952,17 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
        /* STM32F091xC || STM32F098xx */
     else
     {
-#if defined(STM32F042x6) || defined(STM32F048xx) || \
-    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || \
+    defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
       /* HSI used as PLL clock source : PLLCLK = HSI/PREDIV * PLLMUL */
       pllclk = (HSI_VALUE/prediv) * pllmul;
 #else
       /* HSI used as PLL clock source : PLLCLK = HSI/2 * PLLMUL */
       pllclk = (HSI_VALUE >> 1) * pllmul;
-#endif /* STM32F042x6 || STM32F048xx || STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 || 
+          STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB
+          STM32F091xC || STM32F098xx || STM32F030xC */
     }
     sysclockfreq = pllclk;
     break;
@@ -1100,7 +1101,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     __HAL_RCC_I2C1_CONFIG(PeriphClkInit->I2c1ClockSelection);
   }
 
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F070x6)
   /*------------------------------ USB Configuration ------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USB) == RCC_PERIPHCLK_USB)
   {
@@ -1110,7 +1111,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* Configure the USB clock source */
     __HAL_RCC_USB_CONFIG(PeriphClkInit->UsbClockSelection);
   }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F070xB || STM32F070x6 */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
@@ -1167,11 +1168,11 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   PeriphClkInit->Usart3ClockSelection = __HAL_RCC_GET_USART3_SOURCE();
 #endif /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F070x6)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USB;
   /* Get the USB clock source ---------------------------------------------*/
   PeriphClkInit->UsbClockSelection = __HAL_RCC_GET_USB_SOURCE();
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F070xB || STM32F070x6 */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) ||                         \
     defined(STM32F051x8) || defined(STM32F058xx) ||                         \
@@ -1271,7 +1272,7 @@ void HAL_RCCEx_CRSSoftwareSynchronizationGenerate(void)
 void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo)
 {
   /* Check the parameter */
-  assert_param(pSynchroInfo != HAL_NULL);
+  assert_param(pSynchroInfo != NULL);
   
   /* Get the reload value */
   pSynchroInfo->ReloadValue = (uint32_t)(CRS->CFGR & CRS_CFGR_RELOAD);
@@ -1303,9 +1304,9 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
 *            @arg RCC_CRS_SYNCMISS
 *            @arg RCC_CRS_TRIMOV
 */
-RCC_CRSStatusTypeDef HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
+uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
 {
-  RCC_CRSStatusTypeDef crsstatus = RCC_CRS_NONE;
+  uint32_t crsstatus = RCC_CRS_NONE;
   uint32_t tickstart = 0;
   
   /* Get timeout */

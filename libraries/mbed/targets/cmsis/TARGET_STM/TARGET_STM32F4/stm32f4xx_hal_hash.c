@@ -155,7 +155,7 @@ static void HASH_WriteData(uint8_t *pInBuffer, uint32_t Size);
 HAL_StatusTypeDef HAL_HASH_Init(HASH_HandleTypeDef *hhash)
 {
   /* Check the hash handle allocation */
-  if(hhash == NULL)
+  if(hhash == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -200,7 +200,7 @@ HAL_StatusTypeDef HAL_HASH_Init(HASH_HandleTypeDef *hhash)
 HAL_StatusTypeDef HAL_HASH_DeInit(HASH_HandleTypeDef *hhash)
 { 
   /* Check the HASH handle allocation */
-  if(hhash == NULL)
+  if(hhash == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -898,11 +898,11 @@ void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash)
   switch(HASH->CR & HASH_CR_ALGO)
   {
     case HASH_AlgoSelection_MD5:
-       HAL_HASH_MD5_Start_IT(hhash, NULL, 0, NULL);
+       HAL_HASH_MD5_Start_IT(hhash, HAL_NULL, 0, HAL_NULL);
     break;
     
     case HASH_AlgoSelection_SHA1:
-      HAL_HASH_SHA1_Start_IT(hhash, NULL, 0, NULL);
+      HAL_HASH_SHA1_Start_IT(hhash, HAL_NULL, 0, HAL_NULL);
     break;
     
     default:

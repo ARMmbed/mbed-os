@@ -25,6 +25,7 @@ class CodeRed(Exporter):
     TARGETS = [
         'LPC1768',
         'LPC4088',
+        'LPC4088_DM',
         'LPC4330_M4',
         'LPC1114',
         'LPC11U35_401',
@@ -34,6 +35,8 @@ class CodeRed(Exporter):
         'LPC1549',
         'LPC11U68',
         'LPCCAPPUCCINO',
+        'LPC824',
+        'LPC11U37H_401',
     ]
 
     def generate(self):

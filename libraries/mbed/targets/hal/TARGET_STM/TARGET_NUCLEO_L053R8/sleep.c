@@ -37,31 +37,25 @@ static TIM_HandleTypeDef TimMasterHandle;
 
 void sleep(void)
 {
-    // Disable us_ticker update interrupt
     TimMasterHandle.Instance = TIM21;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
+
+    // Disable HAL tick interrupt
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
-    // Re-enable us_ticker update interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
 void deepsleep(void)
 {
-    // Disable us_ticker update interrupt
-    TimMasterHandle.Instance = TIM21;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
-
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
-
-    // Re-enable us_ticker update interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE);
 }
 
 #endif

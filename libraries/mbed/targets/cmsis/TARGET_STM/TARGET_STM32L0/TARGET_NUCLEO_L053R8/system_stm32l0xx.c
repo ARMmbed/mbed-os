@@ -80,6 +80,7 @@
   */
 
 #include "stm32l0xx.h"
+#include "hal_tick.h"
 
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
@@ -209,11 +210,16 @@ void SystemInit (void)
 #endif
 
   /* Configure the Cube driver */
+  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
   HAL_Init();
 
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
+
+  /* Reset the timer to avoid issues after the RAM initialization */
+  TIM_MST_RESET_ON;
+  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -448,12 +454,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
   
   return 1; // OK
-}
-
-/* Used for the different timeouts in the HAL */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
 }
 
 /**

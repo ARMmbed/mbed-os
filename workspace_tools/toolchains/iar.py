@@ -30,8 +30,8 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None):
-        mbedToolchain.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         c_flags = [
             "--cpu=%s" % target.core, "--thumb",
@@ -104,7 +104,7 @@ class IAR(mbedToolchain):
         self.default_cmd([self.ar, lib_path] + objects)
 
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map]
+        args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
     @hook_tool

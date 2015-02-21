@@ -18,32 +18,30 @@ limitations under the License.
 import re
 import random
 from time import time
-from host_test import DefaultTest
 
-
-class StdioTest(DefaultTest):
+class StdioTest():
     PATTERN_INT_VALUE = "Your value was: (-?\d+)"
     re_detect_int_value = re.compile(PATTERN_INT_VALUE)
 
-    def test(self):
+    def test(self, selftest):
         test_result = True
 
-        c = self.mbed.serial_readline() # {{start}} preamble
+        c = selftest.mbed.serial_readline() # {{start}} preamble
         if c is None:
-            return self.RESULT_IO_SERIAL
-        self.notify(c)
+            return selftest.RESULT_IO_SERIAL
+        selftest.notify(c)
 
         for i in range(0, 10):
             random_integer = random.randint(-99999, 99999)
-            self.notify("HOST: Generated number: " + str(random_integer))
+            selftest.notify("HOST: Generated number: " + str(random_integer))
             start = time()
-            self.mbed.serial_write(str(random_integer) + "\n")
+            selftest.mbed.serial_write(str(random_integer) + "\n")
 
-            serial_stdio_msg = self.mbed.serial_readline()
+            serial_stdio_msg = selftest.mbed.serial_readline()
             if serial_stdio_msg is None:
-                return self.RESULT_IO_SERIAL
+                return selftest.RESULT_IO_SERIAL
             delay_time = time() - start
-            self.notify(serial_stdio_msg.strip())
+            selftest.notify(serial_stdio_msg.strip())
 
             # Searching for reply with scanned values
             m = self.re_detect_int_value.search(serial_stdio_msg)
@@ -51,12 +49,8 @@ class StdioTest(DefaultTest):
                 int_value = m.groups()[0]
                 int_value_cmp = random_integer == int(int_value)
                 test_result = test_result and int_value_cmp
-                self.notify("HOST: Number %s read after %.3f sec ... [%s]"% (int_value, delay_time, "OK" if int_value_cmp else "FAIL"))
+                selftest.notify("HOST: Number %s read after %.3f sec ... [%s]"% (int_value, delay_time, "OK" if int_value_cmp else "FAIL"))
             else:
                 test_result = False
                 break
-        return self.RESULT_SUCCESS if test_result else self.RESULT_FAILURE
-
-
-if __name__ == '__main__':
-    StdioTest().run()
+        return selftest.RESULT_SUCCESS if test_result else selftest.RESULT_FAILURE

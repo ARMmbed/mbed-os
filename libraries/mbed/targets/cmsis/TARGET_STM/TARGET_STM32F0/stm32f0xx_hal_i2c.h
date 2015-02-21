@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -121,27 +121,6 @@ typedef enum
   * @}
   */
 
-/** @defgroup I2C_Error_Code_structure_definition I2C Error Code structure definition
-  * @brief  I2C Error Code structure definition  
-  * @{
-  */  
-
-typedef enum
-{
-  HAL_I2C_ERROR_NONE      = 0x00,    /*!< No error              */
-  HAL_I2C_ERROR_BERR      = 0x01,    /*!< BERR error            */
-  HAL_I2C_ERROR_ARLO      = 0x02,    /*!< ARLO error            */   
-  HAL_I2C_ERROR_AF        = 0x04,    /*!< AF error              */
-  HAL_I2C_ERROR_OVR       = 0x08,    /*!< OVR error             */
-  HAL_I2C_ERROR_DMA       = 0x10,    /*!< DMA transfer error    */
-  HAL_I2C_ERROR_TIMEOUT   = 0x20,    /*!< Timeout error         */
-  HAL_I2C_ERROR_SIZE      = 0x40     /*!< Size Management error */
-}HAL_I2C_ErrorTypeDef;
-
-/**
-  * @}
-  */
-
 /** @defgroup I2C_handle_Structure_definition I2C handle Structure definition 
   * @brief  I2C handle Structure definition   
   * @{
@@ -167,7 +146,8 @@ typedef struct
 
   __IO HAL_I2C_StateTypeDef  State;      /*!< I2C communication state        */
 
-  __IO HAL_I2C_ErrorTypeDef  ErrorCode;  /* I2C Error code                   */
+  __IO uint32_t              ErrorCode;  /*!< I2C Error code
+                                              This parameter can be a value of @ref I2C_Error   */
 
 }I2C_HandleTypeDef;
 /**
@@ -182,6 +162,25 @@ typedef struct
 /** @defgroup I2C_Exported_Constants I2C Exported Constants
   * @{
   */
+
+/** @defgroup I2C_Error I2C Error
+  * @brief  I2C Error  
+  * @{
+  */  
+
+#define HAL_I2C_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error              */
+#define HAL_I2C_ERROR_BERR      ((uint32_t)0x00000001)    /*!< BERR error            */
+#define HAL_I2C_ERROR_ARLO      ((uint32_t)0x00000002)    /*!< ARLO error            */   
+#define HAL_I2C_ERROR_AF        ((uint32_t)0x00000004)    /*!< AF error              */
+#define HAL_I2C_ERROR_OVR       ((uint32_t)0x00000008)    /*!< OVR error             */
+#define HAL_I2C_ERROR_DMA       ((uint32_t)0x00000010)    /*!< DMA transfer error    */
+#define HAL_I2C_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error         */
+#define HAL_I2C_ERROR_SIZE      ((uint32_t)0x00000040)    /*!< Size Management error */
+
+/**
+  * @}
+  */
+
 
 /** @defgroup I2C_addressing_mode I2C addressing mode
   * @{
