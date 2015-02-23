@@ -68,7 +68,7 @@
 //   <i> Defines the number of threads with user-provided stack size.
 //   <i> Default: 0
 #ifndef OS_PRIVCNT
- #define OS_PRIVCNT     8
+ #define OS_PRIVCNT     10
 #endif
 
 //   <o>Total stack size [bytes] for threads with user-provided stack size <0-4096:8><#/4>
