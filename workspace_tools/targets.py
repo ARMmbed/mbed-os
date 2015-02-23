@@ -415,6 +415,8 @@ class K20D50M(Target):
         self.detect_code = ["0230"]
 
 class TEENSY3_1(Target):
+    OUTPUT_EXT = '.hex'
+    
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -423,7 +425,6 @@ class TEENSY3_1(Target):
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
 
-        OUTPUT_EXT = '.hex'
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:

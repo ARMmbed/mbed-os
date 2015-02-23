@@ -38,8 +38,9 @@ class RTCTest():
                 sec = int(m.groups()[0])
                 time_str = m.groups()[1]
                 correct_time_str = strftime("%Y-%m-%d %H:%M:%S %p", gmtime(float(sec)))
-                test_result = test_result and (time_str == correct_time_str)
-                result_msg = "OK" if (time_str == correct_time_str and sec > 0 and sec > sec_prev) else "FAIL"
+                single_result = time_str == correct_time_str and sec > 0 and sec > sec_prev
+                test_result = test_result and single_result
+                result_msg = "OK" if single_result else "FAIL"
                 selftest.notify("HOST: [%s] [%s] received time %+d sec after %.2f sec... %s"% (sec, time_str, sec - sec_prev, delta, result_msg))
                 sec_prev = sec
             else:

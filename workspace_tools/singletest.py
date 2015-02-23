@@ -137,14 +137,16 @@ if __name__ == '__main__':
     test_spec = None
     MUTs = None
 
-    if opts.auto_detect:
+    if hasattr(opts, 'auto_detect') and opts.auto_detect:
+        # If auto_detect attribute is present, we assume other auto-detection
+        # parameters like 'toolchains_filter' are also set.
         print "MBEDLS: Detecting connected mbed-enabled devices... "
 
         if get_module_avail('mbed_lstools'):
             mbeds = mbed_lstools.create()
             muts_list = mbeds.list_mbeds()
             for mut in muts_list:
-                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name'], 
+                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name'],
                                         mut['serial_port'],
                                         mut['mount_point'])
 
