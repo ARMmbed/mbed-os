@@ -174,15 +174,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         us_ticker_init();
     }
 
-    if (us_ticker_callbackPending) {
-        return;
-    }
-
     uint32_t callbackTime       = MICROSECONDS_TO_RTC_UNITS(timestamp);
     NRF_RTC1->CC[0]             = callbackTime & MAX_RTC_COUNTER_VAL;
     us_ticker_callbackTimestamp = callbackTime;
-    us_ticker_callbackPending   = true;
-    rtc1_enableCompareInterrupt();
+    if (!us_ticker_callbackPending) {
+        us_ticker_callbackPending = true;
+        rtc1_enableCompareInterrupt();
+    }
 }
 
 void us_ticker_disable_interrupt(void)
