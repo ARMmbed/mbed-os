@@ -19,12 +19,12 @@
 
 namespace mbed {
 
-SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName _unused) :
+SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
         _spi(),
         _bits(8),
         _mode(0),
         _hz(1000000) {
-    spi_init(&_spi, mosi, miso, sclk, NC);
+    spi_init(&_spi, mosi, miso, sclk, ssel);
     spi_format(&_spi, _bits, _mode, 0);
     spi_frequency(&_spi, _hz);
 }
