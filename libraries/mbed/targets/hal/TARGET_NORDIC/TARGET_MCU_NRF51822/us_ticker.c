@@ -22,16 +22,16 @@
 #include "nrf_delay.h"
 #include "app_util_platform.h"
 
- /*
-  * Note: The micro-second timer API on the nRF51 platform is implemented using
-  * the RTC counter run at 32kHz (sourced from an external oscillator). This is
-  * a trade-off between precision and power. Running a normal 32-bit MCU counter
-  * at high frequency causes the average power consumption to rise to a few
-  * hundred micro-amps, which is prohibitive for typical low-power BLE
-  * applications.
-  * A 32kHz clock doesn't offer the precision needed for keeping u-second time,
-  * but we're assuming that this will not be a problem for the average user.
-  */
+/*
+ * Note: The micro-second timer API on the nRF51 platform is implemented using
+ * the RTC counter run at 32kHz (sourced from an external oscillator). This is
+ * a trade-off between precision and power. Running a normal 32-bit MCU counter
+ * at high frequency causes the average power consumption to rise to a few
+ * hundred micro-amps, which is prohibitive for typical low-power BLE
+ * applications.
+ * A 32kHz clock doesn't offer the precision needed for keeping u-second time,
+ * but we're assuming that this will not be a problem for the average user.
+ */
 
 #define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
 #define RTC_CLOCK_FREQ          (uint32_t)(32768 / (CFG_TIMER_PRESCALER + 1))
@@ -71,7 +71,8 @@ static __INLINE void rtc1_disableOverflowInterrupt(void)
     NRF_RTC1->EVTENCLR = RTC_EVTEN_OVRFLW_Msk;
 }
 
-/**@brief Function for starting the RTC1 timer. The RTC timer is expected to
+/**
+ * @brief Function for starting the RTC1 timer. The RTC timer is expected to
  * keep running--some interrupts may be disabled temporarily.
  *
  * @param[in] prescaler   Value of the RTC1 PRESCALER register. Set to 0 for no prescaling.
@@ -90,7 +91,8 @@ static void rtc1_start(uint32_t prescaler)
     nrf_delay_us(MAX_RTC_TASKS_DELAY);
 }
 
-/**@brief Function for stopping the RTC1 timer. We don't expect to call this.
+/**
+ * @brief Function for stopping the RTC1 timer. We don't expect to call this.
  */
 void rtc1_stop(void)
 {
@@ -106,7 +108,8 @@ void rtc1_stop(void)
 }
 
 
-/**@brief Function for returning the current value of the RTC1 counter.
+/**
+ * @brief Function for returning the current value of the RTC1 counter.
  *
  * @return     Current RTC1 counter as a 32-bit value (even though the underlying counter is 24-bit)
  */
@@ -120,7 +123,8 @@ static __INLINE uint32_t rtc1_getCounter(void)
     return overflowBits | NRF_RTC1->COUNTER;
 }
 
-/**@brief Function for handling the RTC1 interrupt.
+/**
+ * @brief Function for handling the RTC1 interrupt.
  *
  * @details Checks for timeouts, and executes timeout handlers for expired timers.
  */
@@ -190,6 +194,6 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
-    NRF_RTC1->EVENTS_OVRFLW    = 0;
+    NRF_RTC1->EVENTS_OVRFLW     = 0;
     NRF_RTC1->EVENTS_COMPARE[0] = 0;
 }
