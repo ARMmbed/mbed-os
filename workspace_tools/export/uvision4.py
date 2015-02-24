@@ -71,6 +71,7 @@ class Uvision4(Exporter):
         'SEEED_TINY_BLE',
         'LPC11U37H_401',
 		'DELTA_DFCM_NNN40',
+        'NZ32ST1L',
     ]
 
     USING_MICROLIB = [
@@ -95,6 +96,7 @@ class Uvision4(Exporter):
         'LPC11U35_501',
         'KL05Z',
         'LPC11U37H_401',
+        'NZ32ST1L',
     ]
 
     FILE_TYPES = {

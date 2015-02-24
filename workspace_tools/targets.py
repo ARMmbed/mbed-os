@@ -722,6 +722,14 @@ class UBLOX_C029(Target):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class NZ32ST1L(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L151RC']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+
 
 ### Nordic ###
 
@@ -1043,6 +1051,7 @@ TARGETS = [
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439
+    NZ32ST1L(),     # STM32L151
 
     ### Nordic ###
     NRF51822(),
