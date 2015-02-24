@@ -695,7 +695,7 @@ class MTS_MDOT_F411RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
 
-class SEMTECH_LORA915(Target):
+class MOTE_L152RC(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M3"
@@ -1049,7 +1049,7 @@ TARGETS = [
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
     MTS_MDOT_F411RE(),
-    SEMTECH_LORA915(),
+    MOTE_L152RC(),
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439

@@ -58,7 +58,7 @@ class IAREmbeddedWorkbench(Exporter):
         'MTS_MDOT_F411RE',
         'MTS_DRAGONFLY_F411RE',
         'NRF51822',
-        'SEMTECH_LORA915',
+        'MOTE_L152RC',
     ]
 
     def generate(self):

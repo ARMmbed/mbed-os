@@ -71,7 +71,7 @@ class Uvision4(Exporter):
         'SEEED_TINY_BLE',
         'LPC11U37H_401',
 		'DELTA_DFCM_NNN40',
-		'SEMTECH_LORA915',
+		'MOTE_L152RC',
     ]
 
     USING_MICROLIB = [
@@ -96,7 +96,7 @@ class Uvision4(Exporter):
         'LPC11U35_501',
         'KL05Z',
         'LPC11U37H_401',
-		'SEMTECH_LORA915',
+		'MOTE_L152RC',
     ]
 
     FILE_TYPES = {
