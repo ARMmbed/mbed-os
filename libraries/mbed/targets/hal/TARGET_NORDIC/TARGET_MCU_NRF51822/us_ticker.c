@@ -39,7 +39,7 @@
 #define MAX_RTC_TASKS_DELAY     47                                          /**< Maximum delay until an RTC task is executed. */
 
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
-#define MICROSECONDS_TO_RTC_UNITS(MICROS)    (((uint64_t)(MICROS) * RTC_CLOCK_FREQ) / 1000000)
+#define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
 static bool              m_rtc1_running            = false;                 /**< Boolean indicating if RTC1 is running. */
 
