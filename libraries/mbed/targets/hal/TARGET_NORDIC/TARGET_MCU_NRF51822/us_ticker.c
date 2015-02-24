@@ -100,7 +100,7 @@ static void rtc1_start(uint32_t prescaler)
 
 /**@brief Function for stopping the RTC1 timer. We don't expect to call this.
  */
-static void rtc1_stop(void)
+void rtc1_stop(void)
 {
     if (!m_rtc1_running) {
         return;
