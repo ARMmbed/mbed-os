@@ -46,14 +46,17 @@ static bool test_once() {
 }
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Interrupt vector relocation);
+    MBED_HOSTTEST_START("MBED_A18");
 
     // First test, no table reallocation
     {
         printf("Starting first test (interrupts not relocated).\r\n");
         bool ret = test_once();
         if (ret == false) {
-            notify_completion(false);
-            return 1;
+            MBED_HOSTTEST_RESULT(false);
         }
     }
 
@@ -65,11 +68,9 @@ int main() {
 
         bool ret = test_once();
         if (ret == false) {
-            notify_completion(false);
-            return 1;
+            MBED_HOSTTEST_RESULT(false);
         }
     }
 
-    notify_completion(true);
-    return 0;
+    MBED_HOSTTEST_RESULT(true);
 }

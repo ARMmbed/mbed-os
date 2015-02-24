@@ -17,6 +17,8 @@ limitations under the License.
 
 import re
 import tempfile
+import colorama
+
 
 from types import ListType
 from shutil import rmtree

@@ -86,7 +86,7 @@
 //                   <2=> Reserved
 //                   <3=> CLKIN. External clock input.
 //   </h>
-#define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000
+#define SYSPLLCLKSEL_Val      0x00000001              // Reset: 0x000
 //
 //   <h> Main Clock Source Select Register (MAINCLKSEL)
 //     <o.0..1>   SEL: Clock Source for Main Clock

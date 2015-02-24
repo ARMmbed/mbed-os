@@ -7,19 +7,23 @@
  */
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(stdio_auto);
+    MBED_HOSTTEST_DESCRIPTION(stdio);
+    MBED_HOSTTEST_START("MBED_2");
+
     DigitalOut led1(LED1);
     DigitalOut led2(LED2);
-    
+
     union {
         int value_int;
     };
 
-    notify_start();
+    notify_start(); // Just to sync with host test supervisor
 
     const char* PRINT_PATTERN = "MBED: Your value was: %d\r\n";
-    
-    while (true)
-    {
+
+    while (true) {
         // SCANF PRINTF family
         value_int = 0;
         led1 = 1;

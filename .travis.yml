@@ -1,5 +1,8 @@
 --- 
-install: "sudo $TRAVIS_BUILD_DIR/travis/install_dependencies.sh > /dev/null"
 python: 
   - "2.7"
 script: "python workspace_tools/build_travis.py"
+install:
+  - "sudo $TRAVIS_BUILD_DIR/travis/install_dependencies.sh > /dev/null"
+  - sudo pip install colorama
+  - sudo pip install prettytable
