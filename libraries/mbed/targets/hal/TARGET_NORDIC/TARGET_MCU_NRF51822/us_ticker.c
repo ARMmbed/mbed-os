@@ -41,8 +41,6 @@
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
-static bool              m_rtc1_running            = false;                 /**< Boolean indicating if RTC1 is running. */
-
 static bool              us_ticker_inited          = false;
 static volatile uint32_t overflowBits;                                      /**< The upper 8 bits of the 32-bit value returned by rtc1_getCounter() */
 
@@ -80,10 +78,6 @@ static __INLINE void rtc1_disableOverflowInterrupt(void)
  */
 static void rtc1_start(uint32_t prescaler)
 {
-    if (m_rtc1_running) {
-        return;
-    }
-
     NRF_RTC1->PRESCALER = prescaler;
 
     rtc1_enableOverflowInterrupt();
@@ -94,18 +88,12 @@ static void rtc1_start(uint32_t prescaler)
 
     NRF_RTC1->TASKS_START = 1;
     nrf_delay_us(MAX_RTC_TASKS_DELAY);
-
-    m_rtc1_running = true;
 }
 
 /**@brief Function for stopping the RTC1 timer. We don't expect to call this.
  */
 void rtc1_stop(void)
 {
-    if (!m_rtc1_running) {
-        return;
-    }
-
     NVIC_DisableIRQ(RTC1_IRQn);
     rtc1_disableCompareInterrupt();
     rtc1_disableOverflowInterrupt();
@@ -115,8 +103,6 @@ void rtc1_stop(void)
 
     NRF_RTC1->TASKS_CLEAR = 1;
     nrf_delay_us(MAX_RTC_TASKS_DELAY);
-
-    m_rtc1_running = false;
 }
 
 
