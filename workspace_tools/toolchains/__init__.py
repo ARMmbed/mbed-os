@@ -633,6 +633,8 @@ class mbedToolchain:
 
     def link_program(self, r, tmp_path, name):
         ext = 'bin'
+        if hasattr(self.target, 'OUTPUT_EXT'):
+            ext = self.target.OUTPUT_EXT
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
             self.var("binary_naming", self.target.OUTPUT_NAMING)
@@ -641,7 +643,6 @@ class mbedToolchain:
                 ext = ext[0:3]
 
         filename = name+'.'+ext
-
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
 
@@ -656,9 +657,6 @@ class mbedToolchain:
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
-
-        if hasattr(self.target, 'OUTPUT_EXT'):
-            bin = bin.replace('.bin', self.target.OUTPUT_EXT)
 
         return bin
 
