@@ -43,6 +43,11 @@ struct spi_s {
     unsigned char spi_n;
 };
 
+struct pwmout_s {
+     LPC_SCT_TypeDef* pwm;
+     uint32_t pwm_ch;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
