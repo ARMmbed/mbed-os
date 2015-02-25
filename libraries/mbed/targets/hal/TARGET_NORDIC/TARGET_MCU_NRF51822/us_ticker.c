@@ -174,7 +174,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         us_ticker_init();
     }
 
-    uint32_t callbackTime       = MICROSECONDS_TO_RTC_UNITS(timestamp);
+    uint32_t callbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
+    if (us_ticker_callbackPending && (callbackTime == us_ticker_callbackTimestamp)) {
+        return;
+    }
     NRF_RTC1->CC[0]             = callbackTime & MAX_RTC_COUNTER_VAL;
     us_ticker_callbackTimestamp = callbackTime;
     if (!us_ticker_callbackPending) {
