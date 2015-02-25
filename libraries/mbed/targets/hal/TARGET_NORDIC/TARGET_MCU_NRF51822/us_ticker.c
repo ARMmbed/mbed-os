@@ -187,6 +187,7 @@ void us_ticker_disable_interrupt(void)
 {
     if (us_ticker_callbackPending) {
         rtc1_disableCompareInterrupt();
+        us_ticker_callbackPending = false;
     }
 }
 
