@@ -77,6 +77,10 @@ void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t
         prev = p;
         p = p->next;
     }
+
+    /* if we're at the end p will be NULL, which is correct */
+    obj->next = p;
+
     /* if prev is NULL we're at the head */
     if (prev == NULL) {
         head = obj;
@@ -84,8 +88,6 @@ void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t
     } else {
         prev->next = obj;
     }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
 
     __enable_irq();
 }
