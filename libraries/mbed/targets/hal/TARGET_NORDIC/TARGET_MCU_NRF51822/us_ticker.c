@@ -188,13 +188,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     uint32_t callbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
-    if (us_ticker_callbackPending && (callbackTime == us_ticker_callbackTimestamp)) {
-        return;
-    }
     if (callbackTime == rtc1_getCounter()) {
         us_ticker_callbackPending = false;
         rtc1_disableCompareInterrupt();
         us_ticker_irq_handler();
+        return;
+    }
+    if (us_ticker_callbackPending && (callbackTime == us_ticker_callbackTimestamp)) {
         return;
     }
 
