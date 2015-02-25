@@ -178,12 +178,13 @@ uint32_t us_ticker_read()
  * @Note: only one callback is pending at any time.
  *
  * @Note: If a callback is pending, and this function is called again, the new
- * callback-time overrides any existing callback setting. It is the caller's
+ * callback-time overrides the existing callback setting. It is the caller's
  * responsibility to ensure that this function is called to setup a callback for
  * the earliest timeout.
  *
- * @Note: If this function is used to setup an interrupt for 'right-now' or a
- * time in the past, then the callback is invoked right-away.
+ * @Note: If this function is used to setup an interrupt which is immediately
+ * pending--such as for 'now' or a time in the past,--then the callback is
+ * invoked right-away.
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
