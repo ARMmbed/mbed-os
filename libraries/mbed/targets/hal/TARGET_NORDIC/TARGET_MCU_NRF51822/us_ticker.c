@@ -35,15 +35,17 @@
 
 #define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
 #define RTC_CLOCK_FREQ          (uint32_t)(32768 / (CFG_TIMER_PRESCALER + 1))
-#define RTC1_IRQ_PRI            APP_IRQ_PRIORITY_LOW                        /**< Priority of the RTC1 interrupt (used for checking for timeouts and executing timeout handlers). */
+#define RTC1_IRQ_PRI            APP_IRQ_PRIORITY_LOW                        /**< Priority of the RTC1 interrupt (used
+                                                                              *  for checking for timeouts and executing
+                                                                              *  timeout handlers). */
 #define MAX_RTC_TASKS_DELAY     47                                          /**< Maximum delay until an RTC task is executed. */
 
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
 static bool              us_ticker_inited = false;
-static volatile uint32_t overflowBits;                                      /**< The upper 8 bits of the 32-bit value returned by rtc1_getCounter() */
-
+static volatile uint32_t overflowBits;                                      /**< The upper 8 bits of the 32-bit value
+                                                                              * returned by rtc1_getCounter(). */
 static volatile bool     us_ticker_callbackPending = false;
 static uint32_t          us_ticker_callbackTimestamp;
 
@@ -113,7 +115,6 @@ void rtc1_stop(void)
     nrf_delay_us(MAX_RTC_TASKS_DELAY);
 }
 
-
 /**
  * @brief Function for returning the current value of the RTC1 counter.
  *
@@ -157,7 +158,6 @@ void us_ticker_init(void)
     }
 
     rtc1_start(CFG_TIMER_PRESCALER);
-
     us_ticker_inited = true;
 }
 
@@ -193,10 +193,15 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
+
+    /* Check for callbacks which are immediately pending. */
     if ((int)(newCallbackTime - rtc1_getCounter()) <= 0) {
         INVOKE_CALLBACK();
         return;
     }
+
+    /* Check for repeat setup of an existing callback. This is actually not
+     * important; the following code should work even without this check. */
     if (us_ticker_callbackPending && (newCallbackTime == us_ticker_callbackTimestamp)) {
         return;
     }
