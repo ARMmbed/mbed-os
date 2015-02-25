@@ -183,7 +183,7 @@ uint32_t us_ticker_read()
 /**
  * Setup the us_ticker callback interrupt to go at the given timestamp.
  *
- * @Note: only one callback is pending at any time.
+ * @Note: Only one callback is pending at any time.
  *
  * @Note: If a callback is pending, and this function is called again, the new
  * callback-time overrides the existing callback setting. It is the caller's
@@ -193,6 +193,12 @@ uint32_t us_ticker_read()
  * @Note: If this function is used to setup an interrupt which is immediately
  * pending--such as for 'now' or a time in the past,--then the callback is
  * invoked right-away.
+ *
+ * @Note: Calling this function may result in the invocation of the callback.
+ * Data-structures accessed by the callback (such as linked list of
+ * timerEvents) should therefore be in a sane state before calling this function.
+ * We recommend that invoking this function should be the last thing done by the
+ * caller.
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
