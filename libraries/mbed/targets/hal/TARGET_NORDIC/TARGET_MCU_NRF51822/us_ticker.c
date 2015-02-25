@@ -41,7 +41,7 @@
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
-static bool              us_ticker_inited          = false;
+static bool              us_ticker_inited = false;
 static volatile uint32_t overflowBits;                                      /**< The upper 8 bits of the 32-bit value returned by rtc1_getCounter() */
 
 static volatile bool     us_ticker_callbackPending = false;
