@@ -47,6 +47,12 @@ static volatile uint32_t overflowBits;                                      /**<
 static volatile bool     us_ticker_callbackPending = false;
 static uint32_t          us_ticker_callbackTimestamp;
 
+#define INVOKE_CALLBACK() {                \
+        us_ticker_callbackPending = false; \
+        rtc1_disableCompareInterrupt();    \
+        us_ticker_irq_handler();           \
+    }
+
 static __INLINE void rtc1_enableCompareInterrupt(void)
 {
     NRF_RTC1->EVTENCLR = RTC_EVTEN_COMPARE0_Msk;
@@ -140,9 +146,7 @@ void RTC1_IRQHandler(void)
         ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0)) {
         NRF_RTC1->EVENTS_COMPARE[0] = 0;
         NRF_RTC1->EVTENCLR          = RTC_EVTEN_COMPARE0_Msk;
-        us_ticker_callbackPending   = false;
-        rtc1_disableCompareInterrupt();
-        us_ticker_irq_handler();
+        INVOKE_CALLBACK();
     }
 }
 
@@ -189,9 +193,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
     if (newCallbackTime == rtc1_getCounter()) {
-        us_ticker_callbackPending = false;
-        rtc1_disableCompareInterrupt();
-        us_ticker_irq_handler();
+        INVOKE_CALLBACK();
         return;
     }
     if (us_ticker_callbackPending && (newCallbackTime == us_ticker_callbackTimestamp)) {
