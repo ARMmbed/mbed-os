@@ -40,6 +40,14 @@
                                                                               *  timeout handlers). */
 #define MAX_RTC_TASKS_DELAY     47                                          /**< Maximum delay until an RTC task is executed. */
 
+#define FUZZY_RTC_TICKS          2  /* RTC COMPARE occurs when a CC register is N and the RTC
+                                     * COUNTER value transitions from N-1 to N. If we're trying to
+                                     * setup a callback for a time which will arrive very shortly,
+                                     * there are limits to how short the callback interval may be for us
+                                     * to rely upon the RTC Compare trigger. If the COUNTER is N,
+                                     * writing N+2 to a CC register is guaranteed to trigger a COMPARE
+                                     * event at N+2. */
+
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
@@ -194,8 +202,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
 
-    /* Check for callbacks which are immediately pending. */
-    if ((int)(newCallbackTime - rtc1_getCounter()) <= 0) {
+    /* Check for callbacks which are immediately (or will *very* shortly become) pending. */
+    if ((int)(newCallbackTime - rtc1_getCounter()) <= (int)FUZZY_RTC_TICKS) {
         INVOKE_CALLBACK();
         return;
     }
