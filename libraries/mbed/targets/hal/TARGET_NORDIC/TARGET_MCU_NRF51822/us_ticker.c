@@ -187,19 +187,19 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         us_ticker_init();
     }
 
-    uint32_t callbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
-    if (callbackTime == rtc1_getCounter()) {
+    uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
+    if (newCallbackTime == rtc1_getCounter()) {
         us_ticker_callbackPending = false;
         rtc1_disableCompareInterrupt();
         us_ticker_irq_handler();
         return;
     }
-    if (us_ticker_callbackPending && (callbackTime == us_ticker_callbackTimestamp)) {
+    if (us_ticker_callbackPending && (newCallbackTime == us_ticker_callbackTimestamp)) {
         return;
     }
 
-    NRF_RTC1->CC[0]             = callbackTime & MAX_RTC_COUNTER_VAL;
-    us_ticker_callbackTimestamp = callbackTime;
+    NRF_RTC1->CC[0]             = newCallbackTime & MAX_RTC_COUNTER_VAL;
+    us_ticker_callbackTimestamp = newCallbackTime;
     if (!us_ticker_callbackPending) {
         us_ticker_callbackPending = true;
         rtc1_enableCompareInterrupt();
