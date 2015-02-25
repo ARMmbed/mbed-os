@@ -76,7 +76,7 @@ class GccArm(Exporter):
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
 		'DELTA_DFCM_NNN40',
-        'NZ32ST1L'
+        'NZ32ST1L',
     ]
 
     DOT_IN_RELATIVE_PATH = True

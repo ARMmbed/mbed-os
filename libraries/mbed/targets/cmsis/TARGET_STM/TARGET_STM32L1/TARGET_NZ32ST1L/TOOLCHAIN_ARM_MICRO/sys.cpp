@@ -2,7 +2,7 @@
  * Setup a fixed single stack/heap memory model, 
  * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
