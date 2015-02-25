@@ -192,7 +192,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
-    if (newCallbackTime == rtc1_getCounter()) {
+    if ((int)(newCallbackTime - rtc1_getCounter()) <= 0) {
         INVOKE_CALLBACK();
         return;
     }
