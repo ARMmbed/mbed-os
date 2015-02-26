@@ -459,7 +459,7 @@ extern "C" void __iar_argc_argv() {
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
-#if (TARGET_CORTEX_A)
+#if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
 #endif
 
@@ -478,7 +478,7 @@ extern "C" caddr_t _sbrk(int incr) {
 
 #if defined(TARGET_ARM7)
     if (new_heap >= stack_ptr) {
-#elif (TARGET_CORTEX_A)
+#elif defined(TARGET_CORTEX_A)
     if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
 #else
     if (new_heap >= (unsigned char*)__get_MSP()) {
