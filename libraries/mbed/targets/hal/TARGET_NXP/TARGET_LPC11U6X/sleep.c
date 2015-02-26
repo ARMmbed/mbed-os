@@ -17,6 +17,8 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
+#if DEVICE_SLEEP
+
 void sleep(void) {
 
 #if (DEVICE_SEMIHOST == 1)
@@ -63,3 +65,5 @@ void deepsleep(void) {
   // wait for interrupt
   __WFI();
 }
+
+#endif
