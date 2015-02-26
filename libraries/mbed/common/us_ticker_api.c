@@ -116,3 +116,7 @@ void us_ticker_remove_event(ticker_event_t *obj) {
 
     __enable_irq();
 }
+
+timestamp_t us_ticker_get_next_timestamp(void) {
+    return head->timestamp;
+}
