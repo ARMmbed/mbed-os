@@ -76,6 +76,7 @@ class GccArm(Exporter):
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
 		'DELTA_DFCM_NNN40',
+		'RZ_A1H',
     ]
 
     DOT_IN_RELATIVE_PATH = True
