@@ -18,9 +18,7 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "app_timer.h"
-#include "projectconfig.h"
 #include "nrf_delay.h"
-#include "app_util_platform.h"
 
 /*
  * Note: The micro-second timer API on the nRF51 platform is implemented using
@@ -33,12 +31,14 @@
  * but we're assuming that this will not be a problem for the average user.
  */
 
-#define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
-#define RTC_CLOCK_FREQ          (uint32_t)(32768 / (CFG_TIMER_PRESCALER + 1))
-#define RTC1_IRQ_PRI            APP_IRQ_PRIORITY_LOW                        /**< Priority of the RTC1 interrupt (used
-                                                                              *  for checking for timeouts and executing
-                                                                              *  timeout handlers). */
-#define MAX_RTC_TASKS_DELAY     47                                          /**< Maximum delay until an RTC task is executed. */
+#define MAX_RTC_COUNTER_VAL     0x00FFFFFF               /**< Maximum value of the RTC counter. */
+#define RTC_CLOCK_FREQ          (uint32_t)(32768)
+#define RTC1_IRQ_PRI            3                        /**< Priority of the RTC1 interrupt (used
+                                                          *  for checking for timeouts and executing
+                                                          *  timeout handlers). This must be the same
+                                                          *  as APP_IRQ_PRIORITY_LOW; taken from the
+                                                          *  Nordic SDK. */
+#define MAX_RTC_TASKS_DELAY     47                       /**< Maximum delay until an RTC task is executed. */
 
 #define FUZZY_RTC_TICKS          2  /* RTC COMPARE occurs when a CC register is N and the RTC
                                      * COUNTER value transitions from N-1 to N. If we're trying to
@@ -52,8 +52,8 @@
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
 static bool              us_ticker_inited = false;
-static volatile uint32_t overflowBits;                                      /**< The upper 8 bits of the 32-bit value
-                                                                              * returned by rtc1_getCounter(). */
+static volatile uint32_t overflowBits;                   /**< The upper 8 bits of the 32-bit value
+                                                          * returned by rtc1_getCounter(). */
 static volatile bool     us_ticker_callbackPending = false;
 static uint32_t          us_ticker_callbackTimestamp;
 
@@ -91,12 +91,10 @@ static __INLINE void INVOKE_CALLBACK(void)
 /**
  * @brief Function for starting the RTC1 timer. The RTC timer is expected to
  * keep running--some interrupts may be disabled temporarily.
- *
- * @param[in] prescaler   Value of the RTC1 PRESCALER register. Set to 0 for no prescaling.
  */
-static void rtc1_start(uint32_t prescaler)
+static void rtc1_start()
 {
-    NRF_RTC1->PRESCALER = prescaler;
+    NRF_RTC1->PRESCALER = 0; /* for no pre-scaling. */
 
     rtc1_enableOverflowInterrupt();
 
@@ -164,7 +162,7 @@ void us_ticker_init(void)
         return;
     }
 
-    rtc1_start(CFG_TIMER_PRESCALER);
+    rtc1_start();
     us_ticker_inited = true;
 }
 
