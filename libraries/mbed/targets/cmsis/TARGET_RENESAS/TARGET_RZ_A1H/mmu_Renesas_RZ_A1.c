@@ -72,16 +72,31 @@ extern uint32_t Image$$RO_DATA$$Base;
 extern uint32_t Image$$RW_DATA$$Base;
 extern uint32_t Image$$ZI_DATA$$Base;
 extern uint32_t Image$$TTB$$ZI$$Base;
+#if defined( __CC_ARM )
+#else
+extern uint32_t Image$$RW_DATA_NC$$Base;
+extern uint32_t Image$$ZI_DATA_NC$$Base;
+#endif
 
 extern uint32_t Image$$VECTORS$$Limit;
 extern uint32_t Image$$RO_DATA$$Limit;
 extern uint32_t Image$$RW_DATA$$Limit;
 extern uint32_t Image$$ZI_DATA$$Limit;
+#if defined( __CC_ARM )
+#else
+extern uint32_t Image$$RW_DATA_NC$$Limit;
+extern uint32_t Image$$ZI_DATA_NC$$Limit;
+#endif
 
-#define	VECTORS_SIZE	(((uint32_t)&Image$$VECTORS$$Limit >> 20) - ((uint32_t)&Image$$VECTORS$$Base >> 20) + 1)
-#define	RO_DATA_SIZE	(((uint32_t)&Image$$RO_DATA$$Limit >> 20) - ((uint32_t)&Image$$RO_DATA$$Base >> 20) + 1)
-#define	RW_DATA_SIZE	(((uint32_t)&Image$$RW_DATA$$Limit >> 20) - ((uint32_t)&Image$$RW_DATA$$Base >> 20) + 1)
-#define	ZI_DATA_SIZE	(((uint32_t)&Image$$ZI_DATA$$Limit >> 20) - ((uint32_t)&Image$$ZI_DATA$$Base >> 20) + 1)
+#define VECTORS_SIZE    (((uint32_t)&Image$$VECTORS$$Limit >> 20) - ((uint32_t)&Image$$VECTORS$$Base >> 20) + 1)
+#define RO_DATA_SIZE    (((uint32_t)&Image$$RO_DATA$$Limit >> 20) - ((uint32_t)&Image$$RO_DATA$$Base >> 20) + 1)
+#define RW_DATA_SIZE    (((uint32_t)&Image$$RW_DATA$$Limit >> 20) - ((uint32_t)&Image$$RW_DATA$$Base >> 20) + 1)
+#define ZI_DATA_SIZE    (((uint32_t)&Image$$ZI_DATA$$Limit >> 20) - ((uint32_t)&Image$$ZI_DATA$$Base >> 20) + 1)
+#if defined( __CC_ARM )
+#else
+#define RW_DATA_NC_SIZE (((uint32_t)&Image$$RW_DATA_NC$$Limit >> 20) - ((uint32_t)&Image$$RW_DATA_NC$$Base >> 20) + 1)
+#define ZI_DATA_NC_SIZE (((uint32_t)&Image$$ZI_DATA_NC$$Limit >> 20) - ((uint32_t)&Image$$ZI_DATA_NC$$Base >> 20) + 1)
+#endif
 
 static uint32_t Sect_Normal;     //outer & inner wb/wa, non-shareable, executable, rw, domain 0, base addr 0
 static uint32_t Sect_Normal_NC;  //non-shareable, non-executable, rw, domain 0, base addr 0
@@ -147,7 +162,12 @@ void create_translation_table(void)
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
+#if defined( __CC_ARM )
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE,         10, Sect_Normal_NC);
+#else
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA_NC$$Base, RW_DATA_NC_SIZE, Sect_Normal_NC);
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA_NC$$Base, ZI_DATA_NC_SIZE, Sect_Normal_NC);
+#endif
 
     /* Set location of level 1 page table
     ; 31:14 - Translation table base addr (31:14-TTBCR.N, TTBCR.N is 0 out of reset)
