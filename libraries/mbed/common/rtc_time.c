@@ -47,11 +47,9 @@ time_t time(time_t *timer)
         }
     }
     
-    time_t t;
+    time_t t = 0;
     if (_rtc_read != NULL) {
         t = _rtc_read();
-    } else {
-        t = 0;
     }
 
     if (timer != NULL) {
@@ -76,10 +74,12 @@ clock_t clock() {
 }
 
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void)) {
+    __disable_irq();
     _rtc_read = read_rtc;
     _rtc_write = write_rtc;
     _rtc_init = init_rtc;
     _rtc_isenabled = isenabled_rtc;
+    __enable_irq();
 }
 
 

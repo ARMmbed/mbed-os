@@ -71,6 +71,8 @@ void set_time(time_t t);
 
 /** Attach an external RTC to be used for the C time functions
  *
+ * Do not call this function from an interrupt while an RTC read/write operation may be occurring 
+ *
  * @param read_rtc pointer to function which returns current UNIX timestamp
  * @param write_rtc pointer to function which sets current UNIX timestamp, can be NULL
  * @param init_rtc pointer to funtion which initializes RTC, can be NULL
