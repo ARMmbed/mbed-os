@@ -189,13 +189,7 @@ uint32_t us_ticker_read()
  *
  * @Note: If this function is used to setup an interrupt which is immediately
  * pending--such as for 'now' or a time in the past,--then the callback is
- * invoked right-away.
- *
- * @Note: Calling this function may result in the invocation of the callback.
- * Data-structures accessed by the callback (such as linked list of
- * timerEvents) should therefore be in a sane state before calling this function.
- * We recommend that invoking this function should be the last thing done by the
- * caller.
+ * invoked a few ticks later.
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
@@ -205,16 +199,18 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
 
-    /* Check for callbacks which are immediately (or will *very* shortly become) pending. */
-    if ((int)(newCallbackTime - rtc1_getCounter()) <= (int)FUZZY_RTC_TICKS) {
-        INVOKE_CALLBACK();
-        return;
-    }
-
     /* Check for repeat setup of an existing callback. This is actually not
      * important; the following code should work even without this check. */
     if (us_ticker_callbackPending && (newCallbackTime == us_ticker_callbackTimestamp)) {
         return;
+    }
+
+    /* Check for callbacks which are immediately (or will *very* shortly become) pending.
+     * Even if they are immediately pending, they are scheduled to trigger a few
+     * ticks later. This keeps things simple by invoking the callback from an
+     * independent interrupt context. */
+    if ((int)(newCallbackTime - rtc1_getCounter()) <= (int)FUZZY_RTC_TICKS) {
+        newCallbackTime = rtc1_getCounter() + FUZZY_RTC_TICKS;
     }
 
     NRF_RTC1->CC[0]             = newCallbackTime & MAX_RTC_COUNTER_VAL;
