@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2014 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,52 +18,21 @@ from exporters import Exporter
 from os.path import splitext, basename
 
 
-class GccArm(Exporter):
-    NAME = 'GccArm'
+class Simplicity(Exporter):
+    NAME = 'Simplicity'
     TOOLCHAIN = 'GCC_ARM'
 
     TARGETS = [
-        'LPC1768',
-        'LPC1549',
-        'KL05Z',
-        'KL25Z',
-        'KL43Z',
-        'KL46Z',
-        'K64F',
-        'K22F',
-        'K20D50M',
-        'LPC4088',
-        'LPC4330_M4',
-        'LPC11U24',
-        'LPC1114',
-        'LPC11U35_401',
-        'LPC11U35_501',
-        'STM32F407',
-        'DISCO_F100RB',
-        'DISCO_F051R8',
-        'DISCO_F407VG',
-        'DISCO_F303VC',
-        'UBLOX_C027',
-        'ARCH_PRO',
-        'NRF51822',
-        'HRM1017',
-        'LPC2368',
-        'LPCCAPPUCCINO',
-        'ARCH_BLE',
-        'MTS_GAMBIT',
-        'ARCH_MAX',
-        'NUCLEO_F401RE',
-        'NUCLEO_F411RE',
-        'ARCH_MAX',
-        'DISCO_F429ZI',
-        'NUCLEO_F334R8',
-        'DISCO_L053C8',
-        'NUCLEO_L053R8',
-        'DISCO_F334C8',
-	'EFM32HG_STK3400',
-	'EFM32ZG_STK3200',
-	'EFM32GG_STK3700'
+        'EFM32GG_STK3700',
+        'EFM32ZG_STK3200',
+	'EFM32HG_STK3400'
     ]
+
+    FILE_TYPES = {
+        'c_sources':'1',
+        'cpp_sources':'1',
+        's_sources':'1'
+    }
 
     DOT_IN_RELATIVE_PATH = True
 
@@ -95,3 +64,6 @@ class GccArm(Exporter):
             'symbols': self.toolchain.get_symbols()
         }
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
+
+        self.gen_file('simplicity_%s_project.tmpl' % self.target.lower(), ctx, '.project')
+        self.gen_file('simplicity_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
