@@ -57,31 +57,31 @@ static volatile uint32_t overflowBits;                   /**< The upper 8 bits o
 static volatile bool     us_ticker_callbackPending = false;
 static uint32_t          us_ticker_callbackTimestamp;
 
-static __INLINE void rtc1_enableCompareInterrupt(void)
+static inline void rtc1_enableCompareInterrupt(void)
 {
     NRF_RTC1->EVTENCLR = RTC_EVTEN_COMPARE0_Msk;
     NRF_RTC1->INTENSET = RTC_INTENSET_COMPARE0_Msk;
 }
 
-static __INLINE void rtc1_disableCompareInterrupt(void)
+static inline void rtc1_disableCompareInterrupt(void)
 {
     NRF_RTC1->INTENCLR = RTC_INTENSET_COMPARE0_Msk;
     NRF_RTC1->EVTENCLR = RTC_EVTEN_COMPARE0_Msk;
 }
 
-static __INLINE void rtc1_enableOverflowInterrupt(void)
+static inline void rtc1_enableOverflowInterrupt(void)
 {
     NRF_RTC1->EVTENCLR = RTC_EVTEN_OVRFLW_Msk;
     NRF_RTC1->INTENSET = RTC_INTENSET_OVRFLW_Msk;
 }
 
-static __INLINE void rtc1_disableOverflowInterrupt(void)
+static inline void rtc1_disableOverflowInterrupt(void)
 {
     NRF_RTC1->INTENCLR = RTC_INTENSET_OVRFLW_Msk;
     NRF_RTC1->EVTENCLR = RTC_EVTEN_OVRFLW_Msk;
 }
 
-static __INLINE void INVOKE_CALLBACK(void)
+static inline void INVOKE_CALLBACK(void)
 {
     us_ticker_callbackPending = false;
     rtc1_disableCompareInterrupt();
