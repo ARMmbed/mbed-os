@@ -109,8 +109,8 @@ typedef enum {
     // Module Pins
     // A
     P_A5    = PC_2,   // UART-DTR
-    P_A6    = PF_3,   // Switch-0
-    P_A7    = PG_15,  // Red, Mode
+    P_A6    = PF_2,   // Switch-0
+    P_A7    = PE_0,   // Red, Mode
     P_A8    = PB_6,   // Green, Switch-1
     P_A9    = PB_8,   // Blue
     P_A10   = PA_11,  // UART-CTS
@@ -123,20 +123,20 @@ typedef enum {
     P_A17   = PD_12,  // GPIO-3
     P_A18   = PA_3,   // UART-DSR
     // B
-	// C
-    P_C5    = PF_14,  // SPI-IRQ
+    // C
+    P_C5    = PG_4,   // SPI-IRQ
     P_C6    = PE_13,  // SPI-MISO
     P_C8    = PE_12,  // Res
     P_C10   = PE_14,  // SPI-MOSI
     P_C11   = PE_11,  // SPI-CS0
     P_C12   = PE_9,   // Res
-    P_C13   = PF_8,   // GPIO-4, RMII-RSTn
+    P_C13   = PF_6,   // GPIO-4
     P_C14   = PC_1,   // RMII-MDC
     P_C15   = PA_2,   // RMII-MDIO
     P_C16   = PF_7,   // GPIO-7
     P_C17   = PF_1,   // I2C-SCL
     P_C18   = PF_0,   // I2C-SDA
-	// D
+    // D
     P_D1    = PB_12,  // RMII-TXD0
     P_D2    = PB_13,  // RMII-TXD1
     P_D3    = PB_11,  // RMII-TXEN
@@ -177,12 +177,12 @@ typedef enum {
     D14     = PF_0,   // SDA
     D15     = PF_1,   // SCL
     // Internal
-    LED_GRE = PB_4,   // Green
+    LED_GRE = PF_2,   // Green
     LED_YEL = PE_9,   // Yellow, CS_CARD
     LED_RED = PB_3,   // Red
     BTN     = PA_15,
-    USBRXD  = PD_9, // RX
-    USBTXD  = PD_8, // TX
+    USBRXD  = PD_9,   // RX
+    USBTXD  = PD_8,   // TX
 
     // Not connected
     NC = (int)0xFFFFFFFF
