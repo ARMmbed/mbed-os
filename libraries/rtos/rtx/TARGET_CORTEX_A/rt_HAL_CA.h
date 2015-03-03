@@ -54,7 +54,7 @@
 
 #if defined (__CC_ARM)          /* ARM Compiler */
 
-#if ((__TARGET_ARCH_7_M || __TARGET_ARCH_7E_M || __TARGET_ARCH_7_A) && !NO_EXCLUSIVE_ACCESS)
+#if ((__TARGET_ARCH_7_M || __TARGET_ARCH_7E_M || __TARGET_ARCH_7_A) && !defined(NO_EXCLUSIVE_ACCESS))
  #define __USE_EXCLUSIVE_ACCESS
 #else
  #undef  __USE_EXCLUSIVE_ACCESS
@@ -62,7 +62,16 @@
 
 #elif defined (__GNUC__)        /* GNU Compiler */
 
-#error GNU Compiler support not implemented for Cortex-A
+#undef  __USE_EXCLUSIVE_ACCESS
+
+#if defined (__VFP_FP__) && !defined(__SOFTFP__)
+#define __TARGET_FPU_VFP 1
+#else
+#define __TARGET_FPU_VFP 0
+#endif
+
+#define __inline inline
+#define __weak   __attribute__((weak))
 
 #elif defined (__ICCARM__)      /* IAR Compiler */
 
@@ -94,7 +103,6 @@ extern const U32 GICInterface_BASE;
                   priority = GICI_ICCPMR; \
                   GICI_ICCPMR = 0xff; \
                   GICI_ICCPMR = GICI_ICCPMR - 1; \
-                  while(GICI_ICCPMR > priority);\
                   __DSB();\
                   if(!irq_dis) __enable_irq(); \
 

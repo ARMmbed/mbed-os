@@ -116,3 +116,17 @@ void us_ticker_remove_event(ticker_event_t *obj) {
 
     __enable_irq();
 }
+
+int us_ticker_get_next_timestamp(timestamp_t *timestamp) {
+    int ret = 0;
+
+    /* if head is NULL, there are no pending events */
+    __disable_irq();
+    if (head != NULL) {
+        *timestamp = head->timestamp;
+        ret = 1;
+    }
+    __enable_irq();
+
+    return ret;
+}

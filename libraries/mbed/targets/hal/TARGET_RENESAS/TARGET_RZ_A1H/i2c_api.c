@@ -247,7 +247,7 @@ inline int i2c_start(i2c_t *obj) {
     return 0;
 }
 
-inline int i2c_restart(i2c_t *obj) {
+static inline int i2c_restart(i2c_t *obj) {
     /* SR2.START = 0 */
     REG(SR2.UINT32) &= ~SR2_START;
     /* ReStart condition */

@@ -41,12 +41,18 @@
 #include "RZ_A1_Init.h"
 
 
+#if defined(__ARMCC_VERSION)
 extern void $Super$$main(void);
 __asm void FPUEnable(void);
+#else 
+void FPUEnable(void); 
+
+#endif
 
 uint32_t IRQNestLevel;
 
 
+#if defined(__ARMCC_VERSION)
 /**
  * Initialize the cache.
  *
@@ -91,6 +97,45 @@ void InitMemorySubsystem(void) {
     }
 }
 #pragma pop
+
+#elif defined(__GNUC__) 
+
+void InitMemorySubsystem(void) { 
+ 
+    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before 
+     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC. 
+     * You are not required to invalidate the main TLB, even though it is recommended for safety 
+     * reasons. This ensures compatibility with future revisions of the processor. */ 
+ 
+    unsigned int l2_id; 
+ 
+    /* Invalidate undefined data */ 
+    __ca9u_inv_tlb_all(); 
+    __v7_inv_icache_all(); 
+    __v7_inv_dcache_all(); 
+    __v7_inv_btac(); 
+ 
+    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and 
+     * invalidate in order to flush the valid data to the next level cache. 
+     */ 
+    __enable_mmu(); 
+ 
+    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */ 
+    __enable_caches(); 
+    __enable_btac(); 
+ 
+    /* If present, you may also need to Invalidate and Enable L2 cache here */ 
+    l2_id = PL310_GetID(); 
+    if (l2_id) 
+    { 
+       PL310_InvAllByWay(); 
+       PL310_Enable(); 
+    } 
+} 
+#else 
+
+#endif 
+
 
 IRQHandler IRQTable[Renesas_RZ_A1_IRQ_MAX+1];
 
@@ -237,8 +282,8 @@ void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
 //this will be 2 when we have performed some maintenance and want to retry the instruction in thumb (state == 2)
 //this will be 4 when we have performed some maintenance and want to retry the instruction in arm (state == 4)
 uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
-    const int THUMB = 2;
-    const int ARM = 4;
+    const unsigned int THUMB = 2;
+    const unsigned int ARM = 4;
     //Lazy VFP/NEON initialisation and switching
     if ((state == ARM   && ((opcode & 0x0C000000)) >> 26 == 0x03) ||
         (state == THUMB && ((opcode & 0xEC000000)) >> 26 == 0x3B)) {
@@ -252,6 +297,7 @@ uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
     while(1);
 }
 
+#if defined(__ARMCC_VERSION)
 #pragma push
 #pragma arm
 //Critical section, called from undef handler, so systick is disabled
@@ -296,3 +342,43 @@ __asm void FPUEnable(void) {
         BX      LR
 }
 #pragma pop
+
+#elif defined(__GNUC__)
+void FPUEnable(void)
+{
+    __asm__ __volatile__ (
+            ".align 2                   \n\t"
+            ".arm                       \n\t"
+            "mrc    p15,0,r1,c1,c0,2    \n\t"
+            "orr    r1,r1,#0x00f00000   \n\t"
+            "mcr    p15,0,r1,c1,c0,2    \n\t"
+            "vmrs   r1,fpexc            \n\t"
+            "orr    r1,r1,#0x40000000   \n\t"
+            "vmsr   fpexc,r1            \n\t"
+            "mov    r2,#0               \n\t"
+            "vmov   d0, r2,r2           \n\t"
+            "vmov   d1, r2,r2           \n\t"
+            "vmov   d2, r2,r2           \n\t"
+            "vmov   d3, r2,r2           \n\t"
+            "vmov   d4, r2,r2           \n\t"
+            "vmov   d5, r2,r2           \n\t"
+            "vmov   d6, r2,r2           \n\t"
+            "vmov   d7, r2,r2           \n\t"
+            "vmov   d8, r2,r2           \n\t"
+            "vmov   d9, r2,r2           \n\t"
+            "vmov   d10,r2,r2           \n\t"
+            "vmov   d11,r2,r2           \n\t"
+            "vmov   d12,r2,r2           \n\t"
+            "vmov   d13,r2,r2           \n\t"
+            "vmov   d14,r2,r2           \n\t"
+            "vmov   d15,r2,r2           \n\t"
+            "vmrs   r2,fpscr            \n\t"
+            "ldr    r3,=0x00086060      \n\t"
+            "and    r2,r2,r3            \n\t"
+            "vmsr   fpscr,r2            \n\t"
+            "bx     lr                  \n\t"
+    );
+}
+#else
+#endif
+

@@ -199,12 +199,13 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
         GIC_DisableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
         /* Clear Interrupt flags */
         INTCIRQRR &= ~(1 << obj->ch);
+        INTCICR1  = work_icr_val;
     } else if (obj->int_enable == 1) {
+        INTCICR1  = work_icr_val;
         GIC_EnableIRQ((IRQn_Type)(nIRQn_h + obj->ch));
     } else {
-        /* Do Nothing */
+        INTCICR1  = work_icr_val;
     }
-    INTCICR1  = work_icr_val;
 }
 
 void gpio_irq_enable(gpio_irq_t *obj) {
