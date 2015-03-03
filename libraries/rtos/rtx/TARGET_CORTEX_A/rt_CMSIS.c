@@ -145,10 +145,62 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
 
 #define RET_pointer    __r0
 #define RET_int32_t    __r0
+#define RET_uint32_t   __r0
 #define RET_osStatus   __r0
 #define RET_osPriority __r0
 #define RET_osEvent    {(osStatus)__r0, {(uint32_t)__r1}, {(void *)__r2}}
 #define RET_osCallback {(void *)__r0, (void *)__r1}
+
+#if defined (__ARM_PCS_VFP)
+
+#define osEvent_type        void
+#define osEvent_ret_status {  __asm ("MOV r0, %0;"      \
+                                     : /* no outputs */ \
+                                     : "r"(ret.status)  \
+                                     : "r0"             \
+                                     );                 \
+                           }
+#define osEvent_ret_value  {  __asm ("MOV r1, %0;"         \
+                                     "MOV r0, %1;"         \
+                                     :   /* no outputs */  \
+                                     :   "r"(ret.value.v), \
+                                         "r"(ret.status)   \
+                                     : "r0", "r1"          \
+                                     );                    \
+                           }
+#define osEvent_ret_msg    {  __asm ("MOV r2, %0;"                \
+                                     "MOV r1, %1;"                \
+                                     "MOV r0, %2;"                \
+                                     : /* no outputs */           \
+                                     :   "r"(ret.def.message_id), \
+                                         "r"(ret.value.v),        \
+                                         "r"(ret.status)          \
+                                     : "r0", "r1" , "r2"          \
+                                     );                           \
+                           }
+
+#define osEvent_ret_mail   {  __asm ("MOV r2, %0;"             \
+                                     "MOV r1, %1;"             \
+                                     "MOV r0, %2;"             \
+                                     : /* no outputs */        \
+                                     :   "r"(ret.def.mail_id), \
+                                         "r"(ret.value.v),     \
+                                         "r"(ret.status)       \
+                                     : "r0", "r1" , "r2"       \
+                                     );                        \
+                           }
+
+#define osCallback_type     void
+#define osCallback_ret     {  __asm ("MOV r1, %0;"      \
+                                     "MOV r0, %1;"      \
+                                     : /* no outputs */ \
+                                     : "r"(ret.arg),    \
+                                       "r"(ret.fp)      \
+                                     : "r0", "r1"       \
+                                     );                 \
+                           }
+
+#else /* defined (__ARM_PCS_VFP) */
 
 #define osEvent_type        ret128
 #define osEvent_ret_status (ret128){ret.status}
@@ -158,6 +210,8 @@ typedef uint32_t __attribute__((vector_size(16))) ret128;
 
 #define osCallback_type     ret64
 #define osCallback_ret     (ret64) {(uint32_t)ret.fp, (uint32_t)ret.arg}
+
+#endif /* defined (__ARM_PCS_VFP) */
 
 #define SVC_ArgN(n) \
   register int __r##n __asm("r"#n);
@@ -808,14 +862,24 @@ os_InRegs osEvent_type svcWait (uint32_t millisec) {
 
   if (millisec == 0) {
     ret.status = osOK;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
     return osEvent_ret_status;
+#endif
   }
 
   /* To Do: osEventSignal, osEventMessage, osEventMail */
   rt_dly_wait(rt_ms2tick(millisec));
   ret.status = osEventTimeout;
 
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+  osEvent_ret_status;
+  return;
+#else
   return osEvent_ret_status;
+#endif
 }
 #endif
 
@@ -1046,13 +1110,23 @@ os_InRegs osCallback_type svcTimerCall (osTimerId timer_id) {
   if (pt == NULL) {
     ret.fp  = NULL;
     ret.arg = NULL;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osCallback_ret;
+    return;
+#else
     return osCallback_ret;
+#endif
   }
 
   ret.fp  = (void *)pt->timer->ptimer;
   ret.arg = pt->arg;
 
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+  osCallback_ret;
+  return;
+#else
   return osCallback_ret;
+#endif
 }
 
 static __INLINE osStatus isrMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec);
@@ -1195,7 +1269,12 @@ os_InRegs osEvent_type svcSignalWait (int32_t signals, uint32_t millisec) {
 
   if (signals & (0xFFFFFFFF << osFeature_Signals)) {
     ret.status = osErrorValue;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
     return osEvent_ret_status;
+#endif
   }
 
   if (signals != 0) {                           // Wait for all specified signals
@@ -1212,7 +1291,12 @@ os_InRegs osEvent_type svcSignalWait (int32_t signals, uint32_t millisec) {
     ret.value.signals = 0;
   }
 
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+  osEvent_ret_value;
+  return;
+#else
   return osEvent_ret_value;
+#endif
 }
 
 
@@ -1694,24 +1778,44 @@ os_InRegs osEvent_type svcMessageGet (osMessageQId queue_id, uint32_t millisec) 
 
   if (queue_id == NULL) {
     ret.status = osErrorParameter;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
     return osEvent_ret_status;
+#endif
   }
 
   if (((P_MCB)queue_id)->cb_type != MCB) {
     ret.status = osErrorParameter;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
     return osEvent_ret_status;
+#endif
   }
 
   res = rt_mbx_wait(queue_id, &ret.value.p, rt_ms2tick(millisec));
   
   if (res == OS_R_TMO) {
     ret.status = millisec ? osEventTimeout : osOK;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_value;
+    return;
+#else
     return osEvent_ret_value;
+#endif
   }
 
   ret.status = osEventMessage;
 
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+  osEvent_ret_value;
+  return;
+#else
   return osEvent_ret_value;
+#endif
 }
 
 

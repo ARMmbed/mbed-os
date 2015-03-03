@@ -27,11 +27,13 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC11U24',
         'LPC11U35_401',
         'LPC11U35_501',
-        'LPCCAPPUCCINO',
+        #Removed LPCCAPPUCCINO linker file and startup file missing
+        #'LPCCAPPUCCINO',
         'LPC1114',
         'LPC1549',
         'LPC812',
         'LPC4088',
+        'LPC4088_DM',
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
@@ -52,10 +54,11 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_F411RE',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
-        'STM32F407',
+        #'STM32F407', Fails to build same for GCC
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'MTS_DRAGONFLY_F411RE',
+        'NRF51822',
     ]
 
     def generate(self):
@@ -76,3 +79,4 @@ class IAREmbeddedWorkbench(Exporter):
         }
         self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
         self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)
+        self.gen_file('iar_%s.ewd.tmpl' % self.target.lower(), ctx, '%s.ewd' % self.program_name)

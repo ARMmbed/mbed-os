@@ -33,6 +33,7 @@ class GccArm(Exporter):
         'K22F',
         'K20D50M',
         'LPC4088',
+        'LPC4088_DM',
         'LPC4330_M4',
         'LPC11U24',
         'LPC1114',
@@ -72,8 +73,10 @@ class GccArm(Exporter):
         'NUCLEO_L152RE',
         'NRF51_DK',
         'NRF51_DONGLE',
-        'BLE_SMURFS',
+        'SEEED_TINY_BLE',
         'DISCO_F401VC',
+        'DELTA_DFCM_NNN40',
+        'RZ_A1H',
     ]
 
     DOT_IN_RELATIVE_PATH = True

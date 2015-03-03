@@ -30,6 +30,7 @@ int us_ticker_inited = 0;
 static double count_clock = 0;
 static uint32_t last_read = 0;
 static uint32_t wrap_arround = 0;
+static uint64_t ticker_us_last64 = 0;
 
 void us_ticker_interrupt(void) {
     us_ticker_irq_handler();
@@ -61,30 +62,67 @@ void us_ticker_init(void) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-uint32_t us_ticker_read() {
-    uint32_t val;
-    uint64_t val64;
+static uint64_t ticker_read_counter64(void) {
+    uint32_t cnt_val;
+    uint64_t cnt_val64;
 
     if (!us_ticker_inited)
         us_ticker_init();
 
     /* read counter */
-    val = OSTM1CNT;
-    if ( last_read > val ) {
+    cnt_val = OSTM1CNT;
+    if (last_read > cnt_val) {
         wrap_arround++;
     }
-    last_read = val;
-    val64 = ((uint64_t)wrap_arround << 32) + val;
+    last_read = cnt_val;
+    cnt_val64 = ((uint64_t)wrap_arround << 32) + cnt_val;
+
+    return cnt_val64;
+}
+
+uint32_t us_ticker_read() {
+    uint64_t cnt_val64;
+    uint64_t us_val64;
+    int check_irq_masked;
+
+    check_irq_masked = __disable_irq();
+
+    cnt_val64        = ticker_read_counter64();
+    us_val64         = (cnt_val64 / count_clock);
+    ticker_us_last64 = us_val64;
+
+    if (!check_irq_masked) {
+        __enable_irq();
+    }
 
     /* clock to us */
-    val = (uint32_t)(val64 / count_clock);
-    return val;
+    return (uint32_t)us_val64;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     // set match value
-    timestamp = (timestamp_t)(timestamp * count_clock);
-    OSTM1CMP  = (uint32_t)(timestamp & 0xffffffff);
+    uint64_t timestamp64;
+    uint64_t set_cmp_val64;
+    volatile uint32_t set_cmp_val;
+    uint64_t count_val_64;
+
+    /* calc compare mach timestamp */
+    timestamp64 = (ticker_us_last64 & 0xFFFFFFFF00000000) + timestamp;
+    if (timestamp < (ticker_us_last64 & 0x00000000FFFFFFFF)) {
+        /* This event is wrap arround */
+        timestamp64 += 0x100000000;
+    }
+
+    /* calc compare mach timestamp */
+    set_cmp_val64  = timestamp64 * count_clock;
+    set_cmp_val    = (uint32_t)(set_cmp_val64 & 0x00000000FFFFFFFF);
+    count_val_64   = ticker_read_counter64();
+    if (set_cmp_val64 <= (count_val_64 + 500)) {
+        GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
+        GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
+        return;
+    }
+    OSTM1CMP = set_cmp_val;
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
@@ -93,6 +131,5 @@ void us_ticker_disable_interrupt(void) {
 }
 
 void us_ticker_clear_interrupt(void) {
-    /* There are no Flags of OSTM1 to clear here */
-    /* Do Nothing */
+    GIC_ClearPendingIRQ(US_TICKER_TIMER_IRQn);
 }

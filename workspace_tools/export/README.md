@@ -75,7 +75,7 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
-        <td>BLE_SMURFS</td>
+        <td>SEEED_TINY_BLE</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -87,7 +87,7 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
-        <td>BLE_SMURFS_OTA</td>
+        <td>SEEED_TINY_BLE_OTA</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -460,6 +460,18 @@ Exporter IDE/Platform Support
     </tr>
     <tr>
         <td>LPC4088</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <td>LPC4088_DM</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>

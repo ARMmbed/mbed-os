@@ -368,22 +368,45 @@ typedef struct {                            /*!< (@ 0x40028000) WKT Structure   
 } LPC_WKT_TypeDef;
 /*@}*/ /* end of group LPC8xx_WKT */
 
-
 /*------------- Multi-Rate Timer(MRT) --------------------------------------------------*/
-typedef struct {
-__IO uint32_t INTVAL;
-__IO uint32_t TIMER;
-__IO uint32_t CTRL;
-__IO uint32_t STAT;
-} MRT_Channel_cfg_Type;
-
-typedef struct {
-  MRT_Channel_cfg_Type Channel[4];
-   uint32_t Reserved0[1];
-  __IO uint32_t IDLE_CH;
-  __IO uint32_t IRQ_FLAG;
+//New, Copied from lpc824
+/**
+  * @brief Multi-Rate Timer (MRT) (MRT)
+  */
+typedef struct {                                    /*!< (@ 0x40004000) MRT Structure                                          */
+  __IO uint32_t  INTVAL0;                           /*!< (@ 0x40004000) MRT0 Time interval value register. This value
+                                                         is loaded into the TIMER0 register.                                   */
+  __I  uint32_t  TIMER0;                            /*!< (@ 0x40004004) MRT0 Timer register. This register reads the
+                                                         value of the down-counter.                                            */
+  __IO uint32_t  CTRL0;                             /*!< (@ 0x40004008) MRT0 Control register. This register controls
+                                                         the MRT0 modes.                                                       */
+  __IO uint32_t  STAT0;                             /*!< (@ 0x4000400C) MRT0 Status register.                                  */
+  __IO uint32_t  INTVAL1;                           /*!< (@ 0x40004010) MRT0 Time interval value register. This value
+                                                         is loaded into the TIMER0 register.                                   */
+  __I  uint32_t  TIMER1;                            /*!< (@ 0x40004014) MRT0 Timer register. This register reads the
+                                                         value of the down-counter.                                            */
+  __IO uint32_t  CTRL1;                             /*!< (@ 0x40004018) MRT0 Control register. This register controls
+                                                         the MRT0 modes.                                                       */
+  __IO uint32_t  STAT1;                             /*!< (@ 0x4000401C) MRT0 Status register.                                  */
+  __IO uint32_t  INTVAL2;                           /*!< (@ 0x40004020) MRT0 Time interval value register. This value
+                                                         is loaded into the TIMER0 register.                                   */
+  __I  uint32_t  TIMER2;                            /*!< (@ 0x40004024) MRT0 Timer register. This register reads the
+                                                         value of the down-counter.                                            */
+  __IO uint32_t  CTRL2;                             /*!< (@ 0x40004028) MRT0 Control register. This register controls
+                                                         the MRT0 modes.                                                       */
+  __IO uint32_t  STAT2;                             /*!< (@ 0x4000402C) MRT0 Status register.                                  */
+  __IO uint32_t  INTVAL3;                           /*!< (@ 0x40004030) MRT0 Time interval value register. This value
+                                                         is loaded into the TIMER0 register.                                   */
+  __I  uint32_t  TIMER3;                            /*!< (@ 0x40004034) MRT0 Timer register. This register reads the
+                                                         value of the down-counter.                                            */
+  __IO uint32_t  CTRL3;                             /*!< (@ 0x40004038) MRT0 Control register. This register controls
+                                                         the MRT0 modes.                                                       */
+  __IO uint32_t  STAT3;                             /*!< (@ 0x4000403C) MRT0 Status register.                                  */
+  __I  uint32_t  RESERVED0[45];
+  __I  uint32_t  IDLE_CH;                           /*!< (@ 0x400040F4) Idle channel register. This register returns
+                                                         the number of the first idle channel.                                 */
+  __IO uint32_t  IRQ_FLAG;                          /*!< (@ 0x400040F8) Global interrupt flag register                         */
 } LPC_MRT_TypeDef;
-
 
 /*------------- Universal Asynchronous Receiver Transmitter (USART) -----------*/
 /** @addtogroup LPC8xx_UART LPC8xx Universal Asynchronous Receiver/Transmitter

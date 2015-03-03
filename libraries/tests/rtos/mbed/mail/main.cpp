@@ -40,6 +40,11 @@ void send_thread (void const *argument) {
 }
 
 int main (void) {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Mail messaging);
+    MBED_HOSTTEST_START("RTOS_6");
+
     Thread thread(send_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
     int result_counter = 0;
@@ -65,6 +70,6 @@ int main (void) {
             }
         }
     }
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
     return 0;
 }

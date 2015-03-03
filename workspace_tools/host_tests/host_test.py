@@ -23,6 +23,8 @@ except ImportError, e:
     exit(-1)
 
 import os
+import re
+import types
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
@@ -123,6 +125,10 @@ class Mbed:
         # Overload serial port configuration from default to parameters' values if they are specified
         serial_baud = serial_baud if serial_baud is not None else self.serial_baud
         serial_timeout = serial_timeout if serial_timeout is not None else self.serial_timeout
+
+        if self.serial:
+            self.serial.close()
+            self.serial = None
 
         result = True
         try:
@@ -252,13 +258,50 @@ class HostTestResults:
         self.RESULT_NO_IMAGE = 'no_image'
         self.RESULT_IOERR_COPY = "ioerr_copy"
         self.RESULT_PASSIVE = "passive"
+        self.RESULT_NOT_DETECTED = "not_detected"
+        self.RESULT_MBED_ASSERT = "mbed_assert"
+
+
+import workspace_tools.host_tests as host_tests
 
 
 class Test(HostTestResults):
     """ Base class for host test's test runner
     """
+    # Select default host_test supervision (replaced after autodetection)
+    test_supervisor = host_tests.get_host_test("default")
+
     def __init__(self):
         self.mbed = Mbed()
+
+    def detect_test_config(self, verbose=False):
+        """ Detects test case configuration
+        """
+        result = {}
+        while True:
+            line = self.mbed.serial_readline()
+            if "{start}" in line:
+                self.notify("HOST: Start test...")
+                break
+            else:
+                # Detect if this is property from TEST_ENV print
+                m = re.search('{([\w_]+);([\w\d\+ ]+)}}', line[:-1])
+                if m and len(m.groups()) == 2:
+                    # This is most likely auto-detection property
+                    result[m.group(1)] = m.group(2)
+                    if verbose:
+                        self.notify("HOST: Property '%s' = '%s'"% (m.group(1), m.group(2)))
+                else:
+                    # We can check if this is TArget Id in mbed specific format
+                    m2 = re.search('^([\$]+)([a-fA-F0-9]+)', line[:-1])
+                    if m2 and len(m2.groups()) == 2:
+                        if verbose:
+                            target_id = m2.group(1) + m2.group(2)
+                            self.notify("HOST: TargetID '%s'"% target_id)
+                            self.notify(line[len(target_id):-1])
+                    else:
+                        self.notify("HOST: Unknown property: %s"% line.strip())
+        return result
 
     def run(self):
         """ Test runner for host test. This function will start executing
@@ -284,7 +327,13 @@ class Test(HostTestResults):
 
         # Run test
         try:
-            result = self.test()
+            CONFIG = self.detect_test_config(verbose=True) # print CONFIG
+
+            if "host_test_name" in CONFIG:
+                if host_tests.is_host_test(CONFIG["host_test_name"]):
+                    self.test_supervisor = host_tests.get_host_test(CONFIG["host_test_name"])
+            result = self.test_supervisor.test(self)    #result = self.test()
+
             if result is not None:
                 self.print_result(result)
             else:
@@ -312,35 +361,15 @@ class Test(HostTestResults):
     def print_result(self, result):
         """ Test result unified printing function
         """
-        self.notify("\n{{%s}}\n{{end}}" % result)
+        self.notify("\r\n{{%s}}\r\n{{end}}" % result)
 
 
-class DefaultTest(Test):
+class DefaultTestSelector(Test):
     """ Test class with serial port initialization
     """
     def __init__(self):
         HostTestResults.__init__(self)
         Test.__init__(self)
 
-
-class Simple(DefaultTest):
-    """ Simple, basic host test's test runner waiting for serial port
-        output from MUT, no supervision over test running in MUT is executed.
-    """
-    def test(self):
-        result = self.RESULT_SUCCESS
-        try:
-            while True:
-                c = self.mbed.serial_read(512)
-                if c is None:
-                    return self.RESULT_IO_SERIAL
-                stdout.write(c)
-                stdout.flush()
-        except KeyboardInterrupt, _:
-            self.notify("\r\n[CTRL+C] exit")
-            result = self.RESULT_ERROR
-        return result
-
-
 if __name__ == '__main__':
-    Simple().run()
+    DefaultTestSelector().run()

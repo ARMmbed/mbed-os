@@ -16,10 +16,10 @@ limitations under the License.
 """
 import os, tempfile
 from os.path import join, exists, basename
-from shutil import copytree, rmtree
+from shutil import copytree, rmtree, copy
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP
 
@@ -58,14 +58,18 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
-    if ide is None:
-        # Simply copy everything, no project files to be generated
-        for d in ['src', 'lib']:
-            os.system("cp -r %s/* %s" % (join(project_path, d), tempdir))
-        report = {'success': True}
-
+    report = {'success': False}
+    if ide is None or ide == "zip":
+        # Simple ZIP exporter
+        try:
+            ide = "zip"
+            exporter = zip.ZIP(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
+            exporter.scan_and_copy_resources(project_path, tempdir)
+            exporter.generate()
+            report['success'] = True
+        except OldLibrariesException, e:
+            report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
     else:
-        report = {'success': False}
         if ide not in EXPORTERS:
             report['errormsg'] = "Unsupported toolchain"
         else:
@@ -85,7 +89,9 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     zip_path = None
     if report['success']:
         # add readme file to every offline export.
-        open(os.path.join(tempdir, 'README.html'),'w').write('<meta http-equiv="refresh" content="0; url=http://developer.mbed.org/handbook/ExportToOfflineToolchain#%s#%s"/>'% (target,ide))
+        open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
+        # copy .hgignore file to exported direcotry as well.
+        copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
 
     return zip_path, report

@@ -37,6 +37,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('SSCI824',      ('uARM',)),
     ('LPC1347',      ('ARM','IAR')),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('LPC4088_DM',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC1114',      ('uARM','GCC_ARM', 'IAR')),
     ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
@@ -72,20 +73,20 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
-    ('NRF51822',     ('ARM', 'GCC_ARM')),
+    ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),
     ('NRF51_DK',     ('ARM', 'GCC_ARM')),
     ('NRF51_DONGLE', ('ARM', 'GCC_ARM')),
     ('HRM1017',      ('ARM', 'GCC_ARM')),
     ('ARCH_BLE',     ('ARM', 'GCC_ARM')),
-    ('BLE_SMURFS',     ('ARM', 'GCC_ARM')),
+    ('SEEED_TINY_BLE', ('ARM', 'GCC_ARM')),
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
 
-    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
-    ('RZ_A1H'   ,     ('ARM',)),
+    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 )
 
 

@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "EthernetInterface.h"
 
 namespace {
@@ -7,22 +8,27 @@ namespace {
 }
 
 int main (void) {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(tcpecho_server_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP echo server);
+    MBED_HOSTTEST_START("NET_3");
+
     char buffer[BUFFER_SIZE] = {0};
     EthernetInterface eth;
     eth.init(); //Use DHCP
     eth.connect();
-    printf("MBED: Server IP Address is %s:%d\r\n", eth.getIPAddress(), ECHO_SERVER_PORT);
+    printf("MBED: Server IP Address is %s:%d" NL, eth.getIPAddress(), ECHO_SERVER_PORT);
 
     TCPSocketServer server;
     server.bind(ECHO_SERVER_PORT);
     server.listen();
 
     while (true) {
-        printf("MBED: Wait for new connection...\n");
+        printf("MBED: Wait for new connection..." NL);
         TCPSocketConnection client;
         server.accept(client);
         client.set_blocking(false, 1500); // Timeout after (1.5)s
-        printf("MBED: Connection from: %s\r\n", client.get_address());
+        printf("MBED: Connection from: %s" NL, client.get_address());
 
         while (true) {
             const int n = client.receive(buffer, sizeof(buffer));
