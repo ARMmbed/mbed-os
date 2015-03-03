@@ -234,8 +234,8 @@ typedef enum {
     A1 = PTB3,
     A2 = PTB10,
     A3 = PTB11,
-    A4 = PTC10,
-    A5 = PTC11,
+    A4 = PTC11,
+    A5 = PTC10,
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
