@@ -81,7 +81,7 @@ static inline void rtc1_disableOverflowInterrupt(void)
     NRF_RTC1->EVTENCLR = RTC_EVTEN_OVRFLW_Msk;
 }
 
-static inline void INVOKE_CALLBACK(void)
+static inline void invokeCallback(void)
 {
     us_ticker_callbackPending = false;
     rtc1_disableCompareInterrupt();
@@ -152,7 +152,7 @@ void RTC1_IRQHandler(void)
     if (NRF_RTC1->EVENTS_COMPARE[0] && us_ticker_callbackPending && ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0)) {
         NRF_RTC1->EVENTS_COMPARE[0] = 0;
         NRF_RTC1->EVTENCLR          = RTC_EVTEN_COMPARE0_Msk;
-        INVOKE_CALLBACK();
+        invokeCallback();
     }
 }
 
