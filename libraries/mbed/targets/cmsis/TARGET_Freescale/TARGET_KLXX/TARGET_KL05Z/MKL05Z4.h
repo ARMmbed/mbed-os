@@ -2008,7 +2008,7 @@ typedef struct {
 #define OSC_CR_SC2P_SHIFT                        3
 #define OSC_CR_EREFSTEN_MASK                     0x20u
 #define OSC_CR_EREFSTEN_SHIFT                    5
-#define OSC_CR_ERCLKEN_MASK                      0x106u
+#define OSC_CR_ERCLKEN_MASK                      0x80u
 #define OSC_CR_ERCLKEN_SHIFT                     7
 
 /**
