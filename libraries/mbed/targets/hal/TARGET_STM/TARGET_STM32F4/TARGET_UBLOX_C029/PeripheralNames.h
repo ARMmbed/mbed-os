@@ -53,7 +53,9 @@ typedef enum {
     UART_3 = (int)USART3_BASE,
     UART_4 = (int)UART4_BASE,
     UART_5 = (int)UART5_BASE,
-    UART_6 = (int)USART6_BASE
+    UART_6 = (int)USART6_BASE,
+    UART_7 = (int)UART7_BASE,
+    UART_8 = (int)UART8_BASE
 } UARTName;
 
 #define STDIO_UART_TX  PD_8

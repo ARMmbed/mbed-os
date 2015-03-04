@@ -122,6 +122,7 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
+    TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -139,7 +140,8 @@ class SingleTestRunner(object):
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
-                           "end" : TEST_RESULT_UNDEF
+                           "end" : TEST_RESULT_UNDEF,
+                           "mbed_assert" : TEST_RESULT_MBED_ASSERT
     }
 
     def __init__(self,
@@ -565,7 +567,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_DISK : 0,
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
-                       self.TEST_RESULT_TIMEOUT : 0
+                       self.TEST_RESULT_TIMEOUT : 0,
+                       self.TEST_RESULT_MBED_ASSERT : 0
         }
 
         for test in test_summary:
@@ -877,6 +880,11 @@ class SingleTestRunner(object):
                         # We will update this marker only once to prevent multiple time resets
                         update_once_flag['timeout'] = True
                         duration = int(auto_timeout_val)
+
+                    # Detect mbed assert:
+                    if 'mbed assertation failed: ' in line:
+                        output.append('{{mbed_assert}}')
+                        break
 
                     # Check for test end
                     if '{end}' in line:

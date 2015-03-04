@@ -258,40 +258,6 @@ void _main_init (void) {
 #pragma pop
 #endif
 #else
-#if 0
-//#ifdef __MBED_CMSIS_RTOS_CA9
-__asm void __rt_entry (void) {
-
-  IMPORT  __user_setup_stackheap
-  IMPORT  __rt_lib_init
-  IMPORT  os_thread_def_main
-  IMPORT  osKernelInitialize
-  IMPORT  osKernelStart
-  IMPORT  osThreadCreate
-  IMPORT  InterruptHandlerRegister
-  IMPORT  PendSV_Handler
-  IMPORT  OS_Tick_Handler
-  IMPORT  exit
-
-  BL      __user_setup_stackheap
-  MOV     R1,R2
-  BL      __rt_lib_init
-  BL      osKernelInitialize
-  LDR     R0,=os_thread_def_main
-  MOVS    R1,#0
-  BL      osThreadCreate
-  BL      osKernelStart
-  MOVS    R0,#0
-  LDR     R1,=PendSV_Handler
-  BL      InterruptHandlerRegister
-  MOVS    R0,#134
-  LDR     R1,=OS_Tick_Handler
-  BL      InterruptHandlerRegister
-  BL      exit
-
-  ALIGN
-}
-#else
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
@@ -314,7 +280,6 @@ __asm void __rt_entry (void) {
 
   ALIGN
 }
-#endif
 #endif
 
 #elif defined (__GNUC__)
@@ -375,7 +340,7 @@ __attribute ((noreturn)) void __cs3_start_c (void){
 __attribute__((naked)) void software_init_hook (void) {
   __asm (
     ".syntax unified\n"
-    ".thumb\n"
+    ".arm\n"
     "movs r0,#0\n"
     "movs r1,#0\n"
     "mov  r4,r0\n"

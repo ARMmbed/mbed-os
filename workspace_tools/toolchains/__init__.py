@@ -17,7 +17,6 @@ limitations under the License.
 
 import re
 import sys
-import colorama
 from os import stat, walk
 from copy import copy
 from time import time, sleep
@@ -45,23 +44,6 @@ def print_notify(event, silent=False):
         event['severity'] = event['severity'].title()
         event['file'] = basename(event['file'])
         print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
-
-    elif event['type'] == 'progress':
-        if not silent:
-            print '%s: %s' % (event['action'].title(), basename(event['file']))
-
-def print_notify_color(event, silent=False):
-    """ Default command line notification with colors
-    """
-    from colorama import Fore, Back, Style
-
-    if event['type'] in ['info', 'debug']:
-        print Fore.GREEN + event['message'] + Fore.RESET
-
-    elif event['type'] == 'cc':
-        event['severity'] = event['severity'].title()
-        event['file'] = basename(event['file'])
-        print Fore.YELLOW + '[%(severity)s] %(file)s@%(line)s: %(message)s'% event + Fore.RESET
 
     elif event['type'] == 'progress':
         if not silent:
@@ -239,7 +221,7 @@ class mbedToolchain:
 
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
-        self.notify_fun = notify if notify is not None else print_notify_color
+        self.notify_fun = notify if notify is not None else print_notify
         self.options = options if options is not None else []
 
         self.macros = macros or []
@@ -651,6 +633,8 @@ class mbedToolchain:
 
     def link_program(self, r, tmp_path, name):
         ext = 'bin'
+        if hasattr(self.target, 'OUTPUT_EXT'):
+            ext = self.target.OUTPUT_EXT
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
             self.var("binary_naming", self.target.OUTPUT_NAMING)
@@ -659,7 +643,6 @@ class mbedToolchain:
                 ext = ext[0:3]
 
         filename = name+'.'+ext
-
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
 
@@ -674,9 +657,6 @@ class mbedToolchain:
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
-
-        if hasattr(self.target, 'OUTPUT_EXT'):
-            bin = bin.replace('.bin', self.target.OUTPUT_EXT)
 
         return bin
 
@@ -730,9 +710,6 @@ class mbedToolchain:
 
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
-
-from colorama import init
-init()
 
 from workspace_tools.settings import ARM_BIN
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH

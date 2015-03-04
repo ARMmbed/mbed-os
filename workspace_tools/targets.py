@@ -415,6 +415,8 @@ class K20D50M(Target):
         self.detect_code = ["0230"]
 
 class TEENSY3_1(Target):
+    OUTPUT_EXT = 'hex'
+    
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -423,7 +425,6 @@ class TEENSY3_1(Target):
         self.is_disk_virtual = True
         self.detect_code = ["0230"]
 
-        OUTPUT_EXT = '.hex'
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
@@ -741,7 +742,7 @@ class NRF51822(Target):
             'offset' : 0x14000
         }
     ]
-    OUTPUT_EXT = '.hex'
+    OUTPUT_EXT = 'hex'
     MERGE_SOFT_DEVICE = True
 
     def __init__(self):
@@ -958,7 +959,7 @@ class RZ_A1H(Target):
         Target.__init__(self)
         self.core = "Cortex-A9"
         self.extra_labels = ['RENESAS', 'MBRZA1H']
-        self.supported_toolchains = ["ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
 
