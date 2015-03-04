@@ -220,6 +220,7 @@ if __name__ == '__main__':
                                    _opts_verbose=opts.verbose,
                                    _opts_firmware_global_name=opts.firmware_global_name,
                                    _opts_only_build_tests=opts.only_build_tests,
+                                   _opts_parallel_test_exec=opts.parallel_test_exec,
                                    _opts_suppress_summary=opts.suppress_summary,
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary,
                                    _opts_copy_method=opts.copy_method,
