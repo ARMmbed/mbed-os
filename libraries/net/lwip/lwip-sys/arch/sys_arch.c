@@ -427,7 +427,11 @@ sys_thread_t sys_thread_new(const char *pcName,
     t->def.tpriority = (osPriority)priority;
     t->def.stacksize = stacksize;
 #ifndef __MBED_CMSIS_RTOS_CA9
+    #if defined (__ICCARM__)
+    t->def.stack_pointer = (uint32_t*)malloc(stacksize);
+    #else
     t->def.stack_pointer = (unsigned char*)malloc(stacksize);
+    #endif
     if (t->def.stack_pointer == NULL) {
       error("Error allocating the stack memory");
     }
