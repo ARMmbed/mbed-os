@@ -34,6 +34,7 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC812',
         'LPC4088',
         'LPC4088_DM',
+        'LPC824',
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
