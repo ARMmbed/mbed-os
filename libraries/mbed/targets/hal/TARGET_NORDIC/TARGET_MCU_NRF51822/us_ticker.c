@@ -48,7 +48,7 @@
                                      * writing N+2 to a CC register is guaranteed to trigger a COMPARE
                                      * event at N+2. */
 
-#define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ);
+#define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ)
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
 static bool              us_ticker_inited = false;
