@@ -52,8 +52,7 @@
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
 static bool              us_ticker_inited = false;
-static volatile uint32_t overflowBits;                   /**< The upper 8 bits of the 32-bit value
-                                                          * returned by rtc1_getCounter(). */
+static volatile uint32_t overflowCount;                   /**< The number of times the 24-bit RTC counter has overflowed. */
 static volatile bool     us_ticker_callbackPending = false;
 static uint32_t          us_ticker_callbackTimestamp;
 
@@ -130,11 +129,11 @@ void rtc1_stop(void)
 static __INLINE uint32_t rtc1_getCounter(void)
 {
     if (NRF_RTC1->EVENTS_OVRFLW) {
-        overflowBits += (1 << 24);
+        overflowCount++;
         NRF_RTC1->EVENTS_OVRFLW = 0;
         NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
-    return overflowBits | NRF_RTC1->COUNTER;
+    return (overflowCount << 24) | NRF_RTC1->COUNTER;
 }
 
 /**
@@ -145,7 +144,7 @@ static __INLINE uint32_t rtc1_getCounter(void)
 void RTC1_IRQHandler(void)
 {
     if (NRF_RTC1->EVENTS_OVRFLW) {
-        overflowBits += (1 << 24);
+        overflowCount++;
         NRF_RTC1->EVENTS_OVRFLW = 0;
         NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
