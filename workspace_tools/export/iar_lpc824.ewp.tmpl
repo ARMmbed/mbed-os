@@ -948,11 +948,7 @@
       <data/>
     </settings>
   </configuration>
-  {% for files in source_files %}
-  <file>
-    <name>$PROJ_DIR$\{{files}}</name>
-  </file>
-  {% endfor %}
+  {{source_files}}
 </project>
 
 
