@@ -189,6 +189,11 @@ uint32_t us_ticker_read()
  * @Note: If this function is used to setup an interrupt which is immediately
  * pending--such as for 'now' or a time in the past,--then the callback is
  * invoked a few ticks later.
+ *
+ * @suggestion: Avoid studying this code unless you're forced to. And please
+ * don't prove me wrong--I've spent too much time trying to get this code to
+ * behave correctly; currently it pretends to do so, and I don't want to learn
+ * anything different unless I'm given an easy way to reproduce the problem.
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
@@ -196,7 +201,50 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         us_ticker_init();
     }
 
-    uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp);
+    /*
+     * Alert: Get yourself a beverage.
+     *
+     * In comes a harmless, merry-looking 32-bit timestamp in units of micro-
+     * seconds from the generic us_ticker_api. On most platforms with 32-bit
+     * hardware timers running at micro-second precision this poses no serious
+     * challenge. But on the nRF51, we use an RTC timer running at 32kHz to
+     * implement a low-power us-ticker. This brings with a problem that's rooted
+     * in the fact that 1000000 is not a multiple of 32768.
+     *
+     * Going from a micro-second based timestamp to a 32kHz based RTC-time is a
+     * linear mapping; but then when the 32-bit micro-second timestamp wraps
+     * around, unfortunately the underlying RTC counter doesn't. The result is
+     * that timestamp expiry checks on micro-second timestamps don't yield the
+     * same result when applied on the corresponding RTC timestamp values.
+     * You'll really need to whip up some numbers to see the problem.
+     *
+     * As far as I understand--and this could just be me turning old and rusty,
+     * --there is no clean solution for this problem at the wrap-around
+     * boundary. I'd be interested to be shown how. My solution is to translate
+     * the incoming 32-bit timestamp into a virtual 64-bit timestamp based on
+     * the knowledge of system-uptime, and then use this 64-bit value to do a
+     * linear mapping to RTC time. 64-bit timestamp values shouldn't wrap around
+     * in a few thousand years. This may be pulling down the theoretical upper
+     * boundary for the shelf life of nRF products when used with mbed; please
+     * accept my two to the power 56 apologies for that. But then life often
+     * forces one to live within constraints. What's the meaning of all this
+     * anyway?
+     *
+     * System uptime on an nRF is maintained using RTC's counter. We track the
+     * overflow count to extend the 24-bit hardware counter by an additional 32
+     * bits. This then forms the basis for system time.
+     * RTC_UNITS_TO_MICROSECONDS() converts this into microsecond units (in
+     * 64-bits). We then shave off the lower 32-bits of it and add in the
+     * incoming timestamp to get a mapping into a virtual 64-bit timestamp.
+     * There's one additional check to handle the case of wraparound for the
+     * 32-bit timestamp.
+     */
+    uint64_t timestamp64 = (RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter()) & ~(uint64_t)0xFFFFFFFF) + timestamp;
+    if ((us_ticker_read() > 0xF0000000) && (timestamp < 0x10000000)) {
+        timestamp64 += (uint64_t)0x100000000;
+    }
+
+    uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
 
     /* Check for repeat setup of an existing callback. This is actually not
      * important; the following code should work even without this check. */
