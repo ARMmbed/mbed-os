@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 #include <stddef.h>
+#include <stdbool.h>
 #include "us_ticker_api.h"
 #include "cmsis.h"
 #include "PeripheralNames.h"
-#include "app_timer.h"
 #include "nrf_delay.h"
 
 /*
