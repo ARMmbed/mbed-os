@@ -16,8 +16,6 @@ limitations under the License.
 """
 from exporters import Exporter
 import re
-import traceback
-import hashlib
 
 class IAREmbeddedWorkbench(Exporter):
     NAME = 'IAR'
