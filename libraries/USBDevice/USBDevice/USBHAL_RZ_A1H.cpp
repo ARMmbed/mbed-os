@@ -515,10 +515,10 @@ extern "C" {
                 if (RZA_IO_RegRead_16(
                         &g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                     /* read */
-                    __nop();
+                    __NOP();
                 } else {
                     /* write */
-                    __nop();
+                    __NOP();
                 }
             }
         }
@@ -629,7 +629,7 @@ extern "C" {
                             if (RZA_IO_RegRead_16(
                                     &g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                                 /* read */
-                                __nop();
+                                __NOP();
                             } else {
                                 /* write */
                                 EPx_read_status = DEVDRV_USBF_PIPE_WAIT;

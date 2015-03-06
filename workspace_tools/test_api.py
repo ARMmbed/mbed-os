@@ -122,6 +122,7 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
+    TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -139,7 +140,8 @@ class SingleTestRunner(object):
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
-                           "end" : TEST_RESULT_UNDEF
+                           "end" : TEST_RESULT_UNDEF,
+                           "mbed_assert" : TEST_RESULT_MBED_ASSERT
     }
 
     def __init__(self,
@@ -157,6 +159,7 @@ class SingleTestRunner(object):
                  _opts_shuffle_test_order=False,
                  _opts_shuffle_test_seed=None,
                  _opts_test_by_names=None,
+                 _opts_peripheral_by_names=None,
                  _opts_test_only_peripheral=False,
                  _opts_test_only_common=False,
                  _opts_verbose_skipped_tests=False,
@@ -206,6 +209,7 @@ class SingleTestRunner(object):
         self.opts_shuffle_test_order = _opts_shuffle_test_order
         self.opts_shuffle_test_seed = _opts_shuffle_test_seed
         self.opts_test_by_names = _opts_test_by_names
+        self.opts_peripheral_by_names = _opts_peripheral_by_names
         self.opts_test_only_peripheral = _opts_test_only_peripheral
         self.opts_test_only_common = _opts_test_only_common
         self.opts_verbose_skipped_tests = _opts_verbose_skipped_tests
@@ -253,6 +257,7 @@ class SingleTestRunner(object):
                   "shuffle_test_order" : str(self.opts_shuffle_test_order),
                   "shuffle_test_seed" : str(self.opts_shuffle_test_seed),
                   "test_by_names" :  str(self.opts_test_by_names),
+                  "peripheral_by_names" :  str(self.opts_peripheral_by_names),
                   "test_only_peripheral" :  str(self.opts_test_only_peripheral),
                   "test_only_common" :  str(self.opts_test_only_common),
                   "verbose" :  str(self.opts_verbose),
@@ -358,8 +363,10 @@ class SingleTestRunner(object):
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                         self.db_logger.disconnect();
 
+
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
+
                     if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
                         continue
 
@@ -367,6 +374,13 @@ class SingleTestRunner(object):
                         continue
 
                     if self.opts_test_only_peripheral and not test.peripherals:
+                        if self.opts_verbose_skipped_tests:
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                        test_suite_properties['skipped'].append(test_id)
+                        continue
+
+                    if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
+                        # We will skip tests not forced with -p option
                         if self.opts_verbose_skipped_tests:
                             print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
                         test_suite_properties['skipped'].append(test_id)
@@ -382,6 +396,10 @@ class SingleTestRunner(object):
                         if test.peripherals is None and self.opts_only_build_tests:
                             # When users are using 'build only flag' and test do not have
                             # specified peripherals we can allow test building by default
+                            pass
+                        elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
+                            # If we force peripheral with option -p we expect test
+                            # to pass even if peripheral is not in MUTs file.
                             pass
                         elif not self.is_peripherals_available(target, test.peripherals):
                             if self.opts_verbose_skipped_tests:
@@ -565,7 +583,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_DISK : 0,
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
-                       self.TEST_RESULT_TIMEOUT : 0
+                       self.TEST_RESULT_TIMEOUT : 0,
+                       self.TEST_RESULT_MBED_ASSERT : 0
         }
 
         for test in test_summary:
@@ -878,6 +897,11 @@ class SingleTestRunner(object):
                         update_once_flag['timeout'] = True
                         duration = int(auto_timeout_val)
 
+                    # Detect mbed assert:
+                    if 'mbed assertation failed: ' in line:
+                        output.append('{{mbed_assert}}')
+                        break
+
                     # Check for test end
                     if '{end}' in line:
                         break
@@ -904,7 +928,7 @@ class SingleTestRunner(object):
         return (result, "".join(output), testcase_duration, duration)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
-        """ Checks if specified target should run specific peripheral test case
+        """ Checks if specified target should run specific peripheral test case defined in MUTs file
         """
         if peripherals is not None:
             peripherals = set(peripherals)
@@ -922,7 +946,7 @@ class SingleTestRunner(object):
         return False
 
     def shape_test_request(self, mcu, image_path, test_id, duration=10):
-        """ Function prepares JOSN structure describing test specification
+        """ Function prepares JSON structure describing test specification
         """
         test_spec = {
             "mcu": mcu,
@@ -1499,7 +1523,11 @@ def get_default_test_options_parser():
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+
+    parser.add_option('-p', '--peripheral-by-names',
+                      dest='peripheral_by_names',
+                      help='Forces discovery of particular peripherals.  Use comma to separate peripheral names.')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)

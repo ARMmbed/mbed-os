@@ -17,4 +17,4 @@ typedef struct tag_ethernet_cfg {
 extern int ethernetext_init(ethernet_cfg_t *p_ethcfg);
 extern void ethernetext_start_stop(int32_t mode);
 extern int ethernetext_chk_link_mode(void);
-extern void ethernetext_set_link_mode(int link);
+extern void ethernetext_set_link_mode(int32_t link);
