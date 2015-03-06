@@ -864,10 +864,18 @@ class SEEED_TINY_BLE(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
+class SEEED_TINY_BLE_BOOT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'SEEED_TINY_BLE']
+        self.macros = ['TARGET_NRF51822', 'TARGET_SEEED_TINY_BLE', 'TARGET_OTA_ENABLED']
+        self.MERGE_SOFT_DEVICE = True
+        self.MERGE_BOOTLOADER = True
+
 class SEEED_TINY_BLE_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'SEEED_TINY_BLE']
         self.macros = ['TARGET_NRF51822', 'TARGET_SEEED_TINY_BLE', 'TARGET_OTA_ENABLED']
         self.MERGE_SOFT_DEVICE = False
 
@@ -917,6 +925,12 @@ class DELTA_DFCM_NNN40(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
+class DELTA_DFCM_NNN40_OTA(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
+        self.MERGE_SOFT_DEVICE = False
 class DELTA_DFCM_NNN40_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -1086,8 +1100,9 @@ TARGETS = [
     NRF51_DK_OTA(), # nRF51822
     NRF51_DONGLE(),
     ARCH_BLE(),     # nRF51822
-    SEEED_TINY_BLE(),
-    SEEED_TINY_BLE_OTA(),
+    SEEED_TINY_BLE(), # nRF51822
+    SEEED_TINY_BLE_BOOT(),# nRF51822
+    SEEED_TINY_BLE_OTA(),# nRF51822
     HRM1017(),      # nRF51822
     RBLAB_NRF51822(),# nRF51822
     RBLAB_BLENANO(),# nRF51822
