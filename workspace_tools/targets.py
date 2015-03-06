@@ -454,24 +454,25 @@ class K64F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
+        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.default_toolchain = "ARM"
+
+class FRDM_K64F(K64F):
+    def __init__(self):
+        K64F.__init__(self)
+        self.extra_labels += ['FRDM']
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
         self.detect_code = ["0240"]
 
-class MTS_GAMBIT(Target):
+class MTS_GAMBIT(K64F):
     def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
+        K64F.__init__(self)
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
         self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-
 
 ### STMicro ###
 
@@ -1012,7 +1013,7 @@ TARGETS = [
     K20D50M(),
     TEENSY3_1(),
     K22F(),
-    K64F(),
+    FRDM_K64F(),
     MTS_GAMBIT(),   # FRDM K64F
 
     ### STMicro ###

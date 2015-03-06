@@ -70,7 +70,7 @@ build_list = (
     { "target": "KL46Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "K20D50M",       "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "TEENSY3_1",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
+    { "target": "FRDM_K64F",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },

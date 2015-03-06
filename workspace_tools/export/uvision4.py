@@ -28,7 +28,7 @@ class Uvision4(Exporter):
         'KL25Z',
         'KL43Z',
         'KL46Z',
-        'K64F',
+        'FRDM_K64F',
         'K22F',
         'K20D50M',
         'TEENSY3_1',

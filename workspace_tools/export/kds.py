@@ -23,7 +23,7 @@ class KDS(Exporter):
     TOOLCHAIN = 'GCC_ARM'
 
     TARGETS = [
-        'K64F',
+        'FRDM_K64F',
         'K22F',
     ]
 

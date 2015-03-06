@@ -42,7 +42,7 @@ class IAREmbeddedWorkbench(Exporter):
         'KL25Z',
         'KL46Z',
         'K22F',
-        'K64F',
+        'FRDM_K64F',
         'NUCLEO_F030R8',
         'NUCLEO_F070RB',
         'NUCLEO_F072RB',
@@ -147,7 +147,7 @@ class IAR_FOLDER:
                 else:
                     self.sub_folders[folder_name] = IAR_FOLDER(self.folder_level + "\\" + folder_name, folder_name, [source_input])
 
-    @staticmethod    
+    @staticmethod
     def get_directory(file_path):
         dir_Match = re.match( r'(.*)[/\\][^/\\]+', file_path)
         if dir_Match is not None:
