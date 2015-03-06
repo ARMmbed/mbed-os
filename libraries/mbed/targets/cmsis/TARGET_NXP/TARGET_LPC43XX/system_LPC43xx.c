@@ -259,13 +259,13 @@ void SystemSetupClock(void)
 
     /* Change PLL1 to 108 Mhz (msel=9, 12 MHz*9=108 MHz) */
     LPC_CGU->PLL1_CTRL = (1 << 7) | (0 << 8) | (1 << 11) | (0 << 12) | (8 << 16)
-                         | (CLKIN_MAINPLL << 24);
+                         | (CLKIN_CRYSTAL << 24);
     while (!(LPC_CGU->PLL1_STAT & 1)); /* Wait for PLL1 to lock */
     WaitUs(100);
 
     /* Change PLL1 to 204 Mhz (msel=17, 12 MHz*17=204 MHz) */
     LPC_CGU->PLL1_CTRL = (1 << 7) | (0 << 8) | (1 << 11) | (0 << 12) | (16 << 16)
-                         | (CLKIN_MAINPLL << 24);
+                         | (CLKIN_CRYSTAL << 24);
     while (!(LPC_CGU->PLL1_STAT & 1)); /* Wait for PLL1 to lock */
 
     /* Connect main clock to PLL1 */
