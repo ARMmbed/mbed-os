@@ -202,9 +202,11 @@ void SystemInit (void) {
 #elif (CLOCK_SETUP == 3)
   /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV3=1,OUTDIV4=1,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0 */
   SIM->CLKDIV1 = (uint32_t)0x00110000u; /* Update system prescalers */
+  /* SIM->CLKDIV2: USBDIV=5,USBFRAC=0 */
+  SIM->CLKDIV2 = (uint32_t)0x05u; /* Divide 72MHz system clock for USB 48MHz */
   /* Switch to FBE Mode */
-  /* OSC0->CR: ERCLKEN=0,??=0,EREFSTEN=0,??=0,SC2P=0,SC4P=0,SC8P=0,SC16P=0 */
-  OSC0->CR = (uint8_t)0x0Au; // this is required if there are no external capacitors fitted to the Xtal
+   /* OSC0->CR: ERCLKEN=0,??=0,EREFSTEN=0,??=0,SC2P=1,SC4P=0,SC8P=1,SC16P=0 */
+  OSC0->CR = OSC_CR_SC8P_MASK | OSC_CR_SC2P_MASK; /* 10pF loading capacitors for 16MHz system oscillator*/
   /* MCG->C7: OSCSEL=0 */
   MCG->C7 = (uint8_t)0x00u;
   /* MCG->C2: ??=0,??=0,RANGE0=2,HGO=0,EREFS=1,LP=0,IRCS=0 */
