@@ -1082,6 +1082,7 @@ for t in TARGETS:
 
 TARGET_NAMES = TARGET_MAP.keys()
 
+# Translation table for legacy names (K64F -> FRDM_K64F)
 TARGET_LEGACY_NAMES = {
     'K64F' : 'FRDM_K64F',
 }
