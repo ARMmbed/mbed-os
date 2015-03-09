@@ -27,26 +27,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "mbed_assert.h"
 #include "pwmout_api.h"
 
 #if DEVICE_PWMOUT
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h"
+
+static TIM_HandleTypeDef TimHandle;
 
 void pwmout_init(pwmout_t* obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
-    MBED_ASSERT(obj->pwm != (PWMName)NC);
+
+    if (obj->pwm == (PWMName)NC) {
+        error("PWM error: pinout mapping failed.");
+    }
 
     // Enable TIM clock
-    if (obj->pwm == PWM_1) RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-    if (obj->pwm == PWM_2) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    if (obj->pwm == PWM_3) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-    if (obj->pwm == PWM_4) RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+    if (obj->pwm == PWM_1) __TIM1_CLK_ENABLE();
+    if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
+    if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
@@ -61,102 +65,102 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 void pwmout_free(pwmout_t* obj)
 {
     // Configure GPIO
-    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
 void pwmout_write(pwmout_t* obj, float value)
 {
-    TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
-    TIM_OCInitTypeDef TIM_OCInitStructure;
+    TIM_OC_InitTypeDef sConfig;
+    int channel = 0;
+    int complementary_channel = 0;
 
-    if (value < 0.0) {
+    TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
+
+    if (value < (float)0.0) {
         value = 0.0;
-    } else if (value > 1.0) {
+    } else if (value > (float)1.0) {
         value = 1.0;
     }
 
     obj->pulse = (uint32_t)((float)obj->period * value);
 
-    TIM_OCInitStructure.TIM_OCMode       = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_Pulse        = obj->pulse;
-    TIM_OCInitStructure.TIM_OCPolarity   = TIM_OCPolarity_High;
-    TIM_OCInitStructure.TIM_OCNPolarity  = TIM_OCNPolarity_High;
-    TIM_OCInitStructure.TIM_OCIdleState  = TIM_OCIdleState_Reset;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
-
     // Configure channels
+    sConfig.OCMode       = TIM_OCMODE_PWM1;
+    sConfig.Pulse        = obj->pulse;
+    sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
+    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
     switch (obj->pin) {
+
         // Channels 1
         case PA_6:
         case PA_8:
         case PA_15:
         case PB_4:
-        //case PB_6:
         case PC_6:
-            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-            TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC1Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_1;
             break;
+
         // Channels 1N
-        //case PA_7:
         case PB_13:
-            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-            TIM_OC1PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC1Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_1;
+            complementary_channel = 1;
             break;
+
         // Channels 2
         case PA_1:
         case PA_7:
         case PA_9:
         case PB_3:
         case PB_5:
-        //case PB_7:
         case PC_7:
-            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-            TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC2Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_2;
             break;
+
         // Channels 2N
-        //case PB_0:
         case PB_14:
-            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-            TIM_OC2PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC2Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_2;
+            complementary_channel = 1;
             break;
+
         // Channels 3
         case PA_2:
         case PA_10:
         case PB_0:
-        //case PB_8:
         case PB_10:
         case PC_8:
-            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-            TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC3Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_3;
             break;
+
         // Channels 3N
-        //case PB_1:
         case PB_15:
-            TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-            TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC3Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_3;
+            complementary_channel = 1;
             break;
+
         // Channels 4
         case PA_3:
         case PA_11:
         case PB_1:
-        //case PB_9:
         case PB_11:
         case PC_9:
-            TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-            TIM_OC4PreloadConfig(tim, TIM_OCPreload_Enable);
-            TIM_OC4Init(tim, &TIM_OCInitStructure);
+            channel = TIM_CHANNEL_4;
             break;
+
         default:
             return;
     }
 
-    TIM_CtrlPWMOutputs(tim, ENABLE);
+    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
+
+    if (complementary_channel) {
+        HAL_TIMEx_PWMN_Start(&TimHandle, channel);
+    } else {
+        HAL_TIM_PWM_Start(&TimHandle, channel);
+    }
 }
 
 float pwmout_read(pwmout_t* obj)
@@ -165,7 +169,7 @@ float pwmout_read(pwmout_t* obj)
     if (obj->period > 0) {
         value = (float)(obj->pulse) / (float)(obj->period);
     }
-    return ((value > 1.0) ? (1.0) : (value));
+    return ((value > (float)1.0) ? (float)(1.0) : (value));
 }
 
 void pwmout_period(pwmout_t* obj, float seconds)
@@ -180,25 +184,28 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 
 void pwmout_period_us(pwmout_t* obj, int us)
 {
-    TIM_TypeDef *tim = (TIM_TypeDef *)(obj->pwm);
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
+
     float dc = pwmout_read(obj);
 
-    TIM_Cmd(tim, DISABLE);
+    __HAL_TIM_DISABLE(&TimHandle);
 
-    obj->period = us;
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
 
-    TIM_TimeBaseStructure.TIM_Period        = obj->period - 1;
-    TIM_TimeBaseStructure.TIM_Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(tim, &TIM_TimeBaseStructure);
+    TimHandle.Init.Period        = us - 1;
+    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
+    TimHandle.Init.ClockDivision = 0;
+    TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
+    HAL_TIM_PWM_Init(&TimHandle);
 
     // Set duty cycle again
     pwmout_write(obj, dc);
 
-    TIM_ARRPreloadConfig(tim, ENABLE);
-    TIM_Cmd(tim, ENABLE);
+    // Save for future use
+    obj->period = us;
+
+    __HAL_TIM_ENABLE(&TimHandle);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds)
