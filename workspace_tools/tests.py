@@ -59,6 +59,9 @@ Wiring:
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
+  * analog_pot (AnalogIn):
+      * Arduino headers: (A0, A1)
+      
   * SD (SPI):
       * LPC1*: (mosi=p11 , miso=p12 , sclk=p13 , cs=p14 )
       * KL25Z: (mosi=PTD2, miso=PTD3, sclk=PTD1, cs=PTD0)
@@ -72,6 +75,7 @@ Wiring:
   * i2c_eeprom:
       * LPC1*: (SDA=p28 , SCL=p27)
       * KL25Z: (SDA=PTE0, SCL=PTE1)
+      
 """
 TESTS = [
     # Automated MBED tests
@@ -165,9 +169,10 @@ TESTS = [
         "peripherals": ["SD"]
     },
     {
-        "id": "MBED_A13", "description": "I2C MMA7660",
+        "id": "MBED_A13", "description": "I2C MMA7660 accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA7660"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA7660')],
+        "automated": True,
         "peripherals": ["MMA7660"]
     },
     {
@@ -248,6 +253,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "i2c_eeprom_line"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "peripherals": ["24LC256"],
+        "automated": True,
+        "duration": 10,
+    },
+    {
+        "id": "MBED_A26", "description": "AnalogIn potentiometer test",
+        "source_dir": join(TEST_DIR, "mbed", "analog_pot"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "peripherals": ["analog_pot"],
         "automated": True,
         "duration": 10,
     },
