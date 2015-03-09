@@ -471,14 +471,14 @@ void __iar_program_start( void )
   if (__low_level_init() != 0) {
     __iar_data_init3();
     mbed_sdk_init();
-    __iar_dynamic_initialization(); 
-  } 
+    __iar_dynamic_initialization();
+  }
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
-  exit(a);  
-  
+  exit(a);
+
 }
 
 #endif

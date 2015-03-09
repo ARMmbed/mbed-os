@@ -139,7 +139,7 @@ class Resources:
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -148,7 +148,7 @@ class Resources:
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
