@@ -13,8 +13,9 @@ define symbol __ICFEDIT_region_RAM_end__      = 0x2002FFFF;
 define symbol __ICFEDIT_region_CCMRAM_start__ = 0x10000000;
 define symbol __ICFEDIT_region_CCMRAM_end__   = 0x1000FFFF;
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x5FFF;
-define symbol __ICFEDIT_size_heap__   = 0x5FFF;
+/*Heap 1/4 of ram and stack 1/8*/
+define symbol __ICFEDIT_size_cstack__ = 0x6000;
+define symbol __ICFEDIT_size_heap__   = 0xC000;
 /**** End of ICF editor section. ###ICF###*/
 
 
