@@ -11,7 +11,7 @@ from workspace_tools.paths import MBED_BASE, MBED_LIBRARIES
 from workspace_tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
 from workspace_tools.utils import args_error
 from workspace_tools.tests import TESTS, Test, TEST_MAP
-from workspace_tools.targets import TARGET_NAMES
+from workspace_tools.targets import TARGET_NAMES, TARGET_LEGACY_NAMES
 from workspace_tools.libraries import LIBRARIES
 
 try:
@@ -125,6 +125,9 @@ if __name__ == '__main__':
     failures = []
 
     for mcu in mcus.split(','):
+      for k, v in TARGET_LEGACY_NAMES.items():
+        if k == mcu:
+          mcu = v
         # Program Number or name
         p, n = options.program, options.program_name
 

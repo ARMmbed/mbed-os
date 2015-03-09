@@ -450,7 +450,7 @@ class K22F(Target):
         self.is_disk_virtual = True
         self.detect_code = ["0201"]
 
-class K64F(Target):
+class MCU_K64F12(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
@@ -458,18 +458,18 @@ class K64F(Target):
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.default_toolchain = "ARM"
 
-class FRDM_K64F(K64F):
+class FRDM_K64F(MCU_K64F12):
     def __init__(self):
-        K64F.__init__(self)
-        self.extra_labels += ['FRDM']
+        MCU_K64F12.__init__(self)
+        self.extra_labels += ['FRDM', 'K64F']
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = ["0240"]
 
-class MTS_GAMBIT(K64F):
+class MTS_GAMBIT(MCU_K64F12):
     def __init__(self):
-        K64F.__init__(self)
+        MCU_K64F12.__init__(self)
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
         self.is_disk_virtual = True
@@ -1081,6 +1081,10 @@ for t in TARGETS:
     TARGET_MAP[t.name] = t
 
 TARGET_NAMES = TARGET_MAP.keys()
+
+TARGET_LEGACY_NAMES = {
+    'K64F' : 'FRDM_K64F',
+}
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = { }
