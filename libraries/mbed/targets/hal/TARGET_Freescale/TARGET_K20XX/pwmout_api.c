@@ -51,8 +51,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     ftm->SYNC = FTM_SYNC_CNTMIN_MASK;
     ftm->SYNCONF = FTM_SYNCONF_SYNCMODE_MASK | FTM_SYNCONF_SWSOC_MASK | FTM_SYNCONF_SWWRBUF_MASK;
     
-    //I don't actually want to use SYNCEN which enables synchronization for match register,
-    // but this is only way I get the thing to do anything with FTMEN  = 1
+    //Without SYNCEN set CnV does not seem to update
     ftm->COMBINE = FTM_COMBINE_SYNCEN0_MASK | FTM_COMBINE_SYNCEN1_MASK | FTM_COMBINE_SYNCEN2_MASK | FTM_COMBINE_SYNCEN3_MASK;
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
