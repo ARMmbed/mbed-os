@@ -1075,17 +1075,20 @@ TARGETS = [
     RZ_A1H(),
 ]
 
+# Translation table for legacy names (K64F -> FRDM_K64F)
+TARGET_LEGACY_NAMES = {
+    'FRDM_K64F' : 'K64F',
+}
+
 # Map each target name to its unique instance
 TARGET_MAP = {}
 for t in TARGETS:
     TARGET_MAP[t.name] = t
-
+    # expand the dic by legacy names
+    if t.name in TARGET_LEGACY_NAMES.keys():
+        TARGET_MAP[TARGET_LEGACY_NAMES[t.name]] = t
 TARGET_NAMES = TARGET_MAP.keys()
 
-# Translation table for legacy names (K64F -> FRDM_K64F)
-TARGET_LEGACY_NAMES = {
-    'K64F' : 'FRDM_K64F',
-}
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = { }

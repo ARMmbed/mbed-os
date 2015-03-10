@@ -144,17 +144,10 @@ if __name__ == '__main__':
     # Get target list
     if options.mcu:
         mcu_list = (options.mcu).split(",")
-        i = 0
         for mcu in mcu_list:
-            for k, v in TARGET_LEGACY_NAMES.items():
-              # Legacy handling, rename the legacy target to use the new one
-              if k == mcu:
-                mcu = v
-                mcu_list[i] = v
             if mcu not in TARGET_NAMES:
                 print "Given MCU '%s' not into the supported list:\n%s" % (mcu, TARGET_NAMES)
                 sys.exit(1)
-            i = i + 1
         targets = mcu_list
     else:
         targets = TARGET_NAMES

@@ -51,10 +51,6 @@ def online_build_url_resolver(url):
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
            tempdir=None, clean=True, extra_symbols=None, build_url_resolver=online_build_url_resolver):
-    # Convention: we are using capitals for toolchain and target names
-    if target is not None:
-        target = target.upper()
-
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
