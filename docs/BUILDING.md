@@ -19,9 +19,41 @@ Note that for tests which require connected external peripherals, for example Et
 * Wire your board the same way test defines it.
 
 ## Prerequisites
-mbed test suite and build scripts are Python 2.7 applications and require Python 2.7 runtime environment and few dependencies (commonly used and distributed Python packages). below you can find the list of main dependencies to Python modules.
+mbed test suite and build scripts are Python 2.7 applications and require Python 2.7 runtime environment and [setuptools](https://pythonhosted.org/an_example_pypi_project/setuptools.html) to install dependencies.
 
+What we need:
 * Installed [Python 2.7](https://www.python.org/download/releases/2.7) programming language.
+* Installed [setuptools](https://pythonhosted.org/an_example_pypi_project/setuptools.html#installing-setuptools-and-easy-install) 
+* Optionally you can install [pip](https://pip.pypa.io/en/latest/installing.html) which is the PyPA recommended tool for installing Python packages from command line.
+
+mbed SDK in its repo root directory specifies ```setup.py``` file which holds information about all packages which are dependencies for it. Bear in mind only few simple steps are required to install all dependencies.
+
+First, clone mbed SDK repo and go to mbed SDk repo's directory:
+```
+$ git clone https://github.com/mbedmicro/mbed.git
+$ cd mbed
+```
+
+Second, invoke ```setup.py``` so ```setuptools``` can install mbed SDK's dependencies (external Python modules required by mbed SDK):
+```
+$ python setup.py install
+```
+or 
+```
+$ sudo python setup.py install
+```
+when your system requires administrator rights to install new Python packages.
+
+## Prerequisites (manual Python package dependency installation)
+**Please only read this chapter if you had problems installing mbed SDK dependencies to Python packages**.
+
+Below you can find the list of mbed SDK dependencies to Python modules with instructions how to install them manually.
+
+You can skip this part if you've already install [Python 2.7](https://www.python.org/download/releases/2.7) and [setuptools](https://pythonhosted.org/an_example_pypi_project/setuptools.html) and successfully [installed all dependencies](#prerequisites).
+
+* Please make sure you've installed [pip](https://pip.pypa.io/en/latest/installing.html) or [easy_install](https://pythonhosted.org/setuptools/easy_install.html#installing-easy-install) 
+Note: Easy Install is a python module (easy_install) bundled with [setuptools](https://pythonhosted.org/an_example_pypi_project/setuptools.html#installing-setuptools-and-easy-install)  that lets you automatically download, build, install, and manage Python packages.
+
 * Installed [pySerial](https://pypi.python.org/pypi/pyserial) module for Python 2.7.
 pySerial can be installed from PyPI, either manually downloading the files and installing as described below or using:
 ```
