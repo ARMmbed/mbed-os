@@ -37,9 +37,9 @@
 #include <string.h>
 #include "PeripheralPins.h"
 
-#define UART_NUM (6)
+#define UART_NUM (8)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 static uart_irq_handler irq_handler;
 
@@ -111,6 +111,18 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             __USART6_CLK_ENABLE();
             obj->index = 5;
             break;
+#if defined(UART7_BASE)
+        case UART_7:
+            __UART7_CLK_ENABLE();
+            obj->index = 6;
+            break;
+#endif
+#if defined(UART8_BASE)
+        case UART_8:
+            __UART8_CLK_ENABLE();
+            obj->index = 7;
+            break;
+#endif
     }
 
     // Configure the UART pins
@@ -181,6 +193,20 @@ void serial_free(serial_t *obj)
             __USART6_RELEASE_RESET();
             __USART6_CLK_DISABLE();
             break;
+#if defined(UART7_BASE)
+        case UART_7:
+            __UART7_FORCE_RESET();
+            __UART7_RELEASE_RESET();
+            __UART7_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART8_BASE)
+        case UART_8:
+            __UART8_FORCE_RESET();
+            __UART8_RELEASE_RESET();
+            __UART8_CLK_DISABLE();
+            break;
+#endif
     }
     // Configure GPIOs
     pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -281,6 +307,20 @@ static void uart6_irq(void)
     uart_irq(UART_6, 5);
 }
 
+#if defined(UART7_BASE)
+static void uart7_irq(void) 
+{
+    uart_irq(UART_7, 6);
+}
+#endif
+
+#if defined(UART8_BASE)
+static void uart8_irq(void) 
+{
+    uart_irq(UART_8, 7);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -326,6 +366,18 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             irq_n = USART6_IRQn;
             vector = (uint32_t)&uart6_irq;
             break;
+#if defined(UART7_BASE)
+        case UART_7:
+            irq_n = UART7_IRQn;
+            vector = (uint32_t)&uart7_irq;
+            break;
+#endif
+#if defined(UART8_BASE)
+        case UART_8:
+            irq_n = UART8_IRQn;
+            vector = (uint32_t)&uart8_irq;
+            break;
+#endif
     }
 
     if (enable) {

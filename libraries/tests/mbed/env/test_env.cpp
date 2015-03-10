@@ -56,6 +56,29 @@ bool notify_completion_str(bool success, char* buffer)
     return result;
 }
 
+// Host test auto-detection API
+void notify_host_test_name(const char *host_test) {
+    if (host_test) {
+        printf("{{host_test_name;%s}}" NL, host_test);
+    }
+}
+
+void notify_timeout(int timeout) {
+    printf("{{timeout;%d}}" NL, timeout);
+}
+
+void notify_test_id(const char *test_id) {
+    if (test_id) {
+        printf("{{test_id;%s}}" NL, test_id);
+    }
+}
+
+void notify_test_description(const char *description) {
+    if (description) {
+        printf("{{description;%s}}" NL, description);
+    }
+}
+
 
 // -DMBED_BUILD_TIMESTAMP=1406208182.13
 unsigned int testenv_randseed()

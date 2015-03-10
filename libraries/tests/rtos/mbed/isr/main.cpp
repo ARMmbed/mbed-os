@@ -36,6 +36,11 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(ISR (Queue));
+    MBED_HOSTTEST_START("RTOS_8");
+
     Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
     ticker.attach(queue_isr, 1.0);
@@ -59,6 +64,6 @@ int main (void) {
         }
     }
 
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
     return 0;
 }

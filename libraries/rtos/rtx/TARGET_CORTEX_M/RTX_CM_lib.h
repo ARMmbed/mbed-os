@@ -265,9 +265,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC11U68)
 #define INITIAL_SP            (0x10004000UL)
 
-#elif defined(TARGET_NRF51822)
-#define INITIAL_SP            (0x20004000UL)
-
 #elif defined(TARGET_STM32F411RE)
 #define INITIAL_SP            (0x20020000UL)
 
@@ -474,14 +471,14 @@ void __iar_program_start( void )
   if (__low_level_init() != 0) {
     __iar_data_init3();
     mbed_sdk_init();
-    __iar_dynamic_initialization(); 
-  } 
+    __iar_dynamic_initialization();
+  }
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
-  exit(a);  
-  
+  exit(a);
+
 }
 
 #endif

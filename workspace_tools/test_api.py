@@ -28,6 +28,7 @@ import optparse
 import datetime
 import threading
 from types import ListType
+from colorama import Fore, Back, Style
 from prettytable import PrettyTable
 
 from time import sleep, time
@@ -53,6 +54,11 @@ from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
+
+try:
+    import mbed_lstools
+except:
+    pass
 
 
 class ProcessObserver(Thread):
@@ -116,6 +122,7 @@ class SingleTestRunner(object):
     TEST_RESULT_IOERR_SERIAL = "IOERR_SERIAL"
     TEST_RESULT_TIMEOUT = "TIMEOUT"
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
+    TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -133,7 +140,8 @@ class SingleTestRunner(object):
                            "ioerr_serial" : TEST_RESULT_IOERR_SERIAL,
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
-                           "end" : TEST_RESULT_UNDEF
+                           "end" : TEST_RESULT_UNDEF,
+                           "mbed_assert" : TEST_RESULT_MBED_ASSERT
     }
 
     def __init__(self,
@@ -151,6 +159,7 @@ class SingleTestRunner(object):
                  _opts_shuffle_test_order=False,
                  _opts_shuffle_test_seed=None,
                  _opts_test_by_names=None,
+                 _opts_peripheral_by_names=None,
                  _opts_test_only_peripheral=False,
                  _opts_test_only_common=False,
                  _opts_verbose_skipped_tests=False,
@@ -167,6 +176,9 @@ class SingleTestRunner(object):
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
+        from colorama import init
+        init()
+
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
         # Settings related to test loops counters
@@ -197,6 +209,7 @@ class SingleTestRunner(object):
         self.opts_shuffle_test_order = _opts_shuffle_test_order
         self.opts_shuffle_test_seed = _opts_shuffle_test_seed
         self.opts_test_by_names = _opts_test_by_names
+        self.opts_peripheral_by_names = _opts_peripheral_by_names
         self.opts_test_only_peripheral = _opts_test_only_peripheral
         self.opts_test_only_common = _opts_test_only_common
         self.opts_verbose_skipped_tests = _opts_verbose_skipped_tests
@@ -244,6 +257,7 @@ class SingleTestRunner(object):
                   "shuffle_test_order" : str(self.opts_shuffle_test_order),
                   "shuffle_test_seed" : str(self.opts_shuffle_test_seed),
                   "test_by_names" :  str(self.opts_test_by_names),
+                  "peripheral_by_names" :  str(self.opts_peripheral_by_names),
                   "test_only_peripheral" :  str(self.opts_test_only_peripheral),
                   "test_only_common" :  str(self.opts_test_only_common),
                   "verbose" :  str(self.opts_verbose),
@@ -349,8 +363,10 @@ class SingleTestRunner(object):
                         self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                         self.db_logger.disconnect();
 
+
                 for test_id in test_map_keys:
                     test = TEST_MAP[test_id]
+
                     if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
                         continue
 
@@ -358,6 +374,13 @@ class SingleTestRunner(object):
                         continue
 
                     if self.opts_test_only_peripheral and not test.peripherals:
+                        if self.opts_verbose_skipped_tests:
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                        test_suite_properties['skipped'].append(test_id)
+                        continue
+
+                    if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
+                        # We will skip tests not forced with -p option
                         if self.opts_verbose_skipped_tests:
                             print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
                         test_suite_properties['skipped'].append(test_id)
@@ -373,6 +396,10 @@ class SingleTestRunner(object):
                         if test.peripherals is None and self.opts_only_build_tests:
                             # When users are using 'build only flag' and test do not have
                             # specified peripherals we can allow test building by default
+                            pass
+                        elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
+                            # If we force peripheral with option -p we expect test
+                            # to pass even if peripheral is not in MUTs file.
                             pass
                         elif not self.is_peripherals_available(target, test.peripherals):
                             if self.opts_verbose_skipped_tests:
@@ -556,7 +583,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_DISK : 0,
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
-                       self.TEST_RESULT_TIMEOUT : 0
+                       self.TEST_RESULT_TIMEOUT : 0,
+                       self.TEST_RESULT_MBED_ASSERT : 0
         }
 
         for test in test_summary:
@@ -681,18 +709,20 @@ class SingleTestRunner(object):
 
                 host_test_verbose = self.opts_verbose_test_result_only or self.opts_verbose
                 host_test_reset = self.opts_mut_reset_type if reset_type is None else reset_type
-                single_test_result, single_test_output = self.run_host_test(test.host_test,
-                                                                            image_path, disk, port, duration,
-                                                                            micro=target_name,
-                                                                            verbose=host_test_verbose,
-                                                                            reset=host_test_reset,
-                                                                            reset_tout=reset_tout,
-                                                                            copy_method=selected_copy_method,
-                                                                            program_cycle_s=target_by_mcu.program_cycle_s())
+                host_test_result = self.run_host_test(test.host_test,
+                                                      image_path, disk, port, duration,
+                                                      micro=target_name,
+                                                      verbose=host_test_verbose,
+                                                      reset=host_test_reset,
+                                                      reset_tout=reset_tout,
+                                                      copy_method=selected_copy_method,
+                                                      program_cycle_s=target_by_mcu.program_cycle_s())
+                single_test_result, single_test_output, single_testduration, single_timeout = host_test_result
 
             # Store test result
             test_all_result.append(single_test_result)
-            elapsed_time = time() - start_host_exec_time
+            total_elapsed_time = time() - start_host_exec_time   # Test time with copy (flashing) / reset
+            elapsed_time = single_testduration  # TIme of single test case execution after reset
 
             detailed_test_results[test_index] = {
                 'single_test_result' : single_test_result,
@@ -702,12 +732,12 @@ class SingleTestRunner(object):
                 'test_id' : test_id,
                 'test_description' : test_description,
                 'elapsed_time' : round(elapsed_time, 2),
-                'duration' : duration,
+                'duration' : single_timeout,
                 'copy_method' : _copy_method,
             }
 
             print self.print_test_result(single_test_result, target_name, toolchain_name,
-                                         test_id, test_description, elapsed_time, duration)
+                                         test_id, test_description, elapsed_time, single_timeout)
 
             # Update database entries for ongoing test
             if self.db_logger and self.db_logger.is_connected():
@@ -720,7 +750,7 @@ class SingleTestRunner(object):
                                                  single_test_result,
                                                  single_test_output,
                                                  elapsed_time,
-                                                 duration,
+                                                 single_timeout,
                                                  test_index)
 
             # If we perform waterfall test we test until we get OK and we stop testing
@@ -730,9 +760,14 @@ class SingleTestRunner(object):
         if self.db_logger:
             self.db_logger.disconnect()
 
-        return (self.shape_global_test_loop_result(test_all_result), target_name, toolchain_name,
-                test_id, test_description, round(elapsed_time, 2),
-                duration, self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
+        return (self.shape_global_test_loop_result(test_all_result),
+                target_name,
+                toolchain_name,
+                test_id,
+                test_description,
+                round(elapsed_time, 2),
+                single_timeout,
+                self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
@@ -747,7 +782,7 @@ class SingleTestRunner(object):
         separator = "::"
         time_info = " in %.2f of %d sec" % (round(elapsed_time, 2), duration)
         result = separator.join(tokens) + " [" + test_result +"]" + time_info
-        return result
+        return Fore.MAGENTA + result + Fore.RESET
 
     def shape_test_loop_ok_result_count(self, test_all_result):
         """ Reformats list of results to simple string
@@ -799,6 +834,17 @@ class SingleTestRunner(object):
                     break
             return result
 
+        def get_auto_property_value(property_name, line):
+            """ Scans auto detection line from MUT and returns scanned parameter 'property_name'
+                Returns string
+            """
+            result = None
+            if re.search("HOST: Property '%s'"% property_name, line) is not None:
+                property = re.search("HOST: Property '%s' = '([\w\d _]+)'"% property_name, line)
+                if property is not None and len(property.groups()) == 1:
+                    result = property.groups()[0]
+            return result
+
         # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python",
                '%s.py'% name,
@@ -819,17 +865,17 @@ class SingleTestRunner(object):
             cmd += ["-R", str(reset_tout)]
 
         if verbose:
-            print "Executing '" + " ".join(cmd) + "'"
+            print Fore.MAGENTA + "Executing '" + " ".join(cmd) + "'" + Fore.RESET
             print "Test::Output::Start"
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
-        start_time = time()
+        update_once_flag = {}   # Stores flags checking if some auto-parameter was already set
         line = ''
         output = []
+        start_time = time()
         while (time() - start_time) < (2 * duration):
             c = get_char_from_queue(obs)
-
             if c:
                 if verbose:
                     sys.stdout.write(c)
@@ -837,11 +883,33 @@ class SingleTestRunner(object):
                 output.append(c)
                 # Give the mbed under test a way to communicate the end of the test
                 if c in ['\n', '\r']:
+
+                    # Checking for auto-detection information from the test about MUT reset moment
+                    if 'reset_target' not in update_once_flag and "HOST: Reset target..." in line:
+                        # We will update this marker only once to prevent multiple time resets
+                        update_once_flag['reset_target'] = True
+                        start_time = time()
+
+                    # Checking for auto-detection information from the test about timeout
+                    auto_timeout_val = get_auto_property_value('timeout', line)
+                    if 'timeout' not in update_once_flag and auto_timeout_val is not None:
+                        # We will update this marker only once to prevent multiple time resets
+                        update_once_flag['timeout'] = True
+                        duration = int(auto_timeout_val)
+
+                    # Detect mbed assert:
+                    if 'mbed assertation failed: ' in line:
+                        output.append('{{mbed_assert}}')
+                        break
+
+                    # Check for test end
                     if '{end}' in line:
                         break
                     line = ''
                 else:
                     line += c
+        end_time = time()
+        testcase_duration = end_time - start_time   # Test case duration from reset to {end}
 
         c = get_char_from_queue(obs)
 
@@ -857,10 +925,10 @@ class SingleTestRunner(object):
         obs.stop()
 
         result = get_test_result(output)
-        return result, "".join(output)
+        return (result, "".join(output), testcase_duration, duration)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
-        """ Checks if specified target should run specific peripheral test case
+        """ Checks if specified target should run specific peripheral test case defined in MUTs file
         """
         if peripherals is not None:
             peripherals = set(peripherals)
@@ -878,7 +946,7 @@ class SingleTestRunner(object):
         return False
 
     def shape_test_request(self, mcu, image_path, test_id, duration=10):
-        """ Function prepares JOSN structure describing test specification
+        """ Function prepares JSON structure describing test specification
         """
         test_spec = {
             "mcu": mcu,
@@ -976,7 +1044,7 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
     return result
 
 
-def print_muts_configuration_from_json(json_data, join_delim=", "):
+def print_muts_configuration_from_json(json_data, join_delim=", ", platform_filter=None):
     """ Prints MUTs configuration passed to test script for verboseness
     """
     muts_info_cols = []
@@ -997,12 +1065,17 @@ def print_muts_configuration_from_json(json_data, join_delim=", "):
     for k in json_data:
         row = [k]
         mut_info = json_data[k]
-        for col in muts_info_cols:
-            cell_val = mut_info[col] if col in mut_info else None
-            if type(cell_val) == ListType:
-                cell_val = join_delim.join(cell_val)
-            row.append(cell_val)
-        pt.add_row(row)
+
+        add_row = True
+        if platform_filter and 'mcu' in mut_info:
+            add_row = re.search(platform_filter, mut_info['mcu']) is not None
+        if add_row:
+            for col in muts_info_cols:
+                cell_val = mut_info[col] if col in mut_info else None
+                if type(cell_val) == ListType:
+                    cell_val = join_delim.join(cell_val)
+                row.append(cell_val)
+            pt.add_row(row)
     return pt.get_string()
 
 
@@ -1039,6 +1112,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
             target_name = target if target in TARGET_MAP else "%s*"% target
             row = [target_name]
             toolchains = targets[target]
+
             for toolchain in sorted(toolchains_info_cols):
                 # Check for conflicts: target vs toolchain
                 conflict = False
@@ -1333,8 +1407,71 @@ def detect_database_verbose(db_url):
         print "Parse error: '%s' - DB Url error"% (db_url)
 
 
+def get_module_avail(module_name):
+    """ This function returns True if module_name is already impored module
+    """
+    return module_name in sys.modules.keys()
+
+
+def get_autodetected_MUTS(mbeds_list):
+    """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
+        If function fails to auto-detect devices it will return empty dictionary.
+
+        if get_module_avail('mbed_lstools'):
+            mbeds = mbed_lstools.create()
+            mbeds_list = mbeds.list_mbeds()
+    """
+    result = {}   # Should be in muts_all.json format
+    # Align mbeds_list from mbed_lstools to MUT file format (JSON dictionary with muts)
+    # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
+    index = 1
+    for mut in mbeds_list:
+        m = {'mcu' : mut['platform_name'],
+             'port' : mut['serial_port'],
+             'disk' : mut['mount_point'],
+             'peripherals' : []     # No peripheral detection
+             }
+        if index not in result:
+            result[index] = {}
+        result[index] = m
+        index += 1
+    return result
+
+
+def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_supported_toolchains=False, toolchain_filter=None):
+    """ Function detects all connected to host mbed-enabled devices and generates artificial test_spec file.
+        If function fails to auto-detect devices it will return empty 'targets' test_spec description.
+
+        use_default_toolchain - if True add default toolchain to test_spec
+        use_supported_toolchains - if True add all supported toolchains to test_spec
+        toolchain_filter - if [...list of toolchains...] add from all toolchains only those in filter to test_spec
+    """
+    result = {'targets': {} }
+
+    for mut in mbeds_list:
+        mcu = mut['platform_name']
+        if mcu in TARGET_MAP:
+            default_toolchain = TARGET_MAP[mcu].default_toolchain
+            supported_toolchains = TARGET_MAP[mcu].supported_toolchains
+
+            # Decide which toolchains should be added to test specification toolchain pool for each target
+            toolchains = []
+            if use_default_toolchain:
+                toolchains.append(default_toolchain)
+            if use_supported_toolchains:
+                toolchains += supported_toolchains
+            if toolchain_filter is not None:
+                all_toolchains = supported_toolchains + [default_toolchain]
+                for toolchain in toolchain_filter.split(','):
+                    if toolchain in all_toolchains:
+                        toolchains.append(toolchain)
+
+            result['targets'][mcu] = list(set(toolchains))
+    return result
+
+
 def get_default_test_options_parser():
-    """ Get common test script options used by CLI, webservices etc.
+    """ Get common test script options used by CLI, web services etc.
     """
     parser = optparse.OptionParser()
     parser.add_option('-i', '--tests',
@@ -1352,6 +1489,19 @@ def get_default_test_options_parser():
                       metavar="NUMBER",
                       type="int",
                       help="Define number of compilation jobs. Default value is 1")
+
+    if get_module_avail('mbed_lstools'):
+        # Additional features available when mbed_lstools is installed on host and imported
+        # mbed_lstools allow users to detect connected to host mbed-enabled devices
+        parser.add_option('', '--auto',
+                          dest='auto_detect',
+                          metavar=False,
+                          action="store_true",
+                          help='Use mbed-ls module to detect all connected mbed devices')
+
+        parser.add_option('', '--tc',
+                          dest='toolchains_filter',
+                          help="Toolchain filter for --auto option. Use toolcahins names separated by comma, 'default' or 'all' to select toolchains")
 
     parser.add_option('', '--clean',
                       dest='clean',
@@ -1373,7 +1523,11 @@ def get_default_test_options_parser():
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+
+    parser.add_option('-p', '--peripheral-by-names',
+                      dest='peripheral_by_names',
+                      help='Forces discovery of particular peripherals.  Use comma to separate peripheral names.')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)

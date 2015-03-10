@@ -11,8 +11,9 @@ define symbol __ICFEDIT_region_NVIC_end__   = 0x1ffffcbf;
 define symbol __ICFEDIT_region_RAM_start__ = 0x1ffffcc0;
 define symbol __ICFEDIT_region_RAM_end__   = 0x1fffffff;
 /*-Sizes-*/
+/*Heap 1/4 of ram and stack 1/8*/
 define symbol __ICFEDIT_size_cstack__ = 0x200;
-define symbol __ICFEDIT_size_heap__   = 0x200;
+define symbol __ICFEDIT_size_heap__   = 0x400;
 /**** End of ICF editor section. ###ICF###*/
 
 define symbol __region_RAM2_start__ 		= 0x20000000;
