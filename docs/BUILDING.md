@@ -76,15 +76,21 @@ sudo python setup.py install
 ```
 This will install the intelhex package into your system’s site-packages directory.  After that is done, any other Python scripts or modules should be able to import the package using:
 ```
+$ python
+Python 2.7.8 (default, Jun 30 2014, 16:03:49) [MSC v.1500 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
 >>> from intelhex import IntelHex
+>>>
 ```
 * You can check if you have correctly installed the above modules (or you already have them) by starting Python and importing both modules.
-```bash
-$ Python 2.7.8 (default, Jun 30 2014, 16:03:49) [MSC v.1500 32 bit (Intel)] on win32
+```
+$ python
+Python 2.7.8 (default, Jun 30 2014, 16:03:49) [MSC v.1500 32 bit (Intel)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import serial
 >>> import prettytable
->>> intelhex import IntelHex
+>>> from intelhex import IntelHex
+>>>
 ```
 * Installed Git open source distributed version control system.
 * Installed at least one of the supported by Mbed SDK workspace tools compilers: 
