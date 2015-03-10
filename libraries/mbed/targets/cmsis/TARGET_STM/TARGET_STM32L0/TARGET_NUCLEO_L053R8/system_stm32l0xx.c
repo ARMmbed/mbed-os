@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -40,7 +40,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -145,12 +145,9 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-uint32_t SystemCoreClock = 32000000;
-
-const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
-const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
-//const uint32_t MSIRangeTable[7] = {64000, 128000, 256000, 512000, 1000000, 2000000, 4000000};
+  uint32_t SystemCoreClock = 32000000;
+__IO const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+__IO const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
   * @}
@@ -270,7 +267,8 @@ void SystemCoreClockUpdate (void)
   switch (tmp)
   {
     case 0x00:  /* MSI used as system clock */
-      SystemCoreClock = ((1 <<((RCC->ICSCR & RCC_ICSCR_MSIRANGE)>>13 ))* 64000);
+      msirange = (RCC->ICSCR & RCC_ICSCR_MSIRANGE) >> 13;
+      SystemCoreClock = (32768 * (1 << (msirange + 1)));
       break;
     case 0x04:  /* HSI used as system clock */
       SystemCoreClock = HSI_VALUE;
