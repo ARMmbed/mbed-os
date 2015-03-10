@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -15,7 +15,7 @@
     The common HAL driver contains a set of generic and common APIs that can be
     used by the PPP peripheral drivers and the user to start using the HAL. 
     [..]
-    The HAL contains two APIs' categories: 
+    The HAL contains two APIs categories: 
          (+) Common HAL APIs
          (+) Services HAL APIs
 
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,20 +57,33 @@
   * @{
   */
 
-/** @defgroup HAL 
+/** @addgroup HAL 
   * @brief HAL module driver.
   * @{
   */
-
 #ifdef HAL_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
+
+/** @addtogroup HAL_Exported_Constants
+  *
+  * @{
+  */
+
+/** @defgroup HAL_Version HAL Version
+  * @{
+  */
+#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
+#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_MEM_MODE_0)
+#define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)     
+
+
+#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
+
 /**
- * @brief STM32L0xx HAL Driver version number V1.1.0
+ * @brief STM32L0xx HAL Driver version number V1.2.0
    */
 #define __STM32L0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L0xx_HAL_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32L0xx_HAL_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
 #define __STM32L0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32L0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32L0xx_HAL_VERSION         ((__STM32L0xx_HAL_VERSION_MAIN << 24)\
@@ -79,17 +92,28 @@
                                         |(__STM32L0xx_HAL_VERSION_RC))
 
 #define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-static __IO uint32_t uwTick;
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
-/** @defgroup HAL_Private_Functions
+/**
+  * @}
+  */ 
+  
+/**
+  * @}
+  */
+/** @defgroup HAL_Private_Data
+  * @{
+  */ 
+static __IO uint32_t uwTick;
+
+/**
+  * @}
+  */ 
+
+/** @addtogroup HAL_Exported_Functions HAL Exported Functions
   * @{
   */
 
-/** @defgroup HAL_Group1 Initialization and de-initialization Functions 
+/** @addtogroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
  *  @brief    Initialization and de-initialization functions
  *
 @verbatim
@@ -116,7 +140,7 @@ static __IO uint32_t uwTick;
              peripheral ISR process, the Tick interrupt line must have higher priority 
             (numerically lower) than the peripheral interrupt. Otherwise the caller 
             ISR process will be blocked. 
-       (++) functions affecting time base configurations are declared as __Weak  
+       (++) functions affecting time base configurations are declared as __weak  
              to make  override possible  in case of other  implementations in user file.
  
 @endverbatim
@@ -171,17 +195,17 @@ HAL_StatusTypeDef HAL_Init(void)
 HAL_StatusTypeDef HAL_DeInit(void)
 {
   /* Reset of all peripherals */
-  __APB1_FORCE_RESET();
-  __APB1_RELEASE_RESET();
+  __HAL_RCC_APB1_FORCE_RESET();
+  __HAL_RCC_APB1_RELEASE_RESET();
 
-  __APB2_FORCE_RESET();
-  __APB2_RELEASE_RESET();
+  __HAL_RCC_APB2_FORCE_RESET();
+  __HAL_RCC_APB2_RELEASE_RESET();
 
-  __AHB_FORCE_RESET();
-  __AHB_RELEASE_RESET();
+  __HAL_RCC_AHB_FORCE_RESET();
+  __HAL_RCC_AHB_RELEASE_RESET();
 
-  __IOP_FORCE_RESET();
-  __IOP_RELEASE_RESET();
+  __HAL_RCC_IOP_FORCE_RESET();
+  __HAL_RCC_IOP_RELEASE_RESET();
 
   /* De-Init the low level hardware */
   HAL_MspDeInit();
@@ -214,9 +238,6 @@ __weak void HAL_MspDeInit(void)
    */
 }
 
-/**
-  * @}
-  */
 
 /**
   * @brief This function configures the source of the time base. 
@@ -246,8 +267,12 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   return HAL_OK;
 }
 
-/** @defgroup HAL_Group2 HAL Control functions 
- *  @brief    HAL Control functions
+/**
+  * @}
+  */
+
+/** @addtogroup HAL_Exported_Functions_Group2 
+ *  @brief    Peripheral Control functions
  *
 @verbatim
  ===============================================================================
@@ -262,6 +287,7 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
       (+) Get the device identifier
       (+) Get the device revision identifier
       (+) Configures low power mode behavior when the MCU is in Debug mode
+      (+) Manages the VEREFINT feature (activation, lock, output selection)
       
 @endverbatim
   * @{
@@ -295,8 +321,7 @@ __weak uint32_t HAL_GetTick(void)
 }
 
 /**
-  * @brief This function provides accurate delay (in milliseconds) based 
-  *        on variable incremented.
+  * @brief This function provides accurate delay (in ms) based on a variable incremented.
   * @note In the default implementation , SysTick timer is the source of time base.
   *       It is used to generate interrupts at regular time intervals where uwTick
   *       is incremented.
@@ -383,7 +408,7 @@ uint32_t HAL_GetDEVID(void)
   * @param  None
   * @retval None
   */
-void HAL_EnableDBGSleepMode(void)
+void HAL_DBGMCU_EnableDBGSleepMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
@@ -393,7 +418,7 @@ void HAL_EnableDBGSleepMode(void)
   * @param  None
   * @retval None
   */
-void HAL_DisableDBGSleepMode(void)
+void HAL_DBGMCU_DisableDBGSleepMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
@@ -403,7 +428,7 @@ void HAL_DisableDBGSleepMode(void)
   * @param  None
   * @retval None
   */
-void HAL_EnableDBGStopMode(void)
+void HAL_DBGMCU_EnableDBGStopMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -413,7 +438,7 @@ void HAL_EnableDBGStopMode(void)
   * @param  None
   * @retval None
   */
-void HAL_DisableDBGStopMode(void)
+void HAL_DBGMCU_DisableDBGStopMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -423,7 +448,7 @@ void HAL_DisableDBGStopMode(void)
   * @param  None
   * @retval None
   */
-void HAL_EnableDBGStandbyMode(void)
+void HAL_DBGMCU_EnableDBGStandbyMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
@@ -433,32 +458,41 @@ void HAL_EnableDBGStandbyMode(void)
   * @param  None
   * @retval None
   */
-void HAL_DisableDBGStandbyMode(void)
+void HAL_DBGMCU_DisableDBGStandbyMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
 
 /**
-  * @brief  Configures low power mode behavior when the MCU is in Debug mode.
+  * @brief  Enable low power mode behavior when the MCU is in Debug mode.
   * @param Periph: specifies the low power mode.
   *   This parameter can be any combination of the following values:
   *     @arg DBGMCU_SLEEP: Keep debugger connection during SLEEP mode
   *     @arg DBGMCU_STOP: Keep debugger connection during STOP mode
   *     @arg DBGMCU_STANDBY: Keep debugger connection during STANDBY mode
-  * @param NewState: new state of the specified low power mode in Debug mode.
-  *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void HAL_DBG_LowPowerConfig(uint32_t Periph, FunctionalState NewState)
+void HAL_DBGMCU_DBG_EnableLowPowerConfig(uint32_t Periph)
 {
   /* Check the parameters */
   assert_param(IS_DBGMCU_PERIPH(Periph));
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  if (NewState != DISABLE)
-  {
-    DBGMCU->CR |= Periph;
-  }
-  else
+  
+  DBGMCU->CR |= Periph;
+
+}
+/**
+  * @brief  Disable low power mode behavior when the MCU is in Debug mode.
+  * @param Periph: specifies the low power mode.
+  *   This parameter can be any combination of the following values:
+  *     @arg DBGMCU_SLEEP: Keep debugger connection during SLEEP mode
+  *     @arg DBGMCU_STOP: Keep debugger connection during STOP mode
+  *     @arg DBGMCU_STANDBY: Keep debugger connection during STANDBY mode
+  * @retval None
+  */
+void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph)
+{
+  /* Check the parameters */
+  assert_param(IS_DBGMCU_PERIPH(Periph));
   {
     DBGMCU->CR &= ~Periph;
   }
@@ -473,78 +507,40 @@ void HAL_DBG_LowPowerConfig(uint32_t Periph, FunctionalState NewState)
   *              - 0x00000100: Boot is configured in System Flash memory
   *              - 0x00000300: Boot is configured in Embedded SRAM memory
   */
-uint32_t  HAL_GetBootMode(void)
+uint32_t  HAL_SYSCFG_GetBootMode(void)
 {
   return (SYSCFG->CFGR1 & SYSCFG_CFGR1_BOOT_MODE);
 }
 
 /**
-  * @brief Configures the I2C fast mode plus driving capability.
-  * @param SYSCFG_I2CFastModePlus: selects the pin.
-  *   This parameter can be one of the following values:
-  *     @arg SYSCFG_I2CFastModePlus_PB6: Configure fast mode plus driving capability for PB6
-  *     @arg SYSCFG_I2CFastModePlus_PB7: Configure fast mode plus driving capability for PB7
-  *     @arg SYSCFG_I2CFastModePlus_PB8: Configure fast mode plus driving capability for PB8
-  *     @arg SYSCFG_I2CFastModePlus_PB9: Configure fast mode plus driving capability for PB9
-  *     @arg SYSCFG_I2CFastModePlus_I2C1: Configure fast mode plus driving capability for I2C1 pins
-  *     @arg SYSCFG_I2CFastModePlus_I2C2: Configure fast mode plus driving capability for I2C2 pins
-  * @param  NewState: This parameter can be:
-  *      ENABLE: Enable fast mode plus driving capability for selected I2C pin
-  *      DISABLE: Disable fast mode plus driving capability for selected I2C pin
-  * @note  For I2C1, fast mode plus driving capability can be enabled on all selected
-  *        I2C1 pins using SYSCFG_I2CFastModePlus_I2C1 parameter or independently
-  *        on each one of the following pins PB6, PB7, PB8 and PB9.
-  * @note  For remaining I2C1 pins (PA14, PA15...) fast mode plus driving capability
-  *        can be enabled only by using SYSCFG_I2CFastModePlus_I2C1 parameter.
-  * @note  For all I2C2 pins fast mode plus driving capability can be enabled
-  *        only by using SYSCFG_I2CFastModePlus_I2C2 parameter.
+  * @brief Enables the VREFINT.
+  * @param None
   * @retval None
   */
-void HAL_I2CFastModePlusConfig(uint32_t SYSCFG_I2CFastModePlus, FunctionalState NewState)
+void HAL_SYSCFG_EnableVREFINT(void)
 {
-  /* Check the parameters */
-  assert_param(IS_SYSCFG_I2C_FMP(SYSCFG_I2CFastModePlus));
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-  if (NewState != DISABLE)
-  {
-    /* Enable fast mode plus driving capability for selected pin */
-    SYSCFG->CFGR2 |= (uint32_t)SYSCFG_I2CFastModePlus;
-  }
-  else
-  {
-    /* Disable fast mode plus driving capability for selected pin */
-    SYSCFG->CFGR2 &= (uint32_t)(~SYSCFG_I2CFastModePlus);
-  }
+    /* Enable the VREFINT by setting EN_VREFINT bit in the CFGR3 register */
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_EN_VREFINT);
 }
 
 /**
-  * @brief Enables or disables the VREFINT.
-  * @param NewState: new state of the Vrefint.
-  *        This parameter can be: ENABLE or DISABLE.
+  * @brief Disables the VREFINT.
+  * @param None.
   * @retval None
   */
-void HAL_VREFINT_Cmd(FunctionalState NewState)
+void HAL_SYSCFG_DisableVREFINT(void)
 {
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-  if (NewState != DISABLE)
-  {
-    /* Enable the VREFINT by setting EN_VREFINT bit in the CFGR3 register */
-    SYSCFG->CFGR3 |= SYSCFG_CFGR3_EN_VREFINT;
-  }
-  else
-  {
     /* Disable the VREFINT by setting EN_VREFINT bit in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)SYSCFG_CFGR3_EN_VREFINT);
-  }
+    CLEAR_BIT(SYSCFG->CFGR3,SYSCFG_CFGR3_EN_VREFINT); 
 }
-
 /**
   * @brief Selects the output of internal reference voltage (VREFINT).
   *        The VREFINT output can be routed to(PB0) or
   *        (PB1) or both.
+  * @note   Kept for backward compatibility
+  *         We recommend to use the MACRO 
+  *         __HAL_SYSCFG_VREFINT_OUTPUT_SELECT(__VREFINT_OUTPUT__)
+  *         rather than this function
   * @param SYSCFG_Vrefint_OUTPUT: new state of the Vrefint output.
   *        This parameter can be one of the following values:
   *     @arg SYSCFG_VREFINT_OUT_NONE
@@ -553,7 +549,7 @@ void HAL_VREFINT_Cmd(FunctionalState NewState)
   *     @arg SYSCFG_VREFINT_OUT_PB0_PB1
   * @retval None
   */
-void HAL_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT)
+void HAL_SYSCFG_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT)
 {
   /* Check the parameters */
   assert_param(IS_SYSCFG_VREFINT_OUT_SELECT(SYSCFG_Vrefint_OUTPUT));
@@ -564,122 +560,23 @@ void HAL_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT)
 }
 
 /**
-  * @brief Enables or disables the Buffer Vrefint for the ADC.
-  * @param NewState: new state of the Vrefint.
-  *        This parameter can be: ENABLE or DISABLE.
-  * @note This is functional only if the LOCK is not set  
+  * @brief  Lock the SYSCFG VREF register values
   * @retval None
   */
-void HAL_ADC_EnableBuffer_Cmd(FunctionalState NewState)
+void HAL_SYSCFG_Enable_Lock_VREFINT(void)
 {
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
-    /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_VREFINT_ADC in the CFGR3 register */
-    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT);
-  }
-  else
-  {
-    /* Disable the Vrefint by resetting ENBUF_BGAP_ADC bit and the EN_VREFINT bit in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT));
-  }
-}
-
-/**
-  * @brief Enables or disables the Buffer Sensor for the ADC.
-  * @param NewState: new state of the Vrefint.
-  *        This parameter can be: ENABLE or DISABLE.
-  * @note This is functional only if the LOCK is not set.
-  * @retval None
-  */
-void HAL_ADC_EnableBufferSensor_Cmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
-    /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT);
-  }
-  else
-  {
-    /* Disable the Vrefint by resetting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT));
-  }
-}
-
-/**
-  * @brief  Enables or disables the Buffer Vrefint for the COMP.
-  * @param  NewState: new state of the Vrefint.
-  *          This parameter can be: ENABLE or DISABLE.
-  * @note   This is functional only if the LOCK is not set  
-  * @retval None
-  */
-void HAL_COMP_EnableBuffer_Cmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
-    /* Enable the Buffer for the COMP by setting EN_VREFINT bit and the ENBUFLP_VREFINT_COMP in the CFGR3 register */
-    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT);
-  }
-  else
-  {
-    /* Disable the Vrefint by resetting ENBUFLP_BGAP_COMP bit and the EN_VREFINT bit in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT));
-  }
-}
-
-/**
-  * @brief Enables or disables the Buffer Vrefint for the RC48.
-  * @param NewState: new state of the Vrefint.
-  *        This parameter can be: ENABLE or DISABLE.
-  * @note This is functional only if the LOCK is not set  
-  * @retval None
-  */
-void HAL_RC48_EnableBuffer_Cmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
-    /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the SYSCFG_CFGR3_ENREF_HSI48 in the CFGR3 register */
-    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT);
-  }
-  else
-  {
-    /* Disable the Vrefint by resetting SYSCFG_CFGR3_ENREF_HSI48 bit and the EN_VREFINT bit in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT));
-  }
-}
-
-/**
-  * @brief  Enables or disables the Lock.
-  * @param  NewState: new state of the Lock.
-  *          This parameter can be: ENABLE or DISABLE. 
-  * @retval None
-  */
-void HAL_Lock_Cmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
     /* Enable the LOCK by setting REF_LOCK bit in the CFGR3 register */
-    SYSCFG->CFGR3 |= SYSCFG_CFGR3_REF_LOCK;
-  }
-  else
-  {
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK);
+}
+
+/**
+  * @brief  Unlock the overall SYSCFG VREF register values
+  * @retval None
+  */
+void HAL_SYSCFG_Disable_Lock_VREFINT(void)
+{
     /* Disable the LOCK by setting REF_LOCK bit in the CFGR3 register */
-    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)SYSCFG_CFGR3_REF_LOCK);
-  }
+    CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK);
 }
 
 /**
@@ -700,3 +597,4 @@ void HAL_Lock_Cmd(FunctionalState NewState)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

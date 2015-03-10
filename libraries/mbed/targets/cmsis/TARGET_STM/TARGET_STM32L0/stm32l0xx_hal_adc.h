@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   This file contains all the functions prototypes for the ADC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -108,8 +108,8 @@ typedef struct
   uint32_t SamplingTime;                 /*!< The sample time value to be set for all channels.
                                               This parameter can be a value of @ref ADC_sampling_times
                                               Note: This parameter can be modified only if there is no conversion ongoing. */
-  uint32_t ScanDirection;                /*!< The scan sequence direction.
-                                              This parameter can be a value of @ref ADC_scan_direction
+  uint32_t ScanConvMode;                  /*!< The scan sequence direction.
+                                              This parameter can be a value of @ref ADC_Scan_mode
                                               Note: This parameter can be modified only if there is no conversion is ongoing. */
   uint32_t DataAlign;                    /*!< Specifies whether the ADC data  alignment is left or right.  
                                               This parameter can be a value of @ref ADC_data_align
@@ -123,7 +123,7 @@ typedef struct
                                               This parameter can be set to ENABLE or DISABLE.
                                               Note: This parameter can be modified only if there is no conversion is ongoing. */
   uint32_t ExternalTrigConvEdge;         /*!< Select the external trigger edge and enable the trigger. 
-                                              This parameter can be a value of @ref ADC_External_trigger_Edge
+                                              This parameter can be a value of @ref ADC_Regular_External_Trigger_Source_Edge
                                               Note: This parameter can be modified only if there is no conversion is ongoing. */
   uint32_t ExternalTrigConv;             /*!< Select the external event used to trigger the start of conversion.
                                               This parameter can be a value of @ref ADC_External_trigger_Source
@@ -149,7 +149,7 @@ typedef struct
                                               it is mandatory to first enable the Low Frequency Mode.
                                               This parameter can be set to ENABLE or DISABLE.
                                               Note: This parameter can be modified only if there is no conversion is ongoing. */
-  uint32_t LowPowerAutoOff;              /*!< When setting the AutoOff feature, the ADC is always powered off when not converting and automatically
+  uint32_t LowPowerAutoPowerOff;         /*!< When setting the AutoOff feature, the ADC is always powered off when not converting and automatically
                                               wakes-up when a conversion is started (by software or hardware trigger).
                                               This parameter can be set to ENABLE or DISABLE.
                                               Note: This parameter can be modified only if there is no conversion is ongoing. */
@@ -216,8 +216,8 @@ typedef struct
 #define HAL_ADC_ERROR_NONE        ((uint32_t)0x00)   /*!< No error           */
 #define HAL_ADC_ERROR_INTERNAL    ((uint32_t)0x01)   /*!< ADC IP internal error: if problem of clocking, 
                                                           enable/disable, erroneous state */
-#define HAL_ADC_ERROR_OVR         ((uint32_t)0x01)   /*!< OVR error          */
-#define HAL_ADC_ERROR_DMA         ((uint32_t)0x02)   /*!< DMA transfer error */
+#define HAL_ADC_ERROR_OVR         ((uint32_t)0x02)   /*!< OVR error          */
+#define HAL_ADC_ERROR_DMA         ((uint32_t)0x03)   /*!< DMA transfer error */
 /**
   * @}
   */  
@@ -258,14 +258,17 @@ typedef struct
 #define ADC_CLOCK_ASYNC_DIV128            (ADC_CCR_PRESC_3 | ADC_CCR_PRESC_1)                   /*!< ADC Asynchronous clock mode divided by 2 */
 #define ADC_CLOCK_ASYNC_DIV256            (ADC_CCR_PRESC_3 | ADC_CCR_PRESC_1 | ADC_CCR_PRESC_0) /*!< ADC Asynchronous clock mode divided by 2 */
 
-#define ADC_CLOCKPRESCALER_PCLK_DIV1      ((uint32_t)ADC_CFGR2_CKMODE_0)  /*!< Synchronous clock mode divided by 1 */
-#define ADC_CLOCKPRESCALER_PCLK_DIV2      ((uint32_t)ADC_CFGR2_CKMODE_1)  /*!< Synchronous clock mode divided by 2 */
-#define ADC_CLOCKPRESCALER_PCLK_DIV4      ((uint32_t)ADC_CFGR2_CKMODE)    /*!< Synchronous clock mode divided by 4 */
+#define ADC_CLOCK_SYNC_PCLK_DIV1         ((uint32_t)ADC_CFGR2_CKMODE_0)  /*!< Synchronous clock mode divided by 1 
+                                                                               This configuration must be enabled only if PCLK has a 50%
+                                                                               duty clock cycle (APB prescaler configured inside the RCC must be bypassed and the system clock
+                                                                               must by 50% duty cycle)*/
+#define ADC_CLOCK_SYNC_PCLK_DIV2          ((uint32_t)ADC_CFGR2_CKMODE_1)  /*!< Synchronous clock mode divided by 2 */
+#define ADC_CLOCK_SYNC_PCLK_DIV4          ((uint32_t)ADC_CFGR2_CKMODE)    /*!< Synchronous clock mode divided by 4 */
 
 #define IS_ADC_CLOCKPRESCALER(ADC_CLOCK) (((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV1) ||\
-                                          ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV1) ||\
-                                          ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV2) ||\
-                                          ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV4) ||\
+                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV1) ||\
+                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) ||\
+                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4) ||\
                                           ((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV1  ) ||\
                                           ((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV2  ) ||\
                                           ((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV4  ) ||\
@@ -285,18 +288,18 @@ typedef struct
 /** @defgroup ADC_Resolution
   * @{
   */ 
-#define ADC_RESOLUTION12b      ((uint32_t)0x00000000)          /*!<  ADC 12-bit resolution */
-#define ADC_RESOLUTION10b      ((uint32_t)ADC_CFGR1_RES_0)      /*!<  ADC 10-bit resolution */
-#define ADC_RESOLUTION8b       ((uint32_t)ADC_CFGR1_RES_1)      /*!<  ADC 8-bit resolution */
-#define ADC_RESOLUTION6b       ((uint32_t)ADC_CFGR1_RES)        /*!<  ADC 6-bit resolution */
+#define ADC_RESOLUTION_12B      ((uint32_t)0x00000000)          /*!<  ADC 12-bit resolution */
+#define ADC_RESOLUTION_10B      ((uint32_t)ADC_CFGR1_RES_0)      /*!<  ADC 10-bit resolution */
+#define ADC_RESOLUTION_8B       ((uint32_t)ADC_CFGR1_RES_1)      /*!<  ADC 8-bit resolution */
+#define ADC_RESOLUTION_6B       ((uint32_t)ADC_CFGR1_RES)        /*!<  ADC 6-bit resolution */
 
-#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION12b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION10b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION8b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION6b))
+#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_12B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_10B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_8B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_6B))
 
-#define IS_ADC_RESOLUTION_8_6_BITS(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION8b) || \
-                                                ((RESOLUTION) == ADC_RESOLUTION6b))
+#define IS_ADC_RESOLUTION_8_6_BITS(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_8B) || \
+                                                ((RESOLUTION) == ADC_RESOLUTION_6B))
 /**
   * @}
   */ 
@@ -313,18 +316,18 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup ADC_External_trigger_Edge
+/** @defgroup ADC_Regular_External_Trigger_Source_Edge ADC External Trigger Source Edge for Regular Group
   * @{
   */ 
-#define ADC_EXTERNALTRIG_EDGE_NONE           ((uint32_t)0x00000000)
-#define ADC_EXTERNALTRIG_EDGE_RISING         ((uint32_t)ADC_CFGR1_EXTEN_0)         
-#define ADC_EXTERNALTRIG_EDGE_FALLING        ((uint32_t)ADC_CFGR1_EXTEN_1)
-#define ADC_EXTERNALTRIG_EDGE_RISINGFALLING  ((uint32_t)ADC_CFGR1_EXTEN)
+#define ADC_EXTERNALTRIGCONVEDGE_NONE           ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CFGR1_EXTEN_0)         
+#define ADC_EXTERNALTRIGCONVEDGE_FALLING        ((uint32_t)ADC_CFGR1_EXTEN_1)
+#define ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING  ((uint32_t)ADC_CFGR1_EXTEN)
 
-#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIG_EDGE_NONE) || \
-                                   ((EDGE) == ADC_EXTERNALTRIG_EDGE_RISING) || \
-                                   ((EDGE) == ADC_EXTERNALTRIG_EDGE_FALLING) || \
-                                   ((EDGE) == ADC_EXTERNALTRIG_EDGE_RISINGFALLING))
+#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE) || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING) || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_FALLING) || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING))
 /**
   * @}
   */ 
@@ -332,19 +335,19 @@ typedef struct
 /** @defgroup ADC_External_trigger_Source
   * @{
   */
-#define ADC_EXTERNALTRIG0_T6_TRGO               ((uint32_t)0x00000000)
-#define ADC_EXTERNALTRIG1_T21_CC2               ADC_CFGR1_EXTSEL_0
-#define ADC_EXTERNALTRIG2_T2_TRGO               ADC_CFGR1_EXTSEL_1
-#define ADC_EXTERNALTRIG3_T2_CC4                ((uint32_t)0x000000C0)
-#define ADC_EXTERNALTRIG4_T22_TRGO              ADC_CFGR1_EXTSEL_2
-#define ADC_EXTERNALTRIG7_EXT_IT11              ADC_CFGR1_EXTSEL
+#define ADC_EXTERNALTRIGCONV_T6_TRGO               ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGCONV_T21_CC2               ADC_CFGR1_EXTSEL_0
+#define ADC_EXTERNALTRIGCONV_T2_TRGO               ADC_CFGR1_EXTSEL_1
+#define ADC_EXTERNALTRIGCONV_T2_CC4                ((uint32_t)0x000000C0)
+#define ADC_EXTERNALTRIGCONV_T22_TRGO              ADC_CFGR1_EXTSEL_2
+#define ADC_EXTERNALTRIGCONV_EXT_IT11              ADC_CFGR1_EXTSEL
 
-#define IS_ADC_EXTERNAL_TRIG_CONV(CONV) (((CONV) == ADC_EXTERNALTRIG0_T6_TRGO  )  || \
-                                         ((CONV) == ADC_EXTERNALTRIG1_T21_CC2  )  || \
-                                         ((CONV) == ADC_EXTERNALTRIG2_T2_TRGO  )  || \
-                                         ((CONV) == ADC_EXTERNALTRIG3_T2_CC4   )  || \
-                                         ((CONV) == ADC_EXTERNALTRIG4_T22_TRGO )  || \
-                                         ((CONV) == ADC_EXTERNALTRIG7_EXT_IT11 )) 
+#define IS_ADC_EXTERNAL_TRIG_CONV(CONV) (((CONV) == ADC_EXTERNALTRIGCONV_T6_TRGO  )  || \
+                                         ((CONV) == ADC_EXTERNALTRIGCONV_T21_CC2  )  || \
+                                         ((CONV) == ADC_EXTERNALTRIGCONV_T2_TRGO  )  || \
+                                         ((CONV) == ADC_EXTERNALTRIGCONV_T2_CC4   )  || \
+                                         ((CONV) == ADC_EXTERNALTRIGCONV_T22_TRGO )  || \
+                                         ((CONV) == ADC_EXTERNALTRIGCONV_EXT_IT11 ))
 
 /**
   * @}
@@ -353,13 +356,13 @@ typedef struct
 /** @defgroup ADC_EOCSelection
   * @{
   */ 
-#define EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
-#define EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
-#define EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
+#define ADC_EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
+#define ADC_EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
+#define ADC_EOC_SINGLE_SEQ_CONV    ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
 
-#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == EOC_SINGLE_CONV)   || \
-                                             ((EOC_SELECTION) == EOC_SEQ_CONV)      || \
-                                             ((EOC_SELECTION) == EOC_SINGLE_SEQ_CONV))
+#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == ADC_EOC_SINGLE_CONV)   || \
+                                             ((EOC_SELECTION) == ADC_EOC_SEQ_CONV)      || \
+                                             ((EOC_SELECTION) == ADC_EOC_SINGLE_SEQ_CONV))
 /**
   * @}
   */ 
@@ -367,11 +370,11 @@ typedef struct
 /** @defgroup ADC_Overrun
   * @{
   */ 
-#define OVR_DATA_PRESERVED              ((uint32_t)0x00000000)
-#define OVR_DATA_OVERWRITTEN            ((uint32_t)ADC_CFGR1_OVRMOD)
+#define ADC_OVR_DATA_PRESERVED              ((uint32_t)0x00000000)
+#define ADC_OVR_DATA_OVERWRITTEN            ((uint32_t)ADC_CFGR1_OVRMOD)
 
-#define IS_ADC_OVERRUN(OVR) (((OVR) == OVR_DATA_PRESERVED) || \
-                             ((OVR) == OVR_DATA_OVERWRITTEN))
+#define IS_ADC_OVERRUN(OVR) (((OVR) == ADC_OVR_DATA_PRESERVED) || \
+                             ((OVR) == ADC_OVR_DATA_OVERWRITTEN))
 /**
   * @}
   */ 
@@ -464,15 +467,29 @@ typedef struct
   * @}
   */
 
-    /** @defgroup ADC_scan_direction
+
+/** @defgroup ADC_Scan_mode ADC Scan mode
   * @{
-  */ 
-#define ADC_SCAN_DIRECTION_UPWARD         ((uint32_t)0x00000000)
-#define ADC_SCAN_DIRECTION_BACKWARD        ADC_CFGR1_SCANDIR
+  */
+/* Note: Scan mode values must be compatible with other STM32 devices having  */
+/*       a configurable sequencer.                                            */
+/*       Scan direction setting values are defined by taking in account       */
+/*       already defined values for other STM32 devices:                      */
+/*         ADC_SCAN_DISABLE         ((uint32_t)0x00000000)                    */
+/*         ADC_SCAN_ENABLE          ((uint32_t)0x00000001)                    */
+/*       Scan direction forward is considered as default setting equivalent   */
+/*       to scan enable.                                                      */
+/*       Scan direction backward is considered as additional setting.         */
+/*       In case of migration from another STM32 device, the user will be     */
+/*       warned of change of setting choices with assert check.               */
+#define ADC_SCAN_DIRECTION_FORWARD        ((uint32_t)0x00000001)        /*!< Scan direction forward: from channel 0 to channel 18 */
+#define ADC_SCAN_DIRECTION_BACKWARD       ((uint32_t)0x00000002)        /*!< Scan direction backward: from channel 18 to channel 0 */
 
+#define ADC_SCAN_ENABLE         ADC_SCAN_DIRECTION_FORWARD             /* For compatibility with other STM32 devices */
 
-#define IS_ADC_SCAN_DIRECTION(DIRECTION) (((DIRECTION) == ADC_SCAN_DIRECTION_UPWARD) || \
-                                          ((DIRECTION) == ADC_SCAN_DIRECTION_BACKWARD))
+#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DIRECTION_FORWARD) || \
+                                     ((SCAN_MODE) == ADC_SCAN_DIRECTION_BACKWARD))
+
 /**
   * @}
   */
@@ -555,8 +572,8 @@ typedef struct
 /** @defgroup ADC_conversion_type
   * @{
   */ 
-#define REGULAR_GROUP                         ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS))                                              
-#define IS_ADC_CONVERSION_GROUP(CONVERSION)   ((CONVERSION) == REGULAR_GROUP)
+#define ADC_REGULAR_GROUP                         ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS))                                              
+#define IS_ADC_CONVERSION_GROUP(CONVERSION)   ((CONVERSION) == ADC_REGULAR_GROUP)
 /**
   * @}
   */
@@ -564,11 +581,11 @@ typedef struct
 /** @defgroup ADC_Event_type
   * @{
   */ 
-#define AWD_EVENT              ((uint32_t)ADC_FLAG_AWD)
-#define OVR_EVENT              ((uint32_t)ADC_FLAG_OVR)
+#define ADC_AWD_EVENT              ((uint32_t)ADC_FLAG_AWD)
+#define ADC_OVR_EVENT              ((uint32_t)ADC_FLAG_OVR)
     
-#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == AWD_EVENT) || \
-                                  ((EVENT) == OVR_EVENT))
+#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == ADC_AWD_EVENT) || \
+                                  ((EVENT) == ADC_OVR_EVENT))
 /**
   * @}
   */
@@ -624,10 +641,10 @@ typedef struct
   * @{
   */ 
 #define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                     \
-   ((((RESOLUTION) == ADC_RESOLUTION12b) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION10b) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION8b)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION6b)  && ((ADC_VALUE) <= ((uint32_t)0x003F))))
+   ((((RESOLUTION) == ADC_RESOLUTION_12B) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_10B) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_8B)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_6B)  && ((ADC_VALUE) <= ((uint32_t)0x003F))))
 /**
   * @}
   */ 
@@ -666,7 +683,7 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
   */
-#define __HAL_ADC_ENABLING_CONDITIONS(__HANDLE__)           \
+#define ADC_ENABLING_CONDITIONS(__HANDLE__)           \
        (( ( ((__HANDLE__)->Instance->CR) &                  \
             (ADC_CR_ADCAL | ADC_CR_ADSTP | ADC_CR_ADSTART | \
              ADC_CR_ADDIS | ADC_CR_ADEN )                   \
@@ -689,7 +706,7 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (ADC can be disabled) or RESET (ADC cannot be disabled)
   */
-#define __HAL_ADC_DISABLING_CONDITIONS(__HANDLE__)                             \
+#define ADC_DISABLING_CONDITIONS(__HANDLE__)                             \
        (( ( ((__HANDLE__)->Instance->CR) &                                     \
             (ADC_CR_ADSTART | ADC_CR_ADEN)) == ADC_CR_ADEN   \
         ) ? SET : RESET)
@@ -699,7 +716,7 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (ADC enabled) or RESET (ADC disabled)
   */
-#define __HAL_ADC_IS_ENABLED(__HANDLE__)                                                    \
+#define ADC_IS_ENABLE(__HANDLE__)                                                    \
        (( ((((__HANDLE__)->Instance->CR) & (ADC_CR_ADEN | ADC_CR_ADDIS)) == ADC_CR_ADEN) && \
           ((((__HANDLE__)->Instance->ISR) & ADC_FLAG_RDY) == ADC_FLAG_RDY)                  \
         ) ? SET : RESET)
@@ -709,14 +726,14 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_GET_RESOLUTION(__HANDLE__) (((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_RES)
+#define ADC_GET_RESOLUTION(__HANDLE__) (((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_RES)
 
 /**
   * @brief Check if no conversion is ongoing on regular groups
   * @param __HANDLE__: ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
-#define __HAL_ADC_IS_CONVERSION_ONGOING(__HANDLE__) \
+#define ADC_IS_CONVERSION_ONGOING(__HANDLE__) \
        (( (((__HANDLE__)->Instance->CR) & (ADC_CR_ADSTART)) == RESET ) ? RESET : SET)
  
 /**
@@ -724,7 +741,17 @@ typedef struct
   * @param _CONTINUOUS_MODE_: Continuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 13)
+#define ADC_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 13)
+
+/**
+  * @brief Enable ADC scan mode to convert multiple ranks with sequencer.
+  * @param _SCAN_MODE_: Scan conversion mode.
+  * @retval None
+  */
+#define ADC_SCANDIR(_SCAN_MODE_)                                   \
+  ( ( (_SCAN_MODE_) == (ADC_SCAN_DIRECTION_BACKWARD)                           \
+    )? (ADC_CFGR1_SCANDIR) : (0x00000000)                                      \
+  )
 
 /**
   * @brief Configures the number of discontinuous conversions for the regular group channels.
@@ -738,7 +765,7 @@ typedef struct
   * @param _DMAContReq_MODE_: DMA continuous request mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_DMAContReq(_DMAContReq_MODE_) ((_DMAContReq_MODE_) << 1)
+#define ADC_DMACONTREQ(_DMAContReq_MODE_) ((_DMAContReq_MODE_) << 1)
 
 /**
   * @brief Enable the ADC Auto Delay.
@@ -748,7 +775,7 @@ typedef struct
 #define __HAL_ADC_CFGR1_AutoDelay(_AutoDelay_) ((_AutoDelay_) << 14)
 
 /**
-  * @brief Enable the ADC LowPowerAutoOff.
+  * @brief Enable the ADC LowPowerAutoPowerOff.
   * @param _AUTOFF_: AutoOff bit enable or disable.
   * @retval None
   */
@@ -759,7 +786,7 @@ typedef struct
   * @param _Threshold_: Threshold value
   * @retval None
   */
-#define __HAL_ADC_TRx_HighThreshold(_Threshold_) ((_Threshold_) << 16)
+#define ADC_TRX_HIGHTHRESHOLD(_Threshold_) ((_Threshold_) << 16)
 
           /**
   * @brief Enable the ADC Low Frequency mode.
@@ -780,7 +807,7 @@ typedef struct
   * @param _Offset_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_Offset_shift_resolution(__HANDLE__, _Offset_) \
+#define ADC_OFFSET_SHIFT_RESOLUTION(__HANDLE__, _Offset_) \
         ((_Offset_) << ((((__HANDLE__)->Instance->CFGR & ADC_CFGR1_RES) >> 3)*2))
 
 /**
@@ -795,7 +822,7 @@ typedef struct
   * @param _Threshold_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_AWD1Threshold_shift_resolution(__HANDLE__, _Threshold_) \
+#define ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_) \
         ((_Threshold_) << ((((__HANDLE__)->Instance->CFGR1 & ADC_CFGR1_RES) >> 3)*2))
        
 /**
@@ -857,9 +884,9 @@ typedef struct
 
 #define __HAL_ADC_CLOCK_PRESCALER(__HANDLE__)                                       \
   do{                                                                               \
-      if ((((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCKPRESCALER_PCLK_DIV1) ||  \
-          (((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCKPRESCALER_PCLK_DIV2) ||  \
-          (((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCKPRESCALER_PCLK_DIV2))    \
+      if ((((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCK_SYNC_PCLK_DIV1) ||  \
+          (((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCK_SYNC_PCLK_DIV2) ||  \
+          (((__HANDLE__)->Init.ClockPrescaler) == ADC_CLOCK_SYNC_PCLK_DIV4))    \
       {                                                                             \
         (__HANDLE__)->Instance->CFGR2 &= ~(ADC_CFGR2_CKMODE);                       \
         (__HANDLE__)->Instance->CFGR2 |=  (__HANDLE__)->Init.ClockPrescaler;        \

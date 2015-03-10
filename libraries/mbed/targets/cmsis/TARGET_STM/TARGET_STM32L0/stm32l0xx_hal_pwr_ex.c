@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,30 +43,26 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
+#ifdef HAL_PWR_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @defgroup PWREx 
-  * @brief PWR HAL module driver
+/** @addtogroup PWREx 
   * @{
   */
 
-#ifdef HAL_PWR_MODULE_ENABLED
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup PWREx_Private_Functions
+/** @defgroup PWR_Extended_TimeOut_Value PWR Extended Flag Setting Time Out Value
   * @{
+  */ 
+#define PWR_FLAG_SETTING_DELAY_US   50
+/**
+  * @}
   */
 
-/** @defgroup PWREx_Group1 Peripheral Extended features functions
-  *  @brief Low Power modes configuration functions 
+
+/** @addtogroup PWREx_Exported_Functions
+  * @brief      Low Power modes configuration functions 
   *
 @verbatim
 
@@ -82,76 +78,93 @@
   * @note This bit works in conjunction with ULP bit. 
   *        Means, when ULP = 1 and FWU = 1 :VREFINT startup time is ignored when 
   *        exiting from low power mode.
-  * @param  None
   * @retval None
   */
 void HAL_PWREx_EnableFastWakeUp(void)
 {
   /* Enable the fast wake up */
-  PWR->CR |= PWR_CR_FWU;
+  SET_BIT(PWR->CR, PWR_CR_FWU);
 }
 
 /**
   * @brief  Disables the Fast WakeUp from Ultra Low Power mode.
-  * @param  None
   * @retval None
   */
 void HAL_PWREx_DisableFastWakeUp(void)
 {
   /* Disable the fast wake up */
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_FWU);
+  CLEAR_BIT(PWR->CR, PWR_CR_FWU);
 }
 
 /**
   * @brief  Enables the Ultra Low Power mode
-  * @param  None
   * @retval None
   */
 void HAL_PWREx_EnableUltraLowPower(void)
 {
   /* Enable the Ultra Low Power mode */
-  PWR->CR |= PWR_CR_ULP;
+  SET_BIT(PWR->CR, PWR_CR_ULP);
 }
 
 /**
   * @brief  Disables the Ultra Low Power mode
-  * @param  None
   * @retval None
   */
 void HAL_PWREx_DisableUltraLowPower(void)
 {
   /* Disable the Ultra Low Power mode */
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_ULP);
+  CLEAR_BIT(PWR->CR, PWR_CR_ULP);
 }
 
 /**
-  * @brief  Enters the Low Power Run mode.
+  * @brief  Enable the Low Power Run mode.
   * @note   Low power run mode can only be entered when VCORE is in range 2.
   *         In addition, the dynamic voltage scaling must not be used when Low
   *         power run mode is selected. Only Stop and Sleep modes with regulator
   *         configured in Low power mode is allowed when Low power run mode is 
   *         selected.
+  * @note   The frequency of the system clock must be decreased to not exceed the
+  *         frequency of RCC_MSIRANGE_1.
   * @note   In Low power run mode, all I/O pins keep the same state as in Run mode.
-  * @param  None
   * @retval None
   */
 void HAL_PWREx_EnableLowPowerRunMode(void)
 {
   /* Enters the Low Power Run mode */
-  PWR->CR |= PWR_CR_LPSDSR;
-  PWR->CR |= PWR_CR_LPRUN;
+  SET_BIT(PWR->CR, PWR_CR_LPSDSR);
+  SET_BIT(PWR->CR, PWR_CR_LPRUN);
 }
 
 /**
-  * @brief  Exits the Low Power Run mode.
-  * @param  None
-  * @retval None
+  * @brief  Disable the Low Power Run mode.
+  * @note  Before HAL_PWREx_DisableLowPowerRunMode() completion, the function checks that 
+  *        REGLPF has been properly reset (otherwise, HAL_PWREx_DisableLowPowerRunMode 
+  *        returns HAL_TIMEOUT status). The system clock frequency can then be
+  *        increased above 2 MHz.   
+  * @retval HAL_StatusTypeDef
   */
-void HAL_PWREx_DisableLowPowerRunMode(void)
+HAL_StatusTypeDef HAL_PWREx_DisableLowPowerRunMode(void)
 {
-  /* Exits the Low Power Run mode */
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_LPRUN);
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_LPSDSR);
+  uint32_t wait_loop_index = 0;
+  
+  /* Exit the Low Power Run mode */
+  CLEAR_BIT(PWR->CR, PWR_CR_LPRUN);
+  CLEAR_BIT(PWR->CR, PWR_CR_LPSDSR);
+  
+  /* Wait until REGLPF is reset */
+  wait_loop_index = (PWR_FLAG_SETTING_DELAY_US * (SystemCoreClock / 1000000));
+
+  while ((wait_loop_index != 0) && (HAL_IS_BIT_SET(PWR->CSR, PWR_CSR_REGLPF)))
+  {
+    wait_loop_index--;
+  }
+
+  if (HAL_IS_BIT_SET(PWR->CSR, PWR_CSR_REGLPF))
+  {
+    return HAL_TIMEOUT;
+  }
+
+  return HAL_OK;
 }
 
 /**
@@ -162,13 +175,10 @@ void HAL_PWREx_DisableLowPowerRunMode(void)
   * @}
   */
 
+/**
+  * @}
+  */
 #endif /* HAL_PWR_MODULE_ENABLED */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
