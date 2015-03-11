@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from exporters import Exporter
-
+import re
 
 class IAREmbeddedWorkbench(Exporter):
     NAME = 'IAR'
@@ -34,6 +34,7 @@ class IAREmbeddedWorkbench(Exporter):
         'LPC812',
         'LPC4088',
         'LPC4088_DM',
+        'LPC824',
         'UBLOX_C027',
         'ARCH_PRO',
         'K20D50M',
@@ -59,15 +60,24 @@ class IAREmbeddedWorkbench(Exporter):
         'MTS_MDOT_F411RE',
         'MTS_DRAGONFLY_F411RE',
         'NRF51822',
+        'NRF51_DK',
+        'NRF51_DONGLE',
+        'DELTA_DFCM_NNN40',
+        'SEEED_TINY_BLE',
+        'HRM1017',
+        'ARCH_BLE',
     ]
 
     def generate(self):
-
         sources = []
         sources += self.resources.c_sources
         sources += self.resources.cpp_sources
         sources += self.resources.s_sources
-
+        
+        iar_files = IAR_FOLDER("","",[])
+        for source in sources:
+            iar_files.insert_file(source)
+          
         ctx = {
             'name': self.program_name,
             'include_paths': self.resources.inc_dirs,
@@ -75,8 +85,74 @@ class IAREmbeddedWorkbench(Exporter):
             'object_files': self.resources.objects,
             'libraries': self.resources.libraries,
             'symbols': self.get_symbols(),
-            'source_files': sources,
+            'source_files': iar_files.__str__(),
+            'binary_files': self.resources.bin_files,
         }
         self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
         self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)
         self.gen_file('iar_%s.ewd.tmpl' % self.target.lower(), ctx, '%s.ewd' % self.program_name)
+
+class IAR_FOLDER:
+    #input:
+    #folder_level : folder path to current folder
+    #folder_name : name of current folder
+    #source_files : list of source_files (all must be in same directory)
+    def __init__(self, folder_level, folder_name, source_files):
+        self.folder_level = folder_level
+        self.folder_name = folder_name
+        self.source_files = source_files
+        self.sub_folders = {};
+    
+    def __str__(self):
+        group_start = ""
+        group_end = ""
+        if self.folder_name != "":
+            group_start = "<group>\n<name>%s</name>\n" %(self.folder_name)
+            group_end = "</group>\n"
+
+        str_content = group_start
+        #Add files in current folder
+        if self.source_files:
+            for src in self.source_files:
+                str_content += "<file>\n<name>$PROJ_DIR$\\%s</name>\n</file>\n" % src
+        ##Add sub folders
+        if self.sub_folders:
+            for folder_name in self.sub_folders.iterkeys():
+                str_content += self.sub_folders[folder_name].__str__()
+        
+        str_content += group_end
+        return str_content
+    
+    
+    def insert_file(self, source_input):
+        if self.source_files:
+            dir_sources = IAR_FOLDER.get_directory(self.source_files[0]) ##All source_files in a IAR_FOLDER must be in same directory.
+            if not self.folder_level == dir_sources: ## Check if sources are already at their deepest level.
+                _reg_exp = r"^" + re.escape(self.folder_level) + r"[/\\]?([^/\\]+)"
+                folder_name = re.match( _reg_exp, dir_sources).group(1)
+                self.sub_folders[folder_name] = IAR_FOLDER(self.folder_level + "\\" + folder_name, folder_name, self.source_files)
+                self.source_files = []
+  
+        dir_input = IAR_FOLDER.get_directory(source_input)
+        if dir_input == self.folder_level:
+            self.source_files.append(source_input)
+        else:
+            _reg_exp = r"^" + re.escape(self.folder_level) + r"[/\\]?([^/\\]+)"
+            folder_name = re.match( _reg_exp, dir_input).group(1)
+            if self.sub_folders.has_key(folder_name):
+                self.sub_folders[folder_name].insert_file(source_input)
+            else:
+                if self.folder_level == "": #Top level exception
+                    self.sub_folders[folder_name] = IAR_FOLDER(folder_name, folder_name, [source_input])
+                else:
+                    self.sub_folders[folder_name] = IAR_FOLDER(self.folder_level + "\\" + folder_name, folder_name, [source_input])
+
+    @staticmethod    
+    def get_directory(file_path):
+        dir_Match = re.match( r'(.*)[/\\][^/\\]+', file_path)
+        if dir_Match is not None:
+            return dir_Match.group(1)
+        else:
+            return ""
+            
+            

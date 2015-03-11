@@ -298,6 +298,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F401VC)
 #define INITIAL_SP            (0x20010000UL)
 
+#elif defined(TARGET_STM32F303RE)
+#define INITIAL_SP            (0x20010000UL)
+
 #else
 #error "no target defined"
 
@@ -471,14 +474,14 @@ void __iar_program_start( void )
   if (__low_level_init() != 0) {
     __iar_data_init3();
     mbed_sdk_init();
-    __iar_dynamic_initialization(); 
-  } 
+    __iar_dynamic_initialization();
+  }
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
-  exit(a);  
-  
+  exit(a);
+
 }
 
 #endif

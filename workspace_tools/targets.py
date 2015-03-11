@@ -267,7 +267,7 @@ class LPC824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM", "GCC_ARM","GCC_CR"]
+        self.supported_toolchains = ["uARM", "GCC_ARM","GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -616,6 +616,7 @@ class ARCH_MAX(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_form_factors = ["ARDUINO"]
         
     def program_cycle_s(self):
         return 2
@@ -723,6 +724,7 @@ class UBLOX_C029(Target):
         self.supported_form_factors = ["ARDUINO"]
 
 
+
 ### Nordic ###
 
 class NRF51822(Target):
@@ -742,8 +744,10 @@ class NRF51822(Target):
             'offset' : 0x14000
         }
     ]
+    EXPECTED_BOOTLOADER_FILENAME = "nrf51822_bootloader.hex"
     OUTPUT_EXT = 'hex'
     MERGE_SOFT_DEVICE = True
+    MERGE_BOOTLOADER = False
 
     def __init__(self):
         Target.__init__(self)
@@ -762,30 +766,49 @@ class NRF51822(Target):
 
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
+        # Scan to find the actual paths of soft device and bootloader files
+        sdf = None
+        blf = None
         for hexf in resources.hex_files:
-            found = False
-            for softdeviceAndOffsetEntry in NRF51822.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
-                if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
-                    found = True
-                    break
-            if found:
-                break
-        else:
+            if hexf.find(t_self.target.EXPECTED_BOOTLOADER_FILENAME) != -1:
+                blf = hexf
+            else:
+                for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+                    if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                        sdf = hexf
+                        break
+
+        if sdf is None:
             t_self.debug("Hex file not found. Aborting.")
             return
 
         # Merge user code with softdevice
-        t_self.debug("Patching Hex file %s" % softdeviceAndOffsetEntry['name'])
         from intelhex import IntelHex
         binh = IntelHex()
         binh.loadbin(binf, offset=softdeviceAndOffsetEntry['offset'])
 
         if t_self.target.MERGE_SOFT_DEVICE is True:
-            sdh = IntelHex(hexf)
+            t_self.debug("Merge SoftDevice file %s" % softdeviceAndOffsetEntry['name'])
+            sdh = IntelHex(sdf)
             binh.merge(sdh)
+
+        if t_self.target.MERGE_BOOTLOADER is True and blf is not None:
+            t_self.debug("Merge BootLoader file %s" % t_self.target.EXPECTED_BOOTLOADER_FILENAME)
+            blh = IntelHex(blf)
+            binh.merge(blh)
 
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
+
+class NRF51822_BOOT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ["NORDIC", "NRF51822_MKIT", "MCU_NRF51822", "MCU_NORDIC_16K", "NRF51822"]
+        self.macros = ['TARGET_NRF51822', 'TARGET_OTA_ENABLED']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.MERGE_SOFT_DEVICE = True
+        self.MERGE_BOOTLOADER = True
 
 class NRF51822_OTA(NRF51822):
     def __init__(self):
@@ -803,6 +826,16 @@ class NRF51_DK(NRF51822):
         self.macros = ['TARGET_NRF51822']
         self.supported_form_factors = ["ARDUINO"]
 
+class NRF51_DK_BOOT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_32K', 'NRF51_DK']
+        self.macros = ['TARGET_NRF51822', 'TARGET_NRF51_DK', 'TARGET_OTA_ENABLED']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.MERGE_SOFT_DEVICE = True
+        self.MERGE_BOOTLOADER = True
+        
 class NRF51_DK_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -831,10 +864,18 @@ class SEEED_TINY_BLE(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
+class SEEED_TINY_BLE_BOOT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'SEEED_TINY_BLE']
+        self.macros = ['TARGET_NRF51822', 'TARGET_SEEED_TINY_BLE', 'TARGET_OTA_ENABLED']
+        self.MERGE_SOFT_DEVICE = True
+        self.MERGE_BOOTLOADER = True
+
 class SEEED_TINY_BLE_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'SEEED_TINY_BLE']
         self.macros = ['TARGET_NRF51822', 'TARGET_SEEED_TINY_BLE', 'TARGET_OTA_ENABLED']
         self.MERGE_SOFT_DEVICE = False
 
@@ -884,6 +925,12 @@ class DELTA_DFCM_NNN40(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
         self.macros = ['TARGET_NRF51822']
 
+class DELTA_DFCM_NNN40_OTA(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
+        self.MERGE_SOFT_DEVICE = False
 class DELTA_DFCM_NNN40_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -1046,13 +1093,16 @@ TARGETS = [
 
     ### Nordic ###
     NRF51822(),
+    NRF51822_BOOT(), # nRF51822
     NRF51822_OTA(), # nRF51822
     NRF51_DK(),
+    NRF51_DK_BOOT(), # nRF51822
     NRF51_DK_OTA(), # nRF51822
     NRF51_DONGLE(),
     ARCH_BLE(),     # nRF51822
-    SEEED_TINY_BLE(),
-    SEEED_TINY_BLE_OTA(),
+    SEEED_TINY_BLE(), # nRF51822
+    SEEED_TINY_BLE_BOOT(),# nRF51822
+    SEEED_TINY_BLE_OTA(),# nRF51822
     HRM1017(),      # nRF51822
     RBLAB_NRF51822(),# nRF51822
     RBLAB_BLENANO(),# nRF51822

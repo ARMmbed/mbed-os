@@ -213,6 +213,7 @@ if __name__ == '__main__':
                                    _opts_shuffle_test_order=opts.shuffle_test_order,
                                    _opts_shuffle_test_seed=opts.shuffle_test_seed,
                                    _opts_test_by_names=opts.test_by_names,
+                                   _opts_peripheral_by_names=opts.peripheral_by_names,
                                    _opts_test_only_peripheral=opts.test_only_peripheral,
                                    _opts_test_only_common=opts.test_only_common,
                                    _opts_verbose_skipped_tests=opts.verbose_skipped_tests,

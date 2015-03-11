@@ -53,7 +53,7 @@
    || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC)
 #    define OS_TASKCNT         14
-#  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
+#  elif defined(TARGET_LPC11U24) || defined(TARGET_STM32F303RE) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC)
@@ -73,7 +73,7 @@
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC)
 #      define OS_SCHEDULERSTKSIZE    128
-#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F334C8) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
 #      define OS_SCHEDULERSTKSIZE    112
 #  else
 #    error "no target defined"
@@ -119,7 +119,7 @@
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #    define OS_CLOCK       96000000
 
-#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8)
+#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32F303RE)
 #    define OS_CLOCK       72000000
 
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)  || defined(TARGET_LPC1114) || defined(TARGET_KL25Z) \
@@ -153,7 +153,7 @@
 #  elif defined(TARGET_STM32F411RE)
 #     define OS_CLOCK      100000000
 
-#elif defined(TARGET_STM32F103RB)
+#elif defined(TARGET_STM32F103RB) 
 #    define OS_CLOCK       72000000
 
 #elif defined(TARGET_STM32F429ZI)
