@@ -1075,20 +1075,38 @@ TARGETS = [
     RZ_A1H(),
 ]
 
-# Translation table for legacy names (K64F -> FRDM_K64F)
-TARGET_LEGACY_NAMES = {
-    'FRDM_K64F' : 'K64F',
-}
+class TargetMap:
+    TARGET_MAP = {}
 
-# Map each target name to its unique instance
-TARGET_MAP = {}
-for t in TARGETS:
-    TARGET_MAP[t.name] = t
-    # expand the dic by legacy names
-    if t.name in TARGET_LEGACY_NAMES.keys():
-        TARGET_MAP[TARGET_LEGACY_NAMES[t.name]] = t
+    TARGET_LEGACY_NAMES = {
+        'K64F' : 'FRDM_K64F',
+    }
+
+    def __init__(self):
+        # Populate
+        for t in TARGETS:
+            self.TARGET_MAP[t.name] = t
+
+    def __getitem__(self, target_name):
+        """ Usage: TARGET_MAP[target_name]
+        """
+        if target_name in self.TARGET_MAP.keys():
+            return self.TARGET_MAP[target_name]
+        elif target_name in self.TARGET_LEGACY_NAMES:
+            # We will alias legacy name with proper name
+            target_name = self.TARGET_LEGACY_NAMES[target_name]
+            return self.TARGET_MAP[target_name]
+        else:
+            return None
+
+    def keys(self):
+        """ Dict like behaviour
+        """
+        keys = self.TARGET_MAP.keys() + self.TARGET_LEGACY_NAMES.keys()
+        return keys
+
+TARGET_MAP = TargetMap()
 TARGET_NAMES = TARGET_MAP.keys()
-
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = { }

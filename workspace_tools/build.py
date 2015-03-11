@@ -29,7 +29,7 @@ sys.path.insert(0, ROOT)
 
 from workspace_tools.toolchains import TOOLCHAINS
 from workspace_tools.toolchains import print_notify_verbose
-from workspace_tools.targets import TARGET_NAMES, TARGET_MAP, TARGET_LEGACY_NAMES
+from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
 from workspace_tools.build_api import mcu_toolchain_matrix
