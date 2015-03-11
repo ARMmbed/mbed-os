@@ -1,10 +1,25 @@
 /**
   ******************************************************************************
-  * @file    stm32l0xx_hal_pcd.h
+  * @file    stm32l0xx_hal_comp_ex.c
   * @author  MCD Application Team
   * @version V1.2.0
   * @date    06-February-2015
-  * @brief   Header file of PCD HAL module.
+  * @brief   Extended COMP HAL module driver.
+  * @brief   This file provides firmware functions to manage the VREFINT
+  *          which can act as input to the comparator.
+  @verbatim 
+  ==============================================================================
+               ##### COMP peripheral Extended features  #####
+  ==============================================================================
+
+  [..] Comparing to other previous devices, the COMP interface for STM32L0XX
+       devices contains the following additional features
+
+       (+) Possibility to enable or disable the VREFINT which is used as input
+           to the comparator.
+
+
+  @endverbatim
   ******************************************************************************
   * @attention
   *
@@ -35,49 +50,71 @@
   ******************************************************************************
   */ 
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L0xx_HAL_PCD_EX_H
-#define __STM32L0xx_HAL_PCD_EX_H
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal_def.h"  
-   
+#include "stm32l0xx_hal.h"
+
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup PCDEx
+/** @addtogroup COMPEx
+  * @brief Extended COMP HAL module driver
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/
-/* Internal macros -----------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
-HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                                     uint16_t ep_addr,
-                                     uint16_t ep_kind,
-                                     uint32_t pmaadress);
+#ifdef HAL_COMP_MODULE_ENABLED
+
+
+/** @addtogroup COMPEx_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup COMPEx_Exported_Functions_Group1
+  * @brief  Extended functions to manage VREFINT for the comparator
+  *
+  * @{
+  */
 
 /**
-  * @}
-  */ 
+  * @brief  Enables the Buffer Vrefint for the COMP.
+  * @note   This is functional only if the LOCK bit is not set
 
-/**
-  * @}
-  */ 
+  * @retval None
+  */
+void HAL_COMPEx_EnableVREFINT(void)
+{
+    /* Enable the Buffer for the COMP by setting EN_VREFINT bit and the ENBUFLP_VREFINT_COMP in the CFGR3 register */
 
-#ifdef __cplusplus
+    SYSCFG->CFGR3 |= (SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT);
 }
-#endif
+
+/**
+  * @brief  Disables the Buffer Vrefint for the COMP.
+  * @note   This is functional only if the LOCK bit is not set
+  * @retval None
+  */
+void HAL_COMPEx_DisableVREFINT(void)
+{
+    /* Disable the Vrefint by resetting ENBUFLP_BGAP_COMP bit and the EN_VREFINT bit in the CFGR3 register */
+
+    SYSCFG->CFGR3 &= (uint32_t)~((uint32_t)(SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP | SYSCFG_CFGR3_EN_VREFINT));
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 
-#endif /* __STM32L0xx_HAL_PCD_EX_H */
+#endif /* HAL_COMP_MODULE_ENABLED */
+/**
+  * @}
+  */ 
 
+/**
+  * @}
+  */ 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

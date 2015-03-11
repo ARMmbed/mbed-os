@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
-  * @brief   Header file of CRC HAL module.
+  * @version V1.2.0
+  * @date    06-February-2015
+  * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,18 +50,68 @@
   * @{
   */
 
-/** @addtogroup CRCEx
+/** @defgroup CRCEx CRCEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup CRCEx_Extended_Exported_Macro
+/** @defgroup CRCEx_Exported_Constants CRC Extended exported constants
+ * @{
+ */
+
+/** @defgroup CRCEx_Input_Data_Inversion CRC Extended input data inversion modes
   * @{
   */
+#define CRC_INPUTDATA_INVERSION_NONE              ((uint32_t)0x00000000)
+#define CRC_INPUTDATA_INVERSION_BYTE              ((uint32_t)CRC_CR_REV_IN_0)
+#define CRC_INPUTDATA_INVERSION_HALFWORD          ((uint32_t)CRC_CR_REV_IN_1)
+#define CRC_INPUTDATA_INVERSION_WORD              ((uint32_t)CRC_CR_REV_IN)
 
+#define IS_CRC_INPUTDATA_INVERSION_MODE(__MODE__)     (((__MODE__) == CRC_INPUTDATA_INVERSION_NONE) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_BYTE) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_HALFWORD) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_WORD))
+/**
+  * @}
+  */
+
+/** @defgroup CRCEx_Output_Data_Inversion CRC Extended output data inversion modes
+  * @{
+  */
+#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
+#define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
+
+#define IS_CRC_OUTPUTDATA_INVERSION_MODE(__MODE__)    (((__MODE__) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
+                                                       ((__MODE__) == CRC_OUTPUTDATA_INVERSION_ENABLE))
+/**                                               
+  * @}
+  */
+
+
+/**
+ * @}
+ */
+/* Exported macro ------------------------------------------------------------*/
+
+/** @defgroup CRCEx_Exported_Macros CRC Extended exported macros
+  * @{
+  */
+    
+/**
+  * @brief  Set CRC output reversal
+  * @param  __HANDLE__    : CRC handle
+  * @retval None.
+  */
+#define  __HAL_CRC_OUTPUTREVERSAL_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |= CRC_CR_REV_OUT)   
+
+/**
+  * @brief  Unset CRC output reversal
+  * @param  __HANDLE__    : CRC handle
+  * @retval None.
+  */
+#define __HAL_CRC_OUTPUTREVERSAL_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR &= ~(CRC_CR_REV_OUT))   
 
 /**
   * @brief  Set CRC non-default polynomial
@@ -70,21 +120,35 @@
   * @retval None.
   */
 #define __HAL_CRC_POLYNOMIAL_CONFIG(__HANDLE__, __POLYNOMIAL__) ((__HANDLE__)->Instance->POL = (__POLYNOMIAL__))
-    
-    
+
 /**
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/
 
+/** @defgroup CRCEx_Exported_Functions CRC Extended Exported Functions
+  * @{
+  */
+
+/** @defgroup CRCEx_Exported_Functions_Group1 Extended CRC features functions
+  * @{
+  */
+/* Exported functions --------------------------------------------------------*/
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol, uint32_t PolyLength);
-HAL_StatusTypeDef HAL_CRC_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t InputReverseMode);
-HAL_StatusTypeDef HAL_CRC_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t OutputReverseMode);
+HAL_StatusTypeDef HAL_CRCEx_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t InputReverseMode);
+HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t OutputReverseMode);
 
 /* Peripheral Control functions ***********************************************/
 /* Peripheral State and Error functions ***************************************/
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 
 /**
@@ -102,3 +166,4 @@ HAL_StatusTypeDef HAL_CRC_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t 
 #endif /* __STM32L0xx_HAL_CRC_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
