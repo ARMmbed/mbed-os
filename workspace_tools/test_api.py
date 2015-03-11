@@ -159,6 +159,7 @@ class SingleTestRunner(object):
                  _opts_shuffle_test_order=False,
                  _opts_shuffle_test_seed=None,
                  _opts_test_by_names=None,
+                 _opts_peripheral_by_names=None,
                  _opts_test_only_peripheral=False,
                  _opts_test_only_common=False,
                  _opts_verbose_skipped_tests=False,
@@ -209,6 +210,7 @@ class SingleTestRunner(object):
         self.opts_shuffle_test_order = _opts_shuffle_test_order
         self.opts_shuffle_test_seed = _opts_shuffle_test_seed
         self.opts_test_by_names = _opts_test_by_names
+        self.opts_peripheral_by_names = _opts_peripheral_by_names
         self.opts_test_only_peripheral = _opts_test_only_peripheral
         self.opts_test_only_common = _opts_test_only_common
         self.opts_verbose_skipped_tests = _opts_verbose_skipped_tests
@@ -257,6 +259,7 @@ class SingleTestRunner(object):
                   "shuffle_test_order" : str(self.opts_shuffle_test_order),
                   "shuffle_test_seed" : str(self.opts_shuffle_test_seed),
                   "test_by_names" :  str(self.opts_test_by_names),
+                  "peripheral_by_names" : str(self.opts_peripheral_by_names),
                   "test_only_peripheral" :  str(self.opts_test_only_peripheral),
                   "test_only_common" :  str(self.opts_test_only_common),
                   "verbose" :  str(self.opts_verbose),
@@ -369,6 +372,13 @@ class SingleTestRunner(object):
                     test_suite_properties['skipped'].append(test_id)
                     continue
 
+                if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
+                    # We will skip tests not forced with -p option
+                    if self.opts_verbose_skipped_tests:
+                        print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                    test_suite_properties['skipped'].append(test_id)
+                    continue
+
                 if self.opts_test_only_common and test.peripherals:
                     if self.opts_verbose_skipped_tests:
                         print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
@@ -379,6 +389,10 @@ class SingleTestRunner(object):
                     if test.peripherals is None and self.opts_only_build_tests:
                         # When users are using 'build only flag' and test do not have
                         # specified peripherals we can allow test building by default
+                        pass
+                    elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
+                        # If we force peripheral with option -p we expect test
+                        # to pass even if peripheral is not in MUTs file.
                         pass
                     elif not self.is_peripherals_available(target, test.peripherals):
                         if self.opts_verbose_skipped_tests:
@@ -952,7 +966,7 @@ class SingleTestRunner(object):
         return (result, "".join(output), testcase_duration, duration)
 
     def is_peripherals_available(self, target_mcu_name, peripherals=None):
-        """ Checks if specified target should run specific peripheral test case
+        """ Checks if specified target should run specific peripheral test case defined in MUTs file
         """
         if peripherals is not None:
             peripherals = set(peripherals)
@@ -970,7 +984,7 @@ class SingleTestRunner(object):
         return False
 
     def shape_test_request(self, mcu, image_path, test_id, duration=10):
-        """ Function prepares JOSN structure describing test specification
+        """ Function prepares JSON structure describing test specification
         """
         test_spec = {
             "mcu": mcu,
@@ -1547,7 +1561,11 @@ def get_default_test_options_parser():
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+
+    parser.add_option('-p', '--peripheral-by-names',
+                      dest='peripheral_by_names',
+                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names.')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
