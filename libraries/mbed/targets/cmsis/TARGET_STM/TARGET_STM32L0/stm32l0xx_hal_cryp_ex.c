@@ -2,71 +2,18 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   CRYPEx HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cryptography (CRYP) extension peripheral:
   *           + Computation completed callback.
   *         
-  @verbatim
-  ==============================================================================
-                     ##### How to use this driver #####
-  ==============================================================================
-    [..]
-      The CRYP HAL driver can be used as follows:
-
-      (#)Initialize the CRYP low level resources by implementing the HAL_CRYP_MspInit():
-         (##) Enable the CRYP interface clock using __CRYP_CLK_ENABLE()
-         (##) In case of using interrupts (e.g. HAL_AES_ECB_Encrypt_IT())
-             (+) Configure the CRYP interrupt priority using HAL_NVIC_SetPriority()
-             (+) Enable the CRYP IRQ handler using HAL_NVIC_EnableIRQ()
-             (+) In CRYP IRQ handler, call HAL_CRYP_IRQHandler()
-         (##) In case of using DMA to control data transfer (e.g. HAL_AES_ECB_Encrypt_DMA())
-             (+) Enable the DMA1 interface clock using 
-                 (++) __DMA1_CLK_ENABLE()
-             (+) Configure and enable two DMA Channels one for managing data transfer from
-                 memory to peripheral (input channel) and another channel for managing data
-                 transfer from peripheral to memory (output channel)
-             (+) Associate the initilalized DMA handle to the CRYP DMA handle
-                 using  __HAL_LINKDMA()
-             (+) Configure the priority and enable the NVIC for the transfer complete
-                 interrupt on the two DMA Streams. The output stream should have higher
-                 priority than the input stream.
-                 (++) HAL_NVIC_SetPriority()
-                 (++) HAL_NVIC_EnableIRQ()
-    
-      (#)Initialize the CRYP HAL using HAL_CRYP_Init(). This function configures mainly:
-         (##) The data type: 1-bit, 8-bit, 16-bit and 32-bit
-         (##) The encryption/decryption key.
-         (##) The initialization vector (counter). It is not used ECB mode.
-    
-      (#)Three processing (encryption/decryption) functions are available:
-         (##) Polling mode: encryption and decryption APIs are blocking functions
-              i.e. they process the data and wait till the processing is finished
-              e.g. HAL_CRYP_AESCBC_Encrypt()
-         (##) Interrupt mode: encryption and decryption APIs are not blocking functions
-              i.e. they process the data under interrupt
-              e.g. HAL_CRYP_AESCBC_Encrypt_IT()
-         (##) DMA mode: encryption and decryption APIs are not blocking functions
-              i.e. the data transfer is ensured by DMA
-              e.g. HAL_CRYP_AESCBC_Encrypt_DMA()
-    
-      (#)When the processing function is called at first time after HAL_CRYP_Init()
-         the CRYP peripheral is initialized and processes the buffer in input.
-         At second call, the processing function performs an append of the already
-         processed buffer.
-         When a new data block is to be processed, call HAL_CRYP_Init() then the
-         processing function.
-         
-       (#)Call HAL_CRYP_DeInit() to deinitialize the CRYP peripheral.
-
-  @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -93,20 +40,20 @@
   ******************************************************************************  
   */ 
 
+#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
+#ifdef HAL_CRYP_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @defgroup CRYPEx 
+/** @defgroup CRYPEx CRYPEx
   * @brief CRYP HAL Extended module driver.
   * @{
   */
 
-#ifdef HAL_CRYP_MODULE_ENABLED
-#if !defined (STM32L051xx) && !defined (STM32L052xx) && !defined (STM32L053xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -115,12 +62,12 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup CRYPEx_Private_Functions
+/** @defgroup CRYPEx_Exported_Functions CRYPEx Exported Functions
   * @{
   */
 
 
-/** @defgroup CRYPEX_Group1 Extended features functions 
+/** @defgroup CRYPEx_Exported_Functions_Group1 Extended features functions 
  *  @brief    Extended features functions. 
  *
 @verbatim   
@@ -155,14 +102,15 @@ __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
 /**
   * @}
   */
-#endif /* STM32L051xx && STM32L052xx && STM32L053xx*/
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 #endif /* HAL_CRYP_MODULE_ENABLED */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
+#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
