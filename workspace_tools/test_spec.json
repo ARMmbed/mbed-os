@@ -1,0 +1,5 @@
+{ 
+"targets": { 
+       "NUCLEO_L152RE" : ["GCC_ARM"] 
+    } 
+} 
