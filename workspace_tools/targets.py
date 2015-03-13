@@ -1087,7 +1087,7 @@ class TargetMap:
         for t in TARGETS:
             self.TARGET_MAP[t.name] = t
 
-    def __getitem__(self, target_name):
+    def get_target_name(self, target_name):
         """ Usage: TARGET_MAP[target_name]
         """
         if target_name in self.TARGET_MAP.keys():
@@ -1098,6 +1098,14 @@ class TargetMap:
             return self.TARGET_MAP[target_name]
         else:
             return None
+
+    def __getitem__(self, target_name):
+        return self.get_target_name(target_name)
+
+    def __contains__(self, target_name):
+        """ Usage: target_name in TARGET_MAP
+        """
+        return self.get_target_name(target_name)
 
     def keys(self):
         """ Dict like behaviour
