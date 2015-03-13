@@ -153,23 +153,23 @@ typedef enum {
 
     // Board Pins
     // A0-A5
-    A0      = PC_2,
-    A1      = PF_3,
+    A0      = PF_7,
+    A1      = PF_6,
     A2      = PA_3,
-    A3      = PF_7,
-    A4      = PF_14,  // not AI
-    A5      = PG_15,  // not AI
+    A3      = PC_2,
+    A4      = PG_4,  // not AI
+    A5      = PB_3,  // not AI
     // D0-D15
-    D0      = PD_8,   // TX
-    D1      = PD_9,   // RX
-    D2      = PA_9,   // TX
+    D0      = PD_9,   // RX
+    D1      = PD_8,   // TX
+    D2      = PA_10,  // RX
     D3      = PA_11,
     D4      = PA_12,
-    D5      = PB_8,
+    D5      = PA_15,
     D6      = PD_11,
     D7      = PD_12,
-    D8      = PA_10,  // RX
-    D9      = PB_6,
+    D8      = PA_9,   // TX
+    D9      = PE_9,   // shared with SW1
     D10     = PE_11,  // SSEL
     D11     = PE_14,  // MOSI
     D12     = PE_13,  // MISO
@@ -177,10 +177,12 @@ typedef enum {
     D14     = PF_0,   // SDA
     D15     = PF_1,   // SCL
     // Internal
-    LED_GRE = PF_2,   // Green
-    LED_YEL = PE_9,   // Yellow, CS_CARD
-    LED_RED = PB_3,   // Red
-    BTN     = PA_15,
+    LED_RED = PE_0,   // Red
+    LED_GRE = PB_6,   // Green / shared with SW1
+    LED_BLU = PB_8,   // Blue
+    SW0     = PF_2,	  // Switch 0
+    SW1     = PB_6,   // Switch 1 / shared with LED_GRE
+    SDCS    = PE_9,   // SD Card CS / shared with D9
     USBRXD  = PD_9,   // RX
     USBTXD  = PD_8,   // TX
 
