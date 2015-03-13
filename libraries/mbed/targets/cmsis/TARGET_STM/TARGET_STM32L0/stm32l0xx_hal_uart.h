@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,12 +50,21 @@
   * @{
   */
 
-/** @addtogroup UART
+/** @defgroup UART UART
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/ 
+/******************************************************************************/
+/* Exported types ------------------------------------------------------------*/
+/******************************************************************************/
 
+   /** @defgroup UART_Exported_Types UART Exported Types
+  * @{
+  */
+
+/** @defgroup UART_Init_Configuration UART initialization configuration structure
+  * @{
+  */
 /** 
   * @brief UART Init Structure definition  
   */ 
@@ -95,9 +104,14 @@ typedef struct
                                            
   uint32_t OneBitSampling;            /*!< Specifies wether a single sample or three samples' majority vote is selected.
                                            Selecting the single sample method increases the receiver tolerance to clock
-                                           deviations. This parameter can be a value of @ref UART_OneBit_Sampling */                                                 
+                                           deviations. This parameter can be a value of @ref UART_One_Bit */
 }UART_InitTypeDef;
-
+/**
+  * @}
+  */
+/** @defgroup UART_Advanced_Feature UART advanced feature structure
+  * @{
+  */
 /** 
   * @brief  UART Advanced Features initalization structure definition  
   */
@@ -136,7 +150,13 @@ typedef struct
   uint32_t MSBFirst;              /*!< Specifies whether MSB is sent first on UART line.      
                                        This parameter can be a value of @ref UART_MSB_First */
 } UART_AdvFeatureInitTypeDef;
+/**
+  * @}
+  */
 
+/** @defgroup UART_State_Definition  UART state definition
+  * @{
+  */
 /** 
   * @brief HAL UART State structures definition  
   */ 
@@ -151,20 +171,29 @@ typedef enum
   HAL_UART_STATE_TIMEOUT           = 0x03,    /*!< Timeout state                                      */
   HAL_UART_STATE_ERROR             = 0x04     /*!< Error                                              */
 }HAL_UART_StateTypeDef;
-
+/**
+  * @}
+  */
+/** @defgroup UART_Error_Definition  UART error definition
+  * @{
+  */
 /** 
-  * @brief  HAL UART Error Code structure definition  
+  * @brief  HAL UART Error Code definition
   */ 
-typedef enum
-{
-  HAL_UART_ERROR_NONE      = 0x00,    /*!< No error            */
-  HAL_UART_ERROR_PE        = 0x01,    /*!< Parity error        */
-  HAL_UART_ERROR_NE        = 0x02,    /*!< Noise error         */
-  HAL_UART_ERROR_FE        = 0x04,    /*!< frame error         */
-  HAL_UART_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_UART_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
-}HAL_UART_ErrorTypeDef;
 
+#define   HAL_UART_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
+#define   HAL_UART_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
+#define   HAL_UART_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
+#define   HAL_UART_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
+#define   HAL_UART_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
+#define   HAL_UART_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error  */
+
+/**
+  * @}
+  */
+/** @defgroup UART_Clock_SourceDefinition  UART clock source definition
+  * @{
+  */
 /**
   * @brief UART clock sources definition
   */
@@ -176,10 +205,16 @@ typedef enum
   UART_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
   UART_CLOCKSOURCE_LSE        = 0x08     /*!< LSE clock source     */
 }UART_ClockSourceTypeDef;
-
+/**
+  * @}
+  */
+/** @defgroup UART_handle_Definition  Handle structure definition
+  * @{
+  */
 /** 
   * @brief  UART handle Structure definition  
-  */  
+  */
+
 typedef struct
 {
   USART_TypeDef            *Instance;        /* UART registers base address        */
@@ -210,17 +245,22 @@ typedef struct
 
   __IO HAL_UART_StateTypeDef    State;       /* UART communication state           */
 
-  __IO HAL_UART_ErrorTypeDef    ErrorCode;   /* UART Error code                    */
+  __IO uint32_t             ErrorCode;       /* UART Error code                    */
 
 }UART_HandleTypeDef;
+/**
+  * @}
+  */
+/**
+  * @}
+  */
 
-  
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup UART_Exported_Constants
+/** @defgroup UART_Exported_Constants UART Exported Constants
   * @{
   */
 
-/** @defgroup UART_Stop_Bits
+/** @defgroup UART_Stop_Bits UART stop bit definition
   * @{
   */
 #define UART_STOPBITS_1                     ((uint32_t)0x0000)
@@ -231,7 +271,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup UART_Parity
+/** @defgroup UART_Parity UART parity definition
   * @{
   */ 
 #define UART_PARITY_NONE                    ((uint32_t)0x0000)
@@ -244,7 +284,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup UART_Hardware_Flow_Control
+/** @defgroup UART_Hardware_Flow_Control UART hardware flow control definition
   * @{
   */ 
 #define UART_HWCONTROL_NONE                  ((uint32_t)0x0000)
@@ -260,7 +300,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Mode
+/** @defgroup UART_Mode UART mode definition
   * @{
   */ 
 #define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
@@ -271,7 +311,7 @@ typedef struct
   * @}
   */
     
- /** @defgroup UART_State
+ /** @defgroup UART_State UART state enable and disable definition
   * @{
   */ 
 #define UART_STATE_DISABLE                  ((uint32_t)0x0000)
@@ -282,7 +322,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Over_Sampling
+/** @defgroup UART_Over_Sampling UART over sampling definition
   * @{
   */
 #define UART_OVERSAMPLING_16                    ((uint32_t)0x0000)
@@ -292,20 +332,9 @@ typedef struct
 /**
   * @}
   */ 
-
-/** @defgroup UART_OneBit_Sampling
-  * @{
-  */
-#define UART_ONEBIT_SAMPLING_DISABLED   ((uint32_t)0x0000)
-#define UART_ONEBIT_SAMPLING_ENABLED    ((uint32_t)USART_CR3_ONEBIT)
-#define IS_UART_ONEBIT_SAMPLING(ONEBIT) (((ONEBIT) == UART_ONEBIT_SAMPLING_DISABLED) || \
-                                         ((ONEBIT) == UART_ONEBIT_SAMPLING_ENABLED))
-/**
-  * @}
-  */  
   
 
-/** @defgroup UART_Receiver_TimeOut
+/** @defgroup UART_Receiver_TimeOut UART receiver timeOut definition
   * @{
   */
 #define UART_RECEIVER_TIMEOUT_DISABLE   ((uint32_t)0x00000000)
@@ -316,7 +345,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup UART_LIN
+/** @defgroup UART_LIN UART LIN enable and disable definition
   * @{
   */
 #define UART_LIN_DISABLE            ((uint32_t)0x00000000)
@@ -327,7 +356,7 @@ typedef struct
   * @}
   */ 
   
-/** @defgroup UART_LIN_Break_Detection
+/** @defgroup UART_LIN_Break_Detection UART LIN break detection definition
   * @{
   */
 #define UART_LINBREAKDETECTLENGTH_10B            ((uint32_t)0x00000000)
@@ -340,18 +369,18 @@ typedef struct
   
  
 
-/** @defgroup UART_One_Bit
+/** @defgroup UART_One_Bit UART one bit definition
   * @{
   */
-#define UART_ONE_BIT_SAMPLE_DISABLED          ((uint32_t)0x00000000)
-#define UART_ONE_BIT_SAMPLE_ENABLED           ((uint32_t)USART_CR3_ONEBIT)
-#define IS_UART_ONEBIT_SAMPLE(ONEBIT)         (((ONEBIT) == UART_ONE_BIT_SAMPLE_DISABLED) || \
-                                                  ((ONEBIT) == UART_ONE_BIT_SAMPLE_ENABLED))
+#define UART_ONE_BIT_SAMPLE_DISABLE          ((uint32_t)0x00000000)
+#define UART_ONE_BIT_SAMPLE_ENABLE           ((uint32_t)USART_CR3_ONEBIT)
+#define IS_UART_ONE_BIT_SAMPLE(ONEBIT)       (((ONEBIT) == UART_ONE_BIT_SAMPLE_DISABLE) || \
+                                              ((ONEBIT) == UART_ONE_BIT_SAMPLE_ENABLE))
 /**
   * @}
   */  
   
-/** @defgroup UART_DMA_Tx
+/** @defgroup UART_DMA_Tx UART DMA Tx definition
   * @{
   */
 #define UART_DMA_TX_DISABLE          ((uint32_t)0x00000000)
@@ -362,7 +391,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_DMA_Rx
+/** @defgroup UART_DMA_Rx UART DMA Rx definition
   * @{
   */
 #define UART_DMA_RX_DISABLE           ((uint32_t)0x0000)
@@ -373,7 +402,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Half_Duplex_Selection
+/** @defgroup UART_Half_Duplex_Selection UART half duplex selection definition
   * @{
   */
 #define UART_HALF_DUPLEX_DISABLE          ((uint32_t)0x0000)
@@ -384,7 +413,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Flags
+/** @defgroup UART_Flags UART flags definition
   *        Elements values convention: 0xXXXX
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
@@ -415,14 +444,14 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup UART_Interrupt_definition
-  *        Elements values convention: 0000ZZZZ0XXYYYYYb
+/** @defgroup UART_Interrupt_definition UART interrupt definition
+  *        Elements values convention: 000ZZZZZ0XXYYYYYb
   *           - YYYYY  : Interrupt source position in the XX register (5bits)
   *           - XX  : Interrupt source register (2bits)
   *                 - 01: CR1 register
   *                 - 10: CR2 register
   *                 - 11: CR3 register
-  *           - ZZZZ  : Flag position in the ISR register(4bits)
+  *           - ZZZZZ  : Flag position in the ISR register(5bits)
   * @{
   */
 #define UART_IT_PE                          ((uint32_t)0x0028)
@@ -432,7 +461,7 @@ typedef struct
 #define UART_IT_IDLE                        ((uint32_t)0x0424)
 #define UART_IT_LBD                         ((uint32_t)0x0846)
 #define UART_IT_CTS                         ((uint32_t)0x096A)
-#define UART_IT_CM                          ((uint32_t)0x142E)
+#define UART_IT_CM                          ((uint32_t)0x112E)
 #define UART_IT_WUF                         ((uint32_t)0x1476)
 
 /**       Elements values convention: 000000000XXYYYYYb
@@ -454,7 +483,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_IT_CLEAR_Flags
+/** @defgroup UART_IT_CLEAR_Flags  UART interrupt clear flags definition
   * @{
   */
 #define UART_CLEAR_PEF                       USART_ICR_PECF            /*!< Parity Error Clear Flag */          
@@ -473,7 +502,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Request_Parameters
+/** @defgroup UART_Request_Parameters UART request parameter definition
   * @{
   */
 #define UART_AUTOBAUD_REQUEST            ((uint32_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */     
@@ -490,7 +519,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Advanced_Features_Initialization_Type
+/** @defgroup UART_Advanced_Features_Initialization_Type UART advanced features initialization type definition
   * @{
   */
 #define UART_ADVFEATURE_NO_INIT                 ((uint32_t)0x00000000)
@@ -515,7 +544,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Tx_Inv
+/** @defgroup UART_Tx_Inv UART advanced Tx inv activation definition
   * @{
   */
 #define UART_ADVFEATURE_TXINV_DISABLE   ((uint32_t)0x00000000)
@@ -526,7 +555,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Rx_Inv
+/** @defgroup UART_Rx_Inv UART advanced Rx inv activation definition
   * @{
   */
 #define UART_ADVFEATURE_RXINV_DISABLE   ((uint32_t)0x00000000)
@@ -537,7 +566,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Data_Inv
+/** @defgroup UART_Data_Inv UART advanced data inv activation definition
   * @{
   */
 #define UART_ADVFEATURE_DATAINV_DISABLE     ((uint32_t)0x00000000)
@@ -548,7 +577,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Rx_Tx_Swap
+/** @defgroup UART_Rx_Tx_Swap UART advanced swap activation definition
   * @{
   */
 #define UART_ADVFEATURE_SWAP_DISABLE   ((uint32_t)0x00000000)
@@ -559,7 +588,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Overrun_Disable
+/** @defgroup UART_Overrun_Disable UART advanced overrun activation definition
   * @{
   */
 #define UART_ADVFEATURE_OVERRUN_ENABLE   ((uint32_t)0x00000000)
@@ -570,7 +599,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_AutoBaudRate_Enable
+/** @defgroup UART_AutoBaudRate_Enable UART advanced auto baud rate activation definition
   * @{
   */
 #define UART_ADVFEATURE_AUTOBAUDRATE_DISABLE           ((uint32_t)0x00000000)
@@ -581,7 +610,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_DMA_Disable_on_Rx_Error
+/** @defgroup UART_DMA_Disable_on_Rx_Error UART advanced DMA on Rx error activation definition
   * @{
   */
 #define UART_ADVFEATURE_DMA_ENABLEONRXERROR       ((uint32_t)0x00000000)
@@ -592,7 +621,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_MSB_First
+/** @defgroup UART_MSB_First  UART advanced MSB first activation definition
   * @{
   */
 #define UART_ADVFEATURE_MSBFIRST_DISABLE      ((uint32_t)0x00000000)
@@ -603,7 +632,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Stop_Mode_Enable
+/** @defgroup UART_Stop_Mode_Enable UART advanced stop mode activation definition
   * @{
   */
 #define UART_ADVFEATURE_STOPMODE_DISABLE      ((uint32_t)0x00000000)
@@ -614,7 +643,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Mute_Mode
+/** @defgroup UART_Mute_Mode UART advanced mute mode activation definition
   * @{
   */
 #define UART_ADVFEATURE_MUTEMODE_DISABLE    ((uint32_t)0x00000000)
@@ -625,7 +654,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_CR2_ADDRESS_LSBPOS
+/** @defgroup UART_CR2_ADDRESS_LSBPOS UART CR2 address lsb position definition
   * @{
   */
 #define UART_CR2_ADDRESS_LSB_POS            ((uint32_t) 24)
@@ -633,7 +662,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_WakeUp_from_Stop_Selection
+/** @defgroup UART_WakeUp_from_Stop_Selection UART wake up mode selection definition
   * @{
   */
 #define UART_WAKEUP_ON_ADDRESS           ((uint32_t)0x0000)
@@ -646,7 +675,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_DriverEnable_Polarity
+/** @defgroup UART_DriverEnable_Polarity UART driver polarity level definition
   * @{
   */
 #define UART_DE_POLARITY_HIGH            ((uint32_t)0x00000000)
@@ -657,7 +686,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_CR1_DEAT_ADDRESS_LSBPOS
+/** @defgroup UART_CR1_DEAT_ADDRESS_LSBPOS  UART CR1 DEAT address lsb position definition
   * @{
   */
 #define UART_CR1_DEAT_ADDRESS_LSB_POS            ((uint32_t) 21)
@@ -665,7 +694,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_CR1_DEDT_ADDRESS_LSBPOS
+/** @defgroup UART_CR1_DEDT_ADDRESS_LSBPOS UART CR1 DEDT address lsb position definition
   * @{
   */
 #define UART_CR1_DEDT_ADDRESS_LSB_POS            ((uint32_t) 16)
@@ -673,7 +702,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup UART_Interruption_Mask
+/** @defgroup UART_Interruption_Mask UART interruption mask definition
   * @{
   */
 #define UART_IT_MASK                             ((uint32_t)0x001F)
@@ -686,7 +715,7 @@ typedef struct
   */
 
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup UART_Exported_Macros
+/** @defgroup UART_Exported_Macros UART Exported Macros
   * @{
   */
 
@@ -696,6 +725,66 @@ typedef struct
   * @retval None
   */
 #define __HAL_UART_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_UART_STATE_RESET)
+
+/** @brief  Flush the UART Data registers
+  * @param  __HANDLE__: specifies the UART Handle.
+  */
+#define __HAL_UART_FLUSH_DRREGISTER(__HANDLE__)  \
+  do{                \
+      SET_BIT((__HANDLE__)->Instance->RQR, UART_RXDATA_FLUSH_REQUEST); \
+      SET_BIT((__HANDLE__)->Instance->RQR, UART_TXDATA_FLUSH_REQUEST); \
+    } while(0)
+
+
+/** @brief  Clears the specified UART pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @param  __FLAG__: specifies the flag to check.
+  *          This parameter can be any combination of the following values:
+  *            @arg UART_CLEAR_PEF
+  *            @arg UART_CLEAR_FEF
+  *            @arg UART_CLEAR_NEF
+  *            @arg UART_CLEAR_OREF
+  *            @arg UART_CLEAR_IDLEF
+  *            @arg UART_CLEAR_TCF
+  *            @arg UART_CLEAR_LBDF
+  *            @arg UART_CLEAR_CTSF
+  *            @arg UART_CLEAR_RTOF
+  *            @arg UART_CLEAR_EOBF
+  *            @arg UART_CLEAR_CMF
+  *            @arg UART_CLEAR_WUF
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+
+/** @brief  Clear the UART PE pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_PEFLAG(__HANDLE__)   __HAL_UART_CLEAR_FLAG(__HANDLE__,UART_CLEAR_PEF)
+
+/** @brief  Clear the UART FE pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_FEFLAG(__HANDLE__)   __HAL_UART_CLEAR_FLAG(__HANDLE__,UART_CLEAR_FEF)
+
+/** @brief  Clear the UART NE pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_NEFLAG(__HANDLE__)  __HAL_UART_CLEAR_FLAG(__HANDLE__,UART_CLEAR_NEF)
+
+/** @brief  Clear the UART ORE pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_OREFLAG(__HANDLE__)   __HAL_UART_CLEAR_FLAG(__HANDLE__,UART_CLEAR_OREF)
+
+/** @brief  Clear the UART IDLE pending flag.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_CLEAR_IDLEFLAG(__HANDLE__)   __HAL_UART_CLEAR_FLAG(__HANDLE__,UART_CLEAR_IDLEF)
 
 /** @brief  Checks whether the specified UART flag is set or not.
   * @param  __HANDLE__: specifies the UART Handle.
@@ -844,7 +933,19 @@ typedef struct
   *            @arg UART_TXDATA_FLUSH_REQUEST: Transmit data flush Request
   * @retval None
   */
-#define __HAL_UART_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint16_t)(__REQ__))
+#define __HAL_UART_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint32_t)(__REQ__))
+
+/** @brief  Enables the UART one bit sample method
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_ONE_BIT_SAMPLE_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3|= USART_CR3_ONEBIT)
+
+/** @brief  Disables the UART one bit sample method
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_ONE_BIT_SAMPLE_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_ONEBIT))
 
 /** @brief  Enable UART
   * @param  __HANDLE__: specifies the UART Handle.
@@ -936,6 +1037,13 @@ typedef struct
     (__HANDLE__)->Init.HwFlowCtl &= ~(USART_CR3_RTSE);     \
   } while(0)
 
+/** @brief  macros to enables or disables the UART's one bit sampling method
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
+#define __HAL_UART_ONE_BIT_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3|= USART_CR3_ONEBIT)
+#define __HAL_UART_ONE_BIT_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3 &= (uint16_t)~((uint16_t)USART_CR3_ONEBIT))
+
 
 /** @brief  BRR division operation to set BRR register with LPUART
   * @param  _PCLK_: LPUART clock
@@ -949,14 +1057,14 @@ typedef struct
   * @param  _BAUD_: Baud rate set by the user
   * @retval Division result
   */
-#define __DIV_SAMPLING8(_PCLK_, _BAUD_)             (((_PCLK_)*2)/((_BAUD_)))
+#define UART_DIV_SAMPLING8(_PCLK_, _BAUD_)             (((_PCLK_)*2)/((_BAUD_)))
 
 /** @brief  BRR division operation to set BRR register in 16-bit oversampling mode
   * @param  _PCLK_: UART clock
   * @param  _BAUD_: Baud rate set by the user
   * @retval Division result
   */
-#define __DIV_SAMPLING16(_PCLK_, _BAUD_)             (((_PCLK_))/((_BAUD_)))
+#define UART_DIV_SAMPLING16(_PCLK_, _BAUD_)             (((_PCLK_))/((_BAUD_)))
 
 /** @brief  Check UART Baud rate
   * @param  BAUDRATE: Baudrate specified by the user
@@ -995,8 +1103,19 @@ typedef struct
   */
 /* Include UART HAL Extension module */
 #include "stm32l0xx_hal_uart_ex.h"
+
+/******************************************************************************/
 /* Exported functions --------------------------------------------------------*/
+/******************************************************************************/
+
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup UART_Exported_Functions UART Exported Functions
+  * @{
+  */
 /* Initialization/de-initialization functions  ********************************/
+/** @defgroup UART_Exported_Functions_Group1 Initialization/de-initialization methods
+ *  @{
+ */
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength);
@@ -1004,8 +1123,14 @@ HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Add
 HAL_StatusTypeDef HAL_UART_DeInit (UART_HandleTypeDef *huart);
 void HAL_UART_MspInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
+/**
+  * @}
+  */
 
 /* IO operation functions *****************************************************/
+/** @defgroup UART_Exported_Functions_Group2 IO operation functions
+ *  @{
+ */
 HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
@@ -1021,8 +1146,13 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
-
+/**
+  * @}
+  */
 /* Peripheral Control and State functions  ************************************/
+/** @defgroup UART_Exported_Functions_Group3 Peripheral Control funtions
+ *  @{
+ */
 HAL_StatusTypeDef HAL_MultiProcessor_EnableMuteMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessor_DisableMuteMode(UART_HandleTypeDef *huart);
 void HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart);
@@ -1031,16 +1161,21 @@ HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart);
 HAL_UART_StateTypeDef HAL_UART_GetState(UART_HandleTypeDef *huart);
 uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart);
-
-/* Non-User functions  ********************************************************/
+/**
+  * @}
+  */
 void UART_SetConfig(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
 void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
+
+/**
+  * @}
+  */
+
 /**
   * @}
   */ 
-
 /**
   * @}
   */ 

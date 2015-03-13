@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup SMARTCARDEx
+/** @defgroup SMARTCARDEx SMARTCARDEx
   * @{
   */ 
 
@@ -63,7 +63,34 @@
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
-#define __HAL_SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+#if defined (STM32L031xx) || defined (STM32L041xx)
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
+  do {                                                             \
+    if((__HANDLE__)->Instance == USART2)                      \
+    {                                                              \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                       \
+       {                                                           \
+        case RCC_USART2CLKSOURCE_PCLK1:                            \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK1;         \
+          break;                                                   \
+        case RCC_USART2CLKSOURCE_HSI:                              \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;           \
+          break;                                                   \
+        case RCC_USART2CLKSOURCE_SYSCLK:                           \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;        \
+          break;                                                   \
+        case RCC_USART2CLKSOURCE_LSE:                              \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;           \
+          break;                                                   \
+        default:                                                   \
+          break;                                                   \
+       }                                                           \
+    }                                                              \
+  } while(0)
+
+#else /* (STM32L031xx) || defined (STM32L041xx) */
+
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                             \
     if((__HANDLE__)->Instance == USART1)                           \
     {                                                              \
@@ -106,8 +133,17 @@
        }                                                           \
     }                                                              \
   } while(0)
+#endif /* (STM32L031xx) || (STM32L041xx) */
 
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup SMARTCARDEx_Exported_Functions SMARTCARD Extended Exported functions
+  * @{
+  */
+/* Initialization/de-initialization functions  ********************************/
+/** @defgroup SMARTCARDEx_Exported_Functions_Group1 Extended Peripheral Control functions
+ *  @{
+ */
+
 /* Initialization and de-initialization functions  ****************************/
 /* IO operation functions *****************************************************/
 /* Peripheral Control functions ***********************************************/
@@ -125,7 +161,14 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
 /**
   * @}
   */
-  
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif
@@ -133,3 +176,4 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
 #endif /* __STM32L0xx_HAL_SMARTCARD_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

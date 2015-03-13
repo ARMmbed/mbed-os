@@ -39,30 +39,44 @@
 
 static DAC_HandleTypeDef DacHandle;
 
+// These variables are used for the "free" function
+static int pa4_used = 0;
+static int pa5_used = 0;
+
 void analogout_init(dac_t *obj, PinName pin)
 {
     DAC_ChannelConfTypeDef sConfig;
 
-    DacHandle.Instance = DAC;
-
-    // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    // Save the channel for future use
+    // Save the pin for future use
     obj->pin = pin;
 
     // Enable DAC clock
     __DAC_CLK_ENABLE();
 
     // Configure DAC
+    DacHandle.Instance = DAC;
+
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
 
-    HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
+    if (pin == PA_4) {
+        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
+        pa4_used = 1;
+    }
+
+#if defined(DAC_CHANNEL_2)
+    if (pin == PA_5) {
+        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2);
+        pa5_used = 1;
+    }
+#endif
 
     analogout_write_u16(obj, 0);
 }
@@ -70,9 +84,14 @@ void analogout_init(dac_t *obj, PinName pin)
 void analogout_free(dac_t *obj)
 {
     // Reset DAC and disable clock
-    __DAC_FORCE_RESET();
-    __DAC_RELEASE_RESET();
-    __DAC_CLK_DISABLE();
+    if (obj->pin == PA_4) pa4_used = 0;
+    if (obj->pin == PA_5) pa5_used = 0;
+
+    if ((pa4_used == 0) && (pa5_used == 0)) {
+        __DAC_FORCE_RESET();
+        __DAC_RELEASE_RESET();
+        __DAC_CLK_DISABLE();
+    }
 
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -80,13 +99,32 @@ void analogout_free(dac_t *obj)
 
 static inline void dac_write(dac_t *obj, uint16_t value)
 {
-    HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
-    HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
+    if (obj->pin == PA_4) {
+        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
+        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
+    }
+
+#if defined(DAC_CHANNEL_2)
+    if (obj->pin == PA_5) {
+        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
+        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
+    }
+#endif
 }
 
 static inline int dac_read(dac_t *obj)
 {
-    return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
+    if (obj->pin == PA_4) {
+        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
+    }
+#if defined(DAC_CHANNEL_2)
+    else if (obj->pin == PA_5) {
+        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
+    }
+#endif
+    else {
+        return 0;
+    }
 }
 
 void analogout_write(dac_t *obj, float value)

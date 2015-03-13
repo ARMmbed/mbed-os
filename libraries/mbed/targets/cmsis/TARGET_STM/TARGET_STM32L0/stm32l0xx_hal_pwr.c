@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -11,11 +11,10 @@
   *           + Initialization/de-initialization functions
   *           + Peripheral Control functions 
   *
-  @verbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,43 +44,46 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
+#ifdef HAL_PWR_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @defgroup PWR
-  * @brief PWR HAL module driver
+/** @addtogroup PWR
   * @{
   */
 
-#ifdef HAL_PWR_MODULE_ENABLED
+/** @addtogroup PWR_Private_Defines
+  * @{
+  */
+  
+/** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
+  * @{
+  */ 
+#define PVD_MODE_IT               ((uint32_t)0x00010000)
+#define PVD_MODE_EVT              ((uint32_t)0x00020000)
+#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
+#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
+/**
+  * @}
+  */
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/**
+  * @}
+  */  
+  
 
-/** @defgroup PWR_Private_Functions
+/** @addtogroup PWR_Exported_Functions
   * @{
   */
 
-/** @defgroup PWR_Group1 Initialization and De-initialization functions 
-  *  @brief Initialization and Configuration functions
+/** @addtogroup PWR_Exported_Functions_Group1
+  * @brief      Initialization and de-initialization functions
   *
 @verbatim
  ===============================================================================
               ##### Initialization and de-initialization functions #####
  ===============================================================================
-    [..]
-      After reset, the backup domain (RTC registers, RTC backup data
-      registers) is protected against possible unwanted
-      write accesses.
-      To enable access to the RTC Domain and RTC registers, proceed as follows:
-        (+) Enable the Power Controller (PWR) APB1 interface clock using the
-            __PWR_CLK_ENABLE() macro.
-        (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
 
 @endverbatim
   * @{
@@ -89,49 +91,20 @@
 
 /**
   * @brief Deinitializes the HAL PWR peripheral registers to their default reset values.
-  * @param None
   * @retval None
   */
 void HAL_PWR_DeInit(void)
 {
-  __PWR_FORCE_RESET();
-  __PWR_RELEASE_RESET();
-}
-
-/**
-  * @brief Enables access to the backup domain (RTC registers, RTC
-  *         backup data registers ).
-  * @note   If the HSE divided by 2, 4, 8 or 16 is used as the RTC clock, the
-  *         Backup Domain Access should be kept enabled.
-  * @param None
-  * @retval None
-  */
-void HAL_PWR_EnableBkUpAccess(void)
-{
-  /* Enable access to RTC and backup registers */
-  PWR->CR |= PWR_CR_DBP;
-}
-
-/**
-  * @brief Disables access to the backup domain (RTC registers, RTC
-  *         backup data registers).
-  * @note   If the HSE divided by 2, 4, 8 or 16 is used as the RTC clock, the
-  *         Backup Domain Access should be kept enabled.
-  * @param None
-  * @retval None
-  */
-void HAL_PWR_DisableBkUpAccess(void)
-{
-  /* Disable access to RTC and backup registers */
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_DBP);
+  __HAL_RCC_PWR_FORCE_RESET();
+  __HAL_RCC_PWR_RELEASE_RESET();
 }
 
 /**
   * @}
   */
 
-/** @defgroup PWR_Group2 Peripheral Control functions 
-  *  @brief Low Power modes configuration functions
+/** @addtogroup PWR_Exported_Functions_Group2
+  * @brief      Low Power modes configuration functions
   *
 @verbatim
 
@@ -139,6 +112,17 @@ void HAL_PWR_DisableBkUpAccess(void)
                  ##### Peripheral Control functions #####
  ===============================================================================
      
+    *** Backup domain ***
+    =========================
+    [..]
+      After reset, the backup domain (RTC registers, RTC backup data
+      registers) is protected against possible unwanted
+      write accesses.
+      To enable access to the RTC Domain and RTC registers, proceed as follows:
+        (+) Enable the Power Controller (PWR) APB1 interface clock using the
+            __HAL_RCC_PWR_CLK_ENABLE() macro.
+        (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
+
     *** PVD configuration ***
     =========================
     [..]
@@ -151,7 +135,7 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
           than the PVD threshold. This event is internally connected to the EXTI
           line16 and can generate an interrupt if enabled. This is done through
-          __HAL_PVD_EXTI_ENABLE_IT() macro.
+          __HAL_PWR_PVD_EXTI_ENABLE_IT() macro.
       (+) The PVD is stopped in Standby mode.
 
     *** WakeUp pin configuration ***
@@ -162,6 +146,8 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) There are two WakeUp pins:
           WakeUp Pin 1 on PA.00.
           WakeUp Pin 2 on PC.13.
+          WakeUp Pin 3 on PE.06 .
+          
 
     [..]
     *** Main and Backup Regulators configuration ***
@@ -170,12 +156,12 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) The main internal regulator can be configured to have a tradeoff between
           performance and power consumption when the device does not operate at
           the maximum frequency. This is done through __HAL_PWR_VOLTAGESCALING_CONFIG()
-          macro which configure VOS bit in PWR_CR register:
-        (++) When this bit is set (Regulator voltage output Scale 1 mode selected)
+          macro which configures the two VOS bits in PWR_CR register:
+        (++) PWR_REGULATOR_VOLTAGE_SCALE1 (VOS bits = 01), the regulator voltage output Scale 1 mode selected and
              the System frequency can go up to 32 MHz.
-        (++) When this bit is reset (Regulator voltage output Scale 2 mode selected)
+        (++) PWR_REGULATOR_VOLTAGE_SCALE2 (VOS bits = 10), the regulator voltage output Scale 2 mode selected and
              the System frequency can go up to 16 MHz.
-        (++) When this bit is reset (Regulator voltage output Scale 3 mode selected)
+        (++) PWR_REGULATOR_VOLTAGE_SCALE3 (VOS bits = 11), the regulator voltage output Scale 3 mode selected and
              the System frequency can go up to 4.2 MHz.
               
         Refer to the datasheets for more details.
@@ -202,7 +188,7 @@ void HAL_PWR_DisableBkUpAccess(void)
   
       (+) Entry:
         (++) VCORE in range2
-        (++) Decrease the system frequency tonot exceed the frequency of MSI frequency range1.
+        (++) Decrease the system frequency not to exceed the frequency of MSI frequency range1.
         (++) The regulator is forced in low power mode using the HAL_PWREx_EnableLowPowerRunMode()
              function.
       (+) Exit:
@@ -221,7 +207,8 @@ void HAL_PWR_DisableBkUpAccess(void)
      
       (+) Exit:
         (++) Any peripheral interrupt acknowledged by the nested vectored interrupt
-              controller (NVIC) can wake up the device from Sleep mode.
+              controller (NVIC) can wake up the device from Sleep mode. If the WFE instruction was used to enter sleep mode,
+              the MCU exits Sleep mode as soon as an event occurs. 
 
    *** Low power sleep mode ***
    ============================
@@ -256,7 +243,7 @@ void HAL_PWR_DisableBkUpAccess(void)
       In Stop mode, all I/O pins keep the same state as in Run mode.
 
       (+) Entry:
-           The Stop mode is entered using the HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI )
+           The Stop mode is entered using the HAL_PWR_EnterSTOPMode
              function with:
           (++) Main regulator ON.
           (++) Low Power regulator ON.
@@ -341,84 +328,102 @@ void HAL_PWR_DisableBkUpAccess(void)
                    to be sensitive to to the selected edges (falling, rising or falling 
                    and rising) (Interrupt or Event modes) using the EXTI_Init() function.
              (+++) Configure the comparator to generate the event.      
-        
 @endverbatim
   * @{
   */
 
 /**
-  * @brief Configures the voltage threshold detected by the Power Voltage Detector(PVD).
-  * @param sConfigPVD: pointer to an PWR_PVDTypeDef structure that contains the configuration
-  *        information for the PVD.
-  * @note Refer to the electrical characteristics of your device datasheet for
+  * @brief Enables access to the backup domain (RTC registers, RTC
+  *         backup data registers ).
+  * @note   If the HSE divided by 2, 4, 8 or 16 is used as the RTC clock, the
+  *         Backup Domain Access should be kept enabled.
+  * @retval None
+  */
+void HAL_PWR_EnableBkUpAccess(void)
+{
+  /* Enable access to RTC and backup registers */
+  SET_BIT(PWR->CR, PWR_CR_DBP);
+}
+
+/**
+  * @brief  Disables access to the backup domain 
+  * @note   Applies to RTC registers, RTC backup data registers.
+  * @note   If the HSE divided by 2, 4, 8 or 16 is used as the RTC clock, the
+  *         Backup Domain Access should be kept enabled.
+  * @retval None
+  */
+void HAL_PWR_DisableBkUpAccess(void)
+{
+  /* Disable access to RTC and backup registers */
+  CLEAR_BIT(PWR->CR, PWR_CR_DBP);
+}
+
+/**
+  * @brief  Configures the voltage threshold detected by the Power Voltage Detector(PVD).
+  * @param  sConfigPVD: pointer to an PWR_PVDTypeDef structure that contains the configuration
+  *         information for the PVD.
+  * @note   Refer to the electrical characteristics of your device datasheet for
   *         more details about the voltage threshold corresponding to each
   *         detection level.
   * @retval None
   */
-void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
+void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 {
- uint32_t tmpreg = 0;
-
   /* Check the parameters */
   assert_param(IS_PWR_PVD_LEVEL(sConfigPVD->PVDLevel));
-
-  tmpreg = PWR->CR;
-
-  /* Clear PLS[7:5] bits */
-  tmpreg &= ~ (uint32_t)PWR_CR_PLS;
+  assert_param(IS_PWR_PVD_MODE(sConfigPVD->Mode));
 
   /* Set PLS[7:5] bits according to PVDLevel value */
-  tmpreg |= sConfigPVD->PVDLevel;
+  MODIFY_REG(PWR->CR, PWR_CR_PLS, sConfigPVD->PVDLevel);
+  
+  /* Clear any previous config. Keep it clear if no event or IT mode is selected */
+  __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
+  __HAL_PWR_PVD_EXTI_DISABLE_IT();
+  __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE(); 
+  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();
 
-  /* Store the new value */
-  PWR->CR = tmpreg;
-
-  /* Configure the EXTI 16 interrupt */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_RISING)) 
+  /* Configure interrupt mode */
+  if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
   {
-    __HAL_PVD_EXTI_ENABLE_IT(PWR_EXTI_LINE_PVD);
+    __HAL_PWR_PVD_EXTI_ENABLE_IT();
   }
   
-  /* Clear the edge trigger  for the EXTI Line 16 (PVD) */
-  EXTI->RTSR &= ~EXTI_RTSR_TR16;
-  EXTI->FTSR &= ~EXTI_FTSR_TR16;
-
-  /* Configure the rising edge */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_RISING))
+  /* Configure event mode */
+  if((sConfigPVD->Mode & PVD_MODE_EVT) == PVD_MODE_EVT)
   {
-    EXTI->RTSR |= PWR_EXTI_LINE_PVD;
+    __HAL_PWR_PVD_EXTI_ENABLE_EVENT();
   }
-  /* Configure the falling edge */
-  if((sConfigPVD->Mode == PWR_MODE_IT_RISING_FALLING) ||\
-     (sConfigPVD->Mode == PWR_MODE_IT_FALLING))
+  
+  /* Configure the edge */
+  if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
-    EXTI->FTSR |= PWR_EXTI_LINE_PVD;
+    __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
+  }
+  
+  if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
+  {
+    __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
   }
 }
 
 /**
   * @brief Enables the Power Voltage Detector(PVD).
-  * @param None
   * @retval None
   */
 void HAL_PWR_EnablePVD(void)
 {
   /* Enable the power voltage detector */
-  PWR->CR |= PWR_CR_PVDE;
+  SET_BIT(PWR->CR, PWR_CR_PVDE);
 }
 
 /**
   * @brief Disables the Power Voltage Detector(PVD).
-  * @param None
   * @retval None
   */
 void HAL_PWR_DisablePVD(void)
 {
   /* Disable the power voltage detector */
-  PWR->CR &= (uint32_t)~((uint32_t)PWR_CR_PVDE);
+  CLEAR_BIT(PWR->CR, PWR_CR_PVDE);
 }
 
 /**
@@ -427,6 +432,7 @@ void HAL_PWR_DisablePVD(void)
   *         This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
   *           @arg PWR_WAKEUP_PIN2
+  *           @arg PWR_WAKEUP_PIN3 for stm32l07xxx and stm32l08xxx devices only.
   * @retval None
   */
 void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
@@ -434,7 +440,7 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
   /* Check the parameter */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
   /* Enable the EWUPx pin */
-  PWR->CSR |= WakeUpPinx;
+  SET_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**
@@ -443,6 +449,7 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
   *         This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
   *           @arg PWR_WAKEUP_PIN2  
+  *           @arg PWR_WAKEUP_PIN3  for stm32l07xxx and stm32l08xxx devices only.
   * @retval None
   */
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
@@ -450,7 +457,7 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   /* Check the parameter */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
   /* Disable the EWUPx pin */
-  PWR->CSR &= ~WakeUpPinx;
+  CLEAR_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**
@@ -475,19 +482,20 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));
 
-   /* Select the regulator state in Sleep mode ---------------------------------*/
+  /* Select the regulator state in Sleep mode ---------------------------------*/
   tmpreg = PWR->CR;
+
   /* Clear PDDS and LPDS bits */
-  tmpreg &= (uint32_t)~(PWR_CR_PDDS | PWR_CR_LPSDSR);
+  CLEAR_BIT(tmpreg, (PWR_CR_PDDS | PWR_CR_LPSDSR));
 
  /* Set LPSDSR bit according to PWR_Regulator value */
-  tmpreg |= Regulator;
+  SET_BIT(tmpreg, Regulator);
 
   /* Store the new value */
   PWR->CR = tmpreg;
   
   /* Clear SLEEPDEEP bit of Cortex System Control Register */
-  SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk);
+  CLEAR_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
 
   /* Select SLEEP mode entry -------------------------------------------------*/
   if(SLEEPEntry == PWR_SLEEPENTRY_WFI)
@@ -534,17 +542,18 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 
   /* Select the regulator state in Stop mode ---------------------------------*/
   tmpreg = PWR->CR;
+  
   /* Clear PDDS and LPDS bits */
-  tmpreg &= (uint32_t)~(PWR_CR_PDDS | PWR_CR_LPSDSR);
+  CLEAR_BIT(tmpreg, (PWR_CR_PDDS | PWR_CR_LPSDSR));
 
  /* Set LPSDSR bit according to PWR_Regulator value */
-  tmpreg |= Regulator;
+  SET_BIT(tmpreg, Regulator);
 
   /* Store the new value */
   PWR->CR = tmpreg;
 
   /* Set SLEEPDEEP bit of Cortex System Control Register */
-  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  SET_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
 
   /* Select Stop mode entry --------------------------------------------------*/
   if(STOPEntry == PWR_STOPENTRY_WFI)
@@ -561,7 +570,8 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   }
  
   /* Reset SLEEPDEEP bit of Cortex System Control Register */
-  SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk);
+  CLEAR_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
+
 }
 
 /**
@@ -571,18 +581,19 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   *          - RTC_AF1 pin (PC13) if configured for tamper, time-stamp, RTC
   *            Alarm out, or RTC clock calibration out.
   *          - RTC_AF2 pin (PC13) if configured for tamper.
-  *          - WKUP pin 1 (PA0) if enabled.
+  *          - WKUP pin 1 (PA00) if enabled.
   *          - WKUP pin 2 (PC13) if enabled.
-  * @param None
+  *          - WKUP pin 3 (PE06) if enabled, for stm32l07xxx and stm32l08xxx devices only.
+  *          - WKUP pin 3 (PA02) if enabled, for stm32l031xx devices only.
   * @retval None
   */
 void HAL_PWR_EnterSTANDBYMode(void)
 {
   /* Select Standby mode */
-  PWR->CR |= PWR_CR_PDDS;
+  SET_BIT(PWR->CR, PWR_CR_PDDS);
 
   /* Set SLEEPDEEP bit of Cortex System Control Register */
-  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  SET_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
 
   /* This option is used to ensure that store operations are completed */
 #if defined ( __CC_ARM)
@@ -593,27 +604,78 @@ void HAL_PWR_EnterSTANDBYMode(void)
 }
 
 /**
+  * @brief Indicates Sleep-On-Exit when returning from Handler mode to Thread mode. 
+  * @note Set SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.
+  *       Setting this bit is useful when the processor is expected to run only on
+  *       interruptions handling.         
+  * @retval None
+  */
+void HAL_PWR_EnableSleepOnExit(void)
+{
+  /* Set SLEEPONEXIT bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+/**
+  * @brief Disables Sleep-On-Exit feature when returning from Handler mode to Thread mode. 
+  * @note Clears SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.          
+  * @retval None
+  */
+void HAL_PWR_DisableSleepOnExit(void)
+{
+  /* Clear SLEEPONEXIT bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+/**
+  * @brief Enables CORTEX M0+ SEVONPEND bit. 
+  * @note Sets SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.
+  * @retval None
+  */
+void HAL_PWR_EnableSEVOnPend(void)
+{
+  /* Set SEVONPEND bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
+
+
+/**
+  * @brief Disables CORTEX M0+ SEVONPEND bit. 
+  * @note Clears SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.         
+  * @retval None
+  */
+void HAL_PWR_DisableSEVOnPend(void)
+{
+  /* Clear SEVONPEND bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
+
+/**
   * @brief This function handles the PWR PVD interrupt request.
   * @note This API should be called under the PVD_IRQHandler().
-  * @param None
   * @retval None
   */
 void HAL_PWR_PVD_IRQHandler(void)
 {
   /* Check PWR exti flag */
-  if(__HAL_PVD_EXTI_GET_FLAG(PWR_EXTI_LINE_PVD) != RESET)
+  if(__HAL_PWR_PVD_EXTI_GET_FLAG() != RESET)
   {
     /* PWR PVD interrupt user callback */
     HAL_PWR_PVDCallback();
 
     /* Clear PWR Exti pending bit */
-    __HAL_PVD_EXTI_CLEAR_FLAG(PWR_EXTI_LINE_PVD);
+    __HAL_PWR_PVD_EXTI_CLEAR_FLAG();
   }
 }
 
 /**
   * @brief  PWR PVD interrupt callback
-  * @param  None 
   * @retval None
   */
 __weak void HAL_PWR_PVDCallback(void)
@@ -641,3 +703,4 @@ __weak void HAL_PWR_PVDCallback(void)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

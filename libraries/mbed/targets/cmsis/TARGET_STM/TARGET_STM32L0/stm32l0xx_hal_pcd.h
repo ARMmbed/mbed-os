@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -35,6 +35,8 @@
   ******************************************************************************
   */ 
 
+
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_PCD_H
 #define __STM32L0xx_HAL_PCD_H
@@ -42,6 +44,8 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"  
@@ -179,8 +183,8 @@ typedef struct
   PCD_TypeDef             *Instance;   /*!< Register base address              */ 
   PCD_InitTypeDef         Init;       /*!< PCD required parameters            */
   __IO uint8_t            USB_Address; /*!< USB Address            */  
-  PCD_EPTypeDef           IN_ep[5];  /*!< IN endpoint parameters             */
-  PCD_EPTypeDef           OUT_ep[5]; /*!< OUT endpoint parameters            */ 
+  PCD_EPTypeDef           IN_ep[8];  /*!< IN endpoint parameters             */
+  PCD_EPTypeDef           OUT_ep[8]; /*!< OUT endpoint parameters            */ 
   HAL_LockTypeDef         Lock;       /*!< PCD peripheral status              */
   __IO PCD_StateTypeDef   State;      /*!< PCD communication state            */
   uint32_t                Setup[12];  /*!< Setup packet buffer                */
@@ -251,11 +255,11 @@ typedef struct
 #define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((((__HANDLE__)->Instance->ISTR) & (__INTERRUPT__)) == (__INTERRUPT__))
 #define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->ISTR) = ~(__INTERRUPT__))
 
-#define  USB_EXTI_LINE_WAKEUP              ((uint32_t)0x00040000)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
+#define  USB_WAKEUP_EXTI_LINE              ((uint32_t)0x00040000)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
 
-#define __HAL_USB_EXTI_ENABLE_IT()    EXTI->IMR |= USB_EXTI_LINE_WAKEUP
-#define __HAL_USB_EXTI_DISABLE_IT()   EXTI->IMR &= ~(USB_EXTI_LINE_WAKEUP)
-#define __HAL_USB_EXTI_GENERATE_SWIT() (EXTI->SWIER |= USB_EXTI_LINE_WAKEUP)
+#define __HAL_USB_WAKEUP_EXTI_ENABLE_IT()    EXTI->IMR |= USB_WAKEUP_EXTI_LINE
+#define __HAL_USB_WAKEUP_EXTI_DISABLE_IT()   EXTI->IMR &= ~(USB_WAKEUP_EXTI_LINE)
+#define __HAL_USB_EXTI_GENERATE_SWIT() (EXTI->SWIER |= USB_WAKEUP_EXTI_LINE)
 
 /* Internal macros -----------------------------------------------------------*/
 
@@ -667,8 +671,8 @@ uint16_t          HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr
 HAL_StatusTypeDef HAL_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
 HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_ActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
 /* Peripheral State functions  **************************************************/
 PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 
@@ -680,6 +684,8 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @}
   */ 
 
+#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
+
 #ifdef __cplusplus
 }
 #endif
@@ -688,3 +694,4 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 #endif /* __STM32L0xx_HAL_PCD_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

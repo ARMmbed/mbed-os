@@ -44,11 +44,14 @@
 
 I2C_HandleTypeDef I2cHandle;
 
-int i2c1_inited = 0;
-int i2c2_inited = 0;
-
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    static int i2c1_inited = 0;
+    static int i2c2_inited = 0;
+#if defined(I2C3_BASE)
+    static int i2c3_inited = 0;
+#endif
+
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -67,6 +70,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+
     // Enable I2C2 clock and pinout if not done
     if ((obj->i2c == I2C_2) && !i2c2_inited) {
         i2c2_inited = 1;
@@ -77,6 +81,19 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+
+#if defined(I2C3_BASE)
+    // Enable I2C3 clock and pinout if not done
+    if ((obj->i2c == I2C_3) && !i2c3_inited) {
+        i2c3_inited = 1;
+        __I2C3_CLK_ENABLE();
+        // Configure I2C pins
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(sda, OpenDrain);
+        pin_mode(scl, OpenDrain);
+    }
+#endif
 
     // Reset to clear pending flags if any
     i2c_reset(obj);

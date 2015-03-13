@@ -38,26 +38,30 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
 
     pwm_clock = clkval;
-    unsigned int port = (unsigned int)pin >> PORT_SHIFT;
     unsigned int ftm_n = (pwm >> TPM_SHIFT);
     unsigned int ch_n = (pwm & 0xFF);
 
-    SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port);
     SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
 
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
     ftm->CONF |= FTM_CONF_BDMMODE(3);
     ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */
+    ftm->MODE = FTM_MODE_FTMEN_MASK;
+    ftm->SYNC = FTM_SYNC_CNTMIN_MASK;
+    ftm->SYNCONF = FTM_SYNCONF_SYNCMODE_MASK | FTM_SYNCONF_SWSOC_MASK | FTM_SYNCONF_SWWRBUF_MASK;
+    
+    //Without SYNCEN set CnV does not seem to update
+    ftm->COMBINE = FTM_COMBINE_SYNCEN0_MASK | FTM_COMBINE_SYNCEN1_MASK | FTM_COMBINE_SYNCEN2_MASK | FTM_COMBINE_SYNCEN3_MASK;
 
     obj->CnV = &ftm->CONTROLS[ch_n].CnV;
     obj->MOD = &ftm->MOD;
-    obj->CNT = &ftm->CNT;
+    obj->SYNC = &ftm->SYNC;
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write(obj, 0);
-
+    pwmout_write(obj, 0.0);
+    
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
 }
@@ -70,11 +74,14 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0) {
         value = 1.0;
     }
-
+    
+    while(*obj->SYNC & FTM_SYNC_SWSYNC_MASK);
     *obj->CnV = (uint32_t)((float)(*obj->MOD + 1) * value);
+    *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;    
 }
 
 float pwmout_read(pwmout_t* obj) {
+    while(*obj->SYNC & FTM_SYNC_SWSYNC_MASK);
     float v = (float)(*obj->CnV) / (float)(*obj->MOD + 1);
     return (v > 1.0) ? (1.0) : (v);
 }
@@ -91,6 +98,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
     *obj->MOD = (uint32_t)(pwm_clock * (float)us) - 1;
+    *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
     pwmout_write(obj, dc);
 }
 
@@ -104,4 +112,5 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     *obj->CnV = (uint32_t)(pwm_clock * (float)us);
+    *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
 }

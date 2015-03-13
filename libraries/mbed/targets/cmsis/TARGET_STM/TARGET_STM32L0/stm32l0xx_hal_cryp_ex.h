@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of CRYPEx HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if !defined (STM32L051xx) && !defined (STM32L052xx) && !defined (STM32L053xx)
+#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -60,10 +60,25 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
+/** @addtogroup CRYPEx_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup CRYPEx_Exported_Functions_Group1
+  * @{
+  */
+
 /* CallBack functions  ********************************************************/
 void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
 
-#endif /* STM32L051xx && STM32L052xx && STM32L053xx*/
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
+
 
 /**
   * @}
@@ -73,6 +88,8 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
+#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
+
 #ifdef __cplusplus
 }
 #endif
@@ -80,3 +97,4 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
 #endif /* __STM32L0xx_HAL_CRYP_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
