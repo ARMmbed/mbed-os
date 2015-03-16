@@ -204,8 +204,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     /*
      * The argument to this function is a 32-bit microsecond timestamp for when
      * a callback should be invoked. On the nRF51, we use an RTC timer running
-     * at 32kHz to implement a low-power us-ticker. This brings with a problem
-     * that's rooted in the fact that 1000000 is not a multiple of 32768.
+     * at 32kHz to implement a low-power us-ticker. This results in a problem
+     * based on the fact that 1000000 is not a multiple of 32768.
      *
      * Going from a micro-second based timestamp to a 32kHz based RTC-time is a
      * linear mapping; but this mapping doesn't preserve wraparounds--i.e. when
