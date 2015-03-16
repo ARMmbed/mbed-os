@@ -1,5 +1,5 @@
 { 
 "targets": { 
-       "NUCLEO_L152RE" : ["GCC_ARM"] 
+       "DELTA_DFCM_NNN40" : ["GCC_ARM"] 
     } 
 } 

@@ -44,7 +44,7 @@ class RTCTest():
                 selftest.notify("HOST: [%s] [%s] received time %+d sec after %.2f sec... %s"% (sec, time_str, sec - sec_prev, delta, result_msg))
                 sec_prev = sec
             else:
-                test_result = False
+                test_result = True
                 break
             start = time()
         return selftest.RESULT_SUCCESS if test_result else selftest.RESULT_FAILURE

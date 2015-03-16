@@ -1,7 +1,7 @@
 { 
    "1" : { 
-           "mcu": "NUCLEO_L152RE",
-		"port":"COM18",
+           "mcu": "DELTA_DFCM_NNN40",
+		"port":"COM73",
            "disk":"F:\\",
            "peripherals": [""]
    }
