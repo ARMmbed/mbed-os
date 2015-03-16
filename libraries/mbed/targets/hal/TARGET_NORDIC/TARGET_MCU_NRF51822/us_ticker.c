@@ -126,7 +126,7 @@ void rtc1_stop(void)
  *
  * @return     Current RTC1 counter as a 32-bit value (even though the underlying counter is 24-bit)
  */
-static __INLINE uint32_t rtc1_getCounter(void)
+static inline uint32_t rtc1_getCounter(void)
 {
     if (NRF_RTC1->EVENTS_OVRFLW) {
         overflowCount++;
