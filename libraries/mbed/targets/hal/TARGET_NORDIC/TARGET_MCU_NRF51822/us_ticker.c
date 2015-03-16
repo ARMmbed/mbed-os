@@ -223,16 +223,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      * RTC_UNITS_TO_MICROSECONDS() converts this into microsecond units (in
      * 64-bits). We then shave off the lower 32-bits of it and add in the
      * incoming timestamp to get a mapping into a virtual 64-bit timestamp.
-     * There's one additional check to handle the case where the 32-bit callback
-     * timestamp is wrapped around--i.e. where the current time is near
-     * 0xFFFFFFFF, but incoming timestamp is near 0x00000000.
      */
-    uint64_t timestamp64 = (RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter()) & ~(uint64_t)0xFFFFFFFF) + timestamp;
-    if ((us_ticker_read() > 0xF0000000) && (timestamp < 0x10000000)) {
-        timestamp64 += (uint64_t)0x100000000;
-    }
-
-    uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
+    const uint64_t currentTime64   = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter());
+    const uint64_t timestamp64     = currentTime64 + (timestamp - (timestamp_t)currentTime64);
+    uint32_t       newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
 
     /* Check for repeat setup of an existing callback. This is actually not
      * important; the following code should work even without this check. */
