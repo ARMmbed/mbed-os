@@ -124,16 +124,27 @@ void rtc1_stop(void)
 /**
  * @brief Function for returning the current value of the RTC1 counter.
  *
- * @return     Current RTC1 counter as a 32-bit value (even though the underlying counter is 24-bit)
+ * @return Current RTC1 counter as a 64-bit value with 56-bit precision (even
+ *         though the underlying counter is 24-bit)
  */
-static inline uint32_t rtc1_getCounter(void)
+static inline uint64_t rtc1_getCounter64(void)
 {
     if (NRF_RTC1->EVENTS_OVRFLW) {
         overflowCount++;
         NRF_RTC1->EVENTS_OVRFLW = 0;
         NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
-    return (overflowCount << 24) | NRF_RTC1->COUNTER;
+    return ((uint64_t)overflowCount << 24) | NRF_RTC1->COUNTER;
+}
+
+/**
+ * @brief Function for returning the current value of the RTC1 counter.
+ *
+ * @return Current RTC1 counter as a 32-bit value (even though the underlying counter is 24-bit)
+ */
+static inline uint32_t rtc1_getCounter(void)
+{
+    return rtc1_getCounter64();
 }
 
 /**
