@@ -125,7 +125,7 @@
   */
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (1) /* Use external clock */
+#define USE_PLL_HSE_EXTC (0) /* Use external clock */
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
 
 /**
@@ -484,6 +484,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
+
+  if (__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_PLL)
+    return 1;   // already on HSE PLL, could occur from deepsleep waking
 
   /* Used to gain time after DeepSleep in case HSI is used */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET)
