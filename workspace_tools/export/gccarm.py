@@ -49,6 +49,7 @@ class GccArm(Exporter):
         'ARCH_PRO',
         'NRF51822',
         'HRM1017',
+        'RBLAB_NRF51822',
         'LPC2368',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
