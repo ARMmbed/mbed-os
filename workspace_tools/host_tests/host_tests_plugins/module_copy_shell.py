@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 from os.path import join, basename
 from host_test_plugins import HostTestPluginBase
 
@@ -25,7 +26,7 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_Shell'
     type = 'CopyMethod'
     stable = True
-    capabilities = ['cp', 'copy', 'xcopy']
+    capabilities = ['shell', 'cp', 'copy', 'xcopy']
     required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
@@ -45,6 +46,9 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
+            if capabilitity == 'shell':
+                if os.name == 'nt': capabilitity = 'copy'
+                elif os.name == 'posix': capabilitity = 'cp'
             if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'copy':
                 copy_method = capabilitity
                 cmd = [copy_method, image_path, destination_path]

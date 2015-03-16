@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the CORTEX:
@@ -67,7 +67,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -101,26 +101,26 @@
   * @{
   */
 
-/** @defgroup CORTEX 
+/** @addtogroup CORTEX
   * @brief CORTEX HAL module driver
   * @{
   */
 
 #ifdef HAL_CORTEX_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
+/* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup CORTEX_Private_Functions
+/** @addtogroup CORTEX_Exported_Functions
   * @{
   */
 
 
-/** @defgroup CORTEX_Group1 Initialization and de-initialization functions 
+/** @addtogroup CORTEX_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -166,6 +166,9 @@ void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t Sub
   */
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Enable interrupt */
   NVIC_EnableIRQ(IRQn);
 }
@@ -179,6 +182,9 @@ void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
   */
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 {
+    /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Disable interrupt */
   NVIC_DisableIRQ(IRQn);
 }
@@ -209,7 +215,7 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   * @}
   */
 
-/** @defgroup CORTEX_Group2 Peripheral Control functions 
+/** @addtogroup CORTEX_Exported_Functions_Group2 Peripheral Control functions 
  *  @brief   Cortex control functions 
  *
 @verbatim   
@@ -331,3 +337,4 @@ __weak void HAL_SYSTICK_Callback(void)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

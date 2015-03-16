@@ -96,7 +96,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     UART_HAL_SetBitCountPerChar(uart_addrs[obj->index], (uart_bit_count_per_char_t)data_bits);
     UART_HAL_SetParityMode(uart_addrs[obj->index], (uart_parity_mode_t)parity);
     #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
-    UART_HAL_SetStopBitCount(uart_addrs[obj->index], (uart_stop_bit_count_t)stop_bits);
+    UART_HAL_SetStopBitCount(uart_addrs[obj->index], (uart_stop_bit_count_t)--stop_bits);
     #endif
 }
 

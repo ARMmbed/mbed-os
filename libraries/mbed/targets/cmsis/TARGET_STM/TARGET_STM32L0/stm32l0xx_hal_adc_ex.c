@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -33,7 +33,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -82,7 +82,7 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-/** @defgroup ADCEx_Group ADC Extended features functions
+/** @addtgroup ADCEx_Group ADC Extended features functions
  *  @brief    ADC Extended features functions 
  *
 @verbatim   
@@ -121,10 +121,10 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t 
   __HAL_LOCK(hadc);
    
   /* Disable the ADC (if not already disabled) */
-  if (__HAL_ADC_IS_ENABLED(hadc) != RESET )
+  if (ADC_IS_ENABLE(hadc) != RESET )
   {
     /* Check if conditions to disable the ADC are fulfilled */
-    if (__HAL_ADC_DISABLING_CONDITIONS(hadc) != RESET)
+    if (ADC_DISABLING_CONDITIONS(hadc) != RESET)
     {
       __HAL_ADC_DISABLE(hadc);    
     }
@@ -233,8 +233,8 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
   
   /* Verification of hardware constraints before modifying the calibration    */
   /* factors register: ADC must be enabled, no conversion on going.           */
-  if ( (__HAL_ADC_IS_ENABLED(hadc) != RESET)                            &&
-       (__HAL_ADC_IS_CONVERSION_ONGOING(hadc) == RESET)  )
+  if ( (ADC_IS_ENABLE(hadc) != RESET)                            &&
+       (ADC_IS_CONVERSION_ONGOING(hadc) == RESET)  )
   {
     /* Set the selected ADC calibration value */ 
     hadc->Instance->CALFACT &= ~ADC_CALFACT_CALFACT;
@@ -254,6 +254,50 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
   
   /* Return function status */
   return tmpHALStatus;
+}
+
+/**
+  * @brief Enables the Buffer Vrefint for the ADC.
+  * @note This is functional only if the LOCK is not set.
+  * @retval None
+  */
+void HAL_ADCEx_EnableVREFINT(void)
+{
+    /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
+    SET_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT)); 
+}
+
+/**
+  * @brief Disables the Buffer Vrefint for the ADC.
+  * @note This is functional only if the LOCK is not set.
+  * @retval None
+  */
+void HAL_ADCEx_DisableVREFINT(void)
+{
+    /* Disable the Vrefint by resetting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
+    CLEAR_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_VREFINT_ADC | SYSCFG_CFGR3_EN_VREFINT)); 
+}
+
+/**
+  * @brief Enables VEREFINT and the Sensor for the ADC.
+  * @note This is functional only if the LOCK is not set.
+  * @retval None
+  */
+void HAL_ADCEx_EnableVREFINTTempSensor(void)
+{
+    /* Enable the Buffer for the ADC by setting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
+    SET_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT)); 
+}
+
+/**
+  * @brief Disables the VEREFINT and Sensor for the ADC.
+  * @note This is functional only if the LOCK is not set.
+  * @retval None
+  */
+void HAL_ADCEx_DisableVREFINTTempSensor(void)
+{
+    /* Disable the Vrefint by resetting EN_VREFINT bit and the ENBUF_SENSOR_ADC in the CFGR3 register */
+    CLEAR_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENBUF_SENSOR_ADC | SYSCFG_CFGR3_EN_VREFINT));
 }
 
 /**

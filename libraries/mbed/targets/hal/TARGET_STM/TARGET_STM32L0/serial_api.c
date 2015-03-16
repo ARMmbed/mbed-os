@@ -37,9 +37,9 @@
 #include <string.h>
 #include "PeripheralPins.h"
 
-#define UART_NUM (3)
+#define UART_NUM (5)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0};
 
 static uart_irq_handler irq_handler;
 
@@ -52,7 +52,6 @@ static void init_uart(serial_t *obj)
 {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
-    // [TODO] Workaround to be removed after HAL driver is corrected
     if (obj->uart == LPUART_1) {
         UartHandle.Init.BaudRate = obj->baudrate >> 1;
     } else {
@@ -90,19 +89,33 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     // Enable UART clock
     if (obj->uart == UART_1) {
-        __USART1_CLK_ENABLE();
+        __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
 
     if (obj->uart == UART_2) {
-        __USART2_CLK_ENABLE();
+        __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
 
     if (obj->uart == LPUART_1) {
-        __LPUART1_CLK_ENABLE();
+        __HAL_RCC_LPUART1_CLK_ENABLE();
         obj->index = 2;
     }
+
+#if defined(USART4_BASE)
+    if (obj->uart == UART_4) {
+        __HAL_RCC_USART4_CLK_ENABLE();
+        obj->index = 3;
+    }
+#endif
+
+#if defined(USART5_BASE)
+    if (obj->uart == UART_5) {
+        __HAL_RCC_USART5_CLK_ENABLE();
+        obj->index = 4;
+    }
+#endif
 
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -135,22 +148,38 @@ void serial_free(serial_t *obj)
 {
     // Reset UART and disable clock
     if (obj->uart == UART_1) {
-        __USART1_FORCE_RESET();
-        __USART1_RELEASE_RESET();
-        __USART1_CLK_DISABLE();
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
+        __HAL_RCC_USART1_CLK_DISABLE();
     }
 
     if (obj->uart == UART_2) {
-        __USART2_FORCE_RESET();
-        __USART2_RELEASE_RESET();
-        __USART2_CLK_DISABLE();
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART2_CLK_DISABLE();
     }
 
     if (obj->uart == LPUART_1) {
-        __LPUART1_FORCE_RESET();
-        __LPUART1_RELEASE_RESET();
-        __LPUART1_CLK_DISABLE();
+        __HAL_RCC_LPUART1_FORCE_RESET();
+        __HAL_RCC_LPUART1_RELEASE_RESET();
+        __HAL_RCC_LPUART1_CLK_DISABLE();
     }
+
+#if defined(USART4_BASE)
+    if (obj->uart == UART_4) {
+        __HAL_RCC_USART4_FORCE_RESET();
+        __HAL_RCC_USART4_RELEASE_RESET();
+        __HAL_RCC_USART4_CLK_DISABLE();
+    }
+#endif
+
+#if defined(USART5_BASE)
+    if (obj->uart == UART_5) {
+        __HAL_RCC_USART5_FORCE_RESET();
+        __HAL_RCC_USART5_RELEASE_RESET();
+        __HAL_RCC_USART5_CLK_DISABLE();
+    }
+#endif
 
     // Configure GPIOs
     pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -230,6 +259,20 @@ static void lpuart1_irq(void)
     uart_irq(LPUART_1, 2);
 }
 
+#if defined(USART4_BASE)
+static void uart4_irq(void)
+{
+    uart_irq(UART_4, 3);
+}
+#endif
+
+#if defined(USART5_BASE)
+static void uart5_irq(void)
+{
+    uart_irq(UART_5, 4);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -257,6 +300,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         irq_n = RNG_LPUART1_IRQn;
         vector = (uint32_t)&lpuart1_irq;
     }
+
+#if defined(USART4_BASE)
+    if (obj->uart == UART_4) {
+        irq_n = USART4_5_IRQn;
+        vector = (uint32_t)&uart4_irq;
+    }
+#endif
+
+#if defined(USART5_BASE)
+    if (obj->uart == UART_5) {
+        irq_n = USART4_5_IRQn;
+        vector = (uint32_t)&uart5_irq;
+    }
+#endif
 
     if (enable) {
 

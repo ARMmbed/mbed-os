@@ -49,6 +49,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // Enable TIM clock
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
+#if defined(TIM3_BASE)
+    if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
+#endif
     if (obj->pwm == PWM_21) __TIM21_CLK_ENABLE();
     if (obj->pwm == PWM_22) __TIM22_CLK_ENABLE();
 
@@ -109,12 +112,16 @@ void pwmout_write(pwmout_t* obj, float value)
             break;
         // Channels 3
         case PA_2:
+        case PB_0:
         case PB_10:
+        case PC_8:
             channel = TIM_CHANNEL_3;
             break;
         // Channels 4
         case PA_3:
+        case PB_1:
         case PB_11:
+        case PC_9:
             channel = TIM_CHANNEL_4;
             break;
         default:

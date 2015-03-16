@@ -645,7 +645,8 @@ ul
 {margin-bottom:0in;}
 -->
 </style><!--[if gte mso 10]> <style> /* Style Definitions */ table.MsoNormalTable {mso-style-name:"Table Normal"; mso-tstyle-rowband-size:0; mso-tstyle-colband-size:0; mso-style-noshow:yes; mso-style-priority:99; mso-style-qformat:yes; mso-style-parent:""; mso-padding-alt:0in 5.4pt 0in 5.4pt; mso-para-margin:0in; mso-para-margin-bottom:.0001pt; mso-pagination:widow-orphan; font-size:10.0pt; font-family:"Times New Roman","serif";} </style> <![endif]--><!--[if gte mso 9]><xml> <o:shapedefaults v:ext="edit" spidmax="7170"/> </xml><![endif]--><!--[if gte mso 9]><xml> <o:shapelayout v:ext="edit"> <o:idmap v:ext="edit" data="1"/> </o:shapelayout></xml><![endif]-->
-<meta content="MCD Application Team" name="author"></head><body link="blue" vlink="blue">
+<meta content="MCD Application Team" name="author"></head>
+<body link="blue" vlink="blue">
 <div class="WordSection1">
 <p class="MsoNormal"><span style="font-family: &quot;Arial&quot;,&quot;sans-serif&quot;;"><o:p>&nbsp;</o:p></span></p>
 <div align="center">
@@ -665,7 +666,7 @@ ul
 <h1 style="margin-bottom: 0.25in; text-align: center;" align="center"><span style="font-size: 20pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: rgb(51, 102, 255);">Release
 Notes for STM32L0xx HAL Drivers</span><span style="font-size: 20pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;"><o:p></o:p></span></h1>
 <p class="MsoNormal" style="text-align: center;" align="center"><span style="font-size: 10pt; font-family: &quot;Arial&quot;,&quot;sans-serif&quot;; color: black;">Copyright
-2014 STMicroelectronics</span><span style="color: black;"><u1:p></u1:p><o:p></o:p></span></p>
+2015 STMicroelectronics</span><span style="color: black;"><u1:p></u1:p><o:p></o:p></span></p>
 <p class="MsoNormal" style="text-align: center;" align="center"><span style="font-size: 10pt; font-family: &quot;Arial&quot;,&quot;sans-serif&quot;; color: black;"><img style="border: 0px solid ; width: 112px; height: 83px;" alt="" id="_x0000_i1026" src="../../_htmresc/st_logo.png"></span><span style="font-size: 10pt;"><o:p></o:p></span></p>
 </td>
 </tr>
@@ -676,7 +677,13 @@ Notes for STM32L0xx HAL Drivers</span><span style="font-size: 20pt; font-family:
 <tbody>
 <tr>
 <td style="padding: 0in;" valign="top">
-<h2 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><a name="History"></a><span style="font-size: 12pt; color: white;">Update History</span></h2><h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 180px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.1.0
+<h2 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><a name="History"></a><span style="font-size: 12pt; color: white;">Update History</span></h2><br><h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; margin-right: 500pt; width: 180px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.2.0
+/ 06-February-2015</span></h3><div style="margin-left: 40px;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main
+Changes</span></u></b></div><ul><li><small><span style="font-weight: bold; font-family: Verdana;">HAL has been updated to support the STM32L071xx &nbsp;STM32L072xx STM32L073xx STM32L082xx STM32L083xx series</span></small></li><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL Flash</span> update <br></span></small></li><ul><li><small><span style="font-family: Verdana;">Flash : &nbsp;192K Dual Bank&nbsp;</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL TIM</span> update :&nbsp;</span></small></li><ul><li><small><span style="font-family: Verdana;">Four new instances &nbsp;:&nbsp;</span></small><small><span style="font-family: Verdana;">TIM3, TIM7, TIM21, TIM22</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL USART</span> update :</span></small></li><ul><li><small><span style="font-family: Verdana;">Two new instances :&nbsp;USART 4, USART 5</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL I2C</span> update :</span></small></li><ul><li><small><span style="font-family: Verdana;">One new instance I2C3</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL GPIO</span> update :</span></small></li><ul><li><small><span style="font-family: Verdana;">GPIO Port E</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL DAC</span> update :</span></small></li><ul><li><small><span style="font-family: Verdana;">A second channel has been introduced</span></small></li></ul><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">HAL FIREWALL</span> introduction<br></span></small></li><li><small><span style="font-family: Verdana;">All other <span style="font-weight: bold;">HAL IPs</span> have also been updated in the context of the overall HAL alignment effort of all the STM32 family</span></small></li><li><small><span style="font-family: Verdana;">More than 120 corrections have been implemented since the previous V1.1.0 delivery<br></span></small></li><li><small><span style="font-family: Verdana;"><span style="font-weight: bold;">Known limitations</span> :</span></small></li><ul style="font-family: Verdana;"><li><small>Introduced
+a FW patch to deactivate the HW SPI-V2.3 correction in case of I2S PCM
+Short mode usage (Please refer to the STM32L073xx Errata Sheet for more
+details). In this use case, we come back to the HW SPI 2.2 behavior
+which is correct for the I2S PCM short mode</small></li></ul></ul><h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; margin-right: 500pt; width: 180px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.1.0
 / 18-June-2014</span></h3><p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main
 Changes</span></u></b></p>
 <ul style="margin-top: 0cm; list-style-type: square;"><li class="MsoNormal" style="margin-top: 4.5pt; margin-bottom: 4.5pt; color: black;">
@@ -1067,13 +1074,13 @@ HAL_SPI_TransmitReceive() returns with error HAL_TIMEOUT</span></li>
   </li>
               </ul>
             </ul>
-<h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 180px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.0.0
+<h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; margin-right: 500pt; width: 180px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.0.0
 / 22-April-2014</span></h3><p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main
 Changes</span></u></b></p>
 <span style="font-size: 10pt; font-family: Verdana;">First official release.</span><br><b><u><span style="font-size: 10pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"></span></u></b>
 
 
-<h2 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><a name="License"></a><span style="font-size: 12pt; color: white;">License<o:p></o:p></span></h2>
+<h2 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><a name="License"></a><span style="font-size: 12pt; color: white;">License<o:p></o:p></span></h2>
 <div style="text-align: justify;">
 <div style="text-align: justify;"><font size="-1"><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">Redistribution
 and use in source and binary forms, with or without

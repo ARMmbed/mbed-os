@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -46,6 +46,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx.h"
+#include "stm32_hal_legacy.h"
+#include <stdio.h>
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -70,9 +72,8 @@ typedef enum
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
-#ifndef HAL_NULL
-  #define HAL_NULL      (void *) 0
-#endif
+
+#define UNUSED(x) ((void)(x))
 
 #define HAL_MAX_DELAY      0xFFFFFFFF
 
@@ -133,6 +134,9 @@ typedef enum
   #ifndef __packed
     #define __packed __attribute__((__packed__))
   #endif /* __packed */
+  
+  #define __NOINLINE __attribute__ ( (noinline) ) 
+
 #endif /* __GNUC__ */
 
 
@@ -172,12 +176,17 @@ typedef enum
 */
 #define __RAM_FUNC HAL_StatusTypeDef 
 
+#define __NOINLINE __attribute__ ( (noinline) ) 
+
+
 #elif defined ( __ICCARM__ )
 /* ICCARM Compiler
    ---------------
    RAM functions are defined using a specific toolchain keyword "__ramfunc". 
 */
 #define __RAM_FUNC __ramfunc HAL_StatusTypeDef
+
+#define __NOINLINE _Pragma("optimize = no_inline")
 
 #elif defined   (  __GNUC__  )
 /* GNU Compiler
@@ -196,3 +205,4 @@ typedef enum
 #endif /* ___STM32L0xx_HAL_DEF */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

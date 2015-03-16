@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -28,7 +28,7 @@
 
      (#) Initialize the PCD low level resources through the HAL_PCD_MspInit() API:
          (##) Enable the PCD/USB Low Level interface clock using 
-              (+++) __USB_CLK_ENABLE;
+              (+++) __HAL_RCC_USB_CLK_ENABLE;
            
          (##) Initialize the related GPIO clocks
          (##) Configure PCD pin-out
@@ -44,7 +44,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -74,6 +74,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#ifdef HAL_PCD_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
@@ -83,7 +85,7 @@
   * @{
   */
 
-#ifdef HAL_PCD_MODULE_ENABLED
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -127,7 +129,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   uint32_t wInterrupt_Mask = 0;
   
   /* Check the PCD handle allocation */
-  if(hpcd == HAL_NULL)
+  if(hpcd == NULL)
   {
     return HAL_ERROR;
   }
@@ -198,7 +200,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
 {
   /* Check the PCD handle allocation */
-  if(hpcd == HAL_NULL)
+  if(hpcd == NULL)
   {
     return HAL_ERROR;
   }
@@ -989,22 +991,22 @@ HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 }
 
 /**
-  * @brief  HAL_PCD_ActiveRemoteWakeup : active remote wakeup signalling
+  * @brief  HAL_PCD_ActivateRemoteWakeup : active remote wakeup signalling
   * @param  hpcd: PCD handle
   * @retval status
   */
-HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
+HAL_StatusTypeDef HAL_PCD_ActivateRemoteWakeup(PCD_HandleTypeDef *hpcd)
 {
   hpcd->Instance->CNTR |= USB_CNTR_RESUME;
   return HAL_OK;  
 }
 
 /**
-  * @brief  HAL_PCD_DeActiveRemoteWakeup : de-active remote wakeup signalling
+  * @brief  HAL_PCD_DeActivateRemoteWakeup : de-active remote wakeup signalling
   * @param  hpcd: PCD handle
   * @retval status
   */
-HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd)
+HAL_StatusTypeDef HAL_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd)
 {
   hpcd->Instance->CNTR &= ~(USB_CNTR_RESUME);
   return HAL_OK;  
@@ -1297,13 +1299,14 @@ void PCD_ReadPMA(USB_TypeDef  *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
   * @}
   */
 
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 #endif /* HAL_PCD_MODULE_ENABLED */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
+#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
