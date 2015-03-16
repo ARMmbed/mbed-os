@@ -230,10 +230,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      * this wraparound-free 64-bit value to do a linear mapping to RTC time.
      * System uptime on an nRF is maintained using the 24-bit RTC counter. We
      * track the overflow count to extend the 24-bit hardware counter by an
-     * additional 32 bits. This then forms the basis for system time.
-     * RTC_UNITS_TO_MICROSECONDS() converts this into microsecond units (in
-     * 64-bits). We then shave off the lower 32-bits of it and add in the
-     * incoming timestamp to get a mapping into a virtual 64-bit timestamp.
+     * additional 32 bits. RTC_UNITS_TO_MICROSECONDS() converts this into
+     * microsecond units (in 64-bits).
      */
     const uint64_t currentTime64   = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter());
     const uint64_t timestamp64     = currentTime64 + (timestamp - (timestamp_t)currentTime64);
