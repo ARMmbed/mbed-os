@@ -46,6 +46,7 @@ void in_handler() {
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 #define PIN_IN      PB_8
 #define PIN_OUT     PC_7
