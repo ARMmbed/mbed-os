@@ -233,7 +233,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      * additional 32 bits. RTC_UNITS_TO_MICROSECONDS() converts this into
      * microsecond units (in 64-bits).
      */
-    const uint64_t currentTime64   = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter());
+    const uint64_t currentTime64   = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter64());
     const uint64_t timestamp64     = currentTime64 + (timestamp - (timestamp_t)currentTime64);
     uint32_t       newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
 
