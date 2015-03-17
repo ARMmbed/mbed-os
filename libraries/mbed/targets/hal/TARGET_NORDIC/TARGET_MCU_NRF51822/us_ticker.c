@@ -200,11 +200,6 @@ uint32_t us_ticker_read()
  * @Note: If this function is used to setup an interrupt which is immediately
  * pending--such as for 'now' or a time in the past,--then the callback is
  * invoked a few ticks later.
- *
- * @suggestion: Avoid studying this code unless you're forced to. And please
- * don't prove me wrong--I've spent too much time trying to get this code to
- * behave correctly; currently it pretends to do so, and I don't want to learn
- * anything different unless I'm given an easy way to reproduce the problem.
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
