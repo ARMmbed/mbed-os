@@ -85,7 +85,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 3
+    single_test_version_minor = 4
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -154,11 +154,13 @@ if __name__ == '__main__':
         use_default_toolchain = 'default' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
         use_supported_toolchains = 'all' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else False
         toolchain_filter = opts.toolchains_filter
+        platform_name_filter = opts.general_filter_regex.split(',') if opts.general_filter_regex is not None else opts.general_filter_regex
         # Test specification with information about each target and associated toolchain
         test_spec = get_autodetected_TEST_SPEC(muts_list,
                                                use_default_toolchain=use_default_toolchain,
                                                use_supported_toolchains=use_supported_toolchains,
-                                               toolchain_filter=toolchain_filter)
+                                               toolchain_filter=toolchain_filter,
+                                               platform_name_filter=platform_name_filter)
         # MUTs configuration auto-detection
         MUTs = get_autodetected_MUTS(muts_list)
     else:

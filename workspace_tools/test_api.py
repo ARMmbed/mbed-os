@@ -1451,13 +1451,16 @@ def get_module_avail(module_name):
     return module_name in sys.modules.keys()
 
 
-def get_autodetected_MUTS(mbeds_list):
+def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
         If function fails to auto-detect devices it will return empty dictionary.
 
         if get_module_avail('mbed_lstools'):
             mbeds = mbed_lstools.create()
             mbeds_list = mbeds.list_mbeds()
+
+        @param mbeds_list list of mbeds captured from mbed_lstools
+        @param platform_name You can filter 'platform_name' with list of filtered targets from 'platform_name_filter'
     """
     result = {}   # Should be in muts_all.json format
     # Align mbeds_list from mbed_lstools to MUT file format (JSON dictionary with muts)
@@ -1476,7 +1479,11 @@ def get_autodetected_MUTS(mbeds_list):
     return result
 
 
-def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_supported_toolchains=False, toolchain_filter=None):
+def get_autodetected_TEST_SPEC(mbeds_list,
+                               use_default_toolchain=True,
+                               use_supported_toolchains=False,
+                               toolchain_filter=None,
+                               platform_name_filter=None):
     """ Function detects all connected to host mbed-enabled devices and generates artificial test_spec file.
         If function fails to auto-detect devices it will return empty 'targets' test_spec description.
 
@@ -1488,23 +1495,24 @@ def get_autodetected_TEST_SPEC(mbeds_list, use_default_toolchain=True, use_suppo
 
     for mut in mbeds_list:
         mcu = mut['platform_name']
-        if mcu in TARGET_MAP:
-            default_toolchain = TARGET_MAP[mcu].default_toolchain
-            supported_toolchains = TARGET_MAP[mcu].supported_toolchains
+        if platform_name_filter is None or (platform_name_filter and mut['platform_name'] in platform_name_filter):
+            if mcu in TARGET_MAP:
+                default_toolchain = TARGET_MAP[mcu].default_toolchain
+                supported_toolchains = TARGET_MAP[mcu].supported_toolchains
 
-            # Decide which toolchains should be added to test specification toolchain pool for each target
-            toolchains = []
-            if use_default_toolchain:
-                toolchains.append(default_toolchain)
-            if use_supported_toolchains:
-                toolchains += supported_toolchains
-            if toolchain_filter is not None:
-                all_toolchains = supported_toolchains + [default_toolchain]
-                for toolchain in toolchain_filter.split(','):
-                    if toolchain in all_toolchains:
-                        toolchains.append(toolchain)
+                # Decide which toolchains should be added to test specification toolchain pool for each target
+                toolchains = []
+                if use_default_toolchain:
+                    toolchains.append(default_toolchain)
+                if use_supported_toolchains:
+                    toolchains += supported_toolchains
+                if toolchain_filter is not None:
+                    all_toolchains = supported_toolchains + [default_toolchain]
+                    for toolchain in toolchain_filter.split(','):
+                        if toolchain in all_toolchains:
+                            toolchains.append(toolchain)
 
-            result['targets'][mcu] = list(set(toolchains))
+                result['targets'][mcu] = list(set(toolchains))
     return result
 
 
