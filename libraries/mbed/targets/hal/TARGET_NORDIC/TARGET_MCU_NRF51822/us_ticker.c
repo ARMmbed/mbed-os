@@ -184,7 +184,7 @@ uint32_t us_ticker_read()
 
     /* Return a pseudo microsecond counter value. This is only as precise as the
      * 32khz low-freq clock source, but could be adequate.*/
-    return RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter());
+    return RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter64());
 }
 
 /**
