@@ -35,7 +35,7 @@ void USBMIDI::attach(void (*fptr)(MIDIMessage)) {
 }
 
 
-bool USBMIDI::EP2_OUT_callback() {
+bool USBMIDI::EPBULK_OUT_callback() {
     uint8_t buf[64];
     uint32_t len;
     readEP(EPBULK_OUT, buf, &len, 64);
