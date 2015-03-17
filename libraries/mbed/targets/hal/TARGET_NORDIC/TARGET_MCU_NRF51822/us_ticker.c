@@ -228,9 +228,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      * additional 32 bits. RTC_UNITS_TO_MICROSECONDS() converts this into
      * microsecond units (in 64-bits).
      */
-    const uint64_t currentTime64   = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter64());
-    const uint64_t timestamp64     = currentTime64 + (timestamp_t)(timestamp - (timestamp_t)currentTime64);
-    uint32_t       newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
+    const uint64_t currentTime64 = RTC_UNITS_TO_MICROSECONDS(rtc1_getCounter64());
+    uint64_t timestamp64 = (currentTime64 & ~(uint64_t)0xFFFFFFFFULL) + timestamp;
+    if (((uint32_t)currentTime64 > 0x80000000) && (timestamp < 0x80000000)) {
+        timestamp64 += (uint64_t)0x100000000ULL;
+    }
+    uint32_t newCallbackTime = MICROSECONDS_TO_RTC_UNITS(timestamp64);
 
     /* Check for repeat setup of an existing callback. This is actually not
      * important; the following code should work even without this check. */
