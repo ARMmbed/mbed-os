@@ -1,7 +1,7 @@
 { 
    "1" : { 
            "mcu": "DELTA_DFCM_NNN40",
-		"port":"COM73",
+		"port":"COM76",
            "disk":"F:\\",
            "peripherals": [""]
    }

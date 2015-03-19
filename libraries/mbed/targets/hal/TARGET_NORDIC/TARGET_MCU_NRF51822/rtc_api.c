@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
-#include "stdio.h"
-#include "time.h"
+//#include "stdio.h"
+//#include "time.h"
  
 #define LFCLK_FREQUENCY         (32768UL)
 #define RTC0_COUNTER_PRESCALER  ((LFCLK_FREQUENCY/8) - 1)
@@ -35,8 +35,8 @@ void rtc_init(void) {
     NRF_RTC0->EVTENSET      = RTC_EVTENSET_COMPARE0_Msk;
     NRF_RTC0->INTENSET      = RTC_INTENSET_COMPARE0_Msk;
     NRF_RTC0->TASKS_START = 1;
-	initTime = time(NULL);
-	//initTime = CUSTOM_TIME;
+	//initTime = time(NULL);
+	initTime = CUSTOM_TIME;
 	
 }
 
@@ -52,7 +52,7 @@ void rtc_free(void) {
  *
  */
 int rtc_isenabled(void) {
-    return(((NRF_RTC0->TASKS_START) & 0x01) != 0);
+    // [TODO] return(((NRF_RTC0->TASKS_START) & 0x01) != 0);
 }
 
 time_t rtc_read(void) {
