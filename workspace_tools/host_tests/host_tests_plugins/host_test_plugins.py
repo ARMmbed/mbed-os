@@ -15,6 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from os import access, F_OK
+from sys import stdout
+from time import sleep
 from subprocess import call
 
 
@@ -57,6 +60,34 @@ class HostTestPluginBase:
         """
         print "Plugin error: %s::%s: %s"% (self.name, self.type, text)
         return False
+
+    def print_plugin_info(self, text, NL=True):
+        """ Function prints notification in console and exits always with True
+        """
+        if NL:
+            print "Plugin info: %s::%s: %s"% (self.name, self.type, text)
+        else:
+            print "Plugin info: %s::%s: %s"% (self.name, self.type, text),
+        return True
+
+    def print_plugin_char(self, char):
+        """ Function prints char on stdout
+        """
+        stdout.write(char)
+        stdout.flush()
+        return True
+
+    def check_mount_point_ready(self, destination_disk, init_delay=0.2, loop_delay=0.25):
+        """ Checks if destination_disk is ready and can be accessed by e.g. copy commands
+            @init_delay - Initial delay time before first access check
+            @loop_delay - pooling delay for access check
+        """
+        if not access(destination_disk, F_OK):
+            self.print_plugin_info("Waiting for mount point '%s' to be ready..."% destination_disk, NL=False)
+            sleep(init_delay)
+            while not access(destination_disk, F_OK):
+                sleep(loop_delay)
+                self.print_plugin_char('.')
 
     def check_parameters(self, capabilitity, *args, **kwargs):
         """ This function should be ran each time we call execute()
