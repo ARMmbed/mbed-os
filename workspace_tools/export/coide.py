@@ -27,6 +27,7 @@ class CoIDE(Exporter):
         'KL05Z',
         'LPC1768',
         'ARCH_PRO',
+        'ARCH_MAX',
         'UBLOX_C027',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
