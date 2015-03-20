@@ -54,6 +54,7 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
         'NUCLEO_L053R8',
+        'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
         #'STM32F407', Fails to build same for GCC
         'MTS_MDOT_F405RG',

@@ -69,6 +69,7 @@ class GccArm(Exporter):
         'NUCLEO_F334R8',
         'DISCO_L053C8',
         'NUCLEO_L053R8',
+        'NUCLEO_L073RZ',
         'DISCO_F334C8',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',

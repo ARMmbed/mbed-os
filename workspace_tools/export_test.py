@@ -129,6 +129,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F401RE'),
             ('uvision', 'NUCLEO_F411RE'),
             ('uvision', 'NUCLEO_L053R8'),
+            ('uvision', 'NUCLEO_L073RZ'),
             ('uvision', 'NUCLEO_L152RE'),
             ('uvision', 'MTS_MDOT_F405RG'),
 
@@ -187,6 +188,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_F401RE'),
             ('iar', 'NUCLEO_F411RE'),
             ('iar', 'NUCLEO_L053R8'),
+            ('iar', 'NUCLEO_L073RZ'),
             ('iar', 'NUCLEO_L152RE'),
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
