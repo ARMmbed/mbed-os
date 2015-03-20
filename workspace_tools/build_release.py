@@ -98,6 +98,9 @@ if __name__ == '__main__':
                       default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
+    parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
+
+
     options, args = parser.parse_args()
     start = time()
     failures = []
@@ -107,6 +110,12 @@ if __name__ == '__main__':
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:
             toolchains = toolchain_list
+
+        if options.toolchains:
+            print "Only building using the following toolchains: %s" % (options.toolchains)
+            toolchainSet = set(toolchains)
+            toolchains = toolchainSet and set((options.toolchains).split(','))
+
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
