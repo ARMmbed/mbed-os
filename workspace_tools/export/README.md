@@ -15,13 +15,25 @@ Exporter IDE/Platform Support
         <th>uvision</th>
     </tr>
     <tr>
+        <td>APPNEARME_MICRONFCBOARD</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
         <td>ARCH_BLE</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
@@ -41,7 +53,7 @@ Exporter IDE/Platform Support
     <tr>
         <td>ARCH_MAX</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -75,19 +87,91 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
-        <td>SEEED_TINY_BLE</td>
+        <td>ARM_MPS2_M0</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>ARM_MPS2_M0P</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>ARM_MPS2_M1</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>ARM_MPS2_M3</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>ARM_MPS2_M4</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>ARM_MPS2_M7</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>DELTA_DFCM_NNN40</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
     </tr>
     <tr>
-        <td>SEEED_TINY_BLE_OTA</td>
+        <td>DELTA_DFCM_NNN40_OTA</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -201,7 +285,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
@@ -339,6 +423,18 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
+        <td>LPC11U34_421</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
         <td>LPC11U35_401</td>
         <td>-</td>
         <td>-</td>
@@ -408,7 +504,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
     </tr>
     <tr>
         <td>LPC1347</td>
@@ -549,7 +645,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
@@ -561,7 +657,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>&#10003;</td>
+        <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
@@ -621,10 +717,22 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <td>NRF51822_BOOT</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
     </tr>
     <tr>
         <td>NRF51822_OTA</td>
@@ -657,10 +765,22 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <td>NRF51_DK_BOOT</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
     </tr>
     <tr>
         <td>NRF51_DK_OTA</td>
@@ -681,7 +801,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
@@ -701,7 +821,7 @@ Exporter IDE/Platform Support
     <tr>
         <td>NUCLEO_F070RB</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
@@ -761,10 +881,10 @@ Exporter IDE/Platform Support
     <tr>
         <td>NUCLEO_F303RE</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
         <td>&#10003;</td>
         <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
         <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
@@ -819,6 +939,18 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
+        <td>NUCLEO_L073RZ</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
         <td>NUCLEO_L152RE</td>
         <td>-</td>
         <td>&#10003;</td>
@@ -860,6 +992,42 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>-</td>
         <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <td>RZ_A1H</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>SEEED_TINY_BLE</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <td>SEEED_TINY_BLE_BOOT</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -867,11 +1035,11 @@ Exporter IDE/Platform Support
         <td>-</td>
     </tr>
     <tr>
-        <td>RZ_A1H</td>
+        <td>SEEED_TINY_BLE_OTA</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -909,7 +1077,7 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>&#10003;</td>
         <td>&#10003;</td>
-        <td>&#10003;</td>
+        <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -939,6 +1107,18 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
     </tr>
     <tr>
+        <td>UBLOX_C029</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>&#10003;</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+    <tr>
         <td>WALLBOT_BLE</td>
         <td>-</td>
         <td>-</td>
@@ -964,5 +1144,5 @@ Exporter IDE/Platform Support
     </tr>
 </table>
 Total IDEs: 9
-<br>Total platforms: 78
-<br>Total permutations: 248
+<br>Total platforms: 94
+<br>Total permutations: 288
