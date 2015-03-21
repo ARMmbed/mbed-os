@@ -34,26 +34,13 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted. */
 #define FLAG_TIMEOUT ((int)0x4000)
 #define LONG_TIMEOUT ((int)0x8000)
-
-static const PinMap PinMap_I2C_SDA[] = {
-    {PA_14, I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_7,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {NC,    NC,    0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {PA_15, I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_6,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {PB_8,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
-    {NC,    NC,    0}
-};
 
 I2C_HandleTypeDef I2cHandle;
 
