@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stddef.h>
+#include "us_ticker_api.h"
+#include "PeripheralNames.h"
 
 static int us_ticker_inited = 0;
 int MRT_Clock_MHz;
