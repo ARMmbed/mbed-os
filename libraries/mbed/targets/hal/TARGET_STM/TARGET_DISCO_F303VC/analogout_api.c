@@ -33,14 +33,9 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "PeripheralPins.h"
 
 #define DAC_RANGE (0xFFF) // 12 bits
-
-static const PinMap PinMap_DAC[] = {
-    {PA_4, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC1_OUT1
-    {PA_5, DAC_1, STM_PIN_DATA(STM_MODE_ANALOG, GPIO_NOPULL, 0)}, // DAC1_OUT2
-    {NC,   NC,    0}
-};
 
 static DAC_HandleTypeDef DacHandle;
 

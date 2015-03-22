@@ -71,6 +71,12 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
             gpio_add = GPIOD_BASE;
             __GPIOD_CLK_ENABLE();
             break;
+#if defined(GPIOE_BASE)
+        case PortE:
+            gpio_add = GPIOE_BASE;
+            __GPIOE_CLK_ENABLE();
+            break;
+#endif
         case PortF:
             gpio_add = GPIOF_BASE;
             __GPIOF_CLK_ENABLE();
