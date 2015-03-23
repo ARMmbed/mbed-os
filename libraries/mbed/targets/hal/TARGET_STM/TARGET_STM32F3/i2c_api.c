@@ -69,6 +69,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(scl, OpenDrain);
     }
 
+#if defined(I2C2_BASE)
     if ((obj->i2c == I2C_2) && !i2c2_inited) {
         i2c2_inited = 1;
         __I2C2_CLK_ENABLE();
@@ -78,6 +79,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+#endif
 
 #if defined(I2C3_BASE)
     if ((obj->i2c == I2C_3) && !i2c3_inited) {
@@ -159,9 +161,11 @@ void i2c_frequency(i2c_t *obj, int hz)
         if (obj->i2c == I2C_1) {
             __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C1);
         }
+#if defined(I2C2_BASE)
         if (obj->i2c == I2C_2) {
             __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C2);
         }
+#endif
 #if defined(I2C3_BASE)
         if (obj->i2c == I2C_3) {
             __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C3);
