@@ -61,9 +61,11 @@ void analogout_init(dac_t *obj, PinName pin)
     if (obj->dac == DAC_1) {
         __DAC1_CLK_ENABLE();
     }
+#if defined(__DAC2_FORCE_RESET)
     if (obj->dac == DAC_2) {
         __DAC2_CLK_ENABLE();
     }
+#endif
 
     // Configure DAC
     DacHandle.Instance = (DAC_TypeDef *)(obj->dac);
@@ -76,10 +78,12 @@ void analogout_init(dac_t *obj, PinName pin)
         pa4_used = 1;
     }
 
+#if defined(DAC_CHANNEL_2)
     if (pin == PA_5) {
         HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2);
         pa5_used = 1;
     }
+#endif
 
     if (pin == PA_6) {
         HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
@@ -119,18 +123,22 @@ static inline void dac_write(dac_t *obj, uint16_t value)
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
     }
 
+#if defined(DAC_CHANNEL_2)
     if (obj->pin == PA_5) {
         HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
     }
+#endif
 }
 
 static inline int dac_read(dac_t *obj)
 {
     if ((obj->pin == PA_4) || (obj->pin == PA_6)) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
+#if defined(DAC_CHANNEL_2)
     } else if (obj->pin == PA_5) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
+#endif
     } else {
         return 0;
     }

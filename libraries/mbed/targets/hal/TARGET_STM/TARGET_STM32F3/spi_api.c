@@ -77,9 +77,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT(obj->spi != (SPIName)NC);
 
     // Enable SPI clock
+#if defined(SPI1_BASE)
     if (obj->spi == SPI_1) {
         __SPI1_CLK_ENABLE();
     }
+#endif
 
 #if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
@@ -128,11 +130,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 void spi_free(spi_t *obj)
 {
     // Reset SPI and disable clock
+#if defined(SPI1_BASE)
     if (obj->spi == SPI_1) {
         __SPI1_FORCE_RESET();
         __SPI1_RELEASE_RESET();
         __SPI1_CLK_DISABLE();
     }
+#endif
 
 #if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
@@ -217,6 +221,25 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 32000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 32 MHz - 36 MHz
     }
+#elif defined(TARGET_STM32F302R8)
+        if (hz < 250000) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz
+    } else if ((hz >= 250000) && (hz < 500000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 250 kHz - 280 kHz
+    } else if ((hz >= 500000) && (hz < 1000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 500 kHz - 560 kHz
+    } else if ((hz >= 1000000) && (hz < 2000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 1 MHz - 1.13 MHz
+    } else if ((hz >= 2000000) && (hz < 4000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 2 MHz - 2.25 MHz
+    } else if ((hz >= 4000000) && (hz < 8000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 4 MHz - 4.5 MHz
+    } else if ((hz >= 8000000) && (hz < 16000000)) {
+        obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 8 MHz - 9 MHz
+    } else { // >= 16000000
+        obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz - 18 MHz
+    }
+ 
 #else
     // Values depend of APB1CLK and APB2CLK : 32 MHz if HSI is used, 36 MHz if HSE is used
     if (obj->spi == SPI_1) {
