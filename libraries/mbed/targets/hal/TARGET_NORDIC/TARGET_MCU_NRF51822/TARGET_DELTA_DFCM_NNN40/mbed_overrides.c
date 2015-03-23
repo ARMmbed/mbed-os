@@ -15,6 +15,7 @@
  */
  
 #include "cmsis.h"
+
 void mbed_sdk_init()
 {
 	// Default SWIO setting, pull SWIO(p19) to low for turning antenna switch to BLE radiated path

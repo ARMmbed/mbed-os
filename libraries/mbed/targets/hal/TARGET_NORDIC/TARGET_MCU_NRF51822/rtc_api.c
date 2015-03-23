@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
-//#include "stdio.h"
-//#include "time.h"
+
  
 #define LFCLK_FREQUENCY         (32768UL)
 #define RTC0_COUNTER_PRESCALER  ((LFCLK_FREQUENCY/8) - 1)
 #define COMPARE_COUNTERTIME       (691200UL) //86400 x 8 
-#define CUSTOM_TIME  1256729737
+
 
 time_t	initTime;
  
@@ -28,15 +27,14 @@ void rtc_init(void) {
 
 	NVIC_EnableIRQ(RTC0_IRQn);                                      // Enable Interrupt for the RTC in the core.
     //NRF_RTC0->TASKS_STOP =1;
-    NRF_RTC0->PRESCALER     = RTC0_COUNTER_PRESCALER;                    // Set prescaler to a TICK of RTC_FREQUENCY.
-    NRF_RTC0->CC[0]         = COMPARE_COUNTERTIME;  // Compare0 after approx COMPARE_COUNTERTIME seconds.
+    NRF_RTC0->PRESCALER     = RTC0_COUNTER_PRESCALER;               // Set prescaler to a TICK of RTC_FREQUENCY.
+    NRF_RTC0->CC[0]         = COMPARE_COUNTERTIME;  				// Compare0 after approx COMPARE_COUNTERTIME seconds.
 
     // Enable COMPARE0 event and COMPARE0 interrupt:
     NRF_RTC0->EVTENSET      = RTC_EVTENSET_COMPARE0_Msk;
     NRF_RTC0->INTENSET      = RTC_INTENSET_COMPARE0_Msk;
     NRF_RTC0->TASKS_START = 1;
-	//initTime = time(NULL);
-	initTime = CUSTOM_TIME;
+
 	
 }
 
