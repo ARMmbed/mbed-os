@@ -259,6 +259,7 @@ class HostTestResults:
         self.RESULT_IOERR_COPY = "ioerr_copy"
         self.RESULT_PASSIVE = "passive"
         self.RESULT_NOT_DETECTED = "not_detected"
+        self.RESULT_MBED_ASSERT = "mbed_assert"
 
 
 import workspace_tools.host_tests as host_tests

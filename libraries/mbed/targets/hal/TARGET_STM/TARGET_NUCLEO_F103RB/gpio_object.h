@@ -68,7 +68,6 @@ static inline int gpio_is_connected(const gpio_t *obj) {
     return obj->pin != (PinName)NC;
 }
 
-
 #ifdef __cplusplus
 }
 #endif

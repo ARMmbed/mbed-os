@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -47,10 +47,10 @@
                           ##### How to use this driver #####
 ================================================================================
   [..]
-    (#) Enable the TSC interface clock using __TSC_CLK_ENABLE() macro.
+    (#) Enable the TSC interface clock using __HAL_RCC_TSC_CLK_ENABLE() macro.
 
     (#) GPIO pins configuration
-      (++) Enable the clock for the TSC GPIOs using __GPIOx_CLK_ENABLE() macro.
+      (++) Enable the clock for the TSC GPIOs using __HAL_RCC_GPIOx_CLK_ENABLE() macro.
       (++) Configure the TSC pins used as sampling IOs in alternate function output Open-Drain mode,
            and TSC pins used as channel/shield IOs in alternate function output Push-Pull mode
            using HAL_GPIO_Init() function.
@@ -81,7 +81,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -109,8 +109,10 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 #include "stm32l0xx_hal.h"
 
+#ifdef HAL_TSC_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
@@ -120,7 +122,6 @@
   * @{
   */
 
-#ifdef HAL_TSC_MODULE_ENABLED
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -157,7 +158,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask);
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == HAL_NULL)
+  if (htsc == NULL)
   {
     return HAL_ERROR;
   }
@@ -240,7 +241,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
 {
   /* Check TSC handle allocation */
-  if (htsc == HAL_NULL)
+  if (htsc == NULL)
   {
     return HAL_ERROR;
   }
@@ -753,14 +754,16 @@ static uint32_t TSC_extract_groups(uint32_t iomask)
   * @}
   */
 
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */ 
 #endif /* HAL_TSC_MODULE_ENABLED */
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
+#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -21,6 +21,7 @@ DigitalInOut d2(D7);
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);

@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief  This file contains all the functions prototypes for the ADC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -92,6 +92,9 @@
   * @}
   */ 
 
+#define ADC_FLAG_SENSOR         SYSCFG_CFGR3_SENSOR_ADC_RDYF
+#define ADC_FLAG_VREFINT        SYSCFG_VREFINT_ADC_RDYF
+
 /**
   * @}
   */
@@ -101,6 +104,10 @@
 HAL_StatusTypeDef   HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t SingleDiff);
 uint32_t            HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef* hadc, uint32_t SingleDiff);
 HAL_StatusTypeDef   HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32_t SingleDiff, uint32_t CalibrationFactor);
+void HAL_ADCEx_EnableVREFINT(void);
+void HAL_ADCEx_DisableVREFINT(void);
+void HAL_ADCEx_EnableVREFINTTempSensor(void);
+void HAL_ADCEx_DisableVREFINTTempSensor(void);
 
 
 /**
@@ -119,3 +126,4 @@ HAL_StatusTypeDef   HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -71,8 +71,8 @@ typedef uintptr_t          mem_ptr_t;
     #define PACK_STRUCT_STRUCT
     #define PACK_STRUCT_END
     #define PACK_STRUCT_FIELD(fld) fld
-//    #define PACK_STRUCT_USE_INCLUDES
-    #error NEEDS ALIGNED // FIXME TBD
+    #define IAR_STR(a) #a
+    #define ALIGNED(n) _Pragma(IAR_STR(data_alignment= ## n ##))
 #else 
     /* GCC tools (CodeSourcery) */
     #define PACK_STRUCT_BEGIN

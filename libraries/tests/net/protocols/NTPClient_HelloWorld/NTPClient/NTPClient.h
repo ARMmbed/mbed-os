@@ -61,6 +61,9 @@ public:
   NTPResult setTime(const char* host, uint16_t port = NTP_DEFAULT_PORT, uint32_t timeout = NTP_DEFAULT_TIMEOUT); //Blocking
 
 private:
+#if defined (__ICCARM__)
+    #pragma pack()
+#endif
   struct NTPPacket //See RFC 4330 for Simple NTP
   {
     //WARN: We are in LE! Network is BE!
@@ -86,7 +89,11 @@ private:
     uint32_t rxTm_f;
     uint32_t txTm_s;
     uint32_t txTm_f;
+#if defined (__ICCARM__)
+  };
+#else
   } __attribute__ ((packed));
+#endif
 
   UDPSocket m_sock;
 };

@@ -74,6 +74,7 @@
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5

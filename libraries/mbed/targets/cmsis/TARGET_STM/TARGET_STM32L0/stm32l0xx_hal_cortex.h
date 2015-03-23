@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,34 +50,42 @@
   * @{
   */
 
-/** @addtogroup CORTEX
+/** @defgroup CORTEX CORTEX
   * @{
   */ 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup CORTEX_Exported_Constants
+/** @defgroup CORTEX_Exported_Constants CORTEX Exported constants
   * @{
   */
 
 
-#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x4)
+#define IS_NVIC_PREEMPTION_PRIORITY(__PRIORITY__)  ((__PRIORITY__) < 0x4)
+
+#define IS_NVIC_DEVICE_IRQ(IRQ)                ((IRQ) >= 0x00)
 
 /** @defgroup CORTEX_SysTick_clock_source
   * @{
   */
 #define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
 #define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
-#define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
-                                       ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
+#define IS_SYSTICK_CLK_SOURCE(__SOURCE__) (((__SOURCE__) == SYSTICK_CLKSOURCE_HCLK) || \
+                                       ((__SOURCE__) == SYSTICK_CLKSOURCE_HCLK_DIV8))
 /**
   * @}
   */
+  
+/**
+  * @}
+  */  
 
 /* Exported Macros -----------------------------------------------------------*/
-
+/** @defgroup CORTEX_Exported_Macros CORTEX Exported Macros
+  * @{
+  */
 /** @brief Configures the SysTick clock source.
-  * @param __CLKSRC__: specifies the SysTick clock source.
+  * @param __CLKSRC__ : specifies the SysTick clock source.
   *   This parameter can be one of the following values:
   *     @arg SYSTICK_CLKSOURCE_HCLK_DIV8: AHB clock divided by 8 selected as SysTick clock source.
   *     @arg SYSTICK_CLKSOURCE_HCLK: AHB clock selected as SysTick clock source.
@@ -97,16 +105,28 @@
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-/* Initialization and de-initialization functions *******************************/
+/** @defgroup CORTEX_Exported_Functions CORTEX Exported Functions
+  * @{
+  */
+  
+/** @defgroup CORTEX_Exported_Functions_Group1 Initialization and de-initialization functions 
+ *  @brief    Initialization and Configuration functions
+ * @{
+  */
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority);
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn);
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn);
 void HAL_NVIC_SystemReset(void);
 uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb);
-
-/* Peripheral Control functions *************************************************/
+/**
+  * @}
+  */
+  
+/** @defgroup CORTEX_Exported_Functions_Group2 Peripheral Control functions
+ *  @brief   Cortex control functions
+ * @{
+ */
 uint32_t HAL_NVIC_GetPendingIRQ(IRQn_Type IRQn);
 void HAL_NVIC_SetPendingIRQ(IRQn_Type IRQn);
 void HAL_NVIC_ClearPendingIRQ(IRQn_Type IRQn);
@@ -114,6 +134,14 @@ void HAL_SYSTICK_CLKSourceConfig(uint32_t CLKSource);
 void HAL_SYSTICK_IRQHandler(void);
 void HAL_SYSTICK_Callback(void);
 
+/**
+  * @}
+  */
+  
+  /**
+  * @}
+  */
+  
 /**
   * @}
   */ 
@@ -130,3 +158,4 @@ void HAL_SYSTICK_Callback(void);
  
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

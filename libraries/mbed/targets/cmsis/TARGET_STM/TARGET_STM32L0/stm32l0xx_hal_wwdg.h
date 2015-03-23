@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup WWDG
+/** @defgroup WWDG WWDG (Window watchdog)
   * @{
   */
 
@@ -59,7 +59,10 @@
 /** @defgroup WWDG_Exported_Types WWDG Exported Types
   * @{
   */
-   
+
+/** @defgroup WWDG_State WWDG state definition
+  * @{
+  */
 /**
   * @brief  WWDG HAL State Structure definition
   */
@@ -72,8 +75,15 @@ typedef enum
   HAL_WWDG_STATE_ERROR     = 0x04   /*!< WWDG error state                     */
 }HAL_WWDG_StateTypeDef;
 
+/**
+  * @}
+  */
+
+/** @defgroup WWDG_Init WWDG init configuration structure
+  * @{
+  */
 /** 
-  * @brief  WWDG Init structure definition
+  * @brief  WWDG Init configuration structure
   */
 typedef struct
 {
@@ -87,7 +97,13 @@ typedef struct
                             This parameter must be a number between Min_Data = 0x40 and Max_Data = 0x7F */
 
 }WWDG_InitTypeDef;
+/**
+  * @}
+  */
 
+/** @defgroup WWDG_handle WWDG handler
+  * @{
+  */
 /**
   * @brief  WWDG handle Structure definition
   */
@@ -107,6 +123,10 @@ typedef struct
   * @}
   */
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
 /** @defgroup WWDG_Exported_Constants WWDG Exported Constants
@@ -120,7 +140,7 @@ typedef struct
 
 /* --- CFR Register ---*/
 /* Alias word address of EWI bit */
-#define CFR_BASE   (uint32_t)(WWDG_BASE + 0x04)
+#define WWDG_CFR_BASE   (uint32_t)(WWDG_BASE + 0x04)
 
 /**
   * @}
@@ -130,9 +150,6 @@ typedef struct
   * @{
   */
 #define WWDG_IT_EWI   ((uint32_t)WWDG_CFR_EWI)
-
-#define IS_WWDG_IT(__IT__) ((__IT__) == WWDG_IT_EWI)
-
 /**
   * @}
   */
@@ -142,9 +159,6 @@ typedef struct
   * @{
   */
 #define WWDG_FLAG_EWIF   ((uint32_t)WWDG_SR_EWIF)  /*!< Early wakeup interrupt flag */
-
-#define IS_WWDG_FLAG(__FLAG__) ((__FLAG__) == WWDG_FLAG_EWIF)) 
-
 /**
   * @}
   */
@@ -156,33 +170,21 @@ typedef struct
 #define WWDG_PRESCALER_2   ((uint32_t)WWDG_CFR_WDGTB0)  /*!< WWDG counter clock = (PCLK1/4096)/2 */
 #define WWDG_PRESCALER_4   ((uint32_t)WWDG_CFR_WDGTB1)  /*!< WWDG counter clock = (PCLK1/4096)/4 */
 #define WWDG_PRESCALER_8   ((uint32_t)WWDG_CFR_WDGTB)  /*!< WWDG counter clock = (PCLK1/4096)/8 */
-
+/**
+  * @}
+  */
 #define IS_WWDG_PRESCALER(__PRESCALER__) (((__PRESCALER__) == WWDG_PRESCALER_1) || \
                                           ((__PRESCALER__) == WWDG_PRESCALER_2) || \
                                           ((__PRESCALER__) == WWDG_PRESCALER_4) || \
                                           ((__PRESCALER__) == WWDG_PRESCALER_8))
 
-/**
-  * @}
-  */
 
-/** @defgroup WWDG_Window WWDG Window
-  * @{
-  */
+
+/* Check for window */
 #define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7F)
 
-/**
-  * @}
-  */
-
-/** @defgroup WWDG_Counter WWDG Counter
-  * @{
-  */
+/* Check for counter */
 #define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40) && ((__COUNTER__) <= 0x7F))
-
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -208,6 +210,55 @@ typedef struct
 #define __HAL_WWDG_ENABLE(__HANDLE__)               SET_BIT((__HANDLE__)->Instance->CR, WWDG_CR_WDGA)
 
 /**
+  * @brief  Disables the WWDG peripheral.
+  * @param  __HANDLE__: WWDG handle
+  * @note   WARNING: This is a dummy macro for HAL code alignment.
+  *         Once enable, WWDG Peripheral cannot be disabled except by a system reset.
+  * @retval None
+  */
+#define __HAL_WWDG_DISABLE(__HANDLE__)                      /* dummy  macro */
+
+/**
+  * @brief  Enables the WWDG early wakeup interrupt.
+  * @param  __HANDLE__: WWDG handle
+  * @param  __INTERRUPT__: specifies the interrupt to enable.
+  *         This parameter can be one of the following values:
+  *            @arg WWDG_IT_EWI: Early wakeup interrupt
+  * @note   Once enabled this interrupt cannot be disabled except by a system reset.
+  * @retval None
+  */
+#define __HAL_WWDG_ENABLE_IT(__HANDLE__, __INTERRUPT__)     ((__HANDLE__)->Instance->CFR |= (__INTERRUPT__))
+/**
+  * @brief  Disables the WWDG early wakeup interrupt.
+  * @param  __HANDLE__: WWDG handle:
+  * @param  __INTERRUPT__: specifies the interrupt to disable.
+  *            @arg WWDG_IT_EWI: Early wakeup interrupt
+  * @note   WARNING: This is a dummy macro for HAL code alignment.
+  *         Once enabled this interrupt cannot be disabled except by a system reset.
+  * @retval None
+  */
+#define __HAL_WWDG_DISABLE_IT(__HANDLE__, __INTERRUPT__)                   /* dummy  macro */
+
+/**
+  * @brief  Gets the selected WWDG's it status.
+  * @param  __HANDLE__: WWDG handle
+  * @param  __INTERRUPT__: specifies the it to check.
+  *        This parameter can be one of the following values:
+  *            @arg WWDG_FLAG_EWIF: Early wakeup interrupt IT
+  * @retval The new state of WWDG_FLAG (SET or RESET).
+  */
+#define __HAL_WWDG_GET_IT(__HANDLE__, __INTERRUPT__)        (((__HANDLE__)->Instance->SR & (__INTERRUPT__)) == (__INTERRUPT__))
+
+/** @brief  Clear the WWDG's interrupt pending bits
+  *         bits to clear the selected interrupt pending bits.
+  * @param  __HANDLE__: WWDG handle
+  * @param  __INTERRUPT__: specifies the interrupt pending bit to clear.
+  *         This parameter can be one of the following values:
+  *            @arg WWDG_FLAG_EWIF: Early wakeup interrupt flag
+  */
+#define __HAL_WWDG_CLEAR_IT(__HANDLE__, __INTERRUPT__) __HAL_WWDG_CLEAR_FLAG((__HANDLE__), (__INTERRUPT__))
+
+/**
   * @brief  Gets the selected WWDG's flag status.
   * @param  __HANDLE__: WWDG handle
   * @param  __FLAG__: specifies the flag to check.
@@ -227,54 +278,58 @@ typedef struct
   */
 #define __HAL_WWDG_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = ~(__FLAG__))
 
-/**
-  * @brief  Enables the WWDG early wakeup interrupt.
-  * @param  __INTERRUPT__: specifies the interrupt to enable.
-  *         This parameter can be one of the following values:
-  *            @arg WWDG_IT_EWI: Early wakeup interrupt
-  * @note   Once enabled this interrupt cannot be disabled except by a system reset.
-  * @retval None
+/** @brief  Checks if the specified WWDG interrupt source is enabled or disabled.
+  * @param  __HANDLE__: WWDG Handle.
+  * @param  __INTERRUPT__: specifies the WWDG interrupt source to check.
+  *          This parameter can be one of the following values:
+  *            @arg WWDG_IT_EWI: Early Wakeup Interrupt
+  * @retval state of __INTERRUPT__ (TRUE or FALSE).
   */
-#define __HAL_WWDG_ENABLE_IT(__INTERRUPT__) (*(__IO uint32_t *) CFR_BASE |= (__INTERRUPT__))
-
-/** @brief  Clear the WWDG's interrupt pending bits
-  *         bits to clear the selected interrupt pending bits.
-  * @param  __HANDLE__: WWDG handle
-  * @param  __INTERRUPT__: specifies the interrupt pending bit to clear.
-  *         This parameter can be one of the following values:
-  *            @arg WWDG_FLAG_EWIF: Early wakeup interrupt flag
-  */
-#define __HAL_WWDG_CLEAR_IT(__HANDLE__, __INTERRUPT__) __HAL_WWDG_CLEAR_FLAG((__HANDLE__), (__INTERRUPT__))
+#define __HAL_WWDG_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CFR & (__INTERRUPT__)) == (__INTERRUPT__))
 
 /**
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup WWDG_Exported_Functions
+/** @defgroup WWDG_Exported_Functions WWDG Exported Functions
   * @{
   */
 
-/* Initialization/de-initialization functions  **********************************/
+/** @defgroup WWDG_Exported_Functions_Group1 Initialization and de-initialization functions 
+  * @{
+  */
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg);
 void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg);
+/**
+  * @}
+  */
 
-/* I/O operation functions ******************************************************/
+/** @defgroup WWDG_Exported_Functions_Group2 IO operation functions 
+  * @{
+  */
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg);
 HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter);
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg);
+/**
+  * @}
+  */
 
-/* Peripheral State functions  **************************************************/
+/** @defgroup WWDG_Exported_Functions_Group3 Peripheral State functions 
+  * @{
+  */
 HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg);
+/**
+  * @}
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -291,3 +346,4 @@ HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg);
 #endif /* __STM32L0xx_HAL_WWDG_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
