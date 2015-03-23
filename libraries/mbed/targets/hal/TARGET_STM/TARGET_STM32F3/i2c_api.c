@@ -79,6 +79,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(scl, OpenDrain);
     }
 
+#if defined(I2C3_BASE)
     if ((obj->i2c == I2C_3) && !i2c3_inited) {
         i2c3_inited = 1;
         __I2C3_CLK_ENABLE();
@@ -88,6 +89,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+#endif
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -160,9 +162,11 @@ void i2c_frequency(i2c_t *obj, int hz)
         if (obj->i2c == I2C_2) {
             __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C2);
         }
+#if defined(I2C3_BASE)
         if (obj->i2c == I2C_3) {
             __HAL_SYSCFG_FASTMODEPLUS_ENABLE(HAL_SYSCFG_FASTMODEPLUS_I2C3);
         }
+#endif
     }
 
     // I2C configuration

@@ -37,9 +37,9 @@
 #include <string.h>
 #include "PeripheralPins.h"
 
-#define UART_NUM (3)
+#define UART_NUM (5)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0};
 
 static uart_irq_handler irq_handler;
 
@@ -99,16 +99,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART3_CONFIG(RCC_USART3CLKSOURCE_SYSCLK);
         obj->index = 2;
     }
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_CLK_ENABLE();
         __HAL_RCC_UART4_CONFIG(RCC_UART4CLKSOURCE_SYSCLK);
         obj->index = 3;
     }
+#endif
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         __UART5_CLK_ENABLE();
         __HAL_RCC_UART5_CONFIG(RCC_UART5CLKSOURCE_SYSCLK);
         obj->index = 4;
     }
+#endif
 
     // Configure the UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -156,16 +160,20 @@ void serial_free(serial_t *obj)
         __USART3_RELEASE_RESET();
         __USART3_CLK_DISABLE();
     }
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_FORCE_RESET();
         __UART4_RELEASE_RESET();
         __UART4_CLK_DISABLE();
     }
+#endif
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         __UART5_FORCE_RESET();
         __UART5_RELEASE_RESET();
         __UART5_CLK_DISABLE();
     }
+#endif
 
     // Configure GPIOs
     pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -245,15 +253,19 @@ static void uart3_irq(void)
     uart_irq(UART_3, 2);
 }
 
+#if defined(UART4_BASE)
 static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
+#endif
 
+#if defined(UART5_BASE)
 static void uart5_irq(void)
 {
     uart_irq(UART_5, 4);
 }
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -283,15 +295,19 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart3_irq;
     }
 
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         irq_n = UART4_IRQn;
         vector = (uint32_t)&uart4_irq;
     }
+#endif
 
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         irq_n = UART5_IRQn;
         vector = (uint32_t)&uart5_irq;
     }
+#endif
 
     if (enable) {
 
