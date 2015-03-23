@@ -44,22 +44,11 @@ typedef enum {
     P10_0,P10_1,P10_2,P10_3,P10_4,P10_5,P10_6,P10_7,P10_8,P10_9,P10_10,P10_11,P10_12,P10_13,P10_14,P10_15,
     P11_0,P11_1,P11_2,P11_3,P11_4,P11_5,P11_6,P11_7,P11_8,P11_9,P11_10,P11_11,P11_12,P11_13,P11_14,P11_15, 
 
-    // mbed DIP Pin Names
-    p10 = P0_1,
-    p21 = P2_5,
-    p22 = P2_4,
-    p23 = P2_3,
-    p24 = P2_2,
-    p25 = P2_1,
-    p26 = P2_0,
-    p29 = P0_5,
-    p30 = P0_4,
-
-    // Other mbed Pin Names
-    LED1 = P4_4,
-    LED2 = P3_2,
-    LED3 = P4_6,
-    LED4 = P4_7,
+    // mbed Pin Names
+    LED1 = P6_13,
+    LED2 = P6_14,
+    LED3 = P6_15,
+    LED4 = P6_12,
 
     LED_RED  = LED1,
     LED_GREEN= LED2,
@@ -72,12 +61,12 @@ typedef enum {
     // Arduiono Pin Names
     D0 = P2_15,
     D1 = P2_14,
-    D2 = P11_15,
-    D3 = P11_14,
-    D4 = P11_13,
-    D5 = P11_12,
-    D6 = P8_11,
-    D7 = P8_13,
+    D2 = P4_7,
+    D3 = P4_6,
+    D4 = P4_5,
+    D5 = P4_4,
+    D6 = P8_13,
+    D7 = P8_11,
     D8 = P8_15,
     D9 = P8_14,
     D10 = P10_13,
@@ -98,7 +87,6 @@ typedef enum {
     I2C_SDA = D14,
 
     USER_BUTTON0 = P6_0,
-    USER_BUTTON1 = P6_1,
 
     // Not connected
     NC = (int)0xFFFFFFFF

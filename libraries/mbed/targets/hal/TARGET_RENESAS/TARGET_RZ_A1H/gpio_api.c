@@ -33,21 +33,25 @@ void gpio_init(gpio_t *obj, PinName pin) {
     group = PINGROUP(pin);
     if (group > 11) return;
 
-    obj->reg_set = (volatile uint32_t *)PORT(group);
+    obj->reg_set = (volatile uint32_t *) PSR(group);
     obj->reg_in  = (volatile uint32_t *) PPR(group);
-    obj->reg_dir = (volatile uint32_t *)  PM(group);
+    obj->reg_dir = (volatile uint32_t *)PMSR(group);
     obj->reg_buf = (volatile uint32_t *)PIBC(group);
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-// pullup, pulldown, open...etc
+/* Pull up and Pull down settings aren't supported because RZ/A1H doesn't have pull up/down for pins(signals). */
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     switch (direction) {
-        case PIN_INPUT : *obj->reg_dir |=  obj->mask;
-                         *obj->reg_buf |=  obj->mask; break;
-        case PIN_OUTPUT: *obj->reg_dir &= ~obj->mask; 
-                         *obj->reg_buf &= ~obj->mask; break;
+        case PIN_INPUT :
+            *obj->reg_dir = (obj->mask << 16) | obj->mask;
+            *obj->reg_buf |=  obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir = (obj->mask << 16) | 0;
+            *obj->reg_buf &= ~obj->mask;
+            break;
     }
 }
