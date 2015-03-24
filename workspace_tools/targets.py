@@ -513,7 +513,7 @@ class NUCLEO_F091RC(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0731"]
+        self.detect_code = ["0750"]
 
 class NUCLEO_F103RB(Target):
     def __init__(self):
@@ -543,7 +543,7 @@ class NUCLEO_F303RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0706"]
+        self.detect_code = ["0745"]
 
 class NUCLEO_F334R8(Target):
     def __init__(self):
