@@ -135,7 +135,7 @@ TESTS = [
         "peripherals": ["analog_loop"],
         "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "K22F", "LPC4088", "LPC1549",
                 "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303RE",
-                "NUCLEO_F334R8", "NUCLEO_L053R8", "NUCLEO_L152RE"]
+                "NUCLEO_F334R8", "NUCLEO_L053R8", "NUCLEO_L073RZ", "NUCLEO_L152RE"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -611,7 +611,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -624,7 +624,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -637,7 +637,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -649,7 +649,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -661,7 +661,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -673,7 +673,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -687,7 +687,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {
@@ -699,7 +699,7 @@ TESTS = [
                 "KL25Z", "KL05Z", "K64F", "KL46Z",
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
-                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_F072RB", "NUCLEO_F091RC",
+                "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
                 "DISCO_F401VC"],
     },
     {

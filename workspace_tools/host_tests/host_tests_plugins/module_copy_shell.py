@@ -43,6 +43,8 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            # Wait for mount point to be ready
+            self.check_mount_point_ready(destination_disk)  # Blocking
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
