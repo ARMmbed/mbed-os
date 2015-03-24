@@ -86,8 +86,9 @@ void rtc_init(void)
     __HAL_RCC_RTC_ENABLE();
 
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv   = 127;
-    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
+    /* SubSecond resolution of 16384Hz */
+    RtcHandle.Init.AsynchPrediv   = /*127*/ 1;
+    RtcHandle.Init.SynchPrediv    = (rtc_freq / /*128*/ 2) - 1;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
