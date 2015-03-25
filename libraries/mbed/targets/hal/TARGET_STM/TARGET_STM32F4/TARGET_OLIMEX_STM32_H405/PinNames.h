@@ -122,8 +122,11 @@ typedef enum {
     PH_0  = 0x70,
     PH_1  = 0x71,
 
+    STATUS_LED  = PC_12,
+    ESC1        = PC_6,
+
     // Generic signals namings
-    LED1        = PA_9,
+    LED1        = PC_12,
     LED2        = PA_9,
     LED3        = PA_9,
     LED4        = PA_9,

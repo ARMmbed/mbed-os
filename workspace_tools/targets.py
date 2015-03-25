@@ -740,6 +740,7 @@ class OLIMEX_STM32_H405(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F405', 'STM32F405RGT6']
+        # self.macros = ['HSE_VALUE=8000000']
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 

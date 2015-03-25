@@ -41,15 +41,15 @@
 
 #define DEVICE_SERIAL           1
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+#define DEVICE_I2C              0
+#define DEVICE_I2CSLAVE         0
 
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
 
-#define DEVICE_PWMOUT           1
+#define DEVICE_PWMOUT           0
 
 #define DEVICE_SLEEP            1
 
