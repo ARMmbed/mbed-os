@@ -28,12 +28,11 @@
  *******************************************************************************
  */
 #include "port_api.h"
-
-#if DEVICE_PORTIN || DEVICE_PORTOUT
-
 #include "pinmap.h"
 #include "gpio_api.h"
 #include "mbed_error.h"
+
+#if DEVICE_PORTIN || DEVICE_PORTOUT
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
@@ -69,9 +68,9 @@ void port_dir(port_t *obj, PinDirection dir)
     for (i = 0; i < 16; i++) { // Process all pins
         if (obj->mask & (1 << i)) { // If the pin is used
             if (dir == PIN_OUTPUT) {
-                pin_function(port_pin(obj->port, i), STM_PIN_DATA(GPIO_Mode_Out_PP, 0));
+                pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_OUTPUT_PP, GPIO_NOPULL, 0));
             } else { // PIN_INPUT
-                pin_function(port_pin(obj->port, i), STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+                pin_function(port_pin(obj->port, i), STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
             }
         }
     }

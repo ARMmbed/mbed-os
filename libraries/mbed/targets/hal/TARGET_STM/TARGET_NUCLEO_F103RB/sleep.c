@@ -32,35 +32,31 @@
 #if DEVICE_SLEEP
 
 #include "cmsis.h"
+#include "hal_tick.h"
+
+static TIM_HandleTypeDef TimMasterHandle;
 
 void sleep(void)
 {
-    // Disable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
+    TimMasterHandle.Instance = TIM_MST;
 
-    SCB->SCR = 0; // Normal sleep mode for ARM core
-    __WFI();
+    // Disable HAL tick and us_ticker update interrupts
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 
-    // Re-enable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+    // Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    // Enable HAL tick and us_ticker update interrupts
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
 }
 
 void deepsleep(void)
 {
-    // Disable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
-
-    // Enable PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-
     // Request to enter STOP mode with regulator in low power mode
-    PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
-
-    // Re-enable us_ticker update interrupt
-    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 }
 
 #endif

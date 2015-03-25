@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -46,11 +46,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
 
-/** @addtogroup STM32L0xx_HAL
+/** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup TIMEx
+/** @defgroup TIMEx TIMEx (Timer extended)
   * @{
   */ 
 
@@ -61,133 +61,183 @@
   */ 
 typedef struct {
   uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection 
-                                      This parameter can be a value of @ref TIMEx_Master_Mode_Selection */ 
+                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */
   uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection 
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
 }TIM_MasterConfigTypeDef;
 
 
+
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup TIMEx_Exported_Constants
+/** @defgroup TIMEx_Exported_Constants TIMEx Exported Constants
   * @{
   */
 
-/** @defgroup TIMEx_Master_Mode_Selection
+/** @defgroup TIMEx_Trigger_Selection Trigger selection
   * @{
   */  
-#define	TIM_TRGO_RESET            ((uint32_t)0x0000)             
-#define	TIM_TRGO_ENABLE           (TIM_CR2_MMS_0)           
-#define	TIM_TRGO_UPDATE           (TIM_CR2_MMS_1)             
-#define	TIM_TRGO_OC1              ((TIM_CR2_MMS_1 | TIM_CR2_MMS_0))    
-#define	TIM_TRGO_OC1REF           (TIM_CR2_MMS_2)           
-#define	TIM_TRGO_OC2REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_0))          
-#define	TIM_TRGO_OC3REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1))           
-#define	TIM_TRGO_OC4REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1 | TIM_CR2_MMS_0))   
+#define  TIM_TRGO_RESET            ((uint32_t)0x0000)
+#define  TIM_TRGO_ENABLE           (TIM_CR2_MMS_0)
+#define  TIM_TRGO_UPDATE           (TIM_CR2_MMS_1)
+#define  TIM_TRGO_OC1              ((TIM_CR2_MMS_1 | TIM_CR2_MMS_0))
+#define  TIM_TRGO_OC1REF           (TIM_CR2_MMS_2)
+#define  TIM_TRGO_OC2REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_0))
+#define  TIM_TRGO_OC3REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1))
+#define  TIM_TRGO_OC4REF           ((TIM_CR2_MMS_2 | TIM_CR2_MMS_1 | TIM_CR2_MMS_0))
 
-#define IS_TIM_TRGO_SOURCE(SOURCE) (((SOURCE) == TIM_TRGO_RESET) || \
-                                    ((SOURCE) == TIM_TRGO_ENABLE) || \
-                                    ((SOURCE) == TIM_TRGO_UPDATE) || \
-                                    ((SOURCE) == TIM_TRGO_OC1) || \
-                                    ((SOURCE) == TIM_TRGO_OC1REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC2REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC3REF) || \
-                                    ((SOURCE) == TIM_TRGO_OC4REF))      
+#define IS_TIM_TRGO_SOURCE(__SOURCE__) (((__SOURCE__) == TIM_TRGO_RESET)  || \
+                                        ((__SOURCE__) == TIM_TRGO_ENABLE) || \
+                                        ((__SOURCE__) == TIM_TRGO_UPDATE) || \
+                                        ((__SOURCE__) == TIM_TRGO_OC1)    || \
+                                        ((__SOURCE__) == TIM_TRGO_OC1REF) || \
+                                        ((__SOURCE__) == TIM_TRGO_OC2REF) || \
+                                        ((__SOURCE__) == TIM_TRGO_OC3REF) || \
+                                        ((__SOURCE__) == TIM_TRGO_OC4REF))
    
 /**
   * @}
   */ 
 
-/** @defgroup TIMEx_Remap
+/** @defgroup TIMEx_Remap Remaping
   * @{
   */
 
-#define TIM2_ETR_GPIO                     ((uint32_t)0xFFF80000)
-#define TIM2_ETR_HSI48                    ((uint32_t)0xFFF80004)
-#define TIM2_ETR_LSE                      ((uint32_t)0xFFF80005)
-#define TIM2_ETR_COMP2_OUT                ((uint32_t)0xFFF80006)
-#define TIM2_ETR_COMP1_OUT                ((uint32_t)0xFFF80007)
-#define TIM2_TI4_GPIO1                    ((uint32_t)0xFFE70000)
-#define TIM2_TI4_COMP2                    ((uint32_t)0xFFE70008)
-#define TIM2_TI4_COMP1                    ((uint32_t)0xFFE70010)
-#define TIM2_TI4_GPIO2                    ((uint32_t)0xFFE70018)
-#define TIM21_ETR_GPIO                    ((uint32_t)0xFFF40000)
-#define TIM21_ETR_COMP2_OUT               ((uint32_t)0xFFF40001)
-#define TIM21_ETR_COMP1_OUT               ((uint32_t)0xFFF40002)
-#define TIM21_ETR_LSE                     ((uint32_t)0xFFF40003)
-#define TIM21_TI1_MCO                     ((uint32_t)0xFFE3001C)
-#define TIM21_TI1_RTC_WKUT_IT             ((uint32_t)0xFFE30004)
-#define TIM21_TI1_HSE_RTC                 ((uint32_t)0xFFE30008)
-#define TIM21_TI1_MSI                     ((uint32_t)0xFFE3000C)
-#define TIM21_TI1_LSE                     ((uint32_t)0xFFE30010)
-#define TIM21_TI1_LSI                     ((uint32_t)0xFFE30014)
-#define TIM21_TI1_COMP1_OUT               ((uint32_t)0xFFE30018)
-#define TIM21_TI1_GPIO                    ((uint32_t)0xFFE30000)
-#define TIM21_TI2_GPIO                    ((uint32_t)0xFFDF0000)
-#define TIM21_TI2_COMP2_OUT               ((uint32_t)0xFFDF0020)
-#define TIM22_ETR_LSE                     ((uint32_t)0xFFFC0000)
-#define TIM22_ETR_COMP2_OUT               ((uint32_t)0xFFFC0001)
-#define TIM22_ETR_COMP1_OUT               ((uint32_t)0xFFFC0002)
-#define TIM22_ETR_GPIO                    ((uint32_t)0xFFFC0003)
-#define TIM22_TI1_GPIO1                   ((uint32_t)0xFFF70000)
-#define TIM22_TI1_COMP2_OUT               ((uint32_t)0xFFF70004)
-#define TIM22_TI1_COMP1_OUT               ((uint32_t)0xFFF70008)
-#define TIM22_TI1_GPIO2                   ((uint32_t)0xFFF7000C)
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_HSI48                    TIM2_OR_ETR_RMP_2
+#define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
+#define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
+#define TIM2_ETR_COMP1_OUT                TIM2_OR_ETR_RMP
+#define TIM2_TI4_GPIO                     ((uint32_t)0x0)
+#define TIM2_TI4_COMP2                    TIM2_OR_TI4_RMP_0
+#define TIM2_TI4_COMP1                    TIM2_OR_TI4_RMP_1
+
+#define TIM21_ETR_GPIO                    ((uint32_t)0x0)
+#define TIM21_ETR_COMP2_OUT               TIM21_OR_ETR_RMP_0
+#define TIM21_ETR_COMP1_OUT               TIM21_OR_ETR_RMP_1
+#define TIM21_ETR_LSE                     TIM21_OR_ETR_RMP
+#define TIM21_TI1_GPIO                    ((uint32_t)0x0)
+#define TIM21_TI1_MCO                     TIM21_OR_TI1_RMP
+#define TIM21_TI1_RTC_WKUT_IT             TIM21_OR_TI1_RMP_0
+#define TIM21_TI1_HSE_RTC                 TIM21_OR_TI1_RMP_1
+#define TIM21_TI1_MSI                     (TIM21_OR_TI1_RMP_0 | TIM21_OR_TI1_RMP_1)
+#define TIM21_TI1_LSE                     TIM21_OR_TI1_RMP_2
+#define TIM21_TI1_LSI                     (TIM21_OR_TI1_RMP_2 | TIM21_OR_TI1_RMP_0)
+#define TIM21_TI1_COMP1_OUT               (TIM21_OR_TI1_RMP_2 | TIM21_OR_TI1_RMP_1)
+#define TIM21_TI2_GPIO                    ((uint32_t)0x0)
+#define TIM21_TI2_COMP2_OUT               TIM21_OR_TI2_RMP
+
+#define TIM22_ETR_LSE                     ((uint32_t)0x0)
+#define TIM22_ETR_COMP2_OUT               TIM22_OR_ETR_RMP_0
+#define TIM22_ETR_COMP1_OUT               TIM22_OR_ETR_RMP_1
+#define TIM22_ETR_GPIO                    TIM22_OR_ETR_RMP
+#define TIM22_TI1_GPIO1                   ((uint32_t)0x0)
+#define TIM22_TI1_COMP2_OUT               TIM22_OR_TI1_RMP_0
+#define TIM22_TI1_COMP1_OUT               TIM22_OR_TI1_RMP_1
+#define TIM22_TI1_GPIO2                   TIM22_OR_TI1_RMP
+
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
+    || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+
+#define TIM3_TI4_GPIO_DEF                 ((uint32_t)0x0)
+#define TIM3_TI4_GPIOC9_AF2               TIM3_OR_TI4_RMP
+#define TIM3_TI2_GPIO_DEF                 ((uint32_t)0x0)
+#define TIM3_TI2_GPIOB5_AF4               TIM3_OR_TI2_RMP
+#define TIM3_TI1_USB_SOF                  ((uint32_t)0x0)
+#define TIM3_TI1_GPIO                     TIM3_OR_TI1_RMP
+#define TIM3_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM3_ETR_HSI                      TIM3_OR_ETR_RMP_1
+
+#endif /*defined (STM32L07Xxx) or defined (STM32L08Xxx) */
 
 
-#define IS_TIM_REMAP(TIM_REMAP)  (((TIM_REMAP) == TIM2_ETR_GPIO          )|| \
-                                  ((TIM_REMAP) == TIM2_ETR_HSI48         )|| \
-                                  ((TIM_REMAP) == TIM2_ETR_LSE           )|| \
-                                  ((TIM_REMAP) == TIM2_ETR_COMP2_OUT     )|| \
-                                  ((TIM_REMAP) == TIM2_ETR_COMP1_OUT     )|| \
-                                  ((TIM_REMAP) == TIM2_TI4_GPIO1         )|| \
-                                  ((TIM_REMAP) == TIM2_TI4_COMP1         )|| \
-                                  ((TIM_REMAP) == TIM2_TI4_COMP2         )|| \
-                                  ((TIM_REMAP) == TIM2_TI4_GPIO2         )|| \
-                                  ((TIM_REMAP) == TIM21_ETR_GPIO         )|| \
-                                  ((TIM_REMAP) == TIM21_ETR_COMP2_OUT    )|| \
-                                  ((TIM_REMAP) == TIM21_ETR_COMP1_OUT    )|| \
-                                  ((TIM_REMAP) == TIM21_ETR_LSE          )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_MCO          )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_RTC_WKUT_IT  )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_HSE_RTC      )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_MSI          )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_LSE          )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_LSI          )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_COMP1_OUT    )|| \
-                                  ((TIM_REMAP) == TIM21_TI1_GPIO         )|| \
-                                  ((TIM_REMAP) == TIM21_TI2_GPIO         )|| \
-                                  ((TIM_REMAP) == TIM21_TI2_COMP2_OUT    )|| \
-                                  ((TIM_REMAP) == TIM22_ETR_LSE         )|| \
-                                  ((TIM_REMAP) == TIM22_ETR_COMP2_OUT   )|| \
-                                  ((TIM_REMAP) == TIM22_ETR_COMP1_OUT   )|| \
-                                  ((TIM_REMAP) == TIM22_ETR_GPIO        )|| \
-                                  ((TIM_REMAP) == TIM22_TI1_GPIO1       )|| \
-                                  ((TIM_REMAP) == TIM22_TI1_COMP2_OUT   )|| \
-                                  ((TIM_REMAP) == TIM22_TI1_COMP1_OUT   )|| \
-                                  ((TIM_REMAP) == TIM22_TI1_GPIO2       ))
+
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
+    || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+
+
+#define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
+        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         ((__INSTANCE__ == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
+         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))) || \
+         ((__INSTANCE__ == TIM3)   &&  ((__TIM_REMAP__) <=  (TIM3_OR_ETR_RMP  | TIM3_OR_TI1_RMP  | TIM3_OR_TI2_RMP | TIM3_OR_TI4_RMP))))
+
+#define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
+        (((__INSTANCE__ == TIM2)   &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_2)   ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_3)   ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_4))) ||   \
+          ((__INSTANCE__ == TIM3) &&   (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_2)   ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_3)   ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_4))) ||   \
+          ((__INSTANCE__ == TIM21) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_2))) ||   \
+          ((__INSTANCE__ == TIM22) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+                                        ((__CHANNEL__) == TIM_CHANNEL_2))))
+
+#else
+
+#define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
+        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         ((__INSTANCE__ == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
+         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
+
+#define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
+        (((__INSTANCE__ == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_2)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_3)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_4))) || \
+          ((__INSTANCE__ == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_2))) || \
+          ((__INSTANCE__ == TIM22)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_2))))
+
+#endif /*defined (STM32L07Xxx) or defined (STM32L08Xxx) */
 
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */   
-  
+  */
+
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 /* Control functions  ***********************************************************/
+
+/** @defgroup TIMEx_Exported_Functions TIMEx Exported Functions
+ *  @{
+ */
+
+/** @defgroup TIMEx_Exported_Functions_Group1 TIMEx Peripheral Control functions
+ *  @{
+ */
+
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap);
 HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 /**
   * @}
   */ 
 
 /**
   * @}
-  */ 
-  
+  */
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif
@@ -195,3 +245,4 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
 #endif /* __STM32L0xx_HAL_TIM_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

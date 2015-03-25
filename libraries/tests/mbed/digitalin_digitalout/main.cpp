@@ -21,6 +21,7 @@ DigitalIn in(D2);
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 DigitalOut out(PC_7);
 DigitalIn in(PB_8);
@@ -41,20 +42,24 @@ DigitalIn in(p25);
 
 #endif
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);
+    MBED_HOSTTEST_START("MBED_A5");
+
     out = 0;
     wait(0.1);
     if (in != 0) {
         printf("ERROR: in != 0\n");
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
     out = 1;
     wait(0.1);
     if (in != 1) {
         printf("ERROR: in != 1\n");
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
-    notify_completion(true);
+    MBED_HOSTTEST_RESULT(true);
 }

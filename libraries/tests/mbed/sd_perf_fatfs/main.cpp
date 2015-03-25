@@ -33,6 +33,7 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
@@ -55,16 +56,14 @@ SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
 
-namespace
-{
+namespace {
 char buffer[1024];
 const int KIB_RW = 128;
 Timer timer;
 const char *bin_filename = "0:testfile.bin";
 }
 
-bool test_sf_file_write_fatfs(const char *filename, const int kib_rw)
-{
+bool test_sf_file_write_fatfs(const char *filename, const int kib_rw) {
     FIL file;
     bool result = true;
     FRESULT res = f_open(&file, filename, FA_WRITE | FA_CREATE_ALWAYS);
@@ -96,8 +95,7 @@ bool test_sf_file_write_fatfs(const char *filename, const int kib_rw)
     return result;
 }
 
-bool test_sf_file_read_fatfs(const char *filename, const int kib_rw)
-{
+bool test_sf_file_read_fatfs(const char *filename, const int kib_rw) {
     FIL file;
     bool result = true;
     FRESULT res = f_open(&file, filename, FA_READ | FA_OPEN_EXISTING);
@@ -123,13 +121,16 @@ bool test_sf_file_read_fatfs(const char *filename, const int kib_rw)
     return result;
 }
 
-char RandomChar()
-{
+char RandomChar() {
     return rand() % 100;
 }
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(SD FatFS RW Speed);
+    MBED_HOSTTEST_START("PERF_3");
+
     // Test header
     printf("\r\n");
     printf("SD Card FatFS Performance Test\r\n");
@@ -156,5 +157,5 @@ int main()
         }
         break;
     }
-    notify_completion(result);
+    MBED_HOSTTEST_RESULT(result);
 }

@@ -27,7 +27,6 @@
 #define NUM_OF_RX_DESCRIPTOR    (16)
 #define SIZE_OF_BUFFER          (1600)     /* Must be an integral multiple of 32 */
 #define MAX_SEND_SIZE           (1514)
-#define BUFF_BOUNDARY_MSK       (0x0000000F)
 /* Ethernet Descriptor Value Define */
 #define TD0_TFP_TOP_BOTTOM      (0x30000000)
 #define TD0_TACT                (0x80000000)
@@ -105,14 +104,13 @@ typedef struct tag_edmac_recv_desc {
 } edmac_recv_desc_t;
 
 /* memory */
-#pragma arm section zidata="NC_BSS"
 /* The whole transmit/receive descriptors (must be allocated in 16-byte boundaries) */
 /* Transmit/receive buffers (must be allocated in 16-byte boundaries) */
 static uint8_t ehernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
                                  (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
                                  (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
-                                 (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER) + BUFF_BOUNDARY_MSK];
-#pragma arm section zidata
+                                 (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]
+                                 __attribute((section("NC_BSS"),aligned(16)));  //16 bytes aligned!
 static int32_t            rx_read_offset;   /* read offset */
 static int32_t            tx_wite_offset;   /* write offset */
 static uint32_t           send_top_index;
@@ -489,7 +487,7 @@ static void lan_desc_create(void) {
     uint8_t *p_memory_top;
 
     (void)memset((void *)ehernet_nc_memory, 0, sizeof(ehernet_nc_memory));
-    p_memory_top = (uint8_t *)(((uint32_t)ehernet_nc_memory + BUFF_BOUNDARY_MSK) & ~BUFF_BOUNDARY_MSK);
+    p_memory_top = ehernet_nc_memory;
 
     /* Descriptor area configuration */
     p_eth_desc_dsend  = (edmac_send_desc_t *)p_memory_top;

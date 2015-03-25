@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -36,7 +36,7 @@
                      ##### How to use this driver #####
   ==============================================================================
   [..]
-    (+) Enable WWDG APB1 clock using __WWDG_CLK_ENABLE().
+    (+) Enable WWDG APB1 clock using __HAL_RCC_WWDG_CLK_ENABLE().
     (+) Set the WWDG prescaler, refresh window and counter value
         using HAL_WWDG_Init() function.
     (+) Start the WWDG using HAL_WWDG_Start() function.
@@ -65,7 +65,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -99,25 +99,18 @@
   * @{
   */
 
-/** @defgroup WWDG 
+/** @addtogroup WWDG
   * @brief WWDG HAL module driver.
   * @{
   */
 
 #ifdef HAL_WWDG_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup WWDG_Private_Functions
+/** @addtogroup WWDG_Exported_Functions WWDG Exported Functions
   * @{
   */
 
-/** @defgroup WWDG_Group1 Initialization and de-initialization functions 
+/** @addtogroup WWDG_Exported_Functions_Group1
  *  @brief    Initialization and Configuration functions.
  *
 @verbatim
@@ -139,16 +132,15 @@
 /**
   * @brief  Initializes the WWDG according to the specified
   *         parameters in the WWDG_InitTypeDef and creates the associated handle.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 {
-  uint32_t tmp = 0;
 
   /* Check the WWDG handle allocation */
-  if(hwwdg == HAL_NULL)
+  if(hwwdg == NULL)
   {
     return HAL_ERROR;
   }
@@ -165,37 +157,17 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
     HAL_WWDG_MspInit(hwwdg);
   }
 
-  /* Change WWDG peripheral state */
+  /* Take lock  and change peripheral state */
+   __HAL_LOCK(hwwdg);
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
-  /* Set WWDG Prescaler and Window */
-  /* Get the CFR register value */
-  tmp = hwwdg->Instance->CFR;
+   /* Set WWDG Prescaler and Window  and Counter*/
+  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W), (hwwdg->Init.Prescaler | hwwdg->Init.Window));
+  MODIFY_REG(hwwdg->Instance->CR, WWDG_CR_T, hwwdg->Init.Counter);
 
-  /* Clear WDGTB[1:0] and W[6:0] bits */
-  tmp &= ((uint32_t)~(WWDG_CFR_WDGTB | WWDG_CFR_W));
-
-  /* Prepare the WWDG Prescaler and Window parameters */
-  tmp |= hwwdg->Init.Prescaler | hwwdg->Init.Window;
-
-  /* Write to WWDG CFR */
-  hwwdg->Instance->CFR = tmp;
-
-  /* Set WWDG Counter */
-  /* Get the CR register value */
-  tmp = hwwdg->Instance->CR;
-
-  /* Clear T[6:0] bits */
-  tmp &= (uint32_t)~((uint32_t)WWDG_CR_T);
-
-  /* Prepare the WWDG Counter parameter */
-  tmp |= (hwwdg->Init.Counter);
-
-  /* Write to WWDG CR */
-  hwwdg->Instance->CR = tmp;  
-
-  /* Change WWDG peripheral state */
+  /* Change peripheral state and release lock*/
   hwwdg->State = HAL_WWDG_STATE_READY;
+  __HAL_UNLOCK(hwwdg);
 
   /* Return function status */
   return HAL_OK;
@@ -203,7 +175,7 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  DeInitializes the WWDG peripheral.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
@@ -212,25 +184,20 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   /* Check the parameters */
   assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
 
-  /* Change WWDG peripheral state */
+  /* Take lock and change peripheral state */
+   __HAL_LOCK(hwwdg);
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* DeInit the low level hardware */
   HAL_WWDG_MspDeInit(hwwdg);
 
-  /* Reset WWDG Control register */
-  hwwdg->Instance->CR  = (uint32_t)0x0000007F;
+  /* Reset WWDG Control, configuration and status  register */
+  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007F);
+  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007F);
+  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0);
 
-  /* Reset WWDG Configuration register */
-  hwwdg->Instance->CFR = (uint32_t)0x0000007F;
-
-  /* Reset WWDG Status register */
-  hwwdg->Instance->SR  = 0; 
-
-  /* Change WWDG peripheral state */
+  /* Change peripheral state and release lock*/
   hwwdg->State = HAL_WWDG_STATE_RESET;
-  
-  /* Release Lock */
   __HAL_UNLOCK(hwwdg);
 
   /* Return function status */
@@ -239,7 +206,7 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Initializes the WWDG MSP.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval None
   */
@@ -252,7 +219,7 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  DeInitializes the WWDG MSP.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval None
   */
@@ -267,7 +234,7 @@ __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
   * @}
   */
 
-/** @defgroup WWDG_Group2 IO operation functions 
+/** @addtogroup WWDG_Exported_Functions_Group2
  *  @brief    IO operation functions 
  *
 @verbatim
@@ -286,25 +253,21 @@ __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Starts the WWDG.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Process Locked */
+  /* Take lock and change peripheral state */
   __HAL_LOCK(hwwdg); 
-
-  /* Change WWDG peripheral state */
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* Enable the peripheral */
   __HAL_WWDG_ENABLE(hwwdg);
 
-  /* Change WWDG peripheral state */
+  /* Change peripheral state and release lock*/
   hwwdg->State = HAL_WWDG_STATE_READY;
-
-  /* Process Unlocked */
   __HAL_UNLOCK(hwwdg);
 
   /* Return function status */
@@ -313,23 +276,25 @@ HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Starts the WWDG with interrupt enabled.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Process Locked */
+  /* Take lock and change peripheral state */
   __HAL_LOCK(hwwdg);
-
-  /* Change WWDG peripheral state */
   hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* Enable the Early Wakeup Interrupt */
-  __HAL_WWDG_ENABLE_IT(WWDG_IT_EWI);
+  __HAL_WWDG_ENABLE_IT(hwwdg,WWDG_IT_EWI);
 
   /* Enable the peripheral */
   __HAL_WWDG_ENABLE(hwwdg);
+
+  /* Change peripheral state and release lock*/
+  hwwdg->State = HAL_WWDG_STATE_READY;
+  __HAL_UNLOCK(hwwdg);
 
   /* Return function status */
   return HAL_OK;
@@ -337,18 +302,13 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 
 /**
   * @brief  Refreshes the WWDG.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @param  Counter: value of counter to put in WWDG counter
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
 {
-  /* Process Locked */
-  __HAL_LOCK(hwwdg);
-
-  /* Change WWDG peripheral state */
-  hwwdg->State = HAL_WWDG_STATE_BUSY;
 
   /* Check the parameters */
   assert_param(IS_WWDG_COUNTER(Counter));
@@ -356,12 +316,6 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   /* Write to WWDG CR the WWDG Counter value to refresh with */
   MODIFY_REG(hwwdg->Instance->CR, (uint32_t)WWDG_CR_T, Counter);
   
-  /* Change WWDG peripheral state */
-  hwwdg->State = HAL_WWDG_STATE_READY;
-
-  /* Process Unlocked */
-  __HAL_UNLOCK(hwwdg);
-
   /* Return function status */
   return HAL_OK;
 }
@@ -375,47 +329,42 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   *         generated and the corresponding Interrupt Service Routine (ISR) can
   *         be used to trigger specific actions (such as communications or data
   *         logging), before resetting the device.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval None
   */
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
 {
-  /* WWDG Early Wakeup Interrupt occurred */
-  if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+  /* Check if Early Wakeup Interrupt is enable */
+  if(__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET)
   {
-    /* Early Wakeup callback */ 
-    HAL_WWDG_WakeupCallback(hwwdg);
+    /* Check if WWDG Early Wakeup Interrupt occurred */
+    if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+    {
+      /* Early Wakeup callback */
+      HAL_WWDG_WakeupCallback(hwwdg);
 
-    /* Change WWDG peripheral state */
-    hwwdg->State = HAL_WWDG_STATE_READY;
-
-    /* Clear the WWDG Data Ready flag */
-    __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
-
-    /* Process Unlocked */
-    __HAL_UNLOCK(hwwdg);
+      /* Clear the WWDG Data Ready flag */
+      __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
+    }
   }
 }
 
 /**
   * @brief  Early Wakeup WWDG callback.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval None
   */
 __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
-  /* NOTE: This function Should not be modified, when the callback is needed,
-           the HAL_WWDG_WakeupCallback could be implemented in the user file
-   */
 }
 
 /**
   * @}
   */
 
-/** @defgroup WWDG_Group3 Peripheral State functions 
+/** @addtogroup WWDG_Exported_Functions_Group3
  *  @brief    Peripheral State functions.
  *
 @verbatim
@@ -432,7 +381,7 @@ __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 
 /**
   * @brief  Returns the WWDG state.
-  * @param  hwwdg: pointer to a WWDG_HandleTypeDef structure that contains
+  * @param  hwwdg : pointer to a WWDG_HandleTypeDef structure that contains
   *              the configuration information for the specified WWDG module.
   * @retval HAL state
   */
@@ -459,3 +408,4 @@ HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

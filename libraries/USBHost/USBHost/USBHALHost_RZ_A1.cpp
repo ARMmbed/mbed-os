@@ -237,6 +237,7 @@ void USBHALHost::_usbisr(void) {
 
 void USBHALHost::UsbIrqhandler() {
     uint32_t int_status = ohciwrapp_reg_r(OHCI_REG_INTERRUPTSTATUS) & ohciwrapp_reg_r(OHCI_REG_INTERRUPTENABLE);
+    uint32_t data;
 
     if (int_status != 0) { //Is there something to actually process?
         // Root hub status change interrupt
@@ -254,7 +255,8 @@ void USBHALHost::UsbIrqhandler() {
                         wait_ms(150);
 
                         //Hub 0 (root hub), Port 1 (count starts at 1), Low or High speed
-                        deviceConnected(0, 1, ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA);
+                        data = ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA;
+                        deviceConnected(0, 1, data);
                     }
 
                     //Root device disconnected

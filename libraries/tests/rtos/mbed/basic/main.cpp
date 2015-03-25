@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "test_env.h"
 #include "rtos.h"
 
 /*
@@ -12,8 +13,7 @@
 #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
-void print_char(char c = '*')
-{
+void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
 }
@@ -30,6 +30,11 @@ void led2_thread(void const *argument) {
 }
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Basic thread);
+    MBED_HOSTTEST_START("RTOS_1");
+
     Thread thread(led2_thread, NULL, osPriorityNormal, STACK_SIZE);
 
     while (true) {

@@ -21,6 +21,7 @@ DigitalInOut d2(D7);
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
@@ -44,6 +45,11 @@ DigitalInOut d2(p25);
 
 int main()
 {
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(DigitalInOut);
+    MBED_HOSTTEST_START("MBED_A6");
+
     bool check = true;
 
     d1.output();
@@ -76,5 +82,5 @@ int main()
         check = false;
     }
 
-    notify_completion(check);
+    MBED_HOSTTEST_RESULT(check);
 }

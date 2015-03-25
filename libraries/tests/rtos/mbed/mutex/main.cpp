@@ -16,8 +16,7 @@
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
-void print_char(char c = '*')
-{
+void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
 }
@@ -60,6 +59,11 @@ void test_thread(void const *args) {
 }
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default);
+    MBED_HOSTTEST_DESCRIPTION(Mutex resource lock);
+    MBED_HOSTTEST_START("RTOS_2");
+
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
     const int t3_delay = THREAD_DELAY * 3;
@@ -78,6 +82,6 @@ int main() {
     }
 
     fflush(stdout);
-    notify_completion(!mutex_defect);
+    MBED_HOSTTEST_RESULT(!mutex_defect);
     return 0;
 }

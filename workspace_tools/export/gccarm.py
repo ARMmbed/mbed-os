@@ -49,6 +49,7 @@ class GccArm(Exporter):
         'ARCH_PRO',
         'NRF51822',
         'HRM1017',
+        'RBLAB_NRF51822',
         'LPC2368',
         'LPCCAPPUCCINO',
         'ARCH_BLE',
@@ -64,9 +65,11 @@ class GccArm(Exporter):
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
+        'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'DISCO_L053C8',
         'NUCLEO_L053R8',
+        'NUCLEO_L073RZ',
         'DISCO_F334C8',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
@@ -75,7 +78,8 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
-		'DELTA_DFCM_NNN40',
+        'DELTA_DFCM_NNN40',
+        'RZ_A1H',
     ]
 
     DOT_IN_RELATIVE_PATH = True

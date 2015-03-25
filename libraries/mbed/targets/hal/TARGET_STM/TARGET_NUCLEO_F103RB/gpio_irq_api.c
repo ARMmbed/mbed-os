@@ -38,7 +38,9 @@
 #define EDGE_FALL (2)
 #define EDGE_BOTH (3)
 
+// Number of EXTI irq vectors (EXTI0, EXTI1, EXTI2, EXTI3, EXTI4, EXTI5_9, EXTI10_15)
 #define CHANNEL_NUM (7)
+
 // Max pins for one line (max with EXTI10_15)
 #define MAX_PIN_LINE (6)
 
@@ -102,8 +104,8 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
 
             // Clear interrupt flag
-            if (EXTI_GetITStatus(pin) != RESET) {
-                EXTI_ClearITPendingBit(pin);
+            if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
+                __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
 
                 if (gpio_channel->channel_ids[gpio_idx] == 0) continue;
 
@@ -229,28 +231,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
 
-    // Enable AFIO clock
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    // Configure GPIO
+    pin_function(pin, STM_PIN_DATA(STM_MODE_IT_FALLING, GPIO_NOPULL, 0));
 
-    // Connect EXTI line to pin
-    GPIO_EXTILineConfig(port_index, pin_index);
-
-    // Configure EXTI line
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-
-    // Enable and set EXTI interrupt to the lowest priority
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = irq_n;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-
+    // Enable EXTI interrupt
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
 
@@ -284,69 +268,56 @@ void gpio_irq_free(gpio_irq_t *obj)
     gpio_channel->channel_pin[gpio_idx] = 0;
 
     // Disable EXTI line
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_StructInit(&EXTI_InitStructure);
-    EXTI_Init(&EXTI_InitStructure);
-    
-    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_Out_PP, 0));
-    pin_function(obj->pin, STM_PIN_DATA(GPIO_Mode_IN_FLOATING, 0));
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     obj->event = EDGE_NONE;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    EXTI_InitTypeDef EXTI_InitStructure;
-    uint32_t pin_index  = STM_PIN(obj->pin);
-
-    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_LineCmd = DISABLE; // Default
+    uint32_t mode = STM_MODE_IT_EVT_RESET;
+    uint32_t pull = GPIO_NOPULL;
 
     if (enable) {
         if (event == IRQ_RISE) {
-            EXTI_InitStructure.EXTI_LineCmd = ENABLE;
             if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                mode = STM_MODE_IT_RISING_FALLING;
                 obj->event = EDGE_BOTH;
             } else { // NONE or RISE
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+                mode = STM_MODE_IT_RISING;
                 obj->event = EDGE_RISE;
             }
         }
         if (event == IRQ_FALL) {
-            EXTI_InitStructure.EXTI_LineCmd = ENABLE;
             if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                mode = STM_MODE_IT_RISING_FALLING;
                 obj->event = EDGE_BOTH;
             } else { // NONE or FALL
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+                mode = STM_MODE_IT_FALLING;
                 obj->event = EDGE_FALL;
             }
         }
     } else { // Disable
         if (event == IRQ_RISE) {
             if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-                EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+                mode = STM_MODE_IT_FALLING;
                 obj->event = EDGE_FALL;
             } else { // NONE or RISE
-                EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+                mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
         }
         if (event == IRQ_FALL) {
             if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-                EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-                EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+                mode = STM_MODE_IT_RISING;
                 obj->event = EDGE_RISE;
             } else { // NONE or FALL
-                EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+                mode = STM_MODE_IT_EVT_RESET;
                 obj->event = EDGE_NONE;
             }
         }
     }
 
-    EXTI_Init(&EXTI_InitStructure);
+    pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
