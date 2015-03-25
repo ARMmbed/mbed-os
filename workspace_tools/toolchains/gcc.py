@@ -20,6 +20,7 @@ from os.path import join, basename, splitext
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
 from workspace_tools.settings import GOANNA_PATH
+from workspace_tools.hooks import hook_tool
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
@@ -29,11 +30,11 @@ class GCC(mbedToolchain):
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None, tool_path=""):
-        mbedToolchain.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path=""):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0"
+            cpu = "cortex-m0plus"
         elif target.core == "Cortex-M4F":
             cpu = "cortex-m4"
         else:
@@ -47,13 +48,22 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
+        if target.core == "Cortex-A9":
+            self.cpu.append("-mthumb-interwork")
+            self.cpu.append("-marm")
+            self.cpu.append("-march=armv7-a")
+            self.cpu.append("-mfpu=vfpv3-d16")
+            self.cpu.append("-mfloat-abi=hard")
+            self.cpu.append("-mno-unaligned-access")
+
+
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
         common_flags = ["-c", "-Wall", "-Wextra",
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-fno-delete-null-pointer-checks",
+            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ] + self.cpu
 
         if "save-asm" in self.options:
@@ -82,7 +92,7 @@ class GCC(mbedToolchain):
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
     def assemble(self, source, object, includes):
-        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
+        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -163,25 +173,28 @@ class GCC(mbedToolchain):
         self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
             objects + ["-L%s" % L for L in lib_dirs] + libs))
 
+    @hook_tool
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
 
 
 class GCC_ARM(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC.__init__(self, target, options, notify, macros, GCC_ARM_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH)
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
-            self.ld.extend(["-u", "_printf_float", "-u", "_scanf_float"])
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
+            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
+        elif target.name in ["RZ_A1H"]:
+            self.ld.extend(["-u_printf_float", "-u_scanf_float"])
 
         self.sys_libs.append("nosys")
 
 
 class GCC_CR(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC.__init__(self, target, options, notify, macros, GCC_CR_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_CR_PATH)
 
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
@@ -189,12 +202,16 @@ class GCC_CR(GCC):
         self.cc += additional_compiler_flags
         self.cppc += additional_compiler_flags
 
+        # Use latest gcc nanolib
+        self.ld.append("--specs=nano.specs")
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
+            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
 
 
 class GCC_CS(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC.__init__(self, target, options, notify, macros, GCC_CS_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_CS_PATH)
 
 
 class GCC_CW(GCC):
@@ -202,13 +219,13 @@ class GCC_CW(GCC):
         "Cortex-M0+": "armv6-m",
     }
 
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC.__init__(self, target, options, notify, macros, CW_GCC_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC.__init__(self, target, options, notify, macros, silent, CW_GCC_PATH)
 
 
 class GCC_CW_EWL(GCC_CW):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC_CW.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC_CW.__init__(self, target, options, notify, macros, silent)
 
         # Compiler
         common = [
@@ -227,14 +244,14 @@ class GCC_CW_EWL(GCC_CW):
         self.sys_libs = []
         self.CIRCULAR_DEPENDENCIES = False
         self.ld = [join(CW_GCC_PATH, "arm-none-eabi-g++"),
-            "-Xlinker", "--gc-sections",
+            "-Xlinker --gc-sections",
             "-L%s" % join(CW_EWL_PATH, "lib", GCC_CW.ARCH_LIB[target.core]),
             "-n", "-specs=ewl_c++.specs", "-mfloat-abi=soft",
-            "-Xlinker", "--undefined=__pformatter_", "-Xlinker", "--defsym=__pformatter=__pformatter_",
-            "-Xlinker", "--undefined=__sformatter", "-Xlinker", "--defsym=__sformatter=__sformatter",
+            "-Xlinker --undefined=__pformatter_", "-Xlinker --defsym=__pformatter=__pformatter_",
+            "-Xlinker --undefined=__sformatter", "-Xlinker --defsym=__sformatter=__sformatter",
         ] + self.cpu
 
 
 class GCC_CW_NEWLIB(GCC_CW):
-    def __init__(self, target, options=None, notify=None, macros=None):
-        GCC_CW.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        GCC_CW.__init__(self, target, options, notify, macros, silent)

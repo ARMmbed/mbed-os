@@ -45,6 +45,8 @@ void us_ticker_irq_handler(void) {
             if (event_handler != NULL) {
                 event_handler(p->id); // NOTE: the handler can set new events
             }
+            /* Note: We continue back to examining the head because calling the
+             * event handler may have altered the chain of pending events. */
         } else {
             // This event and the following ones in the list are in the future:
             //      set it as next interrupt and return
@@ -54,7 +56,7 @@ void us_ticker_irq_handler(void) {
     }
 }
 
-void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_t id) {
+void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
     /* disable interrupts for the duration of the function */
     __disable_irq();
 
@@ -68,13 +70,17 @@ void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_
     ticker_event_t *prev = NULL, *p = head;
     while (p != NULL) {
         /* check if we come before p */
-        if ((int)(timestamp - p->timestamp) <= 0) {
+        if ((int)(timestamp - p->timestamp) < 0) {
             break;
         }
         /* go to the next element */
         prev = p;
         p = p->next;
     }
+
+    /* if we're at the end p will be NULL, which is correct */
+    obj->next = p;
+
     /* if prev is NULL we're at the head */
     if (prev == NULL) {
         head = obj;
@@ -82,8 +88,6 @@ void us_ticker_insert_event(ticker_event_t *obj, unsigned int timestamp, uint32_
     } else {
         prev->next = obj;
     }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
 
     __enable_irq();
 }
@@ -95,7 +99,9 @@ void us_ticker_remove_event(ticker_event_t *obj) {
     if (head == obj) {
         // first in the list, so just drop me
         head = obj->next;
-        if (obj->next != NULL) {
+        if (head == NULL) {
+            us_ticker_disable_interrupt();
+        } else {
             us_ticker_set_interrupt(head->timestamp);
         }
     } else {
@@ -111,4 +117,18 @@ void us_ticker_remove_event(ticker_event_t *obj) {
     }
 
     __enable_irq();
+}
+
+int us_ticker_get_next_timestamp(timestamp_t *timestamp) {
+    int ret = 0;
+
+    /* if head is NULL, there are no pending events */
+    __disable_irq();
+    if (head != NULL) {
+        *timestamp = head->timestamp;
+        ret = 1;
+    }
+    __enable_irq();
+
+    return ret;
 }

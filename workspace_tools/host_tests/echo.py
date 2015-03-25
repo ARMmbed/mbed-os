@@ -14,34 +14,46 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from host_test import Test
 
+import sys
+import uuid
+from sys import stdout
 
-class EchoTest(Test):
-    def __init__(self):
-        Test.__init__(self)
-        self.mbed.init_serial(115200)
-        self.mbed.reset()
+class EchoTest():
 
-    def test(self):
-        self.mbed.flush()
-        self.notify("Starting the ECHO test")
-        TEST="longer serial test"
-        check = True
-        for i in range(1, 100):
-            self.mbed.serial.write(TEST + "\n")
-            l = self.mbed.serial.readline().strip()
-            if not l: continue
+    # Test parameters
+    TEST_SERIAL_BAUDRATE = 115200
+    TEST_LOOP_COUNT = 50
 
-            if l != TEST:
-                check = False
-                self.notify('"%s" != "%s"' % (l, TEST))
+    def test(self, selftest):
+        """ This host test will use mbed serial port with
+            baudrate 115200 to perform echo test on that port.
+        """
+        # Custom initialization for echo test
+        selftest.mbed.init_serial_params(serial_baud=self.TEST_SERIAL_BAUDRATE)
+        selftest.mbed.init_serial()
+
+        # Test function, return True or False to get standard test notification on stdout
+        selftest.mbed.flush()
+        selftest.notify("HOST: Starting the ECHO test")
+        result = True
+        
+        """ This ensures that there are no parasites left in the serial buffer.
+        """
+        for i in range(0, 2):
+            selftest.mbed.serial_write("\n")
+            c = selftest.mbed.serial_readline()
+            
+        for i in range(0, self.TEST_LOOP_COUNT):
+            TEST_STRING = str(uuid.uuid4()) + "\n"
+            selftest.mbed.serial_write(TEST_STRING)
+            c = selftest.mbed.serial_readline()
+            if c is None:
+                return selftest.RESULT_IO_SERIAL
+            if c.strip() != TEST_STRING.strip():
+                selftest.notify('HOST: "%s" != "%s"'% (c, TEST_STRING))
+                result = False
             else:
-                if (i % 10) == 0:
-                    self.notify('.')
-
-        return check
-
-
-if __name__ == '__main__':
-    EchoTest().run()
+                sys.stdout.write('.')
+                stdout.flush()
+        return selftest.RESULT_SUCCESS if result else selftest.RESULT_FAILURE

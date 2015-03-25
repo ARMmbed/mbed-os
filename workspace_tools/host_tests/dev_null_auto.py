@@ -15,22 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import DefaultTest
-from sys import stdout
+class DevNullTest():
 
-class DevNullTest(DefaultTest):
-    def run(self):
-        c = self.mbed.serial_read(512)
-        if c is None:
-            self.print_result("ioerr_serial")
-            return
-        # Data from serial received correctly
-        print "Received %d bytes" % len(c)
-        if "{failure}" not in c:
-            self.print_result('success')
+    def check_readline(self, selftest, text):
+        """ Reads line from serial port and checks if text was part of read string
+        """
+        result = False
+        c = selftest.mbed.serial_readline()
+        if c and text in c:
+            result = True
+        return result
+
+    def test(self, selftest):
+        result = True
+        # Test should print some text and later stop printing
+        # 'MBED: re-routing stdout to /null'
+        res = self.check_readline(selftest, "re-routing stdout to /null")
+        if not res:
+            # We haven't read preamble line
+            result = False
         else:
-            self.print_result('failure')
-        stdout.flush()
-
-if __name__ == '__main__':
-    DevNullTest().run()
+            # Check if there are printed characters
+            str = ''
+            for i in range(3):
+                c = selftest.mbed.serial_read(32)
+                if c is None:
+                    return selftest.RESULT_IO_SERIAL
+                else:
+                    str += c
+                if len(str) > 0:
+                    result = False
+                    break
+            selftest.notify("Received %d bytes: %s"% (len(str), str))
+        return selftest.RESULT_SUCCESS if result else selftest.RESULT_FAILURE

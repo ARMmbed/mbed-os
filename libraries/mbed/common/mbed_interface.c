@@ -19,7 +19,7 @@
 #include "gpio_api.h"
 #include "wait_api.h"
 #include "semihost_api.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "toolchain.h"
 
 #if DEVICE_SEMIHOST
@@ -98,6 +98,7 @@ WEAK void mbed_mac_address(char *mac) {
             mac[i] = byte;
             p += 2;
         }
+        mac[0] &= ~0x01;    // reset the IG bit in the address; see IEE 802.3-2002, Section 3.2.3(b)
     } else {  // else return a default MAC
 #endif
         mac[0] = 0x00;

@@ -83,7 +83,7 @@ public:
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
-    void attach_us(void (*fptr)(void), unsigned int t) {
+    void attach_us(void (*fptr)(void), timestamp_t t) {
         _function.attach(fptr);
         setup(t);
     }
@@ -95,9 +95,13 @@ public:
      *  @param t the time between calls in micro-seconds
      */
     template<typename T>
-    void attach_us(T* tptr, void (T::*mptr)(void), unsigned int t) {
+    void attach_us(T* tptr, void (T::*mptr)(void), timestamp_t t) {
         _function.attach(tptr, mptr);
         setup(t);
+    }
+
+    virtual ~Ticker() {
+        detach();
     }
 
     /** Detach the function
@@ -105,11 +109,12 @@ public:
     void detach();
 
 protected:
-    void setup(unsigned int t);
+    void setup(timestamp_t t);
     virtual void handler();
 
-    unsigned int _delay;
-    FunctionPointer _function;
+protected:
+    timestamp_t     _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    FunctionPointer _function;  /**< Callback. */
 };
 
 } // namespace mbed

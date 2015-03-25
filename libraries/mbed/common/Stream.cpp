@@ -24,7 +24,7 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     char buf[12]; /* :0x12345678 + null byte */
     std::sprintf(buf, ":%p", this);
     _file = std::fopen(buf, "w+");
-    setbuf(_file, NULL);
+    mbed_set_unbuffered_stream(_file);
 }
 
 Stream::~Stream() {
@@ -41,11 +41,11 @@ int Stream::puts(const char *s) {
 }
 int Stream::getc() {
     fflush(_file);
-    return std::fgetc(_file);
+    return mbed_getc(_file);   
 }
 char* Stream::gets(char *s, int size) {
     fflush(_file);
-    return std::fgets(s,size,_file);
+    return mbed_gets(s,size,_file);
 }
 
 int Stream::close() {

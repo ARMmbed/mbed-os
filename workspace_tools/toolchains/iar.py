@@ -21,6 +21,7 @@ from os.path import join, exists
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import IAR_PATH
 from workspace_tools.settings import GOANNA_PATH
+from workspace_tools.hooks import hook_tool
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -29,8 +30,8 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None):
-        mbedToolchain.__init__(self, target, options, notify, macros)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         c_flags = [
             "--cpu=%s" % target.core, "--thumb",
@@ -93,9 +94,9 @@ class IAR(mbedToolchain):
     def parse_dependencies(self, dep_path):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
-
+                
     def assemble(self, source, object, includes):
-        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]))
+        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 
     def archive(self, objects, lib_path):
         if exists(lib_path):
@@ -103,8 +104,9 @@ class IAR(mbedToolchain):
         self.default_cmd([self.ar, lib_path] + objects)
 
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map]
+        args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
+    @hook_tool
     def binary(self, resources, elf, bin):
         self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))

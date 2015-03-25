@@ -27,43 +27,66 @@ from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.targets import TARGET_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
-    ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM')),
+    ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
-    ('LPC2368',      ('ARM',)),
-    ('LPC812',       ('uARM',)),
-    ('LPC1347',      ('ARM',)),
-    ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR')),
-    ('LPC1114',      ('uARM','GCC_ARM')),
-    ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('LPC1549',      ('uARM','GCC_CR')),
+    ('LPC2368',      ('ARM', 'GCC_ARM')),
+    ('LPC812',       ('uARM','IAR')),
+    ('LPC824',       ('uARM', 'IAR')),
+    ('SSCI824',      ('uARM',)),
+    ('LPC1347',      ('ARM','IAR')),
+    ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('LPC4088_DM',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('LPC1114',      ('uARM','GCC_ARM', 'IAR')),
+    ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC1549',      ('uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR')),
+    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('LPC4337',      ('ARM',)),
+    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
 
-    ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM')),
-    ('KL25Z',        ('ARM', 'GCC_ARM')),
-    ('KL46Z',        ('ARM', 'GCC_ARM')),
-    ('K64F',         ('ARM', 'GCC_ARM')),
-    ('K20D50M',      ('ARM', 'GCC_ARM')),
+    ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
+    ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
+    ('KL43Z',        ('ARM', 'GCC_ARM')),
+    ('KL46Z',        ('ARM', 'GCC_ARM', 'IAR')),
+    ('K64F',         ('ARM', 'GCC_ARM', 'IAR')),
+    ('K22F',         ('ARM', 'GCC_ARM', 'IAR')),
+    ('K20D50M',      ('ARM', 'GCC_ARM' , 'IAR')),
+    ('TEENSY3_1',      ('ARM', 'GCC_ARM')),
 
-    ('NUCLEO_F030R8', ('ARM', 'uARM')),
-    ('NUCLEO_F072RB', ('ARM', 'uARM')),
-    ('NUCLEO_F103RB', ('ARM', 'uARM')),
-    ('NUCLEO_F302R8', ('ARM', 'uARM')),
-    ('NUCLEO_F334R8', ('ARM', 'uARM')),
-    ('NUCLEO_F401RE', ('ARM', 'uARM')),
-    ('NUCLEO_F411RE', ('ARM', 'uARM')),
-    ('NUCLEO_L053R8', ('ARM', 'uARM')),
-    ('NUCLEO_L152RE', ('ARM', 'uARM')),
+    ('NUCLEO_F030R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F070RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F072RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F091RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F103RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F302R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F303RE', ('ARM', 'uARM', 'IAR')),
+    ('NUCLEO_F334R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_L053R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
-    ('NRF51822',     ('ARM', )),
-    ('HRM1017',      ('ARM', )),
-    ('ARCH_BLE',     ('ARM', )),
-    ('RBLAB_NRF51822', ('ARM', )),
+    ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
-    ('LPC11U68',     ('uARM','GCC_ARM','GCC_CR')),
+    ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),
+    ('NRF51_DK',     ('ARM', 'GCC_ARM', 'IAR')),
+    ('NRF51_DONGLE', ('ARM', 'GCC_ARM', 'IAR')),
+    ('HRM1017',      ('ARM', 'GCC_ARM', 'IAR')),
+    ('ARCH_BLE',     ('ARM', 'GCC_ARM', 'IAR')),
+    ('SEEED_TINY_BLE', ('ARM', 'GCC_ARM', 'IAR')),
+    ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
+    ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
+    ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
+
+    ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
+
+    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 )
 
 
@@ -71,6 +94,8 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-o', '--official', dest="official_only", default=False, action="store_true",
                       help="Build using only the official toolchain for each target")
+    parser.add_option("-j", "--jobs", type="int", dest="jobs",
+                      default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
     options, args = parser.parse_args()
@@ -85,7 +110,7 @@ if __name__ == '__main__':
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
-                build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose)
+                build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
                 successes.append(id)
             except Exception, e:
                 failures.append(id)
@@ -101,4 +126,3 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
-

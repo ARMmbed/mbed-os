@@ -1,30 +1,26 @@
 #include "mbed.h"
+#include "test_env.h"
 
-#if defined(TARGET_NUCLEO_F103RB) || \
-    defined(TARGET_NUCLEO_L152RE) || \
-    defined(TARGET_NUCLEO_F302R8) || \
-    defined(TARGET_NUCLEO_F030R8) || \
-    defined(TARGET_NUCLEO_F401RE) || \
-    defined(TARGET_NUCLEO_F411RE) || \
-    defined(TARGET_NUCLEO_F072RB) || \
-    defined(TARGET_NUCLEO_F334R8) || \
-    defined(TARGET_NUCLEO_L053R8)
-#define TXPIN     STDIO_UART_TX
-#define RXPIN     STDIO_UART_RX
-#else
 #define TXPIN     USBTX
 #define RXPIN     USBRX
-#endif
+
+
+namespace {
+    const int BUFFER_SIZE = 48;
+    char buffer[BUFFER_SIZE] = {0};
+}
 
 int main() {
-    char buf[256];
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(echo);
+    MBED_HOSTTEST_DESCRIPTION(Serial Echo at 115200);
+    MBED_HOSTTEST_START("MBED_A9");
 
     Serial pc(TXPIN, RXPIN);
     pc.baud(115200);
 
     while (1) {
-        pc.gets(buf, 256);
-
-        pc.printf("%s", buf);
+        pc.gets(buffer, BUFFER_SIZE - 1);
+        pc.printf("%s", buffer);
     }
 }

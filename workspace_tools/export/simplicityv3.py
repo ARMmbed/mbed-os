@@ -123,7 +123,7 @@ class SimplicityV3(Exporter):
             libraries.append(l[3:])
 
         defines = []
-        for define in self.toolchain.get_symbols():
+        for define in self.get_symbols():
             if '=' in define:
                 keyval = define.split('=')
                 defines.append( (keyval[0], keyval[1]) )
@@ -139,7 +139,7 @@ class SimplicityV3(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols(),
+            'symbols': self.get_symbols(),
             'defines': defines,
             'part': self.PARTS[self.target],
             'kit': self.KITS[self.target]

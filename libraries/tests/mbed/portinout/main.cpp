@@ -9,20 +9,6 @@
 #define P2_2    (1 << 3)
 #define PORT_2  PortC
 
-#elif defined(TARGET_EFM32LG_STK3600) \
-    ||defined(TARGET_EFM32GG_STK3700) \
-    ||defined(TARGET_EFM32TG_STK3300) \
-    ||defined(TARGET_EFM32_G8XX_STK) \
-    ||defined(TARGET_EFM32WG_STK3800)
-#define P1_1    (1 <<  5) // PD5
-#define P1_2    (1 <<  4) // PD4
-#define PORT_1  PortD
-
-#define P2_1    (1 << 12) // PB12
-#define P2_2    (1 << 11) // PB11
-#define PORT_2  PortB
-
-
 #elif defined(TARGET_LPC11U24)
 #define P1_1    (1 <<  9) // p0.9
 #define P1_2    (1 <<  8) // p0.8
@@ -77,7 +63,19 @@
 #define P2_2    (1 << 25)  // p25
 #define PORT_2  Port0
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
+      defined(TARGET_NUCLEO_L152RE)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5
 #define PORT_1  PortC
@@ -94,6 +92,11 @@ PortInOut port1(PORT_1, MASK_1);
 PortInOut port2(PORT_2, MASK_2);
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(PortInOut);
+    MBED_HOSTTEST_START("MBED_A11");
+
     bool check = true;
 
     port1.output();
@@ -114,5 +117,5 @@ int main() {
     port2 = 0; wait(0.1);
     if (port1 != 0) check = false;
 
-    notify_completion(check);
+    MBED_HOSTTEST_RESULT(check);
 }

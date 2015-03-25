@@ -18,28 +18,6 @@
 #define P2_2    (1 << 25) // p1.25
 #define PORT_2  Port1
 
-#elif defined(TARGET_EFM32LG_STK3600) \
-    ||defined(TARGET_EFM32GG_STK3700) \
-    ||defined(TARGET_EFM32TG_STK3300) \
-    ||defined(TARGET_EFM32_G8XX_STK) \
-    ||defined(TARGET_EFM32WG_STK3800)
-#define P1_1    (1 <<  5) // p0.9
-#define P1_2    (1 <<  4) // p0.8
-#define PORT_1  PortD
-
-#define P2_1    (1 << 12) // p1.24
-#define P2_2    (1 << 11) // p1.25
-#define PORT_2  PortB
-
-#elif defined(TARGET_EFM32ZG_STK3200)
-#define P1_1    (1 <<  5) // PC15 (pin 14 expansion)
-#define P1_2    (1 <<  4) // PC15 (pin 12 expansion)
-#define PORT_1  PortD
-
-#define P2_1    (1 << 15) // PC15 (pin 8 expansion)
-#define P2_2    (1 << 14) // PC14 (pin 10 expansion)
-#define PORT_2  PortC
-
 #elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
 #define P1_1    (1 << 9)  // p0.9  -> p5
 #define P1_2    (1 << 8)  // p0.8  -> p6
@@ -85,7 +63,19 @@
 #define P2_2    (1 << 25)  // p25
 #define PORT_2  Port0
 
-#elif defined(TARGET_NUCLEO_F103RB)
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
+      defined(TARGET_NUCLEO_L152RE)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5
 #define PORT_1  PortC
@@ -102,6 +92,11 @@ PortOut port_out(PORT_1, MASK_1);
 PortIn  port_in (PORT_2, MASK_2);
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(PortOut PortIn);
+    MBED_HOSTTEST_START("MBED_A10");
+
     port_out = MASK_1;
     wait(0.1);
     int value = port_in.read();

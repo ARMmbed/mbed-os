@@ -1,62 +1,24 @@
 #include "mbed.h"
-
-DigitalOut led(LED1);
-
-#ifdef TARGET_KL25Z
-DigitalOut out(PTA1);
-
-#elif defined(TARGET_KL05Z)
-DigitalOut out(PTB1);
-
-#elif defined(TARGET_KL46Z)
-DigitalOut out(PTA1);
-
-#elif defined(TARGET_LPC812)
-DigitalOut out(P0_12);
-
-#elif defined(TARGET_LPC1114)
-DigitalOut out(LED2);
-
-#elif defined(TARGET_K64F)
-DigitalOut out(LED1);
-
-#elif defined(TARGET_NUCLEO_F103RB) || \
-    defined(TARGET_NUCLEO_L152RE) || \
-    defined(TARGET_NUCLEO_F302R8) || \
-    defined(TARGET_NUCLEO_F030R8) || \
-    defined(TARGET_NUCLEO_F401RE) || \
-    defined(TARGET_NUCLEO_F411RE) || \
-    defined(TARGET_NUCLEO_F072RB) || \
-    defined(TARGET_NUCLEO_F334R8) || \
-    defined(TARGET_NUCLEO_L053R8)
-DigitalOut out(LED1);
-
-#elif defined(TARGET_LPC11U68)
-DigitalOut out(LED2);
-
-#else
-DigitalOut out(LED1);
-#endif
+#include "test_env.h"
 
 Timeout timer;
+DigitalOut led(LED1);
 
-#define MS_INTERVALS 1000
+namespace {
+    const int MS_INTERVALS = 1000;
+}
 
-void print_char(char c = '*')
-{
+void print_char(char c = '*') {
     printf("%c", c);
     fflush(stdout);
 }
 
 void toggleOff(void);
 
-void toggleOn(void)
-{
+void toggleOn(void) {
     static int toggle_counter = 0;
-
-    out = 1;
-    led = 1;
     if (toggle_counter == MS_INTERVALS) {
+        led = !led;
         print_char();
         toggle_counter = 0;
     }
@@ -64,15 +26,17 @@ void toggleOn(void)
     timer.attach_us(toggleOff, 500);
 }
 
-void toggleOff(void)
-{
-    out = 0;
-    led = 0;
+void toggleOff(void) {
     timer.attach_us(toggleOn, 500);
 }
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(wait_us_auto);
+    MBED_HOSTTEST_DESCRIPTION(Timeout Int us);
+    MBED_HOSTTEST_START("MBED_24");
+
     toggleOn();
-    while (1) ;
+
+    while (1);
 }

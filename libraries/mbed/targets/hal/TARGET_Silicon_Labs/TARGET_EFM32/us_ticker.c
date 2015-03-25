@@ -142,7 +142,7 @@ uint32_t us_ticker_read()
     return ((countH << 16) | countL) / ticker_freq_mhz;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp)
+void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_IntDisable(US_TICKER_TIMER, TIMER_IEN_CC0);
 

@@ -8,6 +8,8 @@
 I2C i2c(PTE0, PTE1);
 #elif defined(TARGET_nRF51822)
 I2C i2c(p22,p20);
+#elif defined(TARGET_FF_ARDUINO)
+I2C i2c(I2C_SDA, I2C_SCL);
 #else
 I2C i2c(p28, p27);
 #endif

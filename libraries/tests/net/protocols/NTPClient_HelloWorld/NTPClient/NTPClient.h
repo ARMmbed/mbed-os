@@ -24,12 +24,6 @@ NTP Client header file
 #ifndef NTPCLIENT_H_
 #define NTPCLIENT_H_
 
-#include <cstdint>
-
-using std::uint8_t;
-using std::uint16_t;
-using std::uint32_t;
-
 #include "UDPSocket.h"
 
 #define NTP_DEFAULT_PORT 123
@@ -67,6 +61,9 @@ public:
   NTPResult setTime(const char* host, uint16_t port = NTP_DEFAULT_PORT, uint32_t timeout = NTP_DEFAULT_TIMEOUT); //Blocking
 
 private:
+#if defined (__ICCARM__)
+    #pragma pack()
+#endif
   struct NTPPacket //See RFC 4330 for Simple NTP
   {
     //WARN: We are in LE! Network is BE!
@@ -92,11 +89,13 @@ private:
     uint32_t rxTm_f;
     uint32_t txTm_s;
     uint32_t txTm_f;
+#if defined (__ICCARM__)
+  };
+#else
   } __attribute__ ((packed));
+#endif
 
   UDPSocket m_sock;
-
 };
-
 
 #endif /* NTPCLIENT_H_ */

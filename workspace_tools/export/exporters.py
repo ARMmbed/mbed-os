@@ -3,7 +3,8 @@ import uuid, shutil, os, logging, fnmatch
 from os import walk, remove
 from os.path import join, dirname, isdir, split
 from copy import copy
-from jinja2 import Template
+from jinja2 import Template, FileSystemLoader
+from jinja2.environment import Environment
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -17,12 +18,15 @@ class Exporter():
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
-    def __init__(self, target, inputDir, program_name, build_url_resolver):
+    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None):
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
         self.toolchain = TOOLCHAIN_CLASSES[self.get_toolchain()](TARGET_MAP[target])
         self.build_url_resolver = build_url_resolver
+        jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
+        self.jinja_environment = Environment(loader=jinja_loader)
+        self.extra_symbols = extra_symbols
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -32,7 +36,7 @@ class Exporter():
 
         for r_type in ['headers', 's_sources', 'c_sources', 'cpp_sources',
             'objects', 'libraries', 'linker_script',
-            'lib_builds', 'lib_refs', 'repo_files', 'hex_files']:
+            'lib_builds', 'lib_refs', 'repo_files', 'hex_files', 'bin_files']:
             r = getattr(resources, r_type)
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
@@ -87,14 +91,23 @@ class Exporter():
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
-        template_text = open(template_path).read()
-        template = Template(template_text)
+        template = self.jinja_environment.get_template(template_file)
         target_text = template.render(data)
 
         target_path = join(self.inputDir, target_file)
         logging.debug("Generating: %s" % target_path)
         open(target_path, "w").write(target_text)
 
+    def get_symbols(self, add_extra_symbols=True):
+        """ This function returns symbols which must be exported.
+            Please add / overwrite symbols in each exporter separately
+        """
+        symbols = self.toolchain.get_symbols()
+        # We have extra symbols from e.g. libraries, we want to have them also added to export
+        if add_extra_symbols:
+            if self.extra_symbols is not None:
+                symbols.extend(self.extra_symbols)
+        return symbols
 
 def zip_working_directory_and_clean_up(tempdirectory=None, destination=None, program_name=None, clean=True):
     uid = str(uuid.uuid4())

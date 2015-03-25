@@ -14,45 +14,64 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from SocketServer import BaseRequestHandler, UDPServer
-from host_test import Test
+
+import sys
 import socket
 from sys import stdout
-
-SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
-SERVER_PORT = 7
-
-class UDPEchoClientTest(Test):
-    def __init__(self):
-        Test.__init__(self)
-        self.mbed.init_serial()
-
-    def send_server_ip_port(self, ip_address, port_no):
-        print "Resetting target..."
-        self.mbed.reset()
-        print "Sending server IP Address to target..."
-        connection_str = ip_address + ":" + str(port_no) + "\n"
-        self.mbed.serial.write(connection_str)
-
+from SocketServer import BaseRequestHandler, UDPServer
 
 class UDPEchoClient_Handler(BaseRequestHandler):
-    def print_result(self, result):
-        print "\n{%s}\n{end}" % result
-
     def handle(self):
-        """ One handle per connection """
-        print "connection received"
+        """ One handle per connection
+        """
         data, socket = self.request
-        print "client: ", self.client_address
-        print "data: ", data
         socket.sendto(data, self.client_address)
+        if '{{end}}' in data:
+            print
+            print data
+        else:
+            sys.stdout.write('.')
         stdout.flush()
 
+class UDPEchoClientTest():
 
-server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
-print "listening for connections"
+    def send_server_ip_port(self, selftest, ip_address, port_no):
+        c = selftest.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            selftest.print_result(selftest.RESULT_IO_SERIAL)
+            return
+        selftest.notify(c.strip())
 
-mbed_test = UDPEchoClientTest();
-mbed_test.send_server_ip_port(SERVER_IP, SERVER_PORT)
+        selftest.notify("HOST: Sending server IP Address to target...")
+        connection_str = ip_address + ":" + str(port_no) + "\n"
+        selftest.mbed.serial_write(connection_str)
 
-server.serve_forever()
+        c = selftest.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'
+        if c is None:
+            self.print_result(selftest.RESULT_IO_SERIAL)
+            return
+        selftest.notify(c.strip())
+        return selftest.RESULT_PASSIVE
+
+    def test(self, selftest):
+        # We need to discover SERVEP_IP and set up SERVER_PORT
+        # Note: Port 7 is Echo Protocol:
+        #
+        # Port number rationale:
+        #
+        # The Echo Protocol is a service in the Internet Protocol Suite defined
+        # in RFC 862. It was originally proposed for testing and measurement
+        # of round-trip times[citation needed] in IP networks.
+        #
+        # A host may connect to a server that supports the Echo Protocol using
+        # the Transmission Control Protocol (TCP) or the User Datagram Protocol
+        # (UDP) on the well-known port number 7. The server sends back an
+        # identical copy of the data it received.
+        SERVER_IP = str(socket.gethostbyname(socket.getfqdn()))
+        SERVER_PORT = 7
+
+        # Returning none will suppress host test from printing success code
+        server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
+        print "HOST: Listening for UDP connections..."
+        self.send_server_ip_port(selftest, SERVER_IP, SERVER_PORT)
+        server.serve_forever()

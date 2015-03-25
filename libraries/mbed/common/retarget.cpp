@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,11 @@
 #include "FilePath.h"
 #include "serial_api.h"
 #include "toolchain.h"
+#include "semihost_api.h"
+#include "mbed_interface.h"
+#if DEVICE_STDIO_MESSAGES
+#include <stdio.h>
+#endif
 #include <errno.h>
 
 #if defined(__ARMCC_VERSION)
@@ -323,7 +328,15 @@ extern "C" int remove(const char *path) {
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
-    return -1;
+    FilePath fpOld(oldname);
+    FilePath fpNew(newname);
+    FileSystemLike *fsOld = fpOld.fileSystem();
+    FileSystemLike *fsNew = fpNew.fileSystem();
+
+    /* rename only if both files are on the same FS */
+    if (fsOld != fsNew || fsOld == NULL) return -1;
+
+    return fsOld->rename(fpOld.fileName(), fpNew.fileName());
 }
 
 extern "C" char *tmpnam(char *s) {
@@ -384,7 +397,7 @@ extern "C" int mkdir(const char *path, mode_t mode) {
 
 #if defined(TOOLCHAIN_GCC)
 /* prevents the exception handling name demangling code getting pulled in */
-#include "error.h"
+#include "mbed_error.h"
 namespace __gnu_cxx {
     void __verbose_terminate_handler() {
         error("Exception");
@@ -446,6 +459,10 @@ extern "C" void __iar_argc_argv() {
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
+#if defined(TARGET_CORTEX_A)
+extern "C" uint32_t  __HeapLimit;
+#endif
+
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
 extern "C" int errno;
@@ -461,6 +478,8 @@ extern "C" caddr_t _sbrk(int incr) {
 
 #if defined(TARGET_ARM7)
     if (new_heap >= stack_ptr) {
+#elif defined(TARGET_CORTEX_A)
+    if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
 #else
     if (new_heap >= (unsigned char*)__get_MSP()) {
 #endif
@@ -472,3 +491,79 @@ extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) prev_heap;
 }
 #endif
+
+
+#ifdef TOOLCHAIN_GCC_CW
+// TODO: Ideally, we would like to define directly "_ExitProcess"
+extern "C" void mbed_exit(int return_code) {
+#elif defined TOOLCHAIN_GCC_ARM
+extern "C" void _exit(int return_code) {
+#else
+namespace std {
+extern "C" void exit(int return_code) {
+#endif
+
+#if DEVICE_STDIO_MESSAGES
+    fflush(stdout);
+    fflush(stderr);
+#endif
+
+#if DEVICE_SEMIHOST
+    if (mbed_interface_connected()) {
+        semihost_exit();
+    }
+#endif
+    if (return_code) {
+        mbed_die();
+    }
+
+    while (1);
+}
+
+#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CW)
+} //namespace std
+#endif
+
+
+namespace mbed {
+
+void mbed_set_unbuffered_stream(FILE *_file) {
+#if defined (__ICCARM__)
+    char buf[2];
+    std::setvbuf(_file,buf,_IONBF,NULL);    
+#else
+    setbuf(_file, NULL);
+#endif
+}
+
+int mbed_getc(FILE *_file){
+#if defined (__ICCARM__)
+    /*This is only valid for unbuffered streams*/
+    int res = std::fgetc(_file);
+    if (res>=0){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }    
+    return res;
+#else    
+    return std::fgetc(_file);
+#endif   
+}
+
+char* mbed_gets(char*s, int size, FILE *_file){
+#if defined (__ICCARM__)
+    /*This is only valid for unbuffered streams*/
+    char *str = fgets(s,size,_file);
+    if (str!=NULL){
+        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
+        _file->_Rend = _file->_Wend;
+        _file->_Next = _file->_Wend;
+    }
+    return str;
+#else    
+    return std::fgets(s,size,_file);
+#endif
+}
+
+} // namespace mbed

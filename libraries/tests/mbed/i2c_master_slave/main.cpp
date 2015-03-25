@@ -15,17 +15,9 @@
 //   p27 <-> p10
 //   pull-up resistors on both lines
 // ********************************************************
-#if defined(TARGET_EFM32LG_STK3600) \
-    ||defined(TARGET_EFM32GG_STK3700) \
-    ||defined(TARGET_EFM32TG_STK3300) \
-    ||defined(TARGET_EFM32_G8XX_STK) \
-    ||defined(TARGET_EFM32WG_STK3800)
-I2CSlave slave(PC4, PC5);
-I2C master(PD6, PD7);
-#elif defined(LPC1768)
+
 I2CSlave slave(p9, p10);
 I2C master(p28, p27);
-#endif
 
 int main()
 {
