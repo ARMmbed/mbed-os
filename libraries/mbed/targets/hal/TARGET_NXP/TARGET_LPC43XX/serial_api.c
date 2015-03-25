@@ -16,6 +16,7 @@
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
 // math.h required for floating point operations for baud rate calculation
+#include "mbed_assert.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,7 +24,6 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
 #include "gpio_api.h"
 
 /******************************************************************************
@@ -111,14 +111,12 @@ static struct serial_global_data_s uart_data[UART_NUM];
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     int is_stdio_uart = 0;
-    
+
     // determine the UART to use
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
     UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
-    }
+    MBED_ASSERT((int)uart != NC);
 
     obj->uart = (LPC_USART_T *)uart;
 
@@ -132,15 +130,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->IER = 0 << 0  // Rx Data available irq enable
                    | 0 << 1  // Tx Fifo empty irq enable
                    | 0 << 2; // Rx Line Status irq enable
-    
+
     // set default baud rate and format
     serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
-    
+
     // pinout the chosen uart
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
-    
+
     // set rx/tx pins in PullUp mode
     if (tx != NC) {
         pin_mode(tx, PullUp);
@@ -148,7 +146,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (rx != NC) {
         pin_mode(rx, PullUp);
     }
-    
+
     switch (uart) {
         case UART_0: obj->index = 0; break;
         case UART_1: obj->index = 1; break;
@@ -159,7 +157,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uart_data[obj->index].sw_cts.pin = NC;
     serial_set_flow_control(obj, FlowControlNone, NC, NC);
 
-    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);   
+    is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
 
     if (is_stdio_uart) {
         stdio_uart_inited = 1;
@@ -175,7 +173,7 @@ void serial_free(serial_t *obj) {
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
     uint32_t PCLK = SystemCoreClock;
-    
+
     // First we check to see if the basic divide with no DivAddVal/MulVal
     // ratio gives us an integer result. If it does, we set DivAddVal = 0,
     // MulVal = 1. Otherwise, we search the valid ratio value range to find
@@ -236,31 +234,27 @@ void serial_baud(serial_t *obj, int baudrate) {
             }
         }
     }
-    
+
     // set LCR[DLAB] to enable writing to divider registers
     obj->uart->LCR |= (1 << 7);
-    
+
     // set divider values
     obj->uart->DLM = (DL >> 8) & 0xFF;
     obj->uart->DLL = (DL >> 0) & 0xFF;
     obj->uart->FDR = (uint32_t) DivAddVal << 0
                    | (uint32_t) MulVal    << 4;
-    
+
     // clear LCR[DLAB]
     obj->uart->LCR &= ~(1 << 7);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    // 0: 1 stop bits, 1: 2 stop bits
-    if (stop_bits != 1 && stop_bits != 2) {
-        error("Invalid stop bits specified");
-    }
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2)); // 0: 1 stop bits, 1: 2 stop bits
+    MBED_ASSERT((data_bits > 4) && (data_bits < 9)); // 0: 5 data bits ... 3: 8 data bits
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven) ||
+           (parity == ParityForced1) || (parity == ParityForced0));
+
     stop_bits -= 1;
-    
-    // 0: 5 data bits ... 3: 8 data bits
-    if (data_bits < 5 || data_bits > 8) {
-        error("Invalid number of bits (%d) in serial format, should be 5..8", data_bits);
-    }
     data_bits -= 5;
 
     int parity_enable, parity_select;
@@ -271,10 +265,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityForced1: parity_enable = 1; parity_select = 2; break;
         case ParityForced0: parity_enable = 1; parity_select = 3; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            parity_enable = 0, parity_select = 0;
+            break;
     }
-    
+
     obj->uart->LCR = data_bits            << 0
                    | stop_bits            << 2
                    | parity_enable        << 3
@@ -322,7 +316,7 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
         case UART_2: irq_n=USART2_IRQn; vector = (uint32_t)&uart2_irq; break;
         case UART_3: irq_n=USART3_IRQn; vector = (uint32_t)&uart3_irq; break;
     }
-    
+
     if (enable) {
         obj->uart->IER |= 1 << irq;
         NVIC_SetVector(irq_n, vector);
@@ -409,3 +403,4 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 #if (DEVICE_SERIAL_FC)
 #endif
 }
+
