@@ -16,7 +16,8 @@ limitations under the License.
 """
 from exporters import Exporter
 import re
-
+import os
+from os.path import join, dirname
 class IAREmbeddedWorkbench(Exporter):
     NAME = 'IAR'
     TOOLCHAIN = 'IAR'
@@ -115,7 +116,7 @@ class IAR_FOLDER:
         #Add files in current folder
         if self.source_files:
             for src in self.source_files:
-                str_content += "<file>\n<name>$PROJ_DIR$\\%s</name>\n</file>\n" % src
+                str_content += "<file>\n<name>$PROJ_DIR$/%s</name>\n</file>\n" % src
         ##Add sub folders
         if self.sub_folders:
             for folder_name in self.sub_folders.iterkeys():
@@ -126,12 +127,13 @@ class IAR_FOLDER:
     
     
     def insert_file(self, source_input):
-        if self.source_files:
+	
+	if self.source_files:
             dir_sources = IAR_FOLDER.get_directory(self.source_files[0]) ##All source_files in a IAR_FOLDER must be in same directory.
             if not self.folder_level == dir_sources: ## Check if sources are already at their deepest level.
                 _reg_exp = r"^" + re.escape(self.folder_level) + r"[/\\]?([^/\\]+)"
-                folder_name = re.match( _reg_exp, dir_sources).group(1)
-                self.sub_folders[folder_name] = IAR_FOLDER(self.folder_level + "\\" + folder_name, folder_name, self.source_files)
+		folder_name = re.match( _reg_exp, dir_sources).group(1)
+                self.sub_folders[folder_name] = IAR_FOLDER(os.path.join(self.folder_level,folder_name), folder_name, self.source_files)
                 self.source_files = []
   
         dir_input = IAR_FOLDER.get_directory(source_input)
@@ -146,14 +148,10 @@ class IAR_FOLDER:
                 if self.folder_level == "": #Top level exception
                     self.sub_folders[folder_name] = IAR_FOLDER(folder_name, folder_name, [source_input])
                 else:
-                    self.sub_folders[folder_name] = IAR_FOLDER(self.folder_level + "\\" + folder_name, folder_name, [source_input])
+                    self.sub_folders[folder_name] = IAR_FOLDER(os.path.join(self.folder_level,folder_name), folder_name, [source_input])
 
     @staticmethod    
     def get_directory(file_path):
-        dir_Match = re.match( r'(.*)[/\\][^/\\]+', file_path)
-        if dir_Match is not None:
-            return dir_Match.group(1)
-        else:
-            return ""
+        return os.path.dirname(file_path)
             
             
