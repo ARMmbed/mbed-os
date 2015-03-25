@@ -43,6 +43,9 @@
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
+{# Make sure to wrap main in order to get clock initialization done right #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# For debug build, don't apply optimizations #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
@@ -68,6 +71,9 @@
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
+{# Make sure to wrap main in order to get clock initialization done right #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# Use optimize for size on release build #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.size"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
