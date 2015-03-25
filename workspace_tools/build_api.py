@@ -221,6 +221,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
     toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
 
+    print(BUILD_TOOLCHAIN)
     objects = toolchain.compile_sources(resources, TMP_PATH)
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
 

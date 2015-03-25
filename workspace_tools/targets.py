@@ -416,7 +416,7 @@ class K20D50M(Target):
 
 class TEENSY3_1(Target):
     OUTPUT_EXT = 'hex'
-    
+
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -627,7 +627,7 @@ class ARCH_MAX(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
-        
+
     def program_cycle_s(self):
         return 2
 
@@ -732,6 +732,16 @@ class UBLOX_C029(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+
+### Olimex ###
+#
+class OLIMEX_STM32_H405(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F405', 'STM32F405RGT6']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
 
 
 
@@ -845,7 +855,7 @@ class NRF51_DK_BOOT(NRF51822):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.MERGE_SOFT_DEVICE = True
         self.MERGE_BOOTLOADER = True
-        
+
 class NRF51_DK_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -1101,6 +1111,9 @@ TARGETS = [
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439
+
+    ### Olimex ###
+    OLIMEX_STM32_H405(), # STM32F405
 
     ### Nordic ###
     NRF51822(),
