@@ -1,6 +1,4 @@
 /* mbed Microcontroller Library
- * A generic CMSIS include header
- *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
@@ -26,13 +24,14 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
  */
+#include "cmsis.h"
 
-#ifndef MBED_CMSIS_H
-#define MBED_CMSIS_H
-
-#include "stm32f10x.h"
-#include "cmsis_nvic.h"
-
-#endif
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init()
+{
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
+}

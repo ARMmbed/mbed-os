@@ -27,31 +27,23 @@
  */
 #include "mbed_assert.h"
 #include "analogin_api.h"
-#include "wait_api.h"
 
 #if DEVICE_ANALOGIN
 
+#include "wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 
-static const PinMap PinMap_ADC[] = {
-    {PA_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PA_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PA_4, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PB_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_1, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {PC_0, ADC_1, STM_PIN_DATA(GPIO_Mode_AIN, 0)},
-    {NC,   NC,    0}
-};
+ADC_HandleTypeDef AdcHandle;
 
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
+    RCC_PeriphCLKInitTypeDef  PeriphClkInit;
   
-    ADC_TypeDef     *adc;
-    ADC_InitTypeDef ADC_InitStructure;
-  
-    // Get the peripheral name (ADC_1, ADC_2...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
@@ -65,73 +57,117 @@ void analogin_init(analogin_t *obj, PinName pin) {
     if (adc_inited == 0) {
         adc_inited = 1;
 
-        // Get ADC registers structure address
-        adc = (ADC_TypeDef *)(obj->adc);
-      
         // Enable ADC clock
-        RCC_ADCCLKConfig(RCC_PCLK2_Div4);
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+        __HAL_RCC_ADC1_CLK_ENABLE();
+
+        // Configure ADC clock prescaler
+        // Caution: On STM32F1, ADC clock frequency max is 14 MHz (refer to device datasheet).
+        // Therefore, ADC clock prescaler must be configured in function
+        // of ADC clock source frequency to remain below this maximum frequency.
+        // with 8 MHz external xtal: PCLK2 = 72 MHz --> ADC clock = 72/6 = 12 MHz
+        // with internal clock     : PCLK2 = 64 MHz --> ADC clock = 64/6 = 10.67 MHz
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
                
         // Configure ADC
-        ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-        ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-        ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_NbrOfChannel = 1;
-        ADC_Init(adc, &ADC_InitStructure);
-
-        // Enable ADC
-        ADC_Cmd(adc, ENABLE);
-
-        // Calibrate ADC
-        ADC_ResetCalibration(adc);
-        while(ADC_GetResetCalibrationStatus(adc));
-        ADC_StartCalibration(adc);
-        while(ADC_GetCalibrationStatus(adc));
+        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        AdcHandle.Init.ScanConvMode          = DISABLE;
+        AdcHandle.Init.ContinuousConvMode    = DISABLE;
+        AdcHandle.Init.NbrOfConversion       = 1;
+        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
+        AdcHandle.Init.NbrOfDiscConversion   = 0;
+        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+        HAL_ADC_Init(&AdcHandle);
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj) {
-  // Get ADC registers structure address
-  ADC_TypeDef *adc = (ADC_TypeDef *)(obj->adc);
+static inline uint16_t adc_read(analogin_t *obj)
+{
+    ADC_ChannelConfTypeDef sConfig;
+
+    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
   
   // Configure ADC channel
+    sConfig.Rank         = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
+
   switch (obj->pin) {
       case PA_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
+            sConfig.Channel = ADC_CHANNEL_0;
           break;
       case PA_1:
-          ADC_RegularChannelConfig(adc, ADC_Channel_1, 1, ADC_SampleTime_7Cycles5);
+            sConfig.Channel = ADC_CHANNEL_1;
+            break;
+        case PA_2:
+            sConfig.Channel = ADC_CHANNEL_2;
+            break;
+        case PA_3:
+            sConfig.Channel = ADC_CHANNEL_3;
           break;
       case PA_4:
-          ADC_RegularChannelConfig(adc, ADC_Channel_4, 1, ADC_SampleTime_7Cycles5);
+            sConfig.Channel = ADC_CHANNEL_4;
+            break;
+        case PA_5:
+            sConfig.Channel = ADC_CHANNEL_5;
+            break;
+        case PA_6:
+            sConfig.Channel = ADC_CHANNEL_6;
+            break;
+        case PA_7:
+            sConfig.Channel = ADC_CHANNEL_7;
           break;
       case PB_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_8, 1, ADC_SampleTime_7Cycles5);
+            sConfig.Channel = ADC_CHANNEL_8;
           break;
-      case PC_1:
-          ADC_RegularChannelConfig(adc, ADC_Channel_11, 1, ADC_SampleTime_7Cycles5);
+        case PB_1:
+            sConfig.Channel = ADC_CHANNEL_9;
           break;
       case PC_0:
-          ADC_RegularChannelConfig(adc, ADC_Channel_10, 1, ADC_SampleTime_7Cycles5);
+            sConfig.Channel = ADC_CHANNEL_10;
+            break;
+        case PC_1:
+            sConfig.Channel = ADC_CHANNEL_11;
+            break;
+        case PC_2:
+            sConfig.Channel = ADC_CHANNEL_12;
+            break;
+        case PC_3:
+            sConfig.Channel = ADC_CHANNEL_13;
+            break;
+        case PC_4:
+            sConfig.Channel = ADC_CHANNEL_14;
+            break;
+        case PC_5:
+            sConfig.Channel = ADC_CHANNEL_15;
           break;
       default:
           return 0;
   }
 
-  ADC_SoftwareStartConvCmd(adc, ENABLE); // Start conversion
+    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
   
-  while(ADC_GetFlagStatus(adc, ADC_FLAG_EOC) == RESET); // Wait end of conversion
+    HAL_ADC_Start(&AdcHandle); // Start conversion
   
-  return(ADC_GetConversionValue(adc)); // Get conversion value
+    // Wait end of conversion and get value
+    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&AdcHandle));
+    } else {
+        return 0;
+    }
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
-  return(adc_read(obj));
+uint16_t analogin_read_u16(analogin_t *obj)
+{
+    uint16_t value = adc_read(obj);
+    // 12-bit to 16-bit conversion
+    value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
+    return value;
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
   uint16_t value = adc_read(obj);
   return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }

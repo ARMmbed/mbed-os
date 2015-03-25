@@ -1,11 +1,5 @@
-/**
-  ******************************************************************************
-  * @file    stm32f10x_crc.h
-  * @author  MCD Application Team
-  * @version V3.6.1
-  * @date    05-March-2012
-  * @brief   This file contains all the functions prototypes for the CRC firmware 
-  *          library.
+/* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -33,77 +27,28 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
+ */ 
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F10x_CRC_H
-#define __STM32F10x_CRC_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
+
+// CORE: 16 vectors (= 64 bytes from 0x00 to 0x3F)
+// MCU Peripherals: 100 vectors (= 400 bytes from 0x40 to 0x1CC)
+// Total:  464 bytes to be reserved in RAM (see scatter file)
+#define NVIC_NUM_VECTORS      (16 + 100)
+#define NVIC_USER_IRQ_OFFSET  16
+
+#include "cmsis.h"
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f10x.h"
-
-/** @addtogroup STM32F10x_StdPeriph_Driver
-  * @{
-  */
-
-/** @addtogroup CRC
-  * @{
-  */
-
-/** @defgroup CRC_Exported_Types
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup CRC_Exported_Constants
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup CRC_Exported_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup CRC_Exported_Functions
-  * @{
-  */
-
-void CRC_ResetDR(void);
-uint32_t CRC_CalcCRC(uint32_t Data);
-uint32_t CRC_CalcBlockCRC(uint32_t pBuffer[], uint32_t BufferLength);
-uint32_t CRC_GetCRC(void);
-void CRC_SetIDRegister(uint8_t IDValue);
-uint8_t CRC_GetIDRegister(void);
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32F10x_CRC_H */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif
