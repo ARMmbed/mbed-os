@@ -20,7 +20,7 @@ from os import makedirs
 from shutil import copytree, rmtree
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, coide, kds
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, coide, kds, simplicityv3
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import EXPORT_MAP
 
@@ -33,6 +33,7 @@ EXPORTERS = {
     'iar': iar.IAREmbeddedWorkbench,
     'coide' : coide.CoIDE,
     'kds' : kds.KDS,
+    'simplicityv3' : simplicityv3.SimplicityV3,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
