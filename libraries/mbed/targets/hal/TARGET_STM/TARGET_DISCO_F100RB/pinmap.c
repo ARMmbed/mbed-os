@@ -28,45 +28,51 @@
  *******************************************************************************
  */
 #include "mbed_assert.h"
-#include "device.h"
 #include "pinmap.h"
+#include "PortNames.h"
 #include "mbed_error.h"
 
-// Alternate-function mapping
-static const uint32_t AF_mapping[] = {
-  0,                      // 0 = No AF
-  GPIO_Remap_SPI1,        // 1
-  GPIO_Remap_I2C1,        // 2
-  GPIO_Remap_USART1,      // 3
-  GPIO_Remap_USART2,      // 4
-  GPIO_FullRemap_TIM2,    // 5
-  GPIO_FullRemap_TIM3,    // 6
-  GPIO_PartialRemap_TIM3, // 7
-  GPIO_Remap_I2C1         // 8
+// GPIO mode look-up table
+// Warning: the elements order must be the same as the one defined in PinNames.h
+static const uint32_t gpio_mode[13] = {
+    GPIO_MODE_INPUT,              //  0 = STM_MODE_INPUT
+    GPIO_MODE_OUTPUT_PP,          //  1 = STM_MODE_OUTPUT_PP
+    GPIO_MODE_OUTPUT_OD,          //  2 = STM_MODE_OUTPUT_OD
+    GPIO_MODE_AF_PP,              //  3 = STM_MODE_AF_PP
+    GPIO_MODE_AF_OD,              //  4 = STM_MODE_AF_OD
+    GPIO_MODE_ANALOG,             //  5 = STM_MODE_ANALOG
+    GPIO_MODE_IT_RISING,          //  6 = STM_MODE_IT_RISING
+    GPIO_MODE_IT_FALLING,         //  7 = STM_MODE_IT_FALLING
+    GPIO_MODE_IT_RISING_FALLING,  //  8 = STM_MODE_IT_RISING_FALLING
+    GPIO_MODE_EVT_RISING,         //  9 = STM_MODE_EVT_RISING
+    GPIO_MODE_EVT_FALLING,        // 10 = STM_MODE_EVT_FALLING
+    GPIO_MODE_EVT_RISING_FALLING, // 11 = STM_MODE_EVT_RISING_FALLING
+    0x10000000                    // 12 = STM_MODE_IT_EVT_RESET (not in STM32Cube HAL)
 };
 
 // Enable GPIO clock and return GPIO base address
-uint32_t Set_GPIO_Clock(uint32_t port_idx) {
+uint32_t Set_GPIO_Clock(uint32_t port_idx)
+{
     uint32_t gpio_add = 0;
     switch (port_idx) {
         case PortA:
             gpio_add = GPIOA_BASE;
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+            __GPIOA_CLK_ENABLE();
             break;
         case PortB:
             gpio_add = GPIOB_BASE;
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+            __GPIOB_CLK_ENABLE();
             break;
         case PortC:
             gpio_add = GPIOC_BASE;
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+            __GPIOC_CLK_ENABLE();
             break;
         case PortD:
             gpio_add = GPIOD_BASE;
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+            __GPIOD_CLK_ENABLE();
             break;
         default:
-            error("Port number is not correct.");
+            error("Pinmap error: wrong port number.");
             break;
     }
     return gpio_add;
@@ -75,10 +81,12 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx) {
 /**
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
-void pin_function(PinName pin, int data) {
+void pin_function(PinName pin, int data)
+{
     MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = STM_PIN_MODE(data);
+    uint32_t pupd  = STM_PIN_PUPD(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
 
     uint32_t port_index = STM_PORT(pin);
@@ -89,37 +97,68 @@ void pin_function(PinName pin, int data) {
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Enable AFIO clock
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    __HAL_RCC_AFIO_CLK_ENABLE();
 
     // Configure Alternate Function
     // Warning: Must be done before the GPIO is initialized
     if (afnum > 0) {
-        GPIO_PinRemapConfig(AF_mapping[afnum], ENABLE);
+        switch (afnum) {
+            case 1: // Remap SPI1
+                __HAL_AFIO_REMAP_SPI1_ENABLE();
+                break;
+            case 2: // Remap I2C1
+                __HAL_AFIO_REMAP_I2C1_ENABLE();
+                break;
+            case 3: // Remap USART1
+                __HAL_AFIO_REMAP_USART1_ENABLE();
+                break;
+            case 4: // Remap USART2
+                __HAL_AFIO_REMAP_USART2_ENABLE();
+                break;
+            case 5: // Partial Remap USART3
+                __HAL_AFIO_REMAP_USART3_PARTIAL();
+                break;
+            case 6: // Partial Remap TIM1
+                __HAL_AFIO_REMAP_TIM1_PARTIAL();
+                break;
+            case 7: // Partial Remap TIM3
+                __HAL_AFIO_REMAP_TIM3_PARTIAL();
+                break;
+            case 8: // Full Remap TIM2
+                __HAL_AFIO_REMAP_TIM2_ENABLE();
+                break;
+            case 9: // Full Remap TIM3
+                __HAL_AFIO_REMAP_TIM3_ENABLE();
+                break;
+            default:
+                break;
+        }
     }
   
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
-    GPIO_InitStructure.GPIO_Mode  = (GPIOMode_TypeDef)mode;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(gpio, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin   = (uint32_t)(1 << pin_index);
+    GPIO_InitStructure.Mode  = gpio_mode[mode];
+    GPIO_InitStructure.Pull  = pupd;
+    GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(gpio, &GPIO_InitStructure);
     
     // Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     if ((pin == PA_13) || (pin == PA_14)) {
-        GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
+        __HAL_AFIO_REMAP_SWJ_DISABLE(); // JTAG-DP Disabled and SW-DP Disabled
     }
     if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
-        GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+        __HAL_AFIO_REMAP_SWJ_NOJTAG(); // JTAG-DP Disabled and SW-DP enabled
     }
 }
 
 /**
  * Configure pin pull-up/pull-down
  */
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
-    GPIO_InitTypeDef GPIO_InitStructure;
     
     uint32_t port_index = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
@@ -131,14 +170,22 @@ void pin_mode(PinName pin, PinMode mode) {
     // Configure open-drain and pull-up/down
     switch (mode) {
         case PullNone:
-            return;
-        case PullUp:
-            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
             break;
+        case PullUp:
         case PullDown:
-            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+            // Set pull-up / pull-down for Input mode
+            if (pin_index < 8) {
+                if ((gpio->CRL & (0x03 << (pin_index * 4))) == 0) { // MODE bits = Input mode
+                    gpio->CRL |= (0x08 << (pin_index * 4)); // Set pull-up / pull-down
+                }
+            } else {
+                if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) == 0) { // MODE bits = Input mode
+                    gpio->CRH |= (0x08 << ((pin_index % 8) * 4)); // Set pull-up / pull-down
+                }
+            }
             break;
         case OpenDrain:
+            // Set open-drain for Output mode (General Purpose or Alternate Function)
             if (pin_index < 8) {
                 if ((gpio->CRL & (0x03 << (pin_index * 4))) > 0) { // MODE bits = Output mode
                     gpio->CRL |= (0x04 << (pin_index * 4)); // Set open-drain
@@ -148,13 +195,8 @@ void pin_mode(PinName pin, PinMode mode) {
                     gpio->CRH |= (0x04 << ((pin_index % 8) * 4)); // Set open-drain
                 }
             }
-            return;
+            break;
         default:
             break;
     }
-    
-    // Configure GPIO
-    GPIO_InitStructure.GPIO_Pin   = (uint16_t)(1 << pin_index);
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(gpio, &GPIO_InitStructure);
 }
