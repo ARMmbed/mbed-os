@@ -27,6 +27,10 @@ static uint8_t cdc_line_coding[7]= {0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08};
 #define CDC_GET_LINE_CODING        0x21
 #define CDC_SET_CONTROL_LINE_STATE 0x22
 
+// Control Line State bits
+#define CLS_DTR   (1 << 0)
+#define CLS_RTS   (1 << 1)
+
 #define MAX_CDC_REPORT_SIZE MAX_PACKET_SIZE_EPBULK
 
 USBCDC::USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking): USBDevice(vendor_id, product_id, product_release) {
@@ -54,10 +58,13 @@ bool USBCDC::USBCallback_request(void) {
                 transfer->remaining = 7;
                 transfer->notify = true;
                 success = true;
-                terminal_connected = true;
                 break;
             case CDC_SET_CONTROL_LINE_STATE:
-                terminal_connected = false;
+                if (transfer->setup.wValue & CLS_DTR) {
+                    terminal_connected = true;
+                } else {
+                    terminal_connected = false;
+                }
                 success = true;
                 break;
             default:

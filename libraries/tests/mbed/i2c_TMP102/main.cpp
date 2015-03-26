@@ -24,6 +24,7 @@ TMP102 temperature(p28, p27, 0x90);
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE) || \
       defined(TARGET_LPC824) || \
       defined(TARGET_FF_ARDUINO)
