@@ -28,9 +28,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; STM32F411RE: 512 KB FLASH (0x80000) + 128 KB SRAM (0x20000)
-LR_IROM1 0x08000000 0x80000  {    ; load region size_region
+; FIRST 64 KB FLASH FOR BOOTLOADER
+; REST 448 KB FLASH FOR APPLICATION
+LR_IROM1 0x08010000 0x70000  {    ; load region size_region
 
-  ER_IROM1 0x08000000 0x80000  {  ; load address = execution address
+  ER_IROM1 0x08010000 0x70000  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
