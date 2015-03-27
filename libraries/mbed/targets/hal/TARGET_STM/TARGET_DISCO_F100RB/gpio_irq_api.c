@@ -39,56 +39,139 @@
 #define EDGE_FALL (2)
 #define EDGE_BOTH (3)
 
-#define CHANNEL_NUM (16)
+// Number of EXTI irq vectors (EXTI0, EXTI1, EXTI2, EXTI3, EXTI4, EXTI5_9, EXTI10_15)
+#define CHANNEL_NUM (7)
 
-static uint32_t channel_ids[CHANNEL_NUM]  = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static uint32_t channel_gpio[CHANNEL_NUM] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static uint32_t channel_pin[CHANNEL_NUM]  = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+// Max pins for one line (max with EXTI10_15)
+#define MAX_PIN_LINE (6)
+
+typedef struct gpio_channel {
+    uint32_t pin_mask;                   // bitmask representing which pins are configured for receiving interrupts
+    uint32_t channel_ids[MAX_PIN_LINE];  // mbed "gpio_irq_t gpio_irq" field of instance
+    uint32_t channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
+    uint32_t channel_pin[MAX_PIN_LINE];  // pin number in port group
+} gpio_channel_t;
+
+static gpio_channel_t channels[CHANNEL_NUM] = {
+    {.pin_mask = 0},
+    {.pin_mask = 0},
+    {.pin_mask = 0},
+    {.pin_mask = 0},
+    {.pin_mask = 0},
+    {.pin_mask = 0},
+    {.pin_mask = 0}
+};
+
+// Used to return the index for channels array.
+static uint32_t pin_base_nr[16] = {
+    // EXTI0
+    0, // pin 0
+    // EXTI1
+    0, // pin 1
+    // EXTI2
+    0, // pin 2
+    // EXTI3
+    0, // pin 3
+    // EXTI4
+    0, // pin 4
+    // EXTI5_9
+    0, // pin 5
+    1, // pin 6
+    2, // pin 7
+    3, // pin 8
+    4, // pin 9
+    // EXTI10_15
+    0, // pin 10
+    1, // pin 11
+    2, // pin 12
+    3, // pin 13
+    4, // pin 14
+    5  // pin 15
+};
 
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(uint32_t irq_index) {
-	//if irq_index==5 loop exti 5 to 9
-	//if irq_index==10 loop exti 10 to 15
-	//else exti loop one irq_index
-	uint32_t to_irq_index=(irq_index==5)?9:((irq_index==10)?15:irq_index);
-    GPIO_TypeDef *gpio;
-    uint32_t pin;
-    do{
+static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
+{
+    gpio_channel_t *gpio_channel = &channels[irq_index];
+    uint32_t gpio_idx;
+
+    for (gpio_idx = 0; gpio_idx < max_num_pin_line; gpio_idx++) {
+        uint32_t current_mask = (1 << gpio_idx);
+
+        if (gpio_channel->pin_mask & current_mask) {
       // Retrieve the gpio and pin that generate the irq
-      gpio = (GPIO_TypeDef *)(channel_gpio[irq_index]);
-      pin = (uint32_t)(1 << channel_pin[irq_index]);
+            GPIO_TypeDef *gpio = (GPIO_TypeDef *)(gpio_channel->channel_gpio[gpio_idx]);
+            uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
+
       // Clear interrupt flag
-      if (EXTI_GetITStatus(pin) != RESET)
-      {
-    	  EXTI_ClearITPendingBit(pin);
-		  if (channel_ids[irq_index] == 0) return;
+            if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
+                __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
+
+                if (gpio_channel->channel_ids[gpio_idx] == 0) continue;
+
 		  // Check which edge has generated the irq
 		  if ((gpio->IDR & pin) == 0) {
-			  irq_handler(channel_ids[irq_index], IRQ_FALL);
+                    irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_FALL);
 		  } else {
-			  irq_handler(channel_ids[irq_index], IRQ_RISE);
+                    irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_RISE);
+                }
+            }
 		  }
       }
-    }while(irq_index++ < to_irq_index);
 }
 
+// EXTI line 0
+static void gpio_irq0(void)
+{
+    handle_interrupt_in(0, 1);
+}
 
-// The irq_index is passed to the function
-static void gpio_irq0(void) {handle_interrupt_in(0);} // EXTI line 0
-static void gpio_irq1(void) {handle_interrupt_in(1);} // EXTI line 1
-static void gpio_irq2(void) {handle_interrupt_in(2);} // EXTI line 2
-static void gpio_irq3(void) {handle_interrupt_in(3);} // EXTI line 3
-static void gpio_irq4(void) {handle_interrupt_in(4);} // EXTI line 4
-static void gpio_irq5(void) {handle_interrupt_in(5);} // EXTI lines 5 to 9
-static void gpio_irq6(void) {handle_interrupt_in(10);} // EXTI lines 10 to 15
+// EXTI line 1
+static void gpio_irq1(void)
+{
+    handle_interrupt_in(1, 1);
+}
+
+// EXTI line 2
+static void gpio_irq2(void)
+{
+    handle_interrupt_in(2, 1);
+}
+
+// EXTI line 3
+static void gpio_irq3(void)
+{
+    handle_interrupt_in(3, 1);
+}
+
+// EXTI line 4
+static void gpio_irq4(void)
+{
+    handle_interrupt_in(4, 1);
+}
+
+// EXTI lines 5 to 9
+static void gpio_irq5(void)
+{
+    handle_interrupt_in(5, 5);
+}
+
+// EXTI lines 10 to 15
+static void gpio_irq6(void)
+{
+    handle_interrupt_in(6, 6);
+}
 
 extern uint32_t Set_GPIO_Clock(uint32_t port_idx);
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     uint32_t irq_index;
+    gpio_channel_t *gpio_channel;
+    uint32_t gpio_idx;
 
     if (pin == NC) return -1;
 
@@ -129,7 +212,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         case 9:
             irq_n = EXTI9_5_IRQn;
             vector = (uint32_t)&gpio_irq5;
-            irq_index = pin_index;
+            irq_index = 5;
             break;
         case 10:
         case 11:
@@ -139,7 +222,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         case 15:
             irq_n = EXTI15_10_IRQn;
             vector = (uint32_t)&gpio_irq6;
-            irq_index = pin_index;
+            irq_index = 6;
             break;
         default:
             error("InterruptIn error: pin not supported.\n");
@@ -148,28 +231,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Enable GPIO clock
     uint32_t gpio_add = Set_GPIO_Clock(port_index);
     
-    // Enable AFIO clock
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-
-    // Connect EXTI line to pin
-    GPIO_EXTILineConfig(port_index, pin_index);
-
-    // Configure EXTI line
-    EXTI_InitTypeDef EXTI_InitStructure;    
-    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-    
-    // Enable and set EXTI interrupt to the lowest priority
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = irq_n;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+    // Configure GPIO
+    pin_function(pin, STM_PIN_DATA(STM_MODE_IT_FALLING, GPIO_NOPULL, 0));
   
+    // Enable EXTI interrupt
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
 
@@ -177,71 +242,91 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->irq_n = irq_n;
     obj->irq_index = irq_index;
     obj->event = EDGE_NONE;
-    channel_ids[irq_index] = id;
-    channel_gpio[irq_index] = gpio_add;
-    channel_pin[irq_index] = pin_index;
+    obj->pin = pin;
+
+    gpio_channel = &channels[irq_index];
+    gpio_idx = pin_base_nr[pin_index];
+    gpio_channel->pin_mask |= (1 << gpio_idx);
+    gpio_channel->channel_ids[gpio_idx] = id;
+    gpio_channel->channel_gpio[gpio_idx] = gpio_add;
+    gpio_channel->channel_pin[gpio_idx] = pin_index;
     
     irq_handler = handler; 
   
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
-    channel_ids[obj->irq_index] = 0;
-    channel_gpio[obj->irq_index] = 0;
-    channel_pin[obj->irq_index] = 0;
+void gpio_irq_free(gpio_irq_t *obj)
+{
+    gpio_channel_t *gpio_channel = &channels[obj->irq_index];
+    uint32_t pin_index  = STM_PIN(obj->pin);
+    uint32_t gpio_idx = pin_base_nr[pin_index];
+
+    gpio_channel->pin_mask &= ~(1 << gpio_idx);
+    gpio_channel->channel_ids[gpio_idx] = 0;
+    gpio_channel->channel_gpio[gpio_idx] = 0;
+    gpio_channel->channel_pin[gpio_idx] = 0;
+
     // Disable EXTI line
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_StructInit(&EXTI_InitStructure);
-    EXTI_Init(&EXTI_InitStructure);  
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     obj->event = EDGE_NONE;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    EXTI_InitTypeDef EXTI_InitStructure;
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
+    uint32_t mode = STM_MODE_IT_EVT_RESET;
+    uint32_t pull = GPIO_NOPULL;
     
-    uint32_t pin_index = channel_pin[obj->irq_index];
-
-    EXTI_InitStructure.EXTI_Line = (uint32_t)(1 << pin_index);
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    
+    if (enable) {
     if (event == IRQ_RISE) {
         if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                mode = STM_MODE_IT_RISING_FALLING;
             obj->event = EDGE_BOTH;
-        }
-        else { // NONE or RISE
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+            } else { // NONE or RISE
+                mode = STM_MODE_IT_RISING;
             obj->event = EDGE_RISE;
         }
     }
-    
     if (event == IRQ_FALL) {
         if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+                mode = STM_MODE_IT_RISING_FALLING;
             obj->event = EDGE_BOTH;
+            } else { // NONE or FALL
+                mode = STM_MODE_IT_FALLING;
+                obj->event = EDGE_FALL;
+            }
         }
-        else { // NONE or FALL
-            EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    } else { // Disable
+        if (event == IRQ_RISE) {
+            if ((obj->event == EDGE_FALL) || (obj->event == EDGE_BOTH)) {
+                mode = STM_MODE_IT_FALLING;
             obj->event = EDGE_FALL;
+            } else { // NONE or RISE
+                mode = STM_MODE_IT_EVT_RESET;
+                obj->event = EDGE_NONE;
         }
     }
-    
-    if (enable) {
-        EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+        if (event == IRQ_FALL) {
+            if ((obj->event == EDGE_RISE) || (obj->event == EDGE_BOTH)) {
+                mode = STM_MODE_IT_RISING;
+                obj->event = EDGE_RISE;
+            } else { // NONE or FALL
+                mode = STM_MODE_IT_EVT_RESET;
+                obj->event = EDGE_NONE;
+            }
     }
-    else {
-        EXTI_InitStructure.EXTI_LineCmd = DISABLE;
     }
     
-    EXTI_Init(&EXTI_InitStructure);
+    pin_function(obj->pin, STM_PIN_DATA(mode, pull, 0));
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     NVIC_EnableIRQ(obj->irq_n);
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     NVIC_DisableIRQ(obj->irq_n);
     obj->event = EDGE_NONE;
 }

@@ -27,36 +27,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "sleep_api.h"
 
-#if DEVICE_SLEEP
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
 
-#include "cmsis.h"
-#include "hal_tick.h"
+#include "pinmap.h"
+#include "PeripheralNames.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
+//*** ADC ***
 
-void sleep(void)
-{
-    TimMasterHandle.Instance = TIM_MST;
+extern const PinMap PinMap_ADC[];
 
-    // Disable HAL tick and us_ticker update interrupts
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
-  
-    // Request to enter SLEEP mode
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-  
-    // Enable HAL tick and us_ticker update interrupts
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
-}
+//*** I2C ***
 
-void deepsleep(void)
-{
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+extern const PinMap PinMap_I2C_SDA[];
+extern const PinMap PinMap_I2C_SCL[];
 
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-}
+//*** PWM ***
+
+extern const PinMap PinMap_PWM[];
+
+//*** SERIAL ***
+
+extern const PinMap PinMap_UART_TX[];
+extern const PinMap PinMap_UART_RX[];
+
+//*** SPI ***
+
+extern const PinMap PinMap_SPI_MOSI[];
+extern const PinMap PinMap_SPI_MISO[];
+extern const PinMap PinMap_SPI_SCLK[];
+extern const PinMap PinMap_SPI_SSEL[];
 
 #endif

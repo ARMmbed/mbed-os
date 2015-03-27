@@ -1,5 +1,4 @@
 /* mbed Microcontroller Library
- *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
@@ -25,38 +24,14 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************
  */
-#include "sleep_api.h"
-
-#if DEVICE_SLEEP
-
 #include "cmsis.h"
-#include "hal_tick.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
-
-void sleep(void)
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init()
 {
-    TimMasterHandle.Instance = TIM_MST;
-
-    // Disable HAL tick and us_ticker update interrupts
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
-  
-    // Request to enter SLEEP mode
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-  
-    // Enable HAL tick and us_ticker update interrupts
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
 }
-
-void deepsleep(void)
-{
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-}
-
-#endif

@@ -37,15 +37,15 @@
 #define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0
+#define DEVICE_ANALOGOUT        0 // Not present on this device
 
 #define DEVICE_SERIAL           1
 
 #define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         0
+#define DEVICE_I2CSLAVE         1
 
 #define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         0
+#define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
 
@@ -53,7 +53,6 @@
 
 #define DEVICE_SLEEP            1
 
-#define DEVICE_ERROR_PATTERN    1 //fast blink green and blue leds on error
 //=======================================
 
 #define DEVICE_SEMIHOST         0
@@ -64,7 +63,7 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
-//#define DEVICE_ERROR_RED      0
+#define DEVICE_ERROR_RED        0
 
 #include "objects.h"
 

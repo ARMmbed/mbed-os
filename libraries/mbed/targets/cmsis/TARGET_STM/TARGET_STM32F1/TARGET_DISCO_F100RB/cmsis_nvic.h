@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -26,37 +27,28 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#include "sleep_api.h"
+ */ 
 
-#if DEVICE_SLEEP
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
+
+// CORE: 16 vectors (= 64 bytes from 0x00 to 0x3F)
+// MCU Peripherals: 100 vectors (= 400 bytes from 0x40 to 0x1CC)
+// Total:  464 bytes to be reserved in RAM (see scatter file)
+#define NVIC_NUM_VECTORS      (16 + 100)
+#define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
-#include "hal_tick.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void sleep(void)
-{
-    TimMasterHandle.Instance = TIM_MST;
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
-    // Disable HAL tick and us_ticker update interrupts
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
-  
-    // Request to enter SLEEP mode
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-  
-    // Enable HAL tick and us_ticker update interrupts
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, (TIM_IT_CC2 | TIM_IT_UPDATE));
+#ifdef __cplusplus
 }
-
-void deepsleep(void)
-{
-    // Request to enter STOP mode with regulator in low power mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
-    // After wake-up from STOP reconfigure the PLL
-    SetSysClock();
-}
+#endif
 
 #endif

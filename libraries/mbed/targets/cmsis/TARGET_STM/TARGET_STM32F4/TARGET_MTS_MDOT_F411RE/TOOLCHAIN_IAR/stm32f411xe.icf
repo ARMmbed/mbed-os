@@ -1,6 +1,6 @@
 /* [ROM = 512kb = 0x80000] */
 define symbol __intvec_start__     = 0x08000000;
-define symbol __region_ROM_start__ = 0x08000000;
+define symbol __region_ROM_start__ = 0x08010000;
 define symbol __region_ROM_end__   = 0x0807FFFF;
 
 /* [RAM = 128kb = 0x20000] Vector table dynamic copy: 102 vectors = 408 bytes (0x198) to be reserved in RAM */
