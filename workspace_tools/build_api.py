@@ -529,3 +529,36 @@ def print_build_results(result_list, build_name):
         result += "\n".join(["  * %s" % f for f in result_list])
         result += "\n"
     return result
+
+def write_build_report(build_report, filename):
+        with open(filename, 'w+') as f:
+            f.write('<section name="Build Summary">\n')
+            f.write('\t<table sorttable="yes">\n')
+
+            f.write('\t\t<tr>\n')
+            f.write('\t\t\t<td value="Target" fontattribute="bold" />\n')
+            f.write('\t\t\t<td value="Successes" fontattribute="bold" />\n')
+            f.write('\t\t\t<td value="Failures" fontattribute="bold" />\n')
+            f.write('\t\t</tr>\n')
+
+            for report in build_report:
+                f.write('\t\t<tr>\n')
+
+                color = "#009933"
+
+                if len(report["failures"]) > 0:
+                    color = "#FF0000"
+
+                target_cell = '\t\t\t<td value="%s" bgcolor="%s"/>\n' % (report["target"], color)
+                f.write(target_cell)
+
+                successes_cell = '\t\t\t<td value="%s" />\n' % ("\n".join(report["successes"]))
+                f.write(successes_cell)
+
+                failures_cell = '\t\t\t<td value="%s" />\n' % ("\n".join(report["failures"]))
+                f.write(failures_cell)
+
+                f.write('\t\t</tr>\n')
+
+            f.write('\t</table>\n')
+            f.write('</section>\n')

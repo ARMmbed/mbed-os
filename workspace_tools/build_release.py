@@ -24,6 +24,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_mbed_libs
+from workspace_tools.build_api import write_build_report
 from workspace_tools.targets import TARGET_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
@@ -137,6 +138,10 @@ if __name__ == '__main__':
             build_report.append(cur_target_build_report)
 
     # Write summary of the builds
+
+    if options.report_jenkins_file:
+        write_build_report(build_report, options.report_jenkins_file)
+
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
     if successes:
