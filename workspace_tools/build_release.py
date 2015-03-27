@@ -100,11 +100,14 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
+    parser.add_option("", "--report-jenkins", dest="report_jenkins_file", help="Output the build results to an xml file that is readable by Jenkins")
+
 
     options, args = parser.parse_args()
     start = time()
     failures = []
     successes = []
+    build_report = []
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
         if options.official_only:
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
@@ -116,14 +119,22 @@ if __name__ == '__main__':
             toolchainSet = set(toolchains)
             toolchains = toolchainSet and set((options.toolchains).split(','))
 
+
+        cur_target_build_report = { "target": target_name, "successes": [], "failures": []}
+
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
                 build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
                 successes.append(id)
+                cur_target_build_report["successes"].append(toolchain)
             except Exception, e:
                 failures.append(id)
+                cur_target_build_report["failures"].append(toolchain)
                 print e
+
+        if len(toolchains) > 0:
+            build_report.append(cur_target_build_report)
 
     # Write summary of the builds
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
