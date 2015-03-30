@@ -419,7 +419,7 @@ class K20D50M(Target):
 
 class TEENSY3_1(Target):
     OUTPUT_EXT = 'hex'
-    
+
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -630,7 +630,7 @@ class ARCH_MAX(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
-        
+
     def program_cycle_s(self):
         return 2
 
@@ -809,15 +809,19 @@ class NRF51822(Target):
     # of preference.
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
         {
-            'name' : 's110_nrf51822_7.1.0_softdevice.hex',
+            'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+            'offset' : 0x18000
+        },
+        {
+            'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
             'offset' : 0x16000
         },
         {
-            'name' : 's110_nrf51822_7.0.0_softdevice.hex',
+            'name'   : 's110_nrf51822_7.0.0_softdevice.hex',
             'offset' : 0x16000
         },
         {
-            'name' : 's110_nrf51822_6.0.0_softdevice.hex',
+            'name'   : 's110_nrf51822_6.0.0_softdevice.hex',
             'offset' : 0x14000
         }
     ]
@@ -918,7 +922,7 @@ class NRF51_DK_BOOT(NRF51822):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.MERGE_SOFT_DEVICE = True
         self.MERGE_BOOTLOADER = True
-        
+
 class NRF51_DK_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)

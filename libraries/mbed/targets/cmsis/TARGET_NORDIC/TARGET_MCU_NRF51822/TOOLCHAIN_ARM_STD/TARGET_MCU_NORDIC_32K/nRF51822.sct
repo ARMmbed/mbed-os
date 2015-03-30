@@ -12,8 +12,8 @@
 ;
 ;WITH SOFTDEVICE:
 
-LR_IROM1 0x16000 0x002A000  {
-  ER_IROM1 0x16000 0x002A000  {
+LR_IROM1 0x18000 0x0028000  {
+  ER_IROM1 0x18000 0x0028000  {
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
@@ -22,6 +22,3 @@ LR_IROM1 0x16000 0x002A000  {
    .ANY (+RW +ZI)
   }
 }
-
-
-
