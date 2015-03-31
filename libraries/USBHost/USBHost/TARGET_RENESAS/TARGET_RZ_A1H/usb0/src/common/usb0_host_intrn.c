@@ -209,7 +209,7 @@ void usb0_host_nrdy_int (uint16_t status, uint16_t int_enb)
                     {
 #if(1) /* ohci_wrapp */
                         g_usb0_host_pipe_status[pipe] = USB_HOST_PIPE_NORES;
-                        ohciwrapp_loc_TransEnd(pipe, TD_CC_STALL);
+                        ohciwrapp_loc_TransEnd(pipe, TD_CC_DEVICENOTRESPONDING);
 #else
                         g_usb0_host_PipeIgnore[pipe]++;
 

@@ -77,10 +77,10 @@ Exported global variables and functions (to be accessed by other files)
 /********************************************************************************************************/
 
 /* Device Address 1 */
-USB_HOST_CFG_PIPETBL_t     usb0_host_blk_ep_tbl1[ ] =
+USB_HOST_CFG_PIPETBL_t     usb_host_blk_ep_tbl1[ ] =
 {
     {
-        USB_HOST_PIPE1,
+        USB_HOST_PIPE3,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
         USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(8),
@@ -100,7 +100,7 @@ USB_HOST_CFG_PIPETBL_t     usb0_host_blk_ep_tbl1[ ] =
     }
 };
 
-USB_HOST_CFG_PIPETBL_t     usb0_host_int_ep_tbl1[ ] =
+USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
 {
     {
         USB_HOST_PIPE6,
@@ -152,5 +152,39 @@ USB_HOST_CFG_PIPETBL_t     usb0_host_int_ep_tbl1[ ] =
         0xFFFF
     }
 };
+
+USB_HOST_CFG_PIPETBL_t     usb_host_iso_ep_tbl1[ ] =
+{
+    {
+        USB_HOST_PIPE1,
+        /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(44),
+        USB_HOST_NONE,
+        USB_HOST_NONE,
+        USB_HOST_D1USE
+    },
+
+    {
+        USB_HOST_PIPE2,
+        /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(60),
+        USB_HOST_NONE,
+        USB_HOST_NONE,
+        USB_HOST_D1USE
+    },
+
+    {
+        /* Pipe end */
+        0xFFFF,
+        0xFFFF,
+        0xFFFF,
+        0xFFFF,
+        0xFFFF,
+        0xFFFF
+    }
+};
+
 
 /* End of File */

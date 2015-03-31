@@ -173,7 +173,7 @@ goToSleep:
  
 @ Setup Stack for each exceptional mode 
 /*    ldr     r0, =__StackTop  */
-    ldr     r0, =__initial_sp
+    ldr     r0, =(__StackTop - USR_Stack_Size)
 
 @ Enter Undefined Instruction Mode and set its Stack Pointer 
     msr     cpsr_c, #(Mode_UND | I_Bit | F_Bit)
@@ -521,9 +521,9 @@ ret_irq:
 __user_initial_stackheap:
 
                 LDR     R0, =  __HeapBase
-                LDR     R1, =(__StackLimit + USR_Stack_Size)
+                LDR     R1, =(__StackTop)
                 LDR     R2, = (__HeapBase +  Heap_Size)
-                LDR     R3, = __StackLimit
+                LDR     R3, = (__StackTop - USR_Stack_Size)
                 BX      LR
 
                 .endif
