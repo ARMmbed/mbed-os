@@ -1,0 +1,9 @@
+<h2>Failing Builds</h2>
+{% for report in failing_builds %}
+{% include 'build_report.html' %}
+{% endfor %}
+
+<h2>Passing Builds</h2>
+{% for report in passing_builds %}
+{% include 'build_report.html' %}
+{% endfor %}

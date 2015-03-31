@@ -29,6 +29,8 @@ from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, M
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
+from jinja2 import FileSystemLoader
+from jinja2.environment import Environment
 
 
 def build_project(src_path, build_path, target, toolchain_name,
@@ -531,34 +533,67 @@ def print_build_results(result_list, build_name):
     return result
 
 def write_build_report(build_report, filename):
-        with open(filename, 'w+') as f:
-            f.write('<section name="Build Summary">\n')
-            f.write('\t<table sorttable="yes">\n')
+    build_report_failing = []
+    build_report_passing = []
 
-            f.write('\t\t<tr>\n')
-            f.write('\t\t\t<td value="Target" fontattribute="bold" />\n')
-            f.write('\t\t\t<td value="Successes" fontattribute="bold" />\n')
-            f.write('\t\t\t<td value="Failures" fontattribute="bold" />\n')
-            f.write('\t\t</tr>\n')
+    for report in build_report:
+        if len(report["failing"]) > 0:
+            build_report_failing.append(report)
+        else:
+            build_report_passing.append(report)
+            
+    '''build_report_failing = [{
+        "target": "K64F",
+        "passing": [
+            {
+                "toolchain": "GCC_ARM"
+            },
+            {
+                "toolchain": "ARM"
+            }
+        ],
+        "failing": [
+            {
+                "toolchain": "GCC_CS"
+            },
+            {
+                "toolchain": "IAR"
+            }
+        ]
+    },
+    {
+        "target": "KL46Z",
+        "passing": [
+            {
+                "toolchain": "GCC_ARM"
+            }
+        ],
+        "failing": [
+            {
+                "toolchain": "ARM"
+            },
+            {
+                "toolchain": "IAR"
+            }
+        ]
+    }]
 
-            for report in build_report:
-                f.write('\t\t<tr>\n')
+    build_report_passing = [{
+        "target": "LPC1768",
+        "passing": [
+            {
+                "toolchain": "GCC_ARM"
+            },
+            {
+                "toolchain": "ARM"
+            }
+        ],
+        "failing": []
+    }]'''
 
-                color = "#009933"
+    env = Environment(extensions=['jinja2.ext.with_'])
+    env.loader = FileSystemLoader('ci_templates/library_build')
+    template = env.get_template('report.html')
 
-                if len(report["failures"]) > 0:
-                    color = "#FF0000"
-
-                target_cell = '\t\t\t<td value="%s" bgcolor="%s"/>\n' % (report["target"], color)
-                f.write(target_cell)
-
-                successes_cell = '\t\t\t<td value="%s" />\n' % ("\n".join(report["successes"]))
-                f.write(successes_cell)
-
-                failures_cell = '\t\t\t<td value="%s" />\n' % ("\n".join(report["failures"]))
-                f.write(failures_cell)
-
-                f.write('\t\t</tr>\n')
-
-            f.write('\t</table>\n')
-            f.write('</section>\n')
+    with open(filename, 'w+') as f:
+        f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))

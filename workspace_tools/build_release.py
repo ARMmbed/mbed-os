@@ -101,7 +101,7 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
-    parser.add_option("", "--report-jenkins", dest="report_jenkins_file", help="Output the build results to an xml file that is readable by Jenkins")
+    parser.add_option("", "--report-jenkins", dest="report_jenkins_file_name", help="Output the build results to an xml file that is readable by Jenkins")
 
 
     options, args = parser.parse_args()
@@ -121,17 +121,17 @@ if __name__ == '__main__':
             toolchains = toolchainSet and set((options.toolchains).split(','))
 
 
-        cur_target_build_report = { "target": target_name, "successes": [], "failures": []}
+        cur_target_build_report = { "target": target_name, "passing": [], "failing": []}
 
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
                 build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
                 successes.append(id)
-                cur_target_build_report["successes"].append(toolchain)
+                cur_target_build_report["passing"].append({ "toolchain": toolchain })
             except Exception, e:
                 failures.append(id)
-                cur_target_build_report["failures"].append(toolchain)
+                cur_target_build_report["failing"].append({ "toolchain": toolchain })
                 print e
 
         if len(toolchains) > 0:
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     # Write summary of the builds
 
     if options.report_jenkins_file:
-        write_build_report(build_report, options.report_jenkins_file)
+        write_build_report(build_report, options.report_jenkins_file_name)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 

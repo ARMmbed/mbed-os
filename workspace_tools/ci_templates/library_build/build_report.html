@@ -1,0 +1,19 @@
+<div>
+  <h3>
+    {% if report.failing|length > 0 %}
+    <span class="redbold">[FAIL]</span>
+    {% else %}
+    <span class="greenbold">[OK]</span>
+    {% endif %}
+
+    {{report.target}} - Passing: {{report.passing|length}}, Failing: {{report.failing|length}}</h3>
+  <h4>Failing</h4>
+  {% with build = report.failing %}
+  {% include 'build_report_table.html' %}
+  {% endwith %}
+
+  <h4>Passing</h4>
+  {% with build = report.passing %}
+  {% include 'build_report_table.html' %}
+  {% endwith %}
+</div>
