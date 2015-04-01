@@ -542,55 +542,6 @@ def write_build_report(build_report, template_filename, filename):
         else:
             build_report_passing.append(report)
 
-    '''build_report_failing = [{
-        "target": "K64F",
-        "passing": [
-            {
-                "toolchain": "GCC_ARM"
-            },
-            {
-                "toolchain": "ARM"
-            }
-        ],
-        "failing": [
-            {
-                "toolchain": "GCC_CS"
-            },
-            {
-                "toolchain": "IAR"
-            }
-        ]
-    },
-    {
-        "target": "KL46Z",
-        "passing": [
-            {
-                "toolchain": "GCC_ARM"
-            }
-        ],
-        "failing": [
-            {
-                "toolchain": "ARM"
-            },
-            {
-                "toolchain": "IAR"
-            }
-        ]
-    }]
-
-    build_report_passing = [{
-        "target": "LPC1768",
-        "passing": [
-            {
-                "toolchain": "GCC_ARM"
-            },
-            {
-                "toolchain": "ARM"
-            }
-        ],
-        "failing": []
-    }]'''
-
     env = Environment(extensions=['jinja2.ext.with_'])
     env.loader = FileSystemLoader('ci_templates')
     template = env.get_template(template_filename)
