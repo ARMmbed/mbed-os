@@ -99,8 +99,13 @@ typedef enum {
 	
 	SWIO = p19,
 	VERF0 = p0,
-    // Not connected
-	
+    
+	// SPI for controlling internal flash, don't use it.
+	FLASH_SPIMOSI	= 15,
+	FLASH_SPIMISO	= 9,
+	FLASH_SPICS		= 28,
+	FLASH_SPICLK	= 11,
+	// Not connected
 	CTS_PIN_NUMBER	= NC,
 	RTS_PIN_NUMBER	= NC,
 	SPI_PSELMOSI1 = NC,
