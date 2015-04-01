@@ -286,10 +286,7 @@ void    R_USB_api_host_elt_get_desc(uint16_t root);
 Includes   <System Includes> , "Project Includes"
 *******************************************************************************/
 #include "usb0_host_api.h"
-#if(1) /* ohci_wrapp */
-#else
 #include "usb1_host_api.h"
-#endif
 
 
 /*******************************************************************************
