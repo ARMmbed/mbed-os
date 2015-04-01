@@ -15,12 +15,12 @@
   <div class="toggleshow-body">
     <h4 class="redbold">Failing</h4>
     {% with build = report.failing %}
-    {% include 'library_build/build_report_table.html' %}
+    {% include 'tests_build/build_report_table.html' %}
     {% endwith %}
 
     <h4 class="greenbold">Passing</h4>
     {% with build = report.passing %}
-    {% include 'library_build/build_report_table.html' %}
+    {% include 'tests_build/build_report_table.html' %}
     {% endwith %}
   </div>
 </div>

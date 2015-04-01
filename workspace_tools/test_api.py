@@ -303,10 +303,10 @@ class SingleTestRunner(object):
             build_report[toolchain] = {
                 "mbed_failure": False,
                 "library_failure": False,
-                "library_build_successes": [],
-                "library_build_failures": [],
-                "test_build_successes": [],
-                "test_build_failures": []
+                "library_build_passing": [],
+                "library_build_failing": [],
+                "test_build_passing": [],
+                "test_build_failing": []
             }
             # print target, toolchain
             # Test suite properties returned to external tools like CI
@@ -404,14 +404,17 @@ class SingleTestRunner(object):
                               verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs)
+
+                    build_report[toolchain]["library_build_passing"].append(lib_id)
+
                 except ToolException:
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
                     build_report[toolchain]["library_failure"] = True
-                    build_report[toolchain]["library_build_failures"].append(lib_id)
+                    build_report[toolchain]["library_build_failing"].append(lib_id)
                     #return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
                     continue
 
-                build_report[toolchain]["library_build_successes"].append(lib_id)
+
 
 
             for test_id in valid_test_map_keys:
@@ -437,26 +440,26 @@ class SingleTestRunner(object):
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
                     path = build_project(test.source_dir,
-                                         join(build_dir, test_id),
-                                         T,
-                                         toolchain,
-                                         test.dependencies,
-                                         options=build_project_options,
-                                         clean=clean_project_options,
-                                         verbose=self.opts_verbose,
-                                         name=project_name,
-                                         macros=MACROS,
-                                         inc_dirs=INC_DIRS,
-                                         jobs=self.opts_jobs)
+                                     join(build_dir, test_id),
+                                     T,
+                                     toolchain,
+                                     test.dependencies,
+                                     options=build_project_options,
+                                     clean=clean_project_options,
+                                     verbose=self.opts_verbose,
+                                     name=project_name,
+                                     macros=MACROS,
+                                     inc_dirs=INC_DIRS,
+                                     jobs=self.opts_jobs)
+                    build_report[toolchain]["test_build_passing"].append(test_id)
+
                 except ToolException:
                     project_name_str = project_name if project_name is not None else test_id
                     print "DIS BE MAH ERRRRR: %s" % (str(ToolException))
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
-                    build_report[toolchain]["test_build_failures"].append(test_id)
+                    build_report[toolchain]["test_build_failing"].append(test_id)
                     # return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
                     continue
-
-                build_report[toolchain]["test_build_successes"].append(test_id)
 
                 if self.opts_only_build_tests:
                     # With this option we are skipping testing phase
@@ -542,15 +545,13 @@ class SingleTestRunner(object):
                 build_reports.append({ "target": target, "report": cur_build_report})
                 q.get()
 
-        print build_reports
-
         build_report = []
 
         for target_build_report in build_reports:
             cur_report = {
                 "target": target_build_report["target"],
-                "successes": [],
-                "failures": []
+                "passing": [],
+                "failing": []
             }
 
             for toolchain in sorted(target_build_report["report"], key=target_build_report["report"].get):
@@ -558,21 +559,34 @@ class SingleTestRunner(object):
                 report = target_build_report["report"][toolchain]
 
                 if report["mbed_failure"]:
-                    cur_report["failures"].append("mbed::%s" % (toolchain))
-                elif report["library_failure"]:
-                    for library in report["library_build_failures"]:
-                        cur_report["failures"].append("Library::%s::%s" % (library, toolchain))
+                    cur_report["failing"].append({
+                        "toolchain": toolchain,
+                        "project": "mbed library"
+                    })
                 else:
-                    cur_report["successes"].append("All Libraries::%s" % (toolchain))
+                    for passing_library in report["library_build_failing"]:
+                        cur_report["failing"].append({
+                            "toolchain": toolchain,
+                            "project": "Library::%s" % (passing_library)
+                        })
 
-                    if len(report["test_build_failures"]) > 0:
-                        for successful_test in report["test_build_successes"]:
-                            cur_report["successes"].append("Test::%s::%s" % (toolchain, successful_test))
+                    for failing_library in report["library_build_passing"]:
+                        cur_report["passing"].append({
+                            "toolchain": toolchain,
+                            "project": "Library::%s" % (failing_library)
+                        })
 
-                        for failed_test in report["test_build_failures"]:
-                            cur_report["failures"].append("Test::%s::%s" % (toolchain, failed_test))
-                    else:
-                        cur_report["successes"].append("All Tests::%s" % (toolchain))
+                    for passing_test in report["test_build_passing"]:
+                        cur_report["passing"].append({
+                            "toolchain": toolchain,
+                            "project": "Test::%s" % (passing_test)
+                        })
+
+                    for failing_test in report["test_build_failing"]:
+                        cur_report["failing"].append({
+                            "toolchain": toolchain,
+                            "project": "Test::%s" % (failing_test)
+                        })
 
 
             build_report.append(cur_report)
@@ -1427,7 +1441,7 @@ def singletest_in_cli_mode(single_test):
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
     if single_test.opts_report_jenkins_file_name:
         # Export build results as Jenkins XML report ti sparate file
-        write_build_report(build_report, single_test.opts_report_jenkins_file_name)
+        write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_jenkins_file_name)
 
 
 class TestLogger():

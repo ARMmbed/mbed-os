@@ -532,7 +532,7 @@ def print_build_results(result_list, build_name):
         result += "\n"
     return result
 
-def write_build_report(build_report, filename):
+def write_build_report(build_report, template_filename, filename):
     build_report_failing = []
     build_report_passing = []
 
@@ -541,7 +541,7 @@ def write_build_report(build_report, filename):
             build_report_failing.append(report)
         else:
             build_report_passing.append(report)
-            
+
     '''build_report_failing = [{
         "target": "K64F",
         "passing": [
@@ -592,8 +592,8 @@ def write_build_report(build_report, filename):
     }]'''
 
     env = Environment(extensions=['jinja2.ext.with_'])
-    env.loader = FileSystemLoader('ci_templates/library_build')
-    template = env.get_template('report.html')
+    env.loader = FileSystemLoader('ci_templates')
+    template = env.get_template(template_filename)
 
     with open(filename, 'w+') as f:
         f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))
