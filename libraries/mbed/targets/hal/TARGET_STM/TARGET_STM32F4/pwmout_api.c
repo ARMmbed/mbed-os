@@ -58,12 +58,18 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
     if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
     if (obj->pwm == PWM_4) __TIM4_CLK_ENABLE();
+#if defined(TIM8_BASE)
     if (obj->pwm == PWM_8) __TIM8_CLK_ENABLE();
+#endif
     if (obj->pwm == PWM_9) __TIM9_CLK_ENABLE();
     if (obj->pwm == PWM_10) __TIM10_CLK_ENABLE();
     if (obj->pwm == PWM_11) __TIM11_CLK_ENABLE();
+#if defined(TIM13_BASE)
     if (obj->pwm == PWM_13) __TIM13_CLK_ENABLE();
+#endif
+#if defined(TIM14_BASE)
     if (obj->pwm == PWM_14) __TIM14_CLK_ENABLE();
+#endif
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
