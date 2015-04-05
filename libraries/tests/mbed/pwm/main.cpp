@@ -107,6 +107,16 @@ int main() {
     printf("Initialize PWM on pin PD_13 with duty cycle: %.2f\n", pwm_2.read());
 
     notify_completion(result == value ? true : false);
+#elif defined(TARGET_DISCO_F429ZI)
+    PwmOut pwm_1(PA_0);
+
+    pwm_1.write(value);
+    
+    float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
+
+    printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
 #else
 #error This test is not supported on this target.
 #endif
