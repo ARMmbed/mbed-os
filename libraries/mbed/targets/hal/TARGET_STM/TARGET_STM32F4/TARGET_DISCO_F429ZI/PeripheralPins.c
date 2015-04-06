@@ -70,8 +70,8 @@ const PinMap PinMap_ADC[] = {
 //*** DAC ***
 
 const PinMap PinMap_DAC[] = {
-    {PA_4, DAC_0, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 0,  0)}, // DAC_OUT1
-    {PA_5, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 1,  0)}, // DAC_OUT2
+    {PA_4, DAC_0, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 1,  0)}, // DAC_OUT1
+    {PA_5, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 2,  0)}, // DAC_OUT2
     {NC,   NC,    0}
 };
 
