@@ -117,6 +117,46 @@ int main() {
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
 
     notify_completion(result == value ? true : false);
+#elif defined(TARGET_MTS_MDOT_F405RG)
+    PwmOut pwm_1(PA_0);
+
+    pwm_1.write(value);
+    
+    float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
+
+    printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
+#elif defined(TARGET_MTS_DRAGONFLY_F411RE)
+    PwmOut pwm_1(PA_0);
+
+    pwm_1.write(value);
+    
+    float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
+
+    printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
+#elif defined(TARGET_MTS_MDOT_F411RE)
+    PwmOut pwm_1(PA_0);
+
+    pwm_1.write(value);
+    
+    float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
+
+    printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
+#elif defined(TARGET_UBLOX_C029)
+    PwmOut pwm_1(PA_0);
+
+    pwm_1.write(value);
+    
+    float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
+
+    printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
 #else
 #error This test is not supported on this target.
 #endif
