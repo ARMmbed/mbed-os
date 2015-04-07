@@ -19,7 +19,7 @@
  * @brief The scheduler is used for transferring execution from the interrupt context to the main
  *        context.
  *
- * @details See @ref ble_sdk_apps_seq_diagrams for sequence diagrams illustrating the flow of events
+ * @details See @ref seq_diagrams_sched for sequence diagrams illustrating the flow of events
  *          when using the Scheduler.
  *
  * @section app_scheduler_req Requirements:
@@ -39,8 +39,10 @@
  *     scheduler's queue. The app_sched_execute() function will pull this event and call its
  *     handler in the main context.
  *
- * For an example usage of the scheduler, please see the implementations of
+ * @if (SD_S110 && !SD_S310)
+ * For an example usage of the scheduler, see the implementations of
  * @ref ble_sdk_app_hids_mouse and @ref ble_sdk_app_hids_keyboard.
+ * @endif
  *
  * @image html scheduler_working.jpg The high level design of the scheduler
  */
@@ -95,7 +97,7 @@ typedef void (*app_sched_event_handler_t)(void * p_event_data, uint16_t event_si
  * @param[in]   max_event_size   Maximum size of events to be passed through the scheduler.
  * @param[in]   queue_size       Number of entries in scheduler queue (i.e. the maximum number of
  *                               events that can be scheduled for execution).
- * @param[in]   p_event_buffer   Pointer to memory buffer for holding the scheduler queue. It must
+ * @param[in]   p_evt_buffer   Pointer to memory buffer for holding the scheduler queue. It must
  *                               be dimensioned using the APP_SCHED_BUFFER_SIZE() macro. The buffer
  *                               must be aligned to a 4 byte boundary.
  *
@@ -120,7 +122,7 @@ void app_sched_execute(void);
  * @details Puts an event into the event queue.
  *
  * @param[in]   p_event_data   Pointer to event data to be scheduled.
- * @param[in]   p_event_size   Size of event data to be scheduled.
+ * @param[in]   event_size   Size of event data to be scheduled.
  * @param[in]   handler        Event handler to receive the event.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
@@ -129,6 +131,22 @@ uint32_t app_sched_event_put(void *                    p_event_data,
                              uint16_t                  event_size,
                              app_sched_event_handler_t handler);
 
+#ifdef APP_SCHEDULER_WITH_PAUSE
+/**@brief A function to pause the scheduler.
+ *
+ * @details When the scheduler is paused events are not pulled from the scheduler queue for
+ *          processing. The function can be called multiple times. To unblock the scheduler the
+ *          function @ref app_sched_resume has to be called the same number of times.
+ */
+void app_sched_pause(void);
+
+/**@brief A function to resume a scheduler.
+ *
+ * @details To unblock the scheduler this function has to be called the same number of times as
+ *          @ref app_sched_pause function.
+ */
+void app_sched_resume(void);
+#endif
 #endif // APP_SCHEDULER_H__
 
 /** @} */
