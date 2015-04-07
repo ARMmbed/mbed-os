@@ -612,7 +612,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -625,7 +625,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -638,7 +638,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
@@ -650,7 +650,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
@@ -662,7 +662,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
@@ -674,7 +674,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -688,7 +688,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
@@ -700,7 +700,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
