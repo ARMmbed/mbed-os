@@ -7,11 +7,11 @@
 																		  contentRoot=".">
 {# Hierarchically include all folders into the project #}
   {%- for child in recursiveFolders.children recursive %}
-  {{ '  '* loop.depth0 }}<folder name="{{ child.name }}" uri="{{ child.name }}" includeAllFiles="true" includeAllFolders="true">
+  <folder name="{{ child.name }}" uri="{{ child.name }}" includeAllFiles="true" includeAllFolders="true">
     {%- if child.children -%}
     {{ loop(child.children) }}
     {%- endif %}
-  {{ '  '* loop.depth0 }}</folder>
+  </folder>
   {%- endfor %}
 
 {# Include all source files not belonging to a subfolder separately #}
