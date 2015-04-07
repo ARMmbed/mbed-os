@@ -261,7 +261,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     } else { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
-        obj->uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
+        obj->uart->INTENCLR |= (1 << ((irq == RxIrq) ? 0 : 2)); // disable the interrupt
         all_disabled = (obj->uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);
