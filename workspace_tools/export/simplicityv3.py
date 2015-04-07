@@ -149,6 +149,8 @@ class SimplicityV3(Exporter):
         if '.' in ctx['include_paths']:
             ctx['include_paths'].remove('.')
 
+        '''
+        Suppress print statements
         print('\n')
         print(self.target)
         print('\n')
@@ -159,11 +161,6 @@ class SimplicityV3(Exporter):
             print(path.name + "\n")
             for bpath in path.children:
                 print("\t" + bpath.name + "\n")
-        '''
-        self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
-
-        self.gen_file('simplicity_%s_project.tmpl' % self.target.lower(), ctx, '.project')
-        self.gen_file('simplicity_%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
         '''
 
         self.gen_file('simplicityv3_slsproj.tmpl', ctx, '%s.slsproj' % self.program_name)
