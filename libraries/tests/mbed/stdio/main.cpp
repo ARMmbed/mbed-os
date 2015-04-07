@@ -15,9 +15,9 @@ int main() {
     DigitalOut led1(LED1);
     DigitalOut led2(LED2);
 
-    union {
+    //union {
         int value_int;
-    };
+    //};
 
     notify_start(); // Just to sync with host test supervisor
 
