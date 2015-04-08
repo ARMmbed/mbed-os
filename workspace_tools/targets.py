@@ -789,7 +789,7 @@ class MOTE_L152RC(Target):
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RC']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
-        self.detect_code = ["9999"]
+        self.detect_code = ["4100"]
 
 class DISCO_F401VC(Target):
     def __init__(self):
