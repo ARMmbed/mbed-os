@@ -115,7 +115,45 @@ typedef enum {
     AOUT_BO = (0xF << PORT_SHIFT) | 1,
     AOUT_CO = (0xF << PORT_SHIFT) | 2,
     AOUT_DO = (0xF << PORT_SHIFT) | 3,
-    
+
+    LED_RED = P1_7,
+    LED_GREEN = P1_6,
+    LED_BLUE = P1_4,
+
+    // mbed original LED naming
+    LED1 = LED_RED,
+    LED2 = LED_GREEN,
+    LED3 = LED_BLUE,
+    LED4 = LED_BLUE,
+
+    // Push button
+    SW1 = P1_5,
+
+    // UART Pins
+    USBTX = P1_3,
+    USBRX = P1_2,
+    STDIO_UART_TX = USBTX,
+    STDIO_UART_RX = USBRX,
+
+    I2C_SCL = P0_5,
+    I2C_SDA = P0_4,
+
+    // BTLE Radio HCI
+    HCI_SCK = P2_0,
+    HCI_MOSI = P2_1,
+    HCI_MISO = P2_2,
+    HCI_CSN = P2_3,
+    HCI_IRQ = P2_4,
+    HCI_RST = P2_5,
+
+    // Test points
+    TP1 = P1_1,
+    TP2 = P1_0,
+    TP3 = P0_1,
+    TP4 = P0_0,
+    TP5 = P0_5,
+    TP6 = P0_4,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
@@ -127,7 +165,10 @@ typedef enum {
     PullDefault = PullUp
 } PinMode;
 
-#include "PinAliases.h"
+typedef enum {
+    LED_ON = 0,
+    LED_OFF = 1
+} LedStates;
 
 #ifdef __cplusplus
 }
