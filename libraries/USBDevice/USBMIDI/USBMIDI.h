@@ -78,7 +78,7 @@ public:
 
 
 protected:
-    virtual bool EP2_OUT_callback();
+    virtual bool EPBULK_OUT_callback();
     virtual bool USBCallback_setConfiguration(uint8_t configuration);
     /*
     * Get string product descriptor

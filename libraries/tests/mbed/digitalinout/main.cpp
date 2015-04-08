@@ -36,6 +36,10 @@ DigitalInOut d2(PD_0);
 DigitalInOut d1(D0);
 DigitalInOut d2(D7);
 
+#elif defined(TARGET_MAXWSNENV)
+DigitalInOut d1(TP3);
+DigitalInOut d2(TP4);
+
 #else
 DigitalInOut d1(p5);
 DigitalInOut d2(p25);

@@ -420,7 +420,7 @@ uint8_t * USBKeyboard::reportDesc() {
 }
 
 
-bool USBKeyboard::EP1_OUT_callback() {
+bool USBKeyboard::EPINT_OUT_callback() {
     uint32_t bytesRead = 0;
     uint8_t led[65];
     USBDevice::readEP(EPINT_OUT, led, &bytesRead, MAX_HID_REPORT_SIZE);
