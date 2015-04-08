@@ -1102,6 +1102,16 @@ class RZ_A1H(Target):
         return 2
 
 
+### Maxim Integrated ###
+
+class MAXWSNENV(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Maxim', 'MAX32610']
+        self.macros = ['__SYSTEM_HFX=24000000']
+        self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
+        self.default_toolchain = "ARM"
 
 # Get a single instance for each target
 TARGETS = [
@@ -1211,6 +1221,9 @@ TARGETS = [
 
     ### Renesas ###
     RZ_A1H(),
+
+    ### Maxim Integrated ###
+    MAXWSNENV(),
 ]
 
 # Map each target name to its unique instance

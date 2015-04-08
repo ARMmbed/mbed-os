@@ -10,6 +10,11 @@
 #     define LED2   (1 <<  9) // P1.9
 #     define LED3   (1 << 10) // P1.10
 #     define LED4   (1 << 11) // P1.11
+# elif defined(TARGET_MAXWSNENV)
+#     define LED1   (1 <<  4) // P1.4
+#     define LED2   (1 <<  6) // P1.6
+#     define LED3   (1 <<  7) // P1.7
+#     define LED4   0
 # endif
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)
