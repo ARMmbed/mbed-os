@@ -1027,15 +1027,6 @@ class DELTA_DFCM_NNN40_OTA(NRF51822):
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
         self.MERGE_SOFT_DEVICE = False
         self.macros += self.common_macros
-
-class DELTA_DFCM_NNN40_OTA(NRF51822):
-    def __init__(self):
-        NRF51822.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40']
-        self.MERGE_SOFT_DEVICE = False
-        self.macros += self.common_macros
-
 ### ARM ###
 
 class ARM_MPS2_M0(Target):
