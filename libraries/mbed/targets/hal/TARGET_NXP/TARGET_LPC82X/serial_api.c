@@ -90,9 +90,38 @@ static uart_irq_handler irq_handler;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
+static int check_duplication(serial_t *obj, PinName tx, PinName rx)
+{
+    if (uart_used == 0)
+        return 0;
+
+    const SWM_Map *swm;
+    uint32_t assigned_tx, assigned_rx;
+    int ch;
+    for (ch=0; ch<UART_NUM; ch++)  {
+        // read assigned TX in the UART channel of switch matrix
+        swm = &SWM_UART_TX[ch];
+        assigned_tx = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+        assigned_tx = assigned_tx >> swm->offset;
+        // read assigned RX in the UART channel of switch matrix
+        swm = &SWM_UART_RX[ch];
+        assigned_rx = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
+        assigned_rx = assigned_rx >> swm->offset;
+        if ((assigned_tx == (uint32_t)(tx >> PIN_SHIFT)) && (assigned_rx == (uint32_t)(rx >> PIN_SHIFT))) {
+            obj->index = ch;
+            obj->uart = (LPC_USART0_Type *)(LPC_USART0_BASE + (0x4000 * ch));
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     int is_stdio_uart = 0;
+
+    if (check_duplication(obj, tx, rx) == 1)
+        return;
 
     int uart_n = get_available_uart();
     if (uart_n == -1) {
@@ -192,7 +221,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     stop_bits -= 1;
     data_bits -= 7;
 
-    int paritysel;
+    int paritysel = 0;
     switch (parity) {
         case ParityNone: paritysel = 0; break;
         case ParityEven: paritysel = 2; break;
