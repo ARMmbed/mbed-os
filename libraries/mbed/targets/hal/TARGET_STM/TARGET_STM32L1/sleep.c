@@ -27,49 +27,72 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
+#include "sleep_api.h"
 
-#include "mbed_assert.h"
+#if DEVICE_SLEEP
+
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
-#ifdef __cplusplus
-extern "C" {
+static TIM_HandleTypeDef TimMasterHandle;
+
+void sleep(void)
+{
+    // Disable HAL tick interrupt
+    TimMasterHandle.Instance = TIM5;
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+
+    // Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+}
+
+void deepsleep(void)
+{
+#if defined(TARGET_MOTE_L152RC)
+    int8_t STOPEntry = PWR_STOPENTRY_WFI;
 #endif
 
-typedef struct {
-    PinName  pin;
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-} gpio_t;
+    // Disable HAL tick interrupt
+    TimMasterHandle.Instance = TIM5;
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
-static inline void gpio_write(gpio_t *obj, int value)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-        *obj->reg_set = obj->mask << 16;
+#if defined(TARGET_MOTE_L152RC)
+    /* Select the regulator state in Stop mode: Set PDDS and LPSDSR bit according to PWR_Regulator value */
+    MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPSDSR), PWR_LOWPOWERREGULATOR_ON);
+
+    /* Set SLEEPDEEP bit of Cortex System Control Register */
+    SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+
+    /* Select Stop mode entry --------------------------------------------------*/
+    if(STOPEntry == PWR_STOPENTRY_WFI)
+    {
+        /* Request Wait For Interrupt */
+        __WFI();
     }
-}
-
-static inline int gpio_read(gpio_t *obj)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
-
-static inline int gpio_is_connected(const gpio_t *obj) {
-    return obj->pin != (PinName)NC;
-}
-
-#ifdef __cplusplus
-}
+    else
+    {
+        /* Request Wait For Event */
+        __SEV();
+        __WFE();
+        __WFE();
+    }
+    __NOP();
+    __NOP();
+    __NOP();
+    /* Reset SLEEPDEEP bit of Cortex System Control Register */
+    CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+#else
+    // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif
+
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
+
+    // Enable HAL tick interrupt
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+}
 
 #endif
