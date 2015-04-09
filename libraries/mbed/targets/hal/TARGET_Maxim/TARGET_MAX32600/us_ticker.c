@@ -96,7 +96,7 @@ static void tmr_handler(void)
 
     if (event_passed(current_cnt + US_TIMER->count32, event_cnt )) {
         // the timestamp has expired
-        event_cnt = -1;                   // reset to max value
+        event_cnt = 0xFFFFFFFFFFFFFFFFULL;  // reset to max value
         us_ticker_irq_handler();
     } else {
 
@@ -112,7 +112,7 @@ static void tmr_handler(void)
                 US_TIMER->term_cnt32 = 0xFFFFFFFF;  // reset to max value to prevent further interrupts
                 US_TIMER->intfl = (MXC_F_TMR_INTFL_TIMER0 | MXC_F_TMR_INTFL_TIMER1);    // clear interrupt
                 NVIC_ClearPendingIRQ(US_TIMER_IRQn);
-                event_cnt = -1;                   // reset to max value
+                event_cnt = 0xFFFFFFFFFFFFFFFFULL;  // reset to max value
                 us_ticker_irq_handler();
             }
         }
@@ -127,7 +127,7 @@ void us_ticker_init(void)
     us_ticker_inited = 1;
 
     current_cnt = 0;
-    event_cnt = -1;       // initialize to max value
+    event_cnt = 0xFFFFFFFFFFFFFFFFULL;  // reset to max value
 
     if (SystemCoreClock <= 1000000) {
         error("us_ticker cannot operate at this SystemCoreClock");
