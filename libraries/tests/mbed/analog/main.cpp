@@ -37,6 +37,18 @@ AnalogOut out(D12); //D12 is P0_12, the DAC output pin
 AnalogIn in(A0);
 AnalogOut out(A2); // DAC output
 
+#elif defined(TARGET_ARCH_MAX)
+AnalogIn in(PA_0);
+AnalogOut out(PA_4);
+
+#elif defined(TARGET_DISCO_F407VG)
+AnalogIn in(PC_5);
+AnalogOut out(PA_4);
+
+#elif defined(TARGET_DISCO_F429ZI)
+AnalogIn in(PC_3);
+AnalogOut out(PA_5);
+
 #else
 AnalogIn in(p17);
 AnalogOut out(p18);

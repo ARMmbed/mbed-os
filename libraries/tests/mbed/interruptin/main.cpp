@@ -51,7 +51,8 @@ void in_handler() {
 #define PIN_IN      PB_8
 #define PIN_OUT     PC_7
 
-#elif defined(TARGET_DISCO_F407VG) || \
+#elif defined(TARGET_ARCH_MAX) || \
+      defined(TARGET_DISCO_F407VG) || \
       defined(TARGET_DISCO_F429ZI)|| \
       defined(TARGET_DISCO_F401VC)
 #define PIN_OUT    PC_12
