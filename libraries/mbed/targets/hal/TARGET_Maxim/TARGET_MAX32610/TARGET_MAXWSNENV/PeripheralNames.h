@@ -30,12 +30,57 @@
  * ownership rights.
  *******************************************************************************
  */
+ 
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#ifndef _PERIPHERAL_ALIASES_H
-#define _PERIPHERAL_ALIASES_H
+#include "cmsis.h"
 
-#define STDIO_UART        UART_1
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif /* _PERIPHERAL_ALIASES_H */
+typedef enum {
+    UART_0 = MXC_BASE_UART0,
+    UART_1 = MXC_BASE_UART1,
+    STDIO_UART = UART_1
+} UARTName;
+
+typedef enum {
+    I2C_0 = MXC_BASE_I2CM0,
+    I2C_1 = MXC_BASE_I2CM1
+} I2CName;
+
+typedef enum {
+    SPI_0 = MXC_BASE_SPI0,
+    SPI_1 = MXC_BASE_SPI1,
+    SPI_2 = MXC_BASE_SPI2
+} SPIName;
+
+typedef enum {
+    PWM_0 = MXC_BASE_PT0,
+    PWM_1 = MXC_BASE_PT1,
+    PWM_2 = MXC_BASE_PT2,
+    PWM_3 = MXC_BASE_PT3,
+    PWM_4 = MXC_BASE_PT4,
+    PWM_5 = MXC_BASE_PT5,
+    PWM_6 = MXC_BASE_PT6,
+    PWM_7 = MXC_BASE_PT7
+} PWMName;
+
+typedef enum {
+    ADC = MXC_BASE_ADC
+} ADCName;
+
+typedef enum {
+    DAC0 = MXC_BASE_DAC0,
+    DAC1 = MXC_BASE_DAC1,
+    DAC2 = MXC_BASE_DAC2,
+    DAC3 = MXC_BASE_DAC3,
+} DACName;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
