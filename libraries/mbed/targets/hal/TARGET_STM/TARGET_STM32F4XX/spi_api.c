@@ -99,8 +99,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    }
-    else {
+    } else {
         // Use software slave management
         obj->spi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
     }
