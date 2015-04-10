@@ -91,17 +91,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         case SPI_0: LPC_CGU->BASE_CLK[CLK_BASE_SSP0] = (1 << 11) | (CLKIN_MAINPLL << 24); break;
         case SPI_1: LPC_CGU->BASE_CLK[CLK_BASE_SSP1] = (1 << 11) | (CLKIN_MAINPLL << 24); break;
     }
-
-    // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
-    
-    // enable the ssp channel
-    ssp_enable(obj);
     
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);

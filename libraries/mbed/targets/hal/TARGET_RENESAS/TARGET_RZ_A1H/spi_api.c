@@ -96,14 +96,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->SPBFCR = 0xf0;  // and set trigger count: read 1, write 1
     obj->spi->SPBFCR = 0x30;  // and reset buffer
 
-    // set default format and frequency
-    if ((int)ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
-
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);

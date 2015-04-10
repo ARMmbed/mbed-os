@@ -43,14 +43,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_address[] = SPI_BASE_ADDRS;
     DSPI_HAL_Init(spi_address[obj->instance]);
     DSPI_HAL_Disable(spi_address[obj->instance]);
-    // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
     DSPI_HAL_SetDelay(spi_address[obj->instance], kDspiCtar0, 0, 0, kDspiPcsToSck);
-    spi_frequency(obj, 1000000);
 
     DSPI_HAL_Enable(spi_address[obj->instance]);
     DSPI_HAL_StartTransfer(spi_address[obj->instance]);
