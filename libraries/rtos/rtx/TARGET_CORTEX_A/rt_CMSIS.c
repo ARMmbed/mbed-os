@@ -2066,7 +2066,7 @@ osStatus osMailPut (osMailQId queue_id, void *mail) {
   return osMessagePut(*((void **)queue_id), (uint32_t)mail, 0);
 }
 
-#ifdef __arm__
+#ifdef __CC_ARM
 #pragma push
 #pragma Ospace
 #endif // __arm__
@@ -2084,6 +2084,6 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec) {
 
   return ret;
 }
-#ifdef __arm__
+#ifdef __CC_ARM
 #pragma pop
 #endif // __arm__
