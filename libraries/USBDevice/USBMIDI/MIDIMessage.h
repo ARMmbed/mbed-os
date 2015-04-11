@@ -21,6 +21,8 @@
 
 #include "mbed.h"
 
+#define MAX_MIDI_MESSAGE_SIZE 256 // Max message size. SysEx can be up to 65536 but 256 should be fine for most usage
+
 // MIDI Message Format
 //
 // [ msg(4) | channel(4) ] [ 0 | n(7) ] [ 0 | m(7) ]
@@ -47,6 +49,16 @@ public:
     MIDIMessage(uint8_t *buf) {
         for (int i = 0; i < 4; i++)
             data[i] = buf[i];
+    }
+
+    // New constructor, buf is a true MIDI message (not USBMidi message) and buf_len true message length.
+    MIDIMessage(uint8_t *buf, int buf_len) {
+        length=buf_len+1;
+        // first byte keeped for retro-compatibility
+        data[0]=0;
+
+        for (int i = 0; i < buf_len; i++)
+            data[i+1] = buf[i];
     }
 
     // create messages
@@ -174,7 +186,8 @@ public:
         ProgramChangeType,
         ChannelAftertouchType,
         PitchWheelType,
-        AllNotesOffType
+        AllNotesOffType,
+        SysExType
     };
 
     /** Read the message type
@@ -196,6 +209,7 @@ public:
             case 0xC: return ProgramChangeType;
             case 0xD: return ChannelAftertouchType;
             case 0xE: return PitchWheelType;
+            case 0xF: return SysExType;
             default: return ErrorType;
         }
     }
@@ -245,7 +259,8 @@ public:
         return p - 8192; // 0 - 16383, 8192 is center
     }
 
-    uint8_t data[4];
+    uint8_t data[MAX_MIDI_MESSAGE_SIZE+1];
+    uint8_t length=4;
 };
 
 #endif
