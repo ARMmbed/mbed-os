@@ -174,6 +174,16 @@ public:
         return ControlChange(123, 0, channel);
     }
 
+     /** Create a SysEx message
+     * @param data SysEx data (including 0xF0 .. 0xF7)
+     * @param len SysEx data length
+     * @returns A MIDIMessage
+     */
+    static MIDIMessage SysEx(uint8_t *data, int len) {
+        MIDIMessage msg=MIDIMessage(data,len);
+        return msg;
+    }
+
     // decode messages
 
     /** MIDI Message Types */
