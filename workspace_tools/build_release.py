@@ -139,8 +139,8 @@ if __name__ == '__main__':
 
     # Write summary of the builds
 
-    if options.report_jenkins_file:
-        write_build_report(build_report, options.report_jenkins_file_name)
+    if options.report_jenkins_file_name:
+        write_build_report(build_report, 'library_build/report.html', options.report_jenkins_file_name)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
