@@ -1,19 +1,26 @@
-<div>
+<div class="toggleshow{% if report.failing|length == 0 %} toggleshow-hide{% endif %}">
   <h3>
-    {% if report.failing|length > 0 %}
-    <span class="redbold">[FAIL]</span>
-    {% else %}
-    <span class="greenbold">[OK]</span>
-    {% endif %}
+    <a href="#" class="toggleshow-title">
+      <span class="toggleshow-arrow"></span>
+      {% if report.failing|length > 0 %}
+      <span class="redbold">[FAIL]</span>
+      {% else %}
+      <span class="greenbold">[OK]</span>
+      {% endif %}
 
-    {{report.target}} - Passing: {{report.passing|length}}, Failing: {{report.failing|length}}</h3>
-  <h4>Failing</h4>
-  {% with build = report.failing %}
-  {% include 'build_report_table.html' %}
-  {% endwith %}
+      {{report.target}} - Passing: {{report.passing|length}}, Failing: {{report.failing|length}}
+    </a>
+  </h3>
 
-  <h4>Passing</h4>
-  {% with build = report.passing %}
-  {% include 'build_report_table.html' %}
-  {% endwith %}
+  <div class="toggleshow-body">
+    <h4 class="redbold">Failing</h4>
+    {% with build = report.failing %}
+    {% include 'build_report_table.html' %}
+    {% endwith %}
+
+    <h4 class="greenbold">Passing</h4>
+    {% with build = report.passing %}
+    {% include 'build_report_table.html' %}
+    {% endwith %}
+  </div>
 </div>
