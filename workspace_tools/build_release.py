@@ -101,7 +101,7 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
-    parser.add_option("", "--report-jenkins", dest="report_jenkins_file_name", help="Output the build results to an xml file that is readable by Jenkins")
+    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
 
 
     options, args = parser.parse_args()
@@ -147,8 +147,8 @@ if __name__ == '__main__':
 
     # Write summary of the builds
 
-    if options.report_jenkins_file_name:
-        write_build_report(build_report, 'library_build/report.html', options.report_jenkins_file_name)
+    if options.report_build_file_name:
+        write_build_report(build_report, 'library_build/report.html', options.report_build_file_name)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
