@@ -455,7 +455,6 @@ class SingleTestRunner(object):
 
                 except ToolException:
                     project_name_str = project_name if project_name is not None else test_id
-                    print "DIS BE MAH ERRRRR: %s" % (str(ToolException))
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
                     build_report[toolchain]["test_build_failing"].append(test_id)
                     # return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
