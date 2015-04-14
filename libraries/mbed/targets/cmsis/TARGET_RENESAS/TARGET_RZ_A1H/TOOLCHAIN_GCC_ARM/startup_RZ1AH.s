@@ -113,14 +113,14 @@ __HeapLimit:
     .align 2
     .globl __isr_vector
 __isr_vector:
-    .long   0xe59ff018 // 0x00
-    .long   0xe59ff018 // 0x04
-    .long   0xe59ff018 // 0x08
-    .long   0xe59ff018 // 0x0c
-    .long   0xe59ff018 // 0x10
-    .long   0xe59ff018 // 0x14
-    .long   0xe59ff018 // 0x18
-    .long   0xe59ff018 // 0x1c
+    .long   0xe59ff018 /* 0x00 */
+    .long   0xe59ff018 /* 0x04 */
+    .long   0xe59ff018 /* 0x08 */
+    .long   0xe59ff018 /* 0x0c */
+    .long   0xe59ff018 /* 0x10 */
+    .long   0xe59ff018 /* 0x14 */
+    .long   0xe59ff018 /* 0x18 */
+    .long   0xe59ff018 /* 0x1c */
 
     .long   Reset_Handler         /* 0x20 */
     .long   Undef_Handler         /* 0x24 */

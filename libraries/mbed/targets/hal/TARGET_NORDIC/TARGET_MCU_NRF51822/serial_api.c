@@ -194,10 +194,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         switch (irq) {
             case RxIrq:
-                obj->uart->INTEN |= (UART_INTENSET_RXDRDY_Msk);
+                obj->uart->INTENSET = (UART_INTENSET_RXDRDY_Msk);
                 break;
             case TxIrq:
-                obj->uart->INTEN |= (UART_INTENSET_TXDRDY_Msk);
+                obj->uart->INTENSET = (UART_INTENSET_TXDRDY_Msk);
                 break;
         }
         NVIC_SetPriority(irq_n, 3);
@@ -209,12 +209,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         int all_disabled = 0;
         switch (irq) {
             case RxIrq:
-                obj->uart->INTEN &= ~(UART_INTENCLR_RXDRDY_Msk);
-                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
+                obj->uart->INTENCLR = (UART_INTENCLR_RXDRDY_Msk);
+                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
                 break;
             case TxIrq:
-                obj->uart->INTEN &= ~(UART_INTENCLR_TXDRDY_Msk);
-                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
+                obj->uart->INTENCLR = (UART_INTENCLR_TXDRDY_Msk);
+                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
                 break;
         }
 

@@ -62,7 +62,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD      WDT_IRQHandler ;WDT
                 DCD      RTC1_IRQHandler ;RTC1
                 DCD      QDEC_IRQHandler ;QDEC
-                DCD      LPCOMP_COMP_IRQHandler ;LPCOMP_COMP
+                DCD      LPCOMP_IRQHandler ;LPCOMP
                 DCD      SWI0_IRQHandler ;SWI0
                 DCD      SWI1_IRQHandler ;SWI1
                 DCD      SWI2_IRQHandler ;SWI2
@@ -85,19 +85,28 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 
 ; Reset Handler
 
-NRF_POWER_RAMON_ADDRESS           EQU   0x40000524  ; NRF_POWER->RAMON address
-NRF_POWER_RAMON_RAMxON_ONMODE_Msk EQU   0xF         ; All RAM blocks on in onmode bit mask
+NRF_POWER_RAMON_ADDRESS            EQU   0x40000524  ; NRF_POWER->RAMON address
+NRF_POWER_RAMONB_ADDRESS           EQU   0x40000554  ; NRF_POWER->RAMONB address
+NRF_POWER_RAMONx_RAMxON_ONMODE_Msk EQU   0x3         ; All RAM blocks on in onmode bit mask
 
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
-                IMPORT  SystemInit				
+                IMPORT  SystemInit
                 IMPORT  __main
+                
+                MOVS    R1, #NRF_POWER_RAMONx_RAMxON_ONMODE_Msk
+                
                 LDR     R0, =NRF_POWER_RAMON_ADDRESS
                 LDR     R2, [R0]
-                MOVS    R1, #NRF_POWER_RAMON_RAMxON_ONMODE_Msk
                 ORRS    R2, R2, R1
                 STR     R2, [R0]
-                LDR     R0, =SystemInit               
+                
+                LDR     R0, =NRF_POWER_RAMONB_ADDRESS
+                LDR     R2, [R0]
+                ORRS    R2, R2, R1
+                STR     R2, [R0]
+                
+                LDR     R0, =SystemInit
                 BLX     R0
                 LDR     R0, =__main
                 BX      R0
@@ -147,7 +156,7 @@ Default_Handler PROC
                 EXPORT   WDT_IRQHandler [WEAK]
                 EXPORT   RTC1_IRQHandler [WEAK]
                 EXPORT   QDEC_IRQHandler [WEAK]
-                EXPORT   LPCOMP_COMP_IRQHandler [WEAK]
+                EXPORT   LPCOMP_IRQHandler [WEAK]
                 EXPORT   SWI0_IRQHandler [WEAK]
                 EXPORT   SWI1_IRQHandler [WEAK]
                 EXPORT   SWI2_IRQHandler [WEAK]
@@ -172,7 +181,7 @@ CCM_AAR_IRQHandler
 WDT_IRQHandler
 RTC1_IRQHandler
 QDEC_IRQHandler
-LPCOMP_COMP_IRQHandler
+LPCOMP_IRQHandler
 SWI0_IRQHandler
 SWI1_IRQHandler
 SWI2_IRQHandler

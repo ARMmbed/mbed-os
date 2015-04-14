@@ -33,7 +33,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
     ('LPC812',       ('uARM','IAR')),
-    ('LPC824',       ('uARM', 'IAR')),
+    ('LPC824',       ('uARM', 'IAR', 'GCC_CR')),
     ('SSCI824',      ('uARM',)),
     ('LPC1347',      ('ARM','IAR')),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
@@ -126,3 +126,4 @@ if __name__ == '__main__':
     if failures:
         print "\n\nBuild failures:"
         print "\n".join(["  * %s" % f for f in failures])
+        sys.exit(1)

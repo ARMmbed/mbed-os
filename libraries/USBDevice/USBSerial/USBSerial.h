@@ -145,7 +145,7 @@ public:
     }
 
 protected:
-    virtual bool EP2_OUT_callback();
+    virtual bool EPBULK_OUT_callback();
     virtual void lineCodingChanged(int baud, int bits, int parity, int stop){
         if (settingsChangedCallback) {
             settingsChangedCallback(baud, bits, parity, stop);
