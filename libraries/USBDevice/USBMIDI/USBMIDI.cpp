@@ -31,10 +31,10 @@ void USBMIDI::write(MIDIMessage m) {
     for(int p=1; p < m.length; p+=3) {
         uint8_t buf[4];
         // Midi message to USBMidi event packet
-        buf[0]=m.data[p] >> 4;
+        buf[0]=m.data[1] >> 4;
         // SysEx
         if(buf[0] == 0xF) {
-            if(p < m.length-1) {
+            if((m.length - p) > 3) {
                 // SysEx start or continue
                 buf[0]=0x4;
             } else {
@@ -55,8 +55,16 @@ void USBMIDI::write(MIDIMessage m) {
             }
         }
         buf[1]=m.data[p];
-        buf[2]=m.data[p+1];
-        buf[3]=m.data[p+2];
+
+        if(p+1 < m.length)
+            buf[2]=m.data[p+1];
+        else
+            buf[2]=0;
+
+        if(p+2 < m.length)
+            buf[3]=m.data[p+2];
+        else
+            buf[3]=0;
 
         USBDevice::write(EPBULK_IN, buf, 4, MAX_PACKET_SIZE_EPBULK);
     }
