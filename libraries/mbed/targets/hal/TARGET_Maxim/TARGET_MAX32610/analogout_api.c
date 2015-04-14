@@ -183,8 +183,7 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
         MXC_F_DAC_CTRL0_CLOCK_GATE_EN | MXC_F_DAC_CTRL0_CPU_START);
 
     if(obj->index < 2) {
-        // Convert 16 bits to 12 bits
-        obj->out = (value >> 4);
+        obj->out = (value);
         obj->dac_fifo->output_16 = (obj->out);
 
     } else {

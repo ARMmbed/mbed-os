@@ -38,11 +38,11 @@
 #include "afe_regs.h"
 #include "PeripheralPins.h"
 
-#define PGA_TRK_CNT     0x8
+#define PGA_TRK_CNT     0x1F
 #define ADC_ACT_CNT     0x1
 #define ADC_PGA_CNT     0x1
 #define ADC_ACQ_CNT     0x1
-#define ADC_SLP_CNT     0x0
+#define ADC_SLP_CNT     0x1
  
 //******************************************************************************
 void analogin_init(analogin_t *obj, PinName pin)
@@ -100,6 +100,12 @@ uint16_t analogin_read_u16(analogin_t *obj)
         mux_pos = (obj->adc_pin & 0xF) + 8;
     }
 
+    // Reset the ADC
+    obj->adc->ctrl0 |= MXC_F_ADC_CTRL0_CPU_ADC_RST;
+
+    // Enable the ADC
+    obj->adc->ctrl0 |= MXC_F_ADC_CTRL0_CPU_ADC_EN;
+
     // Setup the ADC clock
     MXC_SET_FIELD(&obj->adc->ctrl0, (MXC_F_ADC_CTRL0_ADC_MODE | MXC_F_ADC_CTRL0_AVG_MODE |
         MXC_F_ADC_CTRL0_ADC_CLK_MODE | MXC_F_ADC_CTRL0_ADC_BI_POL),
@@ -118,9 +124,6 @@ uint16_t analogin_read_u16(analogin_t *obj)
     MXC_SET_FIELD(&MXC_AFE->ctrl1, MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL, 
         (MXC_F_AFE_CTRL1_REF_ADC_POWERUP | MXC_F_AFE_CTRL1_REF_BLK_POWERUP |
         (MXC_E_AFE_REF_VOLT_SEL_1500 << MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL_POS)));
-
-    // Enable the ADC
-    obj->adc->ctrl0 |= MXC_F_ADC_CTRL0_CPU_ADC_EN;
 
     // Clear the done bit
     obj->adc->intr = MXC_F_ADC_INTR_DONE_IF;
