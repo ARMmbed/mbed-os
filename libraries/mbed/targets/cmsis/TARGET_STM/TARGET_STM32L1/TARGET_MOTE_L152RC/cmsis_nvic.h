@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -26,51 +27,26 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
+ */ 
 
-#include "mbed_assert.h"
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
+
+// STM32L152RC
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 57 vectors = 228 bytes from 0x40 to 0x123
+// Total: 73 vectors = 292 bytes (0x124) to be reserved in RAM
+#define NVIC_NUM_VECTORS      73
+#define NVIC_USER_IRQ_OFFSET  16
+
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PinName  pin;
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-} gpio_t;
-
-static inline void gpio_write(gpio_t *obj, int value)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-#if defined(TARGET_STM32L152RC)
-        *obj->reg_set = obj->mask << 16;
-#else
-        *obj->reg_clr = obj->mask;
-#endif
-    }
-}
-
-static inline int gpio_read(gpio_t *obj)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
-
-static inline int gpio_is_connected(const gpio_t *obj) {
-    return obj->pin != (PinName)NC;
-}
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
 #ifdef __cplusplus
 }

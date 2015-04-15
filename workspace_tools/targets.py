@@ -782,6 +782,15 @@ class MTS_DRAGONFLY_F411RE(Target):
         os.remove(binf)
         os.rename(target, binf)
 
+class MOTE_L152RC(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RC']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["4100"]
+
 class DISCO_F401VC(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1186,6 +1195,7 @@ TARGETS = [
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
     MTS_MDOT_F411RE(),
+    MOTE_L152RC(),
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439

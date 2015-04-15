@@ -51,6 +51,7 @@ class CoIDE(Exporter):
         'DISCO_F429ZI',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
+        'MOTE_L152RC',
     ]
 
     # seems like CoIDE currently supports only one type
