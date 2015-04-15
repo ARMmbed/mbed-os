@@ -19,20 +19,9 @@
 #ifndef CIRCBUFFER_H
 #define CIRCBUFFER_H
 
-template <class T>
+template <class T, int Size>
 class CircBuffer {
 public:
-    CircBuffer(int length) {
-        write = 0;
-        read = 0;
-        size = length + 1;
-        buf = (T *)malloc(size * sizeof(T));
-    };
-
-    ~CircBuffer() {
-        free(buf);
-     }
-
     bool isFull() {
         return ((write + 1) % size == read);
     };
@@ -64,10 +53,10 @@ public:
     };
 
 private:
-    volatile uint16_t write;
-    volatile uint16_t read;
-    uint16_t size;
-    T * buf;
+    volatile uint16_t write{0};				//in case older compilers are targeted this should be done in a constructor
+    volatile uint16_t read{0};
+    static constexpr int size{Size+1};
+    T buf[Size];
 };
 
 #endif
