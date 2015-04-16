@@ -1113,6 +1113,15 @@ class MAXWSNENV(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
 
+class MAX32600MBED(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Maxim', 'MAX32600']
+        self.macros = ['__SYSTEM_HFX=24000000']
+        self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
+        self.default_toolchain = "ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1224,6 +1233,7 @@ TARGETS = [
 
     ### Maxim Integrated ###
     MAXWSNENV(),
+    MAX32600MBED(),
 ]
 
 # Map each target name to its unique instance
