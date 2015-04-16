@@ -102,8 +102,11 @@ protected:
     virtual uint8_t * configurationDesc();
 
 private:
+    uint8_t data[MAX_MIDI_MESSAGE_SIZE+1];
+    uint8_t cur_data=0;
+    bool data_end = true;
+    
     void (*midi_evt)(MIDIMessage);
-
 };
 
 #endif

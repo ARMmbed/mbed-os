@@ -157,6 +157,15 @@ int main() {
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
 
     notify_completion(result == value ? true : false);
+#elif defined(TARGET_MAX32600MBED)
+    PwmOut pwm_1(P1_2);
+    PwmOut pwm_2(P1_3);
+
+    pwm_1.write(0.75);
+    pwm_2.write(0.50);
+
+    printf("Initialize PWM on pin P1.2 with duty cycle: %.2f\n", pwm_1.read());
+    printf("Initialize PWM on pin P1.3 with duty cycle: %.2f\n", pwm_2.read());
 #else
 #error This test is not supported on this target.
 #endif

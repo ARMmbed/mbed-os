@@ -156,6 +156,8 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC11U35_501'),
             ('gcc_arm', 'LPCCAPPUCCINO'),
             ('gcc_arm', 'LPC2368'),
+            ('gcc_arm', 'LPC824'),
+            ('gcc_arm', 'SSCI824'),
 
             ('gcc_arm', 'STM32F407'),
             ('gcc_arm', 'DISCO_F100RB'),
@@ -168,6 +170,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F411RE'),
             ('gcc_arm', 'DISCO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
+            ('gcc_arm', 'MAX32600MBED'),
             ('gcc_arm', 'MTS_MDOT_F405RG'),
             ('gcc_arm', 'MTS_MDOT_F411RE'),
             ('gcc_arm', 'RZ_A1H'),
@@ -194,8 +197,8 @@ if __name__ == '__main__':
             ('iar', 'MTS_MDOT_F405RG'),
             ('iar', 'MTS_MDOT_F411RE'),
 
-            
-            (None, None),
+            # Removed following item to avoid script error
+            #(None, None),
         ]:
         print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
         test_export(toolchain, target)
