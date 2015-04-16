@@ -56,7 +56,7 @@ public:
 private:
     volatile uint16_t write;
     volatile uint16_t read;
-    static const int size = Size+1;
+    static const int size = Size+1;  //a modern optimizer should be able to remove this so it uses no ram.
     T buf[Size];
 };
 
