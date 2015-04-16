@@ -280,7 +280,7 @@ class SSCI824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
 
