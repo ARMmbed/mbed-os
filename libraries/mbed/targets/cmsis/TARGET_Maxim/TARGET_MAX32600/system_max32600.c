@@ -109,7 +109,7 @@ void ICC_Enable(void)
 }
 
 // This function to be implemented by the hal
-extern void low_level_init();
+extern void low_level_init(void);
 
 void SystemInit(void)
 {

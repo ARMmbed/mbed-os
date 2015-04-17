@@ -72,7 +72,9 @@ class Uvision4(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'LPC11U37H_401',
-		'DELTA_DFCM_NNN40',
+        'DELTA_DFCM_NNN40',
+        'MAXWSNENV',
+        'MAX32600MBED',
     ]
 
     USING_MICROLIB = [

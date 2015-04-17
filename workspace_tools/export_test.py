@@ -132,6 +132,8 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_L073RZ'),
             ('uvision', 'NUCLEO_L152RE'),
             ('uvision', 'MTS_MDOT_F405RG'),
+            ('uvision', 'MAXWSNENV'),
+            ('uvision', 'MAX32600MBED'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
@@ -174,6 +176,8 @@ if __name__ == '__main__':
             ('gcc_arm', 'MTS_MDOT_F405RG'),
             ('gcc_arm', 'MTS_MDOT_F411RE'),
             ('gcc_arm', 'RZ_A1H'),
+            ('gcc_arm', 'MAXWSNENV'),
+            ('gcc_arm', 'MAX32600MBED'),
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
@@ -196,6 +200,8 @@ if __name__ == '__main__':
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
             ('iar', 'MTS_MDOT_F411RE'),
+            ('iar', 'MAXWSNENV'),
+            ('iar', 'MAX32600MBED'),
 
             # Removed following item to avoid script error
             #(None, None),
