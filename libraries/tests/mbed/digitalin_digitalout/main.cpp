@@ -41,6 +41,10 @@ DigitalIn in(D0);
 DigitalOut out(TP3);
 DigitalIn in(TP4);
 
+#elif defined(TARGET_MAX32600MBED)
+DigitalOut out(P1_0);
+DigitalIn in(P4_7);
+
 #else
 DigitalOut out(p5);
 DigitalIn in(p25);

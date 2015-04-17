@@ -72,6 +72,15 @@
 #define P2_2    (1 << 1)
 #define PORT_2  Port1
 
+#elif defined(TARGET_MAX32600MBED)
+#define P1_1    (1 << 0)  // P1_0
+#define P1_2    (1 << 1)  // P1_1
+#define PORT_1  Port1
+
+#define P2_1    (1 << 7)  // P4_7
+#define P2_2    (1 << 6)  // P4_6
+#define PORT_2  Port4
+
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
