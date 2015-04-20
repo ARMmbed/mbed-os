@@ -20,7 +20,9 @@
 #include "USBMIDI.h"
 
 
-USBMIDI::USBMIDI(uint16_t vendor_id, uint16_t product_id, uint16_t product_release): USBDevice(vendor_id, product_id, product_release) {
+USBMIDI::USBMIDI(uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+ : USBDevice(vendor_id, product_id, product_release), cur_data(0), data_end(true)
+{
     midi_evt = NULL;
     USBDevice::connect();
 }
