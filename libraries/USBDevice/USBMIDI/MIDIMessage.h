@@ -44,9 +44,9 @@
 /** A MIDI message container */
 class MIDIMessage {
 public:
-    MIDIMessage() {}
+    MIDIMessage() : length(4) {}
 
-    MIDIMessage(uint8_t *buf) {
+    MIDIMessage(uint8_t *buf) : length(4) {
         for (int i = 0; i < 4; i++)
             data[i] = buf[i];
     }
@@ -270,7 +270,7 @@ public:
     }
 
     uint8_t data[MAX_MIDI_MESSAGE_SIZE+1];
-    uint8_t length=4;
+    uint8_t length;
 };
 
 #endif
