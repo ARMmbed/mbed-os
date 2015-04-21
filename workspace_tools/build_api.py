@@ -29,6 +29,8 @@ from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, M
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
+from jinja2 import FileSystemLoader
+from jinja2.environment import Environment
 
 
 def build_project(src_path, build_path, target, toolchain_name,
@@ -529,3 +531,20 @@ def print_build_results(result_list, build_name):
         result += "\n".join(["  * %s" % f for f in result_list])
         result += "\n"
     return result
+
+def write_build_report(build_report, template_filename, filename):
+    build_report_failing = []
+    build_report_passing = []
+
+    for report in build_report:
+        if len(report["failing"]) > 0:
+            build_report_failing.append(report)
+        else:
+            build_report_passing.append(report)
+
+    env = Environment(extensions=['jinja2.ext.with_'])
+    env.loader = FileSystemLoader('ci_templates')
+    template = env.get_template(template_filename)
+
+    with open(filename, 'w+') as f:
+        f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))
