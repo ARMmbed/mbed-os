@@ -76,7 +76,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->TXD = 0;
 
     obj->index = 0;
-
+    
     obj->uart->PSELRTS = RTS_PIN_NUMBER;
     obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
     obj->uart->PSELCTS = CTS_PIN_NUMBER;
@@ -162,20 +162,14 @@ extern "C" {
 #endif
 void UART0_IRQHandler()
 {
-    if((NRF_UART0->INTENSET & UART_INTENSET_TXDRDY_Msk) && NRF_UART0->EVENTS_TXDRDY)
-    {
-        uart_irq(1, 0);
+    uint32_t irtype = 0;
 
-        /*  Explicitly clear TX flag to prevent interrupt from firing
-            immediately after returning from ISR. This ensures that the
-            last interrupt in a transmission sequence is correcly handled.
-        */
-        NRF_UART0->EVENTS_TXDRDY = 0;
+    if((NRF_UART0->INTENSET & 0x80) && NRF_UART0->EVENTS_TXDRDY) {
+        irtype = 1;
+    } else if((NRF_UART0->INTENSET & 0x04) && NRF_UART0->EVENTS_RXDRDY) {
+        irtype = 2;
     }
-    else if((NRF_UART0->INTENSET & UART_INTENSET_RXDRDY_Msk) && NRF_UART0->EVENTS_RXDRDY)
-    {
-        uart_irq(2, 0);
-    }
+    uart_irq(irtype, 0);
 }
 
 #ifdef __cplusplus
@@ -245,24 +239,11 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    /*  In interrupt mode, send character immediately. Otherwise, block until
-        UART is ready to receive next character before sending.
-
-        The TXDRDY flag is cleared in interrupt handler to ensure that it is
-        cleared even if there are no more characters to send.
-    */
-    if (NRF_UART0->INTENSET & UART_INTENSET_TXDRDY_Msk)
-    {
-        obj->uart->TXD = (uint8_t)c;
+    while (!serial_writable(obj)) {
     }
-    else
-    {
-        while (!serial_writable(obj)) {
-        }
 
-        obj->uart->EVENTS_TXDRDY = 0;
-        obj->uart->TXD = (uint8_t)c;
-    }
+    obj->uart->EVENTS_TXDRDY = 0;
+    obj->uart->TXD = (uint8_t)c;
 }
 
 int serial_readable(serial_t *obj)
