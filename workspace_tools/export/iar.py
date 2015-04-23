@@ -72,6 +72,7 @@ class IAREmbeddedWorkbench(Exporter):
         'SEEED_TINY_BLE',
         'HRM1017',
         'ARCH_BLE',
+        'MOTE_L152RC',
     ]
 
     def generate(self):

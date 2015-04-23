@@ -135,10 +135,10 @@ bool USBMSD::connect(bool blocking) {
 }
 
 void USBMSD::disconnect() {
+    USBDevice::disconnect();
     //De-allocate MSD page size:
     free(page);
     page = NULL;
-    USBDevice::disconnect();
 }
 
 void USBMSD::reset() {

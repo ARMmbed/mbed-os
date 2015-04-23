@@ -24,6 +24,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_mbed_libs
+from workspace_tools.build_api import write_build_report
 from workspace_tools.targets import TARGET_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
@@ -38,7 +39,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC1347',      ('ARM','IAR')),
     ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4088_DM',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC1114',      ('uARM','GCC_ARM', 'IAR')),
+    ('LPC1114',      ('uARM','GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('LPC1549',      ('uARM','GCC_ARM','GCC_CR', 'IAR')),
@@ -98,30 +99,66 @@ if __name__ == '__main__':
                       default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
+    parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
+
+    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
+
+
     options, args = parser.parse_args()
     start = time()
     failures = []
     successes = []
+    skips = []
+    build_report = []
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
         if options.official_only:
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:
             toolchains = toolchain_list
+
+        if options.toolchains:
+            print "Only building using the following toolchains: %s" % (options.toolchains)
+            toolchainSet = set(toolchains)
+            toolchains = toolchainSet and set((options.toolchains).split(','))
+
+
+        cur_target_build_report = { "target": target_name, "passing": [], "failing": [], "skipped": []}
+
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
             try:
-                build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
-                successes.append(id)
+                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
+
+                if built_mbed_lib:
+                    successes.append(id)
+                    cur_target_build_report["passing"].append({ "toolchain": toolchain })
+                else:
+                    skips.append(id)
+                    cur_target_build_report["skipped"].append({ "toolchain": toolchain })
+
+
             except Exception, e:
                 failures.append(id)
+                cur_target_build_report["failing"].append({ "toolchain": toolchain })
                 print e
 
+        if len(toolchains) > 0:
+            build_report.append(cur_target_build_report)
+
     # Write summary of the builds
+
+    if options.report_build_file_name:
+        write_build_report(build_report, 'library_build/report.html', options.report_build_file_name)
+
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
     if successes:
         print "\n\nBuild successes:"
         print "\n".join(["  * %s" % s for s in successes])
+
+    if skips:
+        print "\n\nBuild skips:"
+        print "\n".join(["  * %s" % s for s in skips])
 
     if failures:
         print "\n\nBuild failures:"

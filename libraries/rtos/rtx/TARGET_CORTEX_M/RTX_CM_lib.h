@@ -304,6 +304,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
 #define INITIAL_SP            (0x20008000UL)
 
+#elif defined(TARGET_TEENSY3_1)
+#define INITIAL_SP            (0x20008000UL)
+
 #else
 #error "no target defined"
 

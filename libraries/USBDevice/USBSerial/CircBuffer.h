@@ -19,20 +19,10 @@
 #ifndef CIRCBUFFER_H
 #define CIRCBUFFER_H
 
-template <class T>
+template <class T, int Size>
 class CircBuffer {
 public:
-    CircBuffer(int length) {
-        write = 0;
-        read = 0;
-        size = length + 1;
-        buf = (T *)malloc(size * sizeof(T));
-    };
-
-    ~CircBuffer() {
-        free(buf);
-     }
-
+    CircBuffer():write(0), read(0){}
     bool isFull() {
         return ((write + 1) % size == read);
     };
@@ -66,8 +56,8 @@ public:
 private:
     volatile uint16_t write;
     volatile uint16_t read;
-    uint16_t size;
-    T * buf;
+    static const int size = Size+1;  //a modern optimizer should be able to remove this so it uses no ram.
+    T buf[Size];
 };
 
 #endif
