@@ -229,7 +229,7 @@ SVC_Handler:
         ISR return code can be used in both cases. */
 
         STMFD   SP!, {R0,LR}          /* Store registers. */
-        ADD     LR, LR, #4
+        ADD     LR, LR, #4            /* Align LR with IRQ handler */
         SaveContext
         MOV     R11, LR               /* Save Task Stack Pointer */
         LDMFD   SP!, {R0,LR}          /* Restore registers and return. */
@@ -242,17 +242,10 @@ SVC_Handler:
         BNE     SVC_User                /* User SVC Number > 0 */
         MOV     LR, PC                  /* set LR to return address */
         BX      R12                     /* Call SVC Function */
-        STMFD   SP!, {R0-R3}            /* Store return values */
 
-        LDR     R3, =os_tsk
-        LDMIA   R3!, {R1,R2}             /* os_tsk.run, os_tsk.new */
-        CMP     R1,0
-        LDMFD   SP!, {R0-R3}            /* Restore return values */
         LDMFD   SP!, {R11}              /* Load Task Stack Pointer */
-        BEQ     SVC_Exit                /* no need in return values */
+        STMIB   R11!, {R0-R3}           /* Store return values to Task stack */
 
-        ADD     R11, 4                  /* Offset to R0 in the Task Stack */
-        STMDB   R11, {R0-R3}            /* Save return values in the Task Stack */
 SVC_Exit:
         B       RestoreContext           /* return to the task */
 
@@ -275,7 +268,7 @@ SVC_User:
         LDMFD   SP!, {R11}              /* Load Task Stack Pointer */
         BEQ     SVC_Exit                /* no need in return values */
 
-        STMDB   R11, {R0-R3}            /* Save return values in the Task Stack */
+        STMIB   R11!, {R0-R3}           /* Store return values to Task stack */
 SVC_Done:
         B       RestoreContext           /* return to the task */
 
@@ -309,12 +302,6 @@ IRQ_Handler:
         .fnend
         .size   IRQ_Handler, .-IRQ_Handler
 
-/*-------------------------- PendSV_Handler ---------------------------------*/
-PendSV_Handler:
-        BL      rt_pop_req
-        B       RestoreContext
-
-
 /*-------------------------- SysTick_Handler --------------------------------*/
 
 #       void SysTick_Handler (void);
@@ -328,7 +315,7 @@ SysTick_Handler:
         PUSH    {LR}
         BL      rt_systick
         POP     {LR}
-        BX      LR
+        BX      LR               /* return to IRQ handler */
 
 /*-------------------------- End --------------------------------*/
  .fnend

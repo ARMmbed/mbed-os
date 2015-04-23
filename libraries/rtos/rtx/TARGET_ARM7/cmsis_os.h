@@ -337,7 +337,7 @@ int32_t osKernelRunning(void);
 extern osThreadDef_t os_thread_def_##name
 #else                            // define the object
 #define osThreadDef(name, priority, stacksz)  \
-unsigned char os_thread_def_stack_##name [stacksz]; \
+unsigned char os_thread_def_stack_##name [stacksz] __attribute__((aligned (4))); \
 osThreadDef_t os_thread_def_##name = \
 { (name), (priority), (stacksz), (os_thread_def_stack_##name)}
 #endif

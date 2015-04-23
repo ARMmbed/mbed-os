@@ -34,7 +34,8 @@
 
 #include "cmsis.h"
 /* Definitions */
-#define INITIAL_xPSR    0x00000010
+//#define INITIAL_xPSR    0x00000010
+#define INITIAL_xPSR    0x10000000
 #define DEMCR_TRCENA    0x01000000
 #define ITM_ITMENA      0x00000001
 #define MAGIC_WORD      0xE25A2EA5
@@ -111,13 +112,13 @@ extern void dbg_task_switch (U32 task_id);
 #define OS_PEND_IRQ()   NVIC_PendIRQ(SYS_TICK_IRQn)
 #define OS_PENDING      NVIC_PendingIRQ(SYS_TICK_IRQn)
 #define OS_UNPEND(fl)   NVIC_UnpendIRQ(SYS_TICK_IRQn)
-#define OS_PEND(fl,p)   NVIC_INT_CTRL  = (fl | p<<2) << 26
+#define OS_PEND(fl,p)   NVIC_PendIRQ(SYS_TICK_IRQn)
 #define OS_LOCK()       NVIC_DisableIRQ(SYS_TICK_IRQn)
 #define OS_UNLOCK()     NVIC_EnableIRQ(SYS_TICK_IRQn)
 
 #define OS_X_PENDING    NVIC_PendingIRQ(SYS_TICK_IRQn)
 #define OS_X_UNPEND(fl) NVIC_UnpendIRQ(SYS_TICK_IRQn)
-#define OS_X_PEND(fl,p) NVIC_PendIRQ(p)
+#define OS_X_PEND(fl,p) NVIC_PendIRQ(SYS_TICK_IRQn)
 
 #define OS_X_INIT(n)    NVIC_EnableIRQ(n)
 #define OS_X_LOCK(n)    NVIC_DisableIRQ(n)
