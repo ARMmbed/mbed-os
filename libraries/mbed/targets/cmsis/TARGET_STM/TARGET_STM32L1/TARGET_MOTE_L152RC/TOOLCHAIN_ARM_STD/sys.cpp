@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -24,56 +26,31 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  *******************************************************************************
  */
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
-
-#include "mbed_assert.h"
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
-typedef struct {
-    PinName  pin;
-    uint32_t mask;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_set;
-    __IO uint32_t *reg_clr;
-} gpio_t;
+#include <rt_misc.h>
+#include <stdint.h>
 
-static inline void gpio_write(gpio_t *obj, int value)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value) {
-        *obj->reg_set = obj->mask;
-    } else {
-#if defined(TARGET_STM32L152RC)
-        *obj->reg_set = obj->mask << 16;
-#else
-        *obj->reg_clr = obj->mask;
-#endif
-    }
-}
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
-static inline int gpio_read(gpio_t *obj)
-{
-    MBED_ASSERT(obj->pin != (PinName)NC);
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
-}
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
 
-static inline int gpio_is_connected(const gpio_t *obj) {
-    return obj->pin != (PinName)NC;
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
+
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
 }
 
 #ifdef __cplusplus
 }
-#endif
-
-#endif
+#endif 
