@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_LOWPOWERTICKER_H
+#define MBED_LOWPOWERTICKER_H
+
+#include "platform.h"
 #include "Ticker.h"
 
-#include "TimerEvent.h"
-#include "FunctionPointer.h"
-#include "ticker_api.h"
+#if DEVICE_LOWPOWERTIMER
+
+#include "lp_ticker_api.h"
 
 namespace mbed {
 
-void Ticker::detach() {
-    remove();
-    _function.attach(0);
-}
+/** Low Power Ticker
+ */
+class LowPowerTicker : public Ticker {
 
-void Ticker::setup(timestamp_t t) {
-    remove();
-    _delay = t;
-    insert(_delay + ticker_read(_ticker_data));
-}
+public:
+    LowPowerTicker() : Ticker(get_lp_ticker_data()) {
+    }
 
-void Ticker::handler() {
-    insert(event.timestamp + _delay);
-    _function.call();
-}
+    virtual ~LowPowerTicker() {
+    }
+};
 
 } // namespace mbed
+
+#endif
+
+#endif

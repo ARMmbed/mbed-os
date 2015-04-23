@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2014-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Ticker.h"
+#ifndef MBED_BUFFER_H
+#define MBED_BUFFER_H
 
-#include "TimerEvent.h"
-#include "FunctionPointer.h"
-#include "ticker_api.h"
+#include <stddef.h>
 
-namespace mbed {
+/** Generic buffer structure
+ */
+typedef struct buffer_s {
+    void    *buffer; /**< the pointer to a buffer */
+    size_t   length; /**< the buffer length */
+    size_t   pos;    /**< actual buffer position */
+    uint8_t  width;  /**< The buffer unit width (8, 16, 32, 64), used for proper *buffer casting */
+} buffer_t;
 
-void Ticker::detach() {
-    remove();
-    _function.attach(0);
-}
-
-void Ticker::setup(timestamp_t t) {
-    remove();
-    _delay = t;
-    insert(_delay + ticker_read(_ticker_data));
-}
-
-void Ticker::handler() {
-    insert(event.timestamp + _delay);
-    _function.call();
-}
-
-} // namespace mbed
+#endif
