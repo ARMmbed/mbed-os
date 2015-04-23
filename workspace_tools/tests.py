@@ -557,6 +557,14 @@ TESTS = [
         "automated": True,
         #"host_test": "wait_us_auto"
     },
+    {
+        "id": "MBED_35", "description": "SPI C12832 display",
+        "source_dir": join(TEST_DIR, "mbed", "spi_C12832"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'C12832')],
+        "peripherals": ["C12832"],
+        "automated": True,
+        "duration": 10,
+    },
 
 
     # CMSIS RTOS tests
