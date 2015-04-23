@@ -20,13 +20,56 @@
 #include "USBMIDI.h"
 
 
-USBMIDI::USBMIDI(uint16_t vendor_id, uint16_t product_id, uint16_t product_release): USBDevice(vendor_id, product_id, product_release) {
+USBMIDI::USBMIDI(uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+ : USBDevice(vendor_id, product_id, product_release), cur_data(0), data_end(true)
+{
     midi_evt = NULL;
     USBDevice::connect();
 }
 
+// write plain MIDIMessage that will be converted to USBMidi event packet
 void USBMIDI::write(MIDIMessage m) {
-    USBDevice::write(EPBULK_IN, m.data, 4, MAX_PACKET_SIZE_EPBULK);
+    // first byte keeped for retro-compatibility
+    for(int p=1; p < m.length; p+=3) {
+        uint8_t buf[4];
+        // Midi message to USBMidi event packet
+        buf[0]=m.data[1] >> 4;
+        // SysEx
+        if(buf[0] == 0xF) {
+            if((m.length - p) > 3) {
+                // SysEx start or continue
+                buf[0]=0x4;
+            } else {
+                switch(m.length - p) {
+                    case 1:
+                        // SysEx end with one byte
+                        buf[0]=0x5;
+                        break;
+                    case 2:
+                        // SysEx end with two bytes
+                        buf[0]=0x6;
+                        break;
+                    case 3:
+                        // SysEx end with three bytes
+                        buf[0]=0x7;
+                        break;
+                }
+            }
+        }
+        buf[1]=m.data[p];
+
+        if(p+1 < m.length)
+            buf[2]=m.data[p+1];
+        else
+            buf[2]=0;
+
+        if(p+2 < m.length)
+            buf[3]=m.data[p+2];
+        else
+            buf[3]=0;
+
+        USBDevice::write(EPBULK_IN, buf, 4, MAX_PACKET_SIZE_EPBULK);
+    }
 }
 
 
@@ -34,24 +77,67 @@ void USBMIDI::attach(void (*fptr)(MIDIMessage)) {
     midi_evt = fptr;
 }
 
-
 bool USBMIDI::EPBULK_OUT_callback() {
     uint8_t buf[64];
     uint32_t len;
     readEP(EPBULK_OUT, buf, &len, 64);
 
     if (midi_evt != NULL) {
-        for (uint32_t i=0; i<len; i+=4) {
-            midi_evt(MIDIMessage(buf+i));
-        }
+        for (uint32_t i=0; i<len; i+=4) {   
+            uint8_t data_read;
+            data_end=true;
+            switch(buf[i]) {
+            case 0x2:
+                // Two-bytes System Common Message - undefined in USBMidi 1.0
+                data_read=2;
+                break;
+            case 0x4:
+                // SysEx start or continue
+                data_end=false;
+                data_read=3;
+                break;
+            case 0x5:
+                 // Single-byte System Common Message or SysEx end with one byte
+                data_read=1;
+                break;
+            case 0x6:
+                // SysEx end with two bytes
+                data_read=2;
+                break;
+            case 0xC:
+                // Program change
+                data_read=2;
+                break;
+            case 0xD:
+                // Channel pressure
+                data_read=2;
+                break;      
+            case 0xF:
+                // Single byte
+                data_read=1;
+                break;    
+            default:
+                // Others three-bytes messages
+                data_read=3;
+                break;      
+            } 
+        
+            for(uint8_t j=1;j<data_read+1;j++) {
+                data[cur_data]=buf[i+j];
+                cur_data++;
+            }
+        
+            if(data_end) {
+                 midi_evt(MIDIMessage(data,cur_data));
+                 cur_data=0;            
+            }
+       }
     }
 
     // We reactivate the endpoint to receive next characters
     readStart(EPBULK_OUT, MAX_PACKET_SIZE_EPBULK);
     return true;
 }
-
-
 
 // Called in ISR context
 // Set configuration. Return false if the

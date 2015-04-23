@@ -1,35 +1,34 @@
-/*******************************************************************************
- * Copyright (C) 2015 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *******************************************************************************
- */
+;*******************************************************************************
+; Copyright (C) 2015 Maxim Integrated Products, Inc., All Rights Reserved.
+;
+; Permission is hereby granted, free of charge, to any person obtaining a
+; copy of this software and associated documentation files (the "Software"),
+; to deal in the Software without restriction, including without limitation
+; the rights to use, copy, modify, merge, publish, distribute, sublicense,
+; and/or sell copies of the Software, and to permit persons to whom the
+; Software is furnished to do so, subject to the following conditions:
+;
+; The above copyright notice and this permission notice shall be included
+; in all copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+; OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+; IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+; OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+; ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+; OTHER DEALINGS IN THE SOFTWARE.
+;
+; Except as contained in this notice, the name of Maxim Integrated
+; Products, Inc. shall not be used except as stated in the Maxim Integrated
+; Products, Inc. Branding Policy.
+;
+; The mere transfer of this software does not imply any licenses
+; of trade secrets, proprietary technology, copyrights, patents,
+; trademarks, maskwork rights, or any other form of intellectual
+; property whatsoever. Maxim Integrated Products, Inc. retains all
+; ownership rights.
+;*******************************************************************************
 
 __initial_sp        EQU     0x20008000  ; Top of RAM
 
@@ -44,71 +43,71 @@ __initial_sp        EQU     0x20008000  ; Top of RAM
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
 
-__Vectors       DCD     __initial_sp              /* Top of Stack */
-                DCD     Reset_Handler             /* Reset Handler */
-                DCD     NMI_Handler               /* NMI Handler */
-                DCD     HardFault_Handler         /* Hard Fault Handler */
-                DCD     DefaultIRQ_Handler        /* MPU Fault Handler */
-                DCD     DefaultIRQ_Handler        /* Bus Fault Handler */
-                DCD     DefaultIRQ_Handler        /* Usage Fault Handler */
-                DCD     0                         /* Reserved */
-                DCD     0                         /* Reserved */
-                DCD     0                         /* Reserved */
-                DCD     0                         /* Reserved */
-                DCD     DefaultIRQ_Handler        /* SVCall Handler */
-                DCD     DebugMon_Handler          /* Debug Monitor Handler */
-                DCD     0                         /* Reserved */
-                DCD     DefaultIRQ_Handler        /* PendSV Handler */
-                DCD     SysTick_IRQHandler        /* SysTick Handler */
+__Vectors       DCD     __initial_sp              ; Top of Stack 
+                DCD     Reset_Handler             ; Reset Handler 
+                DCD     NMI_Handler               ; NMI Handler 
+                DCD     HardFault_Handler         ; Hard Fault Handler 
+                DCD     DefaultIRQ_Handler        ; MPU Fault Handler 
+                DCD     DefaultIRQ_Handler        ; Bus Fault Handler 
+                DCD     DefaultIRQ_Handler        ; Usage Fault Handler 
+                DCD     0                         ; Reserved 
+                DCD     0                         ; Reserved 
+                DCD     0                         ; Reserved 
+                DCD     0                         ; Reserved 
+                DCD     DefaultIRQ_Handler        ; SVCall Handler 
+                DCD     DebugMon_Handler          ; Debug Monitor Handler 
+                DCD     0                         ; Reserved 
+                DCD     DefaultIRQ_Handler        ; PendSV Handler 
+                DCD     SysTick_IRQHandler        ; SysTick Handler 
 
-                /* Maxim 32610 Externals interrupts */
-                DCD     UART0_IRQHandler          /* 16: 1 UART0 */
-                DCD     UART1_IRQHandler          /* 17: 2 UART1 */
-                DCD     I2CM0_IRQHandler          /* 18: 3 I2C Master 0 */
-                DCD     I2CS_IRQHandler           /* 19: 4 I2C Slave */
-                DCD     USB_IRQHandler            /* 20: 5 USB */
-                DCD     PMU_IRQHandler            /* 21: 6 DMA */
-                DCD     AFE_IRQHandler            /* 22: 7 AFE */
-                DCD     MAA_IRQHandler            /* 23: 8 MAA */
-                DCD     AES_IRQHandler            /* 24: 9 AES */
-                DCD     SPI0_IRQHandler           /* 25:10 SPI0 */
-                DCD     SPI1_IRQHandler           /* 26:11 SPI1 */
-                DCD     SPI2_IRQHandler           /* 27:12 SPI2 */
-                DCD     TMR0_IRQHandler           /* 28:13 Timer32-0 */
-                DCD     TMR1_IRQHandler           /* 29:14 Timer32-1 */
-                DCD     TMR2_IRQHandler           /* 30:15 Timer32-1 */
-                DCD     TMR3_IRQHandler           /* 31:16 Timer32-2 */
-                DCD     RSVD0_IRQHandler          /* 32:17 RSVD */
-                DCD     RSVD1_IRQHandler          /* 33:18 RSVD */
-                DCD     DAC0_IRQHandler           /* 34:19 DAC0  (12-bit DAC) */  
-                DCD     DAC1_IRQHandler           /* 35:20 DAC1  (12-bit DAC) */  
-                DCD     DAC2_IRQHandler           /* 36:21 DAC2  (8-bit DAC) */
-                DCD     DAC3_IRQHandler           /* 37:22 DAC3  (8-bit DAC) */
-                DCD     ADC_IRQHandler            /* 38:23 ADC */
-                DCD     FLC_IRQHandler            /* 39:24 Flash Controller */
-                DCD     PWRMAN_IRQHandler         /* 40:25 PWRMAN */
-                DCD     CLKMAN_IRQHandler         /* 41:26 CLKMAN */
-                DCD     RTC0_IRQHandler           /* 42:27 RTC INT0 */
-                DCD     RTC1_IRQHandler           /* 43:28 RTC INT1 */
-                DCD     RTC2_IRQHandler           /* 44:29 RTC INT2 */
-                DCD     RTC3_IRQHandler           /* 45:30 RTC INT3 */
-                DCD     WDT0_IRQHandler           /* 46:31 WATCHDOG0 */
-                DCD     WDT0_P_IRQHandler         /* 47:32 WATCHDOG0 PRE-WINDOW */
-                DCD     WDT1_IRQHandler           /* 48:33 WATCHDOG1 */
-                DCD     WDT1_P_IRQHandler         /* 49:34 WATCHDOG1 PRE-WINDOW */
-                DCD     GPIO_P0_IRQHandler        /* 50:35 GPIO Port 0  */
-                DCD     GPIO_P1_IRQHandler        /* 51:36 GPIO Port 1  */
-                DCD     GPIO_P2_IRQHandler        /* 52:37 GPIO Port 2  */
-                DCD     GPIO_P3_IRQHandler        /* 53:38 GPIO Port 3  */
-                DCD     GPIO_P4_IRQHandler        /* 54:39 GPIO Port 4  */
-                DCD     GPIO_P5_IRQHandler        /* 55:40 GPIO Port 5  */
-                DCD     GPIO_P6_IRQHandler        /* 56:41 GPIO Port 6  */
-                DCD     GPIO_P7_IRQHandler        /* 57:42 GPIO Port 7  */
-                DCD     TMR16_0_IRQHandler        /* 58:43 Timer16-s0 */
-                DCD     TMR16_1_IRQHandler        /* 59:44 Timer16-s1 */
-                DCD     TMR16_2_IRQHandler        /* 60:45 Timer16-s2 */
-                DCD     TMR16_3_IRQHandler        /* 61:46 Timer16-s3 */
-                DCD     I2CM1_IRQHandler          /* 62:47 I2C Master 1 */
+                ; Maxim 32610 Externals interrupts 
+                DCD     UART0_IRQHandler          ; 16: 1 UART0 
+                DCD     UART1_IRQHandler          ; 17: 2 UART1 
+                DCD     I2CM0_IRQHandler          ; 18: 3 I2C Master 0 
+                DCD     I2CS_IRQHandler           ; 19: 4 I2C Slave 
+                DCD     USB_IRQHandler            ; 20: 5 USB 
+                DCD     PMU_IRQHandler            ; 21: 6 DMA 
+                DCD     AFE_IRQHandler            ; 22: 7 AFE 
+                DCD     MAA_IRQHandler            ; 23: 8 MAA 
+                DCD     AES_IRQHandler            ; 24: 9 AES 
+                DCD     SPI0_IRQHandler           ; 25:10 SPI0 
+                DCD     SPI1_IRQHandler           ; 26:11 SPI1 
+                DCD     SPI2_IRQHandler           ; 27:12 SPI2 
+                DCD     TMR0_IRQHandler           ; 28:13 Timer32-0 
+                DCD     TMR1_IRQHandler           ; 29:14 Timer32-1 
+                DCD     TMR2_IRQHandler           ; 30:15 Timer32-1 
+                DCD     TMR3_IRQHandler           ; 31:16 Timer32-2 
+                DCD     RSVD0_IRQHandler          ; 32:17 RSVD 
+                DCD     RSVD1_IRQHandler          ; 33:18 RSVD 
+                DCD     DAC0_IRQHandler           ; 34:19 DAC0  (12-bit DAC)   
+                DCD     DAC1_IRQHandler           ; 35:20 DAC1  (12-bit DAC)   
+                DCD     DAC2_IRQHandler           ; 36:21 DAC2  (8-bit DAC) 
+                DCD     DAC3_IRQHandler           ; 37:22 DAC3  (8-bit DAC) 
+                DCD     ADC_IRQHandler            ; 38:23 ADC 
+                DCD     FLC_IRQHandler            ; 39:24 Flash Controller 
+                DCD     PWRMAN_IRQHandler         ; 40:25 PWRMAN 
+                DCD     CLKMAN_IRQHandler         ; 41:26 CLKMAN 
+                DCD     RTC0_IRQHandler           ; 42:27 RTC INT0 
+                DCD     RTC1_IRQHandler           ; 43:28 RTC INT1 
+                DCD     RTC2_IRQHandler           ; 44:29 RTC INT2 
+                DCD     RTC3_IRQHandler           ; 45:30 RTC INT3 
+                DCD     WDT0_IRQHandler           ; 46:31 WATCHDOG0 
+                DCD     WDT0_P_IRQHandler         ; 47:32 WATCHDOG0 PRE-WINDOW 
+                DCD     WDT1_IRQHandler           ; 48:33 WATCHDOG1 
+                DCD     WDT1_P_IRQHandler         ; 49:34 WATCHDOG1 PRE-WINDOW 
+                DCD     GPIO_P0_IRQHandler        ; 50:35 GPIO Port 0  
+                DCD     GPIO_P1_IRQHandler        ; 51:36 GPIO Port 1  
+                DCD     GPIO_P2_IRQHandler        ; 52:37 GPIO Port 2  
+                DCD     GPIO_P3_IRQHandler        ; 53:38 GPIO Port 3  
+                DCD     GPIO_P4_IRQHandler        ; 54:39 GPIO Port 4  
+                DCD     GPIO_P5_IRQHandler        ; 55:40 GPIO Port 5  
+                DCD     GPIO_P6_IRQHandler        ; 56:41 GPIO Port 6  
+                DCD     GPIO_P7_IRQHandler        ; 57:42 GPIO Port 7  
+                DCD     TMR16_0_IRQHandler        ; 58:43 Timer16-s0 
+                DCD     TMR16_1_IRQHandler        ; 59:44 Timer16-s1 
+                DCD     TMR16_2_IRQHandler        ; 60:45 Timer16-s2 
+                DCD     TMR16_3_IRQHandler        ; 61:46 Timer16-s3 
+                DCD     I2CM1_IRQHandler          ; 62:47 I2C Master 1 
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors

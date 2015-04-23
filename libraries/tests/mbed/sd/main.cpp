@@ -9,7 +9,7 @@ SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");
 
 #elif defined(TARGET_K64F)
-SDFileSystem sd(PTD2, PTD3, PTD1, PTD0, "sd");
+SDFileSystem sd(PTE3, PTE1, PTE2, PTE4, "sd");
 
 #elif defined(TARGET_K22F)
 SDFileSystem sd(PTD6, PTD7, PTD5, PTD4, "sd");

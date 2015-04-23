@@ -49,6 +49,10 @@ AnalogOut out(PA_4);
 AnalogIn in(PC_3);
 AnalogOut out(PA_5);
 
+#elif defined(TARGET_MAX32600MBED)
+AnalogIn in(AIN_7P);
+AnalogOut out(AOUT_DO);
+
 #else
 AnalogIn in(p17);
 AnalogOut out(p18);

@@ -280,7 +280,7 @@ class SSCI824(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM"]
+        self.supported_toolchains = ["uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
 
@@ -419,7 +419,7 @@ class K20D50M(Target):
 
 class TEENSY3_1(Target):
     OUTPUT_EXT = 'hex'
-    
+
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"
@@ -630,7 +630,8 @@ class ARCH_MAX(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
-        
+        self.macros = ['LSI_VALUE=32000']
+
     def program_cycle_s(self):
         return 2
 
@@ -782,6 +783,15 @@ class MTS_DRAGONFLY_F411RE(Target):
         os.remove(binf)
         os.rename(target, binf)
 
+class MOTE_L152RC(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RC']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["4100"]
+
 class DISCO_F401VC(Target):
     def __init__(self):
         Target.__init__(self)
@@ -809,15 +819,19 @@ class NRF51822(Target):
     # of preference.
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
         {
-            'name' : 's110_nrf51822_7.1.0_softdevice.hex',
+            'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+            'offset' : 0x18000
+        },
+        {
+            'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
             'offset' : 0x16000
         },
         {
-            'name' : 's110_nrf51822_7.0.0_softdevice.hex',
+            'name'   : 's110_nrf51822_7.0.0_softdevice.hex',
             'offset' : 0x16000
         },
         {
-            'name' : 's110_nrf51822_6.0.0_softdevice.hex',
+            'name'   : 's110_nrf51822_6.0.0_softdevice.hex',
             'offset' : 0x14000
         }
     ]
@@ -918,7 +932,7 @@ class NRF51_DK_BOOT(NRF51822):
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.MERGE_SOFT_DEVICE = True
         self.MERGE_BOOTLOADER = True
-        
+
 class NRF51_DK_OTA(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -1113,6 +1127,15 @@ class MAXWSNENV(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
 
+class MAX32600MBED(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Maxim', 'MAX32600']
+        self.macros = ['__SYSTEM_HFX=24000000']
+        self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
+        self.default_toolchain = "ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1186,6 +1209,7 @@ TARGETS = [
     DISCO_L053C8(),
     MTS_MDOT_F405RG(),
     MTS_MDOT_F411RE(),
+    MOTE_L152RC(),
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439
@@ -1224,6 +1248,7 @@ TARGETS = [
 
     ### Maxim Integrated ###
     MAXWSNENV(),
+    MAX32600MBED(),
 ]
 
 # Map each target name to its unique instance
