@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 #include "mbed_error.h"
 
 // GPIO mode look-up table
+// Warning: order must be the same as the one defined in PinNames.h !!!
 static const uint32_t gpio_mode[13] = {
     0x00000000, //  0 = GPIO_MODE_INPUT
     0x00000001, //  1 = GPIO_MODE_OUTPUT_PP
@@ -62,18 +63,24 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
             gpio_add = GPIOB_BASE;
             __GPIOB_CLK_ENABLE();
             break;
+#if defined(GPIOC_BASE)
         case PortC:
             gpio_add = GPIOC_BASE;
             __GPIOC_CLK_ENABLE();
             break;
+#endif
+#if defined(GPIOD_BASE)
         case PortD:
             gpio_add = GPIOD_BASE;
             __GPIOD_CLK_ENABLE();
             break;
+#endif
+#if defined(GPIOH_BASE)
         case PortH:
             gpio_add = GPIOH_BASE;
             __GPIOH_CLK_ENABLE();
             break;
+#endif
         default:
             error("Pinmap error: wrong port number.");
             break;
