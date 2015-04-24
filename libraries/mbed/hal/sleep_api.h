@@ -55,6 +55,25 @@ void sleep(void);
  */
 void deepsleep(void);
 
+/** Block the microcontroller from sleeping below a certain mode
+ *
+ * This will block sleep() from entering an energy mode below the one given.
+ * -- To be called by peripheral HAL's --
+ *
+ * After the peripheral is finished with the operation, it should call unblock with the same state
+ *
+ */
+void blockSleepMode(sleepstate_enum minimumMode);
+
+/** Unblock the microcontroller from sleeping below a certain mode
+ *
+ * This will unblock sleep() from entering an energy mode below the one given.
+ * -- To be called by peripheral HAL's --
+ *
+ * This should be called after all transactions on a peripheral are done.
+ */
+void unblockSleepMode(sleepstate_enum minimumMode);
+
 #ifdef __cplusplus
 }
 #endif

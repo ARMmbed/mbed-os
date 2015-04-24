@@ -13,29 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "us_ticker_api.h"
+#include "lp_ticker_api.h"
+
+#if DEVICE_LOWPOWERTIMER
 
 static ticker_event_queue_t events;
 
-static const ticker_interface_t us_interface = {
-    .init = us_ticker_init,
-    .read = us_ticker_read,
-    .disable_interrupt = us_ticker_disable_interrupt,
-    .clear_interrupt = us_ticker_clear_interrupt,
-    .set_interrupt = us_ticker_set_interrupt,
+static const ticker_interface_t lp_interface = {
+    .init = lp_ticker_init,
+    .read = lp_ticker_read,
+    .disable_interrupt = lp_ticker_disable_interrupt,
+    .clear_interrupt = lp_ticker_clear_interrupt,
+    .set_interrupt = lp_ticker_set_interrupt,
 };
 
-static const ticker_data_t us_data = {
-    .interface = &us_interface,
+static const ticker_data_t lp_data = {
+    .interface = &lp_interface,
     .queue = &events,
 };
 
-const ticker_data_t* get_us_ticker_data(void)
+const ticker_data_t* get_lp_ticker_data(void)
 {
-    return &us_data;
+    return &lp_data;
 }
 
-void us_ticker_irq_handler(void)
+void lp_ticker_irq_handler(void)
 {
-    ticker_irq_handler(&us_data);
+    ticker_irq_handler(&lp_data);
 }
+
+#endif

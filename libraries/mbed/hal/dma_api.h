@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2014-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,51 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "rtc_api.h"
+#ifndef MBED_DMA_API_H
+#define MBED_DMA_API_H
 
-#include <time.h>
-#include "rtc_time.h"
-#include "us_ticker_api.h"
+#include <stdint.h>
+
+#define DMA_ERROR_OUT_OF_CHANNELS (-1)
+
+typedef enum {
+    DMA_USAGE_NEVER,
+    DMA_USAGE_OPPORTUNISTIC,
+    DMA_USAGE_ALWAYS,
+    DMA_USAGE_TEMPORARY_ALLOCATED,
+    DMA_USAGE_ALLOCATED
+} DMAUsage;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if defined (__ICCARM__)
-time_t __time32(time_t *timer)
-#else
-time_t time(time_t *timer)
-#endif
 
-{
-#if DEVICE_RTC
-    if (!(rtc_isenabled())) {
-        set_time(0);
-    }
-    time_t t = rtc_read();
+void dma_init(void);
 
-#else
-    time_t t = 0;
-#endif
+int dma_channel_allocate(uint32_t capabilities);
 
-    if (timer != NULL) {
-        *timer = t;
-    }
-    return t;
-}
-
-void set_time(time_t t) {
-#if DEVICE_RTC
-    rtc_init();
-    rtc_write(t);
-#endif
-}
-
-clock_t clock() {
-    clock_t t = us_ticker_read();
-    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    return t;
-}
+int dma_channel_free(int channelid);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

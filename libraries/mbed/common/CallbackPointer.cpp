@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Ticker.h"
-
-#include "TimerEvent.h"
-#include "FunctionPointer.h"
-#include "ticker_api.h"
+#include "CallbackPointer.h"
 
 namespace mbed {
 
-void Ticker::detach() {
-    remove();
-    _function.attach(0);
+CallbackPointer::CallbackPointer(void (*function)(int event)): _function(),
+                                                          _object(),
+                                                          _membercaller() {
+    attach(function);
 }
 
-void Ticker::setup(timestamp_t t) {
-    remove();
-    _delay = t;
-    insert(_delay + ticker_read(_ticker_data));
+void CallbackPointer::attach(void (*function)(int)) {
+    _function = function;
+    _object = 0;
 }
 
-void Ticker::handler() {
-    insert(event.timestamp + _delay);
-    _function.call();
+void CallbackPointer::call(int event) {
+    if (_function) {
+        _function(event);
+    } else if (_object) {
+        _membercaller(_object, _member, event);
+    }
 }
+
+#ifdef MBED_OPERATORS
+void FunctionPointer::operator ()(void) {
+    call();
+}
+#endif
 
 } // namespace mbed

@@ -47,6 +47,13 @@ namespace mbed {
 class Serial : public SerialBase, public Stream {
 
 public:
+#if DEVICE_SERIAL_ASYNCH
+    using SerialBase::read;
+    using SerialBase::write;
+    using SerialBase::set_dma_usage_tx;
+    using SerialBase::set_dma_usage_rx;
+#endif
+
     /** Create a Serial port, connected to the specified transmit and receive pins
      *
      *  @param tx Transmit pin

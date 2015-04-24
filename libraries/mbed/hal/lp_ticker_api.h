@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_US_TICKER_API_H
-#define MBED_US_TICKER_API_H
+#ifndef MBED_LPTICKER_API_H
+#define MBED_LPTICKER_API_H
 
-#include <stdint.h>
+#include "device.h"
+
+#if DEVICE_LOWPOWERTIMER
+
 #include "ticker_api.h"
 
 #ifdef __cplusplus
@@ -24,55 +27,56 @@ extern "C" {
 #endif
 
 /**
- * \defgroup UsTicker Microseconds Ticker Functions
+ * \defgroup LpTicker Low Power Ticker Functions
  * @{
  */
 
-/** Get ticker's data
+/** Get low power ticker's data
  *
  * @return The low power ticker data
  */
-const ticker_data_t* get_us_ticker_data(void);
+const ticker_data_t* get_lp_ticker_data(void);
 
-
-/** The wrapper for ticker_irq_handler, to pass us ticker's data
+/** The wrapper for ticker_irq_handler, to pass lp ticker's data
  *
  */
-void us_ticker_irq_handler(void);
+void lp_ticker_irq_handler(void);
 
-/* HAL us ticker */
+/* HAL lp ticker */
 
-/** Initialize the ticker
+/** Initialize the low power ticker
  *
  */
-void us_ticker_init(void);
+void lp_ticker_init(void);
 
 /** Read the current counter
  *
  * @return The current timer's counter value in microseconds
  */
-uint32_t us_ticker_read(void);
+uint32_t lp_ticker_read(void);
 
 /** Set interrupt for specified timestamp
  *
  * @param timestamp The time in microseconds to be set
  */
-void us_ticker_set_interrupt(timestamp_t timestamp);
+void lp_ticker_set_interrupt(timestamp_t timestamp);
 
-/** Disable us ticker interrupt
+/** Disable low power ticker interrupt
  *
  */
-void us_ticker_disable_interrupt(void);
+void lp_ticker_disable_interrupt(void);
 
-/** Clear us ticker interrupt
+/** Clear the low power ticker interrupt
  *
  */
-void us_ticker_clear_interrupt(void);
+void lp_ticker_clear_interrupt(void);
 
 /**@}*/
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif
