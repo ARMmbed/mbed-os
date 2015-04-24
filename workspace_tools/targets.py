@@ -1122,7 +1122,6 @@ class EFM32GG_STK3700(Target):
 
 
 class EFM32LG_STK3600(Target):
-class MAXWSNENV(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M3"
