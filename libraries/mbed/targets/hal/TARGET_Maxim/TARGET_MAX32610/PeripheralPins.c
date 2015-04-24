@@ -45,6 +45,10 @@
  * the pointers to the "function" data members.
  */
 
+#ifdef TOOLCHAIN_ARM_STD
+#pragma diag_suppress 1296
+#endif
+
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
     { P0_4,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
