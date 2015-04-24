@@ -5,7 +5,7 @@
  */
 #include "cmsis_nvic.h"
 
-#if defined (__GNUC__)
+#if (defined (__GNUC__) && (!defined(__CC_ARM)))
 extern uint32_t __start_vector_table__;		  // Dynamic vector positioning in GCC
 #endif
 
@@ -18,7 +18,7 @@ void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
 
     // Copy and switch to dynamic vectors if the first time called
     // For GCC, use dynamic vector table placement since otherwise we run into an alignment conflict
-#if defined (__GNUC__)
+#if (defined (__GNUC__) && (!defined(__CC_ARM)))
     if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
         uint32_t *old_vectors = vectors;
         vectors = (uint32_t*)(&__start_vector_table__);
