@@ -5,7 +5,10 @@
  */
 #include "cmsis_nvic.h"
 
+#if defined (__GNUC__)
 extern uint32_t __start_vector_table__;		  // Dynamic vector positioning in GCC
+#endif
+
 #define NVIC_RAM_VECTOR_ADDRESS (0x20000000)  // Vectors positioned at start of RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x0)       // Initial vector position in flash
 
