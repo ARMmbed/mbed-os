@@ -103,7 +103,6 @@ void mbed_sdk_init()
 
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
-    gpio_write(&bc_enable, 1);
 }
 
 void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask) {

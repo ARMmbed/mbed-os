@@ -42,9 +42,7 @@ void pin_mode(PinName pin, PinMode mode)
     int pin_index = (pin_number & 0xF);
     int port_index = pin_number >> 4;
 
-    /* Value of DOUT encoded in mode at position 0x10 */
-    unsigned int dout = mode & 0x10;
-    GPIO_PinModeSet(port_index, pin_index, mode & 0xF, dout);
+    GPIO_PinModeSet(port_index, pin_index, mode & 0xF, GPIO_PinOutGet(port_index, pin_index & 0xF));
 }
 
 // TODO_LP get pin_mode to be able to store previous settings
