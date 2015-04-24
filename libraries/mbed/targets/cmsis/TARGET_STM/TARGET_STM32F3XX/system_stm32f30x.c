@@ -143,7 +143,7 @@
 
 uint32_t SystemCoreClock = 64000000; /* Default with HSI. Will be updated if HSE is used */
 
-__I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
   * @}

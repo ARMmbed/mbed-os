@@ -48,7 +48,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->pwm =  (LPC_SCT_Type*)LPC_SCT;
     obj->pwm_ch = sct_n;
 
-   LPC_SCT_Type* pwm = obj->pwm;
+    LPC_SCT_Type* pwm = obj->pwm;
 
     // Enable the SCT clock
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8);
@@ -81,9 +81,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
             break;
     }
 
-    // Two 16-bit counters, autolimit
-    pwm->CONFIG &= ~(0x1);
-    pwm->CONFIG |= (1 << 17);
+    // Unified 32-bit counter, autolimit
+    pwm->CONFIG |= ((0x3 << 17) | 0x01);
 
     // halt and clear the counter
     pwm->CTRL |= (1 << 2) | (1 << 3);
@@ -151,8 +150,8 @@ void pwmout_period_us(pwmout_t* obj, int us)
     uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0];
     uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1];
     float v = (float)t_on/(float)t_off;
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] = (uint64_t)us;
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint64_t)((float)us * (float)v);
+    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] = (uint32_t)us;
+    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)((float)us * (float)v);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds)
@@ -167,7 +166,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint64_t)us;
+    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)us;
 }
 
 #endif

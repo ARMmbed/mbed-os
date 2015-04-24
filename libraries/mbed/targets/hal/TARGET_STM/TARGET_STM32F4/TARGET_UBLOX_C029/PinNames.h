@@ -38,9 +38,12 @@ extern "C" {
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
+#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -177,6 +180,8 @@ typedef enum {
     D14     = PF_0,   // SDA
     D15     = PF_1,   // SCL
     // Internal
+    LED1    = PE_0,   // Red
+    LED2    = PB_6,   // Green / shared with SW1
     LED_RED = PE_0,   // Red
     LED_GRE = PB_6,   // Green / shared with SW1
     LED_BLU = PB_8,   // Blue
