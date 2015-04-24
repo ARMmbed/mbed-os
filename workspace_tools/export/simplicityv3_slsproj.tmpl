@@ -40,6 +40,21 @@
     <libraryFile languageCompatibility="c" name="nosys"/>
     <libraryFile languageCompatibility="c" name="c"/>
     <libraryFile languageCompatibility="c" name="gcc"/>
+{# Include exported libraries #}
+    {%- for library in libraries %}
+    <libraryFile languageCompatibility="c cpp" name="{{ library }}"/>
+    {%- endfor %}
+{# Add library search paths #}
+    {%- for path in library_paths %}
+    <libraryPath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add in separate object files if needed #}
+    {%- if object_files %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.userobjs" value="
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
@@ -68,6 +83,21 @@
     <libraryFile languageCompatibility="c" name="nosys"/>
     <libraryFile languageCompatibility="c" name="c"/>
     <libraryFile languageCompatibility="c" name="gcc"/>
+{# Include exported libraries #}
+    {%- for library in libraries %}
+    <libraryFile languageCompatibility="c cpp" name="{{ library }}"/>
+    {%- endfor %}
+{# Add library search paths #}
+    {%- for path in library_paths %}
+    <libraryPath languageCompatibility="c cpp" uri="studio:/project/{{ path }}/"/>
+    {%- endfor %}
+{# Add in separate object files if needed #}
+    {%- if object_files %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.userobjs" value="
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>

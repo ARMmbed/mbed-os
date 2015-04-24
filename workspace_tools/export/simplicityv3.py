@@ -130,6 +130,8 @@ class SimplicityV3(Exporter):
             else:
                 defines.append( (define, '') )
 
+        self.check_and_add_path(split(self.resources.linker_script)[0])
+
         ctx = {
             'name': self.program_name,
             'main_files': main_files,
@@ -142,7 +144,8 @@ class SimplicityV3(Exporter):
             'symbols': self.get_symbols(),
             'defines': defines,
             'part': self.PARTS[self.target],
-            'kit': self.KITS[self.target]
+            'kit': self.KITS[self.target],
+            'loopcount': 0
         }
 
         ## Strip main folder from include paths because ssproj is not capable of handling it
