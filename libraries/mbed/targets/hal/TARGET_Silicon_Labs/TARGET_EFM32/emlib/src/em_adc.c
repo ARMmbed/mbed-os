@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_adc.c
  * @brief Analog to Digital Converter (ADC) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>

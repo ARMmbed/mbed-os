@@ -54,8 +54,9 @@ typedef enum {
     /* Serial */
     SERIAL_TX   = PD7,
     SERIAL_RX   = PD6,
-    USBTX       = PD7,
-    USBRX       = PD6,
+    USBTX       = PD4,
+    USBRX       = PD5,
+    EFM_BC_EN   = PA9,
 
     /* Not connected */
     NC = (int) 0xFFFFFFFF

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_lesense.h
  * @brief Low Energy Sensor (LESENSE) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_LESENSE_H
-#define __EM_LESENSE_H
+#ifndef __SILICON_LABS_EM_LESENSE_H_
+#define __SILICON_LABS_EM_LESENSE_H_
 
 #include "em_device.h"
 
@@ -105,10 +105,30 @@ typedef enum
   lesensePRSCh1     = 1, /**< PRS channel 1. */
   lesensePRSCh2     = 2, /**< PRS channel 2. */
   lesensePRSCh3     = 3, /**< PRS channel 3. */
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH4 )
   lesensePRSCh4     = 4, /**< PRS channel 4. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH5 )
   lesensePRSCh5     = 5, /**< PRS channel 5. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH6 )
   lesensePRSCh6     = 6, /**< PRS channel 6. */
-  lesensePRSCh7     = 7  /**< PRS channel 7. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH7 )
+  lesensePRSCh7     = 7,  /**< PRS channel 7. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH8 )
+  lesensePRSCh8     = 8,  /**< PRS channel 8. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH9 )
+  lesensePRSCh9     = 9,  /**< PRS channel 9. */
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH10 )
+  lesensePRSCh10    = 10, /**< PRS channel 10.*/
+#endif
+#if defined( LESENSE_CTRL_PRSSEL_PRSCH11 )
+  lesensePRSCh11    = 11, /**< PRS channel 11.*/
+#endif
 } LESENSE_PRSSel_TypeDef;
 
 
@@ -1316,4 +1336,4 @@ __STATIC_INLINE uint32_t LESENSE_IntGetEnabled(void)
 
 #endif /* defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) */
 
-#endif /* __EM_LESENSE_H */
+#endif /* __SILICON_LABS_EM_LESENSE_H_ */

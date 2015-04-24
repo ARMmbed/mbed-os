@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_idac.c
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -47,6 +47,15 @@
  * @brief Current Digital to Analog Conversion (IDAC) Peripheral API
  * @{
  ******************************************************************************/
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/* Fix for errata IDAC_E101 - IDAC output current degradation */
+#if defined(_EFM32_ZERO_FAMILY)
+#define ERRATA_FIX_IDAC_E101_EN
+#elif defined(_EFM32_HAPPY_FAMILY)
+#define ERRATA_FIX_IDAC_E101_EN
+#endif
+/** @endcond */
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -128,10 +137,26 @@ void IDAC_Reset(IDAC_TypeDef *idac)
 {
   EFM_ASSERT(IDAC_REF_VALID(idac));
 
+#if defined(ERRATA_FIX_IDAC_E101_EN)
+  /* Fix for errata IDAC_E101 - IDAC output current degradation:
+     Instead of disabling it we will put it in it’s lowest power state (50 nA)
+     to avoid degradation over time */
+
+  /* Make sure IDAC is enabled with disabled output */
+  idac->CTRL = _IDAC_CTRL_RESETVALUE | IDAC_CTRL_EN;
+
+  /* Set lowest current (50 nA) */
+  idac->CURPROG = IDAC_CURPROG_RANGESEL_RANGE0 |
+                  (0x0 << _IDAC_CURPROG_STEPSEL_SHIFT);
+
+  /* Enable duty-cycling for all energy modes */
+  idac->DUTYCONFIG = IDAC_DUTYCONFIG_DUTYCYCLEEN;
+#else
   idac->CTRL       = _IDAC_CTRL_RESETVALUE;
   idac->CURPROG    = _IDAC_CURPROG_RESETVALUE;
-  idac->CAL        = _IDAC_CAL_RESETVALUE;
   idac->DUTYCONFIG = _IDAC_DUTYCONFIG_RESETVALUE;
+#endif
+  idac->CAL        = _IDAC_CAL_RESETVALUE;
 }
 
 

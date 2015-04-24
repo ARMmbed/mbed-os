@@ -17,7 +17,6 @@
 #define MBED_PINMAP_FUNCTION_H
 
 #include "PinNames.h"
-#include "error.h"
 #include "pinmap.h"
 
 #ifdef __cplusplus

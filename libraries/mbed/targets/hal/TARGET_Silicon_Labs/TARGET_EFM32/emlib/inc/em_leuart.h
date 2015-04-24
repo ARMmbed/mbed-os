@@ -2,7 +2,7 @@
  * @file em_leuart.h
  * @brief Low Energy Universal Asynchronous Receiver/Transmitter (LEUART)
  *   peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,8 +32,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_LEUART_H
-#define __EM_LEUART_H
+#ifndef __SILICON_LABS_EM_LEUART_H_
+#define __SILICON_LABS_EM_LEUART_H_
 
 #include "em_device.h"
 #if defined(LEUART_COUNT) && (LEUART_COUNT > 0)
@@ -247,6 +247,21 @@ __STATIC_INLINE void LEUART_IntSet(LEUART_TypeDef *leuart, uint32_t flags)
   leuart->IFS = flags;
 }
 
+__STATIC_INLINE uint32_t LEUART_StatusGet(LEUART_TypeDef *leuart)
+{
+  return leuart->STATUS;
+}
+
+__STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
+{
+  return (uint8_t)(leuart->RXDATA & 0xFF);
+}
+
+__STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
+{
+  return(leuart->IF & leuart->IEN);
+}
+
 void LEUART_Reset(LEUART_TypeDef *leuart);
 uint8_t LEUART_Rx(LEUART_TypeDef *leuart);
 uint16_t LEUART_RxExt(LEUART_TypeDef *leuart);
@@ -263,4 +278,4 @@ void LEUART_TxExt(LEUART_TypeDef *leuart, uint16_t data);
 
 #endif /* defined(LEUART_COUNT) && (LEUART_COUNT > 0) */
 
-#endif /* __EM_LEUART_H */
+#endif /* __SILICON_LABS_EM_LEUART_H_ */

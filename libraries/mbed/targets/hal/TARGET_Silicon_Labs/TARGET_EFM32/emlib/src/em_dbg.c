@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dbg.c
  * @brief Debug (DBG) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -30,7 +30,6 @@
  *
  ******************************************************************************/
 
-
 #include "em_dbg.h"
 
 #if defined ( CoreDebug_DHCSR_C_DEBUGEN_Msk )
@@ -54,6 +53,7 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
+#if defined( GPIO_ROUTE_SWOPEN )
 /***************************************************************************//**
  * @brief
  *   Enable Serial Wire Output (SWO) pin.
@@ -112,6 +112,7 @@ void DBG_SWOEnable(unsigned int location)
   /* Configure SWO pin for output */
   GPIO_PinModeSet((GPIO_Port_TypeDef)port, pin, gpioModePushPull, 0);
 }
+#endif
 
 /** @} (end addtogroup DBG) */
 /** @} (end addtogroup EM_Library) */

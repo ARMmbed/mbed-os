@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_timer.h
  * @brief Timer/counter (TIMER) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_TIMER_H
-#define __EM_TIMER_H
+#ifndef __SILICON_LABS_EM_TIMER_H_
+#define __SILICON_LABS_EM_TIMER_H_
 
 #include "em_device.h"
 #if defined(TIMER_COUNT) && (TIMER_COUNT > 0)
@@ -216,21 +216,33 @@ typedef enum
 /** Peripheral Reflex System signal. */
 typedef enum
 {
-  timerPRSSELCh0 = _TIMER_CC_CTRL_PRSSEL_PRSCH0, /**< PRS channel 0. */
-  timerPRSSELCh1 = _TIMER_CC_CTRL_PRSSEL_PRSCH1, /**< PRS channel 1. */
-  timerPRSSELCh2 = _TIMER_CC_CTRL_PRSSEL_PRSCH2, /**< PRS channel 2. */
-  timerPRSSELCh3 = _TIMER_CC_CTRL_PRSSEL_PRSCH3, /**< PRS channel 3. */
+  timerPRSSELCh0 = _TIMER_CC_CTRL_PRSSEL_PRSCH0,        /**< PRS channel 0. */
+  timerPRSSELCh1 = _TIMER_CC_CTRL_PRSSEL_PRSCH1,        /**< PRS channel 1. */
+  timerPRSSELCh2 = _TIMER_CC_CTRL_PRSSEL_PRSCH2,        /**< PRS channel 2. */
+  timerPRSSELCh3 = _TIMER_CC_CTRL_PRSSEL_PRSCH3,        /**< PRS channel 3. */
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH4 )
+  timerPRSSELCh4 = _TIMER_CC_CTRL_PRSSEL_PRSCH4,        /**< PRS channel 4. */
+#endif
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH5 )
+  timerPRSSELCh5 = _TIMER_CC_CTRL_PRSSEL_PRSCH5,        /**< PRS channel 5. */
+#endif
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH6 )
+  timerPRSSELCh6 = _TIMER_CC_CTRL_PRSSEL_PRSCH6,        /**< PRS channel 6. */
+#endif
 #if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH7 )
-  timerPRSSELCh4 = _TIMER_CC_CTRL_PRSSEL_PRSCH4, /**< PRS channel 4. */
-  timerPRSSELCh5 = _TIMER_CC_CTRL_PRSSEL_PRSCH5, /**< PRS channel 5. */
-  timerPRSSELCh6 = _TIMER_CC_CTRL_PRSSEL_PRSCH6, /**< PRS channel 6. */
-  timerPRSSELCh7 = _TIMER_CC_CTRL_PRSSEL_PRSCH7, /**< PRS channel 7. */
+  timerPRSSELCh7 = _TIMER_CC_CTRL_PRSSEL_PRSCH7,        /**< PRS channel 7. */
+#endif
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH8 )
+  timerPRSSELCh8  = _TIMER_CC_CTRL_PRSSEL_PRSCH8,       /**< PRS channel 8. */
+#endif
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH9 )
+  timerPRSSELCh9  = _TIMER_CC_CTRL_PRSSEL_PRSCH9,       /**< PRS channel 9. */
+#endif
+#if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH10 )
+  timerPRSSELCh10 = _TIMER_CC_CTRL_PRSSEL_PRSCH10,      /**< PRS channel 10. */
 #endif
 #if defined( _TIMER_CC_CTRL_PRSSEL_PRSCH11 )
-  timerPRSSELCh8  = _TIMER_CC_CTRL_PRSSEL_PRSCH8,  /**< PRS channel 8. */
-  timerPRSSELCh9  = _TIMER_CC_CTRL_PRSSEL_PRSCH9,  /**< PRS channel 9. */
-  timerPRSSELCh10 = _TIMER_CC_CTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
-  timerPRSSELCh11 = _TIMER_CC_CTRL_PRSSEL_PRSCH11  /**< PRS channel 11. */
+  timerPRSSELCh11 = _TIMER_CC_CTRL_PRSSEL_PRSCH11,      /**< PRS channel 11. */
 #endif
 } TIMER_PRSSEL_TypeDef;
 
@@ -670,7 +682,7 @@ __STATIC_INLINE uint32_t TIMER_GetDTIFault(TIMER_TypeDef *timer)
  *   source flags (TIMER_DTFAULT_nnn) OR'ed together.
  ******************************************************************************/
 __STATIC_INLINE void TIMER_ClearDTIFault(TIMER_TypeDef *timer, uint32_t flags)
-                                         
+
 {
   EFM_ASSERT(TIMER0 == timer);
   timer->DTFAULTC = flags;
@@ -907,4 +919,4 @@ __STATIC_INLINE void TIMER_Unlock(TIMER_TypeDef *timer)
 #endif
 
 #endif /* defined(TIMER_COUNT) && (TIMER_COUNT > 0) */
-#endif /* __EM_TIMER_H */
+#endif /* __SILICON_LABS_EM_TIMER_H_ */

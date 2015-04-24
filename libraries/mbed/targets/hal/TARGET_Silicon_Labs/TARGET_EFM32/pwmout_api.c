@@ -15,6 +15,7 @@
  */
 
 #include "device.h"
+#include "clocking.h"
 #if DEVICE_PWMOUT
 
 #include "mbed_assert.h"
@@ -31,27 +32,21 @@
 static int clockfreq;
 static int prescaler_div;
 
-void pwmout_init(pwmout_t *obj, PinName pin)
+uint8_t pwmout_get_index(pwmout_t *obj)
+{
+    return 0;
+}
+
+void pwmout_preinit(pwmout_t *obj, PinName pin)
 {
     obj->channel = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
+    obj->pin = pin;
     MBED_ASSERT(obj->channel != (PWMName) NC);
+}
 
-    /* Enable clock for GPIO module */
-    CMU_ClockEnable(cmuClock_GPIO, true);
-
-    /* Enable clock for PWM_TIMER module */
-    CMU_ClockEnable(PWM_TIMER_CLOCK, true);
-
-    pin_mode(pin, PushPull);
-
-    /* Start with default CC (Compare/Capture) channel parameters */
-    TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
-
-    /* Set mode to PWM */
-    timerCCInit.mode = timerCCModePWM;
-
-    /* Configure CC channel */
-    TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
+	pwmout_preinit(obj, pin);
 
     /* Enable correct channel */
     switch (obj->channel) {
@@ -70,22 +65,43 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     /* Route correct channel to location 1 */
     PWM_TIMER->ROUTE |= PWM_ROUTE;
 
-    /* Select timer parameters */
-    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
-
     /*HFPER is the default clock we will use. It has a frequency of 14MHz*/
-    clockfreq = CMU_ClockFreqGet(cmuClock_HFPER);
-
-    /* Configure timer */
-    TIMER_Init(PWM_TIMER, &timerInit);
+    clockfreq = REFERENCE_FREQUENCY;
 
     /* Set default 20ms frequency and 0ms pulse width */
     pwmout_period(obj, 0.02);
 }
 
-void pwmout_free(pwmout_t *obj)
+void pwmout_enable_pins(pwmout_t *obj, uint8_t enable)
 {
+    if (enable) {
+        pin_mode(obj->pin, PushPull);
+    } else {
+        // TODO_LP return PinMode to the previous state
+        pin_mode(obj->pin, Disabled);
+    }
 }
+
+void pwmout_enable(pwmout_t *obj, uint8_t enable)
+{
+    TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
+
+    if (enable) {
+        /* Start with default CC (Compare/Capture) channel parameters */
+        TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
+
+        /* Set mode to PWM */
+        timerCCInit.mode = timerCCModePWM;
+
+        /* Configure CC channel */
+        TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
+        TIMER_Init(PWM_TIMER, &timerInit);
+    } else {
+        timerInit.enable = false;
+        TIMER_Init(PWM_TIMER, &timerInit);
+    }
+}
+
 
 void pwmout_write(pwmout_t *obj, float value)
 {

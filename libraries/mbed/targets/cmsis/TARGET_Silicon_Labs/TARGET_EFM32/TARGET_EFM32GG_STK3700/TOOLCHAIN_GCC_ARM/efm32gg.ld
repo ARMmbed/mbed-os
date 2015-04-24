@@ -8,11 +8,12 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 1048576
-  RAM (rwx)  : ORIGIN = 0x200000E0, LENGTH = 131072-0xE0
+  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 131072
 }
 /* MBED: mbed needs to be able to dynamically set the interrupt vector table.
  * We make room for the table at the very beginning of RAM, i.e. at
  * 0x20000000. We need (16+39) * sizeof(uint32_t) = 220 bytes for EFM32GG */
+__vector_size = 0xE0;
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -84,10 +85,14 @@ SECTIONS
   __exidx_end = .;
 
   __etext = .;
-
+  
   .data : AT (__etext)
   {
     __data_start__ = .;
+    *("dma")
+    PROVIDE( __start_vector_table__ = .);
+  	. += __vector_size;
+  	PROVIDE( __end_vector_table__ = .);
     *(vtable)
     *(.data*)
     . = ALIGN (4);

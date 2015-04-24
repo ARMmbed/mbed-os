@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.c
  * @brief Clock management unit (CMU) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -59,8 +59,20 @@
 #define CMU_MAX_FREQ_0WS    16000000
 /** Maximum allowed core frequency when using 1 wait states on flash access */
 #define CMU_MAX_FREQ_1WS    32000000
-/** Maximum frequency before HFLE needs to be enabled on Giant Gecko */
-#define CMU_MAX_FREQ_HFLE   32000000
+
+#if defined( CMU_CTRL_HFLE )
+/** Maximum frequency for HFLE needs to be enabled on Giant, Leopard and
+    Wonder. */
+#if defined ( _EFM32_WONDER_FAMILY ) ||  \
+    defined ( _EZR32_LEOPARD_FAMILY ) || \
+    defined ( _EZR32_WONDER_FAMILY )
+#define CMU_MAX_FREQ_HFLE   24000000
+#elif defined ( _EFM32_GIANT_FAMILY )
+#define CMU_MAX_FREQ_HFLE   (CMU_MaxFreqHfle())
+#else
+#error Invalid part/device.
+#endif
+#endif
 
 /** Low frequency A group identifier */
 #define CMU_LFA             0
@@ -76,6 +88,144 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
+#if defined( CMU_CTRL_HFLE ) &&         \
+  !defined ( _EFM32_WONDER_FAMILY ) &&  \
+  !defined ( _EZR32_LEOPARD_FAMILY ) && \
+  !defined ( _EZR32_WONDER_FAMILY )
+
+/***************************************************************************//**
+ * @brief
+ *   Return max allowed frequency for low energy peripherals.
+ ******************************************************************************/
+static uint32_t CMU_MaxFreqHfle(void)
+{
+  /* SYSTEM_GetFamily and SYSTEM_ChipRevisionGet could have been used here
+     but we want to minimize dependencies in em_cmu.c. */
+  uint16_t majorMinorRev;
+  uint8_t  deviceFamily = ((DEVINFO->PART & _DEVINFO_PART_DEVICE_FAMILY_MASK)
+                           >> _DEVINFO_PART_DEVICE_FAMILY_SHIFT);
+  switch (deviceFamily)
+  {
+  case _DEVINFO_PART_DEVICE_FAMILY_LG:
+    /* CHIP MAJOR bit [3:0] */
+    majorMinorRev = (((ROMTABLE->PID0 & _ROMTABLE_PID0_REVMAJOR_MASK)
+                      >> _ROMTABLE_PID0_REVMAJOR_SHIFT) << 8);
+    /* CHIP MINOR bit [7:4] */
+    majorMinorRev |= (((ROMTABLE->PID2 & _ROMTABLE_PID2_REVMINORMSB_MASK)
+                       >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
+    /* CHIP MINOR bit [3:0] */
+    majorMinorRev |=  ((ROMTABLE->PID3 & _ROMTABLE_PID3_REVMINORLSB_MASK)
+                       >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
+
+    if (majorMinorRev >= 0x0204)
+      return 24000000;
+    else
+      return 32000000;
+  case _DEVINFO_PART_DEVICE_FAMILY_GG:
+    return 32000000;
+  case _DEVINFO_PART_DEVICE_FAMILY_WG:
+    return 24000000;
+  default:
+    /* Invalid device family. */
+    EFM_ASSERT(false);
+    return 0;
+  }
+}
+#endif
+
+
+/***************************************************************************//**
+ * @brief
+ *   Configure flash access wait states in order to support given core clock
+ *   frequency.
+ *
+ * @param[in] hfcoreclk
+ *   Core clock frequency to configure flash wait-states for
+ ******************************************************************************/
+static void CMU_FlashWaitStateControl(uint32_t hfcoreclk)
+{
+  uint32_t mode;
+  bool mscLocked;
+#if defined( MSC_READCTRL_MODE_WS0SCBTP )
+  bool scbtpEn;
+#endif
+
+  /* Make sure the MSC is unlocked */
+  mscLocked = MSC->LOCK;
+  MSC->LOCK = MSC_UNLOCK_CODE;
+
+  /* Get mode and SCBTP enable */
+  mode = MSC->READCTRL & _MSC_READCTRL_MODE_MASK;
+#if defined( MSC_READCTRL_MODE_WS0SCBTP )
+  switch(mode)
+  {
+    case MSC_READCTRL_MODE_WS0:
+    case MSC_READCTRL_MODE_WS1:
+#if defined( MSC_READCTRL_MODE_WS2 )
+    case MSC_READCTRL_MODE_WS2:
+#endif
+      scbtpEn = false;
+      break;
+
+    default: /* WSxSCBTP */
+      scbtpEn = true;
+    break;
+  }
+#endif
+
+
+  /* Set mode based on the core clock frequency and SCBTP enable */
+#if defined( MSC_READCTRL_MODE_WS0SCBTP )
+  if (false)
+  {
+  }
+#if defined( MSC_READCTRL_MODE_WS2 )
+  else if (hfcoreclk > CMU_MAX_FREQ_1WS)
+  {
+    mode = (scbtpEn ? MSC_READCTRL_MODE_WS2SCBTP : MSC_READCTRL_MODE_WS2);
+  }
+#endif
+  else if ((hfcoreclk <= CMU_MAX_FREQ_1WS) && (hfcoreclk > CMU_MAX_FREQ_0WS))
+  {
+    mode = (scbtpEn ? MSC_READCTRL_MODE_WS1SCBTP : MSC_READCTRL_MODE_WS1);
+  }
+  else
+  {
+    mode = (scbtpEn ? MSC_READCTRL_MODE_WS0SCBTP : MSC_READCTRL_MODE_WS0);
+  }
+
+#else /* If MODE and SCBTP is in separate register fields */
+
+  if (false)
+  {
+  }
+#if defined( MSC_READCTRL_MODE_WS2 )
+  else if (hfcoreclk > CMU_MAX_FREQ_1WS)
+  {
+    mode = MSC_READCTRL_MODE_WS2;
+  }
+#endif
+  else if ((hfcoreclk <= CMU_MAX_FREQ_1WS) && (hfcoreclk > CMU_MAX_FREQ_0WS))
+  {
+    mode = MSC_READCTRL_MODE_WS1;
+  }
+  else
+  {
+    mode = MSC_READCTRL_MODE_WS0;
+  }
+#endif
+
+  /* BUS_RegMaskedWrite cannot be used here as it would temporarely set the
+     mode field to WS0 */
+  MSC->READCTRL = (MSC->READCTRL &~_MSC_READCTRL_MODE_MASK) | mode;
+
+  if (mscLocked)
+  {
+    MSC->LOCK = 0;
+  }
+}
+
+
 /***************************************************************************//**
  * @brief
  *   Configure flash access wait states to most conservative setting for
@@ -83,42 +233,27 @@
  ******************************************************************************/
 static void CMU_FlashWaitStateMax(void)
 {
-  uint32_t cfg;
-
-  cfg = MSC->READCTRL;
-
-  switch(cfg & _MSC_READCTRL_MODE_MASK)
-  {
-  case MSC_READCTRL_MODE_WS1:
-  case MSC_READCTRL_MODE_WS0:
-
-#if defined( MSC_READCTRL_MODE_WS2 )
-  case MSC_READCTRL_MODE_WS2:
-    cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS2;
+  uint32_t maxCoreClock;
+#if defined   (_EFM32_GECKO_FAMILY)
+  maxCoreClock = 32000000;
+#elif defined (_EFM32_GIANT_FAMILY)
+  maxCoreClock = 48000000;
+#elif defined (_EFM32_TINY_FAMILY)
+  maxCoreClock = 32000000;
+#elif defined (_EFM32_LEOPARD_FAMILY)
+  maxCoreClock = 48000000;
+#elif defined (_EFM32_WONDER_FAMILY)
+  maxCoreClock = 48000000;
+#elif defined (_EFM32_ZERO_FAMILY)
+  maxCoreClock = 24000000;
+#elif defined (_EFM32_HAPPY_FAMILY)
+  maxCoreClock = 25000000;
 #else
-    cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS1;
-#endif
-    break;
-
-#if defined( MSC_READCTRL_MODE_WS1SCBTP )
-  case MSC_READCTRL_MODE_WS1SCBTP:
-#endif
-#if defined( MSC_READCTRL_MODE_WS0SCBTP )
-  case MSC_READCTRL_MODE_WS0SCBTP:
+#error "Max core clock frequency is not defined for this family"
 #endif
 
-#if defined( MSC_READCTRL_MODE_WS2SCBTP )
-  case MSC_READCTRL_MODE_WS2SCBTP:
-    cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS2SCBTP;
-#elif defined( MSC_READCTRL_MODE_WS1SCBTP )
-    cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS1SCBTP;
-#endif
-#if defined( MSC_READCTRL_MODE_WS2SCBTP ) || \
-    defined( MSC_READCTRL_MODE_WS1SCBTP ) || defined( MSC_READCTRL_MODE_WS0SCBTP )
-      break;
-#endif
-  }
-  MSC->READCTRL = cfg;
+  /* Use SystemMaxCoreClockGet() when available in CMSIS */
+  CMU_FlashWaitStateControl(maxCoreClock);
 }
 
 
@@ -150,88 +285,6 @@ __STATIC_INLINE uint32_t CMU_DivToLog2(CMU_ClkDiv_TypeDef div)
 __STATIC_INLINE uint32_t CMU_Log2ToDiv(uint32_t log2)
 {
   return 1<<log2;
-}
-
-
-/***************************************************************************//**
- * @brief
- *   Configure flash access wait states in order to support given HFCORECLK
- *   frequency.
- *
- * @param[in] hfcoreclk
- *   HFCORECLK frequency that flash access wait states must be configured for.
- ******************************************************************************/
-static void CMU_FlashWaitStateControl(uint32_t hfcoreclk)
-{
-  uint32_t cfg;
-
-  cfg = MSC->READCTRL;
-
-#if defined( MSC_READCTRL_MODE_WS2 )
-  if (hfcoreclk > CMU_MAX_FREQ_1WS)
-  {
-    switch(cfg & _MSC_READCTRL_MODE_MASK)
-    {
-    case MSC_READCTRL_MODE_WS0SCBTP:
-    case MSC_READCTRL_MODE_WS1SCBTP:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS2SCBTP;
-      break;
-    case MSC_READCTRL_MODE_WS0:
-    case MSC_READCTRL_MODE_WS1:
-    default:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS2;
-      break;
-    }
-  }
-#endif
-
-  if ((hfcoreclk > CMU_MAX_FREQ_0WS) && (hfcoreclk <= CMU_MAX_FREQ_1WS))
-  {
-    switch (cfg & _MSC_READCTRL_MODE_MASK)
-    {
-#if defined( MSC_READCTRL_MODE_WS2SCBTP )
-    case MSC_READCTRL_MODE_WS2SCBTP:
-#endif
-#if defined( MSC_READCTRL_MODE_WS1SCBTP ) && defined( MSC_READCTRL_MODE_WS0SCBTP )
-    case MSC_READCTRL_MODE_WS0SCBTP:
-    case MSC_READCTRL_MODE_WS1SCBTP:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS1SCBTP;
-#endif
-#if defined( MSC_READCTRL_MODE_WS2SCBTP ) || \
-    defined( MSC_READCTRL_MODE_WS1SCBTP ) || defined( MSC_READCTRL_MODE_WS0SCBTP )
-      break;
-#endif
-
-    default:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS1;
-      break;
-    }
-  }
-
-  if (hfcoreclk <= CMU_MAX_FREQ_0WS)
-  {
-    switch (cfg & _MSC_READCTRL_MODE_MASK)
-    {
-#if defined( MSC_READCTRL_MODE_WS2SCBTP )
-    case MSC_READCTRL_MODE_WS2SCBTP:
-#endif
-#if defined( MSC_READCTRL_MODE_WS0SCBTP )
-    case MSC_READCTRL_MODE_WS1SCBTP:
-    case MSC_READCTRL_MODE_WS0SCBTP:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS0SCBTP;
-#endif
-#if defined( MSC_READCTRL_MODE_WS2SCBTP ) || \
-    defined( MSC_READCTRL_MODE_WS1SCBTP ) || defined( MSC_READCTRL_MODE_WS0SCBTP )
-      break;
-#endif
-
-    default:
-      cfg = (cfg & ~_MSC_READCTRL_MODE_MASK) | MSC_READCTRL_MODE_WS0;
-      break;
-    }
-  }
-
-  MSC->READCTRL = cfg;
 }
 
 
@@ -807,9 +860,8 @@ void CMU_ClockDivSet(CMU_Clock_TypeDef clock, CMU_ClkDiv_TypeDef div)
 
 #if defined( CMU_CTRL_HFLE )
     /* Clear HFLE and set DIV2 factor for peripheral clock
-       when running at frequencies lower than 32 MHz. */
-    if ( (cmuSelect_HFXO != CMU_ClockSelectGet(cmuClock_HF)) ||
-         ((SystemHFXOClockGet()/div) <= CMU_MAX_FREQ_HFLE) )
+       when running at frequencies lower than or equal to CMU_MAX_FREQ_HFLE. */
+    if ((CMU_ClockFreqGet(cmuClock_HF) / div) <= CMU_MAX_FREQ_HFLE)
     {
       /* Clear CMU HFLE */
       BITBAND_Peripheral(&(CMU->CTRL), _CMU_CTRL_HFLE_SHIFT, 0);
@@ -1004,11 +1056,9 @@ void CMU_ClockEnable(CMU_Clock_TypeDef clock, bool enable)
     reg = &(CMU->HFCORECLKEN0);
 
 #if defined( CMU_CTRL_HFLE )
-    /* Set HFLE and DIV4 factor for peripheral clock
-       when running at frequencies higher than 32 MHz. */
-    if ( (cmuSelect_HFXO == CMU_ClockSelectGet(cmuClock_HF)) &&
-         ((SystemHFXOClockGet()/CMU_ClockDivGet(cmuClock_CORE)) >
-          CMU_MAX_FREQ_HFLE) )
+    /* Set HFLE and DIV4 factor for peripheral clock when
+       running at frequencies higher than or equal to CMU_MAX_FREQ_HFLE. */
+    if ( CMU_ClockFreqGet(cmuClock_CORE) > CMU_MAX_FREQ_HFLE )
     {
       /* Enable CMU HFLE */
       BITBAND_Peripheral(&(CMU->CTRL), _CMU_CTRL_HFLE_SHIFT, 1);
@@ -1033,6 +1083,13 @@ void CMU_ClockEnable(CMU_Clock_TypeDef clock, bool enable)
   case CMU_PCNT_EN_REG:
     reg = &(CMU->PCNTCTRL);
     break;
+
+#if defined( _CMU_LFCCLKEN0_MASK )
+  case CMU_LFCCLKEN0_EN_REG:
+    reg = &(CMU->LFCCLKEN0);
+    sync = CMU_SYNCBUSY_LFCCLKEN0;
+    break;
+#endif
 
   default: /* Cannot enable/disable clock point */
     EFM_ASSERT(0);
@@ -1234,14 +1291,23 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
 {
   CMU_Select_TypeDef ret = cmuSelect_Disabled;
   uint32_t           selReg;
+  uint32_t           statusClkSelMask;
+
+  statusClkSelMask =
+    (CMU_STATUS_HFRCOSEL |
+     CMU_STATUS_HFXOSEL |
+     CMU_STATUS_LFRCOSEL |
+#if defined( CMU_STATUS_USHFRCODIV2SEL )
+     CMU_STATUS_USHFRCODIV2SEL |
+#endif
+     CMU_STATUS_LFXOSEL);
 
   selReg = (clock >> CMU_SEL_REG_POS) & CMU_SEL_REG_MASK;
 
   switch (selReg)
   {
   case CMU_HFCLKSEL_REG:
-    switch (CMU->STATUS & (CMU_STATUS_HFRCOSEL | CMU_STATUS_HFXOSEL |
-                           CMU_STATUS_LFRCOSEL | CMU_STATUS_LFXOSEL))
+    switch (CMU->STATUS & statusClkSelMask)
     {
     case CMU_STATUS_LFXOSEL:
       ret = cmuSelect_LFXO;
@@ -1254,6 +1320,12 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
     case CMU_STATUS_HFXOSEL:
       ret = cmuSelect_HFXO;
       break;
+
+#if defined( CMU_STATUS_USHFRCODIV2SEL )
+    case CMU_STATUS_USHFRCODIV2SEL:
+      ret = cmuSelect_USHFRCODIV2;
+      break;
+#endif
 
     default:
       ret = cmuSelect_HFRCO;
@@ -1319,8 +1391,43 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
     }
     break;
 
+#if defined( _CMU_LFCLKSEL_LFC_MASK )
+  case CMU_LFCCLKSEL_REG:
+    switch (CMU->LFCLKSEL & _CMU_LFCLKSEL_LFC_MASK)
+    {
+    case CMU_LFCLKSEL_LFC_LFRCO:
+      ret = cmuSelect_LFRCO;
+      break;
+
+    case CMU_LFCLKSEL_LFC_LFXO:
+      ret = cmuSelect_LFXO;
+      break;
+
+    default:
+      ret = cmuSelect_Disabled;
+      break;
+    }
+    break;
+#endif
+
   case CMU_DBGCLKSEL_REG:
-#if defined( CMU_CTRL_DBGCLK )
+
+#if defined( _CMU_DBGCLKSEL_DBG_MASK )
+    switch (CMU->DBGCLKSEL & _CMU_DBGCLKSEL_DBG_MASK)
+    {
+    case CMU_DBGCLKSEL_DBG_HFCLK:
+      ret = cmuSelect_HFCLK;
+      break;
+
+    case CMU_DBGCLKSEL_DBG_AUXHFRCO:
+      ret = cmuSelect_AUXHFRCO;
+      break;
+    }
+#else
+    ret = cmuSelect_AUXHFRCO;
+#endif /* CMU_DBGCLKSEL_DBG */
+
+#if defined( _CMU_CTRL_DBGCLK_MASK )
     switch(CMU->CTRL & _CMU_CTRL_DBGCLK_MASK)
     {
     case CMU_CTRL_DBGCLK_AUXHFRCO:
@@ -1331,22 +1438,25 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
       ret = cmuSelect_HFCLK;
       break;
     }
-#endif
-#if defined(_EFM32_GECKO_FAMILY)
+#else
     ret = cmuSelect_AUXHFRCO;
 #endif
     break;
 
 
 #if defined(USB_PRESENT)
+
   case CMU_USBCCLKSEL_REG:
-    switch(CMU->STATUS & (CMU_STATUS_USBCHFCLKSEL |
-                          CMU_STATUS_USBCLFXOSEL |
-                          CMU_STATUS_USBCLFRCOSEL))
+    switch(CMU->STATUS &
+           (CMU_STATUS_USBCLFXOSEL |
+#if defined(_CMU_STATUS_USBCHFCLKSEL_MASK)
+            CMU_STATUS_USBCHFCLKSEL |
+#endif
+#if defined(_CMU_STATUS_USBCUSHFRCOSEL_MASK)
+            CMU_STATUS_USBCUSHFRCOSEL |
+#endif
+            CMU_STATUS_USBCLFRCOSEL))
     {
-    case CMU_STATUS_USBCHFCLKSEL:
-      ret = cmuSelect_HFCLK;
-      break;
 
     case CMU_STATUS_USBCLFXOSEL:
       ret = cmuSelect_LFXO;
@@ -1355,6 +1465,18 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
     case CMU_STATUS_USBCLFRCOSEL:
       ret = cmuSelect_LFRCO;
       break;
+
+#if defined(_CMU_STATUS_USBCHFCLKSEL_MASK)
+    case CMU_STATUS_USBCHFCLKSEL:
+      ret = cmuSelect_HFCLK;
+      break;
+#endif
+
+#if defined(_CMU_STATUS_USBCUSHFRCOSEL_MASK)
+    case CMU_STATUS_USBCUSHFRCOSEL:
+      ret = cmuSelect_USHFRCO;
+      break;
+#endif
 
     default:
       ret = cmuSelect_Disabled;
@@ -1442,7 +1564,7 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       osc    = cmuOsc_HFXO;
 #if defined( CMU_CTRL_HFLE )
       /* Adjust HFXO buffer current for high frequencies, enable HFLE for */
-      /* frequencies above 32MHz */
+      /* frequencies above CMU_MAX_FREQ_HFLE. */
       if(SystemHFXOClockGet() > CMU_MAX_FREQ_HFLE)
       {
         CMU->CTRL = (CMU->CTRL & ~_CMU_CTRL_HFXOBUFCUR_MASK) |
@@ -1471,7 +1593,14 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       osc    = cmuOsc_HFRCO;
       break;
 
-#if !defined(_EFM32_GECKO_FAMILY)
+#if defined( CMU_CMD_HFCLKSEL_USHFRCODIV2 )
+    case cmuSelect_USHFRCODIV2:
+      select = CMU_CMD_HFCLKSEL_USHFRCODIV2;
+      osc    = cmuOsc_USHFRCO;
+      break;
+#endif
+
+#if !defined( _EFM32_GECKO_FAMILY )
     case cmuSelect_ULFRCO:
       /* ULFRCO cannot be used as HFCLK  */
       EFM_ASSERT(0);
@@ -1528,8 +1657,9 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       /* Ensure HFCORE to LE clocking is enabled */
       BITBAND_Peripheral(&(CMU->HFCORECLKEN0), _CMU_HFCORECLKEN0_LE_SHIFT, 1);
       tmp = _CMU_LFCLKSEL_LFA_HFCORECLKLEDIV2;
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
-      /* If core frequency is > 32MHz on Giant/Leopard, enable HFLE and DIV4 */
+#if defined( CMU_CTRL_HFLE )
+      /* If core frequency is higher than CMU_MAX_FREQ_HFLE on
+         Giant/Leopard/Wonder, enable HFLE and DIV4. */
       freq = SystemCoreClockGet();
       if(freq > CMU_MAX_FREQ_HFLE)
       {
@@ -1557,28 +1687,60 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       return;
     }
 
-
+    /* Apply select */
     if (selReg == CMU_LFACLKSEL_REG)
     {
-      #if !defined(_EFM32_GECKO_FAMILY)
+#if !defined( _EFM32_GECKO_FAMILY )
       CMU->LFCLKSEL = (CMU->LFCLKSEL & ~(_CMU_LFCLKSEL_LFA_MASK | _CMU_LFCLKSEL_LFAE_MASK) ) |
                     (tmp << _CMU_LFCLKSEL_LFA_SHIFT) | (lfExtended << _CMU_LFCLKSEL_LFAE_SHIFT);
-      #else
+#else
       CMU->LFCLKSEL = (CMU->LFCLKSEL & ~_CMU_LFCLKSEL_LFA_MASK) |
                     (tmp << _CMU_LFCLKSEL_LFA_SHIFT);
-      #endif
+#endif
     }
     else
     {
-      #if !defined(_EFM32_GECKO_FAMILY)
+#if !defined( _EFM32_GECKO_FAMILY )
       CMU->LFCLKSEL = (CMU->LFCLKSEL & ~(_CMU_LFCLKSEL_LFB_MASK | _CMU_LFCLKSEL_LFBE_MASK) ) |
                     (tmp << _CMU_LFCLKSEL_LFB_SHIFT) | (lfExtended << _CMU_LFCLKSEL_LFBE_SHIFT);
-      #else
+#else
       CMU->LFCLKSEL = (CMU->LFCLKSEL & ~_CMU_LFCLKSEL_LFB_MASK) |
                     (tmp << _CMU_LFCLKSEL_LFB_SHIFT);
-      #endif
+#endif
     }
     break;
+
+#if defined( _CMU_LFCLKSEL_LFC_MASK )
+  case CMU_LFCCLKSEL_REG:
+    switch(ref)
+    {
+    case cmuSelect_Disabled:
+      tmp = _CMU_LFCLKSEL_LFA_DISABLED;
+      break;
+
+    case cmuSelect_LFXO:
+      /* Ensure selected oscillator is enabled, waiting for it to stabilize */
+      CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
+      tmp = _CMU_LFCLKSEL_LFC_LFXO;
+      break;
+
+    case cmuSelect_LFRCO:
+      /* Ensure selected oscillator is enabled, waiting for it to stabilize */
+      CMU_OscillatorEnable(cmuOsc_LFRCO, true, true);
+      tmp = _CMU_LFCLKSEL_LFC_LFRCO;
+      break;
+
+    default:
+      /* Illegal clock source for LFC selected */
+      EFM_ASSERT(0);
+      return;
+    }
+
+    /* Apply select */
+    CMU->LFCLKSEL = (CMU->LFCLKSEL & ~_CMU_LFCLKSEL_LFC_MASK) |
+                    (tmp << _CMU_LFCLKSEL_LFC_SHIFT);
+    break;
+#endif
 
 #if defined( CMU_CTRL_DBGCLK )
   case CMU_DBGCLKSEL_REG:
@@ -1606,15 +1768,6 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
   case CMU_USBCCLKSEL_REG:
     switch(ref)
     {
-
-    case cmuSelect_HFCLK:
-      /* Select undivided HFCLK as clock source for USB */
-      /* Oscillator must already be enabled, if not the core had stopped */
-      CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
-      /* Wait until clock is activated */
-      while((CMU->STATUS & CMU_STATUS_USBCHFCLKSEL)==0);
-      break;
-
     case cmuSelect_LFXO:
       /* Select LFXO as clock source for USB, can only be used in sleep mode */
 
@@ -1640,6 +1793,32 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       /* Wait until clock is activated */
       while((CMU->STATUS & CMU_STATUS_USBCLFRCOSEL)==0);
       break;
+
+#if defined( CMU_STATUS_USBCHFCLKSEL )
+    case cmuSelect_HFCLK:
+      /* Select undivided HFCLK as clock source for USB */
+
+      /* Oscillator must already be enabled to avoid a core lockup */
+      CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
+      /* Wait until clock is activated */
+      while((CMU->STATUS & CMU_STATUS_USBCHFCLKSEL)==0);
+      break;
+#endif
+
+#if defined( CMU_CMD_USBCCLKSEL_USHFRCO )
+    case cmuSelect_USHFRCO:
+      /* Select USHFRCO as clock source for USB */
+
+      /* Ensure selected oscillator is enabled, waiting for it to stabilize */
+      CMU_OscillatorEnable(cmuOsc_USHFRCO, true, true);
+
+      /* Switch oscillator */
+      CMU->CMD = CMU_CMD_USBCCLKSEL_USHFRCO;
+
+      /* Wait until clock is activated */
+      while((CMU->STATUS & CMU_STATUS_USBCUSHFRCOSEL)==0);
+      break;
+#endif
 
     default:
       /* Illegal clock source for USB */
@@ -1733,7 +1912,7 @@ CMU_AUXHFRCOBand_TypeDef CMU_AUXHFRCOBandGet(void)
  ******************************************************************************/
 void CMU_AUXHFRCOBandSet(CMU_AUXHFRCOBand_TypeDef band)
 {
-  uint32_t           tuning;
+  uint32_t tuning;
 
   /* Read tuning value from calibration table */
   switch (band)
@@ -1781,6 +1960,71 @@ void CMU_AUXHFRCOBandSet(CMU_AUXHFRCOBand_TypeDef band)
                    (band << _CMU_AUXHFRCOCTRL_BAND_SHIFT) |
                    (tuning << _CMU_AUXHFRCOCTRL_TUNING_SHIFT);
 
+}
+#endif
+
+
+#if defined( _CMU_USHFRCOCONF_BAND_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Get USHFRCO band in use.
+ *
+ * @return
+ *   USHFRCO band in use.
+ ******************************************************************************/
+CMU_USHFRCOBand_TypeDef CMU_USHFRCOBandGet(void)
+{
+  return (CMU_USHFRCOBand_TypeDef)((CMU->USHFRCOCONF & _CMU_USHFRCOCONF_BAND_MASK) >>
+                                     _CMU_USHFRCOCONF_BAND_SHIFT);
+}
+
+void CMU_USHFRCOBandSet(CMU_USHFRCOBand_TypeDef band)
+{
+  uint32_t           tuning;
+  uint32_t           fineTuning;
+  CMU_Select_TypeDef osc;
+
+  /* Cannot switch band if USHFRCO is already selected as HF clock. */
+  osc = CMU_ClockSelectGet(cmuClock_HF);
+  EFM_ASSERT((CMU_USHFRCOBandGet() != band) && (osc != cmuSelect_USHFRCO));
+
+  /* Read tuning value from calibration table */
+  switch (band)
+  {
+  case cmuUSHFRCOBand_24MHz:
+    tuning = (DEVINFO->USHFRCOCAL0 & _DEVINFO_USHFRCOCAL0_BAND24_TUNING_MASK) >>
+         _DEVINFO_USHFRCOCAL0_BAND24_TUNING_SHIFT;
+    fineTuning = (DEVINFO->USHFRCOCAL0 & _DEVINFO_USHFRCOCAL0_BAND24_FINETUNING_MASK) >>
+         _DEVINFO_USHFRCOCAL0_BAND24_FINETUNING_SHIFT;
+    break;
+
+  case cmuUSHFRCOBand_48MHz:
+    tuning = (DEVINFO->USHFRCOCAL0 & _DEVINFO_USHFRCOCAL0_BAND48_TUNING_MASK) >>
+         _DEVINFO_USHFRCOCAL0_BAND48_TUNING_SHIFT;
+    fineTuning = (DEVINFO->USHFRCOCAL0 & _DEVINFO_USHFRCOCAL0_BAND48_FINETUNING_MASK) >>
+         _DEVINFO_USHFRCOCAL0_BAND48_FINETUNING_SHIFT;
+    /* Enable the clock divider before switching the band from 48 to 24MHz */
+    BITBAND_Peripheral(&CMU->USHFRCOCONF, _CMU_USHFRCOCONF_USHFRCODIV2DIS_SHIFT, 0);
+    break;
+
+  default:
+    EFM_ASSERT(0);
+    return;
+  }
+
+  /* Set band and tuning */
+  CMU->USHFRCOCONF = (CMU->USHFRCOCONF & ~_CMU_USHFRCOCONF_BAND_MASK) |
+                     (band << _CMU_USHFRCOCONF_BAND_SHIFT);
+  CMU->USHFRCOCTRL = (CMU->USHFRCOCTRL & ~_CMU_USHFRCOCTRL_TUNING_MASK) |
+                     (tuning << _CMU_USHFRCOCTRL_TUNING_SHIFT);
+  CMU->USHFRCOTUNE = (CMU->USHFRCOTUNE & ~_CMU_USHFRCOTUNE_FINETUNING_MASK) |
+                     (fineTuning << _CMU_USHFRCOTUNE_FINETUNING_SHIFT);
+
+  /* Disable the clock divider after switching the band from 48 to 24MHz */
+  if (band == cmuUSHFRCOBand_24MHz)
+  {
+    BITBAND_Peripheral(&CMU->USHFRCOCONF, _CMU_USHFRCOCONF_USHFRCODIV2DIS_SHIFT, 1);
+  }
 }
 #endif
 
@@ -2031,7 +2275,15 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
     status = CMU_STATUS_LFXORDY;
     break;
 
-#if defined _CMU_LFCLKSEL_LFAE_ULFRCO
+#if defined( _CMU_STATUS_USHFRCOENS_MASK )
+  case cmuOsc_USHFRCO:
+    enBit  = CMU_OSCENCMD_USHFRCOEN;
+    disBit = CMU_OSCENCMD_USHFRCODIS;
+    status = CMU_STATUS_USHFRCORDY;
+    break;
+#endif
+
+#if defined( _CMU_LFCLKSEL_LFAE_ULFRCO )
   case cmuOsc_ULFRCO:
     /* ULFRCO is always enabled, and cannot be turned off */
     return;

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.h
  * @brief Energy management unit (EMU) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_EMU_H
-#define __EM_EMU_H
+#ifndef __SILICON_LABS_EM_EMU_H__
+#define __SILICON_LABS_EM_EMU_H__
 
 #include "em_device.h"
 #if defined( EMU_PRESENT )
@@ -58,7 +58,23 @@ extern "C" {
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
-#if defined( _EMU_EM4CONF_MASK )
+typedef enum
+{
+  /** Enable EM2 and 3 voltage regulator reduced drive strength (reduced leakage current) */
+#if defined( _EMU_CTRL_EM23VREG_MASK )
+  emuEM23Vreg_REDUCED = EMU_CTRL_EM23VREG_REDUCED,
+#elif defined( _EMU_CTRL_EMVREG_MASK )
+  emuEM23Vreg_REDUCED = EMU_CTRL_EMVREG_REDUCED,
+#endif
+  /** Enable EM2 and 3 voltage regulator full drive strength (faster startup) */
+#if defined( _EMU_CTRL_EM23VREG_MASK )
+  emuEM23Vreg_FULL = EMU_CTRL_EM23VREG_FULL,
+#elif defined( _EMU_CTRL_EMVREG_MASK )
+  emuEM23Vreg_FULL = EMU_CTRL_EMVREG_FULL,
+#endif
+} EMU_EM23VregMode;
+
+#if defined( _EMU_EM4CONF_OSC_MASK )
 /** EM4 duty oscillator */
 typedef enum
 {
@@ -69,7 +85,9 @@ typedef enum
   /** Select LFRCO as duty oscillator in EM4 */
   emuEM4Osc_LFRCO = EMU_EM4CONF_OSC_LFRCO
 } EMU_EM4Osc_TypeDef;
+#endif
 
+#if defined( _EMU_BUCTRL_PROBE_MASK )
 /** Backup Power Voltage Probe types */
 typedef enum
 {
@@ -82,7 +100,9 @@ typedef enum
   /** Connect probe to BU_OUT */
   emuProbe_BUOUT   = EMU_BUCTRL_PROBE_BUOUT
 } EMU_Probe_TypeDef;
+#endif
 
+#if defined( _EMU_PWRCONF_PWRRES_MASK )
 /** Backup Power Domain resistor selection */
 typedef enum
 {
@@ -95,7 +115,9 @@ typedef enum
   /** Main power and backup power connected with RES3 series resistance */
   emuRes_Res3 = EMU_PWRCONF_PWRRES_RES3,
 } EMU_Resistor_TypeDef;
+#endif
 
+#if defined( BU_PRESENT )
 /** Backup Power Domain power connection */
 typedef enum
 {
@@ -110,6 +132,7 @@ typedef enum
   /** Main power and backup power connected without diode */
   emuPower_NoDiode = EMU_BUINACT_PWRCON_NODIODE,
 } EMU_Power_TypeDef;
+#endif
 
 /** BOD threshold setting selector, active or inactive mode */
 typedef enum
@@ -120,58 +143,82 @@ typedef enum
   emuBODMode_Inactive,
 } EMU_BODMode_TypeDef;
 
+
+
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
+/** Energy Mode 2 and 3 initialization structure  */
+typedef struct
+{
+  bool em23Vreg;
+} EMU_EM23Init_TypeDef;
+
+/** Default initialization of EM2 and 3 configuration */
+#define EMU_EM23INIT_DEFAULT    \
+  { false }     /* Reduced voltage regulator drive strength in EM2 and EM3 */
+
+
 /** Energy Mode 4 initialization structure  */
 typedef struct
 {
-  /** Lock configuration of regulator, BOD and oscillator */
-  bool               lockConfig;
-  /** EM4 duty oscillator */
-  EMU_EM4Osc_TypeDef osc;
-  /** Wake up on EM4 BURTC interrupt */
-  bool               buRtcWakeup;
-  /** Enable EM4 voltage regulator */
-  bool               vreg;
+  /* Init parameters for platforms with EMU->EM4CONF register */
+#if defined( _EMU_EM4CONF_MASK )
+  bool                  lockConfig;     /** Lock configuration of regulator, BOD and oscillator */
+  bool                  buBodRstDis;    /** When set, no reset will be asserted due to Brownout when in EM4 */
+  EMU_EM4Osc_TypeDef    osc;            /** EM4 duty oscillator */
+  bool                  buRtcWakeup;    /** Wake up on EM4 BURTC interrupt */
+  bool                  vreg;           /** Enable EM4 voltage regulator */
+#else
+  bool                  reserved;       /** Placeholder for empty structs */
+#endif
 } EMU_EM4Init_TypeDef;
 
 /** Default initialization of EM4 configuration */
+#if defined( _EMU_EM4CONF_MASK )
 #define EMU_EM4INIT_DEFAULT    \
-  {   false,             /* Dont't lock configuration after it's been set */ \
-      emuEM4Osc_ULFRCO,  /* Use default ULFRCO oscillator  */ \
-      true,              /* Wake up on EM4 BURTC interrupt */ \
-      true,              /* Enable VREG */ \
+  { false,             /* Dont't lock configuration after it's been set */ \
+    false,             /* No reset will be asserted due to Brownout when in EM4 */ \
+    emuEM4Osc_ULFRCO,  /* Use default ULFRCO oscillator  */ \
+    true,              /* Wake up on EM4 BURTC interrupt */ \
+    true,              /* Enable VREG */ \
   }
+#else
+ #define EMU_EM4INIT_DEFAULT    \
+  { false,             /* Placeholder default value */ \
+  }
+#endif
 
+
+#if defined( BU_PRESENT )
 /** Backup Power Domain Initialization structure */
 typedef struct
 {
   /* Backup Power Domain power configuration */
 
   /** Voltage probe select, selects ADC voltage */
-  EMU_Probe_TypeDef probe;
+  EMU_Probe_TypeDef     probe;
   /** Enable BOD calibration mode */
-  bool              bodCal;
+  bool                  bodCal;
   /** Enable BU_STAT status pin for active BU mode */
-  bool              statusPinEnable;
+  bool                  statusPinEnable;
 
   /* Backup Power Domain connection configuration */
   /** Power domain resistor */
-  EMU_Resistor_TypeDef resistor;
+  EMU_Resistor_TypeDef  resistor;
   /** BU_VOUT strong enable */
-  bool                 voutStrong;
+  bool                  voutStrong;
   /** BU_VOUT medium enable */
-  bool                 voutMed;
+  bool                  voutMed;
   /** BU_VOUT weak enable */
-  bool                 voutWeak;
+  bool                  voutWeak;
   /** Power connection, when not in Backup Mode */
   EMU_Power_TypeDef  inactivePower;
   /** Power connection, when in Backup Mode */
-  EMU_Power_TypeDef  activePower;
+  EMU_Power_TypeDef     activePower;
   /** Enable backup power domain, and release reset, enable BU_VIN pin  */
-  bool               enable;
+  bool                  enable;
 } EMU_BUPDInit_TypeDef;
 
 /** Default */
@@ -191,6 +238,7 @@ typedef struct
   }
 #endif
 
+
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
@@ -206,18 +254,126 @@ __STATIC_INLINE void EMU_EnterEM1(void)
   __WFI();
 }
 
-
+void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init);
+#if defined( _EMU_EM4CONF_MASK )
+void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init);
+#endif
 void EMU_EnterEM2(bool restore);
 void EMU_EnterEM3(bool restore);
 void EMU_EnterEM4(void);
 void EMU_MemPwrDown(uint32_t blocks);
 void EMU_UpdateOscConfig(void);
-#if defined( _EMU_EM4CONF_MASK )
-void EMU_EM4Init(EMU_EM4Init_TypeDef *em4init);
+#if defined( BU_PRESENT )
 void EMU_BUPDInit(EMU_BUPDInit_TypeDef *bupdInit);
 void EMU_BUThresholdSet(EMU_BODMode_TypeDef mode, uint32_t value);
 void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value);
+#endif
 
+
+#if defined( _EMU_IF_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Clear one or more pending EMU interrupts.
+ *
+ * @param[in] flags
+ *   Pending EMU interrupt sources to clear. Use one or more valid
+ *   interrupt flags for the EMU module (EMU_IFC_nnn).
+ ******************************************************************************/
+__STATIC_INLINE void EMU_IntClear(uint32_t flags)
+{
+  EMU->IFC = flags;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Disable one or more EMU interrupts.
+ *
+ * @param[in] flags
+ *   EMU interrupt sources to disable. Use one or more valid
+ *   interrupt flags for the EMU module (EMU_IEN_nnn).
+ ******************************************************************************/
+__STATIC_INLINE void EMU_IntDisable(uint32_t flags)
+{
+  EMU->IEN &= ~(flags);
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Enable one or more EMU interrupts.
+ *
+ * @note
+ *   Depending on the use, a pending interrupt may already be set prior to
+ *   enabling the interrupt. Consider using EMU_IntClear() prior to enabling
+ *   if such a pending interrupt should be ignored.
+ *
+ * @param[in] flags
+ *   EMU interrupt sources to enable. Use one or more valid
+ *   interrupt flags for the EMU module (EMU_IEN_nnn).
+ ******************************************************************************/
+__STATIC_INLINE void EMU_IntEnable(uint32_t flags)
+{
+  EMU->IEN |= flags;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get pending EMU interrupt flags.
+ *
+ * @note
+ *   The event bits are not cleared by the use of this function.
+ *
+ * @return
+ *   EMU interrupt sources pending. Returns one or more valid
+ *   interrupt flags for the EMU module (EMU_IF_nnn).
+ ******************************************************************************/
+__STATIC_INLINE uint32_t EMU_IntGet(void)
+{
+  return EMU->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending EMU interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled EMU interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in EMU_IEN and
+ *   - the pending interrupt flags EMU_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t EMU_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = EMU->IEN;
+  return EMU->IF & ien;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Set one or more pending EMU interrupts
+ *
+ * @param[in] flags
+ *   EMU interrupt sources to set to pending. Use one or more valid
+ *   interrupt flags for the EMU module (EMU_IFS_nnn).
+ ******************************************************************************/
+__STATIC_INLINE void EMU_IntSet(uint32_t flags)
+{
+  EMU->IFS = flags;
+}
+#endif /* _EMU_IF_MASK */
+
+
+#if defined( _EMU_EM4CONF_LOCKCONF_MASK )
 /***************************************************************************//**
  * @brief
  *   Enable or disable EM4 lock configuration
@@ -228,7 +384,10 @@ __STATIC_INLINE void EMU_EM4Lock(bool enable)
 {
   BITBAND_Peripheral(&(EMU->EM4CONF), _EMU_EM4CONF_LOCKCONF_SHIFT, enable);
 }
+#endif
 
+
+#if defined( _EMU_STATUS_BURDY_MASK )
 /***************************************************************************//**
  * @brief
  *   Halts until backup power functionality is ready
@@ -237,7 +396,10 @@ __STATIC_INLINE void EMU_BUReady(void)
 {
   while(!(EMU->STATUS & EMU_STATUS_BURDY));
 }
+#endif
 
+
+#if defined( _EMU_ROUTE_BUVINPEN_MASK )
 /***************************************************************************//**
  * @brief
  *   Disable BU_VIN support
@@ -249,6 +411,7 @@ __STATIC_INLINE void EMU_BUPinEnable(bool enable)
   BITBAND_Peripheral(&(EMU->ROUTE), _EMU_ROUTE_BUVINPEN_SHIFT, enable);
 }
 #endif
+
 
 /***************************************************************************//**
  * @brief
@@ -284,6 +447,7 @@ __STATIC_INLINE void EMU_EM2Block(void)
 {
   BITBAND_Peripheral(&(EMU->CTRL), _EMU_CTRL_EM2BLOCK_SHIFT, 1U);
 }
+
 
 /***************************************************************************//**
  * @brief

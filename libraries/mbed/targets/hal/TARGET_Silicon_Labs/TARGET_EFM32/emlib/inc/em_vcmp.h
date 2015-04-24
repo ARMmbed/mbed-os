@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_vcmp.h
  * @brief Voltage Comparator (VCMP) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_VCMP_H
-#define __EM_VCMP_H
+#ifndef __SILICON_LABS_EM_VCMP_H_
+#define __SILICON_LABS_EM_VCMP_H_
 
 #include "em_device.h"
 #if defined(VCMP_COUNT) && (VCMP_COUNT > 0)
@@ -358,4 +358,4 @@ __STATIC_INLINE uint32_t VCMP_IntGetEnabled(void)
 #endif
 
 #endif /* defined(VCMP_COUNT) && (VCMP_COUNT > 0) */
-#endif /* __EM_VCMP_H */
+#endif /* __SILICON_LABS_EM_VCMP_H_ */

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_rtc.h
  * @brief Real Time Counter (RTC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_RTC_H
-#define __EM_RTC_H
+#ifndef __SILICON_LABS_EM_RTC_H_
+#define __SILICON_LABS_EM_RTC_H_
 
 #include "em_device.h"
 #if defined(RTC_COUNT) && (RTC_COUNT > 0)
@@ -188,4 +188,4 @@ void RTC_Reset(void);
 #endif
 
 #endif /* defined(RTC_COUNT) && (RTC_COUNT > 0) */
-#endif /* __EM_RTC_H */
+#endif /* __SILICON_LABS_EM_RTC_H_ */

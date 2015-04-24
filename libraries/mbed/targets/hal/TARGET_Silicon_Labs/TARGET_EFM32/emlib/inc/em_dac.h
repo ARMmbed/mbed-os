@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dac.h
  * @brief Digital to Analog Converter (DAC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -92,10 +92,30 @@ typedef enum
   dacPRSSELCh1 = _DAC_CH0CTRL_PRSSEL_PRSCH1, /**< PRS channel 1. */
   dacPRSSELCh2 = _DAC_CH0CTRL_PRSSEL_PRSCH2, /**< PRS channel 2. */
   dacPRSSELCh3 = _DAC_CH0CTRL_PRSSEL_PRSCH3, /**< PRS channel 3. */
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH4 )
   dacPRSSELCh4 = _DAC_CH0CTRL_PRSSEL_PRSCH4, /**< PRS channel 4. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH5 )
   dacPRSSELCh5 = _DAC_CH0CTRL_PRSSEL_PRSCH5, /**< PRS channel 5. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH6 )
   dacPRSSELCh6 = _DAC_CH0CTRL_PRSSEL_PRSCH6, /**< PRS channel 6. */
-  dacPRSSELCh7 = _DAC_CH0CTRL_PRSSEL_PRSCH7  /**< PRS channel 7. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH7 )
+  dacPRSSELCh7 = _DAC_CH0CTRL_PRSSEL_PRSCH7, /**< PRS channel 7. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH8 )
+  dacPRSSELCh8 = _DAC_CH0CTRL_PRSSEL_PRSCH8, /**< PRS channel 8. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH9 )
+  dacPRSSELCh9 = _DAC_CH0CTRL_PRSSEL_PRSCH9, /**< PRS channel 9. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH10 )
+  dacPRSSELCh10 = _DAC_CH0CTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
+#endif
+#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH11 )
+  dacPRSSELCh11 = _DAC_CH0CTRL_PRSSEL_PRSCH11, /**< PRS channel 11. */
+#endif
 } DAC_PRSSEL_TypeDef;
 
 

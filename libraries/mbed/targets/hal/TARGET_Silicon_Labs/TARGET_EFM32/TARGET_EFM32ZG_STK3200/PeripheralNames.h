@@ -38,12 +38,13 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    USART_1 = USART1_BASE
+    USART_1 = USART1_BASE,
+    LEUART_0 = LEUART0_BASE
 } UARTName;
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        USART1
+#define STDIO_UART        LEUART0
 
 typedef enum {
     SPI_1 = USART1_BASE

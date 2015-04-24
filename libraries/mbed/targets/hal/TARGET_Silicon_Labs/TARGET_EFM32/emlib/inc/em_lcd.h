@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_lcd.h
  * @brief Liquid Crystal Display (LCD) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_LCD_H
-#define __EM_LCD_H
+#ifndef __SILICON_LABS_EM_LCD_H_
+#define __SILICON_LABS_EM_LCD_H_
 
 #include "em_device.h"
 
@@ -630,4 +630,4 @@ __STATIC_INLINE void LCD_DSCEnable(bool enable)
 
 #endif /* defined(LCD_COUNT) && (LCD_COUNT > 0) */
 
-#endif /* __EM_LCD_H */
+#endif /* __SILICON_LABS_EM_LCD_H_ */

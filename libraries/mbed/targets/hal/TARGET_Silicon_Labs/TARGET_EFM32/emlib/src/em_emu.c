@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.c
  * @brief Energy Management Unit (EMU) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,7 +32,7 @@
 
 
 #include "em_emu.h"
-#if defined( EMU_PRESENT )
+#if defined( EMU_PRESENT ) && ( EMU_COUNT > 0 )
 
 #include "em_cmu.h"
 #include "em_system.h"
@@ -66,25 +66,30 @@
 
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-/* Fix for errata EMU_E107 - non-WIC interrupt masks. */                              
-#if defined(_EFM32_GECKO_FAMILY) 
+/* Fix for errata EMU_E107 - non-WIC interrupt masks. */
+#if defined(_EFM32_GECKO_FAMILY)
   #define ERRATA_FIX_EMU_E107_EN
   #define NON_WIC_INT_MASK_0    (~(0x0dfc0323U))
-  #define NON_WIC_INT_MASK_1    (~(0x0U))     
-#elif defined(_EFM32_TINY_FAMILY) 
+  #define NON_WIC_INT_MASK_1    (~(0x0U))
+#elif defined(_EFM32_TINY_FAMILY)
   #define ERRATA_FIX_EMU_E107_EN
   #define NON_WIC_INT_MASK_0    (~(0x001be323U))
-  #define NON_WIC_INT_MASK_1    (~(0x0U))  
-#elif defined(_EFM32_GIANT_FAMILY)     
+  #define NON_WIC_INT_MASK_1    (~(0x0U))
+#elif defined(_EFM32_GIANT_FAMILY)
   #define ERRATA_FIX_EMU_E107_EN
   #define NON_WIC_INT_MASK_0    (~(0xff020e63U))
   #define NON_WIC_INT_MASK_1    (~(0x00000046U))
 #elif defined(_EFM32_WONDER_FAMILY)
   #define ERRATA_FIX_EMU_E107_EN
   #define NON_WIC_INT_MASK_0    (~(0xff020e63U))
-  #define NON_WIC_INT_MASK_1    (~(0x00000046U))     
+  #define NON_WIC_INT_MASK_1    (~(0x00000046U))
 #else
 /* Zero Gecko and future families are not affected by errata EMU_E107 */
+#endif
+
+/* Fix for errata EMU_E108 - High Current Consumption on EM4 Entry. */
+#if defined(_EFM32_HAPPY_FAMILY)
+#define ERRATA_FIX_EMU_E108_EN
 #endif
 /** @endcond */
 
@@ -102,7 +107,7 @@
  * the CMU module to keep it up-to-date (or a user if not using the CMU API
  * for oscillator control).
  */
-static uint16_t cmuStatus;
+static uint32_t cmuStatus;
 /** @endcond */
 
 
@@ -118,7 +123,9 @@ static uint16_t cmuStatus;
  ******************************************************************************/
 static void EMU_Restore(void)
 {
+  uint32_t oscEnCmd;
   uint32_t cmuLocked;
+  uint32_t statusClkSelMask;
 
   /* Although we could use the CMU API for most of the below handling, we */
   /* would like this function to be as efficient as possible. */
@@ -127,18 +134,32 @@ static void EMU_Restore(void)
   cmuLocked = CMU->LOCK & CMU_LOCK_LOCKKEY_LOCKED;
   CMU_Unlock();
 
-  /* AUXHFRCO was automatically disabled (except if using debugger). */
-  /* HFXO was automatically disabled. */
-  /* LFRCO/LFXO were possibly disabled by SW in EM3. */
-  /* Restore according to status prior to entering EM. */
-  CMU->OSCENCMD = cmuStatus & (CMU_STATUS_AUXHFRCOENS |
-                               CMU_STATUS_HFXOENS |
-                               CMU_STATUS_LFRCOENS |
-                               CMU_STATUS_LFXOENS);
+  /* AUXHFRCO are automatically disabled (except if using debugger). */
+  /* HFRCO, USHFRCO and HFXO are automatically disabled. */
+  /* LFRCO/LFXO may be disabled by SW in EM3. */
+  /* Restore according to status prior to entering energy mode. */
+  oscEnCmd = 0;
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_HFRCOENS)    ? CMU_OSCENCMD_HFRCOEN : 0);
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_AUXHFRCOENS) ? CMU_OSCENCMD_AUXHFRCOEN : 0);
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_LFRCOENS)    ? CMU_OSCENCMD_LFRCOEN : 0);
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_HFXOENS)     ? CMU_OSCENCMD_HFXOEN : 0);
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_LFXOENS)     ? CMU_OSCENCMD_LFXOEN : 0);
+#if defined( _CMU_STATUS_USHFRCOENS_MASK )
+  oscEnCmd |= ((cmuStatus & CMU_STATUS_USHFRCOENS)  ? CMU_OSCENCMD_USHFRCOEN : 0);
+#endif
+  CMU->OSCENCMD = oscEnCmd;
+
+  statusClkSelMask =
+    (CMU_STATUS_HFRCOSEL |
+     CMU_STATUS_HFXOSEL |
+     CMU_STATUS_LFRCOSEL |
+#if defined( CMU_STATUS_USHFRCODIV2SEL )
+     CMU_STATUS_USHFRCODIV2SEL |
+#endif
+     CMU_STATUS_LFXOSEL);
 
   /* Restore oscillator used for clocking core */
-  switch (cmuStatus & (CMU_STATUS_HFXOSEL | CMU_STATUS_HFRCOSEL |
-                       CMU_STATUS_LFXOSEL | CMU_STATUS_LFRCOSEL))
+  switch (cmuStatus & statusClkSelMask)
   {
   case CMU_STATUS_LFRCOSEL:
     /* Wait for LFRCO to stabilize */
@@ -160,6 +181,15 @@ static void EMU_Restore(void)
       ;
     CMU->CMD = CMU_CMD_HFCLKSEL_HFXO;
     break;
+
+#if defined( CMU_STATUS_USHFRCODIV2SEL )
+  case CMU_STATUS_USHFRCODIV2SEL:
+    /* Wait for USHFRCO to stabilize */
+    while (!(CMU->STATUS & CMU_STATUS_USHFRCORDY))
+      ;
+    CMU->CMD = _CMU_CMD_HFCLKSEL_USHFRCODIV2;
+    break;
+#endif
 
   default: /* CMU_STATUS_HFRCOSEL */
     /* If core clock was HFRCO core clock, it is automatically restored to */
@@ -183,19 +213,19 @@ static void EMU_Restore(void)
 
 
 /* Get enable conditions for errata EMU_E107 fix. */
-#if defined(ERRATA_FIX_EMU_E107_EN)  
+#if defined(ERRATA_FIX_EMU_E107_EN)
 static __INLINE bool getErrataFixEmuE107En(void)
 {
   /* SYSTEM_ChipRevisionGet could have been used here, but we would like a faster implementation in this case. */
-  uint16_t majorMinorRev;  
-  
+  uint16_t majorMinorRev;
+
   /* CHIP MAJOR bit [3:0] */
-  majorMinorRev = (((ROMTABLE->PID0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT) << 8);  
+  majorMinorRev = (((ROMTABLE->PID0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT) << 8);
   /* CHIP MINOR bit [7:4] */
-  majorMinorRev |= (((ROMTABLE->PID2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);  
+  majorMinorRev |= (((ROMTABLE->PID2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
   /* CHIP MINOR bit [3:0] */
   majorMinorRev |=  ((ROMTABLE->PID3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
-  
+
 #if defined(_EFM32_GECKO_FAMILY)
   return (majorMinorRev <= 0x0103);
 #elif defined(_EFM32_TINY_FAMILY)
@@ -260,47 +290,47 @@ static __INLINE bool getErrataFixEmuE107En(void)
  *   via the CMU API.
  ******************************************************************************/
 void EMU_EnterEM2(bool restore)
-{ 
+{
 #if defined(ERRATA_FIX_EMU_E107_EN)
   bool errataFixEmuE107En;
-  uint32_t nonWicIntEn[2];  
+  uint32_t nonWicIntEn[2];
 #endif
-  
+
   /* Auto-update CMU status just in case before entering energy mode. */
   /* This variable is normally kept up-to-date by the CMU API. */
-  cmuStatus = (uint16_t)(CMU->STATUS);
-  
+  cmuStatus = CMU->STATUS;
+
   /* Enter Cortex-M3 deep sleep mode */
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-  
+
   /* Fix for errata EMU_E107 - store non-WIC interrupt enable flags.
      Disable the enabled non-WIC interrupts. */
 #if defined(ERRATA_FIX_EMU_E107_EN)
   errataFixEmuE107En = getErrataFixEmuE107En();
   if (errataFixEmuE107En)
   {
-    nonWicIntEn[0] = NVIC->ISER[0] & NON_WIC_INT_MASK_0;    
+    nonWicIntEn[0] = NVIC->ISER[0] & NON_WIC_INT_MASK_0;
     NVIC->ICER[0] = nonWicIntEn[0];
-#if (NON_WIC_INT_MASK_1 != (~(0x0U)))   
+#if (NON_WIC_INT_MASK_1 != (~(0x0U)))
     nonWicIntEn[1] = NVIC->ISER[1] & NON_WIC_INT_MASK_1;
-    NVIC->ICER[1] = nonWicIntEn[1];  
+    NVIC->ICER[1] = nonWicIntEn[1];
 #endif
   }
 #endif
 
   __WFI();
-  
+
   /* Fix for errata EMU_E107 - restore state of non-WIC interrupt enable flags. */
 #if defined(ERRATA_FIX_EMU_E107_EN)
   if (errataFixEmuE107En)
   {
     NVIC->ISER[0] = nonWicIntEn[0];
-#if (NON_WIC_INT_MASK_1 != (~(0x0U)))   
+#if (NON_WIC_INT_MASK_1 != (~(0x0U)))
     NVIC->ISER[1] = nonWicIntEn[1];
 #endif
   }
 #endif
-  
+
   /* Restore oscillators/clocks if specified */
   if (restore)
   {
@@ -361,7 +391,7 @@ void EMU_EnterEM2(bool restore)
 void EMU_EnterEM3(bool restore)
 {
   uint32_t cmuLocked;
-  
+
 #if defined(ERRATA_FIX_EMU_E107_EN)
   bool errataFixEmuE107En;
   uint32_t nonWicIntEn[2];
@@ -369,7 +399,7 @@ void EMU_EnterEM3(bool restore)
 
   /* Auto-update CMU status just in case before entering energy mode. */
   /* This variable is normally kept up-to-date by the CMU API. */
-  cmuStatus = (uint16_t)(CMU->STATUS);
+  cmuStatus = CMU->STATUS;
 
   /* CMU registers may be locked */
   cmuLocked = CMU->LOCK & CMU_LOCK_LOCKKEY_LOCKED;
@@ -386,31 +416,31 @@ void EMU_EnterEM3(bool restore)
 
   /* Enter Cortex-M3 deep sleep mode */
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-  
+
   /* Fix for errata EMU_E107 - store non-WIC interrupt enable flags.
      Disable the enabled non-WIC interrupts. */
 #if defined(ERRATA_FIX_EMU_E107_EN)
   errataFixEmuE107En = getErrataFixEmuE107En();
   if (errataFixEmuE107En)
   {
-    nonWicIntEn[0] = NVIC->ISER[0] & NON_WIC_INT_MASK_0;    
+    nonWicIntEn[0] = NVIC->ISER[0] & NON_WIC_INT_MASK_0;
     NVIC->ICER[0] = nonWicIntEn[0];
-#if (NON_WIC_INT_MASK_1 != (~(0x0U)))    
+#if (NON_WIC_INT_MASK_1 != (~(0x0U)))
     nonWicIntEn[1] = NVIC->ISER[1] & NON_WIC_INT_MASK_1;
-    NVIC->ICER[1] = nonWicIntEn[1];  
-#endif    
-    
+    NVIC->ICER[1] = nonWicIntEn[1];
+#endif
+
   }
 #endif
-  
+
   __WFI();
-  
+
   /* Fix for errata EMU_E107 - restore state of non-WIC interrupt enable flags. */
 #if defined(ERRATA_FIX_EMU_E107_EN)
   if (errataFixEmuE107En)
   {
     NVIC->ISER[0] = nonWicIntEn[0];
-#if (NON_WIC_INT_MASK_1 != (~(0x0U)))  
+#if (NON_WIC_INT_MASK_1 != (~(0x0U)))
     NVIC->ISER[1] = nonWicIntEn[1];
 #endif
   }
@@ -441,16 +471,27 @@ void EMU_EnterEM3(bool restore)
 void EMU_EnterEM4(void)
 {
   int i;
+  uint32_t em4seq2;
+  uint32_t em4seq3;
+
+  em4seq2 = (EMU->CTRL & ~_EMU_CTRL_EM4CTRL_MASK) | (2 << _EMU_CTRL_EM4CTRL_SHIFT);
+  em4seq3 = (EMU->CTRL & ~_EMU_CTRL_EM4CTRL_MASK) | (3 << _EMU_CTRL_EM4CTRL_SHIFT);
 
   /* Make sure register write lock is disabled */
-  EMU->LOCK = EMU_LOCK_LOCKKEY_UNLOCK;
+  EMU_Unlock();
+
+#if defined(ERRATA_FIX_EMU_E108_EN)
+  /* Fix for errata EMU_E108 - High Current Consumption on EM4 Entry. */
+  __disable_irq();
+  *(volatile uint32_t *)0x400C80E4 = 0;
+#endif
 
   for (i = 0; i < 4; i++)
   {
-    EMU->CTRL = (2 << _EMU_CTRL_EM4CTRL_SHIFT);
-    EMU->CTRL = (3 << _EMU_CTRL_EM4CTRL_SHIFT);
+    EMU->CTRL = em4seq2;
+    EMU->CTRL = em4seq3;
   }
-  EMU->CTRL = (2 << _EMU_CTRL_EM4CTRL_SHIFT);
+  EMU->CTRL = em4seq2;
 }
 
 
@@ -503,8 +544,27 @@ void EMU_MemPwrDown(uint32_t blocks)
 void EMU_UpdateOscConfig(void)
 {
   /* Fetch current configuration */
-  cmuStatus = (uint16_t)(CMU->STATUS);
+  cmuStatus = CMU->STATUS;
 }
+
+
+#if defined( _EMU_CTRL_EMVREG_MASK ) || defined( _EMU_CTRL_EM23VREG_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Update EMU module with Energy Mode 2 and 3 configuration
+ *
+ * @param[in] em23Init
+ *    Energy Mode 2 and 3 configuration structure
+ ******************************************************************************/
+void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init)
+{
+#if defined( _EMU_CTRL_EMVREG_MASK )
+  EMU->CTRL = em23Init->em23Vreg ? (EMU->CTRL | EMU_CTRL_EMVREG) : (EMU->CTRL & ~EMU_CTRL_EMVREG);
+#elif defined( _EMU_CTRL_EM23VREG_MASK )
+  EMU->CTRL = em23Init->em23Vreg ? (EMU->CTRL | EMU_CTRL_EM23VREG) : (EMU->CTRL & ~EMU_CTRL_EM23VREG);
+#endif
+}
+#endif
 
 
 #if defined( _EMU_EM4CONF_MASK )
@@ -512,31 +572,34 @@ void EMU_UpdateOscConfig(void)
  * @brief
  *   Update EMU module with Energy Mode 4 configuration
  *
- * @param[in] em4init
+ * @param[in] em4Init
  *    Energy Mode 4 configuration structure
  ******************************************************************************/
-void EMU_EM4Init(EMU_EM4Init_TypeDef *em4init)
+void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init)
 {
   uint32_t em4conf = EMU->EM4CONF;
 
   /* Clear fields that will be reconfigured */
   em4conf &= ~(
-    _EMU_EM4CONF_LOCKCONF_MASK|
-    _EMU_EM4CONF_OSC_MASK|
-    _EMU_EM4CONF_BURTCWU_MASK|
+    _EMU_EM4CONF_LOCKCONF_MASK |
+    _EMU_EM4CONF_OSC_MASK |
+    _EMU_EM4CONF_BURTCWU_MASK |
     _EMU_EM4CONF_VREGEN_MASK);
 
   /* Configure new settings */
   em4conf |= (
-    (em4init->lockConfig << _EMU_EM4CONF_LOCKCONF_SHIFT)|
-    (em4init->osc)|
-    (em4init->buRtcWakeup << _EMU_EM4CONF_BURTCWU_SHIFT)|
-    (em4init->vreg << _EMU_EM4CONF_VREGEN_SHIFT));
+    (em4Init->lockConfig << _EMU_EM4CONF_LOCKCONF_SHIFT) |
+    (em4Init->osc) |
+    (em4Init->buRtcWakeup << _EMU_EM4CONF_BURTCWU_SHIFT) |
+    (em4Init->vreg << _EMU_EM4CONF_VREGEN_SHIFT));
 
   /* Apply configuration. Note that lock can be set after this stage. */
   EMU->EM4CONF = em4conf;
 }
+#endif
 
+
+#if defined( BU_PRESENT )
 
 /***************************************************************************//**
  * @brief

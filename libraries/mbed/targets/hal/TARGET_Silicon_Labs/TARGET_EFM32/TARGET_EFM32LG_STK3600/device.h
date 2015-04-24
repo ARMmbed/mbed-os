@@ -45,6 +45,10 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
+#define DEVICE_LOWPOWERTIMER    1
+
 #include "objects.h"
+#include "Modules.h"
+#include "device_peripherals.h"
 
 #endif

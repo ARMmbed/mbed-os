@@ -2,7 +2,7 @@
  * @file em_aes.h
  * @brief Advanced encryption standard (AES) accelerator peripheral API for
  *   EFM32.
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,8 +32,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_AES_H
-#define __EM_AES_H
+#ifndef __SILICON_LABS_EM_AES_H_
+#define __SILICON_LABS_EM_AES_H_
 
 #include "em_device.h"
 #if defined(AES_COUNT) && (AES_COUNT > 0)
@@ -241,6 +241,7 @@ void AES_OFB256(uint8_t *out,
 }
 #endif
 
-#endif /* __EM_AES_H */
-
 #endif /* defined(AES_COUNT) && (AES_COUNT > 0) */
+#endif /* __SILICON_LABS_EM_AES_H_ */
+
+

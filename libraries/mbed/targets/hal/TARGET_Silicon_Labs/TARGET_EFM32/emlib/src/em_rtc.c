@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_rtc.c
  * @brief Real Time Counter (RTC) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -349,6 +349,13 @@ void RTC_Reset(void)
   RTC->COMP1  = _RTC_COMP1_RESETVALUE;
   RTC->IEN    = _RTC_IEN_RESETVALUE;
   RTC->IFC    = _RTC_IFC_RESETVALUE;
+
+#if defined(_EFM32_GECKO_FAMILY)
+  /* Wait for CTRL, COMP0 and COMP1 to be updated before returning, because the
+     calling code may depend upon that the register values are updated after
+     this function has returned. */
+  RTC_Sync(RTC_SYNCBUSY_CTRL | RTC_SYNCBUSY_COMP0 | RTC_SYNCBUSY_COMP1);
+#endif
 }
 
 

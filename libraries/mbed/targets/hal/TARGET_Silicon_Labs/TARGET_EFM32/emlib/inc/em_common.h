@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_common.h
  * @brief EFM32 general purpose utilities.
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_COMMON_H
-#define __EM_COMMON_H
+#ifndef __SILICON_LABS_EM_COMMON_H_
+#define __SILICON_LABS_EM_COMMON_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -113,4 +113,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __EM_COMMON_H */
+#endif /* __SILICON_LABS_EM_COMMON_H_ */

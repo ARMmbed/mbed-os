@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_gpio.h
  * @brief General Purpose IO (GPIO) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_GPIO_H
-#define __EM_GPIO_H
+#ifndef __SILICON_LABS_EM_GPIO_H_
+#define __SILICON_LABS_EM_GPIO_H_
 
 #include "em_device.h"
 #if defined(GPIO_COUNT) && (GPIO_COUNT > 0)
@@ -694,6 +694,5 @@ __STATIC_INLINE void GPIO_Unlock(void)
 }
 #endif
 
-#endif /* __EM_GPIO_H */
-
 #endif /* defined(GPIO_COUNT) && (GPIO_COUNT > 0) */
+#endif /* __SILICON_LABS_EM_GPIO_H_ */

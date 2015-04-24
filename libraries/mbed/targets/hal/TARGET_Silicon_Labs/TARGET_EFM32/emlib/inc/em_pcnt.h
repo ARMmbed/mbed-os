@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_pcnt.h
  * @brief Pulse Counter (PCNT) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_PCNT_H
-#define __EM_PCNT_H
+#ifndef __SILICON_LABS_EM_PCNT_H_
+#define __SILICON_LABS_EM_PCNT_H_
 
 #include "em_device.h"
 #if defined(PCNT_COUNT) && (PCNT_COUNT > 0)
@@ -120,16 +120,28 @@ typedef enum
   pcntPRSCh1 = 1,     /**< PRS channel 1. */
   pcntPRSCh2 = 2,     /**< PRS channel 2. */
   pcntPRSCh3 = 3,     /**< PRS channel 3. */
-#if defined( PCNT_INPUT_S0PRSSEL_PRSCH7 )
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH4 )
   pcntPRSCh4 = 4,     /**< PRS channel 4. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH5 )
   pcntPRSCh5 = 5,     /**< PRS channel 5. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH6 )
   pcntPRSCh6 = 6,     /**< PRS channel 6. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH7 )
   pcntPRSCh7 = 7,     /**< PRS channel 7. */
 #endif
-#if defined( PCNT_INPUT_S0PRSSEL_PRSCH11 )
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH8 )
   pcntPRSCh8 = 8,     /**< PRS channel 8. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH9 )
   pcntPRSCh9 = 9,     /**< PRS channel 9. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH10 )
   pcntPRSCh10 = 10,   /**< PRS channel 10. */
+#endif
+#if defined( PCNT_INPUT_S0PRSSEL_PRSCH11 )
   pcntPRSCh11 = 11    /**< PRS channel 11. */
 #endif
 } PCNT_PRSSel_TypeDef;
@@ -206,7 +218,7 @@ typedef struct
 #endif
 } PCNT_Init_TypeDef;
 
-#if defined (_EFM32_GECKO_FAMILY)
+#if !defined ( PCNT_CTRL_HYST )
 /** Default config for PCNT init structure. */
 #define PCNT_INIT_DEFAULT                                                           \
   { pcntModeDisable,                          /* Disabled by default. */            \
@@ -488,4 +500,4 @@ void PCNT_TopSet(PCNT_TypeDef *pcnt, uint32_t val);
 #endif
 
 #endif /* defined(PCNT_COUNT) && (PCNT_COUNT > 0) */
-#endif /* __EM_PCNT_H */
+#endif /* __SILICON_LABS_EM_PCNT_H_ */

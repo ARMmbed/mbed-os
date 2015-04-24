@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_bitband.h
  * @brief Bitband Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_BITBAND_H
-#define __EM_BITBAND_H
+#ifndef __SILICON_LABS_EM_BITBAND_H_
+#define __SILICON_LABS_EM_BITBAND_H_
 
 #include "em_device.h"
 #ifdef __cplusplus
@@ -185,4 +185,4 @@ __STATIC_INLINE uint32_t BITBAND_SRAMRead(uint32_t *addr, uint32_t bit)
 }
 #endif
 
-#endif /* __EM_BITBAND_H */
+#endif /* __SILICON_LABS_EM_BITBAND_H_ */

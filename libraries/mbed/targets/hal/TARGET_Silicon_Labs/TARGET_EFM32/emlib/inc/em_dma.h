@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dma.h
  * @brief Direct memory access (DMA) API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,8 +32,8 @@
 
 
 
-#ifndef __EM_DMA_H
-#define __EM_DMA_H
+#ifndef __SILICON_LABS_EM_DMA_H_
+#define __SILICON_LABS_EM_DMA_H_
 
 #include "em_device.h"
 #if defined( DMA_PRESENT )
@@ -460,4 +460,4 @@ void DMA_Reset(void);
 #endif
 
 #endif /* defined( DMA_PRESENT ) */
-#endif /* __EM_DMA_H */
+#endif /* __SILICON_LABS_EM_DMA_H_ */

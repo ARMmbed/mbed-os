@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_burtc.c
  * @brief Backup Real Time Counter (BURTC) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -87,11 +87,14 @@ __STATIC_INLINE uint32_t BURTC_DivToLog2(uint32_t div)
  ******************************************************************************/
 __STATIC_INLINE void BURTC_Sync(uint32_t mask)
 {
-  /* Avoid deadlock if modifying the same register twice when freeze mode is */
-  /* activated. */
-  if (BURTC->FREEZE & BURTC_FREEZE_REGFREEZE)
+  /* Avoid deadlock if modifying the same register twice when freeze mode is
+     activated, or when no clock is selected for the BURTC. If no clock is
+     selected, then the sync is done once the clock source is set. */
+  if ((BURTC->FREEZE & BURTC_FREEZE_REGFREEZE)
+      || ((BURTC->CTRL & _BURTC_CTRL_CLKSEL_MASK) != _BURTC_CTRL_CLKSEL_NONE))
+  {
     return;
-
+  }
   /* Wait for any pending previous write operation to have been completed */
   /* in low frequency domain. This is only required for the Gecko Family */
   while (BURTC->SYNCBUSY & mask)
@@ -170,7 +173,7 @@ void BURTC_Init(const BURTC_Init_TypeDef *burtcInit)
           (burtcInit->timeStamp << _BURTC_CTRL_BUMODETSEN_SHIFT));
 
   /* Clear interrupts */
-  BURTC->IFC = 0xFFFFFFFF;
+  BURTC_IntClear(0xFFFFFFFF);
 
   /* Set new configuration */
   BURTC->CTRL = ctrl;
@@ -247,24 +250,12 @@ void BURTC_CounterReset(void)
  ******************************************************************************/
 void BURTC_Reset(void)
 {
-  /* Verify RMU BURSTEN is disabled */
-  EFM_ASSERT((RMU->CTRL & RMU_CTRL_BURSTEN) == 0);
+  bool buResetState;
 
-  /* Restore all essential BURTC registers to default config */
-  BURTC->IEN      = _BURTC_IEN_RESETVALUE;
-  /* Modification of LPMODE register requires sync with potential ongoing
-   * register updates in LF domain. */
-  BURTC_Sync(BURTC_SYNCBUSY_LPMODE);
-  BURTC->LPMODE   = _BURTC_LPMODE_RESETVALUE;
-  BURTC->LFXOFDET = _BURTC_LFXOFDET_RESETVALUE;
-  /* Modification of COMP0 register requires sync with potential ongoing
-   * register updates in LF domain. */
-  BURTC_Sync(BURTC_SYNCBUSY_COMP0);
-  BURTC->COMP0    = _BURTC_COMP0_RESETVALUE;
-  BURTC->FREEZE   = _BURTC_FREEZE_RESETVALUE;
-  /* We must wait for SYNCBUSY before resetting the CTRL register. */
-  BURTC_Sync(BURTC_SYNCBUSY_LPMODE | BURTC_SYNCBUSY_COMP0);
-  BURTC->CTRL     = _BURTC_CTRL_RESETVALUE;
+  /* Read reset state, set reset and restore state */
+  buResetState = BITBAND_PeripheralRead(&RMU->CTRL, _RMU_CTRL_BURSTEN_SHIFT);
+  BITBAND_Peripheral(&RMU->CTRL, _RMU_CTRL_BURSTEN_SHIFT, 1);
+  BITBAND_Peripheral(&RMU->CTRL, _RMU_CTRL_BURSTEN_SHIFT, buResetState);
 }
 
 
@@ -313,7 +304,6 @@ uint32_t BURTC_ClockFreqGet(void)
     /* No clock selected for BURTC. */
     frequency = 0;
   }
-
   return frequency;
 }
 

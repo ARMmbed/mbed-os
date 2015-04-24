@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_acmp.c
  * @brief Analog Comparator (ACMP) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -260,12 +260,10 @@ void ACMP_ChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef negSel,
   /* Sanity checking of ACMP inputs */
   EFM_ASSERT(posSel <= _ACMP_INPUTSEL_POSSEL_CH7);
 
-#if defined(_ACMP_INPUTSEL_NEGSEL_CAPSENSE)
-  EFM_ASSERT(negSel <= _ACMP_INPUTSEL_NEGSEL_CAPSENSE);
-
-#elif defined(_ACMP_INPUTSEL_NEGSEL_DAC0CH1)
+#if defined(_ACMP_INPUTSEL_NEGSEL_DAC0CH1)
   EFM_ASSERT(negSel <= _ACMP_INPUTSEL_NEGSEL_DAC0CH1);
-
+#elif defined(_ACMP_INPUTSEL_NEGSEL_CAPSENSE)
+  EFM_ASSERT(negSel <= _ACMP_INPUTSEL_NEGSEL_CAPSENSE);
 #else
 #error Illegal negative input selection (ACMP).
 #endif

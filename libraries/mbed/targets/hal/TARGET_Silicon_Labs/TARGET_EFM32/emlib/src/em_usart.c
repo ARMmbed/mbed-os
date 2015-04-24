@@ -2,7 +2,7 @@
  * @file em_usart.c
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -64,6 +64,9 @@
 #elif (USART_COUNT == 1) && defined(USART1)
 #define USART_REF_VALID(ref)    ((ref) == USART1)
 
+#elif (USART_COUNT == 2) && defined(USART2)
+#define USART_REF_VALID(ref)    (((ref) == USART1) || ((ref) == USART2))
+
 #elif (USART_COUNT == 2)
 #define USART_REF_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
 
@@ -77,7 +80,15 @@
 #error Undefined number of USARTs.
 #endif
 
-#if defined(USART0)
+#if (USARTRF_COUNT == 1) && defined(USARTRF0)
+#define USARTRF_REF_VALID(ref)  ((ref) == USARTRF0)
+#else
+#define USARTRF_REF_VALID(ref)  (0)
+#endif
+
+#if defined( _EFM32_HAPPY_FAMILY )
+#define USART_IRDA_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
+#elif defined(USART0)
 #define USART_IRDA_VALID(ref)    ((ref) == USART0)
 #elif (USART_COUNT == 1) && defined(USART1)
 #define USART_IRDA_VALID(ref)    ((ref) == USART1)
@@ -85,9 +96,10 @@
 #define USART_IRDA_VALID(ref)    (0)
 #endif
 
-#if defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY)
+#if defined( _EFM32_HAPPY_FAMILY )
+#define USART_I2S_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
+#elif defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY)
 #define USART_I2S_VALID(ref)    ((ref) == USART1)
-
 #elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
 #define USART_I2S_VALID(ref)    (((ref) == USART1) || ((ref) == USART2))
 #endif
@@ -510,7 +522,9 @@ void USART_Enable(USART_TypeDef *usart, USART_Enable_TypeDef enable)
   uint32_t tmp;
 
   /* Make sure the module exists on the selected chip */
-  EFM_ASSERT(USART_REF_VALID(usart) || (UART_REF_VALID(usart)));
+  EFM_ASSERT( USART_REF_VALID(usart)
+              || USARTRF_REF_VALID(usart)
+              || UART_REF_VALID(usart) );
 
   /* Disable as specified */
   tmp        = ~((uint32_t) (enable));
@@ -548,7 +562,9 @@ void USART_Enable(USART_TypeDef *usart, USART_Enable_TypeDef enable)
 void USART_InitAsync(USART_TypeDef *usart, const USART_InitAsync_TypeDef *init)
 {
   /* Make sure the module exists on the selected chip */
-  EFM_ASSERT(USART_REF_VALID(usart) || UART_REF_VALID(usart));
+  EFM_ASSERT( USART_REF_VALID(usart)
+              || USARTRF_REF_VALID(usart)
+              || UART_REF_VALID(usart) );
 
   /* Init USART registers to HW reset state. */
   USART_Reset(usart);
@@ -607,7 +623,7 @@ void USART_InitAsync(USART_TypeDef *usart, const USART_InitAsync_TypeDef *init)
 void USART_InitSync(USART_TypeDef *usart, const USART_InitSync_TypeDef *init)
 {
   /* Make sure the module exists on the selected chip */
-  EFM_ASSERT(USART_REF_VALID(usart));
+  EFM_ASSERT( USART_REF_VALID(usart) || USARTRF_REF_VALID(usart) );
 
   /* Init USART registers to HW reset state. */
   USART_Reset(usart);
@@ -811,7 +827,9 @@ void USART_InitPrsTrigger(USART_TypeDef *usart, const USART_PrsTriggerInit_TypeD
 void USART_Reset(USART_TypeDef *usart)
 {
   /* Make sure the module exists on the selected chip */
-  EFM_ASSERT(USART_REF_VALID(usart) || UART_REF_VALID(usart));
+  EFM_ASSERT( USART_REF_VALID(usart)
+              || USARTRF_REF_VALID(usart)
+              || UART_REF_VALID(usart) );
 
   /* Make sure disabled first, before resetting other registers */
   usart->CMD = USART_CMD_RXDIS | USART_CMD_TXDIS | USART_CMD_MASTERDIS |

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_msc.h
  * @brief Flash controller module (MSC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -30,9 +30,8 @@
  *
  ******************************************************************************/
 
-
-#ifndef __EM_MSC_H
-#define __EM_MSC_H
+#ifndef __SILICON_LABS_EM_MSC_H__
+#define __SILICON_LABS_EM_MSC_H__
 
 #include "em_device.h"
 #if defined(MSC_COUNT) && (MSC_COUNT > 0)
@@ -84,25 +83,31 @@ typedef enum
   mscReturnLocked      = -2, /**< Flash address is locked. */
   mscReturnTimeOut     = -3, /**< Timeout while writing to flash. */
   mscReturnUnaligned   = -4  /**< Unaligned access to flash. */
-} msc_Return_TypeDef;
+} MSC_Status_TypeDef;
 
 
 #if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
 /** Strategy for prioritized bus access */
 typedef enum {
-  mscBusStrategyCPU = MSC_READCTRL_BUSSTRATEGY_CPU, /**< Prioritize CPU bus accesses */
-  mscBusStrategyDMA = MSC_READCTRL_BUSSTRATEGY_DMA, /**< Prioritize DMA bus accesses */
+  mscBusStrategyCPU = MSC_READCTRL_BUSSTRATEGY_CPU,       /**< Prioritize CPU bus accesses */
+  mscBusStrategyDMA = MSC_READCTRL_BUSSTRATEGY_DMA,       /**< Prioritize DMA bus accesses */
   mscBusStrategyDMAEM1 = MSC_READCTRL_BUSSTRATEGY_DMAEM1, /**< Prioritize DMAEM1 for bus accesses */
-  mscBusStrategyNone = MSC_READCTRL_BUSSTRATEGY_NONE /**< No unit has bus priority */
-} mscBusStrategy_Typedef;
+  mscBusStrategyNone = MSC_READCTRL_BUSSTRATEGY_NONE      /**< No unit has bus priority */
+} MSC_BusStrategy_Typedef;
 #endif
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/* Legacy type names */
+#define mscBusStrategy_Typedef MSC_BusStrategy_Typedef
+#define msc_Return_TypeDef MSC_Status_TypeDef
+/** @endcond */
 
 /*******************************************************************************
  *************************   PROTOTYPES   **************************************
  ******************************************************************************/
 
-void MSC_Deinit(void);
 void MSC_Init(void);
+void MSC_Deinit(void);
 
 /***************************************************************************//**
  * @brief
@@ -152,7 +157,7 @@ __STATIC_INLINE void MSC_IntEnable(uint32_t flags)
 
 /***************************************************************************//**
  * @brief
- *   Get pending MSV interrupt flags.
+ *   Get pending MSC interrupt flags.
  *
  * @note
  *   The event bits are not cleared by the use of this function.
@@ -164,6 +169,29 @@ __STATIC_INLINE void MSC_IntEnable(uint32_t flags)
 __STATIC_INLINE uint32_t MSC_IntGet(void)
 {
   return(MSC->IF);
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending MSC interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled MSC interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in MSC_IEN and
+ *   - the pending interrupt flags MSC_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t MSC_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = MSC->IEN;
+  return MSC->IF & ien;
 }
 
 
@@ -195,7 +223,11 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
   MSC->IFC = MSC_IF_CHOF | MSC_IF_CMOF;
 
   /* Start performance counters */
+#if defined( _MSC_CACHECMD_MASK )
+  MSC->CACHECMD = MSC_CACHECMD_STARTPC;
+#else
   MSC->CMD = MSC_CMD_STARTPC;
+#endif
 }
 
 
@@ -250,7 +282,11 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
 {
   int32_t total;
   /* Stop the counter before computing the hit-rate */
+#if defined( _MSC_CACHECMD_MASK )
+  MSC->CACHECMD = MSC_CACHECMD_STOPPC;
+#else
   MSC->CMD = MSC_CMD_STOPPC;
+#endif
 
   /* Check for overflows in performance counters */
   if (MSC->IF & (MSC_IF_CHOF | MSC_IF_CMOF))
@@ -276,7 +312,11 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
  ******************************************************************************/
 __STATIC_INLINE void MSC_FlushCache(void)
 {
+#if defined( _MSC_CACHECMD_MASK )
+  MSC->CACHECMD = MSC_CACHECMD_INVCACHE;
+#else
   MSC->CMD = MSC_CMD_INVCACHE;
+#endif
 }
 
 
@@ -316,7 +356,7 @@ __STATIC_INLINE void MSC_EnableAutoCacheFlush(bool enable)
 {
   BITBAND_Peripheral(&(MSC->READCTRL), _MSC_READCTRL_AIDIS_SHIFT, ~enable);
 }
-#endif
+#endif /* defined( MSC_IF_CHOF ) && defined( MSC_IF_CMOF ) */
 
 
 #if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
@@ -328,43 +368,56 @@ __STATIC_INLINE void MSC_EnableAutoCacheFlush(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void MSC_BusStrategy(mscBusStrategy_Typedef mode)
 {
-  MSC->READCTRL = (MSC->READCTRL & ~(_MSC_READCTRL_BUSSTRATEGY_MASK))|mode;
+  MSC->READCTRL = (MSC->READCTRL & ~(_MSC_READCTRL_BUSSTRATEGY_MASK)) | mode;
 }
 #endif
 
+
 #ifdef __CC_ARM  /* MDK-ARM compiler */
-msc_Return_TypeDef MSC_WriteWord(uint32_t *address, void const *data, int numBytes);
-msc_Return_TypeDef MSC_ErasePage(uint32_t *startAddress);
+MSC_Status_TypeDef MSC_WriteWord(uint32_t *address, void const *data, uint32_t numBytes);
+#if !defined( _EFM32_GECKO_FAMILY )
+MSC_Status_TypeDef MSC_WriteWordFast(uint32_t *address, void const *data, uint32_t numBytes);
+#endif
+MSC_Status_TypeDef MSC_ErasePage(uint32_t *startAddress);
 
 #if defined( _MSC_MASSLOCK_MASK )
-msc_Return_TypeDef MSC_MassErase(void);
+MSC_Status_TypeDef MSC_MassErase(void);
 #endif
 #endif /* __CC_ARM */
 
 #ifdef __ICCARM__ /* IAR compiler */
-__ramfunc msc_Return_TypeDef MSC_WriteWord(uint32_t *address, void const *data, int numBytes);
-__ramfunc msc_Return_TypeDef MSC_ErasePage(uint32_t *startAddress);
+__ramfunc MSC_Status_TypeDef MSC_WriteWord(uint32_t *address, void const *data, uint32_t numBytes);
+#if !defined( _EFM32_GECKO_FAMILY )
+__ramfunc MSC_Status_TypeDef MSC_WriteWordFast(uint32_t *address, void const *data, uint32_t numBytes);
+#endif
+__ramfunc MSC_Status_TypeDef MSC_ErasePage(uint32_t *startAddress);
 
 #if defined( _MSC_MASSLOCK_MASK )
-__ramfunc msc_Return_TypeDef MSC_MassErase(void);
+__ramfunc MSC_Status_TypeDef MSC_MassErase(void);
 #endif
 #endif /* __ICCARM__ */
 
 #ifdef __GNUC__  /* GCC based compilers */
-#ifdef __CROSSWORKS_ARM  /* Rowley Crossworks */
-msc_Return_TypeDef MSC_WriteWord(uint32_t *address, void const *data, int numBytes) __attribute__ ((section(".fast")));
-msc_Return_TypeDef MSC_ErasePage(uint32_t *startAddress) __attribute__ ((section(".fast")));
+#ifdef __CROSSWORKS_ARM  /* Rowley Crossworks (GCC based) */
+MSC_Status_TypeDef MSC_WriteWord(uint32_t *address, void const *data, uint32_t numBytes) __attribute__ ((section(".fast")));
+#if !defined( _EFM32_GECKO_FAMILY )
+MSC_Status_TypeDef MSC_WriteWordFast(uint32_t *address, void const *data, uint32_t numBytes) __attribute__ ((section(".fast")));
+#endif
+MSC_Status_TypeDef MSC_ErasePage(uint32_t *startAddress) __attribute__ ((section(".fast")));
 
 #if defined( _MSC_MASSLOCK_MASK )
-msc_Return_TypeDef MSC_MassErase(void) __attribute__ ((section(".fast")));
+MSC_Status_TypeDef MSC_MassErase(void) __attribute__ ((section(".fast")));
 #endif
 
-#else /* Sourcery G++ */
-msc_Return_TypeDef MSC_WriteWord(uint32_t *address, void const *data, int numBytes) __attribute__ ((section(".ram")));
-msc_Return_TypeDef MSC_ErasePage(uint32_t *startAddress) __attribute__ ((section(".ram")));
+#else /* GCC */
+MSC_Status_TypeDef MSC_WriteWord(uint32_t *address, void const *data, uint32_t numBytes) __attribute__ ((section(".ram")));
+#if !defined( _EFM32_GECKO_FAMILY )
+MSC_Status_TypeDef MSC_WriteWordFast(uint32_t *address, void const *data, uint32_t numBytes) __attribute__ ((section(".ram")));
+#endif
+MSC_Status_TypeDef MSC_ErasePage(uint32_t *startAddress) __attribute__ ((section(".ram")));
 
 #if defined( _MSC_MASSLOCK_MASK )
-msc_Return_TypeDef MSC_MassErase(void) __attribute__ ((section(".ram")));
+MSC_Status_TypeDef MSC_MassErase(void) __attribute__ ((section(".ram")));
 #endif
 
 #endif /* __GNUC__ */
@@ -378,4 +431,4 @@ msc_Return_TypeDef MSC_MassErase(void) __attribute__ ((section(".ram")));
 #endif
 
 #endif /* defined(MSC_COUNT) && (MSC_COUNT > 0) */
-#endif /* __EM_MSC_H */
+#endif /* __SILICON_LABS_EM_MSC_H__ */

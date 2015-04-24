@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_rmu.h
  * @brief Reset Management Unit (RMU) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_RMU_H
-#define __EM_RMU_H
+#ifndef __SILICON_LABS_EM_RMU_H_
+#define __SILICON_LABS_EM_RMU_H_
 
 #include "em_device.h"
 #if defined(RMU_COUNT) && (RMU_COUNT > 0)
@@ -87,4 +87,4 @@ uint32_t RMU_ResetCauseGet(void);
 #endif
 
 #endif /* defined(RMU_COUNT) && (RMU_COUNT > 0) */
-#endif /* __EM_RMU_H */
+#endif /* __SILICON_LABS_EM_RMU_H_ */

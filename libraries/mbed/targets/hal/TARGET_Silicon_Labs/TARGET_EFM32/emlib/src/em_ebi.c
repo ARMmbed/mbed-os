@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_ebi.c
  * @brief External Bus Interface (EBI) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>

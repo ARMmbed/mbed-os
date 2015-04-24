@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_adc.h
  * @brief Analog to Digital Converter (ADC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_ADC_H
-#define __EM_ADC_H
+#ifndef __SILICON_LABS_EM_ADC_H_
+#define __SILICON_LABS_EM_ADC_H_
 
 #include "em_device.h"
 #if defined(ADC_COUNT) && (ADC_COUNT > 0)
@@ -134,12 +134,29 @@ typedef enum
   adcPRSSELCh1 = _ADC_SINGLECTRL_PRSSEL_PRSCH1, /**< PRS channel 1. */
   adcPRSSELCh2 = _ADC_SINGLECTRL_PRSSEL_PRSCH2, /**< PRS channel 2. */
   adcPRSSELCh3 = _ADC_SINGLECTRL_PRSSEL_PRSCH3, /**< PRS channel 3. */
-
-#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH7 )
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH4 )
   adcPRSSELCh4 = _ADC_SINGLECTRL_PRSSEL_PRSCH4, /**< PRS channel 4. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH5 )
   adcPRSSELCh5 = _ADC_SINGLECTRL_PRSSEL_PRSCH5, /**< PRS channel 5. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH6 )
   adcPRSSELCh6 = _ADC_SINGLECTRL_PRSSEL_PRSCH6, /**< PRS channel 6. */
-  adcPRSSELCh7 = _ADC_SINGLECTRL_PRSSEL_PRSCH7  /**< PRS channel 7. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH7 )
+  adcPRSSELCh7 = _ADC_SINGLECTRL_PRSSEL_PRSCH7, /**< PRS channel 7. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH8 )
+  adcPRSSELCh8 = _ADC_SINGLECTRL_PRSSEL_PRSCH8, /**< PRS channel 8. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH9 )
+  adcPRSSELCh9 = _ADC_SINGLECTRL_PRSSEL_PRSCH9, /**< PRS channel 9. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH10 )
+  adcPRSSELCh10 = _ADC_SINGLECTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
+#endif
+#if defined( _ADC_SINGLECTRL_PRSSEL_PRSCH11 )
+  adcPRSSELCh11 = _ADC_SINGLECTRL_PRSSEL_PRSCH11, /**< PRS channel 11. */
 #endif
 } ADC_PRSSEL_TypeDef;
 
@@ -566,4 +583,4 @@ uint8_t ADC_TimebaseCalc(uint32_t hfperFreq);
 #endif
 
 #endif /* defined(ADC_COUNT) && (ADC_COUNT > 0) */
-#endif /* __EM_ADC_H */
+#endif /* __SILICON_LABS_EM_ADC_H_ */

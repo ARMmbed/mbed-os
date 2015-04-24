@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_i2c.c
  * @brief Inter-integrated Circuit (I2C) Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -288,9 +288,10 @@ void I2C_Init(I2C_TypeDef *i2c, const I2C_Init_TypeDef *init)
   i2c->IEN = 0;
   i2c->IFC = _I2C_IFC_MASK;
 
+  /* Set SLAVE select mode */
   BITBAND_Peripheral(&(i2c->CTRL),
                      _I2C_CTRL_SLAVE_SHIFT,
-                     init->master? 0 : 1);
+                     init->master ? 0 : 1);
 
   I2C_BusFreqSet(i2c, init->refFreq, init->freq, init->clhr);
 
@@ -649,7 +650,7 @@ I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c)
           {
             i2c->CMD  = I2C_CMD_NACK;
           }
-            
+
           transfer->state = i2cStateWFStopSent;
           i2c->CMD        = I2C_CMD_STOP;
         }

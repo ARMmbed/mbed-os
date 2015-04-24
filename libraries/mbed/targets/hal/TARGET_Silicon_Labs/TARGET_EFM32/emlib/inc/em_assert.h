@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_assert.h
  * @brief EFM32 peripheral API "assert" implementation.
- * @version 3.20.6
+ * @version 3.20.12
  *
  * @details
  * By default, EFM32 library assert usage is not included in order to reduce
@@ -49,8 +49,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_ASSERT_H
-#define __EM_ASSERT_H
+#ifndef __SILICON_LABS_EM_ASSERT_H_
+#define __SILICON_LABS_EM_ASSERT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,4 +77,4 @@ void assertEFM(const char *file, int line);
 }
 #endif
 
-#endif /* __EM_ASSERT_H */
+#endif /* __SILICON_LABS_EM_ASSERT_H_ */

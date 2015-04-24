@@ -172,6 +172,15 @@ const PinMap PinMap_UART_TX[] = {
         /* USART2 */
         {PC2, USART_2, 0},
         {PB3, USART_2, 1},
+        /* LEUART0 */
+        {PD4,  LEUART_0, 0},
+        {PB13, LEUART_0, 1},
+        {PE14, LEUART_0, 2},
+        {PF0,  LEUART_0, 3},
+        {PF2,  LEUART_0, 4},
+        /* LEUART1 */
+        {PC6,  LEUART_1, 0},
+        {PA5,  LEUART_1, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };
@@ -197,6 +206,15 @@ const PinMap PinMap_UART_RX[] = {
         /* USART2 */
         {PC3, USART_2, 0},
         {PB4, USART_2, 1},
+        /* LEUART0 */
+        {PD5,  LEUART_0, 0},
+        {PB14, LEUART_0, 1},
+        {PE15, LEUART_0, 2},
+        {PF1,  LEUART_0, 3},
+        {PA0, LEUART_0, 4},
+        /* LEUART1 */
+        {PC7,  LEUART_1, 0},
+        {PA6,  LEUART_1, 1},
         /* Not connected */
         {NC  , NC   , NC}
 };

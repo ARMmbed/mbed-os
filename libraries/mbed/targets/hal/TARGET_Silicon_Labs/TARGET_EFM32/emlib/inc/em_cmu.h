@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.h
  * @brief Clock management unit (CMU) API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_CMU_H
-#define __EM_CMU_H
+#ifndef __SILICON_LABS_EM_CMU_H_
+#define __SILICON_LABS_EM_CMU_H_
 
 #include "em_device.h"
 #if defined( CMU_PRESENT )
@@ -62,8 +62,11 @@ extern "C" {
 #define CMU_LFACLKSEL_REG          2
 #define CMU_LFBCLKSEL_REG          3
 #define CMU_DBGCLKSEL_REG          4
-#if defined( USB_PRESENT )
+#if defined( _CMU_CMD_USBCCLKSEL_MASK )
 #define CMU_USBCCLKSEL_REG         5
+#endif
+#if defined( _CMU_LFCLKSEL_LFC_MASK )
+#define CMU_LFCCLKSEL_REG          6
 #endif
 
 #define CMU_SEL_REG_POS            0
@@ -89,6 +92,9 @@ extern "C" {
 #define CMU_LFACLKEN0_EN_REG       4
 #define CMU_LFBCLKEN0_EN_REG       5
 #define CMU_PCNT_EN_REG            6
+#if defined( _CMU_LFCCLKEN0_MASK )
+#define CMU_LFCCLKEN0_EN_REG       7
+#endif
 
 #define CMU_EN_REG_POS             8
 #define CMU_EN_REG_MASK            0xf
@@ -113,6 +119,8 @@ extern "C" {
 #define CMU_DBG_CLK_BRANCH         12
 #define CMU_AUX_CLK_BRANCH         13
 #define CMU_USBC_CLK_BRANCH        14
+#define CMU_LFC_CLK_BRANCH         15
+#define CMU_USBLE_CLK_BRANCH       16
 
 #define CMU_CLK_BRANCH_POS         17
 #define CMU_CLK_BRANCH_MASK        0x1f
@@ -185,6 +193,18 @@ typedef enum
 } CMU_AUXHFRCOBand_TypeDef;
 #endif
 
+#if defined( _CMU_USHFRCOCONF_BAND_MASK )
+/** USB High frequency RC bands. */
+typedef enum
+{
+  /** 24MHz RC band. */
+  cmuUSHFRCOBand_24MHz = _CMU_USHFRCOCONF_BAND_24MHZ,
+  /** 48MHz RC band. */
+  cmuUSHFRCOBand_48MHz = _CMU_USHFRCOCONF_BAND_48MHZ,
+} CMU_USHFRCOBand_TypeDef;
+#endif
+
+
 /** Clock points in CMU. Please refer to CMU overview in reference manual. */
 typedef enum
 {
@@ -238,6 +258,15 @@ typedef enum
                     (CMU_NOSEL_REG << CMU_SEL_REG_POS) |
                     (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS) |
                     (_CMU_HFPERCLKEN0_USART0_SHIFT << CMU_EN_BIT_POS) |
+                    (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(_CMU_HFPERCLKEN0_USARTRF0_MASK)
+  /** Universal sync/async receiver/transmitter 0 clock. */
+  cmuClock_USARTRF0 = (CMU_NODIV_REG << CMU_DIV_REG_POS) |
+                    (CMU_NOSEL_REG << CMU_SEL_REG_POS) |
+                    (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS) |
+                    (_CMU_HFPERCLKEN0_USARTRF0_SHIFT << CMU_EN_BIT_POS) |
                     (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
@@ -575,6 +604,29 @@ typedef enum
                      (_CMU_LFBCLKEN0_LEUART1_SHIFT << CMU_EN_BIT_POS) |
                      (CMU_LEUART1_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
+
+  /***************/
+  /* LF C branch */
+  /***************/
+
+  /** Low frequency C clock */
+#if defined( _CMU_LFCLKSEL_LFC_MASK )
+  cmuClock_LFC = (CMU_NODIV_REG << CMU_DIV_REG_POS) |
+                 (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS) |
+                 (CMU_NO_EN_REG << CMU_EN_REG_POS) |
+                 (0 << CMU_EN_BIT_POS) |
+                 (CMU_LFC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(_CMU_LFCCLKEN0_USBLE_MASK)
+  /** USB LE clock. */
+  cmuClock_USBLE = (CMU_NODIV_REG << CMU_DIV_REG_POS) |
+                   (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS) |
+                   (CMU_LFCCLKEN0_EN_REG << CMU_EN_REG_POS) |
+                   (_CMU_LFCCLKEN0_USBLE_SHIFT << CMU_EN_BIT_POS) |
+                   (CMU_USBLE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
 } CMU_Clock_TypeDef;
 
 
@@ -586,7 +638,10 @@ typedef enum
   cmuOsc_HFXO,     /**< High frequency crystal oscillator. */
   cmuOsc_HFRCO,    /**< High frequency RC oscillator. */
   cmuOsc_AUXHFRCO, /**< Auxiliary high frequency RC oscillator. */
-#if !defined(_EFM32_GECKO_FAMILY)
+#if defined( _CMU_STATUS_USHFRCOENS_MASK )
+  cmuOsc_USHFRCO,  /**< USB high frequency RC oscillator */
+#endif
+#if defined( _CMU_LFCLKSEL_LFAE_ULFRCO )
   cmuOsc_ULFRCO    /**< Ultra low frequency RC oscillator. */
 #endif
 } CMU_Osc_TypeDef;
@@ -604,7 +659,13 @@ typedef enum
   cmuSelect_CORELEDIV2, /**< Core low energy clock divided by 2. */
   cmuSelect_AUXHFRCO,   /**< Auxilliary clock source can be used for debug clock */
   cmuSelect_HFCLK,      /**< Divided HFCLK on Giant for debug clock, undivided on Tiny Gecko and for USBC (not used on Gecko) */
-#if !defined(_EFM32_GECKO_FAMILY)
+#if defined( _CMU_STATUS_USHFRCOENS_MASK )
+  cmuSelect_USHFRCO,    /**< USB high frequency RC oscillator */
+#endif
+#if defined( _CMU_CMD_HFCLKSEL_USHFRCODIV2 )
+  cmuSelect_USHFRCODIV2,/**< USB high frequency RC oscillator */
+#endif
+#if defined( _CMU_LFCLKSEL_LFAE_ULFRCO )
   cmuSelect_ULFRCO,     /**< Ultra low frequency RC oscillator. */
 #endif
 } CMU_Select_TypeDef;
@@ -627,6 +688,11 @@ void CMU_HFRCOBandSet(CMU_HFRCOBand_TypeDef band);
 #if defined( _CMU_AUXHFRCOCTRL_BAND_MASK )
 CMU_AUXHFRCOBand_TypeDef CMU_AUXHFRCOBandGet(void);
 void CMU_AUXHFRCOBandSet(CMU_AUXHFRCOBand_TypeDef band);
+#endif
+
+#if defined( _CMU_USHFRCOCONF_BAND_MASK )
+CMU_USHFRCOBand_TypeDef CMU_USHFRCOBandGet(void);
+void CMU_USHFRCOBandSet(CMU_USHFRCOBand_TypeDef band);
 #endif
 
 void CMU_HFRCOStartupDelaySet(uint32_t delay);
@@ -859,4 +925,4 @@ __STATIC_INLINE void CMU_CalibrateCont(bool enable)
 #endif
 
 #endif /* defined( CMU_PRESENT ) */
-#endif /* __EM_CMU_H */
+#endif /* __SILICON_LABS_EM_CMU_H_ */

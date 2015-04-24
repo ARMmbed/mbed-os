@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_ebi.h
  * @brief External Bus Iterface (EBI) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_EBI_H
-#define __EM_EBI_H
+#ifndef __SILICON_LABS_EM_EBI_H_
+#define __SILICON_LABS_EM_EBI_H_
 
 #include "em_device.h"
 
@@ -817,4 +817,4 @@ void EBI_PolaritySet(EBI_Line_TypeDef line, EBI_Polarity_TypeDef polarity);
 
 #endif /* defined(EBI_COUNT) && (EBI_COUNT > 0) */
 
-#endif /* __EM_EBI_H */
+#endif /* __SILICON_LABS_EM_EBI_H_ */

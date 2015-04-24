@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_chip.h
  * @brief Chip Initialization API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_CHIP_H
-#define __EM_CHIP_H
+#ifndef __SILICON_LABS_EM_CHIP_H_
+#define __SILICON_LABS_EM_CHIP_H_
 
 #include "em_device.h"
 #include "em_system.h"
@@ -168,6 +168,20 @@ __STATIC_INLINE void CHIP_Init(void)
                       ( *(volatile uint32_t*)0x400C80C0 & ~(1<<6) ) | (1<<4);
   }
 #endif
+
+#if defined(_EFM32_HAPPY_FAMILY)
+  uint32_t rev;
+  rev = *(volatile uint32_t *)(0x0FE081FC);
+  
+  if ((rev >> 24) <= 129)
+  {
+    /* This fixes a mistaken internal connection between PC0 and PC4 */
+    /* This disables an internal pulldown on PC4 */
+    *(volatile uint32_t*)(0x400C6018) = (1 << 26) | (5 << 0); 
+    /* This disables an internal LDO test signal driving PC4 */
+    *(volatile uint32_t*)(0x400C80E4) &= ~(1 << 24);
+  }
+#endif
 }
 
 /** @} (end addtogroup CHIP) */
@@ -177,4 +191,4 @@ __STATIC_INLINE void CHIP_Init(void)
 }
 #endif
 
-#endif /* __EM_CHIP_H */
+#endif /* __SILICON_LABS_EM_CHIP_H_ */

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_system.h
  * @brief System API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_SYSTEM_H
-#define __EM_SYSTEM_H
+#ifndef __SILICON_LABS_EM_SYSTEM_H_
+#define __SILICON_LABS_EM_SYSTEM_H_
 
 #include <stdbool.h>
 #include "em_device.h"
@@ -58,12 +58,27 @@ extern "C" {
 /** EFM32 part family identifiers. */
 typedef enum
 {
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_G )
   systemPartFamilyGecko   = _DEVINFO_PART_DEVICE_FAMILY_G,   /**< Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_GG )
   systemPartFamilyGiant   = _DEVINFO_PART_DEVICE_FAMILY_GG,  /**< Giant Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_TG )
   systemPartFamilyTiny    = _DEVINFO_PART_DEVICE_FAMILY_TG,  /**< Tiny Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_LG )
   systemPartFamilyLeopard = _DEVINFO_PART_DEVICE_FAMILY_LG,  /**< Leopard Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_WG )
   systemPartFamilyWonder  = _DEVINFO_PART_DEVICE_FAMILY_WG,  /**< Wonder Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_ZG )
   systemPartFamilyZero    = _DEVINFO_PART_DEVICE_FAMILY_ZG,  /**< Zero Gecko Device Family */
+#endif
+#if defined( _DEVINFO_PART_DEVICE_FAMILY_HG )
+  systemPartFamilyHappy   = _DEVINFO_PART_DEVICE_FAMILY_HG,  /**< Happy Gecko Device Family */
+#endif
   systemPartFamilyUnknown = 0xFF                             /**< Unknown Device Family.
                                                                   The family id is missing
                                                                   on unprogrammed parts. */
@@ -79,7 +94,7 @@ typedef struct
 {
   uint8_t minor; /**< Minor revision number */
   uint8_t major; /**< Major revision number */
-  uint8_t family;/**< Device family number  */  
+  uint8_t family;/**< Device family number  */
 } SYSTEM_ChipRevision_TypeDef;
 
 #if defined( __FPU_PRESENT ) && ( __FPU_PRESENT == 1 )
@@ -207,18 +222,29 @@ __STATIC_INLINE uint16_t SYSTEM_GetFlashSize(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t SYSTEM_GetFlashPageSize(void)
 {
-#if defined(_EFM32_GIANT_FAMILY)
-  if (SYSTEM_GetProdRev() < 18)
+  uint32_t tmp;
+
+#if defined( _EFM32_GIANT_FAMILY )
+  tmp = SYSTEM_GetProdRev();
+  if (tmp < 18)
   {
     /* Early Giant/Leopard devices did not have MEMINFO in DEVINFO. */
     return FLASH_PAGE_SIZE;
   }
+#elif defined( _EFM32_ZERO_FAMILY )
+  tmp = SYSTEM_GetProdRev();
+  if (tmp < 24)
+  {
+    /* Early Zero devices have an incorrect DEVINFO flash page size */
+    return FLASH_PAGE_SIZE;
+  }
 #endif
-  uint32_t tmp = (DEVINFO->MEMINFO & _DEVINFO_MEMINFO_FLASH_PAGE_SIZE_MASK)
+  tmp = (DEVINFO->MEMINFO & _DEVINFO_MEMINFO_FLASH_PAGE_SIZE_MASK)
                  >> _DEVINFO_MEMINFO_FLASH_PAGE_SIZE_SHIFT;
 
   return 1 << ((tmp + 10) & 0xFF);
 }
+
 
 /***************************************************************************//**
  * @brief
@@ -254,6 +280,7 @@ __STATIC_INLINE SYSTEM_PartFamily_TypeDef SYSTEM_GetFamily(void)
      >> _DEVINFO_PART_DEVICE_FAMILY_SHIFT);
 }
 
+
 /***************************************************************************//**
  * @brief
  *   Get the calibration temperature (in degrees Celsius).
@@ -274,4 +301,4 @@ __STATIC_INLINE uint8_t SYSTEM_GetCalibrationTemperature(void)
 }
 #endif
 
-#endif /* __EM_SYSTEM_H */
+#endif /* __SILICON_LABS_EM_SYSTEM_H_ */

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_idac.h
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_IDAC_H
-#define __EM_IDAC_H
+#ifndef __SILICON_LABS_EM_IDAC_H_
+#define __SILICON_LABS_EM_IDAC_H_
 
 #include "em_device.h"
 
@@ -76,19 +76,33 @@ typedef enum
     PRS is set to control the IDAC output. */
 typedef enum
 {
-  idacPRSSELCh0 = IDAC_CTRL_PRSSEL_PRSCH0, /**< PRS channel 0. */
-  idacPRSSELCh1 = IDAC_CTRL_PRSSEL_PRSCH1, /**< PRS channel 1. */
-  idacPRSSELCh2 = IDAC_CTRL_PRSSEL_PRSCH2, /**< PRS channel 2. */
-  idacPRSSELCh3 = IDAC_CTRL_PRSSEL_PRSCH3,  /**< PRS channel 3. */
-#if  defined (IDAC_CTRL_PRSSEL_PRSCH11)
-  idacPRSSELCh4 = IDAC_CTRL_PRSSEL_PRSCH4, /**< PRS channel 4. */
-  idacPRSSELCh5 = IDAC_CTRL_PRSSEL_PRSCH5, /**< PRS channel 5. */
-  idacPRSSELCh6 = IDAC_CTRL_PRSSEL_PRSCH6, /**< PRS channel 6. */
-  idacPRSSELCh7 = IDAC_CTRL_PRSSEL_PRSCH7, /**< PRS channel 7. */
-  idacPRSSELCh8 = IDAC_CTRL_PRSSEL_PRSCH8, /**< PRS channel 8. */
-  idacPRSSELCh9 = IDAC_CTRL_PRSSEL_PRSCH9, /**< PRS channel 9. */
-  idacPRSSELCh10 = IDAC_CTRL_PRSSEL_PRSCH10, /**< PRS channel 10 */
-  idacPRSSELCh11 = IDAC_CTRL_PRSSEL_PRSCH11,  /**< PRS channel 11 */
+  idacPRSSELCh0 = IDAC_CTRL_PRSSEL_PRSCH0,      /**< PRS channel 0. */
+  idacPRSSELCh1 = IDAC_CTRL_PRSSEL_PRSCH1,      /**< PRS channel 1. */
+  idacPRSSELCh2 = IDAC_CTRL_PRSSEL_PRSCH2,      /**< PRS channel 2. */
+  idacPRSSELCh3 = IDAC_CTRL_PRSSEL_PRSCH3,      /**< PRS channel 3. */
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH4 )
+  idacPRSSELCh4 = IDAC_CTRL_PRSSEL_PRSCH4,      /**< PRS channel 4. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH5 )
+  idacPRSSELCh5 = IDAC_CTRL_PRSSEL_PRSCH5,      /**< PRS channel 5. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH6 )
+  idacPRSSELCh6 = IDAC_CTRL_PRSSEL_PRSCH6,      /**< PRS channel 6. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH7 )
+  idacPRSSELCh7 = IDAC_CTRL_PRSSEL_PRSCH7,      /**< PRS channel 7. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH8 )
+  idacPRSSELCh8 = IDAC_CTRL_PRSSEL_PRSCH8,      /**< PRS channel 8. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH9 )
+  idacPRSSELCh9 = IDAC_CTRL_PRSSEL_PRSCH9,      /**< PRS channel 9. */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH10 )
+  idacPRSSELCh10 = IDAC_CTRL_PRSSEL_PRSCH10,    /**< PRS channel 10 */
+#endif
+#if  defined( IDAC_CTRL_PRSSEL_PRSCH11 )
+  idacPRSSELCh11 = IDAC_CTRL_PRSSEL_PRSCH11,    /**< PRS channel 11 */
 #endif
 } IDAC_PRSSEL_TypeDef;
 
@@ -141,7 +155,7 @@ typedef struct
     idacPRSSELCh0,  /* Select PRS ch0 (if PRS triggering enabled). */ \
     false           /* Disable current sink mode. */                  \
   }
-  
+
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -257,4 +271,4 @@ void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable);
 
 #endif /* defined(IDAC_COUNT) && (IDAC_COUNT > 0) */
 
-#endif /* __EM_IDAC_H */
+#endif /* __SILICON_LABS_EM_IDAC_H_ */

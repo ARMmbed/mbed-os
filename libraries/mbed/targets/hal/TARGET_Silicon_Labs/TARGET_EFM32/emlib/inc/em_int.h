@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_int.h
  * @brief Interrupt enable/disable unit API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_INT_H
-#define __EM_INT_H
+#ifndef __SILICON_LABS_EM_INT_H_
+#define __SILICON_LABS_EM_INT_H_
 
 #include "em_device.h"
 
@@ -119,4 +119,4 @@ __STATIC_INLINE uint32_t INT_Enable(void)
 }
 #endif
 
-#endif /* __EM_INT_H */
+#endif /* __SILICON_LABS_EM_INT_H_ */

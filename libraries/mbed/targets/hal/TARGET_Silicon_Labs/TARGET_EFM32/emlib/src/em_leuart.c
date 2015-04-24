@@ -2,7 +2,7 @@
  * @file em_leuart.c
  * @brief Low Energy Universal Asynchronous Receiver/Transmitter (LEUART)
  *   Peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>

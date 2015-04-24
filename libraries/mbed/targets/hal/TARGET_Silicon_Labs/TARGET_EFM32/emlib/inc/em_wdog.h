@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_wdog.h
  * @brief Watchdog (WDOG) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_WDOG_H
-#define __EM_WDOG_H
+#ifndef __SILICON_LABS_EM_WDOG_H_
+#define __SILICON_LABS_EM_WDOG_H_
 
 #include "em_device.h"
 #if defined(WDOG_COUNT) && (WDOG_COUNT > 0)
@@ -152,4 +152,4 @@ void WDOG_Lock(void);
 #endif
 
 #endif /* defined(WDOG_COUNT) && (WDOG_COUNT > 0) */
-#endif /* __EM_WDOG_H */
+#endif /* __SILICON_LABS_EM_WDOG_H_ */

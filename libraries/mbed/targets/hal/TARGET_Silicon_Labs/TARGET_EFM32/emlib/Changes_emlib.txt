@@ -1,4 +1,43 @@
 ================ Revision history ============================================
+3.20.12:
+ - Added errata fix EMU_108 and IDAC101.
+ - #ifdef's now use register defines instead of a mix of register and family defines.
+ - Added a case for when there are only 4 DMA channels available:
+   Alignment was (correctly) defined at 7 bit, but got asserted for 8 bit, leading
+   to unpredictable tripped asserts.
+ - Added USART_INITPRSTRIGGER_DEFAULT defined structure to support HWCONF.
+ - Added support for LFC clock tree.
+ - Added CMU_USHFRCOBandSet() and CMU_USHFRCOBandGet().
+
+3.20.10:
+ - Maintenance release, no changes.
+
+3.20.9:
+ - Added support for Happy Gecko including support for the new oscillator USHFRCO.
+ - Added MSC_WriteWordFast() function. This flash write function has a similar
+   performance as the old  MSC_WriteWord(), but it disables interrupts and
+   requires a core clock frequency of at least 14MHz. The new MSC_WriteWord()
+   is slower, but it does not disable interrupts and may be called with core
+   clock frequencies down to 1MHz.
+ - Fixed a bug in EMU_EnterEM4() that set other EM4 configuration bits to 0
+   on EM4 entry.
+ - Added EMU_EM23Init().
+ - Fixed a bug in CMU_FlashWaitStateControl() where it failed to set the
+   required wait-state configuration if the MSC is locked.
+ - Added EMU interrupt handling functions.
+ - BURTC_Reset() changed to use async reset RMU_CTRL_BURSTEN instead of
+   reset value writeback. This makes the function independent of a selected
+   and enabled clock.
+ - BURTC_Sync() now returns without waiting for BURTC->SYNCBUSY to clear
+   when no clock is selected in BURTC_CTRL_CLKSEL.
+ - Fixed assertion bug in ACMP_ChannelSet() that checked the negSel parameter
+   against the wrong upper bound.
+
+3.20.7:
+ - Fixed CMU_MAX_FREQ_HFLE macro for Wonder family.
+ - Fixed MSC_WriteWord() bug.
+ - Added syncbusy wait in RTC_Reset() for Gecko family.
+
 3.20.6:
  - Corrected fix for Errata EMU_E107.
 
@@ -7,34 +46,34 @@
  - Removed unnecessary fix for Wonder Gecko.
  - Updated LFXO temperature compensation in CHIP_Init().
  - Changed LESENSE_ScanStart, LESENSE_ScanStop, LESENSE_DecoderStart,
-   LESENSE_ResultBufferClear and LESENSE_Reset functions to wait until
+   LESENSE_ResultBufferClear() and LESENSE_Reset() functions to wait until
    CMD register writes complete in order to make sure CMD register writes do
    not break each other, and for register values to be consistent when
    returning from functions that write to the CMD register.
  - Added fix for Errata EMU_E107.
  - Added family to SYSTEM_ChipRevision_TypeDef.
  - Fixed bug in function AES_OFB128 which failed on Zero Gecko.
- - Fixed RMU_ResetCauseGet to return correct reset causes.
- - Fixed bug in RTC_CounterReset which failed to reset counter immediately
+ - Fixed RMU_ResetCauseGet() to return correct reset causes.
+ - Fixed bug in RTC_CounterReset() which failed to reset counter immediately
    after return on Gecko devices.
  - Added static inline non-blocking USART receive functions (USART_Rx...).
- - Added function SYSTEM_GetFamily.
- - Added function DAC_ChannelOutputSet.
- - Fixed MSC_WriteWord to not use WDOUBLE if LPWRITE is set.
+ - Added function SYSTEM_GetFamily().
+ - Added function DAC_ChannelOutputSet().
+ - Fixed MSC_WriteWord() to not use WDOUBLE if LPWRITE is set.
 
 3.20.2:
  - Fixed bug regarding when MEMINFO in DEVINFO was introduced.
    The correct crossover is production revision 18.
- - Fixed bug in WDOG_Feed which does not feed the watchdog if the watchdog
-   is disabled. Previously, the watchdog was broken after WDOG_Feed fed it
+ - Fixed bug in WDOG_Feed() which does not feed the watchdog if the watchdog
+   is disabled. Previously, the watchdog was broken after WDOG_Feed() fed it
    when it was disabled.
 -  Fixed issue in em_i2c.c, which should set the NACK bit in the I2C CMD
    register for the next to last byte received. The exception is when only
    one byte is to be received. Then the NACK bit must be set like the
    previous code was doing.
--  Added function BURTC_ClockFreqGet in order to determine clock frequency
+-  Added function BURTC_ClockFreqGet() in order to determine clock frequency
    of BURTC.
--  Fixed bug in BURTC_Reset which made a subsequent call to BURTC_Init hang.
+-  Fixed bug in BURTC_Reset() which made a subsequent call to BURTC_Init hang.
 -  Added support for the IDAC module on the Zero Gecko family, em_idac.c/h.
 -  Fixed bug in DAC_PrescaleCalc() which could return higher values than
    the maximum prescaler value. The fix makes sure to return the max prescaler
@@ -44,7 +83,7 @@
    this resulted in higher I2C bus frequencies than desired.
 
 3.20.0:
- - LEUART: Added LEUART_TxDmaInEM2Enable and LEUART_RxDmaInEM2Enable for
+ - LEUART: Added LEUART_TxDmaInEM2Enable() and LEUART_RxDmaInEM2Enable() for
    enabling and disabling DMA LEUART RX and Tx in EM2 support.
 
 3.0.3:
@@ -54,19 +93,19 @@
  - USART: Added USART_SpiTransfer() function.
 
 3.0.2:
- - MSC: In MSC_WriteWord, added support for double word write cycle support
+ - MSC: In MSC_WriteWord(), added support for double word write cycle support
    (WDOUBLE) on devices with more than 512KiBytes of Flash memory. This can
    almost double the speed of the MSC_WriteWord function for large data sizes.
- - MSC: In MSC_ErasePage, added support for devices with Flash page size
+ - MSC: In MSC_ErasePage(), added support for devices with Flash page size
    larger than 512 bytes, like Giant and Leopard Gecko.
- - CMU: Fixed bug in CMU_ClockDivSet. Clear HFLE and HFCORECLKLEDIV flags when
+ - CMU: Fixed bug in CMU_ClockDivSet(). Clear HFLE and HFCORECLKLEDIV flags when
    the core runs at frequencies up to 32MHz.
- - CMU: Fixed bug in CMU_ClockEnable: Set the HFLE and HFCORECLKLEDIV flags
+ - CMU: Fixed bug in CMU_ClockEnable(): Set the HFLE and HFCORECLKLEDIV flags
    when the CORE clock runs at frequencies higher than 32MHz.
- - CMU: Fixed bug in CMU_ClockSelectSet: Set HFLE and DIV4 factor for peripheral
+ - CMU: Fixed bug in CMU_ClockSelectSet(): Set HFLE and DIV4 factor for peripheral
    clock if HFCORE clock for LE is enabled and the CORE clock runs at
    frequencies higher than 32MHz.
- - BITBAND: Added BITBAND_PeripheralRead and BITBAND_SRAMRead functions.
+ - BITBAND: Added BITBAND_PeripheralRead() and BITBAND_SRAMRead() functions.
  - DMA: Added #ifndef EXCLUDE_DEFAULT_DMA_IRQ_HANDLER around DMA_IRQHandler in
    order for the user to implement a custom IRQ handler or run without a DMA
    IRQ handler by defining EXCLUDE_DEFAULT_DMA_IRQ_HANDLER with the -D compiler

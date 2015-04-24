@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-#include "error.h"
 #include "em_gpio.h"
 #include "em_cmu.h"
 #include "mbed_assert.h"
@@ -31,10 +30,10 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != NC);
 
     /* Enable GPIO clock if not already done */
-    if (!gpio_clock_inited) {
-        CMU_ClockEnable(cmuClock_GPIO, true);
-        gpio_clock_inited = 1;
-    }
+     if (!gpio_clock_inited) {
+         CMU_ClockEnable(cmuClock_GPIO, true);
+         gpio_clock_inited = 1;
+     }
 
     /* Pin and port index encoded in one uint32.
      * First four bits represent the pin number
@@ -47,3 +46,5 @@ void pin_mode(PinName pin, PinMode mode)
     unsigned int dout = mode & 0x10;
     GPIO_PinModeSet(port_index, pin_index, mode & 0xF, dout);
 }
+
+// TODO_LP get pin_mode to be able to store previous settings

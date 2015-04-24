@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_acmp.h
  * @brief Analog Comparator (ACMP) peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -31,8 +31,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_ACMP_H
-#define __EM_ACMP_H
+#ifndef __SILICON_LABS_EM_ACMP_H_
+#define __SILICON_LABS_EM_ACMP_H_
 
 #include "em_device.h"
 #if defined(ACMP_COUNT) && (ACMP_COUNT > 0)
@@ -410,4 +410,4 @@ __STATIC_INLINE void ACMP_IntSet(ACMP_TypeDef *acmp, uint32_t flags)
 #endif
 
 #endif /* defined(ACMP_COUNT) && (ACMP_COUNT > 0) */
-#endif /* __EM_ACMP_H */
+#endif /* __SILICON_LABS_EM_ACMP_H_ */

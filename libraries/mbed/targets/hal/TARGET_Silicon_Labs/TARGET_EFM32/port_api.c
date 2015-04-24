@@ -25,21 +25,27 @@
 
 #define PORT_NUM_PINS 16
 
+uint8_t port_get_index(port_t *obj)
+{
+    return 0;
+}
+
 PinName port_pin(PortName port, int pin_n)
 {
     return (PinName) (pin_n | port << 4); // Encode pin and port number in one uint32
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+void port_preinit(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    /* Enable GPIO clock */
-    CMU_ClockEnable(cmuClock_GPIO, true);
-
     obj->mask = mask;
     obj->port = port;
     obj->dir = dir;
+}
 
-    port_dir(obj, dir);
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
+	port_preinit(obj, port, mask, dir);
+    port_dir(obj, obj->dir);
 }
 
 void port_mode(port_t *obj, PinMode mode)

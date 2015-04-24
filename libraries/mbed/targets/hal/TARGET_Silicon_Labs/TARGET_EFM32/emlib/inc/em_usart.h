@@ -2,7 +2,7 @@
  * @file em_usart.h
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   peripheral API
- * @version 3.20.6
+ * @version 3.20.12
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,8 +32,8 @@
  ******************************************************************************/
 
 
-#ifndef __EM_USART_H
-#define __EM_USART_H
+#ifndef __SILICON_LABS_EM_USART_H_
+#define __SILICON_LABS_EM_USART_H_
 
 #include "em_device.h"
 #if defined(USART_COUNT) && (USART_COUNT > 0)
@@ -161,15 +161,21 @@ typedef enum
 /** PRS channel selection for IrDA mode. */
 typedef enum
 {
-  usartIrDAPrsCh0 = USART_IRCTRL_IRPRSSEL_PRSCH0, /**< PRS channel 0 */
-  usartIrDAPrsCh1 = USART_IRCTRL_IRPRSSEL_PRSCH1, /**< PRS channel 1 */
-  usartIrDAPrsCh2 = USART_IRCTRL_IRPRSSEL_PRSCH2, /**< PRS channel 2 */
-  usartIrDAPrsCh3 = USART_IRCTRL_IRPRSSEL_PRSCH3, /**< PRS channel 3 */
+  usartIrDAPrsCh0 = USART_IRCTRL_IRPRSSEL_PRSCH0,       /**< PRS channel 0 */
+  usartIrDAPrsCh1 = USART_IRCTRL_IRPRSSEL_PRSCH1,       /**< PRS channel 1 */
+  usartIrDAPrsCh2 = USART_IRCTRL_IRPRSSEL_PRSCH2,       /**< PRS channel 2 */
+  usartIrDAPrsCh3 = USART_IRCTRL_IRPRSSEL_PRSCH3,       /**< PRS channel 3 */
+#if defined( USART_IRCTRL_IRPRSSEL_PRSCH4 )
+  usartIrDAPrsCh4 = USART_IRCTRL_IRPRSSEL_PRSCH4,       /**< PRS channel 4 */
+#endif
+#if defined( USART_IRCTRL_IRPRSSEL_PRSCH5 )
+  usartIrDAPrsCh5 = USART_IRCTRL_IRPRSSEL_PRSCH5,       /**< PRS channel 5 */
+#endif
+#if defined( USART_IRCTRL_IRPRSSEL_PRSCH6 )
+  usartIrDAPrsCh6 = USART_IRCTRL_IRPRSSEL_PRSCH6,       /**< PRS channel 6 */
+#endif
 #if defined( USART_IRCTRL_IRPRSSEL_PRSCH7 )
-  usartIrDAPrsCh4 = USART_IRCTRL_IRPRSSEL_PRSCH4, /**< PRS channel 4 */
-  usartIrDAPrsCh5 = USART_IRCTRL_IRPRSSEL_PRSCH5, /**< PRS channel 5 */
-  usartIrDAPrsCh6 = USART_IRCTRL_IRPRSSEL_PRSCH6, /**< PRS channel 6 */
-  usartIrDAPrsCh7 = USART_IRCTRL_IRPRSSEL_PRSCH7  /**< PRS channel 7 */
+  usartIrDAPrsCh7 = USART_IRCTRL_IRPRSSEL_PRSCH7,       /**< PRS channel 7 */
 #endif
 } USART_IrDAPrsSel_Typedef;
 
@@ -318,6 +324,22 @@ typedef struct
     usartDatabits8,   /* 8 databits. */                                                      \
     usartNoParity,    /* No parity. */                                                       \
     usartStopbits1    /* 1 stopbit. */                                                       \
+  }
+#endif
+
+/** Default config for USART PRS triggering structure. */
+#if defined ( USART_TRIGCTRL_AUTOTXTEN )
+#define USART_INITPRSTRIGGER_DEFAULT                                                         \
+  { false,              /* Do not enable autoTX triggering. */                               \
+    false,              /* Do not enable receive triggering. */                              \
+    false,              /* Do not enable transmit triggering. */                             \
+    usartPrsTriggerCh0  /* Set default channel to zero. */                                   \
+  }
+#else
+#define USART_INITPRSTRIGGER_DEFAULT                                                         \
+  { false,              /* Do not enable receive triggering. */                              \
+    false,              /* Do not enable transmit triggering. */                             \
+    usartPrsTriggerCh0  /* Set default channel to zero. */                                   \
   }
 #endif
 
@@ -816,4 +838,4 @@ void USART_TxExt(USART_TypeDef *usart, uint16_t data);
 #endif
 
 #endif /* defined(USART_COUNT) && (USART_COUNT > 0) */
-#endif /* __EM_USART_H */
+#endif /* __SILICON_LABS_EM_USART_H_ */
