@@ -464,7 +464,7 @@ void serial_baud(serial_t *obj, int baudrate)
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ, (uint32_t)baudrate);
     } else {
-        USART_BaudrateAsyncSet(obj->serial.periph.uart, 0, (uint32_t)baudrate, usartOVS16);
+        USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
     }
 }
 
