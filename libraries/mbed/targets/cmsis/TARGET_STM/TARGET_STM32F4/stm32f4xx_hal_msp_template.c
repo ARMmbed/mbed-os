@@ -1,10 +1,12 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_flash_ramfunc.h
+  * @file    stm32f4xx_hal_msp_template.c
   * @author  MCD Application Team
   * @version V1.3.0
   * @date    09-March-2015
-  * @brief   Header file of FLASH RAMFUNC driver.
+  * @brief   This file contains the HAL System and Peripheral (PPP) MSP initialization
+  *          and de-initialization functions.
+  *          It should be copied to the application folder and renamed into 'stm32f4xx_hal_msp.c'.           
   ******************************************************************************
   * @attention
   *
@@ -35,63 +37,83 @@
   ******************************************************************************
   */ 
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_FLASH_RAMFUNC_H
-#define __STM32F4xx_FLASH_RAMFUNC_H
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-#if defined(STM32F411xE) || defined(STM32F446xx)
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal_def.h"
+#include "stm32f4xx_hal.h"
 
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup FLASHRAMFUNC
-  * @{
-  */ 
-
-/* Exported types ------------------------------------------------------------*/   
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
-/** @addtogroup FLASHRAMFUNC_Exported_Functions
+/** @defgroup HAL_MSP HAL MSP
+  * @brief HAL MSP module.
   * @{
   */
 
-/** @addtogroup FLASHRAMFUNC_Exported_Functions_Group1
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
+/** @defgroup HAL_MSP_Private_Functions HAL MSP Private Functions
   * @{
-  */   
-__RAM_FUNC HAL_FLASHEx_StopFlashInterfaceClk(void);
-__RAM_FUNC HAL_FLASHEx_StartFlashInterfaceClk(void);
-__RAM_FUNC HAL_FLASHEx_EnableFlashSleepMode(void);
-__RAM_FUNC HAL_FLASHEx_DisableFlashSleepMode(void);
-/**
-  * @}
-  */ 
-
-/**
-  * @}
   */
-#endif /* STM32F411xE */
 
 /**
-  * @}
-  */ 
-
-/**
-  * @}
+  * @brief  Initializes the Global MSP.
+  * @note   This function is called from HAL_Init() function to perform system
+  *         level initialization (GPIOs, clock, DMA, interrupt).
+  * @retval None
   */
-  
-#ifdef __cplusplus
+void HAL_MspInit(void)
+{
+
 }
-#endif
 
+/**
+  * @brief  DeInitializes the Global MSP.
+  * @note   This functiona is called from HAL_DeInit() function to perform system
+  *         level de-initialization (GPIOs, clock, DMA, interrupt).
+  * @retval None
+  */
+void HAL_MspDeInit(void)
+{
 
-#endif /* __STM32F4xx_FLASH_RAMFUNC_H */
+}
+
+/**
+  * @brief  Initializes the PPP MSP.
+  * @note   This functiona is called from HAL_PPP_Init() function to perform 
+  *         peripheral(PPP) system level initialization (GPIOs, clock, DMA, interrupt)
+  * @retval None
+  */
+void HAL_PPP_MspInit(void)
+{
+
+}
+
+/**
+  * @brief  DeInitializes the PPP MSP.
+  * @note   This functiona is called from HAL_PPP_DeInit() function to perform 
+  *         peripheral(PPP) system level de-initialization (GPIOs, clock, DMA, interrupt)
+  * @retval None
+  */
+void HAL_PPP_MspDeInit(void)
+{
+
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

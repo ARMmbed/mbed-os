@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,6 +56,11 @@
 
 /* Exported types ------------------------------------------------------------*/
 
+/** @defgroup DMA_Exported_Types DMA Exported Types
+  * @brief    DMA Exported Types 
+  * @{
+  */
+   
 /** 
   * @brief  DMA Configuration Structure definition
   */
@@ -97,7 +102,7 @@ typedef struct
                                       This parameter can be a value of @ref DMA_FIFO_threshold_level                  */
 
   uint32_t MemBurst;             /*!< Specifies the Burst transfer configuration for the memory transfers. 
-                                      It specifies the amount of data to be transferred in a single non interruptable 
+                                      It specifies the amount of data to be transferred in a single non interruptible
                                       transaction.
                                       This parameter can be a value of @ref DMA_Memory_burst 
                                       @note The burst mode is possible only if the address Increment mode is enabled. */
@@ -108,6 +113,7 @@ typedef struct
                                       This parameter can be a value of @ref DMA_Peripheral_burst
                                       @note The burst mode is possible only if the address Increment mode is enabled. */
 }DMA_InitTypeDef;
+
 
 /** 
   * @brief  HAL DMA State structures definition
@@ -159,16 +165,22 @@ typedef struct __DMA_HandleTypeDef
 
   void                       (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
 
-  __IO uint32_t              ErrorCode;                                                    /*!< DMA Error code                         */
+ __IO uint32_t              ErrorCode;                                                    /*!< DMA Error code                          */
 }DMA_HandleTypeDef;
+
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup DMA_Exported_Constants
+/** @defgroup DMA_Exported_Constants DMA Exported Constants
+  * @brief    DMA Exported constants 
   * @{
   */
 
-/** @defgroup DMA_Error_Code 
+/** @defgroup DMA_Error_Code DMA Error Code
+  * @brief    DMA Error Code 
   * @{
   */ 
 #define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
@@ -180,7 +192,8 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Channel_selection 
+/** @defgroup DMA_Channel_selection DMA Channel selection
+  * @brief    DMA channel selection 
   * @{
   */ 
 #define DMA_CHANNEL_0        ((uint32_t)0x00000000)  /*!< DMA Channel 0 */
@@ -191,185 +204,134 @@ typedef struct __DMA_HandleTypeDef
 #define DMA_CHANNEL_5        ((uint32_t)0x0A000000)  /*!< DMA Channel 5 */
 #define DMA_CHANNEL_6        ((uint32_t)0x0C000000)  /*!< DMA Channel 6 */
 #define DMA_CHANNEL_7        ((uint32_t)0x0E000000)  /*!< DMA Channel 7 */
-
-#define IS_DMA_CHANNEL(CHANNEL) (((CHANNEL) == DMA_CHANNEL_0) || \
-                                 ((CHANNEL) == DMA_CHANNEL_1) || \
-                                 ((CHANNEL) == DMA_CHANNEL_2) || \
-                                 ((CHANNEL) == DMA_CHANNEL_3) || \
-                                 ((CHANNEL) == DMA_CHANNEL_4) || \
-                                 ((CHANNEL) == DMA_CHANNEL_5) || \
-                                 ((CHANNEL) == DMA_CHANNEL_6) || \
-                                 ((CHANNEL) == DMA_CHANNEL_7))
 /**
   * @}
   */
 
-/** @defgroup DMA_Data_transfer_direction 
+/** @defgroup DMA_Data_transfer_direction DMA Data transfer direction
+  * @brief    DMA data transfer direction 
   * @{
   */ 
 #define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)      /*!< Peripheral to memory direction */
 #define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_SxCR_DIR_0)  /*!< Memory to peripheral direction */
 #define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_SxCR_DIR_1)  /*!< Memory to memory direction     */
-
-#define IS_DMA_DIRECTION(DIRECTION) (((DIRECTION) == DMA_PERIPH_TO_MEMORY ) || \
-                                     ((DIRECTION) == DMA_MEMORY_TO_PERIPH)  || \
-                                     ((DIRECTION) == DMA_MEMORY_TO_MEMORY)) 
 /**
   * @}
-  */
-    
-/** @defgroup DMA_Data_buffer_size 
-  * @{
-  */ 
-#define IS_DMA_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1) && ((SIZE) < 0x10000))
-/**
-  * @}
-  */     
+  */  
         
-/** @defgroup DMA_Peripheral_incremented_mode 
+/** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral incremented mode
+  * @brief    DMA peripheral incremented mode 
   * @{
   */ 
 #define DMA_PINC_ENABLE        ((uint32_t)DMA_SxCR_PINC)  /*!< Peripheral increment mode enable  */
 #define DMA_PINC_DISABLE       ((uint32_t)0x00000000)     /*!< Peripheral increment mode disable */
-
-#define IS_DMA_PERIPHERAL_INC_STATE(STATE) (((STATE) == DMA_PINC_ENABLE) || \
-                                            ((STATE) == DMA_PINC_DISABLE))
 /**
   * @}
   */ 
 
-/** @defgroup DMA_Memory_incremented_mode 
+/** @defgroup DMA_Memory_incremented_mode DMA Memory incremented mode
+  * @brief    DMA memory incremented mode 
   * @{
   */ 
 #define DMA_MINC_ENABLE         ((uint32_t)DMA_SxCR_MINC)  /*!< Memory increment mode enable  */
 #define DMA_MINC_DISABLE        ((uint32_t)0x00000000)     /*!< Memory increment mode disable */
-
-#define IS_DMA_MEMORY_INC_STATE(STATE) (((STATE) == DMA_MINC_ENABLE)  || \
-                                        ((STATE) == DMA_MINC_DISABLE))
 /**
   * @}
   */
 
-/** @defgroup DMA_Peripheral_data_size 
+/** @defgroup DMA_Peripheral_data_size DMA Peripheral data size
+  * @brief    DMA peripheral data size 
   * @{
   */ 
 #define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000)        /*!< Peripheral data alignment: Byte     */
 #define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_SxCR_PSIZE_0)  /*!< Peripheral data alignment: HalfWord */
 #define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_SxCR_PSIZE_1)  /*!< Peripheral data alignment: Word     */
-
-#define IS_DMA_PERIPHERAL_DATA_SIZE(SIZE) (((SIZE) == DMA_PDATAALIGN_BYTE)     || \
-                                           ((SIZE) == DMA_PDATAALIGN_HALFWORD) || \
-                                           ((SIZE) == DMA_PDATAALIGN_WORD))
 /**
   * @}
   */ 
 
-
-/** @defgroup DMA_Memory_data_size
+/** @defgroup DMA_Memory_data_size DMA Memory data size
+  * @brief    DMA memory data size 
   * @{ 
   */
 #define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000)        /*!< Memory data alignment: Byte     */
 #define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_SxCR_MSIZE_0)  /*!< Memory data alignment: HalfWord */
 #define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_SxCR_MSIZE_1)  /*!< Memory data alignment: Word     */
-
-#define IS_DMA_MEMORY_DATA_SIZE(SIZE) (((SIZE) == DMA_MDATAALIGN_BYTE)     || \
-                                       ((SIZE) == DMA_MDATAALIGN_HALFWORD) || \
-                                       ((SIZE) == DMA_MDATAALIGN_WORD ))
 /**
   * @}
   */
 
-/** @defgroup DMA_mode 
+/** @defgroup DMA_mode DMA mode
+  * @brief    DMA mode 
   * @{
   */ 
 #define DMA_NORMAL         ((uint32_t)0x00000000)       /*!< Normal mode                  */
 #define DMA_CIRCULAR       ((uint32_t)DMA_SxCR_CIRC)    /*!< Circular mode                */
 #define DMA_PFCTRL         ((uint32_t)DMA_SxCR_PFCTRL)  /*!< Peripheral flow control mode */
-
-#define IS_DMA_MODE(MODE) (((MODE) == DMA_NORMAL )  || \
-                           ((MODE) == DMA_CIRCULAR) || \
-                           ((MODE) == DMA_PFCTRL)) 
 /**
   * @}
   */
 
-/** @defgroup DMA_Priority_level 
+/** @defgroup DMA_Priority_level DMA Priority level
+  * @brief    DMA priority levels 
   * @{
   */
 #define DMA_PRIORITY_LOW             ((uint32_t)0x00000000)     /*!< Priority level: Low       */
 #define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_SxCR_PL_0)  /*!< Priority level: Medium    */
 #define DMA_PRIORITY_HIGH            ((uint32_t)DMA_SxCR_PL_1)  /*!< Priority level: High      */
 #define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_SxCR_PL)    /*!< Priority level: Very High */
-
-#define IS_DMA_PRIORITY(PRIORITY) (((PRIORITY) == DMA_PRIORITY_LOW )   || \
-                                   ((PRIORITY) == DMA_PRIORITY_MEDIUM) || \
-                                   ((PRIORITY) == DMA_PRIORITY_HIGH)   || \
-                                   ((PRIORITY) == DMA_PRIORITY_VERY_HIGH)) 
 /**
   * @}
   */ 
 
-/** @defgroup DMA_FIFO_direct_mode 
+/** @defgroup DMA_FIFO_direct_mode DMA FIFO direct mode
+  * @brief    DMA FIFO direct mode
   * @{
   */
 #define DMA_FIFOMODE_DISABLE        ((uint32_t)0x00000000)       /*!< FIFO mode disable */
 #define DMA_FIFOMODE_ENABLE         ((uint32_t)DMA_SxFCR_DMDIS)  /*!< FIFO mode enable  */
-
-#define IS_DMA_FIFO_MODE_STATE(STATE) (((STATE) == DMA_FIFOMODE_DISABLE ) || \
-                                       ((STATE) == DMA_FIFOMODE_ENABLE)) 
 /**
   * @}
   */ 
 
-/** @defgroup DMA_FIFO_threshold_level 
+/** @defgroup DMA_FIFO_threshold_level DMA FIFO threshold level
+  * @brief    DMA FIFO level 
   * @{
   */
 #define DMA_FIFO_THRESHOLD_1QUARTERFULL       ((uint32_t)0x00000000)       /*!< FIFO threshold 1 quart full configuration  */
 #define DMA_FIFO_THRESHOLD_HALFFULL           ((uint32_t)DMA_SxFCR_FTH_0)  /*!< FIFO threshold half full configuration     */
 #define DMA_FIFO_THRESHOLD_3QUARTERSFULL      ((uint32_t)DMA_SxFCR_FTH_1)  /*!< FIFO threshold 3 quarts full configuration */
 #define DMA_FIFO_THRESHOLD_FULL               ((uint32_t)DMA_SxFCR_FTH)    /*!< FIFO threshold full configuration          */
-
-#define IS_DMA_FIFO_THRESHOLD(THRESHOLD) (((THRESHOLD) == DMA_FIFO_THRESHOLD_1QUARTERFULL ) || \
-                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_HALFFULL)      || \
-                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_3QUARTERSFULL) || \
-                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_FULL)) 
 /**
   * @}
   */ 
 
-/** @defgroup DMA_Memory_burst 
+/** @defgroup DMA_Memory_burst DMA Memory burst
+  * @brief    DMA memory burst 
   * @{
   */ 
 #define DMA_MBURST_SINGLE       ((uint32_t)0x00000000)  
 #define DMA_MBURST_INC4         ((uint32_t)DMA_SxCR_MBURST_0)  
 #define DMA_MBURST_INC8         ((uint32_t)DMA_SxCR_MBURST_1)  
 #define DMA_MBURST_INC16        ((uint32_t)DMA_SxCR_MBURST)  
-
-#define IS_DMA_MEMORY_BURST(BURST) (((BURST) == DMA_MBURST_SINGLE) || \
-                                    ((BURST) == DMA_MBURST_INC4)   || \
-                                    ((BURST) == DMA_MBURST_INC8)   || \
-                                    ((BURST) == DMA_MBURST_INC16))
 /**
   * @}
   */ 
 
-/** @defgroup DMA_Peripheral_burst 
+/** @defgroup DMA_Peripheral_burst DMA Peripheral burst
+  * @brief    DMA peripheral burst 
   * @{
   */ 
 #define DMA_PBURST_SINGLE       ((uint32_t)0x00000000)  
 #define DMA_PBURST_INC4         ((uint32_t)DMA_SxCR_PBURST_0)  
 #define DMA_PBURST_INC8         ((uint32_t)DMA_SxCR_PBURST_1)  
 #define DMA_PBURST_INC16        ((uint32_t)DMA_SxCR_PBURST)  
-
-#define IS_DMA_PERIPHERAL_BURST(BURST) (((BURST) == DMA_PBURST_SINGLE) || \
-                                        ((BURST) == DMA_PBURST_INC4)   || \
-                                        ((BURST) == DMA_PBURST_INC8)   || \
-                                        ((BURST) == DMA_PBURST_INC16))
 /**
   * @}
   */
 
-/** @defgroup DMA_interrupt_enable_definitions 
+/** @defgroup DMA_interrupt_enable_definitions DMA interrupt enable definitions
+  * @brief    DMA interrupts definition 
   * @{
   */
 #define DMA_IT_TC                         ((uint32_t)DMA_SxCR_TCIE)
@@ -381,7 +343,8 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_flag_definitions 
+/** @defgroup DMA_flag_definitions DMA flag definitions
+  * @brief    DMA flag definitions 
   * @{
   */ 
 #define DMA_FLAG_FEIF0_4                    ((uint32_t)0x00800001)
@@ -407,11 +370,11 @@ typedef struct __DMA_HandleTypeDef
 /**
   * @}
   */
-  
+
 /**
   * @}
   */
-  
+ 
 /* Exported macro ------------------------------------------------------------*/
 
 /** @brief Reset DMA handle state
@@ -664,21 +627,128 @@ typedef struct __DMA_HandleTypeDef
 #include "stm32f4xx_hal_dma_ex.h"   
 
 /* Exported functions --------------------------------------------------------*/
-  
-/* Initialization and de-initialization functions *****************************/
+
+/** @defgroup DMA_Exported_Functions DMA Exported Functions
+  * @brief    DMA Exported functions 
+  * @{
+  */
+
+/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @brief   Initialization and de-initialization functions 
+  * @{
+  */
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma); 
 HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
 
-/* IO operation functions *****************************************************/
+/** @defgroup DMA_Exported_Functions_Group2 I/O operation functions
+  * @brief   I/O operation functions  
+  * @{
+  */
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void              HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */ 
 
-/* Peripheral State and Error functions ***************************************/
+/** @defgroup DMA_Exported_Functions_Group3 Peripheral State functions
+  * @brief    Peripheral State functions 
+  * @{
+  */
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma);
 uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */ 
+/**
+  * @}
+  */ 
+/* Private Constants -------------------------------------------------------------*/
+/** @defgroup DMA_Private_Constants DMA Private Constants
+  * @brief    DMA private defines and constants 
+  * @{
+  */
+/**
+  * @}
+  */ 
+
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup DMA_Private_Macros DMA Private Macros
+  * @brief    DMA private macros 
+  * @{
+  */
+#define IS_DMA_CHANNEL(CHANNEL) (((CHANNEL) == DMA_CHANNEL_0) || \
+                                 ((CHANNEL) == DMA_CHANNEL_1) || \
+                                 ((CHANNEL) == DMA_CHANNEL_2) || \
+                                 ((CHANNEL) == DMA_CHANNEL_3) || \
+                                 ((CHANNEL) == DMA_CHANNEL_4) || \
+                                 ((CHANNEL) == DMA_CHANNEL_5) || \
+                                 ((CHANNEL) == DMA_CHANNEL_6) || \
+                                 ((CHANNEL) == DMA_CHANNEL_7))
+
+#define IS_DMA_DIRECTION(DIRECTION) (((DIRECTION) == DMA_PERIPH_TO_MEMORY ) || \
+                                     ((DIRECTION) == DMA_MEMORY_TO_PERIPH)  || \
+                                     ((DIRECTION) == DMA_MEMORY_TO_MEMORY)) 
+
+#define IS_DMA_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1) && ((SIZE) < 0x10000))
+
+#define IS_DMA_PERIPHERAL_INC_STATE(STATE) (((STATE) == DMA_PINC_ENABLE) || \
+                                            ((STATE) == DMA_PINC_DISABLE))
+
+#define IS_DMA_MEMORY_INC_STATE(STATE) (((STATE) == DMA_MINC_ENABLE)  || \
+                                        ((STATE) == DMA_MINC_DISABLE))
+
+#define IS_DMA_PERIPHERAL_DATA_SIZE(SIZE) (((SIZE) == DMA_PDATAALIGN_BYTE)     || \
+                                           ((SIZE) == DMA_PDATAALIGN_HALFWORD) || \
+                                           ((SIZE) == DMA_PDATAALIGN_WORD))
+
+#define IS_DMA_MEMORY_DATA_SIZE(SIZE) (((SIZE) == DMA_MDATAALIGN_BYTE)     || \
+                                       ((SIZE) == DMA_MDATAALIGN_HALFWORD) || \
+                                       ((SIZE) == DMA_MDATAALIGN_WORD ))
+
+#define IS_DMA_MODE(MODE) (((MODE) == DMA_NORMAL )  || \
+                           ((MODE) == DMA_CIRCULAR) || \
+                           ((MODE) == DMA_PFCTRL)) 
+
+#define IS_DMA_PRIORITY(PRIORITY) (((PRIORITY) == DMA_PRIORITY_LOW )   || \
+                                   ((PRIORITY) == DMA_PRIORITY_MEDIUM) || \
+                                   ((PRIORITY) == DMA_PRIORITY_HIGH)   || \
+                                   ((PRIORITY) == DMA_PRIORITY_VERY_HIGH)) 
+
+#define IS_DMA_FIFO_MODE_STATE(STATE) (((STATE) == DMA_FIFOMODE_DISABLE ) || \
+                                       ((STATE) == DMA_FIFOMODE_ENABLE))
+
+#define IS_DMA_FIFO_THRESHOLD(THRESHOLD) (((THRESHOLD) == DMA_FIFO_THRESHOLD_1QUARTERFULL ) || \
+                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_HALFFULL)      || \
+                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_3QUARTERSFULL) || \
+                                          ((THRESHOLD) == DMA_FIFO_THRESHOLD_FULL))
+
+#define IS_DMA_MEMORY_BURST(BURST) (((BURST) == DMA_MBURST_SINGLE) || \
+                                    ((BURST) == DMA_MBURST_INC4)   || \
+                                    ((BURST) == DMA_MBURST_INC8)   || \
+                                    ((BURST) == DMA_MBURST_INC16))
+
+#define IS_DMA_PERIPHERAL_BURST(BURST) (((BURST) == DMA_PBURST_SINGLE) || \
+                                        ((BURST) == DMA_PBURST_INC4)   || \
+                                        ((BURST) == DMA_PBURST_INC8)   || \
+                                        ((BURST) == DMA_PBURST_INC16))
+/**
+  * @}
+  */ 
+
+/* Private functions ---------------------------------------------------------*/
+/** @defgroup DMA_Private_Functions DMA Private Functions
+  * @brief    DMA private  functions 
+  * @{
+  */
+/**
+  * @}
+  */
 
 /**
   * @}

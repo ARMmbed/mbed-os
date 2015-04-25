@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_i2s_ex.h
+  * @file    stm32f4xx_hal_fmpi2c_ex.h
   * @author  MCD Application Team
   * @version V1.3.0
   * @date    09-March-2015
-  * @brief   Header file of I2S HAL module.
+  * @brief   Header file of FMPI2C HAL Extension module.
   ******************************************************************************
   * @attention
   *
@@ -36,13 +36,15 @@
   */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_HAL_I2S_EX_H
-#define __STM32F4xx_HAL_I2S_EX_H
+#ifndef __STM32F4xx_HAL_FMPI2C_EX_H
+#define __STM32F4xx_HAL_FMPI2C_EX_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
+#if defined(STM32F446xx)
+   
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"  
 
@@ -50,82 +52,83 @@
   * @{
   */
 
-/** @addtogroup I2SEx
+/** @addtogroup FMPI2CEx
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/
-/** @defgroup I2SEx_Exported_Types I2S Exported Types
-  * @{
-  */ 
-/**
-  * @}
-  */
-
+/* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup I2SEx_Exported_Constants I2S Exported Constants
+/** @defgroup FMPI2CEx_Exported_Constants FMPI2C Exported Constants
   * @{
-  */ 
+  */
+
+/** @defgroup FMPI2CEx_Analog_Filter FMPI2C Analog Filter
+  * @{
+  */
+#define FMPI2C_ANALOGFILTER_ENABLE        ((uint32_t)0x00000000)
+#define FMPI2C_ANALOGFILTER_DISABLE       FMPI2C_CR1_ANFOFF
+/**
+  * @}
+  */
+
+/** @defgroup FMPI2CEx_FastModePlus FMPI2C Fast Mode Plus
+  * @{
+  */
+#define FMPI2C_FASTMODEPLUS_SCL            SYSCFG_CFGR_FMPI2C1_SCL  /*!< Enable Fast Mode Plus on FMPI2C1 SCL pins       */
+#define FMPI2C_FASTMODEPLUS_SDA            SYSCFG_CFGR_FMPI2C1_SDA  /*!< Enable Fast Mode Plus on FMPI2C1 SDA pins       */
+/**
+  * @}
+  */
+  
 /**
   * @}
   */ 
-
+  
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup I2SEx_Exported_Macros I2S Exported Macros
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup I2SEx_Exported_Functions
+/** @addtogroup FMPI2CEx_Exported_Functions
   * @{
   */
 
-/** @addtogroup I2SEx_Exported_Functions_Group1
+/** @addtogroup FMPI2CEx_Exported_Functions_Group1
   * @{
   */
+/* Peripheral Control functions ************************************************/
+HAL_StatusTypeDef HAL_FMPI2CEx_AnalogFilter_Config(FMPI2C_HandleTypeDef *hFMPI2C, uint32_t AnalogFilter);
+HAL_StatusTypeDef HAL_FMPI2CEx_DigitalFilter_Config(FMPI2C_HandleTypeDef *hFMPI2C, uint32_t DigitalFilter);
+HAL_StatusTypeDef HAL_FMPI2CEx_EnableWakeUp (FMPI2C_HandleTypeDef *hFMPI2C);
+HAL_StatusTypeDef HAL_FMPI2CEx_DisableWakeUp (FMPI2C_HandleTypeDef *hFMPI2C);
+void HAL_FMPI2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
+void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
+/**
+  * @}
+  */
 
-/* Extended features functions **************************************************/
-/* Blocking mode: Polling */
-HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout);
-/* Non-Blocking mode: Interrupt */
-HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size);
-/* Non-Blocking mode: DMA */
-HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size);
 /**
   * @}
   */ 
-
-/**
-  * @}
-  */
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
-/** @defgroup I2SEx_Private_Constants I2S Private Constants
+/** @defgroup I2CEx_Private_Constants I2C Private Constants
   * @{
   */
+
 /**
   * @}
   */
 
 /* Private macros ------------------------------------------------------------*/
-/** @defgroup I2SEx_Private_Macros I2S Private Macros
+/** @defgroup I2CEx_Private_Macros I2C Private Macros
   * @{
   */
-/**
-  * @}
-  */
+#define IS_FMPI2C_ANALOG_FILTER(FILTER) (((FILTER) == FMPI2C_ANALOGFILTER_ENABLE) || \
+                                         ((FILTER) == FMPI2C_ANALOGFILTER_DISABLE))
 
-/* Private functions ---------------------------------------------------------*/
-/** @defgroup I2SEx_Private_Functions I2S Private Functions
-  * @{
-  */
-HAL_StatusTypeDef I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s);
-uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s); 
+#define IS_FMPI2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+
+#define IS_FMPI2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (FMPI2C_FASTMODEPLUS_SCL)) == FMPI2C_FASTMODEPLUS_SCL) || \
+                                          (((__CONFIG__) & (FMPI2C_FASTMODEPLUS_SDA)) == FMPI2C_FASTMODEPLUS_SDA))
 /**
   * @}
   */
@@ -137,12 +140,12 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s);
 /**
   * @}
   */
-
+#endif /* STM32F446xx */  
 #ifdef __cplusplus
 }
 #endif
 
+#endif /* __STM32F4xx_HAL_FMPI2C_EX_H */
 
-#endif /* __STM32F4xx_HAL_I2S_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
