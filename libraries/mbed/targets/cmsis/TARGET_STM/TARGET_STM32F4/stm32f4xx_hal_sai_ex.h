@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_pcd_ex.h
+  * @file    stm32f4xx_hal_sai_ex.h
   * @author  MCD Application Team
   * @version V1.3.0
   * @date    09-March-2015
-  * @brief   Header file of PCD HAL module.
+  * @brief   Header file of SAI Extension HAL module.
   ******************************************************************************
   * @attention
   *
@@ -36,57 +36,40 @@
   */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_HAL_PCD_EX_H
-#define __STM32F4xx_HAL_PCD_EX_H
+#ifndef __STM32F4xx_HAL_SAI_EX_H
+#define __STM32F4xx_HAL_SAI_EX_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal_def.h"
-   
+#include "stm32f4xx_hal_def.h"  
+
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup PCDEx
+/** @addtogroup SAIEx
   * @{
-  */
+  */ 
+  
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+
 /* Exported types ------------------------------------------------------------*/
-#if defined(STM32F446xx)
-typedef enum  
-{
-  PCD_LPM_L0_ACTIVE = 0x00, /* on */
-  PCD_LPM_L1_ACTIVE = 0x01, /* LPM L1 sleep */
-}PCD_LPM_MsgTypeDef;
-#endif /* STM32F446xx */
-
-/* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/    
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
+/** @addtogroup SAIEx_Exported_Functions
   * @{
   */
-/** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
+
+/** @addtogroup SAIEx_Exported_Functions_Group1
   * @{
   */
-HAL_StatusTypeDef HAL_PCDEx_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint16_t size);
-HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size);
-#if defined(STM32F446xx)
-HAL_StatusTypeDef HAL_PCDEx_ActivateLPM(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd);
-void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
-#endif /* STM32F446xx */
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
-
+/* Extended features functions ************************************************/
+void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai);    
+uint32_t SAI_GetInputClock(SAI_HandleTypeDef *hsai);
 /**
   * @}
   */ 
@@ -94,12 +77,25 @@ void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
 /**
   * @}
   */
+/* Private types -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
 
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+  
 #ifdef __cplusplus
 }
 #endif
 
-
-#endif /* __STM32F4xx_HAL_PCD_EX_H */
+#endif /* __STM32F4xx_HAL_SAI_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
