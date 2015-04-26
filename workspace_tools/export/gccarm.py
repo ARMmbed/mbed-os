@@ -59,6 +59,7 @@ class GccArm(Exporter):
         'ARCH_MAX',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'NUCLEO_F446RE',
         'ARCH_MAX',
         'DISCO_F429ZI',
         'NUCLEO_F030R8',
