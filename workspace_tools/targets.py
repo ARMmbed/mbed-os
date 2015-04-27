@@ -238,6 +238,15 @@ class UBLOX_C027(LPCTarget):
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
 
+class XBED_LPC1768(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['NXP', 'LPC176X', 'XBED_LPC1768']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.macros = ['TARGET_LPC1768']
+        self.detect_code = ["1010"]
+
 class LPC2368(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -1160,6 +1169,7 @@ TARGETS = [
     LPC1768(),
     ARCH_PRO(),     # LPC1768
     UBLOX_C027(),   # LPC1768
+    XBED_LPC1768(), # LPC1768
     LPC2368(),
     LPC810(),
     LPC812(),
