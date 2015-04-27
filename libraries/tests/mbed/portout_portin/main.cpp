@@ -63,6 +63,24 @@
 #define P2_2    (1 << 25)  // p25
 #define PORT_2  Port0
 
+#elif defined(TARGET_MAXWSNENV)
+#define P1_1    (1 << 0)
+#define P1_2    (1 << 1)
+#define PORT_1  Port0
+
+#define P2_1    (1 << 0)
+#define P2_2    (1 << 1)
+#define PORT_2  Port1
+
+#elif defined(TARGET_MAX32600MBED)
+#define P1_1    (1 << 0)  // P1_0
+#define P1_2    (1 << 1)  // P1_1
+#define PORT_1  Port1
+
+#define P2_1    (1 << 7)  // P4_7
+#define P2_2    (1 << 6)  // P4_6
+#define PORT_2  Port4
+
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
@@ -74,6 +92,7 @@
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 #define P1_1    (1 << 6)  // PC_6
 #define P1_2    (1 << 5)  // PC_5

@@ -36,6 +36,7 @@ static const PinMap PinMap_PWM[] = {
     {P8_12    , PWM10_PIN, 6},
     {P8_9     , PWM11_PIN, 6},
     {P8_10    , PWM12_PIN, 6},
+    {P4_5     , PWM13_PIN, 4},
     {NC, NC, 0}
 };
 
@@ -53,6 +54,7 @@ static PWMType PORT[] = {
      PWM1E,          // PWM10_PIN
      PWM1B,          // PWM11_PIN
      PWM1C,          // PWM12_PIN
+     PWM2F,          // PWM13_PIN
 };
 
 static __IO uint16_t *PWM_MATCH[] = {
@@ -69,6 +71,7 @@ static __IO uint16_t *PWM_MATCH[] = {
     &PWMPWBFR_1E,    // PWM10_PIN
     &PWMPWBFR_1A,    // PWM11_PIN
     &PWMPWBFR_1C,    // PWM12_PIN
+    &PWMPWBFR_2E,    // PWM13_PIN
 };
 
 static uint16_t init_period_ch1 = 0;

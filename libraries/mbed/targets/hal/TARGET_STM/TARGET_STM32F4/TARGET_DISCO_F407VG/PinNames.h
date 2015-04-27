@@ -38,9 +38,12 @@ extern "C" {
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
-#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
-#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
-#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
+#define STM_PIN_MODE(X)     (((X) >> 0)  & 0x0F)
+#define STM_PIN_PUPD(X)     (((X) >> 4)  & 0x07)
+#define STM_PIN_AFNUM(X)    (((X) >> 7)  & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
+#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -219,32 +222,6 @@ typedef enum {
     PI_14 = 0x8E,
     PI_15 = 0x8F,
 
-
-    // Arduino connector namings
-/*
-    A0          = PA_0,
-    A1          = PA_1,
-    A2          = PA_4,
-    A3          = PB_0,
-    A4          = PC_1,
-    A5          = PC_0,
-    D0          = PA_3,
-    D1          = PA_2,
-    D2          = PA_10,
-    D3          = PB_3,
-    D4          = PB_5,
-    D5          = PB_4,
-    D6          = PB_10,
-    D7          = PA_8,
-    D8          = PA_9,
-    D9          = PC_7,
-    D10         = PB_6,
-    D11         = PA_7,
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
-*/
     // Generic signals namings
     LED1        = PD_13,
     LED2        = PD_12,

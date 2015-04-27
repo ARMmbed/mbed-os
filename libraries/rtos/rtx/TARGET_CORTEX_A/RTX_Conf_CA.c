@@ -61,7 +61,7 @@
 //   <i> Defines stack size for main thread.
 //   <i> Default: 200
 #ifndef OS_MAINSTKSIZE
- #define OS_MAINSTKSIZE 512
+ #define OS_MAINSTKSIZE 2048
 #endif
 
 //   <o>Number of threads with user-provided stack size <0-250>

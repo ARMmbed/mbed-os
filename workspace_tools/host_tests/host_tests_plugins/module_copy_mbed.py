@@ -59,6 +59,8 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
             if capabilitity == 'default':
                 image_path = kwargs['image_path']
                 destination_disk = kwargs['destination_disk']
+                # Wait for mount point to be ready
+                self.check_mount_point_ready(destination_disk)  # Blocking
                 result = self.generic_mbed_copy(image_path, destination_disk)
         return result
 

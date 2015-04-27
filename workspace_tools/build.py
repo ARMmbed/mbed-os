@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited

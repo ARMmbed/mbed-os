@@ -72,22 +72,23 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
       LPC_SYSCON->PRESETCTRL |=  (1 << 8);
 
       // Two 16-bit counters, autolimit (ie reset on Match_0)
-      pwm->CONFIG &= ~(0x1);
-      pwm->CONFIG |= (1 << 17);
+      //pwm->CONFIG &= ~(0x1);
+      //pwm->CONFIG |= (1 << 17);
+      pwm->CONFIG |= ((0x3 << 17) | 0x01);
 
       // halt and clear the counter
-      pwm->CTRL_L |= (1 << 2) | (1 << 3);
+      pwm->CTRL_U |= (1 << 2) | (1 << 3);
 
       // System Clock (30 Mhz) -> Prescaler -> us_ticker (1 MHz)
-      pwm->CTRL_L &= ~(0x7F << 5);
-      pwm->CTRL_L |= (((SystemCoreClock/1000000 - 1) & 0x7F) << 5);
+      pwm->CTRL_U &= ~(0x7F << 5);
+      pwm->CTRL_U |= (((SystemCoreClock/1000000 - 1) & 0x7F) << 5);
 
       pwm->EVENT[0].CTRL  = (1 << 12) | 0;                     // Event_0 on Match_0
       pwm->EVENT[0].STATE = 0xFFFFFFFF;                        // All states
     
       // unhalt the counter:
       //    - clearing bit 2 of the CTRL register
-      pwm->CTRL_L &= ~(1 << 2);
+      pwm->CTRL_U &= ~(1 << 2);
       
       // Not using IRQs 
       //NVIC_SetVector(PWM_IRQn, (uint32_t)pwm_irq_handler);
@@ -154,20 +155,20 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
      
     // Match_0 is PWM period. Compute new endtime of pulse for current channel
-    uint32_t t_off = (uint32_t)((float)(obj->pwm->MATCHREL[0].L) * value);
-    obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = t_off; // New endtime
+    uint32_t t_off = (uint32_t)((float)(obj->pwm->MATCHREL[0].U) * value);
+    obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = t_off; // New endtime
 }
 
 // Get dutycycle (0.0 .. 1.0)
 float pwmout_read(pwmout_t* obj) {
-    uint32_t t_period = obj->pwm->MATCHREL[0].L;
+    uint32_t t_period = obj->pwm->MATCHREL[0].U;
 
     //Sanity check
     if (t_period == 0) {
      return 0.0;
     };
      
-    uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L;
+    uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U;
     float v = (float)t_off/(float)t_period;
     //Sanity check    
     return (v > 1.0f) ? (1.0f) : (v);
@@ -186,8 +187,8 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same (for this channel only!).
 void pwmout_period_us(pwmout_t* obj, int us) {
     
-    uint32_t t_period = obj->pwm->MATCHREL[0].L;  // Current PWM period
-    obj->pwm->MATCHREL[0].L = (uint64_t)us;       // New PWM period
+    uint32_t t_period = obj->pwm->MATCHREL[0].U;  // Current PWM period
+    obj->pwm->MATCHREL[0].U = (uint32_t)us;       // New PWM period
 
     //Keep the dutycycle for the new PWM period
     //Should really do this for all active channels!!
@@ -199,9 +200,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 //      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = 0; // New endtime for this channel     
     }
     else {    
-      uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L;
+      uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U;
       float v = (float)t_off/(float)t_period;
-      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = (uint64_t)((float)us * (float)v); // New endtime for this channel
+      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)((float)us * (float)v); // New endtime for this channel
     }   
 }
 
@@ -220,7 +221,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms){
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
 
 //Should add Sanity check to make sure pulsewidth < period!
-    obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = (uint64_t)us; // New endtime for this channel
+    obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)us; // New endtime for this channel
 }
 
 #endif

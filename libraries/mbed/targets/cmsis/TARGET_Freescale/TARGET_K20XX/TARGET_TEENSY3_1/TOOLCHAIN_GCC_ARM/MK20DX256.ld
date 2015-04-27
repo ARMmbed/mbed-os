@@ -42,10 +42,11 @@ SECTIONS
 {
     .isr_vector :
     {
-        __vector_table = .;
-        KEEP(*(.vector_table))
+        . = 0;
+        __isr_vector = .;
+        KEEP(*(.isr_vector))
         *(.text.Reset_Handler)
-        *(.text.System_Init)
+        *(.text.SystemInit)
          . = ALIGN(4);
     } > VECTORS
 
