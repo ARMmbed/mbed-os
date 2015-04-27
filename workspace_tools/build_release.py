@@ -83,11 +83,11 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
 
-    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM')),
-    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM')),
-    ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM')),
-    ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM')),
-    ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM')),
+    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),

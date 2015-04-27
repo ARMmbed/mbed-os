@@ -1607,13 +1607,13 @@ int serial_irq_handler_asynch(serial_t *obj) {
 		 * Also make sure to prioritize RX */
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             //Different method of checking tx vs rx for LEUART
-            if(LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_RXDATAV) {
+            if(LEUART_IntGetEnabled(obj->serial.periph.leuart) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF | LEUART_IF_SIGF)) {
                 return serial_rx_irq_handler_asynch(obj);
             } else if(LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_TXBL) {
                 return serial_tx_irq_handler_asynch(obj);
             }
         } else {
-            if(NVIC_GetActive(serial_get_rx_irq_index(obj))) {
+            if(USART_IntGetEnabled(obj->serial.periph.uart) & (USART_IF_RXDATAV | USART_IF_RXOF | USART_IF_PERR | USART_IF_FERR)) {
                 return serial_rx_irq_handler_asynch(obj);
             } else {
                 return serial_tx_irq_handler_asynch(obj);
