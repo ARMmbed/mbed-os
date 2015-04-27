@@ -83,24 +83,6 @@ void mbed_sdk_init()
 #error "Low energy clock selection not valid"
 #endif
 
-    /* If any Serial devices have been initialized, now is the time to update their baudrate
-#ifdef UART0
-    check_usart_clock(UART_0, CMU_HFPERCLKEN0_UART0);
-#endif
-#ifdef UART1
-    check_usart_clock(UART_1, CMU_HFPERCLKEN0_UART1);
-#endif
-#ifdef USART0
-    check_usart_clock(USART_0, CMU_HFPERCLKEN0_USART0);
-#endif
-#ifdef USART1
-    check_usart_clock(USART_1, CMU_HFPERCLKEN0_USART1);
-#endif
-#ifdef USART2
-    check_usart_clock(USART_2, CMU_HFPERCLKEN0_USART2);
-#endif
-*/
-
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
 }
