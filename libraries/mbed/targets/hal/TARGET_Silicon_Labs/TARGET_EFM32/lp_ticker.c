@@ -15,11 +15,11 @@
  */
 
 #include "device.h"
-#if DEVICE_RTC
+#if DEVICE_LOWPOWERTIMER
 
 #include "rtc_api.h"
 #include "rtc_api_HAL.h"
-#include "lptimer_api.h"
+#include "lp_ticker_api.h"
 
 void lp_ticker_init()
 {
