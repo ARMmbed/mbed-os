@@ -44,6 +44,8 @@ typedef enum {
     LED0 = PC10,
     LED1 = PC11,
     LED2 = LED0,
+    LED3 = LED0,
+    LED4 = LED1,
 
     /* Push Buttons */
     SW0 = PC8,

@@ -1,7 +1,7 @@
 ;/**************************************************************************//**
-; * @file startup_efm32hg.s
+; * @file startup_efm32zg.s
 ; * @brief    CMSIS Core Device Startup File for
-; *           Silicon Labs EFM32HG Device Series
+; *           Silicon Labs EFM32ZG Device Series
 ; * @version 3.20.12
 ; * @date     03. February 2012
 ; *
@@ -95,10 +95,6 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     VCMP_IRQHandler        ; 14: VCMP Interrupt
                 DCD     MSC_IRQHandler        ; 15: MSC Interrupt
                 DCD     AES_IRQHandler        ; 16: AES Interrupt
-                DCD     USART0_RX_IRQHandler        ; 17: USART0_RX Interrupt
-                DCD     USART0_TX_IRQHandler        ; 18: USART0_TX Interrupt
-                DCD     USB_IRQHandler        ; 19: USB Interrupt
-                DCD     TIMER2_IRQHandler        ; 20: TIMER2 Interrupt
 
 __Vectors_End
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -161,10 +157,6 @@ Default_Handler PROC
                 EXPORT  VCMP_IRQHandler        [WEAK]
                 EXPORT  MSC_IRQHandler        [WEAK]
                 EXPORT  AES_IRQHandler        [WEAK]
-                EXPORT  USART0_RX_IRQHandler        [WEAK]
-                EXPORT  USART0_TX_IRQHandler        [WEAK]
-                EXPORT  USB_IRQHandler        [WEAK]
-                EXPORT  TIMER2_IRQHandler        [WEAK]
 
 
 DMA_IRQHandler
@@ -184,10 +176,7 @@ CMU_IRQHandler
 VCMP_IRQHandler
 MSC_IRQHandler
 AES_IRQHandler
-USART0_RX_IRQHandler
-USART0_TX_IRQHandler
-USB_IRQHandler
-TIMER2_IRQHandler
+
                 B       .
                 ENDP
 
@@ -195,8 +184,27 @@ TIMER2_IRQHandler
 
 ; User Initial Stack & Heap
 
+                IF      :DEF:__MICROLIB
+
                 EXPORT  __initial_sp
                 EXPORT  __heap_base
                 EXPORT  __heap_limit
+
+                ELSE
+
+                IMPORT  __use_two_region_memory
+                EXPORT  __user_initial_stackheap
+
+__user_initial_stackheap PROC
+                LDR     R0, =  Heap_Mem
+                LDR     R1, =(Stack_Mem + Stack_Size)
+                LDR     R2, = (Heap_Mem +  Heap_Size)
+                LDR     R3, = Stack_Mem
+                BX      LR
+                ENDP
+
+                ALIGN
+
+                ENDIF
 
                 END

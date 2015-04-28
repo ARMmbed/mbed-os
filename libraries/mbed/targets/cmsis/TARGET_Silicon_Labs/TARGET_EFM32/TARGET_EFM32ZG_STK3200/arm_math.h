@@ -485,7 +485,7 @@ extern "C"
 #define __CLZ __clz
 #endif
 
-#if defined (ARM_MATH_CM0_FAMILY) && ((defined (__ICCARM__)) ||(defined (__GNUC__)) || defined (__TASKING__) )
+#if defined (ARM_MATH_CM0_FAMILY) && ((defined (__ICCARM__)) ||(defined (__GNUC__)) || defined (__TASKING__) ) && !defined (__CC_ARM)
 
   static __INLINE uint32_t __CLZ(
   q31_t data);

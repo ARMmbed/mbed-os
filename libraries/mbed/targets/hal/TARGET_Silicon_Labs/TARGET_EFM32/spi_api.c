@@ -226,7 +226,7 @@ void spi_enable_event(spi_t *obj, uint32_t event, uint8_t enable)
 ****************************************************************************/
 void spi_enable_interrupt(spi_t *obj, uint32_t handler, uint8_t enable)
 {
-    uint32_t IRQvector;
+    IRQn_Type IRQvector;
 
     switch ((uint32_t)obj->spi.spi) {
 #ifdef USART0
