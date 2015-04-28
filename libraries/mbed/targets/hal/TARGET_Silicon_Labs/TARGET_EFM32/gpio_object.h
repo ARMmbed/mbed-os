@@ -17,6 +17,7 @@
 #define MBED_GPIO_OBJECT_H
 
 #include "em_gpio.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
