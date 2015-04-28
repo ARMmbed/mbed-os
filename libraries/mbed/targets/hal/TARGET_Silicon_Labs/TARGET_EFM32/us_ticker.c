@@ -23,6 +23,7 @@
 #include "device.h"
 #include "clocking.h"
 #include "sleep_api.h"
+#include "sleepmodes.h"
 
 #define TIMER_LEAST_ACTIVE_SLEEPMODE EM1
 /**

@@ -30,6 +30,7 @@
 #include "em_cmu.h"
 #include "em_dma.h"
 #include "sleep_api.h"
+#include "sleepmodes.h"
 
 static uint16_t fill_word = SPI_FILL_WORD;
 #define SPI_LEAST_ACTIVE_SLEEPMODE EM1

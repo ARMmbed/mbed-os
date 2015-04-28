@@ -24,6 +24,7 @@
 #include "i2c_api.h"
 #include "PeripheralPins.h"
 #include "pinmap_function.h"
+#include "sleepmodes.h"
 
 #include "em_i2c.h"
 #include "em_cmu.h"
