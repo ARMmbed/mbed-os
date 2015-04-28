@@ -50,7 +50,12 @@ void mbed_sdk_init()
     CMU_ClockSelectSet(cmuClock_LFA, LFXO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFB, LFXO);
+	  /* cmuClock_LFB (to date) only has LEUART peripherals.
+		*  Do NOT set it up here, as LEUARTs might have been initialized
+		*	 before this code is called. (Limitation of the override mechanism of ARMCC) 
+		*/
+		//TODO: Look for a more elegant fix.
+    //CMU_ClockSelectSet(cmuClock_LFB, LFXO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
     CMU_ClockSelectSet(cmuClock_LFE, LFXO);

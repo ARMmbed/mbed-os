@@ -408,6 +408,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         // Set up LEUART clock tree to use high-speed clock)
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+			  CMU_ClockEnable(cmuClock_LFB, true);
         CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
     }
     
