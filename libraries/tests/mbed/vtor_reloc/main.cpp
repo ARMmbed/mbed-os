@@ -14,7 +14,7 @@ DigitalOut out(PIN_OUT);
 DigitalOut myled(LED1);
 
 volatile int checks = 0;
-uint32_t int_table[NUM_VECTORS];
+uint32_t int_table[NUM_VECTORS] __attribute__ ((aligned(256)));
 
 #define FALLING_EDGE_COUNT 5
 

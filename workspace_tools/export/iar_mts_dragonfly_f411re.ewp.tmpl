@@ -593,11 +593,11 @@
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>{{name}}.bin</state>
+          <state>application.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -627,7 +627,7 @@
       <archiveVersion>1</archiveVersion>
       <data>
         <prebuild></prebuild>
-        <postbuild></postbuild>
+        <postbuild>"$PROJ_DIR$\post-build.bat" "$TARGET_DIR$"</postbuild>
       </data>
     </settings>
     <settings>
@@ -711,7 +711,7 @@
         </option>
         <option>
           <name>IlinkIcfOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkIcfFile</name>

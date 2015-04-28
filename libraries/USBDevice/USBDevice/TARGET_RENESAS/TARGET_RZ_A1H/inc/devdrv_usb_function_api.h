@@ -36,9 +36,7 @@ Includes   <System Includes> , "Project Includes"
 #include <MBRZA1H.h>
 #include "r_typedefs.h"
 #include "usb0_function_api.h"
-#if 0
 #include "usb1_function_api.h"
-#endif
 
 
 #ifdef __cplusplus

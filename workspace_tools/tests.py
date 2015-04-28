@@ -39,6 +39,7 @@ Wiring:
   * TMP102 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
       * KL25Z: (SDA=PTC9, SCL=PTC8)
+      * MAXWSNENV: (SDA=TP6, SCL=TP5)
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
@@ -46,12 +47,16 @@ Wiring:
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
       * NUCLEO_F103RB: (PC_6 <-> PB_8)
+      * MAXWSNENV: (TP3 <-> TP4)
+      * MAX32600MBED: (P1_0 <-> P4_7)
 
   * port_loop (Port(In|Out|InOut)):
       * Arduino headers: (D0 <-> D7), (D1 <-> D6)
       * LPC1*: (p5   <-> p25), (p6   <-> p26)
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
       * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
+      * MAXWSNENV: (TP1 <-> TP3), (TP2 <-> TP4)
+      * MAX32600MBED: (P1_0 <-> P4_7), (P1_1 <-> P4_6)
 
   * analog_loop (AnalogIn, AnalogOut):
       * Arduino headers: (A0 <-> A5)
@@ -135,7 +140,8 @@ TESTS = [
         "peripherals": ["analog_loop"],
         "mcu": ["LPC1768", "LPC2368", "KL25Z", "K64F", "K22F", "LPC4088", "LPC1549",
                 "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303RE",
-                "NUCLEO_F334R8", "NUCLEO_L053R8", "NUCLEO_L073RZ", "NUCLEO_L152RE"]
+                "NUCLEO_F334R8", "NUCLEO_L053R8", "NUCLEO_L073RZ", "NUCLEO_L152RE",
+                "NUCLEO_F411RE", "DISCO_F407VG", "ARCH_MAX", "MAX32600MBED"]
     },
     {
         "id": "MBED_A9", "description": "Serial Echo at 115200",
@@ -365,7 +371,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "duration": 30,
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088","LPC4088_DM","NRF51822"]
+        "mcu": ["LPC1768", "LPC11U24", "LPC4088","LPC4088_DM","NRF51822", "LPC11U68"]
     },
     {
         "id": "MBED_5", "description": "PWM",
@@ -612,7 +618,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -625,7 +631,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -638,7 +644,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
@@ -650,7 +656,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
@@ -662,7 +668,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
@@ -674,7 +680,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -688,7 +694,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
@@ -700,7 +706,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",

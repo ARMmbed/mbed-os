@@ -150,7 +150,7 @@ public:
     *
     * @returns if handle by subclass, return true
     */
-    virtual bool EP1_OUT_callback();
+    virtual bool EPINT_OUT_callback();
 
     /**
     * Read status of lock keys. Useful to switch-on/off leds according to key pressed. Only the first three bits of the result is important:

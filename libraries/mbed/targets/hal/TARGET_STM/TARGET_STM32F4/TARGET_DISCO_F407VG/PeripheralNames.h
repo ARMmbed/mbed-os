@@ -76,9 +76,12 @@ typedef enum {
     PWM_3  = (int)TIM3_BASE,
     PWM_4  = (int)TIM4_BASE,
     PWM_5  = (int)TIM5_BASE,
+    PWM_8  = (int)TIM8_BASE,
     PWM_9  = (int)TIM9_BASE,
     PWM_10 = (int)TIM10_BASE,
-    PWM_11 = (int)TIM11_BASE
+    PWM_11 = (int)TIM11_BASE,
+    PWM_13 = (int)TIM13_BASE,
+    PWM_14 = (int)TIM14_BASE
 } PWMName;
 
 #ifdef __cplusplus

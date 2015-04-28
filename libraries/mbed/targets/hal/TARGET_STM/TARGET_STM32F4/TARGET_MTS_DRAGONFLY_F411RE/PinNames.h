@@ -38,9 +38,12 @@ extern "C" {
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
+#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -150,13 +153,24 @@ typedef enum {
     LED2        = D3,
     LED3        = D3,
     LED4        = D3,
-    USER_BUTTON = PC_13,
-    SERIAL_TX   = PB_6,
-    SERIAL_RX   = PB_7,
-    USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
+    SERIAL_TX   = D1,
+    SERIAL_RX   = D0,
+    SERIAL_RTS  = A1,
+    SERIAL_CTS  = A0,
+    SERIAL_DCD  = D5,
+    SERIAL_DSR  = D8,
+    SERIAL_DTR  = D4,
+    SERIAL_RI   = D9,
+    USBTX       = PB_6,
+    USBRX       = PB_7,
     RADIO_TX    = PC_7,
     RADIO_RX    = PC_6,
+    RADIO_RTS   = PB_10,
+    RADIO_CTS   = PB_12,
+    RADIO_DCD   = D5,
+    RADIO_DSR   = D8,
+    RADIO_DTR   = D4,
+    RADIO_RI    = D9,
     I2C_SCL     = D15,
     I2C_SDA     = D14,
     SPI_MOSI    = PC_12,

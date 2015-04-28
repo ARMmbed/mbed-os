@@ -40,6 +40,8 @@ class GccArm(Exporter):
         'LPC11U35_401',
         'LPC11U35_501',
         'LPC11U37H_401',
+        'LPC824',
+        'SSCI824',
         'STM32F407',
         'DISCO_F100RB',
         'DISCO_F051R8',
@@ -71,6 +73,8 @@ class GccArm(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'DISCO_F334C8',
+        'MAX32600MBED',
+        'MAXWSNENV',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'NUCLEO_L152RE',
@@ -78,8 +82,14 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
-        'DELTA_DFCM_NNN40',
+		'DELTA_DFCM_NNN40',
         'RZ_A1H',
+        'MOTE_L152RC',
+        'EFM32WG_STK3800',
+        'EFM32LG_STK3600',
+        'EFM32GG_STK3700',
+        'EFM32ZG_STK3200',
+        'EFM32HG_STK3400',
     ]
 
     DOT_IN_RELATIVE_PATH = True

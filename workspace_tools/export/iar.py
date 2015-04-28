@@ -60,6 +60,8 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
         #'STM32F407', Fails to build same for GCC
+        'MAXWSNENV',
+        'MAX32600MBED',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'MTS_DRAGONFLY_F411RE',
@@ -70,6 +72,7 @@ class IAREmbeddedWorkbench(Exporter):
         'SEEED_TINY_BLE',
         'HRM1017',
         'ARCH_BLE',
+        'MOTE_L152RC',
     ]
 
     def generate(self):
