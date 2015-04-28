@@ -88,6 +88,12 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
+
+    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 )
 
 

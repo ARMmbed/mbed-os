@@ -13,33 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "FunctionPointer.h"
+#ifndef MBED_MODULES_H
+#define MBED_MODULES_H
 
-namespace mbed {
+#define MODULES_SIZE_ANALOGIN  1
+#define MODULES_SIZE_ANALOGOUT 0
+#define MODULES_SIZE_GPIO      1
+#define MODULES_SIZE_SPI       1
+#define MODULES_SIZE_I2C       1
+#define MODULES_SIZE_PWMOUT    1
+#define MODULES_SIZE_SERIAL    2
+#define TRANSACTION_QUEUE_SIZE_SPI   0
 
-FunctionPointer::FunctionPointer(void (*function)(void)): _function(),
-                                                          _object(),
-                                                          _membercaller() {
-    attach(function);
-}
-
-void FunctionPointer::attach(void (*function)(void)) {
-    _function = function;
-    _object = 0;
-}
-
-void FunctionPointer::call(void) {
-    if (_function) {
-        _function();
-    } else if (_object) {
-        _membercaller(_object, _member);
-    }
-}
-
-#ifdef MBED_OPERATORS
-void FunctionPointer::operator ()(void) {
-    call();
-}
 #endif
-
-} // namespace mbed

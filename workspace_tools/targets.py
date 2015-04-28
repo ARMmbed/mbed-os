@@ -1145,6 +1145,55 @@ class MAX32600MBED(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
 
+### Silicon Labs ###
+class EFM32GG_STK3700(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32GG990F1024']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+
+
+class EFM32LG_STK3600(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32LG990F256']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+
+
+class EFM32WG_STK3800(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32WG990F256']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+
+
+class EFM32ZG_STK3200(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32ZG222F32']
+        self.supported_toolchains = ["GCC_ARM", "uARM"]
+        self.default_toolchain = "uARM"
+
+class EFM32HG_STK3400(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32HG322F64']
+        self.supported_toolchains = ["GCC_ARM", "uARM"]
+        self.default_toolchain = "uARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1259,6 +1308,13 @@ TARGETS = [
     ### Maxim Integrated ###
     MAXWSNENV(),
     MAX32600MBED(),
+
+    ### Silicon Labs ###
+    EFM32GG_STK3700(),
+    EFM32LG_STK3600(),
+    EFM32WG_STK3800(),
+    EFM32ZG_STK3200(),
+    EFM32HG_STK3400(),
 ]
 
 # Map each target name to its unique instance

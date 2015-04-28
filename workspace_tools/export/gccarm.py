@@ -85,6 +85,11 @@ class GccArm(Exporter):
 		'DELTA_DFCM_NNN40',
         'RZ_A1H',
         'MOTE_L152RC',
+        'EFM32WG_STK3800',
+        'EFM32LG_STK3600',
+        'EFM32GG_STK3700',
+        'EFM32ZG_STK3200',
+        'EFM32HG_STK3400',
     ]
 
     DOT_IN_RELATIVE_PATH = True
