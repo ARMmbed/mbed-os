@@ -1182,8 +1182,8 @@ class EFM32ZG_STK3200(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
         self.macros = ['EFM32ZG222F32']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
+        self.supported_toolchains = ["GCC_ARM", "uARM"]
+        self.default_toolchain = "uARM"
 
 class EFM32HG_STK3400(Target):
     def __init__(self):
@@ -1191,8 +1191,8 @@ class EFM32HG_STK3400(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
         self.macros = ['EFM32HG322F64']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
+        self.supported_toolchains = ["GCC_ARM", "uARM"]
+        self.default_toolchain = "uARM"
 
 # Get a single instance for each target
 TARGETS = [

@@ -65,8 +65,8 @@ serial_t stdio_uart;
 
 static void uart_irq(UARTName, int, SerialIrq);
 uint8_t serial_get_index(serial_t *obj);
-uint32_t serial_get_rx_irq_index(serial_t *obj);
-uint32_t serial_get_tx_irq_index(serial_t *obj);
+IRQn_Type serial_get_rx_irq_index(serial_t *obj);
+IRQn_Type serial_get_tx_irq_index(serial_t *obj);
 CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
 
 /* ISRs for RX and TX events */
@@ -91,10 +91,22 @@ static void usart2_rx_irq() { uart_irq(USART_2, 4, RxIrq); }
 static void usart2_tx_irq() { uart_irq(USART_2, 4, TxIrq); USART_IntClear((USART_TypeDef*)USART_2, USART_IFC_TXC);}
 #endif
 #ifdef LEUART0
-static void leuart0_irq() { uart_irq(LEUART_0, 5, TxIrq | RxIrq); }
+static void leuart0_irq() { 
+    if(LEUART_IntGetEnabled(LEUART0) && (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IFC_PERR | LEUART_IF_RXOF)) {
+        uart_irq(LEUART_0, 5, RxIrq); 
+    } else {
+        uart_irq(LEUART_0, 5, TxIrq);
+    }
+}
 #endif
 #ifdef LEUART1
-static void leuart1_irq() { uart_irq(LEUART_1, 6, TxIrq | RxIrq); }
+static void leuart1_irq() { 
+    if(LEUART_IntGetEnabled(LEUART1) && (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IFC_PERR | LEUART_IF_RXOF)) {
+        uart_irq(LEUART_1, 6, RxIrq); 
+    } else {
+        uart_irq(LEUART_1, 6, TxIrq);
+    }
+}
 #endif
 
 /**
@@ -181,7 +193,7 @@ inline uint8_t serial_get_index(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC RX IRQ index of U(S)ART peripheral
 */
-inline uint32_t serial_get_rx_irq_index(serial_t *obj)
+inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
 {
     switch ((uint32_t)obj->serial.periph.uart) {
 #ifdef UART0
@@ -212,6 +224,8 @@ inline uint32_t serial_get_rx_irq_index(serial_t *obj)
         case LEUART_1:
             return LEUART1_IRQn;
 #endif
+        default:
+            MBED_ASSERT(0);
     }
     return 0;
 }
@@ -222,7 +236,7 @@ inline uint32_t serial_get_rx_irq_index(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC TX IRQ index of U(S)ART peripheral
 */
-inline uint32_t serial_get_tx_irq_index(serial_t *obj)
+inline IRQn_Type serial_get_tx_irq_index(serial_t *obj)
 {
     switch ((uint32_t)obj->serial.periph.uart) {
 #ifdef UART0
@@ -253,6 +267,8 @@ inline uint32_t serial_get_tx_irq_index(serial_t *obj)
         case LEUART_1:
             return LEUART1_IRQn;
 #endif
+        default:
+            MBED_ASSERT(0);
     }
     return 0;
 }
@@ -400,7 +416,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     uart_init(obj);
 
     /* Limitations of board controller: CDC port only supports 115kbaud */
-    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX) && (obj->serial.periph.uart == STDIO_UART )) {
+    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX) && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )) {
         serial_baud(obj, 115200);
     }
     
@@ -414,7 +430,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
     
     /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
-    if (obj->serial.periph.uart == STDIO_UART ) {
+    if (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART ) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
 

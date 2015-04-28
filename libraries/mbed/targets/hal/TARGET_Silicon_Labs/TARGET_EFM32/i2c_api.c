@@ -63,9 +63,9 @@ static uint8_t i2c_get_index(i2c_t *obj)
     return index;
 }
 
-static uint32_t i2c_get_clock(i2c_t *obj)
+static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
 {
-    uint32_t clock;
+    CMU_Clock_TypeDef clock;
     switch ((int)obj->i2c.i2c) {
 #ifdef I2C0
         case I2C_0:
@@ -428,14 +428,14 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint) {
 	I2C_TransferReturn_TypeDef retval;
 	if(i2c_active(obj)) return;
-
+    if((tx_length == 0) && (rx_length == 0)) return;
 	// For now, we are assuming a solely interrupt-driven implementation.
 
 	// Store transfer config
 	obj->i2c.xfer.addr = address;
 
 	// Some combination of tx_length and rx_length will tell us what to do
-	if((tx_length >= 0) && (rx_length == 0)) {
+	if((tx_length > 0) && (rx_length == 0)) {
 		obj->i2c.xfer.flags = I2C_FLAG_WRITE;
 		//Store buffer info
 		obj->i2c.xfer.buf[0].data = tx;
