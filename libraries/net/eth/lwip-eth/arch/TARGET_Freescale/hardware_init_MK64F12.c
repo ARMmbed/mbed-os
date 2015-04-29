@@ -64,16 +64,7 @@ void k64f_init_eth_hardware(void)
     PORT_HAL_SetPullCmd(PORTB_BASE, 0, true);
   
     PORT_HAL_SetMuxMode(PORTB_BASE, 1, kPortMuxAlt4);
-    /* Configure GPIO for MII interface */
-    PORT_HAL_SetMuxMode(PORTA_BASE, 9, kPortMuxAlt4);   /*!< ENET MII0_RXD3*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 10, kPortMuxAlt4);   /*!< ENET MII0_RXD2*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 11, kPortMuxAlt4);   /*!< ENET MII0_RXCLK*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 24, kPortMuxAlt4);   /*!< ENET MII0_TXD2*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 25, kPortMuxAlt4);   /*!< ENET MII0_TXCLK*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 26, kPortMuxAlt4);   /*!< ENET MII0_TXD3*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 27, kPortMuxAlt4);   /*!< ENET MII0_CRS*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 28, kPortMuxAlt4);   /*!< ENET MII0_TXER*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 29, kPortMuxAlt4);   /*!< ENET MII0_COL*/
+    
 #if FSL_FEATURE_ENET_SUPPORT_PTP
     PORT_HAL_SetMuxMode(PORTC_BASE, (16 + ENET_TIMER_CHANNEL_NUM), kPortMuxAlt4); /* ENET ENET0_1588_TMR0*/
     PORT_HAL_SetDriveStrengthMode(PORTC_BASE, (16 + ENET_TIMER_CHANNEL_NUM), kPortHighDriveStrength);
