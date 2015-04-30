@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h"
 
 static SPI_HandleTypeDef SpiHandle;
@@ -57,7 +58,9 @@ static void init_spi(spi_t *obj)
     SpiHandle.Init.NSS               = obj->nss;
     SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLED;
 
-    HAL_SPI_Init(&SpiHandle);
+    if (HAL_SPI_Init(&SpiHandle) != HAL_OK) {
+        error("Cannot initialize SPI");
+    }
 
     __HAL_SPI_ENABLE(&SpiHandle);
 }
@@ -193,6 +196,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 16000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz
     }
+
     init_spi(obj);
 }
 
