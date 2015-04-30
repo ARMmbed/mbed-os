@@ -56,6 +56,21 @@
 #define CANIFn_CMDMSK_RD        (0UL << 7)
 #define CANIFn_CMDREQ_BUSY      (1UL << 15)
 
+#define CANCNTL_INIT                   (1 << 0)           // Initialization
+#define CANCNTL_IE                     (1 << 1)           // Module interrupt enable
+#define CANCNTL_SIE                    (1 << 2)           // Status change interrupt enable
+#define CANCNTL_EIE                    (1 << 3)           // Error interrupt enable
+#define CANCNTL_DAR                    (1 << 5)           // Disable automatic retransmission
+#define CANCNTL_CCE                    (1 << 6)           // Configuration change enable
+#define CANCNTL_TEST                   (1 << 7)           // Test mode enable
+
+#define CANTEST_BASIC                  (1 << 2)           // Basic mode
+#define CANTEST_SILENT                 (1 << 3)           // Silent mode
+#define CANTEST_LBACK                  (1 << 4)           // Loop back mode
+#define CANTEST_TX_MASK                0x0060             // Control of CAN_TXD pins
+#define CANTEST_TX_SHIFT               5                 
+#define CANTEST_RX                     (1 << 7)           // Monitors the actual value of the CAN_RXD pin.
+
 static uint32_t can_irq_id = 0;
 static can_irq_handler irq_handler;
 
@@ -70,7 +85,42 @@ static inline void can_enable(can_t *obj) {
 }
 
 int can_mode(can_t *obj, CanMode mode) {
-    return 0; // not implemented
+    int success = 0;
+    switch (mode) {
+        case MODE_RESET:
+            LPC_C_CAN0->CANCNTL &=~CANCNTL_TEST;
+            can_disable(obj);
+            success = 1;
+            break;
+        case MODE_NORMAL:
+            LPC_C_CAN0->CANCNTL &=~CANCNTL_TEST;
+            can_enable(obj);
+            success = 1;
+            break;
+        case MODE_SILENT:
+            LPC_C_CAN0->CANCNTL |= CANCNTL_TEST;
+            LPC_C_CAN0->CANTEST |= CANTEST_SILENT;
+            LPC_C_CAN0->CANTEST &=~ CANTEST_LBACK;
+            success = 1;
+            break;
+        case MODE_TEST_LOCAL:
+            LPC_C_CAN0->CANCNTL |= CANCNTL_TEST;
+            LPC_C_CAN0->CANTEST &=~CANTEST_SILENT;
+            LPC_C_CAN0->CANTEST |= CANTEST_LBACK;
+            success = 1;
+            break;
+        case MODE_TEST_SILENT:
+            LPC_C_CAN0->CANCNTL |= CANCNTL_TEST;
+            LPC_C_CAN0->CANTEST |= (CANTEST_LBACK | CANTEST_SILENT);
+            success = 1;
+            break;
+        case MODE_TEST_GLOBAL:
+        default:
+            success = 0;
+            break;
+    }
+    
+    return success;
 }
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {
