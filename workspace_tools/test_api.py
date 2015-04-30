@@ -49,6 +49,7 @@ from workspace_tools.test_db import BaseDBAccess
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.build_api import write_build_report
+from workspace_tools.build_api import print_build_results
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
@@ -124,6 +125,7 @@ class SingleTestRunner(object):
     TEST_RESULT_TIMEOUT = "TIMEOUT"
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
     TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
+    TEST_RESULT_BUILD_FAILED = "BUILD_FAILED"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -142,7 +144,8 @@ class SingleTestRunner(object):
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF,
-                           "mbed_assert" : TEST_RESULT_MBED_ASSERT
+                           "mbed_assert" : TEST_RESULT_MBED_ASSERT,
+                           "build_failed" : TEST_RESULT_BUILD_FAILED
     }
 
     def __init__(self,
@@ -181,6 +184,11 @@ class SingleTestRunner(object):
         """
         from colorama import init
         init()
+
+        # Build results
+        build_failures = []
+        build_successes = []
+        build_skipped = []
 
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
@@ -299,6 +307,8 @@ class SingleTestRunner(object):
 
     def execute_thread_slice(self, q, target, toolchains, clean, test_ids, build_report):
         for toolchain in toolchains:
+            tt_id = "%s::%s" % (toolchain, target)
+
             # Toolchain specific build successes and failures
             build_report[toolchain] = {
                 "mbed_failure": False,
@@ -310,13 +320,14 @@ class SingleTestRunner(object):
             }
             # print target, toolchain
             # Test suite properties returned to external tools like CI
-            test_suite_properties = {}
-            test_suite_properties['jobs'] = self.opts_jobs
-            test_suite_properties['clean'] = clean
-            test_suite_properties['target'] = target
-            test_suite_properties['test_ids'] = ', '.join(test_ids)
-            test_suite_properties['toolchain'] = toolchain
-            test_suite_properties['shuffle_random_seed'] = self.shuffle_random_seed
+            test_suite_properties = {
+                'jobs': self.opts_jobs,
+                'clean': clean,
+                'target': target,
+                'test_ids': ', '.join(test_ids),
+                'toolchain': toolchain,
+                'shuffle_random_seed': self.shuffle_random_seed
+            }
 
 
             # print '=== %s::%s ===' % (target, toolchain)
@@ -329,6 +340,7 @@ class SingleTestRunner(object):
             build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
+
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
@@ -337,12 +349,15 @@ class SingleTestRunner(object):
                                                          jobs=self.opts_jobs)
 
                 if not build_mbed_libs_result:
+                    self.build_skipped.append(tt_id)
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
                     continue
+                else:
+                    self.build_successes.append(tt_id)
             except ToolException:
-                print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s'% (target, toolchain))
+                self.build_failures.append(tt_id)
                 build_report[toolchain]["mbed_failure"] = True
-                #return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
+                print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s'% (target, toolchain))
                 continue
 
             build_dir = join(BUILD_DIR, "test", target, toolchain)
@@ -415,8 +430,6 @@ class SingleTestRunner(object):
                     continue
 
 
-
-
             for test_id in valid_test_map_keys:
                 test = TEST_MAP[test_id]
 
@@ -436,6 +449,12 @@ class SingleTestRunner(object):
                 MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
                 test_uuid = uuid.uuid4()
                 MACROS.append('TEST_SUITE_UUID="%s"'% str(test_uuid))
+
+                # Prepare extended test results data structure (it can be used to generate detailed test report)
+                if toolchain not in self.test_summary_ext:
+                    self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
+                if target not in self.test_summary_ext[toolchain]:
+                    self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
 
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
@@ -457,7 +476,25 @@ class SingleTestRunner(object):
                     project_name_str = project_name if project_name is not None else test_id
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
                     build_report[toolchain]["test_build_failing"].append(test_id)
-                    # return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
+
+                    # Append test results to global test summary
+                    self.test_summary.append(
+                        (self.TEST_RESULT_BUILD_FAILED, target, toolchain, test_id, 'Toolchain build failed', 0, 0, '-')
+                    )
+
+                    # Add detailed test result to test summary structure
+                    if target not in self.test_summary_ext[toolchain][target]:
+                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
+                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                            'single_test_output' : '',
+                            'target_name' : target,
+                            'toolchain_name' : toolchain,
+                            'test_id' : test_id,
+                            'test_description' : 'Toolchain build failed',
+                            'elapsed_time' : 0,
+                            'duration' : 0,
+                            'copy_method' : None
+                        }}
                     continue
 
                 if self.opts_only_build_tests:
@@ -479,17 +516,17 @@ class SingleTestRunner(object):
                 test_suite_properties['test.path.%s.%s.%s'% (target, toolchain, test_id)] = path
 
                 # read MUTs, test specification and perform tests
-                single_test_result, detailed_test_results = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                handle_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                if handle_result:
+                    single_test_result, detailed_test_results = handle_result
+                else:
+                    continue
 
                 # Append test results to global test summary
                 if single_test_result is not None:
                     self.test_summary.append(single_test_result)
 
-                # Prepare extended test results data structure (it can be used to generate detailed test report)
-                if toolchain not in self.test_summary_ext:
-                    self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
-                if target not in self.test_summary_ext[toolchain]:
-                    self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                # Add detailed test result to test summary structure
                 if target not in self.test_summary_ext[toolchain][target]:
                     self.test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
 
@@ -511,6 +548,9 @@ class SingleTestRunner(object):
             self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
 
         build_reports = []
+        self.build_failures = []
+        self.build_successes = []
+        self.build_skipped = []
 
         if self.opts_parallel_test_exec:
             ###################################################################
@@ -554,7 +594,6 @@ class SingleTestRunner(object):
             }
 
             for toolchain in sorted(target_build_report["report"], key=target_build_report["report"].get):
-                print "%s - %s" % (target_build_report["target"], toolchain)
                 report = target_build_report["report"][toolchain]
 
                 if report["mbed_failure"]:
@@ -703,6 +742,7 @@ class SingleTestRunner(object):
         """ Prints well-formed summary with results (SQL table like)
             table shows target x test results matrix across
         """
+        success_code = 0    # Success code that can be leter returned to
         result = "Test summary:\n"
         # Pretty table package is used to print results
         pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
@@ -723,7 +763,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
                        self.TEST_RESULT_TIMEOUT : 0,
-                       self.TEST_RESULT_MBED_ASSERT : 0
+                       self.TEST_RESULT_MBED_ASSERT : 0,
+                       self.TEST_RESULT_BUILD_FAILED : 0
         }
 
         for test in test_summary:
@@ -1413,6 +1454,8 @@ def progress_bar(percent_progress, saturation=0):
 
 def singletest_in_cli_mode(single_test):
     """ Runs SingleTestRunner object in CLI (Command line interface) mode
+
+        @return returns success code (0 == success) for building and running tests
     """
     start = time()
     # Execute tests depending on options and filter applied
@@ -1427,7 +1470,12 @@ def singletest_in_cli_mode(single_test):
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
+    print
     print "Completed in %.2f sec"% (elapsed_time)
+    print
+    print print_build_results(single_test.build_successes, "Build successes:"),
+    print print_build_results(single_test.build_skipped, "Build skipped:"),
+    print print_build_results(single_test.build_failures, "Build failures:"),
 
     # Store extra reports in files
     if single_test.opts_report_html_file_name:
