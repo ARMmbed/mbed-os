@@ -526,7 +526,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 def print_build_results(result_list, build_name):
     """ Generate result string for build results """
     result = ""
-    if result_list:
+    if len(result_list) > 0:
         result += build_name + "\n"
         result += "\n".join(["  * %s" % f for f in result_list])
         result += "\n"

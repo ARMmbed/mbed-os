@@ -426,7 +426,6 @@ class SingleTestRunner(object):
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
                     build_report[toolchain]["library_failure"] = True
                     build_report[toolchain]["library_build_failing"].append(lib_id)
-                    #return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
                     continue
 
 
@@ -456,6 +455,8 @@ class SingleTestRunner(object):
                 if target not in self.test_summary_ext[toolchain]:
                     self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
 
+                tt_test_id = "%s::%s::%s" % (toolchain, target, test_id)    # For logging only
+
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
                     path = build_project(test.source_dir,
@@ -476,6 +477,7 @@ class SingleTestRunner(object):
                     project_name_str = project_name if project_name is not None else test_id
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
                     build_report[toolchain]["test_build_failing"].append(test_id)
+                    self.build_failures.append(tt_test_id)
 
                     # Append test results to global test summary
                     self.test_summary.append(
@@ -1470,12 +1472,17 @@ def singletest_in_cli_mode(single_test):
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
-    print
+
     print "Completed in %.2f sec"% (elapsed_time)
     print
-    print print_build_results(single_test.build_successes, "Build successes:"),
-    print print_build_results(single_test.build_skipped, "Build skipped:"),
-    print print_build_results(single_test.build_failures, "Build failures:"),
+    # Write summary of the builds
+
+    for report, report_name in [(single_test.build_successes, "Build successes:"),
+                                (single_test.build_skipped, "Build skipped:"),
+                                (single_test.build_failures, "Build failures:"),
+                               ]:
+        if report:
+            print print_build_results(report, report_name)
 
     # Store extra reports in files
     if single_test.opts_report_html_file_name:
