@@ -85,7 +85,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 4
+    single_test_version_minor = 5
     return (single_test_version_major, single_test_version_minor)
 
 
