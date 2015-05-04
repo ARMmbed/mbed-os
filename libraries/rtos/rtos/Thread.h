@@ -64,6 +64,12 @@ public:
     */
     int32_t signal_set(int32_t signals);
 
+    /** Clears the specified Signal Flags of an active thread.
+      @param   signals  specifies the signal flags of the thread that should be cleared.
+      @return  resultant signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
+    */
+    int32_t signal_clr(int32_t signals);
+
     /** State of the Thread */
     enum State {
         Inactive,           /**< Not created or terminated */
