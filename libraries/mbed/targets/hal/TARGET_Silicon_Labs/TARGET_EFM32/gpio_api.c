@@ -58,6 +58,12 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 {
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
+    
+    //Handle pullup for input
+    if(mode == InputPullUp) {
+        //Set DOUT
+        GPIO->P[obj->port & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
+    }
 }
 
 // Used by DigitalInOut to set correct mode when direction is set
