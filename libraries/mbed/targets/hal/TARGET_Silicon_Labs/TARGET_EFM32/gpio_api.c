@@ -17,6 +17,7 @@
 #include "pinmap.h"
 #include "em_cmu.h"
 #include "mbed_assert.h"
+#include "sleepmodes.h"
 
 uint8_t gpio_get_index(gpio_t *obj)
 {

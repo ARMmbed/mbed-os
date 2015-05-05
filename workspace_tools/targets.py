@@ -697,7 +697,7 @@ class DISCO_L053C8(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['STM', 'STM32L0', 'STM32L053C8']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
 class MTS_MDOT_F405RG(Target):
@@ -827,6 +827,10 @@ class NRF51822(Target):
     # the following is a list of possible Nordic softdevices in decreasing order
     # of preference.
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+        {
+            'name'   : 's130_nrf51_1.0.0_softdevice.hex',
+            'offset' : 0x1C000
+        },
         {
             'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
             'offset' : 0x18000

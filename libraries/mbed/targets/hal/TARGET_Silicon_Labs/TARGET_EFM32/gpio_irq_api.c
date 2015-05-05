@@ -25,6 +25,7 @@
 #include "em_int.h"
 #include "em_cmu.h"
 #include "sleep_api.h"
+#include "sleepmodes.h"
 
 #define NUM_GPIO_CHANNELS (16)
 #define GPIO_LEAST_ACTIVE_SLEEPMODE EM3

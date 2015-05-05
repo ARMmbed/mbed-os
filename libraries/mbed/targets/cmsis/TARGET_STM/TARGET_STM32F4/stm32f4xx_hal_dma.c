@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   DMA HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -86,7 +86,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -120,30 +120,40 @@
   * @{
   */
 
-/** @defgroup DMA 
+/** @defgroup DMA DMA
   * @brief DMA HAL module driver
   * @{
   */
 
 #ifdef HAL_DMA_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
-/* Private macro -------------------------------------------------------------*/
+/* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
-
+/* Private constants ---------------------------------------------------------*/
+/** @addtogroup DMA_Private_Constants
+ * @{
+ */
+ #define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s */
+/**
+  * @}
+  */
+/* Private macros ------------------------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
-/** @defgroup DMA_Private_Functions
+/** @addtogroup DMA_Private_Functions
+  * @{
+  */
+static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
+/**
+  * @}
+  */  
+  
+/* Exported functions ---------------------------------------------------------*/
+/** @addtogroup DMA_Exported_Functions
   * @{
   */
 
-/** @defgroup DMA_Group1 Initialization and de-initialization functions 
- *  @brief   Initialization and de-initialization functions 
- *
+/** @addtogroup DMA_Exported_Functions_Group1
+  *
 @verbatim   
  ===============================================================================
              ##### Initialization and de-initialization functions  #####
@@ -203,11 +213,11 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   /* Get the CR register value */
   tmp = hdma->Instance->CR;
 
-  /* Clear CHSEL, MBURST, PBURST, PL, MSIZE, PSIZE, MINC, PINC, CIRC, DIR and CT bits */
+  /* Clear CHSEL, MBURST, PBURST, PL, MSIZE, PSIZE, MINC, PINC, CIRC, DIR, CT and DBM bits */
   tmp &= ((uint32_t)~(DMA_SxCR_CHSEL | DMA_SxCR_MBURST | DMA_SxCR_PBURST | \
                       DMA_SxCR_PL    | DMA_SxCR_MSIZE  | DMA_SxCR_PSIZE  | \
                       DMA_SxCR_MINC  | DMA_SxCR_PINC   | DMA_SxCR_CIRC   | \
-                      DMA_SxCR_DIR   | DMA_SxCR_CT  ));
+                      DMA_SxCR_DIR   | DMA_SxCR_CT     | DMA_SxCR_DBM));
 
   /* Prepare the DMA Stream configuration */
   tmp |=  hdma->Init.Channel             | hdma->Init.Direction        |
@@ -244,7 +254,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   /* Write to DMA Stream FCR */
   hdma->Instance->FCR = tmp;
 
-  /* Initialise the error code */
+  /* Initialize the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
   /* Initialize the DMA state */
@@ -301,7 +311,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_FE_FLAG_INDEX(hdma));
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
 
-  /* Initialise the error code */
+  /* Initialize the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
   /* Initialize the DMA state */
@@ -317,9 +327,8 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group2 I/O operation functions 
- *  @brief   I/O operation functions  
- *
+/** @addtogroup DMA_Exported_Functions_Group2
+  *
 @verbatim   
  ===============================================================================
                       #####  IO operation functions  #####
@@ -818,9 +827,8 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group3 Peripheral State functions
- *  @brief    Peripheral State functions 
- *
+/** @addtogroup DMA_Exported_Functions_Group3
+  *
 @verbatim
  ===============================================================================
                     ##### State and Errors functions #####
@@ -861,6 +869,14 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   */
 
 /**
+  * @}
+  */
+  
+/** @addtogroup DMA_Private_Functions
+  * @{
+  */
+
+/**
   * @brief  Sets the DMA Transfer parameter.
   * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream.
@@ -871,6 +887,9 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
 {
+  /* Clear DBM bit */
+  hdma->Instance->CR &= (uint32_t)(~DMA_SxCR_DBM);
+
   /* Configure DMA Stream data length */
   hdma->Instance->NDTR = DataLength;
 
@@ -893,11 +912,10 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
     hdma->Instance->M0AR = DstAddress;
   }
 }
-
 /**
   * @}
-  */
-
+  */  
+  
 #endif /* HAL_DMA_MODULE_ENABLED */
 /**
   * @}

@@ -80,7 +80,12 @@ Wiring:
   * i2c_eeprom:
       * LPC1*: (SDA=p28 , SCL=p27)
       * KL25Z: (SDA=PTE0, SCL=PTE1)
-      
+
+  * can_transceiver:
+     * LPC1768: (RX=p9,   TX=p10)
+     * LPC1549: (RX=D9,   TX=D8)
+     * LPC4088: (RX=p9,   TX=p10)
+
 """
 TESTS = [
     # Automated MBED tests
@@ -269,6 +274,15 @@ TESTS = [
         "peripherals": ["analog_pot"],
         "automated": True,
         "duration": 10,
+    },
+    {
+        "id": "MBED_A27", "description": "CAN loopback test",
+        "source_dir": join(TEST_DIR, "mbed", "can_loopback"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "duration": 20,
+        "peripherals": ["can_transceiver"],
+        "mcu": ["LPC1549", "LPC1768"],
     },
     {
         "id": "MBED_BLINKY", "description": "Blinky",
@@ -556,6 +570,14 @@ TESTS = [
         "duration": 15,
         "automated": True,
         #"host_test": "wait_us_auto"
+    },
+    {
+        "id": "MBED_35", "description": "SPI C12832 display",
+        "source_dir": join(TEST_DIR, "mbed", "spi_C12832"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'C12832')],
+        "peripherals": ["C12832"],
+        "automated": True,
+        "duration": 10,
     },
 
 

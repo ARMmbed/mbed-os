@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of HASH HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -51,8 +51,9 @@
   * @{
   */
 
-/** @addtogroup HASHEx
-  * @{
+/** @addtogroup HASHEx    
+  * @brief HASHEx HAL Extension module driver 
+  *  @{
   */ 
   
 /* Exported types ------------------------------------------------------------*/ 
@@ -60,33 +61,127 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/* HASH processing using polling  *********************************************/
+/** @defgroup HASHEx_Exported_Functions HASHEx Exported Functions
+  * @{
+  */
+
+/** @defgroup HASHEx_Exported_Functions_Group1 HASHEx processing using polling functions
+  * @{
+  */  
+
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout);
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout);
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Accumulate(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Accumulate(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
 
-/* HASH-MAC processing using polling  *****************************************/
+/**
+  * @}
+  */ 
+  
+/** @defgroup HASHEx_Exported_Functions_Group2 HMAC processing using polling functions
+  * @{
+  */ 
+  
 HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout);
 HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout);
 
-/* HASH processing using interrupt  *******************************************/
+/**
+  * @}
+  */ 
+  
+/** @defgroup HASHEx_Exported_Functions_Group3 HASHEx processing using  functions
+  * @{
+  */ 
+  
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer);
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer);
 
-/* HASH processing using DMA  *************************************************/
+/**
+  * @}
+  */ 
+  
+/** @defgroup HASHEx_Exported_Functions_Group4 HASHEx processing using DMA
+  * @{
+  */
+  
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout);
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout);
 
-/* HASH-HMAC processing using DMA  ********************************************/
+/**
+  * @}
+  */ 
+  
+/** @defgroup HASHEx_Exported_Functions_Group5 HMAC processing using DMA
+  * @{
+  */
+  
 HAL_StatusTypeDef HAL_HMACEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
 HAL_StatusTypeDef HAL_HMACEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size);
-
-/* Processing functions  ******************************************************/
+/**
+  * @}
+  */ 
+  
+/** @defgroup HASHEx_Exported_Functions_Group6 HASHEx processing functions
+  * @{
+  */
+  
 void HAL_HASHEx_IRQHandler(HASH_HandleTypeDef *hhash);
 
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+ 
+ /* Private types -------------------------------------------------------------*/
+/** @defgroup HASHEx_Private_Types HASHEx Private Types
+  * @{
+  */
+
+/**
+  * @}
+  */ 
+
+/* Private variables ---------------------------------------------------------*/
+/** @defgroup HASHEx_Private_Variables HASHEx Private Variables
+  * @{
+  */
+
+/**
+  * @}
+  */ 
+
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup HASHEx_Private_Constants HASHEx Private Constants
+  * @{
+  */
+
+/**
+  * @}
+  */ 
+
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup HASHEx_Private_Macros HASHEx Private Macros
+  * @{
+  */
+
+/**
+  * @}
+  */ 
+
+/* Private functions ---------------------------------------------------------*/
+/** @defgroup HASHEx_Private_Functions HASHEx Private Functions
+  * @{
+  */
+
+/**
+  * @}
+  */
+   
 #endif /* STM32F437xx || STM32F439xx */
 /**
   * @}

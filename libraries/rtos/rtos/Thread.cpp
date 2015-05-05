@@ -62,6 +62,10 @@ int32_t Thread::signal_set(int32_t signals) {
     return osSignalSet(_tid, signals);
 }
 
+int32_t Thread::signal_clr(int32_t signals) {
+    return osSignalClear(_tid, signals);
+}
+
 Thread::State Thread::get_state() {
 #ifndef __MBED_CMSIS_RTOS_CA9
     return ((State)_thread_def.tcb.state);

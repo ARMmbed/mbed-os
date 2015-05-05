@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -53,12 +53,31 @@
 /** @addtogroup PCDEx
   * @{
   */
+/* Exported types ------------------------------------------------------------*/
+#if defined(STM32F446xx)
+typedef enum  
+{
+  PCD_LPM_L0_ACTIVE = 0x00, /* on */
+  PCD_LPM_L1_ACTIVE = 0x01, /* LPM L1 sleep */
+}PCD_LPM_MsgTypeDef;
+#endif /* STM32F446xx */
 
+/* Exported constants --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-
-/* Peripheral Extended functions  *********************************************/
+/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
+  * @{
+  */
+/** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
+  * @{
+  */
 HAL_StatusTypeDef HAL_PCDEx_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint16_t size);
 HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size);
+#if defined(STM32F446xx)
+HAL_StatusTypeDef HAL_PCDEx_ActivateLPM(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd);
+void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
+#endif /* STM32F446xx */
 
 /**
   * @}
@@ -67,6 +86,14 @@ HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size);
 /**
   * @}
   */ 
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 }

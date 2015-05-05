@@ -59,6 +59,7 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
+        'DISCO_L053C8',
         #'STM32F407', Fails to build same for GCC
         'MAXWSNENV',
         'MAX32600MBED',

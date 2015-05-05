@@ -69,7 +69,7 @@ void rtc_init(void)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-#ifndef DONT_USE_LSE 
+#ifndef DONT_USE_LSE
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         // Connect LSE to RTC
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
@@ -90,7 +90,7 @@ void rtc_init(void)
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
         // This value is LSI typical value. To be measured precisely using a timer input capture for example.
         rtc_freq = 37000;
-#ifndef DONT_USE_LSE 
+#ifndef DONT_USE_LSE
     }
 #endif
 
