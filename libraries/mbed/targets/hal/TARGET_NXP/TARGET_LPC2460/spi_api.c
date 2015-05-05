@@ -47,7 +47,7 @@ static const PinMap PinMap_SPI_MISO[] = {
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {P0_6 , SPI_1, 2},
-    {P0_11, SPI_1, 2},
+    {P0_14, SPI_1, 3},
     {P0_16, SPI_0, 2},
     {P1_21, SPI_0, 3},
     {NC   , NC   , 0}
@@ -69,8 +69,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     
     // enable power and clocking
     switch ((int)obj->spi) {
-        case SPI_0: LPC_SC->PCONP |= 1 << 21; break;
-        case SPI_1: LPC_SC->PCONP |= 1 << 10; break;
+        case SPI_0: LPC_SC->PCONP |= 1 << PCSSP0; break;
+        case SPI_1: LPC_SC->PCONP |= 1 << PCSSP1; break;
     }
     
     // set default format and frequency
