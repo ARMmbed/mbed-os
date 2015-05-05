@@ -32,41 +32,36 @@
  */
 
 #include "rtc_api.h"
+#include "lp_ticker_api.h"
 #include "cmsis.h"
 #include "rtc_regs.h"
 #include "pwrseq_regs.h"
 #include "clkman_regs.h"
 
+#define PRESCALE_VAL    MXC_E_RTC_PRESCALE_DIV_2_0    // Set the divider for the 4kHz clock
+#define SHIFT_AMT       (MXC_E_RTC_PRESCALE_DIV_2_12 - PRESCALE_VAL)
+
 static int rtc_inited = 0;
 static volatile uint32_t overflow_cnt = 0;
-static uint32_t overflow_alarm = 0;
+
+static uint64_t rtc_read64(void);
 
 //******************************************************************************
 static void overflow_handler(void)
 {
-    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
+    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_OVERFLOW;
     overflow_cnt++;
-
-    if (overflow_cnt == overflow_alarm) {
-        // Enable the comparator interrupt for the alarm
-        MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
-    }
-}
-
-//******************************************************************************
-static void alarm_handler(void)
-{
-    MXC_RTCTMR->inten &= ~MXC_F_RTC_INTEN_COMP0;
-    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
 }
 
 //******************************************************************************
 void rtc_init(void)
 {
-    if(rtc_inited) {
+    if (rtc_inited) {
         return;
     }
     rtc_inited = 1;
+
+    overflow_cnt = 0;
 
     // Enable the clock to the synchronizer
     MXC_CLKMAN->clk_ctrl_13_rtc_int_sync = MXC_E_CLKMAN_CLK_SCALE_ENABLED;
@@ -74,20 +69,26 @@ void rtc_init(void)
     // Enable the clock to the RTC
     MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
 
-    // Set the divider from the 4kHz clock
-    MXC_RTCTMR->prescale = MXC_E_RTC_PRESCALE_DIV_2_0;
+    // Set the clock divider
+    MXC_RTCTMR->prescale = PRESCALE_VAL;
 
     // Enable the overflow interrupt
     MXC_RTCTMR->inten |= MXC_F_RTC_FLAGS_OVERFLOW;
 
     // Prepare interrupt handlers
-    NVIC_SetVector(RTC0_IRQn, (uint32_t)alarm_handler);
+    NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(RTC0_IRQn);
     NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
     NVIC_EnableIRQ(RTC3_IRQn);
 
     // Enable the RTC
     MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;
+}
+
+//******************************************************************************
+void lp_ticker_init(void)
+{
+    rtc_init();
 }
 
 //******************************************************************************
@@ -118,73 +119,104 @@ int rtc_isenabled(void)
 //******************************************************************************
 time_t rtc_read(void)
 {
-    unsigned int shift_amt;
     uint32_t ovf_cnt_1, ovf_cnt_2, timer_cnt;
-
-    // Account for a change in the default prescaler
-    shift_amt = MXC_E_RTC_PRESCALE_DIV_2_12 - MXC_RTCTMR->prescale;
+    uint32_t ovf1, ovf2;
 
     // Ensure coherency between overflow_cnt and timer
     do {
         ovf_cnt_1 = overflow_cnt;
+        ovf1 = MXC_RTCTMR->flags & MXC_F_RTC_FLAGS_OVERFLOW;
         timer_cnt = MXC_RTCTMR->timer;
+        ovf2 = MXC_RTCTMR->flags & MXC_F_RTC_FLAGS_OVERFLOW;
         ovf_cnt_2 = overflow_cnt;
-    } while (ovf_cnt_1 != ovf_cnt_2);
+    } while ((ovf_cnt_1 != ovf_cnt_2) || (ovf1 != ovf2));
 
-    return (timer_cnt >> shift_amt) + (ovf_cnt_1 << (32 - shift_amt));
+    // Account for an unserviced interrupt
+    if (ovf1) {
+        ovf_cnt_1++;
+    }
+
+    return (timer_cnt >> SHIFT_AMT) + (ovf_cnt_1 << (32 - SHIFT_AMT));
 }
 
 //******************************************************************************
-uint64_t rtc_read_us(void)
+static uint64_t rtc_read64(void)
 {
-    unsigned int shift_amt;
     uint32_t ovf_cnt_1, ovf_cnt_2, timer_cnt;
-    uint64_t currentUs;
-
-    // Account for a change in the default prescaler
-    shift_amt = MXC_E_RTC_PRESCALE_DIV_2_12 - MXC_RTCTMR->prescale;
+    uint32_t ovf1, ovf2;
+    uint64_t current_us;
 
     // Ensure coherency between overflow_cnt and timer
     do {
         ovf_cnt_1 = overflow_cnt;
+        ovf1 = MXC_RTCTMR->flags & MXC_F_RTC_FLAGS_OVERFLOW;
         timer_cnt = MXC_RTCTMR->timer;
+        ovf2 = MXC_RTCTMR->flags & MXC_F_RTC_FLAGS_OVERFLOW;
         ovf_cnt_2 = overflow_cnt;
-    } while (ovf_cnt_1 != ovf_cnt_2);
+    } while ((ovf_cnt_1 != ovf_cnt_2) || (ovf1 != ovf2));
 
-    currentUs = (((uint64_t)timer_cnt * 1000000) >> shift_amt) + (((uint64_t)ovf_cnt_1 * 1000000) << (32 - shift_amt));
+    // Account for an unserviced interrupt
+    if (ovf1) {
+        ovf_cnt_1++;
+    }
 
-    return currentUs;
+    current_us = (((uint64_t)timer_cnt * 1000000) >> SHIFT_AMT) + (((uint64_t)ovf_cnt_1 * 1000000) << (32 - SHIFT_AMT));
+
+    return current_us;
 }
 
 //******************************************************************************
 void rtc_write(time_t t)
 {
-    // Account for a change in the default prescaler
-    unsigned int shift_amt = MXC_E_RTC_PRESCALE_DIV_2_12 - MXC_RTCTMR->prescale;
-
     MXC_RTCTMR->ctrl &= ~MXC_F_RTC_CTRL_ENABLE; // disable the timer while updating
-    MXC_RTCTMR->timer = t << shift_amt;
-    overflow_cnt = t >> (32 - shift_amt);
+    MXC_RTCTMR->timer = t << SHIFT_AMT;
+    overflow_cnt = t >> (32 - SHIFT_AMT);
     MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;  // enable the timer while updating
 }
 
 //******************************************************************************
-void rtc_set_wakeup(uint64_t wakeupUs)
+void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    // Account for a change in the default prescaler
-    unsigned int shift_amt = MXC_E_RTC_PRESCALE_DIV_2_12 - MXC_RTCTMR->prescale;
+    // Note: interrupts are disabled before this function is called.
 
     // Disable the alarm while it is prepared
     MXC_RTCTMR->inten &= ~MXC_F_RTC_INTEN_COMP0;
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_COMP0;      // clear interrupt
 
-    overflow_alarm = (wakeupUs >> (32 - shift_amt)) / 1000000;
-
-    if (overflow_alarm == overflow_cnt) {
-        MXC_RTCTMR->comp[0] = (wakeupUs << shift_amt) / 1000000;
-        MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
+    uint64_t curr_ts64 = rtc_read64();
+    uint64_t ts64 = (uint64_t)timestamp | (curr_ts64 & 0xFFFFFFFF00000000ULL);
+    if (ts64 < curr_ts64) {
+        if (ts64 < (curr_ts64 - 1000)) {
+            ts64 += 0x100000000ULL;
+        } else {
+            // This event has already occurred. Set the alarm to expire immediately.
+            MXC_RTCTMR->comp[0] = MXC_RTCTMR->timer + 2;
+            MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
+            return;
+        }
     }
+
+    MXC_RTCTMR->comp[0] = (ts64 << SHIFT_AMT) / 1000000;
+    MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
 
     // Enable wakeup from RTC
     MXC_PWRSEQ->msk_flags &= ~(MXC_F_PWRSEQ_MSK_FLAGS_RTC_ROLLOVER | MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0);
+}
+
+//******************************************************************************
+inline void lp_ticker_disable_interrupt(void)
+{
+    MXC_RTCTMR->inten &= ~MXC_F_RTC_INTEN_COMP0;
+}
+
+//******************************************************************************
+inline void lp_ticker_clear_interrupt(void)
+{
+    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
+}
+
+//******************************************************************************
+inline uint32_t lp_ticker_read(void)
+{
+    return rtc_read64();
 }
