@@ -2,17 +2,16 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
-  * @brief   Extended I2C HAL module driver.
-  *    
+  * @version V1.2.0
+  * @date    06-February-2015
+  * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
-  *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
-  *           + Extended Control methods
+  *          functionalities of I2C Extended peripheral:
+  *           + Extended features functions
   *         
   @verbatim
   ==============================================================================
-               ##### I2C peripheral extended features  #####
+               ##### I2C peripheral Extended features  #####
   ==============================================================================
            
   [..] Comparing to other previous devices, the I2C interface for STM32L0XX
@@ -25,12 +24,19 @@
                      ##### How to use this driver #####
   ==============================================================================
   [..] This driver provides functions to configure Noise Filter
-  
+    (#) Configure I2C Analog noise filter using the function HAL_I2CEx_ConfigAnalogFilter()
+    (#) Configure I2C Digital noise filter using the function HAL_I2CEx_ConfigDigitalFilter()
+    (#) Configure the enable or disable of I2C Wake Up Mode using the functions :
+          + HAL_I2CEx_EnableWakeUp()
+          + HAL_I2CEx_DisableWakeUp()
+    (#) Configure the enable or disable of fast mode plus driving capability using the functions :
+          + HAL_I2CEx_EnableFastModePlus()
+          + HAL_I2CEx_DisbleFastModePlus()
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,8 +70,8 @@
   * @{
   */
 
-/** @defgroup I2CEx 
-  * @brief I2C HAL module driver
+/** @defgroup I2CEx I2C Extended HAL module driver
+  * @brief I2C Extended HAL module driver
   * @{
   */
 
@@ -78,17 +84,16 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup I2CEX_Private_Functions
+/** @defgroup I2CEx_Exported_Functions I2C Extended Exported Functions
   * @{
   */
 
-
-/** @defgroup I2CEX_Group1 Peripheral Control methods 
- *  @brief   management functions 
+/** @defgroup I2CEx_Exported_Functions_Group1 Extended features functions
+  * @brief    Extended features functions
  *
 @verbatim   
  ===============================================================================
-                      ##### Peripheral Control methods #####
+                      ##### Extended features functions #####
  ===============================================================================  
     [..] This section provides functions allowing to:
       (+) Configure Noise Filters 
@@ -104,7 +109,7 @@
   * @param  AnalogFilter : new state of the Analog filter.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_I2CEx_AnalogFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter)
+HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter)
 {
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
@@ -147,7 +152,7 @@ HAL_StatusTypeDef HAL_I2CEx_AnalogFilter_Config(I2C_HandleTypeDef *hi2c, uint32_
   * @param  DigitalFilter : Coefficient of digital noise filter between 0x00 and 0x0F.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_I2CEx_DigitalFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter)
+HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter)
 {
   uint32_t tmpreg = 0;
   
@@ -269,6 +274,60 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c)
 }  
 
 /**
+  * @brief Enable the I2C fast mode plus driving capability.
+  * @param ConfigFastModePlus: selects the pin.
+  *   This parameter can be one of the @ref I2CEx_FastModePlus values
+  * @note  For I2C1, fast mode plus driving capability can be enabled on all selected
+  *        I2C1 pins using I2C_FASTMODEPLUS_I2C1 parameter or independently
+  *        on each one of the following pins PB6, PB7, PB8 and PB9.
+  * @note  For remaining I2C1 pins (PA14, PA15...) fast mode plus driving capability
+  *        can be enabled only by using I2C_FASTMODEPLUS_I2C1 parameter.
+  * @note  For all I2C2 pins fast mode plus driving capability can be enabled
+  *        only by using I2C_FASTMODEPLUS_I2C2 parameter.
+  * @note  For all I2C3 pins fast mode plus driving capability can be enabled
+  *        only by using I2C_FASTMODEPLUS_I2C3 parameter.
+  * @retval None
+  */
+void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus)
+{
+  /* Check the parameter */
+  assert_param(IS_I2C_FASTMODEPLUS(ConfigFastModePlus));
+  
+  /* Enable SYSCFG clock */
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  
+  /* Enable fast mode plus driving capability for selected pin */
+  SET_BIT(SYSCFG->CFGR1, (uint32_t)ConfigFastModePlus);
+}
+
+/**
+  * @brief Disable the I2C fast mode plus driving capability.
+  * @param ConfigFastModePlus: selects the pin.
+  *   This parameter can be one of the @ref I2CEx_FastModePlus values
+  * @note  For I2C1, fast mode plus driving capability can be disabled on all selected
+  *        I2C1 pins using I2C_FASTMODEPLUS_I2C1 parameter or independently
+  *        on each one of the following pins PB6, PB7, PB8 and PB9.
+  * @note  For remaining I2C1 pins (PA14, PA15...) fast mode plus driving capability
+  *        can be disabled only by using I2C_FASTMODEPLUS_I2C1 parameter.
+  * @note  For all I2C2 pins fast mode plus driving capability can be disabled
+  *        only by using I2C_FASTMODEPLUS_I2C2 parameter.
+  * @note  For all I2C3 pins fast mode plus driving capability can be disabled
+  *        only by using I2C_FASTMODEPLUS_I2C3 parameter.
+  * @retval None
+  */
+void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
+{
+  /* Check the parameter */
+  assert_param(IS_I2C_FASTMODEPLUS(ConfigFastModePlus));
+  
+  /* Enable SYSCFG clock */
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+
+  /* Disable fast mode plus driving capability for selected pin */
+  CLEAR_BIT(SYSCFG->CFGR1, (uint32_t)ConfigFastModePlus);
+}
+
+/**
   * @}
   */  
 
@@ -286,3 +345,4 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

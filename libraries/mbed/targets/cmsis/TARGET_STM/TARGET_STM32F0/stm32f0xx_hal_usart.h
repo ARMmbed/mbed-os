@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -112,19 +112,6 @@ typedef enum
 }HAL_USART_StateTypeDef;
 
 /** 
-  * @brief  HAL USART Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_USART_ERROR_NONE      = 0x00,    /*!< No error            */
-  HAL_USART_ERROR_PE        = 0x01,    /*!< Parity error        */
-  HAL_USART_ERROR_NE        = 0x02,    /*!< Noise error         */
-  HAL_USART_ERROR_FE        = 0x04,    /*!< frame error         */
-  HAL_USART_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_USART_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
-}HAL_USART_ErrorTypeDef;
-
-/** 
   * @brief  USART clock sources definitions
   */
 typedef enum
@@ -163,11 +150,12 @@ typedef struct
     
   DMA_HandleTypeDef             *hdmarx;          /*!< USART Rx DMA Handle parameters      */
   
-  HAL_LockTypeDef                Lock;            /*!< Locking object                      */
+  HAL_LockTypeDef               Lock;            /*!< Locking object                      */
   
-  HAL_USART_StateTypeDef         State;           /*!< USART communication state           */
+  HAL_USART_StateTypeDef        State;           /*!< USART communication state           */
   
-  HAL_USART_ErrorTypeDef         ErrorCode;       /*!< USART Error code                    */
+  __IO uint32_t                 ErrorCode;       /*!< USART Error code                    
+                                                      This parameter can be a value of @ref USART_Error */
   
 }USART_HandleTypeDef;
 
@@ -180,15 +168,26 @@ typedef struct
   * @{
   */
 
+/** @defgroup USART_Error USART Error
+  * @{
+  */
+#define HAL_USART_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error            */
+#define HAL_USART_ERROR_PE        ((uint32_t)0x00000001)    /*!< Parity error        */
+#define HAL_USART_ERROR_NE        ((uint32_t)0x00000002)    /*!< Noise error         */
+#define HAL_USART_ERROR_FE        ((uint32_t)0x00000004)    /*!< frame error         */
+#define HAL_USART_ERROR_ORE       ((uint32_t)0x00000008)    /*!< Overrun error       */
+#define HAL_USART_ERROR_DMA       ((uint32_t)0x00000010)    /*!< DMA transfer error  */
+/**
+  * @}
+  */ 
+
 /** @defgroup USART_Stop_Bits  USART Number of Stop Bits
   * @{
   */
 #define USART_STOPBITS_1                     ((uint32_t)0x0000)
-#define USART_STOPBITS_0_5                   ((uint32_t)USART_CR2_STOP_0)
 #define USART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 #define USART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
 #define IS_USART_STOPBITS(STOPBITS) (((STOPBITS) == USART_STOPBITS_1) || \
-                                         ((STOPBITS) == USART_STOPBITS_0_5) || \
                                          ((STOPBITS) == USART_STOPBITS_1_5) || \
                                          ((STOPBITS) == USART_STOPBITS_2))
 /**
@@ -525,7 +524,6 @@ HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart);
 void HAL_USART_MspInit(USART_HandleTypeDef *husart);
 void HAL_USART_MspDeInit(USART_HandleTypeDef *husart);
-void HAL_USART_SetConfig(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_CheckIdleState(USART_HandleTypeDef *husart);
 
 /**

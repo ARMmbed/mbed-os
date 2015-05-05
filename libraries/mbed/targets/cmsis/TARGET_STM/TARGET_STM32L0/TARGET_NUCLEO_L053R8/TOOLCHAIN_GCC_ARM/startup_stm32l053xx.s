@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32l053xx.s
   * @author    MCD Application Team
-  * @version   V1.1.0
-  * @date      18-June-2014
+  * @version   V1.2.0
+  * @date      06-February-2015
   * @brief     STM32L053xx Devices vector table for Atollic TrueSTUDIO toolchain.
   *            This module performs:
   *                - Set the initial SP
@@ -100,12 +100,13 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
   bl  SystemInit
 /* Call static constructors */
-    bl __libc_init_array
+  //bl __libc_init_array
 /* Call the application's entry point.*/
-  bl  main
+  //bl  main
+  bl _start
 
 LoopForever:
-    b LoopForever
+  b LoopForever
 
 
 .size  Reset_Handler, .-Reset_Handler

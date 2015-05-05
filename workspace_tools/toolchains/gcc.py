@@ -34,7 +34,7 @@ class GCC(mbedToolchain):
         mbedToolchain.__init__(self, target, options, notify, macros, silent)
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0"
+            cpu = "cortex-m0plus"
         elif target.core == "Cortex-M4F":
             cpu = "cortex-m4"
         else:
@@ -47,6 +47,15 @@ class GCC(mbedToolchain):
         if target.core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
+
+        if target.core == "Cortex-A9":
+            self.cpu.append("-mthumb-interwork")
+            self.cpu.append("-marm")
+            self.cpu.append("-march=armv7-a")
+            self.cpu.append("-mfpu=vfpv3-d16")
+            self.cpu.append("-mfloat-abi=hard")
+            self.cpu.append("-mno-unaligned-access")
+
 
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
@@ -175,8 +184,10 @@ class GCC_ARM(GCC):
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
+        elif target.name in ["RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F401RE", "NUCLEO_F411RE"]:
+            self.ld.extend(["-u_printf_float", "-u_scanf_float"])
 
         self.sys_libs.append("nosys")
 
@@ -193,7 +204,7 @@ class GCC_CR(GCC):
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
-        if target.name in ["LPC1768", "LPC4088", "LPC4330", "UBLOX_C027", "LPC2368"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
 

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup IRDA
+/** @defgroup IRDA IRDA
   * @{
   */ 
 
@@ -102,17 +102,15 @@ typedef enum
 }HAL_IRDA_StateTypeDef;
 
 /** 
-  * @brief  HAL IRDA Error Code structure definition  
+  * @brief  HAL IRDA Error Code definition
   */ 
-typedef enum
-{
-  HAL_IRDA_ERROR_NONE      = 0x00,    /*!< No error            */
-  HAL_IRDA_ERROR_PE        = 0x01,    /*!< Parity error        */
-  HAL_IRDA_ERROR_NE        = 0x02,    /*!< Noise error         */
-  HAL_IRDA_ERROR_FE        = 0x04,    /*!< frame error         */
-  HAL_IRDA_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_IRDA_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
-}HAL_IRDA_ErrorTypeDef;
+
+#define  HAL_IRDA_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
+#define  HAL_IRDA_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
+#define  HAL_IRDA_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
+#define  HAL_IRDA_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
+#define  HAL_IRDA_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
+#define  HAL_IRDA_ERROR_DMA       ((uint32_t)0x10)     /*!< DMA transfer error  */
 
 /**
   * @brief IRDA clock sources definition
@@ -157,7 +155,7 @@ typedef struct
 
   __IO HAL_IRDA_StateTypeDef    State;       /* IRDA communication state           */
 
-  __IO HAL_IRDA_ErrorTypeDef    ErrorCode;   /* IRDA Error code                    */
+  __IO uint32_t           ErrorCode;         /* IRDA Error code                    */
 
 }IRDA_HandleTypeDef;
 
@@ -170,7 +168,7 @@ typedef struct
   * @{
   */
 
-/** @defgroup IRDA_Parity
+/** @defgroup IRDA_Parity IRDA Parity
   * @{
   */ 
 #define IRDA_PARITY_NONE                    ((uint32_t)0x0000)
@@ -184,7 +182,7 @@ typedef struct
   */ 
 
 
-/** @defgroup IRDA_Transfer_Mode
+/** @defgroup IRDA_Transfer_Mode IRDA transfer mode
   * @{
   */ 
 #define IRDA_MODE_RX                        ((uint32_t)USART_CR1_RE)
@@ -195,7 +193,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup IRDA_Low_Power
+/** @defgroup IRDA_Low_Power IRDA low power
   * @{
   */
 #define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x0000)
@@ -206,7 +204,7 @@ typedef struct
   * @}
   */
     
- /** @defgroup IRDA_State
+ /** @defgroup IRDA_State IRDA State
   * @{
   */ 
 #define IRDA_STATE_DISABLE                  ((uint32_t)0x0000)
@@ -217,7 +215,7 @@ typedef struct
   * @}
   */
 
- /** @defgroup IRDA_Mode
+ /** @defgroup IRDA_Mode IRDA Mode
   * @{
   */ 
 #define IRDA_MODE_DISABLE                  ((uint32_t)0x0000)
@@ -228,18 +226,18 @@ typedef struct
   * @}
   */
 
-/** @defgroup IRDA_One_Bit
+/** @defgroup IRDA_One_Bit IRDA One bit
   * @{
   */
-#define IRDA_ONE_BIT_SAMPLE_DISABLED          ((uint32_t)0x00000000)
-#define IRDA_ONE_BIT_SAMPLE_ENABLED           ((uint32_t)USART_CR3_ONEBIT)
-#define IS_IRDA_ONEBIT_SAMPLE(ONEBIT)         (((ONEBIT) == IRDA_ONE_BIT_SAMPLE_DISABLED) || \
-                                                  ((ONEBIT) == IRDA_ONE_BIT_SAMPLE_ENABLED))
+#define IRDA_ONE_BIT_SAMPLE_DISABLE          ((uint32_t)0x00000000)
+#define IRDA_ONE_BIT_SAMPLE_ENABLE           ((uint32_t)USART_CR3_ONEBIT)
+#define IS_IRDA_ONE_BIT_SAMPLE(ONEBIT)         (((ONEBIT) == IRDA_ONE_BIT_SAMPLE_DISABLE) || \
+                                                  ((ONEBIT) == IRDA_ONE_BIT_SAMPLE_ENABLE))
 /**
   * @}
   */  
   
-/** @defgroup IRDA_DMA_Tx
+/** @defgroup IRDA_DMA_Tx IRDA DMA TX
   * @{
   */
 #define IRDA_DMA_TX_DISABLE          ((uint32_t)0x00000000)
@@ -250,7 +248,7 @@ typedef struct
   * @}
   */  
   
-/** @defgroup IRDA_DMA_Rx
+/** @defgroup IRDA_DMA_Rx IRDA DMA RX
   * @{
   */
 #define IRDA_DMA_RX_DISABLE           ((uint32_t)0x0000)
@@ -261,7 +259,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup IRDA_Flags
+/** @defgroup IRDA_Flags IRDA Flags
   *        Elements values convention: 0xXXXX
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
@@ -282,7 +280,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup IRDA_Interrupt_definition
+/** @defgroup IRDA_Interrupt_definition IRDA Interrupt definition
   *        Elements values convention: 0000ZZZZ0XXYYYYYb
   *           - YYYYY  : Interrupt source position in the XX register (5bits)
   *           - XX  : Interrupt source register (2bits)
@@ -319,26 +317,27 @@ typedef struct
   * @}
   */
   
-/** @defgroup IRDA_IT_CLEAR_Flags
+/** @defgroup IRDA_IT_CLEAR_Flags IRDA Interrupt clear flag
   * @{
   */
 #define IRDA_CLEAR_PEF                       USART_ICR_PECF            /*!< Parity Error Clear Flag */          
 #define IRDA_CLEAR_FEF                       USART_ICR_FECF            /*!< Framing Error Clear Flag */         
 #define IRDA_CLEAR_NEF                       USART_ICR_NCF             /*!< Noise detected Clear Flag */        
 #define IRDA_CLEAR_OREF                      USART_ICR_ORECF           /*!< OverRun Error Clear Flag */         
-#define IRDA_CLEAR_TCF                       USART_ICR_TCCF            /*!< Transmission Complete Clear Flag */ 
+#define IRDA_CLEAR_TCF                       USART_ICR_TCCF            /*!< Transmission Complete Clear Flag */
+#define IRDA_CLEAR_IDLEF                     USART_ICR_IDLECF          /*!< IDLE line detected Clear Flag */
 /**
   * @}
   */ 
 
 
 
-/** @defgroup IRDA_Request_Parameters
+/** @defgroup IRDA_Request_Parameters IRDA Request parameters
   * @{
   */
-#define IRDA_AUTOBAUD_REQUEST            ((uint16_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */     
-#define IRDA_RXDATA_FLUSH_REQUEST        ((uint16_t)USART_RQR_RXFRQ)        /*!< Receive Data flush Request */ 
-#define IRDA_TXDATA_FLUSH_REQUEST        ((uint16_t)USART_RQR_TXFRQ)        /*!< Transmit data flush Request */
+#define IRDA_AUTOBAUD_REQUEST            ((uint32_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */
+#define IRDA_RXDATA_FLUSH_REQUEST        ((uint32_t)USART_RQR_RXFRQ)        /*!< Receive Data flush Request */
+#define IRDA_TXDATA_FLUSH_REQUEST        ((uint32_t)USART_RQR_TXFRQ)        /*!< Transmit data flush Request */
 #define IS_IRDA_REQUEST_PARAMETER(PARAM) (((PARAM) == IRDA_AUTOBAUD_REQUEST) || \
                                           ((PARAM) == IRDA_SENDBREAK_REQUEST) || \
                                           ((PARAM) == IRDA_MUTE_MODE_REQUEST) || \
@@ -348,7 +347,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup IRDA_Interruption_Mask
+/** @defgroup IRDA_Interruption_Mask IRDA Interruption mask
   * @{
   */ 
 #define IRDA_IT_MASK  ((uint16_t)0x001F)  
@@ -362,7 +361,7 @@ typedef struct
 
   
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup IRDA_Exported_Macros
+/** @defgroup IRDA_Exported_Macros IRDA Exported Macros
   * @{
   */
 
@@ -372,6 +371,63 @@ typedef struct
   * @retval None
   */
 #define __HAL_IRDA_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_IRDA_STATE_RESET)
+
+/** @brief  Flushs the IRDA DR register
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  *         The Handle Instance which can be USART1 or USART2.
+  * @retval None
+  */
+#define __HAL_IRDA_FLUSH_DRREGISTER(__HANDLE__)                            \
+    do{                                                                    \
+         SET_BIT((__HANDLE__)->Instance->RQR, IRDA_RXDATA_FLUSH_REQUEST); \
+         SET_BIT((__HANDLE__)->Instance->RQR, IRDA_TXDATA_FLUSH_REQUEST); \
+      } while(0)
+
+
+/** @brief  Clears the specified IRDA pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @param  __FLAG__: specifies the flag to check.
+  *          This parameter can be any combination of the following values:
+  *            @arg IRDA_CLEAR_PEF
+  *            @arg IRDA_CLEAR_FEF
+  *            @arg IRDA_CLEAR_NEF
+  *            @arg IRDA_CLEAR_OREF
+  *            @arg IRDA_CLEAR_TCF
+  *            @arg IRDA_CLEAR_IDLEF
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+
+/** @brief  Clear the IRDA PE pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_PEFLAG(__HANDLE__)    __HAL_IRDA_CLEAR_FLAG(__HANDLE__, IRDA_CLEAR_PEF)
+
+
+/** @brief  Clear the IRDA FE pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_FEFLAG(__HANDLE__)    __HAL_IRDA_CLEAR_FLAG(__HANDLE__, IRDA_CLEAR_FEF)
+
+/** @brief  Clear the IRDA NE pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_NEFLAG(__HANDLE__)    __HAL_IRDA_CLEAR_FLAG(__HANDLE__, IRDA_CLEAR_NEF)
+
+/** @brief  Clear the IRDA ORE pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_OREFLAG(__HANDLE__)    __HAL_IRDA_CLEAR_FLAG(__HANDLE__, IRDA_CLEAR_OREF)
+
+/** @brief  Clear the IRDA IDLE pending flag.
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_CLEAR_IDLEFLAG(__HANDLE__)   __HAL_IRDA_CLEAR_FLAG(__HANDLE__, IRDA_CLEAR_IDLEF)
 
 /** @brief  Check whether the specified IRDA flag is set or not.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -492,7 +548,19 @@ typedef struct
   *
   * @retval None
   */
-#define __HAL_IRDA_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint16_t)(__REQ__)) 
+#define __HAL_IRDA_SEND_REQ(__HANDLE__, __REQ__) ((__HANDLE__)->Instance->RQR |= (uint32_t)(__REQ__))
+
+/** @brief  Enables the IRDA one bit sample method
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_ONE_BIT_SAMPLE_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3|= USART_CR3_ONEBIT)
+
+/** @brief  Disables the IRDA one bit sample method
+  * @param  __HANDLE__: specifies the IRDA Handle.
+  * @retval None
+  */
+#define __HAL_IRDA_ONE_BIT_SAMPLE_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_ONEBIT))
 
 /** @brief  Enable UART/USART associated to IRDA Handle
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -528,11 +596,26 @@ typedef struct
 #include "stm32l0xx_hal_irda_ex.h"  
 
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup IRDA_Exported_Functions IRDA Exported Functions
+  * @{
+  */
+
+/** @defgroup IRDA_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
+/* Exported functions --------------------------------------------------------*/
 /* Initialization/de-initialization methods  **********************************/
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda);
+/**
+  * @}
+  */
+
+/** @defgroup IRDA_Exported_Functions_Group2 IRDA IO operationfunctions
+  * @{
+  */
 
 /* IO operation methods *******************************************************/
 HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -550,7 +633,13 @@ void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_TxHalfCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda);
+/**
+  * @}
+  */
 
+/** @defgroup IRDA_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
 /* Peripheral State methods  **************************************************/
 HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda);
 uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
@@ -562,7 +651,14 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 /**
   * @}
   */ 
-  
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif
@@ -570,3 +666,4 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 #endif /* __STM32L0xx_HAL_IRDA_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

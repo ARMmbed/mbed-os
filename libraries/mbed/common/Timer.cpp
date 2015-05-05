@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 #include "Timer.h"
+#include "ticker_api.h"
 #include "us_ticker_api.h"
 
 namespace mbed {
 
-Timer::Timer() : _running(), _start(), _time() {
+Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data()) {
+    reset();
+}
+
+Timer::Timer(const ticker_data_t *const data) : _running(), _start(), _time(), _ticker_data(data) {
     reset();
 }
 
 void Timer::start() {
     if (!_running) {
-        _start = us_ticker_read();
+        _start = ticker_read(_ticker_data);
         _running = 1;
     }
 }
@@ -48,14 +53,14 @@ int Timer::read_ms() {
 
 int Timer::slicetime() {
     if (_running) {
-        return us_ticker_read() - _start;
+        return ticker_read(_ticker_data) - _start;
     } else {
         return 0;
     }
 }
 
 void Timer::reset() {
-    _start = us_ticker_read();
+    _start = ticker_read(_ticker_data);
     _time = 0;
 }
 

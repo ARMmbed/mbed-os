@@ -27,7 +27,7 @@ class ARM(mbedToolchain):
     LIBRARY_EXT = '.ar'
 
     STD_LIB_NAME = "%s.ar"
-    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+): (?P<severity>Warning|Error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False):
@@ -37,6 +37,8 @@ class ARM(mbedToolchain):
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
             cpu = "Cortex-M4.fp"
+        elif target.core == "Cortex-M7F":
+            cpu = "Cortex-M7.fp.sp"
         else:
             cpu = target.core
 

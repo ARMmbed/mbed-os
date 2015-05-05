@@ -60,7 +60,7 @@
         </option>
         <option>
           <name>FPU</name>
-          <version>2</version>
+          <version>3</version>
           <state>5</state>
         </option>
         <option>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>STM32F303RE	ST STM32F303RE</state>
+          <state>STM32F303xE	ST STM32F303xE</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -747,11 +747,11 @@
         </option>
         <option>
           <name>IlinkUseExtraOptions</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkExtraOptions</name>
-          <state></state>
+          <state>--skip_dynamic_initialization</state>
         </option>
         <option>
           <name>IlinkLowLevelInterfaceSlave</name>
@@ -1306,7 +1306,7 @@
         </option>
         <option>
           <name>IccLang</name>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>IccCDialect</name>
@@ -1314,7 +1314,7 @@
         </option>
         <option>
           <name>IccAllowVLA</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IccCppDialect</name>
@@ -1893,11 +1893,7 @@
       <data/>
     </settings>
   </configuration>
-  {% for files in source_files %}
-  <file>
-    <name>$PROJ_DIR$\{{files}}</name>
-  </file>
-  {% endfor %}
+  {{source_files}}
 </project>
 
 

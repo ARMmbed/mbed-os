@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 Travis-CI build script
@@ -33,34 +33,48 @@ build_list = (
     { "target": "OC_MBUINO",     "toolchains": "GCC_ARM", "libs": ["fat"]  },
 
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
-    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
 
-    { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_L152RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F030R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F070RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F091RC", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
     { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+
     { "target": "MTS_MDOT_F405RG", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
-    # { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "MTS_MDOT_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "MTS_DRAGONFLY_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "ARCH_MAX",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+
+    { "target": "DISCO_F051R8",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_F334C8",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "DISCO_F401VC",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "DISCO_F429ZI",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+
     { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "UBLOX_C027",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_501",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "LPC11U68",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "LPC11U37H_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
     { "target": "KL05Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "KL25Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "KL43Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "KL46Z",         "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "K20D50M",       "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "TEENSY3_1",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "K64F",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "LPC4088",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1549",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NRF51822",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 )
 
 ################################################################################

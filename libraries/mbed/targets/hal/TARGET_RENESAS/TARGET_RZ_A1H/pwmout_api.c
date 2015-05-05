@@ -17,114 +17,139 @@
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-
+#include "RZ_A1_Init.h"
 #include "cpg_iodefine.h"
 #include "pwm_iodefine.h"
 
-#define TCR_CNT_EN       0x00000001
-#define TCR_RESET        0x00000002
-
 //  PORT ID, PWM ID, Pin function
 static const PinMap PinMap_PWM[] = {
-    {LED_RED  , 0, 4},
-    {LED_GREEN, 1, 7},
-    {LED_BLUE , 2, 4},
-    {P4_7     , 3, 4},
-    {P8_14    , 4, 6},
-    {P8_15    , 5, 6},
-    {P8_13    , 6, 6},
-    {P8_11    , 7, 6},
+    {P4_4     , PWM0_PIN , 4},
+    {P3_2     , PWM1_PIN , 7},
+    {P4_6     , PWM2_PIN , 4},
+    {P4_7     , PWM3_PIN , 4},
+    {P8_14    , PWM4_PIN , 6},
+    {P8_15    , PWM5_PIN , 6},
+    {P8_13    , PWM6_PIN , 6},
+    {P8_11    , PWM7_PIN , 6},
+    {P8_8     , PWM8_PIN , 6},
+    {P10_0    , PWM9_PIN , 3},
+    {P8_12    , PWM10_PIN, 6},
+    {P8_9     , PWM11_PIN, 6},
+    {P8_10    , PWM12_PIN, 6},
+    {P4_5     , PWM13_PIN, 4},
     {NC, NC, 0}
 };
 
-static __IO uint16_t PORT[] = {
-     PWM2E,
-     PWM2C,
-     PWM2G,
-     PWM2H,
-     PWM1G,
-     PWM1H,
-     PWM1F,
-     PWM1D,
+static PWMType PORT[] = {
+     PWM2E,          // PWM0_PIN
+     PWM2C,          // PWM1_PIN
+     PWM2G,          // PWM2_PIN
+     PWM2H,          // PWM3_PIN
+     PWM1G,          // PWM4_PIN
+     PWM1H,          // PWM5_PIN
+     PWM1F,          // PWM6_PIN
+     PWM1D,          // PWM7_PIN
+     PWM1A,          // PWM8_PIN
+     PWM2A,          // PWM9_PIN
+     PWM1E,          // PWM10_PIN
+     PWM1B,          // PWM11_PIN
+     PWM1C,          // PWM12_PIN
+     PWM2F,          // PWM13_PIN
 };
+
 static __IO uint16_t *PWM_MATCH[] = {
-    &PWMPWBFR_2E,
-    &PWMPWBFR_2C,
-    &PWMPWBFR_2G,
-    &PWMPWBFR_2G,
-    &PWMPWBFR_1G,
-    &PWMPWBFR_1G,
-    &PWMPWBFR_1E,
-    &PWMPWBFR_1C,
+    &PWMPWBFR_2E,    // PWM0_PIN
+    &PWMPWBFR_2C,    // PWM1_PIN
+    &PWMPWBFR_2G,    // PWM2_PIN
+    &PWMPWBFR_2G,    // PWM3_PIN
+    &PWMPWBFR_1G,    // PWM4_PIN
+    &PWMPWBFR_1G,    // PWM5_PIN
+    &PWMPWBFR_1E,    // PWM6_PIN
+    &PWMPWBFR_1C,    // PWM7_PIN
+    &PWMPWBFR_1A,    // PWM8_PIN
+    &PWMPWBFR_2A,    // PWM9_PIN
+    &PWMPWBFR_1E,    // PWM10_PIN
+    &PWMPWBFR_1A,    // PWM11_PIN
+    &PWMPWBFR_1C,    // PWM12_PIN
+    &PWMPWBFR_2E,    // PWM13_PIN
 };
 
-#define TCR_PWM_EN       0x00000008
-
-static unsigned int pwm_clock_mhz;
+static uint16_t init_period_ch1 = 0;
+static uint16_t init_period_ch2 = 0;
+static int32_t  period_ch1 = 1;
+static int32_t  period_ch2 = 1;
 
 void pwmout_init(pwmout_t* obj, PinName pin) {
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
 
-    obj->pwm = pwm;
-    obj->MR = PWM_MATCH[pwm];
-    obj->flag = (PORT[pwm]&1)<<12;
-    
     // power on
     CPGSTBCR3 &= ~(1<<0);
-    
-    // clk mode settings PWM mode
-    PWMPWCR_1_BYTE_L = 0xc4;
-    PWMPWCR_2_BYTE_L = 0xc4;
-    
-    // output settings
-    PWMPWPR_1_BYTE_L = 0x00;
-    PWMPWPR_2_BYTE_L = 0x00;
 
-    // cycle reg.
-    PWMPWCYR_1 = 0x3ff;
-    PWMPWCYR_2 = 0x3ff;
-    
-    //pwm_clock_mhz = SystemCoreClock / 4000000;
-    
-    PWMPWCR_1_BYTE_L = 0xcc;
-    PWMPWCR_2_BYTE_L = 0xcc;
-    // default to 20ms: standard for servos, and fine for e.g. brightness control
-    //pwmout_period_ms(obj, 20);
-    //pwmout_write    (obj, 0);
-    
+    obj->pwm = pwm;
+    if (((uint32_t)PORT[obj->pwm] & 0x00000010) != 0) {
+        obj->ch  = 2;
+        PWMPWPR_2_BYTE_L = 0x00;
+    } else {
+        obj->ch  = 1;
+        PWMPWPR_1_BYTE_L = 0x00;
+    }
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
-    
+
+    // default to 491us: standard for servos, and fine for e.g. brightness control
+    pwmout_write(obj, 0);
+    if ((obj->ch == 2) && (init_period_ch2 == 0)) {
+        pwmout_period_us(obj, 491);
+        init_period_ch2 = 1;
+    }
+    if ((obj->ch == 1) && (init_period_ch1 == 0)) {
+        pwmout_period_us(obj, 491);
+        init_period_ch1 = 1;
+    }
 }
 
 void pwmout_free(pwmout_t* obj) {
-    // [TODO]
+    pwmout_write(obj, 0);
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
-    if (value < 0.0f) {
-        value = 0.0;
-    } else if (value > 1.0f) {
-        value = 1.0;
-    }
-    
-    // set channel match to percentage
-    uint16_t v = (uint32_t)((float)0x3ff* value);
+    uint32_t wk_cycle;
+    uint16_t v;
 
-    v |= (obj->flag);
-    
-    // workaround for PWM1[1] - Never make it equal MR0, else we get 1 cycle dropout
-    *obj->MR = v;
-    
-    // accept on next period start
-    //LPC_PWM1->LER |= 1 << obj->pwm;
+    if (value < 0.0f) {
+        value = 0.0f;
+    } else if (value > 1.0f) {
+        value = 1.0f;
+    } else {
+        // Do Nothing
+    }
+
+    if (obj->ch == 2) {
+        wk_cycle = PWMPWCYR_2 & 0x03ff;
+    } else {
+        wk_cycle = PWMPWCYR_1 & 0x03ff;
+    }
+
+    // set channel match to percentage
+    v = (uint16_t)((float)wk_cycle * value);
+    *PWM_MATCH[obj->pwm] = (v | ((PORT[obj->pwm] & 1) << 12));
 }
 
 float pwmout_read(pwmout_t* obj) {
-    float v = (float)((*obj->MR&0x3ff)) / 0x3ff;
-    return (v > 1.0f) ? (1.0f) : (v);
+    uint32_t wk_cycle;
+    float value;
+
+    if (obj->ch == 2) {
+        wk_cycle = PWMPWCYR_2 & 0x03ff;
+    } else {
+        wk_cycle = PWMPWCYR_1 & 0x03ff;
+    }
+    value = ((float)(*PWM_MATCH[obj->pwm] & 0x03ff) / (float)wk_cycle);
+
+    return (value > 1.0f) ? (1.0f) : (value);
 }
 
 void pwmout_period(pwmout_t* obj, float seconds) {
@@ -135,21 +160,78 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
     pwmout_period_us(obj, ms * 1000);
 }
 
+static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle){
+    uint16_t wk_pwmpbfr;
+    float    value;
+    uint16_t v;
+
+    wk_pwmpbfr = *p_pwmpbfr;
+    value      = ((float)(wk_pwmpbfr & 0x03ff) / (float)last_cycle);
+    v          = (uint16_t)((float)new_cycle * value);
+    *p_pwmpbfr = (v | (wk_pwmpbfr & 0x1000));
+}
+
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
-    // calculate number of ticks
-    uint16_t ticks = 0x3ff * us;
+    uint32_t pclk_base;
+    uint32_t wk_cycle;
+    uint16_t wk_last_cycle;
+    uint32_t wk_cks = 0;
 
-    // stop timer
-    *obj->MR = ticks;
+    if (us > 491) {
+        us = 491;
+    } else if (us < 1) {
+        us = 1;
+    } else {
+        // Do Nothing
+    }
 
-    // Scale the pulse width to preserve the duty ratio
+    if (RZ_A1_IsClockMode0() == false) {
+        pclk_base = (uint32_t)CM1_RENESAS_RZ_A1_P0_CLK / 10000;
+    } else {
+        pclk_base = (uint32_t)CM0_RENESAS_RZ_A1_P0_CLK / 10000;
+    }
 
-    // set the channel latch to update value at next period start
-//    LPC_PWM1->LER |= 1 << 0;
+    wk_cycle = pclk_base * us;
+    while (wk_cycle >= 102350) {
+        wk_cycle >>= 1;
+        wk_cks++;
+    }
+    wk_cycle = (wk_cycle + 50) / 100;
 
-    // enable counter and pwm, clear reset
- //   LPC_PWM1->TCR = TCR_CNT_EN | TCR_PWM_EN;
+    if (obj->ch == 2) {
+        wk_last_cycle    = PWMPWCYR_2 & 0x03ff;
+        PWMPWCR_2_BYTE_L = 0xc0 | wk_cks;
+        PWMPWCYR_2       = (uint16_t)wk_cycle;
+
+        // Set duty again
+        set_duty_again(&PWMPWBFR_2A, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_2C, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_2E, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_2G, wk_last_cycle, wk_cycle);
+
+        // Counter Start
+        PWMPWCR_2_BYTE_L |= 0x08;
+
+        // Save for future use
+        period_ch2 = us;
+    } else {
+        wk_last_cycle    = PWMPWCYR_1 & 0x03ff;
+        PWMPWCR_1_BYTE_L = 0xc0 | wk_cks;
+        PWMPWCYR_1       = (uint16_t)wk_cycle;
+
+        // Set duty again
+        set_duty_again(&PWMPWBFR_1A, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_1C, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_1E, wk_last_cycle, wk_cycle);
+        set_duty_again(&PWMPWBFR_1G, wk_last_cycle, wk_cycle);
+
+        // Counter Start
+        PWMPWCR_1_BYTE_L |= 0x08;
+
+        // Save for future use
+        period_ch1 = us;
+    }
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -161,14 +243,17 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    // calculate number of ticks
-    uint32_t v = pwm_clock_mhz * us;
-    
-    // workaround for PWM1[1] - Never make it equal MR0, else we get 1 cycle dropout
-    
-    // set the match register value
-    *obj->MR = v;
-    
-    // set the channel latch to update value at next period start
-    //LPC_PWM1->LER |= 1 << obj->pwm;
+    float value = 0;
+
+    if (obj->ch == 2) {
+        if (period_ch2 != 0) {
+            value = (float)us / (float)period_ch2;
+        }
+    } else {
+        if (period_ch1 != 0) {
+            value = (float)us / (float)period_ch1;
+        }
+    }
+
+    pwmout_write(obj, value);
 }

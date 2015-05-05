@@ -24,6 +24,11 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 }
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(TCP client hello world);
+    MBED_HOSTTEST_START("NET_1");
+
     bool result = false;
     EthernetInterface eth;
     eth.init(); //Use DHCP
@@ -76,6 +81,5 @@ int main() {
 
     sock.close();
     eth.disconnect();
-    notify_completion(result);
-    return 0;
+    MBED_HOSTTEST_RESULT(result);
 }

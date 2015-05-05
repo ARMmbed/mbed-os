@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f302x8.s
   * @author    MCD Application Team
-  * @version   V2.0.1
-  * @date      18-June-2014
+  * @version   V1.1.0
+  * @date      12-Sept-2014
   * @brief     STM32F302x6/STM32F302x8 devices vector table for 
   *            Atollic TrueSTUDIO toolchain.
   *            This module performs:
@@ -102,9 +102,16 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */
-    bl __libc_init_array
+    //bl __libc_init_array
 /* Call the application's entry point.*/
-	bl	main
+    //bl  main
+/**
+ * Calling the crt0 'cold-start' entry point. There __libc_init_array is called
+ * and when existing hardware_init_hook() and software_init_hook() before 
+ * starting main(). software_init_hook() is available and has to be called due 
+ * to initializsation when using rtos.
+*/
+    bl _start
 
 LoopForever:
     b LoopForever

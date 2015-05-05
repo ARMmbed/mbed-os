@@ -16,12 +16,12 @@ limitations under the License.
 """
 import os, tempfile
 from os.path import join, exists, basename
-from shutil import copytree, rmtree
+from shutil import copytree, rmtree, copy
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
-from workspace_tools.targets import EXPORT_MAP
+from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
@@ -33,6 +33,7 @@ EXPORTERS = {
     'emblocks' : emblocks.IntermediateFile,
     'coide' : coide.CoIDE,
     'kds' : kds.KDS,
+    'simplicityv3' : simplicityv3.SimplicityV3,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -58,14 +59,18 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
-    if ide is None:
-        # Simply copy everything, no project files to be generated
-        for d in ['src', 'lib']:
-            os.system("cp -r %s/* %s" % (join(project_path, d), tempdir))
-        report = {'success': True}
-
+    report = {'success': False}
+    if ide is None or ide == "zip":
+        # Simple ZIP exporter
+        try:
+            ide = "zip"
+            exporter = zip.ZIP(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
+            exporter.scan_and_copy_resources(project_path, tempdir)
+            exporter.generate()
+            report['success'] = True
+        except OldLibrariesException, e:
+            report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
     else:
-        report = {'success': False}
         if ide not in EXPORTERS:
             report['errormsg'] = "Unsupported toolchain"
         else:
@@ -84,6 +89,10 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
     zip_path = None
     if report['success']:
+        # add readme file to every offline export.
+        open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
+        # copy .hgignore file to exported direcotry as well.
+        copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
         zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
 
     return zip_path, report
@@ -118,3 +127,52 @@ def setup_user_prj(user_dir, prj_path, lib_paths=None):
     if lib_paths is not None:
         for lib_path in lib_paths:
             copy_tree(lib_path, join(user_lib, basename(lib_path)))
+
+def mcu_ide_matrix(verbose_html=False, platform_filter=None):
+    """  Shows target map using prettytable """
+    supported_ides = []
+    for key in EXPORTERS.iterkeys():
+        supported_ides.append(key)
+    supported_ides.sort()
+    from prettytable import PrettyTable, ALL # Only use it in this function so building works without extra modules
+
+    # All tests status table print
+    columns = ["Platform"] + supported_ides
+    pt = PrettyTable(columns)
+    # Align table
+    for col in columns:
+        pt.align[col] = "c"
+    pt.align["Platform"] = "l"
+
+    perm_counter = 0
+    target_counter = 0
+    for target in sorted(TARGET_NAMES):
+        target_counter += 1
+
+        row = [target]  # First column is platform name
+        for ide in supported_ides:
+            text = "-"
+            if target in EXPORTERS[ide].TARGETS:
+                if verbose_html: 
+                    text = "&#10003;" 
+                else: 
+                    text = "x"
+                perm_counter += 1
+            row.append(text)
+        pt.add_row(row)
+
+    pt.border = True
+    pt.vrules = ALL
+    pt.hrules = ALL
+    # creates a html page suitable for a browser
+    # result = pt.get_html_string(format=True) if verbose_html else pt.get_string()
+    # creates a html page in a shorter format suitable for readme.md
+    result = pt.get_html_string() if verbose_html else pt.get_string()
+    result += "\n"
+    result += "Total IDEs: %d\n"% (len(supported_ides))
+    if verbose_html: result += "<br>"
+    result += "Total platforms: %d\n"% (target_counter)
+    if verbose_html: result += "<br>"
+    result += "Total permutations: %d"% (perm_counter)
+    if verbose_html: result = result.replace("&amp;", "&")
+    return result

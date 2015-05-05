@@ -547,18 +547,19 @@ osThreadId svcThreadCreate (osThreadDef_t *thread_def, void *argument) {
   U8 priority = thread_def->tpriority - osPriorityIdle + 1;
   P_TCB task_context = &thread_def->tcb;
 
-  /* If "size != 0" use a private user provided stack. */
+  /* Utilize the user provided stack. */
   task_context->stack      = (U32*)thread_def->stack_pointer;
   task_context->priv_stack = thread_def->stacksize;
-  /* Pass parameter 'argv' to 'rt_init_context' */
-  task_context->msg = argument;
-  /* For 'size == 0' system allocates the user stack from the memory pool. */
-  rt_init_context (task_context, priority, (FUNCP)thread_def->pthread);
-
   /* Find a free entry in 'os_active_TCB' table. */
   OS_TID tsk = rt_get_TID ();
   os_active_TCB[tsk-1] = task_context;
   task_context->task_id = tsk;
+  /* Pass parameter 'argv' to 'rt_init_context' */
+  task_context->msg = argument;
+  /* Initialize thread context structure, including the thread's stack. */
+  rt_init_context (task_context, priority, (FUNCP)thread_def->pthread);
+
+  /* Dispatch this task to the scheduler for execution. */
   DBG_TASK_NOTIFY(task_context, __TRUE);
   rt_dispatch (task_context);
 
@@ -1861,6 +1862,10 @@ osStatus osMailPut (osMailQId queue_id, void *mail) {
   return osMessagePut(*((void **)queue_id), (uint32_t)mail, 0);
 }
 
+#ifdef __CC_ARM
+#pragma push
+#pragma Ospace
+#endif // __arm__
 /// Get a mail from a queue
 os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec) {
   osEvent ret;
@@ -1875,3 +1880,6 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec) {
 
   return ret;
 }
+#ifdef __CC_ARM
+#pragma pop
+#endif // __arm__

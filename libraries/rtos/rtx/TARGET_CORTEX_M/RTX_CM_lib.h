@@ -235,8 +235,11 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_KL05Z)
 #define INITIAL_SP            (0x20000C00UL)
 
-#elif defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 #define INITIAL_SP            (0x10010000UL)
+
+#elif defined(TARGET_LPC4330)
+#define INITIAL_SP            (0x10008000UL)
 
 #elif defined(TARGET_LPC4337)
 #define INITIAL_SP            (0x10008000UL)
@@ -262,9 +265,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC11U68)
 #define INITIAL_SP            (0x10004000UL)
 
-#elif defined(TARGET_NRF51822)
-#define INITIAL_SP            (0x20004000UL)
-
 #elif defined(TARGET_STM32F411RE)
 #define INITIAL_SP            (0x20020000UL)
 
@@ -283,16 +283,40 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif  defined(TARGET_STM32F405RG)
 #define INITIAL_SP            (0x20020000UL)
 
+#elif defined(TARGET_STM32F429ZI)
+#define INITIAL_SP            (0x20030000UL)
+
+#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#define INITIAL_SP            (0x20002000UL)
+
+#elif defined(TARGET_STM32F072RB)
+#define INITIAL_SP            (0x20004000UL)
+
+#elif defined(TARGET_STM32F091RC)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_STM32F401VC)
+#define INITIAL_SP            (0x20010000UL)
+
+#elif defined(TARGET_STM32F303RE)
+#define INITIAL_SP            (0x20010000UL)
+
+#elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_TEENSY3_1)
+#define INITIAL_SP            (0x20008000UL)
+
 #else
 #error "no target defined"
 
 #endif
 
 #ifdef __CC_ARM
-extern unsigned char     Image$$RW_IRAM1$$ZI$$Limit[];
+extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      (Image$$RW_IRAM1$$ZI$$Limit)
 #elif defined(__GNUC__)
-extern unsigned char     __end__[];
+extern uint32_t          __end__[];
 #define HEAP_START      (__end__)
 #elif defined(__ICCARM__)
 #pragma section="HEAP"
@@ -436,21 +460,34 @@ __attribute__((naked)) void software_init_hook (void) {
 
 #elif defined (__ICCARM__)
 
+extern void* __vector_table;
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
+extern __weak void __iar_init_core( void );
+extern __weak void __iar_init_vfp( void );
+extern void __iar_dynamic_initialization(void);
+extern void mbed_sdk_init(void);
 extern void exit(int arg);
 
-__noreturn __stackless void __cmain(void) {
+#pragma required=__vector_table
+void __iar_program_start( void )
+{
+  __iar_init_core();
+  __iar_init_vfp();
+
   int a;
 
   if (__low_level_init() != 0) {
     __iar_data_init3();
+    mbed_sdk_init();
+    __iar_dynamic_initialization();
   }
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
   exit(a);
+
 }
 
 #endif

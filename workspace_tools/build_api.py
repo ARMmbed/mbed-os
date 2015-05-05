@@ -17,6 +17,8 @@ limitations under the License.
 
 import re
 import tempfile
+import colorama
+
 
 from types import ListType
 from shutil import rmtree
@@ -27,6 +29,8 @@ from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, M
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
+from jinja2 import FileSystemLoader
+from jinja2.environment import Environment
 
 
 def build_project(src_path, build_path, target, toolchain_name,
@@ -217,6 +221,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
 
     toolchain.copy_files(resources.headers, BUILD_TARGET)
     toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+    toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
 
     objects = toolchain.compile_sources(resources, TMP_PATH)
     toolchain.copy_files(objects, BUILD_TOOLCHAIN)
@@ -231,7 +236,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
     # Target specific sources
     HAL_SRC = join(MBED_TARGETS_PATH, "hal")
     hal_implementation = toolchain.scan_resources(HAL_SRC)
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
     incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
     objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
@@ -521,8 +526,25 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 def print_build_results(result_list, build_name):
     """ Generate result string for build results """
     result = ""
-    if result_list:
+    if len(result_list) > 0:
         result += build_name + "\n"
         result += "\n".join(["  * %s" % f for f in result_list])
         result += "\n"
     return result
+
+def write_build_report(build_report, template_filename, filename):
+    build_report_failing = []
+    build_report_passing = []
+
+    for report in build_report:
+        if len(report["failing"]) > 0:
+            build_report_failing.append(report)
+        else:
+            build_report_passing.append(report)
+
+    env = Environment(extensions=['jinja2.ext.with_'])
+    env.loader = FileSystemLoader('ci_templates')
+    template = env.get_template(template_filename)
+
+    with open(filename, 'w+') as f:
+        f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))

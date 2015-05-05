@@ -6,8 +6,7 @@ Serial pc(USBTX, USBRX);
 #define FILENAME      "/local/out.txt"
 #define TEST_STRING   "Hello World!"
 
-FILE *test_open(const char *mode)
-{
+FILE *test_open(const char *mode) {
     FILE *f = fopen(FILENAME, mode);
     if (f == NULL) {
         printf("Error opening file"NL);
@@ -16,8 +15,7 @@ FILE *test_open(const char *mode)
     return f;
 }
 
-void test_write(FILE *f, char *str, int str_len)
-{
+void test_write(FILE *f, char *str, int str_len) {
     int n = fprintf(f, str);
 
     if (n != str_len) {
@@ -26,8 +24,7 @@ void test_write(FILE *f, char *str, int str_len)
     }
 }
 
-void test_read(FILE *f, char *str, int str_len)
-{
+void test_read(FILE *f, char *str, int str_len) {
     int n = fread(str, sizeof(unsigned char), str_len, f);
 
     if (n != str_len) {
@@ -36,8 +33,7 @@ void test_read(FILE *f, char *str, int str_len)
     }
 }
 
-void test_close(FILE *f)
-{
+void test_close(FILE *f) {
     int rc = fclose(f);
 
     if (rc != 0) {
@@ -46,8 +42,12 @@ void test_close(FILE *f)
     }
 }
 
-int main()
-{
+int main() {
+    MBED_HOSTTEST_TIMEOUT(20);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Semihost file system);
+    MBED_HOSTTEST_START("MBED_A2");
+
     pc.printf("Test the Stream class\n");
 
     printf("connected: %s\n", (semihost_connected()) ? ("Yes") : ("No"));
@@ -74,5 +74,5 @@ int main()
     test_close(f);
 
     // Check the two strings are equal
-    notify_completion((strncmp(buffer, str, str_len) == 0));
+    MBED_HOSTTEST_RESULT((strncmp(buffer, str, str_len) == 0));
 }

@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
   ******************************************************************************
   */
 
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_TSC_H
 #define __STM32L0xx_TSC_H
@@ -237,8 +238,8 @@ typedef struct
 #define TSC_IODEF_IN_FLOAT   (TSC_CR_IODEF)
 #define IS_TSC_IODEF(VAL) (((VAL) == TSC_IODEF_OUT_PP_LOW) || ((VAL) == TSC_IODEF_IN_FLOAT))
 
-#define TSC_SYNC_POL_FALL      ((uint32_t)0)
-#define TSC_SYNC_POL_RISE_HIGH (TSC_CR_SYNCPOL)
+#define TSC_SYNC_POLARITY_FALLING      ((uint32_t)0)
+#define TSC_SYNC_POLARITY_RISING (TSC_CR_SYNCPOL)
 #define IS_TSC_SYNC_POL(VAL) (((VAL) == TSC_SYNC_POL_FALL) || ((VAL) == TSC_SYNC_POL_RISE_HIGH))
 
 #define TSC_ACQ_MODE_NORMAL  ((uint32_t)0)
@@ -582,5 +583,7 @@ void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
 #endif
 
 #endif /*__STM32L0xx_TSC_H */
+#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

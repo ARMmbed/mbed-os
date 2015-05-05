@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f401xe.s
   * @author    MCD Application Team
-  * @version   V2.1.0
-  * @date      19-June-2014
+  * @version   V2.3.0
+  * @date      02-March-2015
   * @brief     STM32F401xExx Devices vector table for Atollic TrueSTUDIO toolchain. 
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +16,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -110,9 +110,14 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
 /* Call static constructors */
-    bl __libc_init_array
+  //bl __libc_init_array
 /* Call the application's entry point.*/
-  bl  main
+  //bl  main
+  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
+  // and when existing hardware_init_hook() and software_init_hook() before 
+  // starting main(). software_init_hook() is available and has to be called due 
+  // to initializsation when using rtos.
+  bl _start
   bx  lr    
 .size  Reset_Handler, .-Reset_Handler
 

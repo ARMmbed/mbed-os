@@ -36,6 +36,7 @@ void in_handler() {
 #define PIN_OUT     (p12)
 
 #elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F091RC) || \
       defined(TARGET_NUCLEO_F103RB) || \
@@ -45,11 +46,15 @@ void in_handler() {
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 #define PIN_IN      PB_8
 #define PIN_OUT     PC_7
 
-#elif defined(TARGET_DISCO_F407VG)
+#elif defined(TARGET_ARCH_MAX) || \
+      defined(TARGET_DISCO_F407VG) || \
+      defined(TARGET_DISCO_F429ZI)|| \
+      defined(TARGET_DISCO_F401VC)
 #define PIN_OUT    PC_12
 #define PIN_IN     PD_0
 
@@ -57,10 +62,17 @@ void in_handler() {
 #define PIN_OUT    D1
 #define PIN_IN     D5
 
-
 #elif defined(TARGET_FF_ARDUINO)
 #define PIN_OUT    D0
 #define PIN_IN     D7
+
+#elif defined(TARGET_MAXWSNENV)
+#define PIN_OUT    P0_0
+#define PIN_IN     P0_1
+
+#elif defined(TARGET_MAX32600MBED)
+#define PIN_OUT    P1_0
+#define PIN_IN     P4_7
 
 #else
 #define PIN_IN      (p5)
@@ -84,6 +96,11 @@ void flipper() {
 }
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(15);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(InterruptIn);
+    MBED_HOSTTEST_START("MBED_A7");
+
     IN_OUT_CLEAR;
     //Test falling edges first
     in.rise(NULL);
@@ -92,7 +109,7 @@ int main() {
 
     if(checks != 5) {
         printf("MBED: falling edges test failed: %d\r\n",checks);
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
     //Now test rising edges
@@ -102,7 +119,7 @@ int main() {
 
     if (checks != 10) {
         printf("MBED: raising edges test failed: %d\r\n", checks);
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
     //Now test switch off edge detection
@@ -112,7 +129,7 @@ int main() {
 
     if (checks != 10) {
         printf("MBED: edge detection switch off test failed: %d\r\n", checks);
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
     //Finally test both
@@ -122,9 +139,8 @@ int main() {
 
     if (checks != 20) {
         printf("MBED: Simultaneous rising and falling edges failed: %d\r\n", checks);
-        notify_completion(false);
+        MBED_HOSTTEST_RESULT(false);
     }
 
-    notify_completion(true);
-    return 0;
+    MBED_HOSTTEST_RESULT(true);
 }

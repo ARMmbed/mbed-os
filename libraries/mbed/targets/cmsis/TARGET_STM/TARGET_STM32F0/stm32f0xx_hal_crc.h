@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
@@ -92,7 +92,7 @@ typedef struct
                                            e.g., for a polynomial of degree 7, X^7 + X^6 + X^5 + X^2 + 1 is written 0x65.
                                            No need to specify it if DefaultPolynomialUse is set to DEFAULT_POLYNOMIAL_ENABLE   */                                                
 
-  uint32_t CRCLength;                 /*!< This parameter is a value of @ref CRCEx_Polynomial_Size_Definitions and indicates CRC length.
+  uint32_t CRCLength;                 /*!< This parameter is a value of @ref CRCEx_Polynomial_Sizes and indicates CRC length.
                                            Value can be either one of
                                            CRC_POLYLENGTH_32B                  (32-bit CRC)
                                            CRC_POLYLENGTH_16B                  (16-bit CRC)

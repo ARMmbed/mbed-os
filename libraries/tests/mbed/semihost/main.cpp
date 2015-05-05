@@ -6,6 +6,10 @@
 #define MAC_VENDOR_ARM_2    0xF7
 
 int main() {
+    MBED_HOSTTEST_TIMEOUT(10);
+    MBED_HOSTTEST_SELECT(default_auto);
+    MBED_HOSTTEST_DESCRIPTION(Semihost);
+    MBED_HOSTTEST_START("MBED_22");
 
     printf("Semihost connected: %s\n", (semihost_connected()) ? ("Yes") : ("No"));
 
@@ -30,6 +34,5 @@ int main() {
         printf("MAC Address Prefix: 00:02:F7, Vendor: ARM\r\n");
     }
 
-    notify_completion(result);
-    return 0;
+    MBED_HOSTTEST_RESULT(result);
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    03-Oct-2014
+  * @version V1.2.0
+  * @date    11-December-2014
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) 
+#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) 
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -75,23 +75,6 @@ typedef enum
   HAL_CAN_STATE_ERROR             = 0x04   /*!< CAN error state                     */  
 
 }HAL_CAN_StateTypeDef;
-
-/** 
-  * @brief  HAL CAN Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_CAN_ERROR_NONE              = 0x00,  /*!< No error             */
-  HAL_CAN_ERROR_EWG               = 0x01,  /*!< EWG error            */   
-  HAL_CAN_ERROR_EPV               = 0x02,  /*!< EPV error            */
-  HAL_CAN_ERROR_BOF               = 0x04,  /*!< BOF error            */
-  HAL_CAN_ERROR_STF               = 0x08,  /*!< Stuff error          */
-  HAL_CAN_ERROR_FOR               = 0x10,  /*!< Form error           */
-  HAL_CAN_ERROR_ACK               = 0x20,  /*!< Acknowledgment error */
-  HAL_CAN_ERROR_BR                = 0x40,  /*!< Bit recessive        */
-  HAL_CAN_ERROR_BD                = 0x80,  /*!< LEC dominant         */
-  HAL_CAN_ERROR_CRC               = 0x100  /*!< LEC transfer error   */
-}HAL_CAN_ErrorTypeDef;
 
 /** 
   * @brief  CAN init structure definition
@@ -250,7 +233,8 @@ typedef struct
   
   __IO HAL_CAN_StateTypeDef   State;      /*!< CAN communication state        */
   
-  __IO HAL_CAN_ErrorTypeDef   ErrorCode;  /*!< CAN Error code                 */
+  __IO uint32_t               ErrorCode;  /*!< CAN Error code                 
+                                               This parameter can be a value of @ref CAN_Error */
   
 }CAN_HandleTypeDef;
 /**
@@ -261,6 +245,23 @@ typedef struct
 
 /** @defgroup CAN_Exported_Constants CAN Exported Constants
   * @{
+  */
+
+/** @defgroup CAN_Error CAN Error
+  * @{
+  */
+#define HAL_CAN_ERROR_NONE              ((uint32_t)0x00000000)  /*!< No error             */
+#define HAL_CAN_ERROR_EWG               ((uint32_t)0x00000001)  /*!< EWG error            */   
+#define HAL_CAN_ERROR_EPV               ((uint32_t)0x00000002)  /*!< EPV error            */
+#define HAL_CAN_ERROR_BOF               ((uint32_t)0x00000004)  /*!< BOF error            */
+#define HAL_CAN_ERROR_STF               ((uint32_t)0x00000008)  /*!< Stuff error          */
+#define HAL_CAN_ERROR_FOR               ((uint32_t)0x00000010)  /*!< Form error           */
+#define HAL_CAN_ERROR_ACK               ((uint32_t)0x00000020)  /*!< Acknowledgment error */
+#define HAL_CAN_ERROR_BR                ((uint32_t)0x00000040)  /*!< Bit recessive        */
+#define HAL_CAN_ERROR_BD                ((uint32_t)0x00000080)  /*!< LEC dominant         */
+#define HAL_CAN_ERROR_CRC               ((uint32_t)0x00000100)  /*!< LEC transfer error   */
+/**
+  * @}
   */
 
 /** @defgroup CAN_InitStatus CAN InitStatus
@@ -796,7 +797,7 @@ HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
   * @}
   */  
 
-#endif /* STM32F072xB || STM32F042x6 || STM32F048xx || STM32F091xC || STM32F098xx */
+#endif /* STM32F072xB || STM32F042x6 || STM32F048xx  || STM32F078xx || STM32F091xC || STM32F098xx */
 
 #ifdef __cplusplus
 }

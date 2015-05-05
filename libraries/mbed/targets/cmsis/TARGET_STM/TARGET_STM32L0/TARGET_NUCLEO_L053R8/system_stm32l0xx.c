@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -40,7 +40,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -80,6 +80,7 @@
   */
 
 #include "stm32l0xx.h"
+#include "hal_tick.h"
 
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
@@ -145,11 +146,8 @@
                variable is updated automatically.
   */
 uint32_t SystemCoreClock = 32000000;
-
 const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
-const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
-//const uint32_t MSIRangeTable[7] = {64000, 128000, 256000, 512000, 1000000, 2000000, 4000000};
+const uint8_t PLLMulTable_2[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
   * @}
@@ -209,11 +207,16 @@ void SystemInit (void)
 #endif
 
   /* Configure the Cube driver */
+  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
   HAL_Init();
 
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
+
+  /* Reset the timer to avoid issues after the RAM initialization */
+  TIM_MST_RESET_ON;
+  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -264,7 +267,8 @@ void SystemCoreClockUpdate (void)
   switch (tmp)
   {
     case 0x00:  /* MSI used as system clock */
-      SystemCoreClock = ((1 <<((RCC->ICSCR & RCC_ICSCR_MSIRANGE)>>13 ))* 64000);
+      msirange = (RCC->ICSCR & RCC_ICSCR_MSIRANGE) >> 13;
+      SystemCoreClock = (32768 * (1 << (msirange + 1)));
       break;
     case 0x04:  /* HSI used as system clock */
       SystemCoreClock = HSI_VALUE;
@@ -276,7 +280,7 @@ void SystemCoreClockUpdate (void)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmul = RCC->CFGR & RCC_CFGR_PLLMUL;
       plldiv = RCC->CFGR & RCC_CFGR_PLLDIV;
-      pllmul = PLLMulTable[(pllmul >> 18)];
+      pllmul = PLLMulTable_2[(pllmul >> 18)];
       plldiv = (plldiv >> 22) + 1;
       
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
@@ -448,12 +452,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
   
   return 1; // OK
-}
-
-/* Used for the different timeouts in the HAL */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
 }
 
 /**
