@@ -15,8 +15,8 @@
 .weak __mbed_dcc_irq
 .weak __mbed_reset
 .global __mbed_init_realmonitor
-.extern SVC_Handler
-.extern IRQ_Handler
+.weak SVC_Handler
+.weak IRQ_Handler
 /*  .global __mbed_init */
 
 
@@ -31,8 +31,18 @@ __mbed_prefetch_abort:
 __mbed_data_abort:
         LDR PC, =0x7fffffc0
 __mbed_irq:
-	B IRQ_Handler
-/*        MSR CPSR_c, #0x1F|0x80|0x40
+/*
+    If RTOS is enabled then goto RTOS IRQ handler
+*/
+        PUSH   {R0}
+        LDR    R0, =IRQ_Handler
+        CMP    R0, #0
+        POP   {R0}
+        BNE   IRQ_Handler
+/*
+    else use CMSIS IRQ handler
+*/
+        MSR CPSR_c, #0x1F|0x80|0x40
         
         STMDB sp!, {r0-r3,r12,lr}
         
@@ -50,16 +60,26 @@ __mbed_irq:
         MSR CPSR_c, #0x12|0x80|0x40
         
         SUBS pc, lr, #4
-*/
+
 __mbed_swi:
-        B SVC_Handler
-/*        STMFD sp!, {a4, r4, ip, lr}
+/*
+    If RTOS is enabled then goto RTOS SVC handler
+*/
+        PUSH   {R0}
+        LDR    R0, =SVC_Handler
+        CMP    R0, #0
+        POP   {R0}
+        BNE   SVC_Handler
+/*
+    else use CMSIS SVC handler
+*/
+        STMFD sp!, {a4, r4, ip, lr}
         
         LDR r4, =0x40000040
         
         LDR a4, =0x00940000
         LDR PC, =0x7ffff820
-*/
+
 __mbed_dcc_irq:
         LDMFD sp!,{r0-r3,r12,lr}
         
@@ -83,7 +103,7 @@ __mbed_dcc_irq:
 Reset_Handler:   
         .extern __libc_init_array
         .extern SystemInit
-        .extern software_init_hook
+        .weak   software_init_hook
         LDR     R0, =SystemInit
         MOV     LR, PC
         BX      R0
@@ -130,7 +150,8 @@ __mbed_reset:
         MOV SP, R0
         SUB R0, R0, #0x00000040
         
-/*        MSR CPSR_c, #0x10|0x80|0x40
+/*
+        MSR CPSR_c, #0x10|0x80|0x40
         MOV SP, R0
 */
         MSR CPSR_c, #0x1F|0x80|0x40
@@ -163,7 +184,8 @@ BSSIsEmpty:
 
 
 /* Init realmonitor */
-/*        LDR R0, =__mbed_init_realmonitor
+/*
+        LDR R0, =__mbed_init_realmonitor
         MOV LR, PC
         BX R0
 */

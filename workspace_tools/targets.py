@@ -222,7 +222,7 @@ class LPC2460(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC2460']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
+        self.supported_toolchains = ["GCC_ARM"]
 
 class LPC810(LPCTarget):
     def __init__(self):
