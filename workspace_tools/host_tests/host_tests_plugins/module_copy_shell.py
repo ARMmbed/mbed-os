@@ -51,10 +51,11 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             if capabilitity == 'shell':
                 if os.name == 'nt': capabilitity = 'copy'
                 elif os.name == 'posix': capabilitity = 'cp'
-            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'copy':
+            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'xcopy':
                 copy_method = capabilitity
                 cmd = [copy_method, image_path, destination_path]
-                result = self.run_command(cmd)
+                shell = not capabilitity == 'cp'
+                result = self.run_command(cmd, shell=shell)
         return result
 
 

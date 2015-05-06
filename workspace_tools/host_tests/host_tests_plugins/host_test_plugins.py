@@ -106,6 +106,7 @@ class HostTestPluginBase:
         """ Runs command from command line.
         """
         result = True
+        ret = 0
         try:
             ret = call(cmd, shell=shell)
             if ret:
