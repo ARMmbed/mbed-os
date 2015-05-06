@@ -98,12 +98,14 @@ class ReportExporter():
         """ Generates separate <DIV> sections which contains test results output.
         """
 
-        RESULT_COLORS = {'OK' : 'LimeGreen',
-                         'FAIL' : 'Orange',
-                         'ERROR' : 'LightCoral',}
+        RESULT_COLORS = {'OK': 'LimeGreen',
+                         'FAIL': 'Orange',
+                         'ERROR': 'LightCoral',
+                         'OTHER': 'LightGray',
+                        }
 
         tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
-        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'LightGray']
+        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'OTHER']
         result_div_style = "background-color: %s"% background_color
 
         result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
