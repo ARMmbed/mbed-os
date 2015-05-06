@@ -110,17 +110,24 @@ def check_required_modules(required_modules, verbose=True):
         @return returns True if all modules are installed already
     """
     import imp
-    all_modules_found = True
     not_installed_modules = []
     for module_name in required_modules:
         try:
             imp.find_module(module_name)
         except ImportError as e:
-            all_modules_found = False
-            not_installed_modules.append(module_name)
-            if verbose:
-                print "Error: %s"% e
+            # We also test against a rare case: module is an egg file
+            try:
+                __import__(module_name)
+            except ImportError as e:
+                not_installed_modules.append(module_name)
+                if verbose:
+                    print "Error: %s" % e
+
     if verbose:
-        if not all_modules_found:
+        if not_installed_modules:
             print "Warning: Module(s) %s not installed. Please install required module(s) before using this script."% (', '.join(not_installed_modules))
-    return all_modules_found
+
+    if not_installed_modules:
+        return False
+    else:
+        return True
