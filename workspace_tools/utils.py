@@ -31,12 +31,16 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 
 
 def run_cmd(command, wd=None, redirect=False):
+    if not exists(command[0]):
+        error('run_cmd(): %s path does not exist' % command[0])
     p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
     _stdout, _stderr = p.communicate()
     return _stdout, _stderr, p.returncode
 
 
 def run_cmd_ext(command):
+    if not exists(command[0]):
+        error('run_cmd_ext(): %s path does not exist' % command[0])
     p = Popen(command, stdout=PIPE, stderr=PIPE)
     _stdout, _stderr = p.communicate()
     return _stdout, _stderr, p.returncode
