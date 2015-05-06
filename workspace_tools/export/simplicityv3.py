@@ -108,6 +108,15 @@ class SimplicityV3(Exporter):
 
         main_files = []
 
+        EXCLUDED_LIBS = [
+            'm',
+            'c',
+            'gcc',
+            'nosys',
+            'supc++',
+            'stdc++'
+        ]
+
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
             r = getattr(self.resources, r_type)
             if r:
@@ -120,7 +129,8 @@ class SimplicityV3(Exporter):
         libraries = []
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
-            libraries.append(l[3:])
+            if l[3:] not in EXCLUDED_LIBS:
+                libraries.append(l[3:])
 
         defines = []
         for define in self.get_symbols():
