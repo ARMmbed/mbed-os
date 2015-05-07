@@ -35,8 +35,12 @@ static const PinMap PinMap_PWM[] = {
     {P2_3 , PWM_4, 1},
     {P2_4 , PWM_5, 1},
     {P2_5 , PWM_6, 1},
+    {P3_24, PWM_1, 3},
     {P3_25, PWM_2, 3},
     {P3_26, PWM_3, 3},
+    {P3_27, PWM_4, 3},
+    {P3_28, PWM_5, 3},
+    {P3_29, PWM_6, 3},
     {NC, NC, 0}
 };
 
