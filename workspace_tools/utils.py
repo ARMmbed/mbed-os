@@ -15,6 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import sys
+import inspect
+import os
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext
@@ -31,19 +33,46 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 
 
 def run_cmd(command, wd=None, redirect=False):
-    if not exists(command[0]):
-        error('run_cmd(): %s path does not exist' % command[0])
+    assert is_cmd_valid(command[0])
     p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
     _stdout, _stderr = p.communicate()
     return _stdout, _stderr, p.returncode
 
 
 def run_cmd_ext(command):
-    if not exists(command[0]):
-        error('run_cmd_ext(): %s path does not exist' % command[0])
+    assert is_cmd_valid(command[0])
     p = Popen(command, stdout=PIPE, stderr=PIPE)
     _stdout, _stderr = p.communicate()
     return _stdout, _stderr, p.returncode
+
+
+def is_cmd_valid(cmd):
+    caller = get_caller_name()
+    abspath = find_cmd_abspath(cmd)
+    if not abspath:
+        error("%s: Command '%s' can't be found" % (caller, cmd))
+    if not is_exec(abspath):
+        error("%s: Command '%s' resolves to file '%s' which is not executable" % (caller, cmd, abspath))
+    return True
+
+
+def is_exec(path):
+    return os.access(path, os.X_OK)
+
+
+def find_cmd_abspath(cmd):
+    """ Returns the absolute path to a command.
+        None is returned if no absolute path was found.
+    """
+    if exists(cmd):
+        return '%s/%s' % (os.getcwd(), cmd)
+    if not 'PATH' in os.environ:
+        raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
+    PATH=os.environ['PATH']
+    for path in PATH.split(os.pathsep):
+        abspath = '%s/%s' % (path, cmd)
+        if exists(abspath):
+            return abspath
 
 
 def mkdir(path):
@@ -69,6 +98,14 @@ def delete_dir_files(dir):
         file = join(dir, f)
         if not isdir(file):
             remove(file)
+
+
+def get_caller_name(steps=2):
+    """
+    When called inside a function, it returns the name
+    of the caller of that function.
+    """
+    return inspect.stack()[steps][3]
 
 
 def error(msg):
