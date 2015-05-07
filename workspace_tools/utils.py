@@ -65,7 +65,7 @@ def find_cmd_abspath(cmd):
         None is returned if no absolute path was found.
     """
     if exists(cmd):
-        return '%s/%s' % (os.getcwd(), cmd)
+        return os.path.abspath(cmd)
     if not 'PATH' in os.environ:
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
     PATH=os.environ['PATH']
@@ -109,7 +109,7 @@ def get_caller_name(steps=2):
 
 
 def error(msg):
-    print msg
+    print("ERROR: %s" % msg)
     sys.exit(1)
 
 
