@@ -23,7 +23,7 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
 
 CPU = -mcpu=cortex-m0plus -mthumb
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections
+CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fno-common -fomit-frame-pointer
 CC_FLAGS += -MMD -MP
 
 ifeq ($(DEBUG), 1)
@@ -53,7 +53,7 @@ clean:
 	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu99   $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
-	$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu++98 $(INCLUDE_PATHS) -o $@ $<
+	$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -fno-rtti -std=gnu++98 $(INCLUDE_PATHS) -o $@ $<
 
 
 $(OBJ_FOLDER)$(PROJECT).axf: $(OBJECTS) $(SYS_OBJECTS)

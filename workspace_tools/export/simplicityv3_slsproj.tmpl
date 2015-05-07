@@ -62,8 +62,10 @@
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# For debug build, don't apply optimizations #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none"/>
-    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
   </configuration>
   <configuration name="com.silabs.ide.si32.gcc.release#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Release" stockConfigCompatibility="com.silabs.ide.toolchain.core.release">
@@ -105,8 +107,10 @@
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# Use optimize for size on release build #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.size"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.size"/>
-    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
   </configuration>
 </project>

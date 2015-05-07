@@ -50,6 +50,11 @@
 
 #define DEVICE_LOWPOWERTIMER    1
 
+// Redefine OPEN_MAX from sys_limits.h to save on RAM.
+// Effect: maximum amount of file handlers = OPEN_MAX
+// This is not going to have an impact, since this is a RAM-limited part anyway.
+#define OPEN_MAX                8
+
 #include "objects.h"
 #include "Modules.h"
 #include "device_peripherals.h"
