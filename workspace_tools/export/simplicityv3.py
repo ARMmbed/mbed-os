@@ -78,7 +78,7 @@ class SimplicityV3(Exporter):
         'EFM32ZG_STK3200': 'com.silabs.kit.si32.efm32.efm32zg.stk3200',
         'EFM32LG_STK3600': 'com.silabs.kit.si32.efm32.efm32lg.stk3600',
         'EFM32WG_STK3800': 'com.silabs.kit.si32.efm32.efm32wg.stk3800',
-        'EFM32HG_STK3400': 'com.silabs.kit.si32.efm32.efm32hg.stk3400'
+        'EFM32HG_STK3400': 'com.silabs.kit.si32.efm32.efm32hg.slstk3400a'
     }
 
     FILE_TYPES = {
