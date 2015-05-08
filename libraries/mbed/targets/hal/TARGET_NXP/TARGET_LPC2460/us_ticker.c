@@ -26,7 +26,7 @@ void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
     
-    LPC_SC->PCONP |= 1 << 23; // Clock TIMER_3
+    LPC_SC->PCONP |= 1 << PCTIM3; // Clock TIMER_3
     
     US_TICKER_TIMER->CTCR = 0x0; // timer mode
     uint32_t PCLK = SystemCoreClock / 4;

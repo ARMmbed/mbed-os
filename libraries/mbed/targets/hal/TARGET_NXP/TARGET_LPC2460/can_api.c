@@ -164,8 +164,8 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     MBED_ASSERT((int)obj->dev != NC);
     
     switch ((int)obj->dev) {
-        case CAN_1: LPC_SC->PCONP |= 1 << 13; break;
-        case CAN_2: LPC_SC->PCONP |= 1 << 14; break;
+        case CAN_1: LPC_SC->PCONP |= 1 << PCAN1; break;
+        case CAN_2: LPC_SC->PCONP |= 1 << PCAN2; break;
     }
     
     pinmap_pinout(rd, PinMap_CAN_RD);
@@ -180,8 +180,8 @@ void can_init(can_t *obj, PinName rd, PinName td) {
 
 void can_free(can_t *obj) {
     switch ((int)obj->dev) {
-        case CAN_1: LPC_SC->PCONP &= ~(1 << 13); break;
-        case CAN_2: LPC_SC->PCONP &= ~(1 << 14); break;
+        case CAN_1: LPC_SC->PCONP &= ~(1 << PCAN1); break;
+        case CAN_2: LPC_SC->PCONP &= ~(1 << PCAN2); break;
     }
 }
 

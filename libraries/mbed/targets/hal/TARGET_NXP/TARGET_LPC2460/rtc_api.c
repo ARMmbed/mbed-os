@@ -34,7 +34,7 @@
  * without impacting if it is the case
  */
 void rtc_init(void) {
-    LPC_SC->PCONP |= 0x200; // Ensure power is on
+    LPC_SC->PCONP |= (1 << PCRTC); // Ensure power is on
     LPC_RTC->CCR = 0x00;
     
     // clock source on 2368 is special test mode on 1768!

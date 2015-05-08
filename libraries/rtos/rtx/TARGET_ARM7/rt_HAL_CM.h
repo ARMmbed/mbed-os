@@ -34,7 +34,6 @@
 
 #include "cmsis.h"
 /* Definitions */
-//#define INITIAL_xPSR    0x00000010
 #define INITIAL_xPSR    0x10000000
 #define DEMCR_TRCENA    0x01000000
 #define ITM_ITMENA      0x00000001
@@ -123,17 +122,6 @@ extern void dbg_task_switch (U32 task_id);
 #define OS_X_INIT(n)    NVIC_EnableIRQ(n)
 #define OS_X_LOCK(n)    NVIC_DisableIRQ(n)
 #define OS_X_UNLOCK(n)  NVIC_EnableIRQ(n)
-
-/* Core Debug registers */
-//#define DEMCR           (*((volatile U32 *)0xE000EDFC))
-
-/* ITM registers */
-//#define ITM_CONTROL     (*((volatile U32 *)0xE0000E80))
-//#define ITM_ENABLE      (*((volatile U32 *)0xE0000E00))
-//#define ITM_PORT30_U32  (*((volatile U32 *)0xE0000078))
-//#define ITM_PORT31_U32  (*((volatile U32 *)0xE000007C))
-//#define ITM_PORT31_U16  (*((volatile U16 *)0xE000007C))
-//#define ITM_PORT31_U8   (*((volatile U8  *)0xE000007C))
 
 /* Variables */
 extern BIT dbg_msg;

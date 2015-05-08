@@ -80,8 +80,8 @@
 
         /* Store the new top of stack for the task. */
         LDR    R0,=os_tsk
-        LDR    R0, [R0]            /* R0 = (tcb) os_tsk.run */
-        STR    LR, [R0, 36]        /* tcb.tsk_stack = SP(user) */
+        LDR    R0, [R0]             /* R0 = (tcb) os_tsk.run */
+        STR    LR, [R0, TCB_TSTACK] /* tcb.tsk_stack = SP(user) */
 .endm
 
 /*-------------------------- Restore Context --------------------------------*/
@@ -94,7 +94,7 @@ RestoreContext:
     LDR     R0,=os_tsk
     LDR     R1, [R0, 4]              /* R1 = (tcb) os_tsk.new */
     STR     R1, [R0]                 /* os_tsk.run = os_tsk_newk */
-    LDR     LR, [R1, 36]             /* LR = tcb.tsk_stack */
+    LDR     LR, [R1, TCB_TSTACK]     /* LR = tcb.tsk_stack */
 
     /* Get the SPSR from the stack. */
     LDMFD   LR!, {R0}                /*  SPSR */

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
- * Copyright (C) 2012 ARM Limited. All rights reserved.
+ * Copyright (C) 2015 ARM Limited. All rights reserved.
  *
  * $Date:        5. June 2012
  * $Revision:    V1.01

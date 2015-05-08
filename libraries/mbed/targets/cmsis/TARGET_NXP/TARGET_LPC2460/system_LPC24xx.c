@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (C) 2008-2009 ARM Limited. All rights reserved.
+ * Copyright (C) 2008-20015 ARM Limited. All rights reserved.
  *
  * ARM7 version of CMSIS-like functionality - not advised for use outside mbed!
  */

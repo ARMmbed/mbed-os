@@ -22,6 +22,9 @@ static const PinMap PinMap_I2C_SDA[] = {
     {P0_10, I2C_2, 2},
     {P0_19, I2C_1, 3},
     {P0_27, I2C_0, 1},
+    {P2_14, I2C_1, 3},
+    {P2_30, I2C_2, 3},
+    {P4_20, I2C_2, 2},
     {NC   , NC   , 0}
 };
 
@@ -30,6 +33,9 @@ static const PinMap PinMap_I2C_SCL[] = {
     {P0_11, I2C_2, 2},
     {P0_20, I2C_1, 3},
     {P0_28, I2C_0, 1},
+    {P2_15, I2C_1, 3},
+    {P2_31, I2C_2, 3},
+    {P4_21, I2C_2, 2},
     {NC   , NC,    0}
 };
 
@@ -84,9 +90,9 @@ static inline void i2c_interface_enable(i2c_t *obj) {
 
 static inline void i2c_power_enable(i2c_t *obj) {
     switch ((int)obj->i2c) {
-        case I2C_0: LPC_SC->PCONP |= 1 << 7; break;
-        case I2C_1: LPC_SC->PCONP |= 1 << 19; break;
-        case I2C_2: LPC_SC->PCONP |= 1 << 26; break;
+        case I2C_0: LPC_SC->PCONP |= 1 << PCI2C0; break;
+        case I2C_1: LPC_SC->PCONP |= 1 << PCI2C1; break;
+        case I2C_2: LPC_SC->PCONP |= 1 << PCI2C2; break;
     }
 }
 

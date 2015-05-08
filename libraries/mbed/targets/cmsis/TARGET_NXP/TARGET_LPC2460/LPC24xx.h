@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library - LPC24xx CMSIS-like structs
- * Copyright (C) 2014 Mera NN. All rights reserved.
+ * Copyright (C) 2009-2015 ARM Limited. All rights reserved.
  * 
  * An LPC24xx header file, based on LPC23xx.h
  */
@@ -180,7 +180,7 @@ typedef struct
 #define PCRTC   9
 #define PCSSP1  10
 #define PCEMC   11
-#define PCAD    12
+#define PCADC   12
 #define PCAN1   13
 #define PCAN2   14
 #define PCI2C1  19
