@@ -29,6 +29,9 @@ void gpio_init(gpio_t *obj, PinName pin) {
     if (pin == (PinName)NC)
         return;
     obj->pin = pin;
+    if (pin == (PinName)NC)
+        return;
+
     obj->mask = gpio_set(pin);
     
     LPC_GPIO_TypeDef *port_reg = (LPC_GPIO_TypeDef *) ((int)pin & ~0x1F);
