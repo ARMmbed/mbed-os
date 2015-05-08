@@ -27,7 +27,7 @@ from workspace_tools.utils import mkdir, cmd
 from workspace_tools.export import export, setup_user_prj
 
 
-USR_PRJ_NAME = "myapp"
+USR_PRJ_NAME = "usr_prj"
 USER_PRJ = join(EXPORT_WORKSPACE, USR_PRJ_NAME)
 USER_SRC = join(USER_PRJ, "src")
 
@@ -75,7 +75,8 @@ def test_export(toolchain, target, expected_error=None):
 
 if __name__ == '__main__':
     setup_test_user_prj()
-    exportlist = [
+
+    for toolchain, target in [
             ('zip', 'LPC1768'),
             
             ('emblocks', 'LPC1768'),
@@ -206,10 +207,9 @@ if __name__ == '__main__':
 
             # Removed following item to avoid script error
             #(None, None),
-    test_export('gcc_arm', 'LPC2460')
-    for (toolchain, target) in exportlist :
-	print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
-	test_export(toolchain, target)
+        ]:
+        print '\n=== Exporting to "%s::%s" ===' % (toolchain, target)
+        test_export(toolchain, target)
 
     print "\n=== Test error messages ==="
     test_export('lpcxpresso', 'LPC11U24', expected_error='lpcxpresso')
