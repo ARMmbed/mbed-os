@@ -2,11 +2,11 @@
  *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM0.S
- *      Purpose: Hardware Abstraction Layer for Cortex-M0
- *      Rev.:    V4.60
+ *      Purpose: Hardware Abstraction Layer for ARM7TDMI
+ *      Rev.:    V1.0
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
         .file   "HAL_CM0.S"
         .syntax unified
 
-        .equ    TCB_TSTACK, 36
+        .equ    TCB_TSTACK, 40
 
 
 /*----------------------------------------------------------------------------
