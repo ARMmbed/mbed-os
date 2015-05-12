@@ -115,7 +115,7 @@ void SystemInit(void)
 {
     set_pwr_regs();
 
-    // enable instruction cache
+    // Enable instruction cache
     ICC_Enable();
 
     low_level_init();
@@ -135,9 +135,16 @@ void SystemInit(void)
                                 MXC_F_PWRMAN_PWR_RST_CTRL_IO_ACTIVE |
                                 MXC_F_PWRMAN_PWR_RST_CTRL_PULLUPS_ENABLED);
 
+    // Clear the first boot flag. Use low_level_init() if special handling is required.
+    MXC_PWRSEQ->reg0 &= ~MXC_F_PWRSEQ_REG0_PWR_FIRST_BOOT;
+
+    // Enable the regulator
     MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_CHZYEN_RUN;
 
-    // set systick to the RTC input 32.768kHz clock, not system clock; this is needed to keep JTAG alive during sleep
+    // Mask all wakeups
+    MXC_PWRSEQ->msk_flags = 0xFFFFFFFF;
+
+    // Set systick to the RTC input 32.768kHz clock, not system clock; this is needed to keep JTAG alive during sleep
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
 
     SystemCoreClockUpdate();

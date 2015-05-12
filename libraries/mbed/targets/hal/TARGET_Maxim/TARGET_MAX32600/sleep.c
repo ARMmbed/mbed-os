@@ -30,21 +30,13 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "sleep_api.h"
-#include "us_ticker_api.h"
 #include "cmsis.h"
 #include "pwrman_regs.h"
 #include "pwrseq_regs.h"
 #include "ioman_regs.h"
 #include "rtc_regs.h"
-
-#define MIN_DEEP_SLEEP_US       500
-
-uint64_t rtc_read_us(void);
-void rtc_set_wakeup(uint64_t wakeupUs);
-void us_ticker_deinit(void);
-void us_ticker_set(timestamp_t timestamp);
 
 static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t*)STDIO_UART;
 
@@ -80,37 +72,10 @@ static void clearAllGPIOWUD(void)
 // Low-power stop mode
 void deepsleep(void)
 {
-    uint64_t sleepStartRtcUs;
-    uint32_t sleepStartTickerUs;
-    int32_t sleepDurationUs;
-    uint64_t sleepEndRtcUs;
-    uint64_t elapsedUs;
-
     __disable_irq();
 
     // Wait for all STDIO characters to be sent. The UART clock will stop.
     while (stdio_uart->status & MXC_F_UART_STATUS_TX_BUSY);
-
-    // Record the current times
-    sleepStartRtcUs = rtc_read_us();
-    sleepStartTickerUs = us_ticker_read();
-
-    // Get the next mbed timer expiration
-    timestamp_t next_event = 0;
-    us_ticker_get_next_timestamp(&next_event);
-    sleepDurationUs = next_event - sleepStartTickerUs;
-
-    if (sleepDurationUs < MIN_DEEP_SLEEP_US) {
-        /* The next wakeup is too soon. */
-        __enable_irq();
-        return;
-    }
-
-    // Disable the us_ticker. It won't be clocked in DeepSleep
-    us_ticker_deinit();
-
-    // Prepare to wakeup from the RTC
-    rtc_set_wakeup(sleepStartRtcUs + sleepDurationUs);
 
     // Prepare for LP1
     uint32_t reg0 = MXC_PWRSEQ->reg0;
@@ -151,19 +116,8 @@ void deepsleep(void)
     // Woke up from LP1
 
     // The RTC timer does not update until the next tick
-    uint64_t tempUs = rtc_read_us();
-    do {
-        sleepEndRtcUs = rtc_read_us();
-    } while(sleepEndRtcUs == tempUs);
-
-    // Get the elapsed time from the RTC. Wakeup could have been from some other event.
-    elapsedUs = sleepEndRtcUs - sleepStartRtcUs;
-
-    // Update the us_ticker. It was not clocked during DeepSleep
-    us_ticker_init();
-    us_ticker_set(sleepStartTickerUs + elapsedUs);
-    us_ticker_get_next_timestamp(&next_event);
-    us_ticker_set_interrupt(next_event);
+    uint32_t temp = MXC_RTCTMR->timer;
+    while (MXC_RTCTMR->timer == temp);
 
     __enable_irq();
 }
