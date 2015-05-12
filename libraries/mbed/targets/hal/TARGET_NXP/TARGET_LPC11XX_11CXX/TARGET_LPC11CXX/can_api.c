@@ -71,7 +71,7 @@ int can_mode(can_t *obj, CanMode mode) {
             break;
         case MODE_TEST_SILENT:
             LPC_CAN->CNTL |= CANCNTL_TEST;
-            LPC_CAN->TEST |= (CANCNTL_LBACK | CANTEST_SILENT);
+            LPC_CAN->TEST |= (CANTEST_LBACK | CANTEST_SILENT);
             success = 1;
             break;
         case MODE_TEST_GLOBAL:
