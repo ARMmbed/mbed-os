@@ -18,7 +18,7 @@
 #include <string.h>
 
 /* mbed includes */
-#include "error.h"
+#include "mbed_error.h"
 #include "mbed_interface.h"
 #include "us_ticker_api.h"
 
@@ -426,10 +426,12 @@ sys_thread_t sys_thread_new(const char *pcName,
     t->def.pthread = (os_pthread)thread;
     t->def.tpriority = (osPriority)priority;
     t->def.stacksize = stacksize;
-    t->def.stack_pointer = (unsigned char*)malloc(stacksize);
+#ifndef __MBED_CMSIS_RTOS_CA9
+    t->def.stack_pointer = (uint32_t*)malloc(stacksize);
     if (t->def.stack_pointer == NULL) {
       error("Error allocating the stack memory");
     }
+#endif
 #endif
     t->id = osThreadCreate(&t->def, arg);
     if (t->id == NULL)
@@ -440,7 +442,7 @@ sys_thread_t sys_thread_new(const char *pcName,
 
 #endif
 
-#ifdef LWIP_DEBUG 
+#ifdef LWIP_DEBUG
 
 /** \brief  Displays an error message on assertion
 

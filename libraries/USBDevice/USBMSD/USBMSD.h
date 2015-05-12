@@ -88,22 +88,24 @@ public:
 protected:
 
     /*
-    * read a block on a storage chip
+    * read one or more blocks on a storage chip
     *
     * @param data pointer where will be stored read data
-    * @param block block number
+    * @param block starting block number
+    * @param count number of blocks to read
     * @returns 0 if successful
     */
-    virtual int disk_read(uint8_t * data, uint64_t block) = 0;
+    virtual int disk_read(uint8_t* data, uint64_t block, uint8_t count) = 0;
 
     /*
-    * write a block on a storage chip
+    * write one or more blocks on a storage chip
     *
     * @param data data to write
-    * @param block block number
+    * @param block starting block number
+    * @param count number of blocks to write
     * @returns 0 if successful
     */
-    virtual int disk_write(const uint8_t * data, uint64_t block) = 0;
+    virtual int disk_write(const uint8_t* data, uint64_t block, uint8_t count) = 0;
 
     /*
     * Disk initilization
@@ -156,12 +158,12 @@ protected:
     /*
     * Callback called when a packet is received
     */
-    virtual bool EP2_OUT_callback();
+    virtual bool EPBULK_OUT_callback();
 
     /*
     * Callback called when a packet has been sent
     */
-    virtual bool EP2_IN_callback();
+    virtual bool EPBULK_IN_callback();
 
     /*
     * Set configuration of device. Add endpoints

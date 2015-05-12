@@ -98,8 +98,8 @@ static const struct CLK_BASE_STATES clock_states[] = {
     {CLK_BASE_PHY_RX, CLKIN_ENET_RX, 0},
 #endif
     {CLK_BASE_SDIO, CLKIN_MAINPLL, 0},
-    {CLK_BASE_SSP0, CLKIN_MAINPLL, 0},
-    {CLK_BASE_SSP1, CLKIN_MAINPLL, 0},
+    {CLK_BASE_SSP0, CLKIN_IDIVC, 0},
+    {CLK_BASE_SSP1, CLKIN_IDIVC, 0},
     {CLK_BASE_UART0, CLKIN_MAINPLL, 0},
     {CLK_BASE_UART1, CLKIN_MAINPLL, 0},
     {CLK_BASE_UART2, CLKIN_MAINPLL, 0},
@@ -150,11 +150,9 @@ void SystemInit(void)
     SCB->VTOR = (unsigned int) &g_pfnVectors;
 #endif
 
-#if !defined(TOOLCHAIN_GCC)
 #if defined(__FPU_PRESENT) && __FPU_PRESENT == 1
     /* Initialize floating point */
     fpuInit();
-#endif
 #endif
 
     SystemSetupPins(pre_clock_mux, COUNT_OF(pre_clock_mux)); /* Configure pins */
@@ -237,6 +235,11 @@ void SystemSetupClock(void)
 
     /* Switch main clock to Internal RC (IRC) while setting up PLL1 */
     LPC_CGU->BASE_CLK[CLK_BASE_MX] = (1 << 11) | (CLKIN_IRC << 24);
+    /* Set prescaler/divider on SSP1 assuming 204 MHz clock */
+    LPC_SSP1->CR1 &= ~(1 << 1);
+    LPC_SSP1->CPSR = 0x0002;
+    LPC_SSP1->CR0 = 0x00006507;
+    LPC_SSP1->CR1 |= (1 << 1);
 
     /* Enable the oscillator and wait 100 us */
     LPC_CGU->XTAL_OSC_CTRL = 0;
@@ -291,6 +294,9 @@ void SystemSetupClock(void)
                          | (1 << 11) | (clock_states[i].clkin << 24);
     }
 #endif /* CLOCK_SETUP */
+    /* Reset peripherals */
+    LPC_RGU->RESET_CTRL0 = 0x105F0000;
+    LPC_RGU->RESET_CTRL1 = 0x01DFF7FF;
 }
 
 /*
@@ -359,7 +365,7 @@ void fpuInit(void)
 
 static void WaitUs(uint32_t us)
 {
-    uint32_t  cyc = us * CPU_NANOSEC(1000) / 4;
+    volatile uint32_t  cyc = us * CPU_NANOSEC(1000) / 4;
     while (cyc--)
         ;
 }

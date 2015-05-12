@@ -17,7 +17,7 @@
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 static const PinMap PinMap_I2C_SDA[] = {
     {P0_5, I2C_0, 1},

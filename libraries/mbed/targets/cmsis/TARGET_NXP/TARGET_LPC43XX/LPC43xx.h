@@ -1204,10 +1204,10 @@ typedef enum CCU_CLK {
 /*
  * Audio or USB PLL selection
  */
-typedef enum CHIP_CGU_USB_AUDIO_PLL {
+typedef enum CGU_USB_AUDIO_PLL {
     CGU_USB_PLL,
     CGU_AUDIO_PLL
-} CHIP_CGU_USB_AUDIO_PLL_T;
+} CGU_USB_AUDIO_PLL_T;
 
 /*
  * PLL register block
@@ -1264,7 +1264,7 @@ typedef struct {                        /* (@ 0x40052000) CCU2 Structure        
  */
 #define LPC_RGU_BASE              0x40053000
 
-typedef enum CHIP_RGU_RST {
+typedef enum RGU_RST {
     RGU_CORE_RST,
     RGU_PERIPH_RST,
     RGU_MASTER_RST,
@@ -1313,7 +1313,7 @@ typedef enum CHIP_RGU_RST {
     RGU_SPI_RST,
 #endif
     RGU_LAST_RST = 63,
-} CHIP_RGU_RST_T;
+} RGU_RST_T;
 
 typedef struct {                        /* RGU Structure          */
     __I  uint32_t  RESERVED0[64];
@@ -1498,7 +1498,7 @@ typedef struct {
 #define SCU_PINIO_PULLNONE         (SCU_MODE_INACT | SCU_MODE_INBUFF_EN)
 
 /* Calculate SCU offset and register address from group and pin number */
-#define SCU_OFF(group, num)        ((0x80 * group) + (0x04 * num))
+#define SCU_OFF(group, num)        ((group << 7) + (num << 2))
 #define SCU_REG(group, num)        ((__IO uint32_t *)(LPC_SCU_BASE + SCU_OFF(group, num)))
 
 /**

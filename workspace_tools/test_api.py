@@ -48,6 +48,8 @@ from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
+from workspace_tools.build_api import write_build_report
+from workspace_tools.build_api import print_build_results
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
@@ -123,6 +125,7 @@ class SingleTestRunner(object):
     TEST_RESULT_TIMEOUT = "TIMEOUT"
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
     TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
+    TEST_RESULT_BUILD_FAILED = "BUILD_FAILED"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -141,7 +144,8 @@ class SingleTestRunner(object):
                            "timeout" : TEST_RESULT_TIMEOUT,
                            "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF,
-                           "mbed_assert" : TEST_RESULT_MBED_ASSERT
+                           "mbed_assert" : TEST_RESULT_MBED_ASSERT,
+                           "build_failed" : TEST_RESULT_BUILD_FAILED
     }
 
     def __init__(self,
@@ -153,6 +157,7 @@ class SingleTestRunner(object):
                  _opts_log_file_name=None,
                  _opts_report_html_file_name=None,
                  _opts_report_junit_file_name=None,
+                 _opts_report_build_file_name=None,
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -180,6 +185,11 @@ class SingleTestRunner(object):
         from colorama import init
         init()
 
+        # Build results
+        build_failures = []
+        build_successes = []
+        build_skipped = []
+
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
         # Settings related to test loops counters
@@ -205,6 +215,7 @@ class SingleTestRunner(object):
         self.opts_log_file_name = _opts_log_file_name
         self.opts_report_html_file_name = _opts_report_html_file_name
         self.opts_report_junit_file_name = _opts_report_junit_file_name
+        self.opts_report_build_file_name = _opts_report_build_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -294,17 +305,30 @@ class SingleTestRunner(object):
     test_summary_ext = {}
     execute_thread_slice_lock = Lock()
 
-    def execute_thread_slice(self, q, target, toolchains, clean, test_ids):
+    def execute_thread_slice(self, q, target, toolchains, clean, test_ids, build_report):
         for toolchain in toolchains:
+            tt_id = "%s::%s" % (toolchain, target)
+
+            # Toolchain specific build successes and failures
+            build_report[toolchain] = {
+                "mbed_failure": False,
+                "library_failure": False,
+                "library_build_passing": [],
+                "library_build_failing": [],
+                "test_build_passing": [],
+                "test_build_failing": []
+            }
             # print target, toolchain
             # Test suite properties returned to external tools like CI
-            test_suite_properties = {}
-            test_suite_properties['jobs'] = self.opts_jobs
-            test_suite_properties['clean'] = clean
-            test_suite_properties['target'] = target
-            test_suite_properties['test_ids'] = ', '.join(test_ids)
-            test_suite_properties['toolchain'] = toolchain
-            test_suite_properties['shuffle_random_seed'] = self.shuffle_random_seed
+            test_suite_properties = {
+                'jobs': self.opts_jobs,
+                'clean': clean,
+                'target': target,
+                'test_ids': ', '.join(test_ids),
+                'toolchain': toolchain,
+                'shuffle_random_seed': self.shuffle_random_seed
+            }
+
 
             # print '=== %s::%s ===' % (target, toolchain)
             # Let's build our test
@@ -316,6 +340,7 @@ class SingleTestRunner(object):
             build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
+
             try:
                 build_mbed_libs_result = build_mbed_libs(T,
                                                          toolchain,
@@ -324,13 +349,16 @@ class SingleTestRunner(object):
                                                          jobs=self.opts_jobs)
 
                 if not build_mbed_libs_result:
+                    self.build_skipped.append(tt_id)
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
                     continue
+                else:
+                    self.build_successes.append(tt_id)
             except ToolException:
+                self.build_failures.append(tt_id)
+                build_report[toolchain]["mbed_failure"] = True
                 print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s'% (target, toolchain))
-                #return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
-                q.put(target + '_'.join(toolchains))
-                return
+                continue
 
             build_dir = join(BUILD_DIR, "test", target, toolchain)
 
@@ -340,6 +368,7 @@ class SingleTestRunner(object):
 
             # Enumerate through all tests and shuffle test order if requested
             test_map_keys = sorted(TEST_MAP.keys())
+
             if self.opts_shuffle_test_order:
                 random.shuffle(test_map_keys, self.shuffle_random_func)
                 # Update database with shuffle seed f applicable
@@ -358,148 +387,154 @@ class SingleTestRunner(object):
                     self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                     self.db_logger.disconnect();
 
-            for test_id in test_map_keys:
+            valid_test_map_keys = self.get_valid_tests(test_map_keys, target, toolchain, test_ids)
+            skipped_test_map_keys = self.get_skipped_tests(test_map_keys, valid_test_map_keys)
+
+            for skipped_test_id in skipped_test_map_keys:
+                test_suite_properties['skipped'].append(skipped_test_id)
+
+
+            # First pass through all tests and determine which libraries need to be built
+            libraries = set()
+            for test_id in valid_test_map_keys:
                 test = TEST_MAP[test_id]
-                if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
+
+                # Detect which lib should be added to test
+                # Some libs have to compiled like RTOS or ETH
+                for lib in LIBRARIES:
+                    if lib['build_dir'] in test.dependencies:
+                        libraries.add(lib['id'])
+
+
+            build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
+            clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
+
+            # Build all required libraries
+            for lib_id in libraries:
+                try:
+                    build_lib(lib_id,
+                              T,
+                              toolchain,
+                              options=build_project_options,
+                              verbose=self.opts_verbose,
+                              clean=clean_mbed_libs_options,
+                              jobs=self.opts_jobs)
+
+                    build_report[toolchain]["library_build_passing"].append(lib_id)
+
+                except ToolException:
+                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
+                    build_report[toolchain]["library_failure"] = True
+                    build_report[toolchain]["library_build_failing"].append(lib_id)
                     continue
 
-                if test_ids and test_id not in test_ids:
-                    continue
 
-                if self.opts_test_only_peripheral and not test.peripherals:
-                    if self.opts_verbose_skipped_tests:
-                        print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
-                    test_suite_properties['skipped'].append(test_id)
-                    continue
+            for test_id in valid_test_map_keys:
+                test = TEST_MAP[test_id]
 
-                if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
-                    # We will skip tests not forced with -p option
-                    if self.opts_verbose_skipped_tests:
-                        print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
-                    test_suite_properties['skipped'].append(test_id)
-                    continue
+                test_suite_properties['test.libs.%s.%s.%s'% (target, toolchain, test_id)] = ', '.join(libraries)
 
-                if self.opts_test_only_common and test.peripherals:
-                    if self.opts_verbose_skipped_tests:
-                        print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
-                    test_suite_properties['skipped'].append(test_id)
-                    continue
+                # TODO: move this 2 below loops to separate function
+                INC_DIRS = []
+                for lib_id in libraries:
+                    if 'inc_dirs_ext' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['inc_dirs_ext']:
+                        INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
 
-                if test.automated and test.is_supported(target, toolchain):
-                    if test.peripherals is None and self.opts_only_build_tests:
-                        # When users are using 'build only flag' and test do not have
-                        # specified peripherals we can allow test building by default
-                        pass
-                    elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
-                        # If we force peripheral with option -p we expect test
-                        # to pass even if peripheral is not in MUTs file.
-                        pass
-                    elif not self.is_peripherals_available(target, test.peripherals):
-                        if self.opts_verbose_skipped_tests:
-                            if test.peripherals:
-                                print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test.peripherals), target))
-                            else:
-                                print self.logger.log_line(self.logger.LogType.INFO, 'Test %s skipped for target %s'% (test_id, target))
-                        test_suite_properties['skipped'].append(test_id)
-                        continue
+                MACROS = []
+                for lib_id in libraries:
+                    if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
+                        MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
+                MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
+                MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
+                test_uuid = uuid.uuid4()
+                MACROS.append('TEST_SUITE_UUID="%s"'% str(test_uuid))
 
-                    build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
-                    clean_project_options = True if self.opts_goanna_for_tests or clean or self.opts_clean else None
+                # Prepare extended test results data structure (it can be used to generate detailed test report)
+                if toolchain not in self.test_summary_ext:
+                    self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
+                if target not in self.test_summary_ext[toolchain]:
+                    self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
 
-                    # Detect which lib should be added to test
-                    # Some libs have to compiled like RTOS or ETH
-                    libraries = []
-                    for lib in LIBRARIES:
-                        if lib['build_dir'] in test.dependencies:
-                            libraries.append(lib['id'])
-                    # Build libs for test
-                    for lib_id in libraries:
-                        try:
-                            build_lib(lib_id,
-                                      T,
-                                      toolchain,
-                                      options=build_project_options,
-                                      verbose=self.opts_verbose,
-                                      clean=clean_mbed_libs_options,
-                                      jobs=self.opts_jobs)
-                        except ToolException:
-                            print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
-                            #return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
-                            q.put(target + '_'.join(toolchains))
-                            return
+                tt_test_id = "%s::%s::%s" % (toolchain, target, test_id)    # For logging only
 
-                    test_suite_properties['test.libs.%s.%s.%s'% (target, toolchain, test_id)] = ', '.join(libraries)
+                project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
+                try:
+                    path = build_project(test.source_dir,
+                                     join(build_dir, test_id),
+                                     T,
+                                     toolchain,
+                                     test.dependencies,
+                                     options=build_project_options,
+                                     clean=clean_project_options,
+                                     verbose=self.opts_verbose,
+                                     name=project_name,
+                                     macros=MACROS,
+                                     inc_dirs=INC_DIRS,
+                                     jobs=self.opts_jobs)
+                    build_report[toolchain]["test_build_passing"].append(test_id)
 
-                    # TODO: move this 2 below loops to separate function
-                    INC_DIRS = []
-                    for lib_id in libraries:
-                        if 'inc_dirs_ext' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['inc_dirs_ext']:
-                            INC_DIRS.extend(LIBRARY_MAP[lib_id]['inc_dirs_ext'])
-
-                    MACROS = []
-                    for lib_id in libraries:
-                        if 'macros' in LIBRARY_MAP[lib_id] and LIBRARY_MAP[lib_id]['macros']:
-                            MACROS.extend(LIBRARY_MAP[lib_id]['macros'])
-                    MACROS.append('TEST_SUITE_TARGET_NAME="%s"'% target)
-                    MACROS.append('TEST_SUITE_TEST_ID="%s"'% test_id)
-                    test_uuid = uuid.uuid4()
-                    MACROS.append('TEST_SUITE_UUID="%s"'% str(test_uuid))
-
-                    project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
-                    try:
-                        path = build_project(test.source_dir,
-                                             join(build_dir, test_id),
-                                             T,
-                                             toolchain,
-                                             test.dependencies,
-                                             options=build_project_options,
-                                             clean=clean_project_options,
-                                             verbose=self.opts_verbose,
-                                             name=project_name,
-                                             macros=MACROS,
-                                             inc_dirs=INC_DIRS,
-                                             jobs=self.opts_jobs)
-                    except ToolException:
-                        project_name_str = project_name if project_name is not None else test_id
-                        print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
-                        # return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
-                        q.put(target + '_'.join(toolchains))
-                        return
-                    if self.opts_only_build_tests:
-                        # With this option we are skipping testing phase
-                        continue
-
-                    # Test duration can be increased by global value
-                    test_duration = test.duration
-                    if self.opts_extend_test_timeout is not None:
-                        test_duration += self.opts_extend_test_timeout
-
-                    # For an automated test the duration act as a timeout after
-                    # which the test gets interrupted
-                    test_spec = self.shape_test_request(target, path, test_id, test_duration)
-                    test_loops = self.get_test_loop_count(test_id)
-
-                    test_suite_properties['test.duration.%s.%s.%s'% (target, toolchain, test_id)] = test_duration
-                    test_suite_properties['test.loops.%s.%s.%s'% (target, toolchain, test_id)] = test_loops
-                    test_suite_properties['test.path.%s.%s.%s'% (target, toolchain, test_id)] = path
-
-                    # read MUTs, test specification and perform tests
-                    single_test_result, detailed_test_results = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                except ToolException:
+                    project_name_str = project_name if project_name is not None else test_id
+                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
+                    build_report[toolchain]["test_build_failing"].append(test_id)
+                    self.build_failures.append(tt_test_id)
 
                     # Append test results to global test summary
-                    if single_test_result is not None:
-                        self.test_summary.append(single_test_result)
+                    self.test_summary.append(
+                        (self.TEST_RESULT_BUILD_FAILED, target, toolchain, test_id, 'Toolchain build failed', 0, 0, '-')
+                    )
 
-                    # Prepare extended test results data structure (it can be used to generate detailed test report)
-                    if toolchain not in self.test_summary_ext:
-                        self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
-                    if target not in self.test_summary_ext[toolchain]:
-                        self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                    # Add detailed test result to test summary structure
                     if target not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
+                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
+                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                            'single_test_output' : '',
+                            'target_name' : target,
+                            'toolchain_name' : toolchain,
+                            'test_id' : test_id,
+                            'test_description' : 'Toolchain build failed',
+                            'elapsed_time' : 0,
+                            'duration' : 0,
+                            'copy_method' : None
+                        }}
+                    continue
+
+                if self.opts_only_build_tests:
+                    # With this option we are skipping testing phase
+                    continue
+
+                # Test duration can be increased by global value
+                test_duration = test.duration
+                if self.opts_extend_test_timeout is not None:
+                    test_duration += self.opts_extend_test_timeout
+
+                # For an automated test the duration act as a timeout after
+                # which the test gets interrupted
+                test_spec = self.shape_test_request(target, path, test_id, test_duration)
+                test_loops = self.get_test_loop_count(test_id)
+
+                test_suite_properties['test.duration.%s.%s.%s'% (target, toolchain, test_id)] = test_duration
+                test_suite_properties['test.loops.%s.%s.%s'% (target, toolchain, test_id)] = test_loops
+                test_suite_properties['test.path.%s.%s.%s'% (target, toolchain, test_id)] = path
+
+                # read MUTs, test specification and perform tests
+                handle_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+                if handle_result:
+                    single_test_result, detailed_test_results = handle_result
+                else:
+                    continue
+
+                # Append test results to global test summary
+                if single_test_result is not None:
+                    self.test_summary.append(single_test_result)
+
+                # Add detailed test result to test summary structure
+                if target not in self.test_summary_ext[toolchain][target]:
+                    self.test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
+
         # return self.test_summary, self.shuffle_random_seed, test_summary_ext, self.test_suite_properties_ext
         q.put(target + '_'.join(toolchains))
         return
@@ -514,6 +549,11 @@ class SingleTestRunner(object):
         if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
             self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
 
+        build_reports = []
+        self.build_failures = []
+        self.build_successes = []
+        self.build_skipped = []
+
         if self.opts_parallel_test_exec:
             ###################################################################
             # Experimental, parallel test execution per singletest instance.
@@ -526,7 +566,9 @@ class SingleTestRunner(object):
             # get information about available MUTs (per target).
             for target, toolchains in self.test_spec['targets'].iteritems():
                 self.test_suite_properties_ext[target] = {}
-                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids))
+                cur_build_report = {}
+                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, cur_build_report))
+                build_reports.append({ "target": target, "report": cur_build_report})
                 t.daemon = True
                 t.start()
                 execute_threads.append(t)
@@ -538,8 +580,56 @@ class SingleTestRunner(object):
             for target, toolchains in self.test_spec['targets'].iteritems():
                 if target not in self.test_suite_properties_ext:
                     self.test_suite_properties_ext[target] = {}
-                self.execute_thread_slice(q, target, toolchains, clean, test_ids)
+
+                cur_build_report = {}
+                self.execute_thread_slice(q, target, toolchains, clean, test_ids, cur_build_report)
+                build_reports.append({ "target": target, "report": cur_build_report})
                 q.get()
+
+        build_report = []
+
+        for target_build_report in build_reports:
+            cur_report = {
+                "target": target_build_report["target"],
+                "passing": [],
+                "failing": []
+            }
+
+            for toolchain in sorted(target_build_report["report"], key=target_build_report["report"].get):
+                report = target_build_report["report"][toolchain]
+
+                if report["mbed_failure"]:
+                    cur_report["failing"].append({
+                        "toolchain": toolchain,
+                        "project": "mbed library"
+                    })
+                else:
+                    for passing_library in report["library_build_failing"]:
+                        cur_report["failing"].append({
+                            "toolchain": toolchain,
+                            "project": "Library::%s" % (passing_library)
+                        })
+
+                    for failing_library in report["library_build_passing"]:
+                        cur_report["passing"].append({
+                            "toolchain": toolchain,
+                            "project": "Library::%s" % (failing_library)
+                        })
+
+                    for passing_test in report["test_build_passing"]:
+                        cur_report["passing"].append({
+                            "toolchain": toolchain,
+                            "project": "Test::%s" % (passing_test)
+                        })
+
+                    for failing_test in report["test_build_failing"]:
+                        cur_report["failing"].append({
+                            "toolchain": toolchain,
+                            "project": "Test::%s" % (failing_test)
+                        })
+
+
+            build_report.append(cur_report)
 
         if self.db_logger:
             self.db_logger.reconnect();
@@ -547,7 +637,60 @@ class SingleTestRunner(object):
                 self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
                 self.db_logger.disconnect();
 
-        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext
+        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext, build_report
+
+    def get_valid_tests(self, test_map_keys, target, toolchain, test_ids):
+        valid_test_map_keys = []
+
+        for test_id in test_map_keys:
+            test = TEST_MAP[test_id]
+            if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
+                continue
+
+            if test_ids and test_id not in test_ids:
+                continue
+
+            if self.opts_test_only_peripheral and not test.peripherals:
+                if self.opts_verbose_skipped_tests:
+                    print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                continue
+
+            if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
+                # We will skip tests not forced with -p option
+                if self.opts_verbose_skipped_tests:
+                    print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                continue
+
+            if self.opts_test_only_common and test.peripherals:
+                if self.opts_verbose_skipped_tests:
+                    print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
+                continue
+
+            if test.automated and test.is_supported(target, toolchain):
+                if test.peripherals is None and self.opts_only_build_tests:
+                    # When users are using 'build only flag' and test do not have
+                    # specified peripherals we can allow test building by default
+                    pass
+                elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
+                    # If we force peripheral with option -p we expect test
+                    # to pass even if peripheral is not in MUTs file.
+                    pass
+                elif not self.is_peripherals_available(target, test.peripherals):
+                    if self.opts_verbose_skipped_tests:
+                        if test.peripherals:
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test.peripherals), target))
+                        else:
+                            print self.logger.log_line(self.logger.LogType.INFO, 'Test %s skipped for target %s'% (test_id, target))
+                    continue
+
+                # The test has made it through all the filters, so add it to the valid tests list
+                valid_test_map_keys.append(test_id)
+
+        return valid_test_map_keys
+
+    def get_skipped_tests(self, all_test_map_keys, valid_test_map_keys):
+        # NOTE: This will not preserve order
+        return list(set(all_test_map_keys) - set(valid_test_map_keys))
 
     def generate_test_summary_by_target(self, test_summary, shuffle_seed=None):
         """ Prints well-formed summary with results (SQL table like)
@@ -601,6 +744,7 @@ class SingleTestRunner(object):
         """ Prints well-formed summary with results (SQL table like)
             table shows target x test results matrix across
         """
+        success_code = 0    # Success code that can be leter returned to
         result = "Test summary:\n"
         # Pretty table package is used to print results
         pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
@@ -621,7 +765,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_IOERR_SERIAL : 0,
                        self.TEST_RESULT_NO_IMAGE : 0,
                        self.TEST_RESULT_TIMEOUT : 0,
-                       self.TEST_RESULT_MBED_ASSERT : 0
+                       self.TEST_RESULT_MBED_ASSERT : 0,
+                       self.TEST_RESULT_BUILD_FAILED : 0
         }
 
         for test in test_summary:
@@ -1311,10 +1456,12 @@ def progress_bar(percent_progress, saturation=0):
 
 def singletest_in_cli_mode(single_test):
     """ Runs SingleTestRunner object in CLI (Command line interface) mode
+
+        @return returns success code (0 == success) for building and running tests
     """
     start = time()
     # Execute tests depending on options and filter applied
-    test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext = single_test.execute()
+    test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, build_report = single_test.execute()
     elapsed_time = time() - start
 
     # Human readable summary
@@ -1325,7 +1472,17 @@ def singletest_in_cli_mode(single_test):
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
         print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
+
     print "Completed in %.2f sec"% (elapsed_time)
+    print
+    # Write summary of the builds
+
+    for report, report_name in [(single_test.build_successes, "Build successes:"),
+                                (single_test.build_skipped, "Build skipped:"),
+                                (single_test.build_failures, "Build failures:"),
+                               ]:
+        if report:
+            print print_build_results(report, report_name)
 
     # Store extra reports in files
     if single_test.opts_report_html_file_name:
@@ -1333,9 +1490,12 @@ def singletest_in_cli_mode(single_test):
         report_exporter = ReportExporter(ResultExporterType.HTML)
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_html_file_name, test_suite_properties=test_suite_properties_ext)
     if single_test.opts_report_junit_file_name:
-        # Export results in form of HTML report to separate file
+        # Export results in form of JUnit XML report to separate file
         report_exporter = ReportExporter(ResultExporterType.JUNIT)
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
+    if single_test.opts_report_build_file_name:
+        # Export build results as html report to sparate file
+        write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
 
 
 class TestLogger():
@@ -1705,6 +1865,10 @@ def get_default_test_options_parser():
     parser.add_option('', '--report-junit',
                       dest='report_junit_file_name',
                       help='You can log test suite results in form of JUnit compliant XML report')
+
+    parser.add_option("", "--report-build",
+                      dest="report_build_file_name",
+                      help="Output the build results to an html file")
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',

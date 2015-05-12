@@ -45,14 +45,6 @@
  * Definitions
  ******************************************************************************/
 
-/*! @brief Oscillator instance.*/
-typedef enum _osc_instance {
-    kOsc0 = 0,           /*!< Oscillator 0*/
-#if FSL_FEATURE_OSC_HAS_OSC1
-    kOsc1 = 1            /*!< Oscillator 1*/
-#endif
-} osc_instance_t;
-
 /*! @brief Oscillator capacitor load configurations.*/
 typedef enum _osc_capacitor_config {
     kOscCapacitor2p = OSC_CR_SC2P_MASK,     /*!< 2 pF capacitor load */
@@ -60,10 +52,6 @@ typedef enum _osc_capacitor_config {
     kOscCapacitor8p = OSC_CR_SC8P_MASK,     /*!< 8 pF capacitor load */
     kOscCapacitor16p = OSC_CR_SC16P_MASK    /*!< 16 pF capacitor load */
 } osc_capacitor_config_t;
-
-/*! @brief Oscillator capacitor load configurations mask*/
-#define kOscCapacitorMask (OSC_CR_SC2P_MASK | OSC_CR_SC4P_MASK | OSC_CR_SC8P_MASK | OSC_CR_SC16P_MASK) 
-
 
 /*******************************************************************************
  * API
@@ -78,72 +66,102 @@ extern "C" {
 
 
 /*!
- * @brief Enables the external reference clock for oscillator
+ * @brief Enables the external reference clock for the oscillator.
  *
  * This function  enables the external reference clock output 
- * for the oscillator - that is the OSCERCLK. This clock  is used
+ * for the oscillator, OSCERCLK. This clock is used
  * by many peripherals. It should be enabled at an early system initialization
- * stage to ensure the peripherals could select it and use it.
+ * stage to ensure the peripherals can select and use it.
  *
- * @param instance Oscillator instance
+ * @param baseAddr Oscillator register base address
+ * @param enable   enable/disable the clock
  */
-void osc_hal_enable_external_reference_clock(osc_instance_t instance);
+void OSC_HAL_SetExternalRefClkCmd(uint32_t baseAddr, bool enable);
 
 /*!
- * @brief Disables the external reference clock for oscillator.
+ * @brief Gets the external reference clock enable setting for the oscillator.
  *
- * This function  disables the external reference clock output 
- * for oscillator - that is the OSCERCLK. This clock  is used
+ * This function gets the external reference clock output enable setting
+ * for the oscillator , OSCERCLK. This clock  is used
  * by many peripherals. It should be enabled at an early system initialization
- * stage to ensure the peripherals could select  and use it.
+ * stage to ensure the peripherals could select and use it.
  * 
- * @param instance Oscillator instance
+ * @param baseAddr Oscillator register base address
+ * @return enable  clock enable/disable setting
  */
-void osc_hal_disable_external_reference_clock(osc_instance_t instance);
+bool OSC_HAL_GetExternalRefClkCmd(uint32_t baseAddr);
 
 /*!
- * @brief Enables the external reference clock in stop mode.
+ * @brief Enables/disables the external reference clock in stop mode.
  *
- * This function  enables the external reference clock (OSCERCLK) when
- * MCU enters Stop mode. 
+ * This function  enables/disables the external reference clock (OSCERCLK) when an
+ * MCU enters the stop mode. 
  *
- * @param instance Oscillator instance
+ * @param baseAddr Oscillator register base address
+ * @param enable   enable/disable setting
  */
-void osc_hal_enable_external_reference_clock_in_stop_mode(osc_instance_t instance);
+void OSC_HAL_SetExternalRefClkInStopModeCmd(uint32_t baseAddr, bool enable);
 
 /*!
- * @brief Disables the external reference clock in stop mode.
+ * @brief Gets the external reference clock enable setting in stop mode.
  *
- * This function  disables the external reference clock (OSCERCLK) when 
- * MCU enters Stop mode. 
+ * This function gets the external reference clock (OSCERCLK) enable setting when an
+ * MCU enters stop mode. 
  *
- * @param instance Oscillator instance
+ * @param baseAddr Oscillator register base address
  */
-void osc_hal_disable_external_reference_clock_in_stop_mode(osc_instance_t instance);
+bool OSC_HAL_GetExternalRefClkInStopModeCmd(uint32_t baseAddr);
 
 /*!
- * @brief Enables the capacitor configuration for oscillator.
+ * @brief Enables the capacitor configuration for the oscillator.
  *
  * This function  enables the specified capacitors configuration for the 
  * oscillator. This should be done in the early system level initialization function call
- * based on system configuration.
+ * based on the system configuration.
  *
- * @param instance        Oscillator instance
- * @param capacitorConfig Capacitor configurations. Combination of OSC_CR_SCxP_MASK
+ * @param baseAddr Oscillator register base address
+ * @param capacitorConfig Capacitor configuration. (2p, 4p, 8p, 16p)
+ * @param enable          enable/disable the Capacitor configuration 
  */
-void osc_hal_enable_capacitor_config(osc_instance_t instance, uint32_t capacitorConfigs);
+void OSC_HAL_SetCapacitorCmd(uint32_t baseAddr, 
+                             osc_capacitor_config_t capacitorConfig,
+                             bool enable);
 
 /*!
- * @brief Disables the capacitor configuration for specific oscillator.
+ * @brief Gets the capacitor configuration for a specific oscillator.
  *
- * This function  enables the specified capacitors configuration for the 
+ * This function gets the specified capacitors configuration for an 
  * oscillator.
  *
- * @param instance        Oscillator instance
- * @param capacitorConfig Capacitor configurations. Combination of OSC_CR_SCxP_MASK
+ * @param baseAddr Oscillator register base address
+ * @param capacitorConfig Capacitor configuration. 
+ * @return enable         enable/disable setting
  */
-void osc_hal_disable_capacitor_config(osc_instance_t instance, uint32_t capacitorConfigs);
-    
+bool OSC_HAL_GetCapacitorCmd(uint32_t baseAddr, 
+                             osc_capacitor_config_t capacitorConfig);
+
+#if FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER
+/*!
+ * @brief Sets the external reference clock divider.
+ *
+ * This function sets the divider for the external reference clock.
+ *
+ * @param baseAddr Oscillator register base address
+ * @param divider   divider settings
+ */
+void OSC_HAL_SetExternalRefClkDivCmd(uint32_t baseAddr, uint32_t divider);
+
+/*!
+ * @brief Gets the external reference clock divider.
+ *
+ * This function gets the divider for the external reference clock.
+ *
+ * @param baseAddr Oscillator register base address
+ * @return divider   divider settings
+ */
+uint32_t OSC_HAL_GetExternalRefClkDivCmd(uint32_t baseAddr);
+#endif
+
 /*@}*/
 
 #if defined(__cplusplus)

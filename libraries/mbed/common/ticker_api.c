@@ -118,3 +118,18 @@ timestamp_t ticker_read(const ticker_data_t *const data)
 {
     return data->interface->read();
 }
+
+int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *timestamp)
+{
+    int ret = 0;
+
+    /* if head is NULL, there are no pending events */
+    __disable_irq();
+    if (data->queue->head != NULL) {
+        *timestamp = data->queue->head->timestamp;
+        ret = 1;
+    }
+    __enable_irq();
+
+    return ret;
+}

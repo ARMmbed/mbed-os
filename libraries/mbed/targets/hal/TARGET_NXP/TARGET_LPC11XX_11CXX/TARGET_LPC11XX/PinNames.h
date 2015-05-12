@@ -78,7 +78,7 @@ typedef enum {
     P3_5  = (3 << PORT_SHIFT) | (5  << PIN_SHIFT) | 0x48,
 
     // mbed DIP Pin Names (CQ board)
-    p4  = P0_0,
+//    p4  = P0_0,
     p5  = P0_9,
     p6  = P0_8,
     p7  = P0_6,
@@ -114,7 +114,7 @@ typedef enum {
     USBRX = P1_6,
 
     // mbed DIP Pin Names (LPCXpresso LPC1114)
-    xp4  = P0_0,
+//    xp4  = P0_0,
     xp5  = P0_9,
     xp6  = P0_8,
     xp7  = P2_11,
@@ -173,7 +173,7 @@ typedef enum {
 	dp16 = P1_7,
 	dp17 = P1_8,
 	dp18 = P1_9,
-	dp23 = P0_0,
+//	dp23 = P0_0,
 	dp24 = P0_1,
 	dp25 = P0_2,
 	dp26 = P0_3,
@@ -194,7 +194,7 @@ typedef enum {
 	dip16 = P1_7,
 	dip17 = P1_8,
 	dip18 = P1_9,
-	dip23 = P0_0,
+//	dip23 = P0_0,
 	dip24 = P0_1,
 	dip25 = P0_2,
 	dip26 = P0_3,

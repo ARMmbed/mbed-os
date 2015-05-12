@@ -105,6 +105,8 @@ public:
         if((mptr != NULL) && (tptr != NULL)) {
             _irq[type].attach(tptr, mptr);
             serial_irq_set(&_serial, (SerialIrq)type, 1);
+        } else {
+            serial_irq_set(&_serial, (SerialIrq)type, 0);
         }
     }
 

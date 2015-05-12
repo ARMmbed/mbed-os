@@ -36,6 +36,7 @@
 #include "dma_api.h"
 #include "sleep_api.h"
 #include "buffer.h"
+#include "sleepmodes.h"
 
 #define SERIAL_LEAST_ACTIVE_SLEEPMODE EM1
 #define SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART EM2
@@ -227,7 +228,7 @@ inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
         default:
             MBED_ASSERT(0);
     }
-    return 0;
+    return (IRQn_Type)0;
 }
 
 /**
@@ -270,7 +271,7 @@ inline IRQn_Type serial_get_tx_irq_index(serial_t *obj)
         default:
             MBED_ASSERT(0);
     }
-    return 0;
+    return (IRQn_Type)0;
 }
 
 /**
@@ -407,6 +408,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         // Set up LEUART clock tree to use high-speed clock)
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+			  CMU_ClockEnable(cmuClock_LFB, true);
         CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
     }
     

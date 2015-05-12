@@ -43,8 +43,6 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define HW_FTM_CHANNEL_COUNT (8U) /*!< Number of channels for one FTM instance.*/
-#define HW_FTM_CHANNEL_PAIR_COUNT (4U) /*!< Number of combined channel of one FTM instance.*/
 #define HW_CHAN0 (0U) /*!< Channel number for CHAN0.*/
 #define HW_CHAN1 (1U) /*!< Channel number for CHAN1.*/
 #define HW_CHAN2 (2U) /*!< Channel number for CHAN2.*/
@@ -55,449 +53,537 @@
 #define HW_CHAN7 (7U) /*!< Channel number for CHAN7.*/
 
 #define FTM_COMBINE_CHAN_CTRL_WIDTH  (8U)
+
 /*! @brief FlexTimer clock source selection*/
 typedef enum _ftm_clock_source
 {
-     kClock_source_FTM_None = 0,
-     kClock_source_FTM_SystemClk,
-     kClock_source_FTM_FixedClk,
-     kClock_source_FTM_ExternalClk
+    kClock_source_FTM_None = 0,
+    kClock_source_FTM_SystemClk,
+    kClock_source_FTM_FixedClk,
+    kClock_source_FTM_ExternalClk
 }ftm_clock_source_t;
 
-/*! @brief FlexTimer counting mode, up-down*/
+/*! @brief FlexTimer counting mode selection */
 typedef enum _ftm_counting_mode
 {
-     kCounting_FTM_UP = 0,
-     kCounting_FTM_Down
+    kCounting_FTM_UP = 0,
+    kCounting_FTM_UpDown
 }ftm_counting_mode_t;
 
 /*! @brief FlexTimer pre-scaler factor selection for the clock source*/
 typedef enum _ftm_clock_ps
 {
-     kFtmDividedBy1 = 0,
-     kFtmDividedBy2 ,
-     kFtmDividedBy4 ,
-     kFtmDividedBy8,
-     kFtmDividedBy16,
-     kFtmDividedBy32,
-     kFtmDividedBy64,
-     kFtmDividedBy128
+    kFtmDividedBy1 = 0,
+    kFtmDividedBy2 ,
+    kFtmDividedBy4 ,
+    kFtmDividedBy8,
+    kFtmDividedBy16,
+    kFtmDividedBy32,
+    kFtmDividedBy64,
+    kFtmDividedBy128
 }ftm_clock_ps_t;
-
-/*! @brief FlexTimer phase for the quadrature*/
-typedef enum _ftm_phase_t
-{
-    kFtmPhaseA = 0,
-    kFtmPhaseB
-}ftm_phase_t;
-
 
 /*! @brief FlexTimer pre-scaler factor for the deadtime insertion*/
 typedef enum _ftm_deadtime_ps
 {
-     kFtmDivided0 = 0,
-     kFtmDivided1 = 1,
-     kFtmDivided4  = 2,
-     kFtmDivided16 = 3,
+    kFtmDivided1 = 1,
+    kFtmDivided4 = 2,
+    kFtmDivided16 = 3,
 }ftm_deadtime_ps_t;
 
-/*! @brief FlexTimer operation mode, capture, output, dual, or quad*/
- typedef enum _ftm_config_mode_t
- {
+/*! @brief FlexTimer operation mode, capture, output, dual */
+typedef enum _ftm_config_mode_t
+{
     kFtmInputCapture,
     kFtmOutputCompare,
     kFtmEdgeAlignedPWM,
     kFtmCenterAlignedPWM,
     kFtmCombinedPWM,
-    kFtmDualEdgeCapture,
-    kFtmQuadCapture
- }ftm_config_mode_t;
+    kFtmDualEdgeCapture
+}ftm_config_mode_t;
 
 /*! @brief FlexTimer input capture edge mode, rising edge, or falling edge */
- typedef enum _ftm_input_capture_edge_mode_t
- {
+typedef enum _ftm_input_capture_edge_mode_t
+{
    kFtmRisingEdge = 0,
    kFtmFallingEdge,
    kFtmRisingAndFalling
- }ftm_input_capture_edge_mode_t;
+}ftm_input_capture_edge_mode_t;
 
 /*! @brief FlexTimer output compare edge mode. Toggle, clear or set.*/
- typedef enum _ftm_output_compare_edge_mode_t
- {
+typedef enum _ftm_output_compare_edge_mode_t
+{
    kFtmToggleOnMatch = 0,
    kFtmClearOnMatch,
    kFtmSetOnMatch
- }ftm_output_compare_edge_mode_t;
+}ftm_output_compare_edge_mode_t;
 
 /*! @brief FlexTimer PWM output pulse mode, high-true or low-true on match up */
- typedef enum _ftm_pwm_edge_mode_t
- {
-   kFtmHighTrue = 0,
-   kFtmLowTrue
- }ftm_pwm_edge_mode_t;
+typedef enum _ftm_pwm_edge_mode_t
+{
+    kFtmHighTrue = 0,
+    kFtmLowTrue
+}ftm_pwm_edge_mode_t;
 
- /*! @brief FlexTimer dual capture edge mode, one shot or continuous */
- typedef enum _ftm_dual_capture_edge_mode_t
- {
-   kFtmOneShout = 0,
-   kFtmContinuous
- }ftm_dual_capture_edge_mode_t;
+/*! @brief FlexTimer dual capture edge mode, one shot or continuous */
+typedef enum _ftm_dual_capture_edge_mode_t
+{
+    kFtmOneShout = 0,
+    kFtmContinuous
+}ftm_dual_capture_edge_mode_t;
+
+/*! @brief FlexTimer quadrature decode modes, phase encode or count and direction mode */
+typedef enum _ftm_quad_decode_mode_t
+{
+    kFtmQuadPhaseEncode = 0,
+    kFtmQuadCountAndDir
+}ftm_quad_decode_mode_t;
+
+/*! @brief FlexTimer quadrature phase polarities, normal or inverted polarity */
+typedef enum _ftm_quad_phase_polarity_t
+{
+    kFtmQuadPhaseNormal = 0,
+    kFtmQuadPhaseInvert
+}ftm_quad_phase_polarity_t;
 
 /*! @brief FlexTimer edge mode*/
- typedef union _ftm_edge_mode_t
- {
+typedef union _ftm_edge_mode_t
+{
     ftm_input_capture_edge_mode_t  input_capture_edge_mode;
     ftm_output_compare_edge_mode_t output_compare_edge_mode;
     ftm_pwm_edge_mode_t            ftm_pwm_edge_mode;
     ftm_dual_capture_edge_mode_t   ftm_dual_capture_edge_mode;
- }ftm_edge_mode_t;
-/*! @brief FlexTimer module configuration*/
-typedef struct FTMConfig {
-  ftm_config_mode_t   mode;
-  uint8_t             channel;   /*channel or channel pair in combine mode*/
-  ftm_edge_mode_t     edge_mode;
+}ftm_edge_mode_t;
 
-}ftm_config_t;
+/*!
+ * @brief FlexTimer driver PWM parameter
+ *
+ */
+typedef struct FtmPwmParam
+{
+    ftm_config_mode_t mode;          /*!< FlexTimer PWM operation mode */
+    ftm_pwm_edge_mode_t edgeMode;    /*!< PWM output mode */
+    uint32_t uFrequencyHZ;           /*!< PWM period in Hz */
+    uint32_t uDutyCyclePercent;      /*!< PWM pulse width, value should be between 0 to 100
+                                          0=inactive signal(0% duty cycle)...
+                                          100=active signal (100% duty cycle). */
+    uint16_t uFirstEdgeDelayPercent; /*!< Used only in combined PWM mode to generate asymmetrical PWM.
+                                          Specifies the delay to the first edge in a PWM period.
+                                          If unsure please leave as 0, should be specified as
+                                          percentage of the PWM period*/
+}ftm_pwm_param_t;
+
+/*! @brief FlexTimer quadrature decode phase parameters */
+typedef struct FtmPhaseParam
+{
+    bool kFtmPhaseInputFilter;      /*!< false: disable phase filter, true: enable phase filter */
+    uint32_t kFtmPhaseFilterVal;    /*!< Filter value, used only if phase input filter is enabled */
+    ftm_quad_phase_polarity_t kFtmPhasePolarity; /*!< kFtmQuadPhaseNormal or kFtmQuadPhaseInvert */
+}ftm_phase_params_t;
+
 /*FTM timer control*/
 /*!
  * @brief Sets the FTM clock source.
- * @param instance The FTM peripheral instance number
- * @param clock  The FTM peripheral clock selection
- * bits:00: No clock  01: system clock  10 :fixed clock 11:External clock
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param clock  The FTM peripheral clock selection\n
+ *        bits - 00: No clock  01: system clock  10: fixed clock   11: External clock
  */
-static inline void ftm_hal_set_clock_source(uint8_t instance, ftm_clock_source_t clock)
+static inline void FTM_HAL_SetClockSource(uint32_t ftmBaseAddr, ftm_clock_source_t clock)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_SC_CLKS(instance, clock);
+    BW_FTM_SC_CLKS(ftmBaseAddr, clock);
+}
+
+/*!
+ * @brief Reads the FTM clock source.
+ *
+ * @param ftmBaseAddr The FTM base address
+ *
+ * @return  The FTM clock source selection\n
+ *          bits - 00: No clock  01: system clock  10: fixed clock   11:External clock
+ */
+static inline uint8_t FTM_HAL_GetClockSource(uint32_t ftmBaseAddr)
+{
+    return BR_FTM_SC_CLKS(ftmBaseAddr);
 }
 
 /*!
  * @brief Sets the FTM clock divider.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param ps  The FTM peripheral clock pre-scale divider
  */
-static inline void ftm_hal_set_clock_ps(uint8_t instance, ftm_clock_ps_t ps)
+static inline void FTM_HAL_SetClockPs(uint32_t ftmBaseAddr, ftm_clock_ps_t ps)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_SC_PS(instance, ps);
+    BW_FTM_SC_PS(ftmBaseAddr, ps);
+}
+
+/*!
+ * @brief Reads the FTM clock divider.
+ *
+ * @param ftmBaseAddr The FTM base address
+ *
+ * @return The FTM clock pre-scale divider
+ */
+static inline uint8_t FTM_HAL_GetClockPs(uint32_t ftmBaseAddr)
+{
+    return BR_FTM_SC_PS(ftmBaseAddr);
 }
 
 /*!
  * @brief Enables the FTM peripheral timer overflow interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  */
-static inline void ftm_hal_enable_timer_overflow_interrupt(uint8_t instance)
+static inline void FTM_HAL_EnableTimerOverflowInt(uint32_t ftmBaseAddr)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    HW_FTM_SC_SET(instance, BM_FTM_SC_TOIE);
+    HW_FTM_SC_SET(ftmBaseAddr, BM_FTM_SC_TOIE);
 }
 
 /*!
  * @brief Disables the FTM peripheral timer overflow interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  */
-static inline void ftm_hal_disable_timer_overflow_interrupt(uint8_t instance)
+static inline void FTM_HAL_DisableTimerOverflowInt(uint32_t ftmBaseAddr)
 {
-     assert(instance <HW_FTM_INSTANCE_COUNT);
-     HW_FTM_SC_CLR(instance, BM_FTM_SC_TOIE);
+     HW_FTM_SC_CLR(ftmBaseAddr, BM_FTM_SC_TOIE);
+}
+
+/*!
+ * @brief Reads the bit that controls enabling the FTM timer overflow interrupt.
+ *
+ * @param baseAddr FTM module base address.
+ * @retval true if overflow interrupt is enabled, false if not
+ */
+static inline bool FTM_HAL_IsOverflowIntEnabled(uint32_t baseAddr)
+{
+    return (bool)(BR_FTM_SC_TOIE(baseAddr));
+}
+
+/*!
+ * @brief Clears the timer overflow interrupt flag.
+ *
+ * @param ftmBaseAddr The FTM base address
+ */
+static inline void FTM_HAL_ClearTimerOverflow(uint32_t ftmBaseAddr)
+{
+    BW_FTM_SC_TOF(ftmBaseAddr, 0);
 }
 
 /*!
  * @brief Returns the FTM peripheral timer overflow interrupt flag.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @retval true if overflow, false if not
  */
-static inline bool ftm_is_timer_overflow(uint8_t instance)
+static inline bool FTM_HAL_HasTimerOverflowed(uint32_t ftmBaseAddr)
 {
-     assert(instance <HW_FTM_INSTANCE_COUNT);
-     return BR_FTM_SC_TOF(instance);
+     return BR_FTM_SC_TOF(ftmBaseAddr);
 }
 
 /*!
  * @brief Sets the FTM center-aligned PWM select.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param mode 1:upcounting mode 0:up_down counting mode
  */
-static inline void ftm_hal_set_cpwms(uint8_t instance, uint8_t mode)
+static inline void FTM_HAL_SetCpwms(uint32_t ftmBaseAddr, uint8_t mode)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && mode<2);
-    BW_FTM_SC_CPWMS(instance, mode);
+    assert(mode < 2);
+    BW_FTM_SC_CPWMS(ftmBaseAddr, mode);
 }
 
 /*!
  * @brief Sets the FTM peripheral current counter value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param val  FTM timer counter value to be set
  */
-static inline void  ftm_hal_set_counter(uint8_t instance,uint16_t val)
+static inline void  FTM_HAL_SetCounter(uint32_t ftmBaseAddr,uint16_t val)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_CNT_COUNT(instance, val);
+    BW_FTM_CNT_COUNT(ftmBaseAddr, val);
 }
 
 /*!
  * @brief Returns the FTM peripheral current counter value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @retval current FTM timer counter value
  */
-static inline uint16_t  ftm_hal_get_counter(uint8_t instance)
+static inline uint16_t  FTM_HAL_GetCounter(uint32_t ftmBaseAddr)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    return BR_FTM_CNT_COUNT(instance);
+    return BR_FTM_CNT_COUNT(ftmBaseAddr);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer modulo value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param val The value to be set to the timer modulo
  */
-static inline void ftm_hal_set_mod(uint8_t instance, uint16_t val)
+static inline void FTM_HAL_SetMod(uint32_t ftmBaseAddr, uint16_t val)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_MOD_MOD(instance, val);
+    BW_FTM_MOD_MOD(ftmBaseAddr, val);
 }
 
 /*!
  * @brief Returns the FTM peripheral counter modulo value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @retval FTM timer modulo value
  */
-static inline uint16_t  ftm_hal_get_mod(uint8_t instance)
+static inline uint16_t  FTM_HAL_GetMod(uint32_t ftmBaseAddr)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    return BR_FTM_MOD_MOD(instance);
+    return BR_FTM_MOD_MOD(ftmBaseAddr);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer counter initial value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param val initial value to be set
  */
-static inline void ftm_hal_set_counter_init_val(uint8_t instance, uint16_t val)
+static inline void FTM_HAL_SetCounterInitVal(uint32_t ftmBaseAddr, uint16_t val)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_CNTIN_INIT(instance, val&BM_FTM_CNTIN_INIT);
+    BW_FTM_CNTIN_INIT(ftmBaseAddr, val & BM_FTM_CNTIN_INIT);
 }
 
 /*!
  * @brief Returns the FTM peripheral counter initial value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @retval FTM timer counter initial value
  */
-static inline uint16_t  ftm_hal_get_counter_init_val(uint8_t instance)
+static inline uint16_t  FTM_HAL_GetCounterInitVal(uint32_t ftmBaseAddr)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    return BR_FTM_CNTIN_INIT(instance);
+    return BR_FTM_CNTIN_INIT(ftmBaseAddr);
 }
 
-/*FTM channel operating mode (Mode, edge and level selection) for capture, output, PWM, combine, dual or quad*/
+/*FTM channel operating mode (Mode, edge and level selection) for capture, output, PWM, combine, dual */
 /*!
  * @brief Sets the FTM peripheral timer channel mode.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-* @param selection The mode to be set valid value MSnB:MSnA :00,01, 10, 11
+ * @param selection The mode to be set valid value MSnB:MSnA :00,01, 10, 11
  */
-static inline void ftm_hal_set_channel_MSnBA_mode(uint8_t instance, uint8_t channel, uint8_t selection)
+static inline void FTM_HAL_SetChnMSnBAMode(uint32_t ftmBaseAddr, uint8_t channel, uint8_t selection)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    BW_FTM_CnSC_MSA(instance, channel, selection&1);
-    BW_FTM_CnSC_MSB(instance, channel, selection&2? 1:0);
-
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    BW_FTM_CnSC_MSA(ftmBaseAddr, channel, selection & 1);
+    BW_FTM_CnSC_MSB(ftmBaseAddr, channel, selection & 2 ? 1 : 0);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer channel edge level.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-* @param level The rising or falling edge to be set, valid value ELSnB:ELSnA :00,01, 10, 11
+ * @param level The rising or falling edge to be set, valid value ELSnB:ELSnA :00,01, 10, 11
  */
-static inline void ftm_hal_set_channel_edge_level(uint8_t instance, uint8_t channel, uint8_t level)
+static inline void FTM_HAL_SetChnEdgeLevel(uint32_t ftmBaseAddr, uint8_t channel, uint8_t level)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    BW_FTM_CnSC_ELSA(instance, channel, level&1? 1:0);
-    BW_FTM_CnSC_ELSB(instance, channel, level&2?1:0);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    BW_FTM_CnSC_ELSA(ftmBaseAddr, channel, level & 1 ? 1 : 0);
+    BW_FTM_CnSC_ELSB(ftmBaseAddr, channel, level & 2 ? 1 : 0);
 }
 
 /*!
  * @brief Gets the FTM peripheral timer channel mode.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-* @retval The MSnB:MSnA mode value, will be 00,01, 10, 11
+ * @retval The MSnB:MSnA mode value, will be 00,01, 10, 11
  */
-static inline uint8_t ftm_hal_get_channel_mode(uint8_t instance, uint8_t channel)
+static inline uint8_t FTM_HAL_GetChnMode(uint32_t ftmBaseAddr, uint8_t channel)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    return (BR_FTM_CnSC_MSA(instance, channel)|| (BR_FTM_CnSC_MSB(instance, channel)<<1));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return (BR_FTM_CnSC_MSA(ftmBaseAddr, channel)|| (BR_FTM_CnSC_MSB(ftmBaseAddr, channel) << 1));
 }
 
 /*!
  * @brief Gets the FTM peripheral timer channel edge level.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-* @retval The ELSnB:ELSnA mode value, will be 00,01, 10, 11
+ * @retval The ELSnB:ELSnA mode value, will be 00,01, 10, 11
  */
-static inline uint8_t ftm_hal_get_channel_edge_level(uint8_t instance, uint8_t channel)
+static inline uint8_t FTM_HAL_GetChnEdgeLevel(uint32_t ftmBaseAddr, uint8_t channel)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    return (BR_FTM_CnSC_ELSA(instance, channel)|| (BR_FTM_CnSC_ELSB(instance, channel)<<1));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return (BR_FTM_CnSC_ELSA(ftmBaseAddr, channel)|| (BR_FTM_CnSC_ELSB(ftmBaseAddr, channel) << 1));
 }
 
 /*!
  * @brief Enables or disables the FTM peripheral timer channel DMA.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-* @param val enable or disable
+ * @param val enable or disable
  */
-static inline void ftm_hal_enable_channle_dma(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetChnDmaCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    BW_FTM_CnSC_DMA(instance, channel,(val? 1:0));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    BW_FTM_CnSC_DMA(ftmBaseAddr, channel,(val? 1 : 0));
 }
 
 /*!
  * @brief Returns whether the FTM peripheral timer channel DMA is enabled.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
-*  @retval true if enabled, false if disabled
+ * @retval true if enabled, false if disabled
  */
-static inline bool ftm_hal_is_channel_dma(uint8_t instance, uint8_t channel, bool val)
+static inline bool FTM_HAL_IsChnDma(uint32_t ftmBaseAddr, uint8_t channel)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    return (BR_FTM_CnSC_DMA(instance, channel) ? true : false);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return (BR_FTM_CnSC_DMA(ftmBaseAddr, channel) ? true : false);
 }
 
 /*!
  * @brief Enables the FTM peripheral timer channel(n) interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  */
-static inline void ftm_hal_enable_channel_interrupt(uint8_t instance, uint8_t channel)
+static inline void FTM_HAL_EnableChnInt(uint32_t ftmBaseAddr, uint8_t channel)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    BW_FTM_CnSC_CHIE(instance, channel, 1);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    BW_FTM_CnSC_CHIE(ftmBaseAddr, channel, 1);
 }
 /*!
  * @brief Disables the FTM peripheral timer channel(n) interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  */
-static inline void ftm_hal_disable_channel_interrupt(uint8_t instance, uint8_t channel)
+static inline void FTM_HAL_DisableChnInt(uint32_t ftmBaseAddr, uint8_t channel)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-    BW_FTM_CnSC_CHIE(instance, channel, 0);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    BW_FTM_CnSC_CHIE(ftmBaseAddr, channel, 0);
 }
 
 /*!
  * @brief Returns whether any event for the FTM peripheral timer channel has occurred.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @retval true if event occurred, false otherwise.
  */
-static inline bool ftm_is_channel_event_occurred(uint8_t instance, uint8_t channel)
+static inline bool FTM_HAL_HasChnEventOccurred(uint32_t ftmBaseAddr, uint8_t channel)
 {
-  assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-  return (BR_FTM_CnSC_CHF(instance, channel))? true : false;
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return (BR_FTM_CnSC_CHF(ftmBaseAddr, channel)) ? true : false;
 }
 
 /*FTM channel control*/
 /*!
  * @brief Sets the FTM peripheral timer channel counter value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param val counter value to be set
  */
-static inline void ftm_hal_set_channel_count_value(uint8_t instance, uint8_t channel, uint16_t val)
+static inline void FTM_HAL_SetChnCountVal(uint32_t ftmBaseAddr, uint8_t channel, uint16_t val)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   HW_FTM_CnV_WR(instance, channel, val);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    HW_FTM_CnV_WR(ftmBaseAddr, channel, val);
 }
 
 /*!
  * @brief Gets the FTM peripheral timer channel counter value.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @retval val return current channel counter value
  */
-static inline uint16_t ftm_hal_get_channel_count_value(uint8_t instance, uint8_t channel, uint16_t val)
+static inline uint16_t FTM_HAL_GetChnCountVal(uint32_t ftmBaseAddr, uint8_t channel, uint16_t val)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   return BR_FTM_CnV_VAL(instance, channel);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return BR_FTM_CnV_VAL(ftmBaseAddr, channel);
 }
 
 /*!
  * @brief Gets the FTM peripheral timer  channel event status.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @retval val return current channel event status value
  */
-static inline uint32_t ftm_hal_get_channel_event_status(uint8_t instance, uint8_t channel)
+static inline uint32_t FTM_HAL_GetChnEventStatus(uint32_t ftmBaseAddr, uint8_t channel)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   return (HW_FTM_STATUS_RD(instance)&(1U<<channel))?  true: false;
-   /*return BR_FTM_STATUS(instance, channel);*/
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    return (HW_FTM_STATUS_RD(ftmBaseAddr)&(1U << channel)) ? true : false;
+    /*return BR_FTM_STATUS(ftmBaseAddr, channel);*/
 }
 
 /*!
  * @brief Clears the FTM peripheral timer all channel event status.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @retval val return current channel counter value
  */
-static inline void ftm_hal_clear_channel_event_status(uint8_t instance, uint8_t channel)
+static inline void FTM_HAL_ClearChnEventStatus(uint32_t ftmBaseAddr, uint8_t channel)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   HW_FTM_STATUS_CLR(instance, 1U<<channel);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    HW_FTM_STATUS_CLR(ftmBaseAddr, 1U << channel);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer channel output mask.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param mask mask to be set 0 or 1, unmasked or masked
  */
-static inline void ftm_hal_set_channel_output_mask(uint8_t instance, uint8_t channel, bool  mask)
+static inline void FTM_HAL_SetChnOutputMask(uint32_t ftmBaseAddr, uint8_t channel, bool  mask)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   mask? HW_FTM_OUTMASK_SET(instance, 1U<<channel):HW_FTM_OUTMASK_CLR(instance, 1U<<channel);
-  /* BW_FTM_OUTMASK_CHnOM(instance, channel,mask); */
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    mask? HW_FTM_OUTMASK_SET(ftmBaseAddr, 1U << channel) : HW_FTM_OUTMASK_CLR(ftmBaseAddr, 1U << channel);
+    /* BW_FTM_OUTMASK_CHnOM(ftmBaseAddr, channel,mask); */
 }
 
 /*!
  * @brief Sets the FTM peripheral timer channel output initial state 0 or 1.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param state counter value to be set 0 or 1
  */
-static inline void ftm_hal_set_channel_output_init_state(uint8_t instance, uint8_t channel, uint8_t state)
+static inline void FTM_HAL_SetChnOutputInitState(uint32_t ftmBaseAddr, uint8_t channel, uint8_t state)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   HW_FTM_OUTINIT_CLR(instance, 1U<<channel);
-   HW_FTM_OUTINIT_SET(instance, (uint8_t)(state<<channel));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    HW_FTM_OUTINIT_CLR(ftmBaseAddr, 1U << channel);
+    HW_FTM_OUTINIT_SET(ftmBaseAddr, (uint8_t)(state << channel));
 }
 
 /*!
  * @brief Sets the FTM peripheral timer channel output polarity.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param pol polarity to be set 0 or 1
  */
-static inline void ftm_hal_set_channel_output_polarity(uint8_t instance, uint8_t channel, uint8_t pol)
+static inline void FTM_HAL_SetChnOutputPolarity(uint32_t ftmBaseAddr, uint8_t channel, uint8_t pol)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   HW_FTM_POL_CLR(instance, 1U<<channel);
-   HW_FTM_POL_SET(instance, (uint8_t)(pol<<channel));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    HW_FTM_POL_CLR(ftmBaseAddr, 1U << channel);
+    HW_FTM_POL_SET(ftmBaseAddr, (uint8_t)(pol << channel));
 }
 /*!
  * @brief Sets the FTM peripheral timer channel input polarity.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param pol polarity  to be set, 0: active high, 1:active low
  */
-static inline void ftm_hal_set_channel_fault_input_polarity(uint8_t instance, uint8_t channel, uint8_t pol)
+static inline void FTM_HAL_SetChnFaultInputPolarity(uint32_t ftmBaseAddr, uint8_t channel, uint8_t pol)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-   HW_FTM_FLTPOL_CLR(instance,  1U<<channel);
-   HW_FTM_FLTPOL_SET(instance,  (uint8_t)(pol<<channel));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    HW_FTM_FLTPOL_CLR(ftmBaseAddr,  1U << channel);
+    HW_FTM_FLTPOL_SET(ftmBaseAddr,  (uint8_t)(pol<<channel));
 }
 
 
@@ -505,151 +591,160 @@ static inline void ftm_hal_set_channel_fault_input_polarity(uint8_t instance, ui
     /*FTM fault control*/
 /*!
  * @brief Enables the FTM peripheral timer fault interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  */
-static inline void ftm_hal_enable_fault_interrupt(uint8_t instance)
+static inline void FTM_HAL_EnableFaultInt(uint32_t ftmBaseAddr)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_MODE_FAULTIE(instance, 1);
+    BW_FTM_MODE_FAULTIE(ftmBaseAddr, 1);
 }
 
 /*!
  * @brief Disables the FTM peripheral timer fault interrupt.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  */
-static inline void ftm_hal_disable_fault_interrupt(uint8_t instance)
+static inline void FTM_HAL_DisableFaultInt(uint32_t ftmBaseAddr)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_MODE_FAULTIE(instance, 0);
+    BW_FTM_MODE_FAULTIE(ftmBaseAddr, 0);
 }
 
 /*!
- * @brief Sets the FTM peripheral timer fault control mode.
- * @param instance The FTM peripheral instance number
- * @param mode, valid number bits:00, 01, 10,11 (1, 2, 3, 4)
+ * @brief Defines the FTM fault control mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param mode, valid options are 1, 2, 3, 4
  */
-static inline void ftm_hal_set_fault_control_mode(uint8_t instance, uint8_t mode)
+static inline void FTM_HAL_SetFaultControlMode(uint32_t ftmBaseAddr, uint8_t mode)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_MODE_FAULTM(instance, mode);
+    BW_FTM_MODE_FAULTM(ftmBaseAddr, mode);
 }
 
 /*!
- * @brief Enables the FTM peripheral timer capture test.
- * @param instance The FTM peripheral instance number
- * @param enable  true to enable, false to disable
+ * @brief Enables or disables the FTM peripheral timer capture test mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true to enable capture test mode, false to disable
  */
-static inline void ftm_hal_enable_capture_test(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetCaptureTestCmd(uint32_t ftmBaseAddr, bool enable)
 {
-     assert(instance <HW_FTM_INSTANCE_COUNT);
-     BW_FTM_MODE_CAPTEST(instance, enable? 1: 0);
+    BW_FTM_MODE_CAPTEST(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM peripheral timer write protection.
- * @param instance The FTM peripheral instance number
- * @param enable  true to enable, false to disable
+ * @brief Enables or disables the FTM write protection.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true: Write-protection is enabled, false: Write-protection is disabled
  */
-static inline void ftm_hal_enable_write_protection(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetWriteProtectionCmd(uint32_t ftmBaseAddr, bool enable)
 {
-     assert(instance <HW_FTM_INSTANCE_COUNT);
-     BW_FTM_MODE_WPDIS(instance, enable? 0: 1);
+     enable ? BW_FTM_FMS_WPEN(ftmBaseAddr, 1) : BW_FTM_MODE_WPDIS(ftmBaseAddr, 1);
 }
 
 /*!
  * @brief Enables the FTM peripheral timer group.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true: all registers including FTM-specific registers are available
+ *                false: only the TPM-compatible registers are available
  */
-static inline void ftm_hal_ftm_enable(uint8_t instance, bool enable)
+static inline void FTM_HAL_Enable(uint32_t ftmBaseAddr, bool enable)
 {
-     assert(instance <HW_FTM_INSTANCE_COUNT);
-     assert(BR_FTM_MODE_WPDIS(instance));
-     BW_FTM_MODE_FTMEN(instance, enable? 0: 1);
+     assert(BR_FTM_MODE_WPDIS(ftmBaseAddr));
+     BW_FTM_MODE_FTMEN(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel output initialization.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Initializes the channels output.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true: the channels output is initialized according to the state of OUTINIT reg
+ *                false: has no effect
  */
-static inline void ftm_hal_enable_channel_init_output(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetInitChnOutputCmd(uint32_t ftmBaseAddr, bool enable)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT);
-    BW_FTM_MODE_INIT(instance, enable? 1:0);
+    BW_FTM_MODE_INIT(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer sync mode.
- * @param instance The FTM peripheral instance number
- * @param enable  True no restriction both software and hardware sync, false only software sync.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true: no restriction both software and hardware triggers can be used\n
+ *                false: software trigger can only be used for MOD and CnV synch, hardware trigger
+ *                       only for OUTMASK and FTM counter synch.
  */
-static inline void ftm_hal_set_pwm_sync_mdoe(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetPwmSyncMode(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_MODE_PWMSYNC(instance, enable? 1:0);
+    BW_FTM_MODE_PWMSYNC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*FTM synchronization control*/
 /*!
- * @brief Enables the FTM peripheral timer software trigger.
- * @param instance The FTM peripheral instance number.
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the FTM peripheral timer software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address.
+ * @param enable  true: software trigger is selected, false: software trigger is not selected
  */
-static inline void ftm_hal_enable_software_trigger(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetSoftwareTriggerCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNC_SWSYNC(instance, enable? 1:0);
+    BW_FTM_SYNC_SWSYNC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
  * @brief Sets the FTM peripheral timer hardware trigger.
- * @param instance The FTM peripheral instance number
- * @param trigger_num  0, 1,2 for trigger0, trigger1 and trigger3
- * @param enable True to enable, 1 to enable
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param trigger_num  0, 1, 2 for trigger0, trigger1 and trigger3
+ * @param enable true: enable hardware trigger from field trigger_num for PWM synch
+ *               false: disable hardware trigger from field trigger_num for PWM synch
  */
-void ftm_hal_set_hardware_trigger(uint8_t instance, uint8_t trigger_num, bool enable);
+void FTM_HAL_SetHardwareTrigger(uint32_t ftmBaseAddr, uint8_t trigger_num, bool enable);
 
 /*!
- * @brief Enables the FTM peripheral timer output mask update by PWM sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable PWM sync, false to enable outmask in the rising edges of the system clock
+ * @brief Determines when the OUTMASK register is updated with the value of its buffer.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true if OUTMASK register is updated only by PWM sync\n
+ *                false if OUTMASK register is updated in all rising edges of the system clock
  */
-static inline void ftm_hal_enable_output_mask_sync_by_pwm(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetOutmaskPwmSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNC_SYNCHOM(instance, enable?1:0);
+    BW_FTM_SYNC_SYNCHOM(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM peripheral timer counter re-initialized by sync.
- * @param instance The FTM peripheral instance number
+ * @brief Determines if the FTM counter is re-initialized when the selected trigger for
+ * synchronization is detected.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param enable  True to update FTM counter when triggered , false to count normally
  */
-static inline void ftm_hal_enable_count_reinit_sync(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetCountReinitSyncCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNC_REINIT(instance, enable?1:0);
+    BW_FTM_SYNC_REINIT(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Enables or disables the FTM peripheral timer maximum loading points.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  True to enable maximum loading point, false to disable
+ */
+static inline void FTM_HAL_SetMaxLoadingCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_SYNC_CNTMAX(ftmBaseAddr, enable ? 1 : 0);
 }
 /*!
- * @brief Enables the FTM peripheral timer maximum loading points.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the FTM peripheral timer minimum loading points.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  True to enable minimum loading point, false to disable
  */
-static inline void ftm_hal_enable_max_loading(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetMinLoadingCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNC_CNTMAX(instance, enable?1:0);
-}
-/*!
- * @brief Enables the FTM peripheral timer minimum loading points.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_min_loading(uint8_t instance, bool enable)
-{
-   assert(instance <HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNC_CNTMIN(instance, enable?1:0);
+    BW_FTM_SYNC_CNTMIN(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
@@ -663,550 +758,671 @@ static inline void ftm_hal_enable_min_loading(uint8_t instance, bool enable)
  *         2 for channel pair 4 & 5\n
  *         3 for channel pair 6 & 7
  */
-static uint32_t get_channel_pair_index(uint8_t channel)
-{
-    if((channel == HW_CHAN0) || (channel == HW_CHAN1))
-    {
-        return 0;
-    }
-    else if((channel == HW_CHAN2) || (channel == HW_CHAN3))
-    {
-        return 1;
-    }
-    else if((channel == HW_CHAN4) || (channel == HW_CHAN5))
-    {
-        return 2;
-    }
-    else
-    {
-        return 3;
-    }
-}
-
-/*set DECAPEN bit*/
-/*!
- * @brief Enables the FTM peripheral timer dual edge capture mode.
- * @param instance The FTM peripheral instance number
- * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_dual_capture(uint8_t instance, uint8_t channel, bool enable)
-{
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
-
-    enable? HW_FTM_COMBINE_SET(instance,  BM_FTM_COMBINE_DECAPEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-     HW_FTM_COMBINE_CLR(instance,  BM_FTM_COMBINE_DECAPEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
-}
+uint32_t FTM_HAL_GetChnPairIndex(uint8_t channel);
 
 /*!
  * @brief Enables the FTM peripheral timer channel pair fault control.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @param enable  True to enable fault control, false to disable
  */
-static inline  void ftm_hal_enable_dual_channel_fault(uint8_t instance, uint8_t channel, bool enable)
+static inline  void FTM_HAL_SetDualChnFaultCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance, BM_FTM_COMBINE_FAULTEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-             HW_FTM_COMBINE_CLR(instance, BM_FTM_COMBINE_FAULTEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr, BM_FTM_COMBINE_FAULTEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr, BM_FTM_COMBINE_FAULTEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel pair counter PWM sync.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the FTM peripheral timer channel pair counter PWM sync.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @param enable  True to enable PWM synchronization, false to disable
  */
-static inline void ftm_hal_enable_dual_channel_pwm_sync(uint8_t instance, uint8_t channel, bool enable)
+static inline void FTM_HAL_SetDualChnPwmSyncCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance, BM_FTM_COMBINE_SYNCEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-           HW_FTM_COMBINE_CLR(instance, BM_FTM_COMBINE_SYNCEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr, BM_FTM_COMBINE_SYNCEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr, BM_FTM_COMBINE_SYNCEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel pair deadtime.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disabled the FTM peripheral timer channel pair deadtime insertion.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @param enable  True to enable deadtime insertion, false to disable
  */
-static inline void ftm_hal_enable_dual_channel_deadtime(uint8_t instance, uint8_t channel, bool enable)
+static inline void FTM_HAL_SetDualChnDeadtimeCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance,  BM_FTM_COMBINE_DTEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-           HW_FTM_COMBINE_CLR(instance,  BM_FTM_COMBINE_DTEN0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr,  BM_FTM_COMBINE_DTEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr,  BM_FTM_COMBINE_DTEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel dual edge capture decap, not decapen.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the FTM peripheral timer channel dual edge capture decap.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @param enable  True to enable dual edge capture mode, false to disable
  */
-static inline void ftm_hal_enable_dual_channel_decap(uint8_t instance, uint8_t channel, bool enable)
+static inline void FTM_HAL_SetDualChnDecapCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance, BM_FTM_COMBINE_DECAP0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-             HW_FTM_COMBINE_CLR(instance, BM_FTM_COMBINE_DECAP0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr, BM_FTM_COMBINE_DECAP0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr, BM_FTM_COMBINE_DECAP0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel pair output complement mode.
- * @param instance The FTM peripheral instance number
+ * @brief Enables the FTM peripheral timer dual edge capture mode.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @param enable  True to enable dual edge capture, false to disable
  */
-static inline void ftm_hal_enable_dual_channel_comp(uint8_t instance, uint8_t channel, bool enable)
+static inline void FTM_HAL_SetDualEdgeCaptureCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance,  BM_FTM_COMBINE_COMP0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-             HW_FTM_COMBINE_CLR(instance,  BM_FTM_COMBINE_COMP0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr,  BM_FTM_COMBINE_DECAPEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr,  BM_FTM_COMBINE_DECAPEN0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+}
+
+/*!
+ * @brief Enables or disables the FTM peripheral timer channel pair output complement mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param channel  The FTM peripheral channel number
+ * @param enable  True to enable complementary mode, false to disable
+ */
+static inline void FTM_HAL_SetDualChnCompCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
+{
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr,  BM_FTM_COMBINE_COMP0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr,  BM_FTM_COMBINE_COMP0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 
 }
 
 /*!
- * @brief Enables the FTM peripheral timer channel pair output combine mode.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the FTM peripheral timer channel pair output combine mode.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number
  * @param enable  True to enable channel pair to combine, false to disable
  */
-static inline void ftm_hal_enable_dual_channel_combine(uint8_t instance, uint8_t channel, bool enable)
+static inline void FTM_HAL_SetDualChnCombineCmd(uint32_t ftmBaseAddr, uint8_t channel, bool enable)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
 
-    enable? HW_FTM_COMBINE_SET(instance, BM_FTM_COMBINE_COMBINE0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
-             HW_FTM_COMBINE_CLR(instance, BM_FTM_COMBINE_COMBINE0 << (get_channel_pair_index(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
+    enable ? HW_FTM_COMBINE_SET(ftmBaseAddr, BM_FTM_COMBINE_COMBINE0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH)):
+             HW_FTM_COMBINE_CLR(ftmBaseAddr, BM_FTM_COMBINE_COMBINE0 << (FTM_HAL_GetChnPairIndex(channel) * FTM_COMBINE_CHAN_CTRL_WIDTH));
 }
 
 /*FTM dead time insertion control*/
 /*!
- * @brief Set the FTM deadtime divider.
- * @param instance The FTM peripheral instance number
- * @param divider  The FTM peripheral  prescale divider
-    0x :divided by 1, 10: divided by 4 11:divided by 16
+ * @brief Sets the FTM deadtime divider.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param divider  The FTM peripheral prescale divider\n
+ *                 0x :divided by 1, 10: divided by 4, 11:divided by 16
  */
-static inline void ftm_hal_set_deadtime_prescale(uint8_t instance, ftm_deadtime_ps_t divider)
+static inline void FTM_HAL_SetDeadtimePrescale(uint32_t ftmBaseAddr, ftm_deadtime_ps_t divider)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_DEADTIME_DTVAL(instance, divider);
+    BW_FTM_DEADTIME_DTPS(ftmBaseAddr, divider);
 }
 
 /*!
  * @brief Sets the FTM deadtime value.
- * @param instance The FTM peripheral instance number
- * @param divider  The FTM peripheral  prescale divider
-    count: 0, no counts inserted  1: 1 count is inserted 2: 2 count is inserted....
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param count  The FTM peripheral  prescale divider\n
+ *               0: no counts inserted, 1: 1 count is inserted, 2: 2 count is inserted....
  */
-static inline void ftm_hal_set_deadtime_count(uint8_t instance, uint8_t count)
+static inline void FTM_HAL_SetDeadtimeCount(uint32_t ftmBaseAddr, uint8_t count)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_DEADTIME_DTPS(instance, count);
+    BW_FTM_DEADTIME_DTVAL(ftmBaseAddr, count);
 }
+
+/*!
+* @brief Enables or disables the generation of the trigger when the FTM counter is equal to the CNTIN register.
+*
+* @param ftmBaseAddr The FTM base address
+* @param enable  True to enable, false to disable
+*/
+static inline void FTM_HAL_SetInitTriggerCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_EXTTRIG_INITTRIGEN(ftmBaseAddr, enable ? 1 : 0);
+}
+
 /*FTM external trigger */
 /*!
- * @brief Enables the generation of the FTM peripheral timer channel trigger when the FTM counter is equal to its initial value.
-   Channels 6 and 7 cannot be used as triggers.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the generation of the FTM peripheral timer channel trigger.
+ *
+ * Enables or disables the when the generation of the FTM peripheral timer channel trigger when the
+ * FTM counter is equal to its initial value. Channels 6 and 7 cannot be used as triggers.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param channel Channel to be enabled,  valid value 0, 1, 2, 3, 4, 5
- * @param enable  True to enable, false to disable
+ * @param val  True to enable, false to disable
  */
-void ftm_hal_enable_channel_trigger(uint8_t instance, uint8_t channel, bool val);
+void FTM_HAL_SetChnTriggerCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val);
+
 /*!
  * @brief Checks whether any channel trigger event has occurred.
- * @param instance The FTM peripheral instance number
- * @retval True if there is a trigger event, false if not.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @retval true if there is a channel trigger event, false if not.
  */
-static inline bool ftm_hal_is_channel_trigger_generated(uint8_t instance, uint8_t channel)
+static inline bool FTM_HAL_IsChnTriggerGenerated(uint32_t ftmBaseAddr)
 {
-    assert(instance <HW_FTM_INSTANCE_COUNT && channel < HW_CHAN6);
-    return BR_FTM_EXTTRIG_TRIGF(instance);
+    return BR_FTM_EXTTRIG_TRIGF(ftmBaseAddr);
 }
 
 
 /*Fault mode status*/
 /*!
  * @brief Gets the FTM detected fault input.
- * @param instance The FTM peripheral instance number
- * @retval Return faulty byte
+ *
+ * This function reads the status for all fault inputs
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @retval Return fault byte
  */
-static inline uint8_t ftm_hal_get_detected_fault_input(uint8_t instance)
+static inline uint8_t FTM_HAL_GetDetectedFaultInput(uint32_t ftmBaseAddr)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   return  (HW_FTM_FMS(instance).U &0x0f);
+    return (HW_FTM_FMS(ftmBaseAddr).U & 0x0f);
 }
 /*!
  * @brief Checks whether the write protection is enabled.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @retval True if enabled, false if not
  */
-static inline bool    ftm_hal_is_write_protection_enable(uint8_t instance)
+static inline bool FTM_HAL_IsWriteProtectionEnabled(uint32_t ftmBaseAddr)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT);
-    return BR_FTM_FMS_WPEN(instance)? true:false;
+    return BR_FTM_FMS_WPEN(ftmBaseAddr) ? true : false;
 }
 
 /*Quadrature decoder control*/
+
 /*!
  * @brief Enables the channel quadrature decoder.
- * @param instance The FTM peripheral instance number
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param enable  True to enable, false to disable
  */
-static inline void ftm_hal_enable_quad_capture(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetQuadDecoderCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
+    BW_FTM_QDCTRL_QUADEN(ftmBaseAddr, enable ? 1 : 0);
 }
 
-/*Hardware definition for quadrature decoder control is missing, implement this later */
-/*static inline void ftm_hal_enable_quad_input_filter(uint8_t instance, ftm_phase_t phase)
-static inline void ftm_hal_set_quad_phase_normal_polarity(uint8_t instance, ftm_phase_t phase)
-static inline void ftm_hal_set_quad_phase_invert_polarity(uint8_t instance, ftm_phase_t phase)
-static inline void ftm_hal_set_quad_mode()
-static inline void ftm_hal_set_quad_direction()
-static inline void ftm_hal_set_quad_timer_overflow_direction()*/
+/*!
+ * @brief Enables or disables the phase A input filter.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable true enables the phase input filter, false disables the filter
+ */
+static inline void FTM_HAL_SetQuadPhaseAFilterCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_QDCTRL_PHAFLTREN(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Enables or disables the phase B input filter.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable true enables the phase input filter, false disables the filter
+ */
+static inline void FTM_HAL_SetQuadPhaseBFilterCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_QDCTRL_PHBFLTREN(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Selects polarity for the quadrature decode phase A input.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param mode 0: Normal polarity, 1: Inverted polarity
+ */
+static inline void FTM_HAL_SetQuadPhaseAPolarity(uint32_t ftmBaseAddr,
+                                                           ftm_quad_phase_polarity_t mode)
+{
+    BW_FTM_QDCTRL_PHAPOL(ftmBaseAddr, mode);
+}
+
+/*!
+ * @brief Selects polarity for the quadrature decode phase B input.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param mode 0: Normal polarity, 1: Inverted polarity
+ */
+static inline void FTM_HAL_SetQuadPhaseBPolarity(uint32_t ftmBaseAddr,
+                                                           ftm_quad_phase_polarity_t mode)
+{
+    BW_FTM_QDCTRL_PHBPOL(ftmBaseAddr, mode);
+}
+
+/*!
+ * @brief Sets the encoding mode used in quadrature decoding mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param quadMode 0: Phase A and Phase B encoding mode\n
+ *                 1: Count and direction encoding mode
+ */
+static inline void FTM_HAL_SetQuadMode(uint32_t ftmBaseAddr, ftm_quad_decode_mode_t quadMode)
+{
+    BW_FTM_QDCTRL_QUADMODE(ftmBaseAddr, quadMode);
+}
+
+/*!
+ * @brief Gets the FTM counter direction in quadrature mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ *
+ * @retval 1 if counting direction is increasing, 0 if counting direction is decreasing
+ */
+static inline uint8_t FTM_HAL_GetQuadDir(uint32_t ftmBaseAddr)
+{
+    return BR_FTM_QDCTRL_QUADMODE(ftmBaseAddr);
+}
+
+/*!
+ * @brief Gets the Timer overflow direction in quadrature mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ *
+ * @retval 1 if TOF bit was set on the top of counting, o if TOF bit was set on the bottom of counting
+ */
+static inline uint8_t FTM_HAL_GetQuadTimerOverflowDir(uint32_t ftmBaseAddr)
+{
+    return BR_FTM_QDCTRL_TOFDIR(ftmBaseAddr);
+}
 
 /*!
  * @brief Sets the FTM peripheral timer channel input capture filter value.
- * @param instance The FTM peripheral instance number
+ * @param ftmBaseAddr The FTM base address
  * @param channel  The FTM peripheral channel number, only 0,1,2,3, channel 4, 5,6, 7 don't have.
  * @param val  Filter value to be set
  */
-void ftm_hal_set_channel_input_capture_filter(uint8_t instance, uint8_t channel, uint8_t val);
-
-
+void FTM_HAL_SetChnInputCaptureFilter(uint32_t ftmBaseAddr, uint8_t channel, uint8_t val);
 
 /*!
- * @brief Enables the channel input filter.
- * @param instance The FTM peripheral instance number
- * @param channel Channel to be enabled,  valid value 0, 1, 2, 3
- * @param enable  True to enable, false to disable
+ * @brief Sets the fault input filter value.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param val fault input filter value
  */
-static inline void ftm_hal_enable_channel_fault_input_filter(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetFaultInputFilterVal(uint32_t ftmBaseAddr, uint32_t val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_CHAN4);
-   val? HW_FTM_FLTCTRL_SET(instance, (1U<<channel)) : HW_FTM_FLTCTRL_CLR(instance, (1U<<channel));
+    BW_FTM_FLTCTRL_FFVAL(ftmBaseAddr, val);
 }
 
 /*!
- * @brief Enables the channel fault input.
- * @param instance The FTM peripheral instance number
- * @param channel Channel to be enabled,  valid value 0, 1, 2, 3
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the fault input filter.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param inputNum fault input to be configured, valid value 0, 1, 2, 3
+ * @param val  true to enable fault input filter, false to disable fault input filter
  */
-static inline void ftm_hal_enable_channel_fault_input(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetFaultInputFilterCmd(uint32_t ftmBaseAddr, uint8_t inputNum, bool val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_CHAN4);
-   val ? HW_FTM_FLTCTRL_SET(instance,  ((1U << channel) + 4))
-       : HW_FTM_FLTCTRL_CLR(instance,  ((1U << channel) + 4));
+    assert(inputNum < HW_CHAN4);
+    val ? HW_FTM_FLTCTRL_SET(ftmBaseAddr, (1U << (inputNum + 4))) :
+          HW_FTM_FLTCTRL_CLR(ftmBaseAddr, (1U << (inputNum + 4)));
 }
 
 /*!
- * @brief Enables the channel invert.
- * @param instance The FTM peripheral instance number
- * @param channel  The FTM peripheral channel number
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the fault input.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param inputNum fault input to be configured, valid value 0, 1, 2, 3
+ * @param val  true to enable fault input, false to disable fault input
  */
-static inline void ftm_hal_enable_dual_channel_invert(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetFaultInputCmd(uint32_t ftmBaseAddr, uint8_t inputNum, bool val)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT && channel < HW_FTM_CHANNEL_COUNT);
+    assert(inputNum < HW_CHAN4);
+    val ? HW_FTM_FLTCTRL_SET(ftmBaseAddr, (1U << inputNum)) :
+          HW_FTM_FLTCTRL_CLR(ftmBaseAddr, (1U << inputNum));
+}
 
-    val ? HW_FTM_INVCTRL_SET(instance, (1U << get_channel_pair_index(channel)))
-        : HW_FTM_INVCTRL_CLR(instance, (1U << get_channel_pair_index(channel)));
+/*!
+ * @brief Enables or disables the channel invert for a channel pair.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param channel The FTM peripheral channel number
+ * @param val  true to enable channel inverting, false to disable channel inverting
+ */
+static inline void FTM_HAL_SetDualChnInvertCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val)
+{
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+
+    val ? HW_FTM_INVCTRL_SET(ftmBaseAddr, (1U << FTM_HAL_GetChnPairIndex(channel))) :
+          HW_FTM_INVCTRL_CLR(ftmBaseAddr, (1U << FTM_HAL_GetChnPairIndex(channel)));
 }
 
 /*FTM software output control*/
 /*!
- * @brief Enables the channel software control.
- * @param instance The FTM peripheral instance number
- * @param channel Channel to be enabled,  valid value 0, 1, 2, 3, 4,5,6,7
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the channel software output control.
+ * @param ftmBaseAddr The FTM base address
+ * @param channel Channel to be enabled or disabled
+ * @param val  true to enable, channel output will be affected by software output control\n
+                  false to disable, channel output is unaffected
  */
-static inline void ftm_hal_enable_channel_software_ctrl(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetChnSoftwareCtrlCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_FTM_CHANNEL_COUNT);
-   val? HW_FTM_SWOCTRL_SET(instance,  (1U<<channel)) : HW_FTM_SWOCTRL_CLR(instance,  (1U<<channel));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    val ? HW_FTM_SWOCTRL_SET(ftmBaseAddr, (1U << channel)) :
+          HW_FTM_SWOCTRL_CLR(ftmBaseAddr, (1U << channel));
 }
 /*!
- * @brief Sets the channel software control value.
- * @param instance The FTM peripheral instance number.
- * @param channel Channel to be enabled,  valid value 0, 1, 2, 3,5,6,7,
- * @param bool  True to set 1, false to set 0
+ * @brief Sets the channel software output control value.
+ *
+ * @param ftmBaseAddr The FTM base address.
+ * @param channel Channel to be configured
+ * @param val  True to set 1, false to set 0
  */
-static inline void ftm_hal_set_channel_software_ctrl_val(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetChnSoftwareCtrlVal(uint32_t ftmBaseAddr, uint8_t channel, bool val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_FTM_CHANNEL_COUNT);
-          val? HW_FTM_SWOCTRL_SET(instance, (1U<<(channel+8))) : HW_FTM_SWOCTRL_CLR(instance, (1U<<(channel+8)));
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    val ? HW_FTM_SWOCTRL_SET(ftmBaseAddr, (1U << (channel + 8))) :
+          HW_FTM_SWOCTRL_CLR(ftmBaseAddr, (1U << (channel + 8)));
 }
 
 /*FTM PWM load control*/
 /*!
- * @brief Enables the FTM timer PWM loading of MOD, CNTIN and CV.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Enables or disables the loading of MOD, CNTIN and CV with values of their write buffer.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true to enable, false to disable
  */
-static inline void ftm_hal_enable_pwm_load(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetPwmLoadCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   HW_FTM_PWMLOAD(instance).B.LDOK = enable? 1:0;
+    BW_FTM_PWMLOAD_LDOK(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the channel matching process.
- * @param instance The FTM peripheral instance number
- * @param channel Channel to be enabled,  valid value 0, 1, 2, 3, 4,5,6,7
- * @param enable  True to enable, false to disable
+ * @brief Includes or excludes the channel in the matching process.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param channel Channel to be configured
+ * @param val  true means include the channel in the matching process\n
+ *                false means do not include channel in the matching process
  */
-static inline void ftm_hal_enable_pwm_load_matching_channel(uint8_t instance, uint8_t channel, bool val)
+static inline void FTM_HAL_SetPwmLoadChnSelCmd(uint32_t ftmBaseAddr, uint8_t channel, bool val)
 {
-    assert(instance < HW_FTM_INSTANCE_COUNT  && channel < HW_FTM_CHANNEL_COUNT);
-    val? HW_FTM_PWMLOAD_SET(instance, 1U<<channel) : HW_FTM_PWMLOAD_CLR(instance, 1U<<channel);
+    assert(channel < FSL_FEATURE_FTM_CHANNEL_COUNT);
+    val ? HW_FTM_PWMLOAD_SET(ftmBaseAddr, 1U << channel) : HW_FTM_PWMLOAD_CLR(ftmBaseAddr, 1U << channel);
 }
+
 /*FTM configuration*/
 /*!
- * @brief Enables the FTM timer global time base output.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the FTM global time base signal generation to other FTM's.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param enable  True to enable, false to disable
  */
-static inline void ftm_hal_enable_global_time_base_output(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetGlobalTimeBaseOutputCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_CONF_GTBEOUT(instance, enable? 1:0);
+    BW_FTM_CONF_GTBEOUT(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer global time base.
- * @param instance The FTM peripheral instance number
+ * @brief Enables or disables the FTM timer global time base.
+ *
+ * @param ftmBaseAddr The FTM base address
  * @param enable  True to enable, false to disable
  */
-static inline void ftm_hal_enable_global_time_base(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetGlobalTimeBaseCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_CONF_GTBEEN(instance, enable? 1:0);
+    BW_FTM_CONF_GTBEEN(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Sets the FTM timer TOF Frequency.
- * @param instance The FTM peripheral instance number
- * @param val  Value of the TOF bit set frequency 
+ * @brief Sets the BDM mode..
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param val  FTM behaviour in BDM mode, options are 0,1,2,3
  */
-static inline void ftm_hal_set_bdm_mode(uint8_t instance, uint8_t val)
+static inline void FTM_HAL_SetBdmMode(uint32_t ftmBaseAddr, uint8_t val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_CONF_NUMTOF(instance, val);
+    BW_FTM_CONF_BDMMODE(ftmBaseAddr, val);
 }
 
 /*!
- * @brief Sets the BDM mode.
- * @param instance The FTM peripheral instance number
- * @param val  Value of the TOF bit set frequency 
+ * @brief Sets the FTM timer TOF Frequency
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param val  Value of the TOF bit set frequency
  */
-static inline void ftm_hal_set_tof_frequency(uint8_t instance, uint8_t val)
+static inline void FTM_HAL_SetTofFreq(uint32_t ftmBaseAddr, uint8_t val)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_CONF_BDMMODE(instance, val);
+    BW_FTM_CONF_NUMTOF(ftmBaseAddr, val);
 }
 
 /*FTM sync configuration*/
   /*hardware sync*/
 /*!
- * @brief Enables the FTM timer hardware sync activation.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_hardware_sync_software_output_ctrl(uint8_t instance, bool enable )
-{
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_HWSOC(instance, enable? 1:0);
-}
-
-/*!
- * @brief Enables the FTM timer hardware inverting control sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_hardware_sync_invert_ctrl(uint8_t instance, bool enable )
-{
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_HWINVC(instance, enable? 1:0);
-}
-
-/*!
- * @brief Enables the FTM timer hardware outmask sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_hardware_sync_output_mask(uint8_t instance, bool enable )
-{
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_HWOM(instance, enable? 1:0);
-}
-
-/*!
- * @brief MOD, CNTIN, and CV registers synchronization is activated.
+ * @brief Sets the sync mode for the FTM SWOCTRL register when using a hardware trigger.
  *
- * A hardware trigger  activates the synchronization.
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means the hardware trigger activates register sync\n
+ *                false means the hardware trigger does not activate register sync.
+ */
+static inline void FTM_HAL_SetSwoctrlHardwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_SYNCONF_HWSOC(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Sets sync mode for FTM INVCTRL register when using a hardware trigger.
  *
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means the hardware trigger activates register sync\n
+ *                false means the hardware trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_hardware_sycn_mod_cntin_cv(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetInvctrlHardwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_HWWRBUF(instance, enable? 1:0);
+    BW_FTM_SYNCONF_HWINVC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief The FTM counter synchronization is activated by a hardware trigger.
+ * @brief Sets sync mode for FTM OUTMASK register when using a hardware trigger.
  *
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means hardware trigger activates register sync\n
+ *                false means hardware trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_hardware_sync_counter(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetOutmaskHardwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_HWRSTCNT(instance, enable? 1:0);
+    BW_FTM_SYNCONF_HWOM(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer software sync activation.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Sets sync mode for FTM MOD, CNTIN and CV registers when using a hardware trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means hardware trigger activates register sync\n
+ *                false means hardware trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_pwm_sync_swoctrl(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetModCntinCvHardwareSycnModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWOC(instance, enable? 1:0);
+    BW_FTM_SYNCONF_HWWRBUF(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer enhanced PWM sync mode.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Sets sync mode for FTM counter register when using a hardware trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means hardware trigger activates register sync\n
+ *                false means hardware trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_enhanced_pwm_sync_mdoe(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetCounterHardwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SYNCMODE(instance, enable? 1:0);
-}
-
-
-/*!
- * @brief Enables the FTM timer software output control sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
- */
-static inline void ftm_hal_enable_software_sync_swoctrl(uint8_t instance, bool enable )
-{
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWSOC(instance, enable? 1:0);
+    BW_FTM_SYNCONF_HWRSTCNT(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer software inverting control sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Sets sync mode for FTM SWOCTRL register when using a software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means software trigger activates register sync\n
+ *                false means software trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_software_sync_invert_ctrl(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetSwoctrlSoftwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWINVC(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SWSOC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer software outmask sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Sets sync mode for FTM INVCTRL register when using a software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means software trigger activates register sync\n
+ *                false means software trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_software_sync_output_mask(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetInvctrlSoftwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWOM(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SWINVC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer software outmask sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable.
+ * @brief Sets sync mode for FTM OUTMASK register when using a software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means software trigger activates register sync\n
+ *                false means software trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_software_sycn_mod_cntin_cv(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetOutmaskSoftwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWWRBUF(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SWOM(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer counter software sync.
- * @param instance The FTM peripheral instance number
- * @param enable  True to enable, false to disable
+ * @brief Sets synch mode for FTM MOD, CNTIN and CV registers when using a software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means software trigger activates register sync\n
+ *                false means software trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_software_sync_counter(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetModCntinCvSoftwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_SWRSTCNT(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SWWRBUF(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer INVCTRL update by PWM.
- * @param instance The FTM peripheral instance number
- * @param enable  True to update with PWM, false to update with rising edge of system clock.
+ * @brief Sets sync mode for FTM counter register when using a software trigger.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means software trigger activates register sync\n
+ *                false means software trigger does not activate register sync.
  */
-static inline void ftm_hal_enable_invert_sync_with_rising_edge(uint8_t instance, bool enable)
+static inline void FTM_HAL_SetCounterSoftwareSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_INVC(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SWRSTCNT(ftmBaseAddr, enable ? 1 : 0);
 }
 
 /*!
- * @brief Enables the FTM timer cntin update by PWM.
- * @param instance The FTM peripheral instance number
- * @param enable  True to update with PWM, false to update with rising edge of system clock.
+ * @brief Sets the PWM synchronization mode to enhanced or legacy.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means use Enhanced PWM synchronization\n
+ *                false means to use Legacy mode
  */
-static inline void ftm_hal_enable_cntin_sync_with_rising_edge(uint8_t instance, bool enable )
+static inline void FTM_HAL_SetPwmSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
 {
-   assert(instance < HW_FTM_INSTANCE_COUNT);
-   BW_FTM_SYNCONF_CNTINC(instance, enable? 1:0);
+    BW_FTM_SYNCONF_SYNCMODE(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Sets the SWOCTRL register PWM synchronization mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means SWOCTRL register is updated by PWM synch\n
+ *                false means SWOCTRL register is updated at all rising edges of system clock
+ */
+static inline void FTM_HAL_SetSwoctrlPwmSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_SYNCONF_SWOC(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Sets the INVCTRL register PWM synchronization mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means INVCTRL register is updated by PWM synch\n
+ *                false means INVCTRL register is updated at all rising edges of system clock
+ */
+static inline void FTM_HAL_SetInvctrlPwmSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_SYNCONF_INVC(ftmBaseAddr, enable ? 1 : 0);
+}
+
+/*!
+ * @brief Sets the CNTIN register PWM synchronization mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param enable  true means CNTIN register is updated by PWM synch\n
+ *                false means CNTIN register is updated at all rising edges of system clock
+ */
+static inline void FTM_HAL_SetCntinPwmSyncModeCmd(uint32_t ftmBaseAddr, bool enable)
+{
+    BW_FTM_SYNCONF_CNTINC(ftmBaseAddr, enable ? 1 : 0);
 }
 
 
 /*HAL functionality*/
 /*!
  * @brief Resets the FTM registers
- * @param instance The FTM peripheral instance number
+ *
+ * @param instance The FTM instance number
+ * @param ftmBaseAddr The FTM base address
  */
-void ftm_hal_reset(uint8_t instance);
+void FTM_HAL_Reset(uint32_t ftmBaseAddr, uint32_t instance);
 
 /*!
  * @brief Initializes the FTM.
- * @param instance The FTM peripheral instance number.
-*/
-void ftm_hal_init(uint8_t instance, ftm_config_t *config);
+ *
+ * @param ftmBaseAddr The FTM base address.
+ */
+void FTM_HAL_Init(uint32_t ftmBaseAddr);
+
 /*Initializes the  5 FTM operating mode, input capture, output compare, PWM output(edge aligned, center-aligned, conbine), dual and quadrature).*/
 
-/*void ftm_hal_input_capture_mode(uint8_t instance);*/
-/*void ftm_hal_output_compare_mode(uint8_t instance);*/
+/*void FTM_HAL_input_capture_mode(uint32_t ftmBaseAddr);*/
+/*void FTM_HAL_output_compare_mode(uint32_t ftmBaseAddr);*/
 
 /*!
  * @brief Enables the FTM timer when it is PWM output mode.
- * @param instance The FTM peripheral instance number
- * @param config pwm config parameter
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param config PWM configuration parameter
+ * @param channel The channel or channel pair number(combined mode).
  */
-void ftm_hal_enable_pwm_mode(uint8_t instance, ftm_config_t *config);
+void FTM_HAL_EnablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel);
 
 /*!
- * @brief Initializes the FTM timer when it is PWM output mode.
- * @param instance The FTM peripheral instance number
+ * @brief Disables the PWM output mode.
+ *
+ * @param ftmBaseAddr The FTM base address
+ * @param config PWM configuration parameter
+ * @param channel The channel or channel pair number(combined mode).
  */
-void ftm_hal_disable_pwm_mode(uint8_t instance, ftm_config_t *config);
-/*void ftm_hal_dual_mode(uint8_t instance);*/
-/*void ftm_hal_quad_mode(uint8_t instance);*/
+void FTM_HAL_DisablePwmMode(uint32_t ftmBaseAddr, ftm_pwm_param_t *config, uint8_t channel);
+
+/*void FTM_HAL_dual_mode(uint32_t ftmBaseAddr);*/
+/*void FTM_HAL_quad_mode(uint32_t ftmBaseAddr);*/
 
 
-/*void ftm_hal_set_counting_mode(); //up, up down or free running counting mode*/
-/*void ftm_hal_set_deadtime(uint8_t instance, uint_32 us);*/
+/*void FTM_HAL_set_counting_mode(); //up, up down or free running counting mode*/
+/*void FTM_HAL_set_deadtime(uint32_t ftmBaseAddr, uint_32 us);*/
 
 /*! @}*/
 
@@ -1214,3 +1430,4 @@ void ftm_hal_disable_pwm_mode(uint8_t instance, ftm_config_t *config);
 /*******************************************************************************
  * EOF
  ******************************************************************************/
+

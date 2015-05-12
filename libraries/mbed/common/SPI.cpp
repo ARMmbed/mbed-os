@@ -117,7 +117,6 @@ int SPI::queue_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_
     t.tx_length = tx_length;
     t.rx_buffer = rx_buffer;
     t.rx_length = rx_length;
-    t.callback = callback;
     t.event = event;
     t.callback = callback;
     t.width = bit_width;
@@ -133,12 +132,12 @@ int SPI::queue_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_
 #endif
 }
 
-void SPI::start_transfer(void *tx, int tx_length, void *rx, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
+void SPI::start_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
     aquire();
     _callback = callback;
     _irq.callback(&SPI::irq_handler_asynch);
-    spi_master_transfer(&_spi, tx, tx_length, rx, rx_length, bit_width, _irq.entry(), event , _usage);
+    spi_master_transfer(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event , _usage);
 }
 
 #if TRANSACTION_QUEUE_SIZE_SPI

@@ -35,7 +35,7 @@
 
 #define DEVICE_CAN              0
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_ETHERNET         0
 
@@ -44,7 +44,7 @@
 #define DEVICE_SEMIHOST         0
 #define DEVICE_LOCALFILESYSTEM  0
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
 #define DEVICE_DEBUG_AWARENESS  0
 

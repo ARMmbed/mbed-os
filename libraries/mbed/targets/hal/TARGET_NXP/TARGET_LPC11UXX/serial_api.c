@@ -21,25 +21,12 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
 #define UART_NUM    1
-
-static const PinMap PinMap_UART_TX[] = {
-    {P0_19, UART_0, 1},
-    {P1_13, UART_0, 3},
-    {P1_27, UART_0, 2},
-    { NC  , NC    , 0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {P0_18, UART_0, 1},
-    {P1_14, UART_0, 3},
-    {P1_26, UART_0, 2},
-    {NC   , NC    , 0}
-};
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -86,8 +73,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
     
     // set rx/tx pins in PullUp mode
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
     
     switch (uart) {
         case UART_0: obj->index = 0; break;

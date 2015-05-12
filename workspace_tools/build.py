@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -254,9 +254,12 @@ if __name__ == '__main__':
     print "Completed in: (%.2f)s" % (time() - start)
     print
 
-    print print_build_results(successes, "Build successes:"),
-    print print_build_results(skipped, "Build skipped:"),
-    print print_build_results(failures, "Build failures:"),
+    for report, report_name in [(successes, "Build successes:"),
+                                (skipped, "Build skipped:"),
+                                (failures, "Build failures:"),
+                               ]:
+        if report:
+            print print_build_results(report, report_name),
 
     if failures:
         sys.exit(1)

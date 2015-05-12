@@ -19,7 +19,7 @@
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 
 // PWM implementation for the LPC43xx using State Configurable Timer (SCT)
 //   * PWM_0 to PWM_15 on mbed use CTOUT_0 to CTOUT_15 outputs on LPC43xx

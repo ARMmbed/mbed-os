@@ -17,7 +17,8 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
+#include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
@@ -27,18 +28,6 @@
 static inline int div_round_up(int x, int y) {
   return (x + (y - 1)) / y;
 }
-
-static const PinMap PinMap_ADC[] = {
-    {P0_11, ADC0_0, 0x02},
-    {P0_12, ADC0_1, 0x02},
-    {P0_13, ADC0_2, 0x02},
-    {P0_14, ADC0_3, 0x02},
-    {P0_15, ADC0_4, 0x02},
-    {P0_16, ADC0_5, 0x01},
-    {P0_22, ADC0_6, 0x01},
-    {P0_23, ADC0_7, 0x01},
-    {NC   , NC    , 0   }
-};
 
 #define LPC_IOCON0_BASE (LPC_IOCON_BASE)
 #define LPC_IOCON1_BASE (LPC_IOCON_BASE + 0x60)

@@ -17,6 +17,7 @@
 #define MBED_GPIO_OBJECT_H
 
 #include "em_gpio.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,10 @@ static inline int gpio_read(gpio_t *obj)
     } else {
         return GPIO_PinOutGet(obj->port, obj->pin & 0xF);
     }
+}
+
+static inline int gpio_is_connected(const gpio_t *obj) {
+    return obj->pin != (PinName)NC;
 }
 
 #ifdef __cplusplus

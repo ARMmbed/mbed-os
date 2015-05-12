@@ -18,37 +18,8 @@
 #include "spi_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
-
-static const PinMap PinMap_SPI_SCLK[] = {
-    {P0_6 , SPI_0, 0x02},
-    {P0_10, SPI_0, 0x02},
-    {P1_29, SPI_0, 0x01},
-    {P1_15, SPI_1, 0x03},
-    {P1_20, SPI_1, 0x02},
-    {NC   , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {P0_9 , SPI_0, 0x01},
-    {P0_21, SPI_1, 0x02},
-    {P1_22, SPI_1, 0x02},
-    {NC   , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {P0_8 , SPI_0, 0x01},
-    {P0_22, SPI_1, 0x03},
-    {P1_21, SPI_1, 0x02},
-    {NC   , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {P0_2 , SPI_0, 0x01},
-    {P1_19, SPI_1, 0x02},
-    {P1_23, SPI_1, 0x02},
-    {NC   , NC   , 0}
-};
+#include "mbed_error.h"
+#include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);

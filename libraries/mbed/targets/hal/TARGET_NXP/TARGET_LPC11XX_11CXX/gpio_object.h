@@ -43,6 +43,10 @@ static inline int gpio_read(gpio_t *obj) {
     return ((*obj->reg_mask_read) ? 1 : 0);
 }
 
+static inline int gpio_is_connected(const gpio_t *obj) {
+    return obj->pin != (PinName)NC;
+}
+
 #ifdef __cplusplus
 }
 #endif

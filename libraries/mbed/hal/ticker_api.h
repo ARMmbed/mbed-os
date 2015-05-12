@@ -94,6 +94,13 @@ void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, t
  */
 timestamp_t ticker_read(const ticker_data_t *const data);
 
+/** Read the next event's timestamp
+ *
+ * @param data The ticker's data
+ * @return 1 if timestamp is pending event, 0 if there's no event pending
+ */
+int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *timestamp);
+
 #ifdef __cplusplus
 }
 #endif

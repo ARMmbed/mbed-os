@@ -54,8 +54,8 @@ public:
     SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs, const char* name);
     virtual int disk_initialize();
     virtual int disk_status();
-    virtual int disk_read(uint8_t * buffer, uint64_t block_number);
-    virtual int disk_write(const uint8_t * buffer, uint64_t block_number);
+    virtual int disk_read(uint8_t* buffer, uint64_t block_number, uint8_t count);
+    virtual int disk_write(const uint8_t* buffer, uint64_t block_number, uint8_t count);
     virtual int disk_sync();
     virtual uint64_t disk_sectors();
 

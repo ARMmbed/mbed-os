@@ -26,7 +26,8 @@ DigitalInOut d2(D7);
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
 
-#elif defined(TARGET_DISCO_F407VG) || \
+#elif defined(TARGET_ARCH_MAX) || \
+      defined(TARGET_DISCO_F407VG) || \
       defined(TARGET_DISCO_F429ZI)|| \
       defined(TARGET_DISCO_F401VC)
 DigitalInOut d1(PC_12);
@@ -39,6 +40,10 @@ DigitalInOut d2(D7);
 #elif defined(TARGET_MAXWSNENV)
 DigitalInOut d1(TP3);
 DigitalInOut d2(TP4);
+
+#elif defined(TARGET_MAX32600MBED)
+DigitalInOut d1(P1_0);
+DigitalInOut d2(P4_7);
 
 #else
 DigitalInOut d1(p5);

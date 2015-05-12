@@ -77,7 +77,7 @@ protected:
 #if !defined(TARGET_STM32F4)
     virtual bool EP4_OUT_callback(){return false;};
     virtual bool EP4_IN_callback(){return false;};
-#if !defined(TARGET_LPC11U24)
+#if !(defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549))
     virtual bool EP5_OUT_callback(){return false;};
     virtual bool EP5_IN_callback(){return false;};
     virtual bool EP6_OUT_callback(){return false;};
@@ -108,9 +108,9 @@ private:
     static void _usbisr(void);
     static USBHAL * instance;
 
-#if defined(TARGET_LPC11U24)
+#if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
         bool (USBHAL::*epCallback[10 - 2])(void);
-#elif defined(TARGET_STM32F4XX)
+#elif defined(TARGET_STM32F4)
         bool (USBHAL::*epCallback[8 - 2])(void);
 #else
         bool (USBHAL::*epCallback[32 - 2])(void);

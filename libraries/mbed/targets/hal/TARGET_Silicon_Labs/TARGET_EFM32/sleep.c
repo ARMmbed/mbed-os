@@ -18,6 +18,7 @@
 #if DEVICE_SLEEP
 
 #include "sleep_api.h"
+#include "sleepmodes.h"
 #include "cmsis.h"
 #include "em_emu.h"
 #include "em_int.h"

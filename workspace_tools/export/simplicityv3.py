@@ -87,6 +87,15 @@ class SimplicityV3(Exporter):
         's_sources':'1'
     }
 
+    EXCLUDED_LIBS = [
+        'm',
+        'c',
+        'gcc',
+        'nosys',
+        'supc++',
+        'stdc++'
+    ]
+
     DOT_IN_RELATIVE_PATH = False
 
     orderedPaths = Folder("Root")

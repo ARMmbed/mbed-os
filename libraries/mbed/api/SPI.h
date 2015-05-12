@@ -21,10 +21,10 @@
 #if DEVICE_SPI
 
 #include "spi_api.h"
-#include "CThunk.h"
-#include "dma_api.h"
 
 #if DEVICE_SPI_ASYNCH
+#include "CThunk.h"
+#include "dma_api.h"
 #include "CircularBuffer.h"
 #include "FunctionPointer.h"
 #include "Transaction.h"
@@ -55,6 +55,7 @@ namespace mbed {
 class SPI {
 
 public:
+
     /** Create a SPI master connected to the specified pins
      *
      * Pin Options:
@@ -141,8 +142,8 @@ public:
      * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
      *                  received data are ignored
      * @param rx_length The length of RX buffer
-     * @param event     The logical OR of events to modify
      * @param callback  The event callback function
+     * @param event     The logical OR of events to modify
      * @return Zero if the transfer has started, or -1 if SPI peripheral is busy
      */
     virtual int transfer(uint32_t *tx_buffer, int tx_length, uint32_t *rx_buffer, int rx_length, const event_callback_t& callback, int event = SPI_EVENT_COMPLETE)  {
@@ -169,12 +170,66 @@ public:
     int set_dma_usage(DMAUsage usage);
 
 protected:
+    /** SPI IRQ handler
+     *
+    */
     void irq_handler_asynch(void);
+
+    /** Common transfer method
+     *
+     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     *                  the default SPI value is sent
+     * @param tx_length The length of TX buffer
+     * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
+     *                  received data are ignored
+     * @param rx_length The length of RX buffer
+     * @param bit_width The buffers element width
+     * @param callback  The event callback function
+     * @param event     The logical OR of events to modify
+     * @return Zero if the transfer has started or was added to the queue, or -1 if SPI peripheral is busy/buffer is full
+    */
     int transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+
+    /**
+     *
+     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     *                  the default SPI value is sent
+     * @param tx_length The length of TX buffer
+     * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
+     *                  received data are ignored
+     * @param rx_length The length of RX buffer
+     * @param bit_width The buffers element width
+     * @param callback  The event callback function
+     * @param event     The logical OR of events to modify
+     * @return Zero if a transfer was added to the queue, or -1 if the queue is full
+    */
     int queue_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
-    void start_transfer(void *tx, int tx_length, void *rx, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+
+    /** Configures a callback, spi peripheral and initiate a new transfer
+     *
+     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     *                  the default SPI value is sent
+     * @param tx_length The length of TX buffer
+     * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
+     *                  received data are ignored
+     * @param rx_length The length of RX buffer
+     * @param bit_width The buffers element width
+     * @param callback  The event callback function
+     * @param event     The logical OR of events to modify
+    */
+    void start_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+
 #if TRANSACTION_QUEUE_SIZE_SPI
+
+    /** Start a new transaction
+     *
+     *  @param data Transaction data
+    */
     void start_transaction(transaction_t *data);
+
+    /** Dequeue a transaction
+     *
+    */
     void dequeue_transaction();
     static CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> _transaction_buffer;
 #endif

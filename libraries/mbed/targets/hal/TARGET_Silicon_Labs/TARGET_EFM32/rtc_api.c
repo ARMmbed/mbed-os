@@ -22,6 +22,7 @@
 #include "em_cmu.h"
 #include "em_rtc.h"
 #include "sleep_api.h"
+#include "sleepmodes.h"
 
 static bool rtc_inited = false;
 static time_t time_base = 0;

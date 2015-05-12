@@ -271,7 +271,7 @@ uint8_t serial_rx_active(serial_t *obj);
 /** The asynchronous TX and RX handler.
  *
  * @param obj The serial object
- * @return Returns event flags if something happened, or 0 otherwise
+ * @return Returns event flags if a RX transfer termination condition was met or 0 otherwise
  */
 int serial_irq_handler_asynch(serial_t *obj);
 

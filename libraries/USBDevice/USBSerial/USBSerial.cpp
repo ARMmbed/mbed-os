@@ -46,7 +46,7 @@ bool USBSerial::writeBlock(uint8_t * buf, uint16_t size) {
 
 
 
-bool USBSerial::EP2_OUT_callback() {
+bool USBSerial::EPBULK_OUT_callback() {
     uint8_t c[65];
     uint32_t size = 0;
 
@@ -59,8 +59,6 @@ bool USBSerial::EP2_OUT_callback() {
     //call a potential handler
     rx.call();
 
-    // We reactivate the endpoint to receive next characters
-    readStart(EPBULK_OUT, MAX_PACKET_SIZE_EPBULK);
     return true;
 }
 

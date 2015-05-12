@@ -23,7 +23,7 @@
 #include "serial_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
+#include "mbed_error.h"
 #include "gpio_api.h"
 
 /******************************************************************************
@@ -31,45 +31,49 @@
  ******************************************************************************/
 #define UART_NUM    4
 
+// SCU mode for UART pins
+#define SCU_PINIO_UART_TX   SCU_MODE_PULLDOWN
+#define SCU_PINIO_UART_RX   SCU_PINIO_PULLNONE
+
 static const PinMap PinMap_UART_TX[] = {
-    {P1_13, UART_1, (SCU_MODE_PULLDOWN | 1)},
-    {P1_15, UART_2, (SCU_MODE_PULLDOWN | 1)},
-    {P2_0,  UART_0, (SCU_MODE_PULLDOWN | 1)},
-    {P2_3,  UART_3, (SCU_MODE_PULLDOWN | 2)},
-    {P2_10, UART_2, (SCU_MODE_PULLDOWN | 2)},
-    {P3_4,  UART_1, (SCU_MODE_PULLDOWN | 4)},
-    {P4_1,  UART_3, (SCU_MODE_PULLDOWN | 6)},
-    {P5_6,  UART_1, (SCU_MODE_PULLDOWN | 4)},
-    {P6_4,  UART_0, (SCU_MODE_PULLDOWN | 2)},
-    {P7_1,  UART_2, (SCU_MODE_PULLDOWN | 6)},
-    {P9_3,  UART_3, (SCU_MODE_PULLDOWN | 7)},
-    {P9_5,  UART_0, (SCU_MODE_PULLDOWN | 7)},
-    {PA_1,  UART_2, (SCU_MODE_PULLDOWN | 3)},
-    {PC_13, UART_1, (SCU_MODE_PULLDOWN | 2)},
-    {PE_11, UART_1, (SCU_MODE_PULLDOWN | 2)},
-    {PF_2,  UART_3, (SCU_MODE_PULLDOWN | 1)},
-    {PF_10, UART_0, (SCU_MODE_PULLDOWN | 1)},
+    {P1_13, UART_1, (SCU_PINIO_UART_TX | 1)},
+    {P1_15, UART_2, (SCU_PINIO_UART_TX | 1)},
+    {P2_0,  UART_0, (SCU_PINIO_UART_TX | 1)},
+    {P2_3,  UART_3, (SCU_PINIO_UART_TX | 2)},
+    {P2_10, UART_2, (SCU_PINIO_UART_TX | 2)},
+    {P3_4,  UART_1, (SCU_PINIO_UART_TX | 4)},
+    {P4_1,  UART_3, (SCU_PINIO_UART_TX | 6)},
+    {P5_6,  UART_1, (SCU_PINIO_UART_TX | 4)},
+    {P6_4,  UART_0, (SCU_PINIO_UART_TX | 2)},
+    {P7_1,  UART_2, (SCU_PINIO_UART_TX | 6)},
+    {P9_3,  UART_3, (SCU_PINIO_UART_TX | 7)},
+    {P9_5,  UART_0, (SCU_PINIO_UART_TX | 7)},
+    {PA_1,  UART_2, (SCU_PINIO_UART_TX | 3)},
+    {PC_13, UART_1, (SCU_PINIO_UART_TX | 2)},
+    {PE_11, UART_1, (SCU_PINIO_UART_TX | 2)},
+    {PF_2,  UART_3, (SCU_PINIO_UART_TX | 1)},
+    {PF_10, UART_0, (SCU_PINIO_UART_TX | 1)},
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {P1_14, UART_1, (SCU_PINIO_PULLNONE | 1)},
-    {P1_16, UART_2, (SCU_PINIO_PULLNONE | 1)},
-    {P2_1,  UART_0, (SCU_PINIO_PULLNONE | 1)},
-    {P2_4,  UART_3, (SCU_PINIO_PULLNONE | 2)},
-    {P2_11, UART_2, (SCU_PINIO_PULLNONE | 2)},
-    {P3_5,  UART_1, (SCU_PINIO_PULLNONE | 4)},
-    {P4_2,  UART_3, (SCU_PINIO_PULLNONE | 6)},
-    {P5_7,  UART_1, (SCU_PINIO_PULLNONE | 4)},
-    {P6_5,  UART_0, (SCU_PINIO_PULLNONE | 2)},
-    {P7_2,  UART_2, (SCU_PINIO_PULLNONE | 6)},
-    {P9_4,  UART_3, (SCU_PINIO_PULLNONE | 7)},
-    {P9_6,  UART_0, (SCU_PINIO_PULLNONE | 7)},
-    {PA_2,  UART_2, (SCU_PINIO_PULLNONE | 3)},
-    {PC_14, UART_1, (SCU_PINIO_PULLNONE | 2)},
-    {PE_12, UART_1, (SCU_PINIO_PULLNONE | 2)},
-    {PF_3,  UART_3, (SCU_PINIO_PULLNONE | 1)},
-    {PF_11, UART_0, (SCU_PINIO_PULLNONE | 1)},
+    {P1_14, UART_1, (SCU_PINIO_UART_RX | 1)},
+    {P1_16, UART_2, (SCU_PINIO_UART_RX | 1)},
+    {P2_1,  UART_0, (SCU_PINIO_UART_RX | 1)},
+    {P2_4,  UART_3, (SCU_PINIO_UART_RX | 2)},
+    {P2_11, UART_2, (SCU_PINIO_UART_RX | 2)},
+    {P3_5,  UART_1, (SCU_PINIO_UART_RX | 4)},
+    {P4_2,  UART_3, (SCU_PINIO_UART_RX | 6)},
+    {P5_7,  UART_1, (SCU_PINIO_UART_RX | 4)},
+    {P6_5,  UART_0, (SCU_PINIO_UART_RX | 2)},
+    {P7_2,  UART_2, (SCU_PINIO_UART_RX | 6)},
+    {P9_4,  UART_3, (SCU_PINIO_UART_RX | 7)},
+    {P9_6,  UART_0, (SCU_PINIO_UART_RX | 7)},
+    {PA_2,  UART_2, (SCU_PINIO_UART_RX | 3)},
+    {PC_14, UART_1, (SCU_PINIO_UART_RX | 2)},
+    {PE_12, UART_1, (SCU_PINIO_UART_RX | 2)},
+    {PF_3,  UART_3, (SCU_PINIO_UART_RX | 1)},
+    {PF_11, UART_0, (SCU_PINIO_UART_RX | 1)},
     {NC,    NC,     0}
 };
 
@@ -139,8 +143,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(rx, PinMap_UART_RX);
     
     // set rx/tx pins in PullUp mode
-    pin_mode(tx, PullUp);
-    pin_mode(rx, PullUp);
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
     
     switch (uart) {
         case UART_0: obj->index = 0; break;
