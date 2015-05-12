@@ -80,6 +80,10 @@ osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
     return osSignalWait(signals, millisec);
 }
 
+osEvent Thread::signal_wait_or(int32_t signals, uint32_t millisec) {
+    return osSignalWaitOr(signals, millisec);
+}
+
 osStatus Thread::wait(uint32_t millisec) {
     return osDelay(millisec);
 }

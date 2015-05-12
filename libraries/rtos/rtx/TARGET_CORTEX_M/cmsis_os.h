@@ -484,6 +484,12 @@ int32_t osSignalGet (osThreadId thread_id);
 /// \note MUST REMAIN UNCHANGED: \b osSignalWait shall be consistent in every CMSIS-RTOS.
 os_InRegs osEvent osSignalWait (int32_t signals, uint32_t millisec);
 
+/// Wait for one or more Signal Flags to become signaled for the current \b RUNNING thread.
+/// \param[in]     signals       wait until ANY of the specified signal flags set or 0 for any single signal flag.
+/// \param[in]     millisec      timeout value or 0 in case of no time-out.
+/// \return event flag information or error code.
+os_InRegs osEvent osSignalWaitOr (int32_t signals, uint32_t millisec);
+
 
 //  ==== Mutex Management ====
 

@@ -96,6 +96,13 @@ public:
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
 
+    /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread.
+      @param   signals   wait until ANY specified signal flags set or 0 for any single signal flag.
+      @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
+      @return  event flag information or error code.
+    */
+    static osEvent signal_wait_or(int32_t signals, uint32_t millisec=osWaitForever);
+
     /** Wait for a specified time period in millisec:
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
