@@ -1134,7 +1134,7 @@ os_InRegs osEvent_type svcSignalWaitOr (int32_t signals, uint32_t millisec) {
 
   if (res == OS_R_EVT) {
     ret.status = osEventSignal;
-    ret.value.signals = signals ? signals : os_tsk.run->waits;
+    ret.value.signals = os_tsk.run->waits;
   } else {
     ret.status = millisec ? osEventTimeout : osOK;
     ret.value.signals = 0;
