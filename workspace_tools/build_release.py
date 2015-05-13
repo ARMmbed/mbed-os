@@ -71,6 +71,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
@@ -94,6 +95,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
+
+    ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
 )
 
 
