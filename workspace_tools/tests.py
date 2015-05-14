@@ -999,6 +999,30 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
     },
+    {
+        "id": "UT_I2C_EEPROM_ASYNCH", "description": "I2C Asynch eeprom",
+        "source_dir": join(TEST_DIR, "utest", "i2c_eeprom_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_SERIAL_ASYNCH", "description": "Asynch serial test (req 2 serial peripherals)",
+        "source_dir": join(TEST_DIR, "utest", "serial_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_SPI_ASYNCH", "description": "Asynch spi test",
+        "source_dir": join(TEST_DIR, "utest", "spi_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_LP_TICKER", "description": "Low power ticker test",
+        "source_dir": join(TEST_DIR, "utest", "lp_ticker"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
 
     # Tests used for target information purposes
     {
