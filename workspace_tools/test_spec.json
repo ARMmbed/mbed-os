@@ -1,0 +1,5 @@
+{
+    "targets": {
+        "WIZwiki_W7500" : ["ARM", "uARM"]
+     }
+}
