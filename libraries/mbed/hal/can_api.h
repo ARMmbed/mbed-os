@@ -45,8 +45,8 @@ typedef enum {
     MODE_RESET,
     MODE_NORMAL,
     MODE_SILENT,
-    MODE_TEST_GLOBAL,
     MODE_TEST_LOCAL,
+    MODE_TEST_GLOBAL,
     MODE_TEST_SILENT
 } CanMode;
 

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,15 +56,13 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup CORTEX_Exported_Constants
+/** @defgroup CORTEX_Exported_Constants CORTEX Exported Constants
   * @{
   */
 
-
-/** @defgroup CORTEX_Preemption_Priority_Group 
+/** @defgroup CORTEX_Preemption_Priority_Group CORTEX Preemption Priority Group
   * @{
   */
-
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bits for pre-emption priority
                                                                  4 bits for subpriority */
 #define NVIC_PRIORITYGROUP_1         ((uint32_t)0x00000006) /*!< 1 bits for pre-emption priority
@@ -75,33 +73,29 @@
                                                                  1 bits for subpriority */
 #define NVIC_PRIORITYGROUP_4         ((uint32_t)0x00000003) /*!< 4 bits for pre-emption priority
                                                                  0 bits for subpriority */
-
-#define IS_NVIC_PRIORITY_GROUP(GROUP) (((GROUP) == NVIC_PRIORITYGROUP_0) || \
-                                       ((GROUP) == NVIC_PRIORITYGROUP_1) || \
-                                       ((GROUP) == NVIC_PRIORITYGROUP_2) || \
-                                       ((GROUP) == NVIC_PRIORITYGROUP_3) || \
-                                       ((GROUP) == NVIC_PRIORITYGROUP_4))
-
-#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x10)
-
-#define IS_NVIC_SUB_PRIORITY(PRIORITY)  ((PRIORITY) < 0x10)
-
 /**
   * @}
   */
 
-/** @defgroup CORTEX_SysTick_clock_source 
+/** @defgroup CORTEX_SysTick_clock_source CORTEX _SysTick clock source 
   * @{
   */
 #define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
 #define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
-#define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
-                                       ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
+
 /**
   * @}
   */
 
+/**
+  * @}
+  */
+
+
 /* Exported Macros -----------------------------------------------------------*/
+/** @defgroup CORTEX_Exported_Macros CORTEX Exported Macros
+  * @{
+  */
 
 /** @brief Configures the SysTick clock source.
   * @param __CLKSRC__: specifies the SysTick clock source.
@@ -119,22 +113,33 @@
                                  else                                          \
                                     SysTick->CTRL &= ~SYSTICK_CLKSOURCE_HCLK;  \
                                 } while(0)
-
 /**
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-/* Initialization and de-initialization functions *******************************/
+/** @addtogroup CORTEX_Exported_Functions
+  * @{
+  */
+  
+/** @addtogroup CORTEX_Exported_Functions_Group1
+ * @{
+ */
+/* Initialization and de-initialization functions *****************************/
 void HAL_NVIC_SetPriorityGrouping(uint32_t PriorityGroup);
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority);
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn);
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn);
 void HAL_NVIC_SystemReset(void);
 uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb);
+/**
+  * @}
+  */
 
-/* Peripheral Control functions *************************************************/
+/** @addtogroup CORTEX_Exported_Functions_Group2
+ * @{
+ */
+/* Peripheral Control functions ***********************************************/
 uint32_t HAL_NVIC_GetPriorityGrouping(void);
 void HAL_NVIC_GetPriority(IRQn_Type IRQn, uint32_t PriorityGroup, uint32_t* pPreemptPriority, uint32_t* pSubPriority);
 uint32_t HAL_NVIC_GetPendingIRQ(IRQn_Type IRQn);
@@ -144,6 +149,38 @@ uint32_t HAL_NVIC_GetActive(IRQn_Type IRQn);
 void HAL_SYSTICK_CLKSourceConfig(uint32_t CLKSource);
 void HAL_SYSTICK_IRQHandler(void);
 void HAL_SYSTICK_Callback(void);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/* Private types -------------------------------------------------------------*/ 
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup CORTEX_Private_Macros CORTEX Private Macros
+  * @{
+  */
+#define IS_NVIC_PRIORITY_GROUP(GROUP) (((GROUP) == NVIC_PRIORITYGROUP_0) || \
+                                       ((GROUP) == NVIC_PRIORITYGROUP_1) || \
+                                       ((GROUP) == NVIC_PRIORITYGROUP_2) || \
+                                       ((GROUP) == NVIC_PRIORITYGROUP_3) || \
+                                       ((GROUP) == NVIC_PRIORITYGROUP_4))
+
+#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x10)
+
+#define IS_NVIC_SUB_PRIORITY(PRIORITY)         ((PRIORITY) < 0x10)
+
+#define IS_NVIC_DEVICE_IRQ(IRQ)                ((IRQ) >= 0x00)
+
+#define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
+                                       ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
+/**
+  * @}
+  */ 
 
 /**
   * @}

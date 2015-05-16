@@ -16,7 +16,7 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION 97
+#define MBED_LIBRARY_VERSION 99
 
 #include "platform.h"
 
@@ -54,6 +54,9 @@
 #include "Timer.h"
 #include "Ticker.h"
 #include "Timeout.h"
+#include "LowPowerTimeout.h"
+#include "LowPowerTicker.h"
+#include "LowPowerTimer.h"
 #include "LocalFileSystem.h"
 #include "InterruptIn.h"
 #include "wait_api.h"

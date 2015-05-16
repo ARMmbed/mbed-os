@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA SIR ENDEC block (IrDA):
@@ -34,7 +34,7 @@
             (+++) Enable the DMAx interface clock.
             (+++) Configure the declared DMA handle structure with the required Tx/Rx parameters.                
             (+++) Configure the DMA Tx/Rx Stream.
-            (+++) Associate the initilalized DMA handle to the IRDA DMA Tx/Rx handle.
+            (+++) Associate the initialized DMA handle to the IRDA DMA Tx/Rx handle.
             (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx/Rx Stream.
 
     (#) Program the Baud Rate, Word Length, Parity, IrDA Mode, Prescaler 
@@ -42,7 +42,7 @@
 
     (#) Initialize the IRDA registers by calling the HAL_IRDA_Init() API:
         (++) This API configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
-            by calling the customed HAL_IRDA_MspInit() API.
+            by calling the customized HAL_IRDA_MspInit() API.
     -@@- The specific IRDA interrupts (Transmission complete interrupt, 
         RXNE interrupt and Error Interrupts) will be managed using the macros
         __HAL_IRDA_ENABLE_IT() and __HAL_IRDA_DISABLE_IT() inside the transmit and receive process.
@@ -97,7 +97,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -131,7 +131,7 @@
   * @{
   */
 
-/** @defgroup IRDA 
+/** @defgroup IRDA IRDA
   * @brief HAL IRDA module driver
   * @{
   */
@@ -140,12 +140,22 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @addtogroup IRDA_Private_Constants
+  * @{
+  */
 #define IRDA_TIMEOUT_VALUE  22000
+/**
+  * @}
+  */
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @addtogroup IRDA_Private_Functions
+  * @{
+  */
 static void IRDA_SetConfig (IRDA_HandleTypeDef *hirda);
 static HAL_StatusTypeDef IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda);
+static HAL_StatusTypeDef IRDA_EndTransmit_IT(IRDA_HandleTypeDef *hirda);
 static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda);
 static void IRDA_DMATransmitCplt(DMA_HandleTypeDef *hdma);
 static void IRDA_DMATransmitHalfCplt(DMA_HandleTypeDef *hdma);
@@ -153,14 +163,15 @@ static void IRDA_DMAReceiveCplt(DMA_HandleTypeDef *hdma);
 static void IRDA_DMAReceiveHalfCplt(DMA_HandleTypeDef *hdma);
 static void IRDA_DMAError(DMA_HandleTypeDef *hdma);
 static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
-
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup IRDA_Private_Functions
+/**
+  * @}
+  */
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup IRDA_Exported_Functions IrDA Exported Functions
   * @{
   */
 
-/** @defgroup IRDA_Group1 IrDA Initialization and de-initialization functions 
+/** @defgroup IRDA_Exported_Functions_Group1 IrDA Initialization and de-initialization functions 
   *  @brief    Initialization and Configuration functions 
   *
 @verbatim 
@@ -214,6 +225,8 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
   
   if(hirda->State == HAL_IRDA_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hirda->Lock = HAL_UNLOCKED;
     /* Init the low level hardware : GPIO, CLOCK, CORTEX...etc */
     HAL_IRDA_MspInit(hirda);
   }
@@ -221,7 +234,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
   hirda->State = HAL_IRDA_STATE_BUSY;
   
   /* Disable the IRDA peripheral */
-  __IRDA_DISABLE(hirda);
+  __HAL_IRDA_DISABLE(hirda);
   
   /* Set the IRDA communication parameters */
   IRDA_SetConfig(hirda);
@@ -233,7 +246,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
   hirda->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_HDSEL);
   
   /* Enable the IRDA peripheral */
-  __IRDA_ENABLE(hirda);
+  __HAL_IRDA_ENABLE(hirda);
   
   /* Set the prescaler */
   MODIFY_REG(hirda->Instance->GTPR, USART_GTPR_PSC, hirda->Init.Prescaler);
@@ -270,6 +283,9 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   
   hirda->State = HAL_IRDA_STATE_BUSY;
   
+  /* Disable the Peripheral */
+  __HAL_IRDA_DISABLE(hirda);
+  
   /* DeInit the low level hardware */
   HAL_IRDA_MspDeInit(hirda);
   
@@ -292,7 +308,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
  __weak void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_IRDA_MspInit could be implenetd in the user file
+            the HAL_IRDA_MspInit could be implemented in the user file
    */ 
 }
 
@@ -305,7 +321,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
  __weak void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_IRDA_MspDeInit could be implenetd in the user file
+            the HAL_IRDA_MspDeInit could be implemented in the user file
    */ 
 }
 
@@ -313,7 +329,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   * @}
   */
 
-/** @defgroup IRDA_Group2 IO operation functions 
+/** @defgroup IRDA_Exported_Functions_Group2 IO operation functions 
   *  @brief   IRDA Transmit/Receive functions 
   *
 @verbatim   
@@ -338,7 +354,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
            dedicated IRDA IRQ when using Interrupt mode or the DMA IRQ when 
            using DMA mode.
            The HAL_IRDA_TxCpltCallback(), HAL_IRDA_RxCpltCallback() user callbacks 
-           will be executed respectivelly at the end of the transmit or Receive process
+           will be executed respectively at the end of the transmit or Receive process
            The HAL_IRDA_ErrorCallback() user callback will be executed when a communication error is detected
 
     (#) Blocking mode API's are :
@@ -584,15 +600,12 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
       hirda->State = HAL_IRDA_STATE_BUSY_TX;
     }
     
-    /* Enable the IRDA Parity Error Interrupt */
-    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_PE);
-    
+   /* Process Unlocked */
+    __HAL_UNLOCK(hirda);
+
     /* Enable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
     __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_ERR);
-    
-    /* Process Unlocked */
-    __HAL_UNLOCK(hirda);
-    
+
     /* Enable the IRDA Transmit Data Register Empty Interrupt */
     __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_TXE);
     
@@ -640,17 +653,17 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
       hirda->State = HAL_IRDA_STATE_BUSY_RX;
     }
     
-    /* Enable the IRDA Data Register not empty Interrupt */
-    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_RXNE); 
-    
-    /* Enable the IRDA Parity Error Interrupt */
-    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_PE);
-    
-    /* Enable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_ERR);
-    
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
+
+    /* Enable the IRDA Data Register not empty Interrupt */
+    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_RXNE); 
+
+    /* Enable the IRDA Parity Error Interrupt */
+    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_PE);
+
+    /* Enable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
+    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_ERR);
     
     return HAL_OK;
   }
@@ -698,10 +711,10 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
       hirda->State = HAL_IRDA_STATE_BUSY_TX;
     }
     
-    /* Set the IRDA DMA transfert complete callback */
+    /* Set the IRDA DMA transfer complete callback */
     hirda->hdmatx->XferCpltCallback = IRDA_DMATransmitCplt;
     
-    /* Set the IRDA DMA half transfert complete callback */
+    /* Set the IRDA DMA half transfer complete callback */
     hirda->hdmatx->XferHalfCpltCallback = IRDA_DMATransmitHalfCplt;
     
     /* Set the DMA error callback */
@@ -710,6 +723,9 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
     /* Enable the IRDA transmit DMA Stream */
     tmp = (uint32_t*)&pData;
     HAL_DMA_Start_IT(hirda->hdmatx, *(uint32_t*)tmp, (uint32_t)&hirda->Instance->DR, Size);
+    
+    /* Clear the TC flag in the SR register by writing 0 to it */
+    __HAL_IRDA_CLEAR_FLAG(hirda, IRDA_FLAG_TC);
     
     /* Enable the DMA transfer for transmit request by setting the DMAT bit
        in the USART CR3 register */
@@ -763,10 +779,10 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
       hirda->State = HAL_IRDA_STATE_BUSY_RX;
     }
     
-    /* Set the IRDA DMA transfert complete callback */
+    /* Set the IRDA DMA transfer complete callback */
     hirda->hdmarx->XferCpltCallback = IRDA_DMAReceiveCplt;
     
-    /* Set the IRDA DMA half transfert complete callback */
+    /* Set the IRDA DMA half transfer complete callback */
     hirda->hdmarx->XferHalfCpltCallback = IRDA_DMAReceiveHalfCplt;
     
     /* Set the DMA error callback */
@@ -818,6 +834,13 @@ HAL_StatusTypeDef HAL_IRDA_DMAPause(IRDA_HandleTypeDef *hirda)
     hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAT);
     hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAR);
   }
+  else
+  {
+    /* Process Unlocked */
+    __HAL_UNLOCK(hirda);
+  
+    return HAL_ERROR; 
+  }
   
   /* Process Unlocked */
   __HAL_UNLOCK(hirda);
@@ -843,20 +866,27 @@ HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda)
   }
   else if(hirda->State == HAL_IRDA_STATE_BUSY_RX)
   {
-    /* Clear the Overrun flag before resumming the Rx transfer*/
+    /* Clear the Overrun flag before resuming the Rx transfer */
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
     /* Enable the UART DMA Rx request */
     hirda->Instance->CR3 |= USART_CR3_DMAR;
   }
   else if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX)
   {
-    /* Clear the Overrun flag before resumming the Rx transfer*/
+    /* Clear the Overrun flag before resuming the Rx transfer */
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
     /* Enable the UART DMA Tx & Rx request */
     hirda->Instance->CR3 |= USART_CR3_DMAT;
     hirda->Instance->CR3 |= USART_CR3_DMAR;
   }
+  else
+  {
+    /* Process Unlocked */
+    __HAL_UNLOCK(hirda);
   
+    return HAL_ERROR; 
+  }
+
   /* Process Unlocked */
   __HAL_UNLOCK(hirda);
   
@@ -966,6 +996,14 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   {
     IRDA_Transmit_IT(hirda);
   }
+  
+  tmp1 = __HAL_IRDA_GET_FLAG(hirda, IRDA_FLAG_TC);
+  tmp2 = __HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_TC);
+  /* IRDA in mode Transmitter (transmission end) -----------------------------*/
+  if((tmp1 != RESET) && (tmp2 != RESET))
+  {
+    IRDA_EndTransmit_IT(hirda);
+  }   
 }
 
 /**
@@ -1037,7 +1075,7 @@ __weak void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda)
   * @}
   */
 
-/** @defgroup IRDA_Group3 Peripheral State and Errors functions 
+/** @defgroup IRDA_Exported_Functions_Group3 Peripheral State and Errors functions 
   *  @brief   IRDA State and Errors functions 
   *
 @verbatim   
@@ -1097,27 +1135,8 @@ static void IRDA_DMATransmitCplt(DMA_HandleTypeDef *hdma)
        in the IRDA CR3 register */
     hirda->Instance->CR3 &= (uint16_t)~((uint16_t)USART_CR3_DMAT);
 
-    /* Wait for IRDA TC Flag */
-    if(IRDA_WaitOnFlagUntilTimeout(hirda, IRDA_FLAG_TC, RESET, IRDA_TIMEOUT_VALUE) != HAL_OK)
-    {
-      /* Timeout occurred */ 
-      hirda->State = HAL_IRDA_STATE_TIMEOUT;
-      HAL_IRDA_ErrorCallback(hirda);
-    }
-    else
-    {
-      /* No Timeout */
-      /* Check if a receive process is ongoing or not */
-      if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX)
-      {
-        hirda->State = HAL_IRDA_STATE_BUSY_RX;
-      }
-      else
-      {
-        hirda->State = HAL_IRDA_STATE_READY;
-      }
-      HAL_IRDA_TxCpltCallback(hirda);
-    }
+    /* Enable the IRDA Transmit Complete Interrupt */    
+    __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_TC);
   }
   /* DMA Circular mode */
   else
@@ -1306,36 +1325,45 @@ static HAL_StatusTypeDef IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda)
       /* Disable the IRDA Transmit Data Register Empty Interrupt */
       __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TXE);
       
-      if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-      {
-        hirda->State = HAL_IRDA_STATE_BUSY_RX;
-      }
-      else
-      {
-        /* Disable the IRDA Parity Error Interrupt */
-        __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
-        
-        /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
-        __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
-        
-        hirda->State = HAL_IRDA_STATE_READY;
-      }
-      /* Wait on TC flag to be able to start a second transfer */
-      if(IRDA_WaitOnFlagUntilTimeout(hirda, IRDA_FLAG_TC, RESET, IRDA_TIMEOUT_VALUE) != HAL_OK)
-      { 
-        return HAL_TIMEOUT;
-      }
-      HAL_IRDA_TxCpltCallback(hirda);
-      
-      return HAL_OK;      
+      /* Enable the IRDA Transmit Complete Interrupt */    
+      __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_TC);
     }
 
     return HAL_OK;
   }
   else
   {
-    return HAL_BUSY;   
+    return HAL_BUSY;
   }
+}
+
+/**
+  * @brief  Wraps up transmission in non blocking mode.
+  * @param  hirda: pointer to a IRDA_HandleTypeDef structure that contains
+  *                the configuration information for the specified IRDA module.
+  * @retval HAL status
+  */
+static HAL_StatusTypeDef IRDA_EndTransmit_IT(IRDA_HandleTypeDef *hirda)
+{
+  /* Disable the IRDA Transmit Complete Interrupt */    
+  __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TC);
+  
+  /* Check if a receive process is ongoing or not */
+  if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
+  {
+    hirda->State = HAL_IRDA_STATE_BUSY_RX;
+  }
+  else
+  {
+    /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
+    __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
+
+    hirda->State = HAL_IRDA_STATE_READY;
+  }
+  
+  HAL_IRDA_TxCpltCallback(hirda);
+  
+  return HAL_OK;
 }
 
 /**
@@ -1453,22 +1481,21 @@ static void IRDA_SetConfig(IRDA_HandleTypeDef *hirda)
   /*-------------------------- USART BRR Configuration -----------------------*/
   if((hirda->Instance == USART1) || (hirda->Instance == USART6))
   {
-    hirda->Instance->BRR = __IRDA_BRR(HAL_RCC_GetPCLK2Freq(), hirda->Init.BaudRate);
+    hirda->Instance->BRR = IRDA_BRR(HAL_RCC_GetPCLK2Freq(), hirda->Init.BaudRate);
   }
   else
   {
-    hirda->Instance->BRR = __IRDA_BRR(HAL_RCC_GetPCLK1Freq(), hirda->Init.BaudRate);
+    hirda->Instance->BRR = IRDA_BRR(HAL_RCC_GetPCLK1Freq(), hirda->Init.BaudRate);
   }
 }
 /**
   * @}
   */
 
+#endif /* HAL_IRDA_MODULE_ENABLED */
 /**
   * @}
   */
-
-#endif /* HAL_IRDA_MODULE_ENABLED */
 
 /**
   * @}

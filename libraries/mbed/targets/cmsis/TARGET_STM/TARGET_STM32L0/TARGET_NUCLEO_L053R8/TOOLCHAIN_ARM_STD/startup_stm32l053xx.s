@@ -101,7 +101,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     RNG_LPUART1_IRQHandler         ; RNG and LPUART1
                 DCD     LCD_IRQHandler                 ; LCD
                 DCD     USB_IRQHandler                 ; USB
-                
+
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors
@@ -112,7 +112,7 @@ __Vectors_Size  EQU  __Vectors_End - __Vectors
 Reset_Handler    PROC
                  EXPORT  Reset_Handler                 [WEAK]
         IMPORT  __main
-        IMPORT  SystemInit  
+        IMPORT  SystemInit
                  LDR     R0, =SystemInit
                  BLX     R0
                  LDR     R0, =__main
@@ -191,7 +191,7 @@ TSC_IRQHandler
 DMA1_Channel1_IRQHandler
 DMA1_Channel2_3_IRQHandler
 DMA1_Channel4_5_6_7_IRQHandler
-ADC1_COMP_IRQHandler 
+ADC1_COMP_IRQHandler
 LPTIM1_IRQHandler
 TIM2_IRQHandler
 TIM6_DAC_IRQHandler

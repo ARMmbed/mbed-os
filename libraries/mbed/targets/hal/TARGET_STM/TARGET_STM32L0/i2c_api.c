@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
@@ -135,7 +136,10 @@ void i2c_frequency(i2c_t *obj, int hz)
     I2cHandle.Init.OwnAddress1      = 0;
     I2cHandle.Init.OwnAddress2      = 0;
     I2cHandle.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-    HAL_I2C_Init(&I2cHandle);
+
+    if (HAL_I2C_Init(&I2cHandle) != HAL_OK) {
+        error("Cannot initialize I2C");
+    }
 }
 
 inline int i2c_start(i2c_t *obj)

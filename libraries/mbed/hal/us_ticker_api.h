@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,59 @@
 #define MBED_US_TICKER_API_H
 
 #include <stdint.h>
+#include "ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef uint32_t timestamp_t;
+/**
+ * \defgroup UsTicker Microseconds Ticker Functions
+ * @{
+ */
 
-uint32_t us_ticker_read(void);
+/** Get ticker's data
+ *
+ * @return The low power ticker data
+ */
+const ticker_data_t* get_us_ticker_data(void);
 
-typedef void (*ticker_event_handler)(uint32_t id);
-void us_ticker_set_handler(ticker_event_handler handler);
 
-typedef struct ticker_event_s {
-    timestamp_t            timestamp;
-    uint32_t               id;
-    struct ticker_event_s *next;
-} ticker_event_t;
-
-void us_ticker_init(void);
-void us_ticker_set_interrupt(timestamp_t timestamp);
-void us_ticker_disable_interrupt(void);
-void us_ticker_clear_interrupt(void);
+/** The wrapper for ticker_irq_handler, to pass us ticker's data
+ *
+ */
 void us_ticker_irq_handler(void);
 
-void us_ticker_insert_event(ticker_event_t *obj, timestamp_t timestamp, uint32_t id);
-void us_ticker_remove_event(ticker_event_t *obj);
-int us_ticker_get_next_timestamp(timestamp_t *timestamp);
+/* HAL us ticker */
+
+/** Initialize the ticker
+ *
+ */
+void us_ticker_init(void);
+
+/** Read the current counter
+ *
+ * @return The current timer's counter value in microseconds
+ */
+uint32_t us_ticker_read(void);
+
+/** Set interrupt for specified timestamp
+ *
+ * @param timestamp The time in microseconds to be set
+ */
+void us_ticker_set_interrupt(timestamp_t timestamp);
+
+/** Disable us ticker interrupt
+ *
+ */
+void us_ticker_disable_interrupt(void);
+
+/** Clear us ticker interrupt
+ *
+ */
+void us_ticker_clear_interrupt(void);
+
+/**@}*/
 
 #ifdef __cplusplus
 }
