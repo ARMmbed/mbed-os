@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
 #     define LED_PORT   Port1
 #     define LED1       (1 << 18) // P1.18
 #     define LED2       (1 << 20) // P1.20
