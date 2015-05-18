@@ -68,11 +68,13 @@ def find_cmd_abspath(cmd):
         return os.path.abspath(cmd)
     if not 'PATH' in os.environ:
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
-    PATH=os.environ['PATH']
-    for path in PATH.split(os.pathsep):
-        abspath = '%s/%s' % (path, cmd)
-        if exists(abspath) or exists(abspath + '.exe'):
-            return abspath
+    PATH = os.environ['PATH']
+    for path in PATH.split(os.path.pathsep):
+        for filename in os.listdir(path):
+            barename = os.path.splitext(filename)[0]
+            if filename == cmd or barename == cmd:
+                return path + os.path.sep + filename
+    return None
 
 
 def mkdir(path):
