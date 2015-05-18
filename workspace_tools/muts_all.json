@@ -1,7 +1,0 @@
-{
-    "1" : {"mcu": "WIZwiki_W7500",
-        "port":"COM29",
-        "disk":"E:\\",
-        "peripherals": []
-    }
-}
