@@ -673,9 +673,9 @@ class DISCO_F334C8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334C8']
-        self.supported_toolchains = ["GCC_ARM",]
-        self.default_toolchain = "GCC_ARM"
-        self.detect_code = ["0735"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["0810"]
 
 class DISCO_F407VG(Target):
     def __init__(self):
