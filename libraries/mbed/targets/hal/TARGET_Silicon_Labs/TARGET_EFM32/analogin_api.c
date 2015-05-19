@@ -43,22 +43,33 @@ void analogin_preinit(analogin_t *obj, PinName pin)
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    // TODO_LP only once - module in C++ ?
-    /* Init with default settings */
-    ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
-    ADC_Init(obj->adc, &init);
+    static uint8_t adc_initialized = 0;
 
-    ADC_InitSingle_TypeDef singleInit = ADC_INITSINGLE_DEFAULT;
-
-    /* Init for single conversion use, measure input channel with Vdd reference. */
-    singleInit.reference = adcRefVDD;
-    singleInit.resolution = adcRes12Bit;
-    singleInit.acqTime = adcAcqTime32;
-
-    ADC_InitSingle(obj->adc, &singleInit);
-
-    /* Init pins */
+    /* Init structure */
     analogin_preinit(obj, pin);
+
+    /* Only initialize the ADC once */
+    if (!adc_initialized) {
+        /* Turn on the clock */
+        CMU_ClockEnable(cmuClock_ADC0, true);
+        
+        /* Init with default settings */
+        ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
+        init.prescale = 4;
+        ADC_Init(obj->adc, &init);
+        
+        /* Init for single conversion use */
+        ADC_InitSingle_TypeDef singleInit = ADC_INITSINGLE_DEFAULT;
+
+        /* Measure input channel with Vdd reference. */
+        singleInit.reference = adcRefVDD;
+        singleInit.resolution = adcRes12Bit;
+        singleInit.acqTime = adcAcqTime32;
+
+        ADC_InitSingle(obj->adc, &singleInit);
+        
+        adc_initialized = 1;
+    }
 }
 
 void analogin_enable(analogin_t *obj, uint8_t enable)

@@ -23,6 +23,7 @@
 #include "pinmap.h"
 #include "pinmap_function.h"
 #include "PeripheralPins.h"
+#include "clocking.h"
 
 #include "em_dac.h"
 #include "em_cmu.h"
@@ -42,30 +43,34 @@ void analogout_preinit(dac_t *obj, PinName pin)
 }
 
 void analogout_init(dac_t *obj, PinName pin) {
-    static uint8_t initialized = 0;
+    static uint8_t dac_initialized = 0;
 
-    if (!initialized) {
+    /* init in-memory structure */
+    analogout_preinit(obj, pin);
+    
+    if (!dac_initialized) {
         /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
         /* Use default settings */
+        CMU_ClockEnable(cmuClock_DAC0, true);
+        
         DAC_Init_TypeDef init = DAC_INIT_DEFAULT;
 
         /* Calculate the DAC clock prescaler value that will result in a DAC clock
          * close to 500kHz. Second parameter is zero. This uses the current HFPERCLK
          * frequency instead of setting a new one. */
-        init.prescale = DAC_PrescaleCalc(500000, 0);
+        init.prescale = DAC_PrescaleCalc(500000, REFERENCE_FREQUENCY);
 
         /* Set reference voltage to VDD */
         init.reference = dacRefVDD;
 
         DAC_Init(obj->dac, &init);
-        initialized = 1;
+        dac_initialized = 1;
     }
     /* Use default channel settings */
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
 
-    /* init pins */
-    analogout_preinit(obj, pin);
+
 }
 
 void analogout_enable(dac_t *obj, uint8_t enable)
