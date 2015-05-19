@@ -21,7 +21,8 @@ from workspace_tools.utils import construct_enum
 
 
 ResultExporterType = construct_enum(HTML='Html_Exporter',
-                                    JUNIT='JUnit_Exporter')
+                                    JUNIT='JUnit_Exporter',
+                                    BUILD='Build_Exporter')
 
 
 class ReportExporter():
@@ -91,23 +92,27 @@ class ReportExporter():
         """ Generate simple unique tool-tip name which can be used.
             For example as HTML <div> section id attribute.
         """
-        return "target_test_%s_%s_%s_%d"% (toolchain.lower(), target.lower(), test_id.lower(), loop_no)
+        return "target_test_%s_%s_%s_%s"% (toolchain.lower(), target.lower(), test_id.lower(), loop_no)
 
     def get_result_div_sections(self, test, test_no):
-        """ Generates separate <dvi> sections which contains test results output.
+        """ Generates separate <DIV> sections which contains test results output.
         """
 
-        RESULT_COLORS = {'OK' : 'LimeGreen',
-                         'FAIL' : 'Orange',
-                         'ERROR' : 'LightCoral',}
+        RESULT_COLORS = {'OK': 'LimeGreen',
+                         'FAIL': 'Orange',
+                         'ERROR': 'LightCoral',
+                         'OTHER': 'LightGray',
+                        }
 
         tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
-        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'ERROR']
+        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'OTHER']
         result_div_style = "background-color: %s"% background_color
 
         result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
                        <center>%s</center>
                        <div class = "tooltip" id= "%s">
+                       <b>%s</b><br />
+                       <hr />
                        <b>%s</b> in <b>%.2f sec</b><br />
                        <hr />
                        <small>
@@ -120,6 +125,7 @@ class ReportExporter():
                        tooltip_name,
                        test['single_test_result'],
                        tooltip_name,
+                       test['target_name_unique'],
                        test['test_description'],
                        test['elapsed_time'],
                        test['single_test_output'].replace('\n', '<br />'))
@@ -130,14 +136,16 @@ class ReportExporter():
             we will show it in a column to see all results.
             This function produces HTML table with corresponding results.
         """
-        result = '<table>'
-        test_ids = sorted(test_results.keys())
-        for test_no in test_ids:
-            test = test_results[test_no]
-            result += """<tr>
-                             <td valign="top">%s</td>
-                         </tr>"""% self.get_result_div_sections(test, test_no)
-        result += '</table>'
+        result = ''
+        for i, test_result in enumerate(test_results):
+            result += '<table>'
+            test_ids = sorted(test_result.keys())
+            for test_no in test_ids:
+                test = test_result[test_no]
+                result += """<tr>
+                                 <td valign="top">%s</td>
+                             </tr>"""% self.get_result_div_sections(test, "%d_%d" % (test_no, i))
+            result += '</table>'
         return result
 
     def get_all_unique_test_ids(self, test_result_ext):
@@ -158,7 +166,7 @@ class ReportExporter():
     #
 
     def exporter_html(self, test_result_ext, test_suite_properties=None):
-        """ Export test results in proprietary html format.
+        """ Export test results in proprietary HTML format.
         """
         result = """<html>
                     <head>
@@ -211,25 +219,26 @@ class ReportExporter():
                 tests = sorted(test_result_ext[toolchain][target].keys())
                 for test in tests:
                     test_results = test_result_ext[toolchain][target][test]
-                    test_ids = sorted(test_results.keys())
-                    for test_no in test_ids:
-                        test_result = test_results[test_no]
-                        name = test_result['test_description']
-                        classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
-                        elapsed_sec = test_result['elapsed_time']
-                        _stdout = test_result['single_test_output']
-                        _stderr = ''
-                        # Test case
-                        tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
-                        # Test case extra failure / error info
-                        if test_result['single_test_result'] == 'FAIL':
-                            message = test_result['single_test_result']
-                            tc.add_failure_info(message, _stdout)
-                        elif test_result['single_test_result'] != 'OK':
-                            message = test_result['single_test_result']
-                            tc.add_error_info(message, _stdout)
+                    for test_res in test_results:
+                        test_ids = sorted(test_res.keys())
+                        for test_no in test_ids:
+                            test_result = test_res[test_no]
+                            name = test_result['test_description']
+                            classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                            elapsed_sec = test_result['elapsed_time']
+                            _stdout = test_result['single_test_output']
+                            _stderr = test_result['target_name_unique']
+                            # Test case
+                            tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
+                            # Test case extra failure / error info
+                            if test_result['single_test_result'] == 'FAIL':
+                                message = test_result['single_test_result']
+                                tc.add_failure_info(message, _stdout)
+                            elif test_result['single_test_result'] != 'OK':
+                                message = test_result['single_test_result']
+                                tc.add_error_info(message, _stdout)
 
-                        test_cases.append(tc)
+                            test_cases.append(tc)
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
         return TestSuite.to_xml_string(test_suites)
