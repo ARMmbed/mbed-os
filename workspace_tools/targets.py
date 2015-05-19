@@ -69,8 +69,19 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
+##WIZnet
 
-
+class WIZwiki_W7500(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
+        self.supported_toolchains = ["ARM", "uARM",]
+        self.default_toolchain = "ARM"
+        self.supported_form_factors = ["ARDUINO"]
+        
+        
+        
 ### NXP ###
 
 # This class implements the post-link patching step needed by LPC targets
@@ -1201,6 +1212,9 @@ class EFM32HG_STK3400(Target):
 # Get a single instance for each target
 TARGETS = [
 
+    ### WIZnet ###
+    WIZwiki_W7500(),
+    
     ### NXP ###
     LPC11C24(),
     LPC11U24(),
