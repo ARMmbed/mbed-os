@@ -76,8 +76,8 @@ class WIZwiki_W7500(Target):
         Target.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
-        self.supported_toolchains = ["ARM", "uARM",]
-        self.default_toolchain = "ARM"
+        self.supported_toolchains = ["uARM",]
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         
         
