@@ -47,7 +47,7 @@ protected:
 
     ticker_event_t event;
 
-    const ticker_data_t *const _ticker_data;
+    const ticker_data_t *_ticker_data;
 };
 
 } // namespace mbed
