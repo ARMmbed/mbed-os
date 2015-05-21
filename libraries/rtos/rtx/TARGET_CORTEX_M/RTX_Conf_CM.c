@@ -153,7 +153,7 @@
 #  elif defined(TARGET_STM32F411RE)
 #     define OS_CLOCK      100000000
 
-#elif defined(TARGET_STM32F103RB) 
+#elif defined(TARGET_STM32F103RB)
 #    define OS_CLOCK       72000000
 
 #elif defined(TARGET_STM32F429ZI)
@@ -170,6 +170,9 @@
 
 #elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
 #    define OS_CLOCK       24000000
+
+#elif defined(TARGET_NZ32ST1L)
+#    define OS_CLOCK       32000000
 
 #elif defined(TARGET_STM32L152RE)
 #    define OS_CLOCK       24000000
