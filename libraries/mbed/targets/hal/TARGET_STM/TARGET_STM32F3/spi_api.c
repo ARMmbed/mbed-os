@@ -222,7 +222,7 @@ void spi_frequency(spi_t *obj, int hz)
         obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 32 MHz - 36 MHz
     }
 #elif defined(TARGET_STM32F302R8)
-        if (hz < 250000) {
+    if (hz < 250000) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz
     } else if ((hz >= 250000) && (hz < 500000)) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 250 kHz - 280 kHz
@@ -239,7 +239,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 16000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz - 18 MHz
     }
- 
+
 #else
     // Values depend of APB1CLK and APB2CLK : 32 MHz if HSI is used, 36 MHz if HSE is used
     if (obj->spi == SPI_1) {
@@ -259,7 +259,7 @@ void spi_frequency(spi_t *obj, int hz)
             obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 16 MHz - 18 MHz
         } else { // >= 32000000
             obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 32 MHz - 36 MHz
-        }      
+        }
     } else {
         if (hz < 250000) {
             obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz
