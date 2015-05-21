@@ -30,6 +30,7 @@ from tcpecho_server_auto import TCPEchoServerTest
 from udpecho_server_auto import UDPEchoServerTest
 from tcpecho_client_auto import TCPEchoClientTest
 from udpecho_client_auto import UDPEchoClientTest
+from wfi_auto import WFITest
 
 # Populate registry with supervising objects
 HOSTREGISTRY = HostRegistry()
@@ -46,6 +47,7 @@ HOSTREGISTRY.register_host_test("tcpecho_server_auto", TCPEchoServerTest())
 HOSTREGISTRY.register_host_test("udpecho_server_auto", UDPEchoServerTest())
 HOSTREGISTRY.register_host_test("tcpecho_client_auto", TCPEchoClientTest())
 HOSTREGISTRY.register_host_test("udpecho_client_auto", UDPEchoClientTest())
+HOSTREGISTRY.register_host_test("wfi_auto", WFITest())
 
 ###############################################################################
 # Functional interface for test supervisor registry

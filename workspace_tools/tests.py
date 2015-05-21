@@ -66,7 +66,7 @@ Wiring:
 
   * analog_pot (AnalogIn):
       * Arduino headers: (A0, A1)
-      
+
   * SD (SPI):
       * LPC1*: (mosi=p11 , miso=p12 , sclk=p13 , cs=p14 )
       * KL25Z: (mosi=PTD2, miso=PTD3, sclk=PTD1, cs=PTD0)
@@ -579,7 +579,12 @@ TESTS = [
         "automated": True,
         "duration": 10,
     },
-
+    {
+        "id": "MBED_36", "description": "WFI correct behavior",
+        "source_dir": join(TEST_DIR, "mbed", "wfi"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True
+    },
 
     # CMSIS RTOS tests
     {
