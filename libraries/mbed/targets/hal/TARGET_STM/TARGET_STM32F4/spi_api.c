@@ -214,7 +214,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
-#if defined(TARGET_STM32F401RE) || defined(TARGET_STM32F401VC) || defined(TARGET_F407VG)
+#if defined(TARGET_STM32F401RE) || defined(TARGET_STM32F401VC) || defined(TARGET_STM32F407VG)
     // Note: The frequencies are obtained with SPI1 clock = 84 MHz (APB2 clock)
     if (hz < 600000) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 330 kHz

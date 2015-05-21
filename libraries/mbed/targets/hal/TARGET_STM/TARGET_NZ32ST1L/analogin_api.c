@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,15 @@
 
 ADC_HandleTypeDef AdcHandle;
 
+int adc_inited = 0;
+
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static int adc1_inited = 0;
-    static int adc2_inited = 0;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
 
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     // Configure GPIO
@@ -52,37 +54,39 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // Check if ADC is already initialized
-    if ((obj->adc == ADC_1) && adc1_inited) return;
-    if ((obj->adc == ADC_2) && adc2_inited) return;
+    // The ADC initialization is done once
+    if (adc_inited == 0) {
+        adc_inited = 1;
 
-    if (obj->adc == ADC_1) {
-        __ADC12_CLK_ENABLE();
-        adc1_inited = 1;
+        // Enable the HSI (to clock the ADC)
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+        RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+        HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+
+        // Enable ADC clock
+        __ADC1_CLK_ENABLE();
+
+        // Configure ADC
+        AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV4;
+        AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
+        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        AdcHandle.Init.ScanConvMode          = DISABLE;                       // Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1)
+        AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;               // On STM32L1xx ADC, overrun detection is enabled only if EOC selection is set to each conversion (or transfer by DMA enabled, this is not the case in this example).
+        AdcHandle.Init.LowPowerAutoWait      = ADC_AUTOWAIT_UNTIL_DATA_READ;  // Enable the dynamic low power Auto Delay: new conversion start only when the previous conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
+        AdcHandle.Init.LowPowerAutoPowerOff  = ADC_AUTOPOWEROFF_IDLE_PHASE;   // Enable the auto-off mode: the ADC automatically powers-off after a conversion and automatically wakes-up when a new conversion is triggered (with startup time between trigger and start of sampling).
+        AdcHandle.Init.ChannelsBank          = ADC_CHANNELS_BANK_A;
+        AdcHandle.Init.ContinuousConvMode    = DISABLE;                       // Continuous mode disabled to have only 1 conversion at each conversion trig
+        AdcHandle.Init.NbrOfConversion       = 1;                             // Parameter discarded because sequencer is disabled
+        AdcHandle.Init.DiscontinuousConvMode = DISABLE;                       // Parameter discarded because sequencer is disabled
+        AdcHandle.Init.NbrOfDiscConversion   = 1;                             // Parameter discarded because sequencer is disabled
+        AdcHandle.Init.ExternalTrigConv      = 0;                             // Not used
+        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+        AdcHandle.Init.DMAContinuousRequests = DISABLE;
+        HAL_ADC_Init(&AdcHandle);
     }
-
-    if (obj->adc == ADC_2) {
-        __ADC12_CLK_ENABLE();
-        adc2_inited = 1;
-    }
-
-    // Configure ADC
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    AdcHandle.Init.ScanConvMode          = DISABLE;
-    AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
-    AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.ContinuousConvMode    = DISABLE;
-    AdcHandle.Init.NbrOfConversion       = 1;
-    AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-    AdcHandle.Init.NbrOfDiscConversion   = 0;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.DMAContinuousRequests = DISABLE;
-    AdcHandle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
-    HAL_ADC_Init(&AdcHandle);
 }
 
 static inline uint16_t adc_read(analogin_t *obj)
@@ -92,56 +96,73 @@ static inline uint16_t adc_read(analogin_t *obj)
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
-    sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_19CYCLES_5;
-    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.OffsetNumber = ADC_OFFSET_NONE;
-    sConfig.Offset       = 0;
-
     switch (obj->pin) {
         case PA_0:
-        case PA_4:
-            sConfig.Channel = ADC_CHANNEL_1;
+            sConfig.Channel = ADC_CHANNEL_0;
             break;
         case PA_1:
-        case PA_5:
-            sConfig.Channel = ADC_CHANNEL_2;
+            sConfig.Channel = ADC_CHANNEL_1;
             break;
         case PA_2:
-        case PA_6:
-            sConfig.Channel = ADC_CHANNEL_3;
+            sConfig.Channel = ADC_CHANNEL_2;
             break;
         case PA_3:
-        case PA_7:
+            sConfig.Channel = ADC_CHANNEL_3;
+            break;
+        case PA_4:
             sConfig.Channel = ADC_CHANNEL_4;
             break;
-        case PC_4:
+        case PA_5:
             sConfig.Channel = ADC_CHANNEL_5;
             break;
-        case PC_0:
+        case PA_6:
             sConfig.Channel = ADC_CHANNEL_6;
             break;
-        case PC_1:
+        case PA_7:
             sConfig.Channel = ADC_CHANNEL_7;
             break;
-        case PC_2:
+        case PB_0:
             sConfig.Channel = ADC_CHANNEL_8;
             break;
-        case PC_3:
+        case PB_1:
             sConfig.Channel = ADC_CHANNEL_9;
             break;
-        case PC_5:
+        case PC_0:
+            sConfig.Channel = ADC_CHANNEL_10;
+            break;
+        case PC_1:
             sConfig.Channel = ADC_CHANNEL_11;
             break;
-        case PB_2:
+        case PC_2:
             sConfig.Channel = ADC_CHANNEL_12;
             break;
-        case PB_11:
+        case PC_3:
+            sConfig.Channel = ADC_CHANNEL_13;
+            break;
+        case PC_4:
             sConfig.Channel = ADC_CHANNEL_14;
+            break;
+        case PC_5:
+            sConfig.Channel = ADC_CHANNEL_15;
+            break;
+        case PB_12:
+            sConfig.Channel = ADC_CHANNEL_18;
+            break;
+        case PB_13:
+            sConfig.Channel = ADC_CHANNEL_19;
+            break;
+        case PB_14:
+            sConfig.Channel = ADC_CHANNEL_20;
+            break;
+        case PB_15:
+            sConfig.Channel = ADC_CHANNEL_21;
             break;
         default:
             return 0;
     }
+
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES;
 
     HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
 

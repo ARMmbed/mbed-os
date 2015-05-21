@@ -684,9 +684,9 @@ class DISCO_F334C8(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F3', 'STM32F334C8']
-        self.supported_toolchains = ["GCC_ARM",]
-        self.default_toolchain = "GCC_ARM"
-        self.detect_code = ["0735"]
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["0810"]
 
 class DISCO_F407VG(Target):
     def __init__(self):
@@ -829,6 +829,14 @@ class UBLOX_C029(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+
+class NZ32ST1L(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['STM', 'STM32L1', 'STM32L151RC']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
 
 
 
@@ -1290,6 +1298,7 @@ TARGETS = [
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),   # STM32F439
+    NZ32ST1L(),     # STM32L151
 
     ### Nordic ###
     NRF51822(),
