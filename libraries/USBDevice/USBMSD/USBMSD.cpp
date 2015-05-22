@@ -135,10 +135,10 @@ bool USBMSD::connect(bool blocking) {
 }
 
 void USBMSD::disconnect() {
+    USBDevice::disconnect();
     //De-allocate MSD page size:
     free(page);
     page = NULL;
-    USBDevice::disconnect();
 }
 
 void USBMSD::reset() {
@@ -147,7 +147,7 @@ void USBMSD::reset() {
 
 
 // Called in ISR context called when a data is received
-bool USBMSD::EP2_OUT_callback() {
+bool USBMSD::EPBULK_OUT_callback() {
     uint32_t size = 0;
     uint8_t buf[MAX_PACKET_SIZE_EPBULK];
     readEP(EPBULK_OUT, buf, &size, MAX_PACKET_SIZE_EPBULK);
@@ -184,7 +184,7 @@ bool USBMSD::EP2_OUT_callback() {
 }
 
 // Called in ISR context when a data has been transferred
-bool USBMSD::EP2_IN_callback() {
+bool USBMSD::EPBULK_IN_callback() {
     switch (stage) {
 
             // the device has to send data to the host

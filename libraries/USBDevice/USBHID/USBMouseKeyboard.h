@@ -202,7 +202,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         *
         * @returns if handle by subclass, return true
         */
-        virtual bool EP1_OUT_callback();
+        virtual bool EPINT_OUT_callback();
 
 
     private:

@@ -187,7 +187,7 @@ bool USBDevice::controlOut(void)
     /* Check we should be transferring data OUT */
     if (transfer.direction != HOST_TO_DEVICE)
     {
-#if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M) | defined(TARGET_K64F) | defined(TARGET_K22F)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D5M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
         /*
          * We seem to have a pending device-to-host transfer.  The host must have
          * sent a new control request without waiting for us to finish processing

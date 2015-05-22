@@ -47,7 +47,7 @@ USBHALHost::USBHALHost() {
 }
 
 void USBHALHost::init() {
-    ohciwrapp_init(&_usbisr, 1);
+    ohciwrapp_init(&_usbisr);
 
     ohciwrapp_reg_w(OHCI_REG_CONTROL, 1);       // HARDWARE RESET
     ohciwrapp_reg_w(OHCI_REG_CONTROLHEADED, 0); // Initialize Control list head to Zero
@@ -237,6 +237,7 @@ void USBHALHost::_usbisr(void) {
 
 void USBHALHost::UsbIrqhandler() {
     uint32_t int_status = ohciwrapp_reg_r(OHCI_REG_INTERRUPTSTATUS) & ohciwrapp_reg_r(OHCI_REG_INTERRUPTENABLE);
+    uint32_t data;
 
     if (int_status != 0) { //Is there something to actually process?
         // Root hub status change interrupt
@@ -254,7 +255,8 @@ void USBHALHost::UsbIrqhandler() {
                         wait_ms(150);
 
                         //Hub 0 (root hub), Port 1 (count starts at 1), Low or High speed
-                        deviceConnected(0, 1, ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA);
+                        data = ohciwrapp_reg_r(OHCI_REG_RHPORTSTATUS1) & OR_RH_PORT_LSDA;
+                        deviceConnected(0, 1, data);
                     }
 
                     //Root device disconnected
@@ -263,9 +265,6 @@ void USBHALHost::UsbIrqhandler() {
                         if (!(int_status & OR_INTR_STATUS_WDH)) {
                             usb_hcca->DoneHead = 0;
                         }
-
-                        // wait 200ms to avoid bounce
-                        wait_ms(200);
 
                         deviceDisconnected(0, 1, NULL, usb_hcca->DoneHead & 0xFFFFFFFE);
 

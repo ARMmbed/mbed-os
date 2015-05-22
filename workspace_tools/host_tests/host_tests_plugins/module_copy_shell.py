@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 from os.path import join, basename
 from host_test_plugins import HostTestPluginBase
 
@@ -25,7 +26,7 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_Shell'
     type = 'CopyMethod'
     stable = True
-    capabilities = ['cp', 'copy', 'xcopy']
+    capabilities = ['shell', 'cp', 'copy', 'xcopy']
     required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
@@ -42,13 +43,19 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            # Wait for mount point to be ready
+            self.check_mount_point_ready(destination_disk)  # Blocking
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'copy':
+            if capabilitity == 'shell':
+                if os.name == 'nt': capabilitity = 'copy'
+                elif os.name == 'posix': capabilitity = 'cp'
+            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'xcopy':
                 copy_method = capabilitity
                 cmd = [copy_method, image_path, destination_path]
-                result = self.run_command(cmd)
+                shell = not capabilitity == 'cp'
+                result = self.run_command(cmd, shell=shell)
         return result
 
 

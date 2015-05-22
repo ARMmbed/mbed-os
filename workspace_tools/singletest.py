@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 mbed SDK
@@ -85,7 +85,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 3
+    single_test_version_minor = 5
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -144,9 +144,9 @@ if __name__ == '__main__':
 
         if get_module_avail('mbed_lstools'):
             mbeds = mbed_lstools.create()
-            muts_list = mbeds.list_mbeds()
+            muts_list = mbeds.list_mbeds_ext() if hasattr(mbeds, 'list_mbeds_ext') else mbeds.list_mbeds()
             for mut in muts_list:
-                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name'],
+                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name_unique'] if 'platform_name_unique' in mut else mut['platform_name'],
                                         mut['serial_port'],
                                         mut['mount_point'])
 
@@ -154,11 +154,13 @@ if __name__ == '__main__':
         use_default_toolchain = 'default' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
         use_supported_toolchains = 'all' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else False
         toolchain_filter = opts.toolchains_filter
+        platform_name_filter = opts.general_filter_regex.split(',') if opts.general_filter_regex is not None else opts.general_filter_regex
         # Test specification with information about each target and associated toolchain
         test_spec = get_autodetected_TEST_SPEC(muts_list,
                                                use_default_toolchain=use_default_toolchain,
                                                use_supported_toolchains=use_supported_toolchains,
-                                               toolchain_filter=toolchain_filter)
+                                               toolchain_filter=toolchain_filter,
+                                               platform_name_filter=platform_name_filter)
         # MUTs configuration auto-detection
         MUTs = get_autodetected_MUTS(muts_list)
     else:
@@ -207,12 +209,14 @@ if __name__ == '__main__':
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,
+                                   _opts_report_build_file_name=opts.report_build_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,
                                    _opts_shuffle_test_order=opts.shuffle_test_order,
                                    _opts_shuffle_test_seed=opts.shuffle_test_seed,
                                    _opts_test_by_names=opts.test_by_names,
+                                   _opts_peripheral_by_names=opts.peripheral_by_names,
                                    _opts_test_only_peripheral=opts.test_only_peripheral,
                                    _opts_test_only_common=opts.test_only_common,
                                    _opts_verbose_skipped_tests=opts.verbose_skipped_tests,
@@ -220,6 +224,7 @@ if __name__ == '__main__':
                                    _opts_verbose=opts.verbose,
                                    _opts_firmware_global_name=opts.firmware_global_name,
                                    _opts_only_build_tests=opts.only_build_tests,
+                                   _opts_parallel_test_exec=opts.parallel_test_exec,
                                    _opts_suppress_summary=opts.suppress_summary,
                                    _opts_test_x_toolchain_summary=opts.test_x_toolchain_summary,
                                    _opts_copy_method=opts.copy_method,

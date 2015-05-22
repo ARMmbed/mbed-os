@@ -56,7 +56,9 @@ static void uart7_rx_irq(void);
 static const PinMap PinMap_UART_TX[] = {
     {P2_14 , UART0, 6},
     {P2_5  , UART1, 6},
+    {P4_12 , UART1, 7},
     {P6_3  , UART2, 7},
+    {P4_14 , UART2, 7},
     {P5_3  , UART3, 5},
     {P8_8  , UART3, 7},
     {P5_0  , UART4, 5},
@@ -73,7 +75,9 @@ static const PinMap PinMap_UART_TX[] = {
 static const PinMap PinMap_UART_RX[] = {
     {P2_15 , UART0, 6},
     {P2_6  , UART1, 6},
+    {P4_13 , UART1, 7},
     {P6_2  , UART2, 7},
+    {P4_15 , UART2, 7},
     {P5_4  , UART3, 5},
     {P8_9  , UART3, 7},
     {P5_1  , UART4, 5},
@@ -235,8 +239,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     b0 SPB2DT - Serial port break data   : High-level */
     obj->uart->SCSPTR = 0x0003u;    // SPB2IO = 1, SPB2DT = 1
 
-    obj->uart->SCSCR = 0x00F0;
-
     /* ---- Line status register (SCLSR) setting ----
     b0 ORER - Overrun error detect : clear */
 
@@ -276,6 +278,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
     uart_data[obj->index].sw_rts.pin = NC;
     uart_data[obj->index].sw_cts.pin = NC;
+
+    /* ---- Serial control register (SCSCR) setting ---- */
+    /* Setting the TE and RE bits enables the TxD and RxD pins to be used. */
+    obj->uart->SCSCR = 0x00F0;
 
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
 

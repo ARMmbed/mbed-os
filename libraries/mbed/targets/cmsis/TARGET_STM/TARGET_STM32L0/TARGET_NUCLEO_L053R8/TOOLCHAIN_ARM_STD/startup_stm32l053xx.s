@@ -1,8 +1,8 @@
-;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
 ;* File Name          : startup_stm32l053xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.1.0
-;* Date               : 18-June-2014
+;* Version            : V1.2.0
+;* Date               : 06-February-2015
 ;* Description        : STM32l053xx Devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -12,9 +12,9 @@
 ;*                        calls main()).
 ;*                      After Reset the Cortex-M0+ processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
-;* <<< Use Configuration Wizard in Context Menu >>>   
+;* <<< Use Configuration Wizard in Context Menu >>>
 ;*******************************************************************************
-;* 
+;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:
 ;*   1. Redistributions of source code must retain the above copyright notice,
@@ -101,7 +101,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     RNG_LPUART1_IRQHandler         ; RNG and LPUART1
                 DCD     LCD_IRQHandler                 ; LCD
                 DCD     USB_IRQHandler                 ; USB
-                
+
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors
@@ -112,7 +112,7 @@ __Vectors_Size  EQU  __Vectors_End - __Vectors
 Reset_Handler    PROC
                  EXPORT  Reset_Handler                 [WEAK]
         IMPORT  __main
-        IMPORT  SystemInit  
+        IMPORT  SystemInit
                  LDR     R0, =SystemInit
                  BLX     R0
                  LDR     R0, =__main
@@ -191,7 +191,7 @@ TSC_IRQHandler
 DMA1_Channel1_IRQHandler
 DMA1_Channel2_3_IRQHandler
 DMA1_Channel4_5_6_7_IRQHandler
-ADC1_COMP_IRQHandler 
+ADC1_COMP_IRQHandler
 LPTIM1_IRQHandler
 TIM2_IRQHandler
 TIM6_DAC_IRQHandler

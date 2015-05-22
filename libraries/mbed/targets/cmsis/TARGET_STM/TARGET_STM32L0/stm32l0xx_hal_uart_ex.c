@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    18-June-2014
+  * @version V1.2.0
+  * @date    06-February-2015
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -30,7 +30,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@
   * @{
   */
 
-/** @defgroup UARTEx
+/** @addtogroup UARTEx
   * @brief UARTEx module driver
   * @{
   */
@@ -80,11 +80,11 @@
 static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup UARTEX_Private_Functions
+/** @addtogroup UARTEx_Exported_Functions
   * @{
   */
 
-/** @defgroup UARTEx_Group1 Extended Initialization/de-initialization functions
+/** @addtogroup UARTEx_Exported_Functions_Group1
   * @brief    Extended Initialization and Configuration Functions
 
   *
@@ -124,7 +124,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   uint32_t temp = 0x0;
   
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -175,23 +175,12 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   return (UART_CheckIdleState(huart));
 }
 
-/**
-  * @brief UART wakeup from Stop mode callback
-  * @param huart: uart handle
-  * @retval None
-  */
- __weak void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_UART_WakeupCallback can be implemented in the user file
-   */ 
-}
 
 /**
   * @}
   */
   
-/** @defgroup UARTEX_Group2 Peripheral Control functions 
+/** @addtogroup UARTEx_Exported_Functions_Group2
  *  @brief   management functions 
  *
 @verbatim   
@@ -318,6 +307,9 @@ HAL_StatusTypeDef HAL_UARTEx_DisableClockStopMode(UART_HandleTypeDef *huart)
   */
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection)
 {
+
+  /* check the wake-up from stop mode UART instance */
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
   /* Check the wake-up selection parameter */
   assert_param(IS_UART_WAKEUP_SELECTION(WakeUpSelection.WakeUpEvent));
 
@@ -372,7 +364,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -425,6 +417,18 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
 }
 
 /**
+  * @brief UART wakeup from Stop mode callback
+  * @param huart: uart handle
+  * @retval None
+  */
+ __weak void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_UART_WakeupCallback can be implemented in the user file
+   */
+}
+
+/**
   * @}
   */
 
@@ -438,3 +442,4 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

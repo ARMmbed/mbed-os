@@ -37,6 +37,13 @@ class EchoTest():
         selftest.mbed.flush()
         selftest.notify("HOST: Starting the ECHO test")
         result = True
+        
+        """ This ensures that there are no parasites left in the serial buffer.
+        """
+        for i in range(0, 2):
+            selftest.mbed.serial_write("\n")
+            c = selftest.mbed.serial_readline()
+            
         for i in range(0, self.TEST_LOOP_COUNT):
             TEST_STRING = str(uuid.uuid4()) + "\n"
             selftest.mbed.serial_write(TEST_STRING)

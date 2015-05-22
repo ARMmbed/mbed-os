@@ -41,12 +41,14 @@ typedef enum {
 #include "USBEndpoints_LPC17_LPC23.h"
 #elif defined(TARGET_LPC11UXX) || defined(TARGET_LPC1347) || defined (TARGET_LPC11U6X) || defined (TARGET_LPC1549)
 #include "USBEndpoints_LPC11U.h"
-#elif defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F)
+#elif defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
 #include "USBEndpoints_KL25Z.h"
 #elif defined (TARGET_STM32F4)
 #include "USBEndpoints_STM32F4.h"
 #elif defined (TARGET_RZ_A1H)
 #include "USBEndpoints_RZ_A1H.h"
+#elif defined(TARGET_Maxim)
+#include "USBEndpoints_Maxim.h"
 #else
 #error "Unknown target type"
 #endif
