@@ -28,7 +28,7 @@ static bool rtc_inited = false;
 static time_t time_base = 0;
 static uint32_t useflags = 0;
 
-static void (*comp0_handler)(void) = NULL; 
+static void (*comp0_handler)(void) = NULL;
 
 #define RTC_LEAST_ACTIVE_SLEEPMODE EM2
 
@@ -37,17 +37,14 @@ void RTC_IRQHandler(void)
 {
     uint32_t flags;
     flags = RTC_IntGet();
-    if (flags & RTC_IF_OF)
-    {
+    if (flags & RTC_IF_OF) {
         RTC_IntClear(RTC_IF_OF);
         /* RTC has overflowed (24 bits). Use time_base as software counter for upper 8 bits. */
         time_base += 1 << 24;
     }
-    if (flags & RTC_IF_COMP0)
-    {
+    if (flags & RTC_IF_COMP0) {
         RTC_IntClear(RTC_IF_COMP0);
-        if (comp0_handler != NULL)
-        {
+        if (comp0_handler != NULL) {
             comp0_handler();
         }
     }
@@ -58,7 +55,7 @@ void rtc_set_comp0_handler(uint32_t handler)
     comp0_handler = (void (*)(void)) handler;
 }
 
-void rtc_init(void) 
+void rtc_init(void)
 {
     /* Register that the RTC is used for timekeeping. */
     rtc_init_real(RTC_INIT_RTC);
@@ -69,8 +66,7 @@ void rtc_init_real(uint32_t flags)
 {
     useflags |= flags;
 
-    if (!rtc_inited)
-    {
+    if (!rtc_inited) {
         /* Start LFXO and wait until it is stable */
         CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
 
@@ -103,7 +99,7 @@ void rtc_init_real(uint32_t flags)
     }
 }
 
-void rtc_free(void) 
+void rtc_free(void)
 {
     rtc_free_real(RTC_INIT_RTC);
 }
@@ -111,11 +107,10 @@ void rtc_free(void)
 void rtc_free_real(uint32_t flags)
 {
     /* Clear use flag */
-    flags &= ~flags; 
+    flags &= ~flags;
 
     /* Disable the RTC if it was inited and is no longer in use by anyone. */
-    if (rtc_inited && (flags == 0))
-    {
+    if (rtc_inited && (flags == 0)) {
         NVIC_DisableIRQ(RTC_IRQn);
         RTC_Reset();
         CMU_ClockEnable(cmuClock_RTC, false);

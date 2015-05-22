@@ -52,12 +52,12 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (!adc_initialized) {
         /* Turn on the clock */
         CMU_ClockEnable(cmuClock_ADC0, true);
-        
+
         /* Init with default settings */
         ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
         init.prescale = 4;
         ADC_Init(obj->adc, &init);
-        
+
         /* Init for single conversion use */
         ADC_InitSingle_TypeDef singleInit = ADC_INITSINGLE_DEFAULT;
 
@@ -67,7 +67,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         singleInit.acqTime = adcAcqTime32;
 
         ADC_InitSingle(obj->adc, &singleInit);
-        
+
         adc_initialized = 1;
     }
 }
