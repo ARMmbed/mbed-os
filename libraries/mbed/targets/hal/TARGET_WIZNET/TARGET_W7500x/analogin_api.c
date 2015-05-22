@@ -27,7 +27,7 @@
 
 ADC_TypeDef * AdcHandle;
 
-int adc_inited = 0;
+static int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
