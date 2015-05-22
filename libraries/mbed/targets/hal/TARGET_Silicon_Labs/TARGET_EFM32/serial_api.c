@@ -66,6 +66,8 @@ serial_t stdio_uart;
 
 static void uart_irq(UARTName, int, SerialIrq);
 uint8_t serial_get_index(serial_t *obj);
+void serial_enable(serial_t *obj, uint8_t enable);
+void serial_enable_pins(serial_t *obj, uint8_t enable);
 IRQn_Type serial_get_rx_irq_index(serial_t *obj);
 IRQn_Type serial_get_tx_irq_index(serial_t *obj);
 CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
@@ -435,17 +437,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART ) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
-
-        /* enable TX and RX by default for STDIO */
-        if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN | LEUART_CMD_RXEN;
-        } else {
-            obj->serial.periph.uart->CMD = USART_CMD_TXEN | USART_CMD_RXEN;
-        }
     }
 
     serial_enable_pins(obj, true);
-
+    serial_enable(obj, true);
     
 
     obj->serial.dmaOptionsTX.dmaChannel = -1;
