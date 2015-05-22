@@ -115,7 +115,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     // Maximum frequency is half the system frequency
-    MBED_ASSERT((unsigned int)hz < (SystemCoreClock / 2));
+    MBED_ASSERT((unsigned int)hz <= (SystemCoreClock / 2));
     unsigned clocks = ((SystemCoreClock/2)/(hz));
 
     // Figure out the divider ratio
