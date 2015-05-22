@@ -767,8 +767,26 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
     DMA_CfgDescr_TypeDef rxDescrCfg;
     DMA_CfgDescr_TypeDef txDescrCfg;
 
+    /* Split up transfers if the tx length is larger than what the DMA supports. */
+    const int DMA_MAX_TRANSFER = (_DMA_CTRL_N_MINUS_1_MASK >> _DMA_CTRL_N_MINUS_1_SHIFT);
+
+    if (tx_length > DMA_MAX_TRANSFER)
+    {
+        uint32_t max_length = DMA_MAX_TRANSFER;
+
+        /* Make sure only an even amount of bytes are transferred
+           if the width is larger than 8 bits. */
+        if (obj->spi.bits > 8)
+        {
+            max_length = DMA_MAX_TRANSFER - (DMA_MAX_TRANSFER & 0x01);
+        }
+
+        /* Update length for current transfer. */
+        tx_length = max_length;
+    }
+
     /* Save amount of TX done by DMA */
-    obj->tx_buff.pos = tx_length;
+    obj->tx_buff.pos += tx_length;
 
     if(obj->spi.bits != 9) {
         /* Only activate RX DMA if a receive buffer is specified */
@@ -965,6 +983,19 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         /* DMA implementation */
+
+        /* If there is still data in the TX buffer, setup a new transfer. */
+        if (obj->tx_buff.pos < obj->tx_buff.length)
+        {
+            /* Find position and remaining length without modifying tx_buff. */
+            void* tx_pointer = obj->tx_buff.buffer + obj->tx_buff.pos;
+            uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
+
+            /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
+            spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
+
+            return 0;
+        }
 
         /* If there is an RX transfer ongoing, wait for it to finish */
         if (DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
