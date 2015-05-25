@@ -82,8 +82,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     {
         us_ticker_init();
     }
+    
+    dev = (int32_t)(timestamp - (us_ticker_read() + 150));
 
-    dev = (timestamp - us_ticker_read() + 0x5153);
     if(dev <= 0)
     {
         us_ticker_irq_handler();
@@ -92,6 +93,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     PWM_CHn_Stop(TIM_MST6);
 
+    SystemCoreClockUpdate();
     TimMasterHandle_CH6.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
     TimMasterHandle_CH6.PWM_CHn_LR = dev;
 
