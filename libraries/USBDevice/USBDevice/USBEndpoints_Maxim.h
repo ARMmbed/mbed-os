@@ -85,6 +85,10 @@
 #define EPINT_IN    (EP4IN)
 #define EPINT_OUT_callback    EP3_OUT_callback
 #define EPINT_IN_callback     EP4_IN_callback
+/* Isochronous endpoints */
+/* NOT SUPPORTED - use invalid endpoint number to prevent built errors */
+#define EPISO_OUT   (EP0OUT)
+#define EPISO_IN    (EP0IN)
 
 #define MAX_PACKET_SIZE_EPBULK  (64)
 #define MAX_PACKET_SIZE_EPINT   (64)

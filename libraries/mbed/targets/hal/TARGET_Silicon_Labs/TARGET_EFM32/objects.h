@@ -129,11 +129,11 @@ struct lp_timer_s {
 #if DEVICE_SLEEP
 #define NUM_SLEEP_MODES 5
 typedef enum {
-	EM0 = 0,
-	EM1 = 1,
-	EM2 = 2,
-	EM3 = 3,
-	EM4 = 4
+    EM0 = 0,
+    EM1 = 1,
+    EM2 = 2,
+    EM3 = 3,
+    EM4 = 4
 } sleepstate_enum;
 #endif
 

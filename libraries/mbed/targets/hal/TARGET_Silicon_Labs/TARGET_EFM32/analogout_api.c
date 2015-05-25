@@ -37,22 +37,23 @@ void analogout_preinit(dac_t *obj, PinName pin)
 {
     obj->dac = (DAC_TypeDef *) pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->dac != NC);
-    
+
     obj->channel = pin_location(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->channel != NC);
 }
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     static uint8_t dac_initialized = 0;
 
     /* init in-memory structure */
     analogout_preinit(obj, pin);
-    
+
     if (!dac_initialized) {
         /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
         /* Use default settings */
         CMU_ClockEnable(cmuClock_DAC0, true);
-        
+
         DAC_Init_TypeDef init = DAC_INIT_DEFAULT;
 
         /* Calculate the DAC clock prescaler value that will result in a DAC clock
@@ -83,7 +84,8 @@ void analogout_pins_enable(dac_t *obj, uint8_t enable)
     //not avail for EFM32
 }
 
-static inline void dac_write(dac_t *obj, int value) {
+static inline void dac_write(dac_t *obj, int value)
+{
     switch (obj->channel) {
         case 0:
             obj->dac->CH0DATA = value;
@@ -94,7 +96,8 @@ static inline void dac_write(dac_t *obj, int value) {
     }
 }
 
-static inline int dac_read(dac_t *obj) {
+static inline int dac_read(dac_t *obj)
+{
     switch (obj->channel) {
         case 0:
             return obj->dac->CH0DATA;
@@ -109,23 +112,27 @@ static inline int dac_read(dac_t *obj) {
     }
 }
 
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     /* We multiply the float value with 0xFFF because the DAC has 12-bit resolution.
      * Ie. accepts values between 0 and 0xFFF (4096). */
     dac_write(obj, value*0xFFF);
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value) {
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
     /* The DAC has 12 bit resolution, so we remove the 4 least significant bits */
     dac_write(obj, value >> 4);
 }
 
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     /* dac_read returns a number between 0 and 0xFFF. Division gives us a float between 0 and 1 */
     return dac_read(obj)/(float)0xFFF;
 }
 
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     /* dac_read returns a number with 12 significant digits,
      * so we shift in 0s from right to make it a 16 bit number */
     return dac_read(obj) << 4;
