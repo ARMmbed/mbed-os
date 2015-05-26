@@ -55,7 +55,8 @@ class IOperTestRunner():
             'mbed-enabled' - let's try to check if this device is mbed-enabled
             'basic' - just simple, passive tests (no device flashing)
         """
-        self.requested_scope = scope
+        self.requested_scope = scope    # Test scope given by user
+        self.raw_test_results = []      # Raw test results, can be used by exporters
 
         # Test scope definitions
         self.SCOPE_BASIC = 'basic'                  # Basic tests, sanity checks
@@ -91,6 +92,7 @@ class IOperTestRunner():
                 if self.scopes[self.requested_scope] >= self.scopes[test_case.scope]:
                     res = test_case.test(param=mut)
                     result.extend(res)
+                    self.raw_test_results.append(res)
 
             columns = ['Platform', 'Result', 'Scope', 'Description']
             pt = PrettyTable(columns)
