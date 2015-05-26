@@ -30,7 +30,7 @@ class WFITest():
             return selftest.RESULT_IO_SERIAL
 
         if c.strip() != "0":
-            return selftest.RESULT_IO_FAIL
+            return selftest.RESULT_FAILURE
 
         # Wait 10 seconds to allow serial prints (indicating failure)
         selftest.mbed.set_serial_timeout(10)
