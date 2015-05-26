@@ -29,11 +29,19 @@ void pin_function(PinName pin, int function) {
     *pin_pcr = (*pin_pcr & ~0x700) | (function << 8);
 }
 
+int pin_supports_mode(PinName pin, PinMode mode) {
+    // All pins support the same modes, no need to lookup per pin
+    // If the given mode is supported, return 0. Otherwise, return -1.
+    return PinModes[mode] != -1 ? 0 : -1 ;
+}
+
 void pin_mode(PinName pin, PinMode mode) {
     MBED_ASSERT(pin != (PinName)NC);
 
-    __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
+    if (pin_supports_mode(pin, mode) == 0) {
+        __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
 
-    // pin pullup bits: [1:0] -> 11 = (0x3)
-    *pin_pcr = (*pin_pcr & ~0x3) | mode;
+        // pin pullup bits: [1:0] -> 11 = (0x3)
+        *pin_pcr = (*pin_pcr & ~0x3) | PinModes[mode];
+    }
 }
