@@ -36,10 +36,33 @@ class IOperTest_FileStructure(IOperTestCaseBase):
             self.result.append((fail_severity if fail_severity else self.ERROR, self.scope, "File '%s' not found" % file_path))
 
     def test(self, param=None):
+        self.result = []
+        if param:
+            pass
+        return self.result
+
+
+class IOperTest_FileStructure_Basic(IOperTest_FileStructure):
+    def __init__(self, scope=None):
+        IOperTest_FileStructure.__init__(self, scope)
+
+    def test(self, param=None):
         self.param = param
         self.result = []
         if param:
             self.if_file_exist('mbed.htm', self.ERROR)
-            self.if_file_exist('DETAILS.TXT', self.INFO)
+        return self.result
+
+
+class IOperTest_FileStructure_MbedEnabled(IOperTest_FileStructure):
+    def __init__(self, scope=None):
+        IOperTest_FileStructure.__init__(self, scope)
+
+    def test(self, param=None):
+        self.param = param
+        self.result = []
+        if param:
+            self.if_file_exist('mbed.htm', self.ERROR)
+            self.if_file_exist('DETAILS.TXT', self.ERROR)
             self.if_file_exist('FAIL.TXT', self.INFO)
         return self.result

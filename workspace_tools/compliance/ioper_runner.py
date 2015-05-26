@@ -31,14 +31,16 @@ except:
 COLORAMA = 'colorama' in sys.modules
 
 from ioper_base import IOperTestCaseBase
-from ioper_test_fs import IOperTest_FileStructure
+from ioper_test_fs import IOperTest_FileStructure_Basic
+from ioper_test_fs import IOperTest_FileStructure_MbedEnabled
 from ioper_test_target_id import IOperTest_TargetID_Basic
 from ioper_test_target_id import IOperTest_TargetID_MbedEnabled
 
 
 TEST_LIST = [IOperTest_TargetID_Basic('basic'),
              IOperTest_TargetID_MbedEnabled('mbed-enabled'),
-             IOperTest_FileStructure('basic'),
+             IOperTest_FileStructure_Basic('basic'),
+             IOperTest_FileStructure_MbedEnabled('mbed-enabled'),
              IOperTestCaseBase('all'),  # Dummy used to add 'all' option
             ]
 
