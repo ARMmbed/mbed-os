@@ -134,6 +134,7 @@ if __name__ == '__main__':
             ('uvision', 'MTS_MDOT_F405RG'),
             ('uvision', 'MAXWSNENV'),
             ('uvision', 'MAX32600MBED'),
+            ('uvision', 'DISCO_F334C8'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
@@ -166,6 +167,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F051R8'),
             ('gcc_arm', 'DISCO_F407VG'),
             ('gcc_arm', 'DISCO_F303VC'),
+            ('gcc_arm', 'DISCO_F334C8'),
             ('gcc_arm', 'NRF51822'),
             ('gcc_arm', 'HRM1017'),
             ('gcc_arm', 'NUCLEO_F401RE'),
@@ -197,6 +199,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_L053R8'),
             ('iar', 'NUCLEO_L073RZ'),
             ('iar', 'NUCLEO_L152RE'),
+            ('iar', 'DISCO_F334C8'),
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
             ('iar', 'MTS_MDOT_F411RE'),

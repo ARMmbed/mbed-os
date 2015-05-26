@@ -640,7 +640,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -653,7 +653,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -666,7 +666,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
@@ -678,7 +678,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
@@ -690,7 +690,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
@@ -702,7 +702,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -716,7 +716,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
@@ -728,7 +728,7 @@ TESTS = [
                 "RZ_A1H", "DISCO_F407VG", "DISCO_F429ZI", "NUCLEO_F411RE",
                 "NUCLEO_F401RE", "NUCLEO_F334R8", "DISCO_F334C8", "NUCLEO_F302R8",
                 "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC",
-                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED"],
+                "DISCO_F401VC", "NUCLEO_F303RE", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
@@ -996,6 +996,30 @@ TESTS = [
     {
         "id": "UT_BUSIO", "description": "BusIn BusOut",
         "source_dir": join(TEST_DIR, "utest", "bus"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_I2C_EEPROM_ASYNCH", "description": "I2C Asynch eeprom",
+        "source_dir": join(TEST_DIR, "utest", "i2c_eeprom_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_SERIAL_ASYNCH", "description": "Asynch serial test (req 2 serial peripherals)",
+        "source_dir": join(TEST_DIR, "utest", "serial_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_SPI_ASYNCH", "description": "Asynch spi test",
+        "source_dir": join(TEST_DIR, "utest", "spi_asynch"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
+        "automated": False,
+    },
+    {
+        "id": "UT_LP_TICKER", "description": "Low power ticker test",
+        "source_dir": join(TEST_DIR, "utest", "lp_ticker"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
         "automated": False,
     },
