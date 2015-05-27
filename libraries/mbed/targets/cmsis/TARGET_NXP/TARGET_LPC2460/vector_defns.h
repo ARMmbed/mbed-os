@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library - Vectors 
- * Copyright (c) 2006-2009 ARM Limited. All rights reserved. 
+ * Copyright (c) 2006-2015 ARM Limited. All rights reserved. 
  */
 
 #ifndef MBED_VECTOR_DEFNS_H
