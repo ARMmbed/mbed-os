@@ -30,10 +30,11 @@ class IOperTest_FileStructure(IOperTestCaseBase):
     def if_file_exist(self, fname, fail_severity=None):
         file_path = os.path.join(self.param['mount_point'], fname)
         exist = os.path.isfile(file_path)
+        tr_name = "FILE_EXIST(%s)" % fname.upper()
         if exist:
-            self.result.append((self.PASS, self.scope, "File '%s' exists" % file_path))
+            self.result.append((self.PASS, tr_name, self.scope, "File '%s' exists" % file_path))
         else:
-            self.result.append((fail_severity if fail_severity else self.ERROR, self.scope, "File '%s' not found" % file_path))
+            self.result.append((fail_severity if fail_severity else self.ERROR, tr_name, self.scope, "File '%s' not found" % file_path))
 
     def test(self, param=None):
         self.result = []
