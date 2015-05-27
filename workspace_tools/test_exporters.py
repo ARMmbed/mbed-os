@@ -218,7 +218,7 @@ class ReportExporter():
 
         for platform in sorted(test_result_ext.keys()):
             # {platform : ['Platform', 'Result', 'Scope', 'Description'])
-
+            test_cases = []
             for tr_result in test_result_ext[platform]:
                 result, name, scope, description = tr_result
 

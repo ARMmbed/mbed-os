@@ -82,6 +82,7 @@ class IOperTestRunner():
         muts_list = mbeds.list_mbeds()
         test_base = IOperTestCaseBase()
 
+        self.raw_test_results = {}
         for i, mut in enumerate(muts_list):
             result = []
             self.raw_test_results[mut['platform_name']] = []
