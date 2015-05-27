@@ -21,7 +21,9 @@ from workspace_tools.utils import construct_enum
 
 
 ResultExporterType = construct_enum(HTML='Html_Exporter',
-                                    JUNIT='JUnit_Exporter')
+                                    JUNIT='JUnit_Exporter',
+                                    JUNIT_OPER='JUnit_Exporter_Interoperability',
+                                    )
 
 
 class ReportExporter():
@@ -75,14 +77,20 @@ class ReportExporter():
             # HTML exporter
             return self.exporter_html(test_summary_ext, test_suite_properties)
         elif self.result_exporter_type == ResultExporterType.JUNIT:
-            # JUNIT exporter
+            # JUNIT exporter for results from test suite
             return self.exporter_junit(test_summary_ext, test_suite_properties)
+        elif self.result_exporter_type == ResultExporterType.JUNIT_OPER:
+            # JUNIT exporter for interoperability test
+            return self.exporter_junit_ioper(test_summary_ext, test_suite_properties)
         return None
 
     def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
         """ Stores report to specified file
         """
         report = self.report(test_summary_ext, test_suite_properties=test_suite_properties)
+        self.write_to_file(report, file_name)
+
+    def write_to_file(self, report, file_name):
         if report is not None:
             with open(file_name, 'w') as f:
                 f.write(report)
@@ -195,6 +203,34 @@ class ReportExporter():
         result += '</table>'
         result += '</body></html>'
         return result
+
+    def exporter_junit_ioper(self, test_result_ext, test_suite_properties=None):
+        from junit_xml import TestSuite, TestCase
+        test_suites = []
+        test_cases = []
+
+        for platform in sorted(test_result_ext.keys()):
+            # {platform : ['Platform', 'Result', 'Scope', 'Description'])
+
+            for tr_result in test_result_ext[platform]:
+                result, name, scope, description = tr_result
+
+                classname = 'test.ioper.%s.%s.%s' % (platform, name, scope)
+                elapsed_sec = 0
+                _stdout = description
+                _stderr = ''
+                # Test case
+                tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
+                # Test case extra failure / error info
+                if result == 'FAIL':
+                    tc.add_failure_info(description, _stdout)
+                elif result == 'ERROR':
+                    tc.add_error_info(description, _stdout)
+
+                test_cases.append(tc)
+            ts = TestSuite("test.suite.ioper.%s" % (platform), test_cases)
+            test_suites.append(ts)
+        return TestSuite.to_xml_string(test_suites)
 
     def exporter_junit(self, test_result_ext, test_suite_properties=None):
         """ Export test results in JUnit XML compliant format

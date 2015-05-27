@@ -56,7 +56,7 @@ class IOperTestRunner():
             'basic' - just simple, passive tests (no device flashing)
         """
         self.requested_scope = scope    # Test scope given by user
-        self.raw_test_results = []      # Raw test results, can be used by exporters
+        self.raw_test_results = {}      # Raw test results, can be used by exporters: { Platform: [test results]} 
 
         # Test scope definitions
         self.SCOPE_BASIC = 'basic'                  # Basic tests, sanity checks
@@ -84,6 +84,8 @@ class IOperTestRunner():
 
         for i, mut in enumerate(muts_list):
             result = []
+            self.raw_test_results[mut['platform_name']] = []
+
             print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name'],
                                                                  mut['serial_port'],
                                                                  mut['mount_point'])
@@ -92,24 +94,25 @@ class IOperTestRunner():
                 if self.scopes[self.requested_scope] >= self.scopes[test_case.scope]:
                     res = test_case.test(param=mut)
                     result.extend(res)
-                    self.raw_test_results.append(res)
+                    self.raw_test_results[mut['platform_name']].extend(res)
 
-            columns = ['Platform', 'Result', 'Scope', 'Description']
+            columns = ['Platform', 'Test Case', 'Result', 'Scope', 'Description']
             pt = PrettyTable(columns)
             for col in columns:
                 pt.align[col] = 'l'
 
             for tr in result:
-                severity, tr_scope, text = tr
+                severity, tr_name, tr_scope, text = tr
                 tr = (test_base.COLOR(severity, mut['platform_name']),
+                      test_base.COLOR(severity, tr_name),
                       test_base.COLOR(severity, severity),
                       test_base.COLOR(severity, tr_scope),
                       test_base.COLOR(severity, text))
                 pt.add_row(list(tr))
             print pt.get_string(border=True, sortby='Result')
-            if i+1 < len(muts_list):
+            if i + 1 < len(muts_list):
                 print
-
+        return self.raw_test_results
 
 def get_available_oper_test_scopes():
     """ Get list of available test scopes
