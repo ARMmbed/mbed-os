@@ -47,7 +47,7 @@ DigitalInOut d2(P4_7);
 
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
 DigitalInOut d1(PD0);
-DigitalInOut d2(PC4);
+DigitalInOut d2(PC3);
 
 #elif defined(TARGET_EFM32ZG_STK3200)
 DigitalInOut d1(PD7);

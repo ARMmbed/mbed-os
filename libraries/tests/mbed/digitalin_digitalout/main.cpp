@@ -46,16 +46,16 @@ DigitalOut out(P1_0);
 DigitalIn in(P4_7);
 
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
-DigitalInOut d1(PD0);
-DigitalInOut d2(PC4);
+DigitalOut out(PD0);
+DigitalIn  in(PC3);
 
 #elif defined(TARGET_EFM32ZG_STK3200)
-DigitalInOut d1(PD7);
-DigitalInOut d2(PC1);
+DigitalOut out(PD7);
+DigitalIn  in(PC1);
 
 #elif defined(TARGET_EFM32HG_STK3400)
-DigitalInOut d1(PE10);
-DigitalInOut d2(PC1);
+DigitalOut out(PE10);
+DigitalIn  in(PC1);
 
 #else
 DigitalOut out(p5);

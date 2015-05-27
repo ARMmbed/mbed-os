@@ -30,7 +30,7 @@
 
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
 #define TEST_SERIAL_ONE_TX_PIN PD0   // usart1
-#define TEST_SERIAL_TWO_RX_PIN PC4   // usart2
+#define TEST_SERIAL_TWO_RX_PIN PC3   // usart2
 
 #elif defined(TARGET_EFM32ZG_STK3200)
 #error "Target not supported (only 2 serial ports available, need 3)"
