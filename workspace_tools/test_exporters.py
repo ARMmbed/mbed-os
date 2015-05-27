@@ -23,7 +23,7 @@ from workspace_tools.utils import construct_enum
 ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter',
                                     JUNIT_OPER='JUnit_Exporter_Interoperability',
-                                    )
+                                    BUILD='Build_Exporter')
 
 
 class ReportExporter():
