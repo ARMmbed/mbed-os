@@ -229,7 +229,7 @@ uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t a
  *
  * \return TODO
  */
-uint16_t coap_service_response_send(int8_t service_id, uint16_t msg_id, uint8_t options, sn_coap_hdr_s *response_ptr);
+int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type,uint8_t * payload_ptr,uint16_t payload_len);
 
 #ifdef __cplusplus
 }
