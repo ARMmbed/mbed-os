@@ -13,8 +13,8 @@ extern "C" {
 
 #include <string.h>
 
-#include <ns_types.h>
-#include <sn_coap_header.h>
+#include "ns_types.h"
+#include "sn_coap_header.h"
 
 /**
  * This interface is used in sending and receiving of CoAP messages to multicast address and receive multiple responses.
@@ -50,7 +50,7 @@ extern "C" {
  * \param listen_port      Port that Application wants to use for communicate with coap server.
  * \param service_options  Options of the current service.
  *
- *  \return service_id
+ *  \return service_id / -1 for failure
  */
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options);
 
@@ -75,7 +75,7 @@ void coap_service_delete( int8_t service_id );
  *
  * \return Status
  */
-typedef int (*coap_service_request_recv_cb)(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *request_ptr);
+typedef int coap_service_request_recv_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *request_ptr);
 
 /**
  * \brief Security service start callback
@@ -85,9 +85,9 @@ typedef int (*coap_service_request_recv_cb)(int8_t service_id, uint8_t source_ad
  * \param service_id         Id number of the current service.
  * \param EUI64              64 bit global identifier
  *
- * \return Status
+ * \return 0 for success / -1 for failure 
  */
-typedef int (*coap_service_security_start_cb)(int8_t service_id, uint8_t EUI64[static 8]);
+typedef int coap_service_security_start_cb(int8_t service_id, uint8_t EUI64[static 8]);
 
 /**
  * \brief CoAP service security done callback
@@ -98,9 +98,9 @@ typedef int (*coap_service_security_start_cb)(int8_t service_id, uint8_t EUI64[s
  * \param EUI64              64 bit global identifier
  * \param keyblock           Security key (40 bits)
  *
- * \return Status
+ * \return 0 for success / -1 for failure 
  */
-typedef int (*coap_service_security_done_cb)(int8_t service_id, uint8_t EUI64[static 8], uint8_t keyblock[static 40]);
+typedef int coap_service_security_done_cb(int8_t service_id, uint8_t EUI64[static 8], uint8_t keyblock[static 40]);
 
 
 /**
@@ -112,7 +112,7 @@ typedef int (*coap_service_security_done_cb)(int8_t service_id, uint8_t EUI64[st
  * \param PSKd_ptr           Pointer to PSK key.
  * \param PSKd_len           Lenght of PSK key.
  *
- * \return Status
+ * \return 0 for success / -1 for failure 
  */
 int coap_service_security_key_set(int8_t service_id, uint8_t EUI64[static 8], uint8_t *PSKd_ptr, uint8_t PSKd_len);
 
@@ -124,9 +124,9 @@ int coap_service_security_key_set(int8_t service_id, uint8_t EUI64[static 8], ui
  * \param msg_id           Id number of the current message.
  * \param response_ptr     Pointer to CoAP header structure.
  *
- * \return Status
+ * \return 0 for success / -1 for failure 
   */
-typedef int (*coap_service_response_recv)(uint16_t msg_id, sn_coap_hdr_s *response_ptr);
+typedef int coap_service_response_recv(int8_t service_id, uint16_t msg_id, sn_coap_hdr_s *response_ptr);
 
 /**
  * \brief Virtual socket sent callback.
@@ -139,9 +139,9 @@ typedef int (*coap_service_response_recv)(uint16_t msg_id, sn_coap_hdr_s *respon
  * \param *data_ptr                        Pointer to the data.
  * \param data_len                         Lenght of the data.
  *
- * \return Status
+ * \return 0 for success / -1 for failure 
   */
-typedef int (*coap_service_virtual_socket_send_cb)(int8_t service_id, uint8_t destination_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
+typedef int coap_service_virtual_socket_send_cb(int8_t service_id, uint8_t destination_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
 
 /**
  * \brief Virtual socket read.
@@ -154,7 +154,7 @@ typedef int (*coap_service_virtual_socket_send_cb)(int8_t service_id, uint8_t de
  * \param *data_ptr                        Pointer to the data
  * \param data_len                         Lenght of the data
  *
- * \return ?
+ * \return 0 for success / -1 for failure 
   */
 int16_t coap_service_virtual_socket_recv(int8_t service_id, uint8_t source_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
 
@@ -166,7 +166,7 @@ int16_t coap_service_virtual_socket_recv(int8_t service_id, uint8_t source_addr_
  * \param service_id         Id number of the current service.
  * \param *send_method_ptr   Callback to coap virtual socket.
  *
- * \return TODO
+ * \return 0 for success / -1 for failure 
  */
 int16_t coap_service_virtual_socket_set_cb(int8_t service_id, coap_service_virtual_socket_send_cb *send_method_ptr);
 
@@ -176,15 +176,29 @@ int16_t coap_service_virtual_socket_set_cb(int8_t service_id, coap_service_virtu
  * Register application and informs CoAP services unsecure registery callback function.
  *
  * \param service_id       Id number of the current service.
- * \param *uri             Pointer to uri.
+ * \param *uri_ptr             Pointer to uri.
  * \param uri_len          Length of uri.
  * \param port             port that Application wants to use for communicate with coap server.
  * \param allowed_method   Informs method that is allowed to use (used defines described above).
  * \param *request_recv_cb  CoAP service request receive callback function pointer.
  *
- * \return TODO
+ * \return 0 for success / -1 for failure 
  */
-int16_t coap_service_register_uri(int8_t service_id, uint16_t *uri, uint16_t uri_len, uint16_t port, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
+int8_t coap_service_register_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
+
+/**
+ * \brief Unregister unsecure callback methods to CoAP server
+ *
+ * Register application and informs CoAP services unsecure registery callback function.
+ *
+ * \param service_id       Id number of the current service.
+ * \param *uri_ptr         Pointer to uri.
+ * \param uri_len          Length of uri.
+ *
+ * \return 0 for success / -1 for failure 
+ */
+int8_t coap_service_unregister_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len);
+
 
 /**
  * \brief Register secure callback methods to CoAP server.
@@ -195,16 +209,16 @@ int16_t coap_service_register_uri(int8_t service_id, uint16_t *uri, uint16_t uri
  * \param *start_ptr        Callback to inform security handling is started.
  * \param *security_done_cb Callback to inform security handling is done.
  *
- * \return TODO
+ * \return -1               for failure 
+ *          instance_id     For success (is used to identify registery)
  *
- * instance id that is used to identify registery.
  */
-int16_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb);
+int8_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb);
 
 /**
- * \brief Sends CoAP service request
+ * \brief Sends CoAP service
  *
- * Build and sends CoAP service request message.
+ * Build and sends CoAP service message.
  *
  * \param service_id            Id number of the current service.
  * \param options               Options defined above.
@@ -215,7 +229,30 @@ int16_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_
  *
  * \return msg_id               Id number of the current message.
  */
-uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t addr[static 16], uint16_t destination_port, sn_coap_hdr_s *request_ptr, coap_service_response_recv *request_response_cb);
+uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[static 16], uint16_t destination_port, sn_coap_hdr_s *request_ptr, coap_service_response_recv *request_response_cb);
+
+/**
+ * \brief Sends CoAP service request
+ *
+ * Build and sends CoAP service request message.
+ *
+ * \param service_id            Id number of the current service.
+ * \param options               Options defined above.
+ * \param destination_addr                  IPv6 address.
+ * \param destination_port      Destination port
+ * \param msg_type              Message type can be found from sn_coap_header.
+ * \param msg_code              Message code can be found from sn_coap_header.
+ * \param *uri_ptr              Pointer to uri.
+ * \param uri_len               Length of uri.
+ * \param cont_type             Content type can be found from sn_coap_header.
+ * \param payload_ptr           Pointer to message content.
+ * \param payload_len           Lenght of the message.
+ * \param *request_response_cb  Callback to inform result of the request.
+ *
+ * \return msg_id               Id number of the current message.
+ */
+uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, uint8_t *uri_ptr, uint16_t uri_len, 
+	                              uint8_t cont_type, uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
 
 /**
  * \brief Sends CoAP service response
@@ -227,7 +264,8 @@ uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t a
  * \param options          Options defined above.
  * \param response_ptr     Pointer to CoAP header structure.
  *
- * \return TODO
+ * \return -1              For failure 
+ *-         0              For success 
  */
 int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type,uint8_t * payload_ptr,uint16_t payload_len);
 
