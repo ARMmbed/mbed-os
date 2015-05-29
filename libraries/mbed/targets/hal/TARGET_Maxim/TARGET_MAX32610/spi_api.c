@@ -88,10 +88,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->gen_ctrl = (MXC_F_SPI_GEN_CTRL_SPI_MSTR_EN |
                           MXC_F_SPI_GEN_CTRL_TX_FIFO_EN |
                           MXC_F_SPI_GEN_CTRL_RX_FIFO_EN );
-
-    // Give instance the default settings
-    spi_format(obj, DEFAULT_CHAR, DEFAULT_MODE, 0);
-    spi_frequency(obj, DEFAULT_FREQ);
 }
 
 //******************************************************************************
@@ -115,7 +111,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     // Maximum frequency is half the system frequency
-    MBED_ASSERT((unsigned int)hz < (SystemCoreClock / 2));
+    MBED_ASSERT((unsigned int)hz <= (SystemCoreClock / 2));
     unsigned clocks = ((SystemCoreClock/2)/(hz));
 
     // Figure out the divider ratio

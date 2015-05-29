@@ -35,7 +35,8 @@
 static uint16_t fill_word = SPI_FILL_WORD;
 #define SPI_LEAST_ACTIVE_SLEEPMODE EM1
 
-inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj) {
+inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
+{
     switch ((int)obj->spi.spi) {
 #ifdef USART0
         case SPI_0:
@@ -81,7 +82,8 @@ inline uint8_t spi_get_index(spi_t *obj)
     return index;
 }
 
-uint8_t spi_get_module(spi_t *obj) {
+uint8_t spi_get_module(spi_t *obj)
+{
     return spi_get_index(obj);
 }
 
@@ -200,12 +202,12 @@ void spi_enable(spi_t *obj, uint8_t enable)
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
-	CMU_ClockEnable(cmuClock_HFPER, true);
-	spi_preinit(obj, mosi, miso, clk, cs);
-	CMU_ClockEnable(spi_get_clock_tree(obj), true);
-	usart_init(obj, 100000, usartDatabits8, true, usartClockMode0);
+    CMU_ClockEnable(cmuClock_HFPER, true);
+    spi_preinit(obj, mosi, miso, clk, cs);
+    CMU_ClockEnable(spi_get_clock_tree(obj), true);
+    usart_init(obj, 100000, usartDatabits8, true, usartClockMode0);
 
-	spi_enable_pins(obj, true, mosi, miso, clk, cs);
+    spi_enable_pins(obj, true, mosi, miso, clk, cs);
     spi_enable(obj, true);
 }
 
@@ -254,8 +256,7 @@ void spi_enable_interrupt(spi_t *obj, uint32_t handler, uint8_t enable)
         NVIC_SetVector(IRQvector, handler);
         USART_IntEnable(obj->spi.spi, USART_IEN_RXDATAV);
         NVIC_EnableIRQ(IRQvector);
-    }
-    else {
+    } else {
         NVIC_SetVector(IRQvector, handler);
         USART_IntDisable(obj->spi.spi, USART_IEN_RXDATAV);
         NVIC_DisableIRQ(IRQvector);
@@ -400,11 +401,11 @@ uint8_t spi_active(spi_t *obj)
 
 void spi_buffer_set(spi_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
 {
-	uint32_t i;
-	uint16_t *tx_ptr = (uint16_t *) tx;
+    uint32_t i;
+    uint16_t *tx_ptr = (uint16_t *) tx;
 
-	tx_length *= (bit_width >> 3);
-	rx_length *= (bit_width >> 3);
+    tx_length *= (bit_width >> 3);
+    rx_length *= (bit_width >> 3);
 
     obj->tx_buff.buffer = tx;
     obj->rx_buff.buffer = rx;
@@ -416,123 +417,123 @@ void spi_buffer_set(spi_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t
     obj->rx_buff.width = bit_width;
 
     if((obj->spi.bits == 9) && (tx != 0)) {
-    	// Make sure we don't have inadvertent non-zero bits outside 9-bit frames which could trigger unwanted operation
-    	for(i = 0; i < (tx_length / 2); i++) {
-    		tx_ptr[i] &= 0x1FF;
-    	}
+        // Make sure we don't have inadvertent non-zero bits outside 9-bit frames which could trigger unwanted operation
+        for(i = 0; i < (tx_length / 2); i++) {
+            tx_ptr[i] &= 0x1FF;
+        }
     }
 }
 
 static void spi_buffer_tx_write(spi_t *obj)
 {
-	uint32_t data;
-	// This routine gets triggered on TXBL (= buffer empty), so check to see if we can write a double value
-	if (obj->spi.bits % 9 != 0) {
-		// No special 9-bit scenario
-		if((obj->tx_buff.pos < obj->tx_buff.length - 1) && ((obj->tx_buff.pos & 0x1) == 0)) {
-			// write double frame
-			if (obj->tx_buff.buffer == (void *)0) {
-				data = SPI_FILL_WORD;
-			} else {
-				uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-				data = tx[obj->tx_buff.pos / 2] & 0xFFFF;
-			}
-			obj->tx_buff.pos += 2;
-			obj->spi.spi->TXDOUBLE = data;
-		} else if (obj->tx_buff.pos < obj->tx_buff.length) {
-			// write single frame
-			if (obj->tx_buff.buffer == (void *)0) {
-				data = SPI_FILL_WORD & 0xFF;
-			} else {
-				uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
-				data = tx[obj->tx_buff.pos] & 0xFF;
-			}
-			obj->tx_buff.pos++;
-			obj->spi.spi->TXDATA = data;
-		}
-	} else {
-		// 9-bit frame
-		if(obj->tx_buff.pos < obj->tx_buff.length - 3) {
-			// write double frame
-			if (obj->tx_buff.buffer == (void *)0) {
-				data = ((SPI_FILL_WORD & 0x01FF) << 16) | (SPI_FILL_WORD & 0x1FF);
-			} else {
-				uint32_t *tx = (uint32_t *)(obj->tx_buff.buffer);
-				data = tx[obj->tx_buff.pos / 4] & 0x01FF01FF;
-			}
-			obj->tx_buff.pos += 4;
-			obj->spi.spi->TXDOUBLEX = data;
-		} else if (obj->tx_buff.pos < obj->tx_buff.length - 1) {
-			// write single frame
-			if (obj->tx_buff.buffer == (void *)0) {
-				data = SPI_FILL_WORD & 0x01FF;
-			} else {
-				uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-				data = tx[obj->tx_buff.pos / 2] & 0x01FF;
-			}
-			obj->tx_buff.pos += 2;
-			obj->spi.spi->TXDATAX = data;
-		}
-	}
+    uint32_t data;
+    // This routine gets triggered on TXBL (= buffer empty), so check to see if we can write a double value
+    if (obj->spi.bits % 9 != 0) {
+        // No special 9-bit scenario
+        if((obj->tx_buff.pos < obj->tx_buff.length - 1) && ((obj->tx_buff.pos & 0x1) == 0)) {
+            // write double frame
+            if (obj->tx_buff.buffer == (void *)0) {
+                data = SPI_FILL_WORD;
+            } else {
+                uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
+                data = tx[obj->tx_buff.pos / 2] & 0xFFFF;
+            }
+            obj->tx_buff.pos += 2;
+            obj->spi.spi->TXDOUBLE = data;
+        } else if (obj->tx_buff.pos < obj->tx_buff.length) {
+            // write single frame
+            if (obj->tx_buff.buffer == (void *)0) {
+                data = SPI_FILL_WORD & 0xFF;
+            } else {
+                uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
+                data = tx[obj->tx_buff.pos] & 0xFF;
+            }
+            obj->tx_buff.pos++;
+            obj->spi.spi->TXDATA = data;
+        }
+    } else {
+        // 9-bit frame
+        if(obj->tx_buff.pos < obj->tx_buff.length - 3) {
+            // write double frame
+            if (obj->tx_buff.buffer == (void *)0) {
+                data = ((SPI_FILL_WORD & 0x01FF) << 16) | (SPI_FILL_WORD & 0x1FF);
+            } else {
+                uint32_t *tx = (uint32_t *)(obj->tx_buff.buffer);
+                data = tx[obj->tx_buff.pos / 4] & 0x01FF01FF;
+            }
+            obj->tx_buff.pos += 4;
+            obj->spi.spi->TXDOUBLEX = data;
+        } else if (obj->tx_buff.pos < obj->tx_buff.length - 1) {
+            // write single frame
+            if (obj->tx_buff.buffer == (void *)0) {
+                data = SPI_FILL_WORD & 0x01FF;
+            } else {
+                uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
+                data = tx[obj->tx_buff.pos / 2] & 0x01FF;
+            }
+            obj->tx_buff.pos += 2;
+            obj->spi.spi->TXDATAX = data;
+        }
+    }
 }
 
 static void spi_buffer_rx_read(spi_t *obj)
 {
-	if (obj->spi.bits % 9 != 0) {
-		if ((obj->spi.spi->STATUS & USART_STATUS_RXFULL) && (obj->rx_buff.pos < obj->rx_buff.length - 1) && ((obj->rx_buff.pos % 2) == 0)) {
-			// Read max 16 bits from buffer to speed things up
-			uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLE; //read the data but store only if rx is set and not full
-			if (obj->rx_buff.buffer) {
-				uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
-				rx[obj->rx_buff.pos / 2] = data & 0xFFFF;
-				obj->rx_buff.pos += 2;
-			}
-		} else if ((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length)) {
-			// Read 8 bits from buffer
-			while((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length)) {
-				uint32_t data = (uint32_t)obj->spi.spi->RXDATA; //read the data but store only if rx is set and not full
-				if (obj->rx_buff.buffer) {
-					uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
-					rx[obj->rx_buff.pos] = data & 0xFF;
-					obj->rx_buff.pos++;
-				}
-			}
-		} else if (obj->spi.spi->STATUS & USART_STATUS_RXFULL) {
-			// Read from the buffer to lower the interrupt flag
-			volatile uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLE;
-		} else if (obj->spi.spi->STATUS & USART_STATUS_RXDATAV) {
-			// Read from the buffer to lower the interrupt flag
-			volatile uint32_t data = (uint32_t)obj->spi.spi->RXDATA;
-		}
-	} else {
-		// Data bits is multiple of 9, so use the extended registers
-		if ((obj->spi.spi->STATUS & USART_STATUS_RXFULL) && (obj->rx_buff.pos < obj->rx_buff.length - 3) && ((obj->rx_buff.pos % 4) == 0)) {
-			// Read max 18 bits from buffer to speed things up
-			uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLEX; //read the data but store only if rx is set and  will not overflow
-			if (obj->rx_buff.buffer) {
-				uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
-				rx[obj->rx_buff.pos / 2] = data & 0x000001FF;
-				rx[(obj->rx_buff.pos / 2) + 1] = (data & 0x01FF0000) >> 16;
-				obj->rx_buff.pos += 4;
-			}
-		} else if ((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length - 1)) {
-			// Read 9 bits from buffer
-			while((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length - 1)) {
-				uint32_t data = (uint32_t)obj->spi.spi->RXDATAX; //read the data but store only if rx is set and not full
-				if (obj->rx_buff.buffer) {
-					uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
-					rx[obj->rx_buff.pos / 2] = data & 0x01FF;
-					obj->rx_buff.pos += 2;
-				}
-			}
-		} else if (obj->spi.spi->STATUS & USART_STATUS_RXFULL) {
-			// Read from the buffer to lower the interrupt flag
-			volatile uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLEX;
-		} else if (obj->spi.spi->STATUS & USART_STATUS_RXDATAV) {
-			// Read from the buffer to lower the interrupt flag
-			volatile uint32_t data = (uint32_t)obj->spi.spi->RXDATAX;
-		}
-	}
+    if (obj->spi.bits % 9 != 0) {
+        if ((obj->spi.spi->STATUS & USART_STATUS_RXFULL) && (obj->rx_buff.pos < obj->rx_buff.length - 1) && ((obj->rx_buff.pos % 2) == 0)) {
+            // Read max 16 bits from buffer to speed things up
+            uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLE; //read the data but store only if rx is set and not full
+            if (obj->rx_buff.buffer) {
+                uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
+                rx[obj->rx_buff.pos / 2] = data & 0xFFFF;
+                obj->rx_buff.pos += 2;
+            }
+        } else if ((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+            // Read 8 bits from buffer
+            while((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+                uint32_t data = (uint32_t)obj->spi.spi->RXDATA; //read the data but store only if rx is set and not full
+                if (obj->rx_buff.buffer) {
+                    uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
+                    rx[obj->rx_buff.pos] = data & 0xFF;
+                    obj->rx_buff.pos++;
+                }
+            }
+        } else if (obj->spi.spi->STATUS & USART_STATUS_RXFULL) {
+            // Read from the buffer to lower the interrupt flag
+            volatile uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLE;
+        } else if (obj->spi.spi->STATUS & USART_STATUS_RXDATAV) {
+            // Read from the buffer to lower the interrupt flag
+            volatile uint32_t data = (uint32_t)obj->spi.spi->RXDATA;
+        }
+    } else {
+        // Data bits is multiple of 9, so use the extended registers
+        if ((obj->spi.spi->STATUS & USART_STATUS_RXFULL) && (obj->rx_buff.pos < obj->rx_buff.length - 3) && ((obj->rx_buff.pos % 4) == 0)) {
+            // Read max 18 bits from buffer to speed things up
+            uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLEX; //read the data but store only if rx is set and  will not overflow
+            if (obj->rx_buff.buffer) {
+                uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
+                rx[obj->rx_buff.pos / 2] = data & 0x000001FF;
+                rx[(obj->rx_buff.pos / 2) + 1] = (data & 0x01FF0000) >> 16;
+                obj->rx_buff.pos += 4;
+            }
+        } else if ((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length - 1)) {
+            // Read 9 bits from buffer
+            while((obj->spi.spi->STATUS & (USART_STATUS_RXDATAV | USART_STATUS_RXFULL)) && (obj->rx_buff.pos < obj->rx_buff.length - 1)) {
+                uint32_t data = (uint32_t)obj->spi.spi->RXDATAX; //read the data but store only if rx is set and not full
+                if (obj->rx_buff.buffer) {
+                    uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
+                    rx[obj->rx_buff.pos / 2] = data & 0x01FF;
+                    obj->rx_buff.pos += 2;
+                }
+            }
+        } else if (obj->spi.spi->STATUS & USART_STATUS_RXFULL) {
+            // Read from the buffer to lower the interrupt flag
+            volatile uint32_t data = (uint32_t)obj->spi.spi->RXDOUBLEX;
+        } else if (obj->spi.spi->STATUS & USART_STATUS_RXDATAV) {
+            // Read from the buffer to lower the interrupt flag
+            volatile uint32_t data = (uint32_t)obj->spi.spi->RXDATAX;
+        }
+    }
 }
 
 int spi_master_write_asynch(spi_t *obj)
@@ -602,7 +603,7 @@ uint32_t spi_event_check(spi_t *obj)
     }
 
     if(quit == true) {
-    	event |= SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+        event |= SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
     }
 
     return event;
@@ -633,7 +634,8 @@ void transferComplete(unsigned int channel, bool primary, void *user)
 *
 * return value: whether the channels were acquired successfully (true) or not.
 ******************************************/
-bool spi_allocate_dma(spi_t *obj) {
+bool spi_allocate_dma(spi_t *obj)
+{
     int dmaChannelIn, dmaChannelOut;
     dmaChannelIn = dma_channel_allocate(DMA_CAP_NONE);
     if (dmaChannelIn == DMA_ERROR_OUT_OF_CHANNELS) {
@@ -722,7 +724,7 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
     txChnlCfg.enableInt = true;
     txChnlCfg.cb        = &(obj->spi.dmaOptionsTX.dmaCallback);
 
-  switch ((int)obj->spi.spi) {
+    switch ((int)obj->spi.spi) {
 #ifdef USART0
         case SPI_0:
             rxChnlCfg.select = DMAREQ_USART0_RXDATAV;
@@ -759,90 +761,107 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
 *   * tx_length: how many bytes will get sent.
 *   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
 ******************************************/
-static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_length, int rx_length) {
+static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_length, int rx_length)
+{
     /* DMA descriptors */
     DMA_CfgDescr_TypeDef rxDescrCfg;
     DMA_CfgDescr_TypeDef txDescrCfg;
 
+    /* Split up transfers if the tx length is larger than what the DMA supports. */
+    const int DMA_MAX_TRANSFER = (_DMA_CTRL_N_MINUS_1_MASK >> _DMA_CTRL_N_MINUS_1_SHIFT);
+
+    if (tx_length > DMA_MAX_TRANSFER) {
+        uint32_t max_length = DMA_MAX_TRANSFER;
+
+        /* Make sure only an even amount of bytes are transferred
+           if the width is larger than 8 bits. */
+        if (obj->spi.bits > 8) {
+            max_length = DMA_MAX_TRANSFER - (DMA_MAX_TRANSFER & 0x01);
+        }
+
+        /* Update length for current transfer. */
+        tx_length = max_length;
+    }
+
     /* Save amount of TX done by DMA */
-    obj->tx_buff.pos = tx_length;
+    obj->tx_buff.pos += tx_length;
 
     if(obj->spi.bits != 9) {
-		/* Only activate RX DMA if a receive buffer is specified */
-		if (rxdata != NULL) {
-			// Setting up channel descriptor
-			rxDescrCfg.dstInc = dmaDataInc1;
-			rxDescrCfg.srcInc = dmaDataIncNone;
-			rxDescrCfg.size = dmaDataSize1;
-			rxDescrCfg.arbRate = dmaArbitrate1;
-			rxDescrCfg.hprot = 0;
-			DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
+        /* Only activate RX DMA if a receive buffer is specified */
+        if (rxdata != NULL) {
+            // Setting up channel descriptor
+            rxDescrCfg.dstInc = dmaDataInc1;
+            rxDescrCfg.srcInc = dmaDataIncNone;
+            rxDescrCfg.size = dmaDataSize1;
+            rxDescrCfg.arbRate = dmaArbitrate1;
+            rxDescrCfg.hprot = 0;
+            DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
 
-			// Clear RX registers - Useful if previous command transfered don't
-			obj->spi.spi->CMD = USART_CMD_CLEARRX;
+            // Clear RX registers - Useful if previous command transfered don't
+            obj->spi.spi->CMD = USART_CMD_CLEARRX;
 
-			/* Activate RX channel */
-			DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATA),
-							  rx_length - 1);
-		}
+            /* Activate RX channel */
+            DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATA),
+                              rx_length - 1);
+        }
 
-		// buffer with all FFs.
-		/* Setting up channel descriptor */
-		txDescrCfg.dstInc = dmaDataIncNone;
-		txDescrCfg.srcInc = (txdata == 0 ? dmaDataIncNone : (obj->spi.bits <= 8 ? dmaDataInc1 : dmaDataInc2)); //Do not increment source pointer when there is no transmit buffer
-		txDescrCfg.size = (obj->spi.bits <= 8 ? dmaDataSize1 : dmaDataSize2); //When frame size > 9, we can use TXDOUBLE to save bandwidth
-		txDescrCfg.arbRate = dmaArbitrate1;
-		txDescrCfg.hprot = 0;
-		DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
+        // buffer with all FFs.
+        /* Setting up channel descriptor */
+        txDescrCfg.dstInc = dmaDataIncNone;
+        txDescrCfg.srcInc = (txdata == 0 ? dmaDataIncNone : (obj->spi.bits <= 8 ? dmaDataInc1 : dmaDataInc2)); //Do not increment source pointer when there is no transmit buffer
+        txDescrCfg.size = (obj->spi.bits <= 8 ? dmaDataSize1 : dmaDataSize2); //When frame size > 9, we can use TXDOUBLE to save bandwidth
+        txDescrCfg.arbRate = dmaArbitrate1;
+        txDescrCfg.hprot = 0;
+        DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-		/* Clear TX registers */
-		obj->spi.spi->CMD = USART_CMD_CLEARTX;
+        /* Clear TX registers */
+        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
-		/* Activate TX channel */
-		DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
-							true,
-							false,
-							(obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
-							(txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
-							(obj->spi.bits <= 8 ? tx_length - 1 : (tx_length / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
+        /* Activate TX channel */
+        DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                            true,
+                            false,
+                            (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
+                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (obj->spi.bits <= 8 ? tx_length - 1 : (tx_length / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
     } else {
-    	/* Frame size == 9 */
-		/* Only activate RX DMA if a receive buffer is specified */
-		if (rxdata != NULL) {
-			// Setting up channel descriptor
-			rxDescrCfg.dstInc = dmaDataInc2;
-			rxDescrCfg.srcInc = dmaDataIncNone;
-			rxDescrCfg.size = dmaDataSize2;
-			rxDescrCfg.arbRate = dmaArbitrate1;
-			rxDescrCfg.hprot = 0;
-			DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
+        /* Frame size == 9 */
+        /* Only activate RX DMA if a receive buffer is specified */
+        if (rxdata != NULL) {
+            // Setting up channel descriptor
+            rxDescrCfg.dstInc = dmaDataInc2;
+            rxDescrCfg.srcInc = dmaDataIncNone;
+            rxDescrCfg.size = dmaDataSize2;
+            rxDescrCfg.arbRate = dmaArbitrate1;
+            rxDescrCfg.hprot = 0;
+            DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
 
-			// Clear RX registers - Useful if previous command transfered don't
-			obj->spi.spi->CMD = USART_CMD_CLEARRX;
+            // Clear RX registers - Useful if previous command transfered don't
+            obj->spi.spi->CMD = USART_CMD_CLEARRX;
 
-			/* Activate RX channel */
-			DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATAX),
-							  (rx_length / 2) - 1);
-		}
+            /* Activate RX channel */
+            DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATAX),
+                              (rx_length / 2) - 1);
+        }
 
-		/* Setting up channel descriptor */
-		txDescrCfg.dstInc = dmaDataIncNone;
-		txDescrCfg.srcInc = (txdata == 0 ? dmaDataIncNone : dmaDataInc2); //Do not increment source pointer when there is no transmit buffer
-		txDescrCfg.size = dmaDataSize2; //When frame size > 9, we can use TXDOUBLE to save bandwidth
-		txDescrCfg.arbRate = dmaArbitrate1;
-		txDescrCfg.hprot = 0;
-		DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
+        /* Setting up channel descriptor */
+        txDescrCfg.dstInc = dmaDataIncNone;
+        txDescrCfg.srcInc = (txdata == 0 ? dmaDataIncNone : dmaDataInc2); //Do not increment source pointer when there is no transmit buffer
+        txDescrCfg.size = dmaDataSize2; //When frame size > 9, we can use TXDOUBLE to save bandwidth
+        txDescrCfg.arbRate = dmaArbitrate1;
+        txDescrCfg.hprot = 0;
+        DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-		/* Clear TX registers */
-		obj->spi.spi->CMD = USART_CMD_CLEARTX;
+        /* Clear TX registers */
+        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
-		/* Activate TX channel */
-		DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
-							true,
-							false,
-							(void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
-							(txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
-							(tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
+        /* Activate TX channel */
+        DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                            true,
+                            false,
+                            (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
+                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
     }
 }
 
@@ -863,9 +882,10 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
 *                 If the previous transfer has kept the channel, that channel will continue to get used.
 *
 ********************************************************************/
-void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint) {
-	/* Init DMA here to include it in the power figure */
-	dma_init();
+void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
+{
+    /* Init DMA here to include it in the power figure */
+    dma_init();
     /* If the DMA channels are already allocated, we can assume they have been setup already */
     if (hint != DMA_USAGE_NEVER && obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED) {
         /* setup has already been done, so just activate the transfer */
@@ -910,36 +930,37 @@ void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_leng
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
  */
-void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint) {
-	if( spi_active(obj) ) return;
+void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    if( spi_active(obj) ) return;
 
-	/* update fill word if on 9-bit frame size */
-	if(obj->spi.bits == 9) fill_word = SPI_FILL_WORD & 0x1FF;
-	else fill_word = SPI_FILL_WORD;
+    /* update fill word if on 9-bit frame size */
+    if(obj->spi.bits == 9) fill_word = SPI_FILL_WORD & 0x1FF;
+    else fill_word = SPI_FILL_WORD;
 
-	/* check corner case */
-	if(tx_length == 0) {
-		tx_length = rx_length;
-		tx = (void*) 0;
-	}
+    /* check corner case */
+    if(tx_length == 0) {
+        tx_length = rx_length;
+        tx = (void*) 0;
+    }
 
-	/* First, set the buffer */
-	spi_buffer_set(obj, tx, tx_length, rx, rx_length, bit_width);
+    /* First, set the buffer */
+    spi_buffer_set(obj, tx, tx_length, rx, rx_length, bit_width);
 
-	/* Then, enable the events */
-	spi_enable_event(obj, SPI_EVENT_ALL, false);
-	spi_enable_event(obj, event, true);
+    /* Then, enable the events */
+    spi_enable_event(obj, SPI_EVENT_ALL, false);
+    spi_enable_event(obj, event, true);
 
-	/* Be tricky on how we handle increased bit widths in the buffer... Handling on byte-basis */
-	// div 8 = shift right 3
-	tx_length = tx_length * (bit_width >> 3);
-	rx_length = rx_length * (bit_width >> 3);
+    /* Be tricky on how we handle increased bit widths in the buffer... Handling on byte-basis */
+    // div 8 = shift right 3
+    tx_length = tx_length * (bit_width >> 3);
+    rx_length = rx_length * (bit_width >> 3);
 
-	// Set the sleep mode
-	blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+    // Set the sleep mode
+    blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
 
-	/* And kick off the transfer */
-	spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
+    /* And kick off the transfer */
+    spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
 }
 
 
@@ -953,65 +974,77 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
 * return: event mask. Currently only 0 or SPI_EVENT_COMPLETE upon transfer completion.
 *
 ********************************************************************/
-uint32_t spi_irq_handler_asynch(spi_t* obj) {
+uint32_t spi_irq_handler_asynch(spi_t* obj)
+{
 
     /* Determine whether the current scenario is DMA or IRQ, and act accordingly */
 
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         /* DMA implementation */
 
+        /* If there is still data in the TX buffer, setup a new transfer. */
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
+            /* Find position and remaining length without modifying tx_buff. */
+            void* tx_pointer = obj->tx_buff.buffer + obj->tx_buff.pos;
+            uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
+
+            /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
+            spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
+
+            return 0;
+        }
+
         /* If there is an RX transfer ongoing, wait for it to finish */
         if (DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
-        	/* Check if we need to kick off TX transfer again to force more incoming data. */
-        	if (!DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) && (obj->tx_buff.pos < obj->rx_buff.length)) {
-        		//Save state of TX transfer amount
-        		int length_diff = obj->rx_buff.length - obj->tx_buff.pos;
-        		obj->tx_buff.pos = obj->rx_buff.length;
+            /* Check if we need to kick off TX transfer again to force more incoming data. */
+            if (!DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) && (obj->tx_buff.pos < obj->rx_buff.length)) {
+                //Save state of TX transfer amount
+                int length_diff = obj->rx_buff.length - obj->tx_buff.pos;
+                obj->tx_buff.pos = obj->rx_buff.length;
 
-        		//Kick off a new DMA transfer
-        		DMA_CfgDescr_TypeDef txDescrCfg;
+                //Kick off a new DMA transfer
+                DMA_CfgDescr_TypeDef txDescrCfg;
 
-        		if(obj->spi.bits != 9) {
-        			fill_word = SPI_FILL_WORD;
-        			/* Setting up channel descriptor */
-					txDescrCfg.dstInc = dmaDataIncNone;
-					txDescrCfg.srcInc = dmaDataIncNone; //Do not increment source pointer when there is no transmit buffer
-					txDescrCfg.size = (obj->spi.bits <= 8 ? dmaDataSize1 : dmaDataSize2); //When frame size > 9, we can use TXDOUBLE to save bandwidth
-					txDescrCfg.arbRate = dmaArbitrate1;
-					txDescrCfg.hprot = 0;
-					DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
+                if(obj->spi.bits != 9) {
+                    fill_word = SPI_FILL_WORD;
+                    /* Setting up channel descriptor */
+                    txDescrCfg.dstInc = dmaDataIncNone;
+                    txDescrCfg.srcInc = dmaDataIncNone; //Do not increment source pointer when there is no transmit buffer
+                    txDescrCfg.size = (obj->spi.bits <= 8 ? dmaDataSize1 : dmaDataSize2); //When frame size > 9, we can use TXDOUBLE to save bandwidth
+                    txDescrCfg.arbRate = dmaArbitrate1;
+                    txDescrCfg.hprot = 0;
+                    DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-					/* Activate TX channel */
-					DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
-										true,
-										false,
-										(obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
-										&fill_word, // When there is nothing to transmit, point to static fill word
-										(obj->spi.bits <= 8 ? length_diff - 1 : (length_diff / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
-        		} else {
-        			/* Setting up channel descriptor */
-        			fill_word = SPI_FILL_WORD & 0x1FF;
-					txDescrCfg.dstInc = dmaDataIncNone;
-					txDescrCfg.srcInc = dmaDataIncNone; //Do not increment source pointer when there is no transmit buffer
-					txDescrCfg.size = dmaDataSize2; //When frame size > 9, we can use TXDOUBLE to save bandwidth
-					txDescrCfg.arbRate = dmaArbitrate1;
-					txDescrCfg.hprot = 0;
-					DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
+                    /* Activate TX channel */
+                    DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                                        true,
+                                        false,
+                                        (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
+                                        &fill_word, // When there is nothing to transmit, point to static fill word
+                                        (obj->spi.bits <= 8 ? length_diff - 1 : (length_diff / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
+                } else {
+                    /* Setting up channel descriptor */
+                    fill_word = SPI_FILL_WORD & 0x1FF;
+                    txDescrCfg.dstInc = dmaDataIncNone;
+                    txDescrCfg.srcInc = dmaDataIncNone; //Do not increment source pointer when there is no transmit buffer
+                    txDescrCfg.size = dmaDataSize2; //When frame size > 9, we can use TXDOUBLE to save bandwidth
+                    txDescrCfg.arbRate = dmaArbitrate1;
+                    txDescrCfg.hprot = 0;
+                    DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-        			DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
-										true,
-										false,
-										(void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
-										&fill_word, // When there is nothing to transmit, point to static fill word
-										(length_diff / 2) - 1);
-        		}
-        	}
-        	else return 0;
+                    DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                                        true,
+                                        false,
+                                        (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
+                                        &fill_word, // When there is nothing to transmit, point to static fill word
+                                        (length_diff / 2) - 1);
+                }
+            } else return 0;
         }
 
         /* If there is still a TX transfer ongoing (tx_length > rx_length), wait for it to finish */
         if (DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel)) {
-        	return 0;
+            return 0;
         }
 
         /* Release the dma channels if they were opportunistically allocated */
@@ -1054,28 +1087,29 @@ uint32_t spi_irq_handler_asynch(spi_t* obj) {
  *
  * @param obj The SPI peripheral to stop
  */
-void spi_abort_asynch(spi_t *obj) {
+void spi_abort_asynch(spi_t *obj)
+{
     // If we're not currently transferring, then there's nothing to do here
     if(spi_active(obj) != 0) return;
-    
+
     // Determine whether we're running DMA or interrupt
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         // Cancel the DMA transfers
         DMA_ChannelEnable(obj->spi.dmaOptionsTX.dmaChannel, false);
         DMA_ChannelEnable(obj->spi.dmaOptionsRX.dmaChannel, false);
-        
+
         /* Release the dma channels if they were opportunistically allocated */
         if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
             dma_channel_free(obj->spi.dmaOptionsTX.dmaChannel);
             dma_channel_free(obj->spi.dmaOptionsRX.dmaChannel);
             obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
         }
-        
+
     } else {
         // Interrupt implementation: switch off interrupts
         spi_enable_interrupt(obj, (uint32_t)NULL, false);
     }
-    
+
     // Release sleep mode block
     unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
 }

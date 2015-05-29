@@ -30,10 +30,10 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != NC);
 
     /* Enable GPIO clock if not already done */
-     if (!gpio_clock_inited) {
-         CMU_ClockEnable(cmuClock_GPIO, true);
-         gpio_clock_inited = 1;
-     }
+    if (!gpio_clock_inited) {
+        CMU_ClockEnable(cmuClock_GPIO, true);
+        gpio_clock_inited = 1;
+    }
 
     /* Pin and port index encoded in one uint32.
      * First four bits represent the pin number

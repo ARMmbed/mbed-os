@@ -52,6 +52,7 @@ class CoIDE(Exporter):
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'MOTE_L152RC',
+        'NZ32ST1L',
     ]
 
     # seems like CoIDE currently supports only one type

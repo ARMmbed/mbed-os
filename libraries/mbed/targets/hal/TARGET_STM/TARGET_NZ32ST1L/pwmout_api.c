@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,12 +48,13 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     }
 
     // Enable TIM clock
-    if (obj->pwm == PWM_1) __TIM1_CLK_ENABLE();
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
     if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
-    if (obj->pwm == PWM_15) __TIM15_CLK_ENABLE();
-    if (obj->pwm == PWM_16) __TIM16_CLK_ENABLE();
-    if (obj->pwm == PWM_17) __TIM17_CLK_ENABLE();
+    if (obj->pwm == PWM_4) __TIM4_CLK_ENABLE();
+    if (obj->pwm == PWM_5) __TIM5_CLK_ENABLE();
+    if (obj->pwm == PWM_9) __TIM9_CLK_ENABLE();
+    if (obj->pwm == PWM_10) __TIM10_CLK_ENABLE();
+    if (obj->pwm == PWM_11) __TIM11_CLK_ENABLE();
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
@@ -75,7 +76,6 @@ void pwmout_write(pwmout_t* obj, float value)
 {
     TIM_OC_InitTypeDef sConfig;
     int channel = 0;
-    int complementary_channel = 0;
 
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
 
@@ -91,83 +91,51 @@ void pwmout_write(pwmout_t* obj, float value)
     sConfig.OCMode       = TIM_OCMODE_PWM1;
     sConfig.Pulse        = obj->pulse;
     sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
-    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
-    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
-    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
-    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    sConfig.OCFastMode   = TIM_OCFAST_ENABLE;
 
     switch (obj->pin) {
-
         // Channels 1
-        case PA_2:
         case PA_6:
-        case PA_7:
-        case PA_8:
-        case PA_12:
         case PB_4:
-        case PB_5:
-        case PB_8:
-        case PB_9:
-        case PB_14:
-        case PC_0:
+        case PB_6:
+        case PB_12:
+        case PB_13:
+        case PB_15:
         case PC_6:
             channel = TIM_CHANNEL_1;
             break;
-
-        // Channels 1N
-        case PA_1:
-        case PA_13:
-        case PB_6:
-        case PB_13:
-        case PC_13:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-
         // Channels 2
-        case PA_3:
-        case PA_4:
-        case PA_9:
-        case PB_15:
-        case PC_1:
+        case PA_1:
+        case PA_7:
+        case PB_3:
+        case PB_5:
+        case PB_7:
+        case PB_14:
         case PC_7:
             channel = TIM_CHANNEL_2;
             break;
-
         // Channels 3
-        case PA_10:
+        case PA_2:
         case PB_0:
-        case PC_2:
+        case PB_8:
+        case PB_10:
         case PC_8:
             channel = TIM_CHANNEL_3;
             break;
-
-        // Channels 3N
-        case PF_0:
-            channel = TIM_CHANNEL_3;
-            complementary_channel = 1;
-            break;
-
         // Channels 4
-        case PA_11:
+        case PA_3:
         case PB_1:
-        case PB_7:
-        case PC_3:
+        case PB_9:
+        case PB_11:
         case PC_9:
             channel = TIM_CHANNEL_4;
             break;
-
         default:
             return;
     }
 
     HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel);
-
-    if (complementary_channel) {
-        HAL_TIMEx_PWMN_Start(&TimHandle, channel);
-    } else {
-        HAL_TIM_PWM_Start(&TimHandle, channel);
-    }
+    HAL_TIM_PWM_Start(&TimHandle, channel);
 }
 
 float pwmout_read(pwmout_t* obj)
@@ -197,11 +165,10 @@ void pwmout_period_us(pwmout_t* obj, int us)
 
     __HAL_TIM_DISABLE(&TimHandle);
 
-    // Update the SystemCoreClock variable
     SystemCoreClockUpdate();
 
     TimHandle.Init.Period        = us - 1;
-    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_PWM_Init(&TimHandle);
