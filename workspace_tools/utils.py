@@ -82,7 +82,7 @@ def find_cmd_abspath(cmd):
     for path in lookup_paths.split(pathsep):
         for filename in listdir(path):
             if barename(filename) == barename(cmd):
-                return path + os.path.sep + filename
+                return join(path, filename)
     return None
 
 
