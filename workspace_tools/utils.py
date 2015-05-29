@@ -61,7 +61,7 @@ def is_exec(path):
 
 
 def barename(filename):
-    """ Returns the part of a filename without the file extension or/and path
+    """ Returns the part of a filename without the file extension or/and path.
         
         'a/b/c.exe' => 'c'
         'c.exe'     => 'c'
@@ -69,17 +69,25 @@ def barename(filename):
     return splitext(basename(filename))[0]
 
 
+def command_paths():
+    """ Returns a list of paths found in PATH environment variable.
+    """
+    if not 'PATH' in os.environ:
+        return False
+    PATH = os.environ['PATH']
+    PATH = os.path.normpath(PATH)
+    return PATH.split(pathsep)
+
+
 def find_cmd_abspath(cmd):
     """ Returns the absolute path to a command. Notice that no checking
         is being made to see if the file is executable or not.
     """
-    if not 'PATH' in os.environ:
+    if not command_paths():
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
-    PATH = os.environ['PATH']
-    PWD  = os.getcwd()
-    lookup_paths = PWD + pathsep + PATH
-
-    for path in lookup_paths.split(pathsep):
+    for path in command_paths():
+        if not exists(path):
+            continue
         for filename in listdir(path):
             if barename(filename) == barename(cmd):
                 return join(path, filename)
