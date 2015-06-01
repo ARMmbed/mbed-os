@@ -254,6 +254,13 @@ class LPC2368(LPCTarget):
         self.extra_labels = ['NXP', 'LPC23XX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
 
+class LPC2460(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "ARM7TDMI-S"
+        self.extra_labels = ['NXP', 'LPC2460']
+        self.supported_toolchains = ["GCC_ARM"]
+
 class LPC810(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -1241,6 +1248,7 @@ TARGETS = [
     UBLOX_C027(),   # LPC1768
     XBED_LPC1768(), # LPC1768
     LPC2368(),
+    LPC2460(),
     LPC810(),
     LPC812(),
     LPC824(),
