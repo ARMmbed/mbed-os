@@ -90,12 +90,12 @@ typedef enum {
     I2C_SDA0 = p22,
     I2C_SCL0 = p20,
 
-    A0  = p0,
-    A1  = p1,
-    A2  = p2,
-    A3  = p3,
-    A4  = p4,
-    A5  = p5,
+    A0  = p1,
+    A1  = p2,
+    A2  = p3,
+    A3  = p4,
+    A4  = p5,
+    A5  = p6,
 
     SWIO = p19,
     VERF0 = p0,
