@@ -23,19 +23,23 @@ from sys import stdout
 class WFITest():
 
     def test(self, selftest):
-        result = True
         c = selftest.mbed.serial_readline()
 
         if c == None:
+            selftest.notify("HOST: No output detected")
             return selftest.RESULT_IO_SERIAL
 
         if c.strip() != "0":
+            selftest.notify("HOST: Unexpected output. Expected '0' but received '%s'" % c.strip())
             return selftest.RESULT_FAILURE
 
         # Wait 10 seconds to allow serial prints (indicating failure)
         selftest.mbed.set_serial_timeout(10)
 
         # If no characters received, pass the test
-        result = not selftest.mbed.serial_readline()
-
-        return selftest.RESULT_SUCCESS if result else selftest.RESULT_FAILURE
+        if not selftest.mbed.serial_readline():
+            selftest.notify("HOST: No further output detected")
+            return selftest.RESULT_SUCCESS
+        else:
+            selftest.notify("HOST: Extra output detected")
+            return selftest.RESULT_FAILURE
