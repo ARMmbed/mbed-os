@@ -9,7 +9,7 @@ INCLUDE_PATHS = {% for p in include_paths %}-I{{p}} {% endfor %}
 LIBRARY_PATHS = {% for p in library_paths %}-L{{p}} {% endfor %}
 LIBRARIES = {% for lib in libraries %}-l{{lib}} {% endfor %}
 LINKER_SCRIPT = {{linker_script}}
-SOFTDEVICE = mbed/TARGET_NRF51822/TARGET_NORDIC/TARGET_MCU_NRF51822/Lib/s110_nrf51822_7_0_0/s110_nrf51822_7.0.0_softdevice.hex
+SOFTDEVICE = mbed/TARGET_NRF51822/TARGET_NORDIC/TARGET_MCU_NRF51822/Lib/s130_nrf51822_1_0_0/s130_nrf51_1.0.0_softdevice.hex
 
 ###############################################################################
 AS      = $(GCC_BIN)arm-none-eabi-as
