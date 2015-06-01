@@ -26,7 +26,7 @@ class WFITest():
         result = True
         c = selftest.mbed.serial_readline()
 
-        if c is None
+        if c == None:
             return selftest.RESULT_IO_SERIAL
 
         if c.strip() != "0":
