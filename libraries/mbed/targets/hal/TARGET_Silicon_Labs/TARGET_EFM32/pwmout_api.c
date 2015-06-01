@@ -139,7 +139,7 @@ void pwmout_write(pwmout_t *obj, float value)
         value = 1;
     }
 
-    float pulse_period_in_s = obj->period_cycles / (float) pwm_clockfreq;
+    float pulse_period_in_s = obj->period_cycles / ((float) (pwm_clockfreq >> pwm_prescaler_div));
     pwmout_pulsewidth(obj, value * pulse_period_in_s);
 }
 
@@ -192,7 +192,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    obj->width_cycles = pwm_clockfreq * seconds;
+    obj->width_cycles = (uint32_t) (((float) (pwm_clockfreq >> pwm_prescaler_div)) * seconds);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 

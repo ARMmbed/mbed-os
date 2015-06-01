@@ -13,6 +13,15 @@ DigitalOut cs(PTA13);
 #elif defined(TARGET_FF_ARDUINO)
 SPI spi(D11, D12, D13);   // mosi, miso, sclk
 DigitalOut cs(D10);
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+SPI spi(PD0, PD1, PD2);   // mosi, miso, sclk
+DigitalOut cs(PD3);
+#elif defined(TARGET_EFM32ZG_STK3200)
+SPI spi(PD7, PD6, PC15);   // mosi, miso, sclk
+DigitalOut cs(PC14);
+#elif defined(TARGET_EFM32HG_STK3400)
+SPI spi(PE10, PE11, PE12);   // mosi, miso, sclk
+DigitalOut cs(PE13);
 #else
 SPI spi(p5, p6, p7); // mosi, miso, sclk
 DigitalOut cs(p8);

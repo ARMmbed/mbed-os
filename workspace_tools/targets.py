@@ -265,6 +265,13 @@ class LPC2368(LPCTarget):
         self.extra_labels = ['NXP', 'LPC23XX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
 
+class LPC2460(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "ARM7TDMI-S"
+        self.extra_labels = ['NXP', 'LPC2460']
+        self.supported_toolchains = ["GCC_ARM"]
+
 class LPC810(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -598,6 +605,15 @@ class NUCLEO_F411RE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0740"]
 
+class NUCLEO_F446RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F446RE']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1246,6 +1262,7 @@ TARGETS = [
     UBLOX_C027(),   # LPC1768
     XBED_LPC1768(), # LPC1768
     LPC2368(),
+    LPC2460(),
     LPC810(),
     LPC812(),
     LPC824(),
@@ -1279,6 +1296,7 @@ TARGETS = [
     NUCLEO_F334R8(),
     NUCLEO_F401RE(),
     NUCLEO_F411RE(),
+    NUCLEO_F446RE(),
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),

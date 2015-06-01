@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2460)
 
 #include "mbed.h"
 #include "USBHALHost.h"

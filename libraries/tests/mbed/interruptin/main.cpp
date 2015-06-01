@@ -45,6 +45,7 @@ void in_handler() {
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
@@ -73,6 +74,18 @@ void in_handler() {
 #elif defined(TARGET_MAX32600MBED)
 #define PIN_OUT    P1_0
 #define PIN_IN     P4_7
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define PIN_OUT    PD0
+#define PIN_IN     PC3
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define PIN_OUT    PD7
+#define PIN_IN     PC1
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define PIN_OUT    PE10
+#define PIN_IN     PC1
 
 #else
 #define PIN_IN      (p5)

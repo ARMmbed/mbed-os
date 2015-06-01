@@ -23,7 +23,7 @@ namespace mbed {
 CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> SPI::_transaction_buffer;
 #endif
 
-SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName _unused) :
+SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
         _spi(),
 #if DEVICE_SPI_ASYNCH
         _irq(this),
@@ -32,7 +32,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName _unused) :
         _bits(8),
         _mode(0),
         _hz(1000000) {
-    spi_init(&_spi, mosi, miso, sclk, NC);
+    spi_init(&_spi, mosi, miso, sclk, ssel);
     spi_format(&_spi, _bits, _mode, 0);
     spi_frequency(&_spi, _hz);
 }

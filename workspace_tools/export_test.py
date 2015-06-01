@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -159,6 +160,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC11U35_501'),
             ('gcc_arm', 'LPCCAPPUCCINO'),
             ('gcc_arm', 'LPC2368'),
+            ('gcc_arm', 'LPC2460'),
             ('gcc_arm', 'LPC824'),
             ('gcc_arm', 'SSCI824'),
 
