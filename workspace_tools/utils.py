@@ -19,7 +19,7 @@ import inspect
 import os
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext, pathsep, basename
+from os.path import isdir, isabs, join, exists, split, relpath, splitext, pathsep, basename
 from subprocess import Popen, PIPE, STDOUT, call
 
 
@@ -85,6 +85,8 @@ def find_cmd_abspath(cmd):
     """
     if not command_paths():
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
+    if isabs(cmd) and exists(cmd):
+        return cmd
     for path in command_paths():
         if not exists(path):
             continue
