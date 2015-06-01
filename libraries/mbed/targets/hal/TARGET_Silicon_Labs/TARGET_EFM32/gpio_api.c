@@ -59,7 +59,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 {
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
-    
+
     //Handle pullup for input
     if(mode == InputPullUp) {
         //Set DOUT

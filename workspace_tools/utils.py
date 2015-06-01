@@ -57,21 +57,21 @@ def is_cmd_valid(cmd):
 
 
 def is_exec(path):
-    return os.access(path, os.X_OK)
+    return os.access(path, os.X_OK) or os.access(path+'.exe', os.X_OK)
 
 
 def find_cmd_abspath(cmd):
     """ Returns the absolute path to a command.
         None is returned if no absolute path was found.
     """
-    if exists(cmd):
+    if exists(cmd) or exists(cmd + '.exe'):
         return os.path.abspath(cmd)
     if not 'PATH' in os.environ:
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
     PATH=os.environ['PATH']
     for path in PATH.split(os.pathsep):
         abspath = '%s/%s' % (path, cmd)
-        if exists(abspath):
+        if exists(abspath) or exists(abspath + '.exe'):
             return abspath
 
 

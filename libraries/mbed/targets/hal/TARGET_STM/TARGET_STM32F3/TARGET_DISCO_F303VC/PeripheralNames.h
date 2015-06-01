@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,8 @@ extern "C" {
 typedef enum {
     ADC_1 = (int)ADC1_BASE,
     ADC_2 = (int)ADC2_BASE,
-    ADC_3 = (int)ADC3_BASE
+    ADC_3 = (int)ADC3_BASE,
+    ADC_4 = (int)ADC4_BASE
 } ADCName;
 
 typedef enum {

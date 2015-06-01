@@ -39,6 +39,25 @@
 #define TEST_MISO_PIN PTD3
 #define TEST_SCLK_PIN PTD1
 #define TEST_CS_PIN   PTD0
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define TEST_MOSI_PIN PD0
+#define TEST_MISO_PIN PD1
+#define TEST_SCLK_PIN PD2
+#define TEST_CS_PIN   PD3
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define TEST_MOSI_PIN PD7
+#define TEST_MISO_PIN PD6
+#define TEST_SCLK_PIN PC15
+#define TEST_CS_PIN   PC14
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define TEST_MOSI_PIN PE10
+#define TEST_MISO_PIN PE11
+#define TEST_SCLK_PIN PE12
+#define TEST_CS_PIN   PE13
+
 #else
 #error Target not supported
 #endif

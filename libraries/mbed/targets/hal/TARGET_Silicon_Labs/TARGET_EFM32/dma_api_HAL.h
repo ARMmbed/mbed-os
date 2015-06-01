@@ -46,9 +46,9 @@ extern "C" {
 #endif
 
 typedef struct {
-	DMAUsage dmaUsageState;
-	int dmaChannel;
-	DMA_CB_TypeDef dmaCallback;
+    DMAUsage dmaUsageState;
+    int dmaChannel;
+    DMA_CB_TypeDef dmaCallback;
 } DMA_OPTIONS_t;
 
 typedef void (*DMACallback)(void);

@@ -60,60 +60,60 @@ const PinMap PinMap_PWM[] = {
 
 /*************SPI**************/
 const PinMap PinMap_SPI_MOSI[] = {
-        /* USART1 */
-        {PC0, SPI_1, 0},
-        {PD7, SPI_1, 3},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PC0, SPI_1, 0},
+    {PD7, SPI_1, 3},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-        /* USART1 */
-        {PC1, SPI_1, 0},
-        {PD6, SPI_1, 3},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PC1, SPI_1, 0},
+    {PD6, SPI_1, 3},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
-        /* USART1 */
-        {PB7, SPI_1, 0},
-        {PC15, SPI_1, 3},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PB7, SPI_1, 0},
+    {PC15, SPI_1, 3},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
-        /* USART1 */
-        {PB8, SPI_1, 0},
-        {PC14, SPI_1, 3},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PB8, SPI_1, 0},
+    {PC14, SPI_1, 3},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
-        /* USART1 */
-        {PC0, USART_1, 0},
-        {PD7, USART_1, 3},
-        /* LEUART0 */
-        {PD4,  LEUART_0, 0},
-        {PB13, LEUART_0, 1},
-        {PF0,  LEUART_0, 3},
-        {PF2,  LEUART_0, 4},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PC0, USART_1, 0},
+    {PD7, USART_1, 3},
+    /* LEUART0 */
+    {PD4,  LEUART_0, 0},
+    {PB13, LEUART_0, 1},
+    {PF0,  LEUART_0, 3},
+    {PF2,  LEUART_0, 4},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
-        /* USART1 */
-        {PC1, USART_1, 0},
-        {PD6, USART_1, 3},
-        /* LEUART0 */
-        {PD5,  LEUART_0, 0},
-        {PB14, LEUART_0, 1},
-        {PF1,  LEUART_0, 3},
-        {PA0,  LEUART_0, 4},
-        /* Not connected */
-        {NC  , NC   , NC}
+    /* USART1 */
+    {PC1, USART_1, 0},
+    {PD6, USART_1, 3},
+    /* LEUART0 */
+    {PD5,  LEUART_0, 0},
+    {PB14, LEUART_0, 1},
+    {PF1,  LEUART_0, 3},
+    {PA0,  LEUART_0, 4},
+    /* Not connected */
+    {NC  , NC   , NC}
 };
