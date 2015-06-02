@@ -1,7 +1,6 @@
-/* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
+/* mbed Microcontroller Library 
  *******************************************************************************
- * Copyright (c) 2011 ARM Limited. All rights reserved.
+ * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+ 
 #ifndef MBED_PORTNAMES_H
 #define MBED_PORTNAMES_H
 
