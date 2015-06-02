@@ -41,6 +41,8 @@
 #define PRESCALE_VAL    MXC_E_RTC_PRESCALE_DIV_2_0    // Set the divider for the 4kHz clock
 #define SHIFT_AMT       (MXC_E_RTC_PRESCALE_DIV_2_12 - PRESCALE_VAL)
 
+#define WINDOW          1000
+
 static int rtc_inited = 0;
 static volatile uint32_t overflow_cnt = 0;
 
@@ -50,6 +52,7 @@ static uint64_t rtc_read64(void);
 static void overflow_handler(void)
 {
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_OVERFLOW;
+    MXC_PWRSEQ->flags = MXC_F_PWRSEQ_MSK_FLAGS_RTC_ROLLOVER;
     overflow_cnt++;
 }
 
@@ -69,20 +72,31 @@ void rtc_init(void)
     // Enable the clock to the RTC
     MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
 
-    // Set the clock divider
-    MXC_RTCTMR->prescale = PRESCALE_VAL;
-
-    // Enable the overflow interrupt
-    MXC_RTCTMR->inten |= MXC_F_RTC_FLAGS_OVERFLOW;
-
     // Prepare interrupt handlers
     NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(RTC0_IRQn);
     NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
     NVIC_EnableIRQ(RTC3_IRQn);
 
-    // Enable the RTC
-    MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;
+    // Enable wakeup on RTC rollover
+    MXC_PWRSEQ->msk_flags &= ~MXC_F_PWRSEQ_MSK_FLAGS_RTC_ROLLOVER;
+
+    /* RTC registers are only reset on a power cycle. Do not reconfigure the RTC
+     * if it is already running.
+     */
+    if (!(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_ENABLE)) {
+        // Set the clock divider
+        MXC_RTCTMR->prescale = PRESCALE_VAL;
+
+        // Enable the overflow interrupt
+        MXC_RTCTMR->inten |= MXC_F_RTC_FLAGS_OVERFLOW;
+
+        // Restart the timer from 0
+        MXC_RTCTMR->timer = 0;
+
+        // Enable the RTC
+        MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;
+    }
 }
 
 //******************************************************************************
@@ -177,30 +191,42 @@ void rtc_write(time_t t)
 //******************************************************************************
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
+    uint32_t comp_value;
+    uint64_t curr_ts64;
+    uint64_t ts64;
+
     // Note: interrupts are disabled before this function is called.
 
     // Disable the alarm while it is prepared
     MXC_RTCTMR->inten &= ~MXC_F_RTC_INTEN_COMP0;
-    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_COMP0;      // clear interrupt
 
-    uint64_t curr_ts64 = rtc_read64();
-    uint64_t ts64 = (uint64_t)timestamp | (curr_ts64 & 0xFFFFFFFF00000000ULL);
-    if (ts64 < curr_ts64) {
-        if (ts64 < (curr_ts64 - 1000)) {
-            ts64 += 0x100000000ULL;
-        } else {
-            // This event has already occurred. Set the alarm to expire immediately.
-            MXC_RTCTMR->comp[0] = MXC_RTCTMR->timer + 2;
-            MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
-            return;
-        }
+    curr_ts64 = rtc_read64();
+    ts64 = (uint64_t)timestamp | (curr_ts64 & 0xFFFFFFFF00000000ULL);
+
+    // If this event is older than a recent window, it must be in the future
+    if ((ts64 < (curr_ts64 - WINDOW)) && ((curr_ts64 - WINDOW) < curr_ts64)) {
+        ts64 += 0x100000000ULL;
     }
 
-    MXC_RTCTMR->comp[0] = (ts64 << SHIFT_AMT) / 1000000;
-    MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
+    uint32_t timer = MXC_RTCTMR->timer;
+    if (ts64 <= curr_ts64) {
+        // This event has already occurred. Set the alarm to expire immediately.
+        comp_value = timer + 1;
+    } else {
+        comp_value = (ts64 << SHIFT_AMT) / 1000000;
+    }
+
+    // Ensure that the compare value is far enough in the future to guarantee the interrupt occurs.
+    if ((comp_value < (timer + 2)) && (comp_value > (timer - 10))) {
+        comp_value = timer + 2;
+    }
+
+    MXC_RTCTMR->comp[0] = comp_value;
+    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_COMP0;  // clear interrupt
+    MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0; // enable the interrupt
 
     // Enable wakeup from RTC
-    MXC_PWRSEQ->msk_flags &= ~(MXC_F_PWRSEQ_MSK_FLAGS_RTC_ROLLOVER | MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0);
+    MXC_PWRSEQ->msk_flags &= ~MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0;
 }
 
 //******************************************************************************
@@ -213,6 +239,7 @@ inline void lp_ticker_disable_interrupt(void)
 inline void lp_ticker_clear_interrupt(void)
 {
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
+    MXC_PWRSEQ->flags = MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0;
 }
 
 //******************************************************************************

@@ -75,7 +75,7 @@ static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
 #endif
 #ifdef I2C1
         case I2C_1:
-        	clock = cmuClock_I2C1;
+            clock = cmuClock_I2C1;
             break;
 #endif
         default:
@@ -104,10 +104,10 @@ void i2c_preinit(i2c_t *obj, PinName sda, PinName scl)
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     /* Assign mbed pins */
-	i2c_preinit(obj, sda, scl);
+    i2c_preinit(obj, sda, scl);
 
-	/* Enable clock for the peripheral */
-	CMU_ClockEnable(i2c_get_clock(obj), true);
+    /* Enable clock for the peripheral */
+    CMU_ClockEnable(i2c_get_clock(obj), true);
 
     /* Initializing the I2C */
     /* Using default settings */
@@ -137,7 +137,7 @@ void i2c_enable(i2c_t *obj, uint8_t enable)
         if (obj->i2c.i2c->STATE & I2C_STATE_BUSY) {
             obj->i2c.i2c->CMD = I2C_CMD_ABORT;
         }
-        
+
     }
 }
 
@@ -222,14 +222,14 @@ int i2c_stop(i2c_t *obj)
 /* Returns number of bytes read */
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
-	int retval;
+    int retval;
 
     i2c_start(obj);
 
     retval = i2c_byte_write(obj, (address | 1));
     if ((!retval) || (length == 0)) { //Write address with W flag (last bit 1)
-    	obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
-    	while(obj->i2c.i2c->STATE & I2C_STATE_BUSY); // Wait until the bus is done
+        obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
+        while(obj->i2c.i2c->STATE & I2C_STATE_BUSY); // Wait until the bus is done
         return (retval == 0 ? I2C_ERROR_NO_SLAVE : 0); //NACK or error when writing adress. Return 0 as 0 bytes were read
     }
     int i = 0;
@@ -344,10 +344,10 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
-    if(enable_slave){
+    if(enable_slave) {
         obj->i2c.i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_AUTOACK_MASK; //Slave implementation assumes auto acking
-    }else{
+    } else {
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_AUTOACK_MASK; //Master implementation ACKs manually
     }
@@ -356,19 +356,19 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
 int i2c_slave_receive(i2c_t *obj)
 {
 
-    if(obj->i2c.i2c->IF & I2C_IF_ADDR){
+    if(obj->i2c.i2c->IF & I2C_IF_ADDR) {
         obj->i2c.i2c->IFC = I2C_IF_ADDR; //Clear interrupt
         /*0x00 is the address for general write.
          The address the master wrote is in RXDATA now
          and reading it also frees the buffer for the next
          write which can then be acked. */
-        if(obj->i2c.i2c->RXDATA == 0x00){
+        if(obj->i2c.i2c->RXDATA == 0x00) {
             return WriteGeneral; //Read the address;
         }
 
-        if(obj->i2c.i2c->STATE & I2C_STATE_TRANSMITTER){
+        if(obj->i2c.i2c->STATE & I2C_STATE_TRANSMITTER) {
             return ReadAddressed;
-        }else{
+        } else {
             return WriteAddressed;
         }
     }
@@ -383,7 +383,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     for (count = 0; count < length; count++) {
         data[count] = i2c_byte_read(obj, 0);
     }
-    
+
 
     return count;
 
@@ -426,128 +426,131 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
  *  @param handler The I2C IRQ handler to be set
  *  @param hint    DMA hint usage
  */
-void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint) {
-	I2C_TransferReturn_TypeDef retval;
-	if(i2c_active(obj)) return;
+void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    I2C_TransferReturn_TypeDef retval;
+    if(i2c_active(obj)) return;
     if((tx_length == 0) && (rx_length == 0)) return;
-	// For now, we are assuming a solely interrupt-driven implementation.
+    // For now, we are assuming a solely interrupt-driven implementation.
 
-	// Store transfer config
-	obj->i2c.xfer.addr = address;
+    // Store transfer config
+    obj->i2c.xfer.addr = address;
 
-	// Some combination of tx_length and rx_length will tell us what to do
-	if((tx_length > 0) && (rx_length == 0)) {
-		obj->i2c.xfer.flags = I2C_FLAG_WRITE;
-		//Store buffer info
-		obj->i2c.xfer.buf[0].data = tx;
-		obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
-	} else if ((tx_length == 0) && (rx_length > 0)) {
-		obj->i2c.xfer.flags = I2C_FLAG_READ;
-		//Store buffer info
-		obj->i2c.xfer.buf[0].data = rx;
-		obj->i2c.xfer.buf[0].len  = (uint16_t) rx_length;
-	} else if ((tx_length > 0) && (rx_length > 0)) {
-		obj->i2c.xfer.flags = I2C_FLAG_WRITE_READ;
-		//Store buffer info
-		obj->i2c.xfer.buf[0].data = tx;
-		obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
-		obj->i2c.xfer.buf[1].data = rx;
-		obj->i2c.xfer.buf[1].len  = (uint16_t) rx_length;
-	}
+    // Some combination of tx_length and rx_length will tell us what to do
+    if((tx_length > 0) && (rx_length == 0)) {
+        obj->i2c.xfer.flags = I2C_FLAG_WRITE;
+        //Store buffer info
+        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
+    } else if ((tx_length == 0) && (rx_length > 0)) {
+        obj->i2c.xfer.flags = I2C_FLAG_READ;
+        //Store buffer info
+        obj->i2c.xfer.buf[0].data = rx;
+        obj->i2c.xfer.buf[0].len  = (uint16_t) rx_length;
+    } else if ((tx_length > 0) && (rx_length > 0)) {
+        obj->i2c.xfer.flags = I2C_FLAG_WRITE_READ;
+        //Store buffer info
+        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
+        obj->i2c.xfer.buf[1].data = rx;
+        obj->i2c.xfer.buf[1].len  = (uint16_t) rx_length;
+    }
 
-	if(address > 255) obj->i2c.xfer.flags |= I2C_FLAG_10BIT_ADDR;
+    if(address > 255) obj->i2c.xfer.flags |= I2C_FLAG_10BIT_ADDR;
 
-	// Store event flags
-	obj->i2c.events = event;
+    // Store event flags
+    obj->i2c.events = event;
 
-	// Enable interrupt
-	i2c_enable_interrupt(obj, handler, true);
+    // Enable interrupt
+    i2c_enable_interrupt(obj, handler, true);
 
-	// Kick off the transfer
-	retval = I2C_TransferInit(obj->i2c.i2c, &(obj->i2c.xfer));
+    // Kick off the transfer
+    retval = I2C_TransferInit(obj->i2c.i2c, &(obj->i2c.xfer));
 
-	if(retval == i2cTransferInProgress) {
-		blockSleepMode(EM1);
-	}
-	else {
-		// something happened, and the transfer did not go through
-		// So, we need to clean up
+    if(retval == i2cTransferInProgress) {
+        blockSleepMode(EM1);
+    } else {
+        // something happened, and the transfer did not go through
+        // So, we need to clean up
 
-		// Disable interrupt
-		i2c_enable_interrupt(obj, 0, false);
+        // Disable interrupt
+        i2c_enable_interrupt(obj, 0, false);
 
-		// Block until free
-		while(i2c_active(obj));
-	}
+        // Block until free
+        while(i2c_active(obj));
+    }
 }
 
 /** The asynchronous IRQ handler
  *  @param obj The I2C object which holds the transfer information
  *  @return Returns event flags if a transfer termination condition was met or 0 otherwise.
  */
-uint32_t i2c_irq_handler_asynch(i2c_t *obj) {
+uint32_t i2c_irq_handler_asynch(i2c_t *obj)
+{
 
-	// For now, we are assuming a solely interrupt-driven implementation.
+    // For now, we are assuming a solely interrupt-driven implementation.
 
-	I2C_TransferReturn_TypeDef status = I2C_Transfer(obj->i2c.i2c);
-	switch(status) {
-	case i2cTransferInProgress:
-		// Still busy transferring, so let it.
-		return 0;
-	case i2cTransferDone:
-		// Transfer has completed
+    I2C_TransferReturn_TypeDef status = I2C_Transfer(obj->i2c.i2c);
+    switch(status) {
+        case i2cTransferInProgress:
+            // Still busy transferring, so let it.
+            return 0;
+        case i2cTransferDone:
+            // Transfer has completed
 
-		// Disable interrupt
-		i2c_enable_interrupt(obj, 0, false);
+            // Disable interrupt
+            i2c_enable_interrupt(obj, 0, false);
 
-		unblockSleepMode(EM1);
+            unblockSleepMode(EM1);
 
-		return I2C_EVENT_TRANSFER_COMPLETE & obj->i2c.events;
-	case i2cTransferNack:
-		// A NACK has been received while an ACK was expected. This is usually because the slave did not respond to the address.
-		// Disable interrupt
-		i2c_enable_interrupt(obj, 0, false);
+            return I2C_EVENT_TRANSFER_COMPLETE & obj->i2c.events;
+        case i2cTransferNack:
+            // A NACK has been received while an ACK was expected. This is usually because the slave did not respond to the address.
+            // Disable interrupt
+            i2c_enable_interrupt(obj, 0, false);
 
-		unblockSleepMode(EM1);
+            unblockSleepMode(EM1);
 
-		return I2C_EVENT_ERROR_NO_SLAVE & obj->i2c.events;
-	default:
-		// An error situation has arisen.
-		// Disable interrupt
-		i2c_enable_interrupt(obj, 0, false);
+            return I2C_EVENT_ERROR_NO_SLAVE & obj->i2c.events;
+        default:
+            // An error situation has arisen.
+            // Disable interrupt
+            i2c_enable_interrupt(obj, 0, false);
 
-		unblockSleepMode(EM1);
+            unblockSleepMode(EM1);
 
-		// return error
-		return I2C_EVENT_ERROR & obj->i2c.events;
-	}
+            // return error
+            return I2C_EVENT_ERROR & obj->i2c.events;
+    }
 }
 
 /** Attempts to determine if I2C peripheral is already in use.
  *  @param obj The I2C object
  *  @return non-zero if the I2C module is active or zero if it is not
  */
-uint8_t i2c_active(i2c_t *obj) {
-	return (obj->i2c.i2c->STATE & I2C_STATE_BUSY);
+uint8_t i2c_active(i2c_t *obj)
+{
+    return (obj->i2c.i2c->STATE & I2C_STATE_BUSY);
 }
 
 /** Abort ongoing asynchronous transaction.
  *  @param obj The I2C object
  */
-void i2c_abort_asynch(i2c_t *obj) {
-	// Do not deactivate I2C twice
-	if (!i2c_active(obj)) return;
+void i2c_abort_asynch(i2c_t *obj)
+{
+    // Do not deactivate I2C twice
+    if (!i2c_active(obj)) return;
 
-	// Disable interrupt
-	i2c_enable_interrupt(obj, 0, false);
+    // Disable interrupt
+    i2c_enable_interrupt(obj, 0, false);
 
-	// Abort
-	obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
+    // Abort
+    obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
 
-	// Block until free
-	while(i2c_active(obj));
+    // Block until free
+    while(i2c_active(obj));
 
-	unblockSleepMode(EM1);
+    unblockSleepMode(EM1);
 }
 
 #endif //DEVICE_I2C ASYNCH

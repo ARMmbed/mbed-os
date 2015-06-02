@@ -24,7 +24,7 @@
 * File Name : lvds_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register (V1.01a)
 ******************************************************************************/
 #ifndef LVDS_IODEFINE_H
 #define LVDS_IODEFINE_H
@@ -37,7 +37,8 @@ struct st_lvds
     volatile uint8_t   dummy608[24];                           /*                  */
     volatile uint32_t  LCLKSELR;                               /*  LCLKSELR        */
     volatile uint32_t  LPLLSETR;                               /*  LPLLSETR        */
-    volatile uint32_t  LPLLMONR;                               /*  LPLLMONR        */
+    volatile uint8_t   dummy609[4];                            /*                  */
+    volatile uint32_t  LPHYACC;                                /*  LPHYACC         */
 };
 
 
@@ -48,6 +49,6 @@ struct st_lvds
 #define LVDSLVDSFCL LVDS.LVDSFCL
 #define LVDSLCLKSELR LVDS.LCLKSELR
 #define LVDSLPLLSETR LVDS.LPLLSETR
-#define LVDSLPLLMONR LVDS.LPLLMONR
+#define LVDSLPHYACC LVDS.LPHYACC
 /* <-SEC M1.10.1 */
 #endif

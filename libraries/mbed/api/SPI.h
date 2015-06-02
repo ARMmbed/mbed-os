@@ -45,10 +45,21 @@ namespace mbed {
  *
  * #include "mbed.h"
  *
+ * // hardware ssel (where applicable)
+ * //SPI device(p5, p6, p7, p8); // mosi, miso, sclk, ssel
+ *
+ * // software ssel
  * SPI device(p5, p6, p7); // mosi, miso, sclk
+ * DigitalOut cs(p8); // ssel
  *
  * int main() {
+ *     // hardware ssel (where applicable)
+ *     //int response = device.write(0xFF);
+ *
+ *     // software ssel
+ *     cs = 0;
  *     int response = device.write(0xFF);
+ *     cs = 1;
  * }
  * @endcode
  */
@@ -58,16 +69,14 @@ public:
 
     /** Create a SPI master connected to the specified pins
      *
-     * Pin Options:
-     *  (5, 6, 7) or (11, 12, 13)
-     *
      *  mosi or miso can be specfied as NC if not used
      *
      *  @param mosi SPI Master Out, Slave In pin
      *  @param miso SPI Master In, Slave Out pin
      *  @param sclk SPI Clock pin
+     *  @param ssel SPI chip select pin
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName _unused=NC);
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel=NC);
 
     /** Configure the data transmission format
      *

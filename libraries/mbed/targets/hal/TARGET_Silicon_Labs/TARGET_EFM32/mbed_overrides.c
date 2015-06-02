@@ -50,11 +50,11 @@ void mbed_sdk_init()
     CMU_ClockSelectSet(cmuClock_LFA, LFXO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-	  /* cmuClock_LFB (to date) only has LEUART peripherals.
-		*  Do NOT set it up here, as LEUARTs might have been initialized
-		*	 before this code is called. (Limitation of the override mechanism of ARMCC) 
-		*/
-		//TODO: Look for a more elegant fix.
+    /* cmuClock_LFB (to date) only has LEUART peripherals.
+    *  Do NOT set it up here, as LEUARTs might have been initialized
+    *	 before this code is called. (Limitation of the override mechanism of ARMCC)
+    */
+    //TODO: Look for a more elegant fix.
     //CMU_ClockSelectSet(cmuClock_LFB, LFXO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
@@ -92,7 +92,8 @@ void mbed_sdk_init()
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
 }
 
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask) {
+void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask)
+{
     uint32_t freq = 14000000, baudrate;
     USART_OVS_TypeDef ovs;
 

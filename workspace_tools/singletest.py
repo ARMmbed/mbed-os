@@ -85,7 +85,7 @@ def get_version():
     """ Returns test script version
     """
     single_test_version_major = 1
-    single_test_version_minor = 4
+    single_test_version_minor = 5
     return (single_test_version_major, single_test_version_minor)
 
 
@@ -144,9 +144,9 @@ if __name__ == '__main__':
 
         if get_module_avail('mbed_lstools'):
             mbeds = mbed_lstools.create()
-            muts_list = mbeds.list_mbeds()
+            muts_list = mbeds.list_mbeds_ext() if hasattr(mbeds, 'list_mbeds_ext') else mbeds.list_mbeds()
             for mut in muts_list:
-                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name'],
+                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name_unique'] if 'platform_name_unique' in mut else mut['platform_name'],
                                         mut['serial_port'],
                                         mut['mount_point'])
 

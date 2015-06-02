@@ -37,9 +37,9 @@
 #define GPIOINT_MASK2IDX(mask) (countTrailingZeros(mask))
 __STATIC_INLINE uint32_t countTrailingZeros(uint32_t mask)
 {
-  uint32_t zeros;
-  for(zeros=0; (zeros<32) && (0 == (mask&0x1)); zeros++, mask>>=1);
-  return zeros;
+    uint32_t zeros;
+    for(zeros=0; (zeros<32) && (0 == (mask&0x1)); zeros++, mask>>=1);
+    return zeros;
 }
 #else
 #error Unsupported architecture.
@@ -85,8 +85,8 @@ void gpio_irq_preinit(gpio_irq_t *obj, PinName pin)
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
-	/* Init pins */
-	gpio_irq_preinit(obj, pin);
+    /* Init pins */
+    gpio_irq_preinit(obj, pin);
     /* Initialize GPIO interrupt dispatcher */
     NVIC_ClearPendingIRQ(GPIO_ODD_IRQn);
     NVIC_EnableIRQ(GPIO_ODD_IRQn);
@@ -128,19 +128,19 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
     /* Disable, set config and enable */
     gpio_irq_disable(obj);
-    
+
     bool was_disabled = false;
     if(GPIO->IEN == 0) was_disabled = true;
-    
+
     GPIO_IntConfig(obj->port, obj->pin, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
     if ((GPIO->IEN != 0) && (obj->risingEdge || obj->fallingEdge) && was_disabled) {
-    	blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
+        blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
     }
 }
 
 inline void gpio_irq_enable(gpio_irq_t *obj)
 {
-	if(GPIO->IEN == 0) blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
+    if(GPIO->IEN == 0) blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
     GPIO_IntEnable(1 << obj->pin); // pin mask for pins to enable
 }
 
@@ -165,19 +165,18 @@ inline void gpio_irq_disable(gpio_irq_t *obj)
  ******************************************************************************/
 static void GPIOINT_IRQDispatcher(uint32_t iflags)
 {
-  uint32_t irqIdx;
+    uint32_t irqIdx;
 
-  /* check for all flags set in IF register */
-  while(iflags)
-  {
-    irqIdx = GPIOINT_MASK2IDX(iflags);
+    /* check for all flags set in IF register */
+    while(iflags) {
+        irqIdx = GPIOINT_MASK2IDX(iflags);
 
-    /* clear flag*/
-    iflags &= ~(1 << irqIdx);
+        /* clear flag*/
+        iflags &= ~(1 << irqIdx);
 
-    /* call user callback */
-    handle_interrupt_in(irqIdx);
-  }
+        /* call user callback */
+        handle_interrupt_in(irqIdx);
+    }
 }
 
 /***************************************************************************//**
@@ -188,15 +187,15 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
  ******************************************************************************/
 void GPIO_EVEN_IRQHandler(void)
 {
-  uint32_t iflags;
+    uint32_t iflags;
 
-  /* Get all even interrupts. */
-  iflags = GPIO_IntGetEnabled() & 0x00005555;
+    /* Get all even interrupts. */
+    iflags = GPIO_IntGetEnabled() & 0x00005555;
 
-  /* Clean only even interrupts. */
-  GPIO_IntClear(iflags);
+    /* Clean only even interrupts. */
+    GPIO_IntClear(iflags);
 
-  GPIOINT_IRQDispatcher(iflags);
+    GPIOINT_IRQDispatcher(iflags);
 }
 
 
@@ -208,15 +207,15 @@ void GPIO_EVEN_IRQHandler(void)
  ******************************************************************************/
 void GPIO_ODD_IRQHandler(void)
 {
-  uint32_t iflags;
+    uint32_t iflags;
 
-  /* Get all odd interrupts. */
-  iflags = GPIO_IntGetEnabled() & 0x0000AAAA;
+    /* Get all odd interrupts. */
+    iflags = GPIO_IntGetEnabled() & 0x0000AAAA;
 
-  /* Clean only even interrupts. */
-  GPIO_IntClear(iflags);
+    /* Clean only even interrupts. */
+    GPIO_IntClear(iflags);
 
-  GPIOINT_IRQDispatcher(iflags);
+    GPIOINT_IRQDispatcher(iflags);
 }
 
 #endif

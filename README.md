@@ -30,6 +30,7 @@ NXP:
 * [mbed LPC11U24](http://developer.mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
 * [EA LPC11U35](http://developer.mbed.org/platforms/EA-LPC11U35/) (Cortex-M0)
 * mbed LPC2368 (ARM7TDMI-S)
+* LPC2460 (ARM7TDMI-S)
 * LPC810 (Cortex-M0+)
 * [LPC812](http://developer.mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
 * [EA LPC4088](http://developer.mbed.org/platforms/EA-LPC4088/) (Cortex-M4F)
@@ -84,6 +85,13 @@ Nordic:
 
 Renesas:
 * [RZ-A1H](http://developer.mbed.org/platforms/Renesas-GR-PEACH/) (Cortex-A9)
+
+Silicon Labs:
+* [EFM32 Zero Gecko] (https://developer.mbed.org/platforms/EFM32-Zero-Gecko/) (Cortex-M0+)
+* [EFM32 Happy Gecko] (https://developer.mbed.org/platforms/EFM32-Happy-Gecko/) (Cortex-M0+)
+* [EFM32 Leopard Gecko] (https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
+* [EFM32 Giant Gecko] (https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
+* [EFM32 Wonder Gecko] (https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
 
 
 Supported Toolchains and IDEs

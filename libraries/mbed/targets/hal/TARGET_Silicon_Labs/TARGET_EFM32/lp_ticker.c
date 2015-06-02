@@ -27,53 +27,57 @@ void lp_ticker_init()
     rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
 }
 
-void lp_ticker_set_interrupt(timestamp_t timestamp) {
-	uint64_t timestamp_ticks;
+void lp_ticker_set_interrupt(timestamp_t timestamp)
+{
+    uint64_t timestamp_ticks;
     uint64_t current_ticks = RTC_CounterGet();
     timestamp_t current_time = ((uint64_t)(current_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT));
-    
-    
+
+
     /* calculate offset value */
     timestamp_t offset = timestamp - current_time;
     if(offset > 0xEFFFFFFF) offset = 100;
-    
+
     /* map offset to RTC value */
-	// ticks = offset * RTC frequency div 1000000
-	timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
+    // ticks = offset * RTC frequency div 1000000
+    timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
     timestamp_ticks += current_ticks;
 
-	/* RTC has 24 bit resolution */
-	timestamp_ticks &= 0xFFFFFF;
+    /* RTC has 24 bit resolution */
+    timestamp_ticks &= 0xFFFFFF;
 
     /* check for RTC limitation */
     if((timestamp_ticks - RTC_CounterGet()) >= 0x800000) timestamp_ticks = RTC_CounterGet() + 2;
-    
-	/* Set callback */
-	RTC_FreezeEnable(true);
-	RTC_CompareSet(0, (uint32_t)timestamp_ticks);
-	RTC_IntEnable(RTC_IF_COMP0);
-	RTC_FreezeEnable(false);
+
+    /* Set callback */
+    RTC_FreezeEnable(true);
+    RTC_CompareSet(0, (uint32_t)timestamp_ticks);
+    RTC_IntEnable(RTC_IF_COMP0);
+    RTC_FreezeEnable(false);
 }
 
-inline void lp_ticker_disable_interrupt() {
-	RTC_IntDisable(RTC_IF_COMP0);
+inline void lp_ticker_disable_interrupt()
+{
+    RTC_IntDisable(RTC_IF_COMP0);
 }
 
-inline void lp_ticker_clear_interrupt() {
-	RTC_IntClear(RTC_IF_COMP0);
+inline void lp_ticker_clear_interrupt()
+{
+    RTC_IntClear(RTC_IF_COMP0);
 }
 
-timestamp_t lp_ticker_read() {
-	uint64_t ticks_temp;
-	uint64_t ticks = RTC_CounterGet();
+timestamp_t lp_ticker_read()
+{
+    uint64_t ticks_temp;
+    uint64_t ticks = RTC_CounterGet();
 
-	/* ticks = counter tick value
-	 * timestamp = value in microseconds
-	 * timestamp = ticks * 1.000.000 / RTC frequency
-	 */
+    /* ticks = counter tick value
+     * timestamp = value in microseconds
+     * timestamp = ticks * 1.000.000 / RTC frequency
+     */
 
-	ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
-	return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
+    ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
+    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
 }
 
 #endif
