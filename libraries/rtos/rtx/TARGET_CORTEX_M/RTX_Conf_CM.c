@@ -162,7 +162,7 @@
 #elif defined(TARGET_STM32F302R8)
 #    define OS_CLOCK       72000000
 
-#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L152RE)
 #    define OS_CLOCK       32000000
 
 #elif defined(TARGET_STM32F401VC)
