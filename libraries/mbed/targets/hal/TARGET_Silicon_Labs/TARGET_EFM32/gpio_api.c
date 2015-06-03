@@ -42,8 +42,6 @@ void gpio_init(gpio_t *obj, PinName pin)
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     obj->pin = pin;
-    obj->mask = gpio_set(pin);
-    obj->port = pin >> 4;
 }
 
 void gpio_pin_enable(gpio_t *obj, uint8_t enable)
@@ -63,7 +61,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
     //Handle pullup for input
     if(mode == InputPullUp) {
         //Set DOUT
-        GPIO->P[obj->port & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
+        GPIO->P[(obj->pin >> 4) & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
     }
 }
 

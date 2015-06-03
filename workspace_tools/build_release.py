@@ -101,6 +101,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
+
+    ('WIZwiki_W7500',   ('ARM', 'uARM')),
 )
 
 
