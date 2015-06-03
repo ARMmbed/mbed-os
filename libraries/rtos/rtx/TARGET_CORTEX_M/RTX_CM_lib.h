@@ -214,7 +214,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC812)
 #define INITIAL_SP            (0x10001000UL)
 
-#elif defined(TARGET_LPC824)
+#elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
 #define INITIAL_SP            (0x10002000UL)
 
 #elif defined(TARGET_KL25Z)
