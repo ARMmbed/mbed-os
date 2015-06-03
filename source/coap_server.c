@@ -5,12 +5,11 @@
 //#include "include/coap_service_api.h"
 #include "ns_types.h"
 #include "ns_list.h"
-#include "coap_server.h"
 #include "coap_server_impl.h"
+#include "./include/coap_server.h"
 
-
-typedef NS_LIST_HEAD(coap_service_session_t, link) instance_list_t;
-instance_list_t NS_LIST_NAME_INIT(instance_list);
+//typedef NS_LIST_HEAD(coap_service_session_t, link) instance_list_t;
+//instance_list_t NS_LIST_NAME_INIT(instance_list);
 
 //typedef struct sn_coap_hdr_s sn_coap_hdr_s;
 
@@ -35,7 +34,7 @@ static coap_service_session_t *coap_service_search_from_list(int8_t interface_id
 {
 	coap_service_session_t *this = NULL;
 
-    /*
+	/*
 	ns_list_foreach(coap_service_session_t,cur_ptr, &instance_list)
     {
         if(cur_ptr->interface_id == interface_id)
@@ -53,7 +52,8 @@ static coap_service_session_t *coap_service_search_from_list(int8_t interface_id
 static coap_service_session_t *coap_service_find_by_service(int8_t service_id)
 {
 	coap_service_session_t *this = NULL;
-    /*
+
+	/*
 	ns_list_foreach(coap_service_session_t,cur_ptr, &instance_list)
     {
         if(cur_ptr->coap_service_id == service_id)
@@ -62,7 +62,8 @@ static coap_service_session_t *coap_service_find_by_service(int8_t service_id)
             break;
         }
     }
-    */
+	*/
+
     return this;
 }
 
@@ -79,6 +80,9 @@ int8_t coap_server_service_init(int8_t interface_id, uint16_t listen_port, uint8
 	int retVal = -1;
 	int8_t socketInstance;
 
+	// Initialize linked list
+	//ns_list_init_(instance_list);
+
 	//allocate Socket Service
 	socketInstance  = coap_server_start();
 
@@ -92,7 +96,7 @@ int8_t coap_server_service_init(int8_t interface_id, uint16_t listen_port, uint8
 	    {
 	        this->interface_id = interface_id;
 //	        this->set_response_cb_ptr = NULL;
-//	        ns_list_add_to_start(&instance_list, this);
+	        //ns_list_add_to_start(&instance_list, this);
 	        retVal = 1;
 	    }
 	    return retVal;
@@ -102,7 +106,7 @@ int8_t coap_server_service_init(int8_t interface_id, uint16_t listen_port, uint8
 	}
 	if(socketInstance > 0)
 	{
-		//coap_service_delete(socketInstance);
+		coap_service_delete(socketInstance);
 	}
 	return retVal;
 }

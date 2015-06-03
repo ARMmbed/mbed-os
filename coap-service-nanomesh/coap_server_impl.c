@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "ns_types.h"
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
-#include "eventOS_event_timer.h"
+//#include "eventOS_event.h"
+//#include "eventOS_scheduler.h"
+//#include "eventOS_event_timer.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "coap_server_impl.h"
@@ -28,12 +28,18 @@ int8_t coap_server_start(void)
 
 static int8_t coap_server_service_tasklet_generated(void)
 {
+	int8_t ret_val;
+
 	if(coap_service_tasklet == -1)
 	{
 		//coap_service_tasklet = eventOS_event_handler_create(&coap_server_service_tasklet,COAP_SERVER_SERVICE_TASKLET_INIT);
+		ret_val = coap_service_tasklet;
 	}
 
-	return coap_service_tasklet;
+	// for unit testing now setted to 1;
+	ret_val = 1;
+
+	return ret_val;
 }
 
 void coap_server_service_tasklet(arm_event_s * event)

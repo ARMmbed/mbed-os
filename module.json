@@ -1,0 +1,29 @@
+{
+  "name": "coap-service",
+  "version": "0.0.1",
+  "description": "CoAP Service library",
+  "keywords": [
+    "coap",
+    "service"
+  ],
+  "author": "Erno Tormikoski <erno.tormikoski@arm.com>",
+  "repository": {
+    "url": "ssh://git.oulu.arm.com/home/git/repositories/nanomesh/coap-service.git",
+    "type": "git"
+  },
+  "homepage": "http://git.oulu.arm.com/gitweb/?p=nanomesh/coap-service.git;a=summary",
+  "license": "Proprietary, all rights reserved.",
+  "extraIncludes": [
+      "coap-service",
+      "nanostack-event-loop",
+      "source/include"
+  ],
+  "dependencies": {
+    "mbed": "~3.0.1",
+    "mbed-client-libservice": "~2.0.9",
+    "mbed-client": "~0.1.3",
+    "mbed-6lowpan-eventloop": "~0.0.8",
+    "mbed-6lowpan": "~0.0.9"
+  },
+  "targetDependencies": {}
+}
