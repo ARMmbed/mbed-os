@@ -16,10 +16,6 @@ instance_list_t NS_LIST_NAME_INIT(instance_list);
 
 /* Coap service class handlers*/
 
-//void *memory_allocation(uint16_t size);
-
-//void memory_free(void* ptr);
-
 void coap_server_delete_session(int8_t service_id)
 {
 
@@ -28,7 +24,7 @@ void coap_server_delete_session(int8_t service_id)
 	if(this)
     {
 
-        ns_list_remove(&instance_list,this);
+        //ns_list_remove(&instance_list,this);
         memory_free(this);
 
     }
@@ -39,7 +35,7 @@ static coap_service_session_t *coap_service_search_from_list(int8_t interface_id
 {
 	coap_service_session_t *this = NULL;
 
-	/*
+    /*
 	ns_list_foreach(coap_service_session_t,cur_ptr, &instance_list)
     {
         if(cur_ptr->interface_id == interface_id)
@@ -48,7 +44,8 @@ static coap_service_session_t *coap_service_search_from_list(int8_t interface_id
             break;
         }
     }
-    */
+	*/
+
     return this;
 }
 

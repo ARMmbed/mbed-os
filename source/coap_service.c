@@ -38,7 +38,7 @@ int8_t coap_service_unregister_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t
 
 uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[static 16], uint16_t destination_port, sn_coap_hdr_s *request_ptr, coap_service_response_recv *request_response_cb)
 {
-	return -1;	
+	return 0;
 }
 
 void coap_service_delete( int8_t service_id )
@@ -98,7 +98,7 @@ int8_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_s
 uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, uint8_t *uri_ptr, uint16_t uri_len, 
 	                               uint8_t cont_type, uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb)
 {
-	return -1;
+	return 0;
 }
 
 int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type,uint8_t * payload_ptr,uint16_t payload_len)
