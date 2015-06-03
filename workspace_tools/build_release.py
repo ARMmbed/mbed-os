@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -33,6 +34,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
+    ('LPC2460',      ('GCC_ARM')),
     ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM', 'GCC_ARM', 'IAR', 'GCC_CR')),
     ('SSCI824',      ('uARM','GCC_ARM')),
@@ -85,6 +87,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
+    ('DELTA_DFCM_NNN40',  ('ARM', 'GCC_ARM')),
 
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
@@ -98,6 +101,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
+
+    ('WIZwiki_W7500',   ('ARM', 'uARM')),
 )
 
 

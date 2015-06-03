@@ -36,7 +36,7 @@ static int get_available_sct()
 
 void pwmout_init(pwmout_t* obj, PinName pin)
 {
-    MBED_ASSERT(pin != (uint32_t)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
     int sct_n = get_available_sct();
     if (sct_n == -1) {
