@@ -1,6 +1,6 @@
 {
   "name": "coap-service",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CoAP Service library",
   "keywords": [
     "coap",
@@ -14,9 +14,9 @@
   "homepage": "http://git.oulu.arm.com/gitweb/?p=nanomesh/coap-service.git;a=summary",
   "license": "Proprietary, all rights reserved.",
   "extraIncludes": [
-      "coap-service",
-      "nanostack-event-loop",
-      "source/include"
+    "coap-service",
+    "nanostack-event-loop",
+    "source/include"
   ],
   "dependencies": {
     "mbed": "~3.0.1",
