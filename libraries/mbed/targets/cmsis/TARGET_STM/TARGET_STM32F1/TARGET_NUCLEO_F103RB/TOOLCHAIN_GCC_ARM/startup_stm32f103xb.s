@@ -77,6 +77,8 @@ defined in linker script */
   .weak Reset_Handler
   .type Reset_Handler, %function
 Reset_Handler:
+  ldr   r0, =_estack
+  mov   sp, r0          /* set stack pointer */
 
 /* Copy the data segment initializers from flash to SRAM */
   movs r1, #0
@@ -109,10 +111,15 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */
-    bl __libc_init_array
+  //bl __libc_init_array
 /* Call the application's entry point.*/
-  bl main
-  bx lr
+  //bl  main
+  bl _start
+
+LoopForever:
+  b LoopForever
+
+
 .size Reset_Handler, .-Reset_Handler
 
 /**
