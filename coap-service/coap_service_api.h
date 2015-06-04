@@ -176,15 +176,14 @@ int16_t coap_service_virtual_socket_set_cb(int8_t service_id, coap_service_virtu
  * Register application and informs CoAP services unsecure registery callback function.
  *
  * \param service_id       Id number of the current service.
- * \param *uri_ptr             Pointer to uri.
- * \param uri_len          Length of uri.
+ * \param *uri             Uri address.
  * \param port             port that Application wants to use for communicate with coap server.
  * \param allowed_method   Informs method that is allowed to use (used defines described above).
- * \param *request_recv_cb  CoAP service request receive callback function pointer.
+ * \param *request_recv_cb CoAP service request receive callback function pointer.
  *
  * \return 0 for success / -1 for failure 
  */
-int8_t coap_service_register_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
+int8_t coap_service_register_uri(int8_t service_id, char *uri, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
 
 /**
  * \brief Unregister unsecure callback methods to CoAP server
@@ -192,12 +191,11 @@ int8_t coap_service_register_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t u
  * Register application and informs CoAP services unsecure registery callback function.
  *
  * \param service_id       Id number of the current service.
- * \param *uri_ptr         Pointer to uri.
- * \param uri_len          Length of uri.
+ * \param *uri             Uri address.
  *
  * \return 0 for success / -1 for failure 
  */
-int8_t coap_service_unregister_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len);
+int8_t coap_service_unregister_uri(int8_t service_id, char *uri);
 
 
 /**
@@ -242,8 +240,7 @@ uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[stat
  * \param destination_port      Destination port
  * \param msg_type              Message type can be found from sn_coap_header.
  * \param msg_code              Message code can be found from sn_coap_header.
- * \param *uri_ptr              Pointer to uri.
- * \param uri_len               Length of uri.
+ * \param *uri                  Uri address.
  * \param cont_type             Content type can be found from sn_coap_header.
  * \param payload_ptr           Pointer to message content.
  * \param payload_len           Lenght of the message.
@@ -251,7 +248,7 @@ uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[stat
  *
  * \return msg_id               Id number of the current message.
  */
-uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, uint8_t *uri_ptr, uint16_t uri_len, 
+uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, char *uri,
 	                              uint8_t cont_type, uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
 
 /**

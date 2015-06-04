@@ -26,12 +26,12 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
 	return retVal;
 }
 
-int8_t coap_service_register_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb)
+int8_t coap_service_register_uri(int8_t service_id, char *uri, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb)
 {
 	return -1;
 }
 
-int8_t coap_service_unregister_uri(int8_t service_id, uint8_t *uri_ptr, uint16_t uri_len)
+int8_t coap_service_unregister_uri(int8_t service_id, char *uri)
 {
 	return -1;
 }
@@ -95,7 +95,7 @@ int8_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_s
 	return -1;
 }
 
-uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, uint8_t *uri_ptr, uint16_t uri_len, 
+uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, char *uri,
 	                               uint8_t cont_type, uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb)
 {
 	return 0;
