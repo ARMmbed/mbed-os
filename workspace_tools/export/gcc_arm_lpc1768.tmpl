@@ -1,11 +1,11 @@
 {% extends "gcc_arm_common.tmpl" %}
 
-{% block flags %}
-CPU = -mcpu=cortex-m3 -mthumb
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections 
-CC_FLAGS += -MMD -MP
-CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
-
-LD_FLAGS = -mcpu=cortex-m3 -mthumb -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float
-LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+{% block target_project_elf %}
+{{ super() }}
+	@echo ""
+	@echo "*****"
+	@echo "***** You must modify vector checksum value in *.bin and *.hex files."
+	@echo "*****"
+	@echo ""
+	$(SIZE) $@
 {% endblock %}

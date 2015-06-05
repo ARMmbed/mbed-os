@@ -1,10 +1,23 @@
 {% extends "gcc_arm_common.tmpl" %}
 
-{% block flags %}
-CPU = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-CC_FLAGS = $(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections 
-CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
+{% block cpu %}-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=$(FLOAT_ABI){% endblock %}
 
-LD_FLAGS = -mcpu=cortex-m4 -mthumb -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float
-LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+{% block flags %}
+ifeq ($(HARDFP),1)
+	FLOAT_ABI = hard
+else
+	FLOAT_ABI = softfp
+endif
+
+{{ super() }}
+{% endblock %}
+
+{% block target_project_elf %}
+{{ super() }}
+	@echo ""
+	@echo "*****"
+	@echo "***** You must modify vector checksum value in *.bin and *.hex files."
+	@echo "*****"
+	@echo ""
+	$(SIZE) $@
 {% endblock %}
