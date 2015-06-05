@@ -1,12 +1,5 @@
 {% extends "gcc_arm_common.tmpl" %}
 
-{% block ld_flags %}$(CPU) -Wl,--gc-sections --specs=nano.specs -Wl,--wrap,main{% endblock %}
-
-{% block flags %}
-{{ super() }}
-#LD_FLAGS += -u _printf_float -u _scanf_float
-{% endblock %}
-
 {% block target_project_elf %}
 {{ super() }}
 	@echo ""

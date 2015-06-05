@@ -20,6 +20,7 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE    = $(GCC_BIN)arm-none-eabi-size
 
 {% block flags %}
+
 {% block hardfp %} 
 {%- if "-mfloat-abi=softfp" in cpu_flags %}
 ifeq ($(HARDFP),1)
@@ -29,11 +30,19 @@ else
 endif
 {% endif %}
 {% endblock %}
+
 CPU = {% block cpu %}{% for cf in cpu_flags %}{{cf|replace("-mfloat-abi=softfp","-mfloat-abi=$(FLOAT_ABI)")}} {% endfor %}{% endblock %}
 CC_FLAGS = {% block cc_flags %}$(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP{% endblock %}
 CC_SYMBOLS = {% block cc_symbols %}{% for s in symbols %}-D{{s}} {% endfor %}{% endblock %}
 
-LD_FLAGS = {% block ld_flags %}$(CPU) -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,-Map=$(PROJECT).map,--cref{% endblock %}
+LD_FLAGS = {%- block ld_flags -%}
+{%- if "-mcpu=cortex-m0" in cpu_flags or "-mcpu=cortex-m0plus" in cpu_flags -%}
+{{ ' ' }}$(CPU) -Wl,--gc-sections --specs=nano.specs -Wl,--wrap,main -Wl,-Map=$(PROJECT).map,--cref
+#LD_FLAGS += -u _printf_float -u _scanf_float
+{%- else -%}
+{{ ' ' }}$(CPU) -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,-Map=$(PROJECT).map,--cref
+{%- endif -%}
+{% endblock %}
 LD_SYS_LIBS = {% block ld_sys_libs %}-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys{% endblock %}
 {% endblock %}
 
