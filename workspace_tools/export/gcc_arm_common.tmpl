@@ -21,7 +21,7 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE    = $(GCC_BIN)arm-none-eabi-size
 {%- block additional_executables -%}{% endblock %}
 
-{% block flags %}
+{%- block flags -%}
 
 {% block hardfp %} 
 {%- if "-mfloat-abi=softfp" in cpu_flags %}
@@ -31,7 +31,7 @@ else
 	FLOAT_ABI = softfp
 endif
 {% endif %}
-{% endblock %}
+{%- endblock %}
 
 CPU = {% block cpu %}{% for cf in cpu_flags %}{{cf|replace("-mfloat-abi=softfp","-mfloat-abi=$(FLOAT_ABI)")}} {% endfor %}{% endblock %}
 CC_FLAGS = {% block cc_flags %}$(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP{% endblock %}
@@ -54,11 +54,11 @@ else
   CC_FLAGS += -DNDEBUG -Os
 endif
 
-{% block target_all %}
+{% block target_all -%}
 all: $(PROJECT).bin $(PROJECT).hex size
 {% endblock %}
 
-{% block target_clean %}
+{% block target_clean -%}
 clean:
 	rm -f $(PROJECT).bin $(PROJECT).elf $(PROJECT).hex $(PROJECT).map $(PROJECT).lst $(OBJECTS) $(DEPS)
 {% endblock %}
