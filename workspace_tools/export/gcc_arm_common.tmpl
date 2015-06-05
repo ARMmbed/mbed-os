@@ -24,7 +24,7 @@ SIZE    = $(GCC_BIN)arm-none-eabi-size
 {%- block flags -%}
 
 {% block hardfp %} 
-{%- if "-mfloat-abi=softfp" in cpu_flags %}
+{% if "-mfloat-abi=softfp" in cpu_flags %}
 ifeq ($(HARDFP),1)
 	FLOAT_ABI = hard
 else
@@ -53,6 +53,8 @@ ifeq ($(DEBUG), 1)
 else
   CC_FLAGS += -DNDEBUG -Os
 endif
+
+.PHONY: all clean lst size
 
 {% block target_all -%}
 all: $(PROJECT).bin $(PROJECT).hex size
@@ -89,7 +91,7 @@ $(PROJECT).lst: $(PROJECT).elf
 
 lst: $(PROJECT).lst
 
-size:
+size: $(PROJECT).elf
 	$(SIZE) $(PROJECT).elf
 
 DEPS = $(OBJECTS:.o=.d) $(SYS_OBJECTS:.o=.d)
