@@ -170,6 +170,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_F407VG'),
             ('gcc_arm', 'DISCO_F303VC'),
             ('gcc_arm', 'DISCO_F334C8'),
+            ('gcc_arm', 'DISCO_L053C8'),
             ('gcc_arm', 'NRF51822'),
             ('gcc_arm', 'HRM1017'),
             ('gcc_arm', 'NUCLEO_F401RE'),
@@ -185,6 +186,14 @@ if __name__ == '__main__':
             ('gcc_arm', 'ARCH_BLE'),
             ('gcc_arm', 'ARCH_MAX'),
             ('gcc_arm', 'ARCH_PRO'),
+            ('gcc_arm', 'DELTA_DFCM_NNN40'),
+            ('gcc_arm', 'K20D50M'),
+            ('gcc_arm', 'K22F'),
+            ('gcc_arm', 'K64F'),
+            ('gcc_arm', 'KL05Z'),
+            ('gcc_arm', 'KL25Z'),
+            ('gcc_arm', 'KL43Z'),
+            ('gcc_arm', 'KL46Z'),
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
