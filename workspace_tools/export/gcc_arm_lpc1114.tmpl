@@ -1,6 +1,5 @@
 {% extends "gcc_arm_common.tmpl" %}
 
-{% block cpu %}-mcpu=cortex-m0 -mthumb{% endblock %}
 {% block ld_flags %}$(CPU) -Wl,--gc-sections --specs=nano.specs -Wl,--wrap,main{% endblock %}
 
 {% block flags %}

@@ -1,13 +1,1 @@
 {% extends "gcc_arm_common.tmpl" %}
-
-{% block cpu %}-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=$(FLOAT_ABI){% endblock %}
-
-{% block flags %}
-ifeq ($(HARDFP),1)
-	FLOAT_ABI = hard
-else
-	FLOAT_ABI = softfp
-endif
-
-{{ super() }}
-{% endblock %}

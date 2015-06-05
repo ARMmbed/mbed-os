@@ -20,7 +20,16 @@ OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE    = $(GCC_BIN)arm-none-eabi-size
 
 {% block flags %}
-CPU = {% block cpu %}-mcpu=cortex-m3 -mthumb{% endblock %}
+{% block hardfp %} 
+{%- if "-mfloat-abi=softfp" in cpu_flags %}
+ifeq ($(HARDFP),1)
+	FLOAT_ABI = hard
+else
+	FLOAT_ABI = softfp
+endif
+{% endif %}
+{% endblock %}
+CPU = {% block cpu %}{% for cf in cpu_flags %}{{cf|replace("-mfloat-abi=softfp","-mfloat-abi=$(FLOAT_ABI)")}} {% endfor %}{% endblock %}
 CC_FLAGS = {% block cc_flags %}$(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP{% endblock %}
 CC_SYMBOLS = {% block cc_symbols %}{% for s in symbols %}-D{{s}} {% endfor %}{% endblock %}
 
