@@ -94,6 +94,8 @@ class GccArm(Exporter):
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
         'NZ32SC151',
+        'SAMD21J18A',
+        'SAMR21G18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True

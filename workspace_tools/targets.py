@@ -1296,6 +1296,23 @@ class WIZWIKI_W7500(Target):
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class SAMD21J18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM21']
+        self.macros = ['__SAMD21J18A__']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
+class SAMR21G18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM21']
+        self.macros = ['__SAMR21G18A__']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
 
 # Get a single instance for each target
 TARGETS = [
@@ -1426,6 +1443,8 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
 
+    SAMD21J18A(),
+    SAMR21G18A(),
 ]
 
 # Map each target name to its unique instance
