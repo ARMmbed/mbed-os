@@ -9,6 +9,7 @@ INCLUDE_PATHS = {% for p in include_paths %}-I{{p}} {% endfor %}
 LIBRARY_PATHS = {% for p in library_paths %}-L{{p}} {% endfor %}
 LIBRARIES = {% for lib in libraries %}-l{{lib}} {% endfor %}
 LINKER_SCRIPT = {{linker_script}}
+{%- block additional_variables -%}{% endblock %}
 
 ############################################################################### 
 AS      = $(GCC_BIN)arm-none-eabi-as
@@ -18,6 +19,7 @@ LD      = $(GCC_BIN)arm-none-eabi-gcc
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE    = $(GCC_BIN)arm-none-eabi-size
+{%- block additional_executables -%}{% endblock %}
 
 {% block flags %}
 
@@ -92,4 +94,6 @@ size:
 
 DEPS = $(OBJECTS:.o=.d) $(SYS_OBJECTS:.o=.d)
 -include $(DEPS)
+
+{% block additional_targets %}{% endblock %}
 
