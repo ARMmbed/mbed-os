@@ -182,6 +182,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'RZ_A1H'),
             ('gcc_arm', 'MAXWSNENV'),
             ('gcc_arm', 'MAX32600MBED'),
+            ('gcc_arm', 'ARCH_BLE'),
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
