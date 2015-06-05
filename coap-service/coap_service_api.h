@@ -183,7 +183,7 @@ int16_t coap_service_virtual_socket_set_cb(int8_t service_id, coap_service_virtu
  *
  * \return 0 for success / -1 for failure 
  */
-int8_t coap_service_register_uri(int8_t service_id, char *uri, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
+int8_t coap_service_register_uri(int8_t service_id, const char *uri, uint8_t allowed_method, coap_service_request_recv_cb *request_recv_cb);
 
 /**
  * \brief Unregister unsecure callback methods to CoAP server
@@ -195,7 +195,7 @@ int8_t coap_service_register_uri(int8_t service_id, char *uri, uint8_t allowed_m
  *
  * \return 0 for success / -1 for failure 
  */
-int8_t coap_service_unregister_uri(int8_t service_id, char *uri);
+int8_t coap_service_unregister_uri(int8_t service_id, const char *uri);
 
 
 /**
@@ -227,7 +227,7 @@ int8_t coap_service_register_uri_secure_cb_set(int8_t service_id, coap_service_s
  *
  * \return msg_id               Id number of the current message.
  */
-uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[static 16], uint16_t destination_port, sn_coap_hdr_s *request_ptr, coap_service_response_recv *request_response_cb);
+uint16_t coap_service_send(int8_t service_id, uint8_t options, const uint8_t addr[static 16], uint16_t destination_port, sn_coap_hdr_s *request_ptr, coap_service_response_recv *request_response_cb);
 
 /**
  * \brief Sends CoAP service request
@@ -248,8 +248,8 @@ uint16_t coap_service_send(int8_t service_id, uint8_t options, uint8_t addr[stat
  *
  * \return msg_id               Id number of the current message.
  */
-uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, char *uri,
-	                              uint8_t cont_type, uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
+uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16], uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, const char *uri,
+	                              uint8_t cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
 
 /**
  * \brief Sends CoAP service response
@@ -264,7 +264,7 @@ uint16_t coap_service_request_send(int8_t service_id, uint8_t options, uint8_t d
  * \return -1              For failure 
  *-         0              For success 
  */
-int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type,uint8_t * payload_ptr,uint16_t payload_len);
+int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
 #ifdef __cplusplus
 }
