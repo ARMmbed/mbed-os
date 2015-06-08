@@ -119,6 +119,8 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
+    parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
+
     parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
 
 
@@ -128,7 +130,16 @@ if __name__ == '__main__':
     successes = []
     skips = []
     build_report = []
+
+    platforms = None
+    if options.platforms != "":
+        platforms = set(options.platforms.split(","))
+
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+        if platforms is not None and not target_name in platforms:
+            print("Excluding %s from release" % target_name)
+            continue
+
         if options.official_only:
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:
