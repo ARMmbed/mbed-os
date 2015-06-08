@@ -49,6 +49,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
     ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('APPNEARME_MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
@@ -94,8 +95,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
-    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
+    ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
