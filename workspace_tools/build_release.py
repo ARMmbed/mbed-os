@@ -73,6 +73,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
@@ -101,6 +102,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
+    ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
 
     ('WIZwiki_W7500',   ('ARM', 'uARM')),
 )
