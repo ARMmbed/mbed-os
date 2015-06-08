@@ -485,18 +485,21 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
-                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                            'single_test_output' : '',
-                            'target_name' : target,
-                            'toolchain_name' : toolchain,
-                            'test_id' : test_id,
-                            'test_description' : 'Toolchain build failed',
-                            'elapsed_time' : 0,
-                            'duration' : 0,
-                            'copy_method' : None
-                        }}
+                    if test_id not in self.test_summary_ext[toolchain][target]:
+                        self.test_summary_ext[toolchain][target][test_id] = []
+
+                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
+                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                        'single_test_output' : '',
+                        'target_name' : target,
+                        'target_name_unique': target,
+                        'toolchain_name' : toolchain,
+                        'test_id' : test_id,
+                        'test_description' : 'Toolchain build failed',
+                        'elapsed_time' : 0,
+                        'duration' : 0,
+                        'copy_method' : None
+                    }})
                     continue
 
                 if self.opts_only_build_tests:
