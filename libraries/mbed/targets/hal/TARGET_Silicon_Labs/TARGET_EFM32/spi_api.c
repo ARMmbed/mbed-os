@@ -822,7 +822,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                             true,
                             false,
                             (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? (const void *)&fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (obj->spi.bits <= 8 ? tx_length - 1 : (tx_length / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
     } else {
         /* Frame size == 9 */
@@ -860,7 +860,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                             true,
                             false,
                             (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? (const void *)&fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
     }
 }
