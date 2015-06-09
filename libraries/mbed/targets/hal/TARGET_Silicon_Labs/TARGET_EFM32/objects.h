@@ -68,9 +68,9 @@ struct port_s {
 #if DEVICE_PWMOUT
 struct pwmout_s {
     //The period of the pulse in clock cycles
-    uint32_t period_cycles;
+    uint16_t period_cycles;
     //The width of the pulse in clock cycles
-    uint32_t width_cycles;
+    uint16_t width_cycles;
     //Channel on TIMER
     uint32_t channel;
     PinName pin;
@@ -129,11 +129,11 @@ struct lp_timer_s {
 #if DEVICE_SLEEP
 #define NUM_SLEEP_MODES 5
 typedef enum {
-	EM0 = 0,
-	EM1 = 1,
-	EM2 = 2,
-	EM3 = 3,
-	EM4 = 4
+    EM0 = 0,
+    EM1 = 1,
+    EM2 = 2,
+    EM3 = 3,
+    EM4 = 4
 } sleepstate_enum;
 #endif
 

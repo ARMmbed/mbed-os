@@ -20,6 +20,7 @@ DigitalInOut d2(D7);
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
       defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
@@ -44,6 +45,18 @@ DigitalInOut d2(TP4);
 #elif defined(TARGET_MAX32600MBED)
 DigitalInOut d1(P1_0);
 DigitalInOut d2(P4_7);
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+DigitalInOut d1(PD0);
+DigitalInOut d2(PC3);
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+DigitalInOut d1(PD7);
+DigitalInOut d2(PC1);
+
+#elif defined(TARGET_EFM32HG_STK3400)
+DigitalInOut d1(PE10);
+DigitalInOut d2(PC1);
 
 #else
 DigitalInOut d1(p5);

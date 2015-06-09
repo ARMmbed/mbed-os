@@ -29,6 +29,7 @@ import sys
 build_list = (
     { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"] },
     { "target": "LPC2368",       "toolchains": "GCC_ARM", "libs": ["fat"]  },
+    { "target": "LPC2460",       "toolchains": "GCC_ARM", "libs": ["rtos", "usb_host", "usb", "fat"]  },
     { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "OC_MBUINO",     "toolchains": "GCC_ARM", "libs": ["fat"]  },
 
@@ -40,7 +41,7 @@ build_list = (
     { "target": "NUCLEO_F070RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F091RC", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
+    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["rtos", "fat"] },
     { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },

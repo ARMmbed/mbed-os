@@ -60,7 +60,7 @@ public:
     Ticker() : TimerEvent() {
     }
 
-    Ticker(const ticker_data_t *const data) : TimerEvent(data) {
+    Ticker(const ticker_data_t *data) : TimerEvent(data) {
     }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in seconds
