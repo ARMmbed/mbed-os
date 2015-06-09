@@ -404,9 +404,6 @@ void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, ui
     uint32_t i;
     uint16_t *tx_ptr = (uint16_t *) tx;
 
-    tx_length *= (bit_width >> 3);
-    rx_length *= (bit_width >> 3);
-
     obj->tx_buff.buffer = (void *)tx;
     obj->rx_buff.buffer = rx;
     obj->tx_buff.length = tx_length;
