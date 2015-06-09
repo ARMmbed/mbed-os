@@ -128,7 +128,7 @@ public:
         if (spi_active(&_spi)) {
             return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type)*8, callback, event);
         }
-        start_transfer(tx_buffer, tx_length, rx_buffer, rx_buffer, rx_length, sizeof(Type)*8, callback, event);
+        start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type)*8, callback, event);
         return 0;
     }
 
