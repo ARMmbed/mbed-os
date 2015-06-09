@@ -131,7 +131,7 @@ public:
     /** Begin asynchronous write using 8bit buffer. The completition invokes registered TX event callback
      *
      *  @param buffer   The buffer where received data will be stored
-     *  @param length   The buffer length
+     *  @param length   The buffer length in bytes
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
@@ -140,7 +140,7 @@ public:
     /** Begin asynchronous write using 16bit buffer. The completition invokes registered TX event callback
      *
      *  @param buffer   The buffer where received data will be stored
-     *  @param length   The buffer length
+     *  @param length   The buffer length in bytes
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
@@ -153,7 +153,7 @@ public:
     /** Begin asynchronous reading using 8bit buffer. The completition invokes registred RX event callback.
      *
      *  @param buffer     The buffer where received data will be stored
-     *  @param length     The buffer length
+     *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
      *  @param event      The logical OR of RX events
      *  @param char_match The matching character
@@ -163,7 +163,7 @@ public:
     /** Begin asynchronous reading using 16bit buffer. The completition invokes registred RX event callback.
      *
      *  @param buffer     The buffer where received data will be stored
-     *  @param length     The buffer length
+     *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
      *  @param event      The logical OR of RX events
      *  @param char_match The matching character
