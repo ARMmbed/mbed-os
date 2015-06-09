@@ -120,7 +120,7 @@ public:
      *                  received data are ignored
      * @param rx_length The length of RX buffer in bytes
      * @param callback  The event callback function
-     * @param event     The logical OR of events to modify
+     * @param event     The logical OR of events to modify. Look at spi hal header file for SPI events.
      * @return Zero if the transfer has started, or -1 if SPI peripheral is busy
      */
     template<typename Type>
