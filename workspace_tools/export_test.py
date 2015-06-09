@@ -37,7 +37,7 @@ def setup_test_user_prj():
         print 'Test user project already generated...'
         return
 
-    setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(LIB_DIR, "rtos")])
+    setup_user_prj(USER_PRJ, join(TEST_DIR, "rtos", "mbed", "basic"), [join(LIB_DIR, "rtos"), join(LIB_DIR, "tests", "mbed", "env")])
 
     # FAKE BUILD URL
     open(join(USER_SRC, "mbed.bld"), 'w').write("http://mbed.org/users/mbed_official/code/mbed/builds/976df7c37ad5\n")
