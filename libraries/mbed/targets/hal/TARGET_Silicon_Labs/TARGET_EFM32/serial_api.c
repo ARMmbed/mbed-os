@@ -1262,14 +1262,14 @@ void serial_set_char_match(serial_t *obj, uint8_t char_match)
  * @param hint A suggestion for how to use DMA with this transfer
  * @return Returns number of data transfered, or 0 otherwise
  */
-int serial_tx_asynch(serial_t *obj, void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
+int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     // Check that a buffer has indeed been set up
     MBED_ASSERT(tx != (void*)0);
     if(tx_length == 0) return 0;
 
     // Set up buffer
-    serial_tx_buffer_set(obj, tx, tx_length, tx_width);
+    serial_tx_buffer_set(obj, (void *)tx, tx_length, tx_width);
 
     // Set up events
     serial_tx_enable_event(obj, SERIAL_EVENT_TX_ALL, false);
