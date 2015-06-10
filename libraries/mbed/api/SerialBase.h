@@ -135,7 +135,7 @@ public:
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
-    int write(uint8_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
+    int write(const uint8_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
     /** Begin asynchronous write using 16bit buffer. The completition invokes registered TX event callback
      *
@@ -144,7 +144,7 @@ public:
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
-    int write(uint16_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
+    int write(const uint16_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
     /** Abort the on-going write transfer
      */
@@ -190,7 +190,7 @@ public:
 
 protected:
     void start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event, unsigned char char_match);
-    void start_write(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event);
+    void start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event);
     void interrupt_handler_asynch(void);
 #endif
 
