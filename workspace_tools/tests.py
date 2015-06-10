@@ -585,6 +585,18 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True
     },
+    {
+        "id": "MBED_37", "description": "Serial NC RX",
+        "source_dir": join(TEST_DIR, "mbed", "serial_nc_rx"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True
+    },
+    {
+        "id": "MBED_38", "description": "Serial NC TX",
+        "source_dir": join(TEST_DIR, "mbed", "serial_nc_tx"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True
+    },
 
     # CMSIS RTOS tests
     {
