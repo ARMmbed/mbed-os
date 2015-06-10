@@ -62,16 +62,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UART_HAL_SetStopBitCount(uart_addrs[obj->index], kUartOneStopBit);
     #endif
     UART_HAL_SetBitCountPerChar(uart_addrs[obj->index], kUart8BitsPerChar);
-    UART_HAL_EnableTransmitter(uart_addrs[obj->index]);
-    UART_HAL_EnableReceiver(uart_addrs[obj->index]);
+    UART_HAL_DisableTransmitter(uart_addrs[obj->index]);
+    UART_HAL_DisableReceiver(uart_addrs[obj->index]);
 
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
 
     if (tx != NC) {
+        UART_HAL_FlushTxFifo(uart_addrs[obj->index]);
+        UART_HAL_EnableTransmitter(uart_addrs[obj->index]);
+
         pin_mode(tx, PullUp);
     }
     if (rx != NC) {
+        UART_HAL_EnableReceiver(uart_addrs[obj->index]);
         pin_mode(rx, PullUp);
     }
 
@@ -79,7 +83,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-    while(!UART_HAL_IsTxDataRegEmpty(uart_addrs[obj->index]));
 }
 
 void serial_free(serial_t *obj) {
