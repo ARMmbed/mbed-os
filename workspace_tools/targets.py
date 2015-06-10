@@ -71,7 +71,7 @@ class Target:
         pass
 ##WIZnet
 
-class WIZwiki_W7500(Target):
+class WIZWIKI_W7500(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0"
@@ -1254,7 +1254,7 @@ class EFM32HG_STK3400(Target):
 TARGETS = [
 
     ### WIZnet ###
-    WIZwiki_W7500(),
+    WIZWIKI_W7500(),
     
     ### NXP ###
     LPC11C24(),
