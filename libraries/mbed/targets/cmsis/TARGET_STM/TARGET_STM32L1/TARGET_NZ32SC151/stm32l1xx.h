@@ -70,12 +70,11 @@
 #define HSE_VALUE    ((uint32_t)16000000) 	/*!< Value of the External oscillator in Hz */
 #endif
 
-#if !defined  (MX_DEFAULT_SERIAL_BAUD)
-#define MX_DEFAULT_SERIAL_BAUD 115200		/*!< Default serial board rate, used in "serial_api.c" */
-#endif
-
-#if !defined  (MX_DEFAULT_SERIAL_B10_B11)
-#define MX_DEFAULT_SERIAL_B10_B11 B10_B11   /*!< Use B10/B11 for default serial port, in stead of A2/A3 */
+ //Defines what ports to use for default serial port.
+ //0 = B10/B11
+ //1 = A2/A3
+#if !defined  (MX_DEFAULT_SERIAL_PINS)
+#define MX_DEFAULT_SERIAL_PINS   0         /*!< Use B10/B11 for default serial port, in stead of A2/A3 */
 #endif
 
 

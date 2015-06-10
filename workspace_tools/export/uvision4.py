@@ -77,7 +77,7 @@ class Uvision4(Exporter):
         'MAXWSNENV',
         'MAX32600MBED',
         'MOTE_L152RC',
-        'NZ32ST1L',
+        'NZ32SC151',
     ]
 
     USING_MICROLIB = [
@@ -105,7 +105,7 @@ class Uvision4(Exporter):
         'KL05Z',
         'LPC11U37H_401',
         'MOTE_L152RC',
-        'NZ32ST1L',
+        'NZ32SC151',
     ]
 
     FILE_TYPES = {

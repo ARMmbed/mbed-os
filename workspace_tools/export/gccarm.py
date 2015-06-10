@@ -92,7 +92,7 @@ class GccArm(Exporter):
         'EFM32GG_STK3700',
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
-        'NZ32ST1L',
+        'NZ32SC151',
     ]
 
     DOT_IN_RELATIVE_PATH = True
