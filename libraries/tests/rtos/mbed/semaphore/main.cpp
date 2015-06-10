@@ -15,6 +15,8 @@
     #define STACK_SIZE DEFAULT_STACK_SIZE/16
 #elif defined(TARGET_STM32F334R8) && (defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_IAR))
     #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#elif defined(TARGET_STM32F103RB) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif

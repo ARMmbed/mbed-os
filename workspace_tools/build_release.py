@@ -49,6 +49,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
     ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('APPNEARME_MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
@@ -73,6 +74,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
@@ -94,13 +96,14 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
-    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
+    ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
+    ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
 
     ('WIZwiki_W7500',   ('ARM', 'uARM')),
 )
@@ -116,6 +119,8 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
+    parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
+
     parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
 
 
@@ -125,7 +130,16 @@ if __name__ == '__main__':
     successes = []
     skips = []
     build_report = []
+
+    platforms = None
+    if options.platforms != "":
+        platforms = set(options.platforms.split(","))
+
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+        if platforms is not None and not target_name in platforms:
+            print("Excluding %s from release" % target_name)
+            continue
+
         if options.official_only:
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:
