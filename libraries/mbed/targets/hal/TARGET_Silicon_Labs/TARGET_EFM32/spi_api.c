@@ -948,11 +948,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, SPI_EVENT_ALL, false);
     spi_enable_event(obj, event, true);
 
-    /* Be tricky on how we handle increased bit widths in the buffer... Handling on byte-basis */
-    // div 8 = shift right 3
-    tx_length = tx_length * (bit_width >> 3);
-    rx_length = rx_length * (bit_width >> 3);
-
     // Set the sleep mode
     blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
 
