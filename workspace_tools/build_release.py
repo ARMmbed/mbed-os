@@ -105,7 +105,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
     ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
 
-    ('WIZwiki_W7500',   ('ARM', 'uARM')),
+    ('WIZWIKI_W7500',   ('ARM', 'uARM')),
 )
 
 
