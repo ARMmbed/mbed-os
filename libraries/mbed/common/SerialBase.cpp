@@ -110,7 +110,7 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
 
 #if DEVICE_SERIAL_ASYNCH
 
-int SerialBase::write(uint8_t *buffer, int length, const event_callback_t& callback, int event)
+int SerialBase::write(const uint8_t *buffer, int length, const event_callback_t& callback, int event)
 {
     if (serial_tx_active(&_serial)) {
         return -1; // transaction ongoing
@@ -119,7 +119,7 @@ int SerialBase::write(uint8_t *buffer, int length, const event_callback_t& callb
     return 0;
 }
 
-int SerialBase::write(uint16_t *buffer, int length, const event_callback_t& callback, int event)
+int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t& callback, int event)
 {
     if (serial_tx_active(&_serial)) {
         return -1; // transaction ongoing
@@ -128,7 +128,7 @@ int SerialBase::write(uint16_t *buffer, int length, const event_callback_t& call
     return 0;
 }
 
-void SerialBase::start_write(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event)
+void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event)
 {
     _tx_callback = callback;
 
