@@ -87,10 +87,11 @@ struct i2c_s {
 };
 
 struct pwmout_s {
-    PWMName pwm;
+    PWM_CHn_TypeDef * PWM_CHx;
     PinName pin;
     uint32_t period;
     uint32_t pulse;
+    uint32_t PrescalerValue;
 };
 
 #include "gpio_object.h"

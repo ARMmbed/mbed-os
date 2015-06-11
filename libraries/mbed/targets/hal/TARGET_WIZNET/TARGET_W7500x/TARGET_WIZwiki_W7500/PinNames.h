@@ -39,10 +39,10 @@ extern "C" {
 
 
 // See W7500x_hal_gpio.h for values of MODE, PUPD and AFNUM
-#define WIZ_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 8) | ((PUPD) << 4) | ((MODE) << 0)))
-#define WIZ_PIN_MODE(X)       (((X) >> 0) & 0x0F)
+#define WIZ_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((MODE) << 8) | ((PUPD) << 4) | ((AFNUM) << 0)))
 #define WIZ_PIN_PUPD(X)       (((X) >> 4) & 0x0F)
-#define WIZ_PIN_AFNUM(X)      (((X) >> 8) & 0x0F)
+#define WIZ_PIN_AFNUM(X)      (((X) >> 0) & 0x0F)
+#define WIZ_PIN_MODE(X)       (((X) >> 8) & 0x0F)
 #define WIZ_MODE_INPUT              (0)
 #define WIZ_MODE_OUTPUT             (1)
 #define WIZ_MODE_AF                 (2)
@@ -65,8 +65,7 @@ typedef enum {
 
 
 typedef enum {
-    // W7500x Pin Names (AF[9:8] + PORT[5:4] + PIN[3:0])
-
+    // W7500x PORT[5:4] + PIN[3:0])
     PA_0  = 0x000,
     PA_1  = 0x001,
     PA_2  = 0x002,
@@ -83,7 +82,7 @@ typedef enum {
     PA_13 = 0x00D,
     PA_14 = 0x00E,
     PA_15 = 0x00F,
-
+              
     PB_0  = 0x010, //SSEL1/SD_SEL
     PB_1  = 0x011, //SCLK1/SD_CLK
     PB_2  = 0x012, //MISO1/SD_MISO
@@ -185,7 +184,6 @@ typedef enum {
     PullNone  = 0,
     PullDown  = 1,
     PullUp    = 2,
-    OpenDrain = 3,
     PullDefault = PullNone
 } PinMode;
 

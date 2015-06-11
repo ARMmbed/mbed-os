@@ -42,6 +42,7 @@ typedef struct {
     uint32_t pin_index;
     uint32_t port_num;
     uint32_t direction;
+    uint32_t mode;
     __IO uint32_t *reg_data_in;
 } gpio_t;
 

@@ -59,6 +59,7 @@ void gpio_init(gpio_t *obj, PinName pin)
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
     pin_mode(obj->pin, mode);
+    obj->mode = mode;
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
@@ -66,9 +67,5 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     MBED_ASSERT(obj->pin != (PinName)NC);
     obj->direction = direction;
 
-    if (direction == PIN_OUTPUT) {        
-        pin_function(obj->pin, WIZ_PIN_DATA(WIZ_MODE_OUTPUT, WIZ_GPIO_NOPULL, 1));
-    } else { // PIN_INPUT
-        pin_function(obj->pin, WIZ_PIN_DATA(WIZ_MODE_INPUT, WIZ_GPIO_NOPULL, 1));
-    }
+    pin_function(obj->pin, WIZ_PIN_DATA(obj->direction, obj->mode, 1));
 }
