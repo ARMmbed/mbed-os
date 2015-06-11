@@ -41,13 +41,6 @@
 
 static gpio_irq_handler irq_handler;
 
-
-//typedef struct  {
-//    uint32_t port[4];
-//    uint32_t pin[16];
-//    uint32_t ids;
-//} irq_channel;
-
 static uint32_t channel_ids[4][16];
 
 #ifdef __cplusplus
@@ -57,68 +50,40 @@ extern "C"{
  
 void PORT0_Handler(void)
 {
-    int i = 0;
-    
-    for(i=0; i<16; i++)
-    {
-        if(GPIOA->Interrupt.INTSTATUS & (1 << i))
-        {
-            GPIOA->Interrupt.INTCLEAR |= (1 << i);
-            if(GPIOA->INTPOLSET >> i) //rising
-                irq_handler(channel_ids[0][i], IRQ_RISE);
-            else //falling
-                irq_handler(channel_ids[0][i], IRQ_FALL);
-        }
-    }
+    port_generic_handler(GPIOA, 0);
 }
 
 void PORT1_Handler(void)
 {
-    int i = 0;
-    
-    for(i=0; i<16; i++)
-    {
-        if(GPIOB->Interrupt.INTSTATUS & (1 << i))
-        {
-            GPIOB->Interrupt.INTCLEAR |= (1 << i);
-            if(GPIOB->INTPOLSET >> i) //rising
-                irq_handler(channel_ids[0][i], IRQ_RISE);
-            else //falling
-                irq_handler(channel_ids[0][i], IRQ_FALL);
-        }
-    }
+    port_generic_handler(GPIOB, 1);
 }
 
 void PORT2_Handler(void)
 {
-    int i = 0;
-    
-    for(i=0; i<16; i++)
-    {
-        if(GPIOC->Interrupt.INTSTATUS & (1 << i))
-        {
-            GPIOC->Interrupt.INTCLEAR |= (1 << i);
-            if(GPIOC->INTPOLSET >> i) //rising
-                irq_handler(channel_ids[0][i], IRQ_RISE);
-            else //falling
-                irq_handler(channel_ids[0][i], IRQ_FALL);
-        }
-    }
+    port_generic_handler(GPIOC, 2);
 }
 
 void PORT3_Handler(void)
 {
-    int i;
+    port_generic_handler(GPIOD, 3);
+}
+
+void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num)
+{
+    int i = 0;
+    int loop = 16;
+
+    if(GPIOx == GPIOD) loop = 5;
     
-    for(i=0; i<5; i++)
+    for(i=0; i<loop; i++)
     {
-        if(GPIOD->Interrupt.INTSTATUS & (1 << i))
+        if(GPIOx->Interrupt.INTSTATUS & (1 << i))
         {
-            GPIOD->Interrupt.INTCLEAR |= (1 << i);
-            if(GPIOD->INTPOLSET >> i) //rising
-                irq_handler(channel_ids[0][i], IRQ_RISE);
+            GPIOx->Interrupt.INTCLEAR |= (1 << i);
+            if(GPIOx->INTPOLSET >> i) //rising
+                irq_handler(channel_ids[port_num][i], IRQ_RISE);
             else //falling
-                irq_handler(channel_ids[0][i], IRQ_FALL);
+                irq_handler(channel_ids[port_num][i], IRQ_FALL);
         }
     }
 }
