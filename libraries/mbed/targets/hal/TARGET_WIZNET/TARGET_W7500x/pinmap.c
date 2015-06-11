@@ -75,34 +75,28 @@ void pin_function(PinName pin, int data) {
     // Get the pin informations
     uint32_t mode  = WIZ_PIN_MODE(data);
     uint32_t pupd  = WIZ_PIN_PUPD(data);
-    uint32_t afnum;
+    uint32_t afnum = WIZ_PIN_AFNUM(data);
+    
+    uint32_t port_num = WIZ_PORT(pin);
+    uint32_t pin_index  = WIZ_PIN_INDEX(pin);
 
-    if( mode == WIZ_MODE_AF )
-        afnum = WIZ_PIN_AFNUM(data);
-    else
-        afnum = WIZ_AFNUM(pin);
-
-    uint32_t port_index = WIZ_PORT(pin);
-    uint32_t pin_index  = WIZ_PIN(pin);
-
-
-    uint32_t gpio_add = Get_GPIO_BaseAddress(port_index);
+    uint32_t gpio_add = Get_GPIO_BaseAddress(port_num);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
 
     // Configure Alternate Function
     // Warning: Must be done before the GPIO is initialized
     switch (afnum) {
         case 0:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF0);
+            HAL_PAD_AFConfig(port_num, pin_index,Px_AFSR_AF0);
             break;
         case 1:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF1);
+            HAL_PAD_AFConfig(port_num, pin_index,Px_AFSR_AF1);
             break;
         case 2:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF2);
+            HAL_PAD_AFConfig(port_num, pin_index,Px_AFSR_AF2);
             break;
         case 3:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF3);
+            HAL_PAD_AFConfig(port_num, pin_index,Px_AFSR_AF3);
             break;
         default:
             break;
@@ -113,7 +107,7 @@ void pin_function(PinName pin, int data) {
 
     // Configure GPIO
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin       = (uint32_t)(1 << pin_index);
+    GPIO_InitStructure.GPIO_Pin       = pin_index;
     GPIO_InitStructure.GPIO_Mode      = mode;
     GPIO_InitStructure.GPIO_Pad       = gpio_pupd[pupd];
     HAL_GPIO_Init(gpio, &GPIO_InitStructure);
@@ -128,9 +122,9 @@ void pin_mode(PinName pin, PinMode pupd)
 
     P_Port_Def *px_pcr;
 
-    uint32_t port_index = WIZ_PORT(pin);
+    uint32_t port_num = WIZ_PORT(pin);
 
-    switch(port_index)    {
+    switch(port_num)    {
         case PortA:
             px_pcr = PA_PCR;
             break;
@@ -148,7 +142,7 @@ void pin_mode(PinName pin, PinMode pupd)
             return;
     }
 
-    px_pcr->Port[port_index] &= ~(Px_PCR_PUPD_DOWN|Px_PCR_PUPD_UP|Px_PCR_DS_HIGH| \
+    px_pcr->Port[port_num] &= ~(Px_PCR_PUPD_DOWN|Px_PCR_PUPD_UP|Px_PCR_DS_HIGH| \
                                   Px_PCR_OD | Px_PCR_IE | Px_PCR_CS_SUMMIT);
-    px_pcr->Port[port_index] |= gpio_pupd[pupd];
+    px_pcr->Port[port_num] |= gpio_pupd[pupd];
 }

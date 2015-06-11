@@ -53,11 +53,11 @@ PinName port_pin(PortName port, int pin_n)
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    uint32_t port_index = (uint32_t)port;
+    uint32_t port_num = (uint32_t)port;
 
     // Enable GPIO clock
-    uint32_t gpio_add = Get_GPIO_BaseAddress(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
+    
 
     // Fill PORT object structure for future use
     obj->port      = port;

@@ -43,9 +43,13 @@ extern "C" {
 
 struct gpio_irq_s {
     IRQn_Type irq_n;
-    uint32_t irq_index;
     uint32_t event;
     PinName pin;
+    uint32_t pin_index;
+    uint32_t pin_num;
+    uint32_t port_num;
+    uint32_t rise_null;
+    uint32_t fall_null;
 };
 
 struct port_s {
