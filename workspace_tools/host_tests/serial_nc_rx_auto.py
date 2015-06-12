@@ -31,10 +31,9 @@ class SerialNCRXTest():
 
         out_str = selftest.mbed.serial_readline()
 
-        if out_str == None:
+        if not out_str:
             selftest.notify("HOST: No output detected")
             return selftest.RESULT_IO_SERIAL
-
 
         out_str_stripped = out_str.strip(strip_chars)
 
@@ -51,7 +50,7 @@ class SerialNCRXTest():
         out_str = selftest.mbed.serial_readline()
 
         # If no characters received, pass the test
-        if out_str == "" or out_str == None:
+        if not out_str:
             selftest.notify("HOST: No further output detected")
             return selftest.RESULT_SUCCESS
         else:

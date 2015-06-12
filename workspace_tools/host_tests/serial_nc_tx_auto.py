@@ -26,13 +26,13 @@ class SerialNCTXTest():
     def test(self, selftest):
         selftest.mbed.flush();
         selftest.mbed.serial_write("S");
-        
+
         strip_chars = string.whitespace + "\0"
 
         out_str = selftest.mbed.serial_readline()
         selftest.notify("HOST: " + out_str)
 
-        if out_str == None:
+        if not out_str:
             selftest.notify("HOST: No output detected")
             return selftest.RESULT_IO_SERIAL
 
@@ -45,7 +45,7 @@ class SerialNCTXTest():
         out_str = selftest.mbed.serial_readline()
 
         # If no characters received, pass the test
-        if out_str == "" or out_str == None:
+        if not out_str:
             selftest.notify("HOST: No further output detected")
             return selftest.RESULT_SUCCESS
         else:
