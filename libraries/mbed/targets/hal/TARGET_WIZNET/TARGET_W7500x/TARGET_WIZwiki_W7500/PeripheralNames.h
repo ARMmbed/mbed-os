@@ -60,14 +60,15 @@ typedef enum {
     I2C_1 = (int)I2C1_BASE
 } I2CName;
 
-typedef enum {
-    PWM_1 = 0
-//    PWM_1  = (int)TIM1_BASE,
-//    PWM_3 = (int)TIM3_BASE,
-//    PWM_14 = (int)TIM14_BASE,
-//    PWM_15 = (int)TIM15_BASE,
-//    PWM_16 = (int)TIM16_BASE,
-//    PWM_17 = (int)TIM17_BASE
+typedef enum {    
+    PWM_0 = (int)PWM_CH0_BASE,
+    PWM_1 = (int)PWM_CH1_BASE,
+    PWM_2 = (int)PWM_CH2_BASE,
+    PWM_3 = (int)PWM_CH3_BASE,
+    PWM_4 = (int)PWM_CH4_BASE,
+    PWM_5 = (int)PWM_CH5_BASE,
+    PWM_6 = (int)PWM_CH6_BASE,
+    PWM_7 = (int)PWM_CH7_BASE
 } PWMName;
 
 #ifdef __cplusplus

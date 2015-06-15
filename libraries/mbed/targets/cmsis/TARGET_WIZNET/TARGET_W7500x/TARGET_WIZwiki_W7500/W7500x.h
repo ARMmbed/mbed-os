@@ -661,6 +661,15 @@ typedef struct
 #define PWM_CH6                         ((PWM_CHn_TypeDef *)     (W7500x_PWM_BASE + 0x600UL))
 #define PWM_CH7                         ((PWM_CHn_TypeDef *)     (W7500x_PWM_BASE + 0x700UL))
 
+#define PWM_CH0_BASE                    (W7500x_PWM_BASE)
+#define PWM_CH1_BASE                    (W7500x_PWM_BASE + 0x100UL)
+#define PWM_CH2_BASE                    (W7500x_PWM_BASE + 0x200UL)
+#define PWM_CH3_BASE                    (W7500x_PWM_BASE + 0x300UL)
+#define PWM_CH4_BASE                    (W7500x_PWM_BASE + 0x400UL)
+#define PWM_CH5_BASE                    (W7500x_PWM_BASE + 0x500UL)
+#define PWM_CH6_BASE                    (W7500x_PWM_BASE + 0x600UL)
+#define PWM_CH7_BASE                    (W7500x_PWM_BASE + 0x700UL)
+
 #define RNG                               ((RNG_TypeDef *) W7500x_RNG_BASE)
 
 #define SSP0    ((SSP_TypeDef*)   (SSP0_BASE))

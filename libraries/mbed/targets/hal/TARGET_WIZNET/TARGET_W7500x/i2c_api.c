@@ -63,8 +63,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrain);
-        pin_mode(scl, OpenDrain);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
     }
 
     // Enable I2C2 clock and pinout if not done
@@ -73,8 +73,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrain);
-        pin_mode(scl, OpenDrain);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
     }
 
     // Reset to clear pending flags if any
