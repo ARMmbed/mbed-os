@@ -668,16 +668,16 @@ void USBHAL::usbisr(void) {
         if (LPC_USB->DEVCMDSTAT & DSUS_C) {
             // Suspend status changed
             LPC_USB->DEVCMDSTAT = devCmdStat | DSUS_C;
-            if((LPC_USB->DEVCMDSTAT & DSUS) != 0) {
+            if (LPC_USB->DEVCMDSTAT & DSUS) {
                 suspendStateChanged(1);
+            } else {
+                suspendStateChanged(0);
             }
         }
 
         if (LPC_USB->DEVCMDSTAT & DRES_C) {
             // Bus reset
             LPC_USB->DEVCMDSTAT = devCmdStat | DRES_C;
-
-            suspendStateChanged(0);
 
             // Disable endpoints > 0
             disableEndpoints();

@@ -1273,7 +1273,7 @@ class EFM32HG_STK3400(Target):
 
 ##WIZnet
 
-class WIZwiki_W7500(Target):
+class WIZWIKI_W7500(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0"
@@ -1409,7 +1409,7 @@ TARGETS = [
     EFM32HG_STK3400(),
 
     ### WIZnet ###
-    WIZwiki_W7500(),
+    WIZWIKI_W7500(),
 
 ]
 

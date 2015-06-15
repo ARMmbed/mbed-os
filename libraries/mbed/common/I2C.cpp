@@ -92,7 +92,7 @@ void I2C::stop(void) {
 
 #if DEVICE_I2C_ASYNCH
 
-int I2C::transfer(int address, char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
+int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
 {
     if (i2c_active(&_i2c)) {
         return -1; // transaction ongoing

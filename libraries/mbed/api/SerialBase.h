@@ -131,20 +131,20 @@ public:
     /** Begin asynchronous write using 8bit buffer. The completition invokes registered TX event callback
      *
      *  @param buffer   The buffer where received data will be stored
-     *  @param length   The buffer length
+     *  @param length   The buffer length in bytes
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
-    int write(uint8_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
+    int write(const uint8_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
     /** Begin asynchronous write using 16bit buffer. The completition invokes registered TX event callback
      *
      *  @param buffer   The buffer where received data will be stored
-     *  @param length   The buffer length
+     *  @param length   The buffer length in bytes
      *  @param callback The event callback function
      *  @param event    The logical OR of TX events
      */
-    int write(uint16_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
+    int write(const uint16_t *buffer, int length, const event_callback_t& callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
     /** Abort the on-going write transfer
      */
@@ -153,7 +153,7 @@ public:
     /** Begin asynchronous reading using 8bit buffer. The completition invokes registred RX event callback.
      *
      *  @param buffer     The buffer where received data will be stored
-     *  @param length     The buffer length
+     *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
      *  @param event      The logical OR of RX events
      *  @param char_match The matching character
@@ -163,7 +163,7 @@ public:
     /** Begin asynchronous reading using 16bit buffer. The completition invokes registred RX event callback.
      *
      *  @param buffer     The buffer where received data will be stored
-     *  @param length     The buffer length
+     *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
      *  @param event      The logical OR of RX events
      *  @param char_match The matching character
@@ -190,7 +190,7 @@ public:
 
 protected:
     void start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event, unsigned char char_match);
-    void start_write(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event);
+    void start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event);
     void interrupt_handler_asynch(void);
 #endif
 

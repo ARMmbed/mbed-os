@@ -68,7 +68,7 @@ int SPI::write(int value) {
 
 #if DEVICE_SPI_ASYNCH
 
-int SPI::transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
+int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
     if (spi_active(&_spi)) {
         return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, bit_width, callback, event);
@@ -108,12 +108,12 @@ int SPI::set_dma_usage(DMAUsage usage)
     return  0;
 }
 
-int SPI::queue_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
+int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
 #if TRANSACTION_QUEUE_SIZE_SPI
     transaction_t t;
 
-    t.tx_buffer = tx_buffer;
+    t.tx_buffer = const_cast<void *>(tx_buffer);
     t.tx_length = tx_length;
     t.rx_buffer = rx_buffer;
     t.rx_length = rx_length;
@@ -132,7 +132,7 @@ int SPI::queue_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_
 #endif
 }
 
-void SPI::start_transfer(void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
+void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
     aquire();
     _callback = callback;
