@@ -53,4 +53,8 @@ extern const PinMap PinMap_SPI_SCLK[];
 extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_SSEL[];
+
+//*** PWM ***
+
+extern const PinMap PinMap_PWM[];
 #endif

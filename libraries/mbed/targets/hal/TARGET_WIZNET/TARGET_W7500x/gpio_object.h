@@ -39,8 +39,10 @@ extern "C" {
 
 typedef struct {
     PinName  pin;
-    uint32_t mask;
+    uint32_t pin_index;
+    uint32_t port_num;
     uint32_t direction;
+    uint32_t mode;
     __IO uint32_t *reg_data_in;
 } gpio_t;
 
@@ -51,20 +53,19 @@ extern uint32_t Get_GPIO_BaseAddress(uint32_t port_idx);
 static inline void gpio_write(gpio_t *obj, int value) {
     MBED_ASSERT(obj->pin != (PinName)NC);
 
-    uint32_t port_index = WIZ_PORT(obj->pin);
-    uint32_t pin_index  = WIZ_PIN(obj->pin);
+    uint32_t port_num = WIZ_PORT(obj->pin);
+    uint32_t pin_index  = WIZ_PIN_INDEX(obj->pin);
 
-    uint32_t gpio_add = Get_GPIO_BaseAddress(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
-
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
+    
 
     if (value)
     {
-        HAL_GPIO_SetBits(gpio,(0x01 << pin_index));
+        HAL_GPIO_SetBits(gpio, pin_index);
     }
     else
     {
-        HAL_GPIO_ResetBits(gpio,(0x01 << pin_index));
+        HAL_GPIO_ResetBits(gpio, pin_index);
     }
 }
 
@@ -73,18 +74,17 @@ static inline int gpio_read(gpio_t *obj) {
 
     MBED_ASSERT(obj->pin != (PinName)NC);
 
-    uint32_t port_index = WIZ_PORT(obj->pin);
+    uint32_t port_num = WIZ_PORT(obj->pin);
 
-    uint32_t gpio_add = Get_GPIO_BaseAddress(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
 
     if(obj->direction == PIN_OUTPUT)
     {
-        ret = ( HAL_GPIO_ReadOutputData(gpio) & obj->mask ) ? 1 : 0;
+        ret = ( HAL_GPIO_ReadOutputData(gpio) & obj->pin_index ) ? 1 : 0;
     }
     else
     {
-        ret = ((*obj->reg_data_in & obj->mask) ? 1 : 0);
+        ret = ((*obj->reg_data_in & obj->pin_index) ? 1 : 0);
     }
 
     return ret;

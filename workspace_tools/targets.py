@@ -69,17 +69,37 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
-##WIZnet
+                
+        
+### MCU Support ###
 
-class WIZWIKI_W7500(Target):
+class CM4_UARM(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
-        self.supported_toolchains = ["uARM", "ARM"]
-        self.default_toolchain = "ARM"
-        self.supported_form_factors = ["ARDUINO"]
+        self.core = "Cortex-M4"
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
         
+class CM4_ARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
+
+class CM4F_UARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
+        
+class CM4F_ARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
         
         
 ### NXP ###
@@ -1250,19 +1270,29 @@ class EFM32HG_STK3400(Target):
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
 
+
+##WIZnet
+
+class WIZWIKI_W7500(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
+        self.supported_toolchains = ["uARM", "ARM"]
+        self.default_toolchain = "ARM"
+        self.supported_form_factors = ["ARDUINO"]
+
+
 # Get a single instance for each target
 TARGETS = [
 
-    ### WIZnet ###
-    WIZWIKI_W7500(),
-    
     ### NXP ###
     LPC11C24(),
     LPC11U24(),
     OC_MBUINO(),    # LPC11U24
     LPC11U24_301(),
     LPC11U34_421(),
-    APPNEARME_MICRONFCBOARD(), #LPC11U34_421
+    APPNEARME_MICRONFCBOARD(), # LPC11U34_421
     LPC11U35_401(),
     LPC11U35_501(),
     XADOW_M0(),     # LPC11U35_501
@@ -1377,6 +1407,10 @@ TARGETS = [
     EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
     EFM32HG_STK3400(),
+
+    ### WIZnet ###
+    WIZWIKI_W7500(),
+
 ]
 
 # Map each target name to its unique instance

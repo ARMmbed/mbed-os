@@ -31,16 +31,8 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
+#include "mbed_error.h"
 
-
-// GPIO mode look-up table
-// It have to same with PinMode index in "PinNames.h"
-static const uint32_t gpio_pupd[4] = {
-    GPIO_NO_PUPD,           //  PullNone
-    GPIO_PuPd_DOWN,         //  PullDown
-    GPIO_PuPd_UP,           //  PullUp
-    GPIO_OD                 //  OpenDrain
-};
 
 uint32_t Get_GPIO_BaseAddress(uint32_t port_idx)
 {
@@ -65,7 +57,6 @@ uint32_t Get_GPIO_BaseAddress(uint32_t port_idx)
     return gpio_add;
 }
 
-
 /**
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
@@ -75,34 +66,27 @@ void pin_function(PinName pin, int data) {
     // Get the pin informations
     uint32_t mode  = WIZ_PIN_MODE(data);
     uint32_t pupd  = WIZ_PIN_PUPD(data);
-    uint32_t afnum;
-
-    if( mode == WIZ_MODE_AF )
-        afnum = WIZ_PIN_AFNUM(data);
-    else
-        afnum = WIZ_AFNUM(pin);
-
-    uint32_t port_index = WIZ_PORT(pin);
-    uint32_t pin_index  = WIZ_PIN(pin);
-
-
-    uint32_t gpio_add = Get_GPIO_BaseAddress(port_index);
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)gpio_add;
+    uint32_t afnum = WIZ_PIN_AFNUM(data);
+    
+    uint32_t port_num = WIZ_PORT(pin);
+    uint32_t pin_index  = WIZ_PIN_INDEX(pin);
+    
+    GPIO_TypeDef *gpio;
 
     // Configure Alternate Function
     // Warning: Must be done before the GPIO is initialized
     switch (afnum) {
         case 0:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF0);
+            HAL_PAD_AFConfig((PAD_Type)port_num, (uint16_t)pin_index, (PAD_AF_TypeDef)Px_AFSR_AF0);
             break;
         case 1:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF1);
+            HAL_PAD_AFConfig((PAD_Type)port_num, (uint16_t)pin_index, (PAD_AF_TypeDef)Px_AFSR_AF1);
             break;
         case 2:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF2);
+            HAL_PAD_AFConfig((PAD_Type)port_num, (uint16_t)pin_index, (PAD_AF_TypeDef)Px_AFSR_AF2);
             break;
         case 3:
-            HAL_PAD_AFConfig(port_index,(uint32_t)(1 << pin_index),Px_AFSR_AF3);
+            HAL_PAD_AFConfig((PAD_Type)port_num, (uint16_t)pin_index, (PAD_AF_TypeDef)Px_AFSR_AF3);
             break;
         default:
             break;
@@ -112,10 +96,12 @@ void pin_function(PinName pin, int data) {
         return;
 
     // Configure GPIO
+    gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
+    
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin       = (uint32_t)(1 << pin_index);
-    GPIO_InitStructure.GPIO_Mode      = mode;
-    GPIO_InitStructure.GPIO_Pad       = gpio_pupd[pupd];
+    GPIO_InitStructure.GPIO_Pin       = pin_index;
+    GPIO_InitStructure.GPIO_Mode      = (GPIOMode_TypeDef)mode;
+    GPIO_InitStructure.GPIO_Pad       = (GPIOPad_TypeDef)pupd;
     HAL_GPIO_Init(gpio, &GPIO_InitStructure);
 }
 
@@ -125,30 +111,25 @@ void pin_function(PinName pin, int data) {
 void pin_mode(PinName pin, PinMode pupd)
 {
     MBED_ASSERT(pin != (PinName)NC);
+   
+    uint32_t port_num = WIZ_PORT(pin);
+    uint32_t pin_num = WIZ_PIN_NUM(pin);
 
-    P_Port_Def *px_pcr;
-
-    uint32_t port_index = WIZ_PORT(pin);
-
-    switch(port_index)    {
+    switch(port_num)    {
         case PortA:
-            px_pcr = PA_PCR;
+            PA_PCR->Port[pin_num] |= pupd;
             break;
         case PortB:
-            px_pcr = PB_PCR;
+            PB_PCR->Port[pin_num] |= pupd;
             break;
         case PortC:
-            px_pcr = PC_PCR;
+            PC_PCR->Port[pin_num] |= pupd;
             break;
         case PortD:
-            px_pcr = (P_Port_Def*)PD_PCR;
+            PD_PCR->Port[pin_num] |= pupd;
             break;
         default:
-            error("Pinmap error: wrong port number.");
+            error("Pinmap error: wrong port number.");            
             return;
     }
-
-    px_pcr->Port[port_index] &= ~(Px_PCR_PUPD_DOWN|Px_PCR_PUPD_UP|Px_PCR_DS_HIGH| \
-                                  Px_PCR_OD | Px_PCR_IE | Px_PCR_CS_SUMMIT);
-    px_pcr->Port[port_index] |= gpio_pupd[pupd];
 }

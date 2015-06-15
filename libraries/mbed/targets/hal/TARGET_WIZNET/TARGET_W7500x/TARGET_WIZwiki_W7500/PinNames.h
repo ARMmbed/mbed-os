@@ -39,10 +39,10 @@ extern "C" {
 
 
 // See W7500x_hal_gpio.h for values of MODE, PUPD and AFNUM
-#define WIZ_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 8) | ((PUPD) << 4) | ((MODE) << 0)))
-#define WIZ_PIN_MODE(X)       (((X) >> 0) & 0x0F)
+#define WIZ_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((MODE) << 8) | ((PUPD) << 4) | ((AFNUM) << 0)))
 #define WIZ_PIN_PUPD(X)       (((X) >> 4) & 0x0F)
-#define WIZ_PIN_AFNUM(X)      (((X) >> 8) & 0x0F)
+#define WIZ_PIN_AFNUM(X)      (((X) >> 0) & 0x0F)
+#define WIZ_PIN_MODE(X)       (((X) >> 8) & 0x0F)
 #define WIZ_MODE_INPUT              (0)
 #define WIZ_MODE_OUTPUT             (1)
 #define WIZ_MODE_AF                 (2)
@@ -53,9 +53,9 @@ extern "C" {
 #define WIZ_GPIO_OPEN_DRAIN         (3)   /*!< Open Drain activation               */
 
 
-#define WIZ_AFNUM(X)(((uint32_t)(X) >> 8) & 0xF)    // AF number   (0=AF0, 1=AF1, 2=AF2, 3=AF3)
 #define WIZ_PORT(X) (((uint32_t)(X) >> 4) & 0xF)    // port number (0=A, 1=B, 2=C, 3=D)
-#define WIZ_PIN(X)  ((uint32_t)(X) & 0xF)           // pin number
+#define WIZ_PIN_NUM(X)  ((uint32_t)(X) & 0xF)    // pin number
+#define WIZ_PIN_INDEX(X)  (1 << ((uint32_t)(X) & 0xF))    // pin index : flag bit 
 
 
 typedef enum {
@@ -65,8 +65,7 @@ typedef enum {
 
 
 typedef enum {
-    // W7500x Pin Names (AF[9:8] + PORT[5:4] + PIN[3:0])
-
+    // W7500x PORT[5:4] + PIN[3:0])
     PA_0  = 0x000,
     PA_1  = 0x001,
     PA_2  = 0x002,
@@ -83,7 +82,7 @@ typedef enum {
     PA_13 = 0x00D,
     PA_14 = 0x00E,
     PA_15 = 0x00F,
-
+              
     PB_0  = 0x010, //SSEL1/SD_SEL
     PB_1  = 0x011, //SCLK1/SD_CLK
     PB_2  = 0x012, //MISO1/SD_MISO
@@ -100,25 +99,25 @@ typedef enum {
     PB_13 = 0x01D,
     PB_14 = 0x01E,
     PB_15 = 0x01F,
-
-    PC_0  = 0x120,  // 0xx:U_CTS1, 1xx:GPIOC_0, 2xx:PWM0
-    PC_1  = 0x121,  // 0xx:U_RTS1, 1xx:GPIOC_1, 2xx:PWM1
+              
+    PC_0  = 0x020,  // 0xx:U_CTS1, 1xx:GPIOC_0, 2xx:PWM0
+    PC_1  = 0x021,  // 0xx:U_RTS1, 1xx:GPIOC_1, 2xx:PWM1
     PC_2  = 0x022,
     PC_3  = 0x023,
-    PC_4  = 0x124,  // 0xx:SDA1, 1xx:GPIOC_4, 2xx:PWM4
+    PC_4  = 0x024,  // 0xx:SDA1, 1xx:GPIOC_4, 2xx:PWM4
     PC_5  = 0x025,
     PC_6  = 0x026,
     PC_7  = 0x027,
-    PC_8  = 0x128,  // 0xx:PWM0,   1xx:GPIOC_8,  2xx:SCL0,  3xx:AIN7
-    PC_9  = 0x129,  // 0xx:PWM1,   1xx:GPIOC_9,  2xx:SDA0,  3xx:AIN6
-
-    PC_10 = 0x32A,  // 0xx:U_TXD2, 1xx:GPIOC_10, 2xx:PWM2,  3xx:AIN5
-    PC_11 = 0x32B,  // 0xx:U_RXD2, 1xx:GPIOC_11, 2xx:PWM3,  3xx:AIN4
-    PC_12 = 0x32C,  // 0xx:AIN3,   1xx:GPIOC_12, 2xx:SSEL0, 3xx:AIN3
-    PC_13 = 0x32D,  // 0xx:AIN2,   1xx:GPIOC_13, 2xx:SCLK0, 3xx:AIN2
-    PC_14 = 0x32E,  // 0xx:AIN1,   1xx:GPIOC_14, 2xx:MISO0, 3xx:AIN1
-    PC_15 = 0x32F,  // 0xx:AIN0,   1xx:GPIOC_15, 2xx:MOSI0, 3xx:AIN0
-
+    PC_8  = 0x028,  // 0xx:PWM0,   1xx:GPIOC_8,  2xx:SCL0,  3xx:AIN7
+    PC_9  = 0x029,  // 0xx:PWM1,   1xx:GPIOC_9,  2xx:SDA0,  3xx:AIN6
+              
+    PC_10 = 0x02A,  // 0xx:U_TXD2, 1xx:GPIOC_10, 2xx:PWM2,  3xx:AIN5
+    PC_11 = 0x02B,  // 0xx:U_RXD2, 1xx:GPIOC_11, 2xx:PWM3,  3xx:AIN4
+    PC_12 = 0x02C,  // 0xx:AIN3,   1xx:GPIOC_12, 2xx:SSEL0, 3xx:AIN3
+    PC_13 = 0x02D,  // 0xx:AIN2,   1xx:GPIOC_13, 2xx:SCLK0, 3xx:AIN2
+    PC_14 = 0x02E,  // 0xx:AIN1,   1xx:GPIOC_14, 2xx:MISO0, 3xx:AIN1
+    PC_15 = 0x02F,  // 0xx:AIN0,   1xx:GPIOC_15, 2xx:MOSI0, 3xx:AIN0
+              
     PD_0  = 0x030,
     PD_1  = 0x031,
     PD_2  = 0x032,
@@ -185,7 +184,6 @@ typedef enum {
     PullNone  = 0,
     PullDown  = 1,
     PullUp    = 2,
-    OpenDrain = 3,
     PullDefault = PullNone
 } PinMode;
 
