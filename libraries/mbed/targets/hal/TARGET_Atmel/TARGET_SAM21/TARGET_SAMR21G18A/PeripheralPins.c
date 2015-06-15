@@ -14,36 +14,49 @@
  * limitations under the License.
  */
  
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
-
-#include "pinmap.h"
-#include "PeripheralNames.h"
+#include "PeripheralPins.h"
 
 /************RTC***************/
-//extern const PinMap PinMap_RTC[];
+const PinMap PinMap_RTC[] = {
+};
 
 /************ADC***************/
-//extern const PinMap PinMap_ADC[];
+const PinMap PinMap_ADC[] = {
+};
 
 /************DAC***************/
-//extern const PinMap PinMap_DAC[];
+const PinMap PinMap_DAC[] = {
+};
 
 /************I2C***************/
-//extern const PinMap PinMap_I2C_SDA[];
-//extern const PinMap PinMap_I2C_SCL[];
+const PinMap PinMap_I2C_SDA[] = {
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+};
 
 /************UART***************/
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
+const PinMap PinMap_UART_TX[] = {
+    {PA04,  UART_0, 0}
+};
+
+const PinMap PinMap_UART_RX[] = {
+    {PA05,  UART_0, 0}
+};
 
 /************SPI***************/
-//extern const PinMap PinMap_SPI_SCLK[];
-//extern const PinMap PinMap_SPI_MOSI[];
-//extern const PinMap PinMap_SPI_MISO[];
-//extern const PinMap PinMap_SPI_SSEL[];
+const PinMap PinMap_SPI_SCLK[] = {
+};
+
+const PinMap PinMap_SPI_MOSI[] = {
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+};
+
+const PinMap PinMap_SPI_SSEL[] = {
+};
 
 /************PWM***************/
-//extern const PinMap PinMap_PWM[];
-
-#endif
+const PinMap PinMap_PWM[] = {
+};

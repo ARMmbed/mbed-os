@@ -39,6 +39,11 @@ struct port_s {
     PortName port;
     uint32_t mask;
 };
+
+struct serial_s {
+    SercomUsart *uart;
+    int index;
+};
 /*
 struct pwmout_s {
     __IO uint32_t *MR;

@@ -185,10 +185,10 @@ void Reset_Handler(void)
         __libc_init_array();
 
         /* Branch to main function */  // expected to be done by MBED OS
-  //      main(); 
+        main(); 
 
         /* Infinite loop */
-  //      while (1);
+        while (1);
 }
 
 /**

@@ -22,14 +22,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
-typedef enum {
-    UART_0 = (int)LPC_UART0_BASE,
-    UART_1 = (int)LPC_UART1_BASE,
-    UART_2 = (int)LPC_UART2_BASE,
-    UART_3 = (int)LPC_UART3_BASE
-} UARTName;
 
+typedef enum {
+    UART_0 = (int)0x42000800UL  // Base address of SERCOM0 
+} UARTName;
+/*
 typedef enum {
     ADC0_0 = 0,
     ADC0_1,

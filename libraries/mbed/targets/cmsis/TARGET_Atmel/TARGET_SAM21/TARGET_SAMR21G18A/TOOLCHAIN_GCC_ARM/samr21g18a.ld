@@ -50,7 +50,7 @@ SEARCH_DIR(.)
 MEMORY
 {
   rom (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
-  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
+  ram (rwx) : ORIGIN = 0x20000000 + 0xB0, LENGTH = 0x00008000 - 0xB0
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
@@ -142,6 +142,13 @@ SECTIONS
         _ezero = .;
     } > ram
 
+	.heap (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__end__ = . ;
+		. = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
+	} > ram
+
     /* stack section */
     .stack (NOLOAD):
     {
@@ -153,5 +160,4 @@ SECTIONS
     } > ram
 
     . = ALIGN(4);
-    __end__ = . ;
 }
