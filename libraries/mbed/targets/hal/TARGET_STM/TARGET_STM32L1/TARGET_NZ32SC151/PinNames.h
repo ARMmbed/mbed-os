@@ -127,14 +127,20 @@ typedef enum {
     LED2        = PB_2,
     LED3        = PB_2,
     LED4        = PB_2,
-    USER_BUTTON = PC_13,
+    USER_BUTTON = PC_3,
 
-#if (MX_DEFAULT_SERIAL_B10_B11 == B10_B11)
+#if (MX_DEFAULT_SERIAL_PINS == 0)
     //Use B10/B11 as default serial port
     SERIAL_TX   = PB_10,
     SERIAL_RX   = PB_11,
     USBTX       = PB_10,
     USBRX       = PB_11,
+#elif (MX_DEFAULT_SERIAL_PINS == 1)
+    //Use A2/A3 as default serial port
+    SERIAL_TX   = PA_2,
+    SERIAL_RX   = PA_3,
+    USBTX       = PA_2,
+    USBRX       = PA_3,
 #else
     //Use A2/A3 as default serial port
     SERIAL_TX   = PA_2,
@@ -145,15 +151,14 @@ typedef enum {
 
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PB_6,
-    PWM_OUT     = PB_3,
+    SPI_MOSI    = PB_15,
+    SPI_MISO    = PB_14,
+    SPI_SCK     = PB_13,
+    SPI_CS      = PA_1,
+    PWM_OUT     = PC_7,
 
     // Not connected
-    NC = (int)0xFFFFFFFF,
-
+    NC = (int)0xFFFFFFFF
 } PinName;
 
 typedef enum {
