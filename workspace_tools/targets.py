@@ -766,7 +766,7 @@ class MTS_MDOT_F411RE(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
         self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0', 'VECT_TAB_OFFSET=0x00010000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
+        self.default_toolchain = "ARM"
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
