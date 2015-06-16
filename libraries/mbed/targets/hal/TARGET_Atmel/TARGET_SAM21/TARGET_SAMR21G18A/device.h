@@ -31,8 +31,9 @@
 #define DEVICE_I2C              0
 #define DEVICE_I2CSLAVE         0
 
-#define DEVICE_SPI              0
+#define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         0
+#define DEVICE_SPI_ASYNCH       1
 
 #define DEVICE_CAN              0
 

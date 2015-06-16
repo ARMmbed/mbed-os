@@ -71,11 +71,20 @@ struct can_s {
 struct i2c_s {
     LPC_I2C_TypeDef *i2c;
 };
+*/
 
 struct spi_s {
-    LPC_SSP_TypeDef *spi;
+    Sercom *spi;
+    uint8_t mode;
+#if DEVICE_SPI_ASYNCH
+    uint8_t status;
+    uint32_t mask;
+    uint32_t event;
+    void *tx_buffer;
+    void *rx_buffer;
+#endif
 };
-*/
+
 #ifdef __cplusplus
 }
 #endif

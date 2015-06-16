@@ -22,6 +22,10 @@
 #include "tc.h"
 #include "tc_interrupt.h"
 
+#define TICKER_COUNTER_uS		TC4
+#define TICKER_COUNTER_IRQn		TC4_IRQn
+#define TICKER_COUNTER_Handlr	TC4_Handler
+
 static int us_ticker_inited = 0;
 
 struct tc_module us_ticker_module;
@@ -30,8 +34,8 @@ void us_ticker_irq_handler_internal(struct tc_module* us_tc_module)
 {
 	us_ticker_irq_handler();
 	
-	/* Disable the callback */
-	tc_disable_callback(us_tc_module, TC_CALLBACK_CC_CHANNEL0);
+	/* Disable the interrupt */
+	us_ticker_disable_interrupt();
 }
 
 void us_ticker_init(void)
@@ -55,13 +59,14 @@ void us_ticker_init(void)
 	}
 	config_tc.clock_prescaler = TC_CTRLA_PRESCALER(prescaler);
 	config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
+	config_tc.run_in_standby = true;
 	config_tc.counter_32_bit.value = 0;
 	config_tc.counter_32_bit.compare_capture_channel[0] = 0xFFFFFFFF;
 	
 	//config_tc.oneshot = true;
 
 	/* Initialize the timer */
-	ret_status = tc_init(&us_ticker_module, TC4, &config_tc);
+	ret_status = tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
 	MBED_ASSERT(ret_status == STATUS_OK);
 	
 	/* Register callback function */
@@ -92,8 +97,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 		us_ticker_irq_handler();
 		return;
 	}
-	
+
 	tc_set_compare_value(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0, timestamp);
+	
+	NVIC_SetVector(TICKER_COUNTER_IRQn, (uint32_t)TICKER_COUNTER_Handlr);
+	NVIC_EnableIRQ(TICKER_COUNTER_IRQn);
 	
 	/* Enable the callback */
 	tc_enable_callback(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
@@ -105,9 +113,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 void us_ticker_disable_interrupt(void) {
 	/* Disable the callback */
 	tc_disable_callback(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
+	NVIC_DisableIRQ(TICKER_COUNTER_IRQn);
 }
 
 void us_ticker_clear_interrupt(void) {
-	/* Disable the callback */
-	tc_disable_callback(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
+	/* Disable the interrupt, this is clear the interrupt also */
+	us_ticker_disable_interrupt();
+	
+	NVIC_DisableIRQ(TICKER_COUNTER_IRQn);
+	NVIC_SetVector(TICKER_COUNTER_IRQn, (uint32_t)NULL);
 }

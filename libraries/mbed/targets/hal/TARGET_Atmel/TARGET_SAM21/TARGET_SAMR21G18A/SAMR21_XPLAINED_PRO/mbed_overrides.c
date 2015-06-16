@@ -16,11 +16,13 @@
 #include "mbed_assert.h"
 #include "compiler.h"
 
+#include "system.h"
+
  //called before main - implement here if board needs it ortherwise, let
  // the application override this if necessary
  //TODO: To be implemented by adding system init and board init
 void mbed_sdk_init()
 {
-
+	system_init();
 }
 /***************************************************************/
