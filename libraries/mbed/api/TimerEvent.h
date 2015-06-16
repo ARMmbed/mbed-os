@@ -17,6 +17,7 @@
 #define MBED_TIMEREVENT_H
 
 #include "ticker_api.h"
+#include "us_ticker_api.h"
 
 namespace mbed {
 
