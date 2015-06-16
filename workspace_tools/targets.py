@@ -165,11 +165,13 @@ class LPC11U34_421(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
-class APPNEARME_MICRONFCBOARD(LPC11U34_421):
+class MICRONFCBOARD(LPC11U34_421):
     def __init__(self):
         LPC11U34_421.__init__(self)
-        self.macros = ['LPC11U34_421']
-        self.is_disk_virtual = True
+        self.macros = ['LPC11U34_421', 'APPNEARME_MICRONFCBOARD']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'APPNEARME_MICRONFCBOARD']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
 
 class LPC11U35_401(LPCTarget):
     def __init__(self):
@@ -1295,7 +1297,7 @@ TARGETS = [
     OC_MBUINO(),    # LPC11U24
     LPC11U24_301(),
     LPC11U34_421(),
-    APPNEARME_MICRONFCBOARD(), # LPC11U34_421
+    MICRONFCBOARD(), # LPC11U34_421
     LPC11U35_401(),
     LPC11U35_501(),
     XADOW_M0(),     # LPC11U35_501
