@@ -16,12 +16,21 @@
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
 
+#include <compiler.h>
 #include "cmsis.h"
 #include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define _SERCOM_SPI_NAME(n, unused) \
+                            SPI##n,
+
+#define _SERCOM_I2C_NAME(n, unused) \
+                            I2C##n,
+
+
 
 typedef enum {
     UART_0 = (int)0x42000800UL  // Base address of SERCOM0 
@@ -40,19 +49,16 @@ typedef enum {
 
 typedef enum {
     DAC_0 = 0
-} DACName;
+} DACName;*/
 
 typedef enum {
-    SPI_0 = (int)LPC_SSP0_BASE,
-    SPI_1 = (int)LPC_SSP1_BASE
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_SPI_NAME, ~)
 } SPIName;
 
 typedef enum {
-    I2C_0 = (int)LPC_I2C0_BASE,
-    I2C_1 = (int)LPC_I2C1_BASE,
-    I2C_2 = (int)LPC_I2C2_BASE
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_I2C_NAME, ~)
 } I2CName;
-
+/*
 typedef enum {
     PWM_1 = 1,
     PWM_2,
