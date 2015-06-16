@@ -54,7 +54,7 @@ ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 
 # GCC ARM
-GCC_ARM_PATH = "C:/arm-gnu-toolchain/bin"
+GCC_ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
 
 # GCC CodeSourcery
 GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"

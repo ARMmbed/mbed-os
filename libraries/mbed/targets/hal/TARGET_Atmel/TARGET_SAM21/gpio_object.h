@@ -26,7 +26,9 @@ typedef struct {
     PinName  pin;
     uint32_t mask;
 	uint8_t powersave;
-	
+    uint8_t mode;
+    uint8_t direction;
+		
     __IO uint32_t *OUTCLR;
     __IO uint32_t *OUTSET;
     __I uint32_t *IN;

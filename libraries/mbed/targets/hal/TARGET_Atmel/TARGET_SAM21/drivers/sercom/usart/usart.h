@@ -256,6 +256,8 @@
 #include <sercom.h>
 #include <pinmux.h>
 
+#define USART_CALLBACK_MODE true
+
 #if USART_CALLBACK_MODE == true
 #  include <sercom_interrupt.h>
 #endif

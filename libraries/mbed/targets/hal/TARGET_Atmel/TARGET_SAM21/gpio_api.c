@@ -20,10 +20,6 @@
 #include "compiler.h"
 #include "port.h"
 
-void pin_mode(PinName pin, PinMode mode) { // Kept as dummy function. configuration settings already taken care in gpio_dir function
-	MBED_ASSERT(pin != (PinName)NC);
-}
-
 uint32_t gpio_set(PinName pin) {
     MBED_ASSERT(pin != (PinName)NC);
     return (1UL << (pin % 32));
@@ -41,6 +37,8 @@ void gpio_init(gpio_t *obj, PinName pin) {
     obj->mask = gpio_set(pin);
     port_get_config_defaults(&pin_conf);
     obj->powersave = pin_conf.powersave;
+	obj->direction = PORT_PIN_DIR_INPUT;
+	obj->mode = PORT_PIN_PULL_UP;
     port_pin_set_config(pin, &pin_conf);
     
     obj->OUTCLR = &port_base->OUTCLR.reg;
@@ -49,24 +47,43 @@ void gpio_init(gpio_t *obj, PinName pin) {
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-    pin_mode(obj->pin, mode);
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    struct port_config pin_conf;
+	
+    obj->mode = mode;
+    pin_conf.direction = obj->direction;
+    pin_conf.powersave  = obj->powersave;
+    switch (mode) {
+        case PullNone :
+            pin_conf.input_pull  = PORT_PIN_PULL_NONE;
+            break;
+        case PullUp:
+            pin_conf.input_pull  = PORT_PIN_PULL_UP;
+            break;
+        case PullDown:
+            pin_conf.input_pull  = PORT_PIN_PULL_DOWN;
+            break;
+    }
+    port_pin_set_config(obj->pin, &pin_conf);
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     MBED_ASSERT(obj->pin != (PinName)NC);
     struct port_config pin_conf;
-    port_get_config_defaults(&pin_conf);
+	
+    obj->direction = direction;
+	pin_conf.input_pull = obj->mode;
+	pin_conf.powersave  = obj->powersave;
     switch (direction) {
 	    case PIN_INPUT :
-	    pin_conf.direction  = PORT_PIN_DIR_INPUT;
-	    pin_conf.input_pull = PORT_PIN_PULL_UP;
-	    break;
+	        pin_conf.direction  = PORT_PIN_DIR_INPUT;
+	        break;
 	    case PIN_OUTPUT:
-	    pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
-	    break;
+	        pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
+	        break;
 	    case PIN_INPUT_OUTPUT:
-	    pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
-	    break;
+	        pin_conf.direction  = PORT_PIN_DIR_OUTPUT_WTH_READBACK;
+	        break;
     }
     port_pin_set_config(obj->pin, &pin_conf);  
 }
