@@ -4,6 +4,13 @@
   * @{
   */
 
+GPIO_InitTypeDef GPIO_InitDef;
+void delay_us(int us);
+
+#define SCL GPIO_Pin_9
+#define SDA GPIO_Pin_10
+uint16_t buf[] ={0x00,0x01};
+
 /**
   * @brief  Initializes the I2Cx peripheral according to the specified 
   *   parameters in the I2C_InitStruct.
@@ -12,10 +19,6 @@
   *   contains the configuration information for the specified I2C peripheral.
   * @retval None
   */
-void I2C_Delay(uint32_t nCount)
-{
-    for(; nCount != 0; nCount--);
-}
 
 uint32_t I2C_Init(I2C_TypeDef* I2Cx, I2C_ConfigStruct conf)
 {
@@ -67,7 +70,7 @@ void I2C_DeInit(I2C_TypeDef* I2Cx)
 ErrorStatus I2C_Start(I2C_TypeDef* I2Cx, uint16_t slave_address, I2C_CTR ctr)
 {
     ErrorStatus ret;
-
+          
     I2C_GenerateSTART(I2Cx,ENABLE);
     I2C_SendSlaveAddress(I2Cx,slave_address,(I2C_CTR)ctr);
     I2C_GenerateSTART(I2Cx,DISABLE);
@@ -97,11 +100,23 @@ void I2C_SendData(I2C_TypeDef* I2Cx,uint16_t Data)
 
 int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
 {
-    I2Cx -> TXR = (uint16_t)Data;
-    if(I2C_CheckEvent(I2Cx,I2C_ACKR) == ERROR)
+   buf[0] = Data;
+    if(buf[0] == buf[1])
     {
-        return ERROR;
-    }           
+        I2C_GPIO();
+        WriteByte(Data);     
+        delay_us(1);
+        GPIO_I2C();
+    }
+    else
+    {
+        I2Cx -> TXR = (uint16_t)Data;
+        if(I2C_CheckEvent(I2Cx,I2C_ACKR) == ERROR)
+        {
+            return ERROR;
+        }           
+    }
+    buf[1] = buf[0];
     return SUCCESS;
 }
 
@@ -177,8 +192,14 @@ int I2C_Burst_Write(I2C_TypeDef* I2Cx, uint16_t address, uint8_t *data, int leng
   */
 void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
 {
-    if(NewState != DISABLE)     I2Cx->CMDR = I2C_CMDR_STA;
-    else                        I2Cx->CMDR = I2C_CMDR_STA;
+    if(NewState != DISABLE)     
+    {    
+        I2Cx->CMDR = I2C_CMDR_STA;  
+    }
+    else                        
+    {
+        I2Cx->CMDR = I2C_CMDR_STA;
+    }
  }
 /**
   * @brief  Generates I2Cx communication STOP condition.
@@ -189,8 +210,16 @@ void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
   */
 void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
 {
-    if(NewState != DISABLE)     I2Cx->CMDR = I2C_CMDR_STO;
-    else                        I2Cx->CMDR = I2C_CMDR_STO;
+    if(NewState != DISABLE)     
+    {   
+
+        I2Cx->CMDR = I2C_CMDR_STO;
+
+    }
+    else               
+    {
+        I2Cx->CMDR = I2C_CMDR_STO;
+    }
 }
 
 /**
@@ -408,81 +437,6 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx,I2C_SR sr)
 }
 
 
-/*
-void I2C_MasterInit(I2C_TypeDef *  I2Cx,uint8_t Prescale,uint16_t Timeout,I2C_CTR Ctr)       
-{
-    switch(Ctr)
-    {
-        case(I2C_WRITE_SA7):     //000
-        case(I2C_READ_SA7):      //001
-            I2C_CoreEn(I2Cx,ENABLE);
-        break;
-        
-        case(I2C_WRITE_SA10):     //010
-        case(I2C_READ_SA10):      //011
-            I2C_CoreEn(I2Cx,ENABLE);
-            I2C_SlaveAddressLength(I2Cx,ENABLE);
-        break;
-        
-        case(I2C_CTRWRITE_SA7):     //100
-            I2C_CoreEn(I2Cx,ENABLE);
-            I2C_ControlEn(I2Cx,ENABLE);
-        break;
-    
-        case(I2C_CTRREAD_SA7):      //101
-            I2C_CoreEn(I2Cx,ENABLE);
-            I2C_ControlRW(I2Cx,ENABLE);
-            I2C_ControlEn(I2Cx,ENABLE);
-        break;
-
-        case(I2C_CTRWRITE_SA10):    //110
-            I2C_CoreEn(I2Cx,ENABLE);
-            I2C_ControlRW(I2Cx,DISABLE);
-            I2C_ControlEn(I2Cx,ENABLE);
-            I2C_SlaveAddressLength(I2Cx,ENABLE);
-        break;
-        case(I2C_CTRREAD_SA10):     //111
-            I2C_CoreEn(I2Cx,ENABLE);
-            I2C_ControlRW(I2Cx,ENABLE);
-            I2C_ControlEn(I2Cx,ENABLE);
-            I2C_SlaveAddressLength(I2Cx,ENABLE);
-        break;
-        
-        default:
-            return;
-        
-     }     
-
-    I2C_MasterSlave(I2Cx,ENABLE);
-    I2C_MasterSlave(I2Cx,DISABLE);
-    I2C_MasterSlave(I2Cx,ENABLE);
-    
-    I2C_Prescale(I2Cx,Prescale);            // 0x61         //When PLL clk is 20MHz and Prescale value set 0x61, SCL is 100KHz
-  	I2C_TimeoutSet(I2Cx,Timeout);          // 0xFFFF        
-  	 
-#if defined(I2C_INT)
-    I2C_CoreEn(I2Cx,DISABLE);
-    I2C_InterEn(I2Cx,ENABLE);
-#else
-    I2C_CoreEn(I2Cx,DISABLE);
-  
-#endif
-
-}	
- 
-void I2C_SlaveInit(I2C_TypeDef * I2Cx, FunctionalState NewState,uint16_t data)
-{
-    if(NewState != DISABLE)
-    {
-        I2C_SlaveAddressLength(I2Cx,ENABLE);
-    }   
-    else
-        I2C_AcknowledgeConfig(I2Cx,ENABLE);
-
-    I2C_SetSlavAddress(I2Cx,data);
-}
-*/	
- 
 void I2C_SendSlaveAddress(I2C_TypeDef* I2Cx, uint8_t SlaveAddress,I2C_CTR Ctr)
 {
     switch(Ctr)
@@ -495,19 +449,9 @@ void I2C_SendSlaveAddress(I2C_TypeDef* I2Cx, uint8_t SlaveAddress,I2C_CTR Ctr)
         case(I2C_WRITE_SA7):
             I2C_SendData(I2Cx,SlaveAddress|I2C_WRITE);
         break;
-        
-//        case(I2C_READ_SA10):
-//            I2C_SendData(I2Cx,SlaveAddress|I2C_READ);
-//        break;
-//
-//        case(I2C_WRITE_SA10):
-//            I2C_SendData(I2Cx,SlaveAddress|I2C_WRITE);
-//        break;
-        
+ 
         case(I2C_CTRWRITE_SA7):
         case(I2C_CTRREAD_SA7):
-//        case(I2C_CTRWRITE_SA10):
-//        case(I2C_CTRREAD_SA10):
              I2C_SendData(I2Cx,SlaveAddress);
         break;
         
@@ -559,5 +503,100 @@ uint16_t I2C_ReadRegister(I2C_TypeDef* I2Cx, uint8_t I2C_Register)
 
   /* Return the selected register value */
   return (*(__IO uint16_t *) tmp);
+}
+
+    
+void I2C_GPIO(void )
+{
+        GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
+        GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
+        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF1); // PAD Config - LED used 2nd Function
+        
+        GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_9 (SCL0))
+        GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
+        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF1); // PAD Config - LED used 2nd Function
+ 
+}
+void GPIO_I2C(void )
+{
+       GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
+       GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+       HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
+       HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF0); // PAD Config - LED used 2nd Function
+        
+       GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_9 (SCL0))
+       GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+       HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
+       HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF0); // PAD Config - LED used 2nd Functio
+
+}
+
+void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
+{
+    
+    if(val == Bit_SET)
+    {
+        GPIOx -> OUTENCLR = pin;
+    }
+    else
+    {
+        GPIOx -> OUTENSET |= pin;
+        
+    }
+}
+
+uint16_t digitalRead(GPIO_TypeDef* GPIOx,uint16_t pin)
+{
+    uint16_t bitstatus = 0x0000;
+
+    if((GPIOx->DATA & pin) != (uint32_t)Bit_RESET)
+    {
+        bitstatus = (uint8_t)Bit_SET;
+    }
+    else
+    {
+        bitstatus = (uint8_t)Bit_RESET;
+    }
+
+    return bitstatus;
+}
+
+void WriteByte(uint8_t val)
+{
+        int  i;
+    GPIO_TypeDef* GPIOx;
+    GPIOx = GPIOA;
+
+	for(i=0;i<8;i++)
+	{
+		if((val << i) & 0x80){
+			digitalWrite(GPIOx,SDA, Bit_SET);
+		}else{
+			digitalWrite(GPIOx,SDA, Bit_RESET);
+		}
+        delay_us(1);
+		digitalWrite(GPIOx,SCL, Bit_SET);
+        delay_us(2);
+		digitalWrite(GPIOx,SCL, Bit_RESET);
+        		//    IIC_Byte<<=1;
+	}
+	digitalWrite(GPIOx,SDA, Bit_SET);
+    delay_us(1);
+	digitalWrite(GPIOx,SCL, Bit_SET);
+	delay_us(2);
+    digitalWrite(GPIOx,SCL, Bit_RESET);
+}
+
+
+void delay_us(int us)
+{
+        volatile uint32_t delay = us; // approximate loops per ms at 24 MHz, Debug config
+    for(; delay != 0; delay--)
+        __NOP();
+}
+void delay_ms(int count) {
+        delay_us(count*1000);
 }
 
