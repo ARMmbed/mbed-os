@@ -210,12 +210,12 @@ SVC_Handler_Veneer:
 
         CBZ     R1,SVC_Next             /* Runtask deleted? */
         TST     LR,#0x10                /* is it extended frame? */
-        #ifdef  __FPU_PRESENT
+        .ifdef  __FPU_PRESENT
         ITTE    EQ
         VSTMDBEQ R12!,{S16-S31}         /* yes, stack also VFP hi-regs */
-        #else
+        .else
         ITE    EQ
-        #endif
+        .endif
         MOVEQ   R0,#0x01                /* os_tsk->stack_frame val */
         MOVNE   R0,#0x00
         STRB    R0,[R1,#TCB_STACKF]     /* os_tsk.run->stack_frame = val */
@@ -233,12 +233,12 @@ SVC_Next:
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
         LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
         CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        #ifdef  __FPU_PRESENT
+        .ifdef  __FPU_PRESENT
         ITTE    NE
         VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        #else
+        .else
         ITE    NE
-        #endif
+        .endif
         MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
         MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
@@ -311,12 +311,12 @@ Sys_Switch:
 
         MRS     R12,PSP                 /* Read PSP */
         TST     LR,#0x10                /* is it extended frame? */
-        #ifdef  __FPU_PRESENT
+        .ifdef  __FPU_PRESENT
         ITTE    EQ
         VSTMDBEQ R12!,{S16-S31}         /* yes, stack also VFP hi-regs */
-        #else
+        .else
         ITE    EQ
-        #endif
+        .endif
         MOVEQ   R0,#0x01                /* os_tsk->stack_frame val */
         MOVNE   R0,#0x00
         STRB    R0,[R1,#TCB_STACKF]     /* os_tsk.run->stack_frame = val */
@@ -333,12 +333,12 @@ Sys_Switch:
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
         LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
         CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        #ifdef  __FPU_PRESENT
+        .ifdef  __FPU_PRESENT
         ITTE    NE
         VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        #else
+        .else
         ITE    NE
-        #endif
+        .endif
         MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
         MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
