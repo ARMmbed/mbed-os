@@ -31,7 +31,6 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     _thread_def.pthread = task;
     _thread_def.tpriority = priority;
     _thread_def.stacksize = stack_size;
-#ifndef __MBED_CMSIS_RTOS_CA9
     if (stack_pointer != NULL) {
         _thread_def.stack_pointer = (uint32_t*)stack_pointer;
         _dynamic_stack = false;
@@ -46,7 +45,6 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     for (int i = 0; i < (stack_size / sizeof(uint32_t)); i++) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
-#endif
 #endif
     _tid = osThreadCreate(&_thread_def, argument);
 }
@@ -136,11 +134,9 @@ osThreadId Thread::gettid() {
 
 Thread::~Thread() {
     terminate();
-#ifndef __MBED_CMSIS_RTOS_CA9
     if (_dynamic_stack) {
         delete[] (_thread_def.stack_pointer);
     }
-#endif
 }
 
 }

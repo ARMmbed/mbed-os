@@ -50,12 +50,20 @@
  #define OS_TASKCNT     25
 #endif
 
+#ifdef __MBED_CMSIS_RTOS_CA9
+//   <o>Idle stack size [bytes] <64-4096:8><#/4>
+//   <i> Defines default stack size for the Idle thread.
+#ifndef OS_IDLESTKSIZE
+ #define OS_IDLESTKSIZE 128
+#endif
+#else // __MBED_CMSIS_RTOS_CA9
 //   <o>Default Thread stack size [bytes] <64-4096:8><#/4>
 //   <i> Defines default stack size for threads with osThreadDef stacksz = 0
 //   <i> Default: 200
 #ifndef OS_STKSIZE
  #define OS_STKSIZE     200
 #endif
+#endif // __MBED_CMSIS_RTOS_CA9
 
 //   <o>Main Thread stack size [bytes] <64-4096:8><#/4>
 //   <i> Defines stack size for main thread.
@@ -64,19 +72,21 @@
  #define OS_MAINSTKSIZE 2048
 #endif
 
+#ifndef __MBED_CMSIS_RTOS_CA9
 //   <o>Number of threads with user-provided stack size <0-250>
 //   <i> Defines the number of threads with user-provided stack size.
 //   <i> Default: 0
 #ifndef OS_PRIVCNT
- #define OS_PRIVCNT     10
+ #define OS_PRIVCNT     0
 #endif
 
 //   <o>Total stack size [bytes] for threads with user-provided stack size <0-4096:8><#/4>
 //   <i> Defines the combined stack size for threads with user-provided stack size.
 //   <i> Default: 0
 #ifndef OS_PRIVSTKSIZE
- #define OS_PRIVSTKSIZE 8192
+ #define OS_PRIVSTKSIZE 0
 #endif
+#endif // __MBED_CMSIS_RTOS_CA9
 
 // <q>Check for stack overflow
 // <i> Includes the stack checking code for stack overflow.
