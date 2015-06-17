@@ -5,7 +5,7 @@
   */
 
 GPIO_InitTypeDef GPIO_InitDef;
-void delay_us(int us);
+void i2c_loop_us(int us);
 
 #define SCL GPIO_Pin_9
 #define SDA GPIO_Pin_10
@@ -84,6 +84,10 @@ void I2C_Stop(I2C_TypeDef* I2Cx)
 {
     I2C_GenerateSTOP(I2Cx,ENABLE);
     I2C_GenerateSTOP(I2Cx,DISABLE);
+    GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
+    GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+    HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
+    HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF0); // PAD Config - LED used 2nd Function
 }
 
 void I2C_Reset(I2C_TypeDef* I2Cx)
@@ -105,7 +109,7 @@ int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
     {
         I2C_GPIO();
         WriteByte(Data);     
-        delay_us(1);
+        i2c_loop_us(1);
         GPIO_I2C();
     }
     else
@@ -122,17 +126,18 @@ int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
 
 int I2C_ReceiveData(I2C_TypeDef* I2Cx, int last)    
 {
-    if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR )
-        return -1;    
+    
      
     if(last)
     {   
         I2C_AcknowledgeConfig(I2Cx,DISABLE);
-        if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR )
-            return -1; 
-
-        I2C_Stop(I2Cx);
-    }   
+        if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR ) {
+               return -1; 
+        }
+    }
+    else if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR ) {
+            return -1;    
+    }
 
      
     return (uint8_t)I2Cx -> RXR;    
@@ -526,12 +531,40 @@ void GPIO_I2C(void )
        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF0); // PAD Config - LED used 2nd Function
         
-       GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_9 (SCL0))
-       GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
+       GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_10 (SDA0))
+       GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN; // Set to Mode Output
        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF0); // PAD Config - LED used 2nd Functio
 
 }
+
+
+void WriteByte(uint8_t val)
+{
+        int  i;
+    GPIO_TypeDef* GPIOx;
+    GPIOx = GPIOA;
+
+	for(i=0;i<8;i++)
+	{
+		if((val << i) & 0x80){
+			digitalWrite(GPIOx,SDA, Bit_SET);
+		}else{
+			digitalWrite(GPIOx,SDA, Bit_RESET);
+		}
+        i2c_loop_us(1);
+		digitalWrite(GPIOx,SCL, Bit_SET);
+        i2c_loop_us(2);
+		digitalWrite(GPIOx,SCL, Bit_RESET);
+        		//    IIC_Byte<<=1;
+	}
+	digitalWrite(GPIOx,SDA, Bit_SET);
+    i2c_loop_us(1);
+	digitalWrite(GPIOx,SCL, Bit_SET);
+	i2c_loop_us(2);
+    digitalWrite(GPIOx,SCL, Bit_RESET);
+}
+
 
 void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
 {
@@ -547,56 +580,14 @@ void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
     }
 }
 
-uint16_t digitalRead(GPIO_TypeDef* GPIOx,uint16_t pin)
-{
-    uint16_t bitstatus = 0x0000;
 
-    if((GPIOx->DATA & pin) != (uint32_t)Bit_RESET)
-    {
-        bitstatus = (uint8_t)Bit_SET;
-    }
-    else
-    {
-        bitstatus = (uint8_t)Bit_RESET;
-    }
-
-    return bitstatus;
-}
-
-void WriteByte(uint8_t val)
-{
-        int  i;
-    GPIO_TypeDef* GPIOx;
-    GPIOx = GPIOA;
-
-	for(i=0;i<8;i++)
-	{
-		if((val << i) & 0x80){
-			digitalWrite(GPIOx,SDA, Bit_SET);
-		}else{
-			digitalWrite(GPIOx,SDA, Bit_RESET);
-		}
-        delay_us(1);
-		digitalWrite(GPIOx,SCL, Bit_SET);
-        delay_us(2);
-		digitalWrite(GPIOx,SCL, Bit_RESET);
-        		//    IIC_Byte<<=1;
-	}
-	digitalWrite(GPIOx,SDA, Bit_SET);
-    delay_us(1);
-	digitalWrite(GPIOx,SCL, Bit_SET);
-	delay_us(2);
-    digitalWrite(GPIOx,SCL, Bit_RESET);
-}
-
-
-void delay_us(int us)
+void i2c_loop_us(int us)
 {
         volatile uint32_t delay = us; // approximate loops per ms at 24 MHz, Debug config
     for(; delay != 0; delay--)
         __NOP();
 }
-void delay_ms(int count) {
-        delay_us(count*1000);
+void i2c_loop_ms(int count) {
+        i2c_loop_us(count*1000);
 }
 

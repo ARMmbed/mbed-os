@@ -193,8 +193,6 @@ int     I2C_ReceiveData (I2C_TypeDef* I2Cx, int last);
 int     I2C_Burst_Read  (I2C_TypeDef* I2Cx, uint16_t address, uint8_t *data, int length, int stop);
 int     I2C_Burst_Write (I2C_TypeDef* I2Cx, uint16_t address, uint8_t *data, int length, int stop);
 
-void    I2C_Delay       (uint32_t nCount);
-
 void I2C_GenerateSTART  (I2C_TypeDef* I2Cx, FunctionalState NewState);
 void I2C_GenerateSTOP   (I2C_TypeDef* I2Cx, FunctionalState NewState);
 
@@ -229,8 +227,8 @@ void WriteByte(uint8_t val);
 
 void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val);
 uint16_t digitalRead(GPIO_TypeDef* GPIOx,uint16_t pin);
-void delay_us(int us);
-void delay_ms(int count) ;
+void i2c_loop_us(int us);
+void i2c_loop_ms(int count) ;
 
 /**
   * @}
