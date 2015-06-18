@@ -77,10 +77,7 @@ class mbed_interface():
         r = self.mbed.rpc(self.name, "delete", [])
 
     def new(self, class_name, name, pin1, pin2 = ""):
-        if pin1 == pin2 == "":
-            args = [name]
-        else:
-            args = [pin1,pin2,name] if pin2 != "" else [pin1,name]
+        args = [arg for arg in [pin1,pin2,pin3,name] if arg != ""]
         r = self.mbed.rpc(class_name, "new", args)
 
     # generic read
