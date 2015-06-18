@@ -538,13 +538,13 @@ TESTS = [
         "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549"]
+        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549"]
+        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",
