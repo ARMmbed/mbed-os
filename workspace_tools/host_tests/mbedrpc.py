@@ -77,7 +77,10 @@ class mbed_interface():
         r = self.mbed.rpc(self.name, "delete", [])
 
     def new(self, class_name, name, pin1, pin2 = ""):
-        args = [pin1,pin2,name] if pin2 != "" else [pin1,name]
+        if pin1 == pin2 == "":
+            args = [name]
+        else:
+            args = [pin1,pin2,name] if pin2 != "" else [pin1,name]
         r = self.mbed.rpc(class_name, "new", args)
 
     # generic read
@@ -172,6 +175,30 @@ class RPCVariable(mbed_interface_write):
         r = self.mbed.rpc(self.name, "read", [])
         return r
 
+class Timer(mbed_interface):
+    def __init__(self, this_mbed, name):
+        mbed_interface.__init__(self, this_mbed, name)
+
+    def start(self):
+        r = self.mbed.rpc(self.name, "start", [])
+
+    def stop(self):
+        r = self.mbed.rpc(self.name, "stop", [])
+
+    def reset(self):
+        r = self.mbed.rpc(self.name, "reset", [])
+
+    def read(self):
+        r = self.mbed.rpc(self.name, "read", [])
+        return float(re.search('\d+\.*\d*', r).group(0))
+
+    def read_ms(self):
+        r = self.mbed.rpc(self.name, "read_ms", [])
+        return float(re.search('\d+\.*\d*', r).group(0))
+
+    def read_us(self):
+        r = self.mbed.rpc(self.name, "read_us", [])
+        return float(re.search('\d+\.*\d*', r).group(0))
 
 # Serial
 class Serial():
