@@ -47,6 +47,7 @@ class GccArm(Exporter):
         'DISCO_F051R8',
         'DISCO_F407VG',
         'DISCO_F303VC',
+        'DISCO_F746NG',
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
