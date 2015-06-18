@@ -76,7 +76,7 @@ class mbed_interface():
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
 
-    def new(self, class_name, name, pin1, pin2 = ""):
+    def new(self, class_name, name, pin1, pin2 = "", pin3 = ""):
         args = [arg for arg in [pin1,pin2,pin3,name] if arg != ""]
         r = self.mbed.rpc(class_name, "new", args)
 
