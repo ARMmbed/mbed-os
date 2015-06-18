@@ -104,7 +104,7 @@ void I2C_SendData(I2C_TypeDef* I2Cx,uint16_t Data)
 
 int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
 {
-   buf[0] = Data;
+    buf[0] = Data;
     if(buf[0] == buf[1])
     {
         I2C_GPIO();
@@ -126,19 +126,16 @@ int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
 
 int I2C_ReceiveData(I2C_TypeDef* I2Cx, int last)    
 {
-    
-     
     if(last)
     {   
         I2C_AcknowledgeConfig(I2Cx,DISABLE);
         if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR ) {
-               return -1; 
+            return -1; 
         }
     }
     else if( I2C_CheckEvent(I2Cx,I2C_ACKT) == ERROR ) {
             return -1;    
     }
-
      
     return (uint8_t)I2Cx -> RXR;    
 }
@@ -541,7 +538,7 @@ void GPIO_I2C(void )
 
 void WriteByte(uint8_t val)
 {
-        int  i;
+    int  i;
     GPIO_TypeDef* GPIOx;
     GPIOx = GPIOA;
 
@@ -556,7 +553,6 @@ void WriteByte(uint8_t val)
 		digitalWrite(GPIOx,SCL, Bit_SET);
         i2c_loop_us(2);
 		digitalWrite(GPIOx,SCL, Bit_RESET);
-        		//    IIC_Byte<<=1;
 	}
 	digitalWrite(GPIOx,SDA, Bit_SET);
     i2c_loop_us(1);
@@ -583,11 +579,11 @@ void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
 
 void i2c_loop_us(int us)
 {
-        volatile uint32_t delay = us; // approximate loops per ms at 24 MHz, Debug config
+    volatile uint32_t delay = us; // approximate loops per ms at 24 MHz, Debug config
     for(; delay != 0; delay--)
         __NOP();
 }
 void i2c_loop_ms(int count) {
-        i2c_loop_us(count*1000);
+    i2c_loop_us(count*1000);
 }
 
