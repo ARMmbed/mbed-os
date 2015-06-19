@@ -74,6 +74,9 @@ class mbed_interface():
 			self.name = mpin
 	def __del__(self):	
 		r = self.mbed.rpc(self.name, "delete", [])
+	#create new RPC object
+	def new(self, class_name, pin, name):
+        	r = self.mbed.rpc(class_name, "new", [pin, name])
 	#generic read
 	def read(self):
 		r = self.mbed.rpc(self.name, "read", [])
