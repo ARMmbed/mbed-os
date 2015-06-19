@@ -43,26 +43,26 @@ macro(mbed_find_target_dirs PARENT_DIRECTORY SOURCES_LIST INCLUDES_LIST)
     foreach(child ${dir_children})
       if(IS_DIRECTORY "${PARENT_DIRECTORY}/${child}")
           # is this directory name a magic one?
-          if(${child} MATCHES "^TARGET_")
+          if("${child}" MATCHES "^TARGET_")
               # target-magic: recurse if the MBED_LEGACY_TARGET_DEFINITIONS **list**
               # contains a matching value:
               foreach(legacy_magic_def ${MBED_LEGACY_TARGET_DEFINITIONS})
                   # we could probably unroll the list into a single regex if
                   # this is a performance problem:
-                  if(${child} MATCHES "^TARGET_${legacy_magic_def}$")
+                  if("${child}" MATCHES "^TARGET_${legacy_magic_def}$")
                       list(APPEND matching_subdirs ${child})
                       break()
                   endif()
               endforeach()
-          elseif(${child} MATCHES "^TOOLCHAIN_")
+          elseif("${child}" MATCHES "^TOOLCHAIN_")
               # toolchain-magic: (recurse if the MBED_LEGACY_TOOLCHAIN matches
               # this name)
-              if(${child} MATCHES "^TOOLCHAIN_${MBED_LEGACY_TOOLCHAIN}$")
-                  list(APPEND matching_subdirs ${child})
+              if("${child}" MATCHES "^TOOLCHAIN_${MBED_LEGACY_TOOLCHAIN}$")
+                  list(APPEND matching_subdirs "${child}")
               endif()
           else()
               # not special: always recurse into this directory
-              list(APPEND matching_subdirs ${child})
+              list(APPEND matching_subdirs "${child}")
           endif()
       endif()
     endforeach()
