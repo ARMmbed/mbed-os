@@ -1,0 +1,27 @@
+{
+  "name": "mbed",
+  "version": "2.0.0-a0",
+  "description": "mbed SDK (for mbed 2.0)",
+  "keywords": [
+    "mbed"
+  ],
+  "author": "Bogdan Marinescu <bogdan.marinescu@arm.com>",
+  "repository": {
+    "url": "git@github.com:mbedmicro/mbed.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/mbedmicro/mbed",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "extraIncludes": [
+    "api"
+  ],
+  "dependencies": {
+  },
+  "targetDependencies": {
+  }
+}
