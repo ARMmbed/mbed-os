@@ -33,6 +33,7 @@
     #define UARTLP_BDH_SBNS_MASK    UART0_BDH_SBNS_MASK
     #define UARTLP_BDH_SBNS_SHIFT   UART0_BDH_SBNS_SHIFT
     #define UARTLP_S1_TDRE_MASK     UART0_S1_TDRE_MASK
+    #define UARTLP_S1_TC_MASK        UART0_S1_TC_MASK
     #define UARTLP_S1_OR_MASK       UART0_S1_OR_MASK
     #define UARTLP_C2_RIE_MASK      UART0_C2_RIE_MASK
     #define UARTLP_C2_TIE_MASK      UART0_C2_TIE_MASK
@@ -78,7 +79,17 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
-    
+
+    // Enable UART transmitter to ensure TX activity is finished
+    obj->uart->C2 |= UARTLP_C2_TE_MASK;
+
+    // Wait for TX activity to finish
+    while(!(obj->uart->S1 & UARTLP_S1_TC_MASK));
+
+    // Disbale UARTs again
+    obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
+
+
     switch (uart) {
         case UART_0: obj->index = 0; break;
     #if UART_NUM > 1
@@ -95,15 +106,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
 
-    // set rx/tx pins in PullUp mode
+    // set rx/tx pins in PullUp mode and enable TX/RX
     if (tx != NC) {
+        obj->uart->C2 |= UARTLP_C2_TE_MASK;
         pin_mode(tx, PullUp);
     }
     if (rx != NC) {
+        obj->uart->C2 |= UARTLP_C2_RE_MASK;
         pin_mode(rx, PullUp);
     }
-
-    obj->uart->C2 |= (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
 
     if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
@@ -119,13 +130,13 @@ void serial_free(serial_t *obj) {
 //
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
-    
+
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
-    
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
-    
+
     uint32_t PCLK;
     if (obj->uart == UART0) {
         if (mcgpllfll_frequency() != 0)
@@ -146,7 +157,7 @@ void serial_baud(serial_t *obj, int baudrate) {
     // set BDH and BDL
     obj->uart->BDH = (obj->uart->BDH & ~(0x1f)) | ((DL >> 8) & 0x1f);
     obj->uart->BDL = (obj->uart->BDL & ~(0xff)) | ((DL >> 0) & 0xff);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
@@ -158,10 +169,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     // save C2 state
     uint8_t c2_state = (obj->uart->C2 & (UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK));
-    
+
     // Disable UART before changing registers
     obj->uart->C2 &= ~(UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK);
-    
+
 
     uint8_t parity_enable, parity_select;
     switch (parity) {
@@ -177,11 +188,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     // data bits, parity and parity mode
     obj->uart->C1 = ((parity_enable << 1)
                   |  (parity_select << 0));
-    
+
     // stop bits
     obj->uart->BDH &= ~UARTLP_BDH_SBNS_MASK;
     obj->uart->BDH |= (stop_bits << UARTLP_BDH_SBNS_SHIFT);
-    
+
     // restore C2 state
     obj->uart->C2 |= c2_state;
 }
@@ -292,4 +303,3 @@ void serial_break_set(serial_t *obj) {
 void serial_break_clear(serial_t *obj) {
     obj->uart->C2 &= ~UARTLP_C2_SBK_MASK;
 }
-

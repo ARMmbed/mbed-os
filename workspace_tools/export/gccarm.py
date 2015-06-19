@@ -122,6 +122,7 @@ class GccArm(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.get_symbols(),
+            'cpu_flags': self.toolchain.cpu
         }
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
