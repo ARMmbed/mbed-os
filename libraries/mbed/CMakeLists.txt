@@ -6,7 +6,15 @@ set(MBED_LEGACY_TOOLCHAIN "GCC_ARM")
 add_definitions("-DNRF51")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 
-# mbed-2 yotta-compatible build system:
+#
+# mbed-2 yotta-compatible build system
+#
+
+# make sure necessary features are enabled:
+project(mbed)
+enable_language(ASM)
+
+
 # the mbed.a library is built from two sets of source files + include
 # directories:
 #
@@ -26,7 +34,7 @@ macro(mbed_find_target_dirs PARENT_DIRECTORY SOURCES_LIST INCLUDES_LIST)
     # append this directory to the search path:
     list(APPEND ${INCLUDES_LIST} "${PARENT_DIRECTORY}")
     # add all source files in this directory to the sources list:
-    file(GLOB sources "${PARENT_DIRECTORY}/*.cpp" "${PARENT_DIRECTORY}/*.c")
+    file(GLOB sources "${PARENT_DIRECTORY}/*.cpp" "${PARENT_DIRECTORY}/*.c" "${PARENT_DIRECTORY}/*.s" "${PARENT_DIRECTORY}/*.S" )
     list(APPEND ${SOURCES_LIST} ${sources})
     
     # get a list of all subdirectories that we want to recurse into:
@@ -47,9 +55,9 @@ macro(mbed_find_target_dirs PARENT_DIRECTORY SOURCES_LIST INCLUDES_LIST)
                   endif()
               endforeach()
           elseif(${child} MATCHES "^TOOLCHAIN_")
+              # toolchain-magic: (recurse if the MBED_LEGACY_TOOLCHAIN matches
+              # this name)
               if(${child} MATCHES "^TOOLCHAIN_${MBED_LEGACY_TOOLCHAIN}$")
-                  # toolchain-magic: (recurse if the MBED_LEGACY_TOOLCHAIN matches
-                  # this name)
                   list(APPEND matching_subdirs ${child})
               endif()
           else()
