@@ -235,4 +235,7 @@ if __name__ == '__main__':
                                    _opts_extend_test_timeout=opts.extend_test_timeout)
 
     # Runs test suite in CLI mode
-    singletest_in_cli_mode(single_test)
+    if (singletest_in_cli_mode(single_test)):
+        exit(0)
+    else:
+        exit(-1)
