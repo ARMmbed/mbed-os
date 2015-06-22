@@ -49,7 +49,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
     ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('APPNEARME_MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
+    ('MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
