@@ -1,11 +1,3 @@
-#!!! TODO stuff in this pre-amble will be defined by the target description,
-#hard-coding for now...
-
-set(MBED_LEGACY_TARGET_DEFINITIONS "NORDIC" "NRF51822_MKIT" "MCU_NRF51822" "MCU_NORDIC_16K")
-set(MBED_LEGACY_TOOLCHAIN "GCC_ARM")
-add_definitions("-DNRF51")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-
 #
 # mbed-2 yotta-compatible build system
 #
@@ -14,6 +6,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 project(mbed)
 enable_language(ASM)
 
+# override compilation flags:
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 
 # the mbed.a library is built from two sets of source files + include
 # directories:
