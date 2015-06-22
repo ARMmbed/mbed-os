@@ -27,6 +27,7 @@
 #define TICKER_COUNTER_Handlr	TC4_Handler
 
 static int us_ticker_inited = 0;
+extern uint8_t g_sys_init;
 
 struct tc_module us_ticker_module;
 
@@ -70,6 +71,10 @@ void us_ticker_init(void)
 	if (us_ticker_inited) return;
 	us_ticker_inited = 1;
 
+	if (g_sys_init == 0) {
+		system_init();
+		g_sys_init = 1;
+	}
 
 	tc_get_config_defaults(&config_tc);
 	
@@ -95,9 +100,7 @@ void us_ticker_init(void)
 	config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
 	config_tc.run_in_standby = true;
 	config_tc.counter_32_bit.value = 0;
-	config_tc.counter_32_bit.compare_capture_channel[0] = 0xFFFFFFFF;
-	
-	//config_tc.oneshot = true;
+	config_tc.counter_32_bit.compare_capture_channel[TC_COMPARE_CAPTURE_CHANNEL_0] = 0xFFFFFFFF;
 
 	/* Initialize the timer */
 	ret_status = tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
@@ -131,17 +134,15 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 		us_ticker_irq_handler();
 		return;
 	}
-
-	tc_set_compare_value(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0, timestamp);
 	
+	NVIC_DisableIRQ(TICKER_COUNTER_IRQn);	
 	NVIC_SetVector(TICKER_COUNTER_IRQn, (uint32_t)TICKER_COUNTER_Handlr);
-	NVIC_EnableIRQ(TICKER_COUNTER_IRQn);
 	
 	/* Enable the callback */
 	tc_enable_callback(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
+	tc_set_compare_value(&us_ticker_module, TC_COMPARE_CAPTURE_CHANNEL_0, (uint32_t)timestamp);
 	
-	/* Enable the timer module */
-	//tc_enable(&us_ticker_module);
+	NVIC_EnableIRQ(TICKER_COUNTER_IRQn);
 }
 
 void us_ticker_disable_interrupt(void) {
