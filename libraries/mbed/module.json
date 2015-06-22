@@ -1,7 +1,7 @@
 {
-  "name": "mbed",
-  "version": "2.0.0-a0",
-  "description": "mbed SDK (for mbed 2.0)",
+  "name": "mbed-classic",
+  "version": "0.0.1",
+  "description": "mbed core SDK (for mbed 2.0, *not* mbedOS)",
   "keywords": [
     "mbed"
   ],
