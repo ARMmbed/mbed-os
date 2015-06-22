@@ -30,12 +30,34 @@ static int us_ticker_inited = 0;
 
 struct tc_module us_ticker_module;
 
+
+static inline void tc_clear_interrupt(
+		struct tc_module *const module,
+		const enum tc_callback callback_type){
+	/* Sanity check arguments */
+	MBED_ASSERT(module);
+
+	/* Clear interrupt flags */
+	if (callback_type == TC_CALLBACK_CC_CHANNEL0) {
+		module->hw->COUNT8.INTENCLR.reg = TC_INTFLAG_MC(1);
+	}
+	else if (callback_type == TC_CALLBACK_CC_CHANNEL1) {
+		module->hw->COUNT8.INTENCLR.reg = TC_INTFLAG_MC(2);
+	}
+	else {
+		module->hw->COUNT8.INTENCLR.reg = (1 << callback_type);
+	}
+}
+
 void us_ticker_irq_handler_internal(struct tc_module* us_tc_module)
 {
-	us_ticker_irq_handler();
+	uint32_t status_flags;
 	
-	/* Disable the interrupt */
-	us_ticker_disable_interrupt();
+	/* Clear TC capture overflow and TC count overflow */
+	status_flags = TC_STATUS_CAPTURE_OVERFLOW | TC_STATUS_COUNT_OVERFLOW;
+	tc_clear_status(&us_ticker_module, status_flags);
+	
+	us_ticker_irq_handler();
 }
 
 void us_ticker_init(void)
@@ -53,10 +75,22 @@ void us_ticker_init(void)
 	
 	cycles_per_us = system_gclk_gen_get_hz(config_tc.clock_source) / 1000000;
 	MBED_ASSERT(cycles_per_us > 0);
-	while((cycles_per_us & 1) == 0 && prescaler <= 10) {
+	/*while((cycles_per_us & 1) == 0 && prescaler <= 10) {
+		cycles_per_us = cycles_per_us >> 1;
+		prescaler++;
+	}*/
+	while((cycles_per_us > 1) && (prescaler <= 10)) {
 		cycles_per_us = cycles_per_us >> 1;
 		prescaler++;
 	}
+	if (prescaler >= 9) {
+		prescaler = 7;
+	} else if (prescaler >= 7) {
+		prescaler = 6;
+	} else if (prescaler >= 5) {
+		prescaler = 5;
+	}
+	
 	config_tc.clock_prescaler = TC_CTRLA_PRESCALER(prescaler);
 	config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
 	config_tc.run_in_standby = true;
@@ -117,9 +151,13 @@ void us_ticker_disable_interrupt(void) {
 }
 
 void us_ticker_clear_interrupt(void) {
-	/* Disable the interrupt, this is clear the interrupt also */
-	us_ticker_disable_interrupt();
+	uint32_t status_flags;
 	
-	NVIC_DisableIRQ(TICKER_COUNTER_IRQn);
-	NVIC_SetVector(TICKER_COUNTER_IRQn, (uint32_t)NULL);
+	/* Clear TC channel 0 match */
+	status_flags = TC_STATUS_CHANNEL_0_MATCH;
+	tc_clear_status(&us_ticker_module, status_flags);
+	
+	/* Clear the interrupt */
+	tc_clear_interrupt(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
+	NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn);
 }
