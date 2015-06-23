@@ -50,7 +50,7 @@ SEARCH_DIR(.)
 MEMORY
 {
   rom (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
-  ram (rwx) : ORIGIN = 0x20000000 + 0xB0, LENGTH = 0x00008000 - 0xB0
+  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
@@ -118,6 +118,13 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;
+	
+	.dvectors (NOLOAD) :
+	{
+		_sdvectors = .;
+		. = . + 0xB0;
+		_edvectors = .;
+	} > ram
 
     .relocate : AT (_etext)
     {
