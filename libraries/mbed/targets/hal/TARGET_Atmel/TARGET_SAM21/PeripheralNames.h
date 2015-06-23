@@ -33,7 +33,12 @@ extern "C" {
 
 
 typedef enum {
-    UART_0 = (int)0x42000800UL  // Base address of SERCOM0 
+    UART_0 = (int)0x42000800UL,  // Base address of SERCOM0 
+    UART_1 = (int)0x42000C00UL,  // Base address of SERCOM1 
+    UART_2 = (int)0x42001000UL,  // Base address of SERCOM2 
+    UART_3 = (int)0x42001400UL,  // Base address of SERCOM3 
+    UART_4 = (int)0x42001800UL,  // Base address of SERCOM4 
+    UART_5 = (int)0x42001C00UL   // Base address of SERCOM5 
 } UARTName;
 /*
 typedef enum {

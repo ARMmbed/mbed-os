@@ -94,9 +94,13 @@ typedef enum {
     PB29  = 61,
     PB30  = 62,
     PB31  = 63,
+    
+    PC16 = 64,
+    PC18 = 65,
+    PC19 = 66,
 	
-	USBTX = PA04,
-	USBRX = PA05,
+    USBTX = PA04,
+    USBRX = PA05,
 
     // Not connected
     NC = (int)0xFFFFFFFF

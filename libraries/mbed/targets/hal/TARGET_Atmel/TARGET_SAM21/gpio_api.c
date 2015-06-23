@@ -79,7 +79,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
 	        pin_conf.direction  = PORT_PIN_DIR_INPUT;
 	        break;
 	    case PIN_OUTPUT:
-	        pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
+	        pin_conf.direction  = /*PORT_PIN_DIR_OUTPUT*/PORT_PIN_DIR_OUTPUT_WTH_READBACK;
 	        break;
 	    case PIN_INPUT_OUTPUT:
 	        pin_conf.direction  = PORT_PIN_DIR_OUTPUT_WTH_READBACK;

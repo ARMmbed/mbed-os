@@ -20,6 +20,8 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
+void find_pin_settings (PinName output, PinName input, PinName clock, uint32_t* pad_pinmuxes);
+uint32_t find_mux_setting (PinName output, PinName input, PinName clock);
 /************RTC***************/
 //extern const PinMap PinMap_RTC[];
 
@@ -45,5 +47,7 @@ extern const PinMap PinMap_UART_RX[];
 
 /************PWM***************/
 //extern const PinMap PinMap_PWM[];
+
+
 
 #endif
