@@ -1106,6 +1106,24 @@ class HRM1017(NRF51822):
         self.macros = ['TARGET_NRF51822']
         self.macros += self.common_macros
 
+class HRM1017_BOOT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822', 'TARGET_HRM1017', 'TARGET_OTA_ENABLED']
+        self.macros += self.common_macros
+        self.MERGE_SOFT_DEVICE = True
+        self.MERGE_BOOTLOADER = True
+        self.EXPECTED_BOOTLOADER_FILENAME = "nrf51822_lfclk_rc_bootloader.hex"
+
+class HRM1017_OTA(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K']
+        self.macros = ['TARGET_NRF51822', 'TARGET_HRM1017', 'TARGET_OTA_ENABLED']
+        self.macros += self.common_macros
+        self.MERGE_SOFT_DEVICE = False
+
 class RBLAB_NRF51822(NRF51822):
     def __init__(self):
         NRF51822.__init__(self)
@@ -1490,6 +1508,8 @@ TARGETS = [
     SEEED_TINY_BLE_BOOT(),# nRF51822
     SEEED_TINY_BLE_OTA(),# nRF51822
     HRM1017(),      # nRF51822
+    HRM1017_OTA(),      # nRF51822 App only
+    HRM1017_BOOT(),      # nRF51822 bootloader + SD + app
     RBLAB_NRF51822(),# nRF51822
     RBLAB_BLENANO(),# nRF51822
     NRF51822_Y5_MBUG(),#nRF51822
