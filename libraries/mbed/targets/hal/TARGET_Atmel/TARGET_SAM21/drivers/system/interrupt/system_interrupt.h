@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef SYSTEM_INTERRUPT_H_INCLUDED
 #define SYSTEM_INTERRUPT_H_INCLUDED
 
@@ -143,14 +143,14 @@ extern "C" {
  * device.
  */
 enum system_interrupt_priority_level {
-	/** Priority level 0, the highest possible interrupt priority. */
-	SYSTEM_INTERRUPT_PRIORITY_LEVEL_0  = 0,
-	/** Priority level 1. */
-	SYSTEM_INTERRUPT_PRIORITY_LEVEL_1  = 1,
-	/** Priority level 2. */
-	SYSTEM_INTERRUPT_PRIORITY_LEVEL_2  = 2,
-	/** Priority level 3, the lowest possible interrupt priority. */
-	SYSTEM_INTERRUPT_PRIORITY_LEVEL_3  = 3,
+    /** Priority level 0, the highest possible interrupt priority. */
+    SYSTEM_INTERRUPT_PRIORITY_LEVEL_0  = 0,
+    /** Priority level 1. */
+    SYSTEM_INTERRUPT_PRIORITY_LEVEL_1  = 1,
+    /** Priority level 2. */
+    SYSTEM_INTERRUPT_PRIORITY_LEVEL_2  = 2,
+    /** Priority level 3, the lowest possible interrupt priority. */
+    SYSTEM_INTERRUPT_PRIORITY_LEVEL_3  = 3,
 };
 
 /**
@@ -168,7 +168,7 @@ enum system_interrupt_priority_level {
  */
 static inline void system_interrupt_enter_critical_section(void)
 {
-	cpu_irq_enter_critical();
+    cpu_irq_enter_critical();
 }
 
 /**
@@ -181,7 +181,7 @@ static inline void system_interrupt_enter_critical_section(void)
  */
 static inline void system_interrupt_leave_critical_section(void)
 {
-	cpu_irq_leave_critical();
+    cpu_irq_leave_critical();
 }
 
 /** @} */
@@ -204,7 +204,7 @@ static inline void system_interrupt_leave_critical_section(void)
  */
 static inline bool system_interrupt_is_global_enabled(void)
 {
-	return cpu_irq_is_enabled();
+    return cpu_irq_is_enabled();
 }
 
 /**
@@ -214,7 +214,7 @@ static inline bool system_interrupt_is_global_enabled(void)
  */
 static inline void system_interrupt_enable_global(void)
 {
-	cpu_irq_enable();
+    cpu_irq_enable();
 }
 
 /**
@@ -225,7 +225,7 @@ static inline void system_interrupt_enable_global(void)
  */
 static inline void system_interrupt_disable_global(void)
 {
-	cpu_irq_disable();
+    cpu_irq_disable();
 }
 
 /**
@@ -242,9 +242,9 @@ static inline void system_interrupt_disable_global(void)
  *
  */
 static inline bool system_interrupt_is_enabled(
-		const enum system_interrupt_vector vector)
+    const enum system_interrupt_vector vector)
 {
-	return (bool)((NVIC->ISER[0] >> (uint32_t)vector) & 0x00000001);
+    return (bool)((NVIC->ISER[0] >> (uint32_t)vector) & 0x00000001);
 }
 
 /**
@@ -255,9 +255,9 @@ static inline bool system_interrupt_is_enabled(
  * \param[in] vector Interrupt vector to enable
  */
 static inline void system_interrupt_enable(
-		const enum system_interrupt_vector vector)
+    const enum system_interrupt_vector vector)
 {
-	NVIC->ISER[0] = (uint32_t)(1 << ((uint32_t)vector & 0x0000001f));
+    NVIC->ISER[0] = (uint32_t)(1 << ((uint32_t)vector & 0x0000001f));
 }
 
 /**
@@ -268,9 +268,9 @@ static inline void system_interrupt_enable(
  * \param[in] vector  Interrupt vector to disable
  */
 static inline void system_interrupt_disable(
-		const enum system_interrupt_vector vector)
+    const enum system_interrupt_vector vector)
 {
-	NVIC->ICER[0] = (uint32_t)(1 << ((uint32_t)vector & 0x0000001f));
+    NVIC->ICER[0] = (uint32_t)(1 << ((uint32_t)vector & 0x0000001f));
 }
 
 /** @} */
@@ -289,19 +289,19 @@ static inline void system_interrupt_disable(
  */
 static inline enum system_interrupt_vector system_interrupt_get_active(void)
 {
-	uint32_t IPSR = __get_IPSR();
+    uint32_t IPSR = __get_IPSR();
 
-	return (enum system_interrupt_vector)(IPSR & _SYSTEM_INTERRUPT_IPSR_MASK);
+    return (enum system_interrupt_vector)(IPSR & _SYSTEM_INTERRUPT_IPSR_MASK);
 }
 
 bool system_interrupt_is_pending(
-		const enum system_interrupt_vector vector);
+    const enum system_interrupt_vector vector);
 
 enum status_code system_interrupt_set_pending(
-		const enum system_interrupt_vector vector);
+    const enum system_interrupt_vector vector);
 
 enum status_code system_interrupt_clear_pending(
-		const enum system_interrupt_vector vector);
+    const enum system_interrupt_vector vector);
 
 /** @} */
 
@@ -311,11 +311,11 @@ enum status_code system_interrupt_clear_pending(
  */
 
 enum status_code system_interrupt_set_priority(
-		const enum system_interrupt_vector vector,
-		const enum system_interrupt_priority_level priority_level);
+    const enum system_interrupt_vector vector,
+    const enum system_interrupt_priority_level priority_level);
 
 enum system_interrupt_priority_level system_interrupt_get_priority(
-		const enum system_interrupt_vector vector);
+    const enum system_interrupt_vector vector);
 
 /** @} */
 

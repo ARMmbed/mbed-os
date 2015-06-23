@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef PORT_H_INCLUDED
 #define PORT_H_INCLUDED
 
@@ -210,15 +210,15 @@ extern "C" {
  *  structure, to indicate the direction the pin should use.
  */
 enum port_pin_dir {
-	/** The pin's input buffer should be enabled, so that the pin state can
-	 *  be read. */
-	PORT_PIN_DIR_INPUT               = SYSTEM_PINMUX_PIN_DIR_INPUT,
-	/** The pin's output buffer should be enabled, so that the pin state can
-	 *  be set. */
-	PORT_PIN_DIR_OUTPUT              = SYSTEM_PINMUX_PIN_DIR_OUTPUT,
-	/** The pin's output and input buffers should be enabled, so that the pin
-	 *  state can be set and read back. */
-	PORT_PIN_DIR_OUTPUT_WTH_READBACK = SYSTEM_PINMUX_PIN_DIR_OUTPUT_WITH_READBACK,
+    /** The pin's input buffer should be enabled, so that the pin state can
+     *  be read. */
+    PORT_PIN_DIR_INPUT               = SYSTEM_PINMUX_PIN_DIR_INPUT,
+    /** The pin's output buffer should be enabled, so that the pin state can
+     *  be set. */
+    PORT_PIN_DIR_OUTPUT              = SYSTEM_PINMUX_PIN_DIR_OUTPUT,
+    /** The pin's output and input buffers should be enabled, so that the pin
+     *  state can be set and read back. */
+    PORT_PIN_DIR_OUTPUT_WTH_READBACK = SYSTEM_PINMUX_PIN_DIR_OUTPUT_WITH_READBACK,
 };
 
 /**
@@ -228,12 +228,12 @@ enum port_pin_dir {
  *  structure, to indicate the type of logic level pull the pin should use.
  */
 enum port_pin_pull {
-	/** No logical pull should be applied to the pin. */
-	PORT_PIN_PULL_NONE = SYSTEM_PINMUX_PIN_PULL_NONE,
-	/** Pin should be pulled up when idle. */
-	PORT_PIN_PULL_UP   = SYSTEM_PINMUX_PIN_PULL_UP,
-	/** Pin should be pulled down when idle. */
-	PORT_PIN_PULL_DOWN = SYSTEM_PINMUX_PIN_PULL_DOWN,
+    /** No logical pull should be applied to the pin. */
+    PORT_PIN_PULL_NONE = SYSTEM_PINMUX_PIN_PULL_NONE,
+    /** Pin should be pulled up when idle. */
+    PORT_PIN_PULL_UP   = SYSTEM_PINMUX_PIN_PULL_UP,
+    /** Pin should be pulled down when idle. */
+    PORT_PIN_PULL_DOWN = SYSTEM_PINMUX_PIN_PULL_DOWN,
 };
 
 #ifdef FEATURE_PORT_INPUT_EVENT
@@ -243,14 +243,14 @@ enum port_pin_pull {
  *  List of port input events action on pin.
  */
 enum port_input_event_action {
-	/** Event out to pin. */
-	PORT_INPUT_EVENT_ACTION_OUT	= 0,
-	/** Set output register of pin on event. */
-	PORT_INPUT_EVENT_ACTION_SET,
-	/** Clear output register pin on event. */
-	PORT_INPUT_EVENT_ACTION_CLR,
-	/** Toggle output register pin on event. */
-	PORT_INPUT_EVENT_ACTION_TGL,
+    /** Event out to pin. */
+    PORT_INPUT_EVENT_ACTION_OUT	= 0,
+    /** Set output register of pin on event. */
+    PORT_INPUT_EVENT_ACTION_SET,
+    /** Clear output register pin on event. */
+    PORT_INPUT_EVENT_ACTION_CLR,
+    /** Toggle output register pin on event. */
+    PORT_INPUT_EVENT_ACTION_TGL,
 };
 
 /**
@@ -258,15 +258,15 @@ enum port_input_event_action {
  *
  *  List of port input events.
  */
-enum port_input_event{
-	/** Port input event 0. */
-	PORT_INPUT_EVENT_0	= 0,
-	/** Port input event 1. */
-	PORT_INPUT_EVENT_1	= 1,
-	/** Port input event 2. */
-	PORT_INPUT_EVENT_2	= 2,
-	/** Port input event 3. */
-	PORT_INPUT_EVENT_3	= 3,
+enum port_input_event {
+    /** Port input event 0. */
+    PORT_INPUT_EVENT_0	= 0,
+    /** Port input event 1. */
+    PORT_INPUT_EVENT_1	= 1,
+    /** Port input event 2. */
+    PORT_INPUT_EVENT_2	= 2,
+    /** Port input event 3. */
+    PORT_INPUT_EVENT_3	= 3,
 };
 
 /**
@@ -274,11 +274,11 @@ enum port_input_event{
  *
  *  Configuration structure for a port input event.
  */
-struct port_input_event_config{
-	/** PPort input event action. */
-	enum port_input_event_action  action;
-	/** GPIO pin. */
-	uint8_t gpio_pin;
+struct port_input_event_config {
+    /** PPort input event action. */
+    enum port_input_event_action  action;
+    /** GPIO pin. */
+    uint8_t gpio_pin;
 };
 #endif
 
@@ -290,17 +290,17 @@ struct port_input_event_config{
  *  modified by the user application.
  */
 struct port_config {
-	/** Port buffer input/output direction. */
-	enum port_pin_dir  direction;
+    /** Port buffer input/output direction. */
+    enum port_pin_dir  direction;
 
-	/** Port pull-up/pull-down for input pins. */
-	enum port_pin_pull input_pull;
+    /** Port pull-up/pull-down for input pins. */
+    enum port_pin_pull input_pull;
 
-	/** Enable lowest possible powerstate on the pin
-	 *
-	 *  \note All other configurations will be ignored, the pin will be disabled.
-	 */
-	bool powersave;
+    /** Enable lowest possible powerstate on the pin
+     *
+     *  \note All other configurations will be ignored, the pin will be disabled.
+     */
+    bool powersave;
 };
 
 /** \name State Reading/Writing (Physical Group Orientated)
@@ -318,9 +318,9 @@ struct port_config {
  *  \return Base address of the associated PORT module.
  */
 static inline PortGroup* port_get_group_from_gpio_pin(
-		const uint8_t gpio_pin)
+    const uint8_t gpio_pin)
 {
-	return system_pinmux_get_group_from_gpio_pin(gpio_pin);
+    return system_pinmux_get_group_from_gpio_pin(gpio_pin);
 }
 
 /**
@@ -335,13 +335,13 @@ static inline PortGroup* port_get_group_from_gpio_pin(
  *  \return Status of the port pin(s) input buffers.
  */
 static inline uint32_t port_group_get_input_level(
-		const PortGroup *const port,
-		const uint32_t mask)
+    const PortGroup *const port,
+    const uint32_t mask)
 {
-	/* Sanity check arguments */
-	Assert(port);
+    /* Sanity check arguments */
+    Assert(port);
 
-	return (port->IN.reg & mask);
+    return (port->IN.reg & mask);
 }
 
 /**
@@ -356,13 +356,13 @@ static inline uint32_t port_group_get_input_level(
  *  \return Status of the port pin(s) output buffers.
  */
 static inline uint32_t port_group_get_output_level(
-		const PortGroup *const port,
-		const uint32_t mask)
+    const PortGroup *const port,
+    const uint32_t mask)
 {
-	/* Sanity check arguments */
-	Assert(port);
+    /* Sanity check arguments */
+    Assert(port);
 
-	return (port->OUT.reg & mask);
+    return (port->OUT.reg & mask);
 }
 
 /**
@@ -376,15 +376,15 @@ static inline uint32_t port_group_get_output_level(
  *  \param[in]  level_mask  Mask of the port level(s) to set
  */
 static inline void port_group_set_output_level(
-		PortGroup *const port,
-		const uint32_t mask,
-		const uint32_t level_mask)
+    PortGroup *const port,
+    const uint32_t mask,
+    const uint32_t level_mask)
 {
-	/* Sanity check arguments */
-	Assert(port);
+    /* Sanity check arguments */
+    Assert(port);
 
-	port->OUTSET.reg = (mask &  level_mask);
-	port->OUTCLR.reg = (mask & ~level_mask);
+    port->OUTSET.reg = (mask &  level_mask);
+    port->OUTCLR.reg = (mask & ~level_mask);
 }
 
 /**
@@ -396,13 +396,13 @@ static inline void port_group_set_output_level(
  *  \param[in]  mask  Mask of the port pin(s) to toggle
  */
 static inline void port_group_toggle_output_level(
-		PortGroup *const port,
-		const uint32_t mask)
+    PortGroup *const port,
+    const uint32_t mask)
 {
-	/* Sanity check arguments */
-	Assert(port);
+    /* Sanity check arguments */
+    Assert(port);
 
-	port->OUTTGL.reg = mask;
+    port->OUTTGL.reg = mask;
 }
 
 /** @} */
@@ -425,25 +425,25 @@ static inline void port_group_toggle_output_level(
  *  \param[out] config  Configuration structure to initialize to default values
  */
 static inline void port_get_config_defaults(
-		struct port_config *const config)
+    struct port_config *const config)
 {
-	/* Sanity check arguments */
-	Assert(config);
+    /* Sanity check arguments */
+    Assert(config);
 
-	/* Default configuration values */
-	config->direction  = PORT_PIN_DIR_INPUT;
-	config->input_pull = PORT_PIN_PULL_UP;
-	config->powersave  = false;
+    /* Default configuration values */
+    config->direction  = PORT_PIN_DIR_INPUT;
+    config->input_pull = PORT_PIN_PULL_UP;
+    config->powersave  = false;
 }
 
 void port_pin_set_config(
-		const uint8_t gpio_pin,
-		const struct port_config *const config);
+    const uint8_t gpio_pin,
+    const struct port_config *const config);
 
 void port_group_set_config(
-		PortGroup *const port,
-		const uint32_t mask,
-		const struct port_config *const config);
+    PortGroup *const port,
+    const uint32_t mask,
+    const struct port_config *const config);
 
 /** @} */
 
@@ -462,12 +462,12 @@ void port_group_set_config(
  *  \return Status of the port pin's input buffer.
  */
 static inline bool port_pin_get_input_level(
-		const uint8_t gpio_pin)
+    const uint8_t gpio_pin)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	uint32_t pin_mask  = (1UL << (gpio_pin % 32));
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    uint32_t pin_mask  = (1UL << (gpio_pin % 32));
 
-	return (port_base->IN.reg & pin_mask);
+    return (port_base->IN.reg & pin_mask);
 }
 
 /**
@@ -481,12 +481,12 @@ static inline bool port_pin_get_input_level(
  *  \return Status of the port pin's output buffer.
  */
 static inline bool port_pin_get_output_level(
-		const uint8_t gpio_pin)
+    const uint8_t gpio_pin)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	uint32_t pin_mask  = (1UL << (gpio_pin % 32));
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    uint32_t pin_mask  = (1UL << (gpio_pin % 32));
 
-	return (port_base->OUT.reg & pin_mask);
+    return (port_base->OUT.reg & pin_mask);
 }
 
 /**
@@ -498,18 +498,18 @@ static inline bool port_pin_get_output_level(
  *  \param[in] level     Logical level to set the given pin to
  */
 static inline void port_pin_set_output_level(
-		const uint8_t gpio_pin,
-		const bool level)
+    const uint8_t gpio_pin,
+    const bool level)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	uint32_t pin_mask  = (1UL << (gpio_pin % 32));
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    uint32_t pin_mask  = (1UL << (gpio_pin % 32));
 
-	/* Set the pin to high or low atomically based on the requested level */
-	if (level) {
-		port_base->OUTSET.reg = pin_mask;
-	} else {
-		port_base->OUTCLR.reg = pin_mask;
-	}
+    /* Set the pin to high or low atomically based on the requested level */
+    if (level) {
+        port_base->OUTSET.reg = pin_mask;
+    } else {
+        port_base->OUTCLR.reg = pin_mask;
+    }
 }
 
 /**
@@ -520,13 +520,13 @@ static inline void port_pin_set_output_level(
  *  \param[in] gpio_pin  Index of the GPIO pin to toggle
  */
 static inline void port_pin_toggle_output_level(
-		const uint8_t gpio_pin)
+    const uint8_t gpio_pin)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	uint32_t pin_mask  = (1UL << (gpio_pin % 32));
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    uint32_t pin_mask  = (1UL << (gpio_pin % 32));
 
-	/* Toggle pin output level */
-	port_base->OUTTGL.reg = pin_mask;
+    /* Toggle pin output level */
+    port_base->OUTTGL.reg = pin_mask;
 }
 
 /** @} */
@@ -549,28 +549,28 @@ static inline void port_pin_toggle_output_level(
  * \retval STATUS_OK               Successfully
  */
 static inline enum status_code port_enable_input_event(
-		const uint8_t gpio_pin,
-		const enum port_input_event n)
+    const uint8_t gpio_pin,
+    const enum port_input_event n)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	switch (n) {
-		case PORT_INPUT_EVENT_0:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI0;
-			break;
-		case PORT_INPUT_EVENT_1:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI1;
-			break;
-		case PORT_INPUT_EVENT_2:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI2;
-			break;
-		case PORT_INPUT_EVENT_3:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI3;
-			break;
-		default:
-			Assert(false);
-			return STATUS_ERR_INVALID_ARG;
-	}
-	return STATUS_OK;
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    switch (n) {
+        case PORT_INPUT_EVENT_0:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI0;
+            break;
+        case PORT_INPUT_EVENT_1:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI1;
+            break;
+        case PORT_INPUT_EVENT_2:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI2;
+            break;
+        case PORT_INPUT_EVENT_3:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_PORTEI3;
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
+    }
+    return STATUS_OK;
 }
 
 /**
@@ -585,28 +585,28 @@ static inline enum status_code port_enable_input_event(
  * \retval STATUS_OK               Successfully
  */
 static inline enum status_code port_disable_input_event(
-		const uint8_t gpio_pin,
-		const enum port_input_event n)
+    const uint8_t gpio_pin,
+    const enum port_input_event n)
 {
-	PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
-	switch (n) {
-		case PORT_INPUT_EVENT_0:
-			port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI0;
-			break;
-		case PORT_INPUT_EVENT_1:
-			port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI1;
-			break;
-		case PORT_INPUT_EVENT_2:
-			port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI2;
-			break;
-		case PORT_INPUT_EVENT_3:
-			port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI3;
-			break;
-		default:
-			Assert(false);
-			return STATUS_ERR_INVALID_ARG;
-	}
-	return STATUS_OK;
+    PortGroup *const port_base = port_get_group_from_gpio_pin(gpio_pin);
+    switch (n) {
+        case PORT_INPUT_EVENT_0:
+            port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI0;
+            break;
+        case PORT_INPUT_EVENT_1:
+            port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI1;
+            break;
+        case PORT_INPUT_EVENT_2:
+            port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI2;
+            break;
+        case PORT_INPUT_EVENT_3:
+            port_base->EVCTRL.reg &= ~PORT_EVCTRL_PORTEI3;
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
+    }
+    return STATUS_OK;
 }
 
 /**
@@ -619,11 +619,11 @@ static inline enum status_code port_disable_input_event(
  * \param[out] config  Configuration structure to fill with default values
  */
 static inline void port_input_event_get_config_defaults(
-		struct port_input_event_config *const config)
+    struct port_input_event_config *const config)
 {
-	Assert(config);
-	config->action   = PORT_INPUT_EVENT_ACTION_OUT;
-	config->gpio_pin = 0;
+    Assert(config);
+    config->action   = PORT_INPUT_EVENT_ACTION_OUT;
+    config->gpio_pin = 0;
 }
 
 /**
@@ -638,41 +638,41 @@ static inline void port_input_event_get_config_defaults(
  */
 
 static inline enum status_code port_input_event_set_config(
-		const enum port_input_event n,
-		struct port_input_event_config *const config)
+    const enum port_input_event n,
+    struct port_input_event_config *const config)
 {
-	Assert(config);
-	PortGroup *const port_base = port_get_group_from_gpio_pin(config->gpio_pin);
-	uint8_t pin_index = config->gpio_pin % 32;
-	struct port_config pin_conf;
+    Assert(config);
+    PortGroup *const port_base = port_get_group_from_gpio_pin(config->gpio_pin);
+    uint8_t pin_index = config->gpio_pin % 32;
+    struct port_config pin_conf;
 
-	port_get_config_defaults(&pin_conf);
-	/* Configure the GPIO pin as outputs*/
-	pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
-	port_pin_set_config(config->gpio_pin, &pin_conf);
+    port_get_config_defaults(&pin_conf);
+    /* Configure the GPIO pin as outputs*/
+    pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
+    port_pin_set_config(config->gpio_pin, &pin_conf);
 
-	switch (n) {
-		case PORT_INPUT_EVENT_0:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-						   		   | PORT_EVCTRL_PID0(pin_index);
-			break;
-		case PORT_INPUT_EVENT_1:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-						   		   | PORT_EVCTRL_PID0(pin_index);
-			break;
-		case PORT_INPUT_EVENT_2:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-						   		   | PORT_EVCTRL_PID0(pin_index);
-			break;
-		case PORT_INPUT_EVENT_3:
-			port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-						   		   | PORT_EVCTRL_PID0(pin_index);
-			break;
-		default:
-			Assert(false);
-			return STATUS_ERR_INVALID_ARG;
-	}
-	return STATUS_OK;
+    switch (n) {
+        case PORT_INPUT_EVENT_0:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
+                                     | PORT_EVCTRL_PID0(pin_index);
+            break;
+        case PORT_INPUT_EVENT_1:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
+                                     | PORT_EVCTRL_PID0(pin_index);
+            break;
+        case PORT_INPUT_EVENT_2:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
+                                     | PORT_EVCTRL_PID0(pin_index);
+            break;
+        case PORT_INPUT_EVENT_3:
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
+                                     | PORT_EVCTRL_PID0(pin_index);
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
+    }
+    return STATUS_OK;
 }
 
 /** @} */

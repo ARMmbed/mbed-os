@@ -91,6 +91,6 @@
  * -# Adjust the configuration of the pin to enable on-demand sampling mode.
  *    \snippet qs_pinmux_basic.c pinmux_change_input_sampling
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/

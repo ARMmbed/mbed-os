@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef UTILS_INTERRUPT_INTERRUPT_H
 #define UTILS_INTERRUPT_INTERRUPT_H
@@ -150,20 +150,20 @@ static volatile bool     cpu_irq_prev_interrupt_state;
 
 static inline irqflags_t cpu_irq_save(void)
 {
-	irqflags_t flags = cpu_irq_is_enabled();
-	cpu_irq_disable();
-	return flags;
+    irqflags_t flags = cpu_irq_is_enabled();
+    cpu_irq_disable();
+    return flags;
 }
 
 static inline bool cpu_irq_is_enabled_flags(irqflags_t flags)
 {
-	return (flags);
+    return (flags);
 }
 
 static inline void cpu_irq_restore(irqflags_t flags)
 {
-	if (cpu_irq_is_enabled_flags(flags))
-		cpu_irq_enable();
+    if (cpu_irq_is_enabled_flags(flags))
+        cpu_irq_enable();
 }
 
 void cpu_irq_enter_critical(void);

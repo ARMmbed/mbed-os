@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #include "sercom_interrupt.h"
 
 void *_sercom_instances[SERCOM_INST_NUM];
@@ -60,9 +60,9 @@ static void (*_sercom_interrupt_handlers[SERCOM_INST_NUM])(const uint8_t instanc
  * \param[in] instance SERCOM instance used.
  */
 static void _sercom_default_handler(
-		const uint8_t instance)
+    const uint8_t instance)
 {
-	Assert(false);
+    Assert(false);
 }
 
 /**
@@ -73,21 +73,21 @@ static void _sercom_default_handler(
  * \param[in]  interrupt_handler  Pointer to instance callback handler.
  */
 void _sercom_set_handler(
-		const uint8_t instance,
-		const sercom_handler_t interrupt_handler)
+    const uint8_t instance,
+    const sercom_handler_t interrupt_handler)
 {
-	/* Initialize handlers with default handler and device instances with 0. */
-	if (_handler_table_initialized == false) {
-		for (uint32_t i = 0; i < SERCOM_INST_NUM; i++) {
-			_sercom_interrupt_handlers[i] = &_sercom_default_handler;
-			_sercom_instances[i] = NULL;
-		}
+    /* Initialize handlers with default handler and device instances with 0. */
+    if (_handler_table_initialized == false) {
+        for (uint32_t i = 0; i < SERCOM_INST_NUM; i++) {
+            _sercom_interrupt_handlers[i] = &_sercom_default_handler;
+            _sercom_instances[i] = NULL;
+        }
 
-		_handler_table_initialized = true;
-	}
+        _handler_table_initialized = true;
+    }
 
-	/* Save interrupt handler. */
-	_sercom_interrupt_handlers[instance] = interrupt_handler;
+    /* Save interrupt handler. */
+    _sercom_interrupt_handlers[instance] = interrupt_handler;
 }
 
 
@@ -123,18 +123,17 @@ void _sercom_set_handler(
  * \retval SYSTEM_INTERRUPT_MODULE_SERCOM7
  */
 enum system_interrupt_vector _sercom_get_interrupt_vector(
-		Sercom *const sercom_instance)
+    Sercom *const sercom_instance)
 {
-	const uint8_t sercom_int_vectors[SERCOM_INST_NUM] =
-		{
-			MREPEAT(SERCOM_INST_NUM, _SERCOM_INTERRUPT_VECT_NUM, ~)
-		};
+    const uint8_t sercom_int_vectors[SERCOM_INST_NUM] = {
+        MREPEAT(SERCOM_INST_NUM, _SERCOM_INTERRUPT_VECT_NUM, ~)
+    };
 
-	/* Retrieve the index of the SERCOM being requested */
-	uint8_t instance_index = _sercom_get_sercom_inst_index(sercom_instance);
+    /* Retrieve the index of the SERCOM being requested */
+    uint8_t instance_index = _sercom_get_sercom_inst_index(sercom_instance);
 
-	/* Get the vector number from the lookup table for the requested SERCOM */
-	return (enum system_interrupt_vector)sercom_int_vectors[instance_index];
+    /* Get the vector number from the lookup table for the requested SERCOM */
+    return (enum system_interrupt_vector)sercom_int_vectors[instance_index];
 }
 
 /** Auto-generate a set of interrupt handlers for each SERCOM in the device */

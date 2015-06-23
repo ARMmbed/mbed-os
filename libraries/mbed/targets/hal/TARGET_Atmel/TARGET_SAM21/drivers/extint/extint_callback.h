@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef EXTINT_CALLBACK_H_INCLUDED
 #define EXTINT_CALLBACK_H_INCLUDED
 
@@ -63,23 +63,22 @@ extern "C" {
  */
 
 /** Enum for the possible callback types for the EXTINT module. */
-enum extint_callback_type
-{
-	/** Callback type for when an external interrupt detects the configured
-	 *  channel criteria (i.e. edge or level detection)
-	 */
-	EXTINT_CALLBACK_TYPE_DETECT,
+enum extint_callback_type {
+    /** Callback type for when an external interrupt detects the configured
+     *  channel criteria (i.e. edge or level detection)
+     */
+    EXTINT_CALLBACK_TYPE_DETECT,
 };
 
 enum status_code extint_register_callback(
-	const extint_callback_t callback,
-	const uint8_t channel,
-	const enum extint_callback_type type);
+    const extint_callback_t callback,
+    const uint8_t channel,
+    const enum extint_callback_type type);
 
 enum status_code extint_unregister_callback(
-	const extint_callback_t callback,
-	const uint8_t channel,
-	const enum extint_callback_type type);
+    const extint_callback_t callback,
+    const uint8_t channel,
+    const enum extint_callback_type type);
 
 uint8_t extint_get_current_channel(void);
 
@@ -90,12 +89,12 @@ uint8_t extint_get_current_channel(void);
  */
 
 enum status_code extint_chan_enable_callback(
-	const uint8_t channel,
-	const enum extint_callback_type type);
+    const uint8_t channel,
+    const enum extint_callback_type type);
 
 enum status_code extint_chan_disable_callback(
-	const uint8_t channel,
-	const enum extint_callback_type type);
+    const uint8_t channel,
+    const enum extint_callback_type type);
 
 /** @} */
 

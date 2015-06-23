@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMD21_TCC0_INSTANCE_
 #define _SAMD21_TCC0_INSTANCE_
@@ -127,7 +127,7 @@
 #define TCC0_OTMX                   1        // Output Matrix feature implemented
 #define TCC0_OW_NUM                 8        // Number of Output Waveforms
 #define TCC0_PG                     1        // Pattern Generation feature implemented
-#define TCC0_SIZE                   24      
+#define TCC0_SIZE                   24
 #define TCC0_SWAP                   1        // DTI outputs swap feature implemented
 #define TCC0_TYPE                   0        // TCC type 0 : NA, 1 : Master, 2 : Slave
 

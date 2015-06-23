@@ -19,15 +19,14 @@
 
 uint8_t g_sys_init = 0;
 
- //called before main - implement here if board needs it ortherwise, let
- // the application override this if necessary
- //TODO: To be implemented by adding system init and board init
+//called before main - implement here if board needs it ortherwise, let
+// the application override this if necessary
+//TODO: To be implemented by adding system init and board init
 void mbed_sdk_init()
 {
-    if(g_sys_init == 0)
-    {
+    if(g_sys_init == 0) {
         g_sys_init = 1;
         system_init();
-	}
+    }
 }
 /***************************************************************/

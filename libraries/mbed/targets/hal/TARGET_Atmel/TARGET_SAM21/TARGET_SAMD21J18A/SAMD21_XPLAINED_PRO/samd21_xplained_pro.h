@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef SAMD21_XPLAINED_PRO_H_INCLUDED
 #define SAMD21_XPLAINED_PRO_H_INCLUDED
@@ -374,9 +374,9 @@ void system_board_init(void);
 #define EXT2_IRQ_PINMUX           PINMUX_PB14A_EIC_EXTINT14
 /** @} */
 
- /** \name Extension header #2 I2C definitions
- *  @{
- */
+/** \name Extension header #2 I2C definitions
+*  @{
+*/
 #define EXT2_I2C_MODULE              SERCOM2
 #define EXT2_I2C_SERCOM_PINMUX_PAD0  PINMUX_PA08D_SERCOM2_PAD0
 #define EXT2_I2C_SERCOM_PINMUX_PAD1  PINMUX_PA09D_SERCOM2_PAD1

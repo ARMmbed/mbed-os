@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #include <system.h>
 
@@ -54,7 +54,7 @@
 void _system_dummy_init(void);
 void _system_dummy_init(void)
 {
-	return;
+    return;
 }
 
 #if !defined(__DOXYGEN__)
@@ -90,16 +90,16 @@ void _system_extint_init(void);
  */
 void system_init(void)
 {
-	/* Configure GCLK and clock sources according to conf_clocks.h */
-	system_clock_init();
+    /* Configure GCLK and clock sources according to conf_clocks.h */
+    system_clock_init();
 
-	/* Initialize board hardware */
-	system_board_init();
+    /* Initialize board hardware */
+    system_board_init();
 
-	/* Initialize EVSYS hardware */
-	_system_events_init();
+    /* Initialize EVSYS hardware */
+    _system_events_init();
 
-	/* Initialize External hardware */
-	_system_extint_init();
+    /* Initialize External hardware */
+    _system_extint_init();
 }
 

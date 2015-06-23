@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef I2C_COMMON_H_INCLUDED
 #define I2C_COMMON_H_INCLUDED
 
@@ -417,10 +417,10 @@ extern "C" {
  * For slave: direction of request from master.
  */
 enum i2c_transfer_direction {
-	/** Master write operation is in progress. */
-	I2C_TRANSFER_WRITE = 0,
-	/** Master read operation is in progress. */
-	I2C_TRANSFER_READ  = 1,
+    /** Master write operation is in progress. */
+    I2C_TRANSFER_WRITE = 0,
+    /** Master read operation is in progress. */
+    I2C_TRANSFER_READ  = 1,
 };
 
 /** @} */

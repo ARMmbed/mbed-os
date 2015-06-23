@@ -38,9 +38,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef UTILS_COMPILER_H_INCLUDED
 #define UTILS_COMPILER_H_INCLUDED
@@ -220,140 +220,129 @@ typedef uint32_t                iram_size_t;
  * @{ */
 
 /** 16-bit union. */
-typedef union
-{
-  int16_t  s16;
-  uint16_t u16;
-  int8_t   s8[2];
-  uint8_t  u8[2];
+typedef union {
+    int16_t  s16;
+    uint16_t u16;
+    int8_t   s8[2];
+    uint8_t  u8[2];
 } Union16;
 
 /** 32-bit union. */
-typedef union
-{
-  int32_t  s32;
-  uint32_t u32;
-  int16_t  s16[2];
-  uint16_t u16[2];
-  int8_t   s8[4];
-  uint8_t  u8[4];
+typedef union {
+    int32_t  s32;
+    uint32_t u32;
+    int16_t  s16[2];
+    uint16_t u16[2];
+    int8_t   s8[4];
+    uint8_t  u8[4];
 } Union32;
 
 /** 64-bit union. */
-typedef union
-{
-  int64_t  s64;
-  uint64_t u64;
-  int32_t  s32[2];
-  uint32_t u32[2];
-  int16_t  s16[4];
-  uint16_t u16[4];
-  int8_t   s8[8];
-  uint8_t  u8[8];
+typedef union {
+    int64_t  s64;
+    uint64_t u64;
+    int32_t  s32[2];
+    uint32_t u32[2];
+    int16_t  s16[4];
+    uint16_t u16[4];
+    int8_t   s8[8];
+    uint8_t  u8[8];
 } Union64;
 
 /** Union of pointers to 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef union
-{
-  int64_t  *s64ptr;
-  uint64_t *u64ptr;
-  int32_t  *s32ptr;
-  uint32_t *u32ptr;
-  int16_t  *s16ptr;
-  uint16_t *u16ptr;
-  int8_t   *s8ptr;
-  uint8_t  *u8ptr;
+typedef union {
+    int64_t  *s64ptr;
+    uint64_t *u64ptr;
+    int32_t  *s32ptr;
+    uint32_t *u32ptr;
+    int16_t  *s16ptr;
+    uint16_t *u16ptr;
+    int8_t   *s8ptr;
+    uint8_t  *u8ptr;
 } UnionPtr;
 
 /** Union of pointers to volatile 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef union
-{
-  volatile int64_t  *s64ptr;
-  volatile uint64_t *u64ptr;
-  volatile int32_t  *s32ptr;
-  volatile uint32_t *u32ptr;
-  volatile int16_t  *s16ptr;
-  volatile uint16_t *u16ptr;
-  volatile int8_t   *s8ptr;
-  volatile uint8_t  *u8ptr;
+typedef union {
+    volatile int64_t  *s64ptr;
+    volatile uint64_t *u64ptr;
+    volatile int32_t  *s32ptr;
+    volatile uint32_t *u32ptr;
+    volatile int16_t  *s16ptr;
+    volatile uint16_t *u16ptr;
+    volatile int8_t   *s8ptr;
+    volatile uint8_t  *u8ptr;
 } UnionVPtr;
 
 /** Union of pointers to constant 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef union
-{
-  const int64_t  *s64ptr;
-  const uint64_t *u64ptr;
-  const int32_t  *s32ptr;
-  const uint32_t *u32ptr;
-  const int16_t  *s16ptr;
-  const uint16_t *u16ptr;
-  const int8_t   *s8ptr;
-  const uint8_t  *u8ptr;
+typedef union {
+    const int64_t  *s64ptr;
+    const uint64_t *u64ptr;
+    const int32_t  *s32ptr;
+    const uint32_t *u32ptr;
+    const int16_t  *s16ptr;
+    const uint16_t *u16ptr;
+    const int8_t   *s8ptr;
+    const uint8_t  *u8ptr;
 } UnionCPtr;
 
 /** Union of pointers to constant volatile 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef union
-{
-  const volatile int64_t  *s64ptr;
-  const volatile uint64_t *u64ptr;
-  const volatile int32_t  *s32ptr;
-  const volatile uint32_t *u32ptr;
-  const volatile int16_t  *s16ptr;
-  const volatile uint16_t *u16ptr;
-  const volatile int8_t   *s8ptr;
-  const volatile uint8_t  *u8ptr;
+typedef union {
+    const volatile int64_t  *s64ptr;
+    const volatile uint64_t *u64ptr;
+    const volatile int32_t  *s32ptr;
+    const volatile uint32_t *u32ptr;
+    const volatile int16_t  *s16ptr;
+    const volatile uint16_t *u16ptr;
+    const volatile int8_t   *s8ptr;
+    const volatile uint8_t  *u8ptr;
 } UnionCVPtr;
 
 /** Structure of pointers to 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef struct
-{
-  int64_t  *s64ptr;
-  uint64_t *u64ptr;
-  int32_t  *s32ptr;
-  uint32_t *u32ptr;
-  int16_t  *s16ptr;
-  uint16_t *u16ptr;
-  int8_t   *s8ptr;
-  uint8_t  *u8ptr;
+typedef struct {
+    int64_t  *s64ptr;
+    uint64_t *u64ptr;
+    int32_t  *s32ptr;
+    uint32_t *u32ptr;
+    int16_t  *s16ptr;
+    uint16_t *u16ptr;
+    int8_t   *s8ptr;
+    uint8_t  *u8ptr;
 } StructPtr;
 
 /** Structure of pointers to volatile 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef struct
-{
-  volatile int64_t  *s64ptr;
-  volatile uint64_t *u64ptr;
-  volatile int32_t  *s32ptr;
-  volatile uint32_t *u32ptr;
-  volatile int16_t  *s16ptr;
-  volatile uint16_t *u16ptr;
-  volatile int8_t   *s8ptr;
-  volatile uint8_t  *u8ptr;
+typedef struct {
+    volatile int64_t  *s64ptr;
+    volatile uint64_t *u64ptr;
+    volatile int32_t  *s32ptr;
+    volatile uint32_t *u32ptr;
+    volatile int16_t  *s16ptr;
+    volatile uint16_t *u16ptr;
+    volatile int8_t   *s8ptr;
+    volatile uint8_t  *u8ptr;
 } StructVPtr;
 
 /** Structure of pointers to constant 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef struct
-{
-  const int64_t  *s64ptr;
-  const uint64_t *u64ptr;
-  const int32_t  *s32ptr;
-  const uint32_t *u32ptr;
-  const int16_t  *s16ptr;
-  const uint16_t *u16ptr;
-  const int8_t   *s8ptr;
-  const uint8_t  *u8ptr;
+typedef struct {
+    const int64_t  *s64ptr;
+    const uint64_t *u64ptr;
+    const int32_t  *s32ptr;
+    const uint32_t *u32ptr;
+    const int16_t  *s16ptr;
+    const uint16_t *u16ptr;
+    const int8_t   *s8ptr;
+    const uint8_t  *u8ptr;
 } StructCPtr;
 
 /** Structure of pointers to constant volatile 64-, 32-, 16- and 8-bit unsigned integers. */
-typedef struct
-{
-  const volatile int64_t  *s64ptr;
-  const volatile uint64_t *u64ptr;
-  const volatile int32_t  *s32ptr;
-  const volatile uint32_t *u32ptr;
-  const volatile int16_t  *s16ptr;
-  const volatile uint16_t *u16ptr;
-  const volatile int8_t   *s8ptr;
-  const volatile uint8_t  *u8ptr;
+typedef struct {
+    const volatile int64_t  *s64ptr;
+    const volatile uint64_t *u64ptr;
+    const volatile int32_t  *s32ptr;
+    const volatile uint32_t *u32ptr;
+    const volatile int16_t  *s16ptr;
+    const volatile uint16_t *u16ptr;
+    const volatile int8_t   *s8ptr;
+    const volatile uint8_t  *u8ptr;
 } StructCVPtr;
 
 /** @} */
@@ -1078,8 +1067,7 @@ static inline void convert_64_bit_to_byte_array(uint64_t value, uint8_t *data)
 {
     uint8_t index = 0;
 
-    while (index < 8)
-    {
+    while (index < 8) {
         data[index++] = value & 0xFF;
         value = value >> 8;
     }
@@ -1128,17 +1116,15 @@ static inline uint16_t convert_byte_array_to_16_bit(uint8_t *data)
 /* Converts a 4 Byte array into a 32-Bit value */
 static inline uint32_t convert_byte_array_to_32_bit(uint8_t *data)
 {
-	union
-	{
-		uint32_t u32;
-		uint8_t u8[4];
-	}long_addr;
-	uint8_t index;
-	for (index = 0; index < 4; index++)
-	{
-		long_addr.u8[index] = *data++;
-	}
-	return long_addr.u32;
+    union {
+        uint32_t u32;
+        uint8_t u8[4];
+    } long_addr;
+    uint8_t index;
+    for (index = 0; index < 4; index++) {
+        long_addr.u8[index] = *data++;
+    }
+    return long_addr.u32;
 }
 
 /**
@@ -1151,16 +1137,14 @@ static inline uint32_t convert_byte_array_to_32_bit(uint8_t *data)
  */
 static inline uint64_t convert_byte_array_to_64_bit(uint8_t *data)
 {
-    union
-    {
+    union {
         uint64_t u64;
         uint8_t u8[8];
     } long_addr;
 
     uint8_t index;
 
-    for (index = 0; index < 8; index++)
-    {
+    for (index = 0; index < 8; index++) {
         long_addr.u8[index] = *data++;
     }
 

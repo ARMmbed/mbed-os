@@ -35,7 +35,7 @@ struct port_s {
     __IO uint32_t *OUTCLR;
     __IO uint32_t *OUTSET;
     __I uint32_t *IN;
-	
+
     PortName port;
     uint32_t mask;
 };

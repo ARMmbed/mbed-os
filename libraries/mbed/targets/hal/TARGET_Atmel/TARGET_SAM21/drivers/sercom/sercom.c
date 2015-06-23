@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #include "sercom.h"
 
 #define SHIFT 32
@@ -54,10 +54,10 @@
  * \internal Configuration structure to save current gclk status.
  */
 struct _sercom_conf {
-	/* Status of gclk generator initialization. */
-	bool generator_is_set;
-	/* Sercom gclk generator used. */
-	enum gclk_generator generator_source;
+    /* Status of gclk generator initialization. */
+    bool generator_is_set;
+    /* Sercom gclk generator used. */
+    enum gclk_generator generator_source;
 };
 
 static struct _sercom_conf _sercom_config;
@@ -69,113 +69,113 @@ static struct _sercom_conf _sercom_config;
  */
 static uint64_t long_division(uint64_t n, uint64_t d)
 {
-	int32_t i;
-	uint64_t q = 0, r = 0, bit_shift;
-	for (i = 63; i >= 0; i--) {
-		bit_shift = (uint64_t)1 << i;
+    int32_t i;
+    uint64_t q = 0, r = 0, bit_shift;
+    for (i = 63; i >= 0; i--) {
+        bit_shift = (uint64_t)1 << i;
 
-		r = r << 1;
+        r = r << 1;
 
-		if (n & bit_shift) {
-			r |= 0x01;
-		}
+        if (n & bit_shift) {
+            r |= 0x01;
+        }
 
-		if (r >= d) {
-			r = r - d;
-			q |= bit_shift;
-		}
-	}
+        if (r >= d) {
+            r = r - d;
+            q |= bit_shift;
+        }
+    }
 
-	return q;
+    return q;
 }
 
 /**
  * \internal Calculate synchronous baudrate value (SPI/UART)
  */
 enum status_code _sercom_get_sync_baud_val(
-		const uint32_t baudrate,
-		const uint32_t external_clock,
-		uint16_t *const baudvalue)
+    const uint32_t baudrate,
+    const uint32_t external_clock,
+    uint16_t *const baudvalue)
 {
-	/* Baud value variable */
-	uint16_t baud_calculated = 0;
-	uint32_t clock_value = external_clock;
+    /* Baud value variable */
+    uint16_t baud_calculated = 0;
+    uint32_t clock_value = external_clock;
 
 
-	/* Check if baudrate is outside of valid range. */
-	if (baudrate > (external_clock / 2)) {
-		/* Return with error code */
-		return STATUS_ERR_BAUDRATE_UNAVAILABLE;
-	}
+    /* Check if baudrate is outside of valid range. */
+    if (baudrate > (external_clock / 2)) {
+        /* Return with error code */
+        return STATUS_ERR_BAUDRATE_UNAVAILABLE;
+    }
 
-	/* Calculate BAUD value from clock frequency and baudrate */
-	clock_value = external_clock / 2;
-	while (clock_value >= baudrate) {
-		clock_value = clock_value - baudrate;
-		baud_calculated++;
-	}
-	baud_calculated = baud_calculated - 1;
+    /* Calculate BAUD value from clock frequency and baudrate */
+    clock_value = external_clock / 2;
+    while (clock_value >= baudrate) {
+        clock_value = clock_value - baudrate;
+        baud_calculated++;
+    }
+    baud_calculated = baud_calculated - 1;
 
-	/* Check if BAUD value is more than 255, which is maximum
-	 * for synchronous mode */
-	if (baud_calculated > 0xFF) {
-		/* Return with an error code */
-		return STATUS_ERR_BAUDRATE_UNAVAILABLE;
-	} else {
-		*baudvalue = baud_calculated;
-		return STATUS_OK;
-	}
+    /* Check if BAUD value is more than 255, which is maximum
+     * for synchronous mode */
+    if (baud_calculated > 0xFF) {
+        /* Return with an error code */
+        return STATUS_ERR_BAUDRATE_UNAVAILABLE;
+    } else {
+        *baudvalue = baud_calculated;
+        return STATUS_OK;
+    }
 }
 
 /**
  * \internal Calculate asynchronous baudrate value (UART)
 */
 enum status_code _sercom_get_async_baud_val(
-		const uint32_t baudrate,
-		const uint32_t peripheral_clock,
-		uint16_t *const baudval,
-		enum sercom_asynchronous_operation_mode mode,
-		enum sercom_asynchronous_sample_num sample_num)
+    const uint32_t baudrate,
+    const uint32_t peripheral_clock,
+    uint16_t *const baudval,
+    enum sercom_asynchronous_operation_mode mode,
+    enum sercom_asynchronous_sample_num sample_num)
 {
-	/* Temporary variables  */
-	uint64_t ratio = 0;
-	uint64_t scale = 0;
-	uint64_t baud_calculated = 0;
-	uint8_t baud_fp;
-	uint32_t baud_int = 0;
-	uint64_t temp1, temp2;
+    /* Temporary variables  */
+    uint64_t ratio = 0;
+    uint64_t scale = 0;
+    uint64_t baud_calculated = 0;
+    uint8_t baud_fp;
+    uint32_t baud_int = 0;
+    uint64_t temp1, temp2;
 
-	/* Check if the baudrate is outside of valid range */
-	if ((baudrate * sample_num) > peripheral_clock) {
-		/* Return with error code */
-		return STATUS_ERR_BAUDRATE_UNAVAILABLE;
-	}
+    /* Check if the baudrate is outside of valid range */
+    if ((baudrate * sample_num) > peripheral_clock) {
+        /* Return with error code */
+        return STATUS_ERR_BAUDRATE_UNAVAILABLE;
+    }
 
-	if(mode == SERCOM_ASYNC_OPERATION_MODE_ARITHMETIC) {
-		/* Calculate the BAUD value */
-		temp1 = ((sample_num * (uint64_t)baudrate) << SHIFT);
-		ratio = long_division(temp1, peripheral_clock);
-		scale = ((uint64_t)1 << SHIFT) - ratio;
-		baud_calculated = (65536 * scale) >> SHIFT;
-	} else if(mode == SERCOM_ASYNC_OPERATION_MODE_FRACTIONAL) {
-		for(baud_fp = 0; baud_fp < BAUD_FP_MAX; baud_fp++) {
-			temp1 = BAUD_FP_MAX * (uint64_t)peripheral_clock;
-			temp2 = ((uint64_t)baudrate * sample_num);
-			baud_int = long_division(temp1, temp2);
-			baud_int -= baud_fp;
-			baud_int = baud_int / BAUD_FP_MAX;
-			if(baud_int < BAUD_INT_MAX) {
-				break;
-			}
-		}
-		if(baud_fp == BAUD_FP_MAX) {
-			return STATUS_ERR_BAUDRATE_UNAVAILABLE;
-		}
-		baud_calculated = baud_int | (baud_fp << 13);
-	}
+    if(mode == SERCOM_ASYNC_OPERATION_MODE_ARITHMETIC) {
+        /* Calculate the BAUD value */
+        temp1 = ((sample_num * (uint64_t)baudrate) << SHIFT);
+        ratio = long_division(temp1, peripheral_clock);
+        scale = ((uint64_t)1 << SHIFT) - ratio;
+        baud_calculated = (65536 * scale) >> SHIFT;
+    } else if(mode == SERCOM_ASYNC_OPERATION_MODE_FRACTIONAL) {
+        for(baud_fp = 0; baud_fp < BAUD_FP_MAX; baud_fp++) {
+            temp1 = BAUD_FP_MAX * (uint64_t)peripheral_clock;
+            temp2 = ((uint64_t)baudrate * sample_num);
+            baud_int = long_division(temp1, temp2);
+            baud_int -= baud_fp;
+            baud_int = baud_int / BAUD_FP_MAX;
+            if(baud_int < BAUD_INT_MAX) {
+                break;
+            }
+        }
+        if(baud_fp == BAUD_FP_MAX) {
+            return STATUS_ERR_BAUDRATE_UNAVAILABLE;
+        }
+        baud_calculated = baud_int | (baud_fp << 13);
+    }
 
-	*baudval = baud_calculated;
-	return STATUS_OK;
+    *baudval = baud_calculated;
+    return STATUS_OK;
 }
 #endif
 
@@ -200,30 +200,30 @@ enum status_code _sercom_get_async_baud_val(
  *                                         forced.
  */
 enum status_code sercom_set_gclk_generator(
-		const enum gclk_generator generator_source,
-		const bool force_change)
+    const enum gclk_generator generator_source,
+    const bool force_change)
 {
-	/* Check if valid option. */
-	if (!_sercom_config.generator_is_set || force_change) {
-		/* Create and fill a GCLK configuration structure for the new config. */
-		struct system_gclk_chan_config gclk_chan_conf;
-		system_gclk_chan_get_config_defaults(&gclk_chan_conf);
-		gclk_chan_conf.source_generator = generator_source;
-		system_gclk_chan_set_config(SERCOM_GCLK_ID, &gclk_chan_conf);
-		system_gclk_chan_enable(SERCOM_GCLK_ID);
+    /* Check if valid option. */
+    if (!_sercom_config.generator_is_set || force_change) {
+        /* Create and fill a GCLK configuration structure for the new config. */
+        struct system_gclk_chan_config gclk_chan_conf;
+        system_gclk_chan_get_config_defaults(&gclk_chan_conf);
+        gclk_chan_conf.source_generator = generator_source;
+        system_gclk_chan_set_config(SERCOM_GCLK_ID, &gclk_chan_conf);
+        system_gclk_chan_enable(SERCOM_GCLK_ID);
 
-		/* Save config. */
-		_sercom_config.generator_source = generator_source;
-		_sercom_config.generator_is_set = true;
+        /* Save config. */
+        _sercom_config.generator_source = generator_source;
+        _sercom_config.generator_is_set = true;
 
-		return STATUS_OK;
-	} else if (generator_source == _sercom_config.generator_source) {
-		/* Return status OK if same config. */
-		return STATUS_OK;
-	}
+        return STATUS_OK;
+    } else if (generator_source == _sercom_config.generator_source) {
+        /* Return status OK if same config. */
+        return STATUS_OK;
+    }
 
-	/* Return invalid config to already initialized GCLK. */
-	return STATUS_ERR_ALREADY_INITIALIZED;
+    /* Return invalid config to already initialized GCLK. */
+    return STATUS_ERR_ALREADY_INITIALIZED;
 }
 
 /** \internal
@@ -257,16 +257,16 @@ enum status_code sercom_set_gclk_generator(
  *
  */
 uint32_t _sercom_get_default_pad(
-		Sercom *const sercom_module,
-		const uint8_t pad)
+    Sercom *const sercom_module,
+    const uint8_t pad)
 {
-	switch ((uintptr_t)sercom_module) {
-		/* Auto-generate a lookup table for the default SERCOM pad defaults */
-		MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_DEFAULTS_CASE, pad)
-	}
+    switch ((uintptr_t)sercom_module) {
+            /* Auto-generate a lookup table for the default SERCOM pad defaults */
+            MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_DEFAULTS_CASE, pad)
+    }
 
-	Assert(false);
-	return 0;
+    Assert(false);
+    return 0;
 }
 
 /**
@@ -278,19 +278,19 @@ uint32_t _sercom_get_default_pad(
  * \return Index of given instance.
  */
 uint8_t _sercom_get_sercom_inst_index(
-		Sercom *const sercom_instance)
+    Sercom *const sercom_instance)
 {
-	/* Save all available SERCOM instances for compare. */
-	Sercom *sercom_instances[SERCOM_INST_NUM] = SERCOM_INSTS;
+    /* Save all available SERCOM instances for compare. */
+    Sercom *sercom_instances[SERCOM_INST_NUM] = SERCOM_INSTS;
 
-	/* Find index for sercom instance. */
-	for (uint32_t i = 0; i < SERCOM_INST_NUM; i++) {
-		if ((uintptr_t)sercom_instance == (uintptr_t)sercom_instances[i]) {
-			return i;
-		}
-	}
+    /* Find index for sercom instance. */
+    for (uint32_t i = 0; i < SERCOM_INST_NUM; i++) {
+        if ((uintptr_t)sercom_instance == (uintptr_t)sercom_instances[i]) {
+            return i;
+        }
+    }
 
-	/* Invalid data given. */
-	Assert(false);
-	return 0;
+    /* Invalid data given. */
+    Assert(false);
+    return 0;
 }

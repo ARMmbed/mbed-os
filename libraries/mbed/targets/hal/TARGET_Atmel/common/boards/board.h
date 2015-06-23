@@ -43,9 +43,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _BOARD_H_
 #define _BOARD_H_
@@ -185,7 +185,7 @@ extern "C" {
 #elif BOARD == XPLAIN
 #  include "xplain/xplain.h"
 #elif BOARD == STK600_MEGA
-  /*No header-file to include*/
+/*No header-file to include*/
 #elif BOARD == STK600_MEGA_RF
 #  include "stk600.h"
 #elif BOARD == ATMEGA256RFR2_XPLAINED_PRO
@@ -254,7 +254,7 @@ extern "C" {
 #  include "sam4s_ek2/sam4s_ek2.h"
 #  include "system_sam4s.h"
 #elif BOARD == MEGA_1284P_XPLAINED
-  /*No header-file to include*/
+/*No header-file to include*/
 #elif BOARD == ARDUINO_DUE_X
 #  include "arduino_due_x/arduino_due_x.h"
 #  include "system_sam3x.h"
@@ -327,7 +327,7 @@ extern "C" {
 #elif BOARD == AVR_SIMULATOR_UC3
 #  include "avr_simulator_uc3/avr_simulator_uc3.h"
 #elif BOARD == USER_BOARD
-  // User-reserved area: #include the header file of your board here (if any).
+// User-reserved area: #include the header file of your board here (if any).
 #  include "user_board.h"
 #elif BOARD == DUMMY_BOARD
 #  include "dummy/dummy_board.h"
@@ -354,8 +354,8 @@ extern "C" {
 #  elif EXT_BOARD == SECURITY_XPLAINED
 #    include "security_xplained.h"
 #  elif EXT_BOARD == USER_EXT_BOARD
-    // User-reserved area: #include the header file of your extension board here
-    // (if any).
+// User-reserved area: #include the header file of your extension board here
+// (if any).
 #  endif
 #endif
 

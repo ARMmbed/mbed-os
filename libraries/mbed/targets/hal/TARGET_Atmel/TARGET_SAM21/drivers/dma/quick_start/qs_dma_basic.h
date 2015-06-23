@@ -150,6 +150,6 @@
  * -# Waiting for the setting of the transfer done flag.
  *    \snippet qs_dma_basic.c main_2
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/

@@ -103,6 +103,6 @@
  *    an output in the use-case setup code.
  *    \snippet qs_port_basic.c main_2
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/

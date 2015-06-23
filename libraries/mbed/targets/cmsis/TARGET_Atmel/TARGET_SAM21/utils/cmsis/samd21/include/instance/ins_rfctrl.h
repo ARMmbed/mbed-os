@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMR21_RFCTRL_INSTANCE_
 #define _SAMR21_RFCTRL_INSTANCE_
@@ -55,6 +55,6 @@
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for RFCTRL peripheral ========== */
-#define RFCTRL_FBUSMSB              5       
+#define RFCTRL_FBUSMSB              5
 
 #endif /* _SAMR21_RFCTRL_INSTANCE_ */

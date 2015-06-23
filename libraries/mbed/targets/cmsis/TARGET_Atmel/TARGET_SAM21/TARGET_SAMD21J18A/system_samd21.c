@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 //#include "samd21.h"
 #include "samd21j18a.h"
@@ -62,9 +62,9 @@ uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Cloc
  */
 void SystemInit(void)
 {
-	// Keep the default device state after reset
-	SystemCoreClock = __SYSTEM_CLOCK;
-	return;
+    // Keep the default device state after reset
+    SystemCoreClock = __SYSTEM_CLOCK;
+    return;
 }
 
 /**
@@ -75,7 +75,7 @@ void SystemInit(void)
  */
 void SystemCoreClockUpdate(void)
 {
-	// Not implemented
-	SystemCoreClock = __SYSTEM_CLOCK;
-	return;
+    // Not implemented
+    SystemCoreClock = __SYSTEM_CLOCK;
+    return;
 }

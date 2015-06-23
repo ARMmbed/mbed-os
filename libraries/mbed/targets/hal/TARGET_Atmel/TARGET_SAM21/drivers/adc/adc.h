@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef ADC_H_INCLUDED
 #define ADC_H_INCLUDED
@@ -441,12 +441,12 @@ extern "C" {
  * @{
  */
 enum status_code adc_init(
-		struct adc_module *const module_inst,
-		Adc *hw,
-		struct adc_config *config);
+    struct adc_module *const module_inst,
+    Adc *hw,
+    struct adc_config *config);
 
 void adc_get_config_defaults(
-		struct adc_config *const config);
+    struct adc_config *const config);
 /** @} */
 
 /**
@@ -469,34 +469,34 @@ void adc_get_config_defaults(
  * \retval ADC_STATUS_OVERRUN       ADC result has overrun
  */
 static inline uint32_t adc_get_status(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	uint32_t int_flags = adc_module->INTFLAG.reg;
+    uint32_t int_flags = adc_module->INTFLAG.reg;
 
-	uint32_t status_flags = 0;
+    uint32_t status_flags = 0;
 
-	/* Check for ADC Result Ready */
-	if (int_flags & ADC_INTFLAG_RESRDY) {
-		status_flags |= ADC_STATUS_RESULT_READY;
-	}
+    /* Check for ADC Result Ready */
+    if (int_flags & ADC_INTFLAG_RESRDY) {
+        status_flags |= ADC_STATUS_RESULT_READY;
+    }
 
-	/* Check for ADC Window Match */
-	if (int_flags & ADC_INTFLAG_WINMON) {
-		status_flags |= ADC_STATUS_WINDOW;
-	}
+    /* Check for ADC Window Match */
+    if (int_flags & ADC_INTFLAG_WINMON) {
+        status_flags |= ADC_STATUS_WINDOW;
+    }
 
-	/* Check for ADC Overrun */
-	if (int_flags & ADC_INTFLAG_OVERRUN) {
-		status_flags |= ADC_STATUS_OVERRUN;
-	}
+    /* Check for ADC Overrun */
+    if (int_flags & ADC_INTFLAG_OVERRUN) {
+        status_flags |= ADC_STATUS_OVERRUN;
+    }
 
-	return status_flags;
+    return status_flags;
 }
 
 /**
@@ -508,34 +508,34 @@ static inline uint32_t adc_get_status(
  * \param[in] status_flags  Bitmask of \c ADC_STATUS_* flags to clear
  */
 static inline void adc_clear_status(
-		struct adc_module *const module_inst,
-		const uint32_t status_flags)
+    struct adc_module *const module_inst,
+    const uint32_t status_flags)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	uint32_t int_flags = 0;
+    uint32_t int_flags = 0;
 
-	/* Check for ADC Result Ready */
-	if (status_flags & ADC_STATUS_RESULT_READY) {
-		int_flags |= ADC_INTFLAG_RESRDY;
-	}
+    /* Check for ADC Result Ready */
+    if (status_flags & ADC_STATUS_RESULT_READY) {
+        int_flags |= ADC_INTFLAG_RESRDY;
+    }
 
-	/* Check for ADC Window Match */
-	if (status_flags & ADC_STATUS_WINDOW) {
-		int_flags |= ADC_INTFLAG_WINMON;
-	}
+    /* Check for ADC Window Match */
+    if (status_flags & ADC_STATUS_WINDOW) {
+        int_flags |= ADC_INTFLAG_WINMON;
+    }
 
-	/* Check for ADC Overrun */
-	if (status_flags & ADC_STATUS_OVERRUN) {
-		int_flags |= ADC_INTFLAG_OVERRUN;
-	}
+    /* Check for ADC Overrun */
+    if (status_flags & ADC_STATUS_OVERRUN) {
+        int_flags |= ADC_INTFLAG_OVERRUN;
+    }
 
-	/* Clear interrupt flag */
-	adc_module->INTFLAG.reg = int_flags;
+    /* Clear interrupt flag */
+    adc_module->INTFLAG.reg = int_flags;
 }
 /** @} */
 
@@ -553,27 +553,27 @@ static inline void adc_clear_status(
  * \param[in] module_inst  Pointer to the ADC software instance struct
  */
 static inline enum status_code adc_enable(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
 #if ADC_CALLBACK_MODE == true
-	system_interrupt_enable(SYSTEM_INTERRUPT_MODULE_ADC);
+    system_interrupt_enable(SYSTEM_INTERRUPT_MODULE_ADC);
 #endif
 
-	adc_module->CTRLA.reg |= ADC_CTRLA_ENABLE;
+    adc_module->CTRLA.reg |= ADC_CTRLA_ENABLE;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
-	return STATUS_OK;
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
+    return STATUS_OK;
 }
 
 /**
@@ -584,27 +584,27 @@ static inline enum status_code adc_enable(
  * \param[in] module_inst Pointer to the ADC software instance struct
  */
 static inline enum status_code adc_disable(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
 #if ADC_CALLBACK_MODE == true
-	system_interrupt_disable(SYSTEM_INTERRUPT_MODULE_ADC);
+    system_interrupt_disable(SYSTEM_INTERRUPT_MODULE_ADC);
 #endif
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	adc_module->CTRLA.reg &= ~ADC_CTRLA_ENABLE;
+    adc_module->CTRLA.reg &= ~ADC_CTRLA_ENABLE;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
-	return STATUS_OK;
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
+    return STATUS_OK;
 }
 
 /**
@@ -616,24 +616,24 @@ static inline enum status_code adc_disable(
  * \param[in] module_inst  Pointer to the ADC software instance struct
  */
 static inline enum status_code adc_reset(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	/* Disable to make sure the pipeline is flushed before reset */
-	adc_disable(module_inst);
+    /* Disable to make sure the pipeline is flushed before reset */
+    adc_disable(module_inst);
 
-	/* Software reset the module */
-	adc_module->CTRLA.reg |= ADC_CTRLA_SWRST;
+    /* Software reset the module */
+    adc_module->CTRLA.reg |= ADC_CTRLA_SWRST;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
-	return STATUS_OK;
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
+    return STATUS_OK;
 }
 
 
@@ -649,29 +649,29 @@ static inline enum status_code adc_reset(
  *  \param[in] events       Struct containing flags of events to enable
  */
 static inline void adc_enable_events(
-		struct adc_module *const module_inst,
-		struct adc_events *const events)
+    struct adc_module *const module_inst,
+    struct adc_events *const events)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
-	Assert(events);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
+    Assert(events);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	uint32_t event_mask = 0;
+    uint32_t event_mask = 0;
 
-	/* Configure Window Monitor event */
-	if (events->generate_event_on_window_monitor) {
-		event_mask |= ADC_EVCTRL_WINMONEO;
-	}
+    /* Configure Window Monitor event */
+    if (events->generate_event_on_window_monitor) {
+        event_mask |= ADC_EVCTRL_WINMONEO;
+    }
 
-	/* Configure Result Ready event */
-	if (events->generate_event_on_conversion_done) {
-		event_mask |= ADC_EVCTRL_RESRDYEO;
-	}
+    /* Configure Result Ready event */
+    if (events->generate_event_on_conversion_done) {
+        event_mask |= ADC_EVCTRL_RESRDYEO;
+    }
 
-	adc_module->EVCTRL.reg |= event_mask;
+    adc_module->EVCTRL.reg |= event_mask;
 }
 
 /**
@@ -686,29 +686,29 @@ static inline void adc_enable_events(
  *  \param[in] events       Struct containing flags of events to disable
  */
 static inline void adc_disable_events(
-		struct adc_module *const module_inst,
-		struct adc_events *const events)
+    struct adc_module *const module_inst,
+    struct adc_events *const events)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
-	Assert(events);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
+    Assert(events);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	uint32_t event_mask = 0;
+    uint32_t event_mask = 0;
 
-	/* Configure Window Monitor event */
-	if (events->generate_event_on_window_monitor) {
-		event_mask |= ADC_EVCTRL_WINMONEO;
-	}
+    /* Configure Window Monitor event */
+    if (events->generate_event_on_window_monitor) {
+        event_mask |= ADC_EVCTRL_WINMONEO;
+    }
 
-	/* Configure Result Ready event */
-	if (events->generate_event_on_conversion_done) {
-		event_mask |= ADC_EVCTRL_RESRDYEO;
-	}
+    /* Configure Result Ready event */
+    if (events->generate_event_on_conversion_done) {
+        event_mask |= ADC_EVCTRL_RESRDYEO;
+    }
 
-	adc_module->EVCTRL.reg &= ~event_mask;
+    adc_module->EVCTRL.reg &= ~event_mask;
 }
 
 /**
@@ -719,22 +719,22 @@ static inline void adc_disable_events(
  * \param[in] module_inst  Pointer to the ADC software instance struct
  */
 static inline void adc_start_conversion(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	adc_module->SWTRIG.reg |= ADC_SWTRIG_START;
+    adc_module->SWTRIG.reg |= ADC_SWTRIG_START;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 }
 
 /**
@@ -752,36 +752,36 @@ static inline void adc_start_conversion(
  *                             ADC module before the result was read by the software
  */
 static inline enum status_code adc_read(
-		struct adc_module *const module_inst,
-		uint16_t *result)
+    struct adc_module *const module_inst,
+    uint16_t *result)
 {
-	Assert(module_inst);
-	Assert(module_inst->hw);
-	Assert(result);
+    Assert(module_inst);
+    Assert(module_inst->hw);
+    Assert(result);
 
-	if (!(adc_get_status(module_inst) & ADC_STATUS_RESULT_READY)) {
-		/* Result not ready */
-		return STATUS_BUSY;
-	}
+    if (!(adc_get_status(module_inst) & ADC_STATUS_RESULT_READY)) {
+        /* Result not ready */
+        return STATUS_BUSY;
+    }
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	/* Get ADC result */
-	*result = adc_module->RESULT.reg;
+    /* Get ADC result */
+    *result = adc_module->RESULT.reg;
 
-	/* Reset ready flag */
-	adc_clear_status(module_inst, ADC_STATUS_RESULT_READY);
+    /* Reset ready flag */
+    adc_clear_status(module_inst, ADC_STATUS_RESULT_READY);
 
-	if (adc_get_status(module_inst) & ADC_STATUS_OVERRUN) {
-		adc_clear_status(module_inst, ADC_STATUS_OVERRUN);
-		return STATUS_ERR_OVERFLOW;
-	}
+    if (adc_get_status(module_inst) & ADC_STATUS_OVERRUN) {
+        adc_clear_status(module_inst, ADC_STATUS_OVERRUN);
+        return STATUS_ERR_OVERFLOW;
+    }
 
-	return STATUS_OK;
+    return STATUS_OK;
 }
 
 /** @} */
@@ -801,28 +801,28 @@ static inline enum status_code adc_read(
  * \param[in] module_inst  Pointer to the ADC software instance struct
  */
 static inline void adc_flush(
-		struct adc_module *const module_inst)
+    struct adc_module *const module_inst)
 {
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	adc_module->SWTRIG.reg |= ADC_SWTRIG_FLUSH;
+    adc_module->SWTRIG.reg |= ADC_SWTRIG_FLUSH;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 }
 void adc_set_window_mode(
-		struct adc_module *const module_inst,
-		const enum adc_window_mode window_mode,
-		const int16_t window_lower_value,
-		const int16_t window_upper_value);
+    struct adc_module *const module_inst,
+    const enum adc_window_mode window_mode,
+    const int16_t window_lower_value,
+    const int16_t window_upper_value);
 
 /**
  * \brief Sets positive ADC input pin.
@@ -833,27 +833,27 @@ void adc_set_window_mode(
  * \param[in] positive_input  Positive input pin
  */
 static inline void adc_set_positive_input(
-		struct adc_module *const module_inst,
-		const enum adc_positive_input positive_input)
+    struct adc_module *const module_inst,
+    const enum adc_positive_input positive_input)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	/* Set positive input pin */
-	adc_module->INPUTCTRL.reg =
-			(adc_module->INPUTCTRL.reg & ~ADC_INPUTCTRL_MUXPOS_Msk) |
-			(positive_input);
+    /* Set positive input pin */
+    adc_module->INPUTCTRL.reg =
+        (adc_module->INPUTCTRL.reg & ~ADC_INPUTCTRL_MUXPOS_Msk) |
+        (positive_input);
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 }
 
 
@@ -867,27 +867,27 @@ static inline void adc_set_positive_input(
  * \param[in] negative_input  Negative input pin
  */
 static inline void adc_set_negative_input(
-		struct adc_module *const module_inst,
-		const enum adc_negative_input negative_input)
+    struct adc_module *const module_inst,
+    const enum adc_negative_input negative_input)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
+    Adc *const adc_module = module_inst->hw;
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 
-	/* Set negative input pin */
-	adc_module->INPUTCTRL.reg =
-			(adc_module->INPUTCTRL.reg & ~ADC_INPUTCTRL_MUXNEG_Msk) |
-			(negative_input);
+    /* Set negative input pin */
+    adc_module->INPUTCTRL.reg =
+        (adc_module->INPUTCTRL.reg & ~ADC_INPUTCTRL_MUXNEG_Msk) |
+        (negative_input);
 
-	while (adc_is_syncing(module_inst)) {
-		/* Wait for synchronization */
-	}
+    while (adc_is_syncing(module_inst)) {
+        /* Wait for synchronization */
+    }
 }
 
 /** @} */
@@ -907,15 +907,15 @@ static inline void adc_set_negative_input(
  * \param[in] interrupt Interrupt to enable
  */
 static inline void adc_enable_interrupt(struct adc_module *const module_inst,
-		enum adc_interrupt_flag interrupt)
+                                        enum adc_interrupt_flag interrupt)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
-	/* Enable interrupt */
-	adc_module->INTENSET.reg = interrupt;
+    Adc *const adc_module = module_inst->hw;
+    /* Enable interrupt */
+    adc_module->INTENSET.reg = interrupt;
 }
 
 /**
@@ -927,15 +927,15 @@ static inline void adc_enable_interrupt(struct adc_module *const module_inst,
  * \param[in] interrupt Interrupt to disable
  */
 static inline void adc_disable_interrupt(struct adc_module *const module_inst,
-		enum adc_interrupt_flag interrupt)
+        enum adc_interrupt_flag interrupt)
 {
-	/* Sanity check arguments */
-	Assert(module_inst);
-	Assert(module_inst->hw);
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
 
-	Adc *const adc_module = module_inst->hw;
-	/* Enable interrupt */
-	adc_module->INTENCLR.reg = interrupt;
+    Adc *const adc_module = module_inst->hw;
+    /* Enable interrupt */
+    adc_module->INTENCLR.reg = interrupt;
 }
 
 /** @} */

@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef SYSTEM_H_INCLUDED
 #define SYSTEM_H_INCLUDED
 
@@ -190,30 +190,30 @@ extern "C" {
  *
  * Power domain can be in three states:
  * - Active state: the power domain is powered on.
- * - Retention state: the main voltage supply for the power domain is switched off, 
- * while maintaining a secondary low-power supply for the sequential cells. The 
+ * - Retention state: the main voltage supply for the power domain is switched off,
+ * while maintaining a secondary low-power supply for the sequential cells. The
  * logic context is restored when waking up.
  * - Off state: the power domain is entirely powered off. The logic context is lost.
  *
- * The SAM L21 device has three power domains: PD0, PD1 and PD2. 
- * - By default, a power domain is set automatically to retention state in standby 
+ * The SAM L21 device has three power domains: PD0, PD1 and PD2.
+ * - By default, a power domain is set automatically to retention state in standby
  * sleep mode if no activity is required in it, the application can force all power
  * domains to remain in active state during standby sleep mode in order to accelerate
  * wakeup time.
- * - Static Power_SleepWalking: When entering standby mode, if a peripheral needs to 
+ * - Static Power_SleepWalking: When entering standby mode, if a peripheral needs to
  * remain in run mode to perform sleepwalking task, its power domain (PDn) remains in
  * active state as well as the inferior power domains (<PDn).
  * - Dynamic Power_SleepWalking: During standby mode, a power domain (PDn) in active
  * state (using the static Power_SleepWalking principle), can wakeup a superior power
- * domain (>PDn) in order to perform a sleepwalking task. The superior power domain is 
- * then automatically set to active state. At the end of the sleepwalking task, either 
+ * domain (>PDn) in order to perform a sleepwalking task. The superior power domain is
+ * then automatically set to active state. At the end of the sleepwalking task, either
  * the device can be waken-up or the superior power domain can be set again to retention
  * state.
  *
  * Power domains can be linked each other,it allows a power domain (PDn) to be kept
  * in active state if the inferior power domain (PDn-1) is in active state too.
  *
- * The table \ref asfdoc_sam0_system_power_domain_overview_table illustrates the 
+ * The table \ref asfdoc_sam0_system_power_domain_overview_table illustrates the
  * four cases to consider in standby mode
  *
  * \anchor asfdoc_sam0_system_power_domain_overview_table
@@ -294,7 +294,7 @@ extern "C" {
  * </table>
  *
  * \subsection asfdoc_sam0_system_module_overview_ram_state RAMs Low Power Mode
- * By default, in standby sleep mode, RAM is in low power mode (back biased) 
+ * By default, in standby sleep mode, RAM is in low power mode (back biased)
  * if its power domain is in retention state.
  * The table \ref asfdoc_sam0_system_power_ram_state_table lists RAMs low power mode.
  *
@@ -508,7 +508,7 @@ extern "C" {
  */
 static inline bool system_is_debugger_present(void)
 {
-	return DSU->STATUSB.reg & DSU_STATUSB_DBGPRES;
+    return DSU->STATUSB.reg & DSU_STATUSB_DBGPRES;
 }
 
 /**
@@ -529,7 +529,7 @@ static inline bool system_is_debugger_present(void)
  */
 static inline uint32_t system_get_device_id(void)
 {
-	return DSU->DID.reg;
+    return DSU->DID.reg;
 }
 
 /**
@@ -557,7 +557,7 @@ void system_init(void);
 * \page asfdoc_sam0_drivers_power_exqsg Examples for Power Driver
  *
  * This is a list of the available Quick Start Guides (QSGs) and example
- * applications. QSGs are simple examples with step-by-step instructions to 
+ * applications. QSGs are simple examples with step-by-step instructions to
  * configure and use this driver in a selection of
  * use cases. Note that QSGs can be compiled as a standalone application or be
  * added to the user application.

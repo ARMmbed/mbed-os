@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMR21_
 #define _SAMR21_
@@ -65,7 +65,7 @@
 #elif defined(__SAMR21G18A__) || defined(__ATSAMR21G18A__)
 #include "samr21g18a.h"
 #else
-  #error Library does not support the specified device.
+#error Library does not support the specified device.
 #endif
 
 #endif /* _SAMR21_ */

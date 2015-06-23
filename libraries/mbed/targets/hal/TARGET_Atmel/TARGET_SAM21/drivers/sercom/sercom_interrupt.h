@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #ifndef SERCOM_INTERRUPT_H_INCLUDED
 #define SERCOM_INTERRUPT_H_INCLUDED
 
@@ -59,11 +59,11 @@ extern void *_sercom_instances[SERCOM_INST_NUM];
 typedef void (*sercom_handler_t)(uint8_t instance);
 
 enum system_interrupt_vector _sercom_get_interrupt_vector(
-		Sercom *const sercom_instance);
+    Sercom *const sercom_instance);
 
 void _sercom_set_handler(
-		const uint8_t instance,
-		const sercom_handler_t interrupt_handler);
+    const uint8_t instance,
+    const sercom_handler_t interrupt_handler);
 
 #ifdef __cplusplus
 }

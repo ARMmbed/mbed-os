@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMD21_SERCOM3_INSTANCE_
 #define _SAMD21_SERCOM3_INSTANCE_
@@ -141,6 +141,6 @@
 #define SERCOM3_DMAC_ID_TX          8        // Index of DMA TX trigger
 #define SERCOM3_GCLK_ID_CORE        23       // Index of Generic Clock for Core
 #define SERCOM3_GCLK_ID_SLOW        19       // Index of Generic Clock for SMbus timeout
-#define SERCOM3_INT_MSB             6       
+#define SERCOM3_INT_MSB             6
 
 #endif /* _SAMD21_SERCOM3_INSTANCE_ */

@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMD21_SYSCTRL_COMPONENT_
 #define _SAMD21_SYSCTRL_COMPONENT_
@@ -59,26 +59,26 @@
 /* -------- SYSCTRL_INTENCLR : (SYSCTRL Offset: 0x00) (R/W 32) Interrupt Enable Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready Interrupt Enable        */
-    uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready Interrupt Enable     */
-    uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready Interrupt Enable      */
-    uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready Interrupt Enable       */
-    uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready Interrupt Enable        */
-    uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds Interrupt Enable */
-    uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine Interrupt Enable    */
-    uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse Interrupt Enable  */
-    uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped Interrupt Enable */
-    uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready Interrupt Enable       */
-    uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection Interrupt Enable   */
-    uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready Interrupt Enable */
-    uint32_t :3;               /*!< bit: 12..14  Reserved                           */
-    uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise Interrupt Enable    */
-    uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall Interrupt Enable    */
-    uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout Interrupt Enable */
-    uint32_t :14;              /*!< bit: 18..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready Interrupt Enable        */
+        uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready Interrupt Enable     */
+        uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready Interrupt Enable      */
+        uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready Interrupt Enable       */
+        uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready Interrupt Enable        */
+        uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds Interrupt Enable */
+        uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine Interrupt Enable    */
+        uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse Interrupt Enable  */
+        uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped Interrupt Enable */
+        uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready Interrupt Enable       */
+        uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection Interrupt Enable   */
+        uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready Interrupt Enable */
+        uint32_t :3;               /*!< bit: 12..14  Reserved                           */
+        uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise Interrupt Enable    */
+        uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall Interrupt Enable    */
+        uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout Interrupt Enable */
+        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_INTENCLR_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -120,26 +120,26 @@ typedef union {
 /* -------- SYSCTRL_INTENSET : (SYSCTRL Offset: 0x04) (R/W 32) Interrupt Enable Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready Interrupt Enable        */
-    uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready Interrupt Enable     */
-    uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready Interrupt Enable      */
-    uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready Interrupt Enable       */
-    uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready Interrupt Enable        */
-    uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds Interrupt Enable */
-    uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine Interrupt Enable    */
-    uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse Interrupt Enable  */
-    uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped Interrupt Enable */
-    uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready Interrupt Enable       */
-    uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection Interrupt Enable   */
-    uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready Interrupt Enable */
-    uint32_t :3;               /*!< bit: 12..14  Reserved                           */
-    uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise Interrupt Enable    */
-    uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall Interrupt Enable    */
-    uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout Interrupt Enable */
-    uint32_t :14;              /*!< bit: 18..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready Interrupt Enable        */
+        uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready Interrupt Enable     */
+        uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready Interrupt Enable      */
+        uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready Interrupt Enable       */
+        uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready Interrupt Enable        */
+        uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds Interrupt Enable */
+        uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine Interrupt Enable    */
+        uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse Interrupt Enable  */
+        uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped Interrupt Enable */
+        uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready Interrupt Enable       */
+        uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection Interrupt Enable   */
+        uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready Interrupt Enable */
+        uint32_t :3;               /*!< bit: 12..14  Reserved                           */
+        uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise Interrupt Enable    */
+        uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall Interrupt Enable    */
+        uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout Interrupt Enable */
+        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_INTENSET_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -181,26 +181,26 @@ typedef union {
 /* -------- SYSCTRL_INTFLAG : (SYSCTRL Offset: 0x08) (R/W 32) Interrupt Flag Status and Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready                         */
-    uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready                      */
-    uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready                       */
-    uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready                        */
-    uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready                         */
-    uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds                 */
-    uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine                     */
-    uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse                   */
-    uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped       */
-    uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready                        */
-    uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection                    */
-    uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready        */
-    uint32_t :3;               /*!< bit: 12..14  Reserved                           */
-    uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise                     */
-    uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall                     */
-    uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout                  */
-    uint32_t :14;              /*!< bit: 18..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready                         */
+        uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready                      */
+        uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready                       */
+        uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready                        */
+        uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready                         */
+        uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds                 */
+        uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine                     */
+        uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse                   */
+        uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped       */
+        uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready                        */
+        uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection                    */
+        uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready        */
+        uint32_t :3;               /*!< bit: 12..14  Reserved                           */
+        uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise                     */
+        uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall                     */
+        uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout                  */
+        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_INTFLAG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -242,26 +242,26 @@ typedef union {
 /* -------- SYSCTRL_PCLKSR : (SYSCTRL Offset: 0x0C) (R/  32) Power and Clocks Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready                         */
-    uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready                      */
-    uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready                       */
-    uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready                        */
-    uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready                         */
-    uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds                 */
-    uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine                     */
-    uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse                   */
-    uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped       */
-    uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready                        */
-    uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection                    */
-    uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready        */
-    uint32_t :3;               /*!< bit: 12..14  Reserved                           */
-    uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise                     */
-    uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall                     */
-    uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout                  */
-    uint32_t :14;              /*!< bit: 18..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t XOSCRDY:1;        /*!< bit:      0  XOSC Ready                         */
+        uint32_t XOSC32KRDY:1;     /*!< bit:      1  XOSC32K Ready                      */
+        uint32_t OSC32KRDY:1;      /*!< bit:      2  OSC32K Ready                       */
+        uint32_t OSC8MRDY:1;       /*!< bit:      3  OSC8M Ready                        */
+        uint32_t DFLLRDY:1;        /*!< bit:      4  DFLL Ready                         */
+        uint32_t DFLLOOB:1;        /*!< bit:      5  DFLL Out Of Bounds                 */
+        uint32_t DFLLLCKF:1;       /*!< bit:      6  DFLL Lock Fine                     */
+        uint32_t DFLLLCKC:1;       /*!< bit:      7  DFLL Lock Coarse                   */
+        uint32_t DFLLRCS:1;        /*!< bit:      8  DFLL Reference Clock Stopped       */
+        uint32_t BOD33RDY:1;       /*!< bit:      9  BOD33 Ready                        */
+        uint32_t BOD33DET:1;       /*!< bit:     10  BOD33 Detection                    */
+        uint32_t B33SRDY:1;        /*!< bit:     11  BOD33 Synchronization Ready        */
+        uint32_t :3;               /*!< bit: 12..14  Reserved                           */
+        uint32_t DPLLLCKR:1;       /*!< bit:     15  DPLL Lock Rise                     */
+        uint32_t DPLLLCKF:1;       /*!< bit:     16  DPLL Lock Fall                     */
+        uint32_t DPLLLTO:1;        /*!< bit:     17  DPLL Lock Timeout                  */
+        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_PCLKSR_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -303,18 +303,18 @@ typedef union {
 /* -------- SYSCTRL_XOSC : (SYSCTRL Offset: 0x10) (R/W 16) External Multipurpose Crystal Oscillator (XOSC) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint16_t :1;               /*!< bit:      0  Reserved                           */
-    uint16_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-    uint16_t XTALEN:1;         /*!< bit:      2  Crystal Oscillator Enable          */
-    uint16_t :3;               /*!< bit:  3.. 5  Reserved                           */
-    uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-    uint16_t GAIN:3;           /*!< bit:  8..10  Oscillator Gain                    */
-    uint16_t AMPGC:1;          /*!< bit:     11  Automatic Amplitude Gain Control   */
-    uint16_t STARTUP:4;        /*!< bit: 12..15  Start-Up Time                      */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint16_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint16_t :1;               /*!< bit:      0  Reserved                           */
+        uint16_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
+        uint16_t XTALEN:1;         /*!< bit:      2  Crystal Oscillator Enable          */
+        uint16_t :3;               /*!< bit:  3.. 5  Reserved                           */
+        uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint16_t GAIN:3;           /*!< bit:  8..10  Oscillator Gain                    */
+        uint16_t AMPGC:1;          /*!< bit:     11  Automatic Amplitude Gain Control   */
+        uint16_t STARTUP:4;        /*!< bit: 12..15  Start-Up Time                      */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint16_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_XOSC_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -352,21 +352,21 @@ typedef union {
 /* -------- SYSCTRL_XOSC32K : (SYSCTRL Offset: 0x14) (R/W 16) 32kHz External Crystal Oscillator (XOSC32K) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint16_t :1;               /*!< bit:      0  Reserved                           */
-    uint16_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-    uint16_t XTALEN:1;         /*!< bit:      2  Crystal Oscillator Enable          */
-    uint16_t EN32K:1;          /*!< bit:      3  32kHz Output Enable                */
-    uint16_t EN1K:1;           /*!< bit:      4  1kHz Output Enable                 */
-    uint16_t AAMPEN:1;         /*!< bit:      5  Automatic Amplitude Control Enable */
-    uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-    uint16_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
-    uint16_t :1;               /*!< bit:     11  Reserved                           */
-    uint16_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
-    uint16_t :3;               /*!< bit: 13..15  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint16_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint16_t :1;               /*!< bit:      0  Reserved                           */
+        uint16_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
+        uint16_t XTALEN:1;         /*!< bit:      2  Crystal Oscillator Enable          */
+        uint16_t EN32K:1;          /*!< bit:      3  32kHz Output Enable                */
+        uint16_t EN1K:1;           /*!< bit:      4  1kHz Output Enable                 */
+        uint16_t AAMPEN:1;         /*!< bit:      5  Automatic Amplitude Control Enable */
+        uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint16_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
+        uint16_t :1;               /*!< bit:     11  Reserved                           */
+        uint16_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
+        uint16_t :3;               /*!< bit: 13..15  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint16_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_XOSC32K_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -397,22 +397,22 @@ typedef union {
 /* -------- SYSCTRL_OSC32K : (SYSCTRL Offset: 0x18) (R/W 32) 32kHz Internal Oscillator (OSC32K) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-    uint32_t EN32K:1;          /*!< bit:      2  32kHz Output Enable                */
-    uint32_t EN1K:1;           /*!< bit:      3  1kHz Output Enable                 */
-    uint32_t :2;               /*!< bit:  4.. 5  Reserved                           */
-    uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-    uint32_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
-    uint32_t :1;               /*!< bit:     11  Reserved                           */
-    uint32_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
-    uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-    uint32_t CALIB:7;          /*!< bit: 16..22  Oscillator Calibration             */
-    uint32_t :9;               /*!< bit: 23..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
+        uint32_t EN32K:1;          /*!< bit:      2  32kHz Output Enable                */
+        uint32_t EN1K:1;           /*!< bit:      3  1kHz Output Enable                 */
+        uint32_t :2;               /*!< bit:  4.. 5  Reserved                           */
+        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint32_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
+        uint32_t :1;               /*!< bit:     11  Reserved                           */
+        uint32_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
+        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
+        uint32_t CALIB:7;          /*!< bit: 16..22  Oscillator Calibration             */
+        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_OSC32K_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -442,12 +442,12 @@ typedef union {
 /* -------- SYSCTRL_OSCULP32K : (SYSCTRL Offset: 0x1C) (R/W  8) 32kHz Ultra Low Power Internal Oscillator (OSCULP32K) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  CALIB:5;          /*!< bit:  0.. 4  Oscillator Calibration             */
-    uint8_t  :2;               /*!< bit:  5.. 6  Reserved                           */
-    uint8_t  WRTLOCK:1;        /*!< bit:      7  Write Lock                         */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  CALIB:5;          /*!< bit:  0.. 4  Oscillator Calibration             */
+        uint8_t  :2;               /*!< bit:  5.. 6  Reserved                           */
+        uint8_t  WRTLOCK:1;        /*!< bit:      7  Write Lock                         */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } SYSCTRL_OSCULP32K_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -464,19 +464,19 @@ typedef union {
 /* -------- SYSCTRL_OSC8M : (SYSCTRL Offset: 0x20) (R/W 32) 8MHz Internal Oscillator (OSC8M) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-    uint32_t :4;               /*!< bit:  2.. 5  Reserved                           */
-    uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-    uint32_t PRESC:2;          /*!< bit:  8.. 9  Oscillator Prescaler               */
-    uint32_t :6;               /*!< bit: 10..15  Reserved                           */
-    uint32_t CALIB:12;         /*!< bit: 16..27  Oscillator Calibration             */
-    uint32_t :2;               /*!< bit: 28..29  Reserved                           */
-    uint32_t FRANGE:2;         /*!< bit: 30..31  Oscillator Frequency Range         */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
+        uint32_t :4;               /*!< bit:  2.. 5  Reserved                           */
+        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint32_t PRESC:2;          /*!< bit:  8.. 9  Oscillator Prescaler               */
+        uint32_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint32_t CALIB:12;         /*!< bit: 16..27  Oscillator Calibration             */
+        uint32_t :2;               /*!< bit: 28..29  Reserved                           */
+        uint32_t FRANGE:2;         /*!< bit: 30..31  Oscillator Frequency Range         */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_OSC8M_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -519,22 +519,22 @@ typedef union {
 /* -------- SYSCTRL_DFLLCTRL : (SYSCTRL Offset: 0x24) (R/W 16) DFLL48M Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint16_t :1;               /*!< bit:      0  Reserved                           */
-    uint16_t ENABLE:1;         /*!< bit:      1  DFLL Enable                        */
-    uint16_t MODE:1;           /*!< bit:      2  Operating Mode Selection           */
-    uint16_t STABLE:1;         /*!< bit:      3  Stable DFLL Frequency              */
-    uint16_t LLAW:1;           /*!< bit:      4  Lose Lock After Wake               */
-    uint16_t USBCRM:1;         /*!< bit:      5  USB Clock Recovery Mode            */
-    uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-    uint16_t CCDIS:1;          /*!< bit:      8  Chill Cycle Disable                */
-    uint16_t QLDIS:1;          /*!< bit:      9  Quick Lock Disable                 */
-    uint16_t BPLCKC:1;         /*!< bit:     10  Bypass Coarse Lock                 */
-    uint16_t WAITLOCK:1;       /*!< bit:     11  Wait Lock                          */
-    uint16_t :4;               /*!< bit: 12..15  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint16_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint16_t :1;               /*!< bit:      0  Reserved                           */
+        uint16_t ENABLE:1;         /*!< bit:      1  DFLL Enable                        */
+        uint16_t MODE:1;           /*!< bit:      2  Operating Mode Selection           */
+        uint16_t STABLE:1;         /*!< bit:      3  Stable DFLL Frequency              */
+        uint16_t LLAW:1;           /*!< bit:      4  Lose Lock After Wake               */
+        uint16_t USBCRM:1;         /*!< bit:      5  USB Clock Recovery Mode            */
+        uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint16_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint16_t CCDIS:1;          /*!< bit:      8  Chill Cycle Disable                */
+        uint16_t QLDIS:1;          /*!< bit:      9  Quick Lock Disable                 */
+        uint16_t BPLCKC:1;         /*!< bit:     10  Bypass Coarse Lock                 */
+        uint16_t WAITLOCK:1;       /*!< bit:     11  Wait Lock                          */
+        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint16_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_DFLLCTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -568,12 +568,12 @@ typedef union {
 /* -------- SYSCTRL_DFLLVAL : (SYSCTRL Offset: 0x28) (R/W 32) DFLL48M Value -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t FINE:10;          /*!< bit:  0.. 9  Fine Value                         */
-    uint32_t COARSE:6;         /*!< bit: 10..15  Coarse Value                       */
-    uint32_t DIFF:16;          /*!< bit: 16..31  Multiplication Ratio Difference    */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t FINE:10;          /*!< bit:  0.. 9  Fine Value                         */
+        uint32_t COARSE:6;         /*!< bit: 10..15  Coarse Value                       */
+        uint32_t DIFF:16;          /*!< bit: 16..31  Multiplication Ratio Difference    */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_DFLLVAL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -594,12 +594,12 @@ typedef union {
 /* -------- SYSCTRL_DFLLMUL : (SYSCTRL Offset: 0x2C) (R/W 32) DFLL48M Multiplier -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t MUL:16;           /*!< bit:  0..15  DFLL Multiply Factor               */
-    uint32_t FSTEP:10;         /*!< bit: 16..25  Fine Maximum Step                  */
-    uint32_t CSTEP:6;          /*!< bit: 26..31  Coarse Maximum Step                */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t MUL:16;           /*!< bit:  0..15  DFLL Multiply Factor               */
+        uint32_t FSTEP:10;         /*!< bit: 16..25  Fine Maximum Step                  */
+        uint32_t CSTEP:6;          /*!< bit: 26..31  Coarse Maximum Step                */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_DFLLMUL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -620,11 +620,11 @@ typedef union {
 /* -------- SYSCTRL_DFLLSYNC : (SYSCTRL Offset: 0x30) (R/W  8) DFLL48M Synchronization -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
-    uint8_t  READREQ:1;        /*!< bit:      7  Read Request                       */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
+        uint8_t  READREQ:1;        /*!< bit:      7  Read Request                       */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } SYSCTRL_DFLLSYNC_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -638,22 +638,22 @@ typedef union {
 /* -------- SYSCTRL_BOD33 : (SYSCTRL Offset: 0x34) (R/W 32) 3.3V Brown-Out Detector (BOD33) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-    uint32_t HYST:1;           /*!< bit:      2  Hysteresis                         */
-    uint32_t ACTION:2;         /*!< bit:  3.. 4  BOD33 Action                       */
-    uint32_t :1;               /*!< bit:      5  Reserved                           */
-    uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint32_t :1;               /*!< bit:      7  Reserved                           */
-    uint32_t MODE:1;           /*!< bit:      8  Operation Mode                     */
-    uint32_t CEN:1;            /*!< bit:      9  Clock Enable                       */
-    uint32_t :2;               /*!< bit: 10..11  Reserved                           */
-    uint32_t PSEL:4;           /*!< bit: 12..15  Prescaler Select                   */
-    uint32_t LEVEL:6;          /*!< bit: 16..21  BOD33 Threshold Level              */
-    uint32_t :10;              /*!< bit: 22..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
+        uint32_t HYST:1;           /*!< bit:      2  Hysteresis                         */
+        uint32_t ACTION:2;         /*!< bit:  3.. 4  BOD33 Action                       */
+        uint32_t :1;               /*!< bit:      5  Reserved                           */
+        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint32_t :1;               /*!< bit:      7  Reserved                           */
+        uint32_t MODE:1;           /*!< bit:      8  Operation Mode                     */
+        uint32_t CEN:1;            /*!< bit:      9  Clock Enable                       */
+        uint32_t :2;               /*!< bit: 10..11  Reserved                           */
+        uint32_t PSEL:4;           /*!< bit: 12..15  Prescaler Select                   */
+        uint32_t LEVEL:6;          /*!< bit: 16..21  BOD33 Threshold Level              */
+        uint32_t :10;              /*!< bit: 22..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_BOD33_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -722,14 +722,14 @@ typedef union {
 /* -------- SYSCTRL_VREG : (SYSCTRL Offset: 0x3C) (R/W 16) Voltage Regulator System (VREG) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint16_t :6;               /*!< bit:  0.. 5  Reserved                           */
-    uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint16_t :6;               /*!< bit:  7..12  Reserved                           */
-    uint16_t FORCELDO:1;       /*!< bit:     13  Force LDO Voltage Regulator        */
-    uint16_t :2;               /*!< bit: 14..15  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint16_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint16_t :6;               /*!< bit:  0.. 5  Reserved                           */
+        uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint16_t :6;               /*!< bit:  7..12  Reserved                           */
+        uint16_t FORCELDO:1;       /*!< bit:     13  Force LDO Voltage Regulator        */
+        uint16_t :2;               /*!< bit: 14..15  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint16_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_VREG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -745,15 +745,15 @@ typedef union {
 /* -------- SYSCTRL_VREF : (SYSCTRL Offset: 0x40) (R/W 32) Voltage References System (VREF) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t TSEN:1;           /*!< bit:      1  Temperature Sensor Enable          */
-    uint32_t BGOUTEN:1;        /*!< bit:      2  Bandgap Output Enable              */
-    uint32_t :13;              /*!< bit:  3..15  Reserved                           */
-    uint32_t CALIB:11;         /*!< bit: 16..26  Bandgap Voltage Generator Calibration */
-    uint32_t :5;               /*!< bit: 27..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t TSEN:1;           /*!< bit:      1  Temperature Sensor Enable          */
+        uint32_t BGOUTEN:1;        /*!< bit:      2  Bandgap Output Enable              */
+        uint32_t :13;              /*!< bit:  3..15  Reserved                           */
+        uint32_t CALIB:11;         /*!< bit: 16..26  Bandgap Voltage Generator Calibration */
+        uint32_t :5;               /*!< bit: 27..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_VREF_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -772,14 +772,14 @@ typedef union {
 /* -------- SYSCTRL_DPLLCTRLA : (SYSCTRL Offset: 0x44) (R/W  8) DPLL Control A -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  :1;               /*!< bit:      0  Reserved                           */
-    uint8_t  ENABLE:1;         /*!< bit:      1  DPLL Enable                        */
-    uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-    uint8_t  RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-    uint8_t  ONDEMAND:1;       /*!< bit:      7  On Demand Clock Activation         */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  :1;               /*!< bit:      0  Reserved                           */
+        uint8_t  ENABLE:1;         /*!< bit:      1  DPLL Enable                        */
+        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
+        uint8_t  ONDEMAND:1;       /*!< bit:      7  On Demand Clock Activation         */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } SYSCTRL_DPLLCTRLA_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -797,13 +797,13 @@ typedef union {
 /* -------- SYSCTRL_DPLLRATIO : (SYSCTRL Offset: 0x48) (R/W 32) DPLL Ratio Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t LDR:12;           /*!< bit:  0..11  Loop Divider Ratio                 */
-    uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-    uint32_t LDRFRAC:4;        /*!< bit: 16..19  Loop Divider Ratio Fractional Part */
-    uint32_t :12;              /*!< bit: 20..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t LDR:12;           /*!< bit:  0..11  Loop Divider Ratio                 */
+        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint32_t LDRFRAC:4;        /*!< bit: 16..19  Loop Divider Ratio Fractional Part */
+        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_DPLLRATIO_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -821,20 +821,20 @@ typedef union {
 /* -------- SYSCTRL_DPLLCTRLB : (SYSCTRL Offset: 0x4C) (R/W 32) DPLL Control B -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t FILTER:2;         /*!< bit:  0.. 1  Proportional Integral Filter Selection */
-    uint32_t LPEN:1;           /*!< bit:      2  Low-Power Enable                   */
-    uint32_t WUF:1;            /*!< bit:      3  Wake Up Fast                       */
-    uint32_t REFCLK:2;         /*!< bit:  4.. 5  Reference Clock Selection          */
-    uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
-    uint32_t LTIME:3;          /*!< bit:  8..10  Lock Time                          */
-    uint32_t :1;               /*!< bit:     11  Reserved                           */
-    uint32_t LBYPASS:1;        /*!< bit:     12  Lock Bypass                        */
-    uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-    uint32_t DIV:11;           /*!< bit: 16..26  Clock Divider                      */
-    uint32_t :5;               /*!< bit: 27..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t FILTER:2;         /*!< bit:  0.. 1  Proportional Integral Filter Selection */
+        uint32_t LPEN:1;           /*!< bit:      2  Low-Power Enable                   */
+        uint32_t WUF:1;            /*!< bit:      3  Wake Up Fast                       */
+        uint32_t REFCLK:2;         /*!< bit:  4.. 5  Reference Clock Selection          */
+        uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint32_t LTIME:3;          /*!< bit:  8..10  Lock Time                          */
+        uint32_t :1;               /*!< bit:     11  Reserved                           */
+        uint32_t LBYPASS:1;        /*!< bit:     12  Lock Bypass                        */
+        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
+        uint32_t DIV:11;           /*!< bit: 16..26  Clock Divider                      */
+        uint32_t :5;               /*!< bit: 27..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } SYSCTRL_DPLLCTRLB_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -888,14 +888,14 @@ typedef union {
 /* -------- SYSCTRL_DPLLSTATUS : (SYSCTRL Offset: 0x50) (R/   8) DPLL Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  LOCK:1;           /*!< bit:      0  DPLL Lock Status                   */
-    uint8_t  CLKRDY:1;         /*!< bit:      1  Output Clock Ready                 */
-    uint8_t  ENABLE:1;         /*!< bit:      2  DPLL Enable                        */
-    uint8_t  DIV:1;            /*!< bit:      3  Divider Enable                     */
-    uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  LOCK:1;           /*!< bit:      0  DPLL Lock Status                   */
+        uint8_t  CLKRDY:1;         /*!< bit:      1  Output Clock Ready                 */
+        uint8_t  ENABLE:1;         /*!< bit:      2  DPLL Enable                        */
+        uint8_t  DIV:1;            /*!< bit:      3  Divider Enable                     */
+        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } SYSCTRL_DPLLSTATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -915,34 +915,34 @@ typedef union {
 /** \brief SYSCTRL hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-  __IO SYSCTRL_INTENCLR_Type     INTENCLR;    /**< \brief Offset: 0x00 (R/W 32) Interrupt Enable Clear */
-  __IO SYSCTRL_INTENSET_Type     INTENSET;    /**< \brief Offset: 0x04 (R/W 32) Interrupt Enable Set */
-  __IO SYSCTRL_INTFLAG_Type      INTFLAG;     /**< \brief Offset: 0x08 (R/W 32) Interrupt Flag Status and Clear */
-  __I  SYSCTRL_PCLKSR_Type       PCLKSR;      /**< \brief Offset: 0x0C (R/  32) Power and Clocks Status */
-  __IO SYSCTRL_XOSC_Type         XOSC;        /**< \brief Offset: 0x10 (R/W 16) External Multipurpose Crystal Oscillator (XOSC) Control */
-       RoReg8                    Reserved1[0x2];
-  __IO SYSCTRL_XOSC32K_Type      XOSC32K;     /**< \brief Offset: 0x14 (R/W 16) 32kHz External Crystal Oscillator (XOSC32K) Control */
-       RoReg8                    Reserved2[0x2];
-  __IO SYSCTRL_OSC32K_Type       OSC32K;      /**< \brief Offset: 0x18 (R/W 32) 32kHz Internal Oscillator (OSC32K) Control */
-  __IO SYSCTRL_OSCULP32K_Type    OSCULP32K;   /**< \brief Offset: 0x1C (R/W  8) 32kHz Ultra Low Power Internal Oscillator (OSCULP32K) Control */
-       RoReg8                    Reserved3[0x3];
-  __IO SYSCTRL_OSC8M_Type        OSC8M;       /**< \brief Offset: 0x20 (R/W 32) 8MHz Internal Oscillator (OSC8M) Control */
-  __IO SYSCTRL_DFLLCTRL_Type     DFLLCTRL;    /**< \brief Offset: 0x24 (R/W 16) DFLL48M Control */
-       RoReg8                    Reserved4[0x2];
-  __IO SYSCTRL_DFLLVAL_Type      DFLLVAL;     /**< \brief Offset: 0x28 (R/W 32) DFLL48M Value */
-  __IO SYSCTRL_DFLLMUL_Type      DFLLMUL;     /**< \brief Offset: 0x2C (R/W 32) DFLL48M Multiplier */
-  __IO SYSCTRL_DFLLSYNC_Type     DFLLSYNC;    /**< \brief Offset: 0x30 (R/W  8) DFLL48M Synchronization */
-       RoReg8                    Reserved5[0x3];
-  __IO SYSCTRL_BOD33_Type        BOD33;       /**< \brief Offset: 0x34 (R/W 32) 3.3V Brown-Out Detector (BOD33) Control */
-       RoReg8                    Reserved6[0x4];
-  __IO SYSCTRL_VREG_Type         VREG;        /**< \brief Offset: 0x3C (R/W 16) Voltage Regulator System (VREG) Control */
-       RoReg8                    Reserved7[0x2];
-  __IO SYSCTRL_VREF_Type         VREF;        /**< \brief Offset: 0x40 (R/W 32) Voltage References System (VREF) Control */
-  __IO SYSCTRL_DPLLCTRLA_Type    DPLLCTRLA;   /**< \brief Offset: 0x44 (R/W  8) DPLL Control A */
-       RoReg8                    Reserved8[0x3];
-  __IO SYSCTRL_DPLLRATIO_Type    DPLLRATIO;   /**< \brief Offset: 0x48 (R/W 32) DPLL Ratio Control */
-  __IO SYSCTRL_DPLLCTRLB_Type    DPLLCTRLB;   /**< \brief Offset: 0x4C (R/W 32) DPLL Control B */
-  __I  SYSCTRL_DPLLSTATUS_Type   DPLLSTATUS;  /**< \brief Offset: 0x50 (R/   8) DPLL Status */
+    __IO SYSCTRL_INTENCLR_Type     INTENCLR;    /**< \brief Offset: 0x00 (R/W 32) Interrupt Enable Clear */
+    __IO SYSCTRL_INTENSET_Type     INTENSET;    /**< \brief Offset: 0x04 (R/W 32) Interrupt Enable Set */
+    __IO SYSCTRL_INTFLAG_Type      INTFLAG;     /**< \brief Offset: 0x08 (R/W 32) Interrupt Flag Status and Clear */
+    __I  SYSCTRL_PCLKSR_Type       PCLKSR;      /**< \brief Offset: 0x0C (R/  32) Power and Clocks Status */
+    __IO SYSCTRL_XOSC_Type         XOSC;        /**< \brief Offset: 0x10 (R/W 16) External Multipurpose Crystal Oscillator (XOSC) Control */
+    RoReg8                    Reserved1[0x2];
+    __IO SYSCTRL_XOSC32K_Type      XOSC32K;     /**< \brief Offset: 0x14 (R/W 16) 32kHz External Crystal Oscillator (XOSC32K) Control */
+    RoReg8                    Reserved2[0x2];
+    __IO SYSCTRL_OSC32K_Type       OSC32K;      /**< \brief Offset: 0x18 (R/W 32) 32kHz Internal Oscillator (OSC32K) Control */
+    __IO SYSCTRL_OSCULP32K_Type    OSCULP32K;   /**< \brief Offset: 0x1C (R/W  8) 32kHz Ultra Low Power Internal Oscillator (OSCULP32K) Control */
+    RoReg8                    Reserved3[0x3];
+    __IO SYSCTRL_OSC8M_Type        OSC8M;       /**< \brief Offset: 0x20 (R/W 32) 8MHz Internal Oscillator (OSC8M) Control */
+    __IO SYSCTRL_DFLLCTRL_Type     DFLLCTRL;    /**< \brief Offset: 0x24 (R/W 16) DFLL48M Control */
+    RoReg8                    Reserved4[0x2];
+    __IO SYSCTRL_DFLLVAL_Type      DFLLVAL;     /**< \brief Offset: 0x28 (R/W 32) DFLL48M Value */
+    __IO SYSCTRL_DFLLMUL_Type      DFLLMUL;     /**< \brief Offset: 0x2C (R/W 32) DFLL48M Multiplier */
+    __IO SYSCTRL_DFLLSYNC_Type     DFLLSYNC;    /**< \brief Offset: 0x30 (R/W  8) DFLL48M Synchronization */
+    RoReg8                    Reserved5[0x3];
+    __IO SYSCTRL_BOD33_Type        BOD33;       /**< \brief Offset: 0x34 (R/W 32) 3.3V Brown-Out Detector (BOD33) Control */
+    RoReg8                    Reserved6[0x4];
+    __IO SYSCTRL_VREG_Type         VREG;        /**< \brief Offset: 0x3C (R/W 16) Voltage Regulator System (VREG) Control */
+    RoReg8                    Reserved7[0x2];
+    __IO SYSCTRL_VREF_Type         VREF;        /**< \brief Offset: 0x40 (R/W 32) Voltage References System (VREF) Control */
+    __IO SYSCTRL_DPLLCTRLA_Type    DPLLCTRLA;   /**< \brief Offset: 0x44 (R/W  8) DPLL Control A */
+    RoReg8                    Reserved8[0x3];
+    __IO SYSCTRL_DPLLRATIO_Type    DPLLRATIO;   /**< \brief Offset: 0x48 (R/W 32) DPLL Ratio Control */
+    __IO SYSCTRL_DPLLCTRLB_Type    DPLLCTRLB;   /**< \brief Offset: 0x4C (R/W 32) DPLL Control B */
+    __I  SYSCTRL_DPLLSTATUS_Type   DPLLSTATUS;  /**< \brief Offset: 0x50 (R/   8) DPLL Status */
 } Sysctrl;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 

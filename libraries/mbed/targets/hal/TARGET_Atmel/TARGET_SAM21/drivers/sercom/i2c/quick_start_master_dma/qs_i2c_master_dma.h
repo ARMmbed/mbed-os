@@ -158,13 +158,13 @@
  *
  * -# Set the auto address length and enable flag.
  *    \snippet qs_i2c_master_dma.c set_i2c_addr
- * 
+ *
  * -# Waiting for transfer complete.
  *    \snippet qs_i2c_master_dma.c waiting_for_complete
  *
  * -# Enter an infinite loop once transfer complete.
  *    \snippet qs_i2c_master_dma.c inf_loop
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/

@@ -25,7 +25,7 @@ extern "C" {
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT,
-	PIN_INPUT_OUTPUT	//pin state can be set and read back
+    PIN_INPUT_OUTPUT	//pin state can be set and read back
 } PinDirection;
 
 typedef enum {
@@ -61,8 +61,8 @@ typedef enum {
     PA29  = 29,
     PA30  = 30,
     PA31  = 31,
-	
-	PB00  = 32,
+
+    PB00  = 32,
     PB01  = 33,
     PB02  = 34,
     PB03  = 35,
@@ -94,11 +94,11 @@ typedef enum {
     PB29  = 61,
     PB30  = 62,
     PB31  = 63,
-    
+
     PC16 = 64,
     PC18 = 65,
     PC19 = 66,
-	
+
     USBTX = PA04,
     USBRX = PA05,
 
@@ -108,7 +108,7 @@ typedef enum {
 
 typedef enum {
     PullNone = 0,
-	PullUp = 1,
+    PullUp = 1,
     PullDown = 2,
     PullDefault = PullUp
 } PinMode;

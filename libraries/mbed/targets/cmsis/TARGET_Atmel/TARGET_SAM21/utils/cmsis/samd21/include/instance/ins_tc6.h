@@ -40,9 +40,9 @@
  * \asf_license_stop
  *
  */
- /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+/**
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 
 #ifndef _SAMD21_TC6_INSTANCE_
 #define _SAMD21_TC6_INSTANCE_
@@ -106,7 +106,7 @@
 #define TC6_DMAC_ID_MC_SIZE         2
 #define TC6_DMAC_ID_OVF             33       // Indexes of DMA Overflow trigger
 #define TC6_GCLK_ID                 29       // Index of Generic Clock
-#define TC6_MASTER                  1       
+#define TC6_MASTER                  1
 #define TC6_OW_NUM                  2        // Number of Output Waveforms
 #define TC6_PERIOD_EXT              0        // Period feature implemented
 #define TC6_SHADOW_EXT              0        // Shadow feature implemented
