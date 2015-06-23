@@ -3,7 +3,7 @@
 #
 
 # make sure necessary features are enabled:
-project(mbed)
+project(mbed-classic)
 enable_language(ASM)
 
 # override compilation flags:
@@ -74,13 +74,21 @@ mbed_find_target_dirs("${CMAKE_CURRENT_SOURCE_DIR}/targets" MBED_TARGET_SOURCES 
 #message("found target sources: ${MBED_TARGET_SOURCES}")
 #message("found target include dirs: ${MBED_TARGET_INCLUDE_DIRS}")
 
+# we have to append any target-specific include dirs to the global include dirs
+# list, so that any indirect includes (e.g. via mbed.h) of files in those
+# directories will work:
+# (non-target-specific include dirs are listed in extraIncludes in module.json)
+foreach(dir ${MBED_TARGET_INCLUDE_DIRS})
+    set_property(GLOBAL APPEND PROPERTY YOTTA_GLOBAL_INCLUDE_DIRS ${dir})
+endforeach()
+
 # finally, we can construct a library using the determined set of include paths
 # + source files. Note that the library name must match the name of the yotta
 # module (defined in module.json) for this module to link properly with other
 # yotta modules.
 include_directories(${MBED_COMMON_INCLUDE_DIRS})
 include_directories(${MBED_TARGET_INCLUDE_DIRS})
-add_library(mbed
+add_library(mbed-classic
     ${MBED_COMMON_SOURCES}
     ${MBED_TARGET_SOURCES}
 )

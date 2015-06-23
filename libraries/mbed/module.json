@@ -18,7 +18,10 @@
     }
   ],
   "extraIncludes": [
-    "api"
+    "api",
+    "hal",
+    "targets/hal",
+    "targets/cmsis"
   ],
   "dependencies": {
   },
