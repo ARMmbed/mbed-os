@@ -36,6 +36,7 @@
 #include "pinmap.h"
 #include <string.h>
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 #define UART_NUM (8)
 
@@ -66,7 +67,9 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
-    HAL_UART_Init(&UartHandle);
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART");
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
