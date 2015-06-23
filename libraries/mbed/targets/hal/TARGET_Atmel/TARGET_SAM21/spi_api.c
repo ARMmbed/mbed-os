@@ -836,6 +836,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         /* IRQ method */
+        obj->spi.status = STATUS_BUSY;
         if ((obj->tx_buff.pos < obj->tx_buff.length) || (obj->rx_buff.pos < obj->rx_buff.length)) {
             bytes_to_transfer = (obj->tx_buff.length > obj->rx_buff.length)? obj->tx_buff.length : obj->rx_buff.length;
             while (bytes_to_transfer) {
@@ -847,6 +848,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
                 }
                 if (obj->spi.event & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW)) {
                     transfer_event = obj->spi.event;
+                    obj->spi.status = (obj->spi.event & SPI_EVENT_RX_OVERFLOW)? STATUS_ERR_OVERFLOW : STATUS_ERR_BAD_DATA;
                     break;
                 }
                 bytes_to_transfer--;
@@ -862,6 +864,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
                 SERCOM_SPI_INTFLAG_ERROR;
             NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
             NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
+            obj->spi.status = STATUS_OK;
         }
         transfer_event &= obj->spi.mask;
     }
