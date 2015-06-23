@@ -546,27 +546,27 @@ void uart0_irq()
 
 void uart1_irq()
 {
-    uart_irq((SercomUsart *)UART_1, 0);
+    uart_irq((SercomUsart *)UART_1, 1);
 }
 
 void uart2_irq()
 {
-    uart_irq((SercomUsart *)UART_2, 0);
+    uart_irq((SercomUsart *)UART_2, 2);
 }
 
 void uart3_irq()
 {
-    uart_irq((SercomUsart *)UART_3, 0);
+    uart_irq((SercomUsart *)UART_3, 3);
 }
 
 void uart4_irq()
 {
-    uart_irq((SercomUsart *)UART_4, 0);
+    uart_irq((SercomUsart *)UART_4, 4);
 }
 
 void uart5_irq()
 {
-    uart_irq((SercomUsart *)UART_5, 0);
+    uart_irq((SercomUsart *)UART_5, 5);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
