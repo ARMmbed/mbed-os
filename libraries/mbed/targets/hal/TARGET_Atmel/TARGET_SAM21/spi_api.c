@@ -111,7 +111,7 @@ static inline void spi_enable(spi_t *obj)
 
 #if DEVICE_SPI_ASYNCH
     /* Enable interrupt */
-    NVIC_EnableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_S(obj)));
+    NVIC_EnableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_SERCOM(obj)));
 #endif
 
     /* Wait until the synchronization is complete */
@@ -128,7 +128,7 @@ static inline void spi_disable(spi_t *obj)
 
 #if DEVICE_SPI_ASYNCH
     /* Disable interrupt */
-    NVIC_DisableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_S(obj)));
+    NVIC_DisableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_SERCOM(obj)));
 #endif
     /* Wait until the synchronization is complete */
     while (spi_is_syncing(obj));
@@ -790,6 +790,8 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     _sercom_callbacks[sercom_index] = handler;
     obj->spi.mask = event;
 
+    obj->spi.dma_usage = hint;
+
     if (hint == DMA_USAGE_NEVER) {
         /* Use irq method */
         uint16_t irq_mask = 0;
@@ -816,7 +818,6 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
         }
         _SPI(obj).INTENSET.reg = irq_mask;
     }
-
 }
 
 /** The asynchronous IRQ handler
@@ -828,7 +829,44 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
  */
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
-    return 0;
+    uint32_t transfer_event = 0;
+    uint32_t bytes_to_transfer = 0;
+
+    uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
+
+    if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
+        /* IRQ method */
+        if ((obj->tx_buff.pos < obj->tx_buff.length) || (obj->rx_buff.pos < obj->rx_buff.length)) {
+            bytes_to_transfer = (obj->tx_buff.length > obj->rx_buff.length)? obj->tx_buff.length : obj->rx_buff.length;
+            while (bytes_to_transfer) {
+                if (spi_is_ready_to_write(obj)) {
+                    _spi_write_async(obj);
+                }
+                if (spi_is_ready_to_read(obj)) {
+                    _spi_read_async(obj);
+                }
+                if (obj->spi.event & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW)) {
+                    transfer_event = obj->spi.event;
+                    break;
+                }
+                bytes_to_transfer--;
+            }
+        }
+        if (bytes_to_transfer == 0) {
+            transfer_event |= SPI_EVENT_COMPLETE;
+            /* Clear all interrupts */
+            _SPI(obj).INTENCLR.reg =
+                SERCOM_SPI_INTFLAG_DRE |
+                SERCOM_SPI_INTFLAG_TXC |
+                SERCOM_SPI_INTFLAG_RXC |
+                SERCOM_SPI_INTFLAG_ERROR;
+            NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
+            NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
+        }
+        transfer_event &= obj->spi.mask;
+    }
+
+    return transfer_event;
 }
 
 /** Attempts to determine if the SPI peripheral is already in use.

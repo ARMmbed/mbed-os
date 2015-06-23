@@ -103,6 +103,7 @@ struct spi_s {
     uint32_t event;
     void *tx_buffer;
     void *rx_buffer;
+    uint8_t dma_usage;
 #endif
 };
 
