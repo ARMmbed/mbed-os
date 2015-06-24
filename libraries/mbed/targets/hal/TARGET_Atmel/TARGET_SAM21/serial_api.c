@@ -497,7 +497,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 */
 inline uint8_t serial_get_index(serial_t *obj)
 {
-    switch ((int)pSERIAL_S(obj)) {
+    switch ((int)pUSART_S(obj)) {
         case UART_0:
             return 0;
         case UART_1:

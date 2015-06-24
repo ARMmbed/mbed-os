@@ -46,6 +46,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     obj->OUTCLR = &port_base->OUTCLR.reg;
     obj->OUTSET = &port_base->OUTSET.reg;
     obj->IN = &port_base->IN.reg;
+	obj->OUT = &port_base->OUT.reg;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
@@ -83,7 +84,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
             pin_conf.direction  = PORT_PIN_DIR_INPUT;
             break;
         case PIN_OUTPUT:
-            pin_conf.direction  = /*PORT_PIN_DIR_OUTPUT*/PORT_PIN_DIR_OUTPUT_WTH_READBACK;
+            pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
             break;
         case PIN_INPUT_OUTPUT:
             pin_conf.direction  = PORT_PIN_DIR_OUTPUT_WTH_READBACK;
