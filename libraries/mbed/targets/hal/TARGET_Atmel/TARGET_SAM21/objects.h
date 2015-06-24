@@ -43,23 +43,11 @@ struct port_s {
 struct serial_s {
     Sercom *usart;
     uint32_t index;
-    uint32_t data_order;
-    uint32_t transfer_mode;
     uint32_t parity;
     uint32_t stopbits;
     uint32_t character_size;
     uint32_t mux_setting;
-    uint32_t sample_rate;
-    uint32_t sample_adjustment;
-    uint8_t start_frame_detection_enable;
     uint32_t baudrate;
-    uint32_t receiver_enable;
-    uint32_t transmitter_enable;
-    uint32_t clock_polarity_inverted;
-    uint8_t use_external_clock;
-    uint32_t ext_clock_freq;
-    uint8_t run_in_standby;
-    uint32_t generator_source;
     uint32_t pinmux_pad0;
     uint32_t pinmux_pad1;
     uint32_t pinmux_pad2;

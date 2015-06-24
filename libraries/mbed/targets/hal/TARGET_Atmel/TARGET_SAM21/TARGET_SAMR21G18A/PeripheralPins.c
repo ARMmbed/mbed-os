@@ -457,9 +457,9 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock)
             break;
     }
 
-    if (((output_values.pad == 0) && (clock_values.pad == 1)) || (output_values.pad == 0)) {
+    if (/*((output_values.pad == 0) && (clock_values.pad == 1)) ||*/ (output_values.pad == 0)) {  // condition for hardware enable and usart is different
         mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
-    } else if((output_values.pad == 2) && (clock_values.pad == 3)) {
+    } else if(/*((output_values.pad == 2) && (clock_values.pad == 3)) ||*/ (output_values.pad == 2)) {
         mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
     }
     /*else if((output_values.pad == 0)) {  // condition for hardware enabled
@@ -472,9 +472,9 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock)
     return mux_setting;
 }
 
-void find_pin_settings (PinName output, PinName input, PinName clock, uint32_t* pad_pinmuxes)
+void find_pin_settings (PinName output, PinName input, PinName clock, PinName chipsel, uint32_t* pad_pinmuxes)
 {
-    struct pin_values input_values, output_values, clock_values;
+    struct pin_values input_values, output_values, clock_values, chipsel_values;
     uint8_t i = 0;
 
     for (i = 0; i < 4 ; i++ ) { // load default values for the pins
@@ -484,14 +484,17 @@ void find_pin_settings (PinName output, PinName input, PinName clock, uint32_t* 
     input_values.pin = input;
     output_values.pin = output;
     clock_values.pin = clock;
+	chipsel_values.pin = chipsel;
 
     input_values.com = pinmap_sercom_peripheral(input, output);
     output_values.com = input_values.com;
     clock_values.com = input_values.com;
+	chipsel_values.com = input_values.com;
 
     input_values.pad = pinmap_sercom_pad(input);
     output_values.pad = pinmap_sercom_pad(output);
     clock_values.pad = pinmap_sercom_pad(clock);
+	chipsel_values.pad = pinmap_sercom_pad(chipsel);
 
     if (input_values.pad < 0x04)
         pad_pinmuxes[input_values.pad] = find_sercom_pinmux(&input_values);
@@ -499,6 +502,8 @@ void find_pin_settings (PinName output, PinName input, PinName clock, uint32_t* 
         pad_pinmuxes[output_values.pad] = find_sercom_pinmux(&output_values);
     if (clock_values.pad < 0x04)
         pad_pinmuxes[clock_values.pad] = find_sercom_pinmux(&clock_values);
+	if (chipsel_values.pad < 0x04)
+	    pad_pinmuxes[chipsel_values.pad] = find_sercom_pinmux(&chipsel_values);
 
 }
 

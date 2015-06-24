@@ -98,7 +98,7 @@ static inline void reset_usart(serial_t *obj)
     _USART(obj).CTRLA.reg = SERCOM_USART_CTRLA_SWRST;
 }
 
-static enum status_code usart_set_config_asf( serial_t *obj)
+static enum status_code usart_set_config_default( serial_t *obj)
 {
 
     /* Index for generic clock */
@@ -114,35 +114,12 @@ static enum status_code usart_set_config_asf( serial_t *obj)
     enum sercom_asynchronous_sample_num sample_num = SERCOM_ASYNC_SAMPLE_NUM_16;
 
     /* Set data order, internal muxing, and clock polarity */
-    ctrla = (uint32_t)pSERIAL_S(obj)->data_order |
-            (uint32_t)pSERIAL_S(obj)->mux_setting |
-#ifdef FEATURE_USART_OVER_SAMPLE
-            pSERIAL_S(obj)->sample_adjustment |
-            pSERIAL_S(obj)->sample_rate |
-#endif
-            (pSERIAL_S(obj)->clock_polarity_inverted << SERCOM_USART_CTRLA_CPOL_Pos);
+    ctrla = (uint32_t)USART_DATAORDER_LSB |         // data order
+            (uint32_t)pSERIAL_S(obj)->mux_setting;  // mux setting  // clock polarity is not used
+
 
     /* Get baud value from mode and clock */
-    switch (pSERIAL_S(obj)->transfer_mode) {
-        case USART_TRANSFER_SYNCHRONOUSLY:
-            if (!pSERIAL_S(obj)->use_external_clock) {
-                _sercom_get_sync_baud_val(pSERIAL_S(obj)->baudrate,
-                                          system_gclk_chan_get_hz(gclk_index), &baud);
-            }
-
-            break;
-
-        case USART_TRANSFER_ASYNCHRONOUSLY:
-            if (pSERIAL_S(obj)->use_external_clock) {
-                _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,
-                                           pSERIAL_S(obj)->ext_clock_freq, &baud, mode, sample_num);
-            } else {
-                _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,
-                                           system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);
-            }
-
-            break;
-    }
+	_sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);  // for asynchronous transfer mode
 
     /* Wait until synchronization is complete */
     usart_syncing(obj);
@@ -151,21 +128,15 @@ static enum status_code usart_set_config_asf( serial_t *obj)
     _USART(obj).BAUD.reg = baud;
 
     /* Set sample mode */
-    ctrla |= pSERIAL_S(obj)->transfer_mode;
+    ctrla |= USART_TRANSFER_ASYNCHRONOUSLY;
 
-    if (pSERIAL_S(obj)->use_external_clock == false) {
-        ctrla |= SERCOM_USART_CTRLA_MODE(0x1);
-    } else {
-        ctrla |= SERCOM_USART_CTRLA_MODE(0x0);
-    }
+    /* for disabled external clock source */
+    ctrla |= SERCOM_USART_CTRLA_MODE(0x1);  
 
     /* Set stopbits, character size and enable transceivers */
     ctrlb = (uint32_t)pSERIAL_S(obj)->stopbits | (uint32_t)pSERIAL_S(obj)->character_size |
-#ifdef FEATURE_USART_START_FRAME_DECTION
-            (pSERIAL_S(obj)->start_frame_detection_enable << SERCOM_USART_CTRLB_SFDE_Pos) |
-#endif
-            (pSERIAL_S(obj)->receiver_enable << SERCOM_USART_CTRLB_RXEN_Pos) |
-            (pSERIAL_S(obj)->transmitter_enable << SERCOM_USART_CTRLB_TXEN_Pos);
+            (0x1ul << SERCOM_USART_CTRLB_RXEN_Pos) |   // receiver enable
+            (0x1ul << SERCOM_USART_CTRLB_TXEN_Pos);  // transmitter enable
 
     /* Check parity mode bits */
     if (pSERIAL_S(obj)->parity != USART_PARITY_NONE) {
@@ -174,12 +145,7 @@ static enum status_code usart_set_config_asf( serial_t *obj)
     } else {
         ctrla |= SERCOM_USART_CTRLA_FORM(0);
     }
-
-    /* Set whether module should run in standby. */
-    if (pSERIAL_S(obj)->run_in_standby || system_is_debugger_present()) {
-        ctrla |= SERCOM_USART_CTRLA_RUNSTDBY;
-    }
-
+	
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
@@ -198,25 +164,15 @@ static enum status_code usart_set_config_asf( serial_t *obj)
 void get_default_serial_values(serial_t *obj)
 {
     /* Set default config to object */
-    pSERIAL_S(obj)->data_order = USART_DATAORDER_LSB;
-    pSERIAL_S(obj)->transfer_mode = USART_TRANSFER_ASYNCHRONOUSLY;
     pSERIAL_S(obj)->parity = USART_PARITY_NONE;
     pSERIAL_S(obj)->stopbits = USART_STOPBITS_1;
     pSERIAL_S(obj)->character_size = USART_CHARACTER_SIZE_8BIT;
     pSERIAL_S(obj)->baudrate = 9600;
-    pSERIAL_S(obj)->receiver_enable = true;
-    pSERIAL_S(obj)->transmitter_enable = true;
-    pSERIAL_S(obj)->clock_polarity_inverted = false;
-    pSERIAL_S(obj)->use_external_clock = false;
-    pSERIAL_S(obj)->ext_clock_freq = 0;
     pSERIAL_S(obj)->mux_setting = USART_RX_1_TX_2_XCK_3;
-    pSERIAL_S(obj)->run_in_standby = false;
-    pSERIAL_S(obj)->generator_source = GCLK_GENERATOR_0;
     pSERIAL_S(obj)->pinmux_pad0 = PINMUX_DEFAULT;
     pSERIAL_S(obj)->pinmux_pad1 = PINMUX_DEFAULT;
     pSERIAL_S(obj)->pinmux_pad2 = PINMUX_DEFAULT;
     pSERIAL_S(obj)->pinmux_pad3 = PINMUX_DEFAULT;
-    pSERIAL_S(obj)->start_frame_detection_enable = false;
 };
 
 
@@ -240,7 +196,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     get_default_serial_values(obj);
 
-    find_pin_settings(tx, rx, NC, &padsetting[0]);  // tx, rx, clk, pad array  // getting pads from pins
+    find_pin_settings(tx, rx, NC, NC, &padsetting[0]);  // tx, rx, clk, pad array  // getting pads from pins
     muxsetting = find_mux_setting(tx, rx, NC);  // getting mux setting from pins
     sercom_index = pinmap_sercom_peripheral(tx, rx);  // same variable sercom_index reused for optimization
     switch (sercom_index) {
@@ -292,14 +248,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
 
     /* Set up the GCLK for the module */
-    pSERIAL_S(obj)->generator_source = GCLK_GENERATOR_0;
-    gclk_chan_conf.source_generator = pSERIAL_S(obj)->generator_source;
+    gclk_chan_conf.source_generator = GCLK_GENERATOR_0;
     system_gclk_chan_set_config(gclk_index, &gclk_chan_conf);
     system_gclk_chan_enable(gclk_index);
-    sercom_set_gclk_generator(pSERIAL_S(obj)->generator_source, false);
+    sercom_set_gclk_generator(GCLK_GENERATOR_0, false);
 
     /* Set configuration according to the config struct */
-    usart_set_config_asf(obj);
+    usart_set_config_default(obj);
     struct system_pinmux_config pin_conf;
     system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
@@ -361,31 +316,14 @@ void serial_baud(serial_t *obj, int baudrate)
     sercom_index = _sercom_get_sercom_inst_index(pUSART_S(obj));
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
 
-    pSERIAL_S(obj)->generator_source = GCLK_GENERATOR_0;
-    gclk_chan_conf.source_generator = pSERIAL_S(obj)->generator_source;
+    gclk_chan_conf.source_generator = GCLK_GENERATOR_0;
     system_gclk_chan_set_config(gclk_index, &gclk_chan_conf);
     system_gclk_chan_enable(gclk_index);
-    sercom_set_gclk_generator(pSERIAL_S(obj)->generator_source, false);
+    sercom_set_gclk_generator(GCLK_GENERATOR_0, false);
 
     /* Get baud value from mode and clock */
-    switch (pSERIAL_S(obj)->transfer_mode) {
-        case USART_TRANSFER_SYNCHRONOUSLY:
-            if (!pSERIAL_S(obj)->use_external_clock) {
-                _sercom_get_sync_baud_val(pSERIAL_S(obj)->baudrate,
-                                          system_gclk_chan_get_hz(gclk_index), &baud);
-            }
-            break;
+	_sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate, system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);
 
-        case USART_TRANSFER_ASYNCHRONOUSLY:
-            if (pSERIAL_S(obj)->use_external_clock) {
-                _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,
-                                           pSERIAL_S(obj)->ext_clock_freq, &baud, mode, sample_num);
-            } else {
-                _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,
-                                           system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);
-            }
-            break;
-    }
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
@@ -484,6 +422,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     usart_syncing(obj);
 
     enable_usart(obj);
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+	
 }
 
 /******************************************************************************

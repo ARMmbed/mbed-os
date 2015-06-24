@@ -20,7 +20,7 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
-void find_pin_settings (PinName output, PinName input, PinName clock, uint32_t* pad_pinmuxes);
+void find_pin_settings (PinName output, PinName input, PinName clock, PinName chipsel, uint32_t* pad_pinmuxes);  // clock also for RTS and chipsel for CTS 
 uint32_t find_mux_setting (PinName output, PinName input, PinName clock);
 /************RTC***************/
 //extern const PinMap PinMap_RTC[];
