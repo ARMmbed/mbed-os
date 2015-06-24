@@ -235,8 +235,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     uint32_t muxsetting = 0;
     uint32_t padsetting[4] = {0};
 
-    pUSART_S(obj) = EXT1_UART_MODULE;
-
     /* Disable USART module */
     disable_usart(obj);
 
@@ -248,21 +246,27 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     switch (sercom_index) {
         case 0:
             uart = UART_0;
+            pUSART_S(obj) = SERCOM0;
             break;
         case 1:
             uart = UART_1;
+            pUSART_S(obj) = SERCOM1;
             break;
         case 2:
             uart = UART_2;
+            pUSART_S(obj) = SERCOM2;
             break;
         case 3:
             uart = UART_3;
+            pUSART_S(obj) = SERCOM3;
             break;
         case 4:
             uart = UART_4;
+            pUSART_S(obj) = SERCOM4;
             break;
         case 5:
             uart = UART_5;
+            pUSART_S(obj) = SERCOM5;
             break;
     }
 
@@ -514,9 +518,10 @@ static inline void uart_irq(SercomUsart *const usart, uint32_t index)
     uint16_t interrupt_status;
     interrupt_status = usart->INTFLAG.reg;
     interrupt_status &= usart->INTENSET.reg;
+
     if (serial_irq_ids[index] != 0) {
         if (interrupt_status & SERCOM_USART_INTFLAG_TXC) { // for transmit complete
-            usart->INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
+            usart->INTFLAG.reg = SERCOM_USART_INTFLAG_TXC;
             irq_handler(serial_irq_ids[index], TxIrq);
         }
         /*if (interrupt_status & SERCOM_USART_INTFLAG_DRE)  // for data ready for transmit
@@ -533,7 +538,7 @@ static inline void uart_irq(SercomUsart *const usart, uint32_t index)
         	}
         }*/
         if (interrupt_status & SERCOM_USART_INTFLAG_RXC) { // for receive complete
-            usart->INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
+            usart->INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
             irq_handler(serial_irq_ids[index], RxIrq);
         }
     }
@@ -579,45 +584,41 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
-    uint32_t ctrlb = 0;
-
-    disable_usart(obj);
-    ctrlb = _USART(obj).CTRLB.reg;
 
     switch ((int)pUSART_S(obj)) {
         case UART_0:
             irq_n = SERCOM0_IRQn;
-            vector = (uint32_t)&uart0_irq;
+            vector = (uint32_t)uart0_irq;
             break;
         case UART_1:
             irq_n = SERCOM1_IRQn;
-            vector = (uint32_t)&uart1_irq;
+            vector = (uint32_t)uart1_irq;
             break;
         case UART_2:
             irq_n = SERCOM2_IRQn;
-            vector = (uint32_t)&uart2_irq;
+            vector = (uint32_t)uart2_irq;
             break;
         case UART_3:
             irq_n = SERCOM3_IRQn;
-            vector = (uint32_t)&uart3_irq;
+            vector = (uint32_t)uart3_irq;
             break;
         case UART_4:
             irq_n = SERCOM4_IRQn;
-            vector = (uint32_t)&uart4_irq;
+            vector = (uint32_t)uart4_irq;
             break;
         case UART_5:
             irq_n = SERCOM5_IRQn;
-            vector = (uint32_t)&uart5_irq;
+            vector = (uint32_t)uart5_irq;
             break;
     }
 
     if (enable) {
         switch (irq) {
             case RxIrq:
-                ctrlb |= (SERCOM_USART_CTRLB_RXEN);
+                _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;
                 break;
             case TxIrq:
-                ctrlb |= (SERCOM_USART_CTRLB_TXEN);
+                _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
                 break;
         }
         NVIC_SetVector(irq_n, vector);
@@ -626,16 +627,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     } else {
         switch (irq) {
             case RxIrq:
-                ctrlb &= ~(SERCOM_USART_CTRLB_RXEN);
-                break;
+                _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
                 break;
             case TxIrq:
-                ctrlb &= ~(SERCOM_USART_CTRLB_TXEN);
+                _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
                 break;
         }
         NVIC_DisableIRQ(irq_n);
     }
-    _USART(obj).CTRLB.reg = ctrlb;
     enable_usart(obj);
 }
 
@@ -644,7 +643,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
  ******************************************************************************/
 int serial_getc(serial_t *obj)
 {
-    _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;  // test
     while (!serial_readable(obj));
     return _USART(obj).DATA.reg ;
 }
