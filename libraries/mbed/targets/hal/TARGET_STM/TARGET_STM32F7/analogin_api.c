@@ -34,13 +34,22 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 ADC_HandleTypeDef AdcHandle;
 
-int adc_inited = 0;
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
+#if defined(ADC1)
+    static int adc1_inited = 0;
+#endif
+#if defined(ADC2)
+    static int adc2_inited = 0;
+#endif
+#if defined(ADC3)
+    static int adc3_inited = 0;
+#endif
+
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
@@ -56,40 +65,59 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
+    // Check if ADC is already initialized
+    // Enable ADC clock
+#if defined(ADC1)
+    if ((obj->adc == ADC_1) && adc1_inited) return;
+    if (obj->adc == ADC_1) {
+        __HAL_RCC_ADC1_CLK_ENABLE();
+        adc1_inited = 1;
+    }
+#endif
+#if defined(ADC2)
+    if ((obj->adc == ADC_2) && adc2_inited) return;
+    if (obj->adc == ADC_2) {
+        __HAL_RCC_ADC2_CLK_ENABLE();
+        adc2_inited = 1;
+    }
+#endif
+#if defined(ADC3)
+    if ((obj->adc == ADC_3) && adc3_inited) return;
+    if (obj->adc == ADC_3) {
+        __HAL_RCC_ADC3_CLK_ENABLE();
+        adc3_inited = 1;
+    }
+#endif
 
-        // Enable ADC clock
-        __ADC1_CLK_ENABLE();
+    // Configure ADC
+    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV4;
+    AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
+    AdcHandle.Init.ScanConvMode          = DISABLE;
+    AdcHandle.Init.ContinuousConvMode    = DISABLE;
+    AdcHandle.Init.DiscontinuousConvMode = DISABLE;
+    AdcHandle.Init.NbrOfDiscConversion   = 0;
+    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    AdcHandle.Init.NbrOfConversion       = 1;
+    AdcHandle.Init.DMAContinuousRequests = DISABLE;
+    AdcHandle.Init.EOCSelection          = DISABLE;
 
-        // Configure ADC
-        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-        AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-        AdcHandle.Init.ScanConvMode          = DISABLE;
-        AdcHandle.Init.ContinuousConvMode    = DISABLE;
-        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-        AdcHandle.Init.NbrOfDiscConversion   = 0;
-        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.NbrOfConversion       = 1;
-        AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.EOCSelection          = DISABLE;
-        HAL_ADC_Init(&AdcHandle);
+    if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+        error("Cannot initialize ADC");
     }
 }
 
 static inline uint16_t adc_read(analogin_t *obj)
 {
-    ADC_ChannelConfTypeDef sConfig;
+    ADC_ChannelConfTypeDef sConfig = {0};
 
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
     sConfig.Offset       = 0;
 
     switch (obj->channel) {
@@ -141,16 +169,28 @@ static inline uint16_t adc_read(analogin_t *obj)
         case 15:
             sConfig.Channel = ADC_CHANNEL_15;
             break;
+        case 16:
+            sConfig.Channel = ADC_CHANNEL_16;
+            break;
+        case 17:
+            sConfig.Channel = ADC_CHANNEL_17;
+            break;
+        case 18:
+            sConfig.Channel = ADC_CHANNEL_18;
+            break;
         default:
             return 0;
     }
 
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    if (HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK) {
+        error("Cannot configure ADC channel");
+    }
 
     HAL_ADC_Start(&AdcHandle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
+    HAL_ADC_PollForConversion(&AdcHandle, 10);
+    if (HAL_ADC_GetState(&AdcHandle) == HAL_ADC_STATE_EOC_REG) {
         return (HAL_ADC_GetValue(&AdcHandle));
     } else {
         return 0;
