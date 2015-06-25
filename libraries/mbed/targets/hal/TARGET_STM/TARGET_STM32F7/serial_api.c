@@ -285,21 +285,21 @@ static void uart2_irq(void)
 }
 
 #if defined(USART3_BASE)
-static void uart3_irq(void) 
+static void uart3_irq(void)
 {
     uart_irq(UART_3, 2);
 }
 #endif
 
 #if defined(UART4_BASE)
-static void uart4_irq(void) 
+static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
 #endif
 
 #if defined(UART5_BASE)
-static void uart5_irq(void) 
+static void uart5_irq(void)
 {
     uart_irq(UART_5, 4);
 }
@@ -311,14 +311,14 @@ static void uart6_irq(void)
 }
 
 #if defined(UART7_BASE)
-static void uart7_irq(void) 
+static void uart7_irq(void)
 {
     uart_irq(UART_7, 6);
 }
 #endif
 
 #if defined(UART8_BASE)
-static void uart8_irq(void) 
+static void uart8_irq(void)
 {
     uart_irq(UART_8, 7);
 }

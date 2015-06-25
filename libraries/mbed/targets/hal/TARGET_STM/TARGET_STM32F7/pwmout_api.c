@@ -125,7 +125,7 @@ void pwmout_write(pwmout_t* obj, float value)
     if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
         error("Cannot configure PWM channel");
     }
-    
+
     if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);
     } else {
@@ -169,7 +169,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
         case PWM_5:
         case PWM_12:
         case PWM_13:
-        case PWM_14:        
+        case PWM_14:
             PclkFreq = HAL_RCC_GetPCLK1Freq();
             break;
         case PWM_1:
@@ -188,7 +188,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
     TimHandle.Init.Prescaler     = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
-    
+
     if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK) {
         error("Cannot initialize PWM");
     }

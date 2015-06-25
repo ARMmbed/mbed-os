@@ -54,7 +54,7 @@ void deepsleep(void)
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
-    // After wake-up from STOP reconfigure the PLL
+    // After wake-up from STOP need to reconfigure the system clock
     SetSysClock();
 }
 
