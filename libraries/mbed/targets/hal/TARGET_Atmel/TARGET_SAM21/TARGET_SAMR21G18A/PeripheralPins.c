@@ -425,22 +425,25 @@ uint32_t find_sercom_pinmux (struct pin_values* PinValues)
             break;
     }
 }
-uint32_t find_mux_setting (PinName output, PinName input, PinName clock)
+uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName chipsel)
 {
-    struct pin_values input_values, output_values, clock_values;
+    struct pin_values input_values, output_values, clock_values, chipsel_values;
     uint32_t mux_setting = 0;
 
     input_values.pin = input;
     output_values.pin = output;
     clock_values.pin = clock;
+	chipsel_values.pin = chipsel;
 
     input_values.com = pinmap_sercom_peripheral(input, output);
     output_values.com = input_values.com;
     clock_values.com = input_values.com;
+	chipsel_values.com = input_values.com;
 
     input_values.pad = pinmap_sercom_pad(input);
     output_values.pad = pinmap_sercom_pad(output);
     clock_values.pad = pinmap_sercom_pad(clock);
+	chipsel_values.pad = pinmap_sercom_pad(chipsel);
 
     switch(input_values.pad) {      //TODO: Condition for hardware flow control enabled is different.
         case 0:
@@ -457,18 +460,22 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock)
             break;
     }
 
-    if (/*((output_values.pad == 0) && (clock_values.pad == 1)) ||*/ (output_values.pad == 0)) {  // condition for hardware enable and usart is different
-        mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
-    } else if(/*((output_values.pad == 2) && (clock_values.pad == 3)) ||*/ (output_values.pad == 2)) {
-        mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
-    }
-    /*else if((output_values.pad == 0)) {  // condition for hardware enabled
-        mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
-    }*/
-    else {
-        mux_setting = mux_setting;  // dummy condition
-    }
-
+    if ((clock == NC) && (chipsel == NC))  // condition for no hardware control and uart
+	{
+		if ((output_values.pad == 0)) {  // condition for hardware enable and usart is different
+			mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
+		} else if((output_values.pad == 2)) {
+			mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
+		} else {
+			mux_setting = mux_setting;  // dummy condition
+		}
+	}
+	else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
+		if((output_values.pad == 0) && (clock_values.pad/*rts pin*/ == 2) && (clock_values.pad/*cts pin*/ == 3)){
+			 mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
+		}		
+	}
+	
     return mux_setting;
 }
 

@@ -196,8 +196,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     get_default_serial_values(obj);
 
-    find_pin_settings(tx, rx, NC, NC, &padsetting[0]);  // tx, rx, clk, pad array  // getting pads from pins
-    muxsetting = find_mux_setting(tx, rx, NC);  // getting mux setting from pins
+    find_pin_settings(tx, rx, NC, NC, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
+    muxsetting = find_mux_setting(tx, rx, NC, NC);  // getting mux setting from pins
     sercom_index = pinmap_sercom_peripheral(tx, rx);  // same variable sercom_index reused for optimization
     switch (sercom_index) {
         case 0:
@@ -226,6 +226,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             break;
     }
 
+    pSERIAL_S(obj)->txpin = tx;
+	pSERIAL_S(obj)->rxpin = rx;
     pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
     pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
     pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
@@ -424,10 +426,69 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     enable_usart(obj);
 }
 
+#ifdef DEVICE_SERIAL_FC
+
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
+    uint32_t muxsetting = 0;
+	uint32_t sercom_index = 0;
+	uint32_t padsetting[4] = {0};
+
+    disable_usart(obj);
+	//TODO : assert for rxflow and txflow pis to be added
+	find_pin_settings(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
+	muxsetting = find_mux_setting(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow);  // getting mux setting from pins
 	
+	pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
+	pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
+	pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
+	pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
+	pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
+	
+	struct system_pinmux_config pin_conf;
+	system_pinmux_get_config_defaults(&pin_conf);
+	pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+	pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+
+	uint32_t pad_pinmuxes[] = {
+		pSERIAL_S(obj)->pinmux_pad0, pSERIAL_S(obj)->pinmux_pad1,
+		pSERIAL_S(obj)->pinmux_pad2, pSERIAL_S(obj)->pinmux_pad3
+	};
+
+	/* Configure the SERCOM pins according to the user configuration */
+	for (uint8_t pad = 0; pad < 4; pad++) {
+		uint32_t current_pinmux = pad_pinmuxes[pad];
+
+		if (current_pinmux == PINMUX_DEFAULT) {
+			current_pinmux = _sercom_get_default_pad(pUSART_S(obj), pad);
+		}
+
+		if (current_pinmux != PINMUX_UNUSED) {
+			pin_conf.mux_position = current_pinmux & 0xFFFF;
+			system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+		}
+	}
+		
+    enable_usart(obj);	
 }
+
+void serial_break_set(serial_t *obj)
+{
+	disable_usart(obj);
+	_USART(obj).CTRLB.reg &= ~SERCOM_SPI_CTRLB_RXEN;
+    usart_syncing(obj);
+    enable_usart(obj);
+}
+
+void serial_break_clear(serial_t *obj)
+{
+	disable_usart(obj);	
+	_USART(obj).CTRLB.reg |= SERCOM_SPI_CTRLB_RXEN;
+    usart_syncing(obj);
+    enable_usart(obj);
+}
+
+#endif  //DEVICE_SERIAL_FC
 
 /******************************************************************************
  * INTERRUPTS HANDLING
@@ -897,6 +958,7 @@ int serial_irq_handler_asynch(serial_t *obj)
 			if(obj->tx_buff.pos >= obj->tx_buff.length) {
 				
 				/* Transfer complete. Switch off interrupt and return event. */
+				_USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
 				serial_tx_abort_asynch(obj);
 								
 				return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
@@ -925,8 +987,9 @@ int serial_irq_handler_asynch(serial_t *obj)
 void serial_tx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
-	_USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
 	_USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
+	obj->tx_buff.pos = 0;
+	obj->tx_buff.length = 0;
 }
 /** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
  *  flush RX hardware buffer if RX FIFO is used
@@ -937,6 +1000,8 @@ void serial_rx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
     _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
+	obj->rx_buff.pos = 0;
+	obj->rx_buff.length = 0;
 }
 
 #endif
