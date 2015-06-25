@@ -68,6 +68,7 @@ enum spi_mode {
 #  define SPI_TIMEOUT 10000
 
 extern uint8_t g_sys_init;
+uint16_t dummy_fill_word = 0xFFFF;
 
 #if DEVICE_SPI_ASYNCH
 /* Global variables */
@@ -93,7 +94,7 @@ const uint32_t _sercom_handlers[SERCOM_INST_NUM] = {
     MREPEAT(SERCOM_INST_NUM, _SERCOM_SPI_INTERRUPT_HANDLER_DECLR, ~)
 };
 uint32_t _sercom_callbacks[SERCOM_INST_NUM] = {0};
-#endif
+#endif /* DEVICE_SPI_ASYNCH */
 
 static inline bool spi_is_syncing(spi_t *obj)
 {
@@ -172,13 +173,13 @@ static inline bool spi_write(spi_t *obj, uint16_t tx_data)
     /* Check if the data register has been copied to the shift register */
     if (!spi_is_ready_to_write(obj)) {
         /* Data register has not been copied to the shift register, return */
-        return 0;
+        return false;
     }
 
     /* Write the character to the DATA register */
     _SPI(obj).DATA.reg = tx_data & SERCOM_SPI_DATA_MASK;
 
-    return 1;
+    return true;
 }
 
 static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
@@ -189,7 +190,7 @@ static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
     /* Check if data is ready to be read */
     if (!spi_is_ready_to_read(obj)) {
         /* No data has been received, return */
-        return 0;
+        return false;
     }
 
     /* Check if data is overflown */
@@ -205,7 +206,7 @@ static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
         *rx_data = (uint8_t)_SPI(obj).DATA.reg;
     }
 
-    return 1;
+    return true;
 }
 
 /**
@@ -234,8 +235,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         g_sys_init = 1;
     }
 
-    // TODO: Calculate SERCOM instance from pins
-    // TEMP: Giving our own value for testing
+    /* TODO: Calculate SERCOM instance from pins */
+    /* TEMP: Giving external SPI module value of SAMR21 for now */
     pSPI_SERCOM(obj) = EXT1_SPI_MODULE;
 
     /* Disable SPI */
@@ -291,13 +292,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     _SPI(obj).CTRLA.reg |= SERCOM_SPI_CTRLA_MODE(0x3);
     pSPI_S(obj)->mode = SPI_MODE_MASTER;
 
-    // TODO: Do pin muxing here
+    /* TODO: Do pin muxing here */
     struct system_pinmux_config pin_conf;
     system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-    //if(config->mode == SPI_MODE_SLAVE) {
-    //pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-    //}
 
     uint32_t pad_pinmuxes[] = {
         EXT1_SPI_SERCOM_PINMUX_PAD0, EXT1_SPI_SERCOM_PINMUX_PAD1,
@@ -324,7 +322,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     _SPI(obj).BAUD.reg = (uint8_t)baud;
 
     /* Set MUX setting */
-    ctrla |= EXT1_SPI_SERCOM_MUX_SETTING; // TODO: Change this to appropriate Settings
+    ctrla |= EXT1_SPI_SERCOM_MUX_SETTING; /* TODO: Change this to appropriate Settings */
 
     /* Set SPI character size */
     ctrlb |= SERCOM_SPI_CTRLB_CHSIZE(0);
@@ -396,6 +394,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     } else {
         /* Already in SPI master mode */
     }
+
+    /* TODO: Change MUX settings to appropriate value */
 
     /* Set SPI Frame size - only 8-bit and 9-bit supported now */
     _SPI(obj).CTRLB.bit.CHSIZE = (bits > 8)? 1 : 0;
@@ -612,18 +612,20 @@ static void _spi_write_async(spi_t *obj)
     /* Do nothing if we are at the end of buffer */
     if (obj->tx_buff.pos < obj->tx_buff.length) {
         /* Write value will be at least 8-bits long */
-        data_to_send = tx_buffer[obj->tx_buff.pos];
+        if (tx_buffer)
+            data_to_send = tx_buffer[obj->tx_buff.pos];
         /* Increment 8-bit index */
         obj->tx_buff.pos++;
 
         if (_SPI(obj).CTRLB.bit.CHSIZE == 1) {
-            data_to_send |= (tx_buffer[obj->tx_buff.pos] << 8);
+            if (tx_buffer)
+                data_to_send |= (tx_buffer[obj->tx_buff.pos] << 8);
             /* Increment 8-bit index */
             obj->tx_buff.pos++;
         }
     } else {
         /* Write a dummy packet */
-        data_to_send = ~0;
+        data_to_send = dummy_fill_word;
     }
 
     /* Write the data to send*/
@@ -631,7 +633,7 @@ static void _spi_write_async(spi_t *obj)
 
     /* Check for error */
     if ((_SPI(obj).INTFLAG.reg & SERCOM_SPI_INTFLAG_ERROR) && (obj->spi.mask & SPI_EVENT_ERROR)) {
-        obj->spi.event != SPI_EVENT_ERROR;
+        obj->spi.event |= SPI_EVENT_ERROR;
     }
 }
 
@@ -654,7 +656,7 @@ static void _spi_read_async(spi_t *obj)
         _SPI(obj).STATUS.reg |= SERCOM_SPI_STATUS_BUFOVF;
         if (obj->spi.mask & SPI_EVENT_RX_OVERFLOW) {
             /* Set overflow error */
-            obj->spi.event != SPI_EVENT_RX_OVERFLOW;
+            obj->spi.event |= SPI_EVENT_RX_OVERFLOW;
             return;
         }
     }
@@ -663,7 +665,7 @@ static void _spi_read_async(spi_t *obj)
     uint16_t received_data = (_SPI(obj).DATA.reg & SERCOM_SPI_DATA_MASK);
 
     /* Do nothing if we are at the end of buffer */
-    if (obj->rx_buff.pos >= obj->rx_buff.length) {
+    if ((obj->rx_buff.pos >= obj->rx_buff.length) && rx_buffer) {
         return;
     }
 
@@ -681,15 +683,35 @@ static void _spi_read_async(spi_t *obj)
 
     /* Check for error */
     if ((_SPI(obj).INTFLAG.reg & SERCOM_SPI_INTFLAG_ERROR) && (obj->spi.mask & SPI_EVENT_ERROR)) {
-        obj->spi.event != SPI_EVENT_ERROR;
+        obj->spi.event |= SPI_EVENT_ERROR;
     }
+}
+
+/**
+ * \internal
+ * Clears all interrupt flags of SPI
+ *
+ * \param[in,out]  module  Pointer to SPI software instance struct
+ */
+static void _spi_clear_interrupts(spi_t *obj)
+{
+    uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
+
+    /* Clear all interrupts */
+    _SPI(obj).INTENCLR.reg =
+        SERCOM_SPI_INTFLAG_DRE |
+        SERCOM_SPI_INTFLAG_TXC |
+        SERCOM_SPI_INTFLAG_RXC |
+        SERCOM_SPI_INTFLAG_ERROR;
+    NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
+    NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
 }
 
 /**
  * \internal
  * Starts transceive of buffers with a given length
  *
- * \param[in]  obj   Pointer to SPI software instance struct
+ * \param[in,out]  obj   Pointer to SPI software instance struct
  *
  */
 static void _spi_transceive_buffer(spi_t *obj)
@@ -698,30 +720,45 @@ static void _spi_transceive_buffer(spi_t *obj)
     MBED_ASSERT(obj);
     void (*callback_func)(void);
 
-
     uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
     uint16_t interrupt_status = _SPI(obj).INTFLAG.reg;
     interrupt_status &= _SPI(obj).INTENSET.reg;
 
     if (interrupt_status & SERCOM_SPI_INTFLAG_DRE) {
+        /* Clear DRE interrupt */
+        _SPI(obj).INTENCLR.reg = SERCOM_SPI_INTFLAG_DRE;
+        /* Write data */
         _spi_write_async(obj);
+        /* Set TXC interrupt */
+        _SPI(obj).INTENSET.reg |= SERCOM_SPI_INTFLAG_TXC;
+    }
+    if (interrupt_status & SERCOM_SPI_INTFLAG_TXC) {
+        /* Clear TXC interrupt */
+        _SPI(obj).INTENCLR.reg = SERCOM_SPI_INTFLAG_TXC;
+        if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+            while (!spi_is_ready_to_read(obj));
+            _spi_read_async(obj);
+            if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->tx_buff.length < obj->rx_buff.length)) {
+                obj->tx_buff.length = obj->rx_buff.length;
+                obj->tx_buff.buffer = 0;
+            }
+        }
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
+            /* Set DRE interrupt */
+            _SPI(obj).INTENSET.reg |= SERCOM_SPI_INTFLAG_DRE;
+        }
     }
 
-    if (interrupt_status & SERCOM_SPI_INTFLAG_RXC) {
-        _spi_read_async(obj);
-    }
+    if (obj->spi.event & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW) || (interrupt_status & SERCOM_SPI_INTFLAG_ERROR)) {
+        /* Clear all interrupts */
+        _spi_clear_interrupts(obj);
 
-    if (obj->spi.event & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW)) {
-        /* Disable all interrupts */
-        _SPI(obj).INTENCLR.reg =
-            SERCOM_SPI_INTFLAG_DRE |
-            SERCOM_SPI_INTFLAG_TXC |
-            SERCOM_SPI_INTFLAG_RXC |
-            SERCOM_SPI_INTFLAG_ERROR;
-        NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
+        if (interrupt_status & SERCOM_SPI_INTFLAG_ERROR) {
+            obj->spi.event = STATUS_ERR_BAD_DATA;
+        }
 
-        /* Transfer complete, invoke the callback function */
+        /* Transfer interrupted, invoke the callback function */
         if (obj->spi.event & SPI_EVENT_RX_OVERFLOW) {
             obj->spi.status = STATUS_ERR_OVERFLOW;
         } else {
@@ -731,31 +768,22 @@ static void _spi_transceive_buffer(spi_t *obj)
         if (callback_func && (obj->spi.mask & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW))) {
             callback_func();
         }
-        obj->spi.status = STATUS_OK;
         return;
     }
 
-    //if (interrupt_status & (SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_RXC)) {
-    if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length)) {
+    if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length) && (interrupt_status & SERCOM_SPI_INTFLAG_TXC)) {
         /* Clear all interrupts */
-        _SPI(obj).INTENCLR.reg =
-            SERCOM_SPI_INTFLAG_DRE |
-            SERCOM_SPI_INTFLAG_TXC |
-            SERCOM_SPI_INTFLAG_RXC |
-            SERCOM_SPI_INTFLAG_ERROR;
-        NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
-        NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
+        _spi_clear_interrupts(obj);
 
         /* Transfer complete, invoke the callback function */
-        obj->spi.event |= SPI_EVENT_COMPLETE;
+        obj->spi.event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+        obj->spi.status = STATUS_OK;
         callback_func = _sercom_callbacks[sercom_index];
         if (callback_func && (obj->spi.mask & SPI_EVENT_COMPLETE)) {
             callback_func();
         }
-        obj->spi.status = STATUS_OK;
         return;
     }
-    //}
 }
 
 /** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
@@ -763,15 +791,16 @@ static void _spi_transceive_buffer(spi_t *obj)
  * @param[in] obj       The SPI object which holds the transfer information
  * @param[in] tx        The buffer to send
  * @param[in] tx_length The number of words to transmit
- * @param[in] rx        The buffer to receive
+ * @param[out]rx        The buffer to receive
  * @param[in] rx_length The number of words to receive
  * @param[in] bit_width The bit width of buffer words
  * @param[in] event     The logical OR of events to be registered
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer **< DMA currently not implemented >**
  */
-void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    uint16_t dummy_read;
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
@@ -780,12 +809,29 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     obj->spi.tx_buffer = tx;
     obj->tx_buff.buffer = tx;
     obj->tx_buff.pos = 0;
-    obj->tx_buff.length = tx_length * (bit_width>>3);
+    if (tx) {
+        obj->tx_buff.length = tx_length * (bit_width>>3);
+    } else {
+        obj->tx_buff.length = 0;
+    }
 
     obj->spi.rx_buffer = rx;
     obj->rx_buff.buffer = rx;
     obj->rx_buff.pos = 0;
-    obj->rx_buff.length = rx_length * (bit_width>>3);
+    if (rx) {
+        obj->rx_buff.length = rx_length * (bit_width>>3);
+    } else {
+        /* Disable RXEN */
+        spi_disable(obj);
+        _SPI(obj).CTRLB.bit.RXEN = 0;
+        spi_enable(obj);
+        obj->rx_buff.length = 0;
+    }
+
+    /* Clear data buffer if there is anything pending to read */
+    while (spi_is_ready_to_read(obj)) {
+        dummy_read = _SPI(obj).DATA.reg;
+    }
 
     _sercom_callbacks[sercom_index] = handler;
     obj->spi.mask = event;
@@ -810,9 +856,6 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
         if (tx) {
             irq_mask |= SERCOM_SPI_INTFLAG_DRE;
         }
-        if (rx) {
-            irq_mask |= SERCOM_SPI_INTFLAG_RXC;
-        }
         if (event & SPI_EVENT_ERROR) {
             irq_mask |= SERCOM_SPI_INTFLAG_ERROR;
         }
@@ -836,39 +879,47 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         /* IRQ method */
-        obj->spi.status = STATUS_BUSY;
-        if ((obj->tx_buff.pos < obj->tx_buff.length) || (obj->rx_buff.pos < obj->rx_buff.length)) {
-            bytes_to_transfer = (obj->tx_buff.length > obj->rx_buff.length)? obj->tx_buff.length : obj->rx_buff.length;
-            while (bytes_to_transfer) {
-                if (spi_is_ready_to_write(obj)) {
-                    _spi_write_async(obj);
+        if (obj->spi.event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) {
+            obj->spi.event |= SPI_EVENT_COMPLETE;
+            transfer_event = obj->spi.event;
+        } else {
+            /* Data is still remaining to be transferred! */
+            obj->spi.status = STATUS_BUSY;
+
+            /* Read any pending data in RX buffer */
+            while (spi_is_ready_to_read(obj)) {
+                _spi_read_async(obj);
+            }
+
+            while (obj->tx_buff.pos < obj->tx_buff.length) {
+                /* Write data */
+                _spi_write_async(obj);
+                /* Read if any */
+                if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+                    if (spi_is_ready_to_read(obj)) {
+                        _spi_read_async(obj);
+                    }
+                    /* Extend TX buffer (with dummy) if there is more to receive */
+                    if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->tx_buff.length < obj->rx_buff.length)) {
+                        obj->tx_buff.length = obj->rx_buff.length;
+                        obj->tx_buff.buffer = 0;
+                    }
                 }
-                if (spi_is_ready_to_read(obj)) {
-                    _spi_read_async(obj);
-                }
-                if (obj->spi.event & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW)) {
+                if (obj->spi.event & SPI_EVENT_ERROR) {
                     transfer_event = obj->spi.event;
-                    obj->spi.status = (obj->spi.event & SPI_EVENT_RX_OVERFLOW)? STATUS_ERR_OVERFLOW : STATUS_ERR_BAD_DATA;
+                    obj->spi.status = STATUS_ERR_BAD_DATA;
                     break;
                 }
-                bytes_to_transfer--;
+            }
+            if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length)) {
+                transfer_event = (SPI_EVENT_INTERNAL_TRANSFER_COMPLETE | SPI_EVENT_COMPLETE);
+                obj->spi.status = STATUS_OK;
             }
         }
-        if (bytes_to_transfer == 0) {
-            transfer_event |= SPI_EVENT_COMPLETE;
-            /* Clear all interrupts */
-            _SPI(obj).INTENCLR.reg =
-                SERCOM_SPI_INTFLAG_DRE |
-                SERCOM_SPI_INTFLAG_TXC |
-                SERCOM_SPI_INTFLAG_RXC |
-                SERCOM_SPI_INTFLAG_ERROR;
-            NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
-            NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
-            obj->spi.status = STATUS_OK;
-        }
-        transfer_event &= obj->spi.mask;
+        transfer_event &= (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
+        /* Clear all interrupts */
+        _spi_clear_interrupts(obj);
     }
-
     return transfer_event;
 }
 
@@ -878,12 +929,8 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
  */
 uint8_t spi_active(spi_t *obj)
 {
-    if (obj->spi.status == STATUS_BUSY) {
-        /* Check if the SPI module is busy with a job */
-        return 1;
-    } else {
-        return 0;
-    }
+    /* Check if the SPI module is busy with a job */
+    return (obj->spi.status == STATUS_BUSY);
 }
 
 /** Abort an SPI transfer
@@ -911,4 +958,4 @@ void spi_abort_asynch(spi_t *obj)
     obj->spi.status = STATUS_ABORTED;
 }
 
-#endif
+#endif /* DEVICE_SPI_ASYNCH */
