@@ -227,6 +227,10 @@ void SystemInit(void)
   SystemCoreClock = HSI_VALUE; // At this stage the HSI is used as system clock
   HAL_Init();
 
+  // Enable CPU L1-Cache
+  SCB_EnableICache();
+  SCB_EnableDCache();
+
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
@@ -574,10 +578,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  // Enable CPU L1-Cache
-  SCB_EnableICache();
-  SCB_EnableDCache();
 
   // Enable power clock  
   __PWR_CLK_ENABLE();
