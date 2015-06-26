@@ -399,15 +399,12 @@ uint8_t spi_active(spi_t *obj)
     }
 }
 
-void spi_buffer_set(spi_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
+void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
 {
     uint32_t i;
     uint16_t *tx_ptr = (uint16_t *) tx;
 
-    tx_length *= (bit_width >> 3);
-    rx_length *= (bit_width >> 3);
-
-    obj->tx_buff.buffer = tx;
+    obj->tx_buff.buffer = (void *)tx;
     obj->rx_buff.buffer = rx;
     obj->tx_buff.length = tx_length;
     obj->rx_buff.length = rx_length;
@@ -761,14 +758,30 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
 *   * tx_length: how many bytes will get sent.
 *   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
 ******************************************/
-static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_length, int rx_length)
+static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int tx_length, int rx_length)
 {
     /* DMA descriptors */
     DMA_CfgDescr_TypeDef rxDescrCfg;
     DMA_CfgDescr_TypeDef txDescrCfg;
 
+    /* Split up transfers if the tx length is larger than what the DMA supports. */
+    const int DMA_MAX_TRANSFER = (_DMA_CTRL_N_MINUS_1_MASK >> _DMA_CTRL_N_MINUS_1_SHIFT);
+
+    if (tx_length > DMA_MAX_TRANSFER) {
+        uint32_t max_length = DMA_MAX_TRANSFER;
+
+        /* Make sure only an even amount of bytes are transferred
+           if the width is larger than 8 bits. */
+        if (obj->spi.bits > 8) {
+            max_length = DMA_MAX_TRANSFER - (DMA_MAX_TRANSFER & 0x01);
+        }
+
+        /* Update length for current transfer. */
+        tx_length = max_length;
+    }
+
     /* Save amount of TX done by DMA */
-    obj->tx_buff.pos = tx_length;
+    obj->tx_buff.pos += tx_length;
 
     if(obj->spi.bits != 9) {
         /* Only activate RX DMA if a receive buffer is specified */
@@ -806,7 +819,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
                             true,
                             false,
                             (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (obj->spi.bits <= 8 ? tx_length - 1 : (tx_length / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
     } else {
         /* Frame size == 9 */
@@ -844,7 +857,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
                             true,
                             false,
                             (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
     }
 }
@@ -866,7 +879,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
 *                 If the previous transfer has kept the channel, that channel will continue to get used.
 *
 ********************************************************************/
-void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
+void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
 {
     /* Init DMA here to include it in the power figure */
     dma_init();
@@ -914,7 +927,7 @@ void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_leng
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
  */
-void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if( spi_active(obj) ) return;
 
@@ -934,11 +947,6 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     /* Then, enable the events */
     spi_enable_event(obj, SPI_EVENT_ALL, false);
     spi_enable_event(obj, event, true);
-
-    /* Be tricky on how we handle increased bit widths in the buffer... Handling on byte-basis */
-    // div 8 = shift right 3
-    tx_length = tx_length * (bit_width >> 3);
-    rx_length = rx_length * (bit_width >> 3);
 
     // Set the sleep mode
     blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
@@ -965,6 +973,18 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         /* DMA implementation */
+
+        /* If there is still data in the TX buffer, setup a new transfer. */
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
+            /* Find position and remaining length without modifying tx_buff. */
+            void* tx_pointer = obj->tx_buff.buffer + obj->tx_buff.pos;
+            uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
+
+            /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
+            spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
+
+            return 0;
+        }
 
         /* If there is an RX transfer ongoing, wait for it to finish */
         if (DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {

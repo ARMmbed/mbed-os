@@ -179,6 +179,7 @@ class SingleTestRunner(object):
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
+                 _opts_consolidate_waterfall_test=None,
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
@@ -236,6 +237,7 @@ class SingleTestRunner(object):
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
+        self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
 
@@ -485,18 +487,21 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
-                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                            'single_test_output' : '',
-                            'target_name' : target,
-                            'toolchain_name' : toolchain,
-                            'test_id' : test_id,
-                            'test_description' : 'Toolchain build failed',
-                            'elapsed_time' : 0,
-                            'duration' : 0,
-                            'copy_method' : None
-                        }}
+                    if test_id not in self.test_summary_ext[toolchain][target]:
+                        self.test_summary_ext[toolchain][target][test_id] = []
+
+                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
+                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                        'single_test_output' : '',
+                        'target_name' : target,
+                        'target_name_unique': target,
+                        'toolchain_name' : toolchain,
+                        'test_id' : test_id,
+                        'test_description' : 'Toolchain build failed',
+                        'elapsed_time' : 0,
+                        'duration' : 0,
+                        'copy_method' : None
+                    }})
                     continue
 
                 if self.opts_only_build_tests:
@@ -537,7 +542,15 @@ class SingleTestRunner(object):
                     if target not in self.test_summary_ext[toolchain][target]:
                         if test_id not in self.test_summary_ext[toolchain][target]:
                             self.test_summary_ext[toolchain][target][test_id] = []
-                        self.test_summary_ext[toolchain][target][test_id].append(detailed_test_results)
+
+                        append_test_result = detailed_test_results
+
+                        # If waterfall and consolidate-waterfall options are enabled,
+                        # only include the last test result in the report.
+                        if self.opts_waterfall_test and self.opts_consolidate_waterfall_test:
+                            append_test_result = {0: detailed_test_results[len(detailed_test_results) - 1]}
+
+                        self.test_summary_ext[toolchain][target][test_id].append(append_test_result)
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
@@ -1834,6 +1847,12 @@ def get_default_test_options_parser():
     parser.add_option('', '--global-loops',
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
+
+    parser.add_option('', '--consolidate-waterfall',
+                      dest='consolidate_waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --waterfall option. Adds only one test to report reflecting outcome of waterfall test.')
 
     parser.add_option('-W', '--waterfall',
                       dest='waterfall_test',

@@ -30,7 +30,6 @@
 #include "em_gpio.h"
 #include "em_timer.h"
 
-static int pwm_clockfreq;
 static int pwm_prescaler_div;
 
 uint32_t pwmout_get_channel_route(pwmout_t *obj)
@@ -109,9 +108,6 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
     PWM_TIMER->ROUTE |= PWM_ROUTE;
 
-    /*HFPER is the default clock we will use. It has a frequency of 14MHz*/
-    pwm_clockfreq = REFERENCE_FREQUENCY;
-
     /* Set default 20ms frequency and 0ms pulse width */
     pwmout_period(obj, 0.02);
 }
@@ -139,7 +135,7 @@ void pwmout_write(pwmout_t *obj, float value)
         value = 1;
     }
 
-    float pulse_period_in_s = obj->period_cycles / (float) pwm_clockfreq;
+    float pulse_period_in_s = obj->period_cycles / ((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div));
     pwmout_pulsewidth(obj, value * pulse_period_in_s);
 }
 
@@ -155,7 +151,7 @@ void pwmout_period(pwmout_t *obj, float seconds)
     // This gives us max resolution for a given period
 
     //The value of the top register if prescaler is set to 0
-    int cycles = pwm_clockfreq * seconds;
+    int cycles = REFERENCE_FREQUENCY * seconds;
     pwm_prescaler_div = 0;
 
     //The top register is only 16 bits, so we keep dividing till we are below 0xFFFF
@@ -187,23 +183,25 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
 
 void pwmout_period_us(pwmout_t *obj, int us)
 {
-    pwmout_period_ms(obj, us / 1000.0f);
+    pwmout_period(obj, us / 1000000.0f);
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    obj->width_cycles = pwm_clockfreq * seconds;
+    obj->width_cycles = (uint32_t) (((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    pwmout_pulsewidth(obj, ms / 1000.0f);
+    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    pwmout_pulsewidth_ms(obj, us / 1000.0f);
+    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * us) / 1000000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 #endif

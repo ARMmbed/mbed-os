@@ -45,7 +45,7 @@ __ASM (
        " BNE loop\n\t");
 }
 #elif defined   (  __GNUC__  )
-static void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
+__INLINE static void nrf_delay_us(uint32_t volatile number_of_us)
 {
     do 
     {

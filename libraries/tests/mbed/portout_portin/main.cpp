@@ -101,6 +101,34 @@
 #define P2_1    (1 << 8)  // PB_8
 #define P2_2    (1 << 9)  // PB_9
 #define PORT_2  PortB
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define P1_1    (1 << 0)  // PD0
+#define P1_2    (1 << 1)  // PD1
+#define PORT_1  PortD
+
+#define P2_1    (1 << 3)  // PC3
+#define P2_2    (1 << 4)  // PC4
+#define PORT_2  PortC
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define P1_1    (1 << 7)  // PD7
+#define P1_2    (1 << 6)  // PD6
+#define PORT_1  PortD
+
+#define P2_1    (1 << 1)  // PC1
+#define P2_2    (1 << 2)  // PC2
+#define PORT_2  PortC
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define P1_1    (1 << 10)  // PE10
+#define P1_2    (1 << 11)  // PE11
+#define PORT_1  PortE
+
+#define P2_1    (1 << 1)  // PC1
+#define P2_2    (1 << 2)  // PC2
+#define PORT_2  PortC
+
 #endif
 
 #define MASK_1   (P1_1 | P1_2)

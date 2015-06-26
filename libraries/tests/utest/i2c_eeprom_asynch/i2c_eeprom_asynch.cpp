@@ -27,6 +27,19 @@
 #if defined(TARGET_K64F)
 #define TEST_SDA_PIN PTE25
 #define TEST_SCL_PIN PTE24
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define TEST_SDA_PIN PD6
+#define TEST_SCL_PIN PD7
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define TEST_SDA_PIN PE12
+#define TEST_SCL_PIN PE13
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define TEST_SDA_PIN PD6
+#define TEST_SCL_PIN PD7
+
 #else
 #error Target not supported
 #endif

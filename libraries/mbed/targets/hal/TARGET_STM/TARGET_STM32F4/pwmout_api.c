@@ -165,7 +165,9 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 void pwmout_period_us(pwmout_t* obj, int us)
 {
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
-
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    uint32_t PclkFreq;
+    uint32_t APBxCLKDivider;
     float dc = pwmout_read(obj);
 
     __HAL_TIM_DISABLE(&TimHandle);
@@ -173,8 +175,75 @@ void pwmout_period_us(pwmout_t* obj, int us)
     // Update the SystemCoreClock variable
     SystemCoreClockUpdate();
 
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+
+    switch (obj->pwm) {
+
+        case PWM_1:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_2:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+        case PWM_3:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+        case PWM_4:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+#if defined(TIM8_BASE)
+        case PWM_8:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+#endif
+
+        case PWM_9:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_10:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_11:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+#if defined(TIM13_BASE)
+        case PWM_13:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+#endif
+
+#if defined(TIM14_BASE)
+        case PWM_14:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+#endif
+
+        default:
+            return;
+    }
+
     TimHandle.Init.Period        = us - 1;
-    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    if (APBxCLKDivider == RCC_HCLK_DIV1)
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq*2) / 1000000) - 1; // 1 µs tick
+    else
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 µs tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_PWM_Init(&TimHandle);
