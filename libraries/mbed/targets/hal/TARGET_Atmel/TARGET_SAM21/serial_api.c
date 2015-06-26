@@ -417,12 +417,48 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 }
 
 #ifdef DEVICE_SERIAL_FC
+void uart0_irq();
+void uart1_irq();
+void uart2_irq();
+void uart3_irq();
+void uart4_irq();
+void uart5_irq();
 
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     uint32_t muxsetting = 0;
     uint32_t sercom_index = 0;
     uint32_t padsetting[4] = {0};
+
+    IRQn_Type irq_n = (IRQn_Type)0;
+    uint32_t vector = 0;
+
+    switch ((int)pUSART_S(obj)) {
+        case UART_0:
+            irq_n = SERCOM0_IRQn;
+            vector = (uint32_t)uart0_irq;
+            break;
+        case UART_1:
+            irq_n = SERCOM1_IRQn;
+            vector = (uint32_t)uart1_irq;
+            break;
+        case UART_2:
+            irq_n = SERCOM2_IRQn;
+            vector = (uint32_t)uart2_irq;
+            break;
+        case UART_3:
+            irq_n = SERCOM3_IRQn;
+            vector = (uint32_t)uart3_irq;
+            break;
+        case UART_4:
+            irq_n = SERCOM4_IRQn;
+            vector = (uint32_t)uart4_irq;
+            break;
+        case UART_5:
+            irq_n = SERCOM5_IRQn;
+            vector = (uint32_t)uart5_irq;
+            break;
+    }
 
     disable_usart(obj);
     //TODO : assert for rxflow and txflow pis to be added
@@ -435,6 +471,9 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
     pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
 
+    /* Set configuration according to the config struct */
+    usart_set_config_default(obj);
+
     struct system_pinmux_config pin_conf;
     system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
@@ -446,7 +485,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     };
 
     /* Configure the SERCOM pins according to the user configuration */
-    for (uint8_t pad = 0; pad < 4; pad++) {
+    for (uint8_t pad = 0; pad < 3; pad++) {
         uint32_t current_pinmux = pad_pinmuxes[pad];
 
         if (current_pinmux == PINMUX_DEFAULT) {
@@ -458,8 +497,17 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
         }
     }
+    if (pSERIAL_S(obj)->pinmux_pad3 != PINMUX_UNUSED) {
+        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+        pin_conf.mux_position = pSERIAL_S(obj)->pinmux_pad3 & 0xFFFF;
+        system_pinmux_pin_set_config(pSERIAL_S(obj)->pinmux_pad3 >> 16, &pin_conf);
+    }
+
+    NVIC_SetVector(irq_n, vector);
+    NVIC_EnableIRQ(irq_n);
 
     enable_usart(obj);
+    _USART(obj).INTENSET.reg = SERCOM_USART_INTENCLR_CTSIC;
 }
 
 void serial_break_set(serial_t *obj)

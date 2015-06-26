@@ -469,7 +469,7 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName
             mux_setting = mux_setting;  // dummy condition
         }
     } else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
-        if((output_values.pad == 0) && (clock_values.pad/*rts pin*/ == 2) && (clock_values.pad/*cts pin*/ == 3)) {
+        if((output_values.pad == 0) && (clock_values.pad/*rts pin*/ == 2) && (chipsel_values.pad/*cts pin*/ == 3)) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
         }
     }
