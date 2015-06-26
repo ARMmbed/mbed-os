@@ -76,6 +76,22 @@ mbed_find_target_dirs("${CMAKE_CURRENT_SOURCE_DIR}/targets" MBED_TARGET_SOURCES 
 #message("found target sources: ${MBED_TARGET_SOURCES}")
 #message("found target include dirs: ${MBED_TARGET_INCLUDE_DIRS}")
 
+# unfortunately, for ARMCC, the startup code needs to be provided as an object
+# on the command line (not as part of an archive). To do this we override the
+# CMake add_executable command.
+if(CMAKE_C_COMPILER_ID STREQUAL "ARMCC")
+    set(MBED_TARGET_STARTUP_CODE_SOURCES "")
+    foreach(src ${MBED_TARGET_SOURCES})
+        if("${src}" MATCHES .*startup_.*\\.[sS])
+            LIST(APPEND MBED_TARGET_STARTUP_CODE_SOURCES "${src}")
+        endif()
+    endforeach()
+    add_library(mbed_classic_startupcod OBJECT ${MBED_TARGET_STARTUP_CODE_SOURCES})
+    macro (add_executable _name)
+        _add_executable(${ARGV} $<TARGET_OBJECTS:mbed_classic_startupcod>)
+    endmacro()
+endif()
+
 # we have to append any target-specific include dirs to the global include dirs
 # list, so that any indirect includes (e.g. via mbed.h) of files in those
 # directories will work:
