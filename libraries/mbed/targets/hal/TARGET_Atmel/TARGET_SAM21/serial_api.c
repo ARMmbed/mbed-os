@@ -56,11 +56,6 @@ static inline void enable_usart(serial_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-#if USART_CALLBACK_MODE == true  //TODO: to be implemented
-    /* Enable Global interrupt for module */
-//     system_interrupt_enable(_sercom_get_interrupt_vector(pUSART_S(obj))); // not required in implementation
-#endif
-
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
@@ -73,10 +68,6 @@ static inline void disable_usart(serial_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-#if USART_CALLBACK_MODE == true  //TODO: to be implemented
-    /* Disable Global interrupt for module */
-//    system_interrupt_disable(_sercom_get_interrupt_vector(pUSART_S(obj)));   // not required in implementation
-#endif
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
@@ -119,7 +110,7 @@ static enum status_code usart_set_config_default( serial_t *obj)
 
 
     /* Get baud value from mode and clock */
-	_sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);  // for asynchronous transfer mode
+    _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);  // for asynchronous transfer mode
 
     /* Wait until synchronization is complete */
     usart_syncing(obj);
@@ -131,7 +122,7 @@ static enum status_code usart_set_config_default( serial_t *obj)
     ctrla |= USART_TRANSFER_ASYNCHRONOUSLY;
 
     /* for disabled external clock source */
-    ctrla |= SERCOM_USART_CTRLA_MODE(0x1);  
+    ctrla |= SERCOM_USART_CTRLA_MODE(0x1);
 
     /* Set stopbits, character size and enable transceivers */
     ctrlb = (uint32_t)pSERIAL_S(obj)->stopbits | (uint32_t)pSERIAL_S(obj)->character_size |
@@ -145,7 +136,7 @@ static enum status_code usart_set_config_default( serial_t *obj)
     } else {
         ctrla |= SERCOM_USART_CTRLA_FORM(0);
     }
-	
+
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
@@ -174,7 +165,6 @@ void get_default_serial_values(serial_t *obj)
     pSERIAL_S(obj)->pinmux_pad2 = PINMUX_DEFAULT;
     pSERIAL_S(obj)->pinmux_pad3 = PINMUX_DEFAULT;
 };
-
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
@@ -227,7 +217,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     pSERIAL_S(obj)->txpin = tx;
-	pSERIAL_S(obj)->rxpin = rx;
+    pSERIAL_S(obj)->rxpin = rx;
     pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
     pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
     pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
@@ -324,7 +314,7 @@ void serial_baud(serial_t *obj, int baudrate)
     sercom_set_gclk_generator(GCLK_GENERATOR_0, false);
 
     /* Get baud value from mode and clock */
-	_sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate, system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);
+    _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate, system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);
 
     /* Wait until synchronization is complete */
     usart_syncing(obj);
@@ -431,59 +421,59 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     uint32_t muxsetting = 0;
-	uint32_t sercom_index = 0;
-	uint32_t padsetting[4] = {0};
+    uint32_t sercom_index = 0;
+    uint32_t padsetting[4] = {0};
 
     disable_usart(obj);
-	//TODO : assert for rxflow and txflow pis to be added
-	find_pin_settings(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
-	muxsetting = find_mux_setting(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow);  // getting mux setting from pins
-	
-	pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
-	pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
-	pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
-	pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
-	pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
-	
-	struct system_pinmux_config pin_conf;
-	system_pinmux_get_config_defaults(&pin_conf);
-	pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-	pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    //TODO : assert for rxflow and txflow pis to be added
+    find_pin_settings(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
+    muxsetting = find_mux_setting(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow);  // getting mux setting from pins
 
-	uint32_t pad_pinmuxes[] = {
-		pSERIAL_S(obj)->pinmux_pad0, pSERIAL_S(obj)->pinmux_pad1,
-		pSERIAL_S(obj)->pinmux_pad2, pSERIAL_S(obj)->pinmux_pad3
-	};
+    pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
+    pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
+    pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
+    pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
+    pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
 
-	/* Configure the SERCOM pins according to the user configuration */
-	for (uint8_t pad = 0; pad < 4; pad++) {
-		uint32_t current_pinmux = pad_pinmuxes[pad];
+    struct system_pinmux_config pin_conf;
+    system_pinmux_get_config_defaults(&pin_conf);
+    pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+    pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
 
-		if (current_pinmux == PINMUX_DEFAULT) {
-			current_pinmux = _sercom_get_default_pad(pUSART_S(obj), pad);
-		}
+    uint32_t pad_pinmuxes[] = {
+        pSERIAL_S(obj)->pinmux_pad0, pSERIAL_S(obj)->pinmux_pad1,
+        pSERIAL_S(obj)->pinmux_pad2, pSERIAL_S(obj)->pinmux_pad3
+    };
 
-		if (current_pinmux != PINMUX_UNUSED) {
-			pin_conf.mux_position = current_pinmux & 0xFFFF;
-			system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
-		}
-	}
-		
-    enable_usart(obj);	
+    /* Configure the SERCOM pins according to the user configuration */
+    for (uint8_t pad = 0; pad < 4; pad++) {
+        uint32_t current_pinmux = pad_pinmuxes[pad];
+
+        if (current_pinmux == PINMUX_DEFAULT) {
+            current_pinmux = _sercom_get_default_pad(pUSART_S(obj), pad);
+        }
+
+        if (current_pinmux != PINMUX_UNUSED) {
+            pin_conf.mux_position = current_pinmux & 0xFFFF;
+            system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+        }
+    }
+
+    enable_usart(obj);
 }
 
 void serial_break_set(serial_t *obj)
 {
-	disable_usart(obj);
-	_USART(obj).CTRLB.reg &= ~SERCOM_SPI_CTRLB_RXEN;
+    disable_usart(obj);
+    _USART(obj).CTRLB.reg &= ~SERCOM_SPI_CTRLB_RXEN;
     usart_syncing(obj);
     enable_usart(obj);
 }
 
 void serial_break_clear(serial_t *obj)
 {
-	disable_usart(obj);	
-	_USART(obj).CTRLB.reg |= SERCOM_SPI_CTRLB_RXEN;
+    disable_usart(obj);
+    _USART(obj).CTRLB.reg |= SERCOM_SPI_CTRLB_RXEN;
     usart_syncing(obj);
     enable_usart(obj);
 }
@@ -493,12 +483,6 @@ void serial_break_clear(serial_t *obj)
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-/**
-* Get index of serial object, relating it to the physical peripheral.
-*
-* @param obj pointer to serial object
-* @return internal index of U(S)ART peripheral
-*/
 inline uint8_t serial_get_index(serial_t *obj)
 {
     switch ((int)pUSART_S(obj)) {
@@ -531,6 +515,10 @@ static inline void uart_irq(SercomUsart *const usart, uint32_t index)
         if (interrupt_status & SERCOM_USART_INTFLAG_RXC) { // for receive complete
             usart->INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
             irq_handler(serial_irq_ids[index], RxIrq);
+        }
+        if (interrupt_status & SERCOM_USART_INTFLAG_CTSIC) { // hardware flow control
+            usart->INTENCLR.reg = SERCOM_USART_INTENCLR_CTSIC;
+            usart->INTFLAG.reg = SERCOM_USART_INTENCLR_CTSIC;
         }
     }
 }
@@ -572,23 +560,23 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 }
 
 IRQn_Type get_serial_irq_num (serial_t *obj)
-{	
+{
     switch ((int)pUSART_S(obj)) {
-    case UART_0:
-	    return SERCOM0_IRQn;
-	case UART_1:
-		return SERCOM1_IRQn;
-	case UART_2:
-		return SERCOM2_IRQn;
-	case UART_3:
-		return SERCOM3_IRQn;
-	case UART_4:
-		return SERCOM4_IRQn;
-	case UART_5:
-		return SERCOM5_IRQn;
-	default:
-	    MBED_ASSERT(0);
-	}	
+        case UART_0:
+            return SERCOM0_IRQn;
+        case UART_1:
+            return SERCOM1_IRQn;
+        case UART_2:
+            return SERCOM2_IRQn;
+        case UART_3:
+            return SERCOM3_IRQn;
+        case UART_4:
+            return SERCOM4_IRQn;
+        case UART_5:
+            return SERCOM5_IRQn;
+        default:
+            MBED_ASSERT(0);
+    }
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
@@ -696,27 +684,15 @@ int serial_writable(serial_t *obj)
 /************************************
  * HELPER FUNCTIONS					*
  ***********************************/
-
-/** Configure TX events
- *
- * @param obj    The serial object
- * @param event  The logical OR of the TX events to configure
- * @param enable Set to non-zero to enable events, or zero to disable them
- */
 void serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     if(enable) {
-	    pSERIAL_S(obj)->events |= event;
-	    } else {
-	        pSERIAL_S(obj)->events &= ~ event;
+        pSERIAL_S(obj)->events |= event;
+    } else {
+        pSERIAL_S(obj)->events &= ~ event;
     }
 }
 
-/**
- * @param obj    The serial object.
- * @param event  The logical OR of the RX events to configure
- * @param enable Set to non-zero to enable events, or zero to disable them
- */
 void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     if(enable) {
@@ -726,12 +702,6 @@ void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
     }
 }
 
-/** Configure the TX buffer for an asynchronous write serial transaction
- *
- * @param obj       The serial object.
- * @param tx        The buffer for sending.
- * @param tx_length The number of words to transmit.
- */
 void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
 {
     // We only support byte buffers for now
@@ -746,12 +716,6 @@ void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
     return;
 }
 
-/** Configure the TX buffer for an asynchronous read serial transaction
- *
- * @param obj       The serial object.
- * @param rx        The buffer for receiving.
- * @param rx_length The number of words to read.
- */
 void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 {
     // We only support byte buffers for now
@@ -766,242 +730,184 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
     return;
 }
 
-/** Set character to be matched. If an event is enabled, and received character
- *  matches the defined char_match, the receiving process is stopped and MATCH event
- *  is invoked
- *
- * @param obj        The serial object
- * @param char_match A character in range 0-254
- */
 void serial_set_char_match(serial_t *obj, uint8_t char_match)
 {
     if (char_match != SERIAL_RESERVED_CHAR_MATCH) {
-	     obj->char_match = char_match;
-	}
+        obj->char_match = char_match;
+    }
 }
 
 /************************************
  * TRANSFER FUNCTIONS				*
  ***********************************/
-
-/** Begin asynchronous TX transfer. The used buffer is specified in the serial object,
- *  tx_buff
- *
- * @param obj  The serial object
- * @param cb   The function to call when an event occurs
- * @param hint A suggestion for how to use DMA with this transfer
- * @return Returns number of data transfered, or 0 otherwise
- */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     MBED_ASSERT(tx != (void*)0);
-        if(tx_length == 0) return 0;
-	
+    if(tx_length == 0) return 0;
+
     serial_tx_buffer_set(obj, (void *)tx, tx_length, tx_width);
     serial_tx_enable_event(obj, event, true);
 
 //    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
-        NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
-        NVIC_DisableIRQ(get_serial_irq_num(obj));
-        NVIC_SetPriority(get_serial_irq_num(obj), 1);
-        NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
-        NVIC_EnableIRQ(get_serial_irq_num(obj));
+    NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
+    NVIC_DisableIRQ(get_serial_irq_num(obj));
+    NVIC_SetPriority(get_serial_irq_num(obj), 1);
+    NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
+    NVIC_EnableIRQ(get_serial_irq_num(obj));
 
-	    if (pUSART_S(obj)) {
-			_USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
-	 	    _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_DRE;
-		} 
+    if (pUSART_S(obj)) {
+        _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
+        _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_DRE;
+    }
 //	}
 }
 
-/** Begin asynchronous RX transfer (enable interrupt for data collecting)
- *  The used buffer is specified in the serial object - rx_buff
- *
- * @param obj  The serial object
- * @param cb   The function to call when an event occurs
- * @param hint A suggestion for how to use DMA with this transfer
- */
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
-	MBED_ASSERT(rx != (void*)0);
-	
-	serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
+    MBED_ASSERT(rx != (void*)0);
+
+    serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
 
-	serial_rx_buffer_set(obj, rx, rx_length, rx_width);
-	
-//    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later		
-        NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
-        NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
-        NVIC_EnableIRQ(get_serial_irq_num(obj));
+    serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
-    	if (pUSART_S(obj)) {
-            _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;
-		} 
+//    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
+    NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
+    NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
+    NVIC_EnableIRQ(get_serial_irq_num(obj));
+
+    if (pUSART_S(obj)) {
+        _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;
+    }
 //	}
 }
 
-/** Attempts to determine if the serial peripheral is already in use for TX
- *
- * @param obj The serial object
- * @return Non-zero if the TX transaction is ongoing, 0 otherwise
- */
 uint8_t serial_tx_active(serial_t *obj)
 {
     return ((_USART(obj).INTENSET.reg & SERCOM_USART_INTFLAG_DRE) ? true : false);
 }
 
-/** Attempts to determine if the serial peripheral is already in use for RX
- *
- * @param obj The serial object
- * @return Non-zero if the RX transaction is ongoing, 0 otherwise
- */
 uint8_t serial_rx_active(serial_t *obj)
 {
     return ((_USART(obj).INTENSET.reg & SERCOM_USART_INTFLAG_RXC) ? true : false);
 }
 
-/** The asynchronous TX handler. Writes to the TX FIFO and checks for events.
- *  If any TX event has occured, the TX abort function is called.
- *
- * @param obj The serial object
- * @return Returns event flags if a TX transfer termination condition was met or 0 otherwise
- */
 int serial_tx_irq_handler_asynch(serial_t *obj)
 {
-	_USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
-	return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+    _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
+    return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
 }
 
-/** The asynchronous RX handler. Reads from the RX FIFOF and checks for events.
- *  If any RX event has occured, the RX abort function is called.
- *
- * @param obj The serial object
- * @return Returns event flags if a RX transfer termination condition was met or 0 otherwise
- */
 int serial_rx_irq_handler_asynch(serial_t *obj)
 {
-	int event = 0;
-	/* This interrupt handler is called from USART irq */
-	uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
-	uint8_t error_code = 0;
-	uint16_t received_data = 0;
-	
-	
-	error_code = (uint8_t)(_USART(obj).STATUS.reg & SERCOM_USART_STATUS_MASK);
-		
-	/* Check if an error has occurred during the receiving */
-	if (error_code) {
-		/* Check which error occurred */
-		if (error_code & SERCOM_USART_STATUS_FERR) {
-		/* Store the error code and clear flag by writing 1 to it */
-			_USART(obj).STATUS.reg |= SERCOM_USART_STATUS_FERR;
-			return SERIAL_EVENT_RX_FRAMING_ERROR;
-		} else if (error_code & SERCOM_USART_STATUS_BUFOVF) {
-		/* Store the error code and clear flag by writing 1 to it */
-			_USART(obj).STATUS.reg |= SERCOM_USART_STATUS_BUFOVF;
-			return SERIAL_EVENT_RX_OVERFLOW;
-		} else if (error_code & SERCOM_USART_STATUS_PERR) {
-		/* Store the error code and clear flag by writing 1 to it */
-			_USART(obj).STATUS.reg |= SERCOM_USART_STATUS_PERR;
-			return SERIAL_EVENT_RX_PARITY_ERROR;
-		}	
-	}
-	
-	/* Read current packet from DATA register,
-	* increment buffer pointer and decrement buffer length */
-	received_data = (_USART(obj).DATA.reg & SERCOM_USART_DATA_MASK);
+    int event = 0;
+    /* This interrupt handler is called from USART irq */
+    uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+    uint8_t error_code = 0;
+    uint16_t received_data = 0;
 
-	/* Read value will be at least 8-bits long */
-	buf[obj->rx_buff.pos] = received_data;
-	/* Increment 8-bit pointer */
-	obj->rx_buff.pos++;
 
-	/* Check if the last character have been received */
-	if(--(obj->rx_buff.length) == 0) {
-		event |= SERIAL_EVENT_RX_COMPLETE;
-		if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)){
-		    event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
-		}
-		serial_rx_abort_asynch(obj);	
-		return event & obj->serial.events;
-	}
-	
-	/* Check for character match event */
-	if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+    error_code = (uint8_t)(_USART(obj).STATUS.reg & SERCOM_USART_STATUS_MASK);
+
+    /* Check if an error has occurred during the receiving */
+    if (error_code) {
+        /* Check which error occurred */
+        if (error_code & SERCOM_USART_STATUS_FERR) {
+            /* Store the error code and clear flag by writing 1 to it */
+            _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_FERR;
+            return SERIAL_EVENT_RX_FRAMING_ERROR;
+        } else if (error_code & SERCOM_USART_STATUS_BUFOVF) {
+            /* Store the error code and clear flag by writing 1 to it */
+            _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_BUFOVF;
+            return SERIAL_EVENT_RX_OVERFLOW;
+        } else if (error_code & SERCOM_USART_STATUS_PERR) {
+            /* Store the error code and clear flag by writing 1 to it */
+            _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_PERR;
+            return SERIAL_EVENT_RX_PARITY_ERROR;
+        }
+    }
+
+    /* Read current packet from DATA register,
+    * increment buffer pointer and decrement buffer length */
+    received_data = (_USART(obj).DATA.reg & SERCOM_USART_DATA_MASK);
+
+    /* Read value will be at least 8-bits long */
+    buf[obj->rx_buff.pos] = received_data;
+    /* Increment 8-bit pointer */
+    obj->rx_buff.pos++;
+
+    /* Check if the last character have been received */
+    if(--(obj->rx_buff.length) == 0) {
+        event |= SERIAL_EVENT_RX_COMPLETE;
+        if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+            event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+        }
+        serial_rx_abort_asynch(obj);
+        return event & obj->serial.events;
+    }
+
+    /* Check for character match event */
+    if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
 //		event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
-	}
-		
-	/* check for final char event */
-	if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
+    }
+
+    /* check for final char event */
+    if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
 //	    event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-	}
-		
+    }
+
 }
 
-/** Unified IRQ handler. Determines the appropriate handler to execute and returns the flags.
- *
- * WARNING: this code should be stateless, as re-entrancy is very possible in interrupt-based mode.
- */
 int serial_irq_handler_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
-	uint16_t interrupt_status;
-	uint8_t *buf = obj->tx_buff.buffer;
+    uint16_t interrupt_status;
+    uint8_t *buf = obj->tx_buff.buffer;
 
-	interrupt_status = _USART(obj).INTFLAG.reg;
-	interrupt_status &= _USART(obj).INTENSET.reg;
+    interrupt_status = _USART(obj).INTFLAG.reg;
+    interrupt_status &= _USART(obj).INTENSET.reg;
 
-	if (pUSART_S(obj)) {
-		if (interrupt_status & SERCOM_USART_INTFLAG_DRE) {
-			/* Interrupt has another TX source */
-			if(obj->tx_buff.pos >= obj->tx_buff.length) {
-				
-				/* Transfer complete. Switch off interrupt and return event. */
-				_USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
-				serial_tx_abort_asynch(obj);
-								
-				return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
-				} else {
-				while((serial_writable(obj)) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
-					_USART(obj).DATA.reg = buf[obj->tx_buff.pos];
-					obj->tx_buff.pos++;
-				}
-			}
-		}
-		if (interrupt_status & SERCOM_USART_INTFLAG_TXC) { 
-			serial_tx_irq_handler_asynch(obj);
-		}
-		if (interrupt_status & SERCOM_USART_INTFLAG_RXC) { 
-			serial_rx_irq_handler_asynch(obj);
-		}
-	}
+    if (pUSART_S(obj)) {
+        if (interrupt_status & SERCOM_USART_INTFLAG_DRE) {
+            /* Interrupt has another TX source */
+            if(obj->tx_buff.pos >= obj->tx_buff.length) {
+
+                /* Transfer complete. Switch off interrupt and return event. */
+                _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
+                serial_tx_abort_asynch(obj);
+
+                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+            } else {
+                while((serial_writable(obj)) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
+                    _USART(obj).DATA.reg = buf[obj->tx_buff.pos];
+                    obj->tx_buff.pos++;
+                }
+            }
+        }
+        if (interrupt_status & SERCOM_USART_INTFLAG_TXC) {
+            serial_tx_irq_handler_asynch(obj);
+        }
+        if (interrupt_status & SERCOM_USART_INTFLAG_RXC) {
+            serial_rx_irq_handler_asynch(obj);
+        }
+    }
 
 }
 
-/** Abort the ongoing TX transaction. It disables the enabled interupt for TX and
- *  flush TX hardware buffer if TX FIFO is used
- *
- * @param obj The serial object
- */
 void serial_tx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
-	_USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
-	obj->tx_buff.pos = 0;
-	obj->tx_buff.length = 0;
+    _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
+    obj->tx_buff.pos = 0;
+    obj->tx_buff.length = 0;
 }
-/** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
- *  flush RX hardware buffer if RX FIFO is used
- *
- * @param obj The serial object
- */
+
 void serial_rx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
     _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
-	obj->rx_buff.pos = 0;
-	obj->rx_buff.length = 0;
+    obj->rx_buff.pos = 0;
+    obj->rx_buff.length = 0;
 }
 
 #endif

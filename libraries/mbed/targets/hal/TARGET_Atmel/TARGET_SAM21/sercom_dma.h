@@ -26,10 +26,10 @@ extern "C" {
 
 
 struct sercom_dma {
-	uint8_t tx_channel_id;
-	uint8_t rx_channel_id;
-	enum dma_status_flags tx_status;
-	enum dma_status_flags rx_status;
+    uint8_t tx_channel_id;
+    uint8_t rx_channel_id;
+    enum dma_status_flags tx_status;
+    enum dma_status_flags rx_status;
 };
 
 /** Allocate a channel for TX

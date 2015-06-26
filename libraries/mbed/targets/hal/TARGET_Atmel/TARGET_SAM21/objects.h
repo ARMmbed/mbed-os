@@ -52,8 +52,8 @@ struct serial_s {
     uint32_t pinmux_pad1;
     uint32_t pinmux_pad2;
     uint32_t pinmux_pad3;
-	PinName rxpin;
-	PinName txpin;
+    PinName rxpin;
+    PinName txpin;
 #if DEVICE_SERIAL_ASYNCH
     uint32_t events;
 #endif

@@ -26,9 +26,9 @@ extern "C" {
 
 enum dma_status_flags {
     DMA_NOT_USED		= (uint32_t)1,
-	DMA_ALLOCATED		= (DMA_NOT_USED << 1),
-	DMA_TEMPORARY		= (DMA_NOT_USED << 2),
-	DMA_ERROR			= (DMA_NOT_USED << 3),
+    DMA_ALLOCATED		= (DMA_NOT_USED << 1),
+    DMA_TEMPORARY		= (DMA_NOT_USED << 2),
+    DMA_ERROR			= (DMA_NOT_USED << 3),
 };
 
 /* No other capabilities supported now */
@@ -45,11 +45,11 @@ enum dma_status_flags {
 
 COMPILER_ALIGNED(16)
 struct dma_instance_s {
-	struct dma_resource resource;
-	DmacDescriptor descriptor;
-	uint8_t status;
-	uint32_t events;
-	uint32_t handler;
+    struct dma_resource resource;
+    DmacDescriptor descriptor;
+    uint8_t status;
+    uint32_t events;
+    uint32_t handler;
 };
 
 /** Setup a DMA descriptor for specified resource

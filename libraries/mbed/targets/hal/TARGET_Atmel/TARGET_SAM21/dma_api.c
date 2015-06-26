@@ -29,9 +29,9 @@
  * Redefining as that definition is not available here
  */
 struct _dma_module {
-	volatile bool _dma_init;
-	volatile uint32_t allocated_channels;
-	uint8_t free_channels;
+    volatile bool _dma_init;
+    volatile uint32_t allocated_channels;
+    uint8_t free_channels;
 };
 
 extern struct _dma_module _dma_inst;
@@ -48,19 +48,19 @@ static struct dma_instance_s dma_channels[CONF_MAX_USED_CHANNEL_NUM];
  */
 static uint8_t get_index_from_id(int channelid)
 {
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t i;
-	
-	for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
-		if ((dma_channels[i].status & DMA_ALLOCATED)
-		 && (dma_channels[i].resource.channel_id == channelid)) {
-			 break;
-		 }
-	}
-	
-	return i;	
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t i;
+
+    for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
+        if ((dma_channels[i].status & DMA_ALLOCATED)
+                && (dma_channels[i].resource.channel_id == channelid)) {
+            break;
+        }
+    }
+
+    return i;
 }
 
 /**
@@ -72,21 +72,21 @@ static uint8_t get_index_from_id(int channelid)
  */
 static void dma_handler(const struct dma_resource* const resource)
 {
-	MBED_ASSERT(resource);
-	void (*callback_func)(void);
-	
-	uint8_t channelid = resource->channel_id;
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);	
-	if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
-		return;
-	}
-	
-	callback_func = dma_channels[channel_index].handler;
-	if (callback_func) {
-		callback_func();
-	}
+    MBED_ASSERT(resource);
+    void (*callback_func)(void);
+
+    uint8_t channelid = resource->channel_id;
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+    if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
+        return;
+    }
+
+    callback_func = dma_channels[channel_index].handler;
+    if (callback_func) {
+        callback_func();
+    }
 }
 
 /**
@@ -98,25 +98,25 @@ static void dma_handler(const struct dma_resource* const resource)
  */
 static void configure_dma_resource(uint8_t channel_index)
 {
-	/* Sanity check arguments */
-	MBED_ASSERT(channel_index < CONF_MAX_USED_CHANNEL_NUM);
-	
-	enum status_code ret;
-	struct dma_resource_config config;
-	
-	if (dma_channels[channel_index].status & DMA_ALLOCATED) {
-		return;
-	}
+    /* Sanity check arguments */
+    MBED_ASSERT(channel_index < CONF_MAX_USED_CHANNEL_NUM);
 
-	/* Get default configuration for DMA */
-	dma_get_config_defaults(&config);
+    enum status_code ret;
+    struct dma_resource_config config;
 
-	/* Allocate a free channel */
-	ret = dma_allocate(&dma_channels[channel_index].resource, &config);
-	
-	if (ret == STATUS_OK) {
-		dma_channels[channel_index].status = DMA_ALLOCATED;
-	}
+    if (dma_channels[channel_index].status & DMA_ALLOCATED) {
+        return;
+    }
+
+    /* Get default configuration for DMA */
+    dma_get_config_defaults(&config);
+
+    /* Allocate a free channel */
+    ret = dma_allocate(&dma_channels[channel_index].resource, &config);
+
+    if (ret == STATUS_OK) {
+        dma_channels[channel_index].status = DMA_ALLOCATED;
+    }
 }
 
 /** Setup a DMA descriptor for specified resource
@@ -132,50 +132,50 @@ static void configure_dma_resource(uint8_t channel_index)
  */
 void dma_setup_transfer(uint8_t channelid, uint32_t src, bool src_inc_enable, uint32_t desc, bool desc_inc_enable, uint32_t length, uint8_t beat_size)
 {
-	enum status_code result;
-	uint8_t channel_index;
-	struct dma_descriptor_config descriptor_config;
-	
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	MBED_ASSERT(src);
-	MBED_ASSERT(desc);
-	
-	channel_index = get_index_from_id(channelid);	
+    enum status_code result;
+    uint8_t channel_index;
+    struct dma_descriptor_config descriptor_config;
 
-	dma_descriptor_get_config_defaults(&descriptor_config);
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+    MBED_ASSERT(src);
+    MBED_ASSERT(desc);
 
-	if (beat_size <= 8) {
-		descriptor_config.beat_size = DMA_BEAT_SIZE_BYTE;		
-	} else if ((beat_size > 8) && (beat_size <= 16)) {
-		descriptor_config.beat_size = DMA_BEAT_SIZE_HWORD;
-	} else {
-		descriptor_config.beat_size = DMA_BEAT_SIZE_WORD;
-	}
-	descriptor_config.block_transfer_count = length;
-	descriptor_config.source_address = src;
-	descriptor_config.destination_address = desc;
-	
-	/* Source address auto-increment is enabled by default */
-	if (!src_inc_enable) {
-		descriptor_config.src_increment_enable = false;		
-	}
-	
-	/* Destination address auto-increment is enabled by default */
-	if (!desc_inc_enable) {
-		descriptor_config.dst_increment_enable = false;
-	}
+    channel_index = get_index_from_id(channelid);
 
-	dma_descriptor_create(&dma_channels[channel_index].descriptor, &descriptor_config);
-	
-	/* Add descriptor to resource */
-	if (dma_channels[channel_index].resource.descriptor == NULL) {
-		/* Multiple calls to this function without releasing already allocated channel is not handled now */
-		result = dma_add_descriptor(&dma_channels[channel_index].resource, &dma_channels[channel_index].descriptor);
-		if (result != STATUS_OK) {
-			dma_channels[channel_index].status |= DMA_ERROR;
-		}
-	}
+    dma_descriptor_get_config_defaults(&descriptor_config);
+
+    if (beat_size <= 8) {
+        descriptor_config.beat_size = DMA_BEAT_SIZE_BYTE;
+    } else if ((beat_size > 8) && (beat_size <= 16)) {
+        descriptor_config.beat_size = DMA_BEAT_SIZE_HWORD;
+    } else {
+        descriptor_config.beat_size = DMA_BEAT_SIZE_WORD;
+    }
+    descriptor_config.block_transfer_count = length;
+    descriptor_config.source_address = src;
+    descriptor_config.destination_address = desc;
+
+    /* Source address auto-increment is enabled by default */
+    if (!src_inc_enable) {
+        descriptor_config.src_increment_enable = false;
+    }
+
+    /* Destination address auto-increment is enabled by default */
+    if (!desc_inc_enable) {
+        descriptor_config.dst_increment_enable = false;
+    }
+
+    dma_descriptor_create(&dma_channels[channel_index].descriptor, &descriptor_config);
+
+    /* Add descriptor to resource */
+    if (dma_channels[channel_index].resource.descriptor == NULL) {
+        /* Multiple calls to this function without releasing already allocated channel is not handled now */
+        result = dma_add_descriptor(&dma_channels[channel_index].resource, &dma_channels[channel_index].descriptor);
+        if (result != STATUS_OK) {
+            dma_channels[channel_index].status |= DMA_ERROR;
+        }
+    }
 }
 
 
@@ -185,18 +185,18 @@ void dma_setup_transfer(uint8_t channelid, uint32_t src, bool src_inc_enable, ui
  */
 void dma_init()
 {
-	int i;
-	
-	if (g_sys_init == 0) {
-		system_init();
-		g_sys_init = 1;
-	}
-	
-	if (!_dma_inst._dma_init) {
-		for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
-			dma_channels[i].status = DMA_NOT_USED;
-		}
-	}
+    int i;
+
+    if (g_sys_init == 0) {
+        system_init();
+        g_sys_init = 1;
+    }
+
+    if (!_dma_inst._dma_init) {
+        for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
+            dma_channels[i].status = DMA_NOT_USED;
+        }
+    }
     /* Do nothing for now. ASF does the clock init when allocating channel */
 }
 
@@ -207,23 +207,23 @@ void dma_init()
  */
 int dma_channel_allocate(uint32_t capabilities)
 {
-	uint8_t channel_index = 0;
-	
-	for (channel_index=0; channel_index<CONF_MAX_USED_CHANNEL_NUM; channel_index++) {
-		if (dma_channels[channel_index].status == DMA_NOT_USED) {
-			break;
-		}
-	}
-	
-	if (channel_index != CONF_MAX_USED_CHANNEL_NUM) {
-		configure_dma_resource(channel_index);
-		if (dma_channels[channel_index].status & DMA_ALLOCATED) {
-			return dma_channels[channel_index].resource.channel_id;
-		}
-	}
-	
-	/* Couldn't find a channel. */
-	return DMA_ERROR_OUT_OF_CHANNELS;
+    uint8_t channel_index = 0;
+
+    for (channel_index=0; channel_index<CONF_MAX_USED_CHANNEL_NUM; channel_index++) {
+        if (dma_channels[channel_index].status == DMA_NOT_USED) {
+            break;
+        }
+    }
+
+    if (channel_index != CONF_MAX_USED_CHANNEL_NUM) {
+        configure_dma_resource(channel_index);
+        if (dma_channels[channel_index].status & DMA_ALLOCATED) {
+            return dma_channels[channel_index].resource.channel_id;
+        }
+    }
+
+    /* Couldn't find a channel. */
+    return DMA_ERROR_OUT_OF_CHANNELS;
 }
 
 /** Start DMA transfer
@@ -234,30 +234,30 @@ int dma_channel_allocate(uint32_t capabilities)
  */
 bool dma_start_transfer(int channelid)
 {
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);
-	
-	if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
-		/* Return invalid value for now */
-		return false;
-	}
-	
-	if (!(dma_channels[channel_index].status & DMA_ALLOCATED)) {
-		/* DMA not allocated, return invalid value for now */
-		return false;
-	}
-	
-	/* Start DMA transfer */
-	if (STATUS_OK != dma_start_transfer_job(&dma_channels[channel_index].resource)) {
-		/* Error in starting DMA transfer */
-		return false;
-	}
-	
-	return true;
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+
+    if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
+        /* Return invalid value for now */
+        return false;
+    }
+
+    if (!(dma_channels[channel_index].status & DMA_ALLOCATED)) {
+        /* DMA not allocated, return invalid value for now */
+        return false;
+    }
+
+    /* Start DMA transfer */
+    if (STATUS_OK != dma_start_transfer_job(&dma_channels[channel_index].resource)) {
+        /* Error in starting DMA transfer */
+        return false;
+    }
+
+    return true;
 }
 
 /** DMA channel busy check
@@ -268,20 +268,20 @@ bool dma_start_transfer(int channelid)
  */
 bool dma_busy(int channelid)
 {
-	int res = 0;
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);
-	
-	if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
-		/* This channel is not active! return zero for now */
-		res = 0;
-	}
-	
-	return dma_is_busy(&dma_channels[channel_index].resource);
+    int res = 0;
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+
+    if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
+        /* This channel is not active! return zero for now */
+        res = 0;
+    }
+
+    return dma_is_busy(&dma_channels[channel_index].resource);
 }
 
 /** DMA channel transfer completion check
@@ -292,20 +292,20 @@ bool dma_busy(int channelid)
  */
 bool dma_is_transfer_complete(int channelid)
 {
-	int res = 0;
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);
-	
-	if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
-		/* This channel is not active! return zero for now */
-		res = 0;
-	}
-	
-	return (STATUS_OK == dma_get_job_status(&dma_channels[channel_index].resource));
+    int res = 0;
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+
+    if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
+        /* This channel is not active! return zero for now */
+        res = 0;
+    }
+
+    return (STATUS_OK == dma_get_job_status(&dma_channels[channel_index].resource));
 }
 
 /** Registers callback function for DMA
@@ -318,30 +318,30 @@ bool dma_is_transfer_complete(int channelid)
  */
 void dma_set_handler(int channelid, uint32_t handler, uint32_t event)
 {
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);
-	
-	if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
-		/* Return for now */
-		return;
-	}
-	
-	dma_channels[channel_index].handler = handler;
-	if (event & DMA_TRANSFER_ERROR) {
-		dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_ERROR);
-	}
-	if (event & DMA_TRANSFER_COMPLETE) {
-		dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_DONE);
-	}
-	
-	/* Set interrupt vector if someone have removed it */
-	NVIC_SetVector(DMAC_IRQn, (uint32_t)DMAC_Handler);
-	/* Enable interrupt */
-	NVIC_EnableIRQ(DMAC_IRQn);
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+
+    if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
+        /* Return for now */
+        return;
+    }
+
+    dma_channels[channel_index].handler = handler;
+    if (event & DMA_TRANSFER_ERROR) {
+        dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_ERROR);
+    }
+    if (event & DMA_TRANSFER_COMPLETE) {
+        dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_DONE);
+    }
+
+    /* Set interrupt vector if someone have removed it */
+    NVIC_SetVector(DMAC_IRQn, (uint32_t)DMAC_Handler);
+    /* Enable interrupt */
+    NVIC_EnableIRQ(DMAC_IRQn);
 }
 
 /** Frees an allocated DMA channel
@@ -352,21 +352,21 @@ void dma_set_handler(int channelid, uint32_t handler, uint32_t event)
  */
 int dma_channel_free(int channelid)
 {
-	/* Sanity check arguments */
-	MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
-	
-	uint8_t channel_index;
-	
-	channel_index = get_index_from_id(channelid);
-	
-	if (STATUS_OK == dma_free(&dma_channels[channel_index].resource)) {
-		dma_channels[channel_index].status = DMA_NOT_USED;
-		dma_channels[channel_index].resource.descriptor = NULL;
-		return 0;
-	} else {
-		/* Return invalid value for now */
-		return -1;
-	}
+    /* Sanity check arguments */
+    MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
+
+    uint8_t channel_index;
+
+    channel_index = get_index_from_id(channelid);
+
+    if (STATUS_OK == dma_free(&dma_channels[channel_index].resource)) {
+        dma_channels[channel_index].status = DMA_NOT_USED;
+        dma_channels[channel_index].resource.descriptor = NULL;
+        return 0;
+    } else {
+        /* Return invalid value for now */
+        return -1;
+    }
 }
 
 

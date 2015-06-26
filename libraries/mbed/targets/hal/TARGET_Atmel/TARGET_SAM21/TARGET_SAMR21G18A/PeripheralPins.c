@@ -433,17 +433,17 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName
     input_values.pin = input;
     output_values.pin = output;
     clock_values.pin = clock;
-	chipsel_values.pin = chipsel;
+    chipsel_values.pin = chipsel;
 
     input_values.com = pinmap_sercom_peripheral(input, output);
     output_values.com = input_values.com;
     clock_values.com = input_values.com;
-	chipsel_values.com = input_values.com;
+    chipsel_values.com = input_values.com;
 
     input_values.pad = pinmap_sercom_pad(input);
     output_values.pad = pinmap_sercom_pad(output);
     clock_values.pad = pinmap_sercom_pad(clock);
-	chipsel_values.pad = pinmap_sercom_pad(chipsel);
+    chipsel_values.pad = pinmap_sercom_pad(chipsel);
 
     switch(input_values.pad) {      //TODO: Condition for hardware flow control enabled is different.
         case 0:
@@ -460,22 +460,20 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName
             break;
     }
 
-    if ((clock == NC) && (chipsel == NC))  // condition for no hardware control and uart
-	{
-		if ((output_values.pad == 0)) {  // condition for hardware enable and usart is different
-			mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
-		} else if((output_values.pad == 2)) {
-			mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
-		} else {
-			mux_setting = mux_setting;  // dummy condition
-		}
-	}
-	else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
-		if((output_values.pad == 0) && (clock_values.pad/*rts pin*/ == 2) && (clock_values.pad/*cts pin*/ == 3)){
-			 mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
-		}		
-	}
-	
+    if ((clock == NC) && (chipsel == NC)) { // condition for no hardware control and uart
+        if ((output_values.pad == 0)) {  // condition for hardware enable and usart is different
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
+        } else if((output_values.pad == 2)) {
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
+        } else {
+            mux_setting = mux_setting;  // dummy condition
+        }
+    } else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
+        if((output_values.pad == 0) && (clock_values.pad/*rts pin*/ == 2) && (clock_values.pad/*cts pin*/ == 3)) {
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
+        }
+    }
+
     return mux_setting;
 }
 
@@ -491,17 +489,17 @@ void find_pin_settings (PinName output, PinName input, PinName clock, PinName ch
     input_values.pin = input;
     output_values.pin = output;
     clock_values.pin = clock;
-	chipsel_values.pin = chipsel;
+    chipsel_values.pin = chipsel;
 
     input_values.com = pinmap_sercom_peripheral(input, output);
     output_values.com = input_values.com;
     clock_values.com = input_values.com;
-	chipsel_values.com = input_values.com;
+    chipsel_values.com = input_values.com;
 
     input_values.pad = pinmap_sercom_pad(input);
     output_values.pad = pinmap_sercom_pad(output);
     clock_values.pad = pinmap_sercom_pad(clock);
-	chipsel_values.pad = pinmap_sercom_pad(chipsel);
+    chipsel_values.pad = pinmap_sercom_pad(chipsel);
 
     if (input_values.pad < 0x04)
         pad_pinmuxes[input_values.pad] = find_sercom_pinmux(&input_values);
@@ -509,8 +507,8 @@ void find_pin_settings (PinName output, PinName input, PinName clock, PinName ch
         pad_pinmuxes[output_values.pad] = find_sercom_pinmux(&output_values);
     if (clock_values.pad < 0x04)
         pad_pinmuxes[clock_values.pad] = find_sercom_pinmux(&clock_values);
-	if (chipsel_values.pad < 0x04)
-	    pad_pinmuxes[chipsel_values.pad] = find_sercom_pinmux(&chipsel_values);
+    if (chipsel_values.pad < 0x04)
+        pad_pinmuxes[chipsel_values.pad] = find_sercom_pinmux(&chipsel_values);
 
 }
 

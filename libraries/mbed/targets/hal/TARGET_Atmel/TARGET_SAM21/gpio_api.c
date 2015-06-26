@@ -46,7 +46,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     obj->OUTCLR = &port_base->OUTCLR.reg;
     obj->OUTSET = &port_base->OUTSET.reg;
     obj->IN = &port_base->IN.reg;
-	obj->OUT = &port_base->OUT.reg;
+    obj->OUT = &port_base->OUT.reg;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
