@@ -7,7 +7,9 @@ project(mbed-classic)
 enable_language(ASM)
 
 # override compilation flags:
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+if(CMAKE_C_COMPILER_ID MATCHES GNU)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+endif()
 
 # the mbed.a library is built from two sets of source files + include
 # directories:
