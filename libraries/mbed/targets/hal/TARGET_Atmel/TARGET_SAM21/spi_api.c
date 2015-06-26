@@ -22,7 +22,9 @@
 #include "pinmap.h"
 #include "sercom.h"
 
-/** Temporary definitions START */
+/** Temporary definitions START
+ *  Need to implement Pinmux APIs. For now, have hard coded to external SPIs available in SAM21 */
+#ifdef SAMR21
 #define EXT1_SPI_MODULE              SERCOM5
 #define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
 #define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PB02D_SERCOM5_PAD0
@@ -31,6 +33,16 @@
 #define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PB23D_SERCOM5_PAD3
 #define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM5_DMAC_ID_TX
 #define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM5_DMAC_ID_RX
+#elif SAMD21
+#define EXT1_SPI_MODULE              SERCOM0
+#define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
+#define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PA04D_SERCOM0_PAD0
+#define EXT1_SPI_SERCOM_PINMUX_PAD1  PINMUX_PA05D_SERCOM0_PAD1
+#define EXT1_SPI_SERCOM_PINMUX_PAD2  PINMUX_PA06D_SERCOM0_PAD2
+#define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PA07D_SERCOM0_PAD3
+#define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM0_DMAC_ID_TX
+#define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM0_DMAC_ID_RX
+#endif
 
 /** Default pinmux. */
 #  define PINMUX_DEFAULT 0
@@ -612,8 +624,11 @@ static void _spi_write_async(spi_t *obj)
     /* Do nothing if we are at the end of buffer */
     if (obj->tx_buff.pos < obj->tx_buff.length) {
         /* Write value will be at least 8-bits long */
-        if (tx_buffer)
+        if (tx_buffer) {
             data_to_send = tx_buffer[obj->tx_buff.pos];
+        } else {
+            data_to_send = dummy_fill_word;
+        }
         /* Increment 8-bit index */
         obj->tx_buff.pos++;
 
@@ -625,6 +640,7 @@ static void _spi_write_async(spi_t *obj)
         }
     } else {
         /* Write a dummy packet */
+        /* TODO: Current implementation do not enter this condition, remove if not needed */
         data_to_send = dummy_fill_word;
     }
 
@@ -810,16 +826,23 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->tx_buff.buffer = tx;
     obj->tx_buff.pos = 0;
     if (tx) {
-        obj->tx_buff.length = tx_length * (bit_width>>3);
+        /* Only two bit rates supported now */
+        obj->tx_buff.length = tx_length * ((bit_width > 8)? 2 : 1);
     } else {
-        obj->tx_buff.length = 0;
+        if (rx) {
+            obj->tx_buff.length = rx_length * ((bit_width > 8)? 2 : 1);
+        } else {
+            /* Nothing to transfer */
+            return;
+        }
     }
 
     obj->spi.rx_buffer = rx;
     obj->rx_buff.buffer = rx;
     obj->rx_buff.pos = 0;
     if (rx) {
-        obj->rx_buff.length = rx_length * (bit_width>>3);
+        /* Only two bit rates supported now */
+        obj->rx_buff.length = rx_length * ((bit_width > 8)? 2 : 1);
     } else {
         /* Disable RXEN */
         spi_disable(obj);
@@ -838,29 +861,29 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     obj->spi.dma_usage = hint;
 
-    if (hint == DMA_USAGE_NEVER) {
-        /* Use irq method */
-        uint16_t irq_mask = 0;
-        obj->spi.status = STATUS_BUSY;
+    /*if (hint == DMA_USAGE_NEVER) {** TEMP: Commented as DMA is not implemented now */
+    /* Use irq method */
+    uint16_t irq_mask = 0;
+    obj->spi.status = STATUS_BUSY;
 
-        /* Enable interrupt */
-        NVIC_SetVector((SERCOM0_IRQn + sercom_index), _sercom_handlers[sercom_index]);
-        NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
+    /* Enable interrupt */
+    NVIC_SetVector((SERCOM0_IRQn + sercom_index), _sercom_handlers[sercom_index]);
+    NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
 
-        /* Clear all interrupts */
-        _SPI(obj).INTENCLR.reg = SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_RXC | SERCOM_SPI_INTFLAG_ERROR;
-        _SPI(obj).INTFLAG.reg =  SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_ERROR;
-        _SPI(obj).STATUS.reg |=  SERCOM_SPI_STATUS_BUFOVF;
+    /* Clear all interrupts */
+    _SPI(obj).INTENCLR.reg = SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_RXC | SERCOM_SPI_INTFLAG_ERROR;
+    _SPI(obj).INTFLAG.reg =  SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_ERROR;
+    _SPI(obj).STATUS.reg |=  SERCOM_SPI_STATUS_BUFOVF;
 
-        /* Set SPI interrupts */
-        if (tx) {
-            irq_mask |= SERCOM_SPI_INTFLAG_DRE;
-        }
-        if (event & SPI_EVENT_ERROR) {
-            irq_mask |= SERCOM_SPI_INTFLAG_ERROR;
-        }
-        _SPI(obj).INTENSET.reg = irq_mask;
+    /* Set SPI interrupts */
+    if (tx) {
+        irq_mask |= SERCOM_SPI_INTFLAG_DRE;
     }
+    if (event & SPI_EVENT_ERROR) {
+        irq_mask |= SERCOM_SPI_INTFLAG_ERROR;
+    }
+    _SPI(obj).INTENSET.reg = irq_mask;
+    /*} ** TEMP: Commented as DMA is not implemented now */
 }
 
 /** The asynchronous IRQ handler
@@ -877,49 +900,49 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
     uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
-    if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
-        /* IRQ method */
-        if (obj->spi.event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) {
-            obj->spi.event |= SPI_EVENT_COMPLETE;
-            transfer_event = obj->spi.event;
-        } else {
-            /* Data is still remaining to be transferred! */
-            obj->spi.status = STATUS_BUSY;
+    /*if (obj->spi.dma_usage == DMA_USAGE_NEVER) {** TEMP: Commented as DMA is not implemented now */
+    /* IRQ method */
+    if (obj->spi.event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) {
+        obj->spi.event |= SPI_EVENT_COMPLETE;
+        transfer_event = obj->spi.event;
+    } else {
+        /* Data is still remaining to be transferred! */
+        obj->spi.status = STATUS_BUSY;
 
-            /* Read any pending data in RX buffer */
-            while (spi_is_ready_to_read(obj)) {
-                _spi_read_async(obj);
-            }
+        /* Read any pending data in RX buffer */
+        while (spi_is_ready_to_read(obj)) {
+            _spi_read_async(obj);
+        }
 
-            while (obj->tx_buff.pos < obj->tx_buff.length) {
-                /* Write data */
-                _spi_write_async(obj);
-                /* Read if any */
-                if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
-                    if (spi_is_ready_to_read(obj)) {
-                        _spi_read_async(obj);
-                    }
-                    /* Extend TX buffer (with dummy) if there is more to receive */
-                    if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->tx_buff.length < obj->rx_buff.length)) {
-                        obj->tx_buff.length = obj->rx_buff.length;
-                        obj->tx_buff.buffer = 0;
-                    }
+        while (obj->tx_buff.pos < obj->tx_buff.length) {
+            /* Write data */
+            _spi_write_async(obj);
+            /* Read if any */
+            if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+                if (spi_is_ready_to_read(obj)) {
+                    _spi_read_async(obj);
                 }
-                if (obj->spi.event & SPI_EVENT_ERROR) {
-                    transfer_event = obj->spi.event;
-                    obj->spi.status = STATUS_ERR_BAD_DATA;
-                    break;
+                /* Extend TX buffer (with dummy) if there is more to receive */
+                if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->tx_buff.length < obj->rx_buff.length)) {
+                    obj->tx_buff.length = obj->rx_buff.length;
+                    obj->tx_buff.buffer = 0;
                 }
             }
-            if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length)) {
-                transfer_event = (SPI_EVENT_INTERNAL_TRANSFER_COMPLETE | SPI_EVENT_COMPLETE);
-                obj->spi.status = STATUS_OK;
+            if (obj->spi.event & SPI_EVENT_ERROR) {
+                transfer_event = obj->spi.event;
+                obj->spi.status = STATUS_ERR_BAD_DATA;
+                break;
             }
         }
-        transfer_event &= (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
-        /* Clear all interrupts */
-        _spi_clear_interrupts(obj);
+        if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length)) {
+            transfer_event = (SPI_EVENT_INTERNAL_TRANSFER_COMPLETE | SPI_EVENT_COMPLETE);
+            obj->spi.status = STATUS_OK;
+        }
     }
+    transfer_event &= (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
+    /* Clear all interrupts */
+    _spi_clear_interrupts(obj);
+    /*}** TEMP: Commented as DMA is not implemented now */
     return transfer_event;
 }
 
