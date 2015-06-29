@@ -634,30 +634,25 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
     switch ((int)pUSART_S(obj)) {
         case UART_0:
-            irq_n = SERCOM0_IRQn;
             vector = (uint32_t)uart0_irq;
             break;
         case UART_1:
-            irq_n = SERCOM1_IRQn;
             vector = (uint32_t)uart1_irq;
             break;
         case UART_2:
-            irq_n = SERCOM2_IRQn;
             vector = (uint32_t)uart2_irq;
             break;
         case UART_3:
-            irq_n = SERCOM3_IRQn;
             vector = (uint32_t)uart3_irq;
             break;
         case UART_4:
-            irq_n = SERCOM4_IRQn;
             vector = (uint32_t)uart4_irq;
             break;
         case UART_5:
-            irq_n = SERCOM5_IRQn;
             vector = (uint32_t)uart5_irq;
             break;
     }
+    irq_n = get_serial_irq_num(obj);
 
     if (enable) {
         switch (irq) {
@@ -816,6 +811,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
+    serial_set_char_match(obj, char_match);
 
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
@@ -896,14 +892,18 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
 
     /* Check for character match event */
     if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
-//		event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+        event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
 
     /* check for final char event */
-    if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
-//	    event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
+    if((obj->rx_buff.length) == 0) {
+        event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     }
 
+    if(event != 0) {
+        serial_rx_abort_asynch(obj);
+        return event & obj->serial.events;
+    }
 }
 
 int serial_irq_handler_asynch(serial_t *obj)
