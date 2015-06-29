@@ -34,6 +34,7 @@
 
 
 uint8_t serial_get_index(serial_t *obj);
+IRQn_Type get_serial_irq_num (serial_t *obj);
 
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -224,7 +225,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
     pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
 
-    sercom_index = _sercom_get_sercom_inst_index(pUSART_S(obj));
     pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
 
@@ -287,6 +287,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 void serial_free(serial_t *obj)
 {
     serial_irq_ids[serial_get_index(obj)] = 0;
+    disable_usart(obj);
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -435,30 +436,25 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
     switch ((int)pUSART_S(obj)) {
         case UART_0:
-            irq_n = SERCOM0_IRQn;
             vector = (uint32_t)uart0_irq;
             break;
         case UART_1:
-            irq_n = SERCOM1_IRQn;
             vector = (uint32_t)uart1_irq;
             break;
         case UART_2:
-            irq_n = SERCOM2_IRQn;
             vector = (uint32_t)uart2_irq;
             break;
         case UART_3:
-            irq_n = SERCOM3_IRQn;
             vector = (uint32_t)uart3_irq;
             break;
         case UART_4:
-            irq_n = SERCOM4_IRQn;
             vector = (uint32_t)uart4_irq;
             break;
         case UART_5:
-            irq_n = SERCOM5_IRQn;
             vector = (uint32_t)uart5_irq;
             break;
     }
+    irq_n = get_serial_irq_num(obj);
 
     disable_usart(obj);
     //TODO : assert for rxflow and txflow pis to be added
