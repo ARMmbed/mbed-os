@@ -34,14 +34,14 @@
 
 extern uint32_t Get_GPIO_BaseAddress(uint32_t port_idx);
 
-//uint32_t gpio_set(PinName pin)
-//{
-//    MBED_ASSERT(pin != (PinName)NC);
+uint32_t gpio_set(PinName pin)
+{
+    MBED_ASSERT(pin != (PinName)NC);
 
-//    //pin_function(pin, WIZ_PIN_DATA(WIZ_MODE_INPUT, WIZ_GPIO_NOPULL, 1));
+    pin_function(pin, WIZ_PIN_DATA(WIZ_MODE_INPUT, WIZ_GPIO_NOPULL, Px_AFSR_AF1));
 
-//    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
-//}
+    return (uint32_t)(1 << ((uint32_t)pin & 0xF)); // Return the pin mask
+}
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
