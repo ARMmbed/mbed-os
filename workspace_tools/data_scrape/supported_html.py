@@ -27,9 +27,6 @@ table, th, td {
 <body>
 <div id="users">
 <input class="search" placeholder="Search" />
-<button class="sort" data-sort="target">
-  Sort by target
-  </button>
 <table id="example" class="dataTable display" cellspacing="0" width="80%">
 """
 
@@ -63,6 +60,22 @@ SCRIPT2 = """]
 };
 
 var featureList = new List('users', options);
+
+var stateArray = new Array(options.valueNames.length);
+
+function runFilter() {
+    featureList.filter(function(item) {
+    for (var i = 0; i<options.valueNames.length; i++) {
+        if (stateArray[i] != undefined) {
+            if (item.values()[options.valueNames[i]] != stateArray[i]) {
+                return false;
+            }
+        }
+    }
+    return true;
+  });
+  return false;
+};
 """
 
 SCRIPT3 = """
@@ -74,15 +87,21 @@ $('#filter-"""
 
 
 FILTER2 = """').click(function() {
-  featureList.filter(function(item) {
-    if (item.values()."""
+  var loc = options.valueNames.indexOf(\""""
 
-FILTER3 = """ == "YES") {
-      return true;
+FILTER3 = """\");
+    if (stateArray[loc] == "YES") {
+        stateArray[loc] = undefined;
+        $(this).css({
+        'text-decoration': 'none'
+    });
     } else {
-      return false;
+        stateArray[loc] = "YES";
+        $(this).css({
+        'text-decoration': 'underline'
+    });
     }
-  });
-  return false;
-});
+    
+    runFilter();
+})
 """
