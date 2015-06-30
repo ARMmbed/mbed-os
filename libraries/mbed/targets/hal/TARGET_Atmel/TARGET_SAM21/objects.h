@@ -20,6 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "gpio_object.h"
+#include "adc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,11 @@ struct serial_s {
     uint32_t events;
 #endif
 };
+
+struct analogin_s {
+    ADCName adc;
+    struct adc_module adc_instance;
+};
 /*
 struct pwmout_s {
     __IO uint32_t *MR;
@@ -67,10 +73,6 @@ struct pwmout_s {
 struct serial_s {
     LPC_UART_TypeDef *uart;
     int index;
-};
-
-struct analogin_s {
-    ADCName adc;
 };
 
 struct dac_s {

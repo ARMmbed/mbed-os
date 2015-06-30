@@ -34,6 +34,14 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
+    {PA04,  ADC0_0, 1},
+    {PA05,  ADC0_1, 1},
+    {PA06,  ADC0_2, 1},
+    {PA07,  ADC0_3, 1},
+    {PA08,  ADC0_4, 1},
+    {PA09,  ADC0_5, 1},
+    {PB02,  ADC0_6, 1},
+    {PB03,  ADC0_7, 1}
 };
 
 /************DAC***************/

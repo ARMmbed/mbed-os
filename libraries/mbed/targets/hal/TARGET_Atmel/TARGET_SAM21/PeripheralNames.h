@@ -40,7 +40,7 @@ typedef enum {
     UART_4 = (int)0x42001800UL,  // Base address of SERCOM4
     UART_5 = (int)0x42001C00UL   // Base address of SERCOM5
 } UARTName;
-/*
+
 typedef enum {
     ADC0_0 = 0,
     ADC0_1,
@@ -49,9 +49,22 @@ typedef enum {
     ADC0_4,
     ADC0_5,
     ADC0_6,
-    ADC0_7
+    ADC0_7/*,
+	ADC0_8,
+	ADC0_9,
+	ADC0_10,
+	ADC0_11,
+	ADC0_12,
+	ADC0_13,
+	ADC0_14,
+	ADC0_15,
+	ADC0_16,
+	ADC0_17,
+	ADC0_18,
+	ADC0_19*/
 } ADCName;
 
+/*
 typedef enum {
     DAC_0 = 0
 } DACName;*/

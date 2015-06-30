@@ -26,7 +26,7 @@ uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName
 //extern const PinMap PinMap_RTC[];
 
 /************ADC***************/
-//extern const PinMap PinMap_ADC[];
+extern const PinMap PinMap_ADC[];
 
 /************DAC***************/
 //extern const PinMap PinMap_DAC[];
