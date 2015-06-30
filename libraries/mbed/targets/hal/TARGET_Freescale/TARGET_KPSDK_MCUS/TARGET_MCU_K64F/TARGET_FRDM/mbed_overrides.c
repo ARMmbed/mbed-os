@@ -34,7 +34,6 @@ void NMI_Handler(void)
 // Provide ethernet devices with a semi-unique MAC address from the UUID
 void mbed_mac_address(char *mac)
 {
-
     // Making a random-as-possible MAC from 3 16 bit seeds and load of XOR'ing
     uint16_t MAC[3]; // 3 16 bits words for the MAC
     uint32_t UUID_LOC_BASE = 0x40048054;
@@ -55,9 +54,16 @@ void mbed_mac_address(char *mac)
     // and bit 9 forced to 1, bit 8 forced to 0
     // Locally administered MAC, reduced conflicts
     // http://en.wikipedia.org/wiki/MAC_address
+    // uint32_t word1 = *(uint32_t *)UUID_LOC_WORD1;
     MAC[2] |= 0x0002;
     MAC[2] &= 0xFFFE;
     
+    mac[0] = MAC[0];
+    mac[1] = MAC[0] >> 8;
+    mac[2] = MAC[1];
+    mac[3] = MAC[1] >> 8;
+    mac[4] = MAC[2];
+    mac[5] = MAC[2] >> 8;    
 }
 
 
