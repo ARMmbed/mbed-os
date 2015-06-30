@@ -101,7 +101,11 @@ typedef enum {
 
     USBTX = PA04,
     USBRX = PA05,
+
     LED1 = PA19,
+    LED2 = PA19,
+    LED3 = PA19,
+    LED4 = PA19,
 
     // Not connected
     NC = (int)0xFFFFFFFF
