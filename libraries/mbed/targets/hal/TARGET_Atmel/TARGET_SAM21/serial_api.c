@@ -20,7 +20,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "usart.h"
-#include "samr21_xplained_pro.h"
 
 #if DEVICE_SERIAL_ASYNCH
 #define pUSART_S(obj)			obj->serial.usart
