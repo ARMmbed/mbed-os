@@ -1525,6 +1525,9 @@ def singletest_in_cli_mode(single_test):
         # Export build results as html report to sparate file
         write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
 
+    # Returns True if no build failures of the test projects or their dependencies
+    return len(single_test.build_failures) == 0
+
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
     """
