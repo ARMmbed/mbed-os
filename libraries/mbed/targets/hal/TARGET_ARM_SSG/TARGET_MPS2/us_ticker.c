@@ -22,9 +22,6 @@
 #define US_TICKER_TIMER_IRQn DUALTIMER_IRQn
 
 int us_ticker_inited = 0;
-uint32_t return_value = 0;
-uint32_t timer_value = 0;
-int delta = 0;
 
 void us_ticker_init(void) {
     if (us_ticker_inited) return;
@@ -46,6 +43,7 @@ void us_ticker_init(void) {
 }
 
 uint32_t us_ticker_read() {
+uint32_t return_value = 0;
     if (!us_ticker_inited)
         us_ticker_init();
     return_value = ((~US_TICKER_TIMER2->TimerValue)/25);
@@ -53,6 +51,8 @@ uint32_t us_ticker_read() {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
+uint32_t timer_value = 0;
+int delta = 0;
     if (!us_ticker_inited)
         us_ticker_init();
     delta = (int)(timestamp - us_ticker_read());
