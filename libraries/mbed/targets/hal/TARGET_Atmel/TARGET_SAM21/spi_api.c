@@ -22,27 +22,12 @@
 #include "pinmap.h"
 #include "sercom.h"
 
-/** Temporary definitions START
- *  Need to implement Pinmux APIs. For now, have hard coded to external SPIs available in SAM21 */
-#ifdef SAMR21
-#define EXT1_SPI_MODULE              SERCOM5
-#define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
-#define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PB02D_SERCOM5_PAD0
-#define EXT1_SPI_SERCOM_PINMUX_PAD1  PINMUX_PB03D_SERCOM5_PAD1
-#define EXT1_SPI_SERCOM_PINMUX_PAD2  PINMUX_PB22D_SERCOM5_PAD2
-#define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PB23D_SERCOM5_PAD3
-#define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM5_DMAC_ID_TX
-#define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM5_DMAC_ID_RX
-#elif SAMD21
-#define EXT1_SPI_MODULE              SERCOM0
-#define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
-#define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PA04D_SERCOM0_PAD0
-#define EXT1_SPI_SERCOM_PINMUX_PAD1  PINMUX_PA05D_SERCOM0_PAD1
-#define EXT1_SPI_SERCOM_PINMUX_PAD2  PINMUX_PA06D_SERCOM0_PAD2
-#define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PA07D_SERCOM0_PAD3
-#define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM0_DMAC_ID_TX
-#define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM0_DMAC_ID_RX
-#endif
+#include "pinmap_function.h"
+
+#define SPI_MOSI_INDEX	0
+#define SPI_MISO_INDEX	1
+#define SPI_SCLK_INDEX	2
+#define SPI_SSEL_INDEX	3
 
 /** Default pinmux. */
 #  define PINMUX_DEFAULT 0
@@ -221,6 +206,59 @@ static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
     return true;
 }
 
+static uint32_t spi_find_mux_settings(spi_t *obj)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    uint8_t i_dipo;
+    uint8_t i_dopo;
+    uint32_t dipo = 0;
+    uint32_t dopo = 0;
+    uint32_t mux_pad;
+
+    uint32_t mux_settings = 0;
+
+    uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
+
+    if (pSPI_S(obj)->mode == SPI_MODE_MASTER) {
+        i_dipo = SPI_MISO_INDEX;
+        i_dopo = SPI_MOSI_INDEX;
+    } else {
+        i_dipo = SPI_MOSI_INDEX;
+        i_dopo = SPI_MISO_INDEX;
+    }
+
+    /* Find MUX setting */
+    if (pSPI_S(obj)->pins[i_dipo] != NC) {
+        /* Set Data input MUX padding for master */
+        mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dipo], sercom_index);
+        if (mux_pad != NC) {
+            /* MUX pad value is same as DIPO value */
+            dipo = mux_pad;
+            mux_settings |= ((dipo << SERCOM_SPI_CTRLA_DIPO_Pos) & SERCOM_SPI_CTRLA_DIPO_Msk);
+        }
+    }
+
+    if (pSPI_S(obj)->pins[i_dopo] != NC) {
+        /* Set Data output MUX padding for master */
+        mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dopo], sercom_index);
+        if (mux_pad != NC) {
+            if (mux_pad != 0) {
+                dopo = mux_pad - 1;
+            } else {
+                if (3 == pinmap_pad_sercom(pSPI_S(obj)->pins[SPI_SCLK_INDEX], sercom_index)) {
+                    dopo = 3;
+                } else {
+                    dopo = 0;
+                }
+            }
+            mux_settings |= ((dopo << SERCOM_SPI_CTRLA_DOPO_Pos) & SERCOM_SPI_CTRLA_DOPO_Msk);
+        }
+    }
+
+    return mux_settings;
+}
+
 /**
  * \defgroup GeneralSPI SPI Configuration Functions
  * @{
@@ -247,9 +285,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         g_sys_init = 1;
     }
 
-    /* TODO: Calculate SERCOM instance from pins */
-    /* TEMP: Giving external SPI module value of SAMR21 for now */
-    pSPI_SERCOM(obj) = EXT1_SPI_MODULE;
+    /* Calculate SERCOM instance from pins */
+    uint32_t sercom_index = pinmap_find_sercom(mosi, miso, sclk, ssel);
+    pSPI_SERCOM(obj) = pinmap_peripheral_sercom(NC, sercom_index);
 
     /* Disable SPI */
     spi_disable(obj);
@@ -258,7 +296,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (_SPI(obj).CTRLA.reg & SERCOM_SPI_CTRLA_SWRST) {
         return;
     }
-    uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
+
     uint32_t pm_index, gclk_index;
 #if (SAML21)
     if (sercom_index == 5) {
@@ -309,17 +347,20 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
 
-    uint32_t pad_pinmuxes[] = {
-        EXT1_SPI_SERCOM_PINMUX_PAD0, EXT1_SPI_SERCOM_PINMUX_PAD1,
-        EXT1_SPI_SERCOM_PINMUX_PAD2, EXT1_SPI_SERCOM_PINMUX_PAD3
-    };
-
+    uint32_t mux_func;
+    pSPI_S(obj)->pins[SPI_MOSI_INDEX] = mosi;
+    pSPI_S(obj)->pins[SPI_MISO_INDEX] = miso;
+    pSPI_S(obj)->pins[SPI_SCLK_INDEX] = sclk;
+    pSPI_S(obj)->pins[SPI_SSEL_INDEX] = ssel;
     /* Configure the SERCOM pins according to the user configuration */
     for (uint8_t pad = 0; pad < 4; pad++) {
-        uint32_t current_pinmux = pad_pinmuxes[pad];
-        if (current_pinmux != PINMUX_UNUSED) {
-            pin_conf.mux_position = current_pinmux & 0xFFFF;
-            system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+        uint32_t current_pin = pSPI_S(obj)->pins[pad];
+        if (current_pin != NC) {
+            mux_func = pinmap_function_sercom(current_pin, sercom_index);
+            if (NC != mux_func) {
+                system_pinmux_pin_set_config(current_pin, &pin_conf);
+                pin_function(current_pin, mux_func);
+            }
         }
     }
 
@@ -333,8 +374,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
     _SPI(obj).BAUD.reg = (uint8_t)baud;
 
-    /* Set MUX setting */
-    ctrla |= EXT1_SPI_SERCOM_MUX_SETTING; /* TODO: Change this to appropriate Settings */
+    /* TODO: Find MUX settings */
+    ctrla |= spi_find_mux_settings(obj);
 
     /* Set SPI character size */
     ctrlb |= SERCOM_SPI_CTRLB_CHSIZE(0);
@@ -377,37 +418,36 @@ void spi_free(spi_t *obj)
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
+    PinMode pull_mode;
     /* Disable SPI */
     spi_disable(obj);
+
+    uint32_t ctrla = _SPI(obj).CTRLA.reg;
+    uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
 
     if (slave) {
         /* Set the SERCOM in SPI mode */
         _SPI(obj).CTRLA.bit.MODE = 0x2;
         pSPI_S(obj)->mode = SPI_MODE_SLAVE;
-
-        struct system_pinmux_config pin_conf;
-        system_pinmux_get_config_defaults(&pin_conf);
-        pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-
-        uint32_t pad_pinmuxes[] = {
-            EXT1_SPI_SERCOM_PINMUX_PAD0, EXT1_SPI_SERCOM_PINMUX_PAD1,
-            EXT1_SPI_SERCOM_PINMUX_PAD2, EXT1_SPI_SERCOM_PINMUX_PAD3
-        };
-
-        /* Configure the SERCOM pins according to the user configuration */
-        for (uint8_t pad = 0; pad < 4; pad++) {
-            uint32_t current_pinmux = pad_pinmuxes[pad];
-            if (current_pinmux != PINMUX_UNUSED) {
-                pin_conf.mux_position = current_pinmux & 0xFFFF;
-                system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
-            }
-        }
+        pull_mode = PullNone;
     } else {
-        /* Already in SPI master mode */
+        /* Set the SERCOM in SPI mode */
+        _SPI(obj).CTRLA.bit.MODE = 0x3;
+        pSPI_S(obj)->mode = SPI_MODE_MASTER;
+        pull_mode = PullUp;
     }
 
-    /* TODO: Change MUX settings to appropriate value */
+    /* Change pull mode of pins */
+    for (uint8_t pad = 0; pad < 4; pad++) {
+        if (pSPI_S(obj)->pins[pad] != NC) {
+            pin_mode(pSPI_S(obj)->pins[pad], pull_mode);
+        }
+    }
+
+    /* Change MUX settings */
+    ctrla &= ~(SERCOM_SPI_CTRLA_DIPO_Msk | SERCOM_SPI_CTRLA_DOPO_Msk);
+    ctrla |= spi_find_mux_settings(obj);
+    _SPI(obj).CTRLA.reg = ctrla;
 
     /* Set SPI Frame size - only 8-bit and 9-bit supported now */
     _SPI(obj).CTRLB.bit.CHSIZE = (bits > 8)? 1 : 0;
@@ -896,9 +936,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     uint32_t transfer_event = 0;
-    uint32_t bytes_to_transfer = 0;
-
-    uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
     /*if (obj->spi.dma_usage == DMA_USAGE_NEVER) {** TEMP: Commented as DMA is not implemented now */
     /* IRQ method */

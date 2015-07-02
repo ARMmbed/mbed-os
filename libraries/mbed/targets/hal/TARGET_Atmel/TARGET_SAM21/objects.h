@@ -92,6 +92,7 @@ struct i2c_s {
 struct spi_s {
     Sercom *spi;
     uint8_t mode;
+    PinName pins[4];
 #if DEVICE_SPI_ASYNCH
     uint8_t status;
     uint32_t mask;

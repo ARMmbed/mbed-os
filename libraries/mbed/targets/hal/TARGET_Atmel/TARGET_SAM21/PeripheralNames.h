@@ -27,6 +27,9 @@ extern "C" {
 #define _SERCOM_SPI_NAME(n, unused) \
                             SPI##n,
 
+#define _SERCOM_PAD_NAME(n, pad) \
+				SERCOM##n##_PAD##pad = ((n & 0xF) | ((pad & 0xF) << 4)),
+
 #define _SERCOM_I2C_NAME(n, unused) \
                             I2C##n,
 
@@ -76,6 +79,20 @@ typedef enum {
 typedef enum {
     MREPEAT(SERCOM_INST_NUM, _SERCOM_I2C_NAME, ~)
 } I2CName;
+
+typedef enum {
+    /* Pad 0 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 0)
+
+    /* Pad 1 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 1)
+
+    /* Pad 2 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 2)
+
+    /* Pad 3 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 3)
+} SercomPadName;
 /*
 typedef enum {
     PWM_1 = 1,

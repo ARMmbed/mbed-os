@@ -48,6 +48,62 @@ const PinMap PinMap_ADC[] = {
 const PinMap PinMap_DAC[] = {
 };
 
+/************SERCOM Pins***********/
+const PinMap PinMap_SERCOM_PAD[] = {
+    {PA04, SERCOM0_PAD0, 3},
+    {PA05, SERCOM0_PAD1, 3},
+    {PA06, SERCOM0_PAD2, 3},
+    {PA07, SERCOM0_PAD3, 3},
+    {PA08, SERCOM0_PAD0, 2},
+    {PA09, SERCOM0_PAD1, 2},
+    {PA12, SERCOM2_PAD0, 2},
+    {PA13, SERCOM2_PAD1, 2},
+    {PA14, SERCOM2_PAD2, 2},
+    {PA15, SERCOM2_PAD3, 2},
+    {PA16, SERCOM1_PAD0, 2},
+    {PA17, SERCOM1_PAD1, 2},
+    {PA18, SERCOM1_PAD2, 2},
+    {PA19, SERCOM1_PAD3, 2},
+    {PA22, SERCOM3_PAD0, 2},
+    {PA23, SERCOM3_PAD1, 2},
+    {PA24, SERCOM3_PAD2, 2},
+    {PA25, SERCOM3_PAD3, 2},
+    {PA27, SERCOM3_PAD0, 5},
+    {PA28, SERCOM3_PAD1, 5},
+    {PB02, SERCOM5_PAD0, 3},
+    {PB03, SERCOM5_PAD1, 3},
+    {PB22, SERCOM5_PAD2, 3},
+    {PB23, SERCOM5_PAD3, 3},
+    {PB30, SERCOM4_PAD2, 5},
+    {PB31, SERCOM4_PAD1, 5},
+    {PC18, SERCOM4_PAD3, 5},
+    {PC19, SERCOM4_PAD0, 5},
+
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+/*******SERCOM Pins extended*******/
+const PinMap PinMap_SERCOM_PADEx[] = {
+    {PA00, SERCOM1_PAD0, 3},
+    {PA01, SERCOM1_PAD1, 3},
+    {PA08, SERCOM2_PAD0, 3},
+    {PA09, SERCOM2_PAD1, 3},
+    {PA16, SERCOM3_PAD0, 3},
+    {PA17, SERCOM3_PAD1, 3},
+    {PA18, SERCOM3_PAD2, 3},
+    {PA19, SERCOM3_PAD3, 3},
+    {PA22, SERCOM5_PAD0, 3},
+    {PA23, SERCOM5_PAD1, 3},
+    {PA24, SERCOM5_PAD2, 3},
+    {PA25, SERCOM5_PAD3, 3},
+    {PA30, SERCOM1_PAD2, 3},
+    {PA31, SERCOM1_PAD3, 3},
+
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
 };
@@ -432,6 +488,7 @@ uint32_t find_sercom_pinmux (struct pin_values* PinValues)
             }
             break;
     }
+    return NC;
 }
 uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName chipsel)
 {

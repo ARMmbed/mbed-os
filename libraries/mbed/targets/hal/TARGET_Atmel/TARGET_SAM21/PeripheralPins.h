@@ -39,6 +39,9 @@ extern const PinMap PinMap_ADC[];
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
 
+extern const PinMap PinMap_SERCOM_PAD[];
+extern const PinMap PinMap_SERCOM_PADEx[];
+
 /************SPI***************/
 //extern const PinMap PinMap_SPI_SCLK[];
 //extern const PinMap PinMap_SPI_MOSI[];
