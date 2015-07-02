@@ -27,6 +27,12 @@
 #include "rtos.h"
 #include "lwip/netif.h"
 
+/** \brief DP83848 PHY status definitions */
+#define DP8_REMOTEFAULT    (1 << 6)   /**< Remote fault */
+#define DP8_FULLDUPLEX     (1 << 2)   /**< 1=full duplex */
+#define DP8_SPEED10MBPS    (1 << 1)   /**< 1=10MBps speed */
+#define DP8_VALID_LINK     (1 << 0)   /**< 1=Link active */
+
  /** Interface using Ethernet to connect to an IP-based network
  *
  */
@@ -79,6 +85,28 @@ public:
    * \return a pointer to a string containing the Network mask
    */
   static char* getNetworkMask();
+  
+  /** Set the network name for this device. 
+  *
+  * Apply this before calling 'connect'.
+  *
+  * \example
+  * EthernetInterface eth;
+  * ...
+  *     if (0 == eth.init()) {
+  *         eth.setName("Sensor 3");
+  *         if (0 == eth.connect()) {
+  *             ...
+  *
+  * \param[in] myname is the name to assign for this node. 
+  *        Only the first 32 characters will be used if the 
+  *        name is longer.
+  *        Only '0'-'9', 'A'-'Z', 'a'-'z' are accepted,
+  *        any others are converted to '-'.
+  * \return 0 on success, a negative number on failure.
+  */
+  static int setName(const char * myname);
+
 };
 
 #include "TCPSocketConnection.h"
