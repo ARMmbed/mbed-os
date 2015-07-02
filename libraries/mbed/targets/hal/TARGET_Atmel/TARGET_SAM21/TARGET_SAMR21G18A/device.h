@@ -20,7 +20,7 @@
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
 #define DEVICE_ANALOGIN         1
 #define DEVICE_ANALOGOUT        0
