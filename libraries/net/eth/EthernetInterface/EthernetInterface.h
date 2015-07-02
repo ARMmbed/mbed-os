@@ -107,6 +107,38 @@ public:
   */
   static int setName(const char * myname);
 
+  /** is_connected
+  *
+  * Determine if the interface is up and connected.
+  * 
+  * \example
+  *      if (eth.is_connected())
+  *         ethLED = 1;
+  *      else
+  *         ethLED = 0;
+  *
+  * \return true if connected, false if not connected.
+  */
+  static bool is_connected(void);
+
+  /** get_transmission_status - full or half duplex.
+  *
+  * \return 1 = 1/2 (half) duplex, 2 = 2/2 (full) duplex
+  */
+  int get_transmission_status(void);  // 1 = 1/2 duplex, 2 = full duplex
+ 
+  /** get the speed of the connection.
+  *
+  * \return 10 or 100 Mb
+  */
+  int get_connection_speed(void);     // 10 or 100 Mb
+ 
+  /** get the current value in the MII data register.
+  *
+  * \return mii register value
+  */
+  uint32_t mii_read_data(void);
+  
 };
 
 #include "TCPSocketConnection.h"
