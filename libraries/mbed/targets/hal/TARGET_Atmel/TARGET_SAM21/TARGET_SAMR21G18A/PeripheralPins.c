@@ -34,14 +34,14 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {PA04,  ADC0_0, 1},
-    {PA05,  ADC0_1, 1},
-    {PA06,  ADC0_2, 1},
-    {PA07,  ADC0_3, 1},
-    {PA08,  ADC0_4, 1},
-    {PA09,  ADC0_5, 1},
-    {PB02,  ADC0_6, 1},
-    {PB03,  ADC0_7, 1}
+    {PA04,  ADC_0, 1},
+    {PA05,  ADC_1, 1},
+    {PA06,  ADC_2, 1},
+    {PA07,  ADC_3, 1},
+    {PA08,  ADC_4, 1},
+    {PA09,  ADC_5, 1},
+    {PB02,  ADC_6, 1},
+    {PB03,  ADC_7, 1}
 };
 
 /************DAC***************/
@@ -135,6 +135,64 @@ const PinMap PinMap_SPI_SSEL[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
+};
+
+/**********EXTINT*************/
+const PinMap PinMap_EXTINT[] = {
+    {PA16,  EXTINT_0, 0},
+    {PB00,  EXTINT_0, 0},
+    {PB16,  EXTINT_0, 0},
+    {PA00,  EXTINT_0, 0},
+
+    {PA17,  EXTINT_1, 0},
+    {PB17,  EXTINT_1, 0},
+    {PA01,  EXTINT_1, 0},
+
+    {PA18,  EXTINT_2, 0},
+    {PA02,  EXTINT_2, 0},
+
+    {PA19,  EXTINT_3, 0},
+    {PB03,  EXTINT_3, 0},
+
+    {PA04,  EXTINT_4, 0},
+    {PA20,  EXTINT_4, 0},
+
+    {PA05,  EXTINT_5, 0},
+
+    {PA06,  EXTINT_6, 0},
+    {PA22,  EXTINT_6, 0},
+    {PB22,  EXTINT_6, 0},
+
+    {PA07,  EXTINT_7, 0},
+    {PA23,  EXTINT_7, 0},
+    {PB28,  EXTINT_7, 0},
+
+    {PA28,  EXTINT_8, 0},
+    {PB08,  EXTINT_8, 0},
+
+    {PA09,  EXTINT_9, 0},
+    {PB09,  EXTINT_9, 0},
+
+    {PA10,  EXTINT_10, 0},
+    {PA30,  EXTINT_10, 0},
+
+    {PA11,  EXTINT_11, 0},
+    {PA31,  EXTINT_11, 0},
+
+    {PA12,  EXTINT_12, 0},
+    {PA24,  EXTINT_12, 0},
+
+    {PA13,  EXTINT_13, 0},
+    {PA25,  EXTINT_13, 0},
+
+    {PB14,  EXTINT_14, 0},
+    {PB30,  EXTINT_14, 0},
+    {PA14,  EXTINT_14, 0},
+
+    {PA15,  EXTINT_15, 0},
+    {PA27,  EXTINT_15, 0},
+    {PB15,  EXTINT_15, 0},
+    {PB31,  EXTINT_15, 0}
 };
 
 /********SERCOM MAPPING*********/

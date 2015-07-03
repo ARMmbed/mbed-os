@@ -45,27 +45,34 @@ typedef enum {
 } UARTName;
 
 typedef enum {
-    ADC0_0 = 0,
-    ADC0_1,
-    ADC0_2,
-    ADC0_3,
-    ADC0_4,
-    ADC0_5,
-    ADC0_6,
-    ADC0_7/*,
-	ADC0_8,
-	ADC0_9,
-	ADC0_10,
-	ADC0_11,
-	ADC0_12,
-	ADC0_13,
-	ADC0_14,
-	ADC0_15,
-	ADC0_16,
-	ADC0_17,
-	ADC0_18,
-	ADC0_19*/
+    ADC_0 = 0,
+    ADC_1,
+    ADC_2,
+    ADC_3,
+    ADC_4,
+    ADC_5,
+    ADC_6,
+    ADC_7
 } ADCName;
+
+typedef enum {
+    EXTINT_0 = 0,
+    EXTINT_1,
+    EXTINT_2,
+    EXTINT_3,
+    EXTINT_4,
+    EXTINT_5,
+    EXTINT_6,
+    EXTINT_7,
+    EXTINT_8,
+    EXTINT_9,
+    EXTINT_10,
+    EXTINT_11,
+    EXTINT_12,
+    EXTINT_13,
+    EXTINT_14,
+    EXTINT_15
+} EXTINTName;
 
 /*
 typedef enum {

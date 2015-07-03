@@ -29,38 +29,38 @@ extern uint8_t g_sys_init;
 
 static inline void pinmux_get_current_config(PinName pin, struct system_pinmux_config *const config)
 {
-	MBED_ASSERT(pin != (PinName)NC);
-	uint32_t pin_index = pin % 32;
-	uint32_t pin_mask = (uint32_t)(1UL << pin_index);
-	
-	PortGroup *const port = system_pinmux_get_group_from_gpio_pin(pin);
-	MBED_ASSERT(port);
-	
-	config->mux_position = system_pinmux_pin_get_mux_position(pin);
-	
-	if (port->PINCFG[pin_index].reg & PORT_PINCFG_INEN) {
-		if (port->DIR.reg & pin_mask) {
-			config->direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT_WITH_READBACK;
-			config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-		} else {
-			config->direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-			if (port->PINCFG[pin_index].reg & PORT_PINCFG_PULLEN) {
-				if (port->OUT.reg & pin_mask) {
-					config->input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
-				} else {
-					config->input_pull = SYSTEM_PINMUX_PIN_PULL_DOWN;
-				}
-			} else {
-				config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-			}
-		}
-	} else {
-		config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-		config->direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
-	}
-	
-	/* Not relevant for now */
-	config->powersave = false;
+    MBED_ASSERT(pin != (PinName)NC);
+    uint32_t pin_index = pin % 32;
+    uint32_t pin_mask = (uint32_t)(1UL << pin_index);
+
+    PortGroup *const port = system_pinmux_get_group_from_gpio_pin(pin);
+    MBED_ASSERT(port);
+
+    config->mux_position = system_pinmux_pin_get_mux_position(pin);
+
+    if (port->PINCFG[pin_index].reg & PORT_PINCFG_INEN) {
+        if (port->DIR.reg & pin_mask) {
+            config->direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT_WITH_READBACK;
+            config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+        } else {
+            config->direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+            if (port->PINCFG[pin_index].reg & PORT_PINCFG_PULLEN) {
+                if (port->OUT.reg & pin_mask) {
+                    config->input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+                } else {
+                    config->input_pull = SYSTEM_PINMUX_PIN_PULL_DOWN;
+                }
+            } else {
+                config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+            }
+        }
+    } else {
+        config->input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+        config->direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
+    }
+
+    /* Not relevant for now */
+    config->powersave = false;
 }
 
 /** Change the MUX padding of input pin
@@ -72,14 +72,14 @@ static inline void pinmux_get_current_config(PinName pin, struct system_pinmux_c
  */
 void pin_function(PinName pin, int function)
 {
-	MBED_ASSERT(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
-	struct system_pinmux_config pin_conf;
+    struct system_pinmux_config pin_conf;
 
-	pinmux_get_current_config(pin, &pin_conf);
-	pin_conf.mux_position = function;
+    pinmux_get_current_config(pin, &pin_conf);
+    pin_conf.mux_position = function;
 
-	system_pinmux_pin_set_config(pin, &pin_conf);
+    system_pinmux_pin_set_config(pin, &pin_conf);
 }
 
 /** Change the pin pull mode
@@ -91,18 +91,18 @@ void pin_function(PinName pin, int function)
  */
 void pin_mode(PinName pin, PinMode mode)
 {
-	MBED_ASSERT(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
-	struct system_pinmux_config pin_conf;
+    struct system_pinmux_config pin_conf;
 
-	pinmux_get_current_config(pin, &pin_conf);
-	if (mode == PullUp) {
-		pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
-	} else if (mode == PullDown) {
-		pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_DOWN;
-	} else {
-		pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-	}
+    pinmux_get_current_config(pin, &pin_conf);
+    if (mode == PullUp) {
+        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+    } else if (mode == PullDown) {
+        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_DOWN;
+    } else {
+        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    }
 
-	system_pinmux_pin_set_config(pin, &pin_conf);
+    system_pinmux_pin_set_config(pin, &pin_conf);
 }

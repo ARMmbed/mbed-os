@@ -21,6 +21,7 @@
 #include "PeripheralNames.h"
 #include "gpio_object.h"
 #include "adc.h"
+#include "extint.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +31,8 @@ struct gpio_irq_s {
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
+    uint32_t int_ch;
+    struct extint_chan_conf config_extint_chan;
 };
 
 struct port_s {
