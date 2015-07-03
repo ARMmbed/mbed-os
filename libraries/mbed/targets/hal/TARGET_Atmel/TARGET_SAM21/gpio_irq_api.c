@@ -24,101 +24,20 @@
 #include "PeripheralPins.h"
 #include "port.h"
 
+#define IRQ_RISE_POSITION 1
+#define IRQ_FALL_POSITION 2
 #define CHANNEL_NUM 16
 #define pEXT_CONF(obj) (obj->config_extint_chan)
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-uint8_t ext_int_pins[EIC_NUMBER_OF_INTERRUPTS] = {0xFF};
-uint8_t fallcount = 0;
-uint8_t risecount = 0;
-
-int get_extint_channel(PinName pin)
-{
-    switch (pin) {
-        case PA16:
-        case PB00:
-        case PB16:
-        case PA00:
-            return 0;
-
-        case PA17:
-        case PB17:
-        case PA01:
-            return 1;
-
-        case PA18:
-        case PA02:
-            return 2;
-
-        case PA19:
-        case PB03:
-            return 3;
-
-        case PA04:
-        case PA20:
-            return 4;
-
-        case PA05:
-            return 5;
-
-        case PA06:
-        case PA22:
-        case PB22:
-            return 6;
-
-        case PA07:
-        case PA23:
-        case PB28:
-            return 7;
-
-        case PA28:
-        case PB08:
-            return 8;
-
-        case PA09:
-        case PB09:
-            return 9;
-
-        case PA10:
-        case PA30:
-            return 10;
-
-        case PA11:
-        case PA31:
-            return 11;
-
-        case PA12:
-        case PA24:
-            return 12;
-
-        case PA13:
-        case PA25:
-            return 13;
-
-        case PB14:
-        case PB30:
-        case PA14:
-            return 14;
-
-        case PA15:
-        case PA27:
-        case PB15:
-        case PB31:
-            return 15;
-
-        default :
-            return 0xFF;
-    }
-}
+uint8_t ext_int_pins[EIC_NUMBER_OF_INTERRUPTS] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 uint32_t find_peripheral_index (PinName pin, const PinMap* map)
 {
-    uint8_t count = 0;
     while (map->pin != NC) {
         if (map->pin == pin)
-            return map[count].peripheral;
+            return map->peripheral;
         map++;
-        count++;
     }
     return (uint32_t)NC;
 }
@@ -154,10 +73,8 @@ void gpio_irq(void)
             mask = gpio_set(ext_int_pins[current_channel]);
             if ((port_base->IN.reg & mask) != 0) {
                 event = IRQ_RISE;
-                risecount++;
             } else {
                 event = IRQ_FALL;
-                fallcount++;
             }
             if (event != IRQ_NONE) {
                 index = find_pin_index(ext_int_pins[current_channel], PinMap_EXTINT);
@@ -181,8 +98,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     pEXT_CONF(obj).gpio_pin           = (uint32_t)pin;
     pEXT_CONF(obj).gpio_pin_mux       = 0;   // mux setting for ext int is 0
     pEXT_CONF(obj).gpio_pin_pull      = EXTINT_PULL_NONE;
-    pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_BOTH;
-    int_channel = get_extint_channel(pin);
+    pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_NONE;
+    int_channel = find_peripheral_index(pin, PinMap_EXTINT);
     if (int_channel != 0xFF) {
         extint_chan_set_config(int_channel, &pEXT_CONF(obj));
     }
@@ -206,24 +123,45 @@ void gpio_irq_free(gpio_irq_t *obj)
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     Eic *const eic = _extint_get_eic_from_channel(obj->ch);
-
     if (enable) {
-        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_BOTH;
-        extint_chan_set_config(obj->ch, &pEXT_CONF(obj));
+        if (event == IRQ_RISE) {
+            obj->irqmask |= IRQ_RISE_POSITION;
+        } else if (event == IRQ_FALL) {
+            obj->irqmask |= IRQ_FALL_POSITION;
+        }
         eic->INTENSET.reg = (1UL << obj->ch);
     } else {
-        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_BOTH;
-        extint_chan_set_config(obj->ch, &pEXT_CONF(obj));
-//		channel_ids[obj->ch] = 0;
+        if (event == IRQ_RISE) {
+            obj->irqmask &= ~IRQ_RISE_POSITION;
+        } else if (event == IRQ_FALL) {
+            obj->irqmask &= ~IRQ_FALL_POSITION;
+        }
     }
+
+    if (obj->irqmask == (IRQ_RISE_POSITION | IRQ_FALL_POSITION)) {
+        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_BOTH;
+    } else if (obj->irqmask == IRQ_RISE_POSITION) {
+        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_RISING;
+    } else if (obj->irqmask == IRQ_FALL_POSITION) {
+        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_FALLING;
+    } else {
+        pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_NONE;
+        eic->INTENCLR.reg = (1UL << obj->ch);
+    }
+
+    extint_chan_set_config(obj->ch, &pEXT_CONF(obj));
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-//	NVIC_EnableIRQ(EIC_IRQn);
+    Eic *const eic = _extint_get_eic_from_channel(obj->ch);
+    NVIC_EnableIRQ(EIC_IRQn);
+    eic->INTENSET.reg = (1UL << obj->ch);
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-//	NVIC_DisableIRQ(EIC_IRQn);
+    Eic *const eic = _extint_get_eic_from_channel(obj->ch);
+    eic->INTENCLR.reg = (1UL << obj->ch);
+    NVIC_DisableIRQ(EIC_IRQn);
 }

@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
+    uint8_t irqmask;
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
