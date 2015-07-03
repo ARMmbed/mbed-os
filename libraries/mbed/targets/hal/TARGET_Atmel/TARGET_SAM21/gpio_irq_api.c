@@ -97,7 +97,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     extint_chan_get_config_defaults(&pEXT_CONF(obj));
     pEXT_CONF(obj).gpio_pin           = (uint32_t)pin;
     pEXT_CONF(obj).gpio_pin_mux       = 0;   // mux setting for ext int is 0
-    pEXT_CONF(obj).gpio_pin_pull      = EXTINT_PULL_NONE;
+    pEXT_CONF(obj).gpio_pin_pull      = EXTINT_PULL_UP;
     pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_NONE;
     int_channel = find_peripheral_index(pin, PinMap_EXTINT);
     if (int_channel != 0xFF) {
