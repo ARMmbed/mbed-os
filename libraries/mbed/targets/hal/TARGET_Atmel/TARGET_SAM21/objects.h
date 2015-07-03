@@ -67,6 +67,7 @@ struct serial_s {
 struct analogin_s {
     ADCName adc;
     struct adc_module adc_instance;
+    struct adc_config config_adc;
 };
 /*
 struct pwmout_s {
