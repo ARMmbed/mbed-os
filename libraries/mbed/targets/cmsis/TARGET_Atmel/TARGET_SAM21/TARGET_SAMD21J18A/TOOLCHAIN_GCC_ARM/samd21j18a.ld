@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief Linker script for running in internal FLASH on the SAMD21J18A
+ * \brief Linker script for running in internal FLASH on the SAMR21G18A
  *
  * Copyright (c) 2014 Atmel Corporation. All rights reserved.
  *
@@ -49,8 +49,8 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  rom    (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
-  ram    (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
+  rom (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
+  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
@@ -118,6 +118,13 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;
+	
+	.dvectors (NOLOAD) :
+	{
+		_sdvectors = .;
+		. = . + 0xB0;
+		_edvectors = .;
+	} > ram
 
     .relocate : AT (_etext)
     {
@@ -142,6 +149,13 @@ SECTIONS
         _ezero = .;
     } > ram
 
+	.heap (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__end__ = . ;
+		. = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
+	} > ram
+
     /* stack section */
     .stack (NOLOAD):
     {
@@ -153,5 +167,4 @@ SECTIONS
     } > ram
 
     . = ALIGN(4);
-    _end = . ;
 }
