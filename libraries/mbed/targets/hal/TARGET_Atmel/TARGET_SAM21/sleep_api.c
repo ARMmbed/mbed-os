@@ -30,8 +30,8 @@
  */
 void sleep(void)
 {
-	system_set_sleepmode(SYSTEM_SLEEPMODE_IDLE_2);
-	system_sleep();
+    system_set_sleepmode(SYSTEM_SLEEPMODE_IDLE_2);
+    system_sleep();
 }
 
 /** Send the device to deep sleep
@@ -44,6 +44,6 @@ void sleep(void)
  */
 void deepsleep(void)
 {
-	system_set_sleepmode(SYSTEM_SLEEPMODE_STANDBY);
-	system_sleep();
+    system_set_sleepmode(SYSTEM_SLEEPMODE_STANDBY);
+    system_sleep();
 }
