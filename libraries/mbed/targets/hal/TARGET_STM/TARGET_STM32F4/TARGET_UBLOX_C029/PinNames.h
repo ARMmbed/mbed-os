@@ -126,7 +126,7 @@ typedef enum {
     P_A17   = PD_12,  // GPIO-3
     P_A18   = PA_3,   // UART-DSR
     // B
-    // C
+	  // C
     P_C5    = PG_4,   // SPI-IRQ
     P_C6    = PE_13,  // SPI-MISO
     P_C8    = PE_12,  // Res
@@ -139,7 +139,7 @@ typedef enum {
     P_C16   = PF_7,   // GPIO-7
     P_C17   = PF_1,   // I2C-SCL
     P_C18   = PF_0,   // I2C-SDA
-    // D
+	  // D
     P_D1    = PB_12,  // RMII-TXD0
     P_D2    = PB_13,  // RMII-TXD1
     P_D3    = PB_11,  // RMII-TXEN
@@ -152,27 +152,28 @@ typedef enum {
     P_TP7   = PA_13,  // TMS  SWDIO
     P_TP8   = PA_15,  // TDI
     P_TP9   = PA_14,  // TCK  SWCLK
-    P_TP10  = PB_3,   // TDO  
+    P_TP10  = PB_3,   // TDO 
+    //P_TP11,         // BOOT0 		
 
     // Board Pins
     // A0-A5
-    A0      = PF_7,
-    A1      = PF_6,
-    A2      = PA_3,
-    A3      = PC_2,
+    A0      = PF_6,  // AI4
+    A1      = PA_3,  // AI3
+    A2      = PC_2,  // AI12
+    A3      = PF_7,  // LPOCLK, not AI
     A4      = PG_4,  // not AI
     A5      = PB_3,  // not AI
     // D0-D15
-    D0      = PD_9,   // RX
-    D1      = PD_8,   // TX
-    D2      = PA_10,  // RX
-    D3      = PA_11,
-    D4      = PA_12,
+    D0      = PD_9,   // UART3-RX
+    D1      = PD_8,   // UART3-TX
+    D2      = PA_10,  // UART1-RX
+    D3      = PA_11,  // CAN1-RX
+    D4      = PA_12,  // CAN1-TX
     D5      = PA_15,
-    D6      = PD_11,
-    D7      = PD_12,
-    D8      = PA_9,   // TX
-    D9      = PE_9,   // shared with SW1
+    D6      = PD_11,  // UART3-CTS
+    D7      = PD_12,  // UART3-RTS
+    D8      = PA_9,   // UART1-TX
+    D9      = PE_9,   // SDCard-CS
     D10     = PE_11,  // SSEL
     D11     = PE_14,  // MOSI
     D12     = PE_13,  // MISO
@@ -180,16 +181,17 @@ typedef enum {
     D14     = PF_0,   // SDA
     D15     = PF_1,   // SCL
     // Internal
-    LED1    = PE_0,   // Red
-    LED2    = PB_6,   // Green / shared with SW1
-    LED_RED = PE_0,   // Red
-    LED_GRE = PB_6,   // Green / shared with SW1
+    LED_RED = PE_0,   // Red / Mode
+    LED_GRE = PB_6,   // Green / Switch-1
     LED_BLU = PB_8,   // Blue
-    SW0     = PF_2,	  // Switch 0
-    SW1     = PB_6,   // Switch 1 / shared with LED_GRE
-    SDCS    = PE_9,   // SD Card CS / shared with D9
-    USBRXD  = PD_9,   // RX
-    USBTXD  = PD_8,   // TX
+    SW0     = PF_2,   // Switch-0
+    SW1     = PB_6,   // Green / Switch-1
+    // ST-Link
+    USBRXD  = PD_9,
+    USBTXD  = PD_8,
+    SWDIO   = PA_15, 
+    SWCLK   = PA_14, 
+    NTRST   = PB_4,  
 
     // Not connected
     NC = (int)0xFFFFFFFF
