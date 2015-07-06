@@ -95,6 +95,14 @@ typedef enum {
     I2C_3 
 } I2CName;
 
+typedef enum {
+    CAN_0 = 0,
+    CAN_1,
+    CAN_2,
+    CAN_3, 
+    CAN_4
+} CANName;
+
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX

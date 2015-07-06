@@ -37,7 +37,7 @@ typedef enum {
 } EP_STATUS;
 
 /* Include configuration for specific target */
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460) || defined(TARGET_LPC4088_DM)
 #include "USBEndpoints_LPC17_LPC23.h"
 #elif defined(TARGET_LPC11UXX) || defined(TARGET_LPC1347) || defined (TARGET_LPC11U6X) || defined (TARGET_LPC1549)
 #include "USBEndpoints_LPC11U.h"

@@ -44,7 +44,7 @@ void port_preinit(port_t *obj, PortName port, int mask, PinDirection dir)
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-	port_preinit(obj, port, mask, dir);
+    port_preinit(obj, port, mask, dir);
     port_dir(obj, obj->dir);
 }
 

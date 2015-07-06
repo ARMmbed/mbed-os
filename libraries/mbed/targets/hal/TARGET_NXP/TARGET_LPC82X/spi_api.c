@@ -103,17 +103,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     LPC_SYSCON->PRESETCTRL    &= ~(1 << obj->spi_n);
     LPC_SYSCON->PRESETCTRL    |=  (1 << obj->spi_n);
 
-    // set default format and frequency
-    if (ssel == (PinName)NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
     obj->spi->DLY = 2;             // 2 SPI clock times pre-delay
-
-    // enable the ssp channel
-    spi_enable(obj);
 }
 
 void spi_free(spi_t *obj)

@@ -54,7 +54,7 @@ static inline void gpio_write(gpio_t *obj, int value)
     if (value) {
         *obj->reg_set = obj->mask;
     } else {
-#if defined(TARGET_STM32L152RC)
+#if defined(TARGET_STM32L152RC) || defined(TARGET_STM32L151RC)
         *obj->reg_set = obj->mask << 16;
 #else
         *obj->reg_clr = obj->mask;

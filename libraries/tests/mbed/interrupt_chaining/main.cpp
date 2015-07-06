@@ -9,7 +9,7 @@
 #define TIMER_IRQ       TIMER_32_1_IRQn
 #elif defined(TARGET_KL25Z)
 #define TIMER_IRQ       LPTimer_IRQn
-#elif defined(TARGET_LPC2368)
+#elif defined(TARGET_LPC2368) || defined(TARGET_LPC2460)
 #define TIMER_IRQ       TIMER3_IRQn
 #else
 #error This test can't run on this target.
@@ -40,7 +40,7 @@ Ticker flipper_2;
 Sender s1(pc, '1');
 Sender s2(pc, '2');
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2368) || defined(TARGET_LPC1114)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2368) || defined(TARGET_LPC1114) || defined(TARGET_LPC2460)
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2

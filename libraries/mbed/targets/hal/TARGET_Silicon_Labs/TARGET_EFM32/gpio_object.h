@@ -25,31 +25,30 @@ extern "C" {
 
 typedef struct {
     PinName pin;
-    uint32_t mask;
-    GPIO_Port_TypeDef port;
     PinMode mode;
-    uint32_t dir;
+    PinDirection dir;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value)
 {
     if (value) {
-        GPIO_PinOutSet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+        GPIO_PinOutSet((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
     } else {
-        GPIO_PinOutClear(obj->port, obj->pin & 0xF);
+        GPIO_PinOutClear((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin & 0xF);
     }
 }
 
 static inline int gpio_read(gpio_t *obj)
 {
     if (obj->dir == PIN_INPUT) {
-        return GPIO_PinInGet(obj->port, obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+        return GPIO_PinInGet((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
     } else {
-        return GPIO_PinOutGet(obj->port, obj->pin & 0xF);
+        return GPIO_PinOutGet((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin & 0xF);
     }
 }
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 

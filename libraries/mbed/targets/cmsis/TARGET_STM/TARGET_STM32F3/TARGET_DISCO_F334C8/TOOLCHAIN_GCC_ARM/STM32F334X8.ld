@@ -63,7 +63,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab : 
+    .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
@@ -125,7 +125,7 @@ SECTIONS
         __bss_end__ = .;
         _ebss = .;
     } > RAM
-    
+
     .heap (COPY):
     {
         __end__ = .;
@@ -148,8 +148,7 @@ SECTIONS
     _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
-    
+
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
-

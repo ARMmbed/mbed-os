@@ -88,6 +88,26 @@ public:
       @return  the State of this Thread
     */
     State get_state();
+    
+    /** Get the total stack memory size for this Thread
+      @return  the total stack memory size in bytes
+    */
+    uint32_t stack_size();
+    
+    /** Get the currently unused stack memory for this Thread
+      @return  the currently unused stack memory in bytes
+    */
+    uint32_t free_stack();
+    
+    /** Get the currently used stack memory for this Thread
+      @return  the currently used stack memory in bytes
+    */
+    uint32_t used_stack();
+    
+    /** Get the maximum stack memory usage to date for this Thread
+      @return  the maximum stack memory usage to date in bytes
+    */
+    uint32_t max_stack();
 
     /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread.
       @param   signals   wait until all specified signal flags set or 0 for any single signal flag.

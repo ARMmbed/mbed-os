@@ -29,7 +29,7 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
-static uint32_t acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
+static int acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
                                          {2400, UART_BAUDRATE_BAUDRATE_Baud2400},
                                          {4800, UART_BAUDRATE_BAUDRATE_Baud4800},
                                          {9600, UART_BAUDRATE_BAUDRATE_Baud9600},

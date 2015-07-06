@@ -141,15 +141,15 @@ public:
      *
      * @param address   8/10 bit I2c slave address
      * @param tx_buffer The TX buffer with data to be transfered
-     * @param tx_length The length of TX buffer
+     * @param tx_length The length of TX buffer in bytes
      * @param rx_buffer The RX buffer which is used for received data
-     * @param rx_length The length of RX buffer
+     * @param rx_length The length of RX buffer in bytes
      * @param event     The logical OR of events to modify
      * @param callback  The event callback function
      * @param repeated Repeated start, true - do not send stop at end
      * @return Zero if the transfer has started, or -1 if I2C peripheral is busy
      */
-    int transfer(int address, char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
+    int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
 
     /** Abort the on-going I2C transfer
      */

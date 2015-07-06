@@ -53,6 +53,7 @@ from workspace_tools.build_api import print_build_results
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 
 
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
@@ -179,6 +180,7 @@ class SingleTestRunner(object):
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
+                 _opts_consolidate_waterfall_test=None,
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
@@ -236,6 +238,7 @@ class SingleTestRunner(object):
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
+        self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
 
@@ -485,18 +488,21 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
-                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                            'single_test_output' : '',
-                            'target_name' : target,
-                            'toolchain_name' : toolchain,
-                            'test_id' : test_id,
-                            'test_description' : 'Toolchain build failed',
-                            'elapsed_time' : 0,
-                            'duration' : 0,
-                            'copy_method' : None
-                        }}
+                    if test_id not in self.test_summary_ext[toolchain][target]:
+                        self.test_summary_ext[toolchain][target][test_id] = []
+
+                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
+                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                        'single_test_output' : '',
+                        'target_name' : target,
+                        'target_name_unique': target,
+                        'toolchain_name' : toolchain,
+                        'test_id' : test_id,
+                        'test_description' : 'Toolchain build failed',
+                        'elapsed_time' : 0,
+                        'duration' : 0,
+                        'copy_method' : None
+                    }})
                     continue
 
                 if self.opts_only_build_tests:
@@ -518,24 +524,38 @@ class SingleTestRunner(object):
                 test_suite_properties['test.path.%s.%s.%s'% (target, toolchain, test_id)] = path
 
                 # read MUTs, test specification and perform tests
-                handle_result = self.handle(test_spec, target, toolchain, test_loops=test_loops)
-                if handle_result:
-                    single_test_result, detailed_test_results = handle_result
-                else:
+                handle_results = self.handle(test_spec, target, toolchain, test_loops=test_loops)
+
+                if handle_results is None:
                     continue
 
-                # Append test results to global test summary
-                if single_test_result is not None:
-                    self.test_summary.append(single_test_result)
+                for handle_result in handle_results:
+                    if handle_result:
+                        single_test_result, detailed_test_results = handle_result
+                    else:
+                        continue
 
-                # Add detailed test result to test summary structure
-                if target not in self.test_summary_ext[toolchain][target]:
-                    self.test_summary_ext[toolchain][target][test_id] = detailed_test_results    # test_summary_ext : toolchain : target : test_it
+                    # Append test results to global test summary
+                    if single_test_result is not None:
+                        self.test_summary.append(single_test_result)
+
+                    # Add detailed test result to test summary structure
+                    if target not in self.test_summary_ext[toolchain][target]:
+                        if test_id not in self.test_summary_ext[toolchain][target]:
+                            self.test_summary_ext[toolchain][target][test_id] = []
+
+                        append_test_result = detailed_test_results
+
+                        # If waterfall and consolidate-waterfall options are enabled,
+                        # only include the last test result in the report.
+                        if self.opts_waterfall_test and self.opts_consolidate_waterfall_test:
+                            append_test_result = {0: detailed_test_results[len(detailed_test_results) - 1]}
+
+                        self.test_summary_ext[toolchain][target][test_id].append(append_test_result)
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
 
-        # return self.test_summary, self.shuffle_random_seed, test_summary_ext, self.test_suite_properties_ext
         q.put(target + '_'.join(toolchains))
         return
 
@@ -821,25 +841,15 @@ class SingleTestRunner(object):
             result = False
         return result, resutl_msg
 
-    def handle(self, test_spec, target_name, toolchain_name, test_loops=1):
-        """ Function determines MUT's mbed disk/port and copies binary to
-            target.
-            Test is being invoked afterwards.
+    def handle_mut(self, mut, data, target_name, toolchain_name, test_loops=1):
+        """ Test is being invoked for given MUT.
         """
-        data = json.loads(test_spec)
         # Get test information, image and test timeout
         test_id = data['test_id']
         test = TEST_MAP[test_id]
         test_description = TEST_MAP[test_id].get_description()
         image = data["image"]
         duration = data.get("duration", 10)
-
-        # Find a suitable MUT:
-        mut = None
-        for id, m in self.muts.iteritems():
-            if m['mcu'] == data['mcu']:
-                mut = m
-                break
 
         if mut is None:
             print "Error: No Mbed available: MUT[%s]" % data['mcu']
@@ -852,6 +862,7 @@ class SingleTestRunner(object):
             return None
 
         target_by_mcu = TARGET_MAP[mut['mcu']]
+        target_name_unique = mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu']
         # Some extra stuff can be declared in MUTs structure
         reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
         reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
@@ -911,6 +922,7 @@ class SingleTestRunner(object):
                 'single_test_result' : single_test_result,
                 'single_test_output' : single_test_output,
                 'target_name' : target_name,
+                'target_name_unique' : target_name_unique,
                 'toolchain_name' : toolchain_name,
                 'test_id' : test_id,
                 'test_description' : test_description,
@@ -919,7 +931,7 @@ class SingleTestRunner(object):
                 'copy_method' : _copy_method,
             }
 
-            print self.print_test_result(single_test_result, target_name, toolchain_name,
+            print self.print_test_result(single_test_result, target_name_unique, toolchain_name,
                                          test_id, test_description, elapsed_time, single_timeout)
 
             # Update database entries for ongoing test
@@ -944,13 +956,30 @@ class SingleTestRunner(object):
             self.db_logger.disconnect()
 
         return (self.shape_global_test_loop_result(test_all_result),
-                target_name,
+                target_name_unique,
                 toolchain_name,
                 test_id,
                 test_description,
                 round(elapsed_time, 2),
                 single_timeout,
                 self.shape_test_loop_ok_result_count(test_all_result)), detailed_test_results
+
+    def handle(self, test_spec, target_name, toolchain_name, test_loops=1):
+        """ Function determines MUT's mbed disk/port and copies binary to
+            target.
+        """
+        handle_results = []
+        data = json.loads(test_spec)
+
+        # Find a suitable MUT:
+        mut = None
+        for id, m in self.muts.iteritems():
+            if m['mcu'] == data['mcu']:
+                mut = m
+                handle_result = self.handle_mut(mut, data, target_name, toolchain_name, test_loops=test_loops)
+                handle_results.append(handle_result)
+
+        return handle_results
 
     def print_test_result(self, test_result, target_name, toolchain_name,
                           test_id, test_description, elapsed_time, duration):
@@ -1497,6 +1526,8 @@ def singletest_in_cli_mode(single_test):
         # Export build results as html report to sparate file
         write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
 
+    # Returns True if no build failures of the test projects or their dependencies
+    return len(single_test.build_failures) == 0
 
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
@@ -1627,10 +1658,13 @@ def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
     index = 1
     for mut in mbeds_list:
-        m = {'mcu' : mut['platform_name'],
-             'port' : mut['serial_port'],
-             'disk' : mut['mount_point'],
-             'peripherals' : []     # No peripheral detection
+        # For mcu_unique - we are assigning 'platform_name_unique' value from  mbedls output (if its existing)
+        # if not we  are creating our own unique value (last few chars from platform's target_id).
+        m = {'mcu': mut['platform_name'],
+             'mcu_unique' : mut['platform_name_unique'] if 'platform_name_unique' in mut else "%s[%s]" % (mut['platform_name'], mut['target_id'][-4:]),
+             'port': mut['serial_port'],
+             'disk': mut['mount_point'],
+             'peripherals': []     # No peripheral detection
              }
         if index not in result:
             result[index] = {}
@@ -1707,7 +1741,12 @@ def get_default_test_options_parser():
 
         parser.add_option('', '--tc',
                           dest='toolchains_filter',
-                          help="Toolchain filter for --auto option. Use toolcahins names separated by comma, 'default' or 'all' to select toolchains")
+                          help="Toolchain filter for --auto option. Use toolchains names separated by comma, 'default' or 'all' to select toolchains")
+
+        test_scopes = ','.join(["'%s'" % n for n in get_available_oper_test_scopes()])
+        parser.add_option('', '--oper',
+                          dest='operability_checks',
+                          help='Perform interoperability tests between host and connected mbed devices. Available test scopes are: %s' % test_scopes)
 
     parser.add_option('', '--clean',
                       dest='clean',
@@ -1725,15 +1764,15 @@ def get_default_test_options_parser():
                       dest='test_only_common',
                       default=False,
                       action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests.')
+                      help='Test only board internals. Skip perpherials tests and perform common tests')
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names')
 
     parser.add_option('-p', '--peripheral-by-names',
                       dest='peripheral_by_names',
-                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names.')
+                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
@@ -1818,15 +1857,21 @@ def get_default_test_options_parser():
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
+    parser.add_option('', '--consolidate-waterfall',
+                      dest='consolidate_waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --waterfall option. Adds only one test to report reflecting outcome of waterfall test.')
+
     parser.add_option('-W', '--waterfall',
                       dest='waterfall_test',
                       default=False,
                       action="store_true",
-                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed.')
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed')
 
     parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
-                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
+                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts')
 
     parser.add_option('-u', '--shuffle',
                       dest='shuffle_test_order',

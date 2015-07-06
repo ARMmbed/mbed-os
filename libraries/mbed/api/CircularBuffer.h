@@ -88,9 +88,9 @@ public:
 
 private:
     T _pool[BufferSize];
-    CounterType _head;
-    CounterType _tail;
-    bool _full;
+    volatile CounterType _head;
+    volatile CounterType _tail;
+    volatile bool _full;
 };
 
 }
