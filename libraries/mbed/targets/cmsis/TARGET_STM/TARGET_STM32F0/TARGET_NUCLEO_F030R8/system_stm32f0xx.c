@@ -434,12 +434,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   return 1; // OK
 }
 
-/* Used for the different timeouts in the HAL */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
-}
-
 /**
   * @}
   */
