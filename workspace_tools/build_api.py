@@ -28,6 +28,9 @@ from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
+from workspace_tools.libraries import LIBRARY_MAP
+from workspace_tools.custom_libraries import CustomLibrary
+from workspace_tools.custom_libraries import CUSTOM_LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
@@ -169,8 +172,15 @@ def build_library(src_paths, build_path, target, toolchain_name,
 def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False):
     """ Wrapper for build_library function.
         Function builds library in proper directory using all dependencies and macros defined by user.
+        Function returns True is library was built and false if building was skipped.
     """
-    lib = Library(lib_id)
+    if lib_id in LIBRARY_MAP:
+        lib = Library(lib_id)
+    elif lib_id in CUSTOM_LIBRARY_MAP:
+        lib = CustomLibrary(lib_id)
+    else:
+        print 'No configuration entry for library "%s"' % (lib_id)
+        return False
     if lib.is_supported(target, toolchain):
         # We need to combine macros from parameter list with macros from library definition
         MACROS = lib.macros if lib.macros else []
@@ -186,8 +196,10 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
                       inc_dirs=lib.inc_dirs,
                       inc_dirs_ext=lib.inc_dirs_ext,
                       jobs=jobs)
+        return True
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        return False
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
