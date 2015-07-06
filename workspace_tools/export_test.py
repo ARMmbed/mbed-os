@@ -196,6 +196,11 @@ if __name__ == '__main__':
             ('gcc_arm', 'KL25Z'),
             ('gcc_arm', 'KL43Z'),
             ('gcc_arm', 'KL46Z'),
+            ('gcc_arm', 'EFM32GG_STK3700'),
+            ('gcc_arm', 'EFM32LG_STK3600'),
+            ('gcc_arm', 'EFM32WG_STK3800'),
+            ('gcc_arm', 'EFM32ZG_STK3200'),
+            ('gcc_arm', 'EFM32HG_STK3400'),
 
             ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
 
