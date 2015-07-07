@@ -75,6 +75,11 @@ from workspace_tools.test_api import get_autodetected_MUTS
 from workspace_tools.test_api import get_autodetected_TEST_SPEC
 from workspace_tools.test_api import get_module_avail
 
+from workspace_tools.compliance.ioper_runner import IOperTestRunner
+from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
+from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+
+
 # Importing extra modules which can be not installed but if available they can extend test suite functionality
 try:
     import mbed_lstools
@@ -182,13 +187,30 @@ if __name__ == '__main__':
             exit(-1)
 
     if opts.verbose_test_configuration_only:
-        print "MUTs configuration in %s:"% ('auto-detected' if opts.auto_detect else opts.muts_spec_filename)
+        print "MUTs configuration in %s:" % ('auto-detected' if opts.auto_detect else opts.muts_spec_filename)
         if MUTs:
             print print_muts_configuration_from_json(MUTs, platform_filter=opts.general_filter_regex)
         print
-        print "Test specification in %s:"% ('auto-detected' if opts.auto_detect else opts.test_spec_filename)
+        print "Test specification in %s:" % ('auto-detected' if opts.auto_detect else opts.test_spec_filename)
         if test_spec:
             print print_test_configuration_from_json(test_spec)
+        exit(0)
+
+    if opts.operability_checks:
+        # Check if test scope is valid and run tests
+        test_scope = get_available_oper_test_scopes()
+        if opts.operability_checks in test_scope:
+            tests = IOperTestRunner(scope=opts.operability_checks)
+            test_results = tests.run()
+
+            # Export results in form of JUnit XML report to separate file
+            if opts.report_junit_file_name:
+                report_exporter = ReportExporter(ResultExporterType.JUNIT_OPER)
+                report_exporter.report_to_file(test_results, opts.report_junit_file_name)
+        else:
+            print "Unknown interoperability test scope name: '%s'" % (opts.operability_checks)
+            print "Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope]))
+
         exit(0)
 
     # Verbose test specification and MUTs configuration
@@ -235,4 +257,7 @@ if __name__ == '__main__':
                                    _opts_extend_test_timeout=opts.extend_test_timeout)
 
     # Runs test suite in CLI mode
-    singletest_in_cli_mode(single_test)
+    if (singletest_in_cli_mode(single_test)):
+        exit(0)
+    else:
+        exit(-1)

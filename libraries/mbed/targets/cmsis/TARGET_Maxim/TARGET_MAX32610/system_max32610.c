@@ -40,6 +40,7 @@
 #include "pwrseq_regs.h"
 #include "dac_regs.h"
 #include "icc_regs.h"
+#include "adc_regs.h"
 
 /* Application developer should override where necessary with different external HFX source */
 #ifndef __SYSTEM_HFX
@@ -76,8 +77,12 @@ static void set_pwr_regs(void)
     uint32_t dac3trim =  MXC_DAC3->reg & 0xff00ffff;
     dac2trim = dac2trim + MXC_TRIM->trim_reg_36;
     dac3trim = dac3trim + MXC_TRIM->trim_reg_37;
-    MXC_PWRSEQ->reg5 = MXC_TRIM->trim_reg_13;
-    MXC_PWRSEQ->reg6 = MXC_TRIM->trim_reg_14;
+    if ((MXC_TRIM->trim_reg_13 != 0) && (MXC_TRIM->trim_reg_13 != 0xFFFFFFFF)) {
+        MXC_PWRSEQ->reg5 = MXC_TRIM->trim_reg_13;
+    }
+    if ((MXC_TRIM->trim_reg_14 != 0) && (MXC_TRIM->trim_reg_14 != 0xFFFFFFFF)) {
+        MXC_PWRSEQ->reg6 = MXC_TRIM->trim_reg_14;
+    }
     MXC_DAC0->trm = MXC_TRIM->trim_reg_34;
     MXC_DAC1->trm = MXC_TRIM->trim_reg_35;
     MXC_DAC2->reg = dac2trim;
@@ -106,6 +111,45 @@ void ICC_Enable(void)
     temp &= ~MXC_F_CLKMAN_CLK_GATE_CTRL0_ICACHE_CLK_GATER;
     temp |= (MXC_E_CLKMAN_CLK_GATE_DYNAMIC << MXC_F_CLKMAN_CLK_GATE_CTRL0_ICACHE_CLK_GATER_POS);
     MXC_CLKMAN->clk_gate_ctrl0 = temp;
+}
+
+void Trim_RO(void)
+{
+    uint32_t reg0;
+    uint32_t trim;
+
+    // Save the RTCEN_RUN state and set it
+    reg0 = MXC_PWRSEQ->reg0;
+    MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
+
+    /* needed if parts are untrimmed */
+    if ((MXC_TRIM->trim_reg_13 == 0) || (MXC_TRIM->trim_reg_13 == 0xFFFFFFFF)) {
+        MXC_PWRSEQ->reg5 = (MXC_PWRSEQ->reg5 & ~MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF) | (16 << MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF_POS);
+    }
+    trim = (MXC_PWRSEQ->reg5 & MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF) >> (MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF_POS - 2);
+    MXC_ADCCFG->ro_cal1 = (MXC_ADCCFG->ro_cal1 & ~MXC_F_ADC_RO_CAL1_TRM_INIT) |
+                          ((trim << MXC_F_ADC_RO_CAL1_TRM_INIT_POS) & MXC_F_ADC_RO_CAL1_TRM_INIT);
+    MXC_ADCCFG->ro_cal0 = (MXC_ADCCFG->ro_cal0 & ~MXC_F_ADC_RO_CAL0_TRM_MU) | (0x04 << MXC_F_ADC_RO_CAL0_TRM_MU_POS);
+    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS);
+    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
+    BITBAND_SetBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS);
+
+    SysTick->LOAD = 1635;   /* about 50ms, based on a 32KHz systick clock */
+    SysTick->VAL = 0;
+    SysTick->CTRL = SysTick_CTRL_ENABLE_Msk;    /* Enable SysTick Timer */   
+    while(SysTick->VAL == 0);
+    while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk));
+    SysTick->CTRL = 0;
+
+    trim = (MXC_ADCCFG->ro_cal0 & MXC_F_ADC_RO_CAL0_RO_TRM) >> (MXC_F_ADC_RO_CAL0_RO_TRM_POS + 2);
+    BITBAND_ClrBit(&MXC_ADCCFG->ro_cal0, MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS);
+    MXC_PWRSEQ->reg5 = (MXC_PWRSEQ->reg5 & ~MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF) |
+                       ((trim << MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF_POS) & MXC_F_PWRSEQ_REG5_PWR_TRIM_OSC_VREF);
+
+    // Restore the RTCEN_RUN state
+    if (!(reg0 & MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN)) {
+        MXC_PWRSEQ->reg0 &= ~MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
+    }
 }
 
 // This function to be implemented by the hal
@@ -151,4 +195,6 @@ void SystemInit(void)
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
 
     SystemCoreClockUpdate();
+
+    Trim_RO();
 }

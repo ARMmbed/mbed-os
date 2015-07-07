@@ -749,6 +749,15 @@ class DISCO_L053C8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
+class DISCO_F746NG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M7F"
+        self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
+        self.supported_toolchains = ["ARM", "uARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["0815"]
+
 class MTS_MDOT_F405RG(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1287,6 +1296,23 @@ class WIZWIKI_W7500(Target):
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class SAMD21J18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM21']
+        self.macros = ['__SAMD21J18A__']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
+class SAMR21G18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM21']
+        self.macros = ['__SAMR21G18A__']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
 
 # Get a single instance for each target
 TARGETS = [
@@ -1358,6 +1384,7 @@ TARGETS = [
     DISCO_F100RB(),
     DISCO_F303VC(),
     DISCO_F334C8(),
+    DISCO_F746NG(),
     DISCO_F407VG(), # STM32F407
     ARCH_MAX(),     # STM32F407
     DISCO_F429ZI(),
@@ -1416,6 +1443,8 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
 
+    SAMD21J18A(),
+    SAMR21G18A(),
 ]
 
 # Map each target name to its unique instance

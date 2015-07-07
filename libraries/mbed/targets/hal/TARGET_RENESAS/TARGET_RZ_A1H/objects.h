@@ -72,6 +72,10 @@ struct analogin_s {
     ADCName adc;
 };
 
+struct can_s {
+    uint32_t ch;
+};
+
 #ifdef __cplusplus
 }
 #endif

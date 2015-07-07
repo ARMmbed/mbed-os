@@ -65,8 +65,12 @@ clean:
 	rm -f $(PROJECT).bin $(PROJECT).elf $(PROJECT).hex $(PROJECT).map $(PROJECT).lst $(OBJECTS) $(DEPS)
 {% endblock %}
 
+.asm.o:
+	$(CC) $(CPU) -c -x assembler-with-cpp -o $@ $<
 .s.o:
-	$(AS) $(CPU) -o $@ $<
+	$(CC) $(CPU) -c -x assembler-with-cpp -o $@ $<
+.S.o:
+	$(CC) $(CPU) -c -x assembler-with-cpp -o $@ $<
 
 .c.o:
 	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu99   $(INCLUDE_PATHS) -o $@ $<

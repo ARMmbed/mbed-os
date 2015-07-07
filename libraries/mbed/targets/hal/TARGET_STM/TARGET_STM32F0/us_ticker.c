@@ -29,7 +29,8 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
-#if defined(TARGET_STM32F070RB)
+
+#if defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
 
 // Timer selection
 #define TIM_MST TIM1
@@ -114,7 +115,7 @@ void us_ticker_clear_interrupt(void)
     }
 }
 
-#elif defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
+#elif defined (TARGET_STM32F051R8)
 
 // Timer selection:
 #define TIM_MST      TIM1

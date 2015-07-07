@@ -53,6 +53,7 @@ from workspace_tools.build_api import print_build_results
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 
 
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
@@ -1525,6 +1526,9 @@ def singletest_in_cli_mode(single_test):
         # Export build results as html report to sparate file
         write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
 
+    # Returns True if no build failures of the test projects or their dependencies
+    return len(single_test.build_failures) == 0
+
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
     """
@@ -1737,7 +1741,12 @@ def get_default_test_options_parser():
 
         parser.add_option('', '--tc',
                           dest='toolchains_filter',
-                          help="Toolchain filter for --auto option. Use toolcahins names separated by comma, 'default' or 'all' to select toolchains")
+                          help="Toolchain filter for --auto option. Use toolchains names separated by comma, 'default' or 'all' to select toolchains")
+
+        test_scopes = ','.join(["'%s'" % n for n in get_available_oper_test_scopes()])
+        parser.add_option('', '--oper',
+                          dest='operability_checks',
+                          help='Perform interoperability tests between host and connected mbed devices. Available test scopes are: %s' % test_scopes)
 
     parser.add_option('', '--clean',
                       dest='clean',
@@ -1755,15 +1764,15 @@ def get_default_test_options_parser():
                       dest='test_only_common',
                       default=False,
                       action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests.')
+                      help='Test only board internals. Skip perpherials tests and perform common tests')
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names')
 
     parser.add_option('-p', '--peripheral-by-names',
                       dest='peripheral_by_names',
-                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names.')
+                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
@@ -1858,11 +1867,11 @@ def get_default_test_options_parser():
                       dest='waterfall_test',
                       default=False,
                       action="store_true",
-                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed.')
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed')
 
     parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
-                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
+                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts')
 
     parser.add_option('-u', '--shuffle',
                       dest='shuffle_test_order',
