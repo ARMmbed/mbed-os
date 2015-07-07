@@ -24,9 +24,9 @@ extern "C"{
 void PWM3_Handler(void)
 {
 
-			wiz_rtc_time++;
-      PWM_CH3_ClearOverflowInt();
-  
+    wiz_rtc_time++;
+    PWM_CH3_ClearOverflowInt();
+
 }
 #ifdef __cplusplus
 }
@@ -35,9 +35,9 @@ void PWM3_Handler(void)
 
 
 void rtc_init(void) {
-		PWM_TimerModeInitTypeDef TimerModeStructure;
-	  *(volatile uint32_t *)(0x410010e0) = 0x03;
-		
+    PWM_TimerModeInitTypeDef TimerModeStructure;
+    *(volatile uint32_t *)(0x410010e0) = 0x03;
+
     /* Timer mode configuration */    
     TimerModeStructure.PWM_CHn_PR = 7;
     TimerModeStructure.PWM_CHn_MR = 1;
@@ -55,7 +55,7 @@ void rtc_init(void) {
     PWM_CHn_Start(PWM_CH3);
     NVIC_SetVector(PWM3_IRQn, (uint32_t)PWM3_Handler);
     NVIC_EnableIRQ(PWM3_IRQn);		
-  	rtc_enabled = 1;
+    rtc_enabled = 1;
 }
 
 void rtc_free(void) {
@@ -73,7 +73,7 @@ time_t rtc_read(void) {
 }
 
 void rtc_write(time_t t) {
-	  //*(volatile uint32_t *)(0x41001008) = 0x42; // timer disable, interrupt disable
-	  wiz_rtc_time = t; 
-	  //*(volatile uint32_t *)(0x41001008) = 0x72; // timer enable interrupt enable  
+    //*(volatile uint32_t *)(0x41001008) = 0x42; // timer disable, interrupt disable
+    wiz_rtc_time = t; 
+    //*(volatile uint32_t *)(0x41001008) = 0x72; // timer enable interrupt enable  
 }
