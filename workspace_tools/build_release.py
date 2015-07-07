@@ -95,6 +95,12 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
+    ('ARM_MPS2_M0'   ,     ('ARM',)),
+    ('ARM_MPS2_M0P'   ,     ('ARM',)),
+    ('ARM_MPS2_M3'   ,     ('ARM',)),
+    ('ARM_MPS2_M4'   ,     ('ARM',)),
+    ('ARM_MPS2_M7'   ,     ('ARM',)),
+
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
     ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
