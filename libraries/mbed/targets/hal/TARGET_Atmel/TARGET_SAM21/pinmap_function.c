@@ -23,6 +23,21 @@
 
 #include "pinmap_function.h"
 
+static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
+{
+    // both are the same (inc both NC)
+    if (a == b)
+        return a;
+
+    // one (or both) is not connected
+    if (a == (uint32_t)NC)
+        return b;
+    if (b == (uint32_t)NC)
+        return a;
+
+    return (uint32_t)NC;
+}
+
 /** Find the common SERCOM shared by two pins
  *
  * Finds the common SERCOM index of two input pins.
@@ -63,7 +78,7 @@ uint32_t pinmap_merge_sercom(PinName pin1, PinName pin2)
             if (pin2_sercom[i] != NC) {
                 pin2_sercom[i] &= 0x0F;
             }
-            sercom_index[(i*2) + j] = pinmap_merge(pin1_sercom[i], pin2_sercom[j]);
+            sercom_index[(i*2) + j] = pinmap_merge_pins(pin1_sercom[i], pin2_sercom[j]);
         }
     }
 

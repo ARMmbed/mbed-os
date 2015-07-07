@@ -40,6 +40,7 @@ struct port_s {
     __IO uint32_t *OUTCLR;
     __IO uint32_t *OUTSET;
     __I uint32_t *IN;
+    __I uint32_t *OUT;
 
     PortName port;
     uint32_t mask;
@@ -53,12 +54,7 @@ struct serial_s {
     uint32_t character_size;
     uint32_t mux_setting;
     uint32_t baudrate;
-    uint32_t pinmux_pad0;
-    uint32_t pinmux_pad1;
-    uint32_t pinmux_pad2;
-    uint32_t pinmux_pad3;
-    PinName rxpin;
-    PinName txpin;
+    PinName pins[4];
 #if DEVICE_SERIAL_ASYNCH
     uint32_t events;
 #endif

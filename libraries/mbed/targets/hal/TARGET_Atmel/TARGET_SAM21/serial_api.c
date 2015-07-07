@@ -20,6 +20,12 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "usart.h"
+#include "pinmap_function.h"
+
+#define USART_TX_INDEX		0
+#define USART_RX_INDEX		1
+#define USART_RXFLOW_INDEX	2
+#define USART_TXFLOW_INDEX	3
 
 #if DEVICE_SERIAL_ASYNCH
 #define pUSART_S(obj)			obj->serial.usart
@@ -34,6 +40,7 @@
 
 uint8_t serial_get_index(serial_t *obj);
 IRQn_Type get_serial_irq_num (serial_t *obj);
+uint32_t get_serial_vector (serial_t *obj);
 
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -87,6 +94,48 @@ static inline void reset_usart(serial_t *obj)
 
     /* Reset module */
     _USART(obj).CTRLA.reg = SERCOM_USART_CTRLA_SWRST;
+}
+
+uint32_t serial_find_mux_settings (serial_t *obj)
+{
+    uint32_t mux_setting = 0;
+    uint32_t pinpad[4] = {0};
+    uint8_t i = 0;
+    uint32_t sercom_index = pinmap_merge_sercom(pSERIAL_S(obj)->pins[0], pSERIAL_S(obj)->pins[1]);
+
+    for (i = 0; i < 4 ; i++) {
+        pinpad[i] = pinmap_pad_sercom(pSERIAL_S(obj)->pins[i], sercom_index);
+    }
+
+    switch(pinpad[USART_RX_INDEX]) {
+        case 0:
+            mux_setting |= SERCOM_USART_CTRLA_RXPO(0);
+            break;
+        case 1:
+            mux_setting |= SERCOM_USART_CTRLA_RXPO(1);
+            break;
+        case 2:
+            mux_setting |= SERCOM_USART_CTRLA_RXPO(2);
+            break;
+        case 3:
+            mux_setting |= SERCOM_USART_CTRLA_RXPO(3);
+            break;
+    }
+
+    if ((pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] == NC) && (pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] == NC)) {
+        if (pinpad[USART_TX_INDEX] == 0) {
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
+        } else if(pinpad[USART_RX_INDEX] == 2) {
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
+        } else {
+            mux_setting = mux_setting;  // dummy condition
+        }
+    } else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
+        if((pinpad[USART_TX_INDEX] == 0) && (pinpad[USART_RXFLOW_INDEX]/*rts pin*/ == 2) && (pinpad[USART_TXFLOW_INDEX] /*cts pin*/ == 3)) {
+            mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
+        }
+    }
+    return mux_setting;
 }
 
 static enum status_code usart_set_config_default( serial_t *obj)
@@ -160,10 +209,6 @@ void get_default_serial_values(serial_t *obj)
     pSERIAL_S(obj)->character_size = USART_CHARACTER_SIZE_8BIT;
     pSERIAL_S(obj)->baudrate = 9600;
     pSERIAL_S(obj)->mux_setting = USART_RX_1_TX_2_XCK_3;
-    pSERIAL_S(obj)->pinmux_pad0 = PINMUX_DEFAULT;
-    pSERIAL_S(obj)->pinmux_pad1 = PINMUX_DEFAULT;
-    pSERIAL_S(obj)->pinmux_pad2 = PINMUX_DEFAULT;
-    pSERIAL_S(obj)->pinmux_pad3 = PINMUX_DEFAULT;
 };
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -172,67 +217,42 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         system_init();
         g_sys_init = 1;
     }
-
     struct system_gclk_chan_config gclk_chan_conf;
     UARTName uart;
     uint32_t gclk_index;
     uint32_t pm_index;
     uint32_t sercom_index = 0;
     uint32_t muxsetting = 0;
-    uint32_t padsetting[4] = {0};
 
     /* Disable USART module */
     disable_usart(obj);
 
     get_default_serial_values(obj);
 
-    find_pin_settings(tx, rx, NC, NC, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
-    muxsetting = find_mux_setting(tx, rx, NC, NC);  // getting mux setting from pins
-    sercom_index = pinmap_sercom_peripheral(tx, rx);  // same variable sercom_index reused for optimization
-    switch (sercom_index) {
-        case 0:
-            uart = UART_0;
-            pUSART_S(obj) = SERCOM0;
-            break;
-        case 1:
-            uart = UART_1;
-            pUSART_S(obj) = SERCOM1;
-            break;
-        case 2:
-            uart = UART_2;
-            pUSART_S(obj) = SERCOM2;
-            break;
-        case 3:
-            uart = UART_3;
-            pUSART_S(obj) = SERCOM3;
-            break;
-        case 4:
-            uart = UART_4;
-            pUSART_S(obj) = SERCOM4;
-            break;
-        case 5:
-            uart = UART_5;
-            pUSART_S(obj) = SERCOM5;
-            break;
-    }
+    pSERIAL_S(obj)->pins[USART_TX_INDEX] = tx;
+    pSERIAL_S(obj)->pins[USART_RX_INDEX] = rx;
+    pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] = NC;
+    pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] = NC;
 
-    pSERIAL_S(obj)->txpin = tx;
-    pSERIAL_S(obj)->rxpin = rx;
-    pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
-    pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
-    pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
-    pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
-    pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
+    muxsetting = serial_find_mux_settings(obj);  // getting mux setting from pins
+    sercom_index = pinmap_merge_sercom(tx, rx);  // same variable sercom_index reused for optimization
+    if (sercom_index == NC) {
+        /*expecting a valid value for sercom index*/
+        return;
+    }
+    sercom_index &= 0x0F;
+    uart = pinmap_peripheral_sercom(NC, sercom_index);
+    pUSART_S(obj) = (Sercom *)uart;
 
     pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
 
     if (_USART(obj).CTRLA.reg & SERCOM_USART_CTRLA_SWRST) {
-        /* The module is busy resetting itself */
+        return;  /* The module is busy resetting itself */
     }
 
     if (_USART(obj).CTRLA.reg & SERCOM_USART_CTRLA_ENABLE) {
-        /* Check the module is enabled */
+        return;    /* Check the module is enabled */
     }
 
     /* Turn on module in PM */
@@ -244,29 +264,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     system_gclk_chan_enable(gclk_index);
     sercom_set_gclk_generator(GCLK_GENERATOR_0, false);
 
+    pSERIAL_S(obj)->mux_setting = muxsetting;
     /* Set configuration according to the config struct */
     usart_set_config_default(obj);
+
     struct system_pinmux_config pin_conf;
-    system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
     pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    pin_conf.powersave    = false;
 
-    uint32_t pad_pinmuxes[] = {
-        pSERIAL_S(obj)->pinmux_pad0, pSERIAL_S(obj)->pinmux_pad1,
-        pSERIAL_S(obj)->pinmux_pad2, pSERIAL_S(obj)->pinmux_pad3
-    };
-
+    uint32_t mux_func;
     /* Configure the SERCOM pins according to the user configuration */
     for (uint8_t pad = 0; pad < 4; pad++) {
-        uint32_t current_pinmux = pad_pinmuxes[pad];
-
-        if (current_pinmux == PINMUX_DEFAULT) {
-            current_pinmux = _sercom_get_default_pad(pUSART_S(obj), pad);
-        }
-
-        if (current_pinmux != PINMUX_UNUSED) {
-            pin_conf.mux_position = current_pinmux & 0xFFFF;
-            system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+        uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
+        if (current_pin != NC) {
+            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+            if (NC != pin_conf.mux_position) {
+                system_pinmux_pin_set_config(current_pin, &pin_conf);
+            }
         }
     }
 
@@ -274,13 +289,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-
     /* Wait until synchronization is complete */
     usart_syncing(obj);
 
     /* Enable USART module */
     enable_usart(obj);
-
 }
 
 void serial_free(serial_t *obj)
@@ -428,87 +441,65 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 {
     uint32_t muxsetting = 0;
     uint32_t sercom_index = 0;
-    uint32_t padsetting[4] = {0};
-
+    uint32_t mux_func;
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
-    switch ((int)pUSART_S(obj)) {
-        case UART_0:
-            vector = (uint32_t)uart0_irq;
-            break;
-        case UART_1:
-            vector = (uint32_t)uart1_irq;
-            break;
-        case UART_2:
-            vector = (uint32_t)uart2_irq;
-            break;
-        case UART_3:
-            vector = (uint32_t)uart3_irq;
-            break;
-        case UART_4:
-            vector = (uint32_t)uart4_irq;
-            break;
-        case UART_5:
-            vector = (uint32_t)uart5_irq;
-            break;
+    pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] = rxflow;
+    pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] = txflow;
+    muxsetting = serial_find_mux_settings(obj);  // getting mux setting from pins
+    sercom_index = pinmap_merge_sercom(pSERIAL_S(obj)->pins[USART_TX_INDEX], pSERIAL_S(obj)->pins[USART_RX_INDEX]);  // same variable sercom_index reused for optimization
+    if (sercom_index == NC) {
+        /*expecting a valid value for sercom index*/
+        return;
     }
+
+    vector = get_serial_vector(obj);
     irq_n = get_serial_irq_num(obj);
 
     disable_usart(obj);
-    //TODO : assert for rxflow and txflow pis to be added
-    find_pin_settings(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow, &padsetting[0]);  // tx, rx, clk(rts), chipsel(cts) pad array  // getting pads from pins
-    muxsetting = find_mux_setting(pSERIAL_S(obj)->txpin, pSERIAL_S(obj)->rxpin, rxflow, txflow);  // getting mux setting from pins
-
-    pSERIAL_S(obj)->mux_setting = muxsetting;//EDBG_CDC_SERCOM_MUX_SETTING;
-    pSERIAL_S(obj)->pinmux_pad0 = padsetting[0];//EDBG_CDC_SERCOM_PINMUX_PAD0;
-    pSERIAL_S(obj)->pinmux_pad1 = padsetting[1];//EDBG_CDC_SERCOM_PINMUX_PAD1;
-    pSERIAL_S(obj)->pinmux_pad2 = padsetting[2];//EDBG_CDC_SERCOM_PINMUX_PAD2;
-    pSERIAL_S(obj)->pinmux_pad3 = padsetting[3];//EDBG_CDC_SERCOM_PINMUX_PAD3;
 
     /* Set configuration according to the config struct */
+    pSERIAL_S(obj)->mux_setting = muxsetting;  // mux setting to be changed for configuring hardware control
     usart_set_config_default(obj);
 
     struct system_pinmux_config pin_conf;
-    system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
     pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    pin_conf.powersave    = false;
 
-    uint32_t pad_pinmuxes[] = {
-        pSERIAL_S(obj)->pinmux_pad0, pSERIAL_S(obj)->pinmux_pad1,
-        pSERIAL_S(obj)->pinmux_pad2, pSERIAL_S(obj)->pinmux_pad3
-    };
-
-    /* Configure the SERCOM pins according to the user configuration */
-    for (uint8_t pad = 0; pad < 3; pad++) {
-        uint32_t current_pinmux = pad_pinmuxes[pad];
-
-        if (current_pinmux == PINMUX_DEFAULT) {
-            current_pinmux = _sercom_get_default_pad(pUSART_S(obj), pad);
-        }
-
-        if (current_pinmux != PINMUX_UNUSED) {
-            pin_conf.mux_position = current_pinmux & 0xFFFF;
-            system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+    for (uint8_t pad = 0; pad < 2; pad++) {  // setting for rx and tx
+        uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
+        if (current_pin != NC) {
+            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+            if (NC != pin_conf.mux_position) {
+                system_pinmux_pin_set_config(current_pin, &pin_conf);
+            }
         }
     }
-    if (pSERIAL_S(obj)->pinmux_pad3 != PINMUX_UNUSED) {
-        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
-        pin_conf.mux_position = pSERIAL_S(obj)->pinmux_pad3 & 0xFFFF;
-        system_pinmux_pin_set_config(pSERIAL_S(obj)->pinmux_pad3 >> 16, &pin_conf);
+    if((FlowControlRTS == type) || (FlowControlRTSCTS== type))  {
+        if (pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] != NC) {
+            pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT; // setting for rxflow
+            pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] , sercom_index);
+            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX], &pin_conf);
+        }
     }
-
-    NVIC_SetVector(irq_n, vector);
-    NVIC_EnableIRQ(irq_n);
-
+    if((FlowControlCTS == type) || (FlowControlRTSCTS== type)) {
+        if (pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] != NC) {
+            pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT; // setting for txflow
+            pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] , sercom_index);
+            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX], &pin_conf);
+        }
+    }
     enable_usart(obj);
-    _USART(obj).INTENSET.reg = SERCOM_USART_INTENCLR_CTSIC;
 }
 
 void serial_break_set(serial_t *obj)
 {
     disable_usart(obj);
-    _USART(obj).CTRLB.reg &= ~SERCOM_SPI_CTRLB_RXEN;
+    _USART(obj).CTRLB.reg &= ~SERCOM_USART_CTRLB_TXEN;  // to be checked
     usart_syncing(obj);
     enable_usart(obj);
 }
@@ -516,7 +507,7 @@ void serial_break_set(serial_t *obj)
 void serial_break_clear(serial_t *obj)
 {
     disable_usart(obj);
-    _USART(obj).CTRLB.reg |= SERCOM_SPI_CTRLB_RXEN;
+    _USART(obj).CTRLB.reg |= SERCOM_USART_CTRLB_TXEN;  // to be checked
     usart_syncing(obj);
     enable_usart(obj);
 }
@@ -544,6 +535,7 @@ inline uint8_t serial_get_index(serial_t *obj)
     }
     return 0;
 }
+
 static inline void uart_irq(SercomUsart *const usart, uint32_t index)
 {
     uint16_t interrupt_status;
@@ -558,10 +550,6 @@ static inline void uart_irq(SercomUsart *const usart, uint32_t index)
         if (interrupt_status & SERCOM_USART_INTFLAG_RXC) { // for receive complete
             usart->INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
             irq_handler(serial_irq_ids[index], RxIrq);
-        }
-        if (interrupt_status & SERCOM_USART_INTFLAG_CTSIC) { // hardware flow control
-            usart->INTENCLR.reg = SERCOM_USART_INTENCLR_CTSIC;
-            usart->INTFLAG.reg = SERCOM_USART_INTENCLR_CTSIC;
         }
     }
 }
@@ -596,6 +584,32 @@ void uart5_irq()
     uart_irq((SercomUsart *)UART_5, 5);
 }
 
+uint32_t get_serial_vector (serial_t *obj)
+{
+    uint32_t vector = 0;
+    switch ((int)pUSART_S(obj)) {
+        case UART_0:
+            vector = (uint32_t)uart0_irq;
+            break;
+        case UART_1:
+            vector = (uint32_t)uart1_irq;
+            break;
+        case UART_2:
+            vector = (uint32_t)uart2_irq;
+            break;
+        case UART_3:
+            vector = (uint32_t)uart3_irq;
+            break;
+        case UART_4:
+            vector = (uint32_t)uart4_irq;
+            break;
+        case UART_5:
+            vector = (uint32_t)uart5_irq;
+            break;
+    }
+    return vector;
+}
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     irq_handler = handler;
@@ -627,26 +641,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
-    switch ((int)pUSART_S(obj)) {
-        case UART_0:
-            vector = (uint32_t)uart0_irq;
-            break;
-        case UART_1:
-            vector = (uint32_t)uart1_irq;
-            break;
-        case UART_2:
-            vector = (uint32_t)uart2_irq;
-            break;
-        case UART_3:
-            vector = (uint32_t)uart3_irq;
-            break;
-        case UART_4:
-            vector = (uint32_t)uart4_irq;
-            break;
-        case UART_5:
-            vector = (uint32_t)uart5_irq;
-            break;
-    }
+    vector = get_serial_vector(obj);
     irq_n = get_serial_irq_num(obj);
 
     if (enable) {
@@ -789,7 +784,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
 //    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
     NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
     NVIC_DisableIRQ(get_serial_irq_num(obj));
-    NVIC_SetPriority(get_serial_irq_num(obj), 1);
     NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
     NVIC_EnableIRQ(get_serial_irq_num(obj));
 
@@ -798,6 +792,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_DRE;
     }
 //	}
+    return 0;
 }
 
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
@@ -807,11 +802,11 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
     serial_set_char_match(obj, char_match);
-
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
 //    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
     NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
+    NVIC_DisableIRQ(get_serial_irq_num(obj));
     NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
     NVIC_EnableIRQ(get_serial_irq_num(obj));
 
@@ -819,21 +814,23 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;
     }
 //	}
+    return;
 }
 
 uint8_t serial_tx_active(serial_t *obj)
 {
-    return ((_USART(obj).INTENSET.reg & SERCOM_USART_INTFLAG_DRE) ? true : false);
+    return ((obj->tx_buff.length > 0) ? true : false);
 }
 
 uint8_t serial_rx_active(serial_t *obj)
 {
-    return ((_USART(obj).INTENSET.reg & SERCOM_USART_INTFLAG_RXC) ? true : false);
+    return ((obj->rx_buff.length > 0) ? true : false);
 }
 
 int serial_tx_irq_handler_asynch(serial_t *obj)
 {
     _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
+    serial_tx_abort_asynch(obj);
     return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
 }
 
@@ -845,9 +842,7 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
     uint8_t error_code = 0;
     uint16_t received_data = 0;
 
-
     error_code = (uint8_t)(_USART(obj).STATUS.reg & SERCOM_USART_STATUS_MASK);
-
     /* Check if an error has occurred during the receiving */
     if (error_code) {
         /* Check which error occurred */
@@ -881,6 +876,7 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
             event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
         }
+        _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
         serial_rx_abort_asynch(obj);
         return event & obj->serial.events;
     }
@@ -890,15 +886,12 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
 
-    /* check for final char event */
-    if((obj->rx_buff.length) == 0) {
-        event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-    }
-
+    /* Return to the call back if character match occured */
     if(event != 0) {
         serial_rx_abort_asynch(obj);
         return event & obj->serial.events;
     }
+    return 0;
 }
 
 int serial_irq_handler_asynch(serial_t *obj)
@@ -914,12 +907,9 @@ int serial_irq_handler_asynch(serial_t *obj)
         if (interrupt_status & SERCOM_USART_INTFLAG_DRE) {
             /* Interrupt has another TX source */
             if(obj->tx_buff.pos >= obj->tx_buff.length) {
-
                 /* Transfer complete. Switch off interrupt and return event. */
                 _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
-                serial_tx_abort_asynch(obj);
-
-                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+                _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
             } else {
                 while((serial_writable(obj)) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
                     _USART(obj).DATA.reg = buf[obj->tx_buff.pos];
@@ -928,29 +918,30 @@ int serial_irq_handler_asynch(serial_t *obj)
             }
         }
         if (interrupt_status & SERCOM_USART_INTFLAG_TXC) {
-            serial_tx_irq_handler_asynch(obj);
+            return serial_tx_irq_handler_asynch(obj);
         }
         if (interrupt_status & SERCOM_USART_INTFLAG_RXC) {
-            serial_rx_irq_handler_asynch(obj);
+            return serial_rx_irq_handler_asynch(obj);
         }
     }
-
+    return 0;
 }
 
 void serial_tx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
-    _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
-    obj->tx_buff.pos = 0;
+    _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_TXC;
     obj->tx_buff.length = 0;
+    obj->rx_buff.pos = 0;
+
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
 //TODO: DMA to be implemented
-    _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
-    obj->rx_buff.pos = 0;
+    _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
     obj->rx_buff.length = 0;
+    obj->rx_buff.pos = 0;
 }
 
 #endif
