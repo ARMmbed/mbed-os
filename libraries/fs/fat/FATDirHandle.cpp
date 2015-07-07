@@ -30,8 +30,9 @@ FATDirHandle::FATDirHandle(const FATFS_DIR &the_dir) {
 }
 
 int FATDirHandle::closedir() {
+    int retval = f_closedir(&dir);
     delete this;
-    return 0;
+    return retval;
 }
 
 struct dirent *FATDirHandle::readdir() {

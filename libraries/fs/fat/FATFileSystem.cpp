@@ -47,9 +47,10 @@ FATFileSystem::FATFileSystem(const char* n) : FileSystemLike(n) {
     for(int i=0; i<_VOLUMES; i++) {
         if(_ffs[i] == 0) {
             _ffs[i] = this;
-            _fsid = i;
-            debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%d]\n", _name, _fsid);
-            f_mount(i, &_fs);
+            _fsid[0] = '0' + i;
+            _fsid[1] = '\0';
+            debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", _name, _fsid);
+            f_mount(&_fs, _fsid, 0);
             return;
         }
     }
@@ -60,15 +61,15 @@ FATFileSystem::~FATFileSystem() {
     for (int i=0; i<_VOLUMES; i++) {
         if (_ffs[i] == this) {
             _ffs[i] = 0;
-            f_mount(i, NULL);
+            f_mount(NULL, _fsid, 0);
         }
     }
 }
 
 FileHandle *FATFileSystem::open(const char* name, int flags) {
-    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%d]\n", name, _name, _fsid);
+    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", name, _name, _fsid);
     char n[64];
-    sprintf(n, "%d:/%s", _fsid, name);
+    sprintf(n, "%s:/%s", _fsid, name);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -141,13 +142,13 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
 }
 
 int FATFileSystem::mount() {
-    FRESULT res = f_mount(_fsid, &_fs);
+    FRESULT res = f_mount(&_fs, _fsid, 1);
     return res == 0 ? 0 : -1;
 }
 
 int FATFileSystem::unmount() {
     if (disk_sync())
         return -1;
-    FRESULT res = f_mount(_fsid, NULL);
+    FRESULT res = f_mount(NULL, _fsid, 0);
     return res == 0 ? 0 : -1;
 }
