@@ -15,6 +15,9 @@
  */
 #include "gpio_api.h"
 
+#define CRC16
+#include "crc.h"
+
 // called before main - implement here if board needs it ortherwise, let
 //  the application override this if necessary
 //void mbed_sdk_init()
@@ -35,40 +38,35 @@ void NMI_Handler(void)
 void mbed_mac_address(char *mac)
 {
     
-    // Making a random-as-possible MAC from 3 16 bit seeds and load of XOR'ing
-    uint16_t MAC[3]; // 3 16 bits words for the MAC
-    uint32_t UUID_LOC_BASE = 0x40048054;
+    unsigned int UUID_LOC_BASE = 0x40048054;    // First adddress of the 4-word UUID
+    char uuid[16];                              // So we can take a local copy of the UUID
+    uint32_t MAC[3]; // 3 16 bits words for the MAC
 
-    // three random seeds to make a MAC
-    MAC[0] = 0x2055;  
-    MAC[1] = 0x5c44;
-    MAC[2] = 0x79fe;
-
-    // XOR in each halfword of the UUID into each seed 
-    for (int i=0;i<3;i++) {
-        for (int j=0;j<8;j++) {
-            MAC[i] ^= (*(uint32_t *)(UUID_LOC_BASE+(0x2*j)));    
-        }
-    }
-
+    // copy the UUID to the variable MAC[]
+    memcpy(uuid,(const void*)UUID_LOC_BASE,sizeof(uuid));    
     
-    mac[0] = MAC[2] >> 8;
-    mac[1] = MAC[2];
+    // generate three CRC16's using different slices of the UUID
+    MAC[0] = crcSlow(uuid, 8);   // most significant half-word
+    MAC[1] = crcSlow(uuid, 12); 
+    MAC[2] = crcSlow(uuid, 16); // least significant half word
+        
+    // The network stack expects an array of 6 bytes
+    // so we copy, and shift and copy from the half-word array to the byte array
+    mac[0] = MAC[0] >> 8;
+    mac[1] = MAC[0];
     mac[2] = MAC[1] >> 8;
     mac[3] = MAC[1];
-    mac[4] = MAC[0] >> 8;
-    mac[5] = MAC[0];
+    mac[4] = MAC[2] >> 8;
+    mac[5] = MAC[2];
 
-    // we only want bottom 16 bits of word1 (MAC bits 32-47)
-    // and bit 9 forced to 1, bit 8 forced to 0
-    // Locally administered MAC, reduced conflicts
+    // We want to force bits [1:0] of the most significant byte [0]
+    // to be "10" 
     // http://en.wikipedia.org/wiki/MAC_address
-    // uint32_t word1 = *(uint32_t *)UUID_LOC_WORD1;
 
-    mac[0] |= 0x02;
-    mac[0] &= 0xFE;    
+    mac[0] |= 0x02; // force bit 1 to a "1" = "Locally Administered"
+    mac[0] &= 0xFE; // force bit 0 to a "0" = Unicast
+
 }
-
 
 
 
