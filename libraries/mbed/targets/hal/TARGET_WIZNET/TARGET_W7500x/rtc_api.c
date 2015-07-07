@@ -53,7 +53,8 @@ void rtc_init(void) {
     
     /* PWM channel 0 start */
     PWM_CHn_Start(PWM_CH3);
-		NVIC_EnableIRQ(PWM3_IRQn);		
+    NVIC_SetVector(PWM3_IRQn, (uint32_t)PWM3_Handler);
+    NVIC_EnableIRQ(PWM3_IRQn);		
   	rtc_enabled = 1;
 }
 
