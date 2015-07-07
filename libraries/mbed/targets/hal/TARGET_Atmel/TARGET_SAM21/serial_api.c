@@ -498,18 +498,34 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
 void serial_break_set(serial_t *obj)
 {
-    disable_usart(obj);
-    _USART(obj).CTRLB.reg &= ~SERCOM_USART_CTRLB_TXEN;  // to be checked
-    usart_syncing(obj);
-    enable_usart(obj);
+    struct system_pinmux_config pin_conf;
+    pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
+    pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    pin_conf.mux_position = SYSTEM_PINMUX_GPIO;
+    pin_conf.powersave    = false;
+
+    if (pSERIAL_S(obj)->pins[USART_TX_INDEX] != NC) {
+        if (NC != pin_conf.mux_position) {
+            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
+        }
+    }
 }
 
 void serial_break_clear(serial_t *obj)
 {
-    disable_usart(obj);
-    _USART(obj).CTRLB.reg |= SERCOM_USART_CTRLB_TXEN;  // to be checked
-    usart_syncing(obj);
-    enable_usart(obj);
+    uint32_t sercom_index = pinmap_merge_sercom(pSERIAL_S(obj)->pins[USART_TX_INDEX], pSERIAL_S(obj)->pins[USART_RX_INDEX]);
+
+    struct system_pinmux_config pin_conf;
+    pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+    pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
+    pin_conf.powersave    = false;
+
+    if (pSERIAL_S(obj)->pins[USART_TX_INDEX] != NC) {
+        pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TX_INDEX], sercom_index);
+        if (NC != pin_conf.mux_position) {
+            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
+        }
+    }
 }
 
 #endif  //DEVICE_SERIAL_FC
