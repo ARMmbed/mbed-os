@@ -285,7 +285,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
         if (current_pin != NC) {
             pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
-            if (NC != pin_conf.mux_position) {
+            if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(current_pin, &pin_conf);
             }
         }
@@ -472,7 +472,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
         if (current_pin != NC) {
             pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
-            if (NC != pin_conf.mux_position) {
+            if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(current_pin, &pin_conf);
             }
         }
@@ -482,7 +482,9 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT; // setting for rxflow
             pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
             pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] , sercom_index);
-            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX], &pin_conf);
+            if ((uint8_t)NC != pin_conf.mux_position) {
+                system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX], &pin_conf);
+            }
         }
     }
     if((FlowControlCTS == type) || (FlowControlRTSCTS== type)) {
@@ -490,7 +492,9 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT; // setting for txflow
             pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
             pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] , sercom_index);
-            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX], &pin_conf);
+            if ((uint8_t)NC != pin_conf.mux_position) {
+                system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX], &pin_conf);
+            }
         }
     }
     enable_usart(obj);
@@ -507,9 +511,7 @@ void serial_break_set(serial_t *obj)
     pin_conf.powersave    = false;
 
     if (pSERIAL_S(obj)->pins[USART_TX_INDEX] != NC) {
-        if (NC != pin_conf.mux_position) {
-            system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
-        }
+        system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
     }
 }
 
@@ -524,7 +526,7 @@ void serial_break_clear(serial_t *obj)
 
     if (pSERIAL_S(obj)->pins[USART_TX_INDEX] != NC) {
         pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TX_INDEX], sercom_index);
-        if (NC != pin_conf.mux_position) {
+        if ((uint8_t)NC != pin_conf.mux_position) {
             system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
         }
     }
