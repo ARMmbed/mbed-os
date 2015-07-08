@@ -44,7 +44,6 @@
 * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
 */
 
-//#include "samd21.h"
 #include "samd21j18a.h"
 /**
  * Initial system clock frequency. The System RC Oscillator (RCSYS) provides
