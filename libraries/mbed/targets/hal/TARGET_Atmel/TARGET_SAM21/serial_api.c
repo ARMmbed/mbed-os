@@ -41,6 +41,12 @@
 uint8_t serial_get_index(serial_t *obj);
 IRQn_Type get_serial_irq_num (serial_t *obj);
 uint32_t get_serial_vector (serial_t *obj);
+void uart0_irq();
+void uart1_irq();
+void uart2_irq();
+void uart3_irq();
+void uart4_irq();
+void uart5_irq();
 
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -430,12 +436,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 }
 
 #ifdef DEVICE_SERIAL_FC
-void uart0_irq();
-void uart1_irq();
-void uart2_irq();
-void uart3_irq();
-void uart4_irq();
-void uart5_irq();
 
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
@@ -496,6 +496,8 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     enable_usart(obj);
 }
 
+#endif  //DEVICE_SERIAL_FC
+
 void serial_break_set(serial_t *obj)
 {
     struct system_pinmux_config pin_conf;
@@ -527,8 +529,6 @@ void serial_break_clear(serial_t *obj)
         }
     }
 }
-
-#endif  //DEVICE_SERIAL_FC
 
 /******************************************************************************
  * INTERRUPTS HANDLING
