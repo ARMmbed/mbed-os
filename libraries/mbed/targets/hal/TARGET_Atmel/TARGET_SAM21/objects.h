@@ -32,7 +32,6 @@ struct gpio_irq_s {
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
-    uint32_t int_ch;
     struct extint_chan_conf config_extint_chan;
 };
 

@@ -32,39 +32,12 @@ static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 uint8_t ext_int_pins[EIC_NUMBER_OF_INTERRUPTS] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-uint32_t find_peripheral_index (PinName pin, const PinMap* map)
-{
-    while (map->pin != NC) {
-        if (map->pin == pin)
-            return map->peripheral;
-        map++;
-    }
-    return (uint32_t)NC;
-}
-
-uint32_t find_pin_index (PinName pin, const PinMap* map)
-{
-    uint8_t count = 0;
-    while (map->pin != NC) {
-        if (map->pin == pin)
-            return count;
-        map++;
-        count++;
-    }
-    return (uint32_t)NC;
-}
-
 void gpio_irq(void)
 {
     uint32_t current_channel;
-    uint32_t config_pos;
-    uint32_t new_config;
     uint32_t mask;
-    Eic *const EIC_module = EIC;
-    uint32_t config = 0;
-    gpio_irq_event event = IRQ_NONE;
+    gpio_irq_event event;
     PortGroup *port_base;
-    uint32_t index = 0;
 
     for (current_channel = 0; current_channel < EIC_NUMBER_OF_INTERRUPTS ; current_channel++) {
         if (extint_chan_is_detected(current_channel)) {
@@ -76,52 +49,58 @@ void gpio_irq(void)
             } else {
                 event = IRQ_FALL;
             }
-            if (event != IRQ_NONE) {
-                index = find_pin_index(ext_int_pins[current_channel], PinMap_EXTINT);
-                irq_handler(channel_ids[current_channel], event);
-            }
+            irq_handler(channel_ids[current_channel], event);
         }
     }
 }
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
-    IRQn_Type irq_n = (IRQn_Type)0;
-    uint32_t vector, ab = 0;
-    irq_handler = handler;
-
-    obj->pin = pin;
-    int int_channel = 0;
+    MBED_ASSERT(obj);
     if (pin == NC)
         return -1;
+
+    IRQn_Type irq_n = (IRQn_Type)0;
+    uint32_t vector = 0;
+    int int_channel = 0;
+    irq_handler = handler;  // assuming the usage of these apis in mbed layer only
+
+    obj->pin = pin;
+
     extint_chan_get_config_defaults(&pEXT_CONF(obj));
     pEXT_CONF(obj).gpio_pin           = (uint32_t)pin;
     pEXT_CONF(obj).gpio_pin_mux       = 0;   // mux setting for ext int is 0
     pEXT_CONF(obj).gpio_pin_pull      = EXTINT_PULL_UP;
     pEXT_CONF(obj).detection_criteria = EXTINT_DETECT_NONE;
-    int_channel = find_peripheral_index(pin, PinMap_EXTINT);
-    if (int_channel != 0xFF) {
-        extint_chan_set_config(int_channel, &pEXT_CONF(obj));
+
+    int_channel = pinmap_find_peripheral(pin, PinMap_EXTINT);
+    if (int_channel == NC) {
+        return -1;
     }
+    extint_chan_set_config(int_channel, &pEXT_CONF(obj));
     ext_int_pins[int_channel] = pin;
 
     irq_n = EIC_IRQn;
     vector = (uint32_t)gpio_irq;
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
-
-    obj->int_ch = find_pin_index(pin, PinMap_EXTINT);
     obj->ch = int_channel;
-    channel_ids[obj->ch] = id;
+    channel_ids[int_channel] = id;
+
+    return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    channel_ids[obj->int_ch] = 0;
+    MBED_ASSERT(obj);
+    Eic *const eic = _extint_get_eic_from_channel(obj->ch);
+    channel_ids[obj->ch] = 0;
+    eic->INTENCLR.reg = (1UL << obj->ch);
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
+    MBED_ASSERT(obj);
     Eic *const eic = _extint_get_eic_from_channel(obj->ch);
     if (enable) {
         if (event == IRQ_RISE) {
@@ -154,6 +133,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
+    MBED_ASSERT(obj);
     Eic *const eic = _extint_get_eic_from_channel(obj->ch);
     NVIC_EnableIRQ(EIC_IRQn);
     eic->INTENSET.reg = (1UL << obj->ch);
@@ -161,7 +141,10 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
+    MBED_ASSERT(obj);
     Eic *const eic = _extint_get_eic_from_channel(obj->ch);
     eic->INTENCLR.reg = (1UL << obj->ch);
-    NVIC_DisableIRQ(EIC_IRQn);
+    if (eic->INTENSET.reg == 0) {
+        NVIC_DisableIRQ(EIC_IRQn);
+    }
 }
