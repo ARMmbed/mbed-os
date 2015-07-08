@@ -61,13 +61,17 @@ void rtc_init(void)
 
 /** Frees the RTC
  *
- * Not implemented now
  * @param[void] void
  */
 void rtc_free(void)
 {
-    rtc_inited = 0;
-    // [TODO]
+    if (rtc_inited) {
+        /* Disable the RTC module */
+        rtc_count_disable(&rtc_instance);
+        /* Disable the RTC clock */
+        system_gclk_chan_disable(RTC_GCLK_ID);
+        rtc_inited = 0;
+    }
 }
 
 /** Checks whether RTC is enabled or not
