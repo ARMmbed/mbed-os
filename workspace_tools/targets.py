@@ -1188,7 +1188,7 @@ class ARM_MPS2_M4(ARM_MPS2_Target):
 class ARM_MPS2_M7(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M7F"
+        self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
