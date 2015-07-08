@@ -36,7 +36,7 @@ DRESULT disk_read (
 )
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    if (FATFileSystem::_ffs[pdrv]->disk_read((uint8_t*)buff, sector, count))
+    if (FATFileSystem::_ffs[pdrv]->disk_read(buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
@@ -51,7 +51,7 @@ DRESULT disk_write (
 )
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    if (FATFileSystem::_ffs[pdrv]->disk_write((uint8_t*)buff, sector, count))
+    if (FATFileSystem::_ffs[pdrv]->disk_write(buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
