@@ -33,9 +33,12 @@
 #include "PeripheralNames.h"
 #include "system_W7500x.h"
 
+#define TIMER_0         DUALTIMER0_0
+#define TIMER_1         PWM_CH1
+#define TIMER_IRQn      DUALTIMER0_IRQn
 
-static PWM_TimerModeInitTypeDef TimMasterHandle_CH3;
-static PWM_TimerModeInitTypeDef TimMasterHandle_CH2;
+static PWM_TimerModeInitTypeDef TimerInitType;
+static DULATIMER_InitTypDef TimerHandler;
 
 static int us_ticker_inited = 0;
 
@@ -43,20 +46,35 @@ static int us_ticker_inited = 0;
 #ifdef __cplusplus
 extern "C"{
 #endif
-void PWM2_Handler(void)
+
+void DUALTIMER0_Handler(void)
 {
-    uint32_t IntFlag = 0;
-
-    IntFlag = PWM_CHn_GetIntFlagStatus(PWM_CH2);
-
-    /* If overflow interrupt is occurred */
-    if( (IntFlag & PWM_CHn_IER_OI_Msk) != 0 )
+	   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
     {
-        /* Clear overflow interrupt */
-        PWM_CH2_ClearOverflowInt();
+        DUALTIMER_IntClear(DUALTIMER0_0);
         us_ticker_irq_handler();
     }
+    
+        if(DUALTIMER_GetIntStatus(DUALTIMER0_1))
+    {
+        DUALTIMER_IntClear(DUALTIMER0_1);
+    }
 }
+    
+//void PWM2_Handler(void)
+//{
+//    uint32_t IntFlag = 0;
+
+//    IntFlag = PWM_CHn_GetIntFlagStatus(PWM_CH2);
+
+//    /* If overflow interrupt is occurred */
+//    if( (IntFlag & PWM_CHn_IER_OI_Msk) != 0 )
+//    {
+//        /* Clear overflow interrupt */
+//        PWM_CH2_ClearOverflowInt();
+//        us_ticker_irq_handler();
+//    }
+//}
 
 #ifdef __cplusplus
 }
@@ -68,66 +86,91 @@ void us_ticker_init(void)
     us_ticker_inited = 1;
 
     SystemCoreClockUpdate();
-    TimMasterHandle_CH3.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
-    TimMasterHandle_CH3.PWM_CHn_LR = 0xFFFFFFFF;
-    TimMasterHandle_CH3.PWM_CHn_PDMR = 1;
+    TimerInitType.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
+    TimerInitType.PWM_CHn_LR = 0xFFFFFFFF;
+    TimerInitType.PWM_CHn_PDMR = 1;
 
-    PWM_TimerModeInit(PWM_CH3, &TimMasterHandle_CH3);
-    PWM_CHn_Start(PWM_CH3);
+    PWM_TimerModeInit(TIMER_1, &TimerInitType);
+    PWM_CHn_Start(TIMER_1);
 }
 
 
 uint32_t us_ticker_read()
 {
     if (!us_ticker_inited) us_ticker_init();
-
-    return (PWM_CH3->TCR);
+    return (TIMER_1->TCR);
 }
 
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     int32_t dev = 0;
+    
     if (!us_ticker_inited)
     {
         us_ticker_init();
     }
     
-    dev = (int32_t)(timestamp - (us_ticker_read() + 150));
-
+    dev = (int32_t)(timestamp - (us_ticker_read() + 160));
+    dev = dev * 1.27;
+        
     if(dev <= 0)
     {
         us_ticker_irq_handler();
     	return;
     }
+    
+    DUALTIMER_ClockEnable(TIMER_0);
+    DUALTIMER_Stop(TIMER_0);
+    
+    TimerHandler.TimerControl_Mode       = DUALTIMER_TimerControl_Periodic;
+    TimerHandler.TimerControl_OneShot    = DUALTIMER_TimerControl_OneShot;
+    TimerHandler.TimerControl_Pre        = DUALTIMER_TimerControl_Pre_16;
+    TimerHandler.TimerControl_Size       = DUALTIMER_TimerControl_Size_32;
+    
+    TimerHandler.TimerLoad      = (uint32_t)dev;
+    
+    DUALTIMER_Init(TIMER_0, &TimerHandler);
+    
+    DUALTIMER_IntConfig(TIMER_0, ENABLE);
+    
+    NVIC_EnableIRQ(TIMER_IRQn);
+    
+    DUALTIMER_Start(TIMER_0);
+    
 
-    PWM_CHn_Stop(PWM_CH2);
+//    PWM_CHn_Stop(PWM_CH2);
 
-    SystemCoreClockUpdate();
-    TimMasterHandle_CH2.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
-    TimMasterHandle_CH2.PWM_CHn_LR = dev;
+//    SystemCoreClockUpdate();
+//    TimMasterHandle_CH2.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
+//    TimMasterHandle_CH2.PWM_CHn_LR = dev;
 
-    TimMasterHandle_CH2.PWM_CHn_UDMR = 0;
-    TimMasterHandle_CH2.PWM_CHn_PDMR = 0;
+//    TimMasterHandle_CH2.PWM_CHn_UDMR = 0;
+//    TimMasterHandle_CH2.PWM_CHn_PDMR = 0;
 
-    NVIC_EnableIRQ(PWM2_IRQn);
+//    NVIC_EnableIRQ(PWM2_IRQn);
 
-    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, ENABLE);
-    PWM_IntConfig(PWM_CH2, ENABLE);
-    PWM_TimerModeInit(PWM_CH2, &TimMasterHandle_CH2);
+//    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, ENABLE);
+//    PWM_IntConfig(PWM_CH2, ENABLE);
+//    PWM_TimerModeInit(PWM_CH2, &TimMasterHandle_CH2);
 
-    PWM_CHn_Start(PWM_CH2);
+//    PWM_CHn_Start(PWM_CH2);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    NVIC_DisableIRQ(PWM2_IRQn);
+    NVIC_DisableIRQ(TIMER_IRQn);
+    
+    DUALTIMER_IntConfig(TIMER_0, DISABLE);
+    
+    //NVIC_DisableIRQ(PWM2_IRQn);
 
-    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, DISABLE);
-    PWM_IntConfig(PWM_CH2, DISABLE);
+//    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, DISABLE);
+//    PWM_IntConfig(PWM_CH2, DISABLE);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    PWM_CHn_ClearInt(PWM_CH2, PWM_CHn_IER_OIE);
+    DUALTIMER_IntClear(TIMER_0);
+    //PWM_CHn_ClearInt(PWM_CH2, PWM_CHn_IER_OIE);
 }
