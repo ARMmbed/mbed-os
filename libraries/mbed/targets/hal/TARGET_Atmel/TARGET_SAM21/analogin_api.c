@@ -145,7 +145,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t pos_input;
     static uint8_t init_flag = 0;
-    struct system_pinmux_config config;
 
     switch(pin) {
         case PA04:

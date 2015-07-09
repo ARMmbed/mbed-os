@@ -35,4 +35,5 @@ void port_write(port_t *obj, int value)
 
 int port_read(port_t *obj)
 {
+    return 0;
 }
