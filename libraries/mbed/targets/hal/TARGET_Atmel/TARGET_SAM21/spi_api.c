@@ -384,6 +384,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         _SPI(obj).CTRLA.bit.MODE = 0x2;
         pSPI_S(obj)->mode = SPI_MODE_SLAVE;
         pull_mode = PullNone;
+        /* Enable PLOADEN to avoid sending dummy character by slave */
+        _SPI(obj).CTRLB.bit.PLOADEN = 1;
     } else {
         /* Set the SERCOM in SPI mode */
         _SPI(obj).CTRLA.bit.MODE = 0x3;
