@@ -378,7 +378,6 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     /* Disable SPI */
     spi_disable(obj);
 
-    uint32_t ctrla = _SPI(obj).CTRLA.reg;
 
     if (slave) {
         /* Set the SERCOM in SPI mode */
@@ -400,6 +399,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     }
 
     /* Change MUX settings */
+    uint32_t ctrla = _SPI(obj).CTRLA.reg;
     ctrla &= ~(SERCOM_SPI_CTRLA_DIPO_Msk | SERCOM_SPI_CTRLA_DOPO_Msk);
     ctrla |= spi_find_mux_settings(obj);
     _SPI(obj).CTRLA.reg = ctrla;
