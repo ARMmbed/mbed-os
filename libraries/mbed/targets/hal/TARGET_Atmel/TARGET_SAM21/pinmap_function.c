@@ -179,7 +179,6 @@ uint32_t pinmap_function_sercom(PinName pin, uint32_t sercom_index)
  */
 uint32_t pinmap_pad_sercom(PinName pin, uint32_t sercom_index)
 {
-    uint32_t func = NC;
     uint32_t index;
     sercom_index &= 0x0F;
 

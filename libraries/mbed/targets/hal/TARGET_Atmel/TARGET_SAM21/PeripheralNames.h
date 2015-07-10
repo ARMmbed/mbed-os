@@ -44,18 +44,18 @@ typedef enum {
     UART_5 = (int)0x42001C00UL   // Base address of SERCOM5
 } UARTName;
 
-typedef enum {
-    ADC_0 = 0,
-    ADC_1,
-    ADC_2,
-    ADC_3,
-    ADC_4,
-    ADC_5,
-    ADC_6,
-    ADC_7
+typedef enum { // for each input control mux  4,5,6,7,16,17,10,11 used in R21
+    ADC_4  =  0x4ul,
+    ADC_5  =  0x5ul,
+    ADC_6  =  0x6ul,
+    ADC_7  =  0x7ul,
+    ADC_10 =  0xAul,
+    ADC_11 =  0xBul,
+    ADC_16 =  0x10ul,
+    ADC_17 =  0x11ul
 } ADCName;
 
-typedef enum {
+typedef enum {  // for each channel
     EXTINT_0 = 0,
     EXTINT_1,
     EXTINT_2,

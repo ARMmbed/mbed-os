@@ -16,36 +16,25 @@
 
 #include "PeripheralPins.h"
 
-#define SERCOM_NULL 0xFF
-#define MUX_NULL    0xFF
-
-#define SERCOM_USART_CTRLA_RXPO_Pos 20           /**< \brief (SERCOM_USART_CTRLA) Receive Data Pinout */
-#define SERCOM_USART_CTRLA_RXPO_Msk (0x3ul << SERCOM_USART_CTRLA_RXPO_Pos)
-#define SERCOM_USART_CTRLA_RXPO(value) ((SERCOM_USART_CTRLA_RXPO_Msk & ((value) << SERCOM_USART_CTRLA_RXPO_Pos)))
-
-#define SERCOM_USART_CTRLA_TXPO_Pos 16           /**< \brief (SERCOM_USART_CTRLA) Transmit Data Pinout */
-#define SERCOM_USART_CTRLA_TXPO_Msk (0x3ul << SERCOM_USART_CTRLA_TXPO_Pos)
-#define SERCOM_USART_CTRLA_TXPO(value) ((SERCOM_USART_CTRLA_TXPO_Msk & ((value) << SERCOM_USART_CTRLA_TXPO_Pos)))
-
-
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {PA04,  ADC_0, 1},
-    {PA05,  ADC_1, 1},
-    {PA06,  ADC_2, 1},
-    {PA07,  ADC_3, 1},
-    {PA08,  ADC_4, 1},
-    {PA09,  ADC_5, 1},
-    {PB02,  ADC_6, 1},
-    {PB03,  ADC_7, 1}
-};
+    {PA04,  ADC_4, 1},
+    {PA05,  ADC_5, 1},
+    {PA06,  ADC_6, 1},
+    {PA07,  ADC_7, 1},
+    {PB02,  ADC_10, 1},
+    {PB03,  ADC_11, 1},
+    {PA08,  ADC_16, 1},
+    {PA09,  ADC_17, 1},
 
-/************DAC***************/
-const PinMap PinMap_DAC[] = {
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 /************SERCOM Pins***********/
@@ -104,37 +93,11 @@ const PinMap PinMap_SERCOM_PADEx[] = {
     {NC  , NC   , NC}
 };
 
-/************I2C***************/
-const PinMap PinMap_I2C_SDA[] = {
-};
-
-const PinMap PinMap_I2C_SCL[] = {
-};
-
-/************UART***************/
-const PinMap PinMap_UART_TX[] = {
-    {PA04,  UART_0, 0}
-};
-
-const PinMap PinMap_UART_RX[] = {
-    {PA05,  UART_0, 0}
-};
-
-/************SPI***************/
-const PinMap PinMap_SPI_SCLK[] = {
-};
-
-const PinMap PinMap_SPI_MOSI[] = {
-};
-
-const PinMap PinMap_SPI_MISO[] = {
-};
-
-const PinMap PinMap_SPI_SSEL[] = {
-};
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 /**********EXTINT*************/
@@ -192,7 +155,10 @@ const PinMap PinMap_EXTINT[] = {
     {PA15,  EXTINT_15, 0},
     {PA27,  EXTINT_15, 0},
     {PB15,  EXTINT_15, 0},
-    {PB31,  EXTINT_15, 0}
+    {PB31,  EXTINT_15, 0},
+
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 

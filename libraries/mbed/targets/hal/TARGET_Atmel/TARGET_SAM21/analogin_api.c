@@ -146,43 +146,16 @@ void analogin_init(analogin_t *obj, PinName pin)
     uint32_t pos_input;
     static uint8_t init_flag = 0;
 
-    switch(pin) {
-        case PA04:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN4;
-            break;
-        case PA05:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN5;
-            break;
-        case PA06:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN6;
-            break;
-        case PA07:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN7;
-            break;
-        case PA08:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN16;
-            break;
-        case PA09:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN17;
-            break;
-        case PB02:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN10;
-            break;
-        case PB03:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN11;
-            break;
-        default:
-            pos_input = ADC_INPUTCTRL_MUXPOS_PIN4;
-            break;
-    }
+    pos_input = pinmap_find_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(pos_input != NC);
+
     adc_get_config_defaults(&(obj->config_adc));
     obj->config_adc.positive_input = pos_input;
-    if (init_flag == 0) {
+    if (init_flag == 0) {  // ADC init and enable to be done only once.
         adc_init(&adc_instance, ADC, &(obj->config_adc));
         adc_enable(&adc_instance);
-        adc_start_conversion(&adc_instance);
         init_flag = 1;
-    } else {
+    } else { // pin muxing
         adc_configure_ain_pin(obj->config_adc.positive_input);
         adc_configure_ain_pin(obj->config_adc.negative_input);
     }
@@ -191,17 +164,18 @@ void analogin_init(analogin_t *obj, PinName pin)
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     uint16_t result;
-
     adc_set_positive_input(&adc_instance, obj->config_adc.positive_input);
     adc_set_negative_input(&adc_instance, obj->config_adc.negative_input);
     adc_start_conversion(&adc_instance);
-    adc_read(&(adc_instance), &result);
-    return result;
+    do {
+    } while(adc_read(&(adc_instance), &result) == STATUS_BUSY);   // 12 bit value
+
+    return (uint16_t)((result * 65535) / 4095);  // for normalizing to 16 bit value
 }
 
 float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
-    return (float)value * (1.0f / (float)0xFFF);
+    return (float)value * (1.0f / (float)0xFFFF);
 }
 
