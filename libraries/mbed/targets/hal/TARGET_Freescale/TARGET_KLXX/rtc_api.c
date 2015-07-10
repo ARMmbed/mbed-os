@@ -15,16 +15,24 @@
  */
 #include "rtc_api.h"
 #include "PeripheralPins.h"
+#include "clk_freqs.h"
 
 static void init(void) {
     // enable RTC clock
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
 
-    pinmap_pinout(PinMap_RTC[0].pin, PinMap_RTC);        //Map RTC clk input (if not NC)
-
     // select RTC clock source
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
-    SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
+    
+    // Enable external crystal source if clock source is 32KHz
+    if (extosc_frequency()==32768) {
+        SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(OSC32KCLK);
+    }
+    else{
+        // If main clock is NOT 32KHz crystal, use external 32KHz clock source defined in PeripheralPins.c
+        SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
+        pinmap_pinout(PinMap_RTC[0].pin, PinMap_RTC);        //Map RTC clk input (if not NC)
+    }
 }
 
 void rtc_init(void) {
