@@ -189,6 +189,14 @@ class LPC11U35_501(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
 
+class LPC11U35_501_IBDAP(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
+        self.default_toolchain = "uARM"
+
 class LPC11U35_Y5_MBUG(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -1335,6 +1343,7 @@ TARGETS = [
     MICRONFCBOARD(), # LPC11U34_421
     LPC11U35_401(),
     LPC11U35_501(),
+    LPC11U35_501_IBDAP(),
     XADOW_M0(),     # LPC11U35_501
     LPC11U35_Y5_MBUG(),
     LPC11U37_501(),
