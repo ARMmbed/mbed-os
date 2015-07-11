@@ -534,8 +534,37 @@ void GPIO_I2C(void )
        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF0); // PAD Config - LED used 2nd Functio
 
 }
-
-
+ 
+void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
+{
+    
+    if(val == Bit_SET)
+    {
+        GPIOx -> OUTENCLR = pin;
+    }
+    else
+    {
+        GPIOx -> OUTENSET |= pin;
+        
+    }
+}
+ 
+uint16_t digitalRead(GPIO_TypeDef* GPIOx,uint16_t pin)
+{
+    uint16_t bitstatus = 0x0000;
+ 
+    if((GPIOx->DATA & pin) != (uint32_t)Bit_RESET)
+    {
+        bitstatus = (uint8_t)Bit_SET;
+    }
+    else
+    {
+        bitstatus = (uint8_t)Bit_RESET;
+    }
+ 
+    return bitstatus;
+}
+ 
 void WriteByte(uint8_t val)
 {
     int  i;
@@ -559,21 +588,6 @@ void WriteByte(uint8_t val)
 	digitalWrite(GPIOx,SCL, Bit_SET);
 	i2c_loop_us(2);
     digitalWrite(GPIOx,SCL, Bit_RESET);
-}
-
-
-void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
-{
-    
-    if(val == Bit_SET)
-    {
-        GPIOx -> OUTENCLR = pin;
-    }
-    else
-    {
-        GPIOx -> OUTENSET |= pin;
-        
-    }
 }
 
 
