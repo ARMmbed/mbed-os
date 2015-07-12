@@ -4,10 +4,16 @@ HEADER = """
 <head>
 <style>
 
-table, th, td {
+td {
     border: 1px solid black;
      border-collapse: collapse;
 }
+
+table {
+    border: 1px solid white;
+     border-collapse: collapse;
+}
+
 
 .rotate {
     height: 140px;
@@ -21,6 +27,7 @@ table, th, td {
        -o-transform: rotate(-45.0deg);  /* Opera 10.5 */
   -webkit-transform: rotate(-45.0deg);  /* Safari 3.1+, Chrome */
           transform: rotate(-45.0deg);  /* Standard */
+
 }
 </style>
 </head>
