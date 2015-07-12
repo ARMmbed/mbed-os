@@ -7,6 +7,7 @@ HEADER = """
 td {
     border: 1px solid black;
      border-collapse: collapse;
+     font-weight: bold;
 }
 
 table {
@@ -14,8 +15,8 @@ table {
      border-collapse: collapse;
 }
 
-
 .rotate {
+    font-weight: 900;
     height: 140px;
     white-space: nowrap;
     width: 30px;
@@ -37,7 +38,7 @@ table {
 <table id="example" class="dataTable display" cellspacing="0" width="80%">
 """
 
-AVAILABLE = ["NO", "YES"]
+AVAILABLE = ["<span style=\"color:#DF013A\"> NO </span>", "<span style=\"color:#31B404\"> YES </span>"]
 SROW = "<tr>\n"
 EROW = "</tr>\n"
 SBODY = "       <tbody class=\"list\">\n"
@@ -74,7 +75,7 @@ function runFilter() {
     featureList.filter(function(item) {
     for (var i = 0; i<options.valueNames.length; i++) {
         if (stateArray[i] != undefined) {
-            if (item.values()[options.valueNames[i]] != stateArray[i]) {
+            if (item.values()[options.valueNames[i]].indexOf(stateArray[i]) == -1) {
                 return false;
             }
         }
