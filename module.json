@@ -1,0 +1,19 @@
+{
+  "name": "mbed-client-randlib",
+  "version": "0.0.1",
+  "description": "Pseudo random library used by mbed-client and 6LoWPAN stack.",
+  "keywords": [],
+  "author": "",
+  "homepage": "",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "extraIncludes": [
+    "mbed-client-randlib"
+  ],
+  "dependencies": {},
+  "targetDependencies": {}
+}
