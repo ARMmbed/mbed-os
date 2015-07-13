@@ -49,32 +49,12 @@ extern "C"{
 
 void DUALTIMER0_Handler(void)
 {
-	   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
+   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
     {
         DUALTIMER_IntClear(DUALTIMER0_0);
         us_ticker_irq_handler();
     }
-    
-        if(DUALTIMER_GetIntStatus(DUALTIMER0_1))
-    {
-        DUALTIMER_IntClear(DUALTIMER0_1);
-    }
 }
-    
-//void PWM2_Handler(void)
-//{
-//    uint32_t IntFlag = 0;
-
-//    IntFlag = PWM_CHn_GetIntFlagStatus(PWM_CH2);
-
-//    /* If overflow interrupt is occurred */
-//    if( (IntFlag & PWM_CHn_IER_OI_Msk) != 0 )
-//    {
-//        /* Clear overflow interrupt */
-//        PWM_CH2_ClearOverflowInt();
-//        us_ticker_irq_handler();
-//    }
-//}
 
 #ifdef __cplusplus
 }
@@ -117,7 +97,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     if(dev <= 0)
     {
         us_ticker_irq_handler();
-    	return;
+        return;
     }
     
     DUALTIMER_ClockEnable(TIMER_0);
@@ -139,22 +119,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     DUALTIMER_Start(TIMER_0);
     
 
-//    PWM_CHn_Stop(PWM_CH2);
-
-//    SystemCoreClockUpdate();
-//    TimMasterHandle_CH2.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
-//    TimMasterHandle_CH2.PWM_CHn_LR = dev;
-
-//    TimMasterHandle_CH2.PWM_CHn_UDMR = 0;
-//    TimMasterHandle_CH2.PWM_CHn_PDMR = 0;
-
-//    NVIC_EnableIRQ(PWM2_IRQn);
-
-//    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, ENABLE);
-//    PWM_IntConfig(PWM_CH2, ENABLE);
-//    PWM_TimerModeInit(PWM_CH2, &TimMasterHandle_CH2);
-
-//    PWM_CHn_Start(PWM_CH2);
 }
 
 void us_ticker_disable_interrupt(void)
@@ -162,15 +126,9 @@ void us_ticker_disable_interrupt(void)
     NVIC_DisableIRQ(TIMER_IRQn);
     
     DUALTIMER_IntConfig(TIMER_0, DISABLE);
-    
-    //NVIC_DisableIRQ(PWM2_IRQn);
-
-//    PWM_CHn_IntConfig(PWM_CH2, PWM_CHn_IER_OIE, DISABLE);
-//    PWM_IntConfig(PWM_CH2, DISABLE);
 }
 
 void us_ticker_clear_interrupt(void)
 {
     DUALTIMER_IntClear(TIMER_0);
-    //PWM_CHn_ClearInt(PWM_CH2, PWM_CHn_IER_OIE);
 }
