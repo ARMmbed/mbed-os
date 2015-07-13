@@ -60,12 +60,12 @@ const PinMap PinMap_UART_RX[] = {
 
 //*** I2C ***
 const PinMap PinMap_I2C_SDA[] = {
-    {PA_10, I2C_0, WIZ_PIN_DATA(WIZ_MODE_AF, WIZ_GPIO_NOPULL, Px_AFSR_AF1)},
+    {PA_10, I2C_0, WIZ_PIN_DATA(WIZ_MODE_AF, WIZ_GPIO_NOPULL, Px_AFSR_AF0)},
     {NC,    NC,    0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-    {PA_9, I2C_0, WIZ_PIN_DATA(WIZ_MODE_AF, WIZ_GPIO_NOPULL, Px_AFSR_AF1)},
+    {PA_9, I2C_0, WIZ_PIN_DATA(WIZ_MODE_AF, WIZ_GPIO_NOPULL, Px_AFSR_AF0)},
     {NC,    NC,    0}
 };
 
