@@ -66,7 +66,7 @@ static const PinMap PinMap_PWM[] = {
     {NC       , NC             , 0}
 };
 
-static PWMType PORT[] = {
+static const PWMType PORT[] = {
      PWM2E,          // PWM0_PIN
      PWM2C,          // PWM1_PIN
      PWM2G,          // PWM2_PIN
@@ -83,7 +83,7 @@ static PWMType PORT[] = {
      PWM2F,          // PWM13_PIN
 };
 
-static MTU2_PWMType MTU2_PORT[] = {
+static const MTU2_PWMType MTU2_PORT[] = {
      TIOC2A,         // MTU2_PWM0_PIN
      TIOC1A,         // MTU2_PWM1_PIN
      TIOC4A,         // MTU2_PWM2_PIN
