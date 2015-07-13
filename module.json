@@ -3,8 +3,7 @@
   "version": "0.0.2",
   "description": "Pseudo random library used by mbed-client and 6LoWPAN stack.",
   "keywords": [],
-  "author": "",
-  "homepage": "",
+  "homepage": "https://github.com/ARMmbed/mbed-client-randlib",
   "licenses": [
     {
       "url": "https://spdx.org/licenses/Apache-2.0",
