@@ -83,10 +83,10 @@ typedef enum {
     PA_14 = 0x00E,
     PA_15 = 0x00F,
               
-    PB_0  = 0x010, //SSEL1/SD_SEL
-    PB_1  = 0x011, //SCLK1/SD_CLK
-    PB_2  = 0x012, //MISO1/SD_MISO
-    PB_3  = 0x013, //MOSI1/SD_MOSI
+    PB_0  = 0x010, 
+    PB_1  = 0x011, 
+    PB_2  = 0x012, 
+    PB_3  = 0x013, 
     PB_4  = 0x014,
     PB_5  = 0x015,
     PB_6  = 0x016,
@@ -100,23 +100,23 @@ typedef enum {
     PB_14 = 0x01E,
     PB_15 = 0x01F,
               
-    PC_0  = 0x020,  // 0xx:U_CTS1, 1xx:GPIOC_0, 2xx:PWM0
-    PC_1  = 0x021,  // 0xx:U_RTS1, 1xx:GPIOC_1, 2xx:PWM1
+    PC_0  = 0x020,
+    PC_1  = 0x021,
     PC_2  = 0x022,
     PC_3  = 0x023,
-    PC_4  = 0x024,  // 0xx:SDA1, 1xx:GPIOC_4, 2xx:PWM4
+    PC_4  = 0x024,
     PC_5  = 0x025,
     PC_6  = 0x026,
     PC_7  = 0x027,
-    PC_8  = 0x028,  // 0xx:PWM0,   1xx:GPIOC_8,  2xx:SCL0,  3xx:AIN7
-    PC_9  = 0x029,  // 0xx:PWM1,   1xx:GPIOC_9,  2xx:SDA0,  3xx:AIN6
+    PC_8  = 0x028,
+    PC_9  = 0x029,
               
-    PC_10 = 0x02A,  // 0xx:U_TXD2, 1xx:GPIOC_10, 2xx:PWM2,  3xx:AIN5
-    PC_11 = 0x02B,  // 0xx:U_RXD2, 1xx:GPIOC_11, 2xx:PWM3,  3xx:AIN4
-    PC_12 = 0x02C,  // 0xx:AIN3,   1xx:GPIOC_12, 2xx:SSEL0, 3xx:AIN3
-    PC_13 = 0x02D,  // 0xx:AIN2,   1xx:GPIOC_13, 2xx:SCLK0, 3xx:AIN2
-    PC_14 = 0x02E,  // 0xx:AIN1,   1xx:GPIOC_14, 2xx:MISO0, 3xx:AIN1
-    PC_15 = 0x02F,  // 0xx:AIN0,   1xx:GPIOC_15, 2xx:MOSI0, 3xx:AIN0
+    PC_10 = 0x02A,
+    PC_11 = 0x02B,
+    PC_12 = 0x02C,
+    PC_13 = 0x02D,
+    PC_14 = 0x02E,
+    PC_15 = 0x02F,
               
     PD_0  = 0x030,
     PD_1  = 0x031,
@@ -124,57 +124,93 @@ typedef enum {
     PD_3  = 0x033,
     PD_4  = 0x034,
 
+    PA_00  = PA_0,
+    PA_01  = PA_1,
+    PA_02  = PA_2,
+    PA_03  = PA_3,
+    PA_04  = PA_4,
+    PA_05  = PA_5,
+    PA_06  = PA_6,
+    PA_07  = PA_7,
+    PA_08  = PA_8,
+    PA_09  = PA_9,
 
+    PB_00  = PB_0,
+    PB_01  = PB_1,
+    PB_02  = PB_2,
+    PB_03  = PB_3,
+    PB_04  = PB_4,
+    PB_05  = PB_5,
+    PB_06  = PB_6,
+    PB_07  = PB_7,
+    PB_08  = PB_8,
+    PB_09  = PB_9,
+
+    PC_00  = PC_0,
+    PC_01  = PC_1,
+    PC_02  = PC_2,
+    PC_03  = PC_3,
+    PC_04  = PC_4,
+    PC_05  = PC_5,
+    PC_06  = PC_6,
+    PC_07  = PC_7,
+    PC_08  = PC_8,
+    PC_09  = PC_9,
+
+    PD_00  = PD_0,
+    PD_01  = PD_1,
+    PD_02  = PD_2,
+    PD_03  = PD_3,
+    PD_04  = PD_4,
+    
     // Arduino connector namings
-    A0          = PC_15,			// AIN0
-    A1          = PC_14,			// AIN1
-    A2          = PC_13,			// AIN2
-    A3          = PC_12,			// AIN3
-    A4          = PC_11,			// AIN4
-    A5          = PC_10,			// AIN5
-    D0          = PA_14,			// U_TXD0
-    D1          = PA_13,			// U_RXD0
-    D2          = PC_1,			// GPIOC_1, EXTI
-    D3          = PC_0,			// GPIOC_0, EXTI
-    D4          = PA_2,			// GPIOA_2,
-    D5          = PA_1,			// GPIOA_1,
-    D6          = PA_0,			// GPIOA_0,
-    D7          = PC_6,			// GPIOC_6, EXTI
-    D8          = PC_7,			// GPIOC_7, EXTI
-    D9          = PC_4,			// GPIOC_4, EXTI
-    D10         = PA_5,			// SSEL0
-    D11         = PA_8,			// MOSI0
-    D12         = PA_7,			// MISO0
-    D13         = PA_6,			// SCLK0
-    D14         = PA_10,			// SDA0
-    D15         = PA_9,			// SCL0
+    A0          = PC_15,    // AIN0
+    A1          = PC_14,    // AIN1
+    A2          = PC_13,    // AIN2
+    A3          = PC_12,    // AIN3
+    A4          = PC_11,    // AIN4
+    A5          = PC_10,    // AIN5
+    A6          = PC_9,     // AIN6
+    A7          = PC_8,     // AIN7
+    D0          = PA_14,
+    D1          = PA_13,
+    D2          = PC_1,
+    D3          = PC_0,
+    D4          = PA_2,
+    D5          = PA_1,
+    D6          = PA_0,
+    D7          = PC_6,
+    D8          = PC_7,
+    D9          = PC_4,
+    D10         = PA_5,
+    D11         = PA_8,
+    D12         = PA_7,
+    D13         = PA_6,
+    D14         = PA_10,
+    D15         = PA_9,
 
     // Generic signals namings
-	LED_RED      = PC_8,
-	LED_GREEN    = PC_9,
-	LED_BLUE     = PC_5,
+    LED_RED     = PC_8,
+    LED_GREEN   = PC_9,
+    LED_BLUE    = PC_5,
 
     LED1        = LED_RED,
     LED2        = LED_GREEN,
     LED3        = LED_BLUE,
     LED4        = LED_BLUE,
 
-//    USER_BUTTON = PC_13,
-    SERIAL_TX   = PC_2,			// U_TXD1
-    SERIAL_RX   = PC_3,			// U_RXD1
-    USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
-    I2C_SCL     = PA_9,         // SCL0
-    I2C_SDA     = PA_10,        // SDA0
-    SPI_MOSI    = PA_8,         // MISO0
-    SPI_MISO    = PA_7,         // MOSI0
-    SPI_SCK     = PA_9,         // SCL0
-    SPI_CS      = PA_5,         // SSEL0
-    SD_SEL      = PB_0,         // SSEL1
-    SD_CLK      = PB_1,         // SCL1
+    LEDR        = LED_RED,
+    LEDG        = LED_GREEN,
+    LEDB        = LED_BLUE,
+
+    USBTX       = PC_2,
+    USBRX       = PC_3,
+
+    //Use SPI1
+    SD_SEL      = PB_0,         // SPI1_CS
+    SD_CLK      = PB_1,         // SPI1_CLK
     SD_MISO     = PB_2,         // MOSI1
     SD_MOSI     = PB_3,         // MISO1
-//    PWM_OUT     = PC_7,
 
     // Not connected
     NC = (int)0xFFFFFFFF
