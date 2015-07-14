@@ -4,21 +4,17 @@
 #Only include official mbed targets
 ONLY_OFFICIAL = True
 
-"""
-modules = ["PORTIN ", "PORTOUT", "PORTINOUT", "INTERRUPTIN",  "ANALOGIN", "ANALOGOUT", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH",
+modules = ["PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN",  "ANALOGIN", "ANALOGOUT", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH",
            "I2C", "I2CSLAVE", "I2C_ASYNCH", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "RTC", "ETHERNET", "PWMOUT",
-           "LOCALFILESYSTEM", "SLEEP", "LOWPOWERTIMER"];
-"""
-modules = ["PORTINOUT", "ANALOGIN", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH",
-           "I2CSLAVE", "I2C_ASYNCH", "SPISLAVE", "SPI_ASYNCH", "CAN", "RTC", "ETHERNET",
-           "LOCALFILESYSTEM", "SLEEP", "LOWPOWERTIMER"];
+           "LOCALFILESYSTEM", "SLEEP", "LOWPOWERTIMER"]
 
-device_modules = ["DEVICE_" + module.strip() for module in modules]
 
 import sys
 import os
 import fnmatch, re
-from os.path import join, abspath, dirname
+from os.path import join
+from collections import OrderedDict
+import json
 
 #We are 3 directories below mbed, get the mbed library
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -29,7 +25,6 @@ hal_path = join(ROOT, "libraries", "mbed", "targets", "hal")
 from workspace_tools.targets import TARGETS
 from workspace_tools.build_release import OFFICIAL_MBED_LIBRARY_BUILD
 from workspace_tools.toolchains.__init__ import TOOLCHAIN_CLASSES
-from supported_html import *
 
 #Return if a target is an official target when ONLY_OFFICIAL is set to True
 def is_official(target):
@@ -84,15 +79,11 @@ def find_sct(target):
     
 #Retrieve which modules are enabled for a given (path to a) device.h file
 def read_device_h(path):
-    retval = [0] * len(modules)
-    if path is None:
-        return retval
-    for i,attr in enumerate(device_modules):
+    for module in modules:
         for line in file(path):
-            m = re.search(r"" + attr + "\s*(\d+)",line)
+            m = re.search(r"" + module + "\s*(\d+)",line)
             if m:
-                retval[i] = int(m.group(1))
-    return retval
+                yield(module,int(m.group(1)))
 
 #Retrieve RAM/ROM sizes from a given .sct file (not exactly perfect yet)
 def get_ram_rom(path):
@@ -118,103 +109,42 @@ def get_ram_rom(path):
 
     return ram_rom
 
+#define the default target dictionary with order enforced
+def define_dict():
+    target_dict = OrderedDict([
+        ('target', ''),
+        ('ARM core', ''),
+        ('ROM', ''),
+        ('RAM', ''),
+        ('peripherals', OrderedDict([(module,0) for module in modules])),
+    ])
+    return target_dict
 
-fileobj = file("Supported.htm", 'w')
-fileobj.write(HEADER)
-fileobj.write(SHEAD)
-fileobj.write(SHEADER1)
-fileobj.write(SHEADER2)
-fileobj.write("")
-fileobj.write(EHEADER)
-
-#Core/RAM/ROM columns
-fileobj.write(SHEADER1)
-fileobj.write("ARM Core")
-fileobj.write(SHEADER2)
-fileobj.write("ARM Core")
-fileobj.write(EHEADER)
-
-fileobj.write(SHEADER1)
-fileobj.write("Flash (kB)")
-fileobj.write(SHEADER2)
-fileobj.write("Flash (kB)")
-fileobj.write(EHEADER)
-
-fileobj.write(SHEADER1)
-fileobj.write("RAM (kB)")
-fileobj.write(SHEADER2)
-fileobj.write("RAM (kB)")
-fileobj.write(EHEADER)
-
-#List of module columns
-for x,attr in enumerate(modules):
-    fileobj.write(SHEADER1)
-    fileobj.write(attr)
-    fileobj.write(SHEADER2)
-    fileobj.write(attr)
-    fileobj.write(EHEADER)
-fileobj.write(EHEAD)
-fileobj.write(SBODY)
-for y,target in enumerate(TARGETS):
+#generate a yaml file for the target
+def get_target_json(target):
     if is_official(target):
+        target_dict = define_dict()
+        target_dict['target'] = target.name
+        target_dict['ARM core'] = target.core
         device_h = find_device_h(target)
-        sct = find_sct(target);
-        if (device_h is not None) and (sct is not None):
-            fileobj.write(SROW)
-            fileobj.write(SCELL1)
-            fileobj.write("target")
-            fileobj.write(SCELL2)
-            fileobj.write(target.name)
-            fileobj.write(ECELL)
-            
-            #Core/Memory
-            fileobj.write(SCELL1)
-            fileobj.write("ARM Core")
-            fileobj.write(SCELL2)
-            fileobj.write(target.core)
-            fileobj.write(ECELL)
-            
-            ram_rom = get_ram_rom(sct)
-            fileobj.write(SCELL1)
-            fileobj.write("Flash")
-            fileobj.write(SCELL2)
-            fileobj.write(str((ram_rom[1] + 512)/1024))
-            fileobj.write(ECELL)
-            
-            fileobj.write(SCELL1)
-            fileobj.write("RAM")
-            fileobj.write(SCELL2)
-            fileobj.write(str((ram_rom[0] + 512)/1024))
-            fileobj.write(ECELL)
-            
-            #Peripherals
-            periphs = read_device_h(device_h)
-            for x,module in enumerate(modules):
-                fileobj.write(SCELL1)
-                fileobj.write(module)
-                fileobj.write(SCELL2)
-                fileobj.write(AVAILABLE[periphs[x]])
-                fileobj.write(ECELL)
-            fileobj.write(EROW)
+        sct = find_sct(target)
+        if device_h is None:
+            target_dict['peripherals'] = "No device.h found"
         else:
-            if device_h is None:
-                print "Could not find device.h for %s" % target.name
-            if sct is None:
-                print "Could not find scatter file for %s" % target.name
-fileobj.write(FOOTER)
+            for (module, supported) in read_device_h(device_h):
+                target_dict['peripherals'][module] = supported
+        if sct is None:
+            target_dict['RAM'] = "No scatter file found"
+            target_dict['ROM'] = "No scatter file found"
+        else:
+            ram_rom = get_ram_rom(sct)
+            target_dict['RAM'] = str((ram_rom[0] + 512)/1024) + " kB"
+            target_dict['ROM'] = str((ram_rom[1] + 512)/1024) + " kB"
+        return json.loads(json.dumps(target_dict))
+    else:
+        return "Not official target"
 
-fileobj.write(SCRIPT1)
-fileobj.write("'target'")
-for x, module in enumerate(modules):
-    fileobj.write(", '")
-    fileobj.write(module)
-    fileobj.write("'")
-fileobj.write(SCRIPT2)
+def get_all_json():
+    for target in TARGETS:
+        print get_target_json(target)
 
-for x, module in enumerate(modules):
-    fileobj.write(FILTER1)
-    fileobj.write(module)
-    fileobj.write(FILTER2)
-    fileobj.write(module)
-    fileobj.write(FILTER3)
-fileobj.write(SCRIPT3)
