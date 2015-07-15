@@ -977,7 +977,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         /* If there is still data in the TX buffer, setup a new transfer. */
         if (obj->tx_buff.pos < obj->tx_buff.length) {
             /* Find position and remaining length without modifying tx_buff. */
-            void* tx_pointer = obj->tx_buff.buffer + obj->tx_buff.pos;
+            void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
