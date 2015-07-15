@@ -158,12 +158,12 @@ protected:
     /*
     * Callback called when a packet is received
     */
-    virtual bool EP2_OUT_callback();
+    virtual bool EPBULK_OUT_callback();
 
     /*
     * Callback called when a packet has been sent
     */
-    virtual bool EP2_IN_callback();
+    virtual bool EPBULK_IN_callback();
 
     /*
     * Set configuration of device. Add endpoints

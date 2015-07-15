@@ -57,6 +57,11 @@ namespace mbed {
 class Ticker : public TimerEvent {
 
 public:
+    Ticker() : TimerEvent() {
+    }
+
+    Ticker(const ticker_data_t *data) : TimerEvent(data) {
+    }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in seconds
      *

@@ -59,33 +59,32 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     LPC_SYSCON->PRESETCTRL1 &= ~(1 << (obj->pwm_ch + 2));
     
     switch(obj->pwm_ch) {
-    	case 0:
+        case 0:
             // SCT0_OUT0
             LPC_SWM->PINASSIGN[7] &= ~0x0000FF00;
             LPC_SWM->PINASSIGN[7] |= (pin << 8);
-    		break;
-    	case 1:
+            break;
+        case 1:
             // SCT1_OUT0
             LPC_SWM->PINASSIGN[8] &= ~0x000000FF;
             LPC_SWM->PINASSIGN[8] |= (pin);
-    		break;
-    	case 2:
+            break;
+        case 2:
             // SCT2_OUT0
             LPC_SWM->PINASSIGN[8] &= ~0xFF000000;
             LPC_SWM->PINASSIGN[8] |= (pin << 24);
-    		break;
-    	case 3:
+            break;
+        case 3:
             // SCT3_OUT0
             LPC_SWM->PINASSIGN[9] &= ~0x00FF0000;
             LPC_SWM->PINASSIGN[9] |= (pin << 16);
-    		break;
-    	default:
-    		break;
+            break;
+        default:
+            break;
     }
     
-    // Two 16-bit counters, autolimit
-    pwm->CONFIG &= ~(0x1);
-    pwm->CONFIG |= (1 << 17);
+    // Unified 32-bit counter, autolimit
+    pwm->CONFIG |= ((0x3 << 17) | 0x01);
     
     // halt and clear the counter
     pwm->CTRL |= (1 << 2) | (1 << 3);
@@ -101,10 +100,10 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pwm->OUT0_SET = (1 << 0); // event 0
     pwm->OUT0_CLR = (1 << 1); // event 1
 
-	pwm->EV0_CTRL  = (1 << 12);
-	pwm->EV0_STATE = 0xFFFFFFFF;
-	pwm->EV1_CTRL  = (1 << 12) | (1 << 0);
-	pwm->EV1_STATE = 0xFFFFFFFF;
+    pwm->EV0_CTRL  = (1 << 12);
+    pwm->EV0_STATE = 0xFFFFFFFF;
+    pwm->EV1_CTRL  = (1 << 12) | (1 << 0);
+    pwm->EV1_STATE = 0xFFFFFFFF;
 
     // unhalt the counter:
     //    - clearing bit 2 of the CTRL register
@@ -135,7 +134,7 @@ void pwmout_write(pwmout_t* obj, float value) {
 float pwmout_read(pwmout_t* obj) {
     uint32_t t_off = obj->pwm->MATCHREL0;
     uint32_t t_on  = obj->pwm->MATCHREL1;
-	float v = (float)t_on/(float)t_off;
+    float v = (float)t_on/(float)t_off;
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
@@ -152,9 +151,9 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     LPC_SCT0_Type* pwm = obj->pwm;
     uint32_t t_off = pwm->MATCHREL0;
     uint32_t t_on  = pwm->MATCHREL1;
-	float v = (float)t_on/(float)t_off;
-    pwm->MATCHREL0 = (uint64_t)us;
-    pwm->MATCHREL1 = (uint64_t)((float)us * (float)v);
+    float v = (float)t_on/(float)t_off;
+    pwm->MATCHREL0 = (uint32_t)us;
+    pwm->MATCHREL1 = (uint32_t)((float)us * (float)v);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -166,6 +165,6 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    obj->pwm->MATCHREL1 = (uint64_t)us;
+    obj->pwm->MATCHREL1 = (uint32_t)us;
 }
 

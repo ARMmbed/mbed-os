@@ -46,7 +46,7 @@ bool USBSerial::writeBlock(uint8_t * buf, uint16_t size) {
 
 
 
-bool USBSerial::EP2_OUT_callback() {
+bool USBSerial::EPBULK_OUT_callback() {
     uint8_t c[65];
     uint32_t size = 0;
 

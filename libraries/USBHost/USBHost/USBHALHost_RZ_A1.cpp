@@ -47,7 +47,7 @@ USBHALHost::USBHALHost() {
 }
 
 void USBHALHost::init() {
-    ohciwrapp_init(&_usbisr, 1);
+    ohciwrapp_init(&_usbisr);
 
     ohciwrapp_reg_w(OHCI_REG_CONTROL, 1);       // HARDWARE RESET
     ohciwrapp_reg_w(OHCI_REG_CONTROLHEADED, 0); // Initialize Control list head to Zero
@@ -265,9 +265,6 @@ void USBHALHost::UsbIrqhandler() {
                         if (!(int_status & OR_INTR_STATUS_WDH)) {
                             usb_hcca->DoneHead = 0;
                         }
-
-                        // wait 200ms to avoid bounce
-                        wait_ms(200);
 
                         deviceDisconnected(0, 1, NULL, usb_hcca->DoneHead & 0xFFFFFFFE);
 

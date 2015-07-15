@@ -38,10 +38,10 @@ extern "C"
 }
 #include "USBHAL.h"
 #include "devdrv_usb_function_api.h"
-#include "usb0_function.h"
 #include "usb_iobitmask.h"
 #include "rza_io_regrw.h"
 #include "USBDevice_Types.h"
+#include "usb_function_setting.h"
 
 
 /*************************************************************************/
@@ -160,7 +160,7 @@ static uint16_t     int_level;      /* initerrupt level      */
 static uint16_t     clock_mode;     /* input clock selector  */
 static uint16_t     mode;           /* USB speed (HIGH/FULL) */
 
-//static DigitalOut *usb0_en;
+//static DigitalOut *usbx_en;
 
 static uint16_t     EP0_read_status;
 static uint16_t     EPx_read_status;
@@ -175,22 +175,22 @@ volatile static uint16_t    recv_error;
 /*************************************************************************/
 /* prototypes for C */
 extern "C" {
-    void usb0_function_BRDYInterruptPIPE0 (uint16_t status, uint16_t intenb,
+    void usbx_function_BRDYInterruptPIPE0 (uint16_t status, uint16_t intenb,
         USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usb0_function_BRDYInterrupt (uint16_t status, uint16_t intenb,
+    void usbx_function_BRDYInterrupt (uint16_t status, uint16_t intenb,
         USBHAL *object, bool (USBHAL::*epCallback[])(void));
 
-    void usb0_function_NRDYInterruptPIPE0(uint16_t status, uint16_t intenb,
+    void usbx_function_NRDYInterruptPIPE0(uint16_t status, uint16_t intenb,
         USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usb0_function_NRDYInterrupt (uint16_t status, uint16_t intenb,
+    void usbx_function_NRDYInterrupt (uint16_t status, uint16_t intenb,
         USBHAL *object, bool (USBHAL::*epCallback[])(void));
 
-    void usb0_function_BEMPInterruptPIPE0(uint16_t status, uint16_t intenb,
+    void usbx_function_BEMPInterruptPIPE0(uint16_t status, uint16_t intenb,
         USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usb0_function_BEMPInterrupt (uint16_t status, uint16_t intenb,
+    void usbx_function_BEMPInterrupt (uint16_t status, uint16_t intenb,
         USBHAL *object, bool (USBHAL::*epCallback[])(void));
 }
 
@@ -199,14 +199,14 @@ extern "C" {
 /* macros */
 
 /******************************************************************************
- * Function Name: usb0_function_BRDYInterruptPIPE0
+ * Function Name: usbx_function_BRDYInterruptPIPE0
  * Description  : Executes BRDY interrupt for pipe0.
  * Arguments    : uint16_t status       ; BRDYSTS Register Value
  *              : uint16_t intenb       ; BRDYENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_BRDYInterruptPIPE0 (
+    void usbx_function_BRDYInterruptPIPE0 (
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -216,34 +216,34 @@ extern "C" {
         volatile uint16_t dumy_sts;
         uint16_t read_status;
 
-        USB200.BRDYSTS =
-            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
+        USB20X.BRDYSTS =
+            (uint16_t)~g_usbx_function_bit_set[USB_FUNCTION_PIPE0];
         RZA_IO_RegWrite_16(
-            &USB200.CFIFOSEL, USB_FUNCTION_PIPE0,
+            &USB20X.CFIFOSEL, USB_FUNCTION_PIPE0,
             USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
 
-        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] =
-            g_usb0_function_data_count[USB_FUNCTION_PIPE0];
+        g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0] =
+            g_usbx_function_data_count[USB_FUNCTION_PIPE0];
 
-        read_status = usb0_function_read_buffer_c(USB_FUNCTION_PIPE0);
+        read_status = usbx_function_read_buffer_c(USB_FUNCTION_PIPE0);
 
-        g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0] -=
-            g_usb0_function_data_count[USB_FUNCTION_PIPE0];
+        g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0] -=
+            g_usbx_function_data_count[USB_FUNCTION_PIPE0];
 
         switch (read_status) {
             case USB_FUNCTION_READING:      /* Continue of data read */
             case USB_FUNCTION_READEND:      /* End of data read */
                 /* PID = BUF */
-                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);
 
                 /*callback*/
                 (object->*EP0func)();
                 break;
 
             case USB_FUNCTION_READSHRT:     /* End of data read */
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
+                usbx_function_disable_brdy_int(USB_FUNCTION_PIPE0);
                 /* PID = BUF */
-                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);
 
                 /*callback*/
                 (object->*EP0func)();
@@ -251,10 +251,10 @@ extern "C" {
 
             case USB_FUNCTION_READOVER:     /* FIFO access error */
                 /* Buffer Clear */
-                USB200.CFIFOCTR = USB_FUNCTION_BITBCLR;
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
+                USB20X.CFIFOCTR = USB_FUNCTION_BITBCLR;
+                usbx_function_disable_brdy_int(USB_FUNCTION_PIPE0);
                 /* Req Error */
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_stall(USB_FUNCTION_PIPE0);
 
                 /*callback*/
                 (object->*EP0func)();
@@ -262,26 +262,26 @@ extern "C" {
 
             case DEVDRV_USBF_FIFOERROR:     /* FIFO access error */
             default:
-                usb0_function_disable_brdy_int(USB_FUNCTION_PIPE0);
+                usbx_function_disable_brdy_int(USB_FUNCTION_PIPE0);
                 /* Req Error */
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_stall(USB_FUNCTION_PIPE0);
                 break;
         }
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.BRDYSTS;
+        dumy_sts = USB20X.BRDYSTS;
     }
 }
 
 
 /******************************************************************************
- * Function Name: usb0_function_BRDYInterrupt
+ * Function Name: usbx_function_BRDYInterrupt
  * Description  : Executes BRDY interrupt uxclude pipe0.
  * Arguments    : uint16_t status       ; BRDYSTS Register Value
  *              : uint16_t intenb       ; BRDYENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_BRDYInterrupt(
+    void usbx_function_BRDYInterrupt(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -291,7 +291,7 @@ extern "C" {
         volatile uint16_t dumy_sts;
 
         /**************************************************************
-         * Function Name: usb0_function_brdy_int
+         * Function Name: usbx_function_brdy_int
          * Description  : Executes BRDY interrupt(USB_FUNCTION_PIPE1-9).
          *              : According to the pipe that interrupt is generated in,
          *              : reads/writes buffer allocated in the pipe.
@@ -303,59 +303,59 @@ extern "C" {
          *              : uint16_t Int_enbl  ; BRDYENB Register Value
          * Return Value : none
          *************************************************************/
-        /* copied from usb0_function_intrn.c */
+        /* copied from usbx_function_intrn.c */
         uint32_t int_sense = 0;
         uint16_t pipe;
         uint16_t pipebit;
         uint16_t ep;
 
         for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-            pipebit = g_usb0_function_bit_set[pipe];
+            pipebit = g_usbx_function_bit_set[pipe];
 
             if ((status & pipebit) && (intenb & pipebit)) {
-                USB200.BRDYSTS = (uint16_t)~pipebit;
-                USB200.BEMPSTS = (uint16_t)~pipebit;
+                USB20X.BRDYSTS = (uint16_t)~pipebit;
+                USB20X.BEMPSTS = (uint16_t)~pipebit;
 
-                switch (g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) {
+                switch (g_usbx_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) {
                     case USB_FUNCTION_D0FIFO_DMA:
-                        if (g_usb0_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY) {
+                        if (g_usbx_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY) {
                             /*now, DMA is not supported*/
-                            usb0_function_dma_interrupt_d0fifo(int_sense);
+                            usbx_function_dma_interrupt_d0fifo(int_sense);
                         }
 
                         if (RZA_IO_RegRead_16(
-                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
+                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                             /*now, DMA is not supported*/
-                            usb0_function_read_dma(pipe);
-                            usb0_function_disable_brdy_int(pipe);
+                            usbx_function_read_dma(pipe);
+                            usbx_function_disable_brdy_int(pipe);
                         } else {
-                            USB200.D0FIFOCTR = USB_FUNCTION_BITBCLR;
-                            g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
+                            USB20X.D0FIFOCTR = USB_FUNCTION_BITBCLR;
+                            g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
                         }
                         break;
 
                     case USB_FUNCTION_D1FIFO_DMA:
-                        if (g_usb0_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY) {
+                        if (g_usbx_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY) {
                             /*now, DMA is not supported*/
-                            usb0_function_dma_interrupt_d1fifo(int_sense);
+                            usbx_function_dma_interrupt_d1fifo(int_sense);
                         }
 
                         if (RZA_IO_RegRead_16(
-                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
+                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                             /*now, DMA is not supported*/
-                            usb0_function_read_dma(pipe);
-                            usb0_function_disable_brdy_int(pipe);
+                            usbx_function_read_dma(pipe);
+                            usbx_function_disable_brdy_int(pipe);
                         } else {
-                            USB200.D1FIFOCTR = USB_FUNCTION_BITBCLR;
-                            g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
+                            USB20X.D1FIFOCTR = USB_FUNCTION_BITBCLR;
+                            g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
                         }
                         break;
 
                     default:
-                        ep = (g_usb0_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
+                        ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                         ep <<= 1;
                         if (RZA_IO_RegRead_16(
-                                &g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                             /* read */
                             EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
                             (object->*(epCallback[ep - 2])) ();
@@ -365,26 +365,26 @@ extern "C" {
                             EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
                             (object->*(epCallback[ep - 2 + 1])) ();
                             EPx_read_status = DEVDRV_USBF_PIPE_DONE;
-                            usb0_function_write_buffer(pipe);
+                            usbx_function_write_buffer(pipe);
                         }
                 }
             }
         }
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.BRDYSTS;
+        dumy_sts = USB20X.BRDYSTS;
     }
 }
 
 
 /******************************************************************************
- * Function Name: usb0_function_NRDYInterruptPIPE0
+ * Function Name: usbx_function_NRDYInterruptPIPE0
  * Description  : Executes NRDY interrupt for pipe0.
  * Arguments    : uint16_t status       ; NRDYSTS Register Value
  *              : uint16_t intenb       ; NRDYENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_NRDYInterruptPIPE0(
+    void usbx_function_NRDYInterruptPIPE0(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -393,24 +393,24 @@ extern "C" {
     {
         volatile uint16_t dumy_sts;
 
-        USB200.NRDYSTS =
-            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
+        USB20X.NRDYSTS =
+            (uint16_t)~g_usbx_function_bit_set[USB_FUNCTION_PIPE0];
 
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.NRDYSTS;
+        dumy_sts = USB20X.NRDYSTS;
     }
 }
 
 
 /******************************************************************************
- * Function Name: usb0_function_NRDYInterrupt
+ * Function Name: usbx_function_NRDYInterrupt
  * Description  : Executes NRDY interrupt exclude pipe0.
  * Arguments    : uint16_t status       ; NRDYSTS Register Value
  *              : uint16_t intenb       ; NRDYENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_NRDYInterrupt(
+    void usbx_function_NRDYInterrupt(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -420,7 +420,7 @@ extern "C" {
         volatile uint16_t dumy_sts;
 
         /**************************************************************
-         * Function Name: usb0_function_nrdy_int
+         * Function Name: usbx_function_nrdy_int
          * Description  : Executes NRDY interrupt(USB_FUNCTION_PIPE1-9).
          *              : Checks NRDY interrupt cause by PID. When the cause if STALL,
          *              : regards the pipe state as STALL and ends the processing.
@@ -433,7 +433,7 @@ extern "C" {
          *              : uint16_t int_enb      ; NRDYENB Register Value
          * Return Value : none
          *************************************************************/
-        /* copied from usb0_function_intrn.c */
+        /* copied from usbx_function_intrn.c */
 #if 0
         uint16_t usefifo;
 #endif
@@ -448,72 +448,72 @@ extern "C" {
 
         bitcheck = (uint16_t)(status & intenb);
 
-        USB200.NRDYSTS = (uint16_t)~status;
+        USB20X.NRDYSTS = (uint16_t)~status;
 
 
-        if (RZA_IO_RegRead_16(&USB200.SYSCFG0, USB_SYSCFG_DCFM_SHIFT, USB_SYSCFG_DCFM) == 1) {
+        if (RZA_IO_RegRead_16(&USB20X.SYSCFG0, USB_SYSCFG_DCFM_SHIFT, USB_SYSCFG_DCFM) == 1) {
             /* USB HOST */
             /* not support */
 
         } else {
             /* USB Function */
             for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-                if ((bitcheck&g_usb0_function_bit_set[pipe]) != g_usb0_function_bit_set[pipe]) {
+                if ((bitcheck&g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
                     continue;
                 }
 
-                if (g_usb0_function_pipe_status[pipe] != DEVDRV_USBF_PIPE_WAIT) {
+                if (g_usbx_function_pipe_status[pipe] != DEVDRV_USBF_PIPE_WAIT) {
                     continue;
                 }
 
 #if 0
-                usb0_function_set_pid_nak(pipe);
+                usbx_function_set_pid_nak(pipe);
 
-                size = (uint32_t)g_usb0_function_data_count[pipe];
-                mbw = usb0_function_get_mbw(
-                    size, (uint32_t)g_usb0_function_data_pointer[pipe]);
+                size = (uint32_t)g_usbx_function_data_count[pipe];
+                mbw = usbx_function_get_mbw(
+                    size, (uint32_t)g_usbx_function_data_pointer[pipe]);
 
-                usefifo = (uint16_t)(g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE);
+                usefifo = (uint16_t)(g_usbx_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE);
                 switch (usefifo) {
 
                     case USB_FUNCTION_D0FIFO_USE:
-                        usb0_function_set_curpipe(
+                        usbx_function_set_curpipe(
                             pipe, USB_FUNCTION_D0USE, DEVDRV_USBF_NO, mbw);
-                        USB200.D0FIFOCTR = USB_FUNCTION_BITBCLR;
+                        USB20X.D0FIFOCTR = USB_FUNCTION_BITBCLR;
                         break;
 
                     case USB_FUNCTION_D1FIFO_USE:
-                        usb0_function_set_curpipe(
+                        usbx_function_set_curpipe(
                             pipe, USB_FUNCTION_D1USE, DEVDRV_USBF_NO, mbw);
-                        USB200.D1FIFOCTR = USB_FUNCTION_BITBCLR;
+                        USB20X.D1FIFOCTR = USB_FUNCTION_BITBCLR;
                         break;
 
                     default:
-                        usb0_function_set_curpipe(
+                        usbx_function_set_curpipe(
                             pipe, USB_FUNCTION_CUSE, USB_FUNCTION_CFIFO_READ, mbw);
-                        USB200.CFIFOCTR = USB_FUNCTION_BITBCLR;
+                        USB20X.CFIFOCTR = USB_FUNCTION_BITBCLR;
                         break;
                 }
 
-                usb0_function_aclrm(pipe);
+                usbx_function_aclrm(pipe);
 
-                usb0_function_enable_nrdy_int(pipe);
-                usb0_function_enable_brdy_int(pipe);
+                usbx_function_enable_nrdy_int(pipe);
+                usbx_function_enable_brdy_int(pipe);
 
-                usb0_function_set_pid_buf(pipe);
+                usbx_function_set_pid_buf(pipe);
 #endif
 
-                pid = usb0_function_get_pid(pipe);
+                pid = usbx_function_get_pid(pipe);
                 if ((pid == DEVDRV_USBF_PID_STALL) || (pid == DEVDRV_USBF_PID_STALL2)) {
-                    g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
+                    g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
                 } else {
-                    usb0_function_set_pid_buf(pipe);
+                    usbx_function_set_pid_buf(pipe);
                 }
 
-                ep = (g_usb0_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
+                ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                 ep <<= 1;
                 if (RZA_IO_RegRead_16(
-                        &g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                        &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                     /* read */
                     __NOP();
                 } else {
@@ -524,19 +524,19 @@ extern "C" {
         }
 
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.NRDYSTS;
+        dumy_sts = USB20X.NRDYSTS;
     }
 }
 
 /******************************************************************************
- * Function Name: usb0_function_BEMPInterruptPIPE0
+ * Function Name: usbx_function_BEMPInterruptPIPE0
  * Description  : Executes BEMP interrupt for pipe0.
  * Arguments    : uint16_t status       ; BEMPSTS Register Value
  *              : uint16_t intenb       ; BEMPENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_BEMPInterruptPIPE0(
+    void usbx_function_BEMPInterruptPIPE0(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -545,30 +545,30 @@ extern "C" {
     {
         volatile uint16_t dumy_sts;
 
-        USB200.BEMPSTS =
-            (uint16_t)~g_usb0_function_bit_set[USB_FUNCTION_PIPE0];
+        USB20X.BEMPSTS =
+            (uint16_t)~g_usbx_function_bit_set[USB_FUNCTION_PIPE0];
         RZA_IO_RegWrite_16(
-            &USB200.CFIFOSEL, USB_FUNCTION_PIPE0,
+            &USB20X.CFIFOSEL, USB_FUNCTION_PIPE0,
             USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
 
-        /*usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);*/
+        /*usbx_function_write_buffer_c(USB_FUNCTION_PIPE0);*/
         (object->*EP0func)();
 
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.BEMPSTS;
+        dumy_sts = USB20X.BEMPSTS;
     }
 }
 
 
 /******************************************************************************
- * Function Name: usb0_function_BEMPInterrupt
+ * Function Name: usbx_function_BEMPInterrupt
  * Description  : Executes BEMP interrupt exclude pipe0.
  * Arguments    : uint16_t status       ; BEMPSTS Register Value
  *              : uint16_t intenb       ; BEMPENB Register Value
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usb0_function_BEMPInterrupt(
+    void usbx_function_BEMPInterrupt(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -578,13 +578,13 @@ extern "C" {
         volatile uint16_t dumy_sts;
 
         /**************************************************************
-         * Function Name: usb0_function_bemp_int
+         * Function Name: usbx_function_bemp_int
          * Description  : Executes BEMP interrupt(USB_FUNCTION_PIPE1-9).
          * Arguments    : uint16_t status       ; BEMPSTS Register Value
          *              : uint16_t intenb      ; BEMPENB Register Value
          * Return Value : none
          *************************************************************/
-        /* copied from usb0_function_intrn.c */
+        /* copied from usbx_function_intrn.c */
         uint16_t pid;
         uint16_t pipe;
         uint16_t bitcheck;
@@ -593,28 +593,28 @@ extern "C" {
 
         bitcheck = (uint16_t)(status & intenb);
 
-        USB200.BEMPSTS = (uint16_t)~status;
+        USB20X.BEMPSTS = (uint16_t)~status;
 
         for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-            if ((bitcheck&g_usb0_function_bit_set[pipe]) != g_usb0_function_bit_set[pipe]) {
+            if ((bitcheck&g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
                 continue;
             }
 
-            pid = usb0_function_get_pid(pipe);
+            pid = usbx_function_get_pid(pipe);
 
             if ((pid == DEVDRV_USBF_PID_STALL) ||
                 (pid == DEVDRV_USBF_PID_STALL2)) {
-                g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
+                g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
 
             } else {
-                inbuf = usb0_function_get_inbuf(pipe);
+                inbuf = usbx_function_get_inbuf(pipe);
 
                 if (inbuf == 0) {
-                    usb0_function_disable_bemp_int(pipe);
-                    usb0_function_set_pid_nak(pipe);
-                    g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
+                    usbx_function_disable_bemp_int(pipe);
+                    usbx_function_set_pid_nak(pipe);
+                    g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
 
-                    switch (g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) {
+                    switch (g_usbx_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) {
                         case USB_FUNCTION_D0FIFO_DMA:
                             /*now, DMA is not supported*/
                             break;
@@ -624,10 +624,10 @@ extern "C" {
                             break;
 
                         default:
-                            ep = (g_usb0_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
+                            ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                             ep <<= 1;
                             if (RZA_IO_RegRead_16(
-                                    &g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                                    &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                                 /* read */
                                 __NOP();
                             } else {
@@ -642,7 +642,7 @@ extern "C" {
         }
 
         /* Three dummy reads for clearing interrupt requests */
-        dumy_sts = USB200.BEMPSTS;
+        dumy_sts = USB20X.BEMPSTS;
     }
 }
 
@@ -653,28 +653,28 @@ extern "C" {
  * Return Value : number of pipe
  *****************************************************************************/
 /*EP2PIPE converter is for pipe1, pipe3 and pipe6 only.*/
-#define EP2PIPE(endpoint)   ((uint32_t)usb0_function_EpToPipe(endpoint))
+#define EP2PIPE(endpoint)   ((uint32_t)usbx_function_EpToPipe(endpoint))
 
 
 /******************************************************************************
- * Function Name: usb0_function_save_request
+ * Function Name: usbx_function_save_request
  * Description  : Retains the USB request information in variables.
  * Arguments    : none
  * Return Value : none
  *****************************************************************************/
-#define  usb0_function_save_request()                       \
+#define  usbx_function_save_request()                       \
     {                                                       \
         uint16_t *bufO = &setup_buffer[0];                  \
                                                             \
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVALID;  \
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVALID;  \
         /*data[0] <= bmRequest, data[1] <= bmRequestType */ \
-        *bufO++ = USB200.USBREQ;                            \
+        *bufO++ = USB20X.USBREQ;                            \
         /*data[2] data[3] <= wValue*/                       \
-        *bufO++ = USB200.USBVAL;                            \
+        *bufO++ = USB20X.USBVAL;                            \
         /*data[4] data[5] <= wIndex*/                       \
-        *bufO++ = USB200.USBINDX;                           \
+        *bufO++ = USB20X.USBINDX;                           \
         /*data[6] data[6] <= wIndex*/                       \
-        *bufO++ = USB200.USBLENG;                           \
+        *bufO++ = USB20X.USBLENG;                           \
     }
 
 
@@ -687,16 +687,16 @@ extern "C" {
 USBHAL::USBHAL(void)
 {
     /* ---- P4_1 : P4_1 (USB0_EN for GR-PEACH) ---- */
-    //usb0_en = new DigitalOut(P4_1, 1);
+    //usbx_en = new DigitalOut(P4_1, 1);
 
     /* some constants */
-    int_id          = USBI0_IRQn;
+    int_id          = USBIX_IRQn;
     int_level       = ( 2 << 3 );
     clock_mode      = USBFCLOCK_X1_48MHZ;
-#if 1
-    mode            = USB_FUNCTION_HIGH_SPEED;
-#else
+#if (USB_FUNCTION_HISPEED == 0)
     mode            = USB_FUNCTION_FULL_SPEED;
+#else
+    mode            = USB_FUNCTION_HIGH_SPEED;
 #endif
     EP0_read_status = DEVDRV_USBF_WRITEEND;
     EPx_read_status = DEVDRV_USBF_PIPE_DONE;
@@ -740,20 +740,24 @@ USBHAL::USBHAL(void)
     instance = this;
 
     /* Clear pipe table */
-    usb0_function_clear_pipe_tbl();
+    usbx_function_clear_pipe_tbl();
 
 /******************************************************************************
- * Function Name: usb0_api_function_init
+ * Function Name: usbx_api_function_init
  * Description  : Initializes the USB module in the USB function mode.
  *****************************************************************************/
     /* The clock of USB0 modules is permitted */
+#if (USB_FUNCTION_CH == 0)
     CPG.STBCR7 &= ~(CPG_STBCR7_MSTP71);
+#else
+    CPG.STBCR7 &= ~(CPG_STBCR7_MSTP71 | CPG_STBCR7_MSTP70);
+#endif
     volatile uint8_t    dummy8;
     dummy8 = CPG.STBCR7;
 
     {
 /******************************************************************************
- * Function Name: usb0_function_setting_interrupt
+ * Function Name: usbx_function_setting_interrupt
  * Description  : Sets the USB module interrupt level.
  *****************************************************************************/
 #if 0   /*DMA is not supported*/
@@ -766,18 +770,18 @@ USBHAL::USBHAL(void)
         GIC_EnableIRQ(int_id);
 
 #if 0   /*DMA is not supported*/
-        d0fifo_dmaintid = Userdef_USB_usb0_function_d0fifo_dmaintid();
+        d0fifo_dmaintid = Userdef_USB_usbx_function_d0fifo_dmaintid();
         if (d0fifo_dmaintid != 0xFFFF) {
-            InterruptHandlerRegister(d0fifo_dmaintid, usb0_function_dma_interrupt_d0fifo);
+            InterruptHandlerRegister(d0fifo_dmaintid, usbx_function_dma_interrupt_d0fifo);
             GIC_SetPriority(d0fifo_dmaintid, int_level);
             GIC_EnableIRQ(d0fifo_dmaintid);
         }
 #endif
 
 #if 0   /*DMA is not supported*/
-        d1fifo_dmaintid = Userdef_USB_usb0_function_d1fifo_dmaintid();
+        d1fifo_dmaintid = Userdef_USB_usbx_function_d1fifo_dmaintid();
         if (d1fifo_dmaintid != 0xFFFF) {
-            InterruptHandlerRegister(d1fifo_dmaintid, usb0_function_dma_interrupt_d1fifo);
+            InterruptHandlerRegister(d1fifo_dmaintid, usbx_function_dma_interrupt_d1fifo);
             GIC_SetPriority(d1fifo_dmaintid, int_level);
             GIC_EnableIRQ(d1fifo_dmaintid);
         }
@@ -786,20 +790,20 @@ USBHAL::USBHAL(void)
     }
 
     /* reset USB module with setting tranciever and HSE=1 */
-    usb0_function_reset_module(clock_mode);
+    usbx_function_reset_module(clock_mode);
 
     /* clear variables */
-    usb0_function_init_status();
+    usbx_function_init_status();
 
     /* select USB Function and Interrupt Enable */
     /* Detect USB Device to attach or detach    */
-    usb0_function_InitModule(mode);
+    usbx_function_InitModule(mode);
 
     {
         uint16_t buf;
-        buf  = USB200.INTENB0;
+        buf  = USB20X.INTENB0;
         buf |= USB_INTENB0_SOFE;
-        USB200.INTENB0 = buf;
+        USB20X.INTENB0 = buf;
     }
 }
 
@@ -811,7 +815,7 @@ USBHAL::~USBHAL(void)
     /* Unregisters interrupt function and priority */
     InterruptHandlerRegister( int_id, (uint32_t)NULL );
 
-    //usb0_en  = NULL;
+    //usbx_en  = NULL;
     instance = NULL;
 }
 
@@ -819,7 +823,7 @@ USBHAL::~USBHAL(void)
 void USBHAL::connect(void)
 {
     /* Activates USB0_EN */
-    //(*usb0_en) = 0;
+    //(*usbx_en) = 0;
 }
 
 
@@ -827,7 +831,7 @@ void USBHAL::connect(void)
 void USBHAL::disconnect(void)
 {
     /* Deactivates USB0_EN */
-    //(*usb0_en) = 1;
+    //(*usbx_en) = 1;
 }
 
 
@@ -835,8 +839,8 @@ void USBHAL::disconnect(void)
 void USBHAL::configureDevice(void)
 {
     /*The pipes set up in USBHAL::realiseEndpoint*/
-    /*usb0_function_clear_alt();*/      /* Alternate setting clear */
-    /*usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);*/
+    /*usbx_function_clear_alt();*/      /* Alternate setting clear */
+    /*usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);*/
 }
 
 
@@ -844,8 +848,8 @@ void USBHAL::configureDevice(void)
 void USBHAL::unconfigureDevice(void)
 {
     /* The Interface would be managed by USBDevice */
-    /*usb0_function_clear_alt();*/      /* Alternate setting clear */
-    /*usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);*/
+    /*usbx_function_clear_alt();*/      /* Alternate setting clear */
+    /*usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);*/
 }
 
 
@@ -853,9 +857,9 @@ void USBHAL::unconfigureDevice(void)
 void USBHAL::setAddress(uint8_t address)
 {
     if (address <= 127) {
-        usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);      /* OK */
+        usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);      /* OK */
     } else {
-        usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);    /* Not Spec */
+        usbx_function_set_pid_stall(USB_FUNCTION_PIPE0);    /* Not Spec */
     }
 }
 
@@ -882,7 +886,7 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
 
     pipe = ((cfg->pipesel & USB_PIPESEL_PIPESEL) >> USB_PIPESEL_PIPESEL_SHIFT);
 
-    g_usb0_function_PipeTbl[ pipe ] = (uint16_t)(endpoint | ((cfg->pipesel & USB_FUNCTION_FIFO_USE) << 0));
+    g_usbx_function_PipeTbl[ pipe ] = (uint16_t)(endpoint | ((cfg->pipesel & USB_FUNCTION_FIFO_USE) << 0));
 
     /* There are maintenance routine of SHTNAK and BFRE bits
      * in original sample program. This sample is not
@@ -890,50 +894,50 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
      * you want it. */
 
     /* Interrupt Disable */
-    buf  = USB200.BRDYENB;
-    buf &= (uint16_t)~g_usb0_function_bit_set[pipe];
-    USB200.BRDYENB = buf;
-    buf  = USB200.NRDYENB;
-    buf &= (uint16_t)~g_usb0_function_bit_set[pipe];
-    USB200.NRDYENB = buf;
-    buf  = USB200.BEMPENB;
-    buf &= (uint16_t)~g_usb0_function_bit_set[pipe];
-    USB200.BEMPENB = buf;
+    buf  = USB20X.BRDYENB;
+    buf &= (uint16_t)~g_usbx_function_bit_set[pipe];
+    USB20X.BRDYENB = buf;
+    buf  = USB20X.NRDYENB;
+    buf &= (uint16_t)~g_usbx_function_bit_set[pipe];
+    USB20X.NRDYENB = buf;
+    buf  = USB20X.BEMPENB;
+    buf &= (uint16_t)~g_usbx_function_bit_set[pipe];
+    USB20X.BEMPENB = buf;
 
-    usb0_function_set_pid_nak(pipe);
+    usbx_function_set_pid_nak(pipe);
 
     /* CurrentPIPE Clear */
-    if (RZA_IO_RegRead_16(&USB200.CFIFOSEL, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE) == pipe) {
-        RZA_IO_RegWrite_16(&USB200.CFIFOSEL, 0, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
+    if (RZA_IO_RegRead_16(&USB20X.CFIFOSEL, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE) == pipe) {
+        RZA_IO_RegWrite_16(&USB20X.CFIFOSEL, 0, USB_CFIFOSEL_CURPIPE_SHIFT, USB_CFIFOSEL_CURPIPE);
     }
 
-    if (RZA_IO_RegRead_16(&USB200.D0FIFOSEL, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE) == pipe) {
-        RZA_IO_RegWrite_16(&USB200.D0FIFOSEL, 0, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE);
+    if (RZA_IO_RegRead_16(&USB20X.D0FIFOSEL, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE) == pipe) {
+        RZA_IO_RegWrite_16(&USB20X.D0FIFOSEL, 0, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE);
     }
 
-    if (RZA_IO_RegRead_16(&USB200.D1FIFOSEL, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE) == pipe) {
-        RZA_IO_RegWrite_16(&USB200.D1FIFOSEL, 0, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE);
+    if (RZA_IO_RegRead_16(&USB20X.D1FIFOSEL, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE) == pipe) {
+        RZA_IO_RegWrite_16(&USB20X.D1FIFOSEL, 0, USB_DnFIFOSEL_CURPIPE_SHIFT, USB_DnFIFOSEL_CURPIPE);
     }
 
     /* PIPE Configuration */
-    USB200.PIPESEL  = pipe;
-    USB200.PIPECFG  = cfg->pipecfg;
-    USB200.PIPEBUF  = cfg->pipebuf;
-    USB200.PIPEMAXP = cfg->pipemaxp;
-    USB200.PIPEPERI = cfg->pipeperi;
+    USB20X.PIPESEL  = pipe;
+    USB20X.PIPECFG  = cfg->pipecfg;
+    USB20X.PIPEBUF  = cfg->pipebuf;
+    USB20X.PIPEMAXP = cfg->pipemaxp;
+    USB20X.PIPEPERI = cfg->pipeperi;
 
-    g_usb0_function_pipecfg[pipe]  = cfg->pipecfg;
-    g_usb0_function_pipebuf[pipe]  = cfg->pipebuf;
-    g_usb0_function_pipemaxp[pipe] = cfg->pipemaxp;
-    g_usb0_function_pipeperi[pipe] = cfg->pipeperi;
+    g_usbx_function_pipecfg[pipe]  = cfg->pipecfg;
+    g_usbx_function_pipebuf[pipe]  = cfg->pipebuf;
+    g_usbx_function_pipemaxp[pipe] = cfg->pipemaxp;
+    g_usbx_function_pipeperi[pipe] = cfg->pipeperi;
 
     /* Buffer Clear */
-    usb0_function_set_sqclr(pipe);
-    usb0_function_aclrm(pipe);
+    usbx_function_set_sqclr(pipe);
+    usbx_function_aclrm(pipe);
 
     /* init Global */
-    g_usb0_function_pipe_status[pipe]  = DEVDRV_USBF_PIPE_IDLE;
-    g_usb0_function_PipeDataSize[pipe] = 0;
+    g_usbx_function_pipe_status[pipe]  = DEVDRV_USBF_PIPE_IDLE;
+    g_usbx_function_PipeDataSize[pipe] = 0;
 
     return true;
 }
@@ -968,16 +972,16 @@ void USBHAL::EP0read(void)
 
     buffer = (uint8_t*)(&setup_buffer[4]);
     size   = (MAX_PACKET_SIZE_EP0 / 2) - 8;
-    usb0_api_function_CtrlWriteStart(size, buffer);
+    usbx_api_function_CtrlWriteStart(size, buffer);
 }
 
 
 /*************************************************************************/
 uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
 {
-    memcpy(buffer, (uint8_t*)(&setup_buffer[4]), g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0]);
+    memcpy(buffer, (uint8_t*)(&setup_buffer[4]), g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0]);
 
-    return g_usb0_function_PipeDataSize[USB_FUNCTION_PIPE0];
+    return g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0];
 }
 
 
@@ -991,13 +995,13 @@ void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
 
     if (EP0_read_status == DEVDRV_USBF_WRITEEND) {
         /*1st block*/
-        EP0_read_status = usb0_api_function_CtrlReadStart(size, buffer);
+        EP0_read_status = usbx_api_function_CtrlReadStart(size, buffer);
     } else {
         /* waits the last transmission */
         /*other blocks*/
-        g_usb0_function_data_count[ USB_FUNCTION_PIPE0 ]    = size;
-        g_usb0_function_data_pointer [ USB_FUNCTION_PIPE0 ] = buffer;
-        EP0_read_status = usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);
+        g_usbx_function_data_count[ USB_FUNCTION_PIPE0 ]    = size;
+        g_usbx_function_data_pointer [ USB_FUNCTION_PIPE0 ] = buffer;
+        EP0_read_status = usbx_function_write_buffer_c(USB_FUNCTION_PIPE0);
     }
     /*max size may be deblocking outside*/
     if (size == MAX_PACKET_SIZE_EP0) {
@@ -1028,15 +1032,15 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t max_size)
     uint16_t    pipe_status;
     EP_STATUS status = EP_COMPLETED;
 
-    pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
+    pipe_status = usbx_api_function_check_pipe_status(pipe, &pipe_size);
 
     switch (pipe_status) {
         case DEVDRV_USBF_PIPE_IDLE:
         case DEVDRV_USBF_PIPE_WAIT:
-            usb0_api_function_set_pid_nak(pipe);
-            usb0_api_function_clear_pipe_status(pipe);
+            usbx_api_function_set_pid_nak(pipe);
+            usbx_api_function_clear_pipe_status(pipe);
 
-            usb0_api_function_start_receive_transfer(pipe, max_size, recv_buffer);
+            usbx_api_function_start_receive_transfer(pipe, max_size, recv_buffer);
             break;
 
         default:
@@ -1061,7 +1065,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t
         return status;
     }
 
-    pipe_status = usb0_api_function_check_pipe_status(pipe, bytes_read);
+    pipe_status = usbx_api_function_check_pipe_status(pipe, bytes_read);
     switch (pipe_status) {
         case DEVDRV_USBF_PIPE_IDLE:
             return EP_COMPLETED;
@@ -1077,16 +1081,16 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t
     }
 
     /* sets the output buffer and size */
-    g_usb0_function_data_pointer[pipe] = buffer;
+    g_usbx_function_data_pointer[pipe] = buffer;
 
     /* receives data from pipe */
-    err = usb0_function_read_buffer(pipe);
+    err = usbx_function_read_buffer(pipe);
     recv_error = err;
     switch (err) {
         case USB_FUNCTION_READEND:
         case USB_FUNCTION_READSHRT:
         case USB_FUNCTION_READOVER:
-            *bytes_read = g_usb0_function_PipeDataSize[pipe];
+            *bytes_read = g_usbx_function_PipeDataSize[pipe];
             break;
 
         case USB_FUNCTION_READING:
@@ -1094,7 +1098,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t
             break;
     }
 
-    pipe_status = usb0_api_function_check_pipe_status(pipe, bytes_read);
+    pipe_status = usbx_api_function_check_pipe_status(pipe, bytes_read);
     switch (pipe_status) {
         case DEVDRV_USBF_PIPE_DONE:
             status = EP_COMPLETED;
@@ -1122,12 +1126,12 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
     uint16_t count;
     EP_STATUS status = EP_PENDING;
 
-    pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
+    pipe_status = usbx_api_function_check_pipe_status(pipe, &pipe_size);
 
     /* waits the last transmission */
     count = 30000;
     while ((pipe_status == DEVDRV_USBF_PIPE_WAIT) || (pipe_status == DEVDRV_USBF_PIPE_DONE)) {
-        pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
+        pipe_status = usbx_api_function_check_pipe_status(pipe, &pipe_size);
         if( --count == 0 ) {
             pipe_status = DEVDRV_USBF_PIPE_STALL;
             break;
@@ -1136,7 +1140,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 
     switch (pipe_status) {
         case DEVDRV_USBF_PIPE_IDLE:
-            err = usb0_api_function_start_send_transfer(pipe, size, data);
+            err = usbx_api_function_start_send_transfer(pipe, size, data);
 
             switch (err) {
                     /* finish to write */
@@ -1178,7 +1182,7 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
     uint16_t    pipe_status;
     EP_STATUS status = EP_PENDING;
 
-    pipe_status = usb0_api_function_check_pipe_status(pipe, &pipe_size);
+    pipe_status = usbx_api_function_check_pipe_status(pipe, &pipe_size);
 
     switch (pipe_status) {
         case DEVDRV_USBF_PIPE_IDLE:
@@ -1190,7 +1194,7 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
             break;
 
         case DEVDRV_USBF_PIPE_DONE:
-            usb0_function_stop_transfer(pipe);
+            usbx_function_stop_transfer(pipe);
             status = EP_COMPLETED;
             break;
 
@@ -1215,7 +1219,7 @@ void USBHAL::stallEndpoint(uint8_t endpoint)
 {
     uint32_t pipe = EP2PIPE(endpoint);
 
-    usb0_function_clear_pid_stall(pipe);
+    usbx_function_clear_pid_stall(pipe);
 }
 
 
@@ -1224,7 +1228,7 @@ void USBHAL::unstallEndpoint(uint8_t endpoint)
 {
     uint32_t pipe = EP2PIPE(endpoint);
 
-    usb0_function_set_pid_stall( pipe );
+    usbx_function_set_pid_stall( pipe );
 }
 
 
@@ -1264,7 +1268,7 @@ void USBHAL::usbisr(void)
     volatile uint16_t   dumy_sts;
 
 
-    int_sts0 = USB200.INTSTS0;
+    int_sts0 = USB20X.INTSTS0;
 
     if (!(int_sts0 & (
                 USB_FUNCTION_BITVBINT |
@@ -1278,81 +1282,81 @@ void USBHAL::usbisr(void)
         return;
     }
 
-    int_sts1 = USB200.BRDYSTS;
-    int_sts2 = USB200.NRDYSTS;
-    int_sts3 = USB200.BEMPSTS;
-    int_enb0 = USB200.INTENB0;
-    int_enb2 = USB200.BRDYENB;
-    int_enb3 = USB200.NRDYENB;
-    int_enb4 = USB200.BEMPENB;
+    int_sts1 = USB20X.BRDYSTS;
+    int_sts2 = USB20X.NRDYSTS;
+    int_sts3 = USB20X.BEMPSTS;
+    int_enb0 = USB20X.INTENB0;
+    int_enb2 = USB20X.BRDYENB;
+    int_enb3 = USB20X.NRDYENB;
+    int_enb4 = USB20X.BEMPENB;
 
     if ((int_sts0 & USB_FUNCTION_BITRESM) &&
             (int_enb0 & USB_FUNCTION_BITRSME)) {
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITRESM;
-        RZA_IO_RegWrite_16(&USB200.INTENB0, 0, USB_INTENB0_RSME_SHIFT, USB_INTENB0_RSME);
-        /*usb0_function_USB_FUNCTION_Resume();*/
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITRESM;
+        RZA_IO_RegWrite_16(&USB20X.INTENB0, 0, USB_INTENB0_RSME_SHIFT, USB_INTENB0_RSME);
+        /*usbx_function_USB_FUNCTION_Resume();*/
         suspendStateChanged(1);
     } else if (
         (int_sts0 & USB_FUNCTION_BITVBINT) &&
         (int_enb0 & USB_FUNCTION_BITVBSE)) {
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVBINT;
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITVBINT;
 
-        if (usb0_function_CheckVBUStaus() == DEVDRV_USBF_ON) {
-            usb0_function_USB_FUNCTION_Attach();
+        if (usbx_function_CheckVBUStaus() == DEVDRV_USBF_ON) {
+            usbx_function_USB_FUNCTION_Attach();
         } else {
-            usb0_function_USB_FUNCTION_Detach();
+            usbx_function_USB_FUNCTION_Detach();
         }
     } else if (
         (int_sts0 & USB_FUNCTION_BITSOFR) &&
         (int_enb0 & USB_FUNCTION_BITSOFE)) {
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITSOFR;
-        SOF((USB200.FRMNUM & USB_FRMNUM_FRNM) >> USB_FRMNUM_FRNM_SHIFT);
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITSOFR;
+        SOF((USB20X.FRMNUM & USB_FRMNUM_FRNM) >> USB_FRMNUM_FRNM_SHIFT);
     } else if (
         (int_sts0 & USB_FUNCTION_BITDVST) &&
         (int_enb0 & USB_FUNCTION_BITDVSE)) {
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITDVST;
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITDVST;
         switch (int_sts0 & USB_FUNCTION_BITDVSQ) {
             case USB_FUNCTION_DS_POWR:
                 break;
 
             case USB_FUNCTION_DS_DFLT:
                 /*****************************************************************************
-                 * Function Name: usb0_function_USB_FUNCTION_BusReset
+                 * Function Name: usbx_function_USB_FUNCTION_BusReset
                  * Description  : This function is executed when the USB device is transitioned
                  *              : to POWERD_STATE. Sets the device descriptor according to the
                  *              : connection speed determined by the USB reset hand shake.
                  * Arguments    : none
                  * Return Value : none
                  *****************************************************************************/
-                usb0_function_init_status();            /* memory clear */
+                usbx_function_init_status();            /* memory clear */
 
 #if 0
                 /* You would program those steps in USBCallback_busReset
                  * if the system need the comment out steps.
                  */
 
-                if (usb0_function_is_hispeed() == USB_FUNCTION_HIGH_SPEED) {
+                if (usbx_function_is_hispeed() == USB_FUNCTION_HIGH_SPEED) {
                     /* Device Descriptor reset */
-                    usb0_function_ResetDescriptor(USB_FUNCTION_HIGH_SPEED);
+                    usbx_function_ResetDescriptor(USB_FUNCTION_HIGH_SPEED);
                 } else {
                     /* Device Descriptor reset */
-                    usb0_function_ResetDescriptor(USB_FUNCTION_FULL_SPEED);
+                    usbx_function_ResetDescriptor(USB_FUNCTION_FULL_SPEED);
                 }
 #endif
                 /* Default Control PIPE reset */
                 /*****************************************************************************
-                 * Function Name: usb0_function_ResetDCP
+                 * Function Name: usbx_function_ResetDCP
                  * Description  : Initializes the default control pipe(DCP).
                  * Outline      : Reset default control pipe
                  * Arguments    : none
                  * Return Value : none
                  *****************************************************************************/
-                USB200.DCPCFG  = 0;
-                USB200.DCPMAXP = 64;    /*TODO: This value is copied from sample*/
+                USB20X.DCPCFG  = 0;
+                USB20X.DCPMAXP = 64;    /*TODO: This value is copied from sample*/
 
-                USB200.CFIFOSEL  = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
-                USB200.D0FIFOSEL = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
-                USB200.D1FIFOSEL = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
+                USB20X.CFIFOSEL  = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
+                USB20X.D0FIFOSEL = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
+                USB20X.D1FIFOSEL = (uint16_t)(USB_FUNCTION_BITMBW_8 | USB_FUNCTION_BITBYTE_LITTLE);
 
                 busReset();
                 break;
@@ -1368,7 +1372,7 @@ void USBHAL::usbisr(void)
             case USB_FUNCTION_DS_SPD_ADDR:
             case USB_FUNCTION_DS_SPD_CNFG:
                 suspendStateChanged(0);
-                /*usb0_function_USB_FUNCTION_Suspend();*/
+                /*usbx_function_USB_FUNCTION_Suspend();*/
                 break;
 
             default:
@@ -1377,50 +1381,50 @@ void USBHAL::usbisr(void)
     } else if (
         (int_sts0 & USB_FUNCTION_BITBEMP) &&
         (int_enb0 & USB_FUNCTION_BITBEMP) &&
-        ((int_sts3 & int_enb4) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
+        ((int_sts3 & int_enb4) & g_usbx_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== BEMP PIPE0 ==== */
-        usb0_function_BEMPInterruptPIPE0(int_sts3, int_enb4, this, &USBHAL::EP0in);
+        usbx_function_BEMPInterruptPIPE0(int_sts3, int_enb4, this, &USBHAL::EP0in);
     } else if (
         (int_sts0 & USB_FUNCTION_BITBRDY) &&
         (int_enb0 & USB_FUNCTION_BITBRDY) &&
-        ((int_sts1 & int_enb2) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
+        ((int_sts1 & int_enb2) & g_usbx_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== BRDY PIPE0 ==== */
-        usb0_function_BRDYInterruptPIPE0(int_sts1, int_enb2, this, &USBHAL::EP0out);
+        usbx_function_BRDYInterruptPIPE0(int_sts1, int_enb2, this, &USBHAL::EP0out);
     } else if (
         (int_sts0 & USB_FUNCTION_BITNRDY) &&
         (int_enb0 & USB_FUNCTION_BITNRDY) &&
-        ((int_sts2 & int_enb3) & g_usb0_function_bit_set[USB_FUNCTION_PIPE0])) {
+        ((int_sts2 & int_enb3) & g_usbx_function_bit_set[USB_FUNCTION_PIPE0])) {
         /* ==== NRDY PIPE0 ==== */
-        usb0_function_NRDYInterruptPIPE0(int_sts2, int_enb3, this, NULL);
+        usbx_function_NRDYInterruptPIPE0(int_sts2, int_enb3, this, NULL);
     } else if (
         (int_sts0 & USB_FUNCTION_BITCTRT) && (int_enb0 & USB_FUNCTION_BITCTRE)) {
-        int_sts0 = USB200.INTSTS0;
-        USB200.INTSTS0 = (uint16_t)~USB_FUNCTION_BITCTRT;
+        int_sts0 = USB20X.INTSTS0;
+        USB20X.INTSTS0 = (uint16_t)~USB_FUNCTION_BITCTRT;
 
         if (((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_RDDS) ||
                 ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRDS) ||
                 ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRND)) {
 
             /* remake EP0 into buffer */
-            usb0_function_save_request();
-            if ((USB200.INTSTS0 & USB_FUNCTION_BITVALID) && (
+            usbx_function_save_request();
+            if ((USB20X.INTSTS0 & USB_FUNCTION_BITVALID) && (
                         ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_RDDS) ||
                         ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRDS) ||
                         ((int_sts0 & USB_FUNCTION_BITCTSQ) == USB_FUNCTION_CS_WRND))) {
                 /* New SETUP token received */
                 /* Three dummy reads for cleearing interrupt requests */
-                dumy_sts = USB200.INTSTS0;
-                dumy_sts = USB200.INTSTS0;
-                dumy_sts = USB200.INTSTS0;
+                dumy_sts = USB20X.INTSTS0;
+                dumy_sts = USB20X.INTSTS0;
+                dumy_sts = USB20X.INTSTS0;
                 return;
             }
         }
 
         switch (int_sts0 & USB_FUNCTION_BITCTSQ) {
             case USB_FUNCTION_CS_IDST:
-                if (g_usb0_function_TestModeFlag == DEVDRV_USBF_YES) {
+                if (g_usbx_function_TestModeFlag == DEVDRV_USBF_YES) {
                     /* ==== Test Mode ==== */
-                    usb0_function_USB_FUNCTION_TestMode();
+                    usbx_function_USB_FUNCTION_TestMode();
                 }
                 /* Needs not procedure in this state */
                 break;
@@ -1439,25 +1443,25 @@ void USBHAL::usbisr(void)
                 EP0setupCallback();
 
                 /*The EP0setupCallback should finish in successful */
-                usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_buf(USB_FUNCTION_PIPE0);
 
-                RZA_IO_RegWrite_16(&USB200.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
+                RZA_IO_RegWrite_16(&USB20X.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
                 break;
 
             case USB_FUNCTION_CS_RDSS:
-                RZA_IO_RegWrite_16(&USB200.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
+                RZA_IO_RegWrite_16(&USB20X.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
                 break;
 
             case USB_FUNCTION_CS_WRSS:
-                RZA_IO_RegWrite_16(&USB200.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
+                RZA_IO_RegWrite_16(&USB20X.DCPCTR, 1, USB_DCPCTR_CCPL_SHIFT, USB_DCPCTR_CCPL);
                 break;
 
             case USB_FUNCTION_CS_SQER:
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_stall(USB_FUNCTION_PIPE0);
                 break;
 
             default:
-                usb0_function_set_pid_stall(USB_FUNCTION_PIPE0);
+                usbx_function_set_pid_stall(USB_FUNCTION_PIPE0);
                 break;
         }
     } else if (
@@ -1465,26 +1469,26 @@ void USBHAL::usbisr(void)
         (int_enb0 & USB_FUNCTION_BITBEMP) &&
         (int_sts3 & int_enb4) ) {
         /* ==== BEMP PIPEx ==== */
-        usb0_function_BEMPInterrupt(int_sts3, int_enb4, this, epCallback);
+        usbx_function_BEMPInterrupt(int_sts3, int_enb4, this, epCallback);
     } else if (
         (int_sts0 & USB_FUNCTION_BITBRDY) &&
         (int_enb0 & USB_FUNCTION_BITBRDY) &&
         (int_sts1 & int_enb2) ) {
         /* ==== BRDY PIPEx ==== */
-        usb0_function_BRDYInterrupt(int_sts1, int_enb2, this, epCallback);
+        usbx_function_BRDYInterrupt(int_sts1, int_enb2, this, epCallback);
     } else if (
         (int_sts0 & USB_FUNCTION_BITNRDY) &&
         (int_enb0 & USB_FUNCTION_BITNRDY) &&
         (int_sts2 & int_enb3)) {
         /* ==== NRDY PIPEx ==== */
-        usb0_function_NRDYInterrupt(int_sts2, int_enb3, this, epCallback);
+        usbx_function_NRDYInterrupt(int_sts2, int_enb3, this, epCallback);
     } else {
         /* Do Nothing */
     }
 
     /* Three dummy reads for cleearing interrupt requests */
-    dumy_sts = USB200.INTSTS0;
-    dumy_sts = USB200.INTSTS1;
+    dumy_sts = USB20X.INTSTS0;
+    dumy_sts = USB20X.INTSTS1;
 }
 
 /*************************************************************************/

@@ -100,6 +100,8 @@ uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
    -- SystemInit()
    ---------------------------------------------------------------------------- */
 void SystemInit (void) {
+  /* SystemInit MUST NOT use any variables from the .data section, as this section is not loaded yet! */
+
 #if (DISABLE_WDOG)
   /* Disable the WDOG module */
   /* WDOG_UNLOCK: WDOGUNLOCK=0xC520 */

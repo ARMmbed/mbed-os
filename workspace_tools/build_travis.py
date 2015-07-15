@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 Travis-CI build script
@@ -29,19 +29,21 @@ import sys
 build_list = (
     { "target": "LPC1768",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb_host", "usb", "ublox", "fat"] },
     { "target": "LPC2368",       "toolchains": "GCC_ARM", "libs": ["fat"]  },
+    { "target": "LPC2460",       "toolchains": "GCC_ARM", "libs": ["rtos", "usb_host", "usb", "fat"]  },
     { "target": "LPC11U24",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "OC_MBUINO",     "toolchains": "GCC_ARM", "libs": ["fat"]  },
 
     { "target": "LPC11U24_301",  "toolchains": "GCC_ARM", "libs": ["fat"] },
 
     { "target": "NUCLEO_L053R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "NUCLEO_L152RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_L152RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F030R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F070RB", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F072RB", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F091RC", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["fat"] },
-    { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F103RB", "toolchains": "GCC_ARM", "libs": ["rtos", "fat"] },
+    { "target": "NUCLEO_F302R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NUCLEO_F303RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F334R8", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
@@ -56,6 +58,7 @@ build_list = (
     { "target": "DISCO_F401VC",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "DISCO_F407VG",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F429ZI",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "DISCO_F746NG",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
     { "target": "LPC1114",       "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_401",  "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },

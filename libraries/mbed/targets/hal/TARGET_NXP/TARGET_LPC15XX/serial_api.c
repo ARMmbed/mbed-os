@@ -211,8 +211,18 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         default:
             break;
     }
-    
-    obj->uart->CFG = (data_bits << 2)
+
+    // First disable the the usart as described in documentation and then enable while updating CFG
+
+    // 24.6.1 USART Configuration register
+    // Remark: If software needs to change configuration values, the following sequence should
+    // be used: 1) Make sure the USART is not currently sending or receiving data. 2) Disable
+    // the USART by writing a 0 to the Enable bit (0 may be written to the entire register). 3)
+    // Write the new configuration value, with the ENABLE bit set to 1.
+    obj->uart->CFG &= ~(1 << 0);
+
+    obj->uart->CFG = (1 << 0) // this will enable the usart
+                   | (data_bits << 2)
                    | (paritysel << 4)
                    | (stop_bits << 6);
 }
@@ -251,7 +261,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     } else { // disable
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
-        obj->uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
+        obj->uart->INTENCLR |= (1 << ((irq == RxIrq) ? 0 : 2)); // disable the interrupt
         all_disabled = (obj->uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
         if (all_disabled)
             NVIC_DisableIRQ(irq_n);

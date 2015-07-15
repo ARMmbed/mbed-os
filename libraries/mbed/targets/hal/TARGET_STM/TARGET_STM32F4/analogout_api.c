@@ -47,6 +47,11 @@ void analogout_init(dac_t *obj, PinName pin)
 
     // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
+    // Get the functions (dac channel) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_DAC);
+    MBED_ASSERT(function != (uint32_t)NC);
+    // Save the channel for the write and read functions
+    obj->channel = STM_PIN_CHANNEL(function);
 
     if (obj->dac == (DACName)NC) {
         error("DAC pin mapping failed");
@@ -54,9 +59,6 @@ void analogout_init(dac_t *obj, PinName pin)
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
-
-    // Save the channel for the write and read functions
-    obj->channel = pin;
 
     __GPIOA_CLK_ENABLE();
 
@@ -72,7 +74,7 @@ void analogout_init(dac_t *obj, PinName pin)
     sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
-    if (obj->channel == PA_4) {
+    if (obj->channel == 1) {
         channel = DAC_CHANNEL_1; 
     } else {
         channel = DAC_CHANNEL_2;
@@ -100,22 +102,22 @@ static inline void dac_write(dac_t *obj, uint16_t value)
 {
     HAL_StatusTypeDef status = HAL_ERROR;
 
-    if (obj->channel == PA_4) {
+    if (obj->channel == 1) {
         status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
-    } else if (obj->channel == PA_5) {
+    } else if (obj->channel == 2) {
         status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
     }
 
     if ( status != HAL_OK ) {
-        error("ADC pin mapping failed");
+        error("DAC pin mapping failed");
     }
 }
 
 static inline int dac_read(dac_t *obj)
 {
-    if (obj->channel == PA_4) {
+    if (obj->channel == 1) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
-    } else if (obj->channel == PA_5) {
+    } else if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
 	return 0;	/* Just silented warning */

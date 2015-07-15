@@ -28,6 +28,7 @@ LIB_DIR = join(ROOT, "libraries")
 
 TOOLS = join(ROOT, "workspace_tools")
 TOOLS_DATA = join(TOOLS, "data")
+TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
 MBED_BASE = join(LIB_DIR, "mbed")

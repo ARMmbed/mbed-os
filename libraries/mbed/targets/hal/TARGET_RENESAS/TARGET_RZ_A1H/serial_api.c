@@ -56,7 +56,9 @@ static void uart7_rx_irq(void);
 static const PinMap PinMap_UART_TX[] = {
     {P2_14 , UART0, 6},
     {P2_5  , UART1, 6},
+    {P4_12 , UART1, 7},
     {P6_3  , UART2, 7},
+    {P4_14 , UART2, 7},
     {P5_3  , UART3, 5},
     {P8_8  , UART3, 7},
     {P5_0  , UART4, 5},
@@ -73,7 +75,9 @@ static const PinMap PinMap_UART_TX[] = {
 static const PinMap PinMap_UART_RX[] = {
     {P2_15 , UART0, 6},
     {P2_6  , UART1, 6},
+    {P4_13 , UART1, 7},
     {P6_2  , UART2, 7},
+    {P4_15 , UART2, 7},
     {P5_4  , UART3, 5},
     {P8_9  , UART3, 7},
     {P5_1  , UART4, 5},

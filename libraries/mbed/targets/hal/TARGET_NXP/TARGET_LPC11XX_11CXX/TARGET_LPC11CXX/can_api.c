@@ -45,7 +45,42 @@ static inline void can_enable(can_t *obj) {
 }
 
 int can_mode(can_t *obj, CanMode mode) {
-    return 0; // not implemented
+    int success = 0;
+    switch (mode) {
+        case MODE_RESET:
+            LPC_CAN->CNTL &=~CANCNTL_TEST;
+            can_disable(obj);
+            success = 1;
+            break;
+        case MODE_NORMAL:
+            LPC_CAN->CNTL &=~CANCNTL_TEST;
+            can_enable(obj);
+            success = 1;
+            break;
+        case MODE_SILENT:
+            LPC_CAN->CNTL |= CANCNTL_TEST;
+            LPC_CAN->TEST |= CANTEST_SILENT;
+            LPC_CAN->TEST &=~CANTEST_LBACK;
+            success = 1;
+            break;
+        case MODE_TEST_LOCAL:
+            LPC_CAN->CNTL |= CANCNTL_TEST;
+            LPC_CAN->TEST &=~CANTEST_SILENT;
+            LPC_CAN->TEST |= CANTEST_LBACK;
+            success = 1;
+            break;
+        case MODE_TEST_SILENT:
+            LPC_CAN->CNTL |= CANCNTL_TEST;
+            LPC_CAN->TEST |= (CANTEST_LBACK | CANTEST_SILENT);
+            success = 1;
+            break;
+        case MODE_TEST_GLOBAL:
+        default:
+            success = 0;
+            break;
+    }
+    
+    return success;
 }
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {

@@ -55,7 +55,26 @@ typedef enum {
 } PWMType;
 
 typedef enum {
-    PWM0_PIN,
+    TIOC0A  = 0,
+    TIOC0B,
+    TIOC0C,
+    TIOC0D,
+    TIOC1A = 0x10,
+    TIOC1B,
+    TIOC2A = 0x20,
+    TIOC2B,
+    TIOC3A = 0x30,
+    TIOC3B,
+    TIOC3C,
+    TIOC3D,
+    TIOC4A = 0x40,
+    TIOC4B,
+    TIOC4C,
+    TIOC4D,
+} MTU2_PWMType;
+
+typedef enum {
+    PWM0_PIN  = 0,
     PWM1_PIN,
     PWM2_PIN,
     PWM3_PIN,
@@ -68,6 +87,29 @@ typedef enum {
     PWM10_PIN,
     PWM11_PIN,
     PWM12_PIN,
+    PWM13_PIN,
+    MTU2_PWM0_PIN = 0x20,
+    MTU2_PWM1_PIN,
+    MTU2_PWM2_PIN,
+    MTU2_PWM3_PIN,
+    MTU2_PWM4_PIN,
+    MTU2_PWM5_PIN,
+    MTU2_PWM6_PIN,
+    MTU2_PWM7_PIN,
+    MTU2_PWM8_PIN,
+    MTU2_PWM9_PIN,
+    MTU2_PWM10_PIN,
+    MTU2_PWM11_PIN,
+    MTU2_PWM12_PIN,
+    MTU2_PWM13_PIN,
+    MTU2_PWM14_PIN,
+    MTU2_PWM15_PIN,
+    MTU2_PWM16_PIN,
+    MTU2_PWM17_PIN,
+    MTU2_PWM18_PIN,
+    MTU2_PWM19_PIN,
+    MTU2_PWM20_PIN,
+    MTU2_PWM21_PIN,
 } PWMName;
 
 typedef enum {
@@ -94,40 +136,19 @@ typedef enum {
     I2C_3 
 } I2CName;
 
+typedef enum {
+    CAN_0 = 0,
+    CAN_1,
+    CAN_2,
+    CAN_3, 
+    CAN_4
+} CANName;
+
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART2
 
-// Default peripherals
-#define MBED_SPI0         p5, p6, p7, p8
-#define MBED_SPI1         p11, p12, p13, p14
-
-#define MBED_UART0        p9, p10
-#define MBED_UART1        p13, p14
-#define MBED_UART2        p28, p27
-#define MBED_UARTUSB      USBTX, USBRX
-
-#define MBED_I2C0         p28, p27
-#define MBED_I2C1         p9, p10
-
-#define MBED_CAN0         p30, p29
-
-#define MBED_ANALOGOUT0   p18
-
-#define MBED_ANALOGIN0    p15
-#define MBED_ANALOGIN1    p16
-#define MBED_ANALOGIN2    p17
-#define MBED_ANALOGIN3    p18
-#define MBED_ANALOGIN4    p19
-#define MBED_ANALOGIN5    p20
-
-#define MBED_PWMOUT0      p26
-#define MBED_PWMOUT1      p25
-#define MBED_PWMOUT2      p24
-#define MBED_PWMOUT3      p23
-#define MBED_PWMOUT4      p22
-#define MBED_PWMOUT5      p21
 
 
 #ifdef __cplusplus

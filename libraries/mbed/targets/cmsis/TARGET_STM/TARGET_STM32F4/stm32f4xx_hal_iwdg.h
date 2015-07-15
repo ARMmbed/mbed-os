@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_iwdg.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of IWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -55,7 +55,10 @@
   */ 
 
 /* Exported types ------------------------------------------------------------*/
-
+/** @defgroup IWDG_Exported_Types IWDG Exported Types
+  * @{
+  */
+   
 /** 
   * @brief  IWDG HAL State Structure definition  
   */ 
@@ -66,7 +69,6 @@ typedef enum
   HAL_IWDG_STATE_BUSY      = 0x02,  /*!< IWDG internal process is ongoing     */
   HAL_IWDG_STATE_TIMEOUT   = 0x03,  /*!< IWDG timeout state                   */
   HAL_IWDG_STATE_ERROR     = 0x04   /*!< IWDG error state                     */
-    
 }HAL_IWDG_StateTypeDef;
 
 /** 
@@ -79,11 +81,10 @@ typedef struct
   
   uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value. 
                             This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */
-
 }IWDG_InitTypeDef;
 
 /** 
-  * @brief  IWDG handle Structure definition  
+  * @brief  IWDG Handle Structure definition  
   */ 
 typedef struct
 {
@@ -91,49 +92,44 @@ typedef struct
   
   IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
   
-  HAL_LockTypeDef              Lock;       /*!< IWDG locking object      */
+  HAL_LockTypeDef              Lock;       /*!< IWDG Locking object      */
   
   __IO HAL_IWDG_StateTypeDef   State;      /*!< IWDG communication state */
-  
 }IWDG_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup IWDG_Exported_Constants
+/** @defgroup IWDG_Exported_Constants IWDG Exported Constants
   * @{
   */
 
-/** @defgroup IWDG_Registers_BitMask
+/** @defgroup IWDG_Registers_BitMask IWDG Registers BitMask
+  * @brief IWDG registers bit mask
   * @{
   */
 /* --- KR Register ---*/
 /* KR register bit mask */
-#define KR_KEY_RELOAD   ((uint32_t)0xAAAA)  /*!< IWDG reload counter enable   */
-#define KR_KEY_ENABLE   ((uint32_t)0xCCCC)  /*!< IWDG peripheral enable       */
-#define KR_KEY_EWA      ((uint32_t)0x5555)  /*!< IWDG KR write Access enable  */
-#define KR_KEY_DWA      ((uint32_t)0x0000)  /*!< IWDG KR write Access disable */
-
-#define IS_IWDG_KR(__KR__) (((__KR__) == KR_KEY_RELOAD) || \
-                            ((__KR__) == KR_KEY_ENABLE))|| \
-                            ((__KR__) == KR_KEY_EWA))   || \
-                            ((__KR__) == KR_KEY_DWA))
+#define IWDG_KEY_RELOAD                            ((uint32_t)0xAAAA)  /*!< IWDG Reload Counter Enable   */
+#define IWDG_KEY_ENABLE                            ((uint32_t)0xCCCC)  /*!< IWDG Peripheral Enable       */
+#define IWDG_KEY_WRITE_ACCESS_ENABLE               ((uint32_t)0x5555)  /*!< IWDG KR Write Access Enable  */
+#define IWDG_KEY_WRITE_ACCESS_DISABLE              ((uint32_t)0x0000)  /*!< IWDG KR Write Access Disable */
 /**
   * @}
   */
 
-/** @defgroup IWDG_Flag_definition 
+/** @defgroup IWDG_Flag_definition IWDG Flag definition
   * @{
   */ 
-#define IWDG_FLAG_PVU   ((uint32_t)0x0001)  /*!< Watchdog counter prescaler value update flag */
-#define IWDG_FLAG_RVU   ((uint32_t)0x0002)  /*!< Watchdog counter reload value update flag    */
-  
-#define IS_IWDG_FLAG(FLAG) (((FLAG) == IWDG_FLAG_PVU) || \
-                            ((FLAG) == IWDG_FLAG_RVU))
-
+#define IWDG_FLAG_PVU   ((uint32_t)IWDG_SR_PVU)  /*!< Watchdog counter prescaler value update Flag */
+#define IWDG_FLAG_RVU   ((uint32_t)IWDG_SR_RVU)  /*!< Watchdog counter reload value update Flag    */
 /**
   * @}
   */
 
-/** @defgroup IWDG_Prescaler 
+/** @defgroup IWDG_Prescaler IWDG Prescaler
   * @{
   */ 
 #define IWDG_PRESCALER_4     ((uint8_t)0x00)  /*!< IWDG prescaler set to 4   */
@@ -143,25 +139,6 @@ typedef struct
 #define IWDG_PRESCALER_64    ((uint8_t)(IWDG_PR_PR_2))                  /*!< IWDG prescaler set to 64  */
 #define IWDG_PRESCALER_128   ((uint8_t)(IWDG_PR_PR_2 | IWDG_PR_PR_0))   /*!< IWDG prescaler set to 128 */
 #define IWDG_PRESCALER_256   ((uint8_t)(IWDG_PR_PR_2 | IWDG_PR_PR_1))   /*!< IWDG prescaler set to 256 */
-
-
-#define IS_IWDG_PRESCALER(PRESCALER) (((PRESCALER) == IWDG_PRESCALER_4)  || \
-                                      ((PRESCALER) == IWDG_PRESCALER_8)  || \
-                                      ((PRESCALER) == IWDG_PRESCALER_16) || \
-                                      ((PRESCALER) == IWDG_PRESCALER_32) || \
-                                      ((PRESCALER) == IWDG_PRESCALER_64) || \
-                                      ((PRESCALER) == IWDG_PRESCALER_128)|| \
-                                      ((PRESCALER) == IWDG_PRESCALER_256))
-
-/**
-  * @}
-  */ 
-
-/** @defgroup IWDG_Reload_Value 
-  * @{
-  */ 
-#define IS_IWDG_RELOAD(RELOAD) ((RELOAD) <= 0xFFF)
-
 /**
   * @}
   */ 
@@ -170,10 +147,13 @@ typedef struct
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+/** @defgroup IWDG_Exported_Macros IWDG Exported Macros
+  * @{
+  */
 
 /** @brief Reset IWDG handle state
-  * @param  __HANDLE__: IWDG handle
+  * @param  __HANDLE__: IWDG handle.
   * @retval None
   */
 #define __HAL_IWDG_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_IWDG_STATE_RESET)
@@ -183,7 +163,7 @@ typedef struct
   * @param  __HANDLE__: IWDG handle
   * @retval None
   */
-#define __HAL_IWDG_START(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, KR_KEY_ENABLE)
+#define __HAL_IWDG_START(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, IWDG_KEY_ENABLE)
 
 /**
   * @brief  Reloads IWDG counter with value defined in the reload register
@@ -191,21 +171,7 @@ typedef struct
   * @param  __HANDLE__: IWDG handle
   * @retval None
   */
-#define __HAL_IWDG_RELOAD_COUNTER(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, KR_KEY_RELOAD)
-
-/**
-  * @brief  Enables write access to IWDG_PR and IWDG_RLR registers.
-  * @param  __HANDLE__: IWDG handle
-  * @retval None
-  */
-#define __HAL_IWDG_ENABLE_WRITE_ACCESS(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, KR_KEY_EWA)
-
-/**
-  * @brief  Disables write access to IWDG_PR and IWDG_RLR registers.
-  * @param  __HANDLE__: IWDG handle
-  * @retval None
-  */
-#define __HAL_IWDG_DISABLE_WRITE_ACCESS(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, KR_KEY_DWA)
+#define __HAL_IWDG_RELOAD_COUNTER(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, IWDG_KEY_RELOAD)
 
 /**
   * @brief  Gets the selected IWDG's flag status.
@@ -218,18 +184,92 @@ typedef struct
   */
 #define __HAL_IWDG_GET_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR & (__FLAG__)) == (__FLAG__))
 
-/* Exported functions --------------------------------------------------------*/
+/**
+  * @}
+  */ 
 
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup IWDG_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup IWDG_Exported_Functions_Group1
+  * @{
+  */
 /* Initialization/de-initialization functions  ********************************/
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg);
 void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg);
+/**
+  * @}
+  */
 
+/** @addtogroup IWDG_Exported_Functions_Group2
+  * @{
+  */
 /* I/O operation functions ****************************************************/
 HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg);
 HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg);
+/**
+  * @}
+  */
 
+/** @addtogroup IWDG_Exported_Functions_Group3
+  * @{
+  */
 /* Peripheral State functions  ************************************************/
 HAL_IWDG_StateTypeDef HAL_IWDG_GetState(IWDG_HandleTypeDef *hiwdg);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */ 
+
+/* Private macro -------------------------------------------------------------*/
+/** @defgroup IWDG_Private_Macros IWDG Private Macros
+  * @{
+  */
+
+/**
+  * @brief  Enables write access to IWDG_PR and IWDG_RLR registers.
+  * @param  __HANDLE__: IWDG handle
+  * @retval None
+  */
+#define IWDG_ENABLE_WRITE_ACCESS(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, IWDG_KEY_WRITE_ACCESS_ENABLE)
+
+/**
+  * @brief  Disables write access to IWDG_PR and IWDG_RLR registers.
+  * @param  __HANDLE__: IWDG handle
+  * @retval None
+  */
+#define IWDG_DISABLE_WRITE_ACCESS(__HANDLE__) WRITE_REG((__HANDLE__)->Instance->KR, IWDG_KEY_WRITE_ACCESS_DISABLE)
+
+
+#define IS_IWDG_PRESCALER(__PRESCALER__) (((__PRESCALER__) == IWDG_PRESCALER_4)  || \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_8)  || \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_16) || \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_32) || \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_64) || \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_128)|| \
+                                          ((__PRESCALER__) == IWDG_PRESCALER_256))
+
+
+#define IS_IWDG_RELOAD(__RELOAD__) ((__RELOAD__) <= 0xFFF)
+
+/**
+  * @}
+  */
+
+/* Private define ------------------------------------------------------------*/
+ /** @defgroup IWDG_Private_Constants IWDG Private Constants
+  * @{
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   Header file of FLASH HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,20 +54,11 @@
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/ 
-/**
-  * @brief  FLASH Error structure definition
+/* Exported types ------------------------------------------------------------*/
+/** @defgroup FLASH_Exported_Types FLASH Exported Types
+  * @{
   */
-typedef enum
-{ 
-  FLASH_ERROR_RD =  0x01,
-  FLASH_ERROR_PGS = 0x02,
-  FLASH_ERROR_PGP = 0x04,
-  FLASH_ERROR_PGA = 0x08,
-  FLASH_ERROR_WRP = 0x10,
-  FLASH_ERROR_OPERATION = 0x20
-}FLASH_ErrorTypeDef;
-
+ 
 /**
   * @brief  FLASH Procedure structure definition
   */
@@ -79,7 +70,6 @@ typedef enum
   FLASH_PROC_PROGRAM
 } FLASH_ProcedureTypeDef;
 
-
 /** 
   * @brief  FLASH handle Structure definition  
   */
@@ -89,7 +79,7 @@ typedef struct
   
   __IO uint32_t               NbSectorsToErase;   /*Internal variable to save the remaining sectors to erase in IT context*/
   
-  __IO uint8_t                VoltageForErase;    /*Internal variable to provide voltange range selected by user in IT context*/
+  __IO uint8_t                VoltageForErase;    /*Internal variable to provide voltage range selected by user in IT context*/
   
   __IO uint32_t               Sector;             /*Internal variable to define the current sector which is erasing*/
   
@@ -99,34 +89,40 @@ typedef struct
   
   HAL_LockTypeDef             Lock;               /* FLASH locking object                */
 
-  __IO FLASH_ErrorTypeDef     ErrorCode;          /* FLASH error code                    */
+  __IO uint32_t               ErrorCode;          /* FLASH error code                    */
 
 }FLASH_ProcessTypeDef;
 
-/** 
-  * @brief FLASH Error source  
-  */ 
-/* Exported constants --------------------------------------------------------*/
+/**
+  * @}
+  */
 
+/* Exported constants --------------------------------------------------------*/
 /** @defgroup FLASH_Exported_Constants FLASH Exported Constants
   * @{
   */  
-
-
-
+/** @defgroup FLASH_Error_Code FLASH Error Code
+  * @brief    FLASH Error Code 
+  * @{
+  */ 
+#define HAL_FLASH_ERROR_NONE         ((uint32_t)0x00000000)    /*!< No error                      */
+#define HAL_FLASH_ERROR_RD           ((uint32_t)0x00000001)    /*!< Read Protection error         */
+#define HAL_FLASH_ERROR_PGS          ((uint32_t)0x00000002)    /*!< Programming Sequence error    */
+#define HAL_FLASH_ERROR_PGP          ((uint32_t)0x00000004)    /*!< Programming Parallelism error */
+#define HAL_FLASH_ERROR_PGA          ((uint32_t)0x00000008)    /*!< Programming Alignment error   */
+#define HAL_FLASH_ERROR_WRP          ((uint32_t)0x00000010)    /*!< Write protection error        */
+#define HAL_FLASH_ERROR_OPERATION    ((uint32_t)0x00000020)    /*!< Operation Error               */
+/**
+  * @}
+  */
+  
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */ 
-#define TYPEPROGRAM_BYTE        ((uint32_t)0x00)  /*!< Program byte (8-bit) at a specified address           */
-#define TYPEPROGRAM_HALFWORD    ((uint32_t)0x01)  /*!< Program a half-word (16-bit) at a specified address   */
-#define TYPEPROGRAM_WORD        ((uint32_t)0x02)  /*!< Program a word (32-bit) at a specified address        */
-#define TYPEPROGRAM_DOUBLEWORD  ((uint32_t)0x03)  /*!< Program a double word (64-bit) at a specified address */
-
-#define IS_TYPEPROGRAM(VALUE)(((VALUE) == TYPEPROGRAM_BYTE) || \
-                              ((VALUE) == TYPEPROGRAM_HALFWORD) || \
-                              ((VALUE) == TYPEPROGRAM_WORD) || \
-                              ((VALUE) == TYPEPROGRAM_DOUBLEWORD))  
-
+#define FLASH_TYPEPROGRAM_BYTE        ((uint32_t)0x00)  /*!< Program byte (8-bit) at a specified address           */
+#define FLASH_TYPEPROGRAM_HALFWORD    ((uint32_t)0x01)  /*!< Program a half-word (16-bit) at a specified address   */
+#define FLASH_TYPEPROGRAM_WORD        ((uint32_t)0x02)  /*!< Program a word (32-bit) at a specified address        */
+#define FLASH_TYPEPROGRAM_DOUBLEWORD  ((uint32_t)0x03)  /*!< Program a double word (64-bit) at a specified address */
 /**
   * @}
   */
@@ -143,7 +139,6 @@ typedef struct
 #define FLASH_FLAG_PGSERR              FLASH_SR_PGSERR         /*!< FLASH Programming Sequence error flag     */
 #define FLASH_FLAG_RDERR               ((uint32_t)0x00000100)  /*!< Read Protection error flag (PCROP)        */
 #define FLASH_FLAG_BSY                 FLASH_SR_BSY            /*!< FLASH Busy flag                           */ 
-
 /**
   * @}
   */
@@ -154,7 +149,6 @@ typedef struct
   */ 
 #define FLASH_IT_EOP                   FLASH_CR_EOPIE          /*!< End of FLASH Operation Interrupt source */
 #define FLASH_IT_ERR                   ((uint32_t)0x02000000)  /*!< Error Interrupt source                  */
-
 /**
   * @}
   */  
@@ -183,33 +177,14 @@ typedef struct
   * @}
   */ 
 
-/** 
-  * @brief   ACR register byte 0 (Bits[7:0]) base address  
-  */ 
-#define ACR_BYTE0_ADDRESS           ((uint32_t)0x40023C00) 
-/** 
-  * @brief   OPTCR register byte 0 (Bits[7:0]) base address  
-  */ 
-#define OPTCR_BYTE0_ADDRESS         ((uint32_t)0x40023C14)
-/** 
-  * @brief   OPTCR register byte 1 (Bits[15:8]) base address  
-  */ 
-#define OPTCR_BYTE1_ADDRESS         ((uint32_t)0x40023C15)
-/** 
-  * @brief   OPTCR register byte 2 (Bits[23:16]) base address  
-  */ 
-#define OPTCR_BYTE2_ADDRESS         ((uint32_t)0x40023C16)
-/** 
-  * @brief   OPTCR register byte 3 (Bits[31:24]) base address  
-  */ 
-#define OPTCR_BYTE3_ADDRESS         ((uint32_t)0x40023C17)
-
 /**
   * @}
   */ 
   
 /* Exported macro ------------------------------------------------------------*/
-
+/** @defgroup FLASH_Exported_Macros FLASH Exported Macros
+  * @{
+  */
 /**
   * @brief  Set the FLASH Latency.
   * @param  __LATENCY__: FLASH Latency                   
@@ -259,15 +234,18 @@ typedef struct
   * @note   This function must be used only when the Instruction Cache is disabled.  
   * @retval None
   */
-#define __HAL_FLASH_INSTRUCTION_CACHE_RESET()  (FLASH->ACR |= FLASH_ACR_ICRST)
+#define __HAL_FLASH_INSTRUCTION_CACHE_RESET() do {FLASH->ACR |= FLASH_ACR_ICRST;  \
+                                                  FLASH->ACR &= ~FLASH_ACR_ICRST; \
+                                                 }while(0)
 
 /**
   * @brief  Resets the FLASH data Cache.
   * @note   This function must be used only when the data Cache is disabled.  
   * @retval None
   */
-#define __HAL_FLASH_DATA_CACHE_RESET()  (FLASH->ACR |= FLASH_ACR_DCRST)
-
+#define __HAL_FLASH_DATA_CACHE_RESET() do {FLASH->ACR |= FLASH_ACR_DCRST;  \
+                                           FLASH->ACR &= ~FLASH_ACR_DCRST; \
+                                          }while(0)
 /**
   * @brief  Enable the specified FLASH interrupt.
   * @param  __INTERRUPT__ : FLASH interrupt 
@@ -318,33 +296,127 @@ typedef struct
   * @retval none
   */
 #define __HAL_FLASH_CLEAR_FLAG(__FLAG__)   (FLASH->SR = (__FLAG__))
+/**
+  * @}
+  */
 
 /* Include FLASH HAL Extension module */
 #include "stm32f4xx_hal_flash_ex.h"
 #include "stm32f4xx_hal_flash_ramfunc.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @addtogroup FLASH_Exported_Functions
+  * @{
+  */
+/** @addtogroup FLASH_Exported_Functions_Group1
+  * @{
+  */
 /* Program operation functions  ***********************************************/
-HAL_StatusTypeDef   HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
-HAL_StatusTypeDef   HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
+HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
+HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 /* FLASH IRQ handler method */
-void                HAL_FLASH_IRQHandler(void);
+void HAL_FLASH_IRQHandler(void);
 /* Callbacks in non blocking modes */ 
-void         HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
-void         HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
+void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
+void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
+/**
+  * @}
+  */
 
+/** @addtogroup FLASH_Exported_Functions_Group2
+  * @{
+  */
 /* Peripheral Control functions  **********************************************/
-HAL_StatusTypeDef   HAL_FLASH_Unlock(void);
-HAL_StatusTypeDef   HAL_FLASH_Lock(void);
-HAL_StatusTypeDef   HAL_FLASH_OB_Unlock(void);
-HAL_StatusTypeDef   HAL_FLASH_OB_Lock(void);
+HAL_StatusTypeDef HAL_FLASH_Unlock(void);
+HAL_StatusTypeDef HAL_FLASH_Lock(void);
+HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void);
+HAL_StatusTypeDef HAL_FLASH_OB_Lock(void);
 /* Option bytes control */
-HAL_StatusTypeDef   HAL_FLASH_OB_Launch(void);
+HAL_StatusTypeDef HAL_FLASH_OB_Launch(void);
+/**
+  * @}
+  */
 
+/** @addtogroup FLASH_Exported_Functions_Group3
+  * @{
+  */
 /* Peripheral State functions  ************************************************/
-FLASH_ErrorTypeDef  HAL_FLASH_GetError(void);
-
+uint32_t HAL_FLASH_GetError(void);
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */ 
+/* Private types -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/** @defgroup FLASH_Private_Variables FLASH Private Variables
+  * @{
+  */
+
+/**
+  * @}
+  */
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup FLASH_Private_Constants FLASH Private Constants
+  * @{
+  */
+
+/** 
+  * @brief   ACR register byte 0 (Bits[7:0]) base address  
+  */ 
+#define ACR_BYTE0_ADDRESS           ((uint32_t)0x40023C00) 
+/** 
+  * @brief   OPTCR register byte 0 (Bits[7:0]) base address  
+  */ 
+#define OPTCR_BYTE0_ADDRESS         ((uint32_t)0x40023C14)
+/** 
+  * @brief   OPTCR register byte 1 (Bits[15:8]) base address  
+  */ 
+#define OPTCR_BYTE1_ADDRESS         ((uint32_t)0x40023C15)
+/** 
+  * @brief   OPTCR register byte 2 (Bits[23:16]) base address  
+  */ 
+#define OPTCR_BYTE2_ADDRESS         ((uint32_t)0x40023C16)
+/** 
+  * @brief   OPTCR register byte 3 (Bits[31:24]) base address  
+  */ 
+#define OPTCR_BYTE3_ADDRESS         ((uint32_t)0x40023C17)
+
+/**
+  * @}
+  */
+
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup FLASH_Private_Macros FLASH Private Macros
+  * @{
+  */
+
+/** @defgroup FLASH_IS_FLASH_Definitions FLASH Private macros to check input parameters
+  * @{
+  */
+#define IS_FLASH_TYPEPROGRAM(VALUE)(((VALUE) == FLASH_TYPEPROGRAM_BYTE) || \
+                                    ((VALUE) == FLASH_TYPEPROGRAM_HALFWORD) || \
+                                    ((VALUE) == FLASH_TYPEPROGRAM_WORD) || \
+                                    ((VALUE) == FLASH_TYPEPROGRAM_DOUBLEWORD))  
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/* Private functions ---------------------------------------------------------*/
+/** @defgroup FLASH_Private_Functions FLASH Private Functions
+  * @{
+  */
+
+/**
+  * @}
+  */
 
 /**
   * @}

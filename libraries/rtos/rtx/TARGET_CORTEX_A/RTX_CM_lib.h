@@ -85,16 +85,24 @@ OS_RESULT _os_mut_wait    (uint32_t p, OS_ID mutex, uint16_t timeout) __svc_indi
 
 #if (OS_TIMERS != 0)
 #define OS_TASK_CNT (OS_TASKCNT + 1)
+#ifndef __MBED_CMSIS_RTOS_CA9
 #define OS_PRIV_CNT (OS_PRIVCNT + 2)
 #define OS_STACK_SZ (4*(OS_PRIVSTKSIZE+OS_MAINSTKSIZE+OS_TIMERSTKSZ))
+#endif
 #else
 #define OS_TASK_CNT  OS_TASKCNT
+#ifndef __MBED_CMSIS_RTOS_CA9
 #define OS_PRIV_CNT (OS_PRIVCNT + 1)
 #define OS_STACK_SZ (4*(OS_PRIVSTKSIZE+OS_MAINSTKSIZE))
 #endif
+#endif
 
 uint16_t const os_maxtaskrun = OS_TASK_CNT;
+#ifdef __MBED_CMSIS_RTOS_CA9
+uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_IDLESTKSIZE*4);
+#else
 uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_PRIV_CNT<<16) | (OS_STKSIZE*4);
+#endif
 uint32_t const os_rrobin     = (OS_ROBIN << 16) | OS_ROBINTOUT;
 uint32_t const os_trv        = OS_TRV;
 uint8_t  const os_flags      = OS_RUNPRIV;
@@ -107,6 +115,11 @@ __USED uint32_t const os_timernum  = 0;
 _declare_box  (mp_tcb, OS_TCB_SIZE, OS_TASK_CNT);
 uint16_t const mp_tcb_size = sizeof(mp_tcb);
 
+#ifdef __MBED_CMSIS_RTOS_CA9
+/* Memory pool for os_idle_demon stack allocation. */
+_declare_box8 (mp_stk, OS_IDLESTKSIZE*4, 1);
+uint32_t const mp_stk_size = sizeof(mp_stk);
+#else
 /* Memory pool for System stack allocation (+os_idle_demon). */
 _declare_box8 (mp_stk, OS_STKSIZE*4, OS_TASK_CNT-OS_PRIV_CNT+1);
 uint32_t const mp_stk_size = sizeof(mp_stk);
@@ -114,6 +127,7 @@ uint32_t const mp_stk_size = sizeof(mp_stk);
 /* Memory pool for user specified stack allocation (+main, +timer) */
 uint64_t       os_stack_mem[2+OS_PRIV_CNT+(OS_STACK_SZ/8)];
 uint32_t const os_stack_sz = sizeof(os_stack_mem);
+#endif
 
 #ifndef OS_FIFOSZ
  #define OS_FIFOSZ      16
@@ -129,7 +143,7 @@ void *os_active_TCB[OS_TASK_CNT];
 /* User Timers Resources */
 #if (OS_TIMERS != 0)
 extern void osTimerThread (void const *argument);
-#if defined (__MBED_CMSIS_RTOS_CA9)
+#ifdef __MBED_CMSIS_RTOS_CA9
 osThreadDef(osTimerThread, (osPriority)(OS_TIMERPRIO-3), 4*OS_TIMERSTKSZ);
 #else
 osThreadDef(osTimerThread, (osPriority)(OS_TIMERPRIO-3), 1, 4*OS_TIMERSTKSZ);
@@ -237,7 +251,12 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 
 /* Main Thread definition */
 extern int main (void);
+#ifdef __MBED_CMSIS_RTOS_CA9
+uint32_t os_thread_def_stack_main [(4 * OS_MAINSTKSIZE) / sizeof(uint32_t)];
+osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE, os_thread_def_stack_main };
+#else
 osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE };
+#endif
 
 
 #if defined (__CC_ARM)

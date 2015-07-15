@@ -10,6 +10,8 @@ You can for example read more in our ```docs``` section in [mbedmicro/mbed/doc](
 # How to contribute
 We really appreciate your contributions! We are Open Source project and we need your help. We want to keep it as easy as possible to contribute changes that get things working in your environment. There are a few guidelines that we need contributors to follow so that we can have a chance of keeping on top of things.
 
+Before a pull request will be merged, the [mbed Contributor Agreement](http://developer.mbed.org/contributor_agreement/) must be signed.
+
 You can pick up existing [mbed GitHub Issue](https://github.com/mbedmicro/mbed/issues) and solve it or implement new feature you find important, attractive or just necessary. We will review your proposal via pull request mechanism, give you comments and merge your changes if we decide your contribution satisfy criteria such as quality.
 
 # Enhancements vs Bugs

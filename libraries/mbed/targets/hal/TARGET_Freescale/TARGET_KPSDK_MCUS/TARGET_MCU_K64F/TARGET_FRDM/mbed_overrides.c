@@ -15,6 +15,9 @@
  */
 #include "gpio_api.h"
 
+#define CRC16
+#include "crc.h"
+
 // called before main - implement here if board needs it ortherwise, let
 //  the application override this if necessary
 //void mbed_sdk_init()
@@ -34,21 +37,36 @@ void NMI_Handler(void)
 // Provide ethernet devices with a semi-unique MAC address from the UUID
 void mbed_mac_address(char *mac)
 {
-    // Fetch word 0
-    uint32_t word0 = *(uint32_t *)0x40048060;
-    // Fetch word 1
-    // we only want bottom 16 bits of word1 (MAC bits 32-47)
-    // and bit 1 forced to 1, bit 0 forced to 0
-    // Locally administered MAC, reduced conflicts
-    // http://en.wikipedia.org/wiki/MAC_address
-    uint32_t word1 = *(uint32_t *)0x4004805C;
-    word1 |= 0x00000002;
-    word1 &= 0x0000FFFE;
     
-    mac[0] = (word1 & 0x000000ff);
-    mac[1] = (word1 & 0x0000ff00) >> 8;
-    mac[2] = (word0 & 0xff000000) >> 24;
-    mac[3] = (word0 & 0x00ff0000) >> 16;
-    mac[4] = (word0 & 0x0000ff00) >> 8;
-    mac[5] = (word0 & 0x000000ff);
+    unsigned int UUID_LOC_BASE = 0x40048054;    // First adddress of the 4-word UUID
+    char uuid[16];                              // So we can take a local copy of the UUID
+    uint32_t MAC[3]; // 3 16 bits words for the MAC
+
+    // copy the UUID to the variable MAC[]
+    memcpy(uuid,(const void*)UUID_LOC_BASE,sizeof(uuid));    
+    
+    // generate three CRC16's using different slices of the UUID
+    MAC[0] = crcSlow(uuid, 8);   // most significant half-word
+    MAC[1] = crcSlow(uuid, 12); 
+    MAC[2] = crcSlow(uuid, 16); // least significant half word
+        
+    // The network stack expects an array of 6 bytes
+    // so we copy, and shift and copy from the half-word array to the byte array
+    mac[0] = MAC[0] >> 8;
+    mac[1] = MAC[0];
+    mac[2] = MAC[1] >> 8;
+    mac[3] = MAC[1];
+    mac[4] = MAC[2] >> 8;
+    mac[5] = MAC[2];
+
+    // We want to force bits [1:0] of the most significant byte [0]
+    // to be "10" 
+    // http://en.wikipedia.org/wiki/MAC_address
+
+    mac[0] |= 0x02; // force bit 1 to a "1" = "Locally Administered"
+    mac[0] &= 0xFE; // force bit 0 to a "0" = Unicast
+
 }
+
+
+

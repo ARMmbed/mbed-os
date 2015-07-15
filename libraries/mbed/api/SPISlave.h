@@ -54,16 +54,12 @@ public:
 
     /** Create a SPI slave connected to the specified pins
      *
-     * Pin Options:
-     *  (5, 6, 7i, 8) or (11, 12, 13, 14)
-     *
      *  mosi or miso can be specfied as NC if not used
      *
      *  @param mosi SPI Master Out, Slave In pin
      *  @param miso SPI Master In, Slave Out pin
      *  @param sclk SPI Clock pin
      *  @param ssel SPI chip select pin
-     *  @param name (optional) A string to identify the object
      */
     SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel);
 

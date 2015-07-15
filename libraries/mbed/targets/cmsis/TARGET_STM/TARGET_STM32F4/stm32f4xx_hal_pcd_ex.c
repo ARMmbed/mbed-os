@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -12,7 +12,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -46,29 +46,27 @@
   * @{
   */
 
-/** @defgroup PCDEx 
+/** @defgroup PCDEx PCDEx
   * @brief PCD Extended HAL module driver
   * @{
   */
-
 #ifdef HAL_PCD_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
+/* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
-/** @defgroup PCDEx_Private_Functions
+/** @defgroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
   */
 
-  
-/** @defgroup PCDEx_Group1 Extended features functions 
- *  @brief    Extended features functions  
- *
-@verbatim   
+/** @defgroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
+  * @brief    PCDEx control functions 
+  *
+@verbatim  
  ===============================================================================
                  ##### Extended features functions #####
  ===============================================================================  
@@ -80,8 +78,10 @@
   */
 
 /**
-  * @brief  Update FIFO configuration
+  * @brief  Set Tx FIFO
   * @param  hpcd: PCD handle
+  * @param  fifo: The number of Tx fifo
+  * @param  size: Fifo size
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCDEx_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uint16_t size)
@@ -122,17 +122,62 @@ HAL_StatusTypeDef HAL_PCDEx_SetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo, uin
 }
 
 /**
-  * @brief  Update FIFO configuration
+  * @brief  Set Rx FIFO
   * @param  hpcd: PCD handle
+  * @param  size: Size of Rx fifo
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size)
 {
-  
   hpcd->Instance->GRXFSIZ = size;
   
   return HAL_OK;
 }
+
+#if defined(STM32F446xx)
+/**
+  * @brief  HAL_PCDEx_ActivateLPM : active LPM Feature
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCDEx_ActivateLPM(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+  
+  hpcd->lpm_active = ENABLE;
+  hpcd->LPM_State = LPM_L0;
+  USBx->GINTMSK |= USB_OTG_GINTMSK_LPMINTM;
+  USBx->GLPMCFG |= (USB_OTG_GLPMCFG_LPMEN | USB_OTG_GLPMCFG_LPMACK | USB_OTG_GLPMCFG_ENBESL);
+  
+  return HAL_OK;  
+}
+
+/**
+  * @brief  HAL_PCDEx_DeActivateLPM : de-active LPM feature
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+  
+  hpcd->lpm_active = DISABLE;
+  USBx->GINTMSK &= ~USB_OTG_GINTMSK_LPMINTM;
+  USBx->GLPMCFG &= ~(USB_OTG_GLPMCFG_LPMEN | USB_OTG_GLPMCFG_LPMACK | USB_OTG_GLPMCFG_ENBESL);
+  
+  return HAL_OK;  
+}
+
+/**
+  * @brief  HAL_PCDEx_LPM_Callback : Send LPM message to user layer
+  * @param  hpcd: PCD handle
+  * @param  msg: LPM message
+  * @retval HAL status
+  */
+__weak void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
+{
+}
+#endif /* STM32F446xx */
 
 /**
   * @}

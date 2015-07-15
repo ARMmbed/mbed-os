@@ -62,7 +62,7 @@ typedef enum {
     p28 = NC,
     p29 = 29,
     p30 = 30,
-	p31 = 31,
+    p31 = 31,
 
     LED1    = p7,
     LED2    = p13,
@@ -90,25 +90,30 @@ typedef enum {
     I2C_SDA0 = p22,
     I2C_SCL0 = p20,
 
-    A0  = p0,
-    A1  = p1,
-    A2  = p2,
-    A3  = p3,
-    A4  = p4,
-    A5  = p5,
-	
-	SWIO = p19,
-	VERF0 = p0,
+    A0  = p1,
+    A1  = p2,
+    A2  = p3,
+    A3  = p4,
+    A4  = p5,
+    A5  = p6,
+
+    SWIO = p19,
+    VERF0 = p0,
+
+    // SPI for controlling internal flash, don't use it.
+    FLASH_SPIMOSI = 15,
+    FLASH_SPIMISO = 9,
+    FLASH_SPICS   = 28,
+    FLASH_SPICLK  = 11,
     // Not connected
-	
-	CTS_PIN_NUMBER	= NC,
-	RTS_PIN_NUMBER	= NC,
-	SPI_PSELMOSI1 = NC,
+    CTS_PIN_NUMBER= NC,
+    RTS_PIN_NUMBER= NC,
+    SPI_PSELMOSI1 = NC,
     SPI_PSELMISO1 = NC,
     SPI_PSELSS1   = NC,
     SPI_PSELSCK1  = NC,
-	LED3 	= NC,
-	LED4	= NC
+    LED3          = NC,
+    LED4          = NC
 } PinName;
 
 typedef enum {

@@ -119,7 +119,7 @@ float USBAudio::getVolume() {
 }
 
 
-bool USBAudio::EP3_OUT_callback() {
+bool USBAudio::EPISO_OUT_callback() {
     uint32_t size = 0;
     interruptOUT = true;
     if (buf_stream_in != NULL) {
@@ -132,7 +132,7 @@ bool USBAudio::EP3_OUT_callback() {
 }
 
 
-bool USBAudio::EP3_IN_callback() {
+bool USBAudio::EPISO_IN_callback() {
     interruptIN = true;
     writeIN = true;
     return true;

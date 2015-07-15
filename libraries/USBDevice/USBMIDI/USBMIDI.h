@@ -78,7 +78,7 @@ public:
 
 
 protected:
-    virtual bool EP2_OUT_callback();
+    virtual bool EPBULK_OUT_callback();
     virtual bool USBCallback_setConfiguration(uint8_t configuration);
     /*
     * Get string product descriptor
@@ -102,8 +102,11 @@ protected:
     virtual uint8_t * configurationDesc();
 
 private:
+    uint8_t data[MAX_MIDI_MESSAGE_SIZE+1];
+    uint8_t cur_data;
+    bool data_end;
+    
     void (*midi_evt)(MIDIMessage);
-
 };
 
 #endif

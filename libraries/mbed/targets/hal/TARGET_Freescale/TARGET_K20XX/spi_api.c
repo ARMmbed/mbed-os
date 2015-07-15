@@ -41,14 +41,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->MCR &= ~(SPI_MCR_MDIS_MASK | SPI_MCR_HALT_MASK);
     //obj->spi->MCR |= SPI_MCR_DIS_RXF_MASK | SPI_MCR_DIS_TXF_MASK;
 
-    // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
-
     // not halt in the debug mode
     obj->spi->SR |= SPI_SR_EOQF_MASK;
 

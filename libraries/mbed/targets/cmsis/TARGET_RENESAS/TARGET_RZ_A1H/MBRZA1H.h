@@ -644,6 +644,8 @@ typedef enum IRQn
 
 #include "pl310.h"
 #include "gic.h"
+#include "nvic_wrapper.h"
+#include "cmsis_nvic.h"
 
 #include "ostm_iodefine.h"
 #include "gpio_iodefine.h"

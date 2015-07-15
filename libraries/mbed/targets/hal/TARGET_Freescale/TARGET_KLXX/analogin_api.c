@@ -58,7 +58,6 @@ void analogin_init(analogin_t *obj, PinName pin) {
                | ADC_CFG1_ADICLK(clkdiv >> 2);  // Input Clock: (Bus Clock)/2
 
     ADC0->CFG2 = cfg2_muxsel            // ADxxb or ADxxa channels
-               | ADC_CFG2_ADACKEN_MASK  // Asynchronous Clock Output Enable
                | ADC_CFG2_ADHSC_MASK    // High-Speed Configuration
                | ADC_CFG2_ADLSTS(0);    // Long Sample Time Select
 

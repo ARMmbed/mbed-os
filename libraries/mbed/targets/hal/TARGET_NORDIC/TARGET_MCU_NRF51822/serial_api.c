@@ -29,23 +29,25 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
-static uint32_t acceptedSpeeds[17][2] = {{1200, UART_BAUDRATE_BAUDRATE_Baud1200},
-                                         {2400, UART_BAUDRATE_BAUDRATE_Baud2400},
-                                         {4800, UART_BAUDRATE_BAUDRATE_Baud4800},
-                                         {9600, UART_BAUDRATE_BAUDRATE_Baud9600},
-                                         {14400, UART_BAUDRATE_BAUDRATE_Baud14400},
-                                         {19200, UART_BAUDRATE_BAUDRATE_Baud19200},
-                                         {28800, UART_BAUDRATE_BAUDRATE_Baud28800},
-                                         {31250, (0x00800000UL) /* 31250 baud */},
-                                         {38400, UART_BAUDRATE_BAUDRATE_Baud38400},
-                                         {57600, UART_BAUDRATE_BAUDRATE_Baud57600},
-                                         {76800, UART_BAUDRATE_BAUDRATE_Baud76800},
-                                         {115200, UART_BAUDRATE_BAUDRATE_Baud115200},
-                                         {230400, UART_BAUDRATE_BAUDRATE_Baud230400},
-                                         {250000, UART_BAUDRATE_BAUDRATE_Baud250000},
-                                         {460800, UART_BAUDRATE_BAUDRATE_Baud460800},
-                                         {921600, UART_BAUDRATE_BAUDRATE_Baud921600},
-                                         {1000000, UART_BAUDRATE_BAUDRATE_Baud1M}};
+static const int acceptedSpeeds[17][2] = {
+    {1200, UART_BAUDRATE_BAUDRATE_Baud1200},
+    {2400, UART_BAUDRATE_BAUDRATE_Baud2400},
+    {4800, UART_BAUDRATE_BAUDRATE_Baud4800},
+    {9600, UART_BAUDRATE_BAUDRATE_Baud9600},
+    {14400, UART_BAUDRATE_BAUDRATE_Baud14400},
+    {19200, UART_BAUDRATE_BAUDRATE_Baud19200},
+    {28800, UART_BAUDRATE_BAUDRATE_Baud28800},
+    {31250, (0x00800000UL) /* 31250 baud */},
+    {38400, UART_BAUDRATE_BAUDRATE_Baud38400},
+    {57600, UART_BAUDRATE_BAUDRATE_Baud57600},
+    {76800, UART_BAUDRATE_BAUDRATE_Baud76800},
+    {115200, UART_BAUDRATE_BAUDRATE_Baud115200},
+    {230400, UART_BAUDRATE_BAUDRATE_Baud230400},
+    {250000, UART_BAUDRATE_BAUDRATE_Baud250000},
+    {460800, UART_BAUDRATE_BAUDRATE_Baud460800},
+    {921600, UART_BAUDRATE_BAUDRATE_Baud921600},
+    {1000000, UART_BAUDRATE_BAUDRATE_Baud1M}
+};
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
@@ -194,10 +196,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         switch (irq) {
             case RxIrq:
-                obj->uart->INTEN |= (UART_INTENSET_RXDRDY_Msk);
+                obj->uart->INTENSET = (UART_INTENSET_RXDRDY_Msk);
                 break;
             case TxIrq:
-                obj->uart->INTEN |= (UART_INTENSET_TXDRDY_Msk);
+                obj->uart->INTENSET = (UART_INTENSET_TXDRDY_Msk);
                 break;
         }
         NVIC_SetPriority(irq_n, 3);
@@ -209,12 +211,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         int all_disabled = 0;
         switch (irq) {
             case RxIrq:
-                obj->uart->INTEN &= ~(UART_INTENCLR_RXDRDY_Msk);
-                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
+                obj->uart->INTENCLR = (UART_INTENCLR_RXDRDY_Msk);
+                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
                 break;
             case TxIrq:
-                obj->uart->INTEN &= ~(UART_INTENCLR_TXDRDY_Msk);
-                all_disabled      =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
+                obj->uart->INTENCLR = (UART_INTENCLR_TXDRDY_Msk);
+                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
                 break;
         }
 

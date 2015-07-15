@@ -216,12 +216,12 @@ protected:
     /*
     * Callback called when a packet is received
     */
-    virtual bool EP3_OUT_callback();
+    virtual bool EPISO_OUT_callback();
 
     /*
     * Callback called when a packet has been sent
     */
-    virtual bool EP3_IN_callback();
+    virtual bool EPISO_IN_callback();
 
 private:
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   USB Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -22,13 +22,13 @@
   
       (#) Call USB_CoreInit() API to initialize the USB Core peripheral.
 
-      (#) The upper HAL HCD/PCD driver will call the righ routines for its internal processes.
+      (#) The upper HAL HCD/PCD driver will call the right routines for its internal processes.
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -167,7 +167,7 @@ HAL_StatusTypeDef USB_DisableGlobalInt(USB_OTG_GlobalTypeDef *USBx)
   * @param  USBx : Selected device
   * @param  mode :  current core mode
   *          This parameter can be one of the these values:
-  *            @arg USB_OTG_DEVICE_MODE: Peripheral mode mode
+  *            @arg USB_OTG_DEVICE_MODE: Peripheral mode
   *            @arg USB_OTG_HOST_MODE: Host mode
   *            @arg USB_OTG_DRD_MODE: Dual Role Device mode  
   * @retval HAL status
@@ -202,13 +202,27 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   uint32_t i = 0;
 
   /*Activate VBUS Sensing B */
+#if defined(STM32F446xx)
+  USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
+  
+  if (cfg.vbus_sensing_enable == 0)
+  {
+    /*Desactivate VBUS Sensing B */
+    USBx->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
+    
+    /* B-peripheral session valid override enable*/ 
+    USBx->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
+    USBx->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
+  }
+#else
   USBx->GCCFG |= USB_OTG_GCCFG_VBUSBSEN;
   
   if (cfg.vbus_sensing_enable == 0)
   {
     USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   }
-   
+#endif /* STM32F446xx */
+
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
 
@@ -779,12 +793,12 @@ HAL_StatusTypeDef USB_WritePacket(USB_OTG_GlobalTypeDef *USBx, uint8_t *src, uin
   * @param  USBx : Selected device  
   * @param  src : source pointer
   * @param  ch_ep_num : endpoint or host channel number
-  * @param  len : Noumber of bytes to read
+  * @param  len : Number of bytes to read
   * @param  dma: USB dma enabled or disabled 
   *          This parameter can be one of the these values:
   *           0 : DMA feature not used 
   *           1 : DMA feature used  
-  * @retval pointer to desctination buffer
+  * @retval pointer to destination buffer
   */
 void *USB_ReadPacket(USB_OTG_GlobalTypeDef *USBx, uint8_t *dest, uint16_t len)
 {
@@ -1121,11 +1135,15 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
   
-  /* no VBUS sensing*/
+  /* Activate VBUS Sensing B */
+#if defined(STM32F446xx)
+  USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
+#else
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSASEN);
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSBSEN);
   USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-  
+#endif /* STM32F446xx */
+
   /* Disable the FS/LS support mode only */
   if((cfg.speed == USB_OTG_SPEED_FULL)&&
      (USBx != USB_OTG_FS))
@@ -1310,7 +1328,7 @@ uint32_t USB_GetCurrentFrame (USB_OTG_GlobalTypeDef *USBx)
   * @param  ep_type : Endpoint Type
   *          This parameter can be one of the these values:
   *            @arg EP_TYPE_CTRL: Control type
-  *            @arg EP_TYPE_ISOC: Isochrounous type
+  *            @arg EP_TYPE_ISOC: Isochronous type
   *            @arg EP_TYPE_BULK: Bulk type
   *            @arg EP_TYPE_INTR: Interrupt type
   * @param  mps : Max Packet Size
@@ -1668,7 +1686,7 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     while ((USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA) == USB_OTG_HCCHAR_CHENA);
   }
 
-  /* Clear any pending Host interrups */  
+  /* Clear any pending Host interrupts */  
   USBx_HOST->HAINT = 0xFFFFFFFF;
   USBx->GINTSTS = 0xFFFFFFFF;
   USB_EnableGlobalInt(USBx);

@@ -24,6 +24,7 @@
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {P10_12, SPI_0, 4},
+    {P4_4  , SPI_1, 2},
     {P11_12, SPI_1, 2},
     {P8_3  , SPI_2, 3},
     {NC    , NC   , 0}
@@ -31,6 +32,7 @@ static const PinMap PinMap_SPI_SCLK[] = {
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {P10_13, SPI_0, 4},
+    {P4_5  , SPI_1, 2},
     {P11_13, SPI_1, 2},
     {P8_4  , SPI_2, 3},
     {NC    , NC   , 0}
@@ -38,6 +40,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {P10_14, SPI_0, 4},
+    {P4_6  , SPI_1, 2},
     {P11_14, SPI_1, 2},
     {P8_5  , SPI_2, 3},
     {NC    , NC   , 0}
@@ -45,6 +48,7 @@ static const PinMap PinMap_SPI_MOSI[] = {
 
 static const PinMap PinMap_SPI_MISO[] = {
     {P10_15, SPI_0, 4},
+    {P4_7  , SPI_1, 2},
     {P11_15, SPI_1, 2},
     {P8_6  , SPI_2, 3},
     {NC    , NC   , 0}
@@ -91,14 +95,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->SPPCR  = 0x20;  // MOSI Idle fixed value equals 0
     obj->spi->SPBFCR = 0xf0;  // and set trigger count: read 1, write 1
     obj->spi->SPBFCR = 0x30;  // and reset buffer
-
-    // set default format and frequency
-    if ((int)ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
 
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);

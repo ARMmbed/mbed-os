@@ -30,6 +30,15 @@ void sleep(void)
 //Very low-power stop mode
 void deepsleep(void)
 {
+    //Check if ADC is enabled and HS mode is set, if yes disable it (lowers power consumption by 60uA)
+    uint8_t ADC_HSC = 0;
+    if (SIM->SCGC6 & SIM_SCGC6_ADC0_MASK) {
+        if (ADC0->CFG2 & ADC_CFG2_ADHSC_MASK) {
+            ADC_HSC = 1;
+            ADC0->CFG2 &= ~(ADC_CFG2_ADHSC_MASK);
+        }
+    }
+    
 #if ! defined(TARGET_KL43Z)
     //Check if PLL/FLL is enabled:
     uint32_t PLL_FLL_en = (MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0);
@@ -54,4 +63,8 @@ void deepsleep(void)
         MCG->C1 &= ~MCG_C1_CLKS_MASK;
     }
 #endif 
+
+    if (ADC_HSC) {
+        ADC0->CFG2 |= (ADC_CFG2_ADHSC_MASK);
+    }
 }

@@ -38,9 +38,12 @@ extern "C" {
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
+#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -122,22 +125,22 @@ typedef enum {
     PH_1  = 0x71,
 
     // Arduino connector namings
-    A0          = PA_0,
-    A1          = PA_1,
+    A0          = PC_2,
+    A1          = PC_0,
     A2          = PC_4,
     A3          = PB_0,
     A4          = PC_1,
-    A5          = PC_0,
+    A5          = PC_9,
     D0          = PA_3,
     D1          = PA_2,
-    D2          = PC_9,
-    D3          = PB_15,
-    D4          = PA_8,
-    D5          = PA_7,
-    D6          = PB_13,
-    D7          = PC_2,
-    D8          = PA_9,
-    D9          = PB_1,
+    D2          = PB_15,
+    D3          = PA_0,
+    D4          = PA_7,
+    D5          = PA_9,
+    D6          = PA_1,
+    D7          = PA_8,
+    D8          = PB_1,
+    D9          = PB_13,
     D10         = PC_8,
     D11         = PB_5,
     D12         = PA_6,
@@ -150,18 +153,52 @@ typedef enum {
     LED2        = D3,
     LED3        = D3,
     LED4        = D3,
-    USER_BUTTON = PC_13,
-    SERIAL_TX   = PB_6,
-    SERIAL_RX   = PB_7,
-    USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
+    SERIAL_TX   = D1,
+    SERIAL_RX   = D0,
+    SERIAL_RTS  = A1,
+    SERIAL_CTS  = A0,
+    SERIAL_DCD  = D5,
+    SERIAL_DSR  = D8,
+    SERIAL_DTR  = D4,
+    SERIAL_RI   = D9,
+    USBTX       = PB_6,
+    USBRX       = PB_7,
     RADIO_TX    = PC_7,
     RADIO_RX    = PC_6,
-    I2C_SCL     = D15,
-    I2C_SDA     = D14,
-    SPI_MOSI    = PC_12,
-    SPI_MISO    = PC_11,
-    SPI_SCK     = PC_10,
+    RADIO_RTS   = PB_10,
+    RADIO_CTS   = PB_12,
+    RADIO_DCD   = D5,
+    RADIO_DSR   = D8,
+    RADIO_DTR   = D4,
+    RADIO_RI    = D9,
+
+    // I2C1 and I2C3 are available on Arduino pins
+    I2C1_SCL    = D15,
+    I2C1_SDA    = D14,     
+    I2C3_SCL    = D7,
+    I2C3_SDA    = A5,
+
+    // legacy definitions
+    I2C_SCL     = I2C1_SCL,
+    I2C_SDA     = I2C1_SDA,
+
+    // SPI1 and SPI2 are available on Arduino pins
+    SPI1_MOSI   = D11,
+    SPI1_MISO   = D12,
+    SPI1_SCK    = D13,
+    SPI2_MOSI   = D2,
+    SPI2_MISO   = A0,
+    SPI2_SCK    = D9,
+
+    // SPI3 connects to flash part
+    SPI3_MOSI   = PC_12,
+    SPI3_MISO   = PC_11,
+    SPI3_SCK    = PC_10,
+
+    // legacy definitions
+    SPI_MOSI    = SPI3_MOSI,
+    SPI_MISO    = SPI3_MISO,
+    SPI_SCK     = SPI3_SCK,
     SPI_CS1     = PA_4,
     SPI_CS2     = PB_14,
 

@@ -33,10 +33,7 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    if (value)
-        *obj->reg_set |= obj->mask;
-    else
-        *obj->reg_set &= ~obj->mask;
+    *obj->reg_set = (obj->mask << 16) | ((value != 0) ? obj->mask : 0);
 }
 
 static inline int gpio_read(gpio_t *obj) {

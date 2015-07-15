@@ -43,6 +43,12 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
 
+    // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_PWM);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel  = STM_PIN_CHANNEL(function);
+    obj->inverted = STM_PIN_INVERTED(function);
+
     if (obj->pwm == (PWMName)NC) {
         error("PWM error: pinout mapping failed.");
     }
@@ -52,9 +58,18 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
     if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
     if (obj->pwm == PWM_4) __TIM4_CLK_ENABLE();
+#if defined(TIM8_BASE)
+    if (obj->pwm == PWM_8) __TIM8_CLK_ENABLE();
+#endif
     if (obj->pwm == PWM_9) __TIM9_CLK_ENABLE();
     if (obj->pwm == PWM_10) __TIM10_CLK_ENABLE();
     if (obj->pwm == PWM_11) __TIM11_CLK_ENABLE();
+#if defined(TIM13_BASE)
+    if (obj->pwm == PWM_13) __TIM13_CLK_ENABLE();
+#endif
+#if defined(TIM14_BASE)
+    if (obj->pwm == PWM_14) __TIM14_CLK_ENABLE();
+#endif
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
@@ -97,65 +112,22 @@ void pwmout_write(pwmout_t* obj, float value)
     sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
-    switch (obj->pin) {
+    complementary_channel = obj->inverted;
+    switch (obj->channel) {
 
-        // Channels 1
-        case PA_0:
-        case PA_5:
-        case PA_6:
-        case PA_8:
-        case PA_15:
-        case PB_4:
-        case PB_6:
-        case PC_6:
+        case 1:
             channel = TIM_CHANNEL_1;
             break;
 
-        // Channels 1N
-        case PA_7:
-        case PB_13:
-            channel = TIM_CHANNEL_1;
-            complementary_channel = 1;
-            break;
-
-        // Channels 2
-        case PA_1:
-        case PA_9:
-        case PB_3:
-        case PB_5:
-        case PB_7:
-        case PC_7:
+        case 2:
             channel = TIM_CHANNEL_2;
             break;
 
-        // Channels 2N
-        case PB_0:
-        case PB_14:
-            channel = TIM_CHANNEL_2;
-            complementary_channel = 1;
-            break;
-
-        // Channels 3
-        case PA_2:
-        case PA_10:
-        case PB_8:
-        case PB_10:
-        case PC_8:
+        case 3:
             channel = TIM_CHANNEL_3;
             break;
 
-        // Channels 3N
-        case PB_1:
-        case PB_15:
-            channel = TIM_CHANNEL_3;
-            complementary_channel = 1;
-            break;
-
-        // Channels 4
-        case PA_3:
-        case PA_11:
-        case PB_9:
-        case PC_9:
+        case 4:
             channel = TIM_CHANNEL_4;
             break;
 
@@ -193,7 +165,9 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 void pwmout_period_us(pwmout_t* obj, int us)
 {
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
-
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    uint32_t PclkFreq;
+    uint32_t APBxCLKDivider;
     float dc = pwmout_read(obj);
 
     __HAL_TIM_DISABLE(&TimHandle);
@@ -201,8 +175,75 @@ void pwmout_period_us(pwmout_t* obj, int us)
     // Update the SystemCoreClock variable
     SystemCoreClockUpdate();
 
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+
+    switch (obj->pwm) {
+
+        case PWM_1:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_2:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+        case PWM_3:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+        case PWM_4:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+
+#if defined(TIM8_BASE)
+        case PWM_8:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+#endif
+
+        case PWM_9:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_10:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+        case PWM_11:
+            PclkFreq       = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
+            break;
+
+#if defined(TIM13_BASE)
+        case PWM_13:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+#endif
+
+#if defined(TIM14_BASE)
+        case PWM_14:
+            PclkFreq       = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
+            break;
+#endif
+
+        default:
+            return;
+    }
+
     TimHandle.Init.Period        = us - 1;
-    TimHandle.Init.Prescaler     = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    if (APBxCLKDivider == RCC_HCLK_DIV1)
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq*2) / 1000000) - 1; // 1 µs tick
+    else
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 µs tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
     HAL_TIM_PWM_Init(&TimHandle);

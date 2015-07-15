@@ -38,9 +38,12 @@ extern "C" {
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
+#define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
 #define STM_MODE_OUTPUT_PP          (1)
 #define STM_MODE_OUTPUT_OD          (2)
@@ -122,48 +125,79 @@ typedef enum {
     PH_1  = 0x71,
 
     // Generic signals namings
-    DOUT        = PA_2,
-    DIN         = PA_3,
-    AD0         = PB_1,
-    AD1         = PB_0,
-    AD2         = PA_5,
-    AD3         = PA_4,
-    AD4         = PA_7,
-    AD5         = PC_1,
-    AD6         = PA_1,
-    DIO0        = PB_1,
-    DIO1        = PB_0,
-    DIO2        = PA_5,
-    DIO3        = PA_4,
-    DIO4        = PA_7,
-    DIO5        = PC_1,
-    DIO6        = PA_1,
-    DO8         = PA_6,
-    DI8         = PA_11,
-    PWM0        = PA_8,
-    PWM1        = PC_9,
-    NCTS        = PA_0,
-    RTS         = PA_1,
-    NDTR        = PA_11,
-    RSSI        = PA_8,
-    SLEEPRQ     = PA_11,
-    ON_SLEEP    = PA_12,
-    ASSOCIATE   = PC_1,
+    XBEE_DOUT        = PA_2,
+    XBEE_DIN         = PA_3,
+    XBEE_AD0         = PB_1,
+    XBEE_AD1         = PB_0,
+    XBEE_AD2         = PA_5,
+    XBEE_AD3         = PA_4,
+    XBEE_AD4         = PA_7,
+    XBEE_AD5         = PC_1,
+    XBEE_AD6         = PA_1,
+    XBEE_DIO0        = PB_1,
+    XBEE_DIO1        = PB_0,
+    XBEE_DIO2        = PA_5,
+    XBEE_DIO3        = PA_4,
+    XBEE_DIO4        = PA_7,
+    XBEE_DIO5        = PC_1,
+    XBEE_DIO6        = PA_1,
+    XBEE_DO8         = PA_6,
+    XBEE_DI8         = PA_11,
+    XBEE_PWM0        = PA_8,
+    XBEE_PWM1        = PC_9,
+    XBEE_CTS         = PA_0,
+    XBEE_RTS         = PA_1,
+    XBEE_DTR         = PA_11,
+    XBEE_RSSI        = PA_8,
+    XBEE_SLEEPRQ     = PA_11,
+    XBEE_ON_SLEEP    = PC_13,
+    XBEE_ASSOCIATE   = PC_1,
+    XBEE_USB_RES     = PA_12,
 
-    LED1        = PA_2,
-    LED2        = PA_2,
-    LED3        = PA_2,
-    LED4        = PA_2,
-    SERIAL_TX   = PA_9,
-    SERIAL_RX   = PA_10,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
+    // needed for mbed to build tests
+    LED1        = PA_0,
+
+    // XBEE_DOUT/DIN, RS232 port on UDK board
+    SERIAL_TX   = PA_2,
+    SERIAL_RX   = PA_3,
+
+    // DB_TX/RX, USB port on UDK board
+    DB_TX       = PA_9,
+    DB_RX       = PA_10,
+    USBTX       = PA_9,
+    USBRX       = PA_10,
+
+    // Multiplexed with XBEE pins
     I2C_SCL     = PA_8,
     I2C_SDA     = PC_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PA_4,
+    SPI1_MOSI   = PA_7,
+    SPI1_MISO   = PA_6,
+    SPI1_SCK    = PA_5,
+    SPI1_CS     = PA_4,
+
+    // SPI flash
+    SPI3_MOSI   = PC_12,
+    SPI3_MISO   = PC_11,
+    SPI3_SCK    = PC_10,
+    SPI3_CS     = PC_6,
+    FLASH_HOLD  = PC_7,
+    FLASH_WP    = PC_8,
+
+    // LoRa
+    LORA_RESET  = PC_0,
+    LORA_RXCTL  = PC_2,
+    LORA_TXCTL  = PC_3,
+    LORA_DIO0   = PB_5,
+    LORA_DIO1   = PB_6,
+    LORA_DIO2   = PB_7,
+    LORA_DIO3   = PB_8,
+    LORA_DIO4   = PB_9,
+    LORA_DIO5   = PB_10,
+    // LoRa/SPI2
+    LORA_NSS    = PB_12,
+    LORA_SCK    = PB_13,
+    LORA_MISO   = PB_14,
+    LORA_MOSI   = PB_15,
 
     // Not connected
     NC = (int)0xFFFFFFFF

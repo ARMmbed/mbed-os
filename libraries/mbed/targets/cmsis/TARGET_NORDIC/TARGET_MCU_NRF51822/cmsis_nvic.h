@@ -35,7 +35,7 @@
 #define NVIC_NUM_VECTORS      (16 + 32)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
 
-#include "nrf51822.h"
+#include "nrf51.h"
 #include "cmsis.h"
 
 

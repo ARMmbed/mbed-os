@@ -236,7 +236,7 @@ Build successes:
 Above command will build mbed SDK for [LPC1768](http://developer.mbed.org/platforms/mbed-LPC1768/) platform using ARM compiler.
 
 Let's have a look at directory structure under ```mbed/build/```. We can see for ```LPC1768``` new directory ```TARGET_LPC1768``` was created. This directory contains all build primitives.
-Directory ```mbed/TARGET_LPC1768/TOOLCHAIN_ARM_STD/``` conteins mbed SDK library ```mbed.ar```. This directory structure also stores all needed headers which you should use with ```mbed.ar``` when building your own software.
+Directory ```mbed/TARGET_LPC1768/TOOLCHAIN_ARM_STD/``` contains mbed SDK library ```mbed.ar```. This directory structure also stores all needed headers which you should use with ```mbed.ar``` when building your own software.
 ```
 $ tree ./mbed/build/
 Folder PATH listing
@@ -406,14 +406,14 @@ C:\Work\mbed\libraries\mbed\targets\cmsis\TARGET_NXP\TARGET_LPC176X\TOOLCHAIN_GC
 ...
 ```
 
-## CppUCheck analysis
+## CppCheck analysis
 [Cppcheck](http://cppcheck.sourceforge.net/) is a static analysis tool for C/C++ code. Unlike C/C++ compilers and many other analysis tools it does not detect syntax errors in the code. Cppcheck primarily detects the types of bugs that the compilers normally do not detect. The goal is to detect only real errors in the code (i.e. have zero false positives).
 
 Prerequisites:
 * Please install ```CppCheck``` on your system before you want to use it with build scripts.
 * You should also add Cppcheck to your system path.
 
-```build.py``` script supports switching between compilation and building and just static code analysis testing. You can use switch ```--cppcheck``` to perform CppCheck static code analysis. 
+```build.py``` script supports switching between compilation, building and just static code analysis testing. You can use switch ```--cppcheck``` to perform CppCheck static code analysis. 
 
 * When you are using --cppcheck switch all macros, toolchain dependencies etc. are preserved so you are sure you are checking exactly the same code you would compile for your application.
 
@@ -427,8 +427,8 @@ $ python build.py -t uARM -m NUCLEO_F334R8 --cppcheck
 ```
 
 # make.py script
-```make.pt``` is a ```mbed/workspace_tools/``` script used to build tests (we call them sometimes 'programs') one by one manually. Script allows you to flash board with test and execute it. This is deprecated functionality and will not be described here. Instead please use ```singletest.py``` file to build mbed SDK, tests and run automation for test cases included in ```mbedmicro/mbed```.
-Note: ```make.py``` script depends on existing already built mked SDK and library sources so you need to pre-build mbed SDK and for example RTOS library to link 'program' (test) with mebd SDK and RTOS library. To pre-build mbed SDK please use ```build.py``` script.
+```make.py``` is a ```mbed/workspace_tools/``` script used to build tests (we call them sometimes 'programs') one by one manually. This script allows you to flash board, execute and test it. However, this script is deprecated and will not be described here. Instead please use ```singletest.py``` file to build mbed SDK, tests and run automation for test cases included in ```mbedmicro/mbed```.
+Note: ```make.py``` script depends on existing already built mbed SDK and library sources so you need to pre-build mbed SDK and other libraries (such as RTOS library) to link 'program' (test) with mbed SDK and RTOS library. To pre-build mbed SDK please use ```build.py``` script.
 
 Just for sake of example please see few ways to use ```make.py``` together with Freedom K64F board.
 
