@@ -43,6 +43,9 @@ struct port_s {
 
     PortName port;
     uint32_t mask;
+    uint8_t powersave;
+    uint8_t mode;
+    uint8_t direction;
 };
 
 struct serial_s {
@@ -66,28 +69,7 @@ struct analogin_s {
 };
 /*
 struct pwmout_s {
-    __IO uint32_t *MR;
-    PWMName pwm;
-};
-
-struct serial_s {
-    LPC_UART_TypeDef *uart;
-    int index;
-};
-
-struct dac_s {
-    DACName dac;
-};
-
-struct can_s {
-    LPC_CAN_TypeDef *dev;
-    int index;
-};
-
-struct i2c_s {
-    LPC_I2C_TypeDef *i2c;
-};
-*/
+};*/
 
 struct spi_s {
     Sercom *spi;
