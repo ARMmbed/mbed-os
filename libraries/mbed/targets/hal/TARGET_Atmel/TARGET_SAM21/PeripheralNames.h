@@ -74,11 +74,6 @@ typedef enum {  // for each channel
     EXTINT_15
 } EXTINTName;
 
-/*
-typedef enum {
-    DAC_0 = 0
-} DACName;*/
-
 typedef enum {
     MREPEAT(SERCOM_INST_NUM, _SERCOM_SPI_NAME, ~)
 } SPIName;
@@ -108,46 +103,31 @@ typedef enum {
     PWM_4,
     PWM_5,
     PWM_6
-} PWMName;
-
-typedef enum {
-     CAN_1 = (int)LPC_CAN1_BASE,
-     CAN_2 = (int)LPC_CAN2_BASE
-} CANName;*/
+} PWMName;*/
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_0
 
 // Default peripherals
-#define MBED_SPI0         p5, p6, p7, p8
-#define MBED_SPI1         p11, p12, p13, p14
+#define MBED_SPI0         PB22, PB02, PB23, PA14
 
-#define MBED_UART0        p9, p10
-#define MBED_UART1        p13, p14
-#define MBED_UART2        p28, p27
+#define MBED_UART0        PA04, PA05
 #define MBED_UARTUSB      USBTX, USBRX
 
-#define MBED_I2C0         p28, p27
-#define MBED_I2C1         p9, p10
+#define MBED_I2C0         PA16, PA17
 
-#define MBED_CAN0         p30, p29
+#define MBED_ANALOGIN0    PA04
+#define MBED_ANALOGIN1    PA05
+#define MBED_ANALOGIN2    PA06
+#define MBED_ANALOGIN3    PA07
+#define MBED_ANALOGIN4    PB02
+#define MBED_ANALOGIN5    PB03
+#define MBED_ANALOGIN7    PA08
+#define MBED_ANALOGIN8    PA09
 
-#define MBED_ANALOGOUT0   p18
-
-#define MBED_ANALOGIN0    p15
-#define MBED_ANALOGIN1    p16
-#define MBED_ANALOGIN2    p17
-#define MBED_ANALOGIN3    p18
-#define MBED_ANALOGIN4    p19
-#define MBED_ANALOGIN5    p20
-
-#define MBED_PWMOUT0      p26
-#define MBED_PWMOUT1      p25
-#define MBED_PWMOUT2      p24
-#define MBED_PWMOUT3      p23
-#define MBED_PWMOUT4      p22
-#define MBED_PWMOUT5      p21
+#define MBED_PWMOUT0      PA18
+#define MBED_PWMOUT1      PA19
 
 #ifdef __cplusplus
 }
