@@ -132,8 +132,10 @@ const PinMap PinMap_EXTINT[] = {
     {PA09,  EXTINT_9, 0},
 
     {PA30,  EXTINT_10, 0},
+    {PA10,  EXTINT_10, 0},
 
     {PA31,  EXTINT_11, 0},
+    {PA11,  EXTINT_11, 0},
 
     {PA12,  EXTINT_12, 0},
     {PA24,  EXTINT_12, 0},

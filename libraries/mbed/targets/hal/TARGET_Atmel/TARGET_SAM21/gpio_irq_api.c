@@ -86,6 +86,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_EnableIRQ(irq_n);
     obj->ch = int_channel;
     channel_ids[int_channel] = id;
+    obj->irqmask = 0;
 
     return 0;
 }
