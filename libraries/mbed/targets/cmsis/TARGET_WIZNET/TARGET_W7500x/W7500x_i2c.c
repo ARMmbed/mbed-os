@@ -9,7 +9,7 @@ void i2c_loop_us(int us);
 
 #define SCL GPIO_Pin_9
 #define SDA GPIO_Pin_10
-uint16_t buf[] ={0x00,0x01};
+uint16_t buf[2] ={0x00,0x01};
 
 /**
   * @brief  Initializes the I2Cx peripheral according to the specified 
@@ -39,8 +39,8 @@ uint32_t I2C_Init(I2C_TypeDef* I2Cx, I2C_ConfigStruct conf)
         I2C_MasterSlave(I2Cx,ENABLE);
     
         I2C_Prescale(I2Cx,prescale);           // 0x61         //When PLL clk is 20MHz and Prescale value set 0x61, SCL is 100KHz
-      	I2C_TimeoutSet(I2Cx,timeout);          // 0xFFFF        
-  	 
+        I2C_TimeoutSet(I2Cx,timeout);          // 0xFFFF        
+ 
         I2C_CoreEn(I2Cx,DISABLE);
     }
     else if(conf.mode == I2C_Slave)
@@ -70,7 +70,7 @@ void I2C_DeInit(I2C_TypeDef* I2Cx)
 ErrorStatus I2C_Start(I2C_TypeDef* I2Cx, uint16_t slave_address, I2C_CTR ctr)
 {
     ErrorStatus ret;
-          
+    buf[0] = 0x00; buf[1] = 0x01;          
     I2C_GenerateSTART(I2Cx,ENABLE);
     I2C_SendSlaveAddress(I2Cx,slave_address,(I2C_CTR)ctr);
     I2C_GenerateSTART(I2Cx,DISABLE);
@@ -84,10 +84,12 @@ void I2C_Stop(I2C_TypeDef* I2Cx)
 {
     I2C_GenerateSTOP(I2Cx,ENABLE);
     I2C_GenerateSTOP(I2Cx,DISABLE);
+    i2c_loop_ms(2);
     GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
     GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
     HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
     HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF0); // PAD Config - LED used 2nd Function
+
 }
 
 void I2C_Reset(I2C_TypeDef* I2Cx)
@@ -121,6 +123,7 @@ int8_t I2C_SendDataAck(I2C_TypeDef* I2Cx,uint16_t Data)
         }           
     }
     buf[1] = buf[0];
+
     return SUCCESS;
 }
 
@@ -214,9 +217,7 @@ void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
 {
     if(NewState != DISABLE)     
     {   
-
         I2Cx->CMDR = I2C_CMDR_STO;
-
     }
     else               
     {
@@ -519,8 +520,8 @@ void I2C_GPIO(void )
         GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
         HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
         HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF1); // PAD Config - LED used 2nd Function
- 
 }
+
 void GPIO_I2C(void )
 {
        GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
@@ -532,7 +533,6 @@ void GPIO_I2C(void )
        GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN; // Set to Mode Output
        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
        HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF0); // PAD Config - LED used 2nd Functio
-
 }
 
 
@@ -542,22 +542,23 @@ void WriteByte(uint8_t val)
     GPIO_TypeDef* GPIOx;
     GPIOx = GPIOA;
 
-	for(i=0;i<8;i++)
-	{
-		if((val << i) & 0x80){
-			digitalWrite(GPIOx,SDA, Bit_SET);
-		}else{
-			digitalWrite(GPIOx,SDA, Bit_RESET);
-		}
+    for(i=0;i<8;i++)
+    {
+        if((val << i) & 0x80){
+            digitalWrite(GPIOx,SDA, Bit_SET);
+        }else{
+            digitalWrite(GPIOx,SDA, Bit_RESET);
+        }
+
         i2c_loop_us(1);
-		digitalWrite(GPIOx,SCL, Bit_SET);
+        digitalWrite(GPIOx,SCL, Bit_SET);
         i2c_loop_us(2);
-		digitalWrite(GPIOx,SCL, Bit_RESET);
-	}
-	digitalWrite(GPIOx,SDA, Bit_SET);
+        digitalWrite(GPIOx,SCL, Bit_RESET);
+    }
+    digitalWrite(GPIOx,SDA, Bit_SET);
     i2c_loop_us(1);
-	digitalWrite(GPIOx,SCL, Bit_SET);
-	i2c_loop_us(2);
+    digitalWrite(GPIOx,SCL, Bit_SET);
+    i2c_loop_us(2);
     digitalWrite(GPIOx,SCL, Bit_RESET);
 }
 
@@ -572,7 +573,6 @@ void digitalWrite(GPIO_TypeDef* GPIOx,uint16_t pin, uint16_t val)
     else
     {
         GPIOx -> OUTENSET |= pin;
-        
     }
 }
 
