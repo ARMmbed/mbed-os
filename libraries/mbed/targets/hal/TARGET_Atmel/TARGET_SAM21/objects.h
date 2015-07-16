@@ -67,9 +67,9 @@ struct analogin_s {
     struct adc_module adc_instance;
     struct adc_config config_adc;
 };
-/*
+
 struct pwmout_s {
-};*/
+};
 
 struct spi_s {
     Sercom *spi;

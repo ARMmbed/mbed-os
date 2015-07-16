@@ -44,7 +44,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     MBED_ASSERT(obj);
     struct port_config pin_conf;
     int i, j;
-    uint32_t start;
+    int start;
 
     PortGroup *const port_base = (PortGroup*)port_get_group_from_gpio_pin(port * 32);  // 32 pins in port // function reused to get the port base
     switch (port) {
@@ -92,7 +92,7 @@ void port_mode(port_t *obj, PinMode mode)
 {
     MBED_ASSERT(obj);
     int i, j;
-    uint32_t start;
+    int start;
     start = start_pin(obj->port);
     if(start == NC)
         return;
@@ -108,7 +108,7 @@ void port_dir(port_t *obj, PinDirection dir)
     MBED_ASSERT(obj);
     struct port_config pin_conf;
     int i, j;
-    uint32_t start;
+    int start;
     start = start_pin(obj->port);
     if(start == NC)
         return;
@@ -137,7 +137,7 @@ void port_write(port_t *obj, int value)
 {
     MBED_ASSERT(obj);
     int i;
-    uint32_t start;
+    int start;
     start = start_pin(obj->port);
     if(start == NC)
         return;
