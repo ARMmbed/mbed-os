@@ -49,7 +49,9 @@ void gpio_irq(void)
             } else {
                 event = IRQ_FALL;
             }
-            irq_handler(channel_ids[current_channel], event);
+            if(irq_handler) {
+                irq_handler(channel_ids[current_channel], event);
+            }
         }
     }
 }
