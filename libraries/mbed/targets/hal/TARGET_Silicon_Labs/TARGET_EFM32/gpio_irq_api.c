@@ -172,7 +172,7 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
     while(iflags) {
         irqIdx = GPIOINT_MASK2IDX(iflags);
 
-        /* clear flag*/
+        /* clear flag */
         iflags &= ~(1 << irqIdx);
 
         /* call user callback */
@@ -188,11 +188,11 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
  ******************************************************************************/
 void GPIO_EVEN_IRQHandler(void)
 {
-	uint32_t iflags;
+    uint32_t iflags;
     /* Get all even interrupts */
-     iflags = GPIO_IntGetEnabled() & 0x00005555;
+    iflags = GPIO_IntGetEnabled() & 0x00005555;
 
-     /* Clean only even interrupts.*/
+    /* Clean only even interrupts*/
 
     GPIO_IntClear(iflags);
     GPIOINT_IRQDispatcher(iflags);
@@ -207,12 +207,12 @@ void GPIO_EVEN_IRQHandler(void)
  ******************************************************************************/
 void GPIO_ODD_IRQHandler(void)
 {
-	uint32_t iflags;
+    uint32_t iflags;
 
-    /* Get all odd interrupts by */
-	iflags = GPIO_IntGetEnabled() & 0x0000AAAA;
+    /* Get all odd interrupts */
+    iflags = GPIO_IntGetEnabled() & 0x0000AAAA;
 
-	/* Clean only even interrupts.*/
+    /* Clean only even interrupts */
     GPIO_IntClear(iflags);
     GPIOINT_IRQDispatcher(iflags);
 }
