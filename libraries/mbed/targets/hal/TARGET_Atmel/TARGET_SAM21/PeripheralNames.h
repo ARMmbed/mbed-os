@@ -27,6 +27,9 @@ extern "C" {
 #define _SERCOM_SPI_NAME(n, unused) \
                             SPI##n,
 
+#define _SERCOM_PAD_NAME(n, pad) \
+				SERCOM##n##_PAD##pad = ((n & 0xF) | ((pad & 0xF) << 4)),
+
 #define _SERCOM_I2C_NAME(n, unused) \
                             I2C##n,
 
@@ -40,18 +43,38 @@ typedef enum {
     UART_4 = (int)0x42001800UL,  // Base address of SERCOM4
     UART_5 = (int)0x42001C00UL   // Base address of SERCOM5
 } UARTName;
-/*
-typedef enum {
-    ADC0_0 = 0,
-    ADC0_1,
-    ADC0_2,
-    ADC0_3,
-    ADC0_4,
-    ADC0_5,
-    ADC0_6,
-    ADC0_7
+
+typedef enum { // for each input control mux  4,5,6,7,16,17,10,11 used in R21
+    ADC_4  =  0x4ul,
+    ADC_5  =  0x5ul,
+    ADC_6  =  0x6ul,
+    ADC_7  =  0x7ul,
+    ADC_10 =  0xAul,
+    ADC_11 =  0xBul,
+    ADC_16 =  0x10ul,
+    ADC_17 =  0x11ul
 } ADCName;
 
+typedef enum {  // for each channel
+    EXTINT_0 = 0,
+    EXTINT_1,
+    EXTINT_2,
+    EXTINT_3,
+    EXTINT_4,
+    EXTINT_5,
+    EXTINT_6,
+    EXTINT_7,
+    EXTINT_8,
+    EXTINT_9,
+    EXTINT_10,
+    EXTINT_11,
+    EXTINT_12,
+    EXTINT_13,
+    EXTINT_14,
+    EXTINT_15
+} EXTINTName;
+
+/*
 typedef enum {
     DAC_0 = 0
 } DACName;*/
@@ -63,6 +86,20 @@ typedef enum {
 typedef enum {
     MREPEAT(SERCOM_INST_NUM, _SERCOM_I2C_NAME, ~)
 } I2CName;
+
+typedef enum {
+    /* Pad 0 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 0)
+
+    /* Pad 1 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 1)
+
+    /* Pad 2 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 2)
+
+    /* Pad 3 definitions */
+    MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 3)
+} SercomPadName;
 /*
 typedef enum {
     PWM_1 = 1,

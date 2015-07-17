@@ -1,48 +1,3 @@
-/**
- * \file
- *
- * \brief SAM R21 Clock configuration
- *
- * Copyright (C) 2014 Atmel Corporation. All rights reserved.
- *
- * \asf_license_start
- *
- * \page License
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * \asf_license_stop
- *
- */
-/**
-* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
-*/
 #include <clock.h>
 
 #ifndef CONF_CLOCKS_H_INCLUDED
@@ -79,13 +34,15 @@
 #  define CONF_CLOCK_XOSC32K_ON_DEMAND            true
 #  define CONF_CLOCK_XOSC32K_RUN_IN_STANDBY       false
 
+//! [oscillator_settings]
 /* SYSTEM_CLOCK_SOURCE_OSC32K configuration - Internal 32KHz oscillator */
-#  define CONF_CLOCK_OSC32K_ENABLE                false
+#  define CONF_CLOCK_OSC32K_ENABLE                true
 #  define CONF_CLOCK_OSC32K_STARTUP_TIME          SYSTEM_OSC32K_STARTUP_130
 #  define CONF_CLOCK_OSC32K_ENABLE_1KHZ_OUTPUT    true
 #  define CONF_CLOCK_OSC32K_ENABLE_32KHZ_OUTPUT   true
 #  define CONF_CLOCK_OSC32K_ON_DEMAND             true
 #  define CONF_CLOCK_OSC32K_RUN_IN_STANDBY        false
+//! [oscillator_settings]
 
 /* SYSTEM_CLOCK_SOURCE_DFLL configuration - Digital Frequency Locked Loop */
 #  define CONF_CLOCK_DFLL_ENABLE                  false
@@ -140,12 +97,14 @@
 #  define CONF_CLOCK_GCLK_1_PRESCALER             1
 #  define CONF_CLOCK_GCLK_1_OUTPUT_ENABLE         false
 
+//! [gclk_settings]
 /* Configure GCLK generator 2 (RTC) */
-#  define CONF_CLOCK_GCLK_2_ENABLE                false
+#  define CONF_CLOCK_GCLK_2_ENABLE                true
 #  define CONF_CLOCK_GCLK_2_RUN_IN_STANDBY        false
 #  define CONF_CLOCK_GCLK_2_CLOCK_SOURCE          SYSTEM_CLOCK_SOURCE_OSC32K
 #  define CONF_CLOCK_GCLK_2_PRESCALER             32
 #  define CONF_CLOCK_GCLK_2_OUTPUT_ENABLE         false
+//! [gclk_settings]
 
 /* Configure GCLK generator 3 */
 #  define CONF_CLOCK_GCLK_3_ENABLE                false

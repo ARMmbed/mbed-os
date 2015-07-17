@@ -22,34 +22,12 @@
 #include "pinmap.h"
 #include "sercom.h"
 
-/** Temporary definitions START
- *  Need to implement Pinmux APIs. For now, have hard coded to external SPIs available in SAM21 */
-#ifdef SAMR21
-#define EXT1_SPI_MODULE              SERCOM5
-#define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
-#define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PB02D_SERCOM5_PAD0
-#define EXT1_SPI_SERCOM_PINMUX_PAD1  PINMUX_PB03D_SERCOM5_PAD1
-#define EXT1_SPI_SERCOM_PINMUX_PAD2  PINMUX_PB22D_SERCOM5_PAD2
-#define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PB23D_SERCOM5_PAD3
-#define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM5_DMAC_ID_TX
-#define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM5_DMAC_ID_RX
-#elif SAMD21
-#define EXT1_SPI_MODULE              SERCOM0
-#define EXT1_SPI_SERCOM_MUX_SETTING  ((0x1 << SERCOM_SPI_CTRLA_DOPO_Pos) | (0x0 << SERCOM_SPI_CTRLA_DIPO_Pos))
-#define EXT1_SPI_SERCOM_PINMUX_PAD0  PINMUX_PA04D_SERCOM0_PAD0
-#define EXT1_SPI_SERCOM_PINMUX_PAD1  PINMUX_PA05D_SERCOM0_PAD1
-#define EXT1_SPI_SERCOM_PINMUX_PAD2  PINMUX_PA06D_SERCOM0_PAD2
-#define EXT1_SPI_SERCOM_PINMUX_PAD3  PINMUX_PA07D_SERCOM0_PAD3
-#define EXT1_SPI_SERCOM_DMAC_ID_TX   SERCOM0_DMAC_ID_TX
-#define EXT1_SPI_SERCOM_DMAC_ID_RX   SERCOM0_DMAC_ID_RX
-#endif
+#include "pinmap_function.h"
 
-/** Default pinmux. */
-#  define PINMUX_DEFAULT 0
-
-/** Unused pinmux. */
-#  define PINMUX_UNUSED 0xFFFFFFFF
-/** Temporary definitions END */
+#define SPI_MOSI_INDEX	0
+#define SPI_MISO_INDEX	1
+#define SPI_SCLK_INDEX	2
+#define SPI_SSEL_INDEX	3
 
 /**
  * \brief SPI modes enum
@@ -82,31 +60,6 @@ enum spi_mode {
 extern uint8_t g_sys_init;
 uint16_t dummy_fill_word = 0xFFFF;
 
-#if DEVICE_SPI_ASYNCH
-/* Global variables */
-extern void *_sercom_instances[SERCOM_INST_NUM];
-
-static void _spi_transceive_buffer(spi_t *obj);
-
-/** \internal
- * Generates a SERCOM interrupt handler function for a given SERCOM index.
- */
-#define _SERCOM_SPI_INTERRUPT_HANDLER(n, unused) \
-void SERCOM##n##_SPIHandler(void) \
-{ \
-	_spi_transceive_buffer((spi_t *)_sercom_instances[n]); \
-}
-#define _SERCOM_SPI_INTERRUPT_HANDLER_DECLR(n, unused) \
-			(uint32_t)SERCOM##n##_SPIHandler,
-
-/** Auto-generate a set of interrupt handlers for each SERCOM SPI in the device */
-MREPEAT(SERCOM_INST_NUM, _SERCOM_SPI_INTERRUPT_HANDLER, ~)
-
-const uint32_t _sercom_handlers[SERCOM_INST_NUM] = {
-    MREPEAT(SERCOM_INST_NUM, _SERCOM_SPI_INTERRUPT_HANDLER_DECLR, ~)
-};
-uint32_t _sercom_callbacks[SERCOM_INST_NUM] = {0};
-#endif /* DEVICE_SPI_ASYNCH */
 
 static inline bool spi_is_syncing(spi_t *obj)
 {
@@ -122,11 +75,6 @@ static inline void spi_enable(spi_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-#if DEVICE_SPI_ASYNCH
-    /* Enable interrupt */
-    NVIC_EnableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_SERCOM(obj)));
-#endif
-
     /* Wait until the synchronization is complete */
     while (spi_is_syncing(obj));
 
@@ -139,10 +87,6 @@ static inline void spi_disable(spi_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-#if DEVICE_SPI_ASYNCH
-    /* Disable interrupt */
-    NVIC_DisableIRQ(SERCOM0_IRQn + _sercom_get_sercom_inst_index(pSPI_SERCOM(obj)));
-#endif
     /* Wait until the synchronization is complete */
     while (spi_is_syncing(obj));
 
@@ -221,6 +165,59 @@ static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
     return true;
 }
 
+static uint32_t spi_find_mux_settings(spi_t *obj)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    uint8_t i_dipo;
+    uint8_t i_dopo;
+    uint32_t dipo = 0;
+    uint32_t dopo = 0;
+    uint32_t mux_pad;
+
+    uint32_t mux_settings = 0;
+
+    uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
+
+    if (pSPI_S(obj)->mode == SPI_MODE_MASTER) {
+        i_dipo = SPI_MISO_INDEX;
+        i_dopo = SPI_MOSI_INDEX;
+    } else {
+        i_dipo = SPI_MOSI_INDEX;
+        i_dopo = SPI_MISO_INDEX;
+    }
+
+    /* Find MUX setting */
+    if (pSPI_S(obj)->pins[i_dipo] != NC) {
+        /* Set Data input MUX padding for master */
+        mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dipo], sercom_index);
+        if (mux_pad != NC) {
+            /* MUX pad value is same as DIPO value */
+            dipo = mux_pad;
+            mux_settings |= ((dipo << SERCOM_SPI_CTRLA_DIPO_Pos) & SERCOM_SPI_CTRLA_DIPO_Msk);
+        }
+    }
+
+    if (pSPI_S(obj)->pins[i_dopo] != NC) {
+        /* Set Data output MUX padding for master */
+        mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dopo], sercom_index);
+        if (mux_pad != NC) {
+            if (mux_pad != 0) {
+                dopo = mux_pad - 1;
+            } else {
+                if (3 == pinmap_pad_sercom(pSPI_S(obj)->pins[SPI_SCLK_INDEX], sercom_index)) {
+                    dopo = 3;
+                } else {
+                    dopo = 0;
+                }
+            }
+            mux_settings |= ((dopo << SERCOM_SPI_CTRLA_DOPO_Pos) & SERCOM_SPI_CTRLA_DOPO_Msk);
+        }
+    }
+
+    return mux_settings;
+}
+
 /**
  * \defgroup GeneralSPI SPI Configuration Functions
  * @{
@@ -237,6 +234,10 @@ static inline bool spi_read(spi_t *obj, uint16_t *rx_data)
  */
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    MBED_ASSERT(sclk != NC);
+
     uint16_t baud = 0;
     uint32_t ctrla = 0;
     uint32_t ctrlb = 0;
@@ -247,9 +248,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         g_sys_init = 1;
     }
 
-    /* TODO: Calculate SERCOM instance from pins */
-    /* TEMP: Giving external SPI module value of SAMR21 for now */
-    pSPI_SERCOM(obj) = EXT1_SPI_MODULE;
+    /* Calculate SERCOM instance from pins */
+    uint32_t sercom_index = pinmap_find_sercom(mosi, miso, sclk, ssel);
+    pSPI_SERCOM(obj) = (Sercom*)pinmap_peripheral_sercom(NC, sercom_index);
 
     /* Disable SPI */
     spi_disable(obj);
@@ -258,7 +259,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (_SPI(obj).CTRLA.reg & SERCOM_SPI_CTRLA_SWRST) {
         return;
     }
-    uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
+
     uint32_t pm_index, gclk_index;
 #if (SAML21)
     if (sercom_index == 5) {
@@ -292,14 +293,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     system_gclk_chan_enable(gclk_index);
     sercom_set_gclk_generator(GCLK_GENERATOR_0, false);
 
-#if DEVICE_SPI_ASYNCH
-    /* Save the object */
-    _sercom_instances[sercom_index] = obj;
-
-    /* Configure interrupt handler */
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)_sercom_handlers[sercom_index]);
-#endif
-
     /* Set the SERCOM in SPI master mode */
     _SPI(obj).CTRLA.reg |= SERCOM_SPI_CTRLA_MODE(0x3);
     pSPI_S(obj)->mode = SPI_MODE_MASTER;
@@ -309,17 +302,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     system_pinmux_get_config_defaults(&pin_conf);
     pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
 
-    uint32_t pad_pinmuxes[] = {
-        EXT1_SPI_SERCOM_PINMUX_PAD0, EXT1_SPI_SERCOM_PINMUX_PAD1,
-        EXT1_SPI_SERCOM_PINMUX_PAD2, EXT1_SPI_SERCOM_PINMUX_PAD3
-    };
-
+    pSPI_S(obj)->pins[SPI_MOSI_INDEX] = mosi;
+    pSPI_S(obj)->pins[SPI_MISO_INDEX] = miso;
+    pSPI_S(obj)->pins[SPI_SCLK_INDEX] = sclk;
+    pSPI_S(obj)->pins[SPI_SSEL_INDEX] = ssel;
     /* Configure the SERCOM pins according to the user configuration */
     for (uint8_t pad = 0; pad < 4; pad++) {
-        uint32_t current_pinmux = pad_pinmuxes[pad];
-        if (current_pinmux != PINMUX_UNUSED) {
-            pin_conf.mux_position = current_pinmux & 0xFFFF;
-            system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
+        uint32_t current_pin = pSPI_S(obj)->pins[pad];
+        if (current_pin != NC) {
+            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+            if ((uint8_t)NC != pin_conf.mux_position) {
+                system_pinmux_pin_set_config(current_pin, &pin_conf);
+            }
         }
     }
 
@@ -333,8 +327,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
     _SPI(obj).BAUD.reg = (uint8_t)baud;
 
-    /* Set MUX setting */
-    ctrla |= EXT1_SPI_SERCOM_MUX_SETTING; /* TODO: Change this to appropriate Settings */
+    /* TODO: Find MUX settings */
+    ctrla |= spi_find_mux_settings(obj);
 
     /* Set SPI character size */
     ctrlb |= SERCOM_SPI_CTRLB_CHSIZE(0);
@@ -377,37 +371,40 @@ void spi_free(spi_t *obj)
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
+    PinMode pull_mode;
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+
     /* Disable SPI */
     spi_disable(obj);
+
 
     if (slave) {
         /* Set the SERCOM in SPI mode */
         _SPI(obj).CTRLA.bit.MODE = 0x2;
         pSPI_S(obj)->mode = SPI_MODE_SLAVE;
-
-        struct system_pinmux_config pin_conf;
-        system_pinmux_get_config_defaults(&pin_conf);
-        pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-        pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_NONE;
-
-        uint32_t pad_pinmuxes[] = {
-            EXT1_SPI_SERCOM_PINMUX_PAD0, EXT1_SPI_SERCOM_PINMUX_PAD1,
-            EXT1_SPI_SERCOM_PINMUX_PAD2, EXT1_SPI_SERCOM_PINMUX_PAD3
-        };
-
-        /* Configure the SERCOM pins according to the user configuration */
-        for (uint8_t pad = 0; pad < 4; pad++) {
-            uint32_t current_pinmux = pad_pinmuxes[pad];
-            if (current_pinmux != PINMUX_UNUSED) {
-                pin_conf.mux_position = current_pinmux & 0xFFFF;
-                system_pinmux_pin_set_config(current_pinmux >> 16, &pin_conf);
-            }
-        }
+        pull_mode = PullNone;
+        /* Enable PLOADEN to avoid sending dummy character by slave */
+        _SPI(obj).CTRLB.bit.PLOADEN = 1;
     } else {
-        /* Already in SPI master mode */
+        /* Set the SERCOM in SPI mode */
+        _SPI(obj).CTRLA.bit.MODE = 0x3;
+        pSPI_S(obj)->mode = SPI_MODE_MASTER;
+        pull_mode = PullUp;
     }
 
-    /* TODO: Change MUX settings to appropriate value */
+    /* Change pull mode of pins */
+    for (uint8_t pad = 0; pad < 4; pad++) {
+        if (pSPI_S(obj)->pins[pad] != NC) {
+            pin_mode(pSPI_S(obj)->pins[pad], pull_mode);
+        }
+    }
+
+    /* Change MUX settings */
+    uint32_t ctrla = _SPI(obj).CTRLA.reg;
+    ctrla &= ~(SERCOM_SPI_CTRLA_DIPO_Msk | SERCOM_SPI_CTRLA_DOPO_Msk);
+    ctrla |= spi_find_mux_settings(obj);
+    _SPI(obj).CTRLA.reg = ctrla;
 
     /* Set SPI Frame size - only 8-bit and 9-bit supported now */
     _SPI(obj).CTRLB.bit.CHSIZE = (bits > 8)? 1 : 0;
@@ -432,6 +429,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     uint16_t baud = 0;
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
 
     /* Disable SPI */
     spi_disable(obj);
@@ -711,6 +710,9 @@ static void _spi_read_async(spi_t *obj)
  */
 static void _spi_clear_interrupts(spi_t *obj)
 {
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+
     uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
     /* Clear all interrupts */
@@ -730,13 +732,10 @@ static void _spi_clear_interrupts(spi_t *obj)
  * \param[in,out]  obj   Pointer to SPI software instance struct
  *
  */
-static void _spi_transceive_buffer(spi_t *obj)
+static enum status_code _spi_transceive_buffer(spi_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    void (*callback_func)(void);
-
-    uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
     uint16_t interrupt_status = _SPI(obj).INTFLAG.reg;
     interrupt_status &= _SPI(obj).INTENSET.reg;
@@ -780,11 +779,7 @@ static void _spi_transceive_buffer(spi_t *obj)
         } else {
             obj->spi.status = STATUS_ERR_BAD_DATA;
         }
-        callback_func = _sercom_callbacks[sercom_index];
-        if (callback_func && (obj->spi.mask & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW))) {
-            callback_func();
-        }
-        return;
+        return obj->spi.status;
     }
 
     if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length) && (interrupt_status & SERCOM_SPI_INTFLAG_TXC)) {
@@ -794,12 +789,9 @@ static void _spi_transceive_buffer(spi_t *obj)
         /* Transfer complete, invoke the callback function */
         obj->spi.event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
         obj->spi.status = STATUS_OK;
-        callback_func = _sercom_callbacks[sercom_index];
-        if (callback_func && (obj->spi.mask & SPI_EVENT_COMPLETE)) {
-            callback_func();
-        }
-        return;
     }
+
+    return obj->spi.status;
 }
 
 /** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
@@ -856,7 +848,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         dummy_read = _SPI(obj).DATA.reg;
     }
 
-    _sercom_callbacks[sercom_index] = handler;
     obj->spi.mask = event;
 
     obj->spi.dma_usage = hint;
@@ -867,7 +858,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->spi.status = STATUS_BUSY;
 
     /* Enable interrupt */
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), _sercom_handlers[sercom_index]);
+    NVIC_SetVector((SERCOM0_IRQn + sercom_index), handler);
     NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
 
     /* Clear all interrupts */
@@ -895,53 +886,16 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
  */
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
-    uint32_t transfer_event = 0;
-    uint32_t bytes_to_transfer = 0;
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
 
-    uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
+    uint32_t transfer_event = 0;
 
     /*if (obj->spi.dma_usage == DMA_USAGE_NEVER) {** TEMP: Commented as DMA is not implemented now */
     /* IRQ method */
-    if (obj->spi.event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) {
-        obj->spi.event |= SPI_EVENT_COMPLETE;
-        transfer_event = obj->spi.event;
-    } else {
-        /* Data is still remaining to be transferred! */
-        obj->spi.status = STATUS_BUSY;
-
-        /* Read any pending data in RX buffer */
-        while (spi_is_ready_to_read(obj)) {
-            _spi_read_async(obj);
-        }
-
-        while (obj->tx_buff.pos < obj->tx_buff.length) {
-            /* Write data */
-            _spi_write_async(obj);
-            /* Read if any */
-            if ((obj->rx_buff.buffer) && (obj->rx_buff.pos < obj->rx_buff.length)) {
-                if (spi_is_ready_to_read(obj)) {
-                    _spi_read_async(obj);
-                }
-                /* Extend TX buffer (with dummy) if there is more to receive */
-                if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->tx_buff.length < obj->rx_buff.length)) {
-                    obj->tx_buff.length = obj->rx_buff.length;
-                    obj->tx_buff.buffer = 0;
-                }
-            }
-            if (obj->spi.event & SPI_EVENT_ERROR) {
-                transfer_event = obj->spi.event;
-                obj->spi.status = STATUS_ERR_BAD_DATA;
-                break;
-            }
-        }
-        if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length)) {
-            transfer_event = (SPI_EVENT_INTERNAL_TRANSFER_COMPLETE | SPI_EVENT_COMPLETE);
-            obj->spi.status = STATUS_OK;
-        }
+    if (STATUS_BUSY != _spi_transceive_buffer(obj)) {
+        transfer_event = obj->spi.event & (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
     }
-    transfer_event &= (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
-    /* Clear all interrupts */
-    _spi_clear_interrupts(obj);
     /*}** TEMP: Commented as DMA is not implemented now */
     return transfer_event;
 }
@@ -952,6 +906,9 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
  */
 uint8_t spi_active(spi_t *obj)
 {
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+
     /* Check if the SPI module is busy with a job */
     return (obj->spi.status == STATUS_BUSY);
 }
