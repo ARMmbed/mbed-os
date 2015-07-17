@@ -1276,7 +1276,11 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_tx_enable_event(obj, event, true);
 
     // Set up sleepmode
-    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
+    }else{
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    }
 
     // Determine DMA strategy
     serial_dmaTrySetState(&(obj->serial.dmaOptionsTX), hint, obj, true);
@@ -1340,7 +1344,11 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_set_char_match(obj, char_match);
 
     // Set up sleepmode
-    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
+    }else{
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    }
 
     // Determine DMA strategy
     // If character match is enabled, we can't use DMA, sadly. We could when using LEUART though, but that support is not in here yet.
@@ -1688,8 +1696,12 @@ void serial_tx_abort_asynch(serial_t *obj)
             break;
     }
 
-    /* Unblock EM2 and below */
-    unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    /* Say that we can stop using this emode */
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
+    }else{
+        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    }
 }
 
 /** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
@@ -1726,7 +1738,11 @@ void serial_rx_abort_asynch(serial_t *obj)
     }
 
     /* Say that we can stop using this emode */
-    unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
+    }else{
+        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    }
 }
 
 #endif //DEVICE_SERIAL_ASYNCH
