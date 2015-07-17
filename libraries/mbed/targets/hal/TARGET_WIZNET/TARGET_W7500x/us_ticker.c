@@ -92,8 +92,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
     
     dev = (int32_t)(timestamp - (us_ticker_read() + 160));
-    dev = dev * 1.27;
-        
+    dev = dev * ((GetSystemClock() / 1000000) / 16);     
+
     if(dev <= 0)
     {
         us_ticker_irq_handler();
