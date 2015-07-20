@@ -9,7 +9,7 @@ void i2c_loop_us(int us);
 
 #define SCL GPIO_Pin_9
 #define SDA GPIO_Pin_10
-uint16_t buf[] ={0x00,0x01};
+static uint16_t buf[2] ={0x00,0x01};
 
 /**
   * @brief  Initializes the I2Cx peripheral according to the specified 
@@ -70,7 +70,7 @@ void I2C_DeInit(I2C_TypeDef* I2Cx)
 ErrorStatus I2C_Start(I2C_TypeDef* I2Cx, uint16_t slave_address, I2C_CTR ctr)
 {
     ErrorStatus ret;
-          
+    buf[0] = 0x00; buf[1] = 0x01;          
     I2C_GenerateSTART(I2Cx,ENABLE);
     I2C_SendSlaveAddress(I2Cx,slave_address,(I2C_CTR)ctr);
     I2C_GenerateSTART(I2Cx,DISABLE);
@@ -82,12 +82,13 @@ ErrorStatus I2C_Start(I2C_TypeDef* I2Cx, uint16_t slave_address, I2C_CTR ctr)
 
 void I2C_Stop(I2C_TypeDef* I2Cx)
 {
+    I2C_GPIO();
     I2C_GenerateSTOP(I2Cx,ENABLE);
     I2C_GenerateSTOP(I2Cx,DISABLE);
-    GPIO_InitDef.GPIO_Pin = GPIO_Pin_9; // Set to Pin_9 (SCL0))
-    GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
-    HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
-    HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF0); // PAD Config - LED used 2nd Function
+    i2c_loop_us(1);
+    digitalWrite(GPIOA,SDA, Bit_RESET);
+    GPIO_I2C();
+    i2c_loop_ms(2);
 }
 
 void I2C_Reset(I2C_TypeDef* I2Cx)
@@ -515,7 +516,7 @@ void I2C_GPIO(void )
         HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
         HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_9, PAD_AF1); // PAD Config - LED used 2nd Function
         
-        GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_9 (SCL0))
+        GPIO_InitDef.GPIO_Pin = GPIO_Pin_10; // Set to Pin_10 (SDA0))
         GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT; // Set to Mode Output
         HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
         HAL_PAD_AFConfig(PAD_PA,GPIO_Pin_10, PAD_AF1); // PAD Config - LED used 2nd Function
@@ -586,4 +587,6 @@ void i2c_loop_us(int us)
 void i2c_loop_ms(int count) {
     i2c_loop_us(count*1000);
 }
+
+
 

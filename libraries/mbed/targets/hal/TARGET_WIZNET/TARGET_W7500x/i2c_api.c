@@ -211,19 +211,19 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         obj->ADDRESS = address;
       
     }
-
-    for (count = 0; count < length; count++) {
-        i2c_byte_write(obj, data[count]);
-        wait_us(1);
-    }
-
-    
     if(length == 0x00)
     {
         I2C_GPIO();
         i2c_byte_write(obj, 0xff);
         GPIO_I2C();
     }
+    for (count = 0; count < length; count++) {
+        i2c_byte_write(obj, data[count]);
+        wait_us(1);
+    }
+
+    
+
     // If not repeated start, send stop
     if (stop) {
         i2c_stop(obj);
