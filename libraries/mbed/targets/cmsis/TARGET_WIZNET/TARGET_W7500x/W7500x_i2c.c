@@ -9,7 +9,7 @@ void i2c_loop_us(int us);
 
 #define SCL GPIO_Pin_9
 #define SDA GPIO_Pin_10
-uint16_t buf[2] ={0x00,0x01};
+static uint16_t buf[2] ={0x00,0x01};
 
 /**
   * @brief  Initializes the I2Cx peripheral according to the specified 
