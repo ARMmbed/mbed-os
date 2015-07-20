@@ -69,8 +69,8 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
-                
-        
+
+
 ### MCU Support ###
 
 class CM4_UARM(Target):
@@ -79,7 +79,7 @@ class CM4_UARM(Target):
         self.core = "Cortex-M4"
         self.supported_toolchains = ["uARM"]
         self.default_toolchain = "uARM"
-        
+
 class CM4_ARM(Target):
     def __init__(self):
         Target.__init__(self)
@@ -93,15 +93,15 @@ class CM4F_UARM(Target):
         self.core = "Cortex-M4F"
         self.supported_toolchains = ["uARM"]
         self.default_toolchain = "uARM"
-        
+
 class CM4F_ARM(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-        
-        
+
+
 ### NXP ###
 
 # This class implements the post-link patching step needed by LPC targets
@@ -652,7 +652,7 @@ class NUCLEO_F446RE(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        
+
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1163,7 +1163,7 @@ class ARM_MPS2_M0(ARM_MPS2_Target):
         self.core = "Cortex-M0"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M0']
         self.macros = ['CMSDK_CM0']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2_M0P(ARM_MPS2_Target):
@@ -1172,7 +1172,7 @@ class ARM_MPS2_M0P(ARM_MPS2_Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M0P']
         self.macros = ['CMSDK_CM0plus']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2_M1(ARM_MPS2_Target):
@@ -1181,7 +1181,7 @@ class ARM_MPS2_M1(ARM_MPS2_Target):
         self.core = "Cortex-M1"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M1']
         self.macros = ['CMSDK_CM1']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2_M3(ARM_MPS2_Target):
@@ -1190,7 +1190,7 @@ class ARM_MPS2_M3(ARM_MPS2_Target):
         self.core = "Cortex-M3"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M3']
         self.macros = ['CMSDK_CM3']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2_M4(ARM_MPS2_Target):
@@ -1199,7 +1199,7 @@ class ARM_MPS2_M4(ARM_MPS2_Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M4']
         self.macros = ['CMSDK_CM4']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2_M7(ARM_MPS2_Target):
@@ -1208,7 +1208,7 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
 class ARM_MPS2(ARM_MPS2_M4):
