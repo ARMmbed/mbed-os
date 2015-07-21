@@ -411,9 +411,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         // Set up LEUART clock tree to use high-speed clock)
-        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
         CMU_ClockEnable(cmuClock_LFB, true);
-        CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
+        CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
+        obj->serial.periph.leuart.ctrl |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU
     }
 
     CMU_ClockEnable(serial_get_clock(obj), true);
@@ -477,6 +478,15 @@ void serial_enable(serial_t *obj, uint8_t enable)
 void serial_baud(serial_t *obj, int baudrate)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        if(baudrate > 9600){
+            CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+            CMU_ClockEnable(cmuClock_LFB, true);
+            CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
+        }else{
+            CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
+            CMU_ClockEnable(cmuClock_LFB, true);
+            CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
+        }
         LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ, (uint32_t)baudrate);
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
