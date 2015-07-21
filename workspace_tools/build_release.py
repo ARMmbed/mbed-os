@@ -85,6 +85,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NRF51_DK',     ('ARM', 'GCC_ARM', 'IAR')),
     ('NRF51_DONGLE', ('ARM', 'GCC_ARM', 'IAR')),
     ('HRM1017',      ('ARM', 'GCC_ARM', 'IAR')),
+    ('NRF51_MICROBIT',      ('ARM')),
     ('ARCH_BLE',     ('ARM', 'GCC_ARM', 'IAR')),
     ('SEEED_TINY_BLE', ('ARM', 'GCC_ARM', 'IAR')),
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
