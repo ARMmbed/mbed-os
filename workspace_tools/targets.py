@@ -914,22 +914,27 @@ class NRF51822(Target):
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
         {
             'name'   : 's130_nrf51_1.0.0_softdevice.hex',
+            'boot'   : 's130_nrf51_1.0.0_bootloader.hex',
             'offset' : 0x1C000
         },
         {
             'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
             'offset' : 0x18000
         },
         {
             'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
             'offset' : 0x16000
         },
         {
             'name'   : 's110_nrf51822_7.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_7.0.0_bootloader.hex',
             'offset' : 0x16000
         },
         {
             'name'   : 's110_nrf51822_6.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_6.0.0_bootloader.hex',
             'offset' : 0x14000
         }
     ]
@@ -961,13 +966,19 @@ class NRF51822(Target):
         sdf = None
         blf = None
         for hexf in resources.hex_files:
-            if hexf.find(t_self.target.EXPECTED_BOOTLOADER_FILENAME) != -1:
-                blf = hexf
-            else:
-                for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
-                    if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
-                        sdf = hexf
-                        break
+            for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+                if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                    sdf = hexf
+                    t_self.debug("SoftDevice file found %s." % softdeviceAndOffsetEntry['name'])
+                    
+                    # Look for bootloader file that matches this soft device
+                    if t_self.target.MERGE_BOOTLOADER is True:
+                        for hexf in resources.hex_files:
+                            if hexf.find(softdeviceAndOffsetEntry['boot']) != -1:
+                                t_self.debug("Bootloader file found %s." % softdeviceAndOffsetEntry['boot'])
+                                blf = hexf
+                                break
+                    break
 
         if sdf is None:
             t_self.debug("Hex file not found. Aborting.")
