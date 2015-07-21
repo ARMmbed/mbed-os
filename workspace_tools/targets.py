@@ -1247,6 +1247,53 @@ class NRF51_DONGLE_OTA(MCU_NRF51_32K_OTA):
         self.extra_labels = ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
+class NRF51_MICROBIT(MCU_NRF51_16K):
+    def __init__(self):
+        MCU_NRF51_16K.__init__(self)
+        self.EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+            {
+                'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+                'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
+                'offset' : 0x18000
+            },
+            {
+                'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
+                'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
+                'offset' : 0x16000
+            }
+        ]
+        self.macros += ['TARGET_NRF_LFCLK_RC']
+
+class NRF51_MICROBIT_BOOT(MCU_NRF51_16K_BOOT):
+    def __init__(self):
+        MCU_NRF51_16K_BOOT.__init__(self)
+        self.extra_labels += ['NRF51_MICROBIT']
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
+
+class NRF51_MICROBIT_OTA(MCU_NRF51_16K_OTA):
+    def __init__(self):
+        MCU_NRF51_16K_OTA.__init__(self)
+        self.extra_labels += ['NRF51_MICROBIT']
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
+
+class NRF51_MICROBIT_B(MCU_NRF51_16K):
+    def __init__(self):
+        MCU_NRF51_16K.__init__(self)
+        self.extra_labels += ['NRF51_MICROBIT']
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
+
+class NRF51_MICROBIT_B_BOOT(MCU_NRF51_16K_BOOT):
+    def __init__(self):
+        MCU_NRF51_16K_BOOT.__init__(self)
+        self.extra_labels += ['NRF51_MICROBIT']
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
+
+class NRF51_MICROBIT_B_OTA(MCU_NRF51_16K_OTA):
+    def __init__(self):
+        MCU_NRF51_16K_OTA.__init__(self)
+        self.extra_labels += ['NRF51_MICROBIT']
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
+
         
 ### ARM ###
 
@@ -1547,6 +1594,9 @@ TARGETS = [
     NRF51_DONGLE(),         # nRF51_32K
     NRF51_DONGLE_BOOT(),    # nRF51_32K
     NRF51_DONGLE_OTA(),     # nRF51_32K
+    NRF51_MICROBIT(),       # nRF51_16K - S110
+    NRF51_MICROBIT_B(),       # nRF51_16K - default
+
 
     ### ARM ###
     ARM_MPS2_M0(),
