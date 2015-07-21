@@ -1159,7 +1159,57 @@ class DELTA_DFCM_NNN40_OTA(NRF51822):
         self.MERGE_SOFT_DEVICE = False
         self.macros += self.common_macros
 
+class NRF51_MICROBIT(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
+            {
+                'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+                'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
+                'offset' : 0x18000
+            },
+            {
+                'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
+                'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
+                'offset' : 0x16000
+            }
+        ]
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'MCU_NORDIC_16K_S110']
+        self.macros = ['TARGET_NRF51822', 'TARGET_NRF_LFCLK_RC']
+        self.macros += self.common_macros
 
+class NRF51_MICROBIT_BOOT(NRF51_MICROBIT):
+    def __init__(self):
+        NRF51_MICROBIT.__init__(self)
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_OTA_ENABLED']
+        self.MERGE_BOOTLOADER = True
+
+class NRF51_MICROBIT_OTA(NRF51_MICROBIT):
+    def __init__(self):
+        NRF51_MICROBIT.__init__(self)
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_OTA_ENABLED']
+        self.MERGE_SOFT_DEVICE = False
+
+class NRF51_MICROBIT_B(NRF51822):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'NRF51_MICROBIT', "MCU_NORDIC_16K_S130" ]
+        self.macros = ['TARGET_NRF51822', 'TARGET_NRF_LFCLK_RC']
+        self.macros += self.common_macros
+
+class NRF51_MICROBIT_B_BOOT(NRF51_MICROBIT):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_OTA_ENABLED']
+        self.MERGE_BOOTLOADER = True
+
+class NRF51_MICROBIT_B_OTA(NRF51_MICROBIT):
+    def __init__(self):
+        NRF51822.__init__(self)
+        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_OTA_ENABLED']
+        self.MERGE_SOFT_DEVICE = False
+
+        
 ### ARM ###
 
 class ARM_MPS2_Target(Target):
@@ -1446,6 +1496,8 @@ TARGETS = [
     WALLBOT_BLE(),  # nRF51822
     DELTA_DFCM_NNN40(), # nRF51822
     DELTA_DFCM_NNN40_OTA(), # nRF51822
+    NRF51_MICROBIT(), # nRF51822
+
 
     ### ARM ###
     ARM_MPS2_M0(),
