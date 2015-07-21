@@ -132,7 +132,7 @@ static void uart_init(serial_t *obj)
 
         /* Determine the reference clock, because the correct clock is not set up at init time */
         init.refFreq = LEUART_REF_FREQ;
-
+        LEUART_Reset(obj->serial.periph.leuart);
         LEUART_Init(obj->serial.periph.leuart, &init);
     } else {
         USART_InitAsync_TypeDef init = USART_INITASYNC_DEFAULT;
@@ -414,7 +414,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
         CMU_ClockEnable(cmuClock_LFB, true);
         CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
-        obj->serial.periph.leuart.ctrl |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU
+        CMU_ClockEnable(cmuClock_CORELE, true);
     }
 
     CMU_ClockEnable(serial_get_clock(obj), true);
@@ -431,6 +431,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
         obj->serial.periph.leuart->IFC = LEUART_IFC_TXC;
+        obj->serial.periph.leuart->CTRL |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU;
     } else {
         obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
         obj->serial.periph.uart->IFC = USART_IFC_TXC;
@@ -867,7 +868,7 @@ void serial_pinout_tx(PinName tx)
 }
 
 /************************************************************************************
- * 			DMA helper functions													*
+ *          DMA helper functions                                                    *
  ************************************************************************************/
 /******************************************
 * static void serial_dmaTransferComplete(uint channel, bool primary, void* user)
@@ -997,15 +998,15 @@ static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx)
 * Tries to set the passed DMA state to the requested state.
 *
 * requested state possibilities:
-* 	* NEVER:
-* 		if the previous state was always, will deallocate the channel
-* 	* OPPORTUNISTIC:
-* 		If the previous state was always, will reuse that channel but free upon next completion.
-* 		If not, will try to acquire a channel.
-* 		When allocated, state changes to DMA_USAGE_TEMPORARY_ALLOCATED.
-* 	* ALWAYS:
-* 		Will try to allocate a channel and keep it.
-* 		If succesfully allocated, state changes to DMA_USAGE_ALLOCATED.
+*   * NEVER:
+*       if the previous state was always, will deallocate the channel
+*   * OPPORTUNISTIC:
+*       If the previous state was always, will reuse that channel but free upon next completion.
+*       If not, will try to acquire a channel.
+*       When allocated, state changes to DMA_USAGE_TEMPORARY_ALLOCATED.
+*   * ALWAYS:
+*       Will try to allocate a channel and keep it.
+*       If succesfully allocated, state changes to DMA_USAGE_ALLOCATED.
 ******************************************/
 static void serial_dmaTrySetState(DMA_OPTIONS_t *obj, DMAUsage requestedState, serial_t *serialPtr, bool tx_nrx)
 {
@@ -1117,13 +1118,13 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
 }
 
 /************************************************************************************
- * 			ASYNCHRONOUS HAL														*
+ *          ASYNCHRONOUS HAL                                                        *
  ************************************************************************************/
 
 #if DEVICE_SERIAL_ASYNCH
 
 /************************************
- * HELPER FUNCTIONS					*
+ * HELPER FUNCTIONS                 *
  ***********************************/
 
 /** Configure TX events
@@ -1261,7 +1262,7 @@ void serial_set_char_match(serial_t *obj, uint8_t char_match)
 }
 
 /************************************
- * TRANSFER FUNCTIONS				*
+ * TRANSFER FUNCTIONS               *
  ***********************************/
 
 /** Begin asynchronous TX transfer. The used buffer is specified in the serial object,
@@ -1286,7 +1287,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_tx_enable_event(obj, event, true);
 
     // Set up sleepmode
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1346,7 +1347,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     if(rx_length == 0) return;
 
     // Set up buffer
-    serial_rx_buffer_set(obj, rx, rx_length, rx_width);
+    serial_rx_buffer_set(obj,(void*) rx, rx_length, rx_width);
 
     // Set up events
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
@@ -1354,7 +1355,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_set_char_match(obj, char_match);
 
     // Set up sleepmode
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1472,6 +1473,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
         /* There's still data in the buffer that needs to be sent */
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             while((LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_TXBL) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
+                while (obj->serial.periph.leuart->SYNCBUSY);
                 LEUART_Tx(obj->serial.periph.leuart, buf[obj->tx_buff.pos]);
                 obj->tx_buff.pos++;
             }
@@ -1707,7 +1709,7 @@ void serial_tx_abort_asynch(serial_t *obj)
     }
 
     /* Say that we can stop using this emode */
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1748,7 +1750,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     }
 
     /* Say that we can stop using this emode */
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9600){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
