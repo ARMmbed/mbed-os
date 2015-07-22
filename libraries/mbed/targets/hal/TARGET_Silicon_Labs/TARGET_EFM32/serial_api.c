@@ -131,7 +131,7 @@ static void uart_init(serial_t *obj)
         init.stopbits = leuartStopbits1;
 
         /* Determine the reference clock, because the correct clock is not set up at init time */
-        init.refFreq = LEUART_REF_FREQ;
+        init.refFreq = 0;
         LEUART_Reset(obj->serial.periph.leuart);
         LEUART_Init(obj->serial.periph.leuart, &init);
     } else {
@@ -488,7 +488,7 @@ void serial_baud(serial_t *obj, int baudrate)
             CMU_ClockEnable(cmuClock_LFB, true);
             CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
         }
-        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ, (uint32_t)baudrate);
+        LEUART_BaudrateSet(obj->serial.periph.leuart, 0, (uint32_t)baudrate);
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
     }
