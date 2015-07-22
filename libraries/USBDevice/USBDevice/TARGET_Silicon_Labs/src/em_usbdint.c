@@ -846,6 +846,32 @@ retry:
       }
       else /* ep0state != EP0_IDLE */
       {
+#ifdef __MBED__
+        if ( ep->state == D_EP_RECEIVING )
+        {
+          int xfer_size = ep->packetSize - (( USB->DOEP0TSIZ & _USB_DOEP0TSIZ_XFERSIZE_MASK )
+                                            >> _USB_DOEP0TSIZ_XFERSIZE_SHIFT);
+          int setup_pkt_received = status & USB_DOEP0INT_SETUP;
+
+          if ( (!setup_pkt_received && xfer_size == 0) ||
+               (setup_pkt_received && xfer_size == 8) )
+          {
+            /* Higher levels need to see the correct transfer amount for ZLPs */
+            ep->remaining = 0;
+            ep->xferred = 0;
+          }
+          else
+          {
+            /* FIXME - does not work if actual read size > 56 */
+            if ( setup_pkt_received ) xfer_size -= 8;
+
+            ep->xferred = xfer_size;
+            ep->remaining -= xfer_size;
+          }
+
+          USBDEP_Ep0Handler( dev );
+        }
+#else
         if ( ep->state == D_EP_RECEIVING )
         {
           if ( ep->remaining > ep->packetSize )
@@ -864,6 +890,7 @@ retry:
         {
           USBDEP_Ep0Handler( dev );
         }
+#endif
       }
     } /* if ( status & USB_DOEP0INT_XFERCOMPL ) */
 

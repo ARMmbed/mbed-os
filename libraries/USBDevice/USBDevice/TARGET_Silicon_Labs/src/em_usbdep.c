@@ -234,6 +234,33 @@ void USBDEP_Ep0Handler( USBD_Device_TypeDef *device )
   static uint32_t xferred;
   static USB_XferCompleteCb_TypeDef callback;
 
+#ifdef __MBED__
+
+  (void)xferred;
+  (void)status;
+
+  ep = &device->ep[ 0 ];
+
+  if ( ( ep->state == D_EP_TRANSMITTING ) || ( ep->state == D_EP_RECEIVING ) )
+  {
+    ep->state = D_EP_IDLE;
+
+    if ( ep->xferCompleteCb )
+    {
+      callback = ep->xferCompleteCb;
+      ep->xferCompleteCb = NULL;
+      callback( USB_STATUS_OK, ep->xferred, ep->remaining );
+    }
+
+    USBDHAL_ReenableEp0Setup(device);
+  }
+  else
+  {
+    device->callbacks->setupCmd(device->setup);
+  }
+
+#else
+
   ep = &device->ep[ 0 ];
 
   switch ( ep->state )
@@ -376,6 +403,7 @@ void USBDEP_Ep0Handler( USBD_Device_TypeDef *device )
       ep->in = false;                     /* OUT for next SETUP */
       break;
   }
+#endif /* __MBED__ */
 }
 #endif
 
