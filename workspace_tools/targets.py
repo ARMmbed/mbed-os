@@ -1143,16 +1143,14 @@ class DELTA_DFCM_NNN40(NRF51822):
         NRF51822.__init__(self)
         self.core = "Cortex-M0"
         self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', "MCU_NORDIC_16K_S130"]
-        self.macros = ['TARGET_NRF51822']
+        self.macros = ['TARGET_NRF51822', 'TARGET_NRF_LFCLK_RC']
         self.macros += self.common_macros
 
-class DELTA_DFCM_NNN40_OTA(NRF51822):
+class DELTA_DFCM_NNN40_OTA(DELTA_DFCM_NNN40):
     def __init__(self):
-        NRF51822.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NORDIC', 'MCU_NRF51822', 'MCU_NORDIC_16K', 'DELTA_DFCM_NNN40', "MCU_NORDIC_16K_S130"]
+        DELTA_DFCM_NNN40.__init__(self)
+        self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_OTA_ENABLED']
         self.MERGE_SOFT_DEVICE = False
-        self.macros += self.common_macros
 
 class NRF51_MICROBIT(NRF51822):
     def __init__(self):
