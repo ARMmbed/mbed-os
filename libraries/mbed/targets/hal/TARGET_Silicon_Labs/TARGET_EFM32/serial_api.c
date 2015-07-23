@@ -129,10 +129,8 @@ static void uart_init(serial_t *obj)
         init.databits = leuartDatabits8;
         init.parity = leuartNoParity;
         init.stopbits = leuartStopbits1;
+        init.refFreq = LEUART_LF_REF_FREQ;
 
-        /* Determine the reference clock, because the correct clock is not set up at init time */
-        init.refFreq = 0;
-        LEUART_Reset(obj->serial.periph.leuart);
         LEUART_Init(obj->serial.periph.leuart, &init);
     } else {
         USART_InitAsync_TypeDef init = USART_INITASYNC_DEFAULT;
@@ -483,12 +481,13 @@ void serial_baud(serial_t *obj, int baudrate)
             CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
             CMU_ClockEnable(cmuClock_LFB, true);
             CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
+            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ, (uint32_t)baudrate);
         }else{
             CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
             CMU_ClockEnable(cmuClock_LFB, true);
             CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
+            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_LF_REF_FREQ, (uint32_t)baudrate);
         }
-        LEUART_BaudrateSet(obj->serial.periph.leuart, 0, (uint32_t)baudrate);
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
     }
@@ -1061,22 +1060,16 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
         channelConfig.hprot = 0;
 
         DMA_CfgDescr(obj->serial.dmaOptionsTX.dmaChannel, true, &channelConfig);
-
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             // Activate TX
             obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN;
-
-            // Clear TX buffer
-            obj->serial.periph.leuart->CMD = LEUART_CMD_CLEARTX;
+            while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
 
             // Kick off TX DMA
             DMA_ActivateBasic(obj->serial.dmaOptionsTX.dmaChannel, true, false, (void*) &(obj->serial.periph.leuart->TXDATA), buffer, length - 1);
         } else {
             // Activate TX
-            obj->serial.periph.uart->CMD = USART_CMD_TXEN;
-
-            // Clear TX buffer
-            obj->serial.periph.uart->CMD = USART_CMD_CLEARTX;
+            obj->serial.periph.uart->CMD = USART_CMD_TXEN | USART_CMD_CLEARTX;
 
             // Kick off TX DMA
             DMA_ActivateBasic(obj->serial.dmaOptionsTX.dmaChannel, true, false, (void*) &(obj->serial.periph.uart->TXDATA), buffer, length - 1);
