@@ -74,15 +74,14 @@ from workspace_tools.test_api import print_test_configuration_from_json
 from workspace_tools.test_api import get_autodetected_MUTS
 from workspace_tools.test_api import get_autodetected_TEST_SPEC
 from workspace_tools.test_api import get_module_avail
-
-from workspace_tools.compliance.ioper_runner import IOperTestRunner
-from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 
 # Importing extra modules which can be not installed but if available they can extend test suite functionality
 try:
     import mbed_lstools
+    from workspace_tools.compliance.ioper_runner import IOperTestRunner
+    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 
@@ -196,22 +195,23 @@ if __name__ == '__main__':
             print print_test_configuration_from_json(test_spec)
         exit(0)
 
-    if opts.operability_checks:
-        # Check if test scope is valid and run tests
-        test_scope = get_available_oper_test_scopes()
-        if opts.operability_checks in test_scope:
-            tests = IOperTestRunner(scope=opts.operability_checks)
-            test_results = tests.run()
+    if get_module_avail('mbed_lstools'):
+        if opts.operability_checks:
+            # Check if test scope is valid and run tests
+            test_scope = get_available_oper_test_scopes()
+            if opts.operability_checks in test_scope:
+                tests = IOperTestRunner(scope=opts.operability_checks)
+                test_results = tests.run()
 
-            # Export results in form of JUnit XML report to separate file
-            if opts.report_junit_file_name:
-                report_exporter = ReportExporter(ResultExporterType.JUNIT_OPER)
-                report_exporter.report_to_file(test_results, opts.report_junit_file_name)
-        else:
-            print "Unknown interoperability test scope name: '%s'" % (opts.operability_checks)
-            print "Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope]))
+                # Export results in form of JUnit XML report to separate file
+                if opts.report_junit_file_name:
+                    report_exporter = ReportExporter(ResultExporterType.JUNIT_OPER)
+                    report_exporter.report_to_file(test_results, opts.report_junit_file_name)
+            else:
+                print "Unknown interoperability test scope name: '%s'" % (opts.operability_checks)
+                print "Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope]))
 
-        exit(0)
+            exit(0)
 
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
