@@ -43,7 +43,7 @@ void sleep(void)
     } else if (sleep_block_counter[2] > 0) {
         // Blocked everything below EM2, enter EM2
         EMU_EnterEM2(true);
-    } else if (sleep_block_counter[3] > 0) {
+    } else {
         // Blocked everything below EM3, enter EM3
         EMU_EnterEM3(true);
     }
