@@ -38,7 +38,7 @@
 #define TIMER_IRQn      DUALTIMER0_IRQn
 
 static PWM_TimerModeInitTypeDef TimerInitType;
-static DULATIMER_InitTypDef TimerHandler;
+static DUALTIMER_InitTypDef TimerHandler;
 
 static int us_ticker_inited = 0;
 

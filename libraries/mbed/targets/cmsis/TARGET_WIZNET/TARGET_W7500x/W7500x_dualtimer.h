@@ -35,13 +35,13 @@ typedef struct
     uint32_t TimerControl_Pre;
     uint32_t TimerControl_Size;
     uint32_t TimerControl_OneShot;    
-}DULATIMER_InitTypDef;
+}DUALTIMER_InitTypDef;
 
 
-#define IS_DULATIMER_TimerMode(MODE)        (MODE <= 1) 
-#define IS_DULATIMER_TimerPre(PREE)         (PRE <= 2) 
-#define IS_DULATIMER_TimerSize(SIZE)        (SIZE <= 1) 
-#define IS_DULATIMER_OneShot(ONESHOT)       (ONESHOT <= 1)
+#define IS_DUALTIMER_TimerMode(MODE)        (MODE <= 1) 
+#define IS_DUALTIMER_TimerPre(PREE)         (PRE <= 2) 
+#define IS_DUALTIMER_TimerSize(SIZE)        (SIZE <= 1) 
+#define IS_DUALTIMER_OneShot(ONESHOT)       (ONESHOT <= 1)
 
 
 
@@ -64,7 +64,7 @@ typedef struct
 void DUALTIMER_ClockEnable(DUALTIMER_TypeDef* DUALTIMERn);
 void DUALTIMER_ClockDisable(DUALTIMER_TypeDef* DUALTIMERn);
 void DUALTIMER_DeInit(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_Init(DUALTIMER_TypeDef* DUALTIMERn, DULATIMER_InitTypDef* DUALTIMER_InitStruct);
+void DUALTIMER_Init(DUALTIMER_TypeDef* DUALTIMERn, DUALTIMER_InitTypDef* DUALTIMER_InitStruct);
 void DUALTIMER_IntConfig(DUALTIMER_TypeDef* DUALTIMERn, FunctionalState state);
 void DUALTIMER_IntClear(DUALTIMER_TypeDef* DUALTIMERn);
 ITStatus DUALTIMER_GetIntStatus(DUALTIMER_TypeDef* DUALTIMERn);
