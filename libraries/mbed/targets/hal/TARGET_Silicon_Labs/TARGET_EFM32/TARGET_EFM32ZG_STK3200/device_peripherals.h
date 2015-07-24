@@ -29,12 +29,12 @@
 /* Clocks */
 
 /* Clock definitions */
-#define LFXO	0
-#define HFXO	1
-#define LFRCO	2
-#define HFRCO	3
+#define LFXO    0
+#define HFXO    1
+#define LFRCO   2
+#define HFRCO   3
 #if !defined(_EFM32_GECKO_FAMILY)
-#define ULFRCO	4
+#define ULFRCO  4
 #endif
 
 /* Low Energy peripheral clock source.
