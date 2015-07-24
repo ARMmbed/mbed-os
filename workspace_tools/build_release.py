@@ -34,7 +34,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
-    ('LPC2460',      ('GCC_ARM')),
+    ('LPC2460',      ('GCC_ARM',)),
     ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM', 'GCC_ARM', 'IAR', 'GCC_CR')),
     ('SSCI824',      ('uARM','GCC_ARM')),
@@ -48,8 +48,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4337',      ('ARM',)),
-    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('APPNEARME_MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
+    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
+    ('MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
@@ -77,6 +77,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+#    ('DISCO_F746NG', ('ARM', 'uARM', 'IAR')),
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
@@ -94,6 +95,12 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
+    ('ARM_MPS2_M0'   ,     ('ARM',)),
+    ('ARM_MPS2_M0P'   ,     ('ARM',)),
+    ('ARM_MPS2_M3'   ,     ('ARM',)),
+    ('ARM_MPS2_M4'   ,     ('ARM',)),
+    ('ARM_MPS2_M7'   ,     ('ARM',)),
+
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
     ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
@@ -105,7 +112,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
     ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
 
-    ('WIZwiki_W7500',   ('ARM', 'uARM')),
+    ('WIZWIKI_W7500',   ('ARM', 'uARM')),
 )
 
 

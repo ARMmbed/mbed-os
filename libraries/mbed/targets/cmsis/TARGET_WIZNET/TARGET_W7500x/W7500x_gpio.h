@@ -67,7 +67,7 @@ typedef enum
     GPIO_NO_PUPD = 0x0ul,
     GPIO_PuPd_UP = Px_PCR_PUPD_UP,
     GPIO_PuPd_DOWN = Px_PCR_PUPD_DOWN,
-    GPIO_OD = Px_PCR_OD,
+    GPIO_PuPd_Default = 0x0ul,
 }GPIOPad_TypeDef;
 
 typedef struct

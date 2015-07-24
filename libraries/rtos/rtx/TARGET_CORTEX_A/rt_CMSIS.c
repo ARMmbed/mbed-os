@@ -442,9 +442,11 @@ extern const uint32_t  os_section_id$$Base;
 extern const uint32_t  os_section_id$$Limit;
 #endif
 
+#ifndef __MBED_CMSIS_RTOS_CA9
 // OS Stack Memory for Threads definitions
 extern       uint64_t  os_stack_mem[];
 extern const uint32_t  os_stack_sz;
+#endif
 
 // OS Timers external resources
 extern const osThreadDef_t   os_thread_def_osTimerThread;
@@ -546,6 +548,11 @@ osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thre
 
 /// Initialize the RTOS Kernel for creating objects
 osStatus svcKernelInitialize (void) {
+#ifdef __MBED_CMSIS_RTOS_CA9
+  if (!os_initialized) {
+    rt_sys_init();                              // RTX System Initialization
+  }
+#else
   int ret;
 
   if (!os_initialized) {
@@ -557,6 +564,7 @@ osStatus svcKernelInitialize (void) {
 
     rt_sys_init();                              // RTX System Initialization
   }
+#endif
 
   os_tsk.run->prio = 255;                       // Highest priority
 
@@ -668,6 +676,13 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
     return NULL;
   }
 
+#ifdef __MBED_CMSIS_RTOS_CA9
+  if (thread_def->stacksize != 0) {             // Custom stack size
+    stk = (void *)thread_def->stack_pointer;
+  } else {                                      // Default stack size
+    stk = NULL;
+  }
+#else
   if (thread_def->stacksize != 0) {             // Custom stack size
     stk = rt_alloc_mem(                         // Allocate stack
       os_stack_mem,
@@ -680,6 +695,7 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
   } else {                                      // Default stack size
     stk = NULL;
   }
+#endif
 
   tsk = rt_tsk_create(                          // Create task
     (FUNCP)thread_def->pthread,                 // Task function pointer
@@ -690,9 +706,11 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
   );
 
   if (tsk == 0) {                               // Invalid task ID
+#ifndef __MBED_CMSIS_RTOS_CA9
     if (stk != NULL) {
       rt_free_mem(os_stack_mem, stk);           // Free allocated stack
     }
+#endif
     sysThreadError(osErrorNoMemory);            // Create task failed (Out of memory)
     return NULL;
   }
@@ -717,20 +735,26 @@ osThreadId svcThreadGetId (void) {
 osStatus svcThreadTerminate (osThreadId thread_id) {
   OS_RESULT res;
   P_TCB     ptcb;
+#ifndef __MBED_CMSIS_RTOS_CA9
   void     *stk;
+#endif
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
   if (ptcb == NULL) return osErrorParameter;
 
+#ifndef __MBED_CMSIS_RTOS_CA9
   stk = ptcb->priv_stack ? ptcb->stack : NULL;  // Private stack
+#endif
 
   res = rt_tsk_delete(ptcb->task_id);           // Delete task
 
   if (res == OS_R_NOK) return osErrorResource;  // Delete task failed
 
+#ifndef __MBED_CMSIS_RTOS_CA9
   if (stk != NULL) {
     rt_free_mem(os_stack_mem, stk);             // Free private stack
   }
+#endif
 
   return osOK;
 }

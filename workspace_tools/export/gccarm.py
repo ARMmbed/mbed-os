@@ -47,6 +47,7 @@ class GccArm(Exporter):
         'DISCO_F051R8',
         'DISCO_F407VG',
         'DISCO_F303VC',
+        'DISCO_F746NG',
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
@@ -93,6 +94,7 @@ class GccArm(Exporter):
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
         'NZ32SC151',
+        'SAMR21G18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True
@@ -122,6 +124,7 @@ class GccArm(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.get_symbols(),
+            'cpu_flags': self.toolchain.cpu
         }
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')

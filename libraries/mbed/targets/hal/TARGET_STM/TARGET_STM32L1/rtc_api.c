@@ -35,7 +35,7 @@
 
 static int rtc_inited = 0;
 
-static RTC_HandleTypeDef RtcHandle;
+RTC_HandleTypeDef RtcHandle;
 
 void rtc_init(void)
 {

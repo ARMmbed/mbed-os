@@ -31,11 +31,15 @@
 #include "mbed_assert.h"
 #include "i2c_api.h"
 
+
 #if DEVICE_I2C
 
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+
+#include "wait_api.h"
+#include "us_ticker_api.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -63,8 +67,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrain);
-        pin_mode(scl, OpenDrain);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
     }
 
     // Enable I2C2 clock and pinout if not done
@@ -73,8 +77,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // Configure I2C pins
         pinmap_pinout(sda, PinMap_I2C_SDA);
         pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrain);
-        pin_mode(scl, OpenDrain);
+        pin_mode(sda, PullUp);
+        pin_mode(scl, PullUp);
     }
 
     // Reset to clear pending flags if any
@@ -87,7 +91,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
+    //MBED_ASSERT((hz == 100000) || (hz == 400000) || (hz == 1000000));
+    MBED_ASSERT((hz == 100000));
     I2cHandle = (I2C_TypeDef *)(obj->i2c);
 
     // wait before init
@@ -95,19 +100,20 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     conf.mode = I2C_Master;
     conf.master.timeout = LONG_TIMEOUT;
+    conf.master.prescale  = 0x61;      // Standard mode with Rise Time = 400ns and Fall Time = 100ns
 
     // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
-    switch (hz) {
-        case 100000:
-            conf.master.prescale  = 0x61;      // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-            break;
-        case 400000:
-            break;
-        case 1000000:
-            break;
-        default:
-            break;
-    }
+//    switch (hz) {
+//        case 100000:
+//            conf.master.prescale  = 0x61;      // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+//            break;
+//        case 400000:
+//            break;
+//        case 1000000:
+//            break;
+//        default:
+//            break;
+//    }
 
     // I2C configuration
     I2C_Init(I2cHandle, conf);
@@ -127,8 +133,9 @@ inline int i2c_stop(i2c_t *obj)
     // Generate the STOP condition
     I2C_Stop(I2cHandle);
     I2C_Reset(I2cHandle);
+    
     obj->is_setAddress = 0;
-
+   
     return 0;
 }
 
@@ -137,12 +144,12 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     I2cHandle = (I2C_TypeDef *)(obj->i2c);
     int count;
     int value;
-
+    
     if(!obj->is_setAddress)
     {
        if( I2C_Start(I2cHandle, address, I2C_READ_SA7) == ERROR )
         {
-            return -1;
+              return -1;
         }
        obj->is_setAddress = 1;
        obj->ADDRESS = address;
@@ -155,52 +162,78 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
     // Read all bytes
     for (count = 0; count < (length-1); count++) {
-        if( (value = i2c_byte_read(obj, 0)) == -1) return value;
+        if( (value = i2c_byte_read(obj, 0)) == -1) {
+              return value;
+        }
         data[count] = (char)value;
     }
 
     if(stop){
-        if( (value = i2c_byte_read(obj, 1)) == -1) return value;
+        if( (value = i2c_byte_read(obj, 1)) == -1) {
+            return value;
+        }
         data[count] = (char)value;
-    }
+      
+        i2c_stop(obj);
+        obj->is_setAddress =1;
+        count++;
+      }
     else{
-        if( (value = i2c_byte_read(obj, 0)) == -1) return value;
+        if( (value = i2c_byte_read(obj, 0)) == -1) {
+     
+            return value;
+        }
         data[count] = (char)value;
+        count++;
     }
-
+    
     return count;
+    
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
     I2cHandle = (I2C_TypeDef *)(obj->i2c);
-    int count;
-
+    int count =0;
+    
     if(!obj->is_setAddress)
     {
        if( I2C_Start(I2cHandle, address, I2C_WRITE_SA7) == ERROR )
         {
-            return -1;
+                    return -1;
         }
        obj->is_setAddress = 1;
        obj->ADDRESS = address;
-    }
+      }
     else
     {
         I2C_Restart_Structure(I2cHandle, address, I2C_WRITE_SA7);
         obj->ADDRESS = address;
+      
     }
 
     for (count = 0; count < length; count++) {
         i2c_byte_write(obj, data[count]);
+        wait_us(1);
     }
 
+    
+    if(length == 0x00)
+    {
+        I2C_GPIO();
+        i2c_byte_write(obj, 0xff);
+        GPIO_I2C();
+    }
     // If not repeated start, send stop
     if (stop) {
         i2c_stop(obj);
+      }
+    else
+    {
+        i2c_reset(obj);
+        
     }
-
-    return count;
+        return count;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)

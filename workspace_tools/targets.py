@@ -69,17 +69,37 @@ class Target:
 
     def init_hooks(self, hook, toolchain_name):
         pass
-##WIZnet
+                
+        
+### MCU Support ###
 
-class WIZwiki_W7500(Target):
+class CM4_UARM(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
-        self.supported_toolchains = ["uARM", "ARM"]
-        self.default_toolchain = "ARM"
-        self.supported_form_factors = ["ARDUINO"]
+        self.core = "Cortex-M4"
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
         
+class CM4_ARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
+
+class CM4F_UARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.supported_toolchains = ["uARM"]
+        self.default_toolchain = "uARM"
+        
+class CM4F_ARM(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
         
         
 ### NXP ###
@@ -145,11 +165,13 @@ class LPC11U34_421(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
-class APPNEARME_MICRONFCBOARD(LPC11U34_421):
+class MICRONFCBOARD(LPC11U34_421):
     def __init__(self):
         LPC11U34_421.__init__(self)
-        self.macros = ['LPC11U34_421']
-        self.is_disk_virtual = True
+        self.macros = ['LPC11U34_421', 'APPNEARME_MICRONFCBOARD']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'APPNEARME_MICRONFCBOARD']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
 
 class LPC11U35_401(LPCTarget):
     def __init__(self):
@@ -160,6 +182,14 @@ class LPC11U35_401(LPCTarget):
         self.default_toolchain = "uARM"
 
 class LPC11U35_501(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
+        self.default_toolchain = "uARM"
+
+class LPC11U35_501_IBDAP(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
@@ -415,6 +445,15 @@ class KL25Z(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = ["0200"]
+
+class KL26Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Freescale', 'KLXX']
+        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
 
 class KL43Z(Target):
     def __init__(self):
@@ -727,6 +766,15 @@ class DISCO_L053C8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
 
+class DISCO_F746NG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M7F"
+        self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
+        self.supported_toolchains = ["ARM", "uARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.detect_code = ["0815"]
+
 class MTS_MDOT_F405RG(Target):
     def __init__(self):
         Target.__init__(self)
@@ -744,7 +792,7 @@ class MTS_MDOT_F411RE(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
         self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0', 'VECT_TAB_OFFSET=0x00010000']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
+        self.default_toolchain = "ARM"
 
     def init_hooks(self, hook, toolchain_name):
         if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
@@ -866,26 +914,31 @@ class NRF51822(Target):
     EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
         {
             'name'   : 's130_nrf51_1.0.0_softdevice.hex',
+            'boot'   : 's130_nrf51_1.0.0_bootloader.hex',
             'offset' : 0x1C000
         },
         {
             'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
             'offset' : 0x18000
         },
         {
             'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
             'offset' : 0x16000
         },
         {
             'name'   : 's110_nrf51822_7.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_7.0.0_bootloader.hex',
             'offset' : 0x16000
         },
         {
             'name'   : 's110_nrf51822_6.0.0_softdevice.hex',
+            'boot'   : 's110_nrf51822_6.0.0_bootloader.hex',
             'offset' : 0x14000
         }
     ]
-    EXPECTED_BOOTLOADER_FILENAME = "nrf51822_bootloader.hex"
+    OVERRIDE_BOOTLOADER_FILENAME = "nrf51822_bootloader.hex"
     OUTPUT_EXT = 'hex'
     MERGE_SOFT_DEVICE = True
     MERGE_BOOTLOADER = False
@@ -912,14 +965,28 @@ class NRF51822(Target):
         # Scan to find the actual paths of soft device and bootloader files
         sdf = None
         blf = None
-        for hexf in resources.hex_files:
-            if hexf.find(t_self.target.EXPECTED_BOOTLOADER_FILENAME) != -1:
-                blf = hexf
-            else:
-                for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
-                    if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
-                        sdf = hexf
-                        break
+        for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+            for hexf in resources.hex_files:
+                if hexf.find(softdeviceAndOffsetEntry['name']) != -1:
+                    sdf = hexf
+                    t_self.debug("SoftDevice file found %s." % softdeviceAndOffsetEntry['name'])
+                    
+                    # Look for bootloader file that matches this soft device
+                    if t_self.target.MERGE_BOOTLOADER is True:
+                        for hexf in resources.hex_files:
+                            if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
+                                t_self.debug("Bootloader file found %s." % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
+                                blf = hexf
+                                break
+                            elif hexf.find(softdeviceAndOffsetEntry['boot']) != -1:
+                                t_self.debug("Bootloader file found %s." % softdeviceAndOffsetEntry['boot'])
+                                blf = hexf
+                                break
+                    break
+
+                if sdf is not None: break
+                
+            if sdf is not None: break
 
         if sdf is None:
             t_self.debug("Hex file not found. Aborting.")
@@ -936,7 +1003,7 @@ class NRF51822(Target):
             binh.merge(sdh)
 
         if t_self.target.MERGE_BOOTLOADER is True and blf is not None:
-            t_self.debug("Merge BootLoader file %s" % t_self.target.EXPECTED_BOOTLOADER_FILENAME)
+            t_self.debug("Merge BootLoader file %s" % blf)
             blh = IntelHex(blf)
             binh.merge(blh)
 
@@ -1157,7 +1224,7 @@ class ARM_MPS2_M4(ARM_MPS2_Target):
 class ARM_MPS2_M7(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M7F"
+        self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
@@ -1253,21 +1320,41 @@ class EFM32HG_STK3400(Target):
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
 
+
+##WIZnet
+
+class WIZWIKI_W7500(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
+        self.supported_toolchains = ["uARM", "ARM"]
+        self.default_toolchain = "ARM"
+        self.supported_form_factors = ["ARDUINO"]
+
+
+class SAMR21G18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM21']
+        self.macros = ['__SAMR21G18A__']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
-    ### WIZnet ###
-    WIZwiki_W7500(),
-    
     ### NXP ###
     LPC11C24(),
     LPC11U24(),
     OC_MBUINO(),    # LPC11U24
     LPC11U24_301(),
     LPC11U34_421(),
-    APPNEARME_MICRONFCBOARD(), #LPC11U34_421
+    MICRONFCBOARD(), # LPC11U34_421
     LPC11U35_401(),
     LPC11U35_501(),
+    LPC11U35_501_IBDAP(),
     XADOW_M0(),     # LPC11U35_501
     LPC11U35_Y5_MBUG(),
     LPC11U37_501(),
@@ -1297,6 +1384,7 @@ TARGETS = [
     ### Freescale ###
     KL05Z(),
     KL25Z(),
+    KL26Z(),
     KL43Z(),
     KL46Z(),
     K20D50M(),
@@ -1326,6 +1414,7 @@ TARGETS = [
     DISCO_F100RB(),
     DISCO_F303VC(),
     DISCO_F334C8(),
+    DISCO_F746NG(),
     DISCO_F407VG(), # STM32F407
     ARCH_MAX(),     # STM32F407
     DISCO_F429ZI(),
@@ -1380,6 +1469,11 @@ TARGETS = [
     EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
     EFM32HG_STK3400(),
+
+    ### WIZnet ###
+    WIZWIKI_W7500(),
+
+    SAMR21G18A(),
 ]
 
 # Map each target name to its unique instance
