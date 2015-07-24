@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 import os
+import sys
 from os.path import join, basename
 from host_test_plugins import HostTestPluginBase
 
@@ -49,13 +50,18 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
             if capabilitity == 'shell':
-                if os.name == 'nt': capabilitity = 'copy'
-                elif os.name == 'posix': capabilitity = 'cp'
-            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'xcopy':
-                copy_method = capabilitity
-                cmd = [copy_method, image_path, destination_path]
-                shell = not capabilitity == 'cp'
-                result = self.run_command(cmd, shell=shell)
+                if sys.platform == 'win32': capabilitity = 'copy'
+                elif sys.platform == 'linux2' or sys.platform == 'cygwin': capabilitity = 'dd'
+                elif sys.platform == 'darwin': capability == 'ditto'
+
+            if capabilitity == 'copy' or capabilitity == 'xcopy':
+                cmd = [capabilitity, image_path, destination_path]
+            elif capabilitity == 'dd':
+                cmd = [capabilitity, 'if='+image_path, 'of='+destination_path, 'conv=fsync']
+            elif capabilitity == 'ditto':
+                cmd = [capabilitity, '--nocache', image_path, destination_path]
+
+            result = self.run_command(cmd, shell=True)
         return result
 
 
