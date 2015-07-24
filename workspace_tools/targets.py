@@ -1161,18 +1161,19 @@ class SEEED_TINY_BLE_OTA(MCU_NRF51_16K_OTA):
 class HRM1017(MCU_NRF51_16K):
     def __init__(self):
         MCU_NRF51_16K.__init__(self)
+        self.macros += ['TARGET_NRF_LFCLK_RC']
 
 class HRM1017_BOOT(MCU_NRF51_16K_BOOT):
     def __init__(self):
         MCU_NRF51_16K_BOOT.__init__(self)
         self.extra_labels += ['HRM1017']
-        self.macros += ['TARGET_HRM1017']
+        self.macros += ['TARGET_HRM1017', 'TARGET_NRF_LFCLK_RC']
 
 class HRM1017_OTA(MCU_NRF51_16K_OTA):
     def __init__(self):
         MCU_NRF51_16K_OTA.__init__(self)
         self.extra_labels += ['HRM1017']
-        self.macros += ['TARGET_HRM1017']
+        self.macros += ['TARGET_HRM1017', 'TARGET_NRF_LFCLK_RC']
 
 class RBLAB_NRF51822(MCU_NRF51_16K):
     def __init__(self):
@@ -1232,18 +1233,19 @@ class WALLBOT_BLE_OTA(MCU_NRF51_16K_OTA):
 class DELTA_DFCM_NNN40(MCU_NRF51_16K):
     def __init__(self):
         MCU_NRF51_16K.__init__(self)
+        self.macros += ['TARGET_NRF_LFCLK_RC']
 
 class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_16K_BOOT):
     def __init__(self):
         MCU_NRF51_16K_BOOT.__init__(self)
         self.extra_labels += ['DELTA_DFCM_NNN40']
-        self.macros += ['TARGET_DELTA_DFCM_NNN40']
+        self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
 
 class DELTA_DFCM_NNN40_OTA(MCU_NRF51_16K_OTA):
     def __init__(self):
         MCU_NRF51_16K_OTA.__init__(self)
         self.extra_labels += ['DELTA_DFCM_NNN40']
-        self.macros += ['TARGET_DELTA_DFCM_NNN40']
+        self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
 
 class NRF51_DK(MCU_NRF51_32K):
     def __init__(self):
