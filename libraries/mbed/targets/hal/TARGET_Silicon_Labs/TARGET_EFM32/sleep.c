@@ -35,17 +35,20 @@ uint32_t sleep_block_counter[NUM_SLEEP_MODES] = {0};
 void sleep(void)
 {
     if (sleep_block_counter[0] > 0) {
-        // Blocked everything below EM0, so just return
+        /* Blocked everything below EM0, so just return */
         return;
     } else if (sleep_block_counter[1] > 0) {
-        // Blocked everything below EM1, enter EM1
+        /* Blocked everything below EM1, enter EM1 */
         EMU_EnterEM1();
     } else if (sleep_block_counter[2] > 0) {
-        // Blocked everything below EM2, enter EM2
+        /* Blocked everything below EM2, enter EM2 */
         EMU_EnterEM2(true);
-    } else {
-        // Blocked everything below EM3, enter EM3
+    } else if (sleep_block_counter[3] > 0) {
+        /* Blocked everything below EM3, enter EM3 */
         EMU_EnterEM3(true);
+    } else{
+        /* Nothing is blocked, enter EM4 */
+        EMU_EnterEM4();
     }
     return;
 }
