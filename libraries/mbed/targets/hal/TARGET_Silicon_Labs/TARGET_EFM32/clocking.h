@@ -65,3 +65,4 @@
 #else
 #define LEUART_REF_FREQ (REFERENCE_FREQUENCY / 2)
 #endif
+#endif
