@@ -35,11 +35,9 @@ void mbed_sdk_init()
     /* Set up the clock sources for this chip */
 #if( CORE_CLOCK_SOURCE == HFXO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
-    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFXO);
     SystemHFXOClockSet(HFXO_FREQUENCY);
 #elif( CORE_CLOCK_SOURCE == HFRCO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
-    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 #else
 #error "Core clock selection not valid (mbed_overrides.c)"
@@ -53,11 +51,8 @@ void mbed_sdk_init()
 #endif
 #ifdef CMU_LFBCLKSEL_REG
     /* cmuClock_LFB (to date) only has LEUART peripherals.
-    *  Do NOT set it up here, as LEUARTs might have been initialized
-    *	 before this code is called. (Limitation of the override mechanism of ARMCC)
+    *  This gets set automatically whenever you create serial objects using LEUART
     */
-    //TODO: Look for a more elegant fix.
-    //CMU_ClockSelectSet(cmuClock_LFB, LFXO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFXO);
@@ -69,7 +64,7 @@ void mbed_sdk_init()
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-    //CMU_ClockSelectSet(cmuClock_LFB, LFRCO);
+    //CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFRCO);
