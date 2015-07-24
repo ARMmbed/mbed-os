@@ -13,6 +13,11 @@
 #ifndef TWI_MASTER_H
 #define TWI_MASTER_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*lint ++flb "Enter library region" */
 
 #include <stdbool.h>
@@ -94,6 +99,10 @@ bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bo
 /**
  *@}
  **/
+
+#ifdef __cplusplus
+}
+#endif
 
 /*lint --flb "Leave library region" */
 #endif //TWI_MASTER_H
