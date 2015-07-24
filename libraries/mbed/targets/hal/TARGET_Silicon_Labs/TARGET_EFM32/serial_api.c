@@ -489,19 +489,52 @@ void serial_baud(serial_t *obj, int baudrate)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
 #ifdef LEUART_USING_LFXO
-        if(baudrate > 9600){
+
+        /* check if baudrate is within allowed range */
+        MBED_ASSERT(baudrate >= (LEUART_LF_REF_FREQ >> 7));
+
+        if(baudrate > (LEUART_LF_REF_FREQ >> 1)){
+            /* check if baudrate is within allowed range */
+            MBED_ASSERT((baudrate <= (LEUART_HF_REF_FREQ >> 1)) && (baudrate > (LEUART_HF_REF_FREQ >> 10)));
+
             CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
             CMU_ClockEnable(cmuClock_LFB, true);
             CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_CORELEDIV2);
-            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ, (uint32_t)baudrate);
+            uint8_t divisor = 1;
+
+            if(baudrate > (LEUART_HF_REF_FREQ >> 7)){
+                divisor = 1;
+            }else if(baudrate > (LEUART_HF_REF_FREQ >> 8)){
+                divisor = 2;
+            }else if(baudrate > (LEUART_HF_REF_FREQ >> 9)){
+                divisor = 4;
+            }else{
+                divisor = 8;
+            }
+            CMU_ClockDivSet(serial_get_clock(obj), divisor);
+            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ/divisor, (uint32_t)baudrate);
         }else{
             CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
             CMU_ClockEnable(cmuClock_LFB, true);
             CMU_ClockSelectSet(serial_get_clock(obj), cmuSelect_LFXO);
+            CMU_ClockDivSet(serial_get_clock(obj), 1);
             LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_LF_REF_FREQ, (uint32_t)baudrate);
         }
 #else
-        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ, (uint32_t)baudrate);
+        /* check if baudrate is within allowed range */
+        MBED_ASSERT((baudrate > (LEUART_REF_FREQ >> 10)) && (baudrate <= (LEUART_REF_FREQ >> 1)));
+        uint8_t divisor = 1;
+        if(baudrate > (LEUART_REF_FREQ >> 7)){
+            divisor = 1;
+        }else if(baudrate > (LEUART_REF_FREQ >> 8)){
+            divisor = 2;
+        }else if(baudrate > (LEUART_REF_FREQ >> 9)){
+            divisor = 4;
+        }else{
+            divisor = 8;
+        }
+        CMU_ClockDivSet(serial_get_clock(obj), divisor);
+        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ/divisor, (uint32_t)baudrate);
 #endif
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
@@ -1296,7 +1329,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
 
     // Set up sleepmode
 #ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1368,7 +1401,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 
     // Set up sleepmode
 #ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1726,7 +1759,7 @@ void serial_tx_abort_asynch(serial_t *obj)
 
     /* Say that we can stop using this emode */
 #ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
@@ -1771,7 +1804,7 @@ void serial_rx_abort_asynch(serial_t *obj)
 
     /* Say that we can stop using this emode */
 #ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && LEUART_BaudrateGet(obj->serial.periph.leuart) <= 9620){
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
     }else{
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
