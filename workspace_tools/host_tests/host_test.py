@@ -28,6 +28,7 @@ import types
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
+import ctypes
 
 import host_tests_plugins
 
@@ -233,6 +234,26 @@ class Mbed:
         self.reset_timeout(reset_tout_s)
         return result
 
+    def get_free_space_mb(self, dirname):
+        """Return folder/drive free space (in megabytes)."""
+        if sys.platform == 'win32':
+            free_bytes = ctypes.c_ulonglong(0)
+
+            # Disable Windows error box temporarily
+            oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
+
+            try:
+                ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(dirname), None, None, ctypes.pointer(free_bytes))
+            except:
+                return 0
+
+            ctypes.windll.kernel32.SetErrorMode(oldError)
+
+            return free_bytes.value / 1024 / 1024
+        else:
+            st = os.statvfs(dirname)
+            return st.f_bavail * st.f_frsize / 1024 / 1024
+
     def copy_image(self, image_path=None, disk=None, copy_method=None):
         """ Closure for copy_image_raw() method.
             Method which is actually copying image to mbed
@@ -241,9 +262,14 @@ class Mbed:
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
         copy_method = copy_method if copy_method is not None else self.copy_method
+
+        # Wait for mbed disk to be available for writing
+        while self.get_free_space_mb(disk) <= 0:
+            pass
+
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
-        sleep(self.program_cycle_s)
+
         return result
 
     def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
@@ -256,7 +282,7 @@ class Mbed:
         else:
             copy_method = 'default'
             result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
-        return result;
+        return result
 
     def flush(self):
         """ Flush serial ports
