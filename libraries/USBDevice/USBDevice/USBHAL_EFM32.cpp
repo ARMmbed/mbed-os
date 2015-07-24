@@ -16,7 +16,6 @@
 #if defined TARGET_EFM32GG_STK3700 || \
     defined TARGET_EFM32LG_STK3600 || \
     defined TARGET_EFM32WG_STK3800 || \
-    defined TARGET_EFM32ZG_STK3200 || \
     defined TARGET_EFM32HG_STK3400
 
 #include "USBHAL.h"
