@@ -85,7 +85,7 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
-		'DELTA_DFCM_NNN40',
+        'DELTA_DFCM_NNN40',
         'RZ_A1H',
         'MOTE_L152RC',
         'EFM32WG_STK3800',
@@ -95,6 +95,7 @@ class GccArm(Exporter):
         'EFM32HG_STK3400',
         'NZ32SC151',
         'SAMR21G18A',
+        'TEENSY3_1',
     ]
 
     DOT_IN_RELATIVE_PATH = True
