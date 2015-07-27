@@ -1209,9 +1209,6 @@ void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
             if(enable) obj->serial.periph.leuart->IEN |= LEUART_IEN_RXOF;
             else obj->serial.periph.leuart->IEN &= ~LEUART_IEN_RXOF;
         }
-        if(event & SERIAL_EVENT_RX_CHARACTER_MATCH) {
-            //TODO: force interrupt-based operation when enabling character match.
-        }
     } else {
         if(event & SERIAL_EVENT_RX_FRAMING_ERROR) {
             //FERR interrupt source
@@ -1227,13 +1224,6 @@ void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
             //RXOF interrupt source
             if(enable) obj->serial.periph.uart->IEN |= USART_IEN_RXOF;
             else obj->serial.periph.uart->IEN &= ~USART_IEN_RXOF;
-        }
-        if(event & SERIAL_EVENT_RX_CHARACTER_MATCH) {
-            /* This is currently unsupported in HW.
-             * In order to support this, we will have to switch to interrupt-based operation and check every incoming character.
-             */
-
-            //TODO: force interrupt-based operation when enabling character match.
         }
     }
 }
@@ -1387,6 +1377,11 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     // Set up buffer
     serial_rx_buffer_set(obj,(void*) rx, rx_length, rx_width);
 
+    //disable character match if no character is specified
+    if(char_match == SERIAL_RESERVED_CHAR_MATCH){
+        event &= ~SERIAL_EVENT_RX_CHARACTER_MATCH;
+    }
+
     // Set up events
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
@@ -1405,6 +1400,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 
     // Determine DMA strategy
     // If character match is enabled, we can't use DMA, sadly. We could when using LEUART though, but that support is not in here yet.
+    // TODO: add DMA support for character matching with leuart
     if(!(event & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
         serial_dmaTrySetState(&(obj->serial.dmaOptionsRX), hint, obj, false);
     }
