@@ -35,13 +35,14 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
         """
         return True
 
-    def execute(self, capabilitity, *args, **kwargs):
+    def execute(self, capability, *args, **kwargs):
         """ Executes capability by name.
             Each capability may directly just call some command line
             program or execute building pythonic function
         """
+	print 'running copy'
         result = False
-        if self.check_parameters(capabilitity, *args, **kwargs) is True:
+        if self.check_parameters(capability, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
             # Wait for mount point to be ready
@@ -49,19 +50,25 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-            if capabilitity == 'shell':
-                if sys.platform == 'win32': capabilitity = 'copy'
-                elif sys.platform == 'linux2' or sys.platform == 'cygwin': capabilitity = 'dd'
+
+	    shell = False
+
+            if capability == 'shell':
+                if sys.platform == 'win32': capability = 'copy'
+                elif sys.platform == 'linux2' or sys.platform == 'cygwin': capability = 'dd'
                 elif sys.platform == 'darwin': capability == 'ditto'
 
-            if capabilitity == 'copy' or capabilitity == 'xcopy':
-                cmd = [capabilitity, image_path, destination_path]
-            elif capabilitity == 'dd':
-                cmd = [capabilitity, 'if='+image_path, 'of='+destination_path, 'conv=fsync']
-            elif capabilitity == 'ditto':
-                cmd = [capabilitity, '--nocache', image_path, destination_path]
+            if capability == 'copy' or capability == 'xcopy':
+                cmd = [capability, image_path, destination_path]
+            elif capability == 'dd':
+                cmd = [capability, 'if=' + image_path, 'of='+destination_path, 'conv=fsync']
+		print 'CMD: '
+		print cmd
+            elif capability == 'ditto':
+                cmd = [capability, '--nocache', image_path, destination_path]
 
-            result = self.run_command(cmd, shell=True)
+            result = self.run_command(cmd, shell=shell)
+	    print 'FINISHED'
         return result
 
 

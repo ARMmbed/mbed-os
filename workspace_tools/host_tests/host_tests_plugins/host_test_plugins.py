@@ -105,6 +105,9 @@ class HostTestPluginBase:
     def run_command(self, cmd, shell=True):
         """ Runs command from command line.
         """
+
+	print '*****cmd'
+	print cmd
         result = True
         ret = 0
         try:
