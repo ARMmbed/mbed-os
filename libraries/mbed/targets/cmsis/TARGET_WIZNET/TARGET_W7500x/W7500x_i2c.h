@@ -72,7 +72,9 @@ void I2C_Start(I2C_ConfigStruct* conf);
 void I2C_Stop(I2C_ConfigStruct* conf);
 
 int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
+int I2C_WriteRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
 int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
+int I2C_ReadRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
 
 
  #endif //__W7500X_I2C_H

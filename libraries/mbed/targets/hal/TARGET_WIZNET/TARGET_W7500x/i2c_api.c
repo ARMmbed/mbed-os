@@ -112,22 +112,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     }
     else
     {
-        I2C_Start(&conf);
-        
-        //Write addr | read command
-        if(I2C_WriteByte(&conf, (address | 1)))//Nack is 1
+        if(I2C_ReadRepeated(&conf, address,  data, length) != 0)
             return -1;
-            
-        //Read data
-        for(i=0; i<length; i++)
-        {
-            data[i] = I2C_ReadByte(&conf);
-            
-            if( i == (length - 1) )
-                I2C_SendNACK(&conf);
-            else
-                I2C_SendACK(&conf);
-        }
     }
     
     return length;
@@ -150,18 +136,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
     else
     {
-        I2C_Start(&conf);
-        
-        //Write addr | read command
-        if(I2C_WriteByte(&conf, address))//Nack is 1
-            return -1;
-                    
-        //Write data
-        for(i=0; i<length; i++)
-        {
-            if(I2C_WriteByte(&conf, data[i])) //if received nack
-                return i;
-        }
+        if(I2C_WriteRepeated(&conf, address,  data, length) != 0)
+           return -1;
     }
     
     return length;

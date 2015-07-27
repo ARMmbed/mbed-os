@@ -306,7 +306,7 @@ int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     //Write addr
     if(I2C_WriteByte(conf, addr) != 0)
     {
-        printf("Address is wrong!!\r\n");
+        printf("Received NACK at address phase!!\r\n");
         return -1;
     }
 
@@ -322,6 +322,29 @@ int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     return 0;//success
 }
 
+int I2C_WriteRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
+{
+    int i;
+    
+    I2C_Start(conf);
+    
+    //Write addr
+    if(I2C_WriteByte(conf, addr) != 0)
+    {
+        printf("Received NACK at address phase!!\r\n");
+        return -1;
+    }
+
+    //Write data
+    for(i=0; i<len; i++)
+    {
+        if(I2C_WriteByte(conf, data[i]))
+            return -1;
+    }
+    
+    return 0;//success
+}
+
 int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
 {
     int i;
@@ -331,7 +354,7 @@ int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     //Write addr | read command
     if(I2C_WriteByte(conf, (addr | 1)) != 0)
     {
-        printf("Address is wrong!!\r\n");
+        printf("Received NACK at address phase!!\r\n");
         return -1;
     }
     
@@ -347,6 +370,33 @@ int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     }
     
     I2C_Stop(conf);
+    
+    return 0;//success
+}
+
+int I2C_ReadRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
+{
+    int i;
+    
+    I2C_Start(conf);
+    
+    //Write addr | read command
+    if(I2C_WriteByte(conf, (addr | 1)) != 0)
+    {
+        printf("Received NACK at address phase!!\r\n");
+        return -1;
+    }
+    
+    //Read data
+    for(i=0; i<len; i++)
+    {
+        data[i] = I2C_ReadByte(conf);
+        
+        if( i == (len - 1) )
+            I2C_SendNACK(conf);
+        else
+            I2C_SendACK(conf);
+    }
     
     return 0;//success
 }
