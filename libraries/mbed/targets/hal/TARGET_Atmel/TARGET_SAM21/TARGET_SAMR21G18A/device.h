@@ -20,9 +20,9 @@
 #define DEVICE_PORTOUT          1
 #define DEVICE_PORTINOUT        1
 
-#define DEVICE_INTERRUPTIN      0
+#define DEVICE_INTERRUPTIN      1
 
-#define DEVICE_ANALOGIN         0
+#define DEVICE_ANALOGIN         1
 #define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
@@ -38,7 +38,7 @@
 
 #define DEVICE_CAN              0
 
-#define DEVICE_RTC              0
+#define DEVICE_RTC              1
 
 #define DEVICE_ETHERNET         0
 
@@ -49,7 +49,7 @@
 #define DEVICE_ID_LENGTH        0
 #define DEVICE_MAC_OFFSET       0
 
-#define DEVICE_SLEEP            0
+#define DEVICE_SLEEP            1
 
 #define DEVICE_DEBUG_AWARENESS  0
 

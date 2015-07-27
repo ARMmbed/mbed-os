@@ -103,7 +103,7 @@ typedef enum {
     PullDown = InputPullDown,
     OpenDrain = WiredAnd,
     PullNone = PushPull,
-    PullDefault = PullUp
+    PullDefault = PushPull
 } PinMode;
 
 #ifdef __cplusplus
