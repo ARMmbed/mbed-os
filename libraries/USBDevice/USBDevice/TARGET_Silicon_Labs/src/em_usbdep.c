@@ -260,7 +260,7 @@ void USBDEP_Ep0Handler( USBD_Device_TypeDef *device )
       callback( USB_STATUS_OK, ep->xferred, ep->remaining );
     }
 
-    USBDHAL_ReenableEp0Setup(device);
+    USBDHAL_StartEp0Setup( dev );
   }
   else
   {

@@ -920,7 +920,11 @@ void USBD_StallEp0()
     USBDHAL_StallEp( ep ); /* Stall Ep0 IN */
     ep->in = false; /* OUT for next SETUP */
     USBDHAL_StallEp( ep ); /* Stall Ep0 OUT */
+#if !defined( USB_DOEP0INT_STUPPKTRCVD )
     USBDHAL_ReenableEp0Setup( dev ); /* Prepare for next SETUP pkt. */
+#else
+    USBDHAL_StartEp0Setup( dev );
+#endif
     ep->state = D_EP_IDLE;
 }
 
