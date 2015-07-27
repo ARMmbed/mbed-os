@@ -1210,9 +1210,7 @@ void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
             else obj->serial.periph.leuart->IEN &= ~LEUART_IEN_RXOF;
         }
         if(event & SERIAL_EVENT_RX_CHARACTER_MATCH) {
-            /* This is only supported on LEUART in hardware. */
-            if(enable) obj->serial.periph.leuart->IEN |= LEUART_IEN_SIGF;
-            else obj->serial.periph.leuart->IEN &= ~LEUART_IEN_SIGF;
+            //TODO: force interrupt-based operation when enabling character match.
         }
     } else {
         if(event & SERIAL_EVENT_RX_FRAMING_ERROR) {
@@ -1289,14 +1287,9 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
  */
 void serial_set_char_match(serial_t *obj, uint8_t char_match)
 {
-    // We only have hardware support for this in LEUART.
-    // When in USART/UART, we can set up a check in the receiving ISR, but not when using DMA.
+    // Note: This does not work together with DMA.
     if (char_match != SERIAL_RESERVED_CHAR_MATCH) {
         obj->char_match = char_match;
-
-        if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            obj->serial.periph.leuart->SIGFRAME = char_match & 0x000000FF;
-        }
     }
 
     return;
@@ -1572,13 +1565,6 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
             return SERIAL_EVENT_RX_OVERFLOW;
         }
 
-        if(LEUART_IntGetEnabled(obj->serial.periph.leuart) & LEUART_IF_SIGF) {
-            /* Char match has occurred, stop RX and return */
-            LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_SIGF);
-            serial_rx_abort_asynch(obj);
-            return SERIAL_EVENT_RX_CHARACTER_MATCH;
-        }
-
         if((LEUART_IntGetEnabled(obj->serial.periph.leuart) & LEUART_IF_RXDATAV) || (LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_RXDATAV)) {
             /* Valid data in buffer. Determine course of action: continue receiving or interrupt */
             if(obj->rx_buff.pos >= (obj->rx_buff.length - 1)) {
@@ -1706,7 +1692,7 @@ int serial_irq_handler_asynch(serial_t *obj)
          * Also make sure to prioritize RX */
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             //Different method of checking tx vs rx for LEUART
-            if(LEUART_IntGetEnabled(obj->serial.periph.leuart) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF | LEUART_IF_SIGF)) {
+            if(LEUART_IntGetEnabled(obj->serial.periph.leuart) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
                 return serial_rx_irq_handler_asynch(obj);
             } else if(LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_TXBL) {
                 return serial_tx_irq_handler_asynch(obj);
@@ -1795,7 +1781,7 @@ void serial_rx_abort_asynch(serial_t *obj)
         default:
             /* stop interrupting */
             if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-                LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_RXDATAV | LEUART_IEN_PERR | LEUART_IEN_FERR | LEUART_IEN_RXOF | LEUART_IEN_SIGF);
+                LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_RXDATAV | LEUART_IEN_PERR | LEUART_IEN_FERR | LEUART_IEN_RXOF);
             } else {
                 USART_IntDisable(obj->serial.periph.uart, USART_IEN_RXDATAV | USART_IEN_PERR | USART_IEN_FERR | USART_IEN_RXOF);
             }
