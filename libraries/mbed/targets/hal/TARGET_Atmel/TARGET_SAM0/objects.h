@@ -22,6 +22,9 @@
 #include "gpio_object.h"
 #include "adc.h"
 #include "extint.h"
+#include "i2c_master.h"
+#include "i2c_slave.h"
+#include "dma_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +72,22 @@ struct analogin_s {
 };
 
 struct pwmout_s {
+};
+
+struct i2c_s {
+    struct i2c_master_module master;
+    struct i2c_slave_module slave;
+    uint8_t mode;
+    uint32_t baud_rate;
+    uint32_t baud_rate_high_speed;
+    uint8_t start_pending;
+    PinName pins[2];
+#if DEVICE_I2C_ASYNCH
+    uint32_t events;
+    uint32_t handler;
+    struct i2c_master_packet wr_packet;
+    struct i2c_master_packet rd_packet;
+#endif
 };
 
 struct spi_s {
