@@ -1530,7 +1530,7 @@ class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM21']
+        self.extra_labels = ['Atmel', 'SAM0', 'SAMR21']
         self.macros = ['__SAMR21G18A__']
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
