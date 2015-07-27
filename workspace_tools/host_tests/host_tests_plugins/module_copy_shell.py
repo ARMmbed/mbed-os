@@ -40,7 +40,6 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             Each capability may directly just call some command line
             program or execute building pythonic function
         """
-	print 'running copy'
         result = False
         if self.check_parameters(capability, *args, **kwargs) is True:
             image_path = kwargs['image_path']
@@ -56,19 +55,16 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
             if capability == 'shell':
                 if sys.platform == 'win32': capability = 'copy'
                 elif sys.platform == 'linux2' or sys.platform == 'cygwin': capability = 'dd'
-                elif sys.platform == 'darwin': capability == 'ditto'
+                elif sys.platform == 'darwin': capability = 'ditto'
 
             if capability == 'copy' or capability == 'xcopy':
                 cmd = [capability, image_path, destination_path]
             elif capability == 'dd':
                 cmd = [capability, 'if=' + image_path, 'of='+destination_path, 'conv=fsync']
-		print 'CMD: '
-		print cmd
             elif capability == 'ditto':
                 cmd = [capability, '--nocache', image_path, destination_path]
 
             result = self.run_command(cmd, shell=shell)
-	    print 'FINISHED'
         return result
 
 
