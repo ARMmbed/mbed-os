@@ -1010,19 +1010,30 @@ typedef struct
 /******************************************************************************/
 
 /*********************** Bit definition for dualtimer   ***********************/
-#define DUALTIMER_TimerControl_TimerDIsable (0x0ul << 7)
-#define DUALTIMER_TimerControl_TimerEnable  (0x1ul << 7)
-#define DUALTIMER_TimerControl_FreeRunning  (0x0ul << 6)
-#define DUALTIMER_TimerControl_Periodic     (0x1ul << 6)
-#define DUALTIMER_TimerControl_IntDisable   (0x0ul << 5)
-#define DUALTIMER_TimerControl_IntEnable    (0x1ul << 5)
-#define DUALTIMER_TimerControl_Pre_1        (0x0ul << 2)
-#define DUALTIMER_TimerControl_Pre_16       (0x1ul << 2)
-#define DUALTIMER_TimerControl_Pre_256      (0x2ul << 2)
-#define DUALTIMER_TimerControl_Size_16      (0x0ul << 1)
-#define DUALTIMER_TimerControl_Size_32      (0x1ul << 1)
-#define DUALTIMER_TimerControl_Wrapping     (0x0ul << 0)
-#define DUALTIMER_TimerControl_OneShot      (0x1ul << 0)
+#define DUALTIMER_TimerControl_TimerDIsable     0x0ul
+#define DUALTIMER_TimerControl_TimerEnable      0x1ul
+#define DUALTIMER_TimerControl_TimerEnable_Pos  7
+
+#define DUALTIMER_TimerControl_FreeRunning      0x0ul
+#define DUALTIMER_TimerControl_Periodic         0x1ul
+#define DUALTIMER_TimerControl_TimerMode_Pos    6
+
+#define DUALTIMER_TimerControl_IntDisable       0x0ul
+#define DUALTIMER_TimerControl_IntEnable        0x1ul
+#define DUALTIMER_TimerControl_IntEnable_Pos    5
+
+#define DUALTIMER_TimerControl_Pre_1            0x0ul
+#define DUALTIMER_TimerControl_Pre_16           0x1ul
+#define DUALTIMER_TimerControl_Pre_256          0x2ul
+#define DUALTIMER_TimerControl_Pre_Pos          2
+
+#define DUALTIMER_TimerControl_Size_16          0x0ul
+#define DUALTIMER_TimerControl_Size_32          0x1ul
+#define DUALTIMER_TimerControl_Size_Pos         1
+
+#define DUALTIMER_TimerControl_Wrapping         0x0ul
+#define DUALTIMER_TimerControl_OneShot          0x1ul
+#define DUALTIMER_TimerControl_OneShot_Pos      0
 
 /******************************************************************************/
 /*                                                                            */
