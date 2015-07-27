@@ -234,7 +234,7 @@ class Mbed:
         self.reset_timeout(reset_tout_s)
         return result
 
-    def get_free_space_mb(self, dirname):
+    def get_free_space_bytes(self, dirname):
         """Return folder/drive free space (in megabytes)."""
         if sys.platform == 'win32':
             free_bytes = ctypes.c_ulonglong(0)
@@ -249,10 +249,10 @@ class Mbed:
 
             ctypes.windll.kernel32.SetErrorMode(oldError)
 
-            return free_bytes.value / 1024 / 1024
+            return free_bytes.value
         else:
             st = os.statvfs(dirname)
-            return st.f_bavail * st.f_frsize / 1024 / 1024
+            return st.f_bavail
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
         """ Closure for copy_image_raw() method.
@@ -262,13 +262,20 @@ class Mbed:
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
         copy_method = copy_method if copy_method is not None else self.copy_method
-
+	
+	can_print_disk_warning = True
+	
         # Wait for mbed disk to be available for writing
-        while self.get_free_space_mb(disk) <= 0:
-            pass
+        while self.get_free_space_bytes(disk) <= 0:
+            #if can_print_disk_warning:
+            print 'MBED: Waiting for mbed disk to mount propertly'
+	    #    can_print_disk_warning = False
+	    #pass
 
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
+
+	sleep(3)
 
         return result
 
@@ -358,7 +365,10 @@ class Test(HostTestResults):
         # Copy image to device
         self.notify("HOST: Copy image onto target...")
         result = self.mbed.copy_image()
-        if not result:
+       
+	#self.print_result(self.RESULT_SUCCESS)
+	#return
+	if not result:
             self.print_result(self.RESULT_IOERR_COPY)
 
         # Initialize and open target's serial port (console)
