@@ -122,6 +122,3 @@
  * -# Enter an infinite loop once transfer complete.
  *    \snippet qs_i2c_master_dma.c inf_loop
  */
-/**
-* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
-*/

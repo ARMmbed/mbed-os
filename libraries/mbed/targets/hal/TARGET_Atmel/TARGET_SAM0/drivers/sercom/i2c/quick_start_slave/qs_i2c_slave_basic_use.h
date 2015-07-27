@@ -57,9 +57,6 @@
  *    and write or read from master.
  *    \snippet qs_i2c_slave_basic_use.c transfer
  */
-/**
-* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
-*/
 
 #include <asf.h>
 #include <conf_clocks.h>
