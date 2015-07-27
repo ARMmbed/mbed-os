@@ -27,6 +27,12 @@
 #include "rtos.h"
 #include "lwip/netif.h"
 
+/** \brief DP83848 PHY status definitions */
+#define DP8_REMOTEFAULT    (1 << 6)   /**< Remote fault */
+#define DP8_FULLDUPLEX     (1 << 2)   /**< 1=full duplex */
+#define DP8_SPEED10MBPS    (1 << 1)   /**< 1=10MBps speed */
+#define DP8_VALID_LINK     (1 << 0)   /**< 1=Link active */
+
  /** Interface using Ethernet to connect to an IP-based network
  *
  */
@@ -79,6 +85,60 @@ public:
    * \return a pointer to a string containing the Network mask
    */
   static char* getNetworkMask();
+  
+  /** Set the network name for this device. 
+  *
+  * Apply this before calling 'connect'.
+  *
+  * \example
+  * EthernetInterface eth;
+  * ...
+  *     if (0 == eth.init()) {
+  *         eth.setName("Sensor 3");
+  *         if (0 == eth.connect()) {
+  *             ...
+  *
+  * \param[in] myname is the name to assign for this node. 
+  *        Only the first 32 characters will be used if the 
+  *        name is longer.
+  *        Only '0'-'9', 'A'-'Z', 'a'-'z' are accepted,
+  *        any others are converted to '-'.
+  * \return 0 on success, a negative number on failure.
+  */
+  static int setName(const char * myname);
+
+  /** is_connected
+  *
+  * Determine if the interface is up and connected.
+  * 
+  * \example
+  *      if (eth.is_connected())
+  *         ethLED = 1;
+  *      else
+  *         ethLED = 0;
+  *
+  * \return true if connected, false if not connected.
+  */
+  static bool is_connected(void);
+
+  /** get_transmission_status - full or half duplex.
+  *
+  * \return 1 = 1/2 (half) duplex, 2 = 2/2 (full) duplex
+  */
+  int get_transmission_status(void);  // 1 = 1/2 duplex, 2 = full duplex
+ 
+  /** get the speed of the connection.
+  *
+  * \return 10 or 100 Mb
+  */
+  int get_connection_speed(void);     // 10 or 100 Mb
+ 
+  /** get the current value in the MII data register.
+  *
+  * \return mii register value
+  */
+  uint32_t mii_read_data(void);
+  
 };
 
 #include "TCPSocketConnection.h"

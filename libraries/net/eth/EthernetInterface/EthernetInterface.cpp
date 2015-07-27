@@ -25,6 +25,8 @@
 #include "eth_arch.h"
 #include "lwip/tcpip.h"
 
+#include "lpc_phy.h"	// for is_connected(), get_transmission_status(), get_connection_speed(), mii_read_data()
+
 #include "mbed.h"
 
 /* TCP/IP and Network Interface Initialisation */
@@ -35,6 +37,8 @@ static char ip_addr[17] = "\0";
 static char gateway[17] = "\0";
 static char networkmask[17] = "\0";
 static bool use_dhcp = false;
+
+static char myName[33];  // holds the name, when setName() is called.
 
 static Semaphore tcpip_inited(0);
 static Semaphore netif_linked(0);
@@ -80,6 +84,29 @@ static void set_mac_address(void) {
     mbed_mac_address(mac);
     snprintf(mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
+}
+
+static bool inRange(char testChar, char minChar, char maxChar) {
+    if (testChar >= minChar && testChar <= maxChar) 
+        return true;
+    else
+        return false;
+}
+
+int EthernetInterface::setName(const char * myname) {
+    int i;
+    
+    strncpy(myName, myname, 32);
+    myName[32] = '\0';  // ensure it is NULL terminated.
+    // make the name 'safe'
+    for (i=0; i<32 && myName[i]; i++) {
+        if (!inRange(myName[i], '0', '9')
+        &&  !inRange(myName[i], 'A', 'Z')
+        &&  !inRange(myName[i], 'a', 'z'))
+            myName[i] = '-';
+    }
+    netif_set_hostname(&netif, myName);
+    return 0;
 }
 
 int EthernetInterface::init() {
@@ -153,4 +180,28 @@ char* EthernetInterface::getNetworkMask() {
     return networkmask;
 }
 
+bool EthernetInterface::is_connected(void) {
+    uint32_t tmp = lpc_mii_read_data();
+    
+    return (tmp & DP8_VALID_LINK) ? true : false;
+}
 
+int EthernetInterface::get_transmission_status(void) {  // 1 = 1/2 duplex, 2 = full duplex
+    uint32_t tmp = lpc_mii_read_data();
+    
+    if(tmp & DP8_FULLDUPLEX) {
+        return 2;   // "FULL DUPLEX";
+    } else {
+        return 1;   // "HALF DUPLEX";
+    }
+}
+
+int EthernetInterface::get_connection_speed(void) {     // 10 or 100 Mb
+    uint32_t tmp = lpc_mii_read_data();
+    
+    return (tmp & DP8_SPEED10MBPS) ? 10 : 100;
+}
+
+uint32_t EthernetInterface::mii_read_data(void) {
+    return lpc_mii_read_data();  // 16-bit MRDD - address 0x2008 4030
+}  
