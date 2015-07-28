@@ -251,11 +251,11 @@ class Mbed:
 
             return free_bytes.value
         else:
-	    try:
-            	st = os.statvfs(dirname)
-	    except:
-		return 0
-
+            try:
+                st = os.statvfs(dirname)
+            except:
+                return 0
+                
             return st.f_bavail
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
@@ -266,16 +266,16 @@ class Mbed:
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
         copy_method = copy_method if copy_method is not None else self.copy_method
-	
+
 	can_print_disk_warning = True
-	
+
         # Wait for mbed disk to be available for writing
         while self.get_free_space_bytes(disk) <= 0:
             if can_print_disk_warning:
             	print 'MBED: Waiting for mbed disk to mount propertly'
 	        can_print_disk_warning = False
 	    pass
-	
+
 	# Wait 1 second to ensure mbed is ready
 	sleep(1)
 
@@ -372,7 +372,7 @@ class Test(HostTestResults):
         # Copy image to device
         self.notify("HOST: Copy image onto target...")
         result = self.mbed.copy_image()
-       
+
 	#self.print_result(self.RESULT_SUCCESS)
 	#return
 	if not result:
