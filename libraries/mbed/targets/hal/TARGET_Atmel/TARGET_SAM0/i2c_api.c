@@ -287,7 +287,7 @@ int  i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 #endif
 
     struct i2c_master_packet packet;
-    packet.address = address >> 1;
+    packet.address = (address & 0xFF) >> 1;
     packet.data_length = length;
     packet.data = (uint8_t*)data;
     packet.ten_bit_address = false;
@@ -331,7 +331,7 @@ int  i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 #endif
 
     struct i2c_master_packet packet;
-    packet.address = address >> 1;
+    packet.address = (address & 0xFF) >> 1;
     packet.data_length = length;
     packet.data = data;
     packet.ten_bit_address = false;
@@ -392,7 +392,8 @@ int  i2c_write_address(i2c_t *obj, int address, int rw_flag)
     /* Set action to ACK. */
     i2c_module->CTRLB.reg &= ~SERCOM_I2CM_CTRLB_ACKACT;
 
-    i2c_module->ADDR.reg = (address << 1) | rw_flag | (0 << SERCOM_I2CM_ADDR_HS_Pos);
+    /* Write 7-bit address + read/write flag */
+    i2c_module->ADDR.reg = ((address & 0x7F) << 1) | (rw_flag & 0x01) | (0 << SERCOM_I2CM_ADDR_HS_Pos);
 
     /* Wait for response on bus. */
     tmp_status = _i2c_master_wait_for_bus(&pI2C_S(obj)->master);
@@ -511,6 +512,8 @@ int  i2c_byte_write(i2c_t *obj, int data)
     MBED_ASSERT(pI2C_S(obj)->master.hw);
 
     enum status_code tmp_status;
+
+    data = data & 0xFF;
 
     if (pI2C_S(obj)->mode == I2C_MODE_MASTER) {
         SercomI2cm *const i2c_module = &(pI2C_S(obj)->master.hw->I2CM);
@@ -755,7 +758,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 
     SercomI2cs *const i2c_hw = &(pI2C_S(obj)->slave.hw->I2CS);
 
-    address = address >> 1;
+    address = (address & 0xFF) >> 1;
     if (!mask) {
         mask = (0xFE >> 1);
     }
@@ -826,9 +829,7 @@ void i2c_write_complete_callback(struct i2c_master_module *const module)
 
     if (!(pI2C_S(obj)->rd_packet.data) || (pI2C_S(obj)->rd_packet.data_length == 0)) {
         /* Call the handler function */
-        if (pI2C_S(obj)->handler) {
-            ((I2CHandler)pI2C_S(obj)->handler)();
-        }
+        i2c_transfer_complete_callback(module);
     } else {
         i2c_master_disable_callback(&pI2C_S(obj)->master, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
 
