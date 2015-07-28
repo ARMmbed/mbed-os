@@ -99,8 +99,7 @@ inline int i2c_stop(i2c_t *obj)
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
     I2C_ConfigStruct conf;
-    int i;
-    
+
     conf.sda = (I2C_PinName)obj->sda;
     conf.scl = (I2C_PinName)obj->scl;
     
@@ -123,7 +122,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
     I2C_ConfigStruct conf;
-    int i;
     
     conf.sda = (I2C_PinName)obj->sda;
     conf.scl = (I2C_PinName)obj->scl;

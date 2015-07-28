@@ -50,61 +50,17 @@ uint32_t I2C_Init(I2C_ConfigStruct* conf)
     GPIO_InitDef.GPIO_Pin = scl_pin_index;
     GPIO_InitDef.GPIO_Mode = GPIO_Mode_OUT;
 
-    if(scl_port_num == 0)
-    {
-        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
-        HAL_GPIO_SetBits(GPIOA, scl_pin_index);
-    }
-    else if(scl_port_num == 1)
-    {
-        HAL_GPIO_Init(GPIOB, &GPIO_InitDef);
-        HAL_GPIO_SetBits(GPIOB, scl_pin_index);
-    }
-    else if(scl_port_num == 2)
-    {
-        HAL_GPIO_Init(GPIOC, &GPIO_InitDef);
-        HAL_GPIO_SetBits(GPIOC, scl_pin_index);
-    }
-    else if(scl_port_num == 3)
-    {
-        HAL_GPIO_Init(GPIOD, &GPIO_InitDef);
-        HAL_GPIO_SetBits(GPIOD, scl_pin_index);
-    }
-    else
-    {
-        printf("SCL pin Port number error\r\n");
-        return 1;
-    }
+    HAL_GPIO_Init((GPIO_TypeDef*)(GPIOA_BASE + (scl_port_num << 24)), &GPIO_InitDef);
+    HAL_GPIO_SetBits((GPIO_TypeDef*)(GPIOA_BASE + (scl_port_num << 24)), scl_pin_index);
     
     //SDA setting
     GPIO_InitDef.GPIO_Pin = sda_pin_index;
     GPIO_InitDef.GPIO_Mode = GPIO_Mode_IN;
-    if(sda_port_num == 0)
-    {
-        HAL_GPIO_Init(GPIOA, &GPIO_InitDef);
-        HAL_GPIO_ResetBits(GPIOA, sda_pin_index);
-    }
-    else if(sda_port_num == 1)
-    {
-        HAL_GPIO_Init(GPIOB, &GPIO_InitDef);
-        HAL_GPIO_ResetBits(GPIOB, sda_pin_index);
-    }
-    else if(sda_port_num == 2)
-    {
-        HAL_GPIO_Init(GPIOC, &GPIO_InitDef);
-        HAL_GPIO_ResetBits(GPIOC, sda_pin_index);
-    }
-    else if(sda_port_num == 3)
-    {
-        HAL_GPIO_Init(GPIOD, &GPIO_InitDef);
-        HAL_GPIO_ResetBits(GPIOD, sda_pin_index);
-    }
-    else
-    {
-        printf("SDA pin Port number error\r\n");
-        return 1;
-    }
     
+    HAL_GPIO_Init((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), &GPIO_InitDef);
+    HAL_GPIO_ResetBits((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index);
+    
+    //Pin muxing
     HAL_PAD_AFConfig(scl_port_num, scl_pin_index, PAD_AF1);
     HAL_PAD_AFConfig(sda_port_num, sda_pin_index, PAD_AF1);
 
@@ -116,34 +72,11 @@ void I2C_WriteBitSCL(I2C_ConfigStruct* conf, uint8_t data)
     uint32_t scl_port_num = I2C_PORT(conf->scl);
     uint32_t scl_pin_index = I2C_PIN_INDEX(conf->scl);
 
-    if(scl_port_num == 0)
-    {
-        if(data == 1)
-            HAL_GPIO_SetBits(GPIOA, scl_pin_index);
-        else
-            HAL_GPIO_ResetBits(GPIOA, scl_pin_index);
-    }
-    else if(scl_port_num == 1)
-    {
-        if(data == 1)
-            HAL_GPIO_SetBits(GPIOB, scl_pin_index);
-        else
-            HAL_GPIO_ResetBits(GPIOB, scl_pin_index);
-    } 
-    else if(scl_port_num == 2)
-    {
-        if(data == 1)
-            HAL_GPIO_SetBits(GPIOC, scl_pin_index);
-        else
-            HAL_GPIO_ResetBits(GPIOC, scl_pin_index);
-    }
-    else if(scl_port_num == 3)
-    {
-        if(data == 1)
-            HAL_GPIO_SetBits(GPIOD, scl_pin_index);
-        else
-            HAL_GPIO_ResetBits(GPIOD, scl_pin_index);
-    }
+    if(data == 1)
+        HAL_GPIO_SetBits((GPIO_TypeDef*)(GPIOA_BASE + (scl_port_num << 24)), scl_pin_index);
+    else
+        HAL_GPIO_ResetBits((GPIO_TypeDef*)(GPIOA_BASE + (scl_port_num << 24)), scl_pin_index);
+    
 }
 
 void I2C_WriteBitSDA(I2C_ConfigStruct* conf, uint8_t data)
@@ -151,34 +84,11 @@ void I2C_WriteBitSDA(I2C_ConfigStruct* conf, uint8_t data)
     uint32_t sda_port_num = I2C_PORT(conf->sda);
     uint32_t sda_pin_index = I2C_PIN_INDEX(conf->sda);
 
-    if(sda_port_num == 0)
-    {
-        if(data == 1)
-            GPIOA->OUTENCLR = sda_pin_index;
-        else
-            GPIOA->OUTENSET = sda_pin_index;
-    }
-    else if(sda_port_num == 1)
-    {
-        if(data == 1)
-            GPIOB->OUTENCLR = sda_pin_index;
-        else
-            GPIOB->OUTENSET = sda_pin_index;
-    } 
-    else if(sda_port_num == 2)
-    {
-        if(data == 1)
-            GPIOC->OUTENCLR = sda_pin_index;
-        else
-            GPIOC->OUTENSET = sda_pin_index;
-    }
-    else if(sda_port_num == 3)
-    {
-        if(data == 1)
-            GPIOD->OUTENCLR = sda_pin_index;
-        else
-            GPIOD->OUTENSET = sda_pin_index;
-    }
+    if(data == 1)
+        GPIO_OutEnClr((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index);
+    else
+        GPIO_OutEnSet((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index);
+    
 }
 
 uint8_t I2C_ReadBitSDA(I2C_ConfigStruct* conf)
@@ -186,34 +96,11 @@ uint8_t I2C_ReadBitSDA(I2C_ConfigStruct* conf)
     uint32_t sda_port_num = I2C_PORT(conf->sda);
     uint32_t sda_pin_index = I2C_PIN_INDEX(conf->sda);
     
-    if(sda_port_num == 0)
-    {
-        if(GPIOA->DATA & sda_pin_index)
-            return 1;
-        else
-            return 0;
-    }
-    else if(sda_port_num == 1)
-    {
-        if(GPIOB->DATA & sda_pin_index)
-            return 1;
-        else
-            return 0;
-    } 
-    else if(sda_port_num == 2)
-    {
-        if(GPIOC->DATA & sda_pin_index)
-            return 1;
-        else
-            return 0;
-    }
-    else if(sda_port_num == 3)
-    {
-        if(GPIOD->DATA & sda_pin_index)
-            return 1;
-        else
-            return 0;
-    }
+    if(HAL_GPIO_ReadInputDataBit((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index))
+        return 1;
+    else
+        return 0;
+    
     
     return 0;
 }
