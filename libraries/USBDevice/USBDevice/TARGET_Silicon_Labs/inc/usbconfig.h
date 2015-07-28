@@ -49,6 +49,10 @@ extern "C" {
    USB_PWRSAVE_MODE_ENTEREM2  Enter EM2 when USB peripheral is in low power mode.
    On Mbed this allows the sleep() and deepsleep() calls to enter EM2, but
    does not automatically enter any sleep states. Entering EM1 is always allowed.
+
+   Note for Happy Gecko, errata USB_E111: Entering EM2 when both the system clock
+   (HFCLK) and the USB core clock (USBCCLK) is running on USHFRCO will result in
+   a lock-up.
 */
 #define USB_PWRSAVE_MODE  (USB_PWRSAVE_MODE_ONSUSPEND|USB_PWRSAVE_MODE_ONVBUSOFF|USB_PWRSAVE_MODE_ENTEREM2)
 

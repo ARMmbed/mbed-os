@@ -891,6 +891,14 @@ int USBD_AddEndpoint(int epAddr, int transferType,
              totalTxFifoSize, totalRxFifoSize);
 
   INT_Disable();
+#if defined( CMU_OSCENCMD_USHFRCOEN )
+  /* Happy Gecko workaround: disable LEM GATE mode if using ISOC endpoints. */
+  if ( transferType == USB_EPTYPE_ISOC )
+  {
+      USB->CTRL = (USB->CTRL & ~_USB_CTRL_LEMOSCCTRL_MASK) | USB_CTRL_LEMOSCCTRL_NONE;
+  }
+#endif
+
   int ret = USBDHAL_ReconfigureFifos(totalRxFifoSize, totalTxFifoSize);
   INT_Enable();
 
