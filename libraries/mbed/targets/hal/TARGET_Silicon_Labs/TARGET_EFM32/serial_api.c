@@ -1268,23 +1268,6 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
     return;
 }
 
-/** Set character to be matched. If an event is enabled, and received character
- *  matches the defined char_match, the receiving process is stopped and MATCH event
- *  is invoked
- *
- * @param obj        The serial object
- * @param char_match A character in range 0-254
- */
-void serial_set_char_match(serial_t *obj, uint8_t char_match)
-{
-    // Note: This does not work together with DMA.
-    if (char_match != SERIAL_RESERVED_CHAR_MATCH) {
-        obj->char_match = char_match;
-    }
-
-    return;
-}
-
 /************************************
  * TRANSFER FUNCTIONS               *
  ***********************************/
@@ -1385,7 +1368,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     // Set up events
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
-    serial_set_char_match(obj, char_match);
+    obj->char_match = char_match;
 
     // Set up sleepmode
 #ifdef LEUART_USING_LFXO
