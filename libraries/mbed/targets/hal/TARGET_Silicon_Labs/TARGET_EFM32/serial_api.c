@@ -1403,6 +1403,8 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     // TODO: add DMA support for character matching with leuart
     if(!(event & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
         serial_dmaTrySetState(&(obj->serial.dmaOptionsRX), hint, obj, false);
+    }else{
+        serial_dmaTrySetState(&(obj->serial.dmaOptionsRX), DMA_USAGE_NEVER, obj, false);
     }
 
     // If DMA, kick off DMA
