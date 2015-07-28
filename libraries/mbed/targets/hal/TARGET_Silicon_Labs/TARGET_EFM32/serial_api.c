@@ -1763,12 +1763,16 @@ void serial_rx_abort_asynch(serial_t *obj)
             /* stop interrupting */
             if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
                 LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_RXDATAV | LEUART_IEN_PERR | LEUART_IEN_FERR | LEUART_IEN_RXOF);
-                LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_PERR | LEUART_IFC_FERR | LEUART_IFC_RXOF);
             } else {
                 USART_IntDisable(obj->serial.periph.uart, USART_IEN_RXDATAV | USART_IEN_PERR | USART_IEN_FERR | USART_IEN_RXOF);
-                USART_IntClear(obj->serial.periph.uart,  USART_IFC_PERR | USART_IFC_FERR | USART_IFC_RXOF);
             }
             break;
+    }
+
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_PERR | LEUART_IFC_FERR | LEUART_IFC_RXOF);
+    }else{
+        USART_IntClear(obj->serial.periph.uart,  USART_IFC_PERR | USART_IFC_FERR | USART_IFC_RXOF);
     }
 
     /* Say that we can stop using this emode */
