@@ -137,6 +137,7 @@ if __name__ == '__main__':
             ('uvision', 'MAX32600MBED'),
             ('uvision', 'DISCO_F334C8'),
             ('uvision', 'DISCO_F746NG'),
+            ('uvision', 'DISCO_L476VG'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
@@ -222,6 +223,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_L152RE'),
             ('iar', 'DISCO_F334C8'),
             ('iar', 'DISCO_F746NG'),
+            ('iar', 'DISCO_L476VG'),
             ('iar', 'STM32F407'),
             ('iar', 'MTS_MDOT_F405RG'),
             ('iar', 'MTS_MDOT_F411RE'),
