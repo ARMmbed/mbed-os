@@ -251,10 +251,10 @@ class Mbed:
 
             return free_bytes.value
         else:
-	    try:
-            	st = os.statvfs(dirname)
-	    except:
-		return 0
+            try:
+                st = os.statvfs(dirname)
+            except:
+                return 0
 
             return st.f_bavail
 
