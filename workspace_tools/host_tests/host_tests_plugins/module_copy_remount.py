@@ -50,40 +50,36 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-
-	    shell = False
-
-            if sys.platform == 'win32': 
-	        capability = 'copy'
-            else:
-		capability = 'cp'
 	
-		# Remount as a synchronous file system
-		if sys.platform == 'linux2':
-	            p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
-		    device = p1.communicate()[0].strip()
-		    
-		    if self.run_command('sudo umount %s' %  (destination_disk), shell=True):
-		        self.print_plugin_info('UNMOUNT OK')
-		    else:
-		        self.print_plugin_info('UNMOUNT FAIL')
+            shell = False
+            
+            # Remount as a synchronous file system
+            if sys.platform == 'linux2':
+                p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
+                device = p1.communicate()[0].strip()
+                
+                if self.run_command('sudo umount %s' %  (destination_disk), shell=True):
+                    self.print_plugin_info('UNMOUNT OK')
+                else:
+                    self.print_plugin_info('UNMOUNT FAIL')
 
-		    if self.run_command('sudo mkdir -p %s' % (destination_disk), shell=True):
-		        self.print_plugin_info('MKDIR OK')
-		    else :
-		        self.print_plugin_info('MKDIR FAIL')
+                if self.run_command('sudo mkdir -p %s' % (destination_disk), shell=True):
+                    self.print_plugin_info('MKDIR OK')
+                else :
+                    self.print_plugin_info('MKDIR FAIL')
 
-		    if self.run_command('sudo mount -w -o uid=%s,gid=%s,sync %s %s' % (os.geteuid(), os.getgid(), device, destination_disk), shell=True):
-		        self.print_plugin_info('MOUNT OK')
-		    else:
-		        self.print_plugin_info('MOUNT FAIL')
-		elif sys.platform == 'darwin':
-		    if self.run_command('sudo mount -u -w -o sync %s' % (destination_disk), shell=True):
-			self.print_plugin_info('REMOUNT OK')
-		    else:
-			self.print_plugin_info('REMOUNT FAIL')
+                if self.run_command('sudo mount -w -o uid=%s,gid=%s %s %s' % (os.geteuid(), os.getgid(), device, destination_disk), shell=True):
+                    self.print_plugin_info('MOUNT OK')
+                else:
+                    self.print_plugin_info('MOUNT FAIL')
 
-            cmd = ['cp', image_path, destination_path]
+	        cmd = ['dd', 'if=%s' % image_path, 'of=%s' % (destination_path), 'conv=fsync']
+	    elif sys.platform == 'darwin':
+                if self.run_command('sudo mount -u -w -o %s' % (destination_disk), shell=True):
+                    self.print_plugin_info('REMOUNT OK')
+                else:
+                    self.print_plugin_info('REMOUNT FAIL')
+
             result = self.run_command(cmd, shell=shell)
         return result
 

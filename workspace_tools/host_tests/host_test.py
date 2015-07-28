@@ -251,7 +251,11 @@ class Mbed:
 
             return free_bytes.value
         else:
-            st = os.statvfs(dirname)
+            try:
+                st = os.statvfs(dirname)
+            except:
+                return 0
+
             return st.f_bavail
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
