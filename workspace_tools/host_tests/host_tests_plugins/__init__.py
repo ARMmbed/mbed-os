@@ -21,6 +21,7 @@ import host_test_registry
 import module_copy_mbed
 import module_copy_shell
 import module_copy_silabs
+import module_copy_remount
 #import module_copy_firefox
 #import module_copy_mps2
 
@@ -37,6 +38,7 @@ HOST_TEST_PLUGIN_REGISTRY = host_test_registry.HostTestRegistry()
 # Some plugins are commented out if they are not stable or not commonly used
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mbed.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_shell.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_remount.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
 #HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
 
