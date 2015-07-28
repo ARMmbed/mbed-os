@@ -143,6 +143,7 @@ void adc_configure_ain_pin(uint32_t pin)
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
+    MBED_ASSERT(obj);
     uint32_t pos_input;
     static uint8_t init_flag = 0;
 
@@ -163,6 +164,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
+    MBED_ASSERT(obj);
     uint16_t result;
     adc_set_positive_input(&adc_instance, obj->config_adc.positive_input);
     adc_set_negative_input(&adc_instance, obj->config_adc.negative_input);
@@ -170,11 +172,12 @@ uint16_t analogin_read_u16(analogin_t *obj)
     do {
     } while(adc_read(&(adc_instance), &result) == STATUS_BUSY);   // 12 bit value
 
-    return (uint16_t)((result * 65535) / 4095);  // for normalizing to 16 bit value
+    return (uint16_t)(((uint32_t)result * 0xFFFF) / 0x0FFF);  // for normalizing to 16 bit value
 }
 
 float analogin_read(analogin_t *obj)
 {
+    MBED_ASSERT(obj);
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)0xFFFF);
 }
