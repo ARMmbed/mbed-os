@@ -1365,6 +1365,13 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         event &= ~SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
 
+    /*clear all set interrupts*/
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_PERR | LEUART_IFC_FERR | LEUART_IFC_RXOF);
+    }else{
+        USART_IntClear(obj->serial.periph.uart,  USART_IFC_PERR | USART_IFC_FERR | USART_IFC_RXOF);
+    }
+
     // Set up events
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
@@ -1402,11 +1409,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         NVIC_EnableIRQ(serial_get_rx_irq_index(obj));
 
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            // Activate RX
-            obj->serial.periph.leuart->CMD = LEUART_CMD_RXEN;
-
-            // Clear RX buffer
-            obj->serial.periph.leuart->CMD = LEUART_CMD_CLEARRX;
+            // Activate RX and clear RX buffer
+            obj->serial.periph.leuart->CMD = LEUART_CMD_RXEN;                   obj->serial.periph.leuart->CMD = LEUART_CMD_RXEN | LEUART_CMD_CLEARRX;
+            while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
 
             // Enable interrupt
             LEUART_IntEnable(obj->serial.periph.leuart, LEUART_IEN_RXDATAV);
@@ -1567,16 +1572,17 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
 
                     /* Check for character match event */
                     if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+                        serial_rx_abort_asynch(obj);
                         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
                     }
 
                     /* Check for final char event */
                     if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
+                        serial_rx_abort_asynch(obj);
                         event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
                     }
 
                     if(event != 0) {
-                        serial_rx_abort_asynch(obj);
                         return event & obj->serial.events;
                     }
                 }
