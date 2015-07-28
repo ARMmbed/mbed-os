@@ -1769,6 +1769,7 @@ void serial_rx_abort_asynch(serial_t *obj)
             break;
     }
 
+    /*clear all set iinterupts*/
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_PERR | LEUART_IFC_FERR | LEUART_IFC_RXOF);
     }else{
