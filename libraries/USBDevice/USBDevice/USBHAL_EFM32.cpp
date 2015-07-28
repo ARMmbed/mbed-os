@@ -104,12 +104,14 @@ EPCB(EP2OUT)
 EPCB(EP2IN)
 EPCB(EP3OUT)
 EPCB(EP3IN)
+#ifndef TARGET_EFM32HG_STK3400
 EPCB(EP4OUT)
 EPCB(EP4IN)
 EPCB(EP5OUT)
 EPCB(EP5IN)
 EPCB(EP6OUT)
 EPCB(EP6IN)
+#endif
 
 static inline bool is_aligned(const void *pointer, size_t byte_count)
 {
@@ -145,12 +147,14 @@ USBHAL::USBHAL(void)
     epCallback[EP2IN ] = &USBHAL::EP2_IN_callback;
     epCallback[EP3OUT] = &USBHAL::EP3_OUT_callback;
     epCallback[EP3IN ] = &USBHAL::EP3_IN_callback;
+#ifndef TARGET_EFM32HG_STK3400
     epCallback[EP4OUT] = &USBHAL::EP4_OUT_callback;
     epCallback[EP4IN ] = &USBHAL::EP4_IN_callback;
     epCallback[EP5OUT] = &USBHAL::EP5_OUT_callback;
     epCallback[EP5IN ] = &USBHAL::EP5_IN_callback;
     epCallback[EP6OUT] = &USBHAL::EP6_OUT_callback;
     epCallback[EP6IN ] = &USBHAL::EP6_IN_callback;
+#endif
 
     memset(ep_state, 0, sizeof(ep_state));
 
@@ -162,12 +166,14 @@ USBHAL::USBHAL(void)
     ep_state[EP2IN ].intern_cb = usbhal_xfer_complete_cb_EP2IN;
     ep_state[EP3OUT].intern_cb = usbhal_xfer_complete_cb_EP3OUT;
     ep_state[EP3IN ].intern_cb = usbhal_xfer_complete_cb_EP3IN;
+#ifndef TARGET_EFM32HG_STK3400
     ep_state[EP4OUT].intern_cb = usbhal_xfer_complete_cb_EP4OUT;
     ep_state[EP4IN ].intern_cb = usbhal_xfer_complete_cb_EP4IN;
     ep_state[EP5OUT].intern_cb = usbhal_xfer_complete_cb_EP5OUT;
     ep_state[EP5IN ].intern_cb = usbhal_xfer_complete_cb_EP5IN;
     ep_state[EP6OUT].intern_cb = usbhal_xfer_complete_cb_EP6OUT;
     ep_state[EP6IN ].intern_cb = usbhal_xfer_complete_cb_EP6IN;
+#endif
 
 #ifdef USB_USE_DYNAMIC_MEMORY
     ep_state[EP0OUT].data_buf = ep0out_data_buf;
