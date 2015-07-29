@@ -22,9 +22,10 @@
 
 #include "pinmap_function.h"
 
-
+/* Compare Channel used for PWM in TCC Modules */
 #define PWMOUT_CTRL_CHANNEL     3
 
+/* Prescaler values for TCC Module */
 const uint32_t tcc_prescaler[] = {
     TCC_CLOCK_PRESCALER_DIV1,
     TCC_CLOCK_PRESCALER_DIV2,
@@ -36,8 +37,15 @@ const uint32_t tcc_prescaler[] = {
     TCC_CLOCK_PRESCALER_DIV1024
 };
 
+/* Max count limits of TCC Modules */
 extern const uint32_t _tcc_maxs[TCC_INST_NUM];
 
+/** Set the period of PWM object (will not update the waveform)
+ *
+ * @param[in] obj        The PWM object whose period is to be updated
+ * @param[in] period_us  Period in microseconds
+ * @return    void
+ */
 static void pwmout_set_period(pwmout_t* obj, int period_us)
 {
     uint32_t i;
@@ -67,7 +75,12 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
     }
 }
 
-void pwmout_init_hw(pwmout_t* obj)
+/** Initialize PWM Module with updated values
+ *
+ * @param[in][out] obj  The PWM object to initialize
+ * @return         non-zero if success
+ */
+bool pwmout_init_hw(pwmout_t* obj)
 {
     uint32_t mux_func = NC;
     uint32_t pwm = NC;
@@ -80,13 +93,13 @@ void pwmout_init_hw(pwmout_t* obj)
 
     pin = obj->pin;
     pwm = pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (uint32_t)NC) return; /* Pin not supported */
+    if (pwm == (uint32_t)NC) return 0; /* Pin not supported */
 
     mux_func = pinmap_function(pin, PinMap_PWM);
     ch_index = pinmap_channel_pwm(pin, pwm);
     if ((mux_func == (uint32_t)NC) || (ch_index == (uint32_t)NC)) {
         /* Pin not supported */
-        return;
+        return 0;
     }
 
     tcc_get_config_defaults(&config_tcc, (Tcc*)pwm);
@@ -102,14 +115,24 @@ void pwmout_init_hw(pwmout_t* obj)
     config_tcc.pins.wave_out_pin[ch_index]        = pin;
     config_tcc.pins.wave_out_pin_mux[ch_index]    = mux_func;
 
-    tcc_init(&obj->tcc, (Tcc*)pwm, &config_tcc);
+    return (STATUS_OK == tcc_init(&obj->tcc, (Tcc*)pwm, &config_tcc));
 
 }
 
+/** Initialize PWM Module
+ *
+ * @param[in][out] obj  The PWM object to initialize
+ * @return         void
+ */
 void pwmout_init(pwmout_t* obj, PinName pin)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+
+    if (NC == pinmap_peripheral(pin, PinMap_PWM)) {
+        /* Pin not supported */
+        return;
+    }
 
     obj->pin = pin;
     obj->period = 0xFFFF;
@@ -117,11 +140,19 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->clock_source = GCLK_GENERATOR_0; /* 8Mhz input clock */
     obj->clock_prescaler = TCC_CLOCK_PRESCALER_DIV8; /* Default to 1MHz for 8Mhz input clock */
 
-    pwmout_init_hw(obj);
+    /* Update the changes */
+    if (pwmout_init_hw(obj)) {
+        /* Enable PWM Module */
+        tcc_enable(&obj->tcc);
+    }
 
-    tcc_enable(&obj->tcc);
 }
 
+/** Free the PWM Module
+ *
+ * @param[in] obj  The PWM object to free
+ * @return    void
+ */
 void pwmout_free(pwmout_t* obj)
 {
     /* Sanity check arguments */
@@ -130,6 +161,12 @@ void pwmout_free(pwmout_t* obj)
     tcc_disable(&obj->tcc);
 }
 
+/** Set the duty cycle of PWM Waveform
+ *
+ * @param[in] obj    The PWM object
+ * @param[in] value  New duty cycle to be set
+ * @return    void
+ */
 void pwmout_write(pwmout_t* obj, float value)
 {
     /* Sanity check arguments */
@@ -148,13 +185,17 @@ void pwmout_write(pwmout_t* obj, float value)
     tcc_disable(&obj->tcc);
 
     /* Update the changes */
-    pwmout_init_hw(obj);
-
-    /* Enable PWM Module */
-    tcc_enable(&obj->tcc);
-
+    if (pwmout_init_hw(obj)) {
+        /* Enable PWM Module */
+        tcc_enable(&obj->tcc);
+    }
 }
 
+/** Get the duty cycle of PWM Waveform
+ *
+ * @param[in] obj  The PWM object
+ * @return    Current duty cycle
+ */
 float pwmout_read(pwmout_t* obj)
 {
     /* Sanity check arguments */
@@ -163,16 +204,34 @@ float pwmout_read(pwmout_t* obj)
     return obj->duty_cycle;
 }
 
+/** Set the period of PWM Waveform
+ *
+ * @param[in] obj      The PWM object
+ * @param[in] seconds  New period in seconds
+ * @return           void
+ */
 void pwmout_period(pwmout_t* obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
+/** Set the period of PWM Waveform
+ *
+ * @param[in] obj    The PWM object
+ * @param[in] value  New period in milliseconds
+ * @return           void
+ */
 void pwmout_period_ms(pwmout_t* obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
 
+/** Set the period of PWM Waveform
+ *
+ * @param[in] obj  The PWM object
+ * @param[in] us   New period in microseconds
+ * @return    void
+ */
 void pwmout_period_us(pwmout_t* obj, int us)
 {
     /* Sanity check arguments */
@@ -185,22 +244,40 @@ void pwmout_period_us(pwmout_t* obj, int us)
     pwmout_set_period(obj, us);
 
     /* Update the changes */
-    pwmout_init_hw(obj);
-
-    /* Enable PWM Module */
-    tcc_enable(&obj->tcc);
+    if (pwmout_init_hw(obj)) {
+        /* Enable PWM Module */
+        tcc_enable(&obj->tcc);
+    }
 }
 
+/** Set the pulse width of PWM Waveform
+ *
+ * @param[in] obj      The PWM object
+ * @param[in] seconds  New pulse width in seconds
+ * @return    void
+ */
 void pwmout_pulsewidth(pwmout_t* obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
+/** Set the pulse width of PWM Waveform
+ *
+ * @param[in] obj  The PWM object
+ * @param[in] ms   New pulse width in milliseconds
+ * @return    void
+ */
 void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
+/** Set the pulse width of PWM Waveform
+ *
+ * @param[in] obj  The PWM object
+ * @param[in] us   New pulse width in microseconds
+ * @return    void
+ */
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
     /* Sanity check arguments */
