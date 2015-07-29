@@ -51,7 +51,7 @@ enum spi_mode {
 #define _SPI(obj)			pSPI_SERCOM(obj)->SPI
 
 /** SPI default baud rate. */
-#define SPI_DEFAULT_BAUD	50000//100000
+#define SPI_DEFAULT_BAUD	100000
 
 
 /** SPI timeout value. */
