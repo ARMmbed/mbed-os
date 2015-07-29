@@ -75,6 +75,14 @@ uint32_t pinmap_pad_sercom(PinName pin, uint32_t sercom_index);
  */
 uint32_t pinmap_peripheral_sercom(PinName pin, uint32_t sercom_index);
 
+/** Find the channel index of a pin specific to a PWM instance
+ *
+ * @param[in] pin   pin name
+ * @param[in] pwm   pwm peripheral (unused now)
+ * @return          Channel index of the specified pin
+ */
+uint32_t pinmap_channel_pwm(PinName pin, PWMName pwm);
+
 #ifdef __cplusplus
 }
 #endif

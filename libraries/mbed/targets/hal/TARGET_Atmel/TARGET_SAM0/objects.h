@@ -20,6 +20,8 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "gpio_object.h"
+#include "tc.h"
+#include "tcc.h"
 #include "adc.h"
 #include "extint.h"
 #include "i2c_master.h"
@@ -72,6 +74,12 @@ struct analogin_s {
 };
 
 struct pwmout_s {
+    struct tcc_module tcc;
+    PinName pin;
+    uint32_t period;
+    float duty_cycle;
+    enum gclk_generator clock_source;
+    enum tc_clock_prescaler clock_prescaler;
 };
 
 struct i2c_s {

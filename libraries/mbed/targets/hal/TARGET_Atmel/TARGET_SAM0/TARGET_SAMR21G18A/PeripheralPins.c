@@ -96,6 +96,27 @@ const PinMap PinMap_SERCOM_PADEx[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
+    {PA00, PWM_2, 4},
+    {PA01, PWM_2, 4},
+    {PA04, PWM_0, 4},
+    {PA05, PWM_0, 4},
+    {PA06, PWM_1, 4},
+    {PA07, PWM_1, 4},
+    {PA08, PWM_0, 4},
+    {PA09, PWM_0, 4},
+    {PA12, PWM_2, 4},
+    {PA13, PWM_2, 4},
+    {PA16, PWM_2, 4},
+    {PA17, PWM_2, 4},
+    {PA18, PWM_0, 5},
+    {PA19, PWM_0, 5},
+    {PA22, PWM_0, 5},
+    {PA23, PWM_0, 5},
+    {PA24, PWM_1, 5},
+    {PA25, PWM_1, 5},
+    {PA30, PWM_1, 4},
+    {PA31, PWM_1, 4},
+
     /* Not connected */
     {NC  , NC   , NC}
 };

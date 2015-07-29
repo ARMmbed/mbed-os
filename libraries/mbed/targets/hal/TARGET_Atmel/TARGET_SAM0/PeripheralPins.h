@@ -31,7 +31,7 @@ extern const PinMap PinMap_SERCOM_PAD[];
 extern const PinMap PinMap_SERCOM_PADEx[];
 
 /************PWM***************/
-//extern const PinMap PinMap_PWM[];
+extern const PinMap PinMap_PWM[];
 
 /**********EXTINT*************/
 extern const PinMap PinMap_EXTINT[];

@@ -23,6 +23,37 @@
 
 #include "pinmap_function.h"
 
+struct pwm_pin_channel {
+    PinName pin;
+    PWMName pwm;
+    uint8_t channel_index;
+};
+
+static struct pwm_pin_channel pwn_pins[] = {
+    {PA00, PWM_2, 0},
+    {PA01, PWM_2, 1},
+    {PA04, PWM_0, 0},
+    {PA05, PWM_0, 1},
+    {PA06, PWM_1, 0},
+    {PA07, PWM_1, 1},
+    {PA08, PWM_0, 0},
+    {PA09, PWM_0, 1},
+    {PA12, PWM_2, 0},
+    {PA13, PWM_2, 1},
+    {PA16, PWM_2, 0},
+    {PA17, PWM_2, 1},
+    {PA18, PWM_0, 2},
+    {PA19, PWM_0, 3},
+    {PA22, PWM_0, 4},
+    {PA23, PWM_0, 5},
+    {PA24, PWM_1, 2},
+    {PA25, PWM_1, 3},
+    {PA30, PWM_1, 0},
+    {PA31, PWM_1, 1},
+
+    {NC,   NC,   NC}
+};
+
 static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
 {
     // both are the same (inc both NC)
@@ -218,4 +249,23 @@ uint32_t pinmap_peripheral_sercom(PinName pin, uint32_t sercom_index)
         return NC;
     }
     return sercom_address[(sercom_index&0x0F)];
+}
+
+/** Find the channel index of a pin specific to a PWM instance
+ *
+ * @param[in] pin   pin name
+ * @param[in] pwm   pwm peripheral (unused now)
+ * @return          Channel index of the specified pin
+ */
+uint32_t pinmap_channel_pwm(PinName pin, PWMName pwm)
+{
+    struct pwm_pin_channel *pwm_ch =  pwn_pins;
+
+    while (pwm_ch->pin != NC) {
+        if (pin == pwm_ch->pin) {
+            return (uint32_t)pwm_ch->channel_index;
+        }
+        pwm_ch++;
+    }
+    return NC;
 }

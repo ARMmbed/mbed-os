@@ -95,15 +95,13 @@ typedef enum {
     /* Pad 3 definitions */
     MREPEAT(SERCOM_INST_NUM, _SERCOM_PAD_NAME, 3)
 } SercomPadName;
-/*
+
 typedef enum {
-    PWM_1 = 1,
-    PWM_2,
-    PWM_3,
-    PWM_4,
-    PWM_5,
-    PWM_6
-} PWMName;*/
+    PWM_0 = (0x42002000UL), /**< \brief (TCC0) APB Base Address */
+    PWM_1 = (0x42002400UL), /**< \brief (TCC1) APB Base Address */
+    PWM_2 = (0x42002800UL), /**< \brief (TCC2) APB Base Address */
+} PWMName;
+
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
