@@ -312,8 +312,21 @@ void serial_free(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    struct system_pinmux_config pin_conf;
     serial_irq_ids[serial_get_index(obj)] = 0;
     disable_usart(obj);
+
+    pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+    pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+    pin_conf.powersave    = false;
+    pin_conf.mux_position = SYSTEM_PINMUX_GPIO;
+    /* Configure the SERCOM pins according to the user configuration */
+    for (uint8_t pad = 0; pad < 4; pad++) {
+        uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
+        if (current_pin != (uint32_t)NC) {
+            system_pinmux_pin_set_config(current_pin, &pin_conf);
+        }
+    }
 }
 
 void serial_baud(serial_t *obj, int baudrate)
