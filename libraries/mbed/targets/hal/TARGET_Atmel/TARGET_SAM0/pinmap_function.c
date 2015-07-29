@@ -56,11 +56,11 @@ static struct pwm_pin_channel pwn_pins[] = {
 
 static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
 {
-    // both are the same (inc both NC)
+    /* both are the same (inc both NC) */
     if (a == b)
         return a;
 
-    // one (or both) is not connected
+    /* one (or both) is not connected */
     if (a == (uint32_t)NC)
         return b;
     if (b == (uint32_t)NC)
@@ -69,72 +69,55 @@ static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
     return (uint32_t)NC;
 }
 
+/** Find the SERCOM peripheral of given pin
+ *
+ * Find and return the SERCOM peripheral of input pin, either from default pads, or from extended pads
+ * @param[in] pin1        First pin
+ * @param[in] pad_select  to select which pad is to be used first to find
+ * @return    SERCOM peripheral if found, else, NC
+ */
+uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection pad_select)
+{
+    uint32_t pin_sercom = NC;
+
+    if (pad_select == SERCOM_USE_EXTENDED_PAD) {
+        pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PADEx);
+    }
+    if (pin_sercom == NC) {
+        pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PAD);
+    }
+
+    return pin_sercom;
+}
+
 /** Find the common SERCOM shared by two pins
  *
  * Finds the common SERCOM index of two input pins.
- * If swapping the input argument gives different result, it means, two SERCOMs share both pins
+ * Currently uses default pad only
  * @param[in] pin1  First pin
  * @param[in] pin2  Second pin
  * @return          SERCOM index if found, else, NC
  */
 uint32_t pinmap_merge_sercom(PinName pin1, PinName pin2)
 {
-    int i, j;
-    uint32_t pin1_sercom[2];
-    uint32_t pin2_sercom[2];
-    uint32_t sercom_index[4];
+    uint32_t pin1_sercom, pin2_sercom;
 
-    uint32_t pin_com = NC;
-    uint32_t pin_alt = NC;
-    uint32_t count_com = 0;
-    uint32_t count_alt = 0;
-
-    /* Adding a condition check just in case we need a different result when swapping arguments */
-    if (pin1 >= pin2) {
-        pin1_sercom[0] = pinmap_find_peripheral(pin1, PinMap_SERCOM_PAD);
-        pin1_sercom[1] = pinmap_find_peripheral(pin1, PinMap_SERCOM_PADEx);
-    } else {
-        pin1_sercom[0] = pinmap_find_peripheral(pin1, PinMap_SERCOM_PADEx);
-        pin1_sercom[1] = pinmap_find_peripheral(pin1, PinMap_SERCOM_PAD);
+    /* Using default pads for now */
+    pin1_sercom = pinmap_find_peripheral_from_pad(pin1, SERCOM_USE_DEFAULT_PAD);
+    if (pin1_sercom != NC) {
+        pin1_sercom &= 0x0F;
+    }
+    pin2_sercom = pinmap_find_peripheral_from_pad(pin2, SERCOM_USE_DEFAULT_PAD);
+    if (pin2_sercom != NC) {
+        pin2_sercom &= 0x0F;
     }
 
-    pin2_sercom[0] = pinmap_find_peripheral(pin2, PinMap_SERCOM_PAD);
-    pin2_sercom[1] = pinmap_find_peripheral(pin2, PinMap_SERCOM_PADEx);
-
-    for  (i=0; i<2; i++) {
-        if (pin1_sercom[i] != NC) {
-            pin1_sercom[i] &= 0x0F;
-        }
-        for  (j=0; j<2; j++) {
-            if (pin2_sercom[i] != NC) {
-                pin2_sercom[i] &= 0x0F;
-            }
-            sercom_index[(i*2) + j] = pinmap_merge_pins(pin1_sercom[i], pin2_sercom[j]);
-        }
-    }
-
-    for (i=0; i<4; i++) {
-        if (sercom_index[i] != NC) {
-            if (pin_com == NC) {
-                pin_com = sercom_index[i];
-                count_com++;
-            } else if (pin_com == sercom_index[i]) {
-                count_com++;
-            } else if (pin_alt == NC) {
-                pin_alt = sercom_index[i];
-                count_alt++;
-            } else if (pin_alt == sercom_index[i]) {
-                count_alt++;
-            } else {}
-        }
-    }
-    return ((count_com >= count_alt) ? pin_com : pin_alt);
+    return pinmap_merge_pins(pin1_sercom, pin2_sercom);
 }
 
 /** Find the common SERCOM shared by four pins
  *
  * Finds the common SERCOM index shared by four input pins.
- * If reversing the input argument order gives different result, it means, two SERCOMs share the pins
  * @param[in] pin1  First pin
  * @param[in] pin2  Second pin
  * @param[in] pin3  Third pin
@@ -146,32 +129,24 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
     int i;
     uint32_t sercom_index[4];
     uint32_t pin_com = NC;
-    uint32_t pin_alt = NC;
-    uint32_t count_com = 0;
-    uint32_t count_alt = 0;
 
-    sercom_index[0] = pinmap_merge_sercom(pin1, pin2);
-    sercom_index[1] = pinmap_merge_sercom(pin3, pin3);
-    sercom_index[2] = pinmap_merge_sercom(pin1, pin3);
-    sercom_index[3] = pinmap_merge_sercom(pin2, pin4);
+    sercom_index[0] = pinmap_find_peripheral_from_pad(pin1, SERCOM_USE_DEFAULT_PAD);
+    sercom_index[1] = pinmap_find_peripheral_from_pad(pin2, SERCOM_USE_DEFAULT_PAD);
+    sercom_index[2] = pinmap_find_peripheral_from_pad(pin3, SERCOM_USE_DEFAULT_PAD);
+    sercom_index[3] = pinmap_find_peripheral_from_pad(pin4, SERCOM_USE_DEFAULT_PAD);
 
-
+    /* Find common SERCOM, if there are conflicts, return NC */
     for (i=0; i<4; i++) {
         if (sercom_index[i] != NC) {
             if (pin_com == NC) {
-                pin_com = sercom_index[i];
-                count_com++;
-            } else if (pin_com == sercom_index[i]) {
-                count_com++;
-            } else if (pin_alt == NC) {
-                pin_alt = sercom_index[i];
-                count_alt++;
-            } else if (pin_alt == sercom_index[i]) {
-                count_alt++;
-            } else {}
+                pin_com = sercom_index[i] & 0x0F;
+            } else if (pin_com != (sercom_index[i] & 0x0F)) {
+                return NC;
+            }
         }
     }
-    return ((count_com >= count_alt) ? pin_com : pin_alt);
+
+    return pin_com;
 }
 
 /** Find the MUX function of input pin specific to given SERCOM index

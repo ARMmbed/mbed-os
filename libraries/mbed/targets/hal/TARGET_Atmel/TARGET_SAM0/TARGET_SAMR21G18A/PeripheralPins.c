@@ -33,6 +33,8 @@ const PinMap PinMap_ADC[] = {
 
 /************SERCOM Pins***********/
 const PinMap PinMap_SERCOM_PAD[] = {
+    {PA00, SERCOM1_PAD0, 3},
+    {PA01, SERCOM1_PAD1, 3},
     {PA04, SERCOM0_PAD0, 3},
     {PA05, SERCOM0_PAD1, 3},
     {PA06, SERCOM0_PAD2, 3},
@@ -53,6 +55,8 @@ const PinMap PinMap_SERCOM_PAD[] = {
     {PA25, SERCOM3_PAD3, 2},
     {PA27, SERCOM3_PAD0, 5},
     {PA28, SERCOM3_PAD1, 5},
+    {PA30, SERCOM1_PAD2, 3},
+    {PA31, SERCOM1_PAD3, 3},
     {PB02, SERCOM5_PAD0, 3},
     {PB03, SERCOM5_PAD1, 3},
     {PB22, SERCOM5_PAD2, 3},
@@ -68,8 +72,6 @@ const PinMap PinMap_SERCOM_PAD[] = {
 
 /*******SERCOM Pins extended*******/
 const PinMap PinMap_SERCOM_PADEx[] = {
-    {PA00, SERCOM1_PAD0, 3},
-    {PA01, SERCOM1_PAD1, 3},
     {PA08, SERCOM2_PAD0, 3},
     {PA09, SERCOM2_PAD1, 3},
     {PA16, SERCOM3_PAD0, 3},
@@ -80,8 +82,6 @@ const PinMap PinMap_SERCOM_PADEx[] = {
     {PA23, SERCOM5_PAD1, 3},
     {PA24, SERCOM5_PAD2, 3},
     {PA25, SERCOM5_PAD3, 3},
-    {PA30, SERCOM1_PAD2, 3},
-    {PA31, SERCOM1_PAD3, 3},
 
     /* Not connected */
     {NC  , NC   , NC}

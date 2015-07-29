@@ -28,6 +28,19 @@
 extern "C" {
 #endif
 
+enum sercom_pad_selection {
+    SERCOM_USE_DEFAULT_PAD,
+    SERCOM_USE_EXTENDED_PAD,
+};
+
+/** Find the SERCOM peripheral of given pin
+ *
+ * Find and return the SERCOM peripheral of input pin, either from default pas, or from extended pads
+ * @param[in] pin1  First pin
+ * @param[in] pad_select  Second pin
+ * @return    SERCOM peripheral if found, else, NC
+ */
+uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection pad_select);
 
 /** Find the common SERCOM shared by two pins
  *
