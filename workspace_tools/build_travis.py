@@ -134,7 +134,14 @@ def run_test_linking(dry_run):
                     if os.system(cmdline) != 0:
                         sys.exit(1)
 
+def run_test_testsuite(dry_run):
+    cmdline = "python workspace_tools/singletest.py --version"
+    print "Executing: " + cmdline
+    if not dry_run:
+        if os.system(cmdline) != 0:
+            sys.exit(1)
 
 if __name__ == "__main__":
     run_builds("-s" in sys.argv)
     run_test_linking("-s" in sys.argv)
+    run_test_testsuite("-s" in sys.argv)

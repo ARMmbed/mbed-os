@@ -53,13 +53,12 @@ from workspace_tools.build_api import print_build_results
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
-from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
-
 
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
 
 try:
     import mbed_lstools
+    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 
