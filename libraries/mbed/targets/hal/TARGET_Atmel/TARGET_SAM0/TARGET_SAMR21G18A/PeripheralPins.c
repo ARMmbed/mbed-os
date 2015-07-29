@@ -16,12 +16,6 @@
 
 #include "PeripheralPins.h"
 
-/************RTC***************/
-const PinMap PinMap_RTC[] = {
-    /* Not connected */
-    {NC  , NC   , NC}
-};
-
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
     {PA04,  ADC_4, 1},

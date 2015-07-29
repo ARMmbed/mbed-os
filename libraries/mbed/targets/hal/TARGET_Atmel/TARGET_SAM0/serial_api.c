@@ -31,7 +31,7 @@
 #define pUSART_S(obj)			obj->serial.usart
 #define pSERIAL_S(obj)			((struct serial_s*)&(obj->serial))
 #else
-#define pUSART_S(obj)			obj->serial
+#define pUSART_S(obj)			obj->usart
 #define pSERIAL_S(obj)			((struct serial_s*)obj)
 #endif
 #define _USART(obj)			pUSART_S(obj)->USART
@@ -542,6 +542,11 @@ void serial_break_clear(serial_t *obj)
             system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TX_INDEX], &pin_conf);
         }
     }
+}
+
+void serial_pinout_tx(PinName tx)
+{
+    pinmap_pinout(tx, PinMap_SERCOM_PAD);
 }
 
 /******************************************************************************
