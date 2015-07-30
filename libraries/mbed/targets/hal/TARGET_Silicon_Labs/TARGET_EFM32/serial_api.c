@@ -1569,23 +1569,24 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
             } else {
                 /* There's still space in the receive buffer */
                 while((LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_RXDATAV) && (obj->rx_buff.pos <= (obj->rx_buff.length - 1))) {
-
+                    bool aborting = false;
                     buf[obj->rx_buff.pos] = LEUART_RxDataGet(obj->serial.periph.leuart);
                     obj->rx_buff.pos++;
 
                     /* Check for character match event */
                     if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
-                        serial_rx_abort_asynch(obj);
+                        aborting = true;
                         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
                     }
 
                     /* Check for final char event */
                     if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
-                        serial_rx_abort_asynch(obj);
+                        aborting = true;
                         event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
                     }
 
-                    if(event != 0) {
+                    if(aborting) {
+                        serial_rx_abort_asynch(obj);
                         return event & obj->serial.events;
                     }
                 }
@@ -1629,21 +1630,23 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
             } else {
                 /* There's still space in the receive buffer */
                 while(((USART_StatusGet(obj->serial.periph.uart) & USART_STATUS_RXDATAV) || (USART_StatusGet(obj->serial.periph.uart) & USART_IF_RXFULL)) && (obj->rx_buff.pos <= (obj->rx_buff.length - 1))) {
-
+                    bool aborting = false;
                     buf[obj->rx_buff.pos] = USART_RxDataGet(obj->serial.periph.uart);
                     obj->rx_buff.pos++;
 
                     /* Check for character match event */
                     if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+                        aborting = true;
                         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
                     }
 
                     /* Check for final char event */
                     if(obj->rx_buff.pos >= (obj->rx_buff.length)) {
+                        aborting = true;
                         event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
                     }
 
-                    if(event != 0) {
+                    if(aborting) {
                         serial_rx_abort_asynch(obj);
                         return event & obj->serial.events;
                     }
@@ -1671,12 +1674,29 @@ int serial_irq_handler_asynch(serial_t *obj)
         /* Notify CPP land of RX completion */
         return SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     } else if (serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
-        /* Clean up */
-        serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
-        serial_tx_abort_asynch(obj);
-
-        /* Notify CPP land of completion */
-        return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+        if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+            if(obj->serial.periph.leuart->IEN & LEUART_IEN_TXC){
+                LEUART_IntDisable(obj->serial.periph.leuart,LEUART_IEN_TXC);
+                /* Clean up */
+                serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
+                serial_tx_abort_asynch(obj);
+                /* Notify CPP land of completion */
+                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+            }else{
+                LEUART_IntEnable(obj->serial.periph.leuart,LEUART_IEN_TXC);
+            }
+        }else{
+            if(obj->serial.periph.uart->IEN & USART_IEN_TXC){
+                USART_IntDisable(obj->serial.periph.leuart,USART_IEN_TXC);
+                /* Clean up */
+                serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
+                serial_tx_abort_asynch(obj);
+                /* Notify CPP land of completion */
+                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+            }else{
+                USART_IntEnable(obj->serial.periph.leuart,USART_IEN_TXC);
+            }
+        }
     } else {
         /* Check the NVIC to see which interrupt we're running from
          * Also make sure to prioritize RX */
