@@ -17,6 +17,7 @@ limitations under the License.
 
 import re
 from os.path import join
+from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 
@@ -81,7 +82,7 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_MPS2'
     type = 'CopyMethod'
     capabilities = ['mps2']
-    required_parameters = ['image_path', 'destination_disk']
+    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -95,9 +96,13 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
         """
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
+            program_cycle_s = kwargs['program_cycle_s']
             if capabilitity == 'mps2':
                 #  TODO: Implement MPS2 firmware setup here
                 pass
+
+            sleep(program_cycle_s)
+
         return result
 
 
