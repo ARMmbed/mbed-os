@@ -17,6 +17,7 @@ limitations under the License.
 
 import os
 import sys
+import plistlib
 from os.path import join, basename
 from subprocess import Popen, PIPE
 from time import sleep
@@ -86,17 +87,33 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
 
 	        cmd = ['dd', 'if=%s' % image_path, 'of=%s' % (destination_path), 'conv=fsync']
 	    elif sys.platform == 'darwin':
-                if self.run_command('sudo mount -u -w -o %s' % (destination_disk), shell=True):
-                    self.print_plugin_info('REMOUNT OK')
+                p1 = Popen('diskutil info -plist \'%s\'' % (destination_disk), shell=True, stdout=PIPE)
+                diskutil_output = p1.communicate()[0]
+		plist = plistlib.readPlistFromString(diskutil_output)
+		device_node = plist['DeviceNode']
+
+		if self.run_command('diskutil unmount \'%s\'' % (destination_disk), shell=True):
+                    self.print_plugin_info('UNMOUNT OK')
                 else:
-                    self.print_plugin_info('REMOUNT FAIL')
+                    self.print_plugin_info('UNMOUNT FAIL')
+
+                if self.run_command('sudo mkdir -p \'%s\'' % (destination_disk), shell=True):
+                    self.print_plugin_info('MKDIR OK')
+                else :
+                    self.print_plugin_info('MKDIR FAIL')
+
+                if self.run_command('diskutil mount -mountPoint \'%s\' \'%s\'' % (destination_disk, device_node), shell=True):
+                    self.print_plugin_info('MOUNT OK')
+                else:
+                    self.print_plugin_info('MOUNT FAIL')
+
+	        cmd = ['ditto', '--nocache', image_path, destination_path]
 
             result = self.run_command(cmd, shell=shell)
 
             sleep(3)
-
+        
         return result
-
 
 def load_plugin():
     """ Returns plugin available in this module
