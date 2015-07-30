@@ -1492,7 +1492,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
                 LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_TXBL);
                 LEUART_IntEnable(obj->serial.periph.leuart, LEUART_IEN_TXC);
             }
-        }else{
+        }else if (obj->serial.periph.leuart->IF & LEUART_IF_TXC){
             /* Last byte has been successfully transmitted. Stop the procedure */
             serial_tx_abort_asynch(obj);
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
@@ -1509,7 +1509,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
                 USART_IntDisable(obj->serial.periph.uart, USART_IEN_TXBL);
                 USART_IntEnable(obj->serial.periph.uart, USART_IEN_TXC);
             }
-        }else{
+        } else if (obj->serial.periph.uart->IF & USART_IF_TXC) {
             /* Last byte has been successfully transmitted. Stop the procedure */
             serial_tx_abort_asynch(obj);
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
@@ -1684,13 +1684,13 @@ int serial_irq_handler_asynch(serial_t *obj)
             //Different method of checking tx vs rx for LEUART
             if(LEUART_IntGetEnabled(obj->serial.periph.leuart) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
                 return serial_rx_irq_handler_asynch(obj);
-            } else if(LEUART_StatusGet(obj->serial.periph.leuart) & LEUART_STATUS_TXBL) {
+            } else if(LEUART_StatusGet(obj->serial.periph.leuart) & (LEUART_STATUS_TXBL | LEUART_STATUS_TXC)) {
                 return serial_tx_irq_handler_asynch(obj);
             }
         } else {
             if(USART_IntGetEnabled(obj->serial.periph.uart) & (USART_IF_RXDATAV | USART_IF_RXOF | USART_IF_PERR | USART_IF_FERR)) {
                 return serial_rx_irq_handler_asynch(obj);
-            } else {
+            } else if(USART_StatusGet(obj->serial.periph.uart) & (USART_STATUS_TXBL | USART_STATUS_TXC)){
                 return serial_tx_irq_handler_asynch(obj);
             }
         }
