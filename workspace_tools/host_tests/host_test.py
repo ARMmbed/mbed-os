@@ -28,7 +28,6 @@ import types
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
-import ctypes
 
 import host_tests_plugins
 
@@ -255,7 +254,7 @@ class Mbed:
                 st = os.statvfs(dirname)
             except:
                 return 0
-                
+
             return st.f_bavail
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
@@ -265,24 +264,23 @@ class Mbed:
         # Set closure environment
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
+
         copy_method = copy_method if copy_method is not None else self.copy_method
 
-	can_print_disk_warning = True
+    	can_print_disk_warning = True
 
-        # Wait for mbed disk to be available for writing
-        while self.get_free_space_bytes(disk) <= 0:
-            if can_print_disk_warning:
-            	print 'MBED: Waiting for mbed disk to mount propertly'
-	        can_print_disk_warning = False
-	    pass
+            # Wait for mbed disk to be available for writing
+            while self.get_free_space_bytes(disk) <= 0:
+                if can_print_disk_warning:
+                	print 'MBED: Waiting for mbed disk to mount propertly'
+    	        can_print_disk_warning = False
+    	    pass
 
-	# Wait 1 second to ensure mbed is ready
-	sleep(1)
+    	# Wait 1 second to ensure mbed is ready
+    	sleep(1)
 
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
-
-	sleep(3)
 
         return result
 
@@ -292,10 +290,10 @@ class Mbed:
         """
         if copy_method is not None:
             # image_path - Where is binary with target's firmware
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk, program_cycle_s=self.program_cycle_s)
         else:
             copy_method = 'default'
-            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+            result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk, program_cycle_s=self.program_cycle_s)
         return result
 
     def flush(self):

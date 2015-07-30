@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 from os.path import join, basename
+from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 
@@ -41,7 +42,7 @@ class HostTestPluginCopyMethod_Firefox(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_Firefox'
     type = 'CopyMethod'
     capabilities = ['firefox']
-    required_parameters = ['image_path', 'destination_disk']
+    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -62,11 +63,15 @@ class HostTestPluginCopyMethod_Firefox(HostTestPluginBase):
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            program_cycle_s = kwargs['program_cycle_s']
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
             if capabilitity == 'firefox':
                 self.file_store_firefox(image_path, destination_path)
+            
+            sleep(program_cycle_s)
+
         return result
 
 

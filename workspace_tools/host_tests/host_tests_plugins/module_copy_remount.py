@@ -20,6 +20,7 @@ import sys
 import plistlib
 from os.path import join, basename
 from subprocess import Popen, PIPE
+from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 
@@ -51,28 +52,38 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-	
+
             shell = False
-            
+
             # Remount as a synchronous file system
             if sys.platform == 'linux2':
-		p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
-                device = p1.communicate()[0].strip()
-                
+                device = ""
+
+                while not device:
+                    p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
+                    device = p1.communicate()[0].strip()
+                    sleep(1)
+
                 if self.run_command('sudo umount %s' %  (destination_disk), shell=True):
                     self.print_plugin_info('UNMOUNT OK')
                 else:
                     self.print_plugin_info('UNMOUNT FAIL')
+
+                sleep(1)
 
                 if self.run_command('sudo mkdir -p %s' % (destination_disk), shell=True):
                     self.print_plugin_info('MKDIR OK')
                 else :
                     self.print_plugin_info('MKDIR FAIL')
 
+                sleep(1)
+
                 if self.run_command('sudo mount -w -o uid=%s,gid=%s %s %s' % (os.geteuid(), os.getgid(), device, destination_disk), shell=True):
                     self.print_plugin_info('MOUNT OK')
                 else:
                     self.print_plugin_info('MOUNT FAIL')
+
+                sleep(1)
 
 	        cmd = ['dd', 'if=%s' % image_path, 'of=%s' % (destination_path), 'conv=fsync']
 	    elif sys.platform == 'darwin':
@@ -100,6 +111,11 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
 
             result = self.run_command(cmd, shell=shell)
 
+<<<<<<< HEAD
+=======
+            sleep(3)
+
+>>>>>>> Added copy-shell method back, but moved platform_wait into each copy plugin instead of the host test. Also improving stability of remount method
         return result
 
 
