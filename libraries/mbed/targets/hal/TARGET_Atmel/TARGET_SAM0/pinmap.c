@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 #include <stddef.h>
-#include "us_ticker_api.h"
+
 #include "cmsis.h"
 #include "mbed_assert.h"
-#include "ins_gclk.h"
 #include "compiler.h"
-#include "system.h"
 
 #include "pinmux.h"
 #include "pinmap.h"

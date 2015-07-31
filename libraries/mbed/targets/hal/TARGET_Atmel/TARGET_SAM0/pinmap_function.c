@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 #include <stddef.h>
-#include "us_ticker_api.h"
+
 #include "cmsis.h"
 #include "mbed_assert.h"
-#include "ins_gclk.h"
 #include "compiler.h"
-#include "system.h"
 
 #include "pinmap_function.h"
 
@@ -51,10 +49,12 @@ uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection 
 {
     uint32_t pin_sercom = NC;
 
+    if (pin == NC) return NC;
+
     if (pad_select == SERCOM_USE_EXTENDED_PAD) {
         pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PADEx);
     }
-    if (pin_sercom == NC) {
+    if (pin_sercom == (uint32_t)NC) {
         pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PAD);
     }
 
@@ -75,11 +75,11 @@ uint32_t pinmap_merge_sercom(PinName pin1, PinName pin2)
 
     /* Using default pads for now */
     pin1_sercom = pinmap_find_peripheral_from_pad(pin1, SERCOM_USE_DEFAULT_PAD);
-    if (pin1_sercom != NC) {
+    if (pin1_sercom != (uint32_t)NC) {
         pin1_sercom &= 0x0F;
     }
     pin2_sercom = pinmap_find_peripheral_from_pad(pin2, SERCOM_USE_DEFAULT_PAD);
-    if (pin2_sercom != NC) {
+    if (pin2_sercom != (uint32_t)NC) {
         pin2_sercom &= 0x0F;
     }
 
@@ -108,8 +108,8 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
 
     /* Find common SERCOM, if there are conflicts, return NC */
     for (i=0; i<4; i++) {
-        if (sercom_index[i] != NC) {
-            if (pin_com == NC) {
+        if (sercom_index[i] != (uint32_t)NC) {
+            if (pin_com == (uint32_t)NC) {
                 pin_com = sercom_index[i] & 0x0F;
             } else if (pin_com != (sercom_index[i] & 0x0F)) {
                 return NC;
