@@ -38,7 +38,7 @@
 #define TIMER_IRQn      DUALTIMER0_IRQn
 
 static PWM_TimerModeInitTypeDef TimerInitType;
-static DULATIMER_InitTypDef TimerHandler;
+static DUALTIMER_InitTypDef TimerHandler;
 
 static int us_ticker_inited = 0;
 
@@ -91,9 +91,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         us_ticker_init();
     }
     
-    dev = (int32_t)(timestamp - (us_ticker_read() + 160));
-    dev = dev * 1.27;
-        
+    dev = (int32_t)(timestamp - us_ticker_read());
+    dev = dev * ((GetSystemClock() / 1000000) / 16);     
+
     if(dev <= 0)
     {
         us_ticker_irq_handler();
