@@ -176,5 +176,30 @@ const PinMap PinMap_EXTINT[] = {
     {NC  , NC   , NC}
 };
 
+const struct pwm_pin_channel pwn_pins[] = {
+    {PA00, PWM_2, 0},
+    {PA01, PWM_2, 1},
+    {PA04, PWM_0, 0},
+    {PA05, PWM_0, 1},
+    {PA06, PWM_1, 0},
+    {PA07, PWM_1, 1},
+    {PA08, PWM_0, 0},
+    {PA09, PWM_0, 1},
+    {PA12, PWM_2, 0},
+    {PA13, PWM_2, 1},
+    {PA16, PWM_2, 0},
+    {PA17, PWM_2, 1},
+    {PA18, PWM_0, 2},
+    {PA19, PWM_0, 3},
+    {PA22, PWM_0, 4},
+    {PA23, PWM_0, 5},
+    {PA24, PWM_1, 2},
+    {PA25, PWM_1, 3},
+    {PA30, PWM_1, 0},
+    {PA31, PWM_1, 1},
+
+    {NC,   NC,   NC}
+};
+
 
 

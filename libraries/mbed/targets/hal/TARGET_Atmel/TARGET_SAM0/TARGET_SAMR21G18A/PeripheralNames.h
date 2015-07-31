@@ -102,6 +102,11 @@ typedef enum {
     PWM_2 = (0x42002800UL), /**< \brief (TCC2) APB Base Address */
 } PWMName;
 
+struct pwm_pin_channel {
+    PinName pin;
+    PWMName pwm;
+    uint8_t channel_index;
+};
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX

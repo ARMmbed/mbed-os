@@ -117,7 +117,7 @@ void Dummy_Handler(void);
 #pragma location = ".intvec"
 const DeviceVectors __vector_table[] = {
         __sfe("CSTACK"),
-        (void*) Reset_Handler,
+        (void*) __iar_program_start,
         (void*) NMI_Handler,
         (void*) HardFault_Handler,
         (void*) (0UL), /* Reserved */

@@ -18,9 +18,11 @@
 #include "gpio_api.h"
 #include "port.h"
 
+#if defined(TARGET_SAMR21G18A)  // mask to be define for other targets
 #define PORTA_MASK	0xDBDFFFF3  // mask for available pins in Port A
 #define PORTB_MASK	0xC0C3C30D  // mask for available pins in Port B
 #define PORTC_MASK	0x000D0000  // mask for available pins in Port C
+#endif
 
 uint32_t start_pin(PortName port)
 {
