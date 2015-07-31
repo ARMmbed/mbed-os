@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 #include "mbed_assert.h"
-#include "system.h"
-
-#include <math.h>
 
 #include "cmsis.h"
-#include "pinmap.h"
 #include "sercom.h"
 #include "dma_api.h"
 #include "dma_api_HAL.h"

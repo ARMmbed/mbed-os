@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #include "mbed_assert.h"
-#include "dma_api.h"
 #include "i2c_api.h"
 
 #include <math.h>

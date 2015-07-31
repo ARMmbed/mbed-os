@@ -16,9 +16,6 @@
 #include "mbed_assert.h"
 #include "sleep_api.h"
 
-#include <math.h>
-
-#include "cmsis.h"
 #include "power.h"
 
 /** Send the device to sleep

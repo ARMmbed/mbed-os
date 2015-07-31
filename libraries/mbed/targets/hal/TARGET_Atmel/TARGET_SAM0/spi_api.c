@@ -16,8 +16,6 @@
 #include "mbed_assert.h"
 #include "spi_api.h"
 
-#include <math.h>
-
 #include "cmsis.h"
 #include "pinmap.h"
 #include "sercom.h"

@@ -16,8 +16,6 @@
 #include "mbed_assert.h"
 #include "rtc_api.h"
 
-#include <math.h>
-
 #include "cmsis.h"
 #include "system.h"
 

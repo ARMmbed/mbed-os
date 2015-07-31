@@ -17,8 +17,6 @@
 #include "pwmout_api.h"
 
 #include "cmsis.h"
-#include "pinmap.h"
-#include "PeripheralPins.h"
 
 #include "pinmap_function.h"
 
