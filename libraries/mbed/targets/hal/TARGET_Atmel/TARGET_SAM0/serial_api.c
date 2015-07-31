@@ -237,9 +237,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     uint32_t sercom_index = 0;
     uint32_t muxsetting = 0;
 
-    /* Disable USART module */
-    disable_usart(obj);
-
     get_default_serial_values(obj);
 
     pSERIAL_S(obj)->pins[USART_TX_INDEX] = tx;
@@ -256,6 +253,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     sercom_index &= 0x0F;
     uart = pinmap_peripheral_sercom(NC, sercom_index);
     pUSART_S(obj) = (Sercom *)uart;
+
+    /* Disable USART module */
+    disable_usart(obj);
 
     pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
