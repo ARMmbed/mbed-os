@@ -886,12 +886,17 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    enum status_code tmp_status;
 
     uint32_t transfer_event = 0;
 
     /*if (obj->spi.dma_usage == DMA_USAGE_NEVER) {** TEMP: Commented as DMA is not implemented now */
     /* IRQ method */
-    if (STATUS_BUSY != _spi_transceive_buffer(obj)) {
+    tmp_status = _spi_transceive_buffer(obj);
+    if (STATUS_BUSY != tmp_status) {
+        if ((obj->spi.event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) && (tmp_status == STATUS_OK)) {
+            obj->spi.event |= SPI_EVENT_COMPLETE;
+        }
         transfer_event = obj->spi.event & (obj->spi.mask | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE);
     }
     /*}** TEMP: Commented as DMA is not implemented now */
