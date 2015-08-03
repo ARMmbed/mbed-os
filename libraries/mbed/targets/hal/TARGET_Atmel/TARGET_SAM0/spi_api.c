@@ -865,9 +865,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     _SPI(obj).STATUS.reg |=  SERCOM_SPI_STATUS_BUFOVF;
 
     /* Set SPI interrupts */
-    if (tx) {
-        irq_mask |= SERCOM_SPI_INTFLAG_DRE;
-    }
+    /* Set DRE flag to kick start transmission */
+    irq_mask |= SERCOM_SPI_INTFLAG_DRE;
+
     if (event & SPI_EVENT_ERROR) {
         irq_mask |= SERCOM_SPI_INTFLAG_ERROR;
     }
