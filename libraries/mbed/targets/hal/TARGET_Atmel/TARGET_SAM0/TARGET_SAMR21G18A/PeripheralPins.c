@@ -18,14 +18,19 @@
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
+    {PB08,  ADC_2, 1},
+    {PB09,  ADC_3, 1},
     {PA04,  ADC_4, 1},
     {PA05,  ADC_5, 1},
     {PA06,  ADC_6, 1},
     {PA07,  ADC_7, 1},
+    {PB00,  ADC_8, 1},
     {PB02,  ADC_10, 1},
     {PB03,  ADC_11, 1},
     {PA08,  ADC_16, 1},
     {PA09,  ADC_17, 1},
+    {PA10,  ADC_18, 1},
+    {PA11,  ADC_19, 1},
 
     /* Not connected */
     {NC  , NC   , NC}

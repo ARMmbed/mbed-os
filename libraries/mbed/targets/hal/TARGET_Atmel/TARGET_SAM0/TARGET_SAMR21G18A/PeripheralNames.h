@@ -45,14 +45,19 @@ typedef enum {
 } UARTName;
 
 typedef enum { // for each input control mux  4,5,6,7,16,17,10,11 used in R21
+    ADC_2  =  0x2ul,
+    ADC_3  =  0x3ul,
     ADC_4  =  0x4ul,
     ADC_5  =  0x5ul,
     ADC_6  =  0x6ul,
     ADC_7  =  0x7ul,
+    ADC_8  =  0x8ul,
     ADC_10 =  0xAul,
     ADC_11 =  0xBul,
     ADC_16 =  0x10ul,
-    ADC_17 =  0x11ul
+    ADC_17 =  0x11ul,
+    ADC_18 =  0x12ul,
+    ADC_19 =  0x13ul
 } ADCName;
 
 typedef enum {  // for each channel
