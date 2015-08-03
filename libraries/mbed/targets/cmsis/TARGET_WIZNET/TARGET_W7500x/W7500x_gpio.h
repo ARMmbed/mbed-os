@@ -117,7 +117,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx);
 void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct);
 void HAL_GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct);
 uint8_t HAL_GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-uint8_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+uint16_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx);
 uint8_t HAL_GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 uint16_t HAL_GPIO_ReadOutputData(GPIO_TypeDef* GPIOx);
 void HAL_GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
@@ -125,6 +125,9 @@ void HAL_GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void HAL_GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
 void HAL_GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal);
 void HAL_PAD_AFConfig(PAD_Type Px, uint16_t Pnum, PAD_AF_TypeDef P_AF);
+
+void GPIO_OutEnClr(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+void GPIO_OutEnSet(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 
 
 #ifdef __cplusplus
