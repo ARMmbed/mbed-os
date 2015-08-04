@@ -910,6 +910,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         } else {
             i2c_master_read_packet_job_no_stop(&pI2C_S(obj)->master, &pI2C_S(obj)->rd_packet);
         }
+    } else {
+        /* Nothing to transfer, invoke callback */
+        i2c_transfer_complete_callback(&pI2C_S(obj)->master);
     }
 }
 
