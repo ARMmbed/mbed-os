@@ -1241,22 +1241,31 @@ class WALLBOT_BLE_OTA(MCU_NRF51_16K_OTA):
         self.extra_labels += ['WALLBOT_BLE']
         self.macros += ['TARGET_WALLBOT_BLE']
 
-class DELTA_DFCM_NNN40(MCU_NRF51_16K):
+class DELTA_DFCM_NNN40(MCU_NRF51_32K):
     def __init__(self):
-        MCU_NRF51_16K.__init__(self)
+        MCU_NRF51_32K.__init__(self)
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros += ['TARGET_NRF_LFCLK_RC']
+    def program_cycle_s(self):
+        return 10
 
-class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_16K_BOOT):
+class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
+        MCU_NRF51_32K_BOOT.__init__(self)
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.extra_labels += ['DELTA_DFCM_NNN40']
         self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
+    def program_cycle_s(self):
+        return 10
 
-class DELTA_DFCM_NNN40_OTA(MCU_NRF51_16K_OTA):
+class DELTA_DFCM_NNN40_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
+        MCU_NRF51_32K_OTA.__init__(self)
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.extra_labels += ['DELTA_DFCM_NNN40']
         self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
+    def program_cycle_s(self):
+        return 10
 
 class NRF51_DK(MCU_NRF51_32K):
     def __init__(self):
