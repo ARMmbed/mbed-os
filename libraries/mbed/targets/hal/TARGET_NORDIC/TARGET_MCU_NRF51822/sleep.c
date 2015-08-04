@@ -28,5 +28,5 @@ void sleep(void)
 void deepsleep(void)
 {
     sleep();
-    //   NRF_POWER->SYSTEMOFF=1;
+    NRF_POWER->SYSTEMOFF = 1;
 }
