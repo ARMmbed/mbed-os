@@ -8,11 +8,11 @@
   ],
   "author": "Erno Tormikoski <erno.tormikoski@arm.com>",
   "repository": {
-    "url": "ssh://git.oulu.arm.com/home/git/repositories/nanomesh/coap-service.git",
+    "url": "git@github.com:ARMmbed/coap-service.git",
     "type": "git"
   },
-  "homepage": "http://git.oulu.arm.com/gitweb/?p=nanomesh/coap-service.git;a=summary",
-  "license": "Proprietary, all rights reserved.",
+  "homepage": "https://github.com/ARMmbed/coap-service",
+  "license": "Apache-2.0",
   "extraIncludes": [
     "coap-service",
     "nanostack-event-loop",
