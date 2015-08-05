@@ -1,6 +1,6 @@
 {
   "name": "mbed-client-randlib",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Pseudo random library used by mbed-client and 6LoWPAN stack.",
   "keywords": [],
   "homepage": "https://github.com/ARMmbed/mbed-client-randlib",
