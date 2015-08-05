@@ -184,8 +184,13 @@ static enum status_code usart_set_config_default(serial_t *obj)
 
     /* Set stopbits, character size and enable transceivers */
     ctrlb = (uint32_t)pSERIAL_S(obj)->stopbits | (uint32_t)pSERIAL_S(obj)->character_size |
-            (0x1ul << SERCOM_USART_CTRLB_RXEN_Pos) |   // receiver enable
-            (0x1ul << SERCOM_USART_CTRLB_TXEN_Pos);  // transmitter enable
+            SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN;  /*transmitter and receiver enable*/
+    if (pSERIAL_S(obj)->pins[USART_RX_INDEX] == NC) { /* if pin is NC, have to disable the corresponding transmitter/receiver part */
+        ctrlb &= ~SERCOM_USART_CTRLB_RXEN;  /* receiver disable */
+    }
+    if (pSERIAL_S(obj)->pins[USART_TX_INDEX] == NC) {
+        ctrlb &= ~SERCOM_USART_CTRLB_TXEN;  /* transmitter disable  */
+    }
 
     /* Check parity mode bits */
     if (pSERIAL_S(obj)->parity != USART_PARITY_NONE) {
