@@ -77,9 +77,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
                     } 
 
                     // If all instances are in use, overwrite the last 
-                    pwm = PinMap_PWM[++i];
+                    pwm = PinMap_PWM[i++];
                     if(pwm.pin != pin) {
-                        pwm = PinMap_PWM[--i];
+                        pwm = PinMap_PWM[(i-1)];
                         i = -1; 
                         break;
                     }

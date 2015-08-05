@@ -426,7 +426,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
  *  @param handler The I2C IRQ handler to be set
  *  @param hint    DMA hint usage
  */
-void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     I2C_TransferReturn_TypeDef retval;
     if(i2c_active(obj)) return;
@@ -440,7 +440,7 @@ void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_
     if((tx_length > 0) && (rx_length == 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_WRITE;
         //Store buffer info
-        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].data = (void *)tx;
         obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
     } else if ((tx_length == 0) && (rx_length > 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_READ;
@@ -450,7 +450,7 @@ void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_
     } else if ((tx_length > 0) && (rx_length > 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_WRITE_READ;
         //Store buffer info
-        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].data = (void *)tx;
         obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
         obj->i2c.xfer.buf[1].data = rx;
         obj->i2c.xfer.buf[1].len  = (uint16_t) rx_length;

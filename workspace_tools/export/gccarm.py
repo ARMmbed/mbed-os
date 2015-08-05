@@ -47,6 +47,7 @@ class GccArm(Exporter):
         'DISCO_F051R8',
         'DISCO_F407VG',
         'DISCO_F303VC',
+        'DISCO_F746NG',
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
@@ -84,7 +85,7 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
-		'DELTA_DFCM_NNN40',
+        'DELTA_DFCM_NNN40',
         'RZ_A1H',
         'MOTE_L152RC',
         'EFM32WG_STK3800',
@@ -92,7 +93,9 @@ class GccArm(Exporter):
         'EFM32GG_STK3700',
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
-        'NZ32ST1L',
+        'NZ32SC151',
+        'SAMR21G18A',
+        'TEENSY3_1',
     ]
 
     DOT_IN_RELATIVE_PATH = True
@@ -122,6 +125,7 @@ class GccArm(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.get_symbols(),
+            'cpu_flags': self.toolchain.cpu
         }
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')

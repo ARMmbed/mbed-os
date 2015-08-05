@@ -55,7 +55,26 @@ typedef enum {
 } PWMType;
 
 typedef enum {
-    PWM0_PIN,
+    TIOC0A  = 0,
+    TIOC0B,
+    TIOC0C,
+    TIOC0D,
+    TIOC1A = 0x10,
+    TIOC1B,
+    TIOC2A = 0x20,
+    TIOC2B,
+    TIOC3A = 0x30,
+    TIOC3B,
+    TIOC3C,
+    TIOC3D,
+    TIOC4A = 0x40,
+    TIOC4B,
+    TIOC4C,
+    TIOC4D,
+} MTU2_PWMType;
+
+typedef enum {
+    PWM0_PIN  = 0,
     PWM1_PIN,
     PWM2_PIN,
     PWM3_PIN,
@@ -69,6 +88,28 @@ typedef enum {
     PWM11_PIN,
     PWM12_PIN,
     PWM13_PIN,
+    MTU2_PWM0_PIN = 0x20,
+    MTU2_PWM1_PIN,
+    MTU2_PWM2_PIN,
+    MTU2_PWM3_PIN,
+    MTU2_PWM4_PIN,
+    MTU2_PWM5_PIN,
+    MTU2_PWM6_PIN,
+    MTU2_PWM7_PIN,
+    MTU2_PWM8_PIN,
+    MTU2_PWM9_PIN,
+    MTU2_PWM10_PIN,
+    MTU2_PWM11_PIN,
+    MTU2_PWM12_PIN,
+    MTU2_PWM13_PIN,
+    MTU2_PWM14_PIN,
+    MTU2_PWM15_PIN,
+    MTU2_PWM16_PIN,
+    MTU2_PWM17_PIN,
+    MTU2_PWM18_PIN,
+    MTU2_PWM19_PIN,
+    MTU2_PWM20_PIN,
+    MTU2_PWM21_PIN,
 } PWMName;
 
 typedef enum {
@@ -94,6 +135,14 @@ typedef enum {
     I2C_2,
     I2C_3 
 } I2CName;
+
+typedef enum {
+    CAN_0 = 0,
+    CAN_1,
+    CAN_2,
+    CAN_3, 
+    CAN_4
+} CANName;
 
 
 #define STDIO_UART_TX     USBTX

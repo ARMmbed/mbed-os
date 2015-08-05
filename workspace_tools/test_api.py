@@ -54,11 +54,11 @@ from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
-
 import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
 
 try:
     import mbed_lstools
+    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 
@@ -179,6 +179,7 @@ class SingleTestRunner(object):
                  _opts_mut_reset_type=None,
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
+                 _opts_consolidate_waterfall_test=None,
                  _opts_extend_test_timeout=None):
         """ Let's try hard to init this object
         """
@@ -236,6 +237,7 @@ class SingleTestRunner(object):
         self.opts_mut_reset_type = _opts_mut_reset_type
         self.opts_jobs = _opts_jobs if _opts_jobs is not None else 1
         self.opts_waterfall_test = _opts_waterfall_test
+        self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
 
@@ -485,18 +487,21 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = { 0: {
-                            'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                            'single_test_output' : '',
-                            'target_name' : target,
-                            'toolchain_name' : toolchain,
-                            'test_id' : test_id,
-                            'test_description' : 'Toolchain build failed',
-                            'elapsed_time' : 0,
-                            'duration' : 0,
-                            'copy_method' : None
-                        }}
+                    if test_id not in self.test_summary_ext[toolchain][target]:
+                        self.test_summary_ext[toolchain][target][test_id] = []
+
+                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
+                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
+                        'single_test_output' : '',
+                        'target_name' : target,
+                        'target_name_unique': target,
+                        'toolchain_name' : toolchain,
+                        'test_id' : test_id,
+                        'test_description' : 'Toolchain build failed',
+                        'elapsed_time' : 0,
+                        'duration' : 0,
+                        'copy_method' : None
+                    }})
                     continue
 
                 if self.opts_only_build_tests:
@@ -537,7 +542,15 @@ class SingleTestRunner(object):
                     if target not in self.test_summary_ext[toolchain][target]:
                         if test_id not in self.test_summary_ext[toolchain][target]:
                             self.test_summary_ext[toolchain][target][test_id] = []
-                        self.test_summary_ext[toolchain][target][test_id].append(detailed_test_results)
+
+                        append_test_result = detailed_test_results
+
+                        # If waterfall and consolidate-waterfall options are enabled,
+                        # only include the last test result in the report.
+                        if self.opts_waterfall_test and self.opts_consolidate_waterfall_test:
+                            append_test_result = {0: detailed_test_results[len(detailed_test_results) - 1]}
+
+                        self.test_summary_ext[toolchain][target][test_id].append(append_test_result)
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
@@ -1512,6 +1525,9 @@ def singletest_in_cli_mode(single_test):
         # Export build results as html report to sparate file
         write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
 
+    # Returns True if no build failures of the test projects or their dependencies
+    return len(single_test.build_failures) == 0
+
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
     """
@@ -1724,7 +1740,12 @@ def get_default_test_options_parser():
 
         parser.add_option('', '--tc',
                           dest='toolchains_filter',
-                          help="Toolchain filter for --auto option. Use toolcahins names separated by comma, 'default' or 'all' to select toolchains")
+                          help="Toolchain filter for --auto option. Use toolchains names separated by comma, 'default' or 'all' to select toolchains")
+
+        test_scopes = ','.join(["'%s'" % n for n in get_available_oper_test_scopes()])
+        parser.add_option('', '--oper',
+                          dest='operability_checks',
+                          help='Perform interoperability tests between host and connected mbed devices. Available test scopes are: %s' % test_scopes)
 
     parser.add_option('', '--clean',
                       dest='clean',
@@ -1742,15 +1763,15 @@ def get_default_test_options_parser():
                       dest='test_only_common',
                       default=False,
                       action="store_true",
-                      help='Test only board internals. Skip perpherials tests and perform common tests.')
+                      help='Test only board internals. Skip perpherials tests and perform common tests')
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',
-                      help='Runs only test enumerated it this switch. Use comma to separate test case names.')
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names')
 
     parser.add_option('-p', '--peripheral-by-names',
                       dest='peripheral_by_names',
-                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names.')
+                      help='Forces discovery of particular peripherals. Use comma to separate peripheral names')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
@@ -1835,15 +1856,21 @@ def get_default_test_options_parser():
                       dest='test_global_loops_value',
                       help='Set global number of test loops per test. Default value is set 1')
 
+    parser.add_option('', '--consolidate-waterfall',
+                      dest='consolidate_waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --waterfall option. Adds only one test to report reflecting outcome of waterfall test.')
+
     parser.add_option('-W', '--waterfall',
                       dest='waterfall_test',
                       default=False,
                       action="store_true",
-                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed.')
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed')
 
     parser.add_option('-N', '--firmware-name',
                       dest='firmware_global_name',
-                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts.')
+                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts')
 
     parser.add_option('-u', '--shuffle',
                       dest='shuffle_test_order',

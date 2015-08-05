@@ -191,7 +191,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask);
  *  @param handler   The I2C IRQ handler to be set
  *  @param hint      DMA hint usage
  */
-void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint);
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint);
 
 /** The asynchronous IRQ handler
  *  @param obj The I2C object which holds the transfer information
