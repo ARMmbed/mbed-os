@@ -440,7 +440,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
 
     /* Set stopbits, character size and enable transceivers */
-    ctrlb = (uint32_t)pSERIAL_S(obj)->stopbits | (uint32_t)pSERIAL_S(obj)->character_size;
+    ctrlb |= (pSERIAL_S(obj)->stopbits | pSERIAL_S(obj)->character_size);
 
     /* Check parity mode bits */
     if (pSERIAL_S(obj)->parity != USART_PARITY_NONE) {
@@ -950,14 +950,17 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         if (error_code & SERCOM_USART_STATUS_FERR) {
             /* Store the error code and clear flag by writing 1 to it */
             _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_FERR;
+            serial_rx_abort_asynch(obj);
             return SERIAL_EVENT_RX_FRAMING_ERROR;
         } else if (error_code & SERCOM_USART_STATUS_BUFOVF) {
             /* Store the error code and clear flag by writing 1 to it */
             _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_BUFOVF;
+            serial_rx_abort_asynch(obj);
             return SERIAL_EVENT_RX_OVERFLOW;
         } else if (error_code & SERCOM_USART_STATUS_PERR) {
             /* Store the error code and clear flag by writing 1 to it */
             _USART(obj).STATUS.reg |= SERCOM_USART_STATUS_PERR;
+            serial_rx_abort_asynch(obj);
             return SERIAL_EVENT_RX_PARITY_ERROR;
         }
     }
@@ -1036,6 +1039,7 @@ void serial_tx_abort_asynch(serial_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_TXC;
+    _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
     obj->tx_buff.length = 0;
     obj->rx_buff.pos = 0;
 
@@ -1047,6 +1051,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
+    _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;
     obj->rx_buff.length = 0;
     obj->rx_buff.pos = 0;
 }
