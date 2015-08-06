@@ -46,8 +46,9 @@ extern const uint32_t _tcc_maxs[TCC_INST_NUM];
  */
 static void pwmout_set_period(pwmout_t* obj, int period_us)
 {
-    uint32_t i;
+    uint8_t i;
     uint32_t freq_hz;
+    uint32_t div_freq;
     double us_per_cycle;
     uint64_t max_period = 0;
     uint32_t us_period = period_us;
@@ -63,11 +64,14 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
     freq_hz = system_gclk_gen_get_hz(obj->clock_source);
 
     for (i=0; i<sizeof(tcc_prescaler); i++) {
-        us_per_cycle = 1000000.00 / (freq_hz >> tcc_prescaler[i]);
+        div_freq = freq_hz >> tcc_prescaler[i];
+        if (!div_freq) break;
+        us_per_cycle = 1000000.00 / div_freq;
         max_period = us_per_cycle * count_max;
         if (max_period >= us_period) {
             obj->clock_prescaler = tcc_prescaler[i];
             obj->period = us_period / us_per_cycle;
+            obj->us_per_cycle = us_per_cycle;
             break;
         }
     }
@@ -127,7 +131,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-    if (NC == pinmap_peripheral(pin, PinMap_PWM)) {
+    if ((uint32_t)NC == pinmap_peripheral(pin, PinMap_PWM)) {
         /* Pin not supported */
         return;
     }
@@ -281,8 +285,10 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
+    uint32_t us_pulse = us;
+
     /* Find the new duty cycle */
-    double duty_cycle = us / (double)obj->period;
+    double duty_cycle = us_pulse / ((double)obj->period * obj->us_per_cycle);
 
     /* This call updates pulse width as well as period */
     pwmout_write(obj, duty_cycle);

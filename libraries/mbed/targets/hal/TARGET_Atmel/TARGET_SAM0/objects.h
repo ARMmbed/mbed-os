@@ -78,6 +78,7 @@ struct pwmout_s {
     PinName pin;
     uint32_t period;
     float duty_cycle;
+    double us_per_cycle;
     enum gclk_generator clock_source;
     enum tc_clock_prescaler clock_prescaler;
 };
